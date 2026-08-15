@@ -1629,9 +1629,10 @@ export async function respawnBgJob(
   while ((await isBackgroundJobAlive(short)) && Date.now() < deadline) {
     await delay(100)
   }
+  const resumeSessionId = state.resumeSessionId ?? state.sessionId
   const transcript = join(
     getProjectDir(await canonicalizePath(state.cwd)),
-    `${state.sessionId}.jsonl`,
+    `${resumeSessionId}.jsonl`,
   )
   const exists = await hasTranscriptMessages(transcript)
   if (!exists) await rm(transcript, { force: false }).catch(() => {})
@@ -1645,13 +1646,13 @@ export async function respawnBgJob(
           : []
   const initialPrompt = options?.initialPrompt ?? (exists ? undefined : state.intent)
   const args = [
-    ...(exists ? ['--resume', state.sessionId] : []),
+    ...(exists ? ['--resume', resumeSessionId] : []),
     ...templateArgs,
     ...(initialPrompt ? ['--', initialPrompt] : []),
   ]
   const spawned = await spawnBgSession(
     args,
-    state.sessionId,
+    resumeSessionId,
     'fleet',
     state.cwd,
     undefined,

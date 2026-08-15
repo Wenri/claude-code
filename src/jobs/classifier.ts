@@ -1192,6 +1192,7 @@ export async function classifyAndPush(
         name: latest?.name,
         nameSource: latest?.nameSource,
         sessionId: latest?.sessionId ?? getSessionId(),
+        resumeSessionId: getSessionId(),
         cliVersion: MACRO.VERSION,
         cwd: current?.cwd ?? getCwd(),
         ...worktreeOwnershipFields(
