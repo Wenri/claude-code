@@ -1215,7 +1215,15 @@ export class QueryEngine {
           }
           break
         case 'stream_request_start':
-          // Don't yield stream request start messages
+          if (includePartialMessages) {
+            yield {
+              type: 'system',
+              subtype: 'status',
+              status: 'requesting',
+              uuid: randomUUID(),
+              session_id: getSessionId(),
+            }
+          }
           break
         case 'system': {
           // Snip boundary: replay on our store to remove zombie messages and

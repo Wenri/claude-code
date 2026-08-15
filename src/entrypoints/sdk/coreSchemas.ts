@@ -1396,7 +1396,7 @@ export const SDKAssistantMessageErrorSchema = lazySchema(() =>
 )
 
 export const SDKStatusSchema = lazySchema(() =>
-  z.union([z.literal('compacting'), z.null()]),
+  z.union([z.literal('compacting'), z.literal('requesting'), z.null()]),
 )
 
 export const SDKMessageOriginSchema = lazySchema(() =>
