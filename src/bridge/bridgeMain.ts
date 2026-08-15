@@ -662,7 +662,6 @@ export async function runBridgeLoop(
         logEvent('tengu_bridge_reconnected', {
           disconnected_ms: disconnectedMs,
         })
-        idleStatusRendered = false
       }
 
       connBackoff = 0
