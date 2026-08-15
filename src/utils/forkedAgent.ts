@@ -20,7 +20,7 @@ import {
 } from '../services/analytics/index.js'
 import { accumulateUsage, updateUsage } from '../services/api/claude.js'
 import { EMPTY_USAGE, type NonNullableUsage } from '../services/api/logging.js'
-import type { ToolUseContext } from '../Tool.js'
+import type { ToolPermissionContext, ToolUseContext } from '../Tool.js'
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js'
 import { createBashRerunAliases } from '../tools/BashTool/rerun.js'
 import type { AgentId } from '../types/ids.js'
@@ -158,20 +158,30 @@ export function createGetAppStateWithAllowedTools(
     const appState = baseGetAppState()
     return {
       ...appState,
-      toolPermissionContext: {
-        ...appState.toolPermissionContext,
-        alwaysAllowRules: {
-          ...appState.toolPermissionContext.alwaysAllowRules,
-          command: [
-            ...new Set([
-              ...(appState.toolPermissionContext.alwaysAllowRules.command ||
-                []),
-              ...allowedTools,
-            ]),
-          ],
-        },
-      },
+      toolPermissionContext: addAllowedToolsToPermissionContext(
+        appState.toolPermissionContext,
+        allowedTools,
+      ),
     }
+  }
+}
+
+function addAllowedToolsToPermissionContext(
+  permissionContext: ToolPermissionContext,
+  allowedTools: string[],
+): ToolPermissionContext {
+  if (allowedTools.length === 0) return permissionContext
+  return {
+    ...permissionContext,
+    alwaysAllowRules: {
+      ...permissionContext.alwaysAllowRules,
+      command: [
+        ...new Set([
+          ...(permissionContext.alwaysAllowRules.command || []),
+          ...allowedTools,
+        ]),
+      ],
+    },
   }
 }
 
@@ -183,6 +193,8 @@ export type PreparedForkedContext = {
   skillContent: string
   /** Modified getAppState with allowed tools */
   modifiedGetAppState: ToolUseContext['getAppState']
+  /** Modified direct permission getter with allowed tools */
+  modifiedGetToolPermissionContext: ToolUseContext['getToolPermissionContext']
   /** The general-purpose agent to use */
   baseAgent: AgentDefinition
   /** Initial prompt messages */
@@ -212,6 +224,14 @@ export async function prepareForkedCommandContext(
     context.getAppState,
     allowedTools,
   )
+  const modifiedGetToolPermissionContext =
+    allowedTools.length === 0
+      ? context.getToolPermissionContext
+      : () =>
+          addAllowedToolsToPermissionContext(
+            context.getToolPermissionContext(),
+            allowedTools,
+          )
 
   // Use command.agent if specified, otherwise 'general-purpose'
   const agentTypeName = command.agent ?? 'general-purpose'
@@ -231,6 +251,7 @@ export async function prepareForkedCommandContext(
   return {
     skillContent,
     modifiedGetAppState,
+    modifiedGetToolPermissionContext,
     baseAgent,
     promptMessages,
   }

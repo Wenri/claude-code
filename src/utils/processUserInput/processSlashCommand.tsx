@@ -88,6 +88,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   const {
     skillContent,
     modifiedGetAppState,
+    modifiedGetToolPermissionContext,
     baseAgent,
     promptMessages
   } = await prepareForkedCommandContext(command, args, context);
@@ -165,6 +166,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
         toolUseContext: {
           ...context,
           getAppState: modifiedGetAppState,
+          getToolPermissionContext: modifiedGetToolPermissionContext,
           abortController: bgAbortController
         },
         canUseTool,
@@ -249,7 +251,8 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
       promptMessages,
       toolUseContext: {
         ...context,
-        getAppState: modifiedGetAppState
+        getAppState: modifiedGetAppState,
+        getToolPermissionContext: modifiedGetToolPermissionContext
       },
       canUseTool,
       isAsync: false,
