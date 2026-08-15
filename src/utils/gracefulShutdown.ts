@@ -398,29 +398,39 @@ export const setupGracefulShutdown = memoize(() => {
     void gracefulShutdown(143) // Exit code 143 (128 + 15) for SIGTERM
   })
   if (process.platform !== 'win32') {
-    process.on('SIGHUP', () => {
-      logForDiagnosticsNoPII('info', 'shutdown_signal', { signal: 'SIGHUP' })
-      void gracefulShutdown(129) // Exit code 129 (128 + 1) for SIGHUP
-    })
+    if (process.env.CLAUDE_BG_BACKEND === 'daemon') {
+      process.on('SIGHUP', () => {
+        logForDiagnosticsNoPII('info', 'shutdown_signal', {
+          signal: 'SIGHUP_ignored_bg',
+        })
+      })
+    } else {
+      process.on('SIGHUP', () => {
+        logForDiagnosticsNoPII('info', 'shutdown_signal', {
+          signal: 'SIGHUP',
+        })
+        void gracefulShutdown(129) // Exit code 129 (128 + 1) for SIGHUP
+      })
 
-    // Detect orphaned process when terminal closes without delivering SIGHUP.
-    // macOS revokes TTY file descriptors instead of signaling, leaving the
-    // process alive but unable to read/write. Periodically check stdin validity.
-    if (process.stdin.isTTY) {
-      orphanCheckInterval = setInterval(() => {
-        // Skip during scroll drain — even a cheap check consumes an event
-        // loop tick that scroll frames need. 30s interval → missing one is fine.
-        if (getIsScrollDraining()) return
-        // process.stdout.writable becomes false when the TTY is revoked
-        if (!process.stdout.writable || !process.stdin.readable) {
-          clearInterval(orphanCheckInterval)
-          logForDiagnosticsNoPII('info', 'shutdown_signal', {
-            signal: 'orphan_detected',
-          })
-          void gracefulShutdown(129)
-        }
-      }, 30_000) // Check every 30 seconds
-      orphanCheckInterval.unref() // Don't keep process alive just for this check
+      // Detect orphaned process when terminal closes without delivering SIGHUP.
+      // macOS revokes TTY file descriptors instead of signaling, leaving the
+      // process alive but unable to read/write. Periodically check stdin validity.
+      if (process.stdin.isTTY) {
+        orphanCheckInterval = setInterval(() => {
+          // Skip during scroll drain — even a cheap check consumes an event
+          // loop tick that scroll frames need. 30s interval → missing one is fine.
+          if (getIsScrollDraining()) return
+          // process.stdout.writable becomes false when the TTY is revoked
+          if (!process.stdout.writable || !process.stdin.readable) {
+            clearInterval(orphanCheckInterval)
+            logForDiagnosticsNoPII('info', 'shutdown_signal', {
+              signal: 'orphan_detected',
+            })
+            void gracefulShutdown(129)
+          }
+        }, 30_000) // Check every 30 seconds
+        orphanCheckInterval.unref() // Don't keep process alive just for this check
+      }
     }
   }
 
