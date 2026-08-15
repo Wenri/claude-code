@@ -12,6 +12,7 @@ import {
   runPreToolUseHooks,
 } from '../../services/tools/toolHooks.js'
 import { checkToolIsolation } from '../../services/tools/toolIsolation.js'
+import { resyncReadFileStateAfterPostToolUse } from '../../services/tools/postToolUseFileSync.js'
 import type {
   AssistantMessage,
   Message,
@@ -239,6 +240,7 @@ export function createToolWrappers(
         const durationMs = Date.now() - toolStartTime
 
         let output: unknown = result.data
+        let postToolUseHooksRan = false
         for await (const hookResult of runPostToolUseHooks(
           context,
           tool,
@@ -251,6 +253,7 @@ export function createToolWrappers(
           undefined,
           durationMs,
         )) {
+          postToolUseHooksRan = true
           if (
             'updatedToolOutput' in hookResult &&
             tool.outputSchema?.safeParse(hookResult.updatedToolOutput)
@@ -258,6 +261,14 @@ export function createToolWrappers(
           ) {
             output = hookResult.updatedToolOutput
           }
+        }
+        if (postToolUseHooksRan) {
+          resyncReadFileStateAfterPostToolUse(
+            tool.name,
+            toolUseID,
+            processedInput,
+            context.readFileState,
+          )
         }
 
         if (tool.isMcp && Array.isArray(output)) {

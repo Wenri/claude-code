@@ -141,6 +141,7 @@ import {
   runPreToolUseHooks,
 } from './toolHooks.js'
 import { checkToolIsolation } from './toolIsolation.js'
+import { resyncReadFileStateAfterPostToolUse } from './postToolUseFileSync.js'
 
 /** Minimum total hook duration (ms) to show inline timing summary */
 export const HOOK_TIMING_DISPLAY_THRESHOLD_MS = 500
@@ -1745,6 +1746,7 @@ async function checkPermissionsAndCallTool(
 
     const postToolHookInfos: StopHookInfo[] = []
     const postToolHookStart = Date.now()
+    let postToolUseHooksRan = false
     let toolOutputWasUpdated = false
     for await (const hookResult of runPostToolUseHooks(
       toolUseContext,
@@ -1758,6 +1760,7 @@ async function checkPermissionsAndCallTool(
       mcpServerBaseUrl,
       durationMs,
     )) {
+      postToolUseHooksRan = true
       if ('updatedToolOutput' in hookResult) {
         toolOutput = hookResult.updatedToolOutput
         toolOutputWasUpdated = true
@@ -1780,6 +1783,15 @@ async function checkPermissionsAndCallTool(
       }
     }
     const postToolHookDurationMs = Date.now() - postToolHookStart
+    if (postToolUseHooksRan) {
+      const fileSyncMessage = resyncReadFileStateAfterPostToolUse(
+        tool.name,
+        toolUseID,
+        processedInput,
+        toolUseContext.readFileState,
+      )
+      if (fileSyncMessage) hookResults.push({ message: fileSyncMessage })
+    }
     if (postToolHookDurationMs >= SLOW_PHASE_LOG_THRESHOLD_MS) {
       logForDebugging(
         `Slow PostToolUse hooks: ${postToolHookDurationMs}ms for ${tool.name} (${postToolHookInfos.length} hooks)`,

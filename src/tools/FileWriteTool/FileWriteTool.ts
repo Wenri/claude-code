@@ -37,6 +37,7 @@ import {
 import { logFileOperation } from '../../utils/fileOperationAnalytics.js'
 import { readFileSyncWithMetadata } from '../../utils/fileRead.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
+import { fileStateMatchesContent } from '../../utils/fileStateCache.js'
 import {
   fetchSingleFileGitDiff,
   type ToolUseDiff,
@@ -255,11 +256,26 @@ export const FileWriteTool = buildTool({
     // block is always reached when the file exists.
     const lastWriteTime = Math.floor(fileMtimeMs)
     if (lastWriteTime > readTimestamp.timestamp) {
-      return {
-        result: false,
-        message:
-          'File has been modified since read, either by the user or by a linter. Read it again before attempting to write it.',
-        errorCode: 3,
+      const isFullRead =
+        (readTimestamp.offset ?? 1) <= 1 &&
+        readTimestamp.limit === undefined
+      let contentUnchanged = false
+      if (isFullRead) {
+        const currentContent = (await fs.readFileBytes(fullFilePath))
+          .toString('utf8')
+          .replaceAll('\r\n', '\n')
+        contentUnchanged = fileStateMatchesContent(
+          readTimestamp,
+          currentContent,
+        )
+      }
+      if (!contentUnchanged) {
+        return {
+          result: false,
+          message:
+            'File has been modified since read, either by the user or by a linter. Read it again before attempting to write it.',
+          errorCode: 3,
+        }
       }
     }
 
@@ -331,16 +347,16 @@ export const FileWriteTool = buildTool({
     if (meta !== null) {
       const lastWriteTime = getFileModificationTime(fullFilePath)
       const lastRead = readFileState.get(fullFilePath)
-      if (!lastRead || lastWriteTime > lastRead.timestamp) {
+      if (!lastRead) throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
+      if (lastWriteTime > lastRead.timestamp) {
         // Timestamp indicates modification, but on Windows timestamps can change
         // without content changes (cloud sync, antivirus, etc.). For full reads,
         // compare content as a fallback to avoid false positives.
         const isFullRead =
-          lastRead &&
-          lastRead.offset === undefined &&
+          (lastRead.offset ?? 1) <= 1 &&
           lastRead.limit === undefined
         // meta.content is CRLF-normalized — matches readFileState's normalized form.
-        if (!isFullRead || meta.content !== lastRead.content) {
+        if (!isFullRead || !fileStateMatchesContent(lastRead, meta.content)) {
           throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
         }
       }

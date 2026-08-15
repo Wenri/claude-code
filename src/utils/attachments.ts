@@ -127,7 +127,11 @@ import {
   FILE_READ_TOOL_NAME,
 } from 'src/tools/FileReadTool/prompt.js'
 import { getDefaultFileReadingLimits } from 'src/tools/FileReadTool/limits.js'
-import { cacheKeys, type FileStateCache } from './fileStateCache.js'
+import {
+  cacheKeys,
+  fileStateMatchesContent,
+  type FileStateCache,
+} from './fileStateCache.js'
 import {
   createAbortController,
   createChildAbortController,
@@ -1817,6 +1821,7 @@ export function memoryFilesToAttachments(
         offset: undefined,
         limit: undefined,
         isPartialView: memoryFile.contentDiffersFromDisk,
+        keepContent: true,
       })
 
 
@@ -2185,6 +2190,9 @@ export async function getChangedFiles(
         const result = await FileReadTool.call(fileInput, toolUseContext)
         // Extract only the changed section
         if (result.data.type === 'text') {
+          if (fileStateMatchesContent(fileState, result.data.file.content)) {
+            return null
+          }
           const snippet = getSnippetForTwoFileDiff(
             fileState.content,
             result.data.file.content,
@@ -3245,7 +3253,9 @@ export async function generateFileAttachment(
 
       if (
         existingFileState.timestamp <= mtimeMs &&
-        mtimeMs === existingFileState.timestamp
+        mtimeMs === existingFileState.timestamp &&
+        (existingFileState.content !== '' ||
+          (existingFileState.contentLength ?? 0) === 0)
       ) {
         // File hasn't been modified, return already_read_file attachment
         // This tells the system the file is already in context and doesn't need to be sent to API

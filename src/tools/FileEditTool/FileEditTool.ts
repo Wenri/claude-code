@@ -43,6 +43,7 @@ import {
 } from '../../utils/fileRead.js'
 import { formatFileSize } from '../../utils/format.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
+import { fileStateMatchesContent } from '../../utils/fileStateCache.js'
 import {
   fetchSingleFileGitDiff,
   type ToolUseDiff,
@@ -315,9 +316,9 @@ export const FileEditTool = buildTool({
         // without content changes (cloud sync, antivirus, etc.). For full reads,
         // compare content as a fallback to avoid false positives.
         const isFullRead =
-          readTimestamp.offset === undefined &&
+          (readTimestamp.offset ?? 1) <= 1 &&
           readTimestamp.limit === undefined
-        if (isFullRead && fileContent === readTimestamp.content) {
+        if (isFullRead && fileStateMatchesContent(readTimestamp, fileContent)) {
           // Content unchanged, safe to proceed
         } else {
           return {
@@ -477,16 +478,17 @@ export const FileEditTool = buildTool({
     if (fileExists) {
       const lastWriteTime = getFileModificationTime(absoluteFilePath)
       const lastRead = readFileState.get(absoluteFilePath)
-      if (!lastRead || lastWriteTime > lastRead.timestamp) {
+      if (!lastRead) throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
+      if (lastWriteTime > lastRead.timestamp) {
         // Timestamp indicates modification, but on Windows timestamps can change
         // without content changes (cloud sync, antivirus, etc.). For full reads,
         // compare content as a fallback to avoid false positives.
         const isFullRead =
-          lastRead &&
-          lastRead.offset === undefined &&
+          (lastRead.offset ?? 1) <= 1 &&
           lastRead.limit === undefined
         const contentUnchanged =
-          isFullRead && originalFileContents === lastRead.content
+          isFullRead &&
+          fileStateMatchesContent(lastRead, originalFileContents)
         if (!contentUnchanged) {
           throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
         }
