@@ -78,10 +78,10 @@ test('source suppresses default timed tips and shell-mode exit interception', ()
   for (const fragment of [
     'if (!override?.excludeDefault) return false',
     'return override.tips.length > 0',
-    'shouldExcludeDefaultSpinnerTips(override)',
   ]) {
-    assert.ok(registry.includes(fragment), fragment)
+    assert.ok(spinner.includes(fragment), fragment)
   }
+  assert.ok(registry.includes('shouldExcludeDefaultSpinnerTips(override)'))
   assert.ok(
     spinner.includes(
       'shouldExcludeDefaultSpinnerTips(settings.spinnerTipsOverride)',

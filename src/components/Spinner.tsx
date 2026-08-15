@@ -36,10 +36,16 @@ import { getCurrentTurnTokenBudget, getTurnOutputTokens } from '../bootstrap/sta
 import { TeammateSpinnerTree } from './Spinner/TeammateSpinnerTree.js';
 import { useAnimationFrame } from '../ink.js';
 import { getGlobalConfig } from '../utils/config.js';
-import { shouldExcludeDefaultSpinnerTips } from '../services/tips/tipRegistry.js';
 export type { SpinnerMode } from './Spinner/index.js';
 const DEFAULT_CHARACTERS = getDefaultCharacters();
 const SPINNER_FRAMES = [...DEFAULT_CHARACTERS, ...[...DEFAULT_CHARACTERS].reverse()];
+
+export function shouldExcludeDefaultSpinnerTips(
+  override: { excludeDefault?: boolean; tips: string[] } | undefined,
+): boolean {
+  if (!override?.excludeDefault) return false;
+  return override.tips.length > 0;
+}
 type Props = {
   mode: SpinnerMode;
   loadingStartTimeRef: React.RefObject<number>;
