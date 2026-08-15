@@ -9,8 +9,8 @@ import { useNotifications } from '../../context/notifications.js';
 import { COMMON_HELP_ARGS, COMMON_INFO_ARGS } from '../../constants/xml.js';
 import { Box, Text } from '../../ink.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
-import { useAppState, useSetAppState } from '../../state/AppState.js';
-import type { LocalJSXCommandCall } from '../../types/command.js';
+import { useAppState, useAppStateStore, useSetAppState } from '../../state/AppState.js';
+import type { LocalJSXCommandCall, LocalJSXCommandContext } from '../../types/command.js';
 import type { EffortLevel } from '../../utils/effort.js';
 import { isBilledAsExtraUsage } from '../../utils/extraUsage.js';
 import { logForDebugging } from '../../utils/debug.js';
@@ -211,6 +211,101 @@ function canonicalModel(model: string | null): string {
   return getCanonicalName(model ?? getDefaultMainLoopModelSetting())
 }
 
+export type ModelChangeResult = {
+  ok: boolean
+  message: string
+}
+
+export async function changeModel(
+  input: string,
+  getAppState: LocalJSXCommandContext['getAppState'],
+  setAppState: LocalJSXCommandContext['setAppState'],
+): Promise<ModelChangeResult> {
+  const model = input === 'default' ? null : input
+  if (model && !isModelAllowed(model)) {
+    return {
+      ok: false,
+      message: `Model '${model}' is not available. Your organization restricts model selection.`,
+    }
+  }
+  if (model && isOpus1mUnavailable(model)) {
+    return {
+      ok: false,
+      message:
+        'Opus with 1M context is not available for your account. Learn more: https://code.claude.com/docs/en/model-config#extended-context-with-1m',
+    }
+  }
+  if (model && isSonnet1mUnavailable(model)) {
+    return {
+      ok: false,
+      message:
+        'Sonnet 4.6 with 1M context is not available for your account. Learn more: https://code.claude.com/docs/en/model-config#extended-context-with-1m',
+    }
+  }
+  if (!model || isKnownAlias(model)) {
+    return {
+      ok: true,
+      message: setModelAndBuildMessage(model, getAppState, setAppState),
+    }
+  }
+  try {
+    const validation = await validateModel(model)
+    if (!validation.valid) {
+      return {
+        ok: false,
+        message: validation.error ?? `Model '${model}' not found`,
+      }
+    }
+    return {
+      ok: true,
+      message: setModelAndBuildMessage(model, getAppState, setAppState),
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      message: `Failed to validate model: ${errorMessage(error)}`,
+    }
+  }
+}
+
+function setModelAndBuildMessage(
+  model: string | null,
+  getAppState: LocalJSXCommandContext['getAppState'],
+  setAppState: LocalJSXCommandContext['setAppState'],
+): string {
+  const isFastMode = getAppState().fastMode
+  const pinNotice = getModelPinNotice(model)
+  setAppState(previous => ({
+    ...previous,
+    mainLoopModel: model,
+    mainLoopModelForSession: null,
+  }))
+
+  let message = `Set model to ${chalk.bold(renderModelLabel(model))}`
+  let wasFastModeToggledOn: boolean | undefined
+  if (isFastModeEnabled()) {
+    clearFastModeCooldown()
+    if (!isFastModeSupportedByModel(model) && isFastMode) {
+      setAppState(previous => ({ ...previous, fastMode: false }))
+      wasFastModeToggledOn = false
+    } else if (isFastModeSupportedByModel(model) && isFastMode) {
+      message += ' · Fast mode ON'
+      wasFastModeToggledOn = true
+    }
+  }
+  if (
+    isBilledAsExtraUsage(
+      model,
+      wasFastModeToggledOn === true,
+      isOpus1mMergeEnabled(),
+    )
+  ) {
+    message += ' · Billed as extra usage'
+  }
+  if (wasFastModeToggledOn === false) message += ' · Fast mode OFF'
+  return message + pinNotice
+}
+
 function SetModelAndClose({
   args,
   onDone
@@ -220,7 +315,7 @@ function SetModelAndClose({
     display?: CommandResultDisplay;
   }) => void;
 }): React.ReactNode {
-  const isFastMode = useAppState(s => s.fastMode);
+  const appStateStore = useAppStateStore();
   const setAppState = useSetAppState();
   const { addNotification } = useNotifications();
   const model = args === 'default' ? null : args;
@@ -246,106 +341,22 @@ function SetModelAndClose({
       return;
     }
 
-    async function handleModelChange(): Promise<void> {
-      if (model && !isModelAllowed(model)) {
-        onDone(`Model '${model}' is not available. Your organization restricts model selection.`, {
-          display: 'system'
-        });
-        return;
-      }
-
-      // @[MODEL LAUNCH]: Update check for 1M access.
-      if (model && isOpus1mUnavailable(model)) {
-        onDone(`Opus with 1M context is not available for your account. Learn more: https://code.claude.com/docs/en/model-config#extended-context-with-1m`, {
-          display: 'system'
-        });
-        return;
-      }
-      if (model && isSonnet1mUnavailable(model)) {
-        onDone(`Sonnet 4.6 with 1M context is not available for your account. Learn more: https://code.claude.com/docs/en/model-config#extended-context-with-1m`, {
-          display: 'system'
-        });
-        return;
-      }
-
-      // Skip validation for default model
-      if (!model) {
-        setModel(null);
-        return;
-      }
-
-      // Skip validation for known aliases - they're predefined and should work
-      if (isKnownAlias(model)) {
-        setModel(model);
-        return;
-      }
-
-      // Validate and set custom model
-      try {
-        // Don't use parseUserSpecifiedModel for non-aliases since it lowercases the input
-        // and model names are case-sensitive
-        const {
-          valid,
-          error: error_0
-        } = await validateModel(model);
-        if (valid) {
-          setModel(model);
-        } else {
-          onDone(error_0 || `Model '${model}' not found`, {
-            display: 'system'
+    changeModel(args, () => appStateStore.getState(), setAppState).then(result => {
+      if (result.ok) {
+        const deprecationWarning = getModelDeprecationWarning(args);
+        if (deprecationWarning) {
+          addNotification({
+            key: 'model-deprecation-warning',
+            text: deprecationWarning,
+            color: 'warning',
+            priority: 'immediate',
+            invalidates: ['model-deprecation-warning']
           });
         }
-      } catch (error) {
-        onDone(`Failed to validate model: ${(error as Error).message}`, {
-          display: 'system'
-        });
       }
-    }
-    function setModel(modelValue: string | null): void {
-      const pinNotice = getModelPinNotice(modelValue);
-      setAppState(prev => ({
-        ...prev,
-        mainLoopModel: modelValue,
-        mainLoopModelForSession: null
-      }));
-      const deprecationWarning = getModelDeprecationWarning(modelValue);
-      if (deprecationWarning) {
-        addNotification({
-          key: 'model-deprecation-warning',
-          text: deprecationWarning,
-          color: 'warning',
-          priority: 'immediate',
-          invalidates: ['model-deprecation-warning']
-        });
-      }
-      let message = `Set model to ${chalk.bold(renderModelLabel(modelValue))}`;
-      let wasFastModeToggledOn = undefined;
-      if (isFastModeEnabled()) {
-        clearFastModeCooldown();
-        if (!isFastModeSupportedByModel(modelValue) && isFastMode) {
-          setAppState(prev_0 => ({
-            ...prev_0,
-            fastMode: false
-          }));
-          wasFastModeToggledOn = false;
-          // Do not update fast mode in settings since this is an automatic downgrade
-        } else if (isFastModeSupportedByModel(modelValue) && isFastMode) {
-          message += ` · Fast mode ON`;
-          wasFastModeToggledOn = true;
-        }
-      }
-      if (isBilledAsExtraUsage(modelValue, wasFastModeToggledOn === true, isOpus1mMergeEnabled())) {
-        message += ` · Billed as extra usage`;
-      }
-      if (wasFastModeToggledOn === false) {
-        // Fast mode was toggled off, show suffix after extra usage billing
-        message += ` · Fast mode OFF`;
-      }
-      message += pinNotice;
-      onDone(message);
-    }
-    void handleModelChange();
-  }, [model, onDone, setAppState, addNotification]);
+      onDone(result.message, result.ok ? undefined : { display: 'system' });
+    });
+  }, [args, model, onDone, setAppState, appStateStore, addNotification]);
   return null;
 }
 
@@ -401,14 +412,29 @@ function ShowModelAndClose(t0) {
   const mainLoopModel = useAppState(_temp7);
   const mainLoopModelForSession = useAppState(_temp8);
   const effortValue = useAppState(_temp9);
-  const displayModel = renderModelLabel(mainLoopModel);
-  const effortInfo = effortValue !== undefined ? ` (effort: ${effortValue})` : "";
-  if (mainLoopModelForSession) {
-    onDone(`Current model: ${chalk.bold(renderModelLabel(mainLoopModelForSession))} (session override from plan mode)\nBase model: ${displayModel}${effortInfo}`);
-  } else {
-    onDone(`Current model: ${displayModel}${effortInfo}`);
-  }
+  onDone(
+    renderCurrentModel(
+      { mainLoopModel, mainLoopModelForSession, effortValue },
+      chalk.bold,
+    ),
+  );
   return null;
+}
+
+export function renderCurrentModel(
+  state: Pick<
+    ReturnType<LocalJSXCommandContext['getAppState']>,
+    'mainLoopModel' | 'mainLoopModelForSession' | 'effortValue'
+  >,
+  decorate: (value: string) => string = value => value,
+): string {
+  const displayModel = renderModelLabel(state.mainLoopModel)
+  const effortInfo =
+    state.effortValue !== undefined ? ` (effort: ${state.effortValue})` : ''
+  if (state.mainLoopModelForSession) {
+    return `Current model: ${decorate(renderModelLabel(state.mainLoopModelForSession))} (session override from plan mode)\nBase model: ${displayModel}${effortInfo}`
+  }
+  return `Current model: ${displayModel}${effortInfo}`
 }
 function _temp9(s_1) {
   return s_1.effortValue;

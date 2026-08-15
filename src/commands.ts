@@ -189,7 +189,7 @@ import exit, { exitNonInteractive } from './commands/exit/index.js'
 import background from './commands/background/index.js'
 import stop, { stopNonInteractive } from './commands/stop/index.js'
 import exportCommand from './commands/export/index.js'
-import model from './commands/model/index.js'
+import model, { modelNonInteractive } from './commands/model/index.js'
 import outputStyle from './commands/output-style/index.js'
 import remoteEnv from './commands/remote-env/index.js'
 import upgrade from './commands/upgrade/index.js'
@@ -653,6 +653,7 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   color, // Change agent color
   effort, // Change reasoning effort
   fast, // Toggle fast mode
+  model, // Change model
   usage, // Show usage info (including the /cost and /stats aliases)
   copy, // Copy last message
   btw, // Quick note
@@ -690,6 +691,7 @@ export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
     stopNonInteractive,
     effortNonInteractive,
     fastNonInteractive,
+    modelNonInteractive,
   ].filter((c): c is Command => c !== null),
 )
 
