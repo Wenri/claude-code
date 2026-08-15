@@ -6,6 +6,7 @@ import { describeMcpConfigFilePath, getProjectMcpServerStatus, getScopeLabel } f
 import { isRestrictedToPluginOnly } from 'src/utils/settings/pluginOnlyPolicy.js';
 import type { ValidationError } from 'src/utils/settings/validation.js';
 import { Box, Link, Text } from '../../ink.js';
+import { Tree } from '../design-system/Tree.js';
 function McpConfigErrorSection(t0) {
   const $ = _c(26);
   const {
@@ -93,7 +94,7 @@ function McpConfigErrorSection(t0) {
   }
   let t10;
   if ($[19] !== t8 || $[20] !== t9) {
-    t10 = <Box marginLeft={1} flexDirection="column">{t8}{t9}</Box>;
+    t10 = <Box marginLeft={1}><Tree variant="tree">{t8}{t9}</Tree></Box>;
     $[19] = t8;
     $[20] = t9;
     $[21] = t10;
@@ -114,11 +115,11 @@ function McpConfigErrorSection(t0) {
 }
 function _temp2(warning, i_0) {
   const serverName_0 = warning.mcpErrorMetadata?.serverName;
-  return <Box key={`warning-${i_0}`}><Text><Text dimColor={true}>└ </Text><Text color="warning">[Warning]</Text><Text dimColor={true}>{" "}{serverName_0 && `[${serverName_0}] `}{warning.path && warning.path !== "" ? `${warning.path}: ` : ""}{warning.message}</Text></Text></Box>;
+  return <Tree.Node key={`warning-${i_0}`}><Text><Text color="warning">[Warning]</Text><Text dimColor={true}>{" "}{serverName_0 && `[${serverName_0}] `}{warning.path && warning.path !== "" ? `${warning.path}: ` : ""}{warning.message}</Text></Text></Tree.Node>;
 }
 function _temp(error, i) {
   const serverName = error.mcpErrorMetadata?.serverName;
-  return <Box key={`error-${i}`}><Text><Text dimColor={true}>└ </Text><Text color="error">[Error]</Text><Text dimColor={true}>{" "}{serverName && `[${serverName}] `}{error.path && error.path !== "" ? `${error.path}: ` : ""}{error.message}</Text></Text></Box>;
+  return <Tree.Node key={`error-${i}`}><Text><Text color="error">[Error]</Text><Text dimColor={true}>{" "}{serverName && `[${serverName}] `}{error.path && error.path !== "" ? `${error.path}: ` : ""}{error.message}</Text></Text></Tree.Node>;
 }
 export function McpParsingWarnings() {
   const $ = _c(6);
