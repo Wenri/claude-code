@@ -1,6 +1,10 @@
 import reject from 'lodash-es/reject.js'
 import { z } from 'zod/v4'
+import { getRuntimeCapabilities } from '../../bootstrap/state.js'
 import {
+  AuthenticationCancelledError,
+  getActiveMCPOAuthFlow,
+  getMcpOAuthCallbackSubmitter,
   performMCPOAuthFlow,
   trackMCPOAuthFlow,
 } from '../../services/mcp/auth.js'
@@ -18,6 +22,8 @@ import type {
   ScopedMcpServerConfig,
 } from '../../services/mcp/types.js'
 import type { Tool } from '../../Tool.js'
+import { env } from '../../utils/env.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage } from '../../utils/errors.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { logMCPDebug, logMCPError } from '../../utils/log.js'
@@ -26,15 +32,47 @@ import type { PermissionDecision } from '../../utils/permissions/PermissionResul
 const inputSchema = lazySchema(() => z.object({}))
 type InputSchema = ReturnType<typeof inputSchema>
 
+const completeAuthInputSchema = lazySchema(() =>
+  z.object({
+    callback_url: z
+      .string()
+      .describe(
+        'The full callback URL from the browser address bar after authorizing, e.g. http://localhost:<port>/callback?code=...&state=...',
+      ),
+  }),
+)
+type CompleteAuthInputSchema = ReturnType<typeof completeAuthInputSchema>
+
 export type McpAuthOutput = {
   status: 'auth_url' | 'unsupported' | 'error'
   message: string
   authUrl?: string
 }
 
+export type McpCompleteAuthOutput = {
+  status: 'success' | 'error'
+  message: string
+}
+
 function getConfigUrl(config: ScopedMcpServerConfig): string | undefined {
   if ('url' in config) return config.url
   return undefined
+}
+
+function isRemoteOAuthSession(): boolean {
+  return (
+    env.isSSH() ||
+    isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ||
+    getRuntimeCapabilities().workspace === 'remote'
+  )
+}
+
+function getOAuthRedirectUri(authUrl: string): string {
+  try {
+    const redirectUri = new URL(authUrl).searchParams.get('redirect_uri')
+    if (redirectUri) return redirectUri
+  } catch {}
+  return 'http://localhost:<port>/callback'
 }
 
 /**
@@ -184,11 +222,19 @@ export function createMcpAuthTool(
         ])
 
         if (authUrl) {
+          const completeToolName = buildMcpToolName(
+            serverName,
+            'complete_authentication',
+          )
+          const redirectUri = getOAuthRedirectUri(authUrl)
+          const callbackInstructions = isRemoteOAuthSession()
+            ? `\n\nThis session is remote, so after authorizing the browser will try to load \`${redirectUri}?code=...\` and show a connection error — that's expected. Ask the user to copy the full URL from the browser's address bar and paste it into chat, then call \`${completeToolName}\` with that URL as \`callback_url\`.`
+            : `\n\nIf the browser shows a connection error on the redirect page, ask the user to paste the full URL from the address bar and call \`${completeToolName}\` with it.`
           return {
             data: {
               status: 'auth_url' as const,
               authUrl,
-              message: `Ask the user to open this URL in their browser to authorize the ${serverName} MCP server:\n\n${authUrl}\n\nOnce they complete the flow, the server's tools will become available automatically.`,
+              message: `Ask the user to open this URL in their browser to authorize the ${serverName} MCP server:\n\n${authUrl}\n\nOnce they complete the flow, the server's tools will become available automatically.${callbackInstructions}`,
             },
           }
         }
@@ -216,4 +262,106 @@ export function createMcpAuthTool(
       }
     },
   } satisfies Tool<InputSchema, McpAuthOutput>
+}
+
+/**
+ * Creates the companion pseudo-tool used to finish OAuth when a browser cannot
+ * reach the local callback listener (for example in SSH or remote sessions).
+ */
+export function createMcpCompleteAuthTool(
+  serverName: string,
+): Tool<CompleteAuthInputSchema, McpCompleteAuthOutput> {
+  const authenticateToolName = buildMcpToolName(serverName, 'authenticate')
+  const description =
+    `Complete an in-progress OAuth flow for the \`${serverName}\` MCP server by submitting the callback URL. Call \`${authenticateToolName}\` first to start the flow and get the authorization URL. ` +
+    'After the user authorizes in their browser, the browser is redirected to a `http://localhost:<port>/callback?code=...&state=...` URL — ' +
+    'on remote sessions that page fails to load, but the URL in the address bar is still valid. Pass that full URL here as `callback_url`.'
+
+  return {
+    name: buildMcpToolName(serverName, 'complete_authentication'),
+    isMcp: true,
+    mcpInfo: { serverName, toolName: 'complete_authentication' },
+    isEnabled: () => true,
+    isConcurrencySafe: () => false,
+    isReadOnly: () => false,
+    toAutoClassifierInput: () => serverName,
+    userFacingName: () => `${serverName} - complete authentication (MCP)`,
+    maxResultSizeChars: 10_000,
+    renderToolUseMessage: () =>
+      `Complete authentication for ${serverName} MCP server`,
+    async description() {
+      return description
+    },
+    async prompt() {
+      return description
+    },
+    get inputSchema(): CompleteAuthInputSchema {
+      return completeAuthInputSchema()
+    },
+    async checkPermissions(input): Promise<PermissionDecision> {
+      return { behavior: 'allow', updatedInput: input }
+    },
+    async call(input) {
+      const callbackUrl = input.callback_url
+      const submit = getMcpOAuthCallbackSubmitter(serverName)
+      if (!submit) {
+        return {
+          data: {
+            status: 'error' as const,
+            message: `No OAuth flow is in progress for ${serverName}. Call \`${authenticateToolName}\` first, then retry with the callback URL.`,
+          },
+        }
+      }
+
+      let hasAuthorizationResult = false
+      try {
+        const parsed = new URL(callbackUrl)
+        hasAuthorizationResult =
+          parsed.searchParams.has('code') || parsed.searchParams.has('error')
+      } catch {}
+      if (!hasAuthorizationResult) {
+        return {
+          data: {
+            status: 'error' as const,
+            message:
+              "Invalid callback URL: missing authorization code. Ask the user to paste the full redirect URL from their browser's address bar, including the `?code=...&state=...` query string.",
+          },
+        }
+      }
+
+      const flow = getActiveMCPOAuthFlow(serverName)
+      submit(callbackUrl)
+      try {
+        await flow
+        return {
+          data: {
+            status: 'success' as const,
+            message: `Authentication complete for ${serverName}. The server's tools should now be available.`,
+          },
+        }
+      } catch (error) {
+        if (error instanceof AuthenticationCancelledError) {
+          return {
+            data: {
+              status: 'error' as const,
+              message: `The OAuth flow for ${serverName} was cancelled (a newer attempt may have superseded it). Call \`${authenticateToolName}\` again to restart.`,
+            },
+          }
+        }
+        return {
+          data: {
+            status: 'error' as const,
+            message: `Authentication failed for ${serverName}: ${errorMessage(error)}`,
+          },
+        }
+      }
+    },
+    mapToolResultToToolResultBlockParam(data, toolUseID) {
+      return {
+        tool_use_id: toolUseID,
+        type: 'tool_result',
+        content: data.message,
+      }
+    },
+  } satisfies Tool<CompleteAuthInputSchema, McpCompleteAuthOutput>
 }

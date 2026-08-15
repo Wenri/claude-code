@@ -818,7 +818,7 @@ export function initialPermissionModeFromCLI({
   for (const mode of orderedModes) {
     if (mode === 'bypassPermissions' && disableBypassPermissionsMode) {
       if (growthBookDisableBypassPermissionsMode) {
-        logForDebugging('bypassPermissions mode is disabled by Statsig gate', {
+        logForDebugging('bypassPermissions mode is disabled by feature gate', {
           level: 'warn',
         })
         notification =
@@ -1513,7 +1513,7 @@ export async function checkAndDisableBypassPermissions(
 
   // Gate is enabled, need to disable bypassPermissions mode
   logForDebugging(
-    'bypassPermissions mode is being disabled by Statsig gate (async check)',
+    'bypassPermissions mode is being disabled by feature gate (async check)',
     { level: 'warn' },
   )
 
