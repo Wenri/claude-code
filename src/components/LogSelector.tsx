@@ -53,6 +53,7 @@ export type LogSelectorProps = {
   onLogsChanged?: () => void;
   onLoadMore?: (count: number) => void;
   initialSearchQuery?: string;
+  reloadGeneration?: number;
   showAllProjects?: boolean;
   onToggleAllProjects?: () => void;
   onAgenticSearch?: (query: string, logs: LogOption[], signal?: AbortSignal) => Promise<LogOption[]>;
@@ -160,6 +161,7 @@ export function LogSelector(t0) {
     onLogsChanged,
     onLoadMore,
     initialSearchQuery,
+    reloadGeneration = 0,
     showAllProjects: t2,
     onToggleAllProjects,
     onAgenticSearch,
@@ -241,6 +243,15 @@ export function LogSelector(t0) {
   const [agenticSearchState, setAgenticSearchState] = React.useState(t8);
   const [isAgenticSearchOptionFocused, setIsAgenticSearchOptionFocused] = React.useState(false);
   const agenticSearchAbortRef = React.useRef(null);
+  React.useEffect(() => {
+    if (reloadGeneration === 0) return;
+    agenticSearchAbortRef.current?.abort();
+    setAgenticSearchState(previous => previous.status === 'idle' ? previous : {
+      status: 'idle'
+    });
+    setIsAgenticSearchOptionFocused(false);
+    setPreviewLog(null);
+  }, [reloadGeneration]);
   const t9 = viewMode === "search" && agenticSearchState.status !== "searching";
   let t10;
   let t11;
