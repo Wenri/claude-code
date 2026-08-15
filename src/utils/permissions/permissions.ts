@@ -745,6 +745,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
           'tengu_bash_allowlist_strip_all',
           false,
         ),
+        originalDecisionReasonType: result.decisionReason?.type,
         // msg_id of the agent completion that produced this tool_use —
         // the action at the bottom of the classifier transcript.
         agentMsgId: assistantMessage.message
