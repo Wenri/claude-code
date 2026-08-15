@@ -519,6 +519,7 @@ export async function compactConversation(
   stripNonEssential: boolean = false,
   compactingHintText?: string | null,
 ): Promise<CompactionResult> {
+  let compactError: string | undefined
   try {
     if (messages.length === 0) {
       throw new Error(ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)
@@ -881,6 +882,8 @@ export async function compactConversation(
       compactionUsage,
     }
   } catch (error) {
+    compactError =
+      error instanceof Error ? error.message : 'compaction failed'
     // Only show the error notification for manual /compact.
     // Auto-compact failures are retried on the next turn and the
     // notification is confusing when compaction eventually succeeds.
@@ -892,7 +895,10 @@ export async function compactConversation(
     context.setStreamMode?.('requesting')
     context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_end' })
-    context.setSDKStatus?.(null)
+    context.setSDKStatus?.(null, {
+      compactResult: compactError ? 'failed' : 'success',
+      ...(compactError && { compactError }),
+    })
   }
 }
 
@@ -911,6 +917,7 @@ export async function partialCompactConversation(
   userFeedback?: string,
   direction: PartialCompactDirection = 'from',
 ): Promise<CompactionResult> {
+  let compactError: string | undefined
   try {
     const messagesToSummarize =
       direction === 'up_to'
@@ -1231,13 +1238,18 @@ export async function partialCompactConversation(
       compactionUsage,
     }
   } catch (error) {
+    compactError =
+      error instanceof Error ? error.message : 'partial compaction failed'
     addErrorNotificationIfNeeded(error, context)
     throw error
   } finally {
     context.setStreamMode?.('requesting')
     context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_end' })
-    context.setSDKStatus?.(null)
+    context.setSDKStatus?.(null, {
+      compactResult: compactError ? 'failed' : 'success',
+      ...(compactError && { compactError }),
+    })
   }
 }
 

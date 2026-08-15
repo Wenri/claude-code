@@ -37,7 +37,12 @@ import {
   logForDiagnosticsNoPII,
   withDiagnosticsTiming,
 } from 'src/utils/diagLogs.js'
-import { toolMatchesName, type Tool, type Tools } from 'src/Tool.js'
+import {
+  type SetSDKStatus,
+  toolMatchesName,
+  type Tool,
+  type Tools,
+} from 'src/Tool.js'
 import {
   type AgentDefinition,
   isBuiltInAgent,
@@ -122,7 +127,6 @@ import {
 import { registerCleanup } from 'src/utils/cleanupRegistry.js'
 import { createIdleTimeoutManager } from 'src/utils/idleTimeout.js'
 import type {
-  SDKStatus,
   ModelInfo,
   SDKMessage,
   SDKUserMessage,
@@ -656,7 +660,7 @@ export async function runHeadless(
     setupTrigger?: 'init' | 'maintenance' | undefined
     configuredMcpServerCount: number
     sessionStartHooksPromise?: ReturnType<typeof processSessionStartHooks>
-    setSDKStatus?: (status: SDKStatus) => void
+    setSDKStatus?: SetSDKStatus
     sessionState: SessionStateManager
   },
 ): Promise<void> {
@@ -1253,7 +1257,7 @@ function runHeadlessStreaming(
     sessionMirror?: boolean | undefined
     enableAuthStatus?: boolean | undefined
     agent?: string | undefined
-    setSDKStatus?: (status: SDKStatus) => void
+    setSDKStatus?: SetSDKStatus
     promptSuggestions?: boolean | undefined
     workload?: string | undefined
   },
@@ -2680,11 +2684,17 @@ function runHeadlessStreaming(
               allowedAgentTypes,
               orphanedPermission: cmd.orphanedPermission,
               deferredToolUse,
-              setSDKStatus: status => {
+              setSDKStatus: (status, metadata) => {
                 output.enqueue({
                   type: 'system',
                   subtype: 'status',
                   status,
+                  ...(metadata?.compactResult !== undefined && {
+                    compact_result: metadata.compactResult,
+                  }),
+                  ...(metadata?.compactError !== undefined && {
+                    compact_error: metadata.compactError,
+                  }),
                   session_id: getSessionId(),
                   uuid: randomUUID(),
                 })

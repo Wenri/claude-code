@@ -98,6 +98,14 @@ import type { AttributionState } from './utils/commitAttribution.js'
 import type { FileHistoryState } from './utils/fileHistory.js'
 import type { Theme, ThemeName } from './utils/theme.js'
 
+export type SetSDKStatus = (
+  status: SDKStatus,
+  metadata?: {
+    compactResult?: 'success' | 'failed'
+    compactError?: string
+  },
+) => void
+
 export type QueryChainTracking = {
   chainId: string
   depth: number
@@ -300,7 +308,7 @@ export type ToolUseContext = {
   pushApiMetricsEntry?: (ttftMs: number) => void
   setStreamMode?: (mode: SpinnerMode) => void
   onCompactProgress?: (event: CompactProgressEvent) => void
-  setSDKStatus?: (status: SDKStatus) => void
+  setSDKStatus?: SetSDKStatus
   openMessageSelector?: () => void
   updateFileHistoryState: (
     updater: (prev: FileHistoryState) => FileHistoryState,

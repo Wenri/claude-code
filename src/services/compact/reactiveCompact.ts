@@ -748,7 +748,10 @@ export async function tryReactiveCompact({
       preTokens,
       error: detail,
     })
-    toolUseContext.setSDKStatus?.(null)
+    toolUseContext.setSDKStatus?.(null, {
+      compactResult: 'failed',
+      compactError: detail,
+    })
     return null
   }
 
@@ -763,7 +766,7 @@ export async function tryReactiveCompact({
     preTokens,
     postTokens,
   })
-  toolUseContext.setSDKStatus?.(null)
+  toolUseContext.setSDKStatus?.(null, { compactResult: 'success' })
   setLastSummarizedMessageId(undefined)
   runPostCompactCleanup(
     querySource,

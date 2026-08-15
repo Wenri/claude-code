@@ -11,7 +11,6 @@ import type {
   SDKCompactBoundaryMessage,
   SDKMessage,
   SDKPermissionDenial,
-  SDKStatus,
   SDKUserMessageReplay,
 } from 'src/entrypoints/agentSdkTypes.js'
 import { accumulateUsage, updateUsage } from 'src/services/api/claude.js'
@@ -41,6 +40,7 @@ import type { AppState } from './state/AppState.js'
 import { makeSetReplContext } from './state/AppStateStore.js'
 import {
   findToolByName,
+  type SetSDKStatus,
   type Tools,
   type ToolUseContext,
   toolMatchesName,
@@ -200,7 +200,7 @@ export type QueryEngineConfig = {
   onCommandLifecycle?: ToolUseContext['onCommandLifecycle']
   sessionState?: ToolUseContext['sessionState']
   includePartialMessages?: boolean
-  setSDKStatus?: (status: SDKStatus) => void
+  setSDKStatus?: SetSDKStatus
   abortController?: AbortController
   isolationLatch?: ReplIsolationLatch
   orphanedPermission?: OrphanedPermission
@@ -1597,7 +1597,7 @@ export async function* ask({
   sessionState?: ToolUseContext['sessionState']
   agents?: AgentDefinition[]
   allowedAgentTypes?: string[]
-  setSDKStatus?: (status: SDKStatus) => void
+  setSDKStatus?: SetSDKStatus
   orphanedPermission?: OrphanedPermission
   deferredToolUse?: HookDeferredToolAttachment
 }): AsyncGenerator<SDKMessage, void, unknown> {

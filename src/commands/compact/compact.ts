@@ -126,6 +126,10 @@ export const call: LocalCommandCall = async (args, context) => {
       displayText: buildDisplayText(context, result.userDisplayMessage),
     }
   } catch (error) {
+    context.setSDKStatus?.(null, {
+      compactResult: 'failed',
+      compactError: error instanceof Error ? error.message : String(error),
+    })
     if (abortController.signal.aborted) {
       throw new Error('Compaction canceled.')
     } else if (hasExactErrorMessage(error, ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)) {
@@ -251,13 +255,16 @@ async function compactViaReactive(
     context.onCompactProgress?.({ type: 'compact_end' })
     reactive.recordCompactionTelemetry({
       trigger: 'manual',
-      success: compactError === undefined,
+      success: !compactError,
       durationMs: performance.now() - startTime,
       preTokens,
       postTokens,
       error: compactError,
     })
-    context.setSDKStatus?.(null)
+    context.setSDKStatus?.(null, {
+      compactResult: compactError ? 'failed' : 'success',
+      ...(compactError && { compactError }),
+    })
   }
 }
 

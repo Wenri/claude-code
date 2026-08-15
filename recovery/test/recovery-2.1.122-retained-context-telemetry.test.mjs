@@ -218,3 +218,74 @@ test('source emits exact retained SDK REPL progress and user origins', () => {
     'origin is forwarded for nested and top-level user messages',
   )
 })
+
+test('authenticates retained SDK compact status metadata', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'compact_result'),
+      2,
+      `${release.version}: compact result schema and output fields`,
+    )
+    assert.equal(
+      occurrences(bundle, 'compact_error'),
+      2,
+      `${release.version}: compact error schema and output fields`,
+    )
+    assert.equal(
+      occurrences(bundle, 'compactResult'),
+      8,
+      `${release.version}: compact result propagation cardinality`,
+    )
+    assert.equal(
+      occurrences(bundle, 'compactError'),
+      7,
+      `${release.version}: compact error propagation cardinality`,
+    )
+    assert.match(
+      bundle,
+      /subtype:[\w$]+\.literal\("status"\),status:[\w$]+\(\),permissionMode:[\w$]+\(\)\.optional\(\),compact_result:[\w$]+\.enum\(\["success","failed"\]\)\.optional\(\),compact_error:[\w$]+\.string\(\)\.optional\(\)/,
+      `${release.version}: compact status runtime schema`,
+    )
+    assert.match(
+      bundle,
+      /setSDKStatus:\([\w$]+,[\w$]+\)=>\{[\s\S]{0,600}compact_result:[\w$]+\.compactResult[\s\S]{0,600}compact_error:[\w$]+\.compactError/,
+      `${release.version}: compact metadata SDK output mapping`,
+    )
+  }
+})
+
+test('source propagates compact outcomes through the SDK status callback', () => {
+  includesAll(source('src/entrypoints/sdk/coreSchemas.ts'), [
+    "compact_result: z.enum(['success', 'failed']).optional()",
+    'compact_error: z.string().optional()',
+  ])
+  includesAll(source('src/Tool.ts'), [
+    'export type SetSDKStatus = ( status: SDKStatus, metadata?: {',
+    "compactResult?: 'success' | 'failed'",
+    'compactError?: string',
+    'setSDKStatus?: SetSDKStatus',
+  ])
+  includesAll(source('src/cli/print.ts'), [
+    'setSDKStatus: (status, metadata) =>',
+    'metadata?.compactResult !== undefined',
+    'compact_result: metadata.compactResult',
+    'metadata?.compactError !== undefined',
+    'compact_error: metadata.compactError',
+  ])
+  includesAll(source('src/services/compact/reactiveCompact.ts'), [
+    "compactResult: 'failed', compactError: detail",
+    "compactResult: 'success'",
+  ])
+  includesAll(source('src/services/compact/compact.ts'), [
+    "error instanceof Error ? error.message : 'compaction failed'",
+    "error instanceof Error ? error.message : 'partial compaction failed'",
+    "compactResult: compactError ? 'failed' : 'success'",
+    '...(compactError && { compactError })',
+  ])
+  includesAll(source('src/commands/compact/compact.ts'), [
+    "compactResult: 'failed'",
+    'compactError: error instanceof Error ? error.message : String(error)',
+    "compactResult: compactError ? 'failed' : 'success'",
+  ])
+})
