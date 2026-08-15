@@ -79,4 +79,18 @@ test('recovers consent checks, stdin injection, and persistent value flags', () 
   ]) {
     assert.ok(source.includes(`'${flag}',`), `missing persistent flag ${flag}`)
   }
+  for (const flag of [
+    '--prefill',
+    '--prefill-b64',
+    '--deep-link-repo',
+    '--deep-link-last-fetch',
+    '--deep-link-cwd-b64',
+    '--handle-uri',
+    '--settings',
+    '--managed-settings',
+    '--setting-sources',
+  ]) {
+    assert.ok(source.includes(`'${flag}',`), `missing option value flag ${flag}`)
+  }
+  assert.ok(source.includes('OPTION_VALUE_FLAGS.has(arg)'))
 })

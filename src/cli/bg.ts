@@ -353,12 +353,25 @@ function stripSessionIdFlags(args: string[]): string[] {
   return stripped
 }
 
+const OPTION_VALUE_FLAGS = new Set([
+  '--prefill',
+  '--prefill-b64',
+  '--deep-link-repo',
+  '--deep-link-last-fetch',
+  '--deep-link-cwd-b64',
+  '--handle-uri',
+  '--settings',
+  '--managed-settings',
+  '--setting-sources',
+])
+
 function optionValue(name: string, args: string[]): string | undefined {
   for (let index = 0; index < args.length; index++) {
     const arg = args[index]
     if (arg === '--') break
     if (arg.startsWith(`${name}=`)) return arg.slice(name.length + 1)
     if (arg === name && index + 1 < args.length) return args[index + 1]
+    if (arg !== undefined && OPTION_VALUE_FLAGS.has(arg)) index++
   }
   return undefined
 }
