@@ -1092,6 +1092,9 @@ async function checkPermissionsAndCallTool(
   )
   const permissionDecision = resolved.decision
   processedInput = resolved.input
+  if (permissionDecision.behavior !== 'allow') {
+    toolUseContext.onPermissionDenial?.(tool, toolUseID, processedInput)
+  }
   const permissionDurationMs = Date.now() - permissionStart
   // In auto mode, canUseTool awaits the classifier (side_query) — if that's
   // slow the collapsed view shows "Running…" with no (Ns) tick since
