@@ -1155,6 +1155,8 @@ export type MessageLookups = {
   toolResultByToolUseID: Map<string, NormalizedMessage>
   /** Maps tool_use_id to the ToolUseBlockParam */
   toolUseByToolUseID: Map<string, ToolUseBlockParam>
+  /** Maps tool_use_id to the normalized assistant message UUID */
+  assistantUuidByToolUseID: Map<string, string>
   /** Total count of normalized messages (for truncation indicator text) */
   normalizedMessageCount: number
   /** Set of tool use IDs that have a corresponding tool_result */
@@ -1210,6 +1212,7 @@ export function buildMessageLookups(
   // so we deduplicate by hookName.
   const resolvedHookNames = new Map<string, Map<HookEvent, Set<string>>>()
   const toolResultByToolUseID = new Map<string, NormalizedMessage>()
+  const assistantUuidByToolUseID = new Map<string, string>()
   // Track resolved/errored tool use IDs (replaces separate useMemos in Messages.tsx)
   const resolvedToolUseIDs = new Set<string>()
   const erroredToolUseIDs = new Set<string>()
@@ -1252,6 +1255,9 @@ export function buildMessageLookups(
 
     if (msg.type === 'assistant') {
       for (const content of msg.message.content) {
+        if (content.type === 'tool_use') {
+          assistantUuidByToolUseID.set(content.id, msg.uuid)
+        }
         // Track all server-side *_tool_result blocks (advisor, web_search,
         // code_execution, mcp, etc.) — any block with tool_use_id is a result.
         if (
@@ -1336,6 +1342,7 @@ export function buildMessageLookups(
     resolvedHookCounts,
     toolResultByToolUseID,
     toolUseByToolUseID,
+    assistantUuidByToolUseID,
     normalizedMessageCount: normalizedMessages.length,
     resolvedToolUseIDs,
     erroredToolUseIDs,
@@ -1350,6 +1357,7 @@ export const EMPTY_LOOKUPS: MessageLookups = {
   resolvedHookCounts: new Map(),
   toolResultByToolUseID: new Map(),
   toolUseByToolUseID: new Map(),
+  assistantUuidByToolUseID: new Map(),
   normalizedMessageCount: 0,
   resolvedToolUseIDs: new Set(),
   erroredToolUseIDs: new Set(),

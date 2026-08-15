@@ -554,3 +554,35 @@ test('source retains remote-skill state across contexts and clears', () => {
     'discoveredRemoteSkills: this.discoveredRemoteSkills',
   ])
 })
+
+test('authenticates the retained assistant UUID lookup shape', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'assistantUuidByToolUseID'),
+      5,
+      `${release.version}: assistant UUID lookup cardinality`,
+    )
+    assert.match(
+      bundle,
+      /type==="assistant"\)for\(let [A-Za-z_$][\w$]* of [A-Za-z_$][\w$]*\.message\.content\)\{if\([A-Za-z_$][\w$]*\.type==="tool_use"\)[A-Za-z_$][\w$]*\.set\([A-Za-z_$][\w$]*\.id,[A-Za-z_$][\w$]*\.uuid\)/,
+      `${release.version}: tool-use to assistant UUID mapping`,
+    )
+    assert.match(
+      bundle,
+      /assistantUuidByToolUseID:new Map,toolUseByToolUseID:new Map/,
+      `${release.version}: empty lookup shape`,
+    )
+  }
+})
+
+test('source retains assistant UUIDs in message lookups', () => {
+  const messages = source('src/utils/messages.ts')
+  includesAll(messages, [
+    'assistantUuidByToolUseID: Map<string, string>',
+    'const assistantUuidByToolUseID = new Map<string, string>()',
+    'assistantUuidByToolUseID.set(content.id, msg.uuid)',
+    'assistantUuidByToolUseID, normalizedMessageCount: normalizedMessages.length',
+    'assistantUuidByToolUseID: new Map(), normalizedMessageCount: 0',
+  ])
+})
