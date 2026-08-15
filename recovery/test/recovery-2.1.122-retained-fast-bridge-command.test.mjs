@@ -56,8 +56,13 @@ test('authenticates the retained text-only fast command and remote dispatch', ()
     )
     assert.match(
       bundle,
-      /type:"local-jsx",name:"fast"[\s\S]{0,500}?thinClientDispatch:"control-request"/,
+      /type:"local-jsx",name:"fast"[\s\S]{0,500}?requires:\{ink:!0\},thinClientDispatch:"control-request"/,
       `${release.version}: interactive remote dispatch`,
+    )
+    assert.match(
+      bundle,
+      /type:"local-jsx",name:"plan",description:"Enable plan mode or view the current session plan",argumentHint:"\[open\|<description>\]",requires:\{ink:!0\}/,
+      `${release.version}: plan requires Ink`,
     )
   }
 })
@@ -72,9 +77,15 @@ test('source exposes exact interactive and text-only fast command surfaces', () 
     'utf8',
   )
   const commands = fs.readFileSync(path.join(repo, 'src/commands.ts'), 'utf8')
+  const plan = fs.readFileSync(
+    path.join(repo, 'src/commands/plan/index.ts'),
+    'utf8',
+  )
 
   assert.doesNotMatch(index, /availability:/)
+  assert.match(index, /requires: \{ ink: true \}/)
   assert.match(index, /thinClientDispatch: 'control-request'/)
+  assert.match(plan, /requires: \{ ink: true \}/)
   assert.match(
     index,
     /export const fastNonInteractive = \{[\s\S]*?type: 'local',[\s\S]*?supportsNonInteractive: true,[\s\S]*?argumentHint: '\[on\|off\]'/,

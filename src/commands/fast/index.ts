@@ -19,6 +19,7 @@ const fast = {
   get immediate() {
     return shouldInferenceConfigCommandBeImmediate()
   },
+  requires: { ink: true },
   thinClientDispatch: 'control-request',
   load: () => import('./fast.js'),
 } satisfies Command
