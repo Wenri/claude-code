@@ -633,3 +633,53 @@ test('source emits exact skill activation metadata after both SkillTool events',
     'fork and inline calls immediately follow their invocation events',
   )
 })
+
+test('authenticates retained auto-compact context-window provenance', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'autocompactSource'),
+      2,
+      `${release.version}: analysis result and UI provenance cardinality`,
+    )
+    assert.match(
+      bundle,
+      /[A-Za-z_$][\w$]*\(\)\?[A-Za-z_$][\w$]*:void 0,\{window:[A-Za-z_$][\w$]*,source:[A-Za-z_$][\w$]*\}=[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*\)/,
+      `${release.version}: enabled-only AppState override resolution`,
+    )
+    assert.match(
+      bundle,
+      /return\{categories:[A-Za-z_$][\w$]*,totalTokens:[A-Za-z_$][\w$]*,maxTokens:[A-Za-z_$][\w$]*,rawMaxTokens:[A-Za-z_$][\w$]*,autocompactSource:[A-Za-z_$][\w$]*/,
+      `${release.version}: analysis result provenance field order`,
+    )
+    assert.match(
+      bundle,
+      /!=="auto"&&[A-Za-z_$][\w$]*\.createElement\([\s\S]{0,300}"Auto-compact window: "/,
+      `${release.version}: overridden-window UI row`,
+    )
+  }
+})
+
+test('source threads auto-compact window state through analysis and UI', () => {
+  const analyze = source('src/utils/analyzeContext.ts')
+  includesAll(analyze, [
+    'readonly autocompactSource: AutoCompactWindowSource',
+    'const configuredAutoCompactWindow = isAutoCompactEnabled() ? autoCompactWindow : undefined',
+    'const { window: contextWindow, source: autocompactSource } = resolveAutoCompactWindow(runtimeModel, configuredAutoCompactWindow)',
+    'getEffectiveContextWindowSize(model, configuredAutoCompactWindow)',
+    'rawMaxTokens: contextWindow, autocompactSource, percentage:',
+  ])
+
+  includesAll(source('src/commands/context/context.tsx'), [
+    'apiView, // Original messages for API usage extraction appState.autoCompactWindow',
+  ])
+  includesAll(source('src/commands/context/context-noninteractive.ts'), [
+    'apiView, // original messages for API usage extraction appState.autoCompactWindow, excludeDynamicSections',
+  ])
+  includesAll(source('src/components/ContextVisualization.tsx'), [
+    'autocompactSource',
+    'autocompactSource !== "auto"',
+    '<Text bold={true}>Auto-compact window: </Text>',
+    '{formatTokens(rawMaxTokens)} tokens',
+  ])
+})

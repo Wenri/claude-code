@@ -73,7 +73,6 @@ export async function collectContextData(
       options: {
         customSystemPrompt,
         appendSystemPrompt,
-        excludeDynamicSections,
       },
     } as Pick<
       ToolUseContext,
@@ -81,6 +80,8 @@ export async function collectContextData(
     >,
     undefined, // mainThreadAgentDefinition
     apiView, // original messages for API usage extraction
+    appState.autoCompactWindow,
+    excludeDynamicSections,
   )
 }
 
