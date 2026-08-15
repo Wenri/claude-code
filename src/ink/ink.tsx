@@ -40,6 +40,7 @@ import { CURSOR_HOME, cursorMove, cursorPosition, DISABLE_KITTY_KEYBOARD, DISABL
 import { DBP, DFE, DISABLE_MOUSE_TRACKING, ENABLE_MOUSE_TRACKING, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, SHOW_CURSOR } from './termio/dec.js';
 import { CLEAR_ITERM2_PROGRESS, CLEAR_TAB_STATUS, setClipboard, supportsTabStatus, wrapForMultiplexer } from './termio/osc.js';
 import { TerminalWriteProvider } from './useTerminalNotification.js';
+import { cursorPosition as cursorPositionQuery, type TerminalQuerier } from './terminal-querier.js';
 
 // Alt-screen: renderer.ts sets cursor.visible = !isTTY || screen.height===0,
 // which is always false in alt-screen (TTY + content fills screen).
@@ -57,6 +58,7 @@ const ERASE_THEN_HOME_PATCH = Object.freeze({
   type: 'stdout' as const,
   content: ERASE_SCREEN + CURSOR_HOME
 });
+const EXTERNAL_CLEAR_CURSOR_POSITION_QUERY = cursorPositionQuery();
 const MAX_NON_TTY_LAYOUT_WIDTH = 8192;
 
 // Cached per-Ink-instance, invalidated on resize. frame.cursor.y for
@@ -850,13 +852,25 @@ export default class Ink {
       return true;
     }
     if (this.altScreenActive) {
-      this.options.stdout.write(ERASE_SCREEN + CURSOR_HOME);
+      this.needsEraseBeforePaint = true;
+      this.displayCursor = null;
       this.resetFramesForAltScreen();
     } else {
       this.log.forceFullReset();
       this.prevFrameContaminated = true;
     }
     this.onRender();
+    return true;
+  }
+
+  async probeExternalClear(querier: TerminalQuerier): Promise<boolean> {
+    if (!this.altScreenActive || this.isPaused || this.isUnmounted) return false;
+    const parked = this.displayCursor;
+    if (!parked || parked.y < 1) return false;
+    const response = await querier.send(EXTERNAL_CLEAR_CURSOR_POSITION_QUERY);
+    if (response?.row !== 1) return false;
+    logForDebugging(`probeExternalClear: detected wipe (parked at y=${parked.y}, terminal reports row=1 col=${response.col})`);
+    this.forceRedraw();
     return true;
   }
 
@@ -886,6 +900,7 @@ export default class Ink {
     this.altScreenActive = active;
     this.altScreenMouseTracking = active && mouseTracking;
     if (active) {
+      this.ensureInteractive();
       this.resetFramesForAltScreen();
     } else {
       this.repaint();

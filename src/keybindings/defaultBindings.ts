@@ -39,7 +39,6 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       // will show an error if users try to override these keys.
       'ctrl+c': 'app:interrupt',
       'ctrl+d': 'app:exit',
-      'ctrl+l': 'app:redraw',
       'ctrl+t': 'app:toggleTodos',
       'ctrl+o': 'app:toggleTranscript',
       ...(feature('KAIROS') || feature('KAIROS_BRIEF')
@@ -64,6 +63,8 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
     context: 'Chat',
     bindings: {
       escape: 'chat:cancel',
+      'ctrl+l': 'chat:clearInput',
+      'cmd+k': 'chat:clearScreen',
       // ctrl+x chord prefix avoids shadowing readline editing keys (ctrl+a/b/e/f/...).
       'ctrl+x ctrl+k': 'chat:killAgents',
       [MODE_CYCLE_KEY]: 'chat:cycleMode',

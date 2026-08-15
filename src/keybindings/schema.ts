@@ -91,6 +91,8 @@ export const KEYBINDING_ACTIONS = [
   'chat:stash',
   'chat:imagePaste',
   'chat:messageActions',
+  'chat:clearInput',
+  'chat:clearScreen',
   // Autocomplete menu actions
   'autocomplete:accept',
   'autocomplete:dismiss',

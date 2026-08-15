@@ -30,6 +30,7 @@ type Props = {
   exitMessage: {
     show: boolean;
     key?: string;
+    action?: 'clear';
   };
   leftArrowPending: boolean;
   vimMode: VimMode | undefined;

@@ -3,7 +3,7 @@ import { getRuntimeCapabilities } from '../../bootstrap/state.js';
 import chalk from 'chalk';
 import * as path from 'path';
 import * as React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useNotifications } from 'src/context/notifications.js';
 import { useCommandQueue } from 'src/hooks/useCommandQueue.js';
 import { type IDEAtMentioned, useIdeAtMentioned } from 'src/hooks/useIdeAtMentioned.js';
@@ -33,6 +33,7 @@ import { usePromptSuggestion } from '../../hooks/usePromptSuggestion.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { useTypeahead } from '../../hooks/useTypeahead.js';
 import type { BorderTextOptions } from '../../ink/render-border.js';
+import instances from '../../ink/instances.js';
 import { stringWidth } from '../../ink/stringWidth.js';
 import { Box, type ClickEvent, type Key, Text, useInput } from '../../ink.js';
 import { useOptionalKeybindingContext } from '../../keybindings/KeybindingContext.js';
@@ -121,6 +122,7 @@ import { PromptInputModeIndicator } from './PromptInputModeIndicator.js';
 import { PromptInputQueuedCommands } from './PromptInputQueuedCommands.js';
 import { PromptInputStashNotice } from './PromptInputStashNotice.js';
 import { useMaybeTruncateInput } from './useMaybeTruncateInput.js';
+import { useExternalClearDetection } from './useExternalClearDetection.js';
 import { usePromptInputPlaceholder } from './usePromptInputPlaceholder.js';
 import { useShowFastIconHint } from './useShowFastIconHint.js';
 import { useSwarmBanner } from './useSwarmBanner.js';
@@ -257,6 +259,7 @@ function PromptInput({
   const [exitMessage, setExitMessage] = useState<{
     show: boolean;
     key?: string;
+    action?: 'clear';
   }>({
     show: false
   });
@@ -1452,6 +1455,50 @@ function PromptInput({
     }
   }, [input, cursorOffset, stashedPrompt, trackAndSetInput, setStashedPrompt, pastedContents, setPastedContents]);
 
+  const [redrawVersion, setRedrawVersion] = useState(0);
+  useLayoutEffect(() => {
+    if (redrawVersion === 0) return;
+    instances.get(process.stdout)?.forceRedraw();
+  }, [redrawVersion]);
+  const clearScreenShortcut = getShortcutDisplay('chat:clearScreen', 'Chat', 'cmd+k');
+  const clearInputShortcut = getShortcutDisplay('chat:clearInput', 'Chat', 'ctrl+l');
+  const clearActionShortcutRef = useRef(clearScreenShortcut);
+  const setClearPending = useCallback((pending: boolean) => {
+    if (!isFullscreenEnvEnabled()) return;
+    if (pending) {
+      setExitMessage({
+        show: true,
+        key: clearActionShortcutRef.current,
+        action: 'clear'
+      });
+    } else {
+      setExitMessage(previous => previous.action === 'clear' ? {
+        show: false
+      } : previous);
+    }
+  }, []);
+  const submitClear = useCallback(() => {
+    if (!isFullscreenEnvEnabled()) return;
+    submitRef.current?.('/clear', true);
+  }, []);
+  const clearDoublePress = useDoublePress(setClearPending, submitClear, undefined, 2000);
+  const handleClearScreen = useCallback(() => {
+    clearActionShortcutRef.current = clearScreenShortcut;
+    clearDoublePress();
+  }, [clearScreenShortcut, clearDoublePress]);
+  useExternalClearDetection(handleClearScreen);
+  const handleClearInput = useCallback(() => {
+    trackAndSetInput('');
+    setCursorOffset(0);
+    clearBuffer();
+    resetHistory();
+    onModeChange('prompt');
+    setPastedContents({});
+    setRedrawVersion(version => version + 1);
+    clearActionShortcutRef.current = clearInputShortcut;
+    clearDoublePress();
+  }, [trackAndSetInput, clearBuffer, resetHistory, onModeChange, setPastedContents, clearInputShortcut, clearDoublePress]);
+
   // Handler for chat:modelPicker - toggle model picker
   const showRemoteFastModeUnavailable = useCallback(() => {
     if (getRuntimeCapabilities().workspace !== 'remote') return false;
@@ -1800,16 +1847,18 @@ function PromptInput({
   const chatHandlers = useMemo(() => ({
     'chat:undo': handleUndo,
     'chat:newline': handleNewline,
+    'chat:clearScreen': handleClearScreen,
     'chat:externalEditor': handleExternalEditor,
     'chat:stash': handleStash,
+    'chat:clearInput': handleClearInput,
     'chat:modelPicker': handleModelPicker,
     'chat:thinkingToggle': handleThinkingToggle,
     'chat:cycleMode': handleCycleMode,
     'chat:imagePaste': handleImagePaste
-  }), [handleUndo, handleNewline, handleExternalEditor, handleStash, handleModelPicker, handleThinkingToggle, handleCycleMode, handleImagePaste]);
+  }), [handleUndo, handleNewline, handleClearScreen, handleExternalEditor, handleStash, handleClearInput, handleModelPicker, handleThinkingToggle, handleCycleMode, handleImagePaste]);
   useKeybindings(chatHandlers, {
     context: 'Chat',
-    isActive: !isModalOverlayActive
+    isActive: !isModalOverlayActive && !isSearchingHistory
   });
 
   // Shift+↑ enters message-actions cursor. Separate isActive so ctrl+r search
@@ -2329,9 +2378,11 @@ function PromptInput({
     onHistoryReset: resetHistory,
     placeholder,
     onExit,
-    onExitMessage: (show, key) => setExitMessage({
+    onExitMessage: (show, key) => setExitMessage(previous => show ? {
       show,
       key
+    } : previous.action === 'clear' ? previous : {
+      show: false
     }),
     onLeftArrowOnEmpty,
     onLeftArrowOnEmptyMessage: isBgSession() ? undefined : setLeftArrowPending,

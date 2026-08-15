@@ -59,6 +59,7 @@ type Props = {
   exitMessage: {
     show: boolean;
     key?: string;
+    action?: 'clear';
   };
   leftArrowPending: boolean;
   vimMode: VimMode | undefined;
@@ -165,11 +166,13 @@ export function PromptInputFooterLeftSide(t0) {
       isBgSession() &&
       getCurrentWorktreeSession() === null &&
       count(Object.values(appStateStore.getState().tasks), isBackgroundTask) > 0;
-    const exitAction = !isBgSession()
-      ? 'exit'
-      : canDetach
-        ? 'detach (session keeps running)'
-        : 'stop session';
+    const exitAction = exitMessage.action === 'clear'
+      ? '/clear'
+      : !isBgSession()
+        ? 'exit'
+        : canDetach
+          ? 'detach (session keeps running)'
+          : 'stop session';
     return <Text dimColor={true} key="exit-message">Press {exitMessage.key} again to {exitAction}</Text>;
   }
   if (isPasting) {
