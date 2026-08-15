@@ -83,7 +83,7 @@ import {
   updateBridgeSessionColorTag,
 } from './createSession.js'
 import { logBridgeSkip } from './debugUtils.js'
-import { checkEnvLessBridgeMinVersion } from './envLessBridgeConfig.js'
+import { checkReplBridgeMinVersion } from './envLessBridgeConfig.js'
 import { readFileForRemote } from './readFileForRemote.js'
 import type { BridgeState, ReplBridgeHandle } from './replBridge.js'
 import type {
@@ -531,7 +531,7 @@ export async function initReplBridge(
     return null
   }
 
-  const versionError = await checkEnvLessBridgeMinVersion()
+  const versionError = await checkReplBridgeMinVersion()
   if (versionError) {
     logBridgeSkip(
       'version_too_old',

@@ -24,7 +24,7 @@ import { getRainbowColor } from '../../utils/thinking.js'
 import { logError } from '../../utils/log.js'
 
 const COMMON_HELP_ARGS = ['help', '-h', '--help']
-const HELP =
+export const EFFORT_HELP_TEXT =
   'Usage: /effort [low|medium|high|xhigh|max|auto]\n\nEffort levels:\n- low: Quick, straightforward implementation\n- medium: Balanced approach with standard testing\n- high: Comprehensive implementation with extensive testing\n- xhigh: Extended reasoning with thorough analysis (Opus 4.7 only)\n- max: Maximum capability with deepest reasoning (Opus 4.6/4.7 only)\n- auto: Use the default effort level for your model'
 
 type EffortCommandResult = {
@@ -202,7 +202,7 @@ function ApplyEffortAndClose({
   return null
 }
 
-const EFFORT_OPTIONS = [
+export const SLIDER_LEVELS = [
   { value: 'low', color: 'warning' },
   { value: 'medium', color: 'success' },
   { value: 'high', color: 'permission' },
@@ -220,7 +220,7 @@ function EffortLabel({
   selected,
   time,
 }: {
-  option: (typeof EFFORT_OPTIONS)[number]
+  option: (typeof SLIDER_LEVELS)[number]
   selected: boolean
   time: number
 }): React.ReactNode {
@@ -270,7 +270,7 @@ function EffortSlider({
   onDone: (result: string) => void
 }): React.ReactNode {
   const effortValue = useAppState(state => state.effortValue)
-  const initialIndex = EFFORT_OPTIONS.findIndex(
+  const initialIndex = SLIDER_LEVELS.findIndex(
     option => option.value === effortValue,
   )
   const [selectedIndex, setSelectedIndex] = useState(
@@ -285,11 +285,11 @@ function EffortSlider({
       return
     }
     if (key.rightArrow) {
-      setSelectedIndex(index => Math.min(EFFORT_OPTIONS.length - 1, index + 1))
+      setSelectedIndex(index => Math.min(SLIDER_LEVELS.length - 1, index + 1))
       return
     }
     if (key.return) {
-      const result = executeEffort(EFFORT_OPTIONS[selectedIndex]!.value)
+      const result = executeEffort(SLIDER_LEVELS[selectedIndex]!.value)
       if (result.effortUpdate) {
         setAppState(previous => ({
           ...previous,
@@ -317,7 +317,7 @@ function EffortSlider({
         <Text dimColor>{'─'.repeat(SLIDER_WIDTH - position - 1)}</Text>
       </Box>
       <Box justifyContent="center" width="100%">
-        {EFFORT_OPTIONS.map((option, index) => (
+        {SLIDER_LEVELS.map((option, index) => (
           <React.Fragment key={option.value}>
             <EffortLabel
               option={option}
@@ -343,7 +343,7 @@ export async function call(
 ): Promise<React.ReactNode> {
   args = args?.trim() || ''
   if (COMMON_HELP_ARGS.includes(args)) {
-    onDone(HELP)
+    onDone(EFFORT_HELP_TEXT)
     return
   }
   if (!args) return <EffortSlider onDone={onDone} />
