@@ -66,6 +66,29 @@ test('authenticates retained session-storage surfaces and live cardinality', () 
       policyWitness,
       /"content-replacement":"route-by-agent","fork-context-ref":"route-by-agent"/,
     )
+
+    const invariant =
+      "appendEntry invariant: dedup-transcript policy on non-transcript type '"
+    const invariantStart = bundle.indexOf(invariant)
+    assert.ok(invariantStart >= 0, `${version}: append invariant`)
+    const appendEntry = bundle.slice(invariantStart - 1_500, invariantStart + 900)
+    assert.match(
+      appendEntry,
+      new RegExp(
+        `switch\\(${policy.replaceAll('$', '\\\\$')}\\[[\\w$]+\\.type\\]\\)`,
+      ),
+      `${version}: exported policy is the live append dispatcher`,
+    )
+    assert.match(
+      appendEntry,
+      /case"always":\{[\s\S]*?\.enqueueWrite\([\w$]+,[\w$]+\);return\}case"route-by-agent":\{/,
+      `${version}: always and route-by-agent cases`,
+    )
+    assert.match(
+      appendEntry,
+      /case"dedup-transcript":\{if\([\w$]+\.type!=="progress"&&!/,
+      `${version}: dedup transcript invariant precedes persistence`,
+    )
   }
 })
 
@@ -102,5 +125,13 @@ test('source exposes target names while preserving compatibility aliases', () =>
   assert.match(
     source,
     /export async function appendEntryToFileAsync[\s\S]*?await fsAppendFile[\s\S]*?fireSessionMirror\(fullPath, \[entry\]\)/,
+  )
+  assert.match(
+    source,
+    /switch \([\s\S]*?ENTRY_APPEND_POLICY\[[\s\S]*?entry\.type as keyof typeof ENTRY_APPEND_POLICY[\s\S]*?case 'always':[\s\S]*?case 'route-by-agent':[\s\S]*?case 'dedup-transcript':/,
+  )
+  assert.match(
+    source,
+    /appendEntry invariant: dedup-transcript policy on non-transcript type '\$\{entry\.type\}'/,
   )
 })

@@ -1573,115 +1573,57 @@ class Project {
       sessionFile = existing
     }
 
-    // Only load current session messages if needed
-    if (entry.type === 'summary') {
-      // Summaries can always be appended
+    // Compatibility-only source extension; authenticated releases do not
+    // include task-summary in their append policy.
+    if (entry.type === 'task-summary') {
       void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'custom-title') {
-      // Custom titles can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'ai-title') {
-      // AI titles can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'last-prompt') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'task-summary') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'tag') {
-      // Tags can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'agent-name') {
-      // Agent names can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'agent-color') {
-      // Agent colors can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'agent-setting') {
-      // Agent settings can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'pr-link') {
-      // PR links can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'frame-link') {
-      // Forward-compatible frame relationships are always preserved verbatim.
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'file-history-snapshot') {
-      // File history snapshots can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'attribution-snapshot') {
-      // Attribution snapshots can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'speculation-accept') {
-      // Speculation accept entries can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'mode') {
-      // Mode entries can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'permission-mode') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'worktree-state') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'content-replacement') {
-      // Content replacement records can always be appended. Subagent records
-      // go to the sidechain file (for AgentTool resume); main-thread
-      // records go to the session file (for /resume).
-      const targetFile = entry.agentId
-        ? getAgentTranscriptPath(entry.agentId)
-        : sessionFile
-      void this.enqueueWrite(targetFile, entry)
-    } else if (entry.type === 'fork-context-ref') {
-      // Fork pointers belong beside the agent's own transcript entries.
-      void this.enqueueWrite(getAgentTranscriptPath(entry.agentId), entry)
-    } else if (entry.type === 'marble-origami-commit') {
-      // Always append. Commit order matters for restore (later commits may
-      // reference earlier commits' summary messages), so these must be
-      // written in the order received and read back sequentially.
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'marble-origami-snapshot') {
-      // Always append. Last-wins on restore — later entries supersede.
-      void this.enqueueWrite(sessionFile, entry)
-    } else {
-      const messageSet = await getSessionMessages(sessionId)
-      if (entry.type === 'queue-operation') {
-        // Queue operations are always appended to the session file
+      return
+    }
+
+    switch (
+      ENTRY_APPEND_POLICY[
+        entry.type as keyof typeof ENTRY_APPEND_POLICY
+      ]
+    ) {
+      case 'always': {
         void this.enqueueWrite(sessionFile, entry)
-      } else {
-        // At this point, entry must be a TranscriptMessage (user/assistant/attachment/system)
-        // All other entry types have been handled above
+        return
+      }
+      case 'route-by-agent': {
+        const targetFile =
+          (entry.type === 'content-replacement' ||
+            entry.type === 'fork-context-ref') &&
+          entry.agentId
+            ? getAgentTranscriptPath(entry.agentId)
+            : sessionFile
+        void this.enqueueWrite(targetFile, entry)
+        return
+      }
+      case 'dedup-transcript': {
+        if (
+          (entry as { type: string }).type !== 'progress' &&
+          !isTranscriptMessage(entry)
+        ) {
+          logError(
+            new Error(
+              `appendEntry invariant: dedup-transcript policy on non-transcript type '${entry.type}'`,
+            ),
+          )
+          return
+        }
+
+        const transcriptEntry = entry as TranscriptMessage
+        const messageSet = await getSessionMessages(sessionId)
         const isAgentSidechain =
-          entry.isSidechain && entry.agentId !== undefined
+          transcriptEntry.isSidechain && transcriptEntry.agentId !== undefined
         const targetFile = isAgentSidechain
-          ? getAgentTranscriptPath(asAgentId(entry.agentId!))
+          ? getAgentTranscriptPath(asAgentId(transcriptEntry.agentId!))
           : sessionFile
-
-        // For message entries, check if UUID already exists in current session.
-        // Skip dedup for agent sidechain LOCAL writes — they go to a separate
-        // file, and fork-inherited parent messages share UUIDs with the main
-        // session transcript. Deduping against the main session's set would
-        // drop them, leaving the persisted sidechain transcript incomplete
-        // (resume-of-fork loads a 10KB file instead of the full 85KB inherited
-        // context).
-        //
-        // The sidechain bypass applies ONLY to the local file write — remote
-        // persistence (session-ingress) uses a single Last-Uuid chain per
-        // sessionId, so re-POSTing a UUID it already has 409s and eventually
-        // exhausts retries → gracefulShutdownSync(1). See inc-4718.
-        const isNewUuid = !messageSet.has(entry.uuid)
+        const isNewUuid = !messageSet.has(transcriptEntry.uuid)
         if (isAgentSidechain || isNewUuid) {
-          // Enqueue write — appendToFile handles ENOENT by creating directories
           void this.enqueueWrite(targetFile, entry)
-
           if (!isAgentSidechain) {
-            // messageSet is main-file-authoritative. Sidechain entries go to a
-            // separate agent file — adding their UUIDs here causes recordTranscript
-            // to skip them on the main thread (line ~1270), so the message is never
-            // written to the main session file. The next main-thread message then
-            // chains its parentUuid to a UUID that only exists in the agent file,
-            // and --resume's buildConversationChain terminates at the dangling ref.
-            // Same constraint for remote (inc-4718 above): sidechain persisting a
-            // UUID the main thread hasn't written yet → 409 when main writes it.
-            messageSet.add(entry.uuid)
-
+            messageSet.add(transcriptEntry.uuid)
             if (isTranscriptMessage(entry)) {
               await this.persistToRemote(sessionId, entry)
             }
@@ -1692,6 +1634,7 @@ class Project {
             void this.persistToRemote(sessionId, entry)
           }
         }
+        return
       }
     }
   }
