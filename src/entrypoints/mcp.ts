@@ -41,13 +41,19 @@ export async function startMCPServer(
   debug: boolean,
   verbose: boolean,
 ): Promise<void> {
+  setCwd(cwd)
+  const server = createMCPServer(debug, verbose)
+  const transport = new StdioServerTransport()
+  await server.connect(transport)
+}
+
+export function createMCPServer(debug: boolean, verbose: boolean): Server {
   // Use size-limited LRU cache for readFileState to prevent unbounded memory growth
   // 100 files and 25MB limit should be sufficient for MCP server operations
   const READ_FILE_STATE_CACHE_SIZE = 100
   const readFileStateCache = createFileStateCacheWithSizeLimit(
     READ_FILE_STATE_CACHE_SIZE,
   )
-  setCwd(cwd)
   const server = new Server(
     {
       name: 'claude/tengu',
@@ -198,10 +204,5 @@ export async function startMCPServer(
     },
   )
 
-  async function runServer() {
-    const transport = new StdioServerTransport()
-    await server.connect(transport)
-  }
-
-  return await runServer()
+  return server
 }
