@@ -23,12 +23,14 @@ import { logError } from './log.js'
 import { getPlatform } from './platform.js'
 import { jsonStringify } from './slowOperations.js'
 
-export type HeapDumpResult = {
-  success: boolean
-  heapPath?: string
-  diagPath?: string
-  error?: string
-}
+export type HeapDumpResult =
+  | {
+      success: true
+      heapPath: string
+      diagPath: string
+      diagnostics: MemoryDiagnostics
+    }
+  | { success: false; error: string }
 
 /**
  * Memory diagnostics captured alongside heap dump.
@@ -285,7 +287,7 @@ export async function performHeapDump(
       success: true,
     })
 
-    return { success: true, heapPath, diagPath }
+    return { success: true, heapPath, diagPath, diagnostics }
   } catch (err) {
     const error = toError(err)
     logError(error)
