@@ -13,7 +13,6 @@ import {
   useAppStateStore,
   useSetAppState,
 } from 'src/state/AppState.js'
-import { isVimModeEnabled } from '../components/PromptInput/utils.js'
 import type { ToolUseConfirm } from '../components/permissions/PermissionRequest.js'
 import type { SpinnerMode } from '../components/Spinner/types.js'
 import type { ConnectionSummary } from '../services/api/connectionState.js'
@@ -28,7 +27,7 @@ import {
   killAllRunningAgentTasks,
   markAgentsNotified,
 } from '../tasks/LocalAgentTask/LocalAgentTask.js'
-import type { PromptInputMode, VimMode } from '../types/textInputTypes.js'
+import type { PromptInputMode } from '../types/textInputTypes.js'
 import {
   clearCommandQueue,
   enqueuePendingNotification,
@@ -56,12 +55,10 @@ type CancelRequestHandlerProps = {
   abortSignal?: AbortSignal
   isExternalLoading?: boolean
   popCommandFromQueue?: () => void
-  vimMode?: VimMode
   isLocalJSXCommand?: boolean
-  isSearchingHistory?: boolean
-  isHelpOpen?: boolean
+  isInputOverlayActive: boolean
   inputMode?: PromptInputMode
-  inputValue?: string
+  isInputEmpty: boolean
   streamMode?: SpinnerMode
   getConnectionSummary?: () => ConnectionSummary | undefined
 }
@@ -80,12 +77,10 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     abortSignal,
     isExternalLoading = false,
     popCommandFromQueue,
-    vimMode,
     isLocalJSXCommand,
-    isSearchingHistory,
-    isHelpOpen,
+    isInputOverlayActive,
     inputMode,
-    inputValue,
+    isInputEmpty,
     streamMode,
     getConnectionSummary,
   } = props
@@ -152,18 +147,16 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
   // rather than cancel the request. Let PromptInput handle mode exit.
   // This only applies to Escape, not Ctrl+C which should always cancel.
   const isInSpecialModeWithEmptyInput =
-    inputMode !== undefined && inputMode !== 'prompt' && !inputValue
+    inputMode !== undefined && inputMode !== 'prompt' && isInputEmpty
   // When viewing a teammate's transcript, let useBackgroundTaskNavigation handle Escape
   const isViewingTeammate = viewSelectionMode === 'viewing-agent'
   // Context guards: other screens/overlays handle their own cancel
   const isContextActive =
     screen !== 'transcript' &&
-    !isSearchingHistory &&
     !isMessageSelectorVisible &&
     !isLocalJSXCommand &&
-    !isHelpOpen &&
     !isOverlayActive &&
-    !(isVimModeEnabled() && vimMode === 'INSERT')
+    !isInputOverlayActive
 
   // Escape (chat:cancel) defers to mode-exit when in special mode with empty
   // input, and to useBackgroundTaskNavigation when viewing a teammate

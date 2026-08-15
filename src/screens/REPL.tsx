@@ -1732,10 +1732,12 @@ export function REPL({
   }));
   const connectionRef = useRef<ConnectionLifecycleTracker | null>(null);
   const [haveShownCostDialog, setHaveShownCostDialog] = useState(getGlobalConfig().hasAcknowledgedCostThreshold);
-  const [vimMode, setVimMode] = useState<VimMode>('INSERT');
   const [showBashesDialog, setShowBashesDialog] = useState<string | boolean>(false);
-  const [isSearchingHistory, setIsSearchingHistory] = useState(false);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isInputOverlayActive, setIsInputOverlayActive] = useState(false);
+  const vimModeRef = useRef<VimMode>('INSERT');
+  const handleVimModeChange = useCallback((mode: VimMode) => {
+    vimModeRef.current = mode;
+  }, []);
 
   // showBashesDialog is REPL-level so it survives PromptInput unmounting.
   // When ultraplan approval fires while the pill dialog is open, PromptInput
@@ -2472,12 +2474,10 @@ export function REPL({
     isExternalLoading,
     popCommandFromQueue: handleQueuedCommandOnCancel,
     getConnectionSummary: () => connectionRef.current?.summary(),
-    vimMode,
     isLocalJSXCommand: toolJSX?.isLocalJSXCommand,
-    isSearchingHistory,
-    isHelpOpen,
+    isInputOverlayActive,
     inputMode,
-    inputValue,
+    isInputEmpty: inputValue === '',
     streamMode
   };
   useEffect(() => {
@@ -5374,7 +5374,7 @@ export function REPL({
                       {}
                       <PromptInput debug={debug} ideSelection={ideSelection} hasSuppressedDialogs={!!hasSuppressedDialogs} isLocalJSXCommandActive={isShowingLocalJSXCommand} getToolUseContext={getToolUseContext} toolPermissionContext={toolPermissionContext} setToolPermissionContext={setToolPermissionContext} apiKeyStatus={apiKeyStatus} commands={commands} agents={agentDefinitions.activeAgents} isLoading={isLoading} onExit={handleExit} onLeftArrowOnEmpty={isBgSession() ? () => void handleExit() : !isLoading && isFgLeftArrowAgentsAvailable() && getGlobalConfig().leftArrowOpensAgents !== false ? handleOpenAgents : undefined} verbose={verbose} messages={messages} input={inputValue} onInputChange={setInputValue} mode={inputMode} onModeChange={setInputMode} stashedPrompt={stashedPrompt} setStashedPrompt={setStashedPrompt} submitCount={submitCount} onShowMessageSelector={handleShowMessageSelector} onMessageActionsEnter={
             // Works during isLoading — edit cancels first; uuid selection survives appends.
-            feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} vimMode={vimMode} setVimMode={setVimMode} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} isSearchingHistory={isSearchingHistory} setIsSearchingHistory={setIsSearchingHistory} helpOpen={isHelpOpen} setHelpOpen={setIsHelpOpen} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} />
+            feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} onInputOverlayActiveChange={setIsInputOverlayActive} initialVimMode={vimModeRef.current} onVimModeChange={handleVimModeChange} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} />
                       <SessionBackgroundHint onBackgroundSession={handleBackgroundSession} isLoading={isLoading} />
                     </>}
                 {cursor &&

@@ -159,8 +159,9 @@ type Props = {
   mcpClients: MCPServerConnection[];
   pastedContents: Record<number, PastedContent>;
   setPastedContents: React.Dispatch<React.SetStateAction<Record<number, PastedContent>>>;
-  vimMode: VimMode;
-  setVimMode: (mode: VimMode) => void;
+  initialVimMode?: VimMode;
+  onVimModeChange?: (mode: VimMode) => void;
+  onInputOverlayActiveChange: (active: boolean) => void;
   showBashesDialog: string | boolean;
   setShowBashesDialog: (show: string | boolean) => void;
   onExit: () => void;
@@ -174,12 +175,8 @@ type Props = {
     fromKeybinding?: boolean;
   }) => Promise<void>;
   onAgentSubmit?: (input: string, task: InProcessTeammateTaskState | LocalAgentTaskState, helpers: PromptInputHelpers) => Promise<void>;
-  isSearchingHistory: boolean;
-  setIsSearchingHistory: (isSearching: boolean) => void;
   onDismissSideQuestion?: () => void;
   isSideQuestionVisible?: boolean;
-  helpOpen: boolean;
-  setHelpOpen: React.Dispatch<React.SetStateAction<boolean>>;
   hasSuppressedDialogs?: boolean;
   isLocalJSXCommandActive?: boolean;
   insertTextRef?: React.MutableRefObject<{
@@ -228,8 +225,9 @@ function PromptInput({
   mcpClients,
   pastedContents,
   setPastedContents,
-  vimMode,
-  setVimMode,
+  initialVimMode,
+  onVimModeChange,
+  onInputOverlayActiveChange,
   showBashesDialog,
   setShowBashesDialog,
   onExit,
@@ -237,12 +235,8 @@ function PromptInput({
   getToolUseContext,
   onSubmit: onSubmitProp,
   onAgentSubmit,
-  isSearchingHistory,
-  setIsSearchingHistory,
   onDismissSideQuestion,
   isSideQuestionVisible,
-  helpOpen,
-  setHelpOpen,
   hasSuppressedDialogs,
   isLocalJSXCommandActive = false,
   insertTextRef,
@@ -255,6 +249,15 @@ function PromptInput({
   // system, so treat them as a modal overlay here to stop navigation keys from
   // leaking into TextInput/footer handlers and stacking a second dialog.
   const isModalOverlayActive = useIsModalOverlayActive() || isLocalJSXCommandActive;
+  const [vimMode, setVimMode] = useState<VimMode>(initialVimMode ?? 'INSERT');
+  useEffect(() => onVimModeChange?.(vimMode), [vimMode, onVimModeChange]);
+  const [isSearchingHistory, setIsSearchingHistory] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const isInputOverlayActive = isSearchingHistory || helpOpen || isVimModeEnabled() && vimMode !== 'NORMAL';
+  useEffect(() => {
+    onInputOverlayActiveChange(isInputOverlayActive);
+    return () => onInputOverlayActiveChange(false);
+  }, [isInputOverlayActive, onInputOverlayActiveChange]);
   const [isAutoUpdating, setIsAutoUpdating] = useState(false);
   const [exitMessage, setExitMessage] = useState<{
     show: boolean;
