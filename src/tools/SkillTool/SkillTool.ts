@@ -35,6 +35,7 @@ import {
   parsePluginIdentifier,
 } from 'src/utils/plugins/pluginIdentifier.js'
 import { buildPluginCommandTelemetryFields } from 'src/utils/telemetry/pluginTelemetry.js'
+import { buildSkillTelemetryFields } from 'src/utils/telemetry/skillLoadedEvent.js'
 import { z } from 'zod/v4'
 import {
   addInvokedSkill,
@@ -225,24 +226,16 @@ async function executeForkedSkill(
         parentAgentId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     }),
     ...wasDiscoveredField,
+    ...buildSkillTelemetryFields(
+      command.source,
+      command.loadedFrom,
+      command.kind,
+      command.createdBy,
+    ),
     ...getTeamArtifactAnalyticsMetadata(command.source, commandName),
     attribution_shown:
       getTeamArtifactAuthor(command.source, commandName) !== null,
     skill_content_chars: command.contentLength,
-    ...(process.env.USER_TYPE === 'ant' && {
-      skill_name:
-        commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      skill_source:
-        command.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...(command.loadedFrom && {
-        skill_loaded_from:
-          command.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      }),
-      ...(command.kind && {
-        skill_kind:
-          command.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      }),
-    }),
     ...(command.pluginInfo && {
       // _PROTO_* routes to PII-tagged plugin_name/marketplace_name BQ columns
       // (unredacted, all users); plugin_name/plugin_repository stay in
@@ -783,6 +776,12 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           parentAgentId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       }),
       ...wasDiscoveredField,
+      ...buildSkillTelemetryFields(
+        command?.type === 'prompt' ? command.source : undefined,
+        command?.loadedFrom,
+        command?.kind,
+        command?.type === 'prompt' ? command.createdBy : undefined,
+      ),
       ...getTeamArtifactAnalyticsMetadata(
         command?.type === 'prompt' ? command.source : '',
         commandName,
@@ -794,22 +793,6 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
         ) !== null,
       ...(command?.type === 'prompt' && {
         skill_content_chars: command.contentLength,
-      }),
-      ...(process.env.USER_TYPE === 'ant' && {
-        skill_name:
-          commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        ...(command?.type === 'prompt' && {
-          skill_source:
-            command.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
-        ...(command?.loadedFrom && {
-          skill_loaded_from:
-            command.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
-        ...(command?.kind && {
-          skill_kind:
-            command.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
       }),
       ...(command?.type === 'prompt' &&
         command.pluginInfo && {

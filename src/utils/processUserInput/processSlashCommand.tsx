@@ -45,6 +45,7 @@ import { recordSkillUsage } from '../suggestions/skillUsageTracking.js';
 import { findClosestCommand } from '../suggestions/commandSuggestions.js';
 import { logOTelEvent, redactIfDisabled } from '../telemetry/events.js';
 import { buildPluginCommandTelemetryFields } from '../telemetry/pluginTelemetry.js';
+import { buildSkillTelemetryFields } from '../telemetry/skillLoadedEvent.js';
 import { getTeamArtifactAnalyticsMetadata } from '../teamArtifacts.js';
 import { getAssistantMessageContentLength } from '../tokens.js';
 import { createAgentId } from '../uuid.js';
@@ -72,7 +73,10 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   const pluginMarketplace = command.pluginInfo ? parsePluginIdentifier(command.pluginInfo.repository).marketplace : undefined;
   logEvent('tengu_slash_command_forked', {
     command_name: command.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    _PROTO_skill_name: command.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
     invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...buildSkillTelemetryFields(command.source, command.loadedFrom, command.kind, command.createdBy),
+    ...getTeamArtifactAnalyticsMetadata(command.source, command.name),
     ...(command.pluginInfo && {
       _PROTO_plugin_name: command.pluginInfo.pluginManifest.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
       ...(pluginMarketplace && {
@@ -461,22 +465,21 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
     logEvent('tengu_input_command', {
       ...eventData,
       invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      ...buildSkillTelemetryFields(
+        returnedCommand.type === 'prompt' ? returnedCommand.source : undefined,
+        returnedCommand.loadedFrom,
+        returnedCommand.kind,
+        returnedCommand.type === 'prompt' ? returnedCommand.createdBy : undefined,
+      ),
       ...getTeamArtifactAnalyticsMetadata(
         returnedCommand.type === 'prompt' ? returnedCommand.source : '',
         commandName,
       ),
-      ...("external" === 'ant' && {
-        skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        ...(returnedCommand.type === 'prompt' && {
-          skill_source: returnedCommand.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        }),
-        ...(returnedCommand.loadedFrom && {
-          skill_loaded_from: returnedCommand.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        }),
-        ...(returnedCommand.kind && {
-          skill_kind: returnedCommand.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        })
-      })
+      ...(returnedCommand.type === 'prompt' && {
+        _PROTO_skill_name:
+          returnedCommand.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+        command_content_chars: returnedCommand.contentLength,
+      }),
     });
     return {
       messages: [],
@@ -533,22 +536,21 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
   logEvent('tengu_input_command', {
     ...eventData,
     invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...buildSkillTelemetryFields(
+      returnedCommand.type === 'prompt' ? returnedCommand.source : undefined,
+      returnedCommand.loadedFrom,
+      returnedCommand.kind,
+      returnedCommand.type === 'prompt' ? returnedCommand.createdBy : undefined,
+    ),
     ...getTeamArtifactAnalyticsMetadata(
       returnedCommand.type === 'prompt' ? returnedCommand.source : '',
       commandName,
     ),
-    ...("external" === 'ant' && {
-      skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...(returnedCommand.type === 'prompt' && {
-        skill_source: returnedCommand.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      }),
-      ...(returnedCommand.loadedFrom && {
-        skill_loaded_from: returnedCommand.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      }),
-      ...(returnedCommand.kind && {
-        skill_kind: returnedCommand.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      })
-    })
+    ...(returnedCommand.type === 'prompt' && {
+      _PROTO_skill_name:
+        returnedCommand.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      command_content_chars: returnedCommand.contentLength,
+    }),
   });
 
   // Check if this is a compact result which handle their own synthetic caveat message ordering
