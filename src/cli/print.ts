@@ -619,6 +619,24 @@ function markMcpServerNeedsAuth(
   })
 }
 
+async function cleanupMcpClients(
+  clients: MCPServerConnection[],
+): Promise<void> {
+  await Promise.all(
+    clients.map(async client => {
+      if (client.type !== 'connected') return
+      try {
+        await client.cleanup()
+      } catch (error) {
+        logForDebugging(
+          `MCP client cleanup failed for ${client.name}: ${error}`,
+          { level: 'error' },
+        )
+      }
+    }),
+  )
+}
+
 export async function runHeadless(
   inputPrompt: string | AsyncIterable<string>,
   getAppState: () => AppState,
@@ -3250,6 +3268,11 @@ function runHeadlessStreaming(
         unsubscribeSkillChanges()
         unsubscribeAuthStatus?.()
         statusListeners.delete(rateLimitListener)
+        await cleanupMcpClients([
+          ...getAppState().mcp.clients,
+          ...sdkClients,
+          ...dynamicMcpState.clients,
+        ])
         output.done()
       }
     }
@@ -5170,6 +5193,11 @@ function runHeadlessStreaming(
       unsubscribeSkillChanges()
       unsubscribeAuthStatus?.()
       statusListeners.delete(rateLimitListener)
+      await cleanupMcpClients([
+        ...getAppState().mcp.clients,
+        ...sdkClients,
+        ...dynamicMcpState.clients,
+      ])
       output.done()
     }
   })()
