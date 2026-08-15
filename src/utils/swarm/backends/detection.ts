@@ -38,6 +38,28 @@ export function isInsideTmuxSync(): boolean {
 }
 
 /**
+ * Lists sessions from the tmux server that owns the user's original pane.
+ *
+ * Claude may later point TMUX at its own swarm socket, so this deliberately
+ * uses the value captured at module initialization rather than process.env.
+ */
+export async function listUserTmuxSessions(): Promise<string[] | undefined> {
+  if (!ORIGINAL_USER_TMUX) return undefined
+
+  const socketPath = ORIGINAL_USER_TMUX.split(',')[0]
+  if (!socketPath) return undefined
+
+  const result = await execFileNoThrow(
+    TMUX_COMMAND,
+    ['-S', socketPath, 'list-sessions', '-F', '#{session_name}'],
+    { useCwd: false, timeout: 2000 },
+  )
+  if (result.code !== 0) return undefined
+
+  return result.stdout.split('\n').filter(Boolean)
+}
+
+/**
  * Checks if we're currently running inside a tmux session.
  * Uses the original TMUX value captured at module load, not process.env.TMUX,
  * because Shell.ts overrides TMUX when Claude's socket is initialized.
