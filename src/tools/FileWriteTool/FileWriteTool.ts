@@ -137,6 +137,14 @@ export const FileWriteTool = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
+  stripForStorage(output) {
+    if (typeof output !== 'object' || output === null) return output
+    if (output.type !== 'update') return output
+    if (output.content === '' && (output.originalFile ?? '') === '') {
+      return output
+    }
+    return { ...output, content: '', originalFile: null }
+  },
   toAutoClassifierInput(input) {
     return `${input.file_path}: ${input.content}`
   },

@@ -143,7 +143,7 @@ import { getConfigValue } from '../utils/settings/configSettings.js';
 import { hasConsoleBillingAccess } from '../utils/billing.js';
 import { logEvent, type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/index.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
-import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, appendOrReplaceMessageByUuid, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags } from '../utils/messages.js';
+import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, appendOrReplaceMessageByUuid, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags, stripOldToolResultsForStorage } from '../utils/messages.js';
 import { tokenCountWithEstimation } from '../utils/tokens.js';
 import { applyMessageOperation, type MessageOperation } from '../utils/messageOperations.js';
 import { generateSessionTitle } from '../utils/sessionTitle.js';
@@ -3118,6 +3118,7 @@ export function REPL({
     })) {
       onQueryEvent(event);
     }
+    setMessages(previous => stripOldToolResultsForStorage(previous, freshTools));
     if (feature('BUDDY')) {
       void fireCompanionObserver(messagesRef.current, reaction => setAppState(prev => prev.companionReaction === reaction ? prev : {
         ...prev,

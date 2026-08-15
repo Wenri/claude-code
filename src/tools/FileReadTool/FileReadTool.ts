@@ -422,6 +422,30 @@ export const FileReadTool = buildTool({
   extractSearchText() {
     return ''
   },
+  stripForStorage(output) {
+    if (typeof output !== 'object' || output === null) return output
+    switch (output.type) {
+      case 'text':
+        if (output.file.content === '') return output
+        return { ...output, file: { ...output.file, content: '' } }
+      case 'image':
+        if (output.file.base64 === '') return output
+        return { ...output, file: { ...output.file, base64: '' } }
+      case 'pdf':
+        if (output.file.base64 === '') return output
+        return { ...output, file: { ...output.file, base64: '' } }
+      case 'notebook': {
+        const { cells } = output.file
+        if (cells.length === 0 || cells[0] == null) return output
+        return {
+          ...output,
+          file: { ...output.file, cells: Array(cells.length) },
+        }
+      }
+      default:
+        return output
+    }
+  },
   renderToolUseErrorMessage,
   async validateInput({ file_path, pages }, toolUseContext: ToolUseContext) {
     // Validate pages parameter (pure string parsing, no I/O)

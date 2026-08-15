@@ -505,6 +505,8 @@ export type Tool<
   // Optional because TungstenTool doesn't define this. TODO: Make it required.
   // When we do that, we can also go through and make this a bit more type-safe.
   outputSchema?: z.ZodType<unknown>
+  /** Remove bulky fields from old transcript-only tool results. */
+  stripForStorage?(output: Output): Output
   inputsEquivalent?(a: z.infer<Input>, b: z.infer<Input>): boolean
   isConcurrencySafe(input: z.infer<Input>): boolean
   isEnabled(): boolean

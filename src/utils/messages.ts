@@ -4344,6 +4344,54 @@ export function capStoredOriginalFile(toolUseResult: unknown): unknown {
   return toolUseResult
 }
 
+export function stripOldToolResultsForStorage(
+  messages: Message[],
+  tools: Tools,
+  retainLast = 200,
+): Message[] {
+  const cutoff = messages.length - retainLast
+  if (cutoff <= 0) return messages
+
+  const toolsByUseId = new Map<string, Tool>()
+  let updatedMessages: Message[] | undefined
+
+  for (let index = 0; index < messages.length; index++) {
+    const message = messages[index]
+    if (message.type === 'assistant' && Array.isArray(message.message.content)) {
+      for (const block of message.message.content) {
+        if (block.type === 'tool_use') {
+          const tool = findToolByName(tools, block.name)
+          if (tool?.stripForStorage) toolsByUseId.set(block.id, tool)
+        }
+      }
+      continue
+    }
+
+    if (
+      index >= cutoff ||
+      message.type !== 'user' ||
+      message.isVirtual ||
+      message.toolUseResult == null ||
+      !Array.isArray(message.message.content)
+    ) {
+      continue
+    }
+
+    const resultBlock = message.message.content.find(
+      block => block.type === 'tool_result',
+    )
+    const tool = resultBlock && toolsByUseId.get(resultBlock.tool_use_id)
+    if (!tool?.stripForStorage) continue
+
+    const stripped = tool.stripForStorage(message.toolUseResult)
+    if (stripped === message.toolUseResult) continue
+    if (!updatedMessages) updatedMessages = messages.slice()
+    updatedMessages[index] = { ...message, toolUseResult: stripped }
+  }
+
+  return updatedMessages ?? messages
+}
+
 function createToolResultMessage<Output>(
   tool: Tool<AnyObject, Output>,
   toolUseResult: Output,
