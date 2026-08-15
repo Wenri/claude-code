@@ -426,12 +426,14 @@ function main() {
 
   const testEnvironment = {
     ...process.env,
-    CLAUDE_CODE_2_1_120_BUNDLE: baselineInner,
-    CLAUDE_CODE_2_1_121_BUNDLE: targetInner,
-    CLAUDE_2_1_120_CLI_INNER: baselineInner,
-    CLAUDE_2_1_121_CLI_INNER: targetInner,
-    CLAUDE_CODE_2_1_120_WRAPPER: baselineWrapper,
-    CLAUDE_CODE_2_1_121_WRAPPER: targetWrapper,
+    CLAUDE_CODE_2_1_121_BUNDLE: baselineInner,
+    CLAUDE_CODE_2_1_122_BUNDLE: targetInner,
+    CLAUDE_21121_INNER: baselineInner,
+    CLAUDE_21122_INNER: targetInner,
+    CLAUDE_2_1_121_CLI_INNER: baselineInner,
+    CLAUDE_2_1_122_CLI_INNER: targetInner,
+    CLAUDE_CODE_2_1_121_WRAPPER: baselineWrapper,
+    CLAUDE_CODE_2_1_122_WRAPPER: targetWrapper,
   }
   const tests = run(process.execPath, ['--test', ...targetTests], {
     env: testEnvironment,
@@ -646,6 +648,8 @@ function main() {
     testArtifactEnvironment: {
       CLAUDE_CODE_2_1_121_BUNDLE: 'baselineAnalyzableBundle',
       CLAUDE_CODE_2_1_122_BUNDLE: 'targetAnalyzableBundle',
+      CLAUDE_21121_INNER: 'baselineAnalyzableBundle',
+      CLAUDE_21122_INNER: 'targetAnalyzableBundle',
       CLAUDE_2_1_121_CLI_INNER: 'baselineAnalyzableBundle',
       CLAUDE_2_1_122_CLI_INNER: 'targetAnalyzableBundle',
       CLAUDE_CODE_2_1_121_WRAPPER: 'baselineBundle',
