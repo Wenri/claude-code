@@ -46,7 +46,7 @@ import {
   isScratchpadEnabled,
   getScratchpadDir,
 } from '../utils/permissions/filesystem.js'
-import { isEnvTruthy } from '../utils/envUtils.js'
+import { isEnvDefinedFalsy, isEnvTruthy } from '../utils/envUtils.js'
 import { isLeanPromptEnabled } from '../utils/leanPrompt.js'
 import { isReplModeEnabled } from '../tools/REPLTool/constants.js'
 import { feature } from 'bun:bundle'
@@ -183,6 +183,31 @@ End-of-turn summary: one or two sentences. What changed and what's next. Nothing
 Match responses to the task: a simple question gets a direct answer, not headers and sections.
 
 In code: default to writing no comments. Never write multi-paragraph docstrings or multi-line comment blocks — one short line max. Don't create planning, decision, or analysis documents unless the user asks for them — work from conversation context, not intermediate files.`
+}
+
+type InvestigateFirstMode = 'off' | 'additive' | 'compact'
+
+function getInvestigateFirstMode(model?: string): InvestigateFirstMode {
+  if (!model || getCanonicalName(model) !== 'claude-opus-4-7') return 'off'
+
+  const fromEnv = process.env.CLAUDE_CODE_INVESTIGATE_FIRST
+  if (fromEnv === 'additive' || fromEnv === 'compact') return fromEnv
+  if (isEnvTruthy(fromEnv)) return 'additive'
+  if (fromEnv === 'off' || isEnvDefinedFalsy(fromEnv)) return 'off'
+  if (isLeanPromptEnabled(model)) return 'off'
+
+  const configured = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_slate_harrier',
+    'off',
+  )
+  return configured === 'additive' || configured === 'compact'
+    ? configured
+    : 'off'
+}
+
+function getInvestigateFirstSection(model: string): string | null {
+  if (getInvestigateFirstMode(model) === 'off') return null
+  return 'Asking the user a clarifying question has a cost: it interrupts them, and often they could have answered it themselves with a grep. Before asking, spend up to a minute on read-only investigation (grep the codebase, check docs, search memory) so your question is specific. "I found tunnels X and Y in the config — which one?" beats "what tunnel?"'
 }
 
 function getActionCautionSection(model: string): string | null {
@@ -344,7 +369,12 @@ function getSimpleDoingTasksSection(): string {
   return [`# Doing tasks`, ...prependBullets(items)].join(`\n`)
 }
 
-function getActionsSection(): string {
+function getActionsSection(model: string): string {
+  if (getInvestigateFirstMode(model) === 'compact') {
+    return `# Executing actions with care
+
+Read, search, and investigate freely — looking is not acting. For actions that are hard to reverse, affect shared systems, or are otherwise risky (deleting data, force-pushing, sending messages, modifying shared infrastructure), confirm with the user before proceeding unless durably authorized. Approval in one context doesn't extend to the next.`
+  }
   return `# Executing actions with care
 
 Carefully consider the reversibility and blast radius of actions. Generally you can freely take local, reversible actions like editing files or running tests. But for actions that are hard to reverse, affect shared systems beyond your local environment, or could otherwise be risky or destructive, check with the user before proceeding. The cost of pausing to confirm is low, while the cost of an unwanted action (lost work, unintended messages sent, deleted branches) can be very high. For actions like these, consider the context, the action, and user instructions, and by default transparently communicate the action and ask for confirmation before proceeding. This default can be changed by user instructions - if explicitly asked to operate more autonomously, then you may proceed without confirmation, but still attend to the risks and consequences when taking actions. A user approving an action (like a git push) once does NOT mean that they approve it in all contexts, so unless actions are authorized in advance in durable instructions like CLAUDE.md files, always confirm first. Authorization stands for the scope specified, not beyond. Match the scope of your actions to what was actually requested.
@@ -470,7 +500,7 @@ function getSessionSpecificGuidanceSection(
       sessionSkillAllowlist.includes('routines')) &&
     skillToolCommands.some(command => getCommandName(command) === 'schedule') &&
     getFeatureValue_CACHED_MAY_BE_STALE('tengu_orchid_mantis', false)
-      ? 'When work you just finished has a natural future follow-up, end your reply with a one-line offer to `/schedule` a background agent to do it — name the concrete action and cadence ("Want me to /schedule an agent in 2 weeks to open a cleanup PR for the flag?"). One-time signals: a feature flag/gate/experiment/staged rollout (clean it up or ramp it), a soak window or metric to verify (query it and post results), a long-running job with an ETA (check status and report), a temp workaround/instrumentation/.skip left in (open a removal PR), a "remove once X" TODO. Recurring signals: a sweep/triage/report/queue-drain the user just did by hand, or anything "weekly"/"again"/"piling up" — offer to run it as a routine. The bar is 70%+ odds the user says yes — skip it for refactors, bug fixes with tests, docs, renames, routine dep bumps, plain feature merges, or when the user signals closure ("nothing else to do", "should be fine now"). Don\'t stack offers on back-to-back turns; let most tasks just be tasks.'
+      ? 'When work you just finished has a natural future follow-up, end your reply with a one-line offer to `/schedule` a background agent to do it — name the concrete action and cadence ("Want me to /schedule an agent in 2 weeks to open a cleanup PR for the flag?"). One-time signals: a feature flag/gate/experiment/staged rollout (clean it up or ramp it), a soak window or metric to verify (query it and post results), a long-running job with an ETA (check status and report), a temp workaround/instrumentation/.skip left in (open a removal PR), a "remove once X" TODO. Recurring signals: a sweep/triage/report/queue-drain the user just did by hand, or anything "weekly"/"again"/"piling up" — offer to run it as a routine. The bar is 85%+ odds the user says yes — skip it for refactors, bug fixes with tests, docs, renames, routine dep bumps, plain feature merges, or when the user signals closure ("nothing else to do", "should be fine now"). Don\'t stack offers on back-to-back turns; let most tasks just be tasks.'
       : null,
     DISCOVER_SKILLS_TOOL_NAME !== null &&
     hasSkills &&
@@ -589,6 +619,10 @@ ${CYBER_RISK_INSTRUCTION}`,
     systemPromptSection(`action_caution${leanCacheSuffix}`, () =>
       getActionCautionSection(model),
     ),
+    systemPromptSection(
+      `investigate_first:${getInvestigateFirstMode(model)}`,
+      () => getInvestigateFirstSection(model),
+    ),
     systemPromptSection('thinking_guidance', () =>
       getThinkingGuidanceSection(model),
     ),
@@ -688,7 +722,7 @@ ${CYBER_RISK_INSTRUCTION}`,
           outputStyleConfig.keepCodingInstructions === true
             ? getSimpleDoingTasksSection()
             : null,
-          getActionsSection(),
+          getActionsSection(model),
           getUsingYourToolsSection(enabledTools),
           getSimpleToneAndStyleSection(),
         ]),
