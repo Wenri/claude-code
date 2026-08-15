@@ -65,7 +65,11 @@ const briefPromptModule =
 import type { QuerySource } from '../constants/querySource.js'
 import { executeAutoDream } from '../services/autoDream/autoDream.js'
 import { executePromptSuggestion } from '../services/PromptSuggestion/promptSuggestion.js'
-import { isBareMode, isEnvDefinedFalsy } from '../utils/envUtils.js'
+import {
+  isBareMode,
+  isEnvDefinedFalsy,
+  isEnvTruthy,
+} from '../utils/envUtils.js'
 import {
   createCacheSafeParams,
   saveCacheSafeParams,
@@ -279,6 +283,7 @@ export async function* handleStopHooks(
   if (
     isMainQuerySource(querySource) &&
     briefToolModule?.isBriefEnabled() &&
+    !isEnvTruthy(process.env.DISABLE_BRIEF_MODE_STOP_HOOK) &&
     briefPromptModule &&
     !toolUseContext.agentId &&
     toolUseContext.options.tools.some(tool =>
