@@ -27,7 +27,7 @@ import type { ExecResult } from '../../utils/ShellCommand.js';
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js';
 import { semanticBoolean } from '../../utils/semanticBoolean.js';
 import { semanticNumber } from '../../utils/semanticNumber.js';
-import { getCachedPowerShellPath } from '../../utils/shell/powershellDetection.js';
+import { getCachedPowerShellPath, getPowerShellEdition } from '../../utils/shell/powershellDetection.js';
 import { EndTruncatingAccumulator } from '../../utils/stringUtils.js';
 import { getTaskOutputPath } from '../../utils/task/diskOutput.js';
 import { TaskOutput } from '../../utils/task/TaskOutput.js';
@@ -37,7 +37,7 @@ import { shouldUseSandbox } from '../BashTool/shouldUseSandbox.js';
 import { BackgroundHint } from '../BashTool/UI.js';
 import { buildImageToolResult, isImageOutput, resetCwdIfOutsideProject, resizeShellImageOutput, stdErrAppendShellResetMessage, stripEmptyLines } from '../BashTool/utils.js';
 import { trackGitOperations } from '../shared/gitOperationTracking.js';
-import { interpretCommandResult } from './commandSemantics.js';
+import { classifyPowerShellFailure, interpretCommandResult } from './commandSemantics.js';
 import { powershellToolHasPermission } from './powershellPermissions.js';
 import { getDefaultTimeoutMs, getMaxTimeoutMs, getPrompt } from './prompt.js';
 import { hasSyncSecurityConcerns, isReadOnlyCommand, resolveToCanonical } from './readOnlyValidation.js';
@@ -583,6 +583,14 @@ export const PowerShellTool = buildTool({
         throw new Error(result.preSpawnError);
       }
       if (interpretation.isError && !isInterrupt) {
+        const classificationOutput = processedStdout.length <= 8192 ? processedStdout : processedStdout.slice(0, 4096) + processedStdout.slice(-4096);
+        logEvent('tengu_powershell_tool_command_failed', {
+          command_type: getCommandTypeForLogging(input.command),
+          exit_code: result.code,
+          stdout_length: processedStdout.length,
+          error_class: classifyPowerShellFailure(classificationOutput),
+          powershell_edition: (await getPowerShellEdition()) ?? 'unknown'
+        });
         throw new ShellError(stdout, result.stderr || '', result.code, result.interrupted);
       }
 

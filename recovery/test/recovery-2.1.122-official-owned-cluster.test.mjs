@@ -87,6 +87,25 @@ for (const row of inventory.rows) {
         )
       }
     }
+    if (row.bullet === 10) {
+      const tokenEstimation = fs.readFileSync(
+        path.join(repo, 'src/services/tokenEstimation.ts'),
+        'utf8',
+      )
+      assert.equal(
+        countOccurrences(
+          tokenEstimation,
+          'const filteredBetas = betas.filter',
+        ),
+        2,
+        'B10 must filter both countTokens and fallback messages.create calls',
+      )
+      assert.equal(
+        countOccurrences(tokenEstimation, "getAPIProvider() === 'vertex'"),
+        0,
+        'B10 filtering must not depend on provider detection',
+      )
+    }
   })
 }
 

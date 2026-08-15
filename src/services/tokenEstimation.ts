@@ -290,12 +290,11 @@ export async function countTokensViaHaikuFallback(
       : [{ role: 'user', content: 'count' }]
 
   const betas = getModelBetas(model)
-  // Filter betas for Vertex - some betas (like web-search) cause 400 errors
-  // on certain Vertex endpoints. See issue #10789.
-  const filteredBetas =
-    getAPIProvider() === 'vertex'
-      ? betas.filter(b => VERTEX_COUNT_TOKENS_ALLOWED_BETAS.has(b))
-      : betas
+  // Always restrict this fallback request to the Vertex-safe allowlist. A proxy
+  // gateway can route the request to Vertex without local provider detection.
+  const filteredBetas = betas.filter(b =>
+    VERTEX_COUNT_TOKENS_ALLOWED_BETAS.has(b),
+  )
 
   // biome-ignore lint/plugin: token counting needs specialized parameters (thinking, betas) that sideQuery doesn't support
   const response = await anthropic.beta.messages.create({

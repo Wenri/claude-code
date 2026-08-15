@@ -93,6 +93,46 @@ const COMMAND_SEMANTICS: Map<string, CommandSemantic> = new Map([
   ],
 ])
 
+const POWERSHELL_FAILURE_PATTERNS: ReadonlyArray<
+  readonly [errorClass: string, pattern: RegExp]
+> = [
+  ['ps5_chain_op', /token '(&&|\|\||\?\?)' is not a valid|InvalidEndOfLine/i],
+  [
+    'parser_error',
+    /ParserError:|ParseException|TerminatorExpectedAtEndOfString/,
+  ],
+  [
+    'not_recognized',
+    /is not recognized as (a name of a cmdlet|the name of a cmdlet|an? internal)/i,
+  ],
+  ['command_not_found', /CommandNotFoundException/],
+  ['native_command_error', /NativeCommandError|RemoteException/],
+  ['path_not_found', /ItemNotFoundException|PathNotFound,Microsoft\.PowerShell/],
+  [
+    'access_denied',
+    /UnauthorizedAccessException|PermissionDenied,Microsoft\.PowerShell/,
+  ],
+  [
+    'parameter_binding',
+    /ParameterBindingException|ParameterArgumentValidationError/,
+  ],
+  ['object_not_found', /ObjectNotFound: \(|DriveNotFoundException/],
+  [
+    'execution_policy',
+    /running scripts is disabled on this system|PSSecurityException/i,
+  ],
+  ['native_npm', /^npm (ERR!|error)/m],
+  ['native_dotnet', /: error [A-Z]{2,}\d{4}:|^Build FAILED\./m],
+]
+
+export function classifyPowerShellFailure(output: string): string {
+  if (!output.trim()) return 'empty'
+  for (const [errorClass, pattern] of POWERSHELL_FAILURE_PATTERNS) {
+    if (pattern.test(output)) return errorClass
+  }
+  return 'other'
+}
+
 /**
  * Extract the command name from a single pipeline segment.
  * Strips leading `&` / `.` call operators and `.exe` suffix, lowercases.
