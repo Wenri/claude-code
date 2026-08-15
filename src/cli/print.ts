@@ -56,13 +56,9 @@ import {
   getCommandsByMaxPriority,
 } from 'src/utils/messageQueueManager.js'
 import {
-  getSessionState,
-  notifySessionStateChanged,
-  notifySessionMetadataChanged,
-  setPermissionModeChangedListener,
-  notifySessionInternalMetadataChanged,
   type RequiresActionDetails,
   type RestoredWorkerState,
+  type SessionStateManager,
 } from 'src/utils/sessionState.js'
 import { runClassifierSummaryForBlocked } from 'src/utils/taskSummary.js'
 import {
@@ -654,6 +650,7 @@ export async function runHeadless(
     configuredMcpServerCount: number
     sessionStartHooksPromise?: ReturnType<typeof processSessionStartHooks>
     setSDKStatus?: (status: SDKStatus) => void
+    sessionState: SessionStateManager
   },
 ): Promise<void> {
   if (
@@ -1002,10 +999,8 @@ export async function runHeadless(
         },
       }))
     }
-    notifySessionStateChanged('requires_action', details)
-    runClassifierSummaryForBlocked(details, {
-      notifyMetadataChanged: notifySessionMetadataChanged,
-    })
+    structuredIO.sessionState.notifyStateChanged('requires_action', details)
+    runClassifierSummaryForBlocked(details, structuredIO.sessionState)
   }
 
   const canUseTool = getCanUseToolFn(
@@ -1043,7 +1038,9 @@ Re-create them if still needed.
           isMeta: true,
         }),
       )
-      notifySessionInternalMetadataChanged({ running_background_tasks: [] })
+      structuredIO.sessionState.notifyInternalMetadataChanged({
+        running_background_tasks: [],
+      })
     }
   }
 
@@ -1286,7 +1283,7 @@ function runHeadlessStreaming(
     logForDiagnosticsNoPII('info', 'run_state_at_shutdown', {
       run_active: running,
       run_phase: runPhase,
-      worker_status: getSessionState(),
+      worker_status: structuredIO.sessionState.getState(),
       internal_events_pending: structuredIO.internalEventsPending,
       bg_tasks: bg,
     })
@@ -1300,7 +1297,7 @@ function runHeadlessStreaming(
   // The wrapper's body was fully redundant (it enqueued here AND called
   // notifySessionMetadataChanged, both of which onChangeAppState now covers);
   // keeping it would double-emit status messages.
-  setPermissionModeChangedListener(newMode => {
+  structuredIO.sessionState.onPermissionModeChanged = newMode => {
     // Only emit for SDK-exposed modes.
     if (
       newMode === 'default' ||
@@ -1319,7 +1316,7 @@ function runHeadlessStreaming(
         session_id: getSessionId(),
       })
     }
-  })
+  }
 
   // Prompt suggestion tracking (push model)
   const suggestionState: {
@@ -2221,7 +2218,7 @@ function runHeadlessStreaming(
 
     running = true
     runPhase = undefined
-    notifySessionStateChanged('running')
+    structuredIO.sessionState.notifyStateChanged('running')
     structuredIO.resetStallWatchdog()
     idleTimeout.stop()
 
@@ -2583,6 +2580,7 @@ function runHeadlessStreaming(
                   getPermissionDisplay(params._meta),
                 ),
               onCommandLifecycle: structuredIO.onCommandLifecycle,
+              sessionState: structuredIO.sessionState,
               agents: currentAgents,
               allowedAgentTypes,
               orphanedPermission: cmd.orphanedPermission,
@@ -2864,7 +2862,7 @@ function runHeadlessStreaming(
       await structuredIO.flushInternalEvents()
       runPhase = 'finally_post_flush'
       if (!isShuttingDown()) {
-        notifySessionStateChanged('idle')
+        structuredIO.sessionState.notifyStateChanged('idle')
         // Drain so the idle session_state_changed SDK event (plus any
         // terminal task_notification bookends emitted during bg-agent
         // teardown) reach the output stream before we block on the next
@@ -3362,7 +3360,11 @@ function runHeadlessStreaming(
               : requestedModel
           activeUserSpecifiedModel = model
           setMainLoopModelOverride(model)
-          notifySessionMetadataChanged({ model })
+          setAppState(prev => ({
+            ...prev,
+            mainLoopModelForSession: model,
+          }))
+          structuredIO.sessionState.notifyMetadataChanged({ model })
           injectModelSwitchBreadcrumbs(requestedModel, model)
 
           sendControlResponseSuccess(message)
@@ -4366,12 +4368,12 @@ function runHeadlessStreaming(
               mainLoopModelForSession: newModel,
             }))
             const modelArg = incoming.model ? String(incoming.model) : 'default'
-            notifySessionMetadataChanged({ model: newModel })
+            structuredIO.sessionState.notifyMetadataChanged({ model: newModel })
             injectModelSwitchBreadcrumbs(modelArg, newModel)
           }
 
           if ('effortLevel' in incoming) {
-            notifySessionMetadataChanged({
+            structuredIO.sessionState.notifyMetadataChanged({
               effort_level:
                 incoming.effortLevel == null
                   ? null
@@ -6213,6 +6215,7 @@ function getStructuredIO(
   options: {
     sdkUrl: string | undefined
     replayUserMessages?: boolean
+    sessionState: SessionStateManager
   },
 ): StructuredIO {
   let inputStream: AsyncIterable<string>
@@ -6240,8 +6243,17 @@ function getStructuredIO(
 
   // Use RemoteIO if sdkUrl is provided, otherwise use regular StructuredIO
   return options.sdkUrl
-    ? new RemoteIO(options.sdkUrl, inputStream, options.replayUserMessages)
-    : new StructuredIO(inputStream, options.replayUserMessages)
+    ? new RemoteIO(
+        options.sdkUrl,
+        inputStream,
+        options.replayUserMessages,
+        options.sessionState,
+      )
+    : new StructuredIO(
+        inputStream,
+        options.replayUserMessages,
+        options.sessionState,
+      )
 }
 
 /**

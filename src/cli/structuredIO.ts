@@ -62,10 +62,9 @@ import {
   persistPermissionUpdates,
 } from '../utils/permissions/PermissionUpdate.js'
 import {
-  getSessionState,
-  notifySessionStateChanged,
   type RequiresActionDetails,
   type RestoredWorkerState,
+  SessionStateManager,
 } from '../utils/sessionState.js'
 import { jsonParse } from '../utils/slowOperations.js'
 import { Stream } from '../utils/stream.js'
@@ -235,6 +234,7 @@ const MAX_RESOLVED_TOOL_USE_IDS = 1000
 export class StructuredIO {
   readonly structuredInput: AsyncGenerator<StdinMessage | SDKMessage>
   onCommandLifecycle?: ToolUseContext['onCommandLifecycle']
+  readonly sessionState: SessionStateManager
   private readonly pendingRequests = new Map<string, PendingRequest<unknown>>()
   private stallTimer?: ReturnType<typeof setTimeout>
   private stallFired = false
@@ -268,8 +268,10 @@ export class StructuredIO {
   constructor(
     private readonly input: AsyncIterable<string>,
     private readonly replayUserMessages?: boolean,
+    sessionState?: SessionStateManager,
   ) {
     this.input = input
+    this.sessionState = sessionState ?? new SessionStateManager()
     this.structuredInput = this.read()
   }
 
@@ -577,14 +579,14 @@ export class StructuredIO {
     if (message.type !== 'result' && !this.stallFired) {
       this.stallTimer = setTimeout(
         (lastMessageType: StdoutMessage['type']) => {
-          if (getSessionState() !== 'running') {
+          if (this.sessionState.getState() !== 'running') {
             return
           }
           this.stallFired = true
           logEvent('tengu_sdk_stall', {
             session_age_ms: Date.now() - this.createdAt,
             session_state:
-              getSessionState() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+              this.sessionState.getState() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
             last_message_type:
               lastMessageType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
             pending_control_requests: this.pendingRequests.size,
@@ -815,7 +817,7 @@ export class StructuredIO {
         // Only transition back to 'running' if no other permission prompts
         // are pending (concurrent tool execution can have multiple in-flight).
         if (this.getPendingPermissionRequests().length === 0) {
-          notifySessionStateChanged('running')
+          this.sessionState.notifyStateChanged('running')
         }
         parentSignal.removeEventListener('abort', onParentAbort)
       }

@@ -209,6 +209,7 @@ import { type AppState, getDefaultAppState, IDLE_SPECULATION_STATE } from './sta
 import { onChangeAppState } from './state/onChangeAppState.js';
 import { createStore } from './state/store.js';
 import { asSessionId } from './types/ids.js';
+import { SessionStateManager } from './utils/sessionState.js';
 import { filterAllowedSdkBetas } from './utils/betas.js';
 import { isInBundledMode, isRunningWithBun } from './utils/bundledMode.js';
 import { logForDiagnosticsNoPII } from './utils/diagLogs.js';
@@ -2873,8 +2874,12 @@ async function run(): Promise<CommanderCommand> {
         } : {})
       };
 
-      // Init app state
-      const headlessStore = createStore(headlessInitialState, onChangeAppState);
+      // Init app state. Headless session metadata belongs to this invocation,
+      // not to the process, so the store and transport share one manager.
+      const sessionState = new SessionStateManager();
+      const headlessStore = createStore(headlessInitialState, args =>
+        onChangeAppState(args, sessionState)
+      );
 
       // Check if bypassPermissions should be disabled based on Statsig gate
       // This runs in parallel to the code below, to avoid blocking the main loop.
@@ -2982,7 +2987,8 @@ async function run(): Promise<CommanderCommand> {
         workload: options.workload,
         setupTrigger: setupTrigger ?? undefined,
         configuredMcpServerCount: Object.keys(regularMcpConfigs).length,
-        sessionStartHooksPromise
+        sessionStartHooksPromise,
+        sessionState
       });
       return;
     }

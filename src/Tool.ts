@@ -64,6 +64,7 @@ import type { ResultDedupState } from './services/tools/resultDedup.js'
 import type { ConnectionLifecycleTracker } from './services/api/connectionState.js'
 import type { SystemPrompt } from './utils/systemPromptType.js'
 import type { ContentReplacementState } from './utils/toolResultStorage.js'
+import type { SessionStateManager } from './utils/sessionState.js'
 
 // Re-export progress types for backwards compatibility
 export type {
@@ -227,9 +228,7 @@ export type ToolUseContext = {
   getToolPermissionContext(): ToolPermissionContext
   setAppState(f: (prev: AppState) => AppState): void
   /** Per-session metadata transport used by SDK/CCR entrypoints. */
-  sessionState?: {
-    notifyMetadataChanged(metadata: Record<string, unknown>): void
-  }
+  sessionState?: SessionStateManager
   /** Reports command delivery progress to the owning SDK/CCR transport. */
   onCommandLifecycle?: (
     uuid: string,
