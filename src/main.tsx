@@ -2568,10 +2568,17 @@ async function run(): Promise<CommanderCommand> {
       // Now that trust is established and GrowthBook has auth headers,
       // resolve the --remote-control / --rc entitlement gate.
       if (feature('BRIDGE_MODE') && remoteControlOption !== undefined) {
-        const {
-          getBridgeDisabledReason
-        } = await import('./bridge/bridgeEnabled.js');
-        const disabledReason = await getBridgeDisabledReason();
+        let disabledReason: string | null;
+        if (remote !== null) {
+          disabledReason = 'Remote Control is not available inside --remote sessions.';
+        } else if (teleport) {
+          disabledReason = '--teleport sessions start without Remote Control. Use /remote-control to enable it.';
+        } else {
+          const {
+            getBridgeDisabledReason
+          } = await import('./bridge/bridgeEnabled.js');
+          disabledReason = await getBridgeDisabledReason();
+        }
         remoteControl = disabledReason === null;
         if (disabledReason) {
           process.stderr.write(chalk.yellow(`${disabledReason}\n--rc flag ignored.\n`));
@@ -4187,7 +4194,7 @@ async function run(): Promise<CommanderCommand> {
 
   // Enable teleport/remote flags for all builds but keep them undocumented until GA
   program.addOption(new Option('--teleport [session]', 'Resume a teleport session, optionally specify session ID').hideHelp());
-  program.addOption(new Option('--remote [description]', 'Create a remote session with the given description').hideHelp());
+  program.addOption(new Option('--remote [description|session_id|url]', 'Create a remote session with the given description, or attach to an existing one by session ID or claude.ai/code URL').hideHelp());
   if (feature('BRIDGE_MODE')) {
     program.addOption(new Option('--remote-control [name]', 'Start an interactive session with Remote Control enabled (optionally named)').argParser(value => value || true).hideHelp());
     program.addOption(new Option('--rc [name]', 'Alias for --remote-control').argParser(value => value || true).hideHelp());
