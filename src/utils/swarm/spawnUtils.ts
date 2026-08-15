@@ -97,15 +97,21 @@ const TEAMMATE_ENV_VARS = [
   // API provider selection — without these, teammates default to firstParty
   // and send requests to the wrong endpoint (GitHub issue #23561)
   'CLAUDE_CODE_USE_BEDROCK',
-  'CLAUDE_CODE_USE_MANTLE',
   'CLAUDE_CODE_USE_VERTEX',
   'CLAUDE_CODE_USE_FOUNDRY',
+  'CLAUDE_CODE_USE_ANTHROPIC_AWS',
+  'CLAUDE_CODE_USE_MANTLE',
   // Custom API endpoint
-  'ANTHROPIC_BASE_URL',
+  'ANTHROPIC_AWS_WORKSPACE_ID',
+  'ANTHROPIC_AWS_BASE_URL',
+  'ANTHROPIC_AWS_API_KEY',
+  'CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH',
   'AWS_BEARER_TOKEN_BEDROCK',
-  'ANTHROPIC_BEDROCK_SERVICE_TIER',
   'ANTHROPIC_BEDROCK_MANTLE_BASE_URL',
   'CLAUDE_CODE_SKIP_MANTLE_AUTH',
+  'AWS_REGION',
+  'ANTHROPIC_BEDROCK_SERVICE_TIER',
+  'ANTHROPIC_BASE_URL',
   // Config directory override
   'CLAUDE_CONFIG_DIR',
   // CCR marker — teammates need this for CCR-aware code paths. Auth finds

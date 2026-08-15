@@ -273,7 +273,8 @@ export function buildAPIProviderProperties(): Property[] {
       bedrock: 'Amazon Bedrock',
       mantle: 'Amazon Bedrock (Mantle)',
       vertex: 'Google Vertex AI',
-      foundry: 'Microsoft Foundry'
+      foundry: 'Microsoft Foundry',
+      anthropicAws: 'Claude Platform on AWS'
     }[apiProvider];
     properties.push({
       label: 'API provider',
@@ -289,7 +290,7 @@ export function buildAPIProviderProperties(): Property[] {
       });
     }
   } else if (apiProvider === 'bedrock') {
-    const bedrockBaseUrl = process.env.BEDROCK_BASE_URL;
+    const bedrockBaseUrl = process.env.ANTHROPIC_BEDROCK_BASE_URL;
     if (bedrockBaseUrl) {
       properties.push({
         label: 'Bedrock base URL',
@@ -313,7 +314,7 @@ export function buildAPIProviderProperties(): Property[] {
       });
     }
   } else if (apiProvider === 'vertex') {
-    const vertexBaseUrl = process.env.VERTEX_BASE_URL;
+    const vertexBaseUrl = process.env.ANTHROPIC_VERTEX_BASE_URL;
     if (vertexBaseUrl) {
       properties.push({
         label: 'Vertex base URL',
@@ -354,6 +355,30 @@ export function buildAPIProviderProperties(): Property[] {
     if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_FOUNDRY_AUTH)) {
       properties.push({
         value: 'Microsoft Foundry auth skipped'
+      });
+    }
+  } else if (apiProvider === 'anthropicAws') {
+    const anthropicAwsBaseUrl = process.env.ANTHROPIC_AWS_BASE_URL;
+    if (anthropicAwsBaseUrl) {
+      properties.push({
+        label: 'Claude Platform on AWS base URL',
+        value: anthropicAwsBaseUrl
+      });
+    }
+    const workspaceId = process.env.ANTHROPIC_AWS_WORKSPACE_ID;
+    if (workspaceId) {
+      properties.push({
+        label: 'Workspace ID',
+        value: workspaceId
+      });
+    }
+    properties.push({
+      label: 'AWS region',
+      value: getAWSRegion()
+    });
+    if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH)) {
+      properties.push({
+        value: 'Claude Platform on AWS auth skipped'
       });
     }
   }
