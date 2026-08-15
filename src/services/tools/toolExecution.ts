@@ -27,6 +27,8 @@ import {
   buildCodeEditToolAttributes,
   isCodeEditingTool,
 } from '../../hooks/toolPermission/permissionLogging.js'
+import { ASK_USER_QUESTION_TOOL_NAME } from '../../tools/AskUserQuestionTool/prompt.js'
+import { AGENT_TOOL_NAME } from '../../tools/AgentTool/constants.js'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import {
   findToolByName,
@@ -48,8 +50,15 @@ import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_READ_TOOL_NAME } from '../../tools/FileReadTool/prompt.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
 import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../../tools/ExitPlanModeTool/constants.js'
+import { ENTER_PLAN_MODE_TOOL_NAME } from '../../tools/EnterPlanModeTool/constants.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../../tools/NotebookEditTool/constants.js'
 import { POWERSHELL_TOOL_NAME } from '../../tools/PowerShellTool/toolName.js'
+import {
+  isReplModeEnabled,
+  REPL_ONLY_TOOLS,
+  REPL_TOOL_NAME,
+} from '../../tools/REPLTool/constants.js'
+import { TASK_OUTPUT_TOOL_NAME } from '../../tools/TaskOutputTool/constants.js'
 import { TodoWriteTool } from '../../tools/TodoWriteTool/TodoWriteTool.js'
 import { parseGitCommitId } from '../../tools/shared/gitOperationTracking.js'
 import {
@@ -148,6 +157,37 @@ export const HOOK_TIMING_DISPLAY_THRESHOLD_MS = 500
 /** Log a debug warning when hooks/permission-decision block for this long. Matches
  * BashTool's PROGRESS_THRESHOLD_MS — the collapsed view feels stuck past this. */
 const SLOW_PHASE_LOG_THRESHOLD_MS = 2000
+
+const SUBAGENT_UNAVAILABLE_TOOLS = new Set([
+  TASK_OUTPUT_TOOL_NAME,
+  EXIT_PLAN_MODE_V2_TOOL_NAME,
+  ENTER_PLAN_MODE_TOOL_NAME,
+  AGENT_TOOL_NAME,
+  ASK_USER_QUESTION_TOOL_NAME,
+])
+
+function getUnknownToolRecoveryGuidance(
+  toolName: string,
+  availableTools: readonly Tool[],
+  agentId: string | undefined,
+): string {
+  if (
+    isReplModeEnabled() &&
+    REPL_ONLY_TOOLS.has(toolName) &&
+    findToolByName(availableTools, REPL_TOOL_NAME)
+  ) {
+    return `. ${toolName} is only available inside ${REPL_TOOL_NAME}. Use ${REPL_TOOL_NAME} with code: await ${toolName}({...}).`
+  }
+
+  const knownTool = findToolByName(getAllBaseTools(), toolName)
+  if (agentId && knownTool && SUBAGENT_UNAVAILABLE_TOOLS.has(knownTool.name)) {
+    return `. ${toolName} is not available inside subagents. Complete the task with the tools provided and return findings to the orchestrator.`
+  }
+  if (knownTool) {
+    return `. ${toolName} exists but is not enabled in this context. Use one of the available tools instead.`
+  }
+  return ''
+}
 
 /**
  * Classify a tool execution error into a telemetry-safe string.
@@ -362,6 +402,11 @@ export async function* runToolUse(
   // Check if the tool exists
   if (!tool) {
     const sanitizedToolName = sanitizeToolNameForAnalytics(toolName)
+    const recoveryGuidance = getUnknownToolRecoveryGuidance(
+      toolName,
+      toolUseContext.options.tools,
+      toolUseContext.agentId,
+    )
     logForDebugging(`Unknown tool ${toolName}: ${toolUse.id}`)
     logEvent('tengu_tool_use_error', {
       error:
@@ -397,12 +442,12 @@ export async function* runToolUse(
         content: [
           {
             type: 'tool_result',
-            content: `<tool_use_error>Error: No such tool available: ${toolName}</tool_use_error>`,
+            content: `<tool_use_error>Error: No such tool available: ${toolName}${recoveryGuidance}</tool_use_error>`,
             is_error: true,
             tool_use_id: toolUse.id,
           },
         ],
-        toolUseResult: `Error: No such tool available: ${toolName}`,
+        toolUseResult: `Error: No such tool available: ${toolName}${recoveryGuidance}`,
         sourceToolAssistantUUID: assistantMessage.uuid,
       }),
     }
