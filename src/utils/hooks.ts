@@ -2058,6 +2058,33 @@ export function getUserPromptSubmitHookBlockingMessage(
 ): string {
   return `UserPromptSubmit operation blocked by hook:\n${blockingError.blockingError}`
 }
+
+export function getTelemetryHookName(
+  hookEvent: HookEvent,
+  matchQuery?: string,
+): string {
+  if (!matchQuery) return hookEvent
+  if (isEnvTruthy(process.env.OTEL_LOG_TOOL_DETAILS)) {
+    return `${hookEvent}:${matchQuery}`
+  }
+
+  switch (hookEvent) {
+    case 'PreToolUse':
+    case 'PostToolUse':
+    case 'PostToolUseFailure':
+    case 'PermissionRequest':
+    case 'PermissionDenied':
+      return `${hookEvent}:${normalizeLegacyToolName(matchQuery)}`
+    case 'Elicitation':
+    case 'ElicitationResult':
+      return `${hookEvent}:mcp_server`
+    case 'SubagentStart':
+      return hookEvent
+    default:
+      return `${hookEvent}:${matchQuery}`
+  }
+}
+
 /**
  * Common logic for executing hooks
  * @param hookInput The structured hook input that will be validated and converted to JSON
@@ -2186,27 +2213,28 @@ async function* executeHooks({
     return
   }
 
-  // Collect hook definitions for beta tracing telemetry
-  const hookDefinitionsJson = isBetaTracingEnabled()
+  const includeHookDefinitions =
+    isBetaTracingEnabled() &&
+    isEnvTruthy(process.env.OTEL_LOG_TOOL_DETAILS)
+  const hookDefinitionsJson = includeHookDefinitions
     ? jsonStringify(getHookDefinitionsForTelemetry(matchingHooks))
     : '[]'
+  const telemetryHookName = getTelemetryHookName(hookEvent, matchQuery)
 
-  // Log hook execution start to OTEL (only for beta tracing)
-  if (isBetaTracingEnabled()) {
-    void logOTelEvent('hook_execution_start', {
-      hook_event: hookEvent,
-      hook_name: hookName,
-      num_hooks: String(matchingHooks.length),
-      managed_only: String(shouldAllowManagedHooksOnly()),
+  void logOTelEvent('hook_execution_start', {
+    hook_event: hookEvent,
+    hook_name: telemetryHookName,
+    num_hooks: String(matchingHooks.length),
+    managed_only: String(shouldAllowManagedHooksOnly()),
+    hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
+    ...(includeHookDefinitions && {
       hook_definitions: hookDefinitionsJson,
-      hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
-    })
-  }
+    }),
+  })
 
-  // Start hook span for beta tracing
   const hookSpan = startHookSpan(
     hookEvent,
-    hookName,
+    telemetryHookName,
     matchingHooks.length,
     hookDefinitionsJson,
   )
@@ -3298,26 +3326,22 @@ async function* executeHooks({
     ...injectedContentChars,
   })
 
-  // Log hook execution completion to OTEL (only for beta tracing)
-  if (isBetaTracingEnabled()) {
-    const hookDefinitionsComplete =
-      getHookDefinitionsForTelemetry(matchingHooks)
+  void logOTelEvent('hook_execution_complete', {
+    hook_event: hookEvent,
+    hook_name: telemetryHookName,
+    num_hooks: String(matchingHooks.length),
+    num_success: String(outcomes.success),
+    num_blocking: String(outcomes.blocking),
+    num_non_blocking_error: String(outcomes.non_blocking_error),
+    num_cancelled: String(outcomes.cancelled),
+    total_duration_ms: String(totalDurationMs),
+    managed_only: String(shouldAllowManagedHooksOnly()),
+    hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
+    ...(includeHookDefinitions && {
+      hook_definitions: hookDefinitionsJson,
+    }),
+  })
 
-    void logOTelEvent('hook_execution_complete', {
-      hook_event: hookEvent,
-      hook_name: hookName,
-      num_hooks: String(matchingHooks.length),
-      num_success: String(outcomes.success),
-      num_blocking: String(outcomes.blocking),
-      num_non_blocking_error: String(outcomes.non_blocking_error),
-      num_cancelled: String(outcomes.cancelled),
-      managed_only: String(shouldAllowManagedHooksOnly()),
-      hook_definitions: jsonStringify(hookDefinitionsComplete),
-      hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
-    })
-  }
-
-  // End hook span for beta tracing
   endHookSpan(hookSpan, {
     numSuccess: outcomes.success,
     numBlocking: outcomes.blocking,
