@@ -1401,6 +1401,8 @@ export function REPL({
     shiftDivider
   } = useUnseenDivider(messages.length);
   const [cursor, setCursor] = useState<MessageActionsState | null>(null);
+  const cursorRef = useRef(cursor);
+  cursorRef.current = cursor;
   const cursorNavRef = useRef<MessageActionsNav | null>(null);
   // Memoized so Messages' React.memo holds.
   const unseenDivider = useMemo(() => computeUnseenDivider(messages, dividerIndex),
@@ -1409,13 +1411,17 @@ export function REPL({
   // Re-pin scroll to bottom and clear the unseen-messages baseline. Called
   // on any user-driven return-to-live action (submit, type-into-empty,
   // overlay appear/dismiss).
-  const repinScroll = useCallback((force = false) => {
+  const repinScroll = useCallback((force = false, reason = '?') => {
     if (!force && !getConfigValue('autoScrollEnabled', true).value) return;
-    scrollRef.current?.scrollToBottom();
+    const scrollHandle = scrollRef.current;
+    if (scrollHandle && !scrollHandle.isSticky()) {
+      logForDebugging(`repinScroll(${reason}, force=${force}): yanking from scrollTop=${scrollHandle.getScrollTop()} (max=${Math.max(0, scrollHandle.getScrollHeight() - scrollHandle.getViewportHeight())})`);
+    }
+    scrollHandle?.scrollToBottom();
     onRepin();
     hasScrolledAwayRef.current = false;
-    setCursor(null);
-  }, [onRepin, setCursor]);
+    if (cursorRef.current !== null) setCursor(null);
+  }, [onRepin]);
   // Backstop for the submit-handler repin at onSubmit. If a buffered stdin
   // event (wheel/drag) races between handler-fire and state-commit, the
   // handler's scrollToBottom can be undone. This effect fires on the render
@@ -1426,7 +1432,7 @@ export function REPL({
   const lastMsgIsHuman = lastMsg != null && isHumanTurn(lastMsg);
   useEffect(() => {
     if (lastMsgIsHuman) {
-      repinScroll();
+      repinScroll(false, 'lastMsgIsHuman');
     }
   }, [lastMsgIsHuman, lastMsg, repinScroll]);
   // Assistant-chat: lazy-load remote history on scroll-up. No-op unless
@@ -1512,7 +1518,7 @@ export function REPL({
     // Preserve a deliberate scroll-away until the user explicitly returns
     // to the live edge, regardless of how long they spend reading there.
     if (inputValueRef.current === '' && value !== '' && !hasScrolledAwayRef.current) {
-      repinScroll();
+      repinScroll(false, 'typedIntoEmpty');
     }
     // Sync ref immediately (like setMessages) so callers that read
     // inputValueRef before React commits — e.g. the auto-restore finally
@@ -2324,12 +2330,12 @@ export function REPL({
         scrollHandle && !scrollHandle.isSticky()
           ? scrollHandle.getScrollTop()
           : null;
-      repinScroll(true);
+      repinScroll(true, 'permissionDialogAppear');
     } else if (prePermissionScrollTopRef.current !== null) {
       scrollHandle?.scrollTo(prePermissionScrollTopRef.current);
       prePermissionScrollTopRef.current = null;
     } else {
-      repinScroll(true);
+      repinScroll(true, 'permissionDialogDismiss');
     }
   }, [focusedInputDialog, repinScroll]);
   const hasToolJsx = toolJSX?.jsx != null;
@@ -2339,7 +2345,7 @@ export function REPL({
       previousHasToolJsxRef.current !== hasToolJsx &&
       (scrollRef.current?.isSticky() ?? true)
     ) {
-      repinScroll(false);
+      repinScroll(false, `toolJsxDialog→${hasToolJsx}`);
     }
     previousHasToolJsxRef.current = hasToolJsx;
   }, [hasToolJsx, repinScroll]);
@@ -3452,7 +3458,7 @@ export function REPL({
   }) => {
     // Re-pin scroll to bottom on submit so the user always sees the new
     // exchange (matches OpenCode's auto-scroll behavior).
-    repinScroll();
+    repinScroll(false, 'onSubmit');
 
     // Resume loop mode if paused
     if (feature('PROACTIVE') || feature('KAIROS')) {
