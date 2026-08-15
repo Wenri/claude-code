@@ -1930,6 +1930,22 @@ export const SDKHookResponseMessageSchema = lazySchema(() =>
   }),
 )
 
+export const SDKPluginInstallMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('plugin_install'),
+      status: z.enum(['started', 'installed', 'failed', 'completed']),
+      name: z.string().optional(),
+      error: z.string().optional(),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Headless plugin installation progress (CLAUDE_CODE_SYNC_PLUGIN_INSTALL). started/completed bracket the whole install; installed/failed carry a per-marketplace name.',
+    ),
+)
+
 export const SDKToolProgressMessageSchema = lazySchema(() =>
   z.object({
     type: z.literal('tool_progress'),
@@ -2218,6 +2234,7 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKHookStartedMessageSchema(),
     SDKHookProgressMessageSchema(),
     SDKHookResponseMessageSchema(),
+    SDKPluginInstallMessageSchema(),
     SDKToolProgressMessageSchema(),
     SDKAuthStatusMessageSchema(),
     SDKTaskNotificationMessageSchema(),

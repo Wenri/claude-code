@@ -399,7 +399,10 @@ import {
   isEnvTruthy,
   isEnvDefinedFalsy,
 } from '../utils/envUtils.js'
-import { installPluginsForHeadless } from '../utils/plugins/headlessPluginInstall.js'
+import {
+  installPluginsForHeadless,
+  type HeadlessPluginInstallProgress,
+} from '../utils/plugins/headlessPluginInstall.js'
 import { refreshActivePlugins } from '../utils/plugins/refresh.js'
 import { loadAllPluginsCacheOnly } from '../utils/plugins/pluginLoader.js'
 import {
@@ -2148,7 +2151,9 @@ function runHeadlessStreaming(
   }
 
   // NOTE: Nested function required - needs closure access to applyMcpServerChanges and updateSdkMcp
-  async function installPluginsAndApplyMcpInBackground(): Promise<boolean> {
+  async function installPluginsAndApplyMcpInBackground(
+    onProgress?: (event: HeadlessPluginInstallProgress) => void,
+  ): Promise<boolean> {
     let pluginsInstalled = false
     try {
       // Join point for user settings (fired at runHeadless entry) and managed
@@ -2169,7 +2174,7 @@ function runHeadlessStreaming(
       const existingMcpServerNames = new Set(
         Object.keys((await getAllMcpConfigs()).servers),
       )
-      pluginsInstalled = await installPluginsForHeadless()
+      pluginsInstalled = await installPluginsForHeadless(onProgress)
 
       if (pluginsInstalled) {
         const reconcileStartedAt = performance.now()
@@ -2208,11 +2213,35 @@ function runHeadlessStreaming(
   // query so plugins are guaranteed available on the first ask().
   let pluginInstallPromise: Promise<boolean> | null = null
   let backgroundPluginRefresh: { needsRefresh: boolean } | null = null
+  let pluginInstallProgress:
+    | ((
+        event:
+          | HeadlessPluginInstallProgress
+          | { status: 'started' | 'completed' },
+      ) => void)
+    | undefined
   // --bare / SIMPLE: skip plugin install. Scripted calls don't add plugins
   // mid-session; the next interactive run reconciles.
   if (!isBareMode()) {
     if (isEnvTruthy(process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL)) {
-      pluginInstallPromise = installPluginsAndApplyMcpInBackground()
+      pluginInstallProgress =
+        options.outputFormat === 'stream-json'
+          ? event => {
+              void structuredIO.write({
+                type: 'system',
+                subtype: 'plugin_install',
+                status: event.status,
+                name: 'name' in event ? event.name : undefined,
+                error: 'error' in event ? event.error : undefined,
+                uuid: randomUUID(),
+                session_id: getSessionId(),
+              } as StdoutMessage)
+            }
+          : undefined
+      pluginInstallProgress?.({ status: 'started' })
+      pluginInstallPromise = installPluginsAndApplyMcpInBackground(event =>
+        pluginInstallProgress?.(event),
+      )
     } else {
       backgroundPluginRefresh = trackBackgroundPluginRefresh(
         installPluginsAndApplyMcpInBackground,
@@ -2369,43 +2398,48 @@ function runHeadlessStreaming(
     // Awaiting here guarantees plugins are available before the first ask().
     // If CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS is set, races against that
     // deadline and proceeds without plugins on timeout (logging an error).
-    if (pluginInstallPromise) {
-      const pluginInstallStartedAt = performance.now()
-      const timeoutMs = parseInt(
-        process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS || '',
-        10,
-      )
-      if (timeoutMs > 0) {
-        const timeout = sleep(timeoutMs).then(() => 'timeout' as const)
-        const result = await Promise.race([pluginInstallPromise, timeout])
-        if (result === 'timeout') {
-          logError(
-            new Error(
-              `CLAUDE_CODE_SYNC_PLUGIN_INSTALL: plugin installation timed out after ${timeoutMs}ms`,
-            ),
-          )
-          logEvent('tengu_sync_plugin_install_timeout', {
-            timeout_ms: timeoutMs,
-          })
+    try {
+      if (pluginInstallPromise) {
+        const pluginInstallStartedAt = performance.now()
+        const timeoutMs = parseInt(
+          process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS || '',
+          10,
+        )
+        if (timeoutMs > 0) {
+          const timeout = sleep(timeoutMs).then(() => 'timeout' as const)
+          const result = await Promise.race([pluginInstallPromise, timeout])
+          if (result === 'timeout') {
+            logError(
+              new Error(
+                `CLAUDE_CODE_SYNC_PLUGIN_INSTALL: plugin installation timed out after ${timeoutMs}ms`,
+              ),
+            )
+            logEvent('tengu_sync_plugin_install_timeout', {
+              timeout_ms: timeoutMs,
+            })
+          }
+        } else {
+          await pluginInstallPromise
         }
-      } else {
-        await pluginInstallPromise
+        recordRemoteStartupPhase(
+          'plugin_install_ms',
+          performance.now() - pluginInstallStartedAt,
+        )
+        pluginInstallPromise = null
+
+        // Refresh commands, agents, and hooks now that plugins are installed
+        await refreshPluginState()
+
+        // Set up hot-reload for plugin hooks now that the initial install is done.
+        // In sync-install mode, setup.ts skips this to avoid racing with the install.
+        const { setupPluginHookHotReload } = await import(
+          '../utils/plugins/loadPluginHooks.js'
+        )
+        setupPluginHookHotReload()
       }
-      recordRemoteStartupPhase(
-        'plugin_install_ms',
-        performance.now() - pluginInstallStartedAt,
-      )
-      pluginInstallPromise = null
-
-      // Refresh commands, agents, and hooks now that plugins are installed
-      await refreshPluginState()
-
-      // Set up hot-reload for plugin hooks now that the initial install is done.
-      // In sync-install mode, setup.ts skips this to avoid racing with the install.
-      const { setupPluginHookHotReload } = await import(
-        '../utils/plugins/loadPluginHooks.js'
-      )
-      setupPluginHookHotReload()
+    } finally {
+      pluginInstallProgress?.({ status: 'completed' })
+      pluginInstallProgress = undefined
     }
 
     if (

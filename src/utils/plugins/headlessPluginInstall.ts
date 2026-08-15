@@ -40,7 +40,13 @@ import { syncMarketplacesToZipCache } from './zipCacheAdapters.js'
  *
  * @returns true if any plugins were installed (caller should refresh MCP)
  */
-export async function installPluginsForHeadless(): Promise<boolean> {
+export type HeadlessPluginInstallProgress =
+  | { status: 'installed'; name: string }
+  | { status: 'failed'; name: string; error: string }
+
+export async function installPluginsForHeadless(
+  onProgress?: (event: HeadlessPluginInstallProgress) => void,
+): Promise<boolean> {
   const zipCacheMode = isPluginZipCacheEnabled()
   logForDebugging(
     `installPluginsForHeadless: starting${zipCacheMode ? ' (zip cache mode)' : ''}`,
@@ -101,10 +107,16 @@ export async function installPluginsForHeadless(): Promise<boolean> {
               : undefined,
             onProgress: event => {
               if (event.type === 'installed') {
+                onProgress?.({ status: 'installed', name: event.name })
                 logForDebugging(
                   `installPluginsForHeadless: installed marketplace ${event.name}`,
                 )
               } else if (event.type === 'failed') {
+                onProgress?.({
+                  status: 'failed',
+                  name: event.name,
+                  error: event.error,
+                })
                 logForDebugging(
                   `installPluginsForHeadless: failed to install marketplace ${event.name}: ${event.error}`,
                 )
