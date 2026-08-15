@@ -4,7 +4,7 @@ export function formatErrorMessage(error: PluginError): string {
     case 'path-not-found':
       return `${error.component} path not found: ${error.path}`;
     case 'path-traversal':
-      return `Path escapes plugin directory: ${error.path} (${error.component})`;
+      return `${error.component} path escapes plugin directory: ${error.path}`;
     case 'git-auth-failed':
       return `Git ${error.authType.toUpperCase()} authentication failed for ${error.gitUrl}`;
     case 'git-timeout':
