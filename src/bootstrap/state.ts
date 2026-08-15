@@ -1026,10 +1026,14 @@ export function setModelStrings(modelStrings: ModelStrings): void {
   STATE.modelStrings = modelStrings
 }
 
+export function resetModelStrings(): void {
+  STATE.modelStrings = null
+}
+
 // Test utility function to reset model strings for re-initialization.
 // Separate from setModelStrings because we only want to accept 'null' in tests.
-export function resetModelStringsForTestingOnly() {
-  STATE.modelStrings = null
+export function resetModelStringsForTestingOnly(): void {
+  resetModelStrings()
 }
 
 export function setMeter(
