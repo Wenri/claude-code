@@ -8,6 +8,7 @@ import { createDisabledBypassPermissionsContext, isBypassPermissionsModeDisabled
 import { applySettingsChange } from '../utils/settings/applySettingsChange.js';
 import type { SettingSource } from '../utils/settings/constants.js';
 import { createStore } from './store.js';
+import { setMcpClientsAccessor } from '../bootstrap/state.js';
 
 // DCE: voice context is ant-only. External builds get a passthrough.
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -55,6 +56,10 @@ export function AppStateProvider(t0) {
     t1 = $[2];
   }
   const [store] = useState(t1);
+  useEffect(() => {
+    setMcpClientsAccessor(() => store.getState().mcp.clients)
+    return () => setMcpClientsAccessor(undefined)
+  }, [store])
   let t2;
   if ($[3] !== store) {
     t2 = () => {

@@ -10,6 +10,7 @@ import { cwd } from 'process'
 import type { HookEvent, ModelUsage } from 'src/entrypoints/agentSdkTypes.js'
 import type { AgentColorName } from 'src/tools/AgentTool/agentColorManager.js'
 import type { HookCallbackMatcher } from 'src/types/hooks.js'
+import type { MCPServerConnection } from 'src/services/mcp/types.js'
 // Indirection for browser-sdk build (package.json "browser" field swaps
 // crypto.ts for crypto.browser.ts). Pure leaf re-export of node:crypto —
 // zero circular-dep risk. Path-alias import bypasses bootstrap-isolation
@@ -37,6 +38,22 @@ export type ActiveRemoteControlTransport = {
   sendControlRequest: <Response = Record<string, unknown>>(
     request: unknown,
   ) => Promise<Response>
+}
+
+export type RuntimeCapabilities = {
+  renderTarget: 'ink'
+  workspace: 'local' | 'remote'
+  canDrive: boolean
+  transcriptSource: 'local-jsonl' | 'ccr-api'
+  remote: ActiveRemoteControlTransport | null
+}
+
+const DEFAULT_RUNTIME_CAPABILITIES: RuntimeCapabilities = {
+  renderTarget: 'ink',
+  workspace: 'local',
+  canDrive: true,
+  transcriptSource: 'local-jsonl',
+  remote: null,
 }
 
 import type { SessionId } from 'src/types/ids.js'
@@ -88,6 +105,8 @@ type State = {
   initialMainLoopModel: ModelSetting
   modelStrings: ModelStrings | null
   isInteractive: boolean
+  hasStreamingInput: boolean
+  fridayFundayDisabledForSession: boolean
   kairosActive: boolean
   // When true, ensureToolResultPairing throws on mismatch instead of
   // repairing with synthetic placeholders. HFI opts in at startup so
@@ -111,7 +130,7 @@ type State = {
   oauthTokenFromFd: string | null | undefined
   apiKeyFromFd: string | null | undefined
   sdkOAuthTokenRefreshCallback: (() => Promise<string | null>) | null
-  activeRemoteControlTransport: ActiveRemoteControlTransport | null
+  caps: RuntimeCapabilities
   // Telemetry state
   meter: Meter | null
   sessionCounter: AttributedCounter | null
@@ -227,13 +246,12 @@ type State = {
   mainThreadAgentType: string | undefined
   // Frontmatter hooks from the main thread agent.
   mainThreadAgentHooks: HooksSettings | undefined
-  // Remote mode (--remote flag)
-  isRemoteMode: boolean
   // Whether the interactive Remote Control bridge is connected. Outbound-only
   // mirrors do not count as active because they cannot deliver tool pushes.
   replBridgeActive: boolean
   // Direct connect server URL (for display in header)
   directConnectServerUrl: string | undefined
+  activeRoutine: unknown
   // System prompt section cache state
   systemPromptSectionCache: Map<string, string | null>
   // Last date emitted to the model (for detecting midnight date changes)
@@ -246,6 +264,7 @@ type State = {
   // allowlist, 'server' → allowlist always fails (schema is plugin-only).
   // Either kind needs entry.dev to bypass allowlist.
   allowedChannels: ChannelEntry[]
+  activeInputs: Map<string, Set<string>>
   // True if any entry in allowedChannels came from
   // --dangerously-load-development-channels (so ChannelsNotice can name the
   // right flag in policy-blocked messages)
@@ -343,6 +362,8 @@ function getInitialState(): State {
     initialMainLoopModel: null,
     modelStrings: null,
     isInteractive: false,
+    hasStreamingInput: false,
+    fridayFundayDisabledForSession: false,
     kairosActive: false,
     strictToolResultPairing: false,
     sdkAgentProgressSummariesEnabled: false,
@@ -358,7 +379,7 @@ function getInitialState(): State {
     oauthTokenFromFd: undefined,
     apiKeyFromFd: undefined,
     sdkOAuthTokenRefreshCallback: null,
-    activeRemoteControlTransport: null,
+    caps: DEFAULT_RUNTIME_CAPABILITIES,
     flagSettingsPath: undefined,
     flagSettingsInline: null,
     parentManagedSettings: null,
@@ -440,11 +461,10 @@ function getInitialState(): State {
     // Main thread agent type
     mainThreadAgentType: undefined,
     mainThreadAgentHooks: undefined,
-    // Remote mode
-    isRemoteMode: false,
     replBridgeActive: false,
     // Direct connect server URL
     directConnectServerUrl: undefined,
+    activeRoutine: undefined,
     // System prompt section cache state
     systemPromptSectionCache: new Map(),
     // Last date emitted to the model
@@ -453,6 +473,7 @@ function getInitialState(): State {
     additionalDirectoriesForClaudeMd: [],
     // Channel server allowlist from --channels flag
     allowedChannels: [],
+    activeInputs: new Map(),
     hasDevChannels: false,
     // Session project dir (null = derive from originalCwd)
     sessionProjectDir: null,
@@ -500,6 +521,7 @@ export function regenerateSessionId(
   // null so getTranscriptPath() derives from originalCwd.
   STATE.sessionId = randomUUID() as SessionId
   STATE.sessionProjectDir = null
+  STATE.promptIndex = 0
   return STATE.sessionId
 }
 
@@ -592,12 +614,24 @@ export function setCwdState(cwd: string): void {
   STATE.cwd = cwd.normalize('NFC')
 }
 
+export function resetStartTime(): void {
+  STATE.startTime = Date.now()
+}
+
 export function getDirectConnectServerUrl(): string | undefined {
   return STATE.directConnectServerUrl
 }
 
 export function setDirectConnectServerUrl(url: string): void {
   STATE.directConnectServerUrl = url
+}
+
+export function getActiveRoutine(): unknown {
+  return STATE.activeRoutine
+}
+
+export function setActiveRoutine(routine: unknown): void {
+  STATE.activeRoutine = routine
 }
 
 export function addToTotalDurationState(
@@ -1159,6 +1193,22 @@ export function setIsInteractive(value: boolean): void {
   STATE.isInteractive = value
 }
 
+export function getFridayFundayDisabledForSession(): boolean {
+  return STATE.fridayFundayDisabledForSession
+}
+
+export function setFridayFundayDisabledForSession(): void {
+  STATE.fridayFundayDisabledForSession = true
+}
+
+export function getHasStreamingInput(): boolean {
+  return STATE.hasStreamingInput
+}
+
+export function setHasStreamingInput(value: boolean): void {
+  STATE.hasStreamingInput = value
+}
+
 export function getClientType(): string {
   return STATE.clientType
 }
@@ -1317,20 +1367,27 @@ export function setSdkOAuthTokenRefreshCallback(
  * The generated bundle owns the concrete transport module; authored callers
  * use this bootstrap leaf to reach the active remote without importing REPL.
  */
-export function getRuntimeCapabilities(): {
-  workspace: 'local' | 'remote'
-  remote: ActiveRemoteControlTransport | null
-} {
-  return {
-    workspace: STATE.activeRemoteControlTransport ? 'remote' : 'local',
-    remote: STATE.activeRemoteControlTransport,
-  }
+export function getCaps(): RuntimeCapabilities {
+  return STATE.caps
+}
+
+export function setCaps(caps: RuntimeCapabilities): void {
+  STATE.caps = caps
+}
+
+export function getRuntimeCapabilities(): RuntimeCapabilities {
+  return getCaps()
 }
 
 export function setActiveRemoteControlTransport(
   transport: ActiveRemoteControlTransport | null,
 ): void {
-  STATE.activeRemoteControlTransport = transport
+  setCaps({
+    ...getCaps(),
+    workspace: transport ? 'remote' : 'local',
+    transcriptSource: transport?.kind === 'ccr' ? 'ccr-api' : 'local-jsonl',
+    remote: transport,
+  })
 }
 
 export function getApiKeyFromFd(): string | null | undefined {
@@ -1610,6 +1667,22 @@ export function getInitJsonSchema(): Record<string, unknown> | null {
   return STATE.initJsonSchema
 }
 
+let mcpClientsAccessor:
+  | (() => MCPServerConnection[])
+  | undefined
+
+export function setMcpClientsAccessor(
+  accessor: (() => MCPServerConnection[]) | undefined,
+): void {
+  mcpClientsAccessor = accessor
+}
+
+export function getMcpClientsFromAccessor():
+  | MCPServerConnection[]
+  | undefined {
+  return mcpClientsAccessor?.()
+}
+
 export function registerHookCallbacks(
   hooks: Partial<Record<HookEvent, RegisteredHookMatcher[]>>,
 ): void {
@@ -1831,11 +1904,14 @@ export function setMainThreadAgentHooks(hooks: HooksSettings | undefined): void 
 }
 
 export function getIsRemoteMode(): boolean {
-  return STATE.isRemoteMode
+  return STATE.caps.workspace === 'remote'
 }
 
 export function setIsRemoteMode(value: boolean): void {
-  STATE.isRemoteMode = value
+  STATE.caps = {
+    ...STATE.caps,
+    workspace: value ? 'remote' : 'local',
+  }
 }
 
 export function isReplBridgeActive(): boolean {
@@ -1890,6 +1966,31 @@ export function getAllowedChannels(): ChannelEntry[] {
 
 export function setAllowedChannels(entries: ChannelEntry[]): void {
   STATE.allowedChannels = entries
+}
+
+export function activateInput(serverName: string, inputId: string): void {
+  let active = STATE.activeInputs.get(serverName)
+  if (!active) {
+    active = new Set()
+    STATE.activeInputs.set(serverName, active)
+  }
+  active.add(inputId)
+}
+
+export function deactivateInput(serverName: string, inputId: string): void {
+  STATE.activeInputs.get(serverName)?.delete(inputId)
+}
+
+export function clearInputsForServer(serverName: string): void {
+  STATE.activeInputs.delete(serverName)
+}
+
+export function isInputActive(serverName: string, inputId: string): boolean {
+  return STATE.activeInputs.get(serverName)?.has(inputId) ?? false
+}
+
+export function getActiveInputsForServer(serverName: string): Set<string> {
+  return STATE.activeInputs.get(serverName) ?? new Set()
 }
 
 export function getHasDevChannels(): boolean {
@@ -2002,7 +2103,9 @@ export function setPromptId(id: string | null): void {
   STATE.promptId = id
 }
 
-export function getNextPromptIndex(): number {
+export function incrementPromptIndex(): number {
   STATE.promptIndex++
   return STATE.promptIndex
 }
+
+export const getNextPromptIndex = incrementPromptIndex

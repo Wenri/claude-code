@@ -36,6 +36,7 @@ import {
   getOriginalCwd,
   getMainThreadAgentHooks,
   getMainThreadAgentType,
+  getHasStreamingInput,
 } from '../bootstrap/state.js'
 import { renameJob } from '../daemon/jobs.js'
 import { checkHasTrustDialogAccepted } from './config.js'
@@ -1087,7 +1088,12 @@ async function execCommandHook(
   // Track whether stdin has already been written (to avoid "write after end" errors)
   let stdinWritten = false
 
-  if ((hook.async || hook.asyncRewake) && !forceSyncExecution) {
+  const canAsyncRewake =
+    !getIsNonInteractiveSession() || getHasStreamingInput()
+  if (
+    (hook.async || (hook.asyncRewake && canAsyncRewake)) &&
+    !forceSyncExecution
+  ) {
     const processId = `async_hook_${child.pid}`
     logForDebugging(
       `Hooks: Config-based async hook, backgrounding process ${processId}`,

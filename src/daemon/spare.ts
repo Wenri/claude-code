@@ -8,6 +8,7 @@ import {
   setOriginalCwd,
   setProjectRoot,
   switchSession,
+  resetStartTime,
 } from '../bootstrap/state.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
@@ -246,6 +247,7 @@ export async function runBgSpare(args: string[]): Promise<void> {
   setProjectRoot(cwd)
   setCwdState(cwd)
   switchSession(frame.sessionId as never)
+  resetStartTime()
   resetSettingsCache()
   Object.assign(process.env, frame.env)
   process.argv = [process.argv[0]!, process.argv[1]!, ...frame.argv]

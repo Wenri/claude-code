@@ -361,6 +361,7 @@ import {
   getAllowedChannels,
   setAllowedChannels,
   setSdkOAuthTokenRefreshCallback,
+  setHasStreamingInput,
   type ChannelEntry,
 } from 'src/bootstrap/state.js'
 import { runWithWorkload, WORKLOAD_CRON } from 'src/utils/workloadContext.js'
@@ -788,6 +789,7 @@ export async function runHeadless(
     return
   }
 
+  setHasStreamingInput(typeof inputPrompt !== 'string')
   const structuredIO = getStructuredIO(inputPrompt, options)
 
   if (

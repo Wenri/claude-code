@@ -55,7 +55,10 @@ import {
 import type { AppState } from 'src/state/AppState.js'
 import type { PluginError } from 'src/types/plugin.js'
 import { logForDebugging } from 'src/utils/debug.js'
-import { getAllowedChannels } from '../../bootstrap/state.js'
+import {
+  clearInputsForServer,
+  getAllowedChannels,
+} from '../../bootstrap/state.js'
 import { useNotifications } from '../../context/notifications.js'
 import {
   useAppState,
@@ -507,7 +510,10 @@ export function useManageMCPConnections(
               }
 
               void reconnectWithBackoff()
+              clearInputsForServer(client.name)
             } else {
+              initialConnectAttemptsRef.current.delete(client.name)
+              clearInputsForServer(client.name)
               updateServer({ ...client, type: 'failed' })
             }
           }
@@ -913,6 +919,7 @@ export function useManageMCPConnections(
             clearTimeout(timer)
             reconnectTimersRef.current.delete(s.name)
           }
+          clearInputsForServer(s.name)
           if (s.type === 'connected') {
             s.client.onclose = undefined
             void clearServerCache(s.name, s.config).catch(() => {})
@@ -1222,6 +1229,8 @@ export function useManageMCPConnections(
         // Persist disabled state to disk FIRST before clearing cache
         // This is important because the onclose handler checks disk state
         setMcpServerEnabled(serverName, false)
+        initialConnectAttemptsRef.current.delete(serverName)
+        clearInputsForServer(serverName)
 
         // Disabling: disconnect and clean up if currently connected
         if (client.type === 'connected') {
