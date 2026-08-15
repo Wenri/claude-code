@@ -70,9 +70,8 @@ import { connectPtyHost, type PtyClient } from './ptyClient.js'
 import { killWorkerThroughPty } from './orphanReaper.js'
 import { controlPeerMatchesCurrentUser } from './peerCredentials.js'
 import {
-  killSparePty,
+  claimSpare,
   reapOrphanSpares,
-  sendSpareClaim,
   spawnSpare,
   type SpareProcess,
 } from './spare.js'
@@ -2268,27 +2267,12 @@ export async function runBackgroundSupervisor(options?: {
       const claimed = spare
       spare = null
       try {
-        handle = BackgroundHandle.claim(value, {
-          pid: claimed.hostPid,
-          ptySockPath: claimed.ptySock,
-          spawnPty,
-          getAuthSnapshot: options?.getAuthSnapshot,
-        })
-        const frame = BackgroundHandle.buildClaimFrame(
+        handle = claimSpare(
           value,
-          options?.getAuthSnapshot?.(),
+          claimed,
+          spawnPty,
+          options?.getAuthSnapshot,
         )
-        void sendSpareClaim(claimed.claimSock, {
-          cwd: value.cwd,
-          env: frame.env,
-          argv: frame.argv,
-          sessionId: value.sessionId,
-        }).catch((error) => {
-          logForDebugging(`[bg-spare] send-claim failed: ${String(error)}`, {
-            level: 'warn',
-          })
-          killSparePty(claimed.ptySock)
-        })
         logEvent('tengu_bg_spare_claim', {
           age_ms: Date.now() - claimed.startedAt,
         })
