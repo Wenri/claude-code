@@ -78,6 +78,7 @@ import {
 import type { Stream } from 'src/utils/stream.js'
 import { EMPTY_USAGE } from 'src/services/api/logging.js'
 import {
+  findLiveNonInteractiveSession,
   loadConversationForResume,
   removeInterruptedMessage,
   type TurnInterruptionState,
@@ -6011,6 +6012,19 @@ async function loadInitialMessages(
           parsedSessionId.sessionId,
           parsedSessionId.ingressUrl,
         )
+      }
+
+      if (!options.forkSession) {
+        const liveSession = await findLiveNonInteractiveSession(
+          parsedSessionId.sessionId,
+        )
+        if (liveSession) {
+          process.stderr.write(
+            `Error: Session ${parsedSessionId.sessionId} is currently running as a background agent (${liveSession.kind}). Use \`claude agents\` to find and attach to it, or add --fork-session to branch off a copy.\n`,
+          )
+          gracefulShutdownSync(1)
+          return { messages: [] }
+        }
       }
 
       // Load the conversation with the specified session ID

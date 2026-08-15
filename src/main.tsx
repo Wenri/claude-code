@@ -116,7 +116,7 @@ import { assertMinVersion } from './utils/autoUpdater.js';
 import { CLAUDE_IN_CHROME_SKILL_HINT, CLAUDE_IN_CHROME_SKILL_HINT_WITH_WEBBROWSER } from './utils/claudeInChrome/prompt.js';
 import { setupClaudeInChrome, shouldAutoEnableClaudeInChrome, shouldEnableClaudeInChrome } from './utils/claudeInChrome/setup.js';
 import { getContextWindowForModel } from './utils/context.js';
-import { loadConversationForResume } from './utils/conversationRecovery.js';
+import { findLiveNonInteractiveSession, loadConversationForResume } from './utils/conversationRecovery.js';
 import { buildDeepLinkBanner } from './utils/deepLink/banner.js';
 import { validateDeepLinkCwd, validateDeepLinkQuery } from './utils/deepLink/parseDeepLink.js';
 import { hasNodeOption, isBareMode, isEnvTruthy, isInProtectedNamespace } from './utils/envUtils.js';
@@ -3840,6 +3840,12 @@ async function run(): Promise<CommanderCommand> {
       if (maybeSessionId) {
         // Resume specific session by ID
         const sessionId = maybeSessionId;
+        if (!options.forkSession) {
+          const liveSession = await findLiveNonInteractiveSession(sessionId);
+          if (liveSession) {
+            return await exitWithError(root, `Session ${sessionId} is currently running as a background agent (${liveSession.kind}). Use \`claude agents\` to find and attach to it, or add --fork-session to branch off a copy.`);
+          }
+        }
         try {
           const resumeStart = performance.now();
           // Use matchedLog if available (for cross-worktree resume by custom title)

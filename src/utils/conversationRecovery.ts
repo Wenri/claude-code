@@ -627,3 +627,21 @@ export async function loadConversationForResume(
     throw error
   }
 }
+
+export async function findLiveNonInteractiveSession(
+  sessionId: string,
+): Promise<{ kind: string } | null> {
+  const sessions = await import('./udsClient.js')
+    .then(module => module.listAllLiveSessions())
+    .catch(() => [])
+  for (const session of sessions) {
+    if (
+      session.sessionId === sessionId &&
+      session.kind &&
+      session.kind !== 'interactive'
+    ) {
+      return { kind: session.kind }
+    }
+  }
+  return null
+}
