@@ -42,6 +42,56 @@ function extractCodeBlocks(markdown: string): CodeBlock[] {
   return blocks;
 }
 
+function tableCellToMarkdown(cell: Tokens.TableCell): string {
+  return cell.tokens.map(token => token.raw).join('');
+}
+
+function tableRows(table: Tokens.Table): string[][] {
+  return [
+    table.header.map(tableCellToMarkdown),
+    ...table.rows.map(row => row.map(tableCellToMarkdown))
+  ];
+}
+
+export function tableTokenToMarkdown(table: Tokens.Table): string {
+  const rows = tableRows(table).map(row => row.map(cell => cell.replace(/\|/g, '\\|').replace(/[\r\n]/g, ' ')));
+  const widths = rows[0]!.map((_, column) => Math.max(3, ...rows.map(row => stringWidth(row[column] ?? ''))));
+  const renderRow = (row: string[]): string => `| ${row.map((cell, column) => cell + ' '.repeat(Math.max(0, widths[column]! - stringWidth(cell)))).join(' | ')} |`;
+  const renderAlignment = (width: number, alignment: 'center' | 'left' | 'right' | null): string => {
+    switch (alignment) {
+      case 'center':
+        return `:${'-'.repeat(width - 2)}:`;
+      case 'right':
+        return `${'-'.repeat(width - 1)}:`;
+      case 'left':
+        return `:${'-'.repeat(width - 1)}`;
+      default:
+        return '-'.repeat(width);
+    }
+  };
+  const separator = `| ${widths.map((width, column) => renderAlignment(width, table.align[column] ?? null)).join(' | ')} |`;
+  const [header, ...body] = rows;
+  return [renderRow(header!), separator, ...body.map(renderRow)].join('\n');
+}
+
+export function normalizeTablesInMarkdown(markdown: string): string {
+  const tokens = marked.lexer(markdown);
+  let result = markdown;
+  let searchFrom = 0;
+  let offset = 0;
+  for (const token of tokens) {
+    const start = markdown.indexOf(token.raw, searchFrom);
+    if (start === -1) continue;
+    searchFrom = start + token.raw.length;
+    if (token.type !== 'table') continue;
+    const trailingNewlines = token.raw.match(/\n*$/)?.[0] ?? '';
+    const replacement = tableTokenToMarkdown(token as Tokens.Table) + trailingNewlines;
+    result = result.slice(0, start + offset) + replacement + result.slice(start + token.raw.length + offset);
+    offset += replacement.length - token.raw.length;
+  }
+  return result;
+}
+
 /**
  * Walk messages newest-first, returning text from assistant messages that
  * actually said something (skips tool-use-only turns and API errors).
@@ -353,7 +403,7 @@ export const call: LocalJSXCommandCall = async (onDone, context, args) => {
     }
     age = n - 1;
   }
-  const text = texts[age]!;
+  const text = normalizeTablesInMarkdown(texts[age]!);
   const codeBlocks = extractCodeBlocks(text);
   const config = getGlobalConfig();
   if (codeBlocks.length === 0 || config.copyFullResponse) {
