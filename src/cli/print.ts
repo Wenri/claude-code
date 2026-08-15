@@ -2080,7 +2080,8 @@ function runHeadlessStreaming(
   }
 
   // NOTE: Nested function required - needs closure access to applyMcpServerChanges and updateSdkMcp
-  async function installPluginsAndApplyMcpInBackground(): Promise<void> {
+  async function installPluginsAndApplyMcpInBackground(): Promise<boolean> {
+    let pluginsInstalled = false
     try {
       // Join point for user settings (fired at runHeadless entry) and managed
       // settings (fired in main.tsx preAction). downloadUserSettings() caches
@@ -2100,7 +2101,7 @@ function runHeadlessStreaming(
       const existingMcpServerNames = new Set(
         Object.keys((await getAllMcpConfigs()).servers),
       )
-      const pluginsInstalled = await installPluginsForHeadless()
+      pluginsInstalled = await installPluginsForHeadless()
 
       if (pluginsInstalled) {
         await applyPluginMcpDiff(
@@ -2111,20 +2112,36 @@ function runHeadlessStreaming(
     } catch (error) {
       logError(error)
     }
+    return pluginsInstalled
+  }
+
+  function trackBackgroundPluginRefresh(
+    install: () => Promise<boolean>,
+  ): { needsRefresh: boolean } {
+    const state = { needsRefresh: false }
+    void install()
+      .then(needsRefresh => {
+        state.needsRefresh = needsRefresh
+      })
+      .catch(logError)
+    return state
   }
 
   // Background plugin installation for all headless users
   // Installs marketplaces from extraKnownMarketplaces and missing enabled plugins
   // CLAUDE_CODE_SYNC_PLUGIN_INSTALL=true: resolved in run() before the first
   // query so plugins are guaranteed available on the first ask().
-  let pluginInstallPromise: Promise<void> | null = null
+  let pluginInstallPromise: Promise<boolean> | null = null
+  let backgroundPluginRefresh: { needsRefresh: boolean } | null = null
   // --bare / SIMPLE: skip plugin install. Scripted calls don't add plugins
   // mid-session; the next interactive run reconciles.
   if (!isBareMode()) {
     if (isEnvTruthy(process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL)) {
       pluginInstallPromise = installPluginsAndApplyMcpInBackground()
     } else {
-      void installPluginsAndApplyMcpInBackground()
+      backgroundPluginRefresh = trackBackgroundPluginRefresh(
+        installPluginsAndApplyMcpInBackground,
+      )
     }
   }
 
@@ -2308,6 +2325,20 @@ function runHeadlessStreaming(
         '../utils/plugins/loadPluginHooks.js'
       )
       setupPluginHookHotReload()
+    }
+
+    if (
+      isEnvTruthy(
+        process.env.CLAUDE_CODE_ENABLE_BACKGROUND_PLUGIN_REFRESH,
+      ) &&
+      backgroundPluginRefresh?.needsRefresh
+    ) {
+      backgroundPluginRefresh.needsRefresh = false
+      try {
+        await refreshPluginState()
+      } catch (error) {
+        logError(error)
+      }
     }
 
     // Only main-thread commands (agentId===undefined) — subagent
