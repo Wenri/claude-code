@@ -45,6 +45,7 @@ import type {
   PermissionUpdateDestination,
 } from './PermissionUpdateSchema.js'
 import {
+  getToolNameWithProxyAliases,
   permissionRuleValueFromString,
   permissionRuleValueToString,
 } from './permissionRuleParser.js'
@@ -240,6 +241,7 @@ export function getAskRules(context: ToolPermissionContext): PermissionRule[] {
 function toolMatchesRule(
   tool: Pick<Tool, 'name' | 'mcpInfo'>,
   rule: PermissionRule,
+  { proxyExpansion = false }: { proxyExpansion?: boolean } = {},
 ): boolean {
   // Rule must not have content to match the entire tool
   if (rule.ruleValue.ruleContent !== undefined) {
@@ -254,6 +256,15 @@ function toolMatchesRule(
 
   // Direct tool name match
   if (rule.ruleValue.toolName === nameForRuleMatch) {
+    return true
+  }
+
+  if (
+    proxyExpansion &&
+    getToolNameWithProxyAliases(rule.ruleValue.toolName).includes(
+      nameForRuleMatch,
+    )
+  ) {
     return true
   }
 
@@ -290,7 +301,11 @@ export function getDenyRuleForTool(
   context: ToolPermissionContext,
   tool: Pick<Tool, 'name' | 'mcpInfo'>,
 ): PermissionRule | null {
-  return getDenyRules(context).find(rule => toolMatchesRule(tool, rule)) || null
+  return (
+    getDenyRules(context).find(rule =>
+      toolMatchesRule(tool, rule, { proxyExpansion: true }),
+    ) || null
+  )
 }
 
 /**
@@ -300,7 +315,11 @@ export function getAskRuleForTool(
   context: ToolPermissionContext,
   tool: Pick<Tool, 'name' | 'mcpInfo'>,
 ): PermissionRule | null {
-  return getAskRules(context).find(rule => toolMatchesRule(tool, rule)) || null
+  return (
+    getAskRules(context).find(rule =>
+      toolMatchesRule(tool, rule, { proxyExpansion: true }),
+    ) || null
+  )
 }
 
 /**

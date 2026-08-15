@@ -131,6 +131,8 @@ import { logForDebugging } from './debug.js'
 import { logForDiagnosticsNoPII } from './diagLogs.js'
 import { firstLineOf } from './stringUtils.js'
 import {
+  getToolNameWithProxyAliases,
+  getToolNamesForProxyAlias,
   normalizeLegacyToolName,
   getLegacyToolNames,
   permissionRuleValueFromString,
@@ -1427,11 +1429,15 @@ function matchesPattern(matchQuery: string, matcher: string): boolean {
     if (matcher.includes('|')) {
       const patterns = matcher
         .split('|')
-        .map(p => normalizeLegacyToolName(p.trim()))
+        .flatMap(p =>
+          getToolNameWithProxyAliases(normalizeLegacyToolName(p.trim())),
+        )
       return patterns.includes(matchQuery)
     }
     // Simple exact match
-    return matchQuery === normalizeLegacyToolName(matcher)
+    return getToolNameWithProxyAliases(
+      normalizeLegacyToolName(matcher),
+    ).includes(matchQuery)
   }
 
   // Otherwise treat as regex
@@ -1443,6 +1449,11 @@ function matchesPattern(matchQuery: string, matcher: string): boolean {
     // Also test against legacy names so patterns like "^Task$" still match
     for (const legacyName of getLegacyToolNames(matchQuery)) {
       if (regex.test(legacyName)) {
+        return true
+      }
+    }
+    for (const toolName of getToolNamesForProxyAlias(matchQuery)) {
+      if (regex.test(toolName)) {
         return true
       }
     }
