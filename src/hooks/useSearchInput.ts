@@ -1,4 +1,9 @@
-import { useCallback, useState } from 'react'
+import {
+  useCallback,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from 'react'
 import { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type { PasteEvent } from '../ink/events/paste-event.js'
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
@@ -33,14 +38,18 @@ type UseSearchInputOptions = {
   backspaceExitsOnEmpty?: boolean
   /** Accept embedded newlines when handling bracketed paste. */
   multiline?: boolean
+  /** Space on an empty query can be owned by the surrounding view. */
+  onSpaceOnEmpty?: () => void
   /** Transitional bridge for call sites that have not mounted DOM handlers yet. */
   useLegacyInput?: boolean
 }
 
 type UseSearchInputReturn = {
   query: string
+  queryRef: MutableRefObject<string>
   setQuery: (q: string) => void
   cursorOffset: number
+  setCursorOffset: (offset: number) => void
   handleKeyDown: (e: KeyboardEvent) => void
   handlePaste: (e: PasteEvent) => void
 }
@@ -73,6 +82,8 @@ const UNHANDLED_SPECIAL_KEYS = new Set([
   'wheelup',
   'wheeldown',
   'mouse',
+  'clear',
+  'enter',
   'f1',
   'f2',
   'f3',
@@ -97,22 +108,41 @@ export function useSearchInput({
   initialQuery = '',
   backspaceExitsOnEmpty = true,
   multiline = false,
+  onSpaceOnEmpty,
   useLegacyInput = true,
 }: UseSearchInputOptions): UseSearchInputReturn {
   const { columns: terminalColumns } = useTerminalSize()
   const effectiveColumns = columns ?? terminalColumns
   const [query, setQueryState] = useState(initialQuery)
   const [cursorOffset, setCursorOffset] = useState(initialQuery.length)
+  const queryRef = useRef(query)
+  const cursorOffsetRef = useRef(cursorOffset)
+
+  const updateQuery = useCallback((value: string) => {
+    queryRef.current = value
+    setQueryState(value)
+  }, [])
+
+  const updateCursorOffset = useCallback((offset: number) => {
+    cursorOffsetRef.current = offset
+    setCursorOffset(offset)
+  }, [])
 
   const setQuery = useCallback((q: string) => {
-    setQueryState(q)
-    setCursorOffset(q.length)
-  }, [])
+    updateQuery(q)
+    updateCursorOffset(q.length)
+  }, [updateCursorOffset, updateQuery])
 
   const handleKeyDown = (e: KeyboardEvent): void => {
     if (!isActive) return
 
-    const cursor = Cursor.fromText(query, effectiveColumns, cursorOffset)
+    const currentQuery = queryRef.current
+    const currentOffset = cursorOffsetRef.current
+    const cursor = Cursor.fromText(
+      currentQuery,
+      effectiveColumns,
+      currentOffset,
+    )
 
     // Check passthrough ctrl keys
     if (e.ctrl && passthroughCtrlKeys.includes(e.key.toLowerCase())) {
@@ -120,35 +150,76 @@ export function useSearchInput({
     }
 
     // Reset kill accumulation for non-kill keys
-    if (!isKillKey(e)) {
+    if (!isKillKey(e) && !isYankKey(e)) {
       resetKillAccumulation()
-    }
-
-    // Reset yank state for non-yank keys
-    if (!isYankKey(e)) {
       resetYankState()
     }
 
     // Exit conditions
-    if (e.key === 'return' || e.key === 'down') {
+    if (e.name === 'return') {
       e.preventDefault()
+      if (multiline) {
+        if (currentOffset > 0 && currentQuery[currentOffset - 1] === '\\') {
+          updateQuery(
+            currentQuery.slice(0, currentOffset - 1) +
+              '\n' +
+              currentQuery.slice(currentOffset),
+          )
+          return
+        }
+        if (e.shift || e.meta) {
+          updateQuery(
+            currentQuery.slice(0, currentOffset) +
+              '\n' +
+              currentQuery.slice(currentOffset),
+          )
+          updateCursorOffset(currentOffset + 1)
+          return
+        }
+      }
       onExit()
       return
     }
-    if (e.key === 'up') {
+
+    if (multiline && e.name === 'enter') {
       e.preventDefault()
+      const next = cursor.insert('\n')
+      updateQuery(next.text)
+      updateCursorOffset(next.offset)
+      return
+    }
+
+    if (e.name === 'down') {
+      e.preventDefault()
+      if (multiline) {
+        const next = cursor.down()
+        if (!next.equals(cursor)) updateCursorOffset(next.offset)
+      } else {
+        onExit()
+      }
+      return
+    }
+    if (e.name === 'up') {
+      e.preventDefault()
+      if (multiline) {
+        const next = cursor.up()
+        if (!next.equals(cursor)) {
+          updateCursorOffset(next.offset)
+          return
+        }
+      }
       if (onExitUp) {
         onExitUp()
       }
       return
     }
-    if (e.key === 'escape') {
+    if (e.name === 'escape') {
       e.preventDefault()
       if (onCancel) {
         onCancel()
-      } else if (query.length > 0) {
-        setQueryState('')
-        setCursorOffset(0)
+      } else if (currentQuery.length > 0) {
+        updateQuery('')
+        updateCursorOffset(0)
       } else {
         onExit()
       }
@@ -156,73 +227,73 @@ export function useSearchInput({
     }
 
     // Backspace/Delete
-    if (e.key === 'backspace') {
+    if (e.name === 'backspace') {
       e.preventDefault()
       if (e.meta) {
         // Meta+Backspace: kill word before
         const { cursor: newCursor, killed } = cursor.deleteWordBefore()
         pushToKillRing(killed, 'prepend')
-        setQueryState(newCursor.text)
-        setCursorOffset(newCursor.offset)
+        updateQuery(newCursor.text)
+        updateCursorOffset(newCursor.offset)
         return
       }
-      if (query.length === 0) {
+      if (currentQuery.length === 0) {
         // Backspace past the / — cancel (clear + snap back), not commit.
         // less: same. vim: deletes the / and exits command mode.
         if (backspaceExitsOnEmpty) (onCancel ?? onExit)()
         return
       }
       const newCursor = cursor.backspace()
-      setQueryState(newCursor.text)
-      setCursorOffset(newCursor.offset)
+      updateQuery(newCursor.text)
+      updateCursorOffset(newCursor.offset)
       return
     }
 
-    if (e.key === 'delete') {
+    if (e.name === 'delete') {
       e.preventDefault()
       const newCursor = cursor.del()
-      setQueryState(newCursor.text)
-      setCursorOffset(newCursor.offset)
+      updateQuery(newCursor.text)
+      updateCursorOffset(newCursor.offset)
       return
     }
 
     // Arrow keys with modifiers (word jump)
-    if (e.key === 'left' && (e.ctrl || e.meta || e.fn)) {
+    if (e.name === 'left' && (e.ctrl || e.meta || e.fn)) {
       e.preventDefault()
       const newCursor = cursor.prevWord()
-      setCursorOffset(newCursor.offset)
+      updateCursorOffset(newCursor.offset)
       return
     }
-    if (e.key === 'right' && (e.ctrl || e.meta || e.fn)) {
+    if (e.name === 'right' && (e.ctrl || e.meta || e.fn)) {
       e.preventDefault()
       const newCursor = cursor.nextWord()
-      setCursorOffset(newCursor.offset)
+      updateCursorOffset(newCursor.offset)
       return
     }
 
     // Plain arrow keys
-    if (e.key === 'left') {
+    if (e.name === 'left') {
       e.preventDefault()
       const newCursor = cursor.left()
-      setCursorOffset(newCursor.offset)
+      updateCursorOffset(newCursor.offset)
       return
     }
-    if (e.key === 'right') {
+    if (e.name === 'right') {
       e.preventDefault()
       const newCursor = cursor.right()
-      setCursorOffset(newCursor.offset)
+      updateCursorOffset(newCursor.offset)
       return
     }
 
     // Home/End
-    if (e.key === 'home') {
+    if (e.name === 'home') {
       e.preventDefault()
-      setCursorOffset(0)
+      updateCursorOffset(cursor.startOfLine().offset)
       return
     }
-    if (e.key === 'end') {
+    if (e.name === 'end') {
       e.preventDefault()
-      setCursorOffset(query.length)
+      updateCursorOffset(cursor.endOfLine().offset)
       return
     }
 
@@ -231,56 +302,56 @@ export function useSearchInput({
       e.preventDefault()
       switch (e.key.toLowerCase()) {
         case 'a':
-          setCursorOffset(0)
+          updateCursorOffset(cursor.startOfLogicalLine().offset)
           return
         case 'e':
-          setCursorOffset(query.length)
+          updateCursorOffset(cursor.endOfLogicalLine().offset)
           return
         case 'b':
-          setCursorOffset(cursor.left().offset)
+          updateCursorOffset(cursor.left().offset)
           return
         case 'f':
-          setCursorOffset(cursor.right().offset)
+          updateCursorOffset(cursor.right().offset)
           return
         case 'd': {
-          if (query.length === 0) {
+          if (currentQuery.length === 0) {
             ;(onCancel ?? onExit)()
             return
           }
           const newCursor = cursor.del()
-          setQueryState(newCursor.text)
-          setCursorOffset(newCursor.offset)
+          updateQuery(newCursor.text)
+          updateCursorOffset(newCursor.offset)
           return
         }
         case 'h': {
-          if (query.length === 0) {
+          if (currentQuery.length === 0) {
             if (backspaceExitsOnEmpty) (onCancel ?? onExit)()
             return
           }
           const newCursor = cursor.backspace()
-          setQueryState(newCursor.text)
-          setCursorOffset(newCursor.offset)
+          updateQuery(newCursor.text)
+          updateCursorOffset(newCursor.offset)
           return
         }
         case 'k': {
           const { cursor: newCursor, killed } = cursor.deleteToLineEnd()
           pushToKillRing(killed, 'append')
-          setQueryState(newCursor.text)
-          setCursorOffset(newCursor.offset)
+          updateQuery(newCursor.text)
+          updateCursorOffset(newCursor.offset)
           return
         }
         case 'u': {
           const { cursor: newCursor, killed } = cursor.deleteToLineStart()
           pushToKillRing(killed, 'prepend')
-          setQueryState(newCursor.text)
-          setCursorOffset(newCursor.offset)
+          updateQuery(newCursor.text)
+          updateCursorOffset(newCursor.offset)
           return
         }
         case 'w': {
           const { cursor: newCursor, killed } = cursor.deleteWordBefore()
           pushToKillRing(killed, 'prepend')
-          setQueryState(newCursor.text)
-          setCursorOffset(newCursor.offset)
+          updateQuery(newCursor.text)
+          updateCursorOffset(newCursor.offset)
           return
         }
         case 'y': {
@@ -289,8 +360,8 @@ export function useSearchInput({
             const startOffset = cursor.offset
             const newCursor = cursor.insert(text)
             recordYank(startOffset, text.length)
-            setQueryState(newCursor.text)
-            setCursorOffset(newCursor.offset)
+            updateQuery(newCursor.text)
+            updateCursorOffset(newCursor.offset)
           }
           return
         }
@@ -312,28 +383,28 @@ export function useSearchInput({
       e.preventDefault()
       switch (e.key.toLowerCase()) {
         case 'b':
-          setCursorOffset(cursor.prevWord().offset)
+          updateCursorOffset(cursor.prevWord().offset)
           return
         case 'f':
-          setCursorOffset(cursor.nextWord().offset)
+          updateCursorOffset(cursor.nextWord().offset)
           return
         case 'd': {
           const newCursor = cursor.deleteWordAfter()
-          setQueryState(newCursor.text)
-          setCursorOffset(newCursor.offset)
+          updateQuery(newCursor.text)
+          updateCursorOffset(newCursor.offset)
           return
         }
         case 'y': {
           const popResult = yankPop()
           if (popResult) {
             const { text, start, length } = popResult
-            const before = query.slice(0, start)
-            const after = query.slice(start + length)
+            const before = currentQuery.slice(0, start)
+            const after = currentQuery.slice(start + length)
             const newText = before + text + after
             const newOffset = start + text.length
             updateYankLength(text.length)
-            setQueryState(newText)
-            setCursorOffset(newOffset)
+            updateQuery(newText)
+            updateCursorOffset(newOffset)
           }
           return
         }
@@ -342,18 +413,25 @@ export function useSearchInput({
     }
 
     // Tab: ignore
-    if (e.key === 'tab') {
+    if (e.name === 'tab') {
+      e.preventDefault()
+      return
+    }
+
+    if (onSpaceOnEmpty && e.key === ' ' && currentQuery === '') {
+      e.preventDefault()
+      onSpaceOnEmpty()
       return
     }
 
     // Regular character input. Accepts multi-char e.key so batched writes
     // (stdin.write('abc') in tests, or paste outside bracketed-paste mode)
     // insert the full chunk — matching the old useInput behavior.
-    if (e.key.length >= 1 && !UNHANDLED_SPECIAL_KEYS.has(e.key)) {
+    if (e.key.length >= 1 && !UNHANDLED_SPECIAL_KEYS.has(e.name)) {
       e.preventDefault()
       const newCursor = cursor.insert(e.key)
-      setQueryState(newCursor.text)
-      setCursorOffset(newCursor.offset)
+      updateQuery(newCursor.text)
+      updateCursorOffset(newCursor.offset)
     }
   }
 
@@ -363,10 +441,14 @@ export function useSearchInput({
     const text = multiline
       ? e.text.replace(/\r\n|\r/g, '\n')
       : e.text.split(/\r\n|\r|\n/, 1)[0] ?? ''
-    const before = query.slice(0, cursorOffset)
-    const after = query.slice(cursorOffset)
-    setQueryState(before + text + after)
-    setCursorOffset(before.length + text.length)
+    if (text.length === 0) return
+    const next = Cursor.fromText(
+      queryRef.current,
+      effectiveColumns,
+      cursorOffsetRef.current,
+    ).insert(text)
+    updateQuery(next.text)
+    updateCursorOffset(next.offset)
   }
 
   // Backward-compat bridge: existing consumers don't yet wire handleKeyDown
@@ -380,5 +462,13 @@ export function useSearchInput({
     { isActive: isActive && useLegacyInput },
   )
 
-  return { query, setQuery, cursorOffset, handleKeyDown, handlePaste }
+  return {
+    query,
+    queryRef,
+    setQuery,
+    cursorOffset,
+    setCursorOffset: updateCursorOffset,
+    handleKeyDown,
+    handlePaste,
+  }
 }

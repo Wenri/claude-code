@@ -68,29 +68,28 @@ test('authenticates the target-only FleetView reply-error surface', () => {
 test('guards reply submission and restores both returned and thrown failures', () => {
   const fleet = compact(source('src/components/FleetView.tsx'))
   for (const fragment of [
-    'const replyInFlight = useRef(false)',
-    'if (replyInFlight.current) return',
-    'const attachSelectedFromReply = (): void => { if (!selected || replyInFlight.current) return replyInFlight.current = true setDetail(false) openJob(selected) }',
-    "if (!text && replyMode === 'prompt') { attachSelectedFromReply() return }",
-    "if (key.rightArrow && !reply && replyMode === 'prompt') { attachSelectedFromReply() return }",
-    "const restoreReply = (): void => { if (replyRef.current === '') { replyDrafts.current.set(selected.id, outgoing) replyRef.current = text setReply(text) setReplyCursor(text.length) } if (replyModeRef.current === 'prompt') { replyModeRef.current = mode setReplyMode(mode) } }",
-    'result => { if (result) { restoreReply() setReplyError(result) } void poll() }',
-    'caught => { restoreReply() setReplyError(errorMessage(caught)) }',
-    '.finally(() => { replyInFlight.current = false',
+    'const inFlight = useRef(false)',
+    'if (inFlight.current) return',
+    "if (!body && modeRef.current === 'prompt') { inFlight.current = true onAttach() return }",
+    "if (event.name === 'right' && !event.shift && !queryRef.current) { event.preventDefault() if (!inFlight.current) { inFlight.current = true onAttach() } return }",
+    "const restore = (): void => { if (queryRef.current === '') { replyDrafts.set(job.id, outgoing) setQuery(body) } if (modeRef.current === 'prompt') setMode(previousMode) }",
+    'result => { if (result) { restore() onReplyError(result) } }',
+    'caught => { restore() onReplyError(errorMessage(caught)) }',
+    '.finally(() => { inFlight.current = false',
   ]) {
     assert.ok(fleet.includes(compact(fragment)), fragment)
   }
-  assert.equal(occurrences(fleet, 'restoreReply()'), 2)
+  assert.equal(occurrences(fleet, 'restore()'), 2)
 })
 
 test('tracks live reply text and mode so restoration never overwrites edits', () => {
   const fleet = compact(source('src/components/FleetView.tsx'))
   for (const fragment of [
-    "const replyRef = useRef('')",
-    "const replyModeRef = useRef<'prompt' | 'bash'>('prompt')",
-    'onChange={value => { replyRef.current = value setReply(value) }}',
-    "replyModeRef.current = 'bash' setReplyMode('bash')",
-    "replyModeRef.current = 'prompt' setReplyMode('prompt')",
+    'const modeRef = useRef(mode)',
+    "const setMode = (next: 'prompt' | 'bash'): void => { modeRef.current = next setModeState(next) }",
+    'queryRef, setQuery, cursorOffset, setCursorOffset, handleKeyDown: handleReplyKeyDown, handlePaste, } = useSearchInput({',
+    "const value = mode === 'bash' ? `!${query}` : query",
+    "if (queryRef.current === '') { replyDrafts.set(job.id, outgoing) setQuery(body) }",
   ]) {
     assert.ok(fleet.includes(compact(fragment)), fragment)
   }

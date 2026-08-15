@@ -51,6 +51,7 @@ export function dispatchClick(
   col: number,
   row: number,
   cellIsBlank = false,
+  hyperlinkUrl?: string,
 ): boolean {
   let target: DOMElement | undefined = hitTest(root, col, row) ?? undefined
   if (!target) return false
@@ -67,21 +68,22 @@ export function dispatchClick(
       focusTarget = focusTarget.parentNode
     }
   }
-  const event = new ClickEvent(col, row, cellIsBlank)
+  const event = new ClickEvent(col, row, cellIsBlank, hyperlinkUrl)
   let handled = false
   while (target) {
     const handler = target._eventHandlers?.onClick as
       | ((event: ClickEvent) => void)
       | undefined
     if (handler) {
-      handled = true
       const rect = nodeCache.get(target)
       if (rect) {
         event.localCol = col - rect.x
         event.localRow = row - rect.y
       }
+      event.defaultAllowed = false
       handler(event)
-      if (event.didStopImmediatePropagation()) return true
+      if (event.didStopImmediatePropagation()) return !event.defaultAllowed
+      if (!event.defaultAllowed) handled = true
     }
     target = target.parentNode
   }

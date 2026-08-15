@@ -1302,7 +1302,8 @@ export default class Ink {
   dispatchClick(col: number, row: number): boolean {
     if (!this.altScreenActive) return false;
     const blank = isEmptyCellAt(this.frontFrame.screen, col, row);
-    return dispatchClick(this.rootNode, col, row, blank);
+    const hyperlinkUrl = this.getHyperlinkAt(col, row);
+    return dispatchClick(this.rootNode, col, row, blank, hyperlinkUrl);
   }
   dispatchHover(col: number, row: number): void {
     if (!this.altScreenActive) return;
