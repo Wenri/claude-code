@@ -477,22 +477,37 @@ export class CCRClient {
     // Concurrent with the init PUT — neither depends on the other.
     const restoredPromise = this.getWorkerState()
 
-    const result = await this.request(
-      'put',
-      '/worker',
-      {
-        worker_status: 'idle',
-        worker_epoch: this.workerEpoch,
-        // Clear stale pending_action/task_summary left by a prior
-        // worker crash — the in-session clears don't survive process restart.
-        external_metadata: {
-          pending_action: null,
-          task_summary: null,
+    let result: RequestResult = { ok: false }
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      result = await this.request(
+        'put',
+        '/worker',
+        {
+          worker_status: 'idle',
+          worker_epoch: this.workerEpoch,
+          // Clear stale pending_action/task_summary left by a prior
+          // worker crash — the in-session clears don't survive process restart.
+          external_metadata: {
+            pending_action: null,
+            task_summary: null,
+          },
         },
-      },
-      'PUT worker (init)',
-    )
+        'PUT worker (init)',
+      )
+      if (result.ok || this.closed) break
+      if (attempt < 3) {
+        const delay =
+          Math.min(500 * 2 ** (attempt - 1), 30_000) + Math.random() * 500
+        await sleep(delay)
+      }
+    }
     if (!result.ok) {
+      if (!this.closed) {
+        logForDiagnosticsNoPII(
+          'error',
+          'cli_worker_init_put_retries_exhausted',
+        )
+      }
       // 409 → onEpochMismatch may throw, but request() catches it and returns
       // false. Without this check we'd continue to startHeartbeat(), leaking a
       // 20s timer against a dead epoch. Throw so connect()'s rejection handler

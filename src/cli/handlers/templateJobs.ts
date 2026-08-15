@@ -234,12 +234,30 @@ export async function claimPrewarmedJob(
   logForDebugging('[PERF:bg-claim-start]')
   const claimed = spare
   spare = null
-  if (!claimed) {
-    return {
-      ok: false,
-      error: "The pre-warmed session wasn't ready — press Enter to try again",
+  const fallBackToFreshJob = async (
+    reason: string,
+    detail?: string,
+  ): Promise<
+    { ok: true; jobId: string } | { ok: false; error: string }
+  > => {
+    logForDebugging(
+      `[bg-spare] claim miss (${reason})${detail ? `: ${detail}` : ''}`,
+    )
+    logEvent('tengu_bg_spare_claim_fail', { reason })
+    if (claimed) {
+      const { removed } = await deleteBgJob(claimed.jobId)
+      if (!removed) {
+        return { ok: false, error: detail ?? 'Background service unreachable' }
+      }
     }
+    return dispatchTemplateJob(
+      { name: 'general-purpose' },
+      intent,
+      claimed?.sessionId,
+      claimed?.cwd,
+    )
   }
+  if (!claimed) return fallBackToFreshJob('no-spare')
   const state = createInitialJobState({
     template: { name: 'general-purpose' },
     intent,
@@ -251,30 +269,20 @@ export async function claimPrewarmedJob(
   try {
     await writeJobState(getJobDir(claimed.jobId), state)
   } catch (error) {
-    await deleteBgJob(claimed.jobId)
-    return {
-      ok: false,
-      error: `Couldn't create the job — ${errorMessage(error)}`,
-    }
+    return fallBackToFreshJob('state-write', errorMessage(error))
   }
   try {
     const error = await sendJobReply(claimed.jobId, intent, state)
     if (error) {
-      await deleteBgJob(claimed.jobId)
-      return {
-        ok: false,
-        error:
-          error === "That session isn't running — respawn it first"
-            ? "The pre-warmed session wasn't ready — press Enter to try again"
-            : error,
-      }
+      return fallBackToFreshJob(
+        error === "That session isn't running — respawn it first"
+          ? 'enojob'
+          : 'reply',
+        error,
+      )
     }
   } catch (error) {
-    await deleteBgJob(claimed.jobId)
-    return {
-      ok: false,
-      error: `Couldn't send your message — ${errorMessage(error)}`,
-    }
+    return fallBackToFreshJob('reply-throw', errorMessage(error))
   }
   logForDebugging('[PERF:bg-claim-end]')
   return { ok: true, jobId: claimed.jobId }
