@@ -230,6 +230,11 @@ export type ToolUseContext = {
   sessionState?: {
     notifyMetadataChanged(metadata: Record<string, unknown>): void
   }
+  /** Reports command delivery progress to the owning SDK/CCR transport. */
+  onCommandLifecycle?: (
+    uuid: string,
+    state: 'started' | 'completed',
+  ) => void
   setReplContext(agentId: string, context: ReplContext | undefined): void
   replHydration?: ReplHydration
   isolationLatch?: ReplIsolationLatch

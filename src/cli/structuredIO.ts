@@ -55,7 +55,6 @@ import {
 import { writeToStdout } from 'src/utils/process.js'
 import { jsonStringify } from 'src/utils/slowOperations.js'
 import { z } from 'zod/v4'
-import { notifyCommandLifecycle } from '../utils/commandLifecycle.js'
 import { normalizeControlMessageKeys } from '../utils/controlMessageCompat.js'
 import { executePermissionRequestHooks } from '../utils/hooks.js'
 import {
@@ -235,6 +234,7 @@ const MAX_RESOLVED_TOOL_USE_IDS = 1000
 
 export class StructuredIO {
   readonly structuredInput: AsyncGenerator<StdinMessage | SDKMessage>
+  onCommandLifecycle?: ToolUseContext['onCommandLifecycle']
   private readonly pendingRequests = new Map<string, PendingRequest<unknown>>()
   private stallTimer?: ReturnType<typeof setTimeout>
   private stallFired = false
@@ -473,7 +473,7 @@ export class StructuredIO {
             ? message.uuid
             : undefined
         if (uuid) {
-          notifyCommandLifecycle(uuid, 'completed')
+          this.onCommandLifecycle?.(uuid, 'completed')
         }
         const request = this.pendingRequests.get(message.response.request_id)
         if (!request) {

@@ -4,7 +4,6 @@ import { URL } from 'url'
 import { getSessionId } from '../bootstrap/state.js'
 import { getPollIntervalConfig } from '../bridge/pollConfig.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
-import { setCommandLifecycleListener } from '../utils/commandLifecycle.js'
 import { isDebugMode, logForDebugging } from '../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
@@ -159,9 +158,9 @@ export class RemoteIO extends StructuredIO {
         started: 'processing',
         completed: 'processed',
       } as const
-      setCommandLifecycleListener((uuid, state) => {
+      this.onCommandLifecycle = (uuid, state) => {
         this.ccrClient?.reportDelivery(uuid, LIFECYCLE_TO_DELIVERY[state])
-      })
+      }
       setSessionStateChangedListener((state, details) => {
         this.ccrClient?.reportState(state, details)
       })

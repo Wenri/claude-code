@@ -55,7 +55,6 @@ import {
   subscribeToCommandQueue,
   getCommandsByMaxPriority,
 } from 'src/utils/messageQueueManager.js'
-import { notifyCommandLifecycle } from 'src/utils/commandLifecycle.js'
 import {
   getSessionState,
   notifySessionStateChanged,
@@ -2374,7 +2373,7 @@ function runHeadlessStreaming(
           const allTools = buildAllTools(appState)
 
           for (const uuid of batchUuids) {
-            notifyCommandLifecycle(uuid, 'started')
+            structuredIO.onCommandLifecycle?.(uuid, 'started')
           }
 
           // Task notifications arrive when background agents complete.
@@ -2583,6 +2582,7 @@ function runHeadlessStreaming(
                   'elicitationId' in params ? params.elicitationId : undefined,
                   getPermissionDisplay(params._meta),
                 ),
+              onCommandLifecycle: structuredIO.onCommandLifecycle,
               agents: currentAgents,
               allowedAgentTypes,
               orphanedPermission: cmd.orphanedPermission,
@@ -2647,7 +2647,7 @@ function runHeadlessStreaming(
           }) // end runWithWorkload
 
           for (const uuid of batchUuids) {
-            notifyCommandLifecycle(uuid, 'completed')
+            structuredIO.onCommandLifecycle?.(uuid, 'completed')
           }
 
           // Forward messages to bridge after each turn
@@ -3231,7 +3231,7 @@ function runHeadlessStreaming(
         message.type !== 'bash_command' &&
         message.type !== 'control_response'
       ) {
-        notifyCommandLifecycle(eventId, 'completed')
+        structuredIO.onCommandLifecycle?.(eventId, 'completed')
       }
 
       if (message.type === 'control_request') {
@@ -4804,7 +4804,7 @@ function runHeadlessStreaming(
             isReplay: true,
           } as SDKUserMessageReplay)
           if (message.uuid) {
-            notifyCommandLifecycle(message.uuid, 'completed')
+            structuredIO.onCommandLifecycle?.(message.uuid, 'completed')
           }
           continue
         }
@@ -4855,7 +4855,7 @@ function runHeadlessStreaming(
             } as SDKUserMessageReplay)
           }
           if (message.uuid) {
-            notifyCommandLifecycle(message.uuid, 'completed')
+            structuredIO.onCommandLifecycle?.(message.uuid, 'completed')
           }
         })()
         pendingBashCommands.add(pending)
@@ -4905,7 +4905,7 @@ function runHeadlessStreaming(
           // ran but its lifecycle was never closed (interrupted before ack).
           // Runtime dups don't need this — the original enqueue path closes them.
           if (existsInSession) {
-            notifyCommandLifecycle(message.uuid, 'completed')
+            structuredIO.onCommandLifecycle?.(message.uuid, 'completed')
           }
           // Don't enqueue duplicate messages for execution
           continue

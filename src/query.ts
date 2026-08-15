@@ -81,7 +81,6 @@ import {
   getCommandsByMaxPriority,
   isSlashCommand,
 } from './utils/messageQueueManager.js'
-import { notifyCommandLifecycle } from './utils/commandLifecycle.js'
 import { headlessProfilerCheckpoint } from './utils/headlessProfiler.js'
 import {
   getRuntimeMainLoopModel,
@@ -325,7 +324,7 @@ export async function* query(
   // both generators). This gives the same asymmetric started-without-completed
   // signal as print.ts's drainCommandQueue when the turn fails.
   for (const uuid of consumedCommandUuids) {
-    notifyCommandLifecycle(uuid, 'completed')
+    params.toolUseContext.onCommandLifecycle?.(uuid, 'completed')
   }
   return terminal
 }
@@ -2002,7 +2001,7 @@ async function* queryLoop(
       for (const cmd of consumedCommands) {
         if (cmd.uuid) {
           consumedCommandUuids.push(cmd.uuid)
-          notifyCommandLifecycle(cmd.uuid, 'started')
+          toolUseContext.onCommandLifecycle?.(cmd.uuid, 'started')
         }
       }
       removeFromQueue(consumedCommands)

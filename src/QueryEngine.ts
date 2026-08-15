@@ -195,6 +195,7 @@ export type QueryEngineConfig = {
   replayUserMessages?: boolean
   /** Handler for URL elicitations triggered by MCP tool -32042 errors. */
   handleElicitation?: ToolUseContext['handleElicitation']
+  onCommandLifecycle?: ToolUseContext['onCommandLifecycle']
   includePartialMessages?: boolean
   setSDKStatus?: (status: SDKStatus) => void
   abortController?: AbortController
@@ -413,6 +414,7 @@ export class QueryEngine {
       },
       onChangeAPIKey: () => {},
       handleElicitation: this.config.handleElicitation,
+      onCommandLifecycle: this.config.onCommandLifecycle,
       options: {
         commands,
         debug: false, // we use stdout, so don't want to clobber it
@@ -689,6 +691,7 @@ export class QueryEngine {
       setMessages: () => {},
       onChangeAPIKey: () => {},
       handleElicitation: this.config.handleElicitation,
+      onCommandLifecycle: this.config.onCommandLifecycle,
       options: {
         commands,
         debug: false,
@@ -1528,6 +1531,7 @@ export async function* ask({
   replayUserMessages = false,
   includePartialMessages = false,
   handleElicitation,
+  onCommandLifecycle,
   agents = [],
   allowedAgentTypes,
   setSDKStatus,
@@ -1571,6 +1575,7 @@ export async function* ask({
   replayUserMessages?: boolean
   includePartialMessages?: boolean
   handleElicitation?: ToolUseContext['handleElicitation']
+  onCommandLifecycle?: ToolUseContext['onCommandLifecycle']
   agents?: AgentDefinition[]
   allowedAgentTypes?: string[]
   setSDKStatus?: (status: SDKStatus) => void
@@ -1604,6 +1609,7 @@ export async function* ask({
     jsonSchema,
     verbose,
     handleElicitation,
+    onCommandLifecycle,
     replayUserMessages,
     includePartialMessages,
     setSDKStatus,
