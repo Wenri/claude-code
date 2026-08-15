@@ -5426,6 +5426,16 @@ async function handleInitializeRequest(
     },
   })
 
+  const mcp = getAppState().mcp
+  logEvent('tengu_sdk_init_handshake', {
+    uptime_ms: Math.round(process.uptime() * 1000),
+    mcp_client_count: mcp.clients.length,
+    mcp_pending_count: mcp.clients.filter(
+      connection => connection.type === 'pending',
+    ).length,
+    mcpNonBlocking: isEnvTruthy(process.env.MCP_CONNECTION_NONBLOCKING),
+  })
+
   // After the initialize message, check the auth status-
   // This will get notified of changes, but we also want to send the
   // initial state.
