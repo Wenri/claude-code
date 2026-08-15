@@ -2854,6 +2854,10 @@ export async function loadTranscriptFromFile(
     )
   }
 
+  if (messages.length === 0) {
+    throw new Error('No messages found in JSON file')
+  }
+
   return convertToLogOption(
     messages,
     0,
