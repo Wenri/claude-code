@@ -767,6 +767,10 @@ export function checkHasTrustDialogAccepted(): boolean {
 }
 
 function computeTrustDialogAccepted(): boolean {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_SANDBOXED)) {
+    return true
+  }
+
   // Check session-level trust (for home directory case where trust is not persisted)
   // When running from home dir, trust dialog is shown but acceptance is stored
   // in memory only. This allows hooks and other features to work during the session.
