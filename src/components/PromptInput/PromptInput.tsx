@@ -1200,10 +1200,10 @@ function PromptInput({
     };
 
     // Cache path immediately (fast) so links work on render
-    cacheImagePath(newContent);
+    cacheImagePath(newContent, setAppState);
 
     // Store image to disk in background
-    void storeImage(newContent);
+    void storeImage(newContent, setAppState);
 
     // Update UI
     setPastedContents(prev => ({

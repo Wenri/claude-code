@@ -4,7 +4,7 @@ import { pathToFileURL } from 'url';
 import Link from '../ink/components/Link.js';
 import { supportsHyperlinks } from '../ink/supports-hyperlinks.js';
 import { Text } from '../ink.js';
-import { getStoredImagePath } from '../utils/imageStore.js';
+import { useAppState } from '../state/AppState.js';
 import type { Theme } from '../utils/theme.js';
 type Props = {
   imageId: number;
@@ -28,7 +28,7 @@ export function ClickableImageRef(t0) {
     isSelected: t1
   } = t0;
   const isSelected = t1 === undefined ? false : t1;
-  const imagePath = getStoredImagePath(imageId);
+  const imagePath = useAppState(state => state.storedImagePaths.get(imageId) ?? null) ?? null;
   const displayText = `[Image #${imageId}]`;
   if (imagePath && supportsHyperlinks()) {
     const fileUrl = pathToFileURL(imagePath).href;

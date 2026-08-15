@@ -352,6 +352,10 @@ export type AppState = DeepImmutable<{
   }
   // REPL tool VM contexts persist independently for the main thread and agents.
   replContexts: Record<string, ReplContext>
+  // Image paths are kept in AppState so renderers update immediately when a
+  // background disk write finishes and injected stores preserve the same view.
+  storedImagePaths: Map<number, string>
+  imageDescriptions: Map<number, string>
   teamContext?: {
     teamName: string
     teamFilePath: string
@@ -570,6 +574,8 @@ export function getDefaultAppState(): AppState {
     replBridgeInitialName: undefined,
     replBridgeSkipNextArchive: false,
     replContexts: {},
+    storedImagePaths: new Map(),
+    imageDescriptions: new Map(),
     showRemoteCallout: false,
     toolPermissionContext: {
       ...getEmptyToolPermissionContext(),

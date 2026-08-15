@@ -24,12 +24,12 @@ import { runPostCompactCleanup } from '../../services/compact/postCompactCleanup
 import { resetAllLSPDiagnosticState } from '../../services/lsp/LSPDiagnosticRegistry.js'
 import { clearTrackedMagicDocs } from '../../services/MagicDocs/magicDocs.js'
 import { clearDynamicSkills } from '../../skills/loadSkillsDir.js'
+import type { AppState } from '../../state/AppStateStore.js'
 import { resetSentSkillNames } from '../../utils/attachments.js'
 import { clearCommandPrefixCaches } from '../../utils/bash/commands.js'
 import { resetGetMemoryFilesCache } from '../../utils/claudemd.js'
 import { clearRepositoryCaches } from '../../utils/detectRepository.js'
 import { clearResolveGitDirCache } from '../../utils/git/gitFilesystem.js'
-import { clearStoredImagePaths } from '../../utils/imageStore.js'
 import { clearSessionEnvVars } from '../../utils/sessionEnvVars.js'
 
 /**
@@ -46,6 +46,7 @@ import { clearSessionEnvVars } from '../../utils/sessionEnvVars.js'
  */
 export function clearSessionCaches(
   preservedAgentIds: ReadonlySet<string> = new Set(),
+  setAppState?: (updater: (prev: AppState) => AppState) => void,
 ): void {
   const hasPreserved = preservedAgentIds.size > 0
   // Clear context caches
@@ -83,8 +84,19 @@ export function clearSessionCaches(
   // 'session_start' on the next getMemoryFiles() call.
   resetGetMemoryFilesCache('session_start')
 
-  // Clear stored image paths cache
-  clearStoredImagePaths()
+  setAppState?.(prev => {
+    if (
+      prev.storedImagePaths.size === 0 &&
+      prev.imageDescriptions.size === 0
+    ) {
+      return prev
+    }
+    return {
+      ...prev,
+      storedImagePaths: new Map(),
+      imageDescriptions: new Map(),
+    }
+  })
 
   // Clear all session ingress caches (lastUuidMap, sequentialAppendBySession)
   clearAllSessions()
