@@ -115,7 +115,7 @@ test('source reproduces subprocess scrubbing, proxy, MCP, and cap callsites', ()
   assert.match(source, /return process\.env\.CLAUDE_CODE_ENTRYPOINT === 'local-agent'/)
   assert.match(source, /delete env\.CLAUDE_CODE_OAUTH_TOKEN/)
   assert.match(source, /delete env\.CLAUDE_CODE_RESUME_INTERRUPTED_TURN/)
-  assert.match(source, /return \{ \.\.\.getMcpAllowedProcessEnv\(\), \.\.\.getUpstreamProxyEnv\(\) \}/)
+  assert.match(source, /return \{ \.\.\.getMcpAllowedProcessEnv\(\), \.\.\.upstreamProxyEnv\(\) \}/)
   assert.match(source, /command\.split\(script\)\.length - 1/)
 
   const mcpClient = fs.readFileSync(
@@ -125,7 +125,7 @@ test('source reproduces subprocess scrubbing, proxy, MCP, and cap callsites', ()
   assert.match(mcpClient, /\.\.\.mcpSubprocessEnv\(\)/)
 
   const shell = fs.readFileSync(path.join(repo, 'src/utils/Shell.ts'), 'utf8')
-  assert.match(shell, /if \(isSubprocessEnvScrubEnabled\(\)\)/)
+  assert.match(shell, /if \(isScrubEnabled\(\)\)/)
   assert.match(shell, /parsed\.commands\.map\(item => item\.text\)\.join\('\\n'\)/)
   assert.match(shell, /: command\s+enforceScriptCaps\(commandForCaps\)/)
   assert.match(shell, /enforceScriptCaps\(commandForCaps\)/)

@@ -21,7 +21,7 @@
 import { SHELL_KEYWORDS } from './bashParser.js'
 import type { Node } from './parser.js'
 import { PARSE_ABORTED, parseCommandRaw } from './parser.js'
-import { isSubprocessEnvScrubEnabled } from '../subprocessEnv.js'
+import { isScrubEnabled } from '../subprocessEnv.js'
 
 export type Redirect = {
   op: '>' | '>>' | '<' | '<<' | '>&' | '>|' | '<&' | '&>' | '&>>' | '<<<'
@@ -736,7 +736,7 @@ function collectCommands(
   }
 
   if (node.type === 'for_statement') {
-    if (isSubprocessEnvScrubEnabled()) return tooComplex(node)
+    if (isScrubEnabled()) return tooComplex(node)
 
     // `for VAR in WORD...; do BODY; done` — iterate BODY once per word.
     // Body commands extracted once; every iteration runs the same commands.
@@ -812,7 +812,7 @@ function collectCommands(
   if (node.type === 'if_statement' || node.type === 'while_statement') {
     if (
       node.type === 'while_statement' &&
-      isSubprocessEnvScrubEnabled()
+      isScrubEnabled()
     ) {
       return tooComplex(node)
     }
@@ -1385,7 +1385,7 @@ function walkCommand(
       }
       case 'command_name': {
         const commandName = child.children[0] ?? child
-        if (isSubprocessEnvScrubEnabled()) {
+        if (isScrubEnabled()) {
           if (
             commandName.type === 'simple_expansion' ||
             commandName.type === 'expansion'

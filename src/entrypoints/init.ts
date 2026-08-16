@@ -56,7 +56,7 @@ import {
   isBashToolEnabled,
   isPowerShellToolEnabled,
 } from '../utils/shell/shellToolUtils.js'
-import { initializeSubprocessEnvScrub } from '../utils/subprocessEnv.js'
+import { assertScrubSandboxAvailable } from '../utils/subprocessEnv.js'
 import { isBetaTracingEnabled } from '../utils/telemetry/betaSessionTracing.js'
 import { getTelemetryAttributes } from '../utils/telemetryAttributes.js'
 import { setShellIfWindows } from '../utils/windowsPaths.js'
@@ -84,7 +84,7 @@ export const init = memoize(async (): Promise<void> => {
     // Full environment variables are applied after trust is established
     const envVarsStart = Date.now()
     applySafeConfigEnvironmentVariables()
-    await initializeSubprocessEnvScrub()
+    await assertScrubSandboxAvailable()
 
     // Apply NODE_EXTRA_CA_CERTS from settings.json to process.env early,
     // before any TLS connections. Bun caches the TLS cert store at boot

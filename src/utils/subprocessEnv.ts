@@ -140,7 +140,7 @@ export function registerUpstreamProxyEnvFn(
   _getUpstreamProxyEnv = fn
 }
 
-function getUpstreamProxyEnv(): Record<string, string> {
+export function upstreamProxyEnv(): Record<string, string> {
   return _getUpstreamProxyEnv?.() ?? {}
 }
 
@@ -248,11 +248,15 @@ function getRemoteProxyEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return result
 }
 
-export function isSubprocessEnvScrubEnabled(): boolean {
+export function isScrubEnabled(): boolean {
   if (scrubEnabled === undefined) {
     scrubEnabled = isEnvTruthy(process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB)
   }
   return scrubEnabled
+}
+
+export function isSubprocessEnvScrubEnabled(): boolean {
+  return isScrubEnabled()
 }
 
 export function isScrubSandboxAvailable(): boolean {
@@ -261,7 +265,7 @@ export function isScrubSandboxAvailable(): boolean {
 }
 
 function shouldScrubSubprocessEnv(): boolean {
-  if (isSubprocessEnvScrubEnabled()) return true
+  if (isScrubEnabled()) return true
   if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB)) {
     return false
   }
@@ -287,7 +291,7 @@ function getMcpAllowedProcessEnv(): NodeJS.ProcessEnv {
 
 export function mcpSubprocessEnv(): NodeJS.ProcessEnv {
   if (!shouldUseMcpAllowlistEnv()) return subprocessEnv()
-  return { ...getMcpAllowedProcessEnv(), ...getUpstreamProxyEnv() }
+  return { ...getMcpAllowedProcessEnv(), ...upstreamProxyEnv() }
 }
 
 function getScriptCaps(): Record<string, number> | null {
@@ -320,24 +324,36 @@ function getScriptCaps(): Record<string, number> | null {
   return scriptCaps
 }
 
-export function resetScriptCapsForTesting(): void {
+export function _resetScriptCapsForTesting(): void {
   scriptCallCounts.clear()
   scriptCaps = undefined
 }
 
-export function resetSubprocessEnvScrubForTesting(): void {
+export function resetScriptCapsForTesting(): void {
+  return _resetScriptCapsForTesting()
+}
+
+export function _resetScrubLatchForTesting(): void {
   scrubEnabled = undefined
   scrubSandboxAvailable = undefined
   scrubPaths = undefined
-  resetScriptCapsForTesting()
+  _resetScriptCapsForTesting()
 }
 
-export function setScrubPathsForTesting(paths: ScrubPaths): void {
+export function resetSubprocessEnvScrubForTesting(): void {
+  return _resetScrubLatchForTesting()
+}
+
+export function _setScrubPathsLatchedForTesting(paths: ScrubPaths): void {
   scrubPaths = paths
 }
 
-export async function initializeSubprocessEnvScrub(): Promise<void> {
-  if (!isSubprocessEnvScrubEnabled()) return
+export function setScrubPathsForTesting(paths: ScrubPaths): void {
+  return _setScrubPathsLatchedForTesting(paths)
+}
+
+export async function assertScrubSandboxAvailable(): Promise<void> {
+  if (!isScrubEnabled()) return
 
   const home = homedir()
   const originalCwd = getOriginalCwd()
@@ -476,7 +492,11 @@ export async function initializeSubprocessEnvScrub(): Promise<void> {
   }
 }
 
-export function getScrubSandboxConfig(): {
+export async function initializeSubprocessEnvScrub(): Promise<void> {
+  return assertScrubSandboxAvailable()
+}
+
+export function scrubSandboxConfig(): {
   filesystem: {
     allowWrite: string[]
     denyRead: string[]
@@ -577,8 +597,14 @@ export function getScrubSandboxConfig(): {
   }
 }
 
+export function getScrubSandboxConfig(): ReturnType<
+  typeof scrubSandboxConfig
+> {
+  return scrubSandboxConfig()
+}
+
 export function enforceScriptCaps(command: string): void {
-  if (!isSubprocessEnvScrubEnabled()) return
+  if (!isScrubEnabled()) return
   const caps = getScriptCaps()
   if (!caps) return
   for (const [script, cap] of Object.entries(caps)) {
@@ -599,7 +625,7 @@ export function subprocessEnv(): NodeJS.ProcessEnv {
   // in agent subprocesses route through the local relay. Returns {} when the
   // proxy is disabled or not registered (non-CCR), so this is a no-op outside
   // CCR containers.
-  const proxyEnv = getUpstreamProxyEnv()
+  const proxyEnv = upstreamProxyEnv()
   const hasProxyEnv = Object.keys(proxyEnv).length > 0
   const remoteProxyEnv = isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)
     ? getRemoteProxyEnv(

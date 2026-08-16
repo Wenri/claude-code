@@ -4,7 +4,7 @@ import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
 import { getSettings_DEPRECATED } from '../../utils/settings/settings.js'
 import {
   isScrubSandboxAvailable,
-  isSubprocessEnvScrubEnabled,
+  isScrubEnabled,
 } from '../../utils/subprocessEnv.js'
 import {
   BINARY_HIJACK_VARS,
@@ -132,7 +132,7 @@ function containsExcludedCommand(command: string): boolean {
 }
 
 export function shouldUseSandbox(input: Partial<SandboxInput>): boolean {
-  if (isSubprocessEnvScrubEnabled() && isScrubSandboxAvailable()) {
+  if (isScrubEnabled() && isScrubSandboxAvailable()) {
     return true
   }
 

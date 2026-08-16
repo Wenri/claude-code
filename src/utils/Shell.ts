@@ -47,9 +47,9 @@ import type {
 } from './shell/shellProvider.js'
 import {
   enforceScriptCaps,
-  getScrubSandboxConfig,
+  isScrubEnabled,
   isScrubSandboxAvailable,
-  isSubprocessEnvScrubEnabled,
+  scrubSandboxConfig,
   subprocessEnv,
 } from './subprocessEnv.js'
 import { posixPathToWindowsPath } from './windowsPaths.js'
@@ -331,7 +331,7 @@ export async function exec(
   const isSandboxedPowerShell = shouldUseSandbox && shellType === 'powershell'
   const sandboxBinShell = isSandboxedPowerShell ? '/bin/sh' : binShell
 
-  if (isSubprocessEnvScrubEnabled()) {
+  if (isScrubEnabled()) {
     const parsed = await parseForSecurity(command)
     const commandForCaps =
       parsed.kind === 'simple'
@@ -342,8 +342,8 @@ export async function exec(
 
   if (shouldUseSandbox) {
     let scrubConfig
-    if (isSubprocessEnvScrubEnabled() && isScrubSandboxAvailable()) {
-      const base = getScrubSandboxConfig()
+    if (isScrubEnabled() && isScrubSandboxAvailable()) {
+      const base = scrubSandboxConfig()
       const scrubDenyWrite = base.filesystem.denyWrite
       const configuredFilesystem = SandboxManager.getConfig()?.filesystem
       const allowWrite = [

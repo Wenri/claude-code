@@ -63,7 +63,7 @@ import { gracefulShutdown } from '../gracefulShutdown.js'
 import { getMainLoopModel } from '../model/model.js'
 import { getPlatform } from '../platform.js'
 import { isBashToolEnabled } from '../shell/shellToolUtils.js'
-import { isSubprocessEnvScrubEnabled } from '../subprocessEnv.js'
+import { isScrubEnabled } from '../subprocessEnv.js'
 import { getLeaderToolUseConfirmQueue } from '../swarm/leaderPermissionBridge.js'
 import { logPermissionModeChanged } from '../telemetry/events.js'
 import {
@@ -766,7 +766,7 @@ export function initialPermissionModeFromCLI({
   dangerouslySkipPermissions: boolean | undefined
   agentPermissionMode?: PermissionMode
 }): { mode: PermissionMode; notification?: string } {
-  if (isSubprocessEnvScrubEnabled()) {
+  if (isScrubEnabled()) {
     const requestedNonDefault = Boolean(
       dangerouslySkipPermissions ||
         (permissionModeCli && permissionModeCli !== 'default') ||

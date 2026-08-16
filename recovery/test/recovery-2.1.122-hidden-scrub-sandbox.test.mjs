@@ -80,13 +80,13 @@ test('authenticates the retained scrub-sandbox implementation in both bundles', 
 
 test('source wires scrub initialization, sandbox policy, AST, and permission callsites', () => {
   const subprocess = source('src/utils/subprocessEnv.ts')
-  assert.match(subprocess, /export async function initializeSubprocessEnvScrub/)
+  assert.match(subprocess, /export async function assertScrubSandboxAvailable/)
   assert.match(subprocess, /scrubSandboxAvailable = Boolean\(whichSync\('bwrap'\)\)/)
   assert.match(subprocess, /bubblewrap is required for subprocess env scrubbing and isolation\./)
   assert.match(subprocess, /# claude-code scrub-mode stubs/)
   assert.match(subprocess, /'\/run\/buildkit\/buildkitd\.sock'/)
   assert.match(subprocess, /actionPath\.indexOf\('\/_actions\/'\) \+ 9/)
-  assert.match(subprocess, /export function getScrubSandboxConfig/)
+  assert.match(subprocess, /export function scrubSandboxConfig/)
 
   const adapter = source('src/utils/sandbox/sandbox-adapter.ts')
   assert.match(adapter, /const scrubSandboxActive =/)
@@ -96,11 +96,11 @@ test('source wires scrub initialization, sandbox policy, AST, and permission cal
   )
   assert.match(
     adapter,
-    /isSubprocessEnvScrubEnabled\(\) && isScrubSandboxAvailable\(\)[\s\S]*?\? false/,
+    /isScrubEnabled\(\) && isScrubSandboxAvailable\(\)[\s\S]*?\? false/,
   )
   assert.match(
     adapter,
-    /function isAutoAllowBashIfSandboxedEnabled[\s\S]*?isSubprocessEnvScrubEnabled\(\)\) return false/,
+    /function isAutoAllowBashIfSandboxedEnabled[\s\S]*?isScrubEnabled\(\)\) return false/,
   )
   assert.match(
     adapter,
@@ -110,17 +110,17 @@ test('source wires scrub initialization, sandbox policy, AST, and permission cal
   const shouldUseSandbox = source('src/tools/BashTool/shouldUseSandbox.ts')
   assert.match(
     shouldUseSandbox,
-    /isSubprocessEnvScrubEnabled\(\) && isScrubSandboxAvailable\(\)[\s\S]*?return true/,
+    /isScrubEnabled\(\) && isScrubSandboxAvailable\(\)[\s\S]*?return true/,
   )
 
   const ast = source('src/utils/bash/ast.ts')
   assert.match(
     ast,
-    /node\.type === 'for_statement'[\s\S]*?isSubprocessEnvScrubEnabled\(\)\) return tooComplex\(node\)/,
+    /node\.type === 'for_statement'[\s\S]*?isScrubEnabled\(\)\) return tooComplex\(node\)/,
   )
   assert.match(
     ast,
-    /node\.type === 'while_statement' &&[\s\S]*?isSubprocessEnvScrubEnabled\(\)/,
+    /node\.type === 'while_statement' &&[\s\S]*?isScrubEnabled\(\)/,
   )
   assert.match(ast, /function containsExpansionNode\(node: Node\)/)
   assert.match(
@@ -129,19 +129,19 @@ test('source wires scrub initialization, sandbox policy, AST, and permission cal
   )
 
   const shell = source('src/utils/Shell.ts')
-  assert.match(shell, /const base = getScrubSandboxConfig\(\)/)
+  assert.match(shell, /const base = scrubSandboxConfig\(\)/)
   assert.match(shell, /SandboxManager\.getFsWriteConfig\(\)\.denyWithinAllow\.filter/)
   assert.match(shell, /commandString,[\s\S]*?sandboxBinShell,[\s\S]*?scrubConfig,/)
 
   const permissionSetup = source('src/utils/permissions/permissionSetup.ts')
   assert.match(
     permissionSetup,
-    /if \(isSubprocessEnvScrubEnabled\(\)\)[\s\S]*?Permission mode forced to default — CLAUDE_CODE_SUBPROCESS_ENV_SCRUB is set[\s\S]*?mode: 'default'/,
+    /if \(isScrubEnabled\(\)\)[\s\S]*?Permission mode forced to default — CLAUDE_CODE_SUBPROCESS_ENV_SCRUB is set[\s\S]*?mode: 'default'/,
   )
 
   const init = source('src/entrypoints/init.ts')
   assert.match(
     init,
-    /applySafeConfigEnvironmentVariables\(\)\s+await initializeSubprocessEnvScrub\(\)[\s\S]*?applyExtraCACertsFromConfig\(\)/,
+    /applySafeConfigEnvironmentVariables\(\)\s+await assertScrubSandboxAvailable\(\)[\s\S]*?applyExtraCACertsFromConfig\(\)/,
   )
 })

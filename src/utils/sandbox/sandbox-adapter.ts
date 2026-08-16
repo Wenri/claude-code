@@ -60,7 +60,7 @@ import type { PermissionRuleValue } from '../permissions/PermissionRule.js'
 import { ripgrepCommand } from '../ripgrep.js'
 import {
   isScrubSandboxAvailable,
-  isSubprocessEnvScrubEnabled,
+  isScrubEnabled,
 } from '../subprocessEnv.js'
 
 // Local copies to avoid circular dependency
@@ -372,7 +372,7 @@ export function convertToSandboxRuntimeConfig(
   }
 
   const scrubSandboxActive =
-    isSubprocessEnvScrubEnabled() &&
+    isScrubEnabled() &&
     isScrubSandboxAvailable() &&
     !getSandboxEnabledSetting()
 
@@ -401,7 +401,7 @@ export function convertToSandboxRuntimeConfig(
     },
     ignoreViolations: settings.sandbox?.ignoreViolations,
     enableWeakerNestedSandbox:
-      isSubprocessEnvScrubEnabled() && isScrubSandboxAvailable()
+      isScrubEnabled() && isScrubSandboxAvailable()
         ? false
         : settings.sandbox?.enableWeakerNestedSandbox,
     enableWeakerNetworkIsolation:
@@ -497,7 +497,7 @@ function getSandboxEnabledSetting(): boolean {
 }
 
 function isAutoAllowBashIfSandboxedEnabled(): boolean {
-  if (isSubprocessEnvScrubEnabled()) return false
+  if (isScrubEnabled()) return false
   const settings = getSettings_DEPRECATED()
   return settings?.sandbox?.autoAllowBashIfSandboxed ?? true
 }
@@ -562,7 +562,7 @@ function isPlatformInEnabledList(): boolean {
  */
 function isSandboxingEnabled(): boolean {
   if (
-    isSubprocessEnvScrubEnabled() &&
+    isScrubEnabled() &&
     !getSandboxEnabledSetting()
   ) {
     return isScrubSandboxAvailable()
