@@ -211,6 +211,8 @@ function validateRawStatementWitness({
       witness.bytes > 0 &&
       typeof witness.sha256 === 'string' &&
       /^[0-9a-f]{64}$/.test(witness.sha256) &&
+      typeof witness.normalizedSha256 === 'string' &&
+      /^[0-9a-f]{64}$/.test(witness.normalizedSha256) &&
       Number.isSafeInteger(witness.count) &&
       witness.count > 0 &&
       Number.isSafeInteger(witness.otherSideCount) &&
@@ -227,9 +229,9 @@ function validateRawStatementWitness({
         start: witness.start,
         end: witness.end,
         bytes: witness.bytes,
-        sha256: witness.sha256,
+        sha256: witness.normalizedSha256,
       }) === JSON.stringify(statement.raw),
-    `${label}: witness is not in its cluster ledger`,
+    `${label}: normalized witness is not in its cluster ledger`,
   )
   const sideSource = witness.side === 'target' ? target : baseline
   const otherSource = witness.side === 'target' ? baseline : target

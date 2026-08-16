@@ -242,6 +242,8 @@ for (const entry of semanticClusterInventory.direct) {
         witness.bytes > 0 &&
         typeof witness.sha256 === 'string' &&
         /^[0-9a-f]{64}$/.test(witness.sha256) &&
+        typeof witness.normalizedSha256 === 'string' &&
+        /^[0-9a-f]{64}$/.test(witness.normalizedSha256) &&
         Number.isSafeInteger(witness.count) &&
         witness.count > 0 &&
         Number.isSafeInteger(witness.otherSideCount) &&

@@ -169,11 +169,12 @@ function assertRawStatementWitness({ baseline, cluster, label, target, witness }
       start: witness.start,
       end: witness.end,
       bytes: witness.bytes,
-      sha256: witness.sha256,
+      sha256: witness.normalizedSha256,
     },
     statement.raw,
-    `${label}: cluster-ledger statement identity`,
+    `${label}: normalized cluster-ledger statement identity`,
   )
+  assert.match(witness.sha256, /^[0-9a-f]{64}$/, `${label}: raw SHA-256`)
   const sideSource = witness.side === 'target' ? target : baseline
   const otherSource = witness.side === 'target' ? baseline : target
   const statementText = sideSource.slice(witness.start, witness.end)
