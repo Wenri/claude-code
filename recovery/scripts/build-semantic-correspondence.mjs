@@ -165,23 +165,23 @@ function readJson(filename, label) {
   return parsed
 }
 
-function authenticatedReleaseEvidence({
+export function authenticatedReleaseEvidence({
   attribution,
   changelogPath,
   changelogText,
   obligations,
   sourceRoot,
 }) {
+  const absenceDeclared = obligations.officialReleaseAbsenceEvidence
   const inherited = attribution.releaseEvidence?.officialChangelog
   if (inherited !== undefined) {
+    assert(
+      absenceDeclared === undefined,
+      'inherited official release evidence conflicts with declared absence',
+    )
     return { official: inherited, inputs: {} }
   }
 
-  const declared = obligations.officialReleaseEvidence
-  assert(
-    declared && typeof declared === 'object' && !Array.isArray(declared),
-    'release evidence is absent from both attribution and obligations',
-  )
   const repositoryRoot = path.dirname(sourceRoot)
   const pinnedFile = (record, label) => {
     assert(
@@ -200,6 +200,313 @@ function authenticatedReleaseEvidence({
     assertEqual(sha256(value), record.sha256, `${label} SHA-256`)
     return { filename, value }
   }
+  if (absenceDeclared !== undefined) {
+    assert(
+      obligations.officialReleaseEvidence === undefined,
+      'official release presence and absence evidence are mutually exclusive',
+    )
+    assert(
+      absenceDeclared &&
+        typeof absenceDeclared === 'object' &&
+        !Array.isArray(absenceDeclared),
+      'official release absence evidence is invalid',
+    )
+    assert(
+      typeof absenceDeclared.release === 'string' &&
+        absenceDeclared.release.length > 0,
+      'absent official release version is invalid',
+    )
+    assertEqual(
+      absenceDeclared.tag,
+      `v${absenceDeclared.release}`,
+      'absent official release tag',
+    )
+    assertEqual(
+      absenceDeclared.heading,
+      `## ${absenceDeclared.release}`,
+      'absent official changelog heading',
+    )
+    assertEqual(
+      absenceDeclared.bulletCount,
+      0,
+      'absent official release bullet count',
+    )
+    assertEqual(
+      JSON.stringify(absenceDeclared.bullets),
+      JSON.stringify([]),
+      'absent official release bullet inventory',
+    )
+    const provenanceFile = pinnedFile(
+      absenceDeclared.provenance,
+      'release provenance',
+    )
+    const absenceFile = pinnedFile(
+      absenceDeclared.absenceArtifact,
+      'official release absence',
+    )
+    const fullFile = pinnedFile(
+      absenceDeclared.fullChangelog,
+      'absence-audit full changelog',
+    )
+    const tagRefsFile = pinnedFile(
+      absenceDeclared.tagRefs,
+      'absence-audit Git tag refs',
+    )
+    assertEqual(
+      path.resolve(absenceFile.filename),
+      path.resolve(changelogPath),
+      'official release absence path',
+    )
+    assert(
+      absenceFile.value.equals(Buffer.from(changelogText)),
+      'official release absence differs from --changelog',
+    )
+    const provenance = JSON.parse(provenanceFile.value.toString('utf8'))
+    const absence = JSON.parse(absenceFile.value.toString('utf8'))
+    assertEqual(provenance.schemaVersion, 1, 'release provenance schema')
+    assertEqual(
+      provenance.release,
+      absenceDeclared.release,
+      'release provenance version',
+    )
+    assertEqual(absence.schemaVersion, 1, 'release absence schema')
+    assertEqual(
+      absence.kind,
+      'authenticated-public-release-absence',
+      'release absence kind',
+    )
+    assertEqual(absence.release, absenceDeclared.release, 'release absence version')
+    assertEqual(absence.tag?.name, absenceDeclared.tag, 'release absence tag')
+    assertEqual(absence.tag?.present, false, 'release absence tag presence')
+    assertEqual(
+      absence.changelog?.heading,
+      absenceDeclared.heading,
+      'release absence changelog heading',
+    )
+    assertEqual(
+      absence.changelog?.present,
+      false,
+      'release absence changelog presence',
+    )
+    assertEqual(
+      absence.changelog?.bulletCount,
+      0,
+      'release absence changelog bullet count',
+    )
+    assert(
+      typeof absence.nearestPublishedPublicRelease?.before?.tag === 'string' &&
+        /^v\d+\.\d+\.\d+$/.test(
+          absence.nearestPublishedPublicRelease.before.tag,
+        ) &&
+        /^[a-f0-9]{40}$/.test(
+          absence.nearestPublishedPublicRelease.before.commit ?? '',
+        ),
+      'release absence previous public tag identity',
+    )
+    assert(
+      typeof absence.nearestPublishedPublicRelease?.after?.tag === 'string' &&
+        /^v\d+\.\d+\.\d+$/.test(
+          absence.nearestPublishedPublicRelease.after.tag,
+        ) &&
+        /^[a-f0-9]{40}$/.test(
+          absence.nearestPublishedPublicRelease.after.commit ?? '',
+        ),
+      'release absence next public tag identity',
+    )
+    assert(
+      absence.nearestPublishedPublicRelease.before.tag !==
+        absence.nearestPublishedPublicRelease.after.tag,
+      'release absence neighbor tags must be distinct',
+    )
+    assert(
+      absence.changelog.fullSnapshot &&
+        typeof absence.changelog.fullSnapshot.path === 'string' &&
+        Number.isSafeInteger(absence.changelog.fullSnapshot.bytes) &&
+        absence.changelog.fullSnapshot.bytes > 0 &&
+        SHA256_PATTERN.test(absence.changelog.fullSnapshot.sha256 ?? '') &&
+        /^[a-f0-9]{40}$/.test(
+          absence.changelog.fullSnapshot.gitBlobSha1 ?? '',
+        ),
+      'release absence full changelog identity',
+    )
+    assert(
+      absence.tag.refs &&
+        typeof absence.tag.refs.path === 'string' &&
+        Number.isSafeInteger(absence.tag.refs.bytes) &&
+        absence.tag.refs.bytes > 0 &&
+        SHA256_PATTERN.test(absence.tag.refs.sha256 ?? ''),
+      'release absence tag-ref identity',
+    )
+    const caseRoot = path.dirname(path.dirname(provenanceFile.filename))
+    for (const [filename, label] of [
+      [absenceFile.filename, 'release absence'],
+      [fullFile.filename, 'absence-audit full changelog'],
+      [tagRefsFile.filename, 'absence-audit Git tag refs'],
+    ]) {
+      assertEqual(
+        path.dirname(filename),
+        path.join(caseRoot, 'evidence'),
+        `${label} same-case evidence directory`,
+      )
+    }
+    const relativeToCase = filename =>
+      path.relative(caseRoot, filename).replaceAll('\\', '/')
+    assertEqual(
+      absence.changelog.fullSnapshot.path,
+      relativeToCase(fullFile.filename),
+      'release absence full changelog path',
+    )
+    assertEqual(
+      absence.changelog.fullSnapshot.bytes,
+      fullFile.value.length,
+      'release absence full changelog bytes',
+    )
+    assertEqual(
+      absence.changelog.fullSnapshot.sha256,
+      sha256(fullFile.value),
+      'release absence full changelog SHA-256',
+    )
+    assertEqual(
+      absence.changelog.fullSnapshot.gitBlobSha1,
+      gitBlobSha1(fullFile.value),
+      'release absence full changelog Git blob SHA-1',
+    )
+    const fullText = fullFile.value.toString('utf8')
+    const headingLines = fullText
+      .split(/\r?\n/)
+      .filter(line => line === absenceDeclared.heading)
+    assertEqual(
+      headingLines.length,
+      0,
+      'absent official changelog heading count',
+    )
+    assertEqual(
+      absence.changelog.bulletCount,
+      0,
+      'absent official changelog bullet count',
+    )
+    assertEqual(
+      absence.tag.refs.path,
+      relativeToCase(tagRefsFile.filename),
+      'release absence tag-ref path',
+    )
+    assertEqual(
+      absence.tag.refs.bytes,
+      tagRefsFile.value.length,
+      'release absence tag-ref bytes',
+    )
+    assertEqual(
+      absence.tag.refs.sha256,
+      sha256(tagRefsFile.value),
+      'release absence tag-ref SHA-256',
+    )
+    const tagRefText = tagRefsFile.value.toString('utf8')
+    assert(tagRefText.endsWith('\n'), 'release tag refs need trailing newline')
+    const tagRefLines = tagRefText.split('\n').filter(Boolean)
+    assert(tagRefLines.length > 0, 'release tag refs are empty')
+    assertEqual(
+      JSON.stringify(tagRefLines),
+      JSON.stringify([...tagRefLines].sort()),
+      'release tag refs canonical order',
+    )
+    assertEqual(
+      new Set(tagRefLines).size,
+      tagRefLines.length,
+      'release tag refs are unique',
+    )
+    const refs = new Map()
+    for (const line of tagRefLines) {
+      const match = /^([a-f0-9]{40})\t(refs\/tags\/[^\s]+)$/.exec(line)
+      assert(match, `invalid release tag ref: ${line}`)
+      refs.set(match[2], match[1])
+    }
+    const targetRef = `refs/tags/${absenceDeclared.tag}`
+    assertEqual(refs.has(targetRef), false, 'absent official Git tag direct ref')
+    assertEqual(
+      refs.has(`${targetRef}^{}`),
+      false,
+      'absent official Git tag peeled ref',
+    )
+    const commitAtTag = tag => {
+      const ref = `refs/tags/${tag}`
+      return refs.get(`${ref}^{}`) ?? refs.get(ref)
+    }
+    for (const [position, record] of Object.entries(
+      absence.nearestPublishedPublicRelease,
+    )) {
+      assertEqual(
+        commitAtTag(record.tag),
+        record.commit,
+        `release absence ${position} public tag ref`,
+      )
+    }
+    assertEqual(
+      provenance.publicReleaseAbsence?.path,
+        relativeToCase(absenceFile.filename),
+      'release provenance absence path',
+    )
+    assertEqual(
+      provenance.publicReleaseAbsence?.bytes,
+      absenceFile.value.length,
+      'release provenance absence bytes',
+    )
+    assertEqual(
+      provenance.publicReleaseAbsence?.sha256,
+      sha256(absenceFile.value),
+      'release provenance absence SHA-256',
+    )
+    for (const [key, expected] of [
+      ['tag', {
+        name: absenceDeclared.tag,
+        present: false,
+        refs: {
+          path: relativeToCase(tagRefsFile.filename),
+          bytes: tagRefsFile.value.length,
+          sha256: sha256(tagRefsFile.value),
+        },
+      }],
+      ['changelog', {
+        heading: absenceDeclared.heading,
+        present: false,
+        bulletCount: 0,
+        fullSnapshot: {
+          path: relativeToCase(fullFile.filename),
+          bytes: fullFile.value.length,
+          sha256: sha256(fullFile.value),
+          gitBlobSha1: gitBlobSha1(fullFile.value),
+        },
+      }],
+    ]) {
+      assertEqual(
+        JSON.stringify(provenance.publicReleaseAbsence?.[key]),
+        JSON.stringify(expected),
+        `release provenance absence ${key}`,
+      )
+    }
+    return {
+      official: {
+        kind: 'authenticated-public-release-absence',
+        section: absenceDeclared.release,
+        bulletCount: 0,
+        bullets: [],
+        tag: absenceDeclared.tag,
+        heading: absenceDeclared.heading,
+        absenceSha256: sha256(absenceFile.value),
+      },
+      inputs: {
+        releaseProvenance: evidence(provenanceFile.filename),
+        officialReleaseAbsence: evidence(absenceFile.filename),
+        absenceAuditFullChangelog: evidence(fullFile.filename),
+        absenceAuditGitTagRefs: evidence(tagRefsFile.filename),
+      },
+    }
+  }
+
+  const declared = obligations.officialReleaseEvidence
+  assert(
+    declared && typeof declared === 'object' && !Array.isArray(declared),
+    'release evidence is absent from both attribution and obligations',
+  )
   const provenanceFile = pinnedFile(
     declared.provenance,
     'release provenance',
@@ -565,8 +872,8 @@ function validateObligations({
   assertEqual(obligations.schemaVersion, 1, 'obligations schema version')
   assert(
     Number.isSafeInteger(obligations.releaseBulletCount) &&
-      obligations.releaseBulletCount > 0,
-    'releaseBulletCount must be a positive integer',
+      obligations.releaseBulletCount >= 0,
+    'releaseBulletCount must be a non-negative integer',
   )
   assertEqual(
     obligations.releaseBulletCount,
@@ -578,6 +885,13 @@ function validateObligations({
       officialReleaseEvidence.bullets.length === officialReleaseEvidence.bulletCount,
     'official release bullet inventory is invalid',
   )
+  if (obligations.releaseBulletCount === 0) {
+    assertEqual(
+      officialReleaseEvidence.kind,
+      'authenticated-public-release-absence',
+      'zero-bullet release evidence kind',
+    )
+  }
   assert(
     Array.isArray(obligations.releaseBulletEvidence) &&
       obligations.releaseBulletEvidence.length === obligations.releaseBulletCount,
@@ -1394,6 +1708,15 @@ function validateObligations({
 
   for (let bullet = 1; bullet <= obligations.releaseBulletCount; bullet += 1) {
     assert(coveredBullets.has(bullet), `release bullet ${bullet} is not covered`)
+  }
+  if (obligations.releaseBulletCount === 0) {
+    assert(
+      obligations.obligations.every(
+        obligation =>
+          obligation.hidden === true && obligation.releaseBullets.length === 0,
+      ),
+      'zero-bullet releases require every obligation to be hidden',
+    )
   }
   if (directEvidenceMetadata !== null) {
     assertEqual(
