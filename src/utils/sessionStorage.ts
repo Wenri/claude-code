@@ -5344,7 +5344,7 @@ export function isLoggableMessage(m: Message): boolean {
   return true
 }
 
-function collectReplIds(messages: readonly Message[]): Set<string> {
+export function collectReplIds(messages: readonly Message[]): Set<string> {
   const ids = new Set<string>()
   for (const m of messages) {
     if (m.type === 'assistant' && Array.isArray(m.message.content)) {

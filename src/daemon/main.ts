@@ -1238,7 +1238,7 @@ async function showStatus(): Promise<void> {
   }
 }
 
-async function tailLog(path: string): Promise<void> {
+export async function tailLog(path: string): Promise<void> {
   if (process.platform !== 'win32') {
     const child = spawn('tail', ['-f', path], { stdio: 'inherit' })
     await new Promise<void>(resolve => {

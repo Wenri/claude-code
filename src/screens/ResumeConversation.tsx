@@ -36,7 +36,7 @@ import { adoptResumedSessionFile, enrichLogs, isCustomTitleEnabled, loadAllProje
 import type { ThinkingConfig } from '../utils/thinking.js';
 import type { ContentReplacementRecord } from '../utils/toolResultStorage.js';
 import { REPL } from './REPL.js';
-function parsePrIdentifier(value: string): number | null {
+export function parsePrIdentifier(value: string): number | null {
   const directNumber = parseInt(value, 10);
   if (!isNaN(directNumber) && directNumber > 0) {
     return directNumber;

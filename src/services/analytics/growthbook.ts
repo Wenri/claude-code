@@ -468,7 +468,7 @@ export function getApiBaseUrlHost(): string | undefined {
 /**
  * Get user attributes for GrowthBook from CoreUserData
  */
-function getUserAttributes(): GrowthBookUserAttributes {
+export function getUserAttributes(): GrowthBookUserAttributes {
   const user = getUserForGrowthBook()
 
   // For ants, always try to include email from OAuth config even if ANTHROPIC_API_KEY is set.

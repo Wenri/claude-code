@@ -31,7 +31,7 @@ import {
   SlashCommandSchema,
 } from './coreSchemas.js'
 
-const PERMISSION_DECISION_REASON_TYPES = [
+export const PERMISSION_DECISION_REASON_TYPES = [
   'rule',
   'mode',
   'subcommandResults',

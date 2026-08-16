@@ -6093,7 +6093,7 @@ type LoadInitialMessagesResult = {
   deferredToolUse?: HookDeferredToolAttachment
 }
 
-async function loadInitialMessages(
+export async function loadInitialMessages(
   setAppState: (f: (prev: AppState) => AppState) => void,
   options: {
     continue: boolean | undefined

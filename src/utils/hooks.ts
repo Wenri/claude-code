@@ -196,7 +196,7 @@ const HOOK_OUTPUT_PERSIST_THRESHOLD_CHARS = 10_000
  * parallel, so one value suffices). Overridable via env var for users whose
  * teardown scripts need more time.
  */
-const SESSION_END_HOOK_TIMEOUT_MS_DEFAULT = 1500
+export const SESSION_END_HOOK_TIMEOUT_MS_DEFAULT = 1500
 export function getSessionEndHookTimeoutMs(): number {
   const raw = process.env.CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS
   const parsed = raw ? parseInt(raw, 10) : NaN
@@ -1581,7 +1581,7 @@ function hookDedupKey(m: MatchedHook, payload: string): string {
  * Build a map of {sanitizedPluginName: hookCount} from matched hooks.
  * Only logs actual names for official marketplace plugins; others become 'third-party'.
  */
-function getPluginHookCounts(
+export function getPluginHookCounts(
   hooks: MatchedHook[],
 ): Record<string, number> | undefined {
   const pluginHooks = hooks.filter(h => h.pluginId)
@@ -2113,7 +2113,7 @@ export function getTelemetryHookName(
  * @param messages Optional conversation history for prompt/function hooks
  * @returns Async generator that yields progress messages and hook results
  */
-async function* executeHooks({
+export async function* executeHooks({
   hookInput,
   toolUseID,
   matchQuery,
@@ -3425,7 +3425,7 @@ export function hasBlockingResult(results: HookOutsideReplResult[]): boolean {
  * @param timeoutMs Optional timeout in milliseconds for hook execution
  * @returns Array of HookOutsideReplResult objects containing command, succeeded, and output
  */
-async function executeHooksOutsideREPL({
+export async function executeHooksOutsideREPL({
   getAppState,
   hookInput,
   matchQuery,
@@ -4935,7 +4935,7 @@ export type ElicitationResultHookResult = {
  * Mirrors the relevant branches of processHookJSONOutput for Elicitation
  * and ElicitationResult hook events.
  */
-function parseElicitationHookOutput(
+export function parseElicitationHookOutput(
   result: HookOutsideReplResult,
   expectedEventName: 'Elicitation' | 'ElicitationResult',
 ): {
