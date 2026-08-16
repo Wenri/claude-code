@@ -141,12 +141,7 @@ async function isPossibleClaudeBinary(filePath: string): Promise<boolean> {
     if (!stats.isFile() || stats.size === 0) {
       return false
     }
-
-    // Check if file is executable. Note: On Windows, this relies on file extensions
-    // (.exe, .bat, .cmd) and ACL permissions rather than Unix permission bits,
-    // so it may not work perfectly for all executable files on Windows.
-    await access(filePath, fsConstants.X_OK)
-    return true
+    return (stats.mode & fsConstants.S_IXUSR) !== 0
   } catch {
     return false
   }
