@@ -15,6 +15,10 @@ const overlayPath = path.join(recoveredRoot, 'source-facing-overlay.patch')
 const freezeOverlayPath = path.join(freezeRoot, 'source-facing-overlay.patch')
 const lineagePath = path.join(recoveredRoot, 'source-lineage-core.json')
 const directEvidencePath = path.join(caseRoot, 'semantic/direct-evidence.json')
+const directSpecsPath = path.join(
+  repo,
+  'recovery/2.1.123-direct-evidence-specs.json',
+)
 const baseRevision = 'c30cece4b85c84cd9e92ca708c96d1cd3f8f6b87'
 
 // Freeze every release-scoped suite that exists at the target commit. This is
@@ -165,6 +169,30 @@ function metadata(filename, root = caseRoot) {
   }
 }
 
+function assertCommitFileMatches(revision, relative) {
+  assert(
+    !path.isAbsolute(relative) &&
+      !relative.split('/').includes('..') &&
+      relative.length > 0,
+    `unsafe target-commit file path: ${relative}`,
+  )
+  const filename = path.join(repo, relative)
+  const status = fs.lstatSync(filename)
+  assert(
+    status.isFile() && !status.isSymbolicLink(),
+    `${relative}: working-tree input must be a regular file`,
+  )
+  const committed = git(['show', `${revision}:${relative}`], {
+    encoding: 'buffer',
+  })
+  const working = fs.readFileSync(filename)
+  assert(
+    working.equals(committed),
+    `${relative}: working tree differs from target commit`,
+  )
+  return metadata(filename, repo)
+}
+
 function walkFiles(root) {
   const pending = [root]
   const files = []
@@ -290,6 +318,19 @@ function main() {
   ]).trim()
   assert(/^[a-f0-9]{40}$/.test(targetCommit), 'target commit identity')
   run('git', ['diff', '--quiet', targetCommit, '--', 'src'])
+  const targetCommitFilePaths = [
+    ...targetTests,
+    ...targetTestDependencies,
+    path.relative(repo, directEvidencePath).replaceAll('\\', '/'),
+    path.relative(repo, directSpecsPath).replaceAll('\\', '/'),
+  ].sort()
+  assert(
+    new Set(targetCommitFilePaths).size === targetCommitFilePaths.length,
+    'duplicate target-commit recovery file',
+  )
+  const targetCommitFileAssertions = targetCommitFilePaths.map(relative =>
+    assertCommitFileMatches(targetCommit, relative),
+  )
 
   const baselineInner = bundle(
     args['baseline-inner'],
@@ -702,6 +743,7 @@ function main() {
     changedFiles,
     syntaxCheck,
     testFiles: targetTests,
+    targetCommitFileAssertions,
     testArtifactEnvironment: {
       CLAUDE_CODE_2_1_122_BUNDLE: 'baselineAnalyzableBundle',
       CLAUDE_CODE_2_1_123_BUNDLE: 'targetAnalyzableBundle',

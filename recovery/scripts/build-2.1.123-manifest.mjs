@@ -39,6 +39,17 @@ const expectedFocusedTests = [
   'oauth-beta-disable-experimental',
   'semantic-delta',
 ]
+const expectedTestAssertions = [
+  'recovery/lib/structural-delta.mjs',
+  'recovery/readable-diff/generator.mjs',
+  'recovery/scripts/build-2.1.123-semantic-delta.mjs',
+  ...expectedReleaseTests,
+].sort()
+const expectedTargetCommitFiles = [
+  ...expectedTestAssertions,
+  'recovery/2.1.123-direct-evidence-specs.json',
+  'recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json',
+].sort()
 const expectedStructuralArtifacts = {
   rawLedger: {
     path: 'structural/generated-delta.json.gz',
@@ -207,6 +218,14 @@ assert(
   JSON.stringify(sourceLineage.testFiles) ===
     JSON.stringify(expectedReleaseTests),
   'exact three-suite source-lineage topology',
+)
+assert(
+  JSON.stringify(sourceLineage.testFileAssertions.map(entry => entry.path)) ===
+    JSON.stringify(expectedTestAssertions) &&
+    JSON.stringify(
+      sourceLineage.targetCommitFileAssertions.map(entry => entry.path),
+    ) === JSON.stringify(expectedTargetCommitFiles),
+  'exact target-commit recovery input topology',
 )
 assert(
   directEvidence.focusedTestCount === expectedFocusedTests.length &&

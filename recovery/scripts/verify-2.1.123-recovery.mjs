@@ -148,6 +148,27 @@ function readPinnedStructural(root, metadata, label) {
   return value
 }
 
+function readCommitFile(repo, revision, relative) {
+  assert(
+    !path.isAbsolute(relative) &&
+      !relative.split('/').includes('..') &&
+      relative.length > 0,
+    `unsafe target-commit file path: ${relative}`,
+  )
+  const result = spawnSync('git', ['show', `${revision}:${relative}`], {
+    cwd: repo,
+    maxBuffer: 128 * 1024 * 1024,
+  })
+  if (result.error) throw result.error
+  if (result.status !== 0) {
+    throw new Error(
+      `${relative}: absent from target commit ${revision}\n` +
+        String(result.stderr ?? ''),
+    )
+  }
+  return result.stdout
+}
+
 function main() {
   const args = parseArguments(process.argv.slice(2))
   if (!args.artifacts || !args['baseline-tarball']) {
@@ -259,6 +280,34 @@ function main() {
     ) === JSON.stringify(expectedTestAssertions),
     'exact source-lineage test assertions and direct dependencies',
   )
+  const expectedTargetCommitFiles = [
+    ...expectedTestAssertions,
+    'recovery/2.1.123-direct-evidence-specs.json',
+    'recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json',
+  ].sort()
+  assert(
+    JSON.stringify(
+      manifest.sourceLineage.targetCommitFileAssertions.map(entry => entry.path),
+    ) === JSON.stringify(expectedTargetCommitFiles),
+    'exact target-commit recovery file topology',
+  )
+  for (const entry of manifest.sourceLineage.targetCommitFileAssertions) {
+    const filename = path.join(repo, entry.path)
+    const status = fs.lstatSync(filename)
+    assert(
+      status.isFile() && !status.isSymbolicLink(),
+      `${entry.path}: recovery input must be a regular file`,
+    )
+    const working = fs.readFileSync(filename)
+    assert(working.length === entry.bytes, `${entry.path}: frozen byte length`)
+    assert(sha256(working) === entry.sha256, `${entry.path}: frozen SHA-256`)
+    assert(
+      working.equals(
+        readCommitFile(repo, manifest.sourceLineage.targetCommit, entry.path),
+      ),
+      `${entry.path}: target commit differs from frozen recovery input`,
+    )
+  }
   assert(
     manifest.sourceLineage.testArtifactEnvironment
       .CLAUDE_CODE_2_1_122_WRAPPER === 'baselineBundle' &&
@@ -298,7 +347,8 @@ function main() {
   assert(
     sourceIdentity.base.commit ===
         'c30cece4b85c84cd9e92ca708c96d1cd3f8f6b87' &&
-      /^[a-f0-9]{40}$/.test(sourceIdentity.target.commit),
+      /^[a-f0-9]{40}$/.test(sourceIdentity.target.commit) &&
+      sourceIdentity.target.commit === manifest.sourceLineage.targetCommit,
     'source-freeze commit identities',
   )
   const expectedDiffCheck = {
