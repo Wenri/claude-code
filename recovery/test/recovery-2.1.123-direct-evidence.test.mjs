@@ -14,8 +14,9 @@ const TARGET_SHA256 =
   '59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd'
 
 // Pinned only after the final source tree and both focused suites are frozen.
-const CATALOG_BYTES = 0
-const CATALOG_SHA256 = '0'.repeat(64)
+const CATALOG_BYTES = 5366
+const CATALOG_SHA256 =
+  '621070c2d8b306a563b018bc58b931b88f15eb2fecefcf7ff0614fa79f70e628'
 const CATALOG_PATH =
   'recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json'
 const BASE_REVISION = 'c30cece4b85c84cd9e92ca708c96d1cd3f8f6b87'
