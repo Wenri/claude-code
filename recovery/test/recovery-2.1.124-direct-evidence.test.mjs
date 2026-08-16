@@ -415,7 +415,7 @@ function readPinnedClusterInventory(catalog) {
 }
 
 function changedSourcePaths() {
-  return changedSourceRows().map(row => row.path)
+  return changedSourceRows().map(row => row.path).sort()
 }
 
 function changedSourceRows() {
