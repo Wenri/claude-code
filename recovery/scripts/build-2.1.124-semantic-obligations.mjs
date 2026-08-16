@@ -163,7 +163,9 @@ assert(
     clusterInventory?.schemaVersion === 1 &&
     clusterInventory.totalClusters === 205 &&
     Array.isArray(clusterInventory.direct) &&
-    Array.isArray(clusterInventory.accountingOnly),
+    Array.isArray(clusterInventory.accountingOnly) &&
+    Array.isArray(clusterInventory.supportBindings) &&
+    clusterInventory.supportBindings.length > 0,
   'known-delta semantic cluster inventory',
 )
 const allClusterIds = [
@@ -182,7 +184,15 @@ assert(
     JSON.stringify(entry) === JSON.stringify(knownDeltaProofMetadata)) &&
     JSON.stringify(directEvidence.clusterInventory?.proof) ===
       JSON.stringify(knownDeltaProofMetadata) &&
-    directEvidence.clusterInventory?.totalClusters === 205,
+    directEvidence.clusterInventory?.totalClusters === 205 &&
+    directEvidence.clusterInventory?.supportBindingCount ===
+      clusterInventory.supportBindings.length &&
+    directEvidence.clusterInventory?.supportSourcePathCount ===
+      clusterInventory.supportBindings.length &&
+    directEvidence.clusterInventory?.supportBindingsSha256 === sha256(
+      Buffer.from(`${JSON.stringify(clusterInventory.supportBindings)}\n`),
+    ) &&
+    directEvidence.coverageDeclarations?.sourceSupportFullyBound === true,
   'direct evidence pins the known-delta cluster inventory',
 )
 const clusterByRowId = new Map(
@@ -195,6 +205,8 @@ assert(clusterByRowId.size === clusterInventory.direct.length,
   'unique semantic cluster row IDs')
 assert(supportById.size === clusterInventory.supportBindings.length,
   'unique source-change support IDs')
+assert([...supportById.keys()].every(id => !clusterByRowId.has(id)),
+  'source-change support ID collides with a semantic row')
 assert(
   JSON.stringify([
     ...clusterByRowId.keys(),

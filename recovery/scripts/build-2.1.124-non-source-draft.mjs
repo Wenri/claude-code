@@ -119,6 +119,31 @@ function clusterTargetWitnessesShape(binding) {
       witnesses.length
 }
 
+function reviewedSourceWitnessShape(witness, requireReviewed = false) {
+  if (
+    !safeSourcePath(witness?.path) ||
+    typeof witness.fragment !== 'string' ||
+    witness.fragment.length === 0 ||
+    !Number.isSafeInteger(witness.count) ||
+    witness.count <= 0 ||
+    typeof witness.reviewed !== 'boolean' ||
+    !Array.isArray(witness.matchedSemanticTerms) ||
+    witness.matchedSemanticTerms.some(term =>
+      typeof term !== 'string' || term.length === 0) ||
+    new Set(witness.matchedSemanticTerms).size !==
+      witness.matchedSemanticTerms.length ||
+    JSON.stringify(witness.matchedSemanticTerms) !== JSON.stringify(
+      [...witness.matchedSemanticTerms].sort(),
+    ) ||
+    (witness.reviewed !== true && witness.matchedSemanticTerms.length === 0) ||
+    (requireReviewed && witness.reviewed !== true)
+  ) return false
+  return occurrences(
+    fs.readFileSync(path.join(repo, witness.path), 'utf8'),
+    witness.fragment,
+  ) === witness.count
+}
+
 function renamePriorArtifact(priorArtifacts, id, newId, argument) {
   const artifact = clone(priorArtifacts.get(id))
   assert(artifact !== undefined, `Missing prior artifact: ${id}`)
@@ -311,18 +336,50 @@ function main() {
     'accounting-only clusters differ from the conservative reviewed set',
   )
   assert(
-    semanticClusterInventory.direct.every(entry =>
-      Array.isArray(entry.clusterBindings) &&
+    semanticClusterInventory.direct.every(entry => {
+      if (
+        entry.retained === true ||
+        !Array.isArray(entry.clusterIds) ||
+        entry.clusterIds.length === 0 ||
+        !Array.isArray(entry.clusterBindings) ||
+        !entry.clusterBindings.every(binding =>
+          Array.isArray(binding.sourceWitnesses) &&
+            Array.isArray(binding.testIds))
+      ) return false
+      const sourcePaths = [
+        ...new Set(entry.clusterBindings.flatMap(binding =>
+          binding.sourceWitnesses.map(witness => witness.path))),
+      ].sort()
+      const testIds = [
+        ...new Set(entry.clusterBindings.flatMap(binding => binding.testIds)),
+      ].sort()
+      return (
         entry.clusterBindings.length === entry.clusterIds.length &&
-        JSON.stringify(
-          entry.clusterBindings.map(binding => binding.clusterId),
-        ) === JSON.stringify(entry.clusterIds) &&
+        JSON.stringify(entry.clusterBindings.map(binding => binding.clusterId)) ===
+          JSON.stringify(entry.clusterIds) &&
         entry.clusterBindings.every(binding =>
           clusterTargetWitnessesShape(binding) &&
             Array.isArray(binding.sourceWitnesses) &&
             binding.sourceWitnesses.length > 0 &&
+            binding.sourceWitnesses.every(witness =>
+              reviewedSourceWitnessShape(witness)) &&
             Array.isArray(binding.testIds) &&
-            binding.testIds.length > 0)),
+            binding.testIds.length > 0 &&
+            new Set(binding.testIds).size === binding.testIds.length &&
+            JSON.stringify(binding.testIds) ===
+              JSON.stringify([...binding.testIds].sort())) &&
+        JSON.stringify(sourcePaths) === JSON.stringify(entry.sourcePaths) &&
+        JSON.stringify(testIds) === JSON.stringify(entry.testIds) &&
+        Array.isArray(entry.targetWitnesses) &&
+        entry.targetWitnesses.length > 0 &&
+        entry.targetWitnesses.every(witness =>
+          witness.kind === 'literal' &&
+            typeof witness.value === 'string' &&
+            witness.value.length > 0 &&
+            Number.isSafeInteger(witness.count) &&
+            witness.count > 0)
+      )
+    }),
     'every direct cluster needs an exact statement/source/test binding',
   )
   const supportBindings = semanticClusterInventory.supportBindings

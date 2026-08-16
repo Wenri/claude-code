@@ -72,8 +72,18 @@ assert(
   directEvidenceTopology.case === '2.1.123-to-2.1.124' &&
     directEvidenceTopology.complete === true &&
     directEvidenceTopology.clusterInventory?.totalClusters === 205 &&
+    Number.isSafeInteger(
+      directEvidenceTopology.clusterInventory?.supportBindingCount,
+    ) &&
+    directEvidenceTopology.clusterInventory.supportBindingCount > 0 &&
+    directEvidenceTopology.clusterInventory?.supportSourcePathCount ===
+      directEvidenceTopology.clusterInventory.supportBindingCount &&
+    /^[0-9a-f]{64}$/.test(
+      directEvidenceTopology.clusterInventory?.supportBindingsSha256 ?? '',
+    ) &&
     directEvidenceTopology.coverageDeclarations
-      ?.clusterInventoryFullyBound === true,
+      ?.clusterInventoryFullyBound === true &&
+    directEvidenceTopology.coverageDeclarations?.sourceSupportFullyBound === true,
   'direct-evidence test topology identity',
 )
 assert(
