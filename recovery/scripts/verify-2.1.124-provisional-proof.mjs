@@ -30,7 +30,7 @@ const expectedAccountingReasonGroups = {
   'exact-relocation': [113, 114, 123, 159],
 }
 const expectedInitializerPairedDirectClusterIds = [
-  3, 17, 18, 32, 35, 62, 110, 122, 151, 167, 168, 180,
+  3, 17, 18, 32, 35, 62, 110, 151, 167, 168, 180,
 ]
 const requiredDirectClusterIds = [12, 69, 115, 122, 186, 188, 189]
 const expectedDirectClusterCount = 168
