@@ -138,6 +138,7 @@ function leaveAttachedTerminal(
     ESU +
     decModes.map(decreset).reverse().join('') +
     SHOW_CURSOR +
+    '\x1B[0m' +
     DISABLE_KITTY_KEYBOARD +
     DISABLE_MODIFY_OTHER_KEYS +
     (holdScreen ? '' : EXIT_ALT_SCREEN)

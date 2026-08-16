@@ -120,6 +120,7 @@ export const getHookEventMetadata = memoize(
           values: [
             'rate_limit',
             'authentication_failed',
+            'oauth_org_not_allowed',
             'billing_error',
             'invalid_request',
             'server_error',

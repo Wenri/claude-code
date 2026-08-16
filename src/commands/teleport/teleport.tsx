@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { TeleportResumeWrapper } from '../../components/TeleportResumeWrapper.js'
+import { useAppStateStore } from '../../state/AppState.js'
 import type {
   LocalJSXCommandCall,
   LocalJSXCommandContext,
@@ -14,6 +15,10 @@ export const Teleport = ({
   onExit: LocalJSXCommandOnDone
   context: LocalJSXCommandContext
 }) => {
+  const appStateStore = useAppStateStore()
+  const [_startedInBridgeSession] = React.useState(() =>
+    Boolean(appStateStore.getState().replBridgeSessionId),
+  )
   const onComplete = React.useCallback(
     (result: TeleportRemoteResponse) => {
       context.applyMessageOp({

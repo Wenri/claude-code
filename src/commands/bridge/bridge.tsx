@@ -6,6 +6,7 @@ import { getBridgeAccessToken } from '../../bridge/bridgeConfig.js';
 import { getBridgeDisabledReason } from '../../bridge/bridgeEnabled.js';
 import { checkReplBridgeMinVersion } from '../../bridge/envLessBridgeConfig.js';
 import { BRIDGE_LOGIN_INSTRUCTION, REMOTE_CONTROL_DISCONNECTED_MSG } from '../../bridge/types.js';
+import { getTrustedDeviceUnenrolledReason } from '../../bridge/trustedDevice.js';
 import { Dialog } from '../../components/design-system/Dialog.js';
 import { ListItem } from '../../components/design-system/ListItem.js';
 import { shouldShowRemoteCallout } from '../../components/RemoteCallout.js';
@@ -484,6 +485,10 @@ async function checkBridgePrerequisites(): Promise<string | null> {
   }
   if (!getBridgeAccessToken()) {
     return BRIDGE_LOGIN_INSTRUCTION;
+  }
+  const trustedDeviceReason = getTrustedDeviceUnenrolledReason();
+  if (trustedDeviceReason) {
+    return trustedDeviceReason;
   }
   logForDebugging('[bridge] Prerequisites passed, enabling bridge');
   return null;
