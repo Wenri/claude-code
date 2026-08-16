@@ -8,6 +8,8 @@
  */
 /* eslint-disable custom-rules/no-process-exit -- centralized CLI exit point */
 
+import chalk from 'chalk'
+
 // `return undefined as never` (not a post-exit throw) — tests spy on
 // process.exit and let it return. Call sites write `return cliError(...)`
 // where subsequent code would dereference narrowed-away values under mock.
@@ -18,7 +20,7 @@
 /** Write an error message to stderr (if given) and exit with code 1. */
 export function cliError(msg?: string): never {
   // biome-ignore lint/suspicious/noConsole: centralized CLI error output
-  if (msg) console.error(msg)
+  if (msg) console.error(chalk.red(msg))
   process.exit(1)
   return undefined as never
 }
@@ -28,4 +30,9 @@ export function cliOk(msg?: string): never {
   if (msg) process.stdout.write(msg + '\n')
   process.exit(0)
   return undefined as never
+}
+
+/** Write a warning message to stderr without exiting. */
+export function cliWarn(msg: string): void {
+  process.stderr.write(chalk.yellow(msg) + '\n')
 }

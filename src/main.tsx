@@ -4493,6 +4493,18 @@ async function run(): Promise<CommanderCommand> {
     await authLogout();
   });
 
+  program.command('project').description('Manage Claude Code project state').configureHelp(createSortedHelpConfig()).command('purge [path]').description('Delete all Claude Code state for a project (transcripts, tasks, file history, config entry)').option('--dry-run', 'List what would be deleted without deleting anything').option('-y, --yes', 'Skip confirmation prompt').option('-i, --interactive', 'Prompt for each item before deleting').option('--all', 'Purge state for every project (mutually exclusive with [path])').action(async (projectPath: string | undefined, options: {
+    dryRun?: boolean;
+    yes?: boolean;
+    interactive?: boolean;
+    all?: boolean;
+  }) => {
+    const {
+      purgeProjectHandler
+    } = await import('./cli/handlers/project.js');
+    await purgeProjectHandler(projectPath, options);
+  });
+
   /**
    * Helper function to handle marketplace command errors consistently.
    * Logs the error and exits the process with status 1.
