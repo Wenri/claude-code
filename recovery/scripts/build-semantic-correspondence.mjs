@@ -1263,6 +1263,7 @@ function validateObligations({
         ['source assertions', obligation.sourceAssertions ?? [], boundDirectEvidenceRow.sourceAssertions],
         ['source absences', obligation.sourceAbsences ?? [], boundDirectEvidenceRow.sourceAbsences],
         ['source file absences', obligation.sourceFileAbsences ?? [], boundDirectEvidenceRow.sourceFileAbsences ?? []],
+        ['semantic cluster IDs', obligation.semanticClusterIds ?? [], boundDirectEvidenceRow.semanticClusterIds ?? []],
       ]) {
         assertEqual(
           JSON.stringify(actual),
@@ -1659,6 +1660,21 @@ function validateObligations({
         testIds: [...(obligation.testIds ?? [])].sort(),
       }
     }
+    const semanticClusterIds = obligation.semanticClusterIds ?? []
+    if (obligation.semanticClusterIds !== undefined) {
+      assert(
+        Array.isArray(semanticClusterIds) &&
+          semanticClusterIds.length > 0 &&
+          semanticClusterIds.every(clusterId =>
+            Number.isSafeInteger(clusterId) && clusterId >= 1) &&
+          new Set(semanticClusterIds).size === semanticClusterIds.length &&
+          JSON.stringify(semanticClusterIds) ===
+            JSON.stringify(
+              [...semanticClusterIds].sort((left, right) => left - right),
+            ),
+        `${obligation.id}: invalid semantic cluster IDs`,
+      )
+    }
     obligationWitnesses.push({
       id: obligation.id,
       classification: obligation.classification,
@@ -1692,6 +1708,7 @@ function validateObligations({
         count: absence.count,
       })),
       testIds: [...(obligation.testIds ?? [])].sort(),
+      ...(semanticClusterIds.length === 0 ? {} : { semanticClusterIds }),
       ...(obligation.catalogBinding === undefined
         ? {}
         : {

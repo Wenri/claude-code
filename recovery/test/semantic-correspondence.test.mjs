@@ -277,6 +277,7 @@ function fixture() {
             count: 1,
           },
         ],
+        semanticClusterIds: [1, 2],
         testIds: ['answer-change'],
       },
     ],
@@ -410,6 +411,25 @@ test('builds and verifies exhaustive bundle-to-source semantic correspondence', 
     })
     assert.equal(result.status, 'whole-bundle-source-correspondence-verified')
     assert.equal(result.obligations.releaseBulletsCovered, 1)
+    assert.deepEqual(
+      generated.report.obligationWitnesses[0].semanticClusterIds,
+      [1, 2],
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects non-canonical semantic cluster IDs', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    obligations.obligations[0].semanticClusterIds = [2, 1]
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid semantic cluster IDs/,
+    )
   } finally {
     fs.rmSync(files.root, { recursive: true, force: true })
   }
