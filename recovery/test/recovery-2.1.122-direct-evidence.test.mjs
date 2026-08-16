@@ -13,11 +13,10 @@ const TARGET_BYTES = 13_949_544
 const TARGET_SHA256 =
   'b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c'
 
-// Updated only after the final source tree and row catalog are frozen. This
-// impossible provisional identity makes every partial handoff fail closed.
-const CATALOG_BYTES = 0
+// Pinned only after the final source tree and row catalog are frozen.
+const CATALOG_BYTES = 204_768
 const CATALOG_SHA256 =
-  '0000000000000000000000000000000000000000000000000000000000000000'
+  '9a2bf41c78af2642601b183212fef325262e920b7ac81e34d2d48e6685e821e1'
 const CATALOG_PATH =
   'recovery/cases/2.1.121-to-2.1.122/semantic/direct-evidence.json'
 const BASE_REVISION = '11890981447ee2cea3407c608f4411e43e5fe72a'
