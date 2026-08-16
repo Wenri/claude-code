@@ -52,6 +52,10 @@ function assert(condition, message) {
   if (!condition) throw new Error(message)
 }
 
+function assertDeepEqual(actual, expected, message) {
+  assert(JSON.stringify(actual) === JSON.stringify(expected), message)
+}
+
 function renamePriorArtifact(priorArtifacts, id, newId, argument) {
   const artifact = clone(priorArtifacts.get(id))
   assert(artifact !== undefined, `Missing prior artifact: ${id}`)
@@ -147,6 +151,29 @@ function main() {
       fs.readFileSync(path.join(caseRoot, 'structural/generated-delta.json.gz')),
     ),
   )
+  const metadataNormalizedStructural = JSON.parse(
+    zlib.gunzipSync(
+      fs.readFileSync(
+        path.join(caseRoot, 'structural/metadata-normalized-delta.json.gz'),
+      ),
+    ),
+  )
+  const knownDeltaStructural = JSON.parse(
+    zlib.gunzipSync(
+      fs.readFileSync(
+        path.join(caseRoot, 'structural/known-delta-ledger.json.gz'),
+      ),
+    ),
+  )
+  const knownDeltaProof = readJson('structural/known-delta-proof.json')
+  const structuralArtifacts = {
+    rawLedger: assertion('structural/generated-delta.json.gz'),
+    metadataLedger: assertion(
+      'structural/metadata-normalized-delta.json.gz',
+    ),
+    exactLedger: assertion('structural/known-delta-ledger.json.gz'),
+    proof: assertion('structural/known-delta-proof.json'),
+  }
 
   assert(inventory.artifact.version === '2.1.123', 'Bun inventory version mismatch')
   assert(packageMembers.summary.complete === true, 'Package comparison incomplete')
@@ -175,6 +202,94 @@ function main() {
     'Readable diff changed target invariant',
   )
   assert(structural.target.failureCount === 0, 'Structural parse failure')
+  assert(
+    knownDeltaProof.schemaVersion === 1 &&
+      knownDeltaProof.case === '2.1.122-to-2.1.123' &&
+      knownDeltaProof.release === '2.1.123' &&
+      knownDeltaProof.complete === true,
+    'known-delta proof identity or completeness',
+  )
+  assertDeepEqual(
+    knownDeltaProof.authenticatedInputs,
+    {
+      baseline: {
+        bytes: 13_949_544,
+        sha256:
+          'b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c',
+      },
+      target: {
+        bytes: 13_949_576,
+        sha256:
+          '59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd',
+      },
+    },
+    'known-delta authenticated inputs',
+  )
+  for (const key of ['rawLedger', 'metadataLedger', 'exactLedger']) {
+    assertDeepEqual(
+      knownDeltaProof.artifacts[key],
+      structuralArtifacts[key],
+      `known-delta ${key} identity`,
+    )
+  }
+  assert(
+    metadataNormalizedStructural.target.failureCount === 0 &&
+      metadataNormalizedStructural.target.unitCount === 22_302 &&
+      metadataNormalizedStructural.target.tokenCount === 4_394_501,
+    'metadata-normalized ledger target identity',
+  )
+  assert(
+    knownDeltaStructural.target.failureCount === 0 &&
+      knownDeltaStructural.target.unitCount === 22_302 &&
+      knownDeltaStructural.target.tokenCount === 4_394_501,
+    'known-delta exact ledger target identity',
+  )
+  assertDeepEqual(
+    knownDeltaStructural.coverage.units,
+    {
+      changed: 0,
+      matched: 22_302,
+      moved: 0,
+      unresolved: 0,
+      total: 22_302,
+    },
+    'known-delta exact unit coverage',
+  )
+  assertDeepEqual(
+    knownDeltaStructural.coverage.tokens,
+    {
+      changed: 0,
+      matched: 4_394_501,
+      moved: 0,
+      unresolved: 0,
+      total: 4_394_501,
+      ledgerTotal: 4_394_501,
+      resolved: 4_394_501,
+      resolvedFraction: 1,
+      exactStructuralFraction: 1,
+    },
+    'known-delta exact token coverage',
+  )
+  assert(
+    knownDeltaStructural.unmatchedBaseline.length === 0 &&
+      knownDeltaStructural.unresolvedTarget.length === 0,
+    'known-delta exact residue',
+  )
+  assertDeepEqual(
+    knownDeltaProof.ledgers.knownDeltaExact.target,
+    knownDeltaStructural.target,
+    'known-delta proof target summary',
+  )
+  assertDeepEqual(
+    knownDeltaProof.ledgers.knownDeltaExact.coverage,
+    knownDeltaStructural.coverage,
+    'known-delta proof coverage summary',
+  )
+  assert(
+    knownDeltaProof.ledgers.knownDeltaExact.unmatchedBaselineCount === 0 &&
+      knownDeltaProof.ledgers.knownDeltaExact.unresolvedTargetCount === 0,
+    'known-delta proof zero residue summary',
+  )
 
   const baselineTarball = renamePriorArtifact(
     priorArtifacts,
@@ -454,7 +569,7 @@ function main() {
       bundleArtifact: 'sourceOracleBundle',
       mapArtifact: 'sourceOracleMap',
       relationship:
-        'The matching 2.1.88 bundle/map pair supplies exact historical source ownership only. The authenticated 2.1.122 and 2.1.123 Linux x64 Bun CLI interiors are the adjacent generated comparison.',
+        'The matching 2.1.88 bundle/map pair is retained only as the cumulative historical source oracle. The 2.1.123 incremental attribution and deterministic known-delta proof use the authenticated adjacent 2.1.122 and 2.1.123 analyzable Linux x64 bundles directly.',
       appliedSourceTree: { status: 'pending-source-recovery' },
     },
     sourceLineage: { status: 'pending-source-recovery-and-freeze' },
@@ -525,8 +640,7 @@ function main() {
       attribution: {
         status: 'authenticated-inputs-exhaustively-accounted',
         directory: 'attribution',
-        baselineArtifact: 'sourceOracleBundle',
-        sourceMapArtifact: 'sourceOracleMap',
+        baselineArtifact: 'baselineAnalyzableBundle',
         targetArtifact: 'targetAnalyzableBundle',
         offsetUnit: 'utf16-code-units',
         targetUtf16: attribution.coverage.targetUtf16,
@@ -537,8 +651,13 @@ function main() {
         targetRangeUtf16: attribution.coverage.targetRangeUtf16,
       },
       structural: {
-        status: 'authenticated-inputs-exhaustively-accounted',
+        status:
+          'authenticated-inputs-exhaustively-accounted-with-zero-residue-known-delta',
         ledger: 'structural/generated-delta.json.gz',
+        rawLedger: structuralArtifacts.rawLedger,
+        metadataNormalizedLedger: structuralArtifacts.metadataLedger,
+        knownDeltaExactLedger: structuralArtifacts.exactLedger,
+        knownDeltaProof: structuralArtifacts.proof,
         baselineArtifact: 'baselineAnalyzableBundle',
         targetArtifact: 'targetAnalyzableBundle',
         targetUnits: structural.target.unitCount,
@@ -550,6 +669,18 @@ function main() {
         exactStructuralFraction:
           structural.coverage.tokens.exactStructuralFraction,
         resolvedStructuralFraction: structural.coverage.tokens.resolvedFraction,
+        knownDeltaClosure: {
+          targetUnits: knownDeltaStructural.target.unitCount,
+          targetTokens: knownDeltaStructural.target.tokenCount,
+          changedUnits: knownDeltaStructural.coverage.units.changed,
+          movedUnits: knownDeltaStructural.coverage.units.moved,
+          unresolvedUnits: knownDeltaStructural.coverage.units.unresolved,
+          changedTokens: knownDeltaStructural.coverage.tokens.changed,
+          movedTokens: knownDeltaStructural.coverage.tokens.moved,
+          unresolvedTokens: knownDeltaStructural.coverage.tokens.unresolved,
+          unmatchedBaselineUnits: knownDeltaStructural.unmatchedBaseline.length,
+          unresolvedTargetUnits: knownDeltaStructural.unresolvedTarget.length,
+        },
       },
       readableDiff: {
         status: 'authenticated-inputs-invariant-preserving',

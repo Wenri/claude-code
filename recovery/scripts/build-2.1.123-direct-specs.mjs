@@ -15,8 +15,10 @@ const expectedBullet =
 const expectedChangedSourceRows = [
   { status: 'M', path: 'src/utils/betas.ts' },
 ]
-const requiredFocusedTest = 'oauth-beta-disable-experimental'
-const allowedFocusedTests = [requiredFocusedTest, 'semantic-delta']
+const expectedFocusedTests = [
+  'oauth-beta-disable-experimental',
+  'semantic-delta',
+]
 const final = process.argv.slice(2).includes('--final')
 
 if (process.argv.slice(2).some(argument => argument !== '--final')) {
@@ -61,10 +63,9 @@ function focusedTestIds() {
 
 function reviewedFocusedTestIds() {
   const actual = focusedTestIds()
-  assert(actual.includes(requiredFocusedTest), 'missing OAuth beta focused test')
   assert(
-    actual.every(testId => allowedFocusedTests.includes(testId)),
-    'focused tests differ from the reviewed 2.1.123 set',
+    JSON.stringify(actual) === JSON.stringify(expectedFocusedTests),
+    'focused tests must be exactly OAuth beta plus semantic delta',
   )
   return actual
 }
@@ -126,15 +127,15 @@ assert(
   'changed source paths differ from the exact reviewed 2.1.123 set',
 )
 assert(
-  reviewedFocusedTestIds().length >= 1,
-  'no reviewed focused tests',
+  reviewedFocusedTestIds().length === 2,
+  'expected exactly two reviewed focused tests',
 )
 
 const sourcePath = 'src/utils/betas.ts'
 const source = fs.readFileSync(path.join(repo, sourcePath), 'utf8')
 const sourceFragments = [
   'function isFirstPartyBetaProvider(): boolean {',
-  "provider === 'firstParty' ||\n      provider === 'anthropicAws' ||\n      provider === 'foundry'",
+  "provider === 'firstParty' ||\n    provider === 'anthropicAws' ||\n    provider === 'foundry'",
   'isFirstPartyBetaProvider() &&\n    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)',
   'isClaudeAISubscriber() ||\n    (isFirstPartyBetaProvider() &&\n      !getAnthropicApiKey() &&\n      shouldUseWIFAuth())',
   'if (isFirstPartyBetaProvider()) return betas',

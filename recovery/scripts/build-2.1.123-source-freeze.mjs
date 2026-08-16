@@ -26,26 +26,24 @@ const targetTests = fs
   .filter(name => /^recovery-2\.1\.123-.*\.test\.mjs$/.test(name))
   .map(name => `recovery/test/${name}`)
   .sort()
-const targetTestDependencies = []
+const semanticDeltaTest =
+  'recovery/test/recovery-2.1.123-semantic-delta.test.mjs'
+const targetTestDependencies = localModuleDependencies(targetTests)
 assert(
-  targetTests.includes(
-    'recovery/test/recovery-2.1.123-direct-evidence.test.mjs',
-  ),
-  'direct-evidence suite is part of the frozen test set',
-)
-assert(
-  targetTests.includes(
-    'recovery/test/recovery-2.1.123-oauth-beta-disable-experimental.test.mjs',
-  ),
-  'OAuth beta regression suite is part of the frozen test set',
-)
-assert(
-  targetTests.every(relative => [
+  JSON.stringify(targetTests) === JSON.stringify([
     'recovery/test/recovery-2.1.123-direct-evidence.test.mjs',
     'recovery/test/recovery-2.1.123-oauth-beta-disable-experimental.test.mjs',
-    'recovery/test/recovery-2.1.123-semantic-delta.test.mjs',
-  ].includes(relative)),
-  'target test set contains an unreviewed 2.1.123 suite',
+    semanticDeltaTest,
+  ]),
+  'target tests must be exactly direct evidence, OAuth beta, and semantic delta',
+)
+assert(
+  JSON.stringify(targetTestDependencies) === JSON.stringify([
+    'recovery/lib/structural-delta.mjs',
+    'recovery/readable-diff/generator.mjs',
+    'recovery/scripts/build-2.1.123-semantic-delta.mjs',
+  ]),
+  'semantic-delta transitive local dependency closure',
 )
 
 function usage() {
@@ -85,6 +83,45 @@ function parseArguments(argv) {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+function localModuleDependencies(entryPaths) {
+  const entries = new Set(entryPaths)
+  const seen = new Set(entryPaths)
+  const pending = [...entryPaths]
+  const imports = [
+    /\bfrom\s+['"](\.{1,2}\/[^'"]+)['"]/g,
+    /\bimport\s+['"](\.{1,2}\/[^'"]+)['"]/g,
+    /\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g,
+  ]
+  while (pending.length > 0) {
+    const relative = pending.pop()
+    const filename = path.resolve(repo, relative)
+    const source = fs.readFileSync(filename, 'utf8')
+    for (const pattern of imports) {
+      pattern.lastIndex = 0
+      for (const match of source.matchAll(pattern)) {
+        const dependency = path.resolve(path.dirname(filename), match[1])
+        assert(
+          dependency.startsWith(`${path.resolve(repo)}${path.sep}`),
+          `${relative}: local import escapes repository`,
+        )
+        const dependencyRelative = path
+          .relative(repo, dependency)
+          .replaceAll('\\', '/')
+        const status = fs.lstatSync(dependency)
+        assert(
+          status.isFile() && !status.isSymbolicLink(),
+          `${dependencyRelative}: local import must be a regular file`,
+        )
+        if (!seen.has(dependencyRelative)) {
+          seen.add(dependencyRelative)
+          pending.push(dependencyRelative)
+        }
+      }
+    }
+  }
+  return [...seen].filter(relative => !entries.has(relative)).sort()
 }
 
 function sha256(value) {

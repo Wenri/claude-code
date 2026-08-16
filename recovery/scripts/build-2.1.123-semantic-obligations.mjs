@@ -31,6 +31,12 @@ const focusedTestPaths = Object.fromEntries(
       path.join(repo, 'recovery/test', name),
     ]),
 )
+if (
+  JSON.stringify(Object.keys(focusedTestPaths)) !==
+  JSON.stringify(['oauth-beta-disable-experimental', 'semantic-delta'])
+) {
+  throw new Error('focused tests must be exactly OAuth beta plus semantic delta')
+}
 const changelogPath = path.join(caseRoot, 'evidence/CHANGELOG-2.1.123.md')
 const sourcePathsPath = path.join(
   caseRoot,

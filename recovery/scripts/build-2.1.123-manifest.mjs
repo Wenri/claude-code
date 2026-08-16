@@ -30,6 +30,49 @@ const fullDiffCheckDiagnostic =
   'recovery/cases/2.1.122-to-2.1.123/evidence/CHANGELOG-2.1.123.md:4: new blank line at EOF.'
 const fullDiffCheckSha256 =
   '882ecc7f8d701a4c7f8cc3e6cfc1cb196ee8902f25d7b4f7b295279f8912d2af'
+const expectedReleaseTests = [
+  'recovery/test/recovery-2.1.123-direct-evidence.test.mjs',
+  'recovery/test/recovery-2.1.123-oauth-beta-disable-experimental.test.mjs',
+  'recovery/test/recovery-2.1.123-semantic-delta.test.mjs',
+]
+const expectedFocusedTests = [
+  'oauth-beta-disable-experimental',
+  'semantic-delta',
+]
+const expectedStructuralArtifacts = {
+  rawLedger: {
+    path: 'structural/generated-delta.json.gz',
+    bytes: 2_249_391,
+    sha256: 'a25b8e0101631589db1a92c4d5d306aa60806228263921d2b8e37b8173a24e24',
+  },
+  metadataNormalizedLedger: {
+    path: 'structural/metadata-normalized-delta.json.gz',
+    bytes: 2_228_952,
+    sha256: '7588d83842cd9a92c6c397af15253dd2b7bb76a575af62fd0f3ea594c79fc6b7',
+  },
+  knownDeltaExactLedger: {
+    path: 'structural/known-delta-ledger.json.gz',
+    bytes: 2_228_225,
+    sha256: '0c5766e6ead785c802053e1b71a3dee825df1076efba4708a7f55c19ebc6d2d1',
+  },
+  knownDeltaProof: {
+    path: 'structural/known-delta-proof.json',
+    bytes: 19_857,
+    sha256: '1e2b1bdf143c1a04afcbdfea6f887d7f73374f5e90ee9969792ae7ebe639139b',
+  },
+}
+const expectedKnownDeltaClosure = {
+  targetUnits: 22_302,
+  targetTokens: 4_394_501,
+  changedUnits: 0,
+  movedUnits: 0,
+  unresolvedUnits: 0,
+  changedTokens: 0,
+  movedTokens: 0,
+  unresolvedTokens: 0,
+  unmatchedBaselineUnits: 0,
+  unresolvedTargetUnits: 0,
+}
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -84,6 +127,22 @@ assert(
   draft.releaseAdjacency?.baseline === '2.1.122' &&
     draft.releaseAdjacency?.target === '2.1.123',
   'draft release adjacency',
+)
+assert(
+  JSON.stringify({
+    rawLedger: draft.generatedRecovery?.structural?.rawLedger,
+    metadataNormalizedLedger:
+      draft.generatedRecovery?.structural?.metadataNormalizedLedger,
+    knownDeltaExactLedger:
+      draft.generatedRecovery?.structural?.knownDeltaExactLedger,
+    knownDeltaProof: draft.generatedRecovery?.structural?.knownDeltaProof,
+  }) === JSON.stringify(expectedStructuralArtifacts),
+  'exact structural ledger and proof identities',
+)
+assert(
+  JSON.stringify(draft.generatedRecovery.structural.knownDeltaClosure) ===
+    JSON.stringify(expectedKnownDeltaClosure),
+  'zero-residue known-delta closure',
 )
 const draftArtifacts = new Map(draft.artifacts.map(entry => [entry.id, entry]))
 const priorArtifacts = new Map(prior.artifacts.map(entry => [entry.id, entry]))
@@ -143,6 +202,18 @@ assert(
   JSON.stringify(directEvidence.categoryCounts) ===
     JSON.stringify({ official: 1 }),
   'direct catalog must contain exactly one official row',
+)
+assert(
+  JSON.stringify(sourceLineage.testFiles) ===
+    JSON.stringify(expectedReleaseTests),
+  'exact three-suite source-lineage topology',
+)
+assert(
+  directEvidence.focusedTestCount === expectedFocusedTests.length &&
+    directEvidence.rows.length === 1 &&
+    JSON.stringify(directEvidence.rows[0].focusedTests) ===
+      JSON.stringify(expectedFocusedTests),
+  'exact OAuth and semantic-delta focused test bindings',
 )
 const directSourceFileAbsenceCount = directEvidence.rows.reduce(
   (sum, row) => sum + (row.sourceFileAbsences ?? []).length,
@@ -450,7 +521,8 @@ manifest.generatedRecovery.semanticCatalogContract = {
 manifest.generatedRecovery.attribution.status =
   'verified-exhaustive-target-coverage'
 manifest.generatedRecovery.attribution.summary = 'attribution/summary.json'
-manifest.generatedRecovery.structural.status = 'verified-exhaustive-token-ledger'
+manifest.generatedRecovery.structural.status =
+  'verified-zero-residue-known-delta-ledger'
 manifest.generatedRecovery.readableDiff.status = 'verified-review-layer'
 manifest.generatedRecovery.fileAssertions = recoveredFileAssertions
 manifest.sourceFreeze = {

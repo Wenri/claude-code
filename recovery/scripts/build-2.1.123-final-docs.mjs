@@ -32,6 +32,31 @@ const lineage = JSON.parse(
     'utf8',
   ),
 )
+const structural = draft.generatedRecovery.structural
+const expectedKnownDeltaClosure = {
+  targetUnits: 22_302,
+  targetTokens: 4_394_501,
+  changedUnits: 0,
+  movedUnits: 0,
+  unresolvedUnits: 0,
+  changedTokens: 0,
+  movedTokens: 0,
+  unresolvedTokens: 0,
+  unmatchedBaselineUnits: 0,
+  unresolvedTargetUnits: 0,
+}
+if (
+  JSON.stringify(structural.knownDeltaClosure) !==
+    JSON.stringify(expectedKnownDeltaClosure) ||
+  structural.rawLedger?.path !== 'structural/generated-delta.json.gz' ||
+  structural.metadataNormalizedLedger?.path !==
+    'structural/metadata-normalized-delta.json.gz' ||
+  structural.knownDeltaExactLedger?.path !==
+    'structural/known-delta-ledger.json.gz' ||
+  structural.knownDeltaProof?.path !== 'structural/known-delta-proof.json'
+) {
+  throw new Error('known-delta structural proof is not exactly sealed')
+}
 if (
   identity.verification.diffCheck.scope !== 'full-target-tree' ||
   identity.verification.diffCheck.sourceDiagnosticLines !== 0 ||
@@ -96,6 +121,7 @@ The Linux x64 2.1.123 published package and embedded JavaScript graph are recons
 - The exact wrapper delta is \`diff/cli.js.zstd-delta\`; package-member and embedded-module reconstruction are independently asserted in \`manifest.json\`.
 - Generated-offset attribution accounts for all ${number(draft.generatedRecovery.attribution.targetUtf16)} target UTF-16 units in ${number(draft.generatedRecovery.attribution.targetRangeCount)} ranges, with zero unaccounted units.
 - The structural ledger accounts for all ${number(coverage.targetTokens)} target tokens across ${number(coverage.regions)} regions, with zero unclassified tokens.
+- The deterministic known-delta proof closes all ${number(structural.knownDeltaClosure.targetUnits)} target structural units and ${number(structural.knownDeltaClosure.targetTokens)} target tokens with zero changed, moved, unresolved, unmatched-baseline, or unresolved-target residue. Its exact inputs are \`${structural.metadataNormalizedLedger.path}\` and \`${structural.knownDeltaExactLedger.path}\`; \`${structural.knownDeltaProof.path}\` pins their byte lengths and SHA-256 identities.
 
 ## Semantic closure
 
@@ -179,7 +205,7 @@ pixi run node recovery/scripts/verify-2.1.123-recovery.mjs \\
   --repo .
 \`\`\`
 
-This one command re-authenticates all artifact identities, exact deltas, Bun extraction, generated attribution, structural accounting, readable diff, source overlay round trip, all ${lineage.testFiles.length} semantic test files, semantic correspondence, embedded-code reconstruction, and exact package reconstruction. It must report zero unclassified tokens and zero unverified obligations.
+This one command re-authenticates all artifact identities, exact deltas, Bun extraction, generated attribution, all three structural ledgers, the deterministic known-delta proof, readable diff, source overlay round trip, all ${lineage.testFiles.length} semantic test files, semantic correspondence, embedded-code reconstruction, and exact package reconstruction. It must report zero changed, moved, or unresolved known-delta residue, zero unclassified tokens, and zero unverified obligations.
 
 ## Focused semantic verification
 
@@ -197,6 +223,17 @@ ${focusedTestCommand}
 \`\`\`
 
 Expected frozen result: ${identity.verification.targetTests.tests} tests, ${identity.verification.targetTests.passed} passed, ${identity.verification.targetTests.failed} failed.
+
+## Rebuild and verify the zero-residue known delta
+
+\`\`\`sh
+pixi run node recovery/scripts/verify-2.1.123-semantic-delta.mjs \\
+  --baseline "$ARTIFACTS/${baselineInner.localPath}" \\
+  --target "$ARTIFACTS/${targetInner.localPath}" \\
+  --output recovery/cases/2.1.122-to-2.1.123
+\`\`\`
+
+The rebuilt exact ledger must retain ${number(structural.knownDeltaClosure.targetUnits)} matched units and ${number(structural.knownDeltaClosure.targetTokens)} matched tokens, with zero changed, moved, unresolved, unmatched-baseline, or unresolved-target residue.
 
 ## Rebuild and verify semantic correspondence
 

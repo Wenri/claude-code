@@ -191,6 +191,11 @@ const focusedTestIds = new Set(
       .replace(/^recovery-2\.1\.123-/, '')
       .replace(/\.test\.mjs$/, '')),
 )
+assert(
+  JSON.stringify([...focusedTestIds].sort()) ===
+    JSON.stringify(['oauth-beta-disable-experimental', 'semantic-delta']),
+  'focused tests must be exactly OAuth beta plus semantic delta',
+)
 const expectedOfficial = ['B01']
 const officialIds = specs.rows
   .filter(row => row.category === 'official')
@@ -269,13 +274,7 @@ assert(missingPaths.length === 0,
 assert(missingTests.length === 0,
   `focused tests without direct row bindings:\n${missingTests.join('\n')}`)
 assert(changedSourcePaths().length === 1, 'expected exactly one changed source path')
-assert(focusedTestIds.has('oauth-beta-disable-experimental'),
-  'required OAuth beta focused test is missing')
-assert(
-  [...focusedTestIds].every(value =>
-    ['oauth-beta-disable-experimental', 'semantic-delta'].includes(value)),
-  'unexpected 2.1.123 focused test',
-)
+assert(focusedTestIds.size === 2, 'expected exactly two focused tests')
 assert(rows.length === 1, 'expected exactly one direct evidence row')
 
 const categoryCounts = Object.fromEntries(

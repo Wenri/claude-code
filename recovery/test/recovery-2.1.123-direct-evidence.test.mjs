@@ -13,10 +13,9 @@ const TARGET_BYTES = 13_949_576
 const TARGET_SHA256 =
   '59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd'
 
-// Pinned only after the final source tree and row catalog are frozen.
+// Pinned only after the final source tree and both focused suites are frozen.
 const CATALOG_BYTES = 0
-const CATALOG_SHA256 =
-  '0000000000000000000000000000000000000000000000000000000000000000'
+const CATALOG_SHA256 = '0'.repeat(64)
 const CATALOG_PATH =
   'recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json'
 const BASE_REVISION = 'c30cece4b85c84cd9e92ca708c96d1cd3f8f6b87'
@@ -47,11 +46,8 @@ function readBundle(environmentName, expectedBytes, expectedSha256) {
 }
 
 function readPinnedCatalog() {
-  assert.notEqual(
-    CATALOG_BYTES,
-    0,
-    'catalog identity must be pinned after direct-evidence generation',
-  )
+  assert.notEqual(CATALOG_BYTES, 0, 'catalog byte pin has not been sealed')
+  assert.notEqual(CATALOG_SHA256, '0'.repeat(64), 'catalog SHA pin has not been sealed')
   const filename = path.join(repo, CATALOG_PATH)
   const status = fs.lstatSync(filename)
   assert.equal(status.isFile(), true, 'catalog is a regular file')
@@ -118,7 +114,11 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
   assert.equal(catalog.rowCount, catalog.rows.length)
   assert.deepEqual(catalog.categoryCounts, { official: 1 })
   assert.equal(catalog.changedSourcePathCount, 1)
-  assert.equal(catalog.focusedTestCount, focusedTestIds().length)
+  assert.deepEqual(focusedTestIds(), [
+    'oauth-beta-disable-experimental',
+    'semantic-delta',
+  ])
+  assert.equal(catalog.focusedTestCount, 2)
   assert.equal(catalog.rows[0].id, 'B01')
   assert.deepEqual(catalog.rows[0].focusedTests, focusedTestIds())
   for (const value of Object.values(catalog.coverageDeclarations)) {
@@ -149,11 +149,10 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
 test('every changed source path and focused suite is bound to an exact row', () => {
   const catalog = readPinnedCatalog()
   assert.deepEqual(changedSourcePaths(), ['src/utils/betas.ts'])
-  assert.ok(focusedTestIds().includes('oauth-beta-disable-experimental'))
-  assert.ok(
-    focusedTestIds().every(value =>
-      ['oauth-beta-disable-experimental', 'semantic-delta'].includes(value)),
-  )
+  assert.deepEqual(focusedTestIds(), [
+    'oauth-beta-disable-experimental',
+    'semantic-delta',
+  ])
   const assertedPaths = new Set(catalog.rows.flatMap(row => [
     ...row.sourceAssertions.map(assertion => assertion.path),
     ...(row.sourcePathAbsences ?? []).flatMap(absence => absence.paths),
