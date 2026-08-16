@@ -131,7 +131,7 @@ function spawnLocalAutofixAgent(
     abortController,
     awaitingPlanApproval: false,
     permissionMode: normalizeAgentPermissionMode(
-      context.getAppState().toolPermissionContext.mode,
+      context.getToolPermissionContext().mode,
     ),
     isIdle: false,
     shutdownRequested: false,

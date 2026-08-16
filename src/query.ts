@@ -680,11 +680,11 @@ async function* queryLoop(
           toolUseContext.options.tools,
           canUseTool,
           toolUseContext,
-        )
+    )
       : null
 
     const appState = toolUseContext.getAppState()
-    const permissionMode = appState.toolPermissionContext.mode
+    const permissionMode = toolUseContext.getToolPermissionContext().mode
     let currentModel = getRuntimeMainLoopModel({
       permissionMode,
       mainLoopModel: toolUseContext.options.mainLoopModel,
@@ -789,8 +789,7 @@ async function* queryLoop(
             signal: toolUseContext.abortController.signal,
             options: {
               async getToolPermissionContext() {
-                const appState = toolUseContext.getAppState()
-                return appState.toolPermissionContext
+                return toolUseContext.getToolPermissionContext()
               },
               model: currentModel,
               ...(config.gates.fastModeEnabled && {

@@ -900,8 +900,7 @@ export async function runAsyncAgentLifecycle({
       const handoffWarning = await classifyHandoffIfNeeded({
         agentMessages,
         tools: toolUseContext.options.tools,
-        toolPermissionContext:
-          toolUseContext.getAppState().toolPermissionContext,
+        toolPermissionContext: toolUseContext.getToolPermissionContext(),
         abortSignal: abortController.signal,
         subagentType: metadata.agentType,
         totalToolUseCount: agentResult.totalToolUseCount,

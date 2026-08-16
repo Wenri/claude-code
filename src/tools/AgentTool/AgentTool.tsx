@@ -988,11 +988,10 @@ export const AgentTool = buildTool({
                     // Extract text from agent result content for the notification
                     let finalMessage = extractTextContent(agentResult.content, '\n');
                     if (feature('TRANSCRIPT_CLASSIFIER')) {
-                      const backgroundedAppState = toolUseContext.getAppState();
                       const handoffWarning = await classifyHandoffIfNeeded({
                         agentMessages,
                         tools: toolUseContext.options.tools,
-                        toolPermissionContext: backgroundedAppState.toolPermissionContext,
+                        toolPermissionContext: toolUseContext.getToolPermissionContext(),
                         abortSignal: task.abortController!.signal,
                         subagentType: selectedAgent.agentType,
                         totalToolUseCount: agentResult.totalToolUseCount
@@ -1266,11 +1265,10 @@ export const AgentTool = buildTool({
         }
         const agentResult = finalizeAgentTool(agentMessages, syncAgentId, metadata);
         if (feature('TRANSCRIPT_CLASSIFIER')) {
-          const currentAppState = toolUseContext.getAppState();
           const handoffWarning = await classifyHandoffIfNeeded({
             agentMessages,
             tools: toolUseContext.options.tools,
-            toolPermissionContext: currentAppState.toolPermissionContext,
+            toolPermissionContext: toolUseContext.getToolPermissionContext(),
             abortSignal: toolUseContext.abortController.signal,
             subagentType: selectedAgent.agentType,
             totalToolUseCount: agentResult.totalToolUseCount

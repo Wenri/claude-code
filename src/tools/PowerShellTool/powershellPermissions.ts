@@ -640,7 +640,7 @@ export async function powershellToolHasPermission(
   input: PowerShellInput,
   context: ToolUseContext,
 ): Promise<PermissionResult> {
-  const toolPermissionContext = context.getAppState().toolPermissionContext
+  const toolPermissionContext = context.getToolPermissionContext()
   const command = input.command.trim()
 
   // Empty command check

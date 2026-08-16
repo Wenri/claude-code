@@ -1583,7 +1583,7 @@ export function getAgentListingDeltaAttachment(
     const info = mcpInfoFromString(tool.name)
     if (info) mcpServers.add(info.serverName)
   }
-  const permissionContext = toolUseContext.getAppState().toolPermissionContext
+  const permissionContext = toolUseContext.getToolPermissionContext()
   let filtered = filterDeniedAgents(
     filterAgentsByMcpRequirements(activeAgents, [...mcpServers]),
     permissionContext,

@@ -1123,7 +1123,7 @@ async function checkPermissionsAndCallTool(
 
   // Check whether we have permission to use the tool,
   // and ask the user for permission if we don't
-  const permissionMode = toolUseContext.getAppState().toolPermissionContext.mode
+  const permissionMode = toolUseContext.getToolPermissionContext().mode
   const permissionStart = Date.now()
 
   const resolved = await resolveHookPermissionDecision(
