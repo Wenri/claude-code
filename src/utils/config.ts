@@ -754,8 +754,13 @@ export type ProjectConfigKey = (typeof PROJECT_CONFIG_KEYS)[number]
  */
 let _trustAccepted = false
 
-export function resetTrustDialogAcceptedCacheForTesting(): void {
+export function resetTrustDialogAcceptedCache(): void {
   _trustAccepted = false
+}
+
+/** @deprecated Use resetTrustDialogAcceptedCache. */
+export function resetTrustDialogAcceptedCacheForTesting(): void {
+  resetTrustDialogAcceptedCache()
 }
 
 export function checkHasTrustDialogAccepted(): boolean {

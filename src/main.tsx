@@ -51,7 +51,7 @@ import { isAgentSwarmsEnabled } from './utils/agentSwarmsEnabled.js';
 import { count, uniq } from './utils/array.js';
 import { installAsciicastRecorder } from './utils/asciicast.js';
 import { getSubscriptionType, isClaudeAISubscriber, prefetchAwsCredentialsAndBedRockInfoIfSafe, prefetchGcpCredentialsIfSafe, validateForceLoginOrg } from './utils/auth.js';
-import { checkHasTrustDialogAccepted, DEFAULT_GLOBAL_CONFIG, getGlobalConfig, GLOBAL_CONFIG_KEYS, getProjectPathForConfig, getRemoteControlAtStartup, isAutoUpdaterDisabled, resetTrustDialogAcceptedCacheForTesting, saveGlobalConfig } from './utils/config.js';
+import { checkHasTrustDialogAccepted, DEFAULT_GLOBAL_CONFIG, getGlobalConfig, GLOBAL_CONFIG_KEYS, getProjectPathForConfig, getRemoteControlAtStartup, isAutoUpdaterDisabled, resetTrustDialogAcceptedCache, saveGlobalConfig } from './utils/config.js';
 import { seedEarlyInput, stopCapturingEarlyInput } from './utils/earlyInput.js';
 import { getInitialEffortSetting } from './utils/effort.js';
 import { isAwaySummaryEnabled } from './utils/awaySummaryEnabled.js';
@@ -1244,7 +1244,7 @@ async function run(): Promise<CommanderCommand> {
         setOriginalCwd(getCwd())
         setProjectRoot(getCwd())
         getProjectPathForConfig.cache?.clear?.()
-        resetTrustDialogAcceptedCacheForTesting()
+        resetTrustDialogAcceptedCache()
         clearMemoryFileCaches()
         resetSettingsCache()
         resetGitFileWatcher()
