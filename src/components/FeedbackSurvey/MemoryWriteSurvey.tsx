@@ -1,15 +1,21 @@
 import { basename } from 'path'
-import type { StructuredPatchHunk } from 'diff'
 import * as React from 'react'
 import { useTerminalSize } from '../../hooks/useTerminalSize.js'
 import { Box, Button, Text } from '../../ink.js'
 import { stringWidth } from '../../ink/stringWidth.js'
-import type { MemoryWriteSurveyRecord } from '../../memdir/memoryWriteSurvey.js'
+import {
+  type MemoryWriteSurveyRecord,
+  truncateMemoryWriteContent,
+  truncateMemoryWriteHunks,
+} from '../../memdir/memoryWriteSurvey.js'
 import { plural } from '../../utils/stringUtils.js'
 import { Divider } from '../design-system/Divider.js'
 import { StructuredDiffList } from '../StructuredDiffList.js'
 import { useDebouncedDigitInput } from './useDebouncedDigitInput.js'
-import type { MemoryWriteSurveyOutcome } from './useMemoryWriteSurvey.js'
+import {
+  getMemoryWriteContentWidth,
+  type MemoryWriteSurveyOutcome,
+} from './useMemoryWriteSurvey.js'
 
 type ResponseInput = '1' | '2'
 const INPUT_TO_OUTCOME: Record<ResponseInput, MemoryWriteSurveyOutcome> = {
@@ -20,7 +26,6 @@ const INPUT_TO_OUTCOME: Record<ResponseInput, MemoryWriteSurveyOutcome> = {
 export function MemoryWriteSurvey({
   record,
   summary,
-  lineCount,
   summaryLineThreshold,
   countdownSec,
   onOutcome,
@@ -29,7 +34,6 @@ export function MemoryWriteSurvey({
 }: {
   record: MemoryWriteSurveyRecord
   summary: string | null
-  lineCount: number
   summaryLineThreshold: number
   countdownSec: number | null
   onOutcome: (outcome: MemoryWriteSurveyOutcome) => void
@@ -45,8 +49,7 @@ export function MemoryWriteSurvey({
     onDigit: digit => onOutcome(INPUT_TO_OUTCOME[digit]),
   })
 
-  const truncated = lineCount > summaryLineThreshold
-  const contentWidth = Math.max(20, columns - 6)
+  const contentWidth = getMemoryWriteContentWidth(columns)
   const filename = basename(record.filePath)
   const ruleWidth = Math.max(0, columns - 2 - stringWidth(filename) - 1)
 
@@ -74,10 +77,8 @@ export function MemoryWriteSurvey({
           <MemoryWriteContent
             record={record}
             summary={summary}
-            truncated={truncated}
             maxLines={summaryLineThreshold}
             width={contentWidth}
-            hiddenCount={Math.max(0, lineCount - summaryLineThreshold)}
           />
         </Box>
         <Divider char="╌" />
@@ -95,44 +96,45 @@ export function MemoryWriteSurvey({
 function MemoryWriteContent({
   record,
   summary,
-  truncated,
   maxLines,
   width,
-  hiddenCount,
 }: {
   record: MemoryWriteSurveyRecord
   summary: string | null
-  truncated: boolean
   maxLines: number
   width: number
-  hiddenCount: number
 }): React.ReactNode {
-  if (summary && truncated) return <Text wrap="wrap">{summary}</Text>
+  const content = record.isEdit
+    ? null
+    : truncateMemoryWriteContent(record.body, width, maxLines)
+  const patch = record.isEdit
+    ? truncateMemoryWriteHunks(record.structuredPatch, width, maxLines)
+    : null
 
-  if (record.isEdit && record.structuredPatch.length > 0) {
-    const hunks = truncated
-      ? truncateHunks(record.structuredPatch, maxLines)
-      : record.structuredPatch
+  if (summary) return <Text wrap="wrap">{summary}</Text>
+
+  if (record.isEdit && record.structuredPatch.length > 0 && patch) {
     return (
       <>
         <StructuredDiffList
-          hunks={hunks}
+          hunks={patch.hunks}
           dim={false}
           width={width}
           filePath={record.filePath}
           firstLine={null}
         />
-        {truncated && <TruncatedLines count={hiddenCount} />}
+        {patch.hiddenRows > 0 && <TruncatedLines count={patch.hiddenRows} />}
       </>
     )
   }
 
-  const lines = record.body.split('\n')
-  const visible = truncated ? lines.slice(0, maxLines) : lines
+  if (!content) return null
   return (
     <>
-      <Text wrap="wrap">{visible.join('\n')}</Text>
-      {truncated && <TruncatedLines count={hiddenCount} />}
+      <Text wrap="wrap">{content.text}</Text>
+      {content.hiddenRows > 0 && (
+        <TruncatedLines count={content.hiddenRows} />
+      )}
     </>
   )
 }
@@ -174,23 +176,4 @@ function TruncatedLines({ count }: { count: number }): React.ReactNode {
       … +{count} {plural(count, 'line')}
     </Text>
   )
-}
-
-function truncateHunks(
-  hunks: StructuredPatchHunk[],
-  maxLines: number,
-): StructuredPatchHunk[] {
-  const result: StructuredPatchHunk[] = []
-  let remaining = maxLines
-  for (const hunk of hunks) {
-    if (remaining <= 0) break
-    if (hunk.lines.length <= remaining) {
-      result.push(hunk)
-      remaining -= hunk.lines.length
-    } else {
-      result.push({ ...hunk, lines: hunk.lines.slice(0, remaining) })
-      remaining = 0
-    }
-  }
-  return result
 }
