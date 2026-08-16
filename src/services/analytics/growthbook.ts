@@ -231,6 +231,16 @@ export function getAllGrowthBookFeatures(): Record<string, unknown> {
   return getGlobalConfig().cachedGrowthBookFeatures ?? {}
 }
 
+export function hasGrowthBookCachedValue(feature: string): boolean {
+  return getGlobalConfig().cachedGrowthBookFeatures?.[feature] !== undefined
+}
+
+export function isFeatureFromExperiment(feature: string): boolean {
+  if (experimentDataByFeature.has(feature)) return true
+  if (!isGrowthBookEnabled()) return false
+  return (getGlobalConfig().cachedExperimentFeatures ?? []).includes(feature)
+}
+
 export function getGrowthBookConfigOverrides(): Record<string, unknown> {
   return getConfigOverrides() ?? {}
 }
@@ -406,13 +416,20 @@ async function processRemoteEvalPayload(
  */
 function syncRemoteEvalToDisk(): void {
   const fresh = Object.fromEntries(remoteEvalFeatureValues)
+  const freshExperimentFeatures = Array.from(
+    experimentDataByFeature.keys(),
+  ).sort()
   const config = getGlobalConfig()
-  if (isEqual(config.cachedGrowthBookFeatures, fresh)) {
+  if (
+    isEqual(config.cachedGrowthBookFeatures, fresh) &&
+    isEqual(config.cachedExperimentFeatures ?? [], freshExperimentFeatures)
+  ) {
     return
   }
   saveGlobalConfig(current => ({
     ...current,
     cachedGrowthBookFeatures: fresh,
+    cachedExperimentFeatures: freshExperimentFeatures,
   }))
 }
 

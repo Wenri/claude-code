@@ -1,6 +1,6 @@
 import {
   getFeatureValue_CACHED_MAY_BE_STALE,
-  getGrowthBookConfigOverrides,
+  hasGrowthBookCachedValue,
   hasGrowthBookEnvOverride,
   initializeGrowthBook,
 } from '../services/analytics/growthbook.js'
@@ -52,8 +52,8 @@ export async function ensureFleetGateHydrated(): Promise<void> {
   if (
     isFleetDisabled() ||
     hasGrowthBookEnvOverride('tengu_slate_meadow') ||
-    ('tengu_slate_meadow' in getGrowthBookConfigOverrides() &&
-      'tengu_quiet_harbor' in getGrowthBookConfigOverrides())
+    (hasGrowthBookCachedValue('tengu_slate_meadow') &&
+      hasGrowthBookCachedValue('tengu_quiet_harbor'))
   ) {
     return
   }

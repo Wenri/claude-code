@@ -87,7 +87,7 @@ test('source hydrates both fleet gates and renders exact target copy', () => {
     fs.readFileSync(path.join(repo, 'src/utils/agentsFleet.ts'), 'utf8'),
   )
   for (const fragment of [
-    "'tengu_slate_meadow' in getGrowthBookConfigOverrides() && 'tengu_quiet_harbor' in getGrowthBookConfigOverrides()",
+    "hasGrowthBookCachedValue('tengu_slate_meadow') && hasGrowthBookCachedValue('tengu_quiet_harbor')",
     "initializeGrowthBook(), 1500, 'gb-before-fleet-gate'",
     "'${operation}' is not enabled. If this is unexpected, retry in a moment.",
   ]) {

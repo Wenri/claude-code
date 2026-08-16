@@ -4,10 +4,10 @@ import { useTerminalSize } from '../hooks/useTerminalSize.js'
 import { stringWidth } from '../ink/stringWidth.js'
 import { Box, Text } from '../ink.js'
 import {
-  getAllGrowthBookFeatures,
   getFeatureValue_CACHED_MAY_BE_STALE,
   getGrowthBookConfigOverrides,
   hasGrowthBookEnvOverride,
+  isFeatureFromExperiment,
 } from '../services/analytics/growthbook.js'
 import { logEvent } from '../services/analytics/index.js'
 import type { LogOption } from '../types/logs.js'
@@ -80,9 +80,9 @@ function markWarmResumeHintShown(config: GlobalConfig): GlobalConfig {
 
 function isGateRegistered(): boolean {
   return (
+    isFeatureFromExperiment(WARM_RESUME_GATE) ||
     hasGrowthBookEnvOverride(WARM_RESUME_GATE) ||
-    WARM_RESUME_GATE in getGrowthBookConfigOverrides() ||
-    WARM_RESUME_GATE in getAllGrowthBookFeatures()
+    WARM_RESUME_GATE in getGrowthBookConfigOverrides()
   )
 }
 

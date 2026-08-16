@@ -485,6 +485,9 @@ export type GlobalConfig = {
   // Cached GrowthBook feature values
   cachedGrowthBookFeatures?: { [featureName: string]: unknown }
 
+  // Feature names whose cached GrowthBook values came from experiments
+  cachedExperimentFeatures?: string[]
+
   // Local GrowthBook overrides (ant-only, set via /config Gates tab).
   // Checked after env-var overrides but before the real resolved value.
   growthBookOverrides?: { [featureName: string]: unknown }
