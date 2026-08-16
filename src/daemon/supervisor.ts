@@ -458,6 +458,7 @@ export class BackgroundHandle {
     this.attempt = adopted?.attempt ?? 0
     this.cols = dispatch.cols ?? 200
     this.rows = dispatch.rows ?? 50
+    if (adopted) this.lastInputAt = Date.now()
     this.record = {
       short: dispatch.short,
       nonce: dispatch.nonce,
@@ -652,6 +653,10 @@ export class BackgroundHandle {
 
   decModeSnapshot(): number[] {
     return this.decModes.snapshot()
+  }
+
+  noteActivity(): void {
+    this.lastInputAt = Date.now()
   }
 
   write(value: string): void {
@@ -1846,6 +1851,7 @@ async function handleControl(
         cols: message.cols,
         rows: message.rows,
       })
+      handle.noteActivity()
       const cancelResizeRestore = handle.resizeForRepaint(
         message.cols,
         message.rows,

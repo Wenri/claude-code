@@ -29,6 +29,7 @@ import type { Theme } from '../../utils/theme.js'
 type SwarmBannerInfo = {
   text: string
   bgColor: keyof Theme
+  gradient?: Array<keyof Theme>
 } | null
 
 /**
@@ -124,10 +125,12 @@ export function useSwarmBanner(): SwarmBannerInfo {
   // Standalone agent (/rename, /color): name and/or custom color, no @team.
   const standaloneName = getStandaloneAgentName(state)
   const standaloneColor = standaloneAgentContext?.color
-  if (standaloneName || standaloneColor) {
+  const prideGradient = standaloneAgentContext?.prideGradient
+  if (standaloneName || standaloneColor || prideGradient) {
     return {
       text: standaloneName ?? '',
       bgColor: toThemeColor(standaloneColor),
+      gradient: prideGradient,
     }
   }
 

@@ -1314,9 +1314,10 @@ export function ManagePlugins({
             if (!result.success) {
               throw new Error(result.message);
             }
-            // If already up to date, show message and exit
-            if (result.alreadyUpToDate) {
-              setResult(`${selectedPlugin.plugin.name} is already at the latest version (${result.newVersion}).`);
+            // Updates that are already current or intentionally skipped return
+            // their authoritative operation message and exit without telemetry.
+            if (result.alreadyUpToDate || result.skipped) {
+              setResult(result.message);
               if (onManageComplete) {
                 await onManageComplete();
               }

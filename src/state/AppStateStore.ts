@@ -26,6 +26,7 @@ import type { MemoryWriteSurveyRecord } from '../memdir/memoryWriteSurvey.js'
 import type { LoadedPlugin, PluginError } from '../types/plugin.js'
 import type { DeepImmutable } from '../types/utils.js'
 import type { AutoUpdaterResult } from '../utils/autoUpdater.js'
+import type { Theme } from '../utils/theme.js'
 import type { ClassifierApprovalsState } from '../utils/classifierApprovals.js'
 import type { WebBrowserState } from '../utils/webBrowserState.js'
 import type { TeammateColorsState } from '../utils/swarm/teammateLayoutManager.js'
@@ -394,6 +395,7 @@ export type AppState = DeepImmutable<{
   standaloneAgentContext?: {
     name: string
     color?: AgentColorName
+    prideGradient?: Array<keyof Theme>
   }
   inbox: {
     messages: Array<{

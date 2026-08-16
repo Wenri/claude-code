@@ -185,6 +185,13 @@ async function main(): Promise<void> {
     if (!isPolicyAllowed('allow_remote_control')) {
       exitWithError("Error: Remote Control is disabled by your organization's policy.");
     }
+    const {
+      getTrustedDeviceUnenrolledReason
+    } = await import('../bridge/trustedDevice.js');
+    const trustedDeviceReason = getTrustedDeviceUnenrolledReason();
+    if (trustedDeviceReason) {
+      exitWithError(`Error: ${trustedDeviceReason}`);
+    }
     await bridgeMain(args.slice(1));
     return;
   }

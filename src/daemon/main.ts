@@ -942,7 +942,10 @@ async function runDaemon(options: {
     .then(() =>
       runBackgroundSupervisor({
         log: (message) => log('bg', message),
-        getAuthSnapshot: () => auth.getAuthSnapshot(),
+        getAuthSnapshot:
+          options.origin === 'service'
+            ? () => auth.getAuthSnapshot()
+            : undefined,
         onNudge: checkForExecutableUpgrade,
         onShutdown: () => {
           shutdownRequested = true
