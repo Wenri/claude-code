@@ -1,0 +1,45 @@
+diff --git a/src/utils/betas.ts b/src/utils/betas.ts
+index b0d9ef7e7c3e6ebd620aeb1c5d011cb33b075127..11d25bc74c44e809413df178b0f290b91487df67 100644
+--- a/src/utils/betas.ts
++++ b/src/utils/betas.ts
+@@ -241,12 +241,18 @@ export function getToolSearchBetaHeader(): string {
+  * These are betas that are only available on firstParty provider
+  * and may not be supported by proxies or other providers.
+  */
+-export function shouldIncludeFirstPartyOnlyBetas(): boolean {
++function isFirstPartyBetaProvider(): boolean {
+   const provider = getAPIProvider()
+   return (
+-    (provider === 'firstParty' ||
+-      provider === 'anthropicAws' ||
+-      provider === 'foundry') &&
++    provider === 'firstParty' ||
++    provider === 'anthropicAws' ||
++    provider === 'foundry'
++  )
++}
++
++export function shouldIncludeFirstPartyOnlyBetas(): boolean {
++  return (
++    isFirstPartyBetaProvider() &&
+     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
+   )
+ }
+@@ -282,7 +288,7 @@ export const getAllModelBetas = memoize((model: string): string[] => {
+   }
+   if (
+     isClaudeAISubscriber() ||
+-    (provider === 'firstParty' &&
++    (isFirstPartyBetaProvider() &&
+       !getAnthropicApiKey() &&
+       shouldUseWIFAuth())
+   ) {
+@@ -478,7 +484,7 @@ export function getMergedBetas(
+ }
+ 
+ export function filterBetasForProvider(betas: string[]): string[] {
+-  if (shouldIncludeFirstPartyOnlyBetas()) return betas
++  if (isFirstPartyBetaProvider()) return betas
+   return betas.filter(beta => THIRD_PARTY_COMPATIBLE_BETA_HEADERS.has(beta))
+ }
+ 
