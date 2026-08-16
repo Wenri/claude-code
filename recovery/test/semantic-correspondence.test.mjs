@@ -346,6 +346,22 @@ function useObligationReleaseEvidence(files) {
   return { fullPath, provenancePath, record, section, sectionPath }
 }
 
+function repinFullChangelog(files, release) {
+  const provenance = JSON.parse(fs.readFileSync(release.provenancePath))
+  provenance.changelog.fullBytes = release.record(release.fullPath).bytes
+  provenance.changelog.fullSha256 = release.record(release.fullPath).sha256
+  provenance.changelog.fullGitBlobSha1 = gitBlobSha1(
+    fs.readFileSync(release.fullPath),
+  )
+  writeJson(release.provenancePath, provenance)
+  const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+  obligations.officialReleaseEvidence.fullChangelog =
+    release.record(release.fullPath)
+  obligations.officialReleaseEvidence.provenance =
+    release.record(release.provenancePath)
+  writeJson(files.obligationsPath, obligations)
+}
+
 function generate(files) {
   const report = buildSemanticCorrespondence({
     attributionDirectory: files.attribution,
@@ -420,22 +436,47 @@ test('rejects a fully repinned release section that occurs twice in the official
       release.fullPath,
       `# Changelog\n\n${release.section}${release.section}`,
     )
-    const provenance = JSON.parse(fs.readFileSync(release.provenancePath))
-    provenance.changelog.fullBytes = release.record(release.fullPath).bytes
-    provenance.changelog.fullSha256 = release.record(release.fullPath).sha256
-    provenance.changelog.fullGitBlobSha1 = gitBlobSha1(
-      fs.readFileSync(release.fullPath),
-    )
-    writeJson(release.provenancePath, provenance)
-    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
-    obligations.officialReleaseEvidence.fullChangelog =
-      release.record(release.fullPath)
-    obligations.officialReleaseEvidence.provenance =
-      release.record(release.provenancePath)
-    writeJson(files.obligationsPath, obligations)
+    repinFullChangelog(files, release)
     assert.throws(
       () => generate(files),
       /official section containment in full changelog: expected 1, got 2/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects extra text inside a fully repinned heading-delimited release block', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    fs.writeFileSync(
+      release.fullPath,
+      `# Changelog\n\n${release.section}unexpected extra line\n\n` +
+        '## 0.9.0\n\n- Older behavior\n',
+    )
+    repinFullChangelog(files, release)
+    assert.throws(
+      () => generate(files),
+      /official heading-delimited section bytes/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects a fully repinned duplicate release bullet outside its section', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    fs.appendFileSync(
+      release.fullPath,
+      '## 0.9.0\n\n- Changed the answer from one to two\n',
+    )
+    repinFullChangelog(files, release)
+    assert.throws(
+      () => generate(files),
+      /official release bullet 1 full changelog count: expected 1, got 2/,
     )
   } finally {
     fs.rmSync(files.root, { recursive: true, force: true })

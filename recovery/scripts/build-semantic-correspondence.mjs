@@ -333,6 +333,34 @@ function authenticatedReleaseEvidence({
     1,
     'official section containment in full changelog',
   )
+  const fullChangelogText = fullFile.value.toString('utf8')
+  const headings = [...fullChangelogText.matchAll(/^## .+$/gm)]
+  const releaseHeadings = headings.filter(
+    match => match[0] === `## ${declared.section}`,
+  )
+  assertEqual(
+    releaseHeadings.length,
+    1,
+    'official release heading count in full changelog',
+  )
+  const releaseStart = releaseHeadings[0].index
+  const nextHeading = headings.find(match => match.index > releaseStart)
+  const extractedSection = fullChangelogText.slice(
+    releaseStart,
+    nextHeading?.index ?? fullChangelogText.length,
+  )
+  assertEqual(
+    extractedSection,
+    changelogText,
+    'official heading-delimited section bytes',
+  )
+  for (const [index, bullet] of bullets.entries()) {
+    assertEqual(
+      countOccurrences(fullChangelogText, bullet),
+      1,
+      `official release bullet ${index + 1} full changelog count`,
+    )
+  }
 
   return {
     official: {
