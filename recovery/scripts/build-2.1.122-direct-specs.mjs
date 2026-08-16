@@ -398,7 +398,27 @@ const categoryDefinitions = [
     id: 'H09',
     category: 'hidden',
     title: 'Startup, settings, model, environment, and command metadata',
-    targetFragments: ['permission_mode'],
+    targetFragments: [
+      'permission_mode',
+      'name:"output-style"',
+      'name:"think-back"',
+      'name:"thinkback-play"',
+      'tengu_thinkback',
+    ],
+    sourcePathAbsences: [
+      {
+        paths: ['src/commands.ts'],
+        fragment: 'commands/output-style/index.js',
+      },
+      {
+        paths: ['src/commands.ts'],
+        fragment: 'commands/thinkback/index.js',
+      },
+      {
+        paths: ['src/commands.ts'],
+        fragment: 'commands/thinkback-play/index.js',
+      },
+    ],
     retained: true,
     path: /(?:main\.tsx|bootstrap|settings|model|managedEnv|status|commands\.ts|commands\/)/i,
     test: /(?:startup|settings|model|env|config|command|away-summary|desktop-version|provider-setup)/i,
@@ -461,7 +481,7 @@ const categoryRows = categoryDefinitions.map(definition => {
     sourceAssertions: value.sourceAssertions.sort((left, right) =>
       left.path.localeCompare(right.path),
     ),
-    sourcePathAbsences: [],
+    sourcePathAbsences: definition.sourcePathAbsences ?? [],
     focusedTests: [...new Set(value.focusedTests)].sort(),
     rationale:
       `Authenticated adjacent-bundle witnesses and the complete focused suite bind the recovered ${definition.title.toLowerCase()} surface; every changed source path in this family is pinned by an exact current-source fragment.`,
