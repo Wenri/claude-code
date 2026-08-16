@@ -115,6 +115,33 @@ function sourceWitnessProjection(witness) {
   }
 }
 
+function expectedSourcePathAbsenceRecord(absence, label) {
+  assert.ok(Array.isArray(absence.paths) && absence.paths.length > 0,
+    `${label}: source absence paths`)
+  assert.equal(typeof absence.fragment, 'string',
+    `${label}: source absence fragment type`)
+  assert.ok(absence.fragment.length > 0, `${label}: source absence fragment`)
+  const paths = [...new Set(absence.paths)].sort()
+  assert.deepEqual(paths, absence.paths, `${label}: canonical source absence paths`)
+  for (const relative of paths) assertSafeSourcePath(relative, label)
+  const count = paths.reduce(
+    (sum, relative) => sum + occurrences(
+      fs.readFileSync(path.join(repo, relative), 'utf8'),
+      absence.fragment,
+    ),
+    0,
+  )
+  assert.equal(count, 0, `${label}: required source absence`)
+  const value = Buffer.from(absence.fragment)
+  return {
+    paths,
+    fragment: absence.fragment,
+    bytes: value.length,
+    sha256: sha256(value),
+    count,
+  }
+}
+
 function assertAccountingTopology(entries, directClusterIds) {
   assert.equal(directClusterIds.length, EXPECTED_DIRECT_CLUSTER_COUNT)
   assert.equal(
@@ -577,7 +604,12 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
         semanticSourceWitnesses.map(sourceWitnessProjection),
         `${row.id}: exact cluster source callsites`,
       )
-      assert.deepEqual(row.sourcePathAbsences, semantic.sourcePathAbsences ?? [])
+      assert.deepEqual(
+        row.sourcePathAbsences,
+        (semantic.sourcePathAbsences ?? []).map(absence =>
+          expectedSourcePathAbsenceRecord(absence, row.id)),
+        `${row.id}: exact self-authenticating source absences`,
+      )
       assert.deepEqual(
         row.sourceFileAbsences.map(entry => entry.path),
         semantic.sourceFileAbsences ?? [],
