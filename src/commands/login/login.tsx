@@ -7,6 +7,7 @@ import type { LocalJSXCommandContext } from '../../commands.js';
 import { ConfigurableShortcutHint } from '../../components/ConfigurableShortcutHint.js';
 import { ConsoleOAuthFlow } from '../../components/ConsoleOAuthFlow.js';
 import { Dialog } from '../../components/design-system/Dialog.js';
+import { useIsInsideModal } from '../../context/modalContext.js';
 import { useMainLoopModel } from '../../hooks/useMainLoopModel.js';
 import { Text } from '../../ink.js';
 import { refreshGrowthBookAfterAuthChange } from '../../services/analytics/growthbook.js';
@@ -61,8 +62,9 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
   }} />;
 }
 export function Login(props) {
-  const $ = _c(12);
+  const $ = _c(14);
   const mainLoopModel = useMainLoopModel();
+  const isInsideModal = useIsInsideModal();
   let t0;
   if ($[0] !== mainLoopModel || $[1] !== props) {
     t0 = () => props.onDone(false, mainLoopModel);
@@ -82,22 +84,23 @@ export function Login(props) {
     t1 = $[5];
   }
   let t2;
-  if ($[6] !== props.startingMessage || $[7] !== t1) {
-    t2 = <ConsoleOAuthFlow onDone={t1} startingMessage={props.startingMessage} />;
-    $[6] = props.startingMessage;
-    $[7] = t1;
-    $[8] = t2;
+  if ($[6] !== isInsideModal || $[7] !== props.startingMessage || $[8] !== t1) {
+    t2 = <ConsoleOAuthFlow onDone={t1} startingMessage={props.startingMessage} urlOutdent={isInsideModal ? 1 : 2} />;
+    $[6] = isInsideModal;
+    $[7] = props.startingMessage;
+    $[8] = t1;
+    $[9] = t2;
   } else {
-    t2 = $[8];
+    t2 = $[9];
   }
   let t3;
-  if ($[9] !== t0 || $[10] !== t2) {
+  if ($[10] !== t0 || $[11] !== t2) {
     t3 = <Dialog title="Login" onCancel={t0} color="permission" inputGuide={_temp}>{t2}</Dialog>;
-    $[9] = t0;
-    $[10] = t2;
-    $[11] = t3;
+    $[10] = t0;
+    $[11] = t2;
+    $[12] = t3;
   } else {
-    t3 = $[11];
+    t3 = $[12];
   }
   return t3;
 }
