@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "kind": "authenticated-public-release-absence",
+  "release": "2.1.124",
+  "tag": {
+    "name": "v2.1.124",
+    "present": false,
+    "refs": {
+      "path": "evidence/official-tag-refs.txt",
+      "bytes": 11430,
+      "sha256": "476465042835e67376b8d9d7ecc01935cdc2a19bc31b9c7c74481f8574a86fbc"
+    }
+  },
+  "changelog": {
+    "heading": "## 2.1.124",
+    "present": false,
+    "bulletCount": 0,
+    "fullSnapshot": {
+      "path": "evidence/claude-code-CHANGELOG-a243cad1.md",
+      "bytes": 268769,
+      "sha256": "efeda64b42e26075ebdc26bc3e7ee71416aa9d02f08e908c0e4f1b78bef4a67e",
+      "gitBlobSha1": "be4b8b3c09e4295fde604f1bf6a24134aefbf359"
+    }
+  },
+  "nearestPublishedPublicRelease": {
+    "before": {
+      "tag": "v2.1.123",
+      "commit": "e512ec99188d191b07662fc9f69c5764f750a302"
+    },
+    "after": {
+      "tag": "v2.1.126",
+      "commit": "a243cad11945e791b886091548fd057f3b34f690"
+    }
+  }
+}
