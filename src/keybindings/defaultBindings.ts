@@ -183,6 +183,7 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       tab: 'historySearch:accept',
       'ctrl+c': 'historySearch:cancel',
       enter: 'historySearch:execute',
+      'ctrl+s': 'historySearch:cycleScope',
     },
   },
   {
