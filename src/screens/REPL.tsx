@@ -265,11 +265,9 @@ import { usePostCompactSurvey } from 'src/components/FeedbackSurvey/usePostCompa
 import { FeedbackSurvey } from 'src/components/FeedbackSurvey/FeedbackSurvey.js';
 import { MemoryWriteSurvey } from 'src/components/FeedbackSurvey/MemoryWriteSurvey.js';
 import { useMemoryWriteSurvey } from 'src/components/FeedbackSurvey/useMemoryWriteSurvey.js';
-import { useInstallMessages } from 'src/hooks/notifs/useInstallMessages.js';
+import { useStartupNotifications } from 'src/hooks/notifs/useStartupNotifications.js';
 import { useRemoteControlIdleUpsell } from '../hooks/useRemoteControlIdleUpsell.js';
 import { useAwaySummary } from 'src/hooks/useAwaySummary.js';
-import { useChromeExtensionNotification } from 'src/hooks/useChromeExtensionNotification.js';
-import { useOfficialMarketplaceNotification } from 'src/hooks/useOfficialMarketplaceNotification.js';
 import { usePromptsFromClaudeInChrome } from 'src/hooks/usePromptsFromClaudeInChrome.js';
 import { getTipToShowOnSpinner, recordShownTip } from 'src/services/tips/tipScheduler.js';
 import type { Theme } from 'src/utils/theme.js';
@@ -302,10 +300,7 @@ import { UserTextMessage } from 'src/components/messages/UserTextMessage.js';
 import { AwsAuthStatusBox } from '../components/AwsAuthStatusBox.js';
 import { useRateLimitWarningNotification } from 'src/hooks/notifs/useRateLimitWarningNotification.js';
 import { useDeprecationWarningNotification } from 'src/hooks/notifs/useDeprecationWarningNotification.js';
-import { useNpmDeprecationNotification } from 'src/hooks/notifs/useNpmDeprecationNotification.js';
 import { useIDEStatusIndicator } from 'src/hooks/notifs/useIDEStatusIndicator.js';
-import { useModelMigrationNotifications } from 'src/hooks/notifs/useModelMigrationNotifications.js';
-import { useCanSwitchToExistingSubscription } from 'src/hooks/notifs/useCanSwitchToExistingSubscription.js';
 import { useTeammateLifecycleNotification } from 'src/hooks/notifs/useTeammateShutdownNotification.js';
 import { useFastModeNotification } from 'src/hooks/notifs/useFastModeNotification.js';
 import { useSkillTruncationNotification } from 'src/hooks/notifs/useSkillTruncationNotification.js';
@@ -826,8 +821,7 @@ export function REPL({
   const showRemoteCallout = useAppState(s => s.showRemoteCallout);
   const [showDesktopUpsellStartup, setShowDesktopUpsellStartup] = useState(() => shouldShowDesktopUpsellStartup());
   // notifications
-  useModelMigrationNotifications();
-  useCanSwitchToExistingSubscription();
+  useStartupNotifications();
   useIDEStatusIndicator({
     ideSelection,
     mcpClients,
@@ -844,13 +838,9 @@ export function REPL({
   useFastModeNotification();
   useAdvisorNotification();
   useDeprecationWarningNotification(mainLoopModel);
-  useNpmDeprecationNotification();
   useSkillTools();
   useSkillTruncationNotification();
   useAntOrgWarningNotification();
-  useInstallMessages();
-  useChromeExtensionNotification();
-  useOfficialMarketplaceNotification();
   useLspInitializationNotification();
   useTeammateLifecycleNotification();
   const {

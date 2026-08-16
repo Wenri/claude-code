@@ -8,6 +8,7 @@ import { ValidationErrorsList } from './ValidationErrorsList.js'
 type Props = {
   settingsErrors: ValidationError[]
   onContinue: () => void
+  onFix: () => void
   onExit: () => void
 }
 
@@ -18,11 +19,14 @@ type Props = {
 export function InvalidSettingsDialog({
   settingsErrors,
   onContinue,
+  onFix,
   onExit,
 }: Props): React.ReactNode {
   function handleSelect(value: string): void {
     if (value === 'exit') {
       onExit()
+    } else if (value === 'fix') {
+      onFix()
     } else {
       onContinue()
     }
@@ -33,6 +37,7 @@ export function InvalidSettingsDialog({
   )
   const options = hasErrors
     ? [
+        { label: 'Fix with Claude', value: 'fix' },
         { label: 'Exit and fix manually', value: 'exit' },
         {
           label: 'Continue without these settings',
@@ -41,6 +46,7 @@ export function InvalidSettingsDialog({
       ]
     : [
         { label: 'Continue', value: 'continue' },
+        { label: 'Fix with Claude', value: 'fix' },
         { label: 'Exit and fix manually', value: 'exit' },
       ]
   const title = hasErrors ? 'Settings Error' : 'Settings Warning'

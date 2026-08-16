@@ -192,6 +192,7 @@ import { migrateBypassPermissionsAcceptedToSettings } from './migrations/migrate
 import { migrateEnableAllProjectMcpServersToSettings } from './migrations/migrateEnableAllProjectMcpServersToSettings.js';
 import { migrateFennecToOpus } from './migrations/migrateFennecToOpus.js';
 import { migrateLegacyOpusToCurrent } from './migrations/migrateLegacyOpusToCurrent.js';
+import { migrateNotificationImpressions } from './migrations/migrateNotificationImpressions.js';
 import { migrateOpusToOpus1m } from './migrations/migrateOpusToOpus1m.js';
 import { migrateReplBridgeEnabledToRemoteControlAtStartup } from './migrations/migrateReplBridgeEnabledToRemoteControlAtStartup.js';
 import { migrateUserIntentToSettings } from './migrations/migrateUserIntentToSettings.js';
@@ -435,7 +436,7 @@ async function logStartupTelemetry(
 
 // @[MODEL LAUNCH]: Consider any migrations you may need for model strings. See migrateSonnet1mToSonnet45.ts for an example.
 // Bump this when adding a new sync migration so existing users re-run the set.
-const CURRENT_MIGRATION_VERSION = 12;
+const CURRENT_MIGRATION_VERSION = 13;
 function runMigrations(): void {
   if (getGlobalConfig().migrationVersion !== CURRENT_MIGRATION_VERSION) {
     migrateAutoUpdatesToSettings();
@@ -448,6 +449,7 @@ function runMigrations(): void {
     migrateOpusToOpus1m();
     migrateReplBridgeEnabledToRemoteControlAtStartup();
     migrateUserIntentToSettings();
+    migrateNotificationImpressions();
     if (feature('TRANSCRIPT_CLASSIFIER')) {
       resetAutoModeOptInForDefaultOffer();
     }
@@ -2674,10 +2676,19 @@ async function run(): Promise<CommanderCommand> {
       } = getSettingsWithErrors();
       const nonMcpErrors = errors.filter(e => !e.mcpErrorMetadata);
       if (nonMcpErrors.length > 0) {
-        await launchInvalidSettingsDialog(root, {
+        const invalidSettingsResult = await launchInvalidSettingsDialog(root, {
           settingsErrors: nonMcpErrors,
           onExit: () => gracefulShutdownSync(1)
         });
+        if (invalidSettingsResult === 'fix') {
+          const {
+            buildFixPrompt
+          } = await import('./screens/Doctor.js');
+          const fixPrompt = buildFixPrompt(null, null, nonMcpErrors, [], null, [], [], []);
+          if (fixPrompt) {
+            inputPrompt = inputPrompt ? `${fixPrompt}\n\n${inputPrompt}` : fixPrompt;
+          }
+        }
       }
     }
 

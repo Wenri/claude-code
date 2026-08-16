@@ -397,6 +397,7 @@ export type GlobalConfig = {
 
   // Subscription notice tracking
   subscriptionNoticeCount?: number // Number of times the subscription notice has been shown
+  seenNotifications?: Record<string, number>
   hasAvailableSubscription?: boolean // Cached result of whether user has a subscription available
   subscriptionUpsellShownCount?: number // Number of times the subscription upsell has been shown (deprecated)
   recommendedSubscription?: string // Cached config value from Statsig (deprecated)

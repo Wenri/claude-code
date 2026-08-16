@@ -15,6 +15,7 @@ import React, {
   useState,
 } from 'react'
 import stripAnsi from 'strip-ansi'
+import { useInterval } from 'usehooks-ts'
 import {
   Box,
   Link,
@@ -1169,8 +1170,8 @@ type FleetColumnWidths = {
   age: number
 }
 
-function cleanFleetText(value: string | undefined): string {
-  return (value ?? '')
+export function flattenDetail(value: string): string {
+  return stripAnsi(value)
     .replace(/<(system-reminder|task-notification)>[\s\S]*?(<\/\1>|$)/g, ' ')
     .replace(/<\/?[\w-]+>/g, ' ')
     .replace(/\s+/g, ' ')
@@ -1508,10 +1509,12 @@ function FleetJobRow({
   const detail = isOrigin && isFocused
     ? '→ to return'
     : terminal === 'success'
-      ? cleanFleetText(unlinkedResult ?? job.state.detail)
-      : job.state.tempo === 'active'
-        ? cleanFleetText(logTail ?? '') || cleanFleetText(job.state.detail)
-        : cleanFleetText(job.state.detail)
+      ? flattenDetail(unlinkedResult || job.state.detail)
+      : (job.state.tempo === 'active' && flattenDetail(logTail ?? '')) ||
+        flattenDetail(
+          (job.state.tempo === 'blocked' && job.state.needs) ||
+            job.state.detail,
+        )
   const actionableChildren = childRows.filter(
     child => child.color !== undefined && !isFrameChild(child),
   )
@@ -1569,16 +1572,20 @@ function FleetJobRow({
       <Box flexShrink={0} paddingLeft={1} justifyContent="flex-end">
         {prColor !== undefined && actionableChildren[0] ? (
           <Link url={actionableChildren[0].row.href}>
-            <Text color={prColor}>{figures.circleFilled}</Text>
-            {actionableChildren.length > 1 ? (
-              <Text dimColor> {actionableChildren.length}</Text>
-            ) : null}
+            <Text color={prColor}>
+              {actionableChildren.length > 1
+                ? `${actionableChildren.length} `
+                : null}
+              {figures.circleFilled}
+            </Text>
             <Text> </Text>
           </Link>
         ) : frame ? (
           <Link url={frame.row.href}>
-            <Text color="claude">⧉</Text>
-            {frames.length > 1 ? <Text dimColor> {frames.length}</Text> : null}
+            <Text color="claude">
+              {frames.length > 1 ? `${frames.length} ` : null}
+              ⧉
+            </Text>
             <Text> </Text>
           </Link>
         ) : null}
@@ -1620,6 +1627,11 @@ function FleetDetail({
   renaming: boolean
 }): React.ReactNode {
   useEffect(() => recordFleetAgentAction('peek', job.state), [])
+  const [, forceTick] = useState(0)
+  useInterval(
+    () => forceTick(value => value + 1),
+    Date.now() - Date.parse(job.state.updatedAt) < 60_000 ? 1_000 : null,
+  )
   const inFlight = useRef(false)
   const savedDraft = replyDrafts.get(job.id) ?? ''
   const [mode, setModeState] = useState<'prompt' | 'bash'>(
@@ -1773,7 +1785,7 @@ function FleetDetail({
         {!hasStructuredContent ? (
           <Text wrap="truncate">
             <Text color={style.color}>{eventAge(job.state.updatedAt)}</Text>{' '}
-            {cleanFleetText(job.state.detail)}
+            {flattenDetail(job.state.detail)}
           </Text>
         ) : null}
         {visibleChildren.length > 0 ? (
@@ -1803,7 +1815,7 @@ function FleetDetail({
                 <Box flexGrow={1} width={0}>
                   <Text wrap="truncate">
                     <Text color={style.color}>{eventAge(job.state.updatedAt)}</Text>{' '}
-                    <FleetRichText value={cleanFleetText(value)} />
+                    <FleetRichText value={flattenDetail(value)} />
                   </Text>
                 </Box>
               </Box>
@@ -1814,7 +1826,7 @@ function FleetDetail({
           <Box marginTop={childRows.length > 0 ? 1 : 0}>
             <Text wrap="truncate">
               <Text color={style.color}>{eventAge(job.state.updatedAt)}</Text>{' '}
-              <FleetRichText value={cleanFleetText(job.state.needs)} />
+              <FleetRichText value={flattenDetail(job.state.needs)} />
             </Text>
           </Box>
         ) : null}
@@ -1937,6 +1949,8 @@ export function FleetView({
   sessionStatusesRef.current = sessionStatuses
   const [renameId, setRenameId] = useState<string | null>(null)
   const [attachingJobId, setAttachingJobId] = useState<string | null>(null)
+  const renameSessionIdRef = useRef<string | null>(null)
+  const renamePeerSockRef = useRef<string | null>(null)
   const [detail, setDetail] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
@@ -2760,6 +2774,8 @@ export function FleetView({
   const clearRename = (): void => {
     setRenameId(null)
     setRenameDraft('')
+    renameSessionIdRef.current = null
+    renamePeerSockRef.current = null
   }
   const {
     query: renameDraft,
@@ -2772,41 +2788,73 @@ export function FleetView({
     isActive: renameId !== null,
     backspaceExitsOnEmpty: false,
     onExit: () => {
-      const job = (jobs ?? []).find(candidate => candidate.id === renameId)
+      const sessionId = renameSessionIdRef.current
+      const peerSock = renamePeerSockRef.current
       const name = renameDraftRef.current.trim()
       clearRename()
-      if (!job || !name) return
-      const now = new Date().toISOString()
+      if (!sessionId || !name) return
+      if (peerSock) {
+        setPendingJobs(current =>
+          current.map(candidate =>
+            candidate.state.sessionId !== sessionId
+              ? candidate
+              : {
+                  ...candidate,
+                  state: {
+                    ...candidate.state,
+                    name,
+                    intent: name,
+                    updatedAt: new Date().toISOString(),
+                  },
+                },
+          ),
+        )
+        void sendControlToUdsSocket(peerSock, {
+          action: 'rename',
+          name,
+        }).catch(caught => {
+          logForDebugging(`[fleetview] peer rename failed: ${caught}`)
+          setPendingJobs(current =>
+            current.map(candidate =>
+              candidate.state.sessionId === sessionId &&
+              candidate.state.name === name
+                ? {
+                    ...candidate,
+                    state: {
+                      ...candidate.state,
+                      updatedAt: new Date(0).toISOString(),
+                    },
+                  }
+                : candidate,
+            ),
+          )
+        })
+        return
+      }
       setJobs(current =>
         current?.map(candidate =>
-          candidate.state.sessionId === job.state.sessionId
-            ? {
-                ...candidate,
-                state: {
-                  ...candidate.state,
-                  name,
-                  ...(candidate.state.backend === 'peer' ? { intent: name } : {}),
-                  updatedAt: now,
-                },
-              }
+          candidate.state.sessionId === sessionId
+            ? { ...candidate, state: { ...candidate.state, name } }
             : candidate,
         ) ?? current,
       )
-      if (job.state.backend === 'peer') {
-        if (job.state.sock) {
-          void sendControlToUdsSocket(job.state.sock, {
-            action: 'rename',
-            name,
-          }).catch(caught => {
-            logForDebugging(`[fleetview] peer rename failed: ${String(caught)}`)
-            void poll()
-          })
-        }
-      } else {
-        void renameJob(job.state.sessionId, name).catch(caught =>
-          setError(String(caught)),
+      void renameJob(sessionId, name, 'user').then(renamed => {
+        if (renamed) return
+        setError(
+          "Couldn't rename — the job may have been removed or its state file is unwritable.",
         )
-      }
+        setJobs(current =>
+          current?.map(candidate =>
+            candidate.state.sessionId === sessionId &&
+            candidate.state.name === name
+              ? {
+                  ...candidate,
+                  state: { ...candidate.state, name: undefined },
+                }
+              : candidate,
+          ) ?? current,
+        )
+      })
     },
     onCancel: clearRename,
     useLegacyInput: false,
@@ -3050,8 +3098,11 @@ export function FleetView({
       if (!selected) return
       if (pendingJobs.some(job => job.id === selected.id)) return
       if (selected.state.backend === 'peer' && !selected.state.sock) return
-      setRenameId(selected.id)
+      renameSessionIdRef.current = selected.state.sessionId
+      renamePeerSockRef.current =
+        selected.state.backend === 'peer' ? selected.state.sock ?? null : null
       setRenameDraft(selected.state.name ?? '')
+      setRenameId(selected.id)
       return
     }
     if (key.ctrl && input === 'g' && !detail) {

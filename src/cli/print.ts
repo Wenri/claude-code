@@ -3849,6 +3849,25 @@ function runHeadlessStreaming(
           } catch (error) {
             sendControlResponseError(message, errorMessage(error))
           }
+        } else if (message.request.subtype === 'file_suggestions') {
+          try {
+            const {
+              generateFileSuggestions,
+              globalFileIndexCache,
+            } = await import('src/hooks/fileSuggestions.js')
+            const suggestions = await generateFileSuggestions(
+              globalFileIndexCache,
+              message.request.query,
+              true,
+            )
+            sendControlResponseSuccess(message, {
+              suggestions: suggestions.map(suggestion => ({
+                path: suggestion.displayText,
+              })),
+            })
+          } catch (error) {
+            sendControlResponseError(message, errorMessage(error))
+          }
         } else if (message.request.subtype === 'seed_read_state') {
           // Client observed a Read that was later removed from context (e.g.
           // by snip), so transcript-based seeding missed it. Queued into
@@ -4746,8 +4765,10 @@ function runHeadlessStreaming(
                 surface: surface ?? 'sdk',
               })
               if (result.success) {
+                let ccshareUrl: string | undefined
                 sendControlResponseSuccess(message, {
                   feedback_id: result.feedbackId,
+                  ccshare_url: ccshareUrl,
                 })
               } else {
                 sendControlResponseSuccess(message, {

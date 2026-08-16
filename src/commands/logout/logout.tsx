@@ -53,6 +53,14 @@ export async function performLogout({
           approved: []
         };
       }
+      const notificationId = 'subscription-switch';
+      if (updated.seenNotifications?.[notificationId] !== undefined) {
+        const {
+          [notificationId]: _,
+          ...remainingNotifications
+        } = updated.seenNotifications;
+        updated.seenNotifications = remainingNotifications;
+      }
     }
     updated.oauthAccount = undefined;
     return updated;
