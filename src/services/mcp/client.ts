@@ -153,7 +153,11 @@ import {
   wrapFetchWithStepUpDetection,
 } from './auth.js'
 import { markClaudeAiMcpConnected } from './claudeai.js'
-import { getAllMcpConfigs, isMcpServerDisabled } from './config.js'
+import {
+  getAllMcpConfigs,
+  isCcrProxyUrl,
+  isMcpServerDisabled,
+} from './config.js'
 import { getMcpServerHeaders } from './headersHelper.js'
 import { SdkControlClientTransport } from './SdkControlTransport.js'
 import type {
@@ -695,9 +699,12 @@ export const connectToServer = memoize(
     try {
       let transport
 
-      // If we have the session ingress JWT, we will connect via the session ingress rather than
-      // to remote MCP's directly.
-      const sessionIngressToken = getSessionIngressAuthToken()
+      // Only attach the session ingress JWT to a URL on this process's
+      // configured CCR/session-ingress origin. Never send it to a vendor MCP.
+      const sessionIngressToken =
+        'url' in serverRef && isCcrProxyUrl(serverRef.url)
+          ? getSessionIngressAuthToken()
+          : null
 
       if (serverRef.type === 'sse') {
         // Create an auth provider for this server

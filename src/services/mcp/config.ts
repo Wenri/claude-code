@@ -43,6 +43,11 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
+import {
+  getMcpOAuthEntries,
+  hasExpiredMcpAccessTokenWithoutRefresh,
+  hasMcpDiscoveryButNoToken,
+} from './auth.js'
 import { fetchClaudeAIMcpConfigsIfEligible } from './claudeai.js'
 import { expandEnvVarsInString } from './envExpansion.js'
 import {
@@ -173,8 +178,46 @@ function getServerUrl(config: McpServerConfig): string | null {
  */
 const CCR_PROXY_PATH_MARKERS = [
   '/v2/session_ingress/shttp/mcp/',
+  '/v2/session_ingress/mcp/ws/',
   '/v2/ccr-sessions/',
 ]
+
+const CCR_PROXY_BASE_URL =
+  process.env.SESSION_INGRESS_URL ?? process.env.ANTHROPIC_BASE_URL
+
+/**
+ * Whether a URL points at this process's configured CCR/session-ingress MCP
+ * proxy. WebSocket proxy URLs share the HTTP(S) origin of the ingress service,
+ * so normalize their protocol before comparing origins.
+ */
+export function isCcrProxyUrl(url: string): boolean {
+  if (!CCR_PROXY_BASE_URL) {
+    return false
+  }
+
+  let parsedUrl: URL
+  let parsedBaseUrl: URL
+  try {
+    parsedUrl = new URL(url)
+    parsedBaseUrl = new URL(CCR_PROXY_BASE_URL)
+  } catch {
+    return false
+  }
+
+  const normalizedOrigin =
+    parsedUrl.protocol === 'wss:'
+      ? `https://${parsedUrl.host}`
+      : parsedUrl.protocol === 'ws:'
+        ? `http://${parsedUrl.host}`
+        : parsedUrl.origin
+  if (normalizedOrigin !== parsedBaseUrl.origin) {
+    return false
+  }
+
+  return CCR_PROXY_PATH_MARKERS.some(marker =>
+    parsedUrl.pathname.includes(marker),
+  )
+}
 
 /**
  * If the URL is a CCR proxy URL, extract the original vendor URL from the
@@ -365,12 +408,20 @@ export function dedupClaudeAiMcpServers(
     duplicateOfScope: ConfigScope
   }>
 } {
+  const oauthEntries = getMcpOAuthEntries() ?? {}
   const manualSigs = new Map<
     string,
     { name: string; scope: ConfigScope }
   >()
   for (const [name, config] of Object.entries(manualServers)) {
     if (isMcpServerDisabled(name)) continue
+    if (
+      (config.type === 'sse' || config.type === 'http') &&
+      (hasMcpDiscoveryButNoToken(name, config, oauthEntries) ||
+        hasExpiredMcpAccessTokenWithoutRefresh(name, config, oauthEntries))
+    ) {
+      continue
+    }
     const sig = getMcpServerSignature(config)
     if (sig && !manualSigs.has(sig)) {
       manualSigs.set(sig, { name, scope: config.scope })
