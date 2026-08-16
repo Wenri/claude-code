@@ -240,6 +240,7 @@ export async function authLogin({
       async url => {
         process.stdout.write('Opening browser to sign in…\n')
         process.stdout.write(`If the browser didn't open, visit: ${url}\n`)
+        process.stdout.write('Paste code here if prompted > ')
       },
       {
         loginWithClaudeAi,

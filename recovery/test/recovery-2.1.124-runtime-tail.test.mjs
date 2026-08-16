@@ -76,6 +76,7 @@ test('authenticates retained 2.1.124 runtime-tail witnesses', () => {
     ['attachments_subagent', 1, 2],
     ['Cleared installed plugins cache', 0, 1],
     ['egress gateway', 0, 2],
+    ['Paste code here if prompted > ', 2, 3],
   ]
   for (const [fragment, baselineCount, targetCount] of changedWitnesses) {
     assert.equal(occurrences(baseline, fragment), baselineCount, fragment)
@@ -126,5 +127,11 @@ test('remote control, plugin updates, and prompt UI use retained surfaces', () =
     'const prideGradient = standaloneAgentContext?.prideGradient',
     'if (standaloneName || standaloneColor || prideGradient)',
     'gradient: prideGradient',
+  ])
+  assertFragments('src/cli/handlers/auth.ts', [
+    "process.stdout.write('Paste code here if prompted > ')",
+    "const [authorizationCode, state] = line.trim().split('#')",
+    "logEvent('tengu_oauth_manual_entry', {})",
+    'oauthService.handleManualAuthCodeInput({ authorizationCode, state })',
   ])
 })
