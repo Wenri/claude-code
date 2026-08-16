@@ -3,6 +3,7 @@ import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEve
 import { KeyboardShortcutHint } from '../../components/design-system/KeyboardShortcutHint.js';
 import { Spinner } from '../../components/Spinner.js';
 import TextInput from '../../components/TextInput.js';
+import { LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS } from '../../constants/oauth.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 import { setClipboard } from '../../ink/termio/osc.js';
@@ -114,7 +115,7 @@ export function OAuthFlowStep({
         loginWithClaudeAi: true,
         // Always use Claude AI for subscription tokens
         inferenceOnly: true,
-        expiresIn: 365 * 24 * 60 * 60 // 1 year
+        expiresIn: LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS // 1 year
       });
 
       // Show processing state

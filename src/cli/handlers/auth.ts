@@ -8,6 +8,7 @@ import {
   clearAuthRelatedCaches,
   performLogout,
 } from '../../commands/logout/logout.js'
+import { LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS } from '../../constants/oauth.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -181,7 +182,7 @@ export async function authLogin({
 
       const tokens = await refreshOAuthToken(envRefreshToken, {
         scopes,
-        expiresIn: 365 * 24 * 60 * 60,
+        expiresIn: LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS,
         clientId: process.env.CLAUDE_CODE_OAUTH_CLIENT_ID || undefined,
       })
       await installOAuthTokens(tokens)

@@ -2,6 +2,7 @@ import { c as _c } from "react/compiler-runtime";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { installOAuthTokens } from '../cli/handlers/auth.js';
+import { LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS } from '../constants/oauth.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { setClipboard } from '../ink/termio/osc.js';
 import { useTerminalNotification } from '../ink/useTerminalNotification.js';
@@ -220,7 +221,7 @@ export function ConsoleOAuthFlow({
       }, {
         loginWithClaudeAi,
         inferenceOnly: mode === 'setup-token',
-        expiresIn: mode === 'setup-token' ? 365 * 24 * 60 * 60 : undefined,
+        expiresIn: mode === 'setup-token' ? LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS : undefined,
         // 1 year for setup-token
         orgUUID
       }).catch(err_1 => {

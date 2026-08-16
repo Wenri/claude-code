@@ -223,7 +223,10 @@ import {
 import { getLastCacheSafeParams } from 'src/utils/forkedAgent.js'
 import { getSessionEnvVars } from 'src/utils/sessionEnvVars.js'
 import { DEFAULT_TMUX_SOCKET } from 'src/utils/tmuxSocket.js'
-import { getAccountInformation } from 'src/utils/auth.js'
+import {
+  getAccountInformation,
+  SDK_OAUTH_REFRESH_ENTRYPOINTS,
+} from 'src/utils/auth.js'
 import { OAuthService } from 'src/services/oauth/index.js'
 import { installOAuthTokens } from 'src/cli/handlers/auth.js'
 import { getAPIProvider } from 'src/utils/model/providers.js'
@@ -481,11 +484,6 @@ Shut down your team and prepare your final response for the user.`
 // Track message UUIDs received during the current session runtime
 const MAX_RECEIVED_UUIDS = 10_000
 const receivedMessageUuids = new Set<UUID>()
-const SDK_OAUTH_REFRESH_ENTRYPOINTS = new Set([
-  'claude-desktop',
-  'local-agent',
-  'claude-vscode',
-])
 const receivedMessageUuidsOrder: UUID[] = []
 
 function trackReceivedMessageUuid(uuid: UUID): boolean {

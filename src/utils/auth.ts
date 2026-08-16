@@ -87,6 +87,12 @@ import { clearToolSchemaCache } from './toolSchemaCache.js'
 /** Default TTL for API key helper cache in milliseconds (5 minutes) */
 const DEFAULT_API_KEY_HELPER_TTL = 5 * 60 * 1000
 
+export const SDK_OAUTH_REFRESH_ENTRYPOINTS = new Set([
+  'claude-desktop',
+  'local-agent',
+  'claude-vscode',
+])
+
 /**
  * CCR and Claude Desktop spawn the CLI with OAuth and should never fall back
  * to the user's ~/.claude/settings.json API-key config (apiKeyHelper,
@@ -1902,6 +1908,10 @@ export function getRateLimitTier(): string | null {
   }
 
   return oauthTokens.rateLimitTier ?? null
+}
+
+export function getSeatTier(): string | null {
+  return getOauthAccountInfo()?.seatTier ?? null
 }
 
 export function getSubscriptionName(): string {
