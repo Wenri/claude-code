@@ -444,7 +444,7 @@ function main() {
   const syntaxCheck = changed
     .map(entry => entry.path)
     .filter(sourcePath =>
-      targetByPath.has(sourcePath) && /\.(?:ts|tsx)$/.test(sourcePath),
+      targetByPath.has(sourcePath) && /\.(?:js|jsx|ts|tsx)$/.test(sourcePath),
     )
   const syntaxRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-2.1.122-syntax-'))
   try {
