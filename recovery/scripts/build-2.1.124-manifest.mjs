@@ -444,6 +444,8 @@ assert(
       binding.reason.length >= 20 &&
       binding.sourceWitness?.reviewed === true &&
       Array.isArray(binding.sourceWitness?.matchedSemanticTerms) &&
+      JSON.stringify(binding.sourceWitness.matchedSemanticTerms) ===
+        JSON.stringify([...binding.sourceWitness.matchedSemanticTerms].sort()) &&
       Array.isArray(binding.testIds) &&
       binding.testIds.length > 0 &&
       Array.isArray(binding.relatedDirectClusterIds) &&

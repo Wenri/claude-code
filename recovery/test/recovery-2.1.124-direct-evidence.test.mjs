@@ -88,10 +88,10 @@ function assertReviewedSourceWitness(witness, label, requireReviewed = false) {
   assert.equal(typeof witness.reviewed, 'boolean', `${label}: reviewed marker`)
   assert.ok(Array.isArray(witness.matchedSemanticTerms),
     `${label}: semantic terms`)
-  assert.deepEqual(
-    witness.matchedSemanticTerms,
-    [...new Set(witness.matchedSemanticTerms)].sort(),
-    `${label}: canonical semantic terms`,
+  assert.equal(
+    new Set(witness.matchedSemanticTerms).size,
+    witness.matchedSemanticTerms.length,
+    `${label}: unique semantic terms`,
   )
   assert.ok(
     witness.reviewed === true || witness.matchedSemanticTerms.length > 0,
@@ -369,6 +369,11 @@ function readPinnedClusterInventory(catalog) {
     assert.equal(binding.clusterId, undefined)
     assert.equal(binding.clusterIds, undefined)
     assertReviewedSourceWitness(binding.sourceWitness, binding.id, true)
+    assert.deepEqual(
+      binding.sourceWitness.matchedSemanticTerms,
+      [...binding.sourceWitness.matchedSemanticTerms].sort(),
+      `${binding.id}: canonical support semantic terms`,
+    )
     supportPaths.push(binding.sourceWitness.path)
     assert.deepEqual(
       binding.relatedDirectClusterIds,

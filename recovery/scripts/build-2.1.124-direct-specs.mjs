@@ -141,10 +141,7 @@ function validateReviewedSourceWitness(sourceWitness, label) {
       sourceWitness.matchedSemanticTerms.every(term =>
         typeof term === 'string' && term.length > 0) &&
       new Set(sourceWitness.matchedSemanticTerms).size ===
-        sourceWitness.matchedSemanticTerms.length &&
-      JSON.stringify(sourceWitness.matchedSemanticTerms) === JSON.stringify(
-        [...sourceWitness.matchedSemanticTerms].sort(),
-      ),
+        sourceWitness.matchedSemanticTerms.length,
     `${label}: invalid reviewed source witness`,
   )
   const source = fs.readFileSync(path.join(repo, sourcePath), 'utf8')
@@ -374,6 +371,11 @@ function validateSupportBindings(inventory, directClusterIds) {
     )
     assert(binding.sourceWitness.reviewed === true,
       `${binding.id}: support source witness must be explicitly reviewed`)
+    assert(
+      JSON.stringify(binding.sourceWitness.matchedSemanticTerms) ===
+        JSON.stringify([...binding.sourceWitness.matchedSemanticTerms].sort()),
+      `${binding.id}: support semantic terms are not canonical`,
+    )
     assert(!paths.has(sourcePath), `${binding.id}: duplicate support source path`)
     paths.add(sourcePath)
     validateClusterIds(

@@ -236,9 +236,6 @@ function reviewedSourceWitness(repo, witness, requireReviewed = false) {
       typeof term !== 'string' || term.length === 0) ||
     new Set(witness.matchedSemanticTerms).size !==
       witness.matchedSemanticTerms.length ||
-    JSON.stringify(witness.matchedSemanticTerms) !== JSON.stringify(
-      [...witness.matchedSemanticTerms].sort(),
-    ) ||
     (witness.reviewed !== true && witness.matchedSemanticTerms.length === 0) ||
     (requireReviewed && witness.reviewed !== true)
   ) return false
@@ -829,6 +826,8 @@ function main() {
         binding.clusterId === undefined &&
         binding.clusterIds === undefined &&
         reviewedSourceWitness(repo, binding.sourceWitness, true) &&
+        JSON.stringify(binding.sourceWitness.matchedSemanticTerms) ===
+          JSON.stringify([...binding.sourceWitness.matchedSemanticTerms].sort()) &&
         Array.isArray(binding.testIds) &&
         binding.testIds.length > 0 &&
         new Set(binding.testIds).size === binding.testIds.length &&

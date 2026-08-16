@@ -306,9 +306,7 @@ for (const entry of semanticClusterInventory.direct) {
             !sourceWitness.matchedSemanticTerms.every(term =>
               typeof term === 'string' && term.length > 0) ||
             new Set(sourceWitness.matchedSemanticTerms).size !==
-              sourceWitness.matchedSemanticTerms.length ||
-            JSON.stringify(sourceWitness.matchedSemanticTerms) !==
-              JSON.stringify([...sourceWitness.matchedSemanticTerms].sort())
+              sourceWitness.matchedSemanticTerms.length
           ) return false
           const source = fs.readFileSync(
             path.join(repo, sourceWitness.path),

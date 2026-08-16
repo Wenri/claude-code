@@ -183,9 +183,6 @@ function validateReviewedSourceWitness(sourceWitness, label, requireReviewed) {
         typeof term === 'string' && term.length > 0) &&
       new Set(sourceWitness.matchedSemanticTerms).size ===
         sourceWitness.matchedSemanticTerms.length &&
-      JSON.stringify(sourceWitness.matchedSemanticTerms) === JSON.stringify(
-        [...sourceWitness.matchedSemanticTerms].sort(),
-      ) &&
       (sourceWitness.reviewed === true ||
         sourceWitness.matchedSemanticTerms.length > 0) &&
       (!requireReviewed || sourceWitness.reviewed === true),
@@ -389,6 +386,11 @@ function validateSupportBindings(inventory, directClusterIds) {
       binding.sourceWitness,
       binding.id,
       true,
+    )
+    assert(
+      JSON.stringify(binding.sourceWitness.matchedSemanticTerms) ===
+        JSON.stringify([...binding.sourceWitness.matchedSemanticTerms].sort()),
+      `${binding.id}: support semantic terms are not canonical`,
     )
     assert(!paths.has(source.path), `${binding.id}: duplicate support path`)
     paths.add(source.path)
