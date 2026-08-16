@@ -23,7 +23,6 @@ import {
   should1hCacheTTL,
 } from '../../services/api/claude.js'
 import { parsePromptTooLongTokenCounts } from '../../services/api/errors.js'
-import { getDefaultMaxRetries } from '../../services/api/withRetry.js'
 import type { Tool, ToolPermissionContext, Tools } from '../../Tool.js'
 import type { Message } from '../../types/message.js'
 import type {
@@ -41,6 +40,7 @@ import { getAutoModeConfig } from '../settings/settings.js'
 import { sideQuery } from '../sideQuery.js'
 import { jsonStringify } from '../slowOperations.js'
 import { tokenCountWithEstimation } from '../tokens.js'
+import { createCombinedAbortSignal } from '../combinedAbortSignal.js'
 import {
   getBashPromptAllowDescriptions,
   getBashPromptDenyDescriptions,
@@ -379,7 +379,7 @@ export function buildTranscriptEntries(messages: Message[]): TranscriptEntry[] {
           content: [{ type: 'text', text }],
         })
       }
-    } else if (msg.type === 'user') {
+    } else if (msg.type === 'user' && !msg.isMeta) {
       const content = msg.message.content
       const textBlocks: TranscriptBlock[] = []
       if (typeof content === 'string') {
@@ -806,6 +806,23 @@ async function withClassifierRequestWatchdog<T>(
   }
 }
 
+const CLASSIFIER_TIMEOUT_MS = 30_000
+const CLASSIFIER_MAX_RETRIES = 2
+
+async function runClassifierRequest(
+  options: Parameters<typeof sideQuery>[0],
+  userSignal: AbortSignal,
+): ReturnType<typeof sideQuery> {
+  const { signal, cleanup } = createCombinedAbortSignal(userSignal, {
+    timeoutMs: CLASSIFIER_TIMEOUT_MS,
+  })
+  try {
+    return await sideQuery({ ...options, signal })
+  } finally {
+    cleanup()
+  }
+}
+
 function getActionToolName(action: TranscriptEntry): string {
   const toolUse = action.content.find(block => block.type === 'tool_use')
   return toolUse?.type === 'tool_use' ? toolUse.name : 'unknown'
@@ -959,14 +976,13 @@ async function classifyYoloActionXml(
           ...prefixMessages,
           { role: 'user' as const, content: stage1Content },
         ],
-        maxRetries: getDefaultMaxRetries(),
-        signal,
+        maxRetries: CLASSIFIER_MAX_RETRIES,
         ...(mode !== 'fast' && { stop_sequences: ['</block>'] }),
         querySource: 'auto_mode',
         extraBodyParams: getExtraBodyParams(),
       }
       const stage1Raw = await withClassifierRequestWatchdog(
-        sideQuery(stage1Opts),
+        runClassifierRequest(stage1Opts, signal),
         {
           toolName,
           classifierModel: model,
@@ -1067,13 +1083,12 @@ async function classifyYoloActionXml(
         ...prefixMessages,
         { role: 'user' as const, content: stage2Content },
       ],
-      maxRetries: getDefaultMaxRetries(),
-      signal,
+      maxRetries: CLASSIFIER_MAX_RETRIES,
       querySource: 'auto_mode' as const,
       extraBodyParams: getExtraBodyParams(),
     }
     const stage2Raw = await withClassifierRequestWatchdog(
-      sideQuery(stage2Opts),
+      runClassifierRequest(stage2Opts, signal),
       {
         toolName,
         classifierModel: model,
@@ -1368,13 +1383,12 @@ export async function classifyYoloAction(
         type: 'tool' as const,
         name: YOLO_CLASSIFIER_TOOL_NAME,
       },
-      maxRetries: getDefaultMaxRetries(),
-      signal,
+      maxRetries: CLASSIFIER_MAX_RETRIES,
       querySource: 'auto_mode' as const,
       extraBodyParams: getExtraBodyParams(),
     }
     const result = await withClassifierRequestWatchdog(
-      sideQuery(sideQueryOpts),
+      runClassifierRequest(sideQueryOpts, signal),
       {
         toolName: getActionToolName(action),
         classifierModel: model,

@@ -203,13 +203,23 @@ function getActiveProfile(configDir: string): string {
   return readFileSyncOrNull(join(configDir, 'active_config'))?.trim() || 'default'
 }
 
-function getProfileAuthType(path: string): AuthType | null {
-  const raw = readFileSyncOrNull(path)
+function getProfileAuthType(configDir: string, profile: string): string | null {
+  const raw = readFileSyncOrNull(
+    join(configDir, 'configs', `${profile}.json`),
+  )
   if (raw === null) return null
   try {
-    const type = (JSON.parse(raw) as { authentication?: { type?: string } })
-      .authentication?.type
-    return type === 'oidc_federation' || type === 'user_oauth' ? type : null
+    const config = JSON.parse(raw) as {
+      authentication?: { type?: string; credentials_path?: string }
+    }
+    const type = config?.authentication?.type ?? null
+    if (type === 'user_oauth') {
+      const credentialsPath =
+        config.authentication?.credentials_path ??
+        join(configDir, 'credentials', `${profile}.json`)
+      if (readFileSyncOrNull(credentialsPath) === null) return null
+    }
+    return type
   } catch {
     return null
   }
@@ -223,9 +233,7 @@ export function getWIFPrecedenceSource(): WIFPrecedenceSource {
   const explicitProfile = env('ANTHROPIC_PROFILE')
   if (explicitProfile) {
     if (configDir === null) return (precedenceCache = null)
-    const authType = getProfileAuthType(
-      join(configDir, 'configs', `${explicitProfile}.json`),
-    )
+    const authType = getProfileAuthType(configDir, explicitProfile)
     return (precedenceCache =
       authType === 'oidc_federation' || authType === 'user_oauth'
         ? 'profile-explicit'
@@ -239,9 +247,7 @@ export function getWIFPrecedenceSource(): WIFPrecedenceSource {
   }
   if (configDir !== null) {
     const profile = getActiveProfile(configDir)
-    const authType = getProfileAuthType(
-      join(configDir, 'configs', `${profile}.json`),
-    )
+    const authType = getProfileAuthType(configDir, profile)
     if (authType === 'oidc_federation' || authType === 'user_oauth')
       return (precedenceCache = 'profile-implicit')
   }
@@ -262,7 +268,10 @@ export function getWIFAuthType(): AuthType | null {
     source === 'profile-explicit'
       ? env('ANTHROPIC_PROFILE') || 'default'
       : getActiveProfile(configDir)
-  return getProfileAuthType(join(configDir, 'configs', `${profile}.json`))
+  const authType = getProfileAuthType(configDir, profile)
+  return authType === 'oidc_federation' || authType === 'user_oauth'
+    ? authType
+    : null
 }
 
 function redactIdentifier(value: string): string {
@@ -1025,6 +1034,7 @@ export function getWIFCredentials(): Promise<ResolvedCredentials | null> {
               forAnthropicAPI: true,
               url: String(url),
             }),
+            signal: AbortSignal.timeout(10_000),
           }),
         userAgent: getUserAgent(),
         onSafetyWarning: warning =>

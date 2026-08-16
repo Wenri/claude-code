@@ -13,6 +13,7 @@ import {
 import { logForDebugging } from '../../utils/debug.js'
 import { toError } from '../../utils/errors.js'
 import { getAuthHeaders } from '../../utils/http.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { logError } from '../../utils/log.js'
 import { createSignal } from '../../utils/signal.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
@@ -436,9 +437,12 @@ function syncRemoteEvalToDisk(): void {
 /**
  * Check if GrowthBook operations should be enabled
  */
-function isGrowthBookEnabled(): boolean {
+export function isGrowthBookEnabled(): boolean {
   // GrowthBook depends on 1P event logging.
-  return is1PEventLoggingEnabled()
+  return (
+    !isEnvTruthy(process.env.DISABLE_GROWTHBOOK) &&
+    is1PEventLoggingEnabled()
+  )
 }
 
 /**

@@ -109,8 +109,9 @@ export function useHistorySearch(
         }
 
         const display = item.value.display
+        const normalizedQuery = historyQuery.toLowerCase()
 
-        const matchPosition = display.lastIndexOf(historyQuery)
+        const matchPosition = display.toLowerCase().lastIndexOf(normalizedQuery)
         if (matchPosition !== -1 && !seenPrompts.current.has(display)) {
           seenPrompts.current.add(display)
           setHistoryMatch(item.value)
@@ -122,7 +123,9 @@ export function useHistorySearch(
 
           // Position cursor relative to the clean value, not the display
           const value = getValueFromInput(display)
-          const cleanMatchPosition = value.lastIndexOf(historyQuery)
+          const cleanMatchPosition = value
+            .toLowerCase()
+            .lastIndexOf(normalizedQuery)
           onCursorChange(
             cleanMatchPosition !== -1 ? cleanMatchPosition : matchPosition,
           )

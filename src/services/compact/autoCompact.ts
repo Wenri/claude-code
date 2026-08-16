@@ -55,6 +55,14 @@ export function isColdCompact(): boolean {
   return Date.now() - getLastInteractionTime() >= COLD_COMPACT_IDLE_MS
 }
 
+export function shouldUseColdCompact(): boolean {
+  if (process.env.CLAUDE_CODE_COLD_COMPACT !== undefined) {
+    return isEnvTruthy(process.env.CLAUDE_CODE_COLD_COMPACT)
+  }
+  if (!isColdCompact()) return false
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_cold_compact', false)
+}
+
 const MIN_AUTO_COMPACT_WINDOW = 100_000
 const MAX_AUTO_COMPACT_WINDOW = 1_000_000
 
@@ -491,9 +499,7 @@ export async function autoCompactIfNeeded(
     querySource,
   }
 
-  const stripNonEssential =
-    isColdCompact() &&
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_cold_compact', false)
+  const stripNonEssential = shouldUseColdCompact()
 
   const compactingHintText = getAutoCompactWindowHint(
     model,

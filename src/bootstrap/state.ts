@@ -57,6 +57,38 @@ const DEFAULT_RUNTIME_CAPABILITIES: RuntimeCapabilities = {
 }
 
 import type { SessionId } from 'src/types/ids.js'
+import type { BetaDescriptor } from 'src/constants/betas.js'
+
+export type StickyBetas = {
+  sent: Set<BetaDescriptor>
+  rejected: Set<BetaDescriptor>
+}
+
+export function createStickyBetas(): StickyBetas {
+  return { sent: new Set(), rejected: new Set() }
+}
+
+export function latchStickyBeta(
+  stickyBetas: StickyBetas,
+  beta: BetaDescriptor,
+): void {
+  if (!stickyBetas.rejected.has(beta)) stickyBetas.sent.add(beta)
+}
+
+export function isStickyBetaLatched(
+  stickyBetas: StickyBetas,
+  beta: BetaDescriptor,
+): boolean {
+  return stickyBetas.sent.has(beta) && !stickyBetas.rejected.has(beta)
+}
+
+export function rejectStickyBeta(
+  stickyBetas: StickyBetas,
+  beta: BetaDescriptor,
+): void {
+  stickyBetas.sent.delete(beta)
+  stickyBetas.rejected.add(beta)
+}
 
 // DO NOT ADD MORE STATE HERE - BE JUDICIOUS WITH GLOBAL STATE
 
@@ -180,6 +212,7 @@ type State = {
   // (useScheduledTasks). Set by cronScheduler.start() when the JSON has
   // entries, or by CronCreateTool. Not persisted.
   scheduledTasksEnabled: boolean
+  sessionPrResolved: boolean
   // Session-only cron tasks created via CronCreate with durable: false.
   // Fire on schedule like file-backed tasks but are never written to
   // .claude/scheduled_tasks.json — they die with the process. Typed via
@@ -277,21 +310,9 @@ type State = {
   // evaluation so mid-session overage flips don't change the cache_control
   // TTL, which would bust the server-side prompt cache.
   promptCache1hEligible: boolean | null
-  // Sticky-on latch for AFK_MODE_BETA_HEADER. Once auto mode is first
-  // activated, keep sending the header for the rest of the session so
-  // Shift+Tab toggles don't bust the ~50-70K token prompt cache.
-  afkModeHeaderLatched: boolean | null
-  // Sticky-on latch for FAST_MODE_BETA_HEADER. Once fast mode is first
-  // enabled, keep sending the header so cooldown enter/exit doesn't
-  // double-bust the prompt cache. The `speed` body param stays dynamic.
-  fastModeHeaderLatched: boolean | null
-  // Sticky-on latch for the cache-editing beta header. Once cached
-  // microcompact is first enabled, keep sending the header so mid-session
-  // GrowthBook/settings toggles don't bust the prompt cache.
-  cacheEditingHeaderLatched: boolean | null
-  // Session latch for prompt-cache diagnostics. Null means the eligibility
-  // gate has not been evaluated for this conversation yet.
-  cacheDiagnosisHeaderLatched: boolean | null
+  // Session-stable beta headers. Rejected descriptors can never be latched
+  // again during the same conversation.
+  stickyBetas: StickyBetas
   // Per-model fallback selected after the provider rejects one of the two
   // supported thinking modes. Application inference profile ARNs can hide
   // the backing model capability, so remember the successful mode for the
@@ -430,6 +451,7 @@ function getInitialState(): State {
     sessionBypassPermissionsMode: false,
     // Scheduled tasks disabled until flag or dialog enables them
     scheduledTasksEnabled: false,
+    sessionPrResolved: false,
     sessionCronTasks: [],
     loopChainStartedAt: Object.create(null) as Record<string, LoopChainState>,
     sessionCreatedTeams: new Set(),
@@ -481,11 +503,7 @@ function getInitialState(): State {
     promptCache1hAllowlist: null,
     // Prompt cache 1h eligibility (null = not yet evaluated)
     promptCache1hEligible: null,
-    // Beta header latches (null = not yet triggered)
-    afkModeHeaderLatched: null,
-    fastModeHeaderLatched: null,
-    cacheEditingHeaderLatched: null,
-    cacheDiagnosisHeaderLatched: null,
+    stickyBetas: createStickyBetas(),
     thinkingTypeOverrides: new Map(),
     inferenceProfileBackingModels: new Map(),
     thinkingClearLatched: null,
@@ -1504,6 +1522,14 @@ export function getScheduledTasksEnabled(): boolean {
   return STATE.scheduledTasksEnabled
 }
 
+export function getSessionPrResolved(): boolean {
+  return STATE.sessionPrResolved
+}
+
+export function setSessionPrResolved(resolved: boolean): void {
+  STATE.sessionPrResolved = resolved
+}
+
 export type SessionCronTask = {
   id: string
   cron: string
@@ -2017,36 +2043,8 @@ export function setPromptCache1hEligible(eligible: boolean | null): void {
   STATE.promptCache1hEligible = eligible
 }
 
-export function getAfkModeHeaderLatched(): boolean | null {
-  return STATE.afkModeHeaderLatched
-}
-
-export function setAfkModeHeaderLatched(v: boolean): void {
-  STATE.afkModeHeaderLatched = v
-}
-
-export function getFastModeHeaderLatched(): boolean | null {
-  return STATE.fastModeHeaderLatched
-}
-
-export function setFastModeHeaderLatched(v: boolean): void {
-  STATE.fastModeHeaderLatched = v
-}
-
-export function getCacheEditingHeaderLatched(): boolean | null {
-  return STATE.cacheEditingHeaderLatched
-}
-
-export function setCacheEditingHeaderLatched(v: boolean): void {
-  STATE.cacheEditingHeaderLatched = v
-}
-
-export function getCacheDiagnosisHeaderLatched(): boolean | null {
-  return STATE.cacheDiagnosisHeaderLatched
-}
-
-export function setCacheDiagnosisHeaderLatched(v: boolean): void {
-  STATE.cacheDiagnosisHeaderLatched = v
+export function getStickyBetas(): StickyBetas {
+  return STATE.stickyBetas
 }
 
 export function getThinkingTypeOverride(
@@ -2088,10 +2086,7 @@ export function setThinkingClearLatched(v: boolean): void {
  * fresh conversation gets fresh header evaluation.
  */
 export function clearBetaHeaderLatches(): void {
-  STATE.afkModeHeaderLatched = null
-  STATE.fastModeHeaderLatched = null
-  STATE.cacheEditingHeaderLatched = null
-  STATE.cacheDiagnosisHeaderLatched = null
+  STATE.stickyBetas = createStickyBetas()
   STATE.thinkingClearLatched = null
 }
 

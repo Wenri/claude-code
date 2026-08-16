@@ -892,6 +892,7 @@ export async function setPermissionBlock(
 export function apiFailureClassification(
   type:
     | 'authentication_failed'
+    | 'oauth_org_not_allowed'
     | 'billing_error'
     | 'rate_limit'
     | 'server_error'
@@ -904,6 +905,11 @@ export function apiFailureClassification(
   switch (type) {
     case 'authentication_failed':
       return { state: 'blocked', needs: 'login required — run /login' }
+    case 'oauth_org_not_allowed':
+      return {
+        state: 'blocked',
+        needs: 'org disabled OAuth — use API key or ask admin',
+      }
     case 'billing_error':
       return { state: 'blocked', needs: 'usage limit reached — check plan' }
     case 'rate_limit':

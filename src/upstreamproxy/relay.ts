@@ -102,7 +102,7 @@ export function decodeChunk(buf: Uint8Array): Uint8Array | null {
   return buf.subarray(i, i + len)
 }
 
-export type UpstreamProxyRelay = {
+export type EgressGatewayRelay = {
   port: number
   stop: () => void
 }
@@ -152,11 +152,11 @@ function newConnState(): ConnState {
  * Uses Bun.listen when available, otherwise Node's net.createServer — the CCR
  * container runs the CLI under Node, not Bun.
  */
-export async function startUpstreamProxyRelay(opts: {
+export async function startEgressGatewayRelay(opts: {
   wsUrl: string
   sessionId: string
   token: string
-}): Promise<UpstreamProxyRelay> {
+}): Promise<EgressGatewayRelay> {
   const authHeader =
     'Basic ' + Buffer.from(`${opts.sessionId}:${opts.token}`).toString('base64')
   // WS upgrade itself is auth-gated (proto authn: PRIVATE_API) — the gateway
@@ -169,7 +169,9 @@ export async function startUpstreamProxyRelay(opts: {
       ? startBunRelay(opts.wsUrl, authHeader, wsAuthHeader)
       : await startNodeRelay(opts.wsUrl, authHeader, wsAuthHeader)
 
-  logForDebugging(`[upstreamproxy] relay listening on 127.0.0.1:${relay.port}`)
+  logForDebugging(
+    `[egress-gateway] relay listening on 127.0.0.1:${relay.port}`,
+  )
   return relay
 }
 
@@ -177,7 +179,7 @@ function startBunRelay(
   wsUrl: string,
   authHeader: string,
   wsAuthHeader: string,
-): UpstreamProxyRelay {
+): EgressGatewayRelay {
   // Bun TCP sockets don't auto-buffer partial writes: sock.write() returns
   // the byte count actually handed to the kernel, and the remainder is
   // silently dropped. When the kernel buffer fills, we queue the tail and
@@ -228,7 +230,9 @@ function startBunRelay(
         cleanupConn(sock.data)
       },
       error(sock, err) {
-        logForDebugging(`[upstreamproxy] client socket error: ${err.message}`)
+        logForDebugging(
+          `[egress-gateway] client socket error: ${err.message}`,
+        )
         cleanupConn(sock.data)
       },
     },
@@ -241,12 +245,12 @@ function startBunRelay(
 }
 
 // Exported so tests can exercise the Node path directly — the test runner is
-// Bun, so the runtime dispatch in startUpstreamProxyRelay always picks Bun.
+// Bun, so the runtime dispatch in startEgressGatewayRelay always picks Bun.
 export async function startNodeRelay(
   wsUrl: string,
   authHeader: string,
   wsAuthHeader: string,
-): Promise<UpstreamProxyRelay> {
+): Promise<EgressGatewayRelay> {
   nodeWSCtor = (await import('ws')).default
   const states = new WeakMap<NodeSocket, ConnState>()
 
@@ -267,7 +271,7 @@ export async function startNodeRelay(
     )
     sock.on('close', () => cleanupConn(states.get(sock)))
     sock.on('error', err => {
-      logForDebugging(`[upstreamproxy] client socket error: ${err.message}`)
+      logForDebugging(`[egress-gateway] client socket error: ${err.message}`)
       cleanupConn(states.get(sock))
     })
   })
@@ -277,7 +281,7 @@ export async function startNodeRelay(
     server.listen(0, '127.0.0.1', () => {
       const addr = server.address()
       if (addr === null || typeof addr === 'string') {
-        reject(new Error('upstreamproxy: server has no TCP address'))
+        reject(new Error('egress gateway relay: server has no TCP address'))
         return
       }
       resolve({
@@ -409,7 +413,7 @@ function openTunnel(
 
   ws.onerror = ev => {
     const msg = 'message' in ev ? String(ev.message) : 'websocket error'
-    logForDebugging(`[upstreamproxy] ws error: ${msg}`)
+    logForDebugging(`[egress-gateway] ws error: ${msg}`)
     if (st.closed) return
     st.closed = true
     if (!st.established) {

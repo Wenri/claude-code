@@ -1,4 +1,5 @@
 import {
+  access,
   lstat,
   mkdir,
   readFile,
@@ -950,8 +951,9 @@ export class BackgroundHandle {
       env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN = '1'
     }
     if (reattachEnv) Object.assign(env, reattachEnv)
+    let pty: PtyClient
     try {
-      const pty = this.spawnPty(
+      pty = this.spawnPty(
         launcher.cmd,
         [...launcher.prefixArgs, ...args],
         {
@@ -962,41 +964,59 @@ export class BackgroundHandle {
           ptySock: this.ptySocket,
         },
       )
-      if (process.platform === 'win32') {
-        void mkdir(getPtyPidDir(), { recursive: true })
-          .then(() => writeFile(getPtyPidPath(dispatch.short), String(pty.pid)))
-          .catch(() => {})
-      }
-      this.wirePty(pty)
-      this.rendezvous?.close()
-      this.rendezvous = undefined
-      this.connectRendezvous()
-      this.patch({
-        pid: pty.pid,
-        attempt: this.attempt,
-        state: this.attempt > 1 ? 'resuming' : 'running',
-        detail: '',
-        cliVersion: MACRO.VERSION,
-      })
-      logEvent('tengu_bg_worker_spawn', {
-        attempt: this.attempt,
-        source: this.dispatch.source,
-      })
-      void getProcessStartTokenAsync(pty.pid).then((token) => {
-        if (
-          !token ||
-          this.record.pid !== pty.pid ||
-          this.isDetached ||
-          this.record.outcome
-        ) {
+    } catch (error) {
+      if (isENOENT(error)) {
+        const cwdExists = await access(dispatch.cwd).then(
+          () => true,
+          () => false,
+        )
+        if (this.record.outcome) return
+        if (!cwdExists) {
+          const detail = `working directory no longer exists: ${dispatch.cwd}`
+          logEvent('tengu_bg_spawn_cwd_gone', { attempt: this.attempt })
+          this.patch({ state: 'crashed', detail })
+          const output = `\r\n\x1b[2m[${detail} — this job cannot be respawned]\x1b[0m\r\n`
+          this.pushRing(output)
+          this.onStream.emit(output)
+          this.finish('crashed')
           return
         }
-        this.procStart = token
-        this.patch({ pid: pty.pid })
-      })
-    } catch (error) {
+      }
       this.scheduleRespawn(String(error))
+      return
     }
+    if (process.platform === 'win32') {
+      void mkdir(getPtyPidDir(), { recursive: true })
+        .then(() => writeFile(getPtyPidPath(dispatch.short), String(pty.pid)))
+        .catch(() => {})
+    }
+    this.wirePty(pty)
+    this.rendezvous?.close()
+    this.rendezvous = undefined
+    this.connectRendezvous()
+    this.patch({
+      pid: pty.pid,
+      attempt: this.attempt,
+      state: this.attempt > 1 ? 'resuming' : 'running',
+      detail: '',
+      cliVersion: MACRO.VERSION,
+    })
+    logEvent('tengu_bg_worker_spawn', {
+      attempt: this.attempt,
+      source: this.dispatch.source,
+    })
+    void getProcessStartTokenAsync(pty.pid).then(token => {
+      if (
+        !token ||
+        this.record.pid !== pty.pid ||
+        this.isDetached ||
+        this.record.outcome
+      ) {
+        return
+      }
+      this.procStart = token
+      this.patch({ pid: pty.pid })
+    })
   }
 
   private wirePty(pty: PtyClient): void {

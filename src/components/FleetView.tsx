@@ -155,6 +155,7 @@ import { formatDuration, formatRelativeTime } from '../utils/format.js'
 import {
   fetchPrStatus,
   fetchPrStatuses,
+  persistPrStatusCache,
   prStatusColor,
   readPrStatusCache,
   type PrStatus,
@@ -165,6 +166,19 @@ const CONTROL_RE = /[\x00-\x08\x0E-\x1F\x7F-\x9F]/g
 export const AUTO_RELAUNCH_UNFOCUSED_MS = 3_600_000
 export const AUTO_RELAUNCH_MIN_INTERVAL_MS = 21_600_000
 export const AUTO_RELAUNCH_ENV_KEY = 'CLAUDE_AGENTS_AUTO_RELAUNCHED_AT'
+
+function getPrPollInterval(focused: boolean, idleMs: number): number {
+  if (focused) {
+    if (idleMs < 30_000) return 15_000
+    if (idleMs < 5 * 60_000) return 60_000
+    return 180_000
+  }
+  if (idleMs < 30_000) return 60_000
+  if (idleMs < 10 * 60_000) return 300_000
+  if (idleMs < 60 * 60_000) return 900_000
+  return 1_800_000
+}
+
 function shouldUseFleetAlternateScreen(): boolean {
   if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_NO_FLICKER)) return false
   if (isEnvTruthy(process.env.CLAUDE_CODE_NO_FLICKER)) return true
@@ -291,6 +305,7 @@ export type FleetAction =
       loopKicks: Map<string, { mtimeMs: number; count: number; nextAt: number | null }>
       statuses: Map<string, SessionStatus>
       statusesTs: number
+      prStatuses: Map<string, PrStatus | null>
       freshDispatch?: boolean
       respawnResult?: Awaited<ReturnType<typeof respawnTemplateJob>>
     }
@@ -1901,6 +1916,22 @@ export function FleetView({
   const [pendingJobs, setPendingJobs] = useState<FleetJob[]>([])
   const [logTails, setLogTails] = useState<Record<string, string>>({})
   const [statuses, setStatuses] = useState(lastPrStatuses)
+  const statusesRef = useRef(statuses)
+  statusesRef.current = statuses
+  const lastPrFetchAt = useRef(0)
+  useEffect(() => {
+    if (lastPrStatuses.size) return
+    void readPrStatusCache().then(cached => {
+      if (!cached.size) return
+      statusesRef.current = cached
+      setStatuses(current =>
+        current.size ? new Map([...cached, ...current]) : cached,
+      )
+    })
+  }, [])
+  useEffect(() => {
+    void persistPrStatusCache(statuses)
+  }, [statuses])
   const [sessionStatuses, setSessionStatuses] = useState(lastSessionStatuses)
   const sessionStatusesRef = useRef(sessionStatuses)
   sessionStatusesRef.current = sessionStatuses
@@ -2121,10 +2152,18 @@ export function FleetView({
       ),
     ]
     const activeUrls = urls.filter((url) => {
-      const state = lastPrStatuses.get(url)?.state
+      const state = statusesRef.current.get(url)?.state
       return state !== 'MERGED' && state !== 'CLOSED'
     })
-    if (activeUrls.length) void (async () => {
+    const now = Date.now()
+    const shouldFetchPrs =
+      now - lastPrFetchAt.current >=
+      getPrPollInterval(
+        isTerminalFocused,
+        now - getLastInteractionTime(),
+      )
+    if (activeUrls.length && shouldFetchPrs) void (async () => {
+      lastPrFetchAt.current = now
       let fetched: Map<string, PrStatus | null>
       if (
         getFeatureValue_CACHED_MAY_BE_STALE(
@@ -2134,9 +2173,11 @@ export function FleetView({
       ) {
         const batch = await fetchPrStatuses(activeUrls)
         fetched = batch.statuses
-        for (const url of batch.unbatched) {
-          fetched.set(url, await fetchPrStatus(url))
-        }
+        await Promise.all(
+          batch.unbatched.map(async url =>
+            fetched.set(url, await fetchPrStatus(url)),
+          ),
+        )
       } else {
         fetched = new Map(
           await Promise.all(
@@ -2144,33 +2185,46 @@ export function FleetView({
           ),
         )
       }
-      const next = new Map(lastPrStatuses)
-      let changed = false
-      for (const [url, status] of fetched) {
-        const previous = next.get(url)
-        if (
-          previous?.state !== status?.state ||
-          previous?.title !== status?.title ||
-          previous?.review !== status?.review ||
-          previous?.mergeable !== status?.mergeable ||
-          previous?.mergeStateStatus !== status?.mergeStateStatus ||
-          previous?.checks.passed !== status?.checks.passed ||
-          previous?.checks.failed !== status?.checks.failed ||
-          previous?.checks.pending !== status?.checks.pending ||
-          previous?.additions !== status?.additions ||
-          previous?.deletions !== status?.deletions
-        ) {
-          next.set(url, status)
-          changed = true
+      setStatuses(previousStatuses => {
+        let changed = false
+        for (const [url, status] of fetched) {
+          const previous = previousStatuses.get(url)
+          if (
+            previous?.state !== status?.state ||
+            previous?.title !== status?.title ||
+            previous?.review !== status?.review ||
+            previous?.mergeable !== status?.mergeable ||
+            previous?.mergeStateStatus !== status?.mergeStateStatus ||
+            previous?.checks.passed !== status?.checks.passed ||
+            previous?.checks.failed !== status?.checks.failed ||
+            previous?.checks.pending !== status?.checks.pending ||
+            previous?.additions !== status?.additions ||
+            previous?.deletions !== status?.deletions
+          ) {
+            changed = true
+            break
+          }
         }
-      }
-      lastPrStatuses = pruneMap(next, new Set(urls))
-      if (changed) setStatuses(lastPrStatuses)
+        if (!changed) return previousStatuses
+        const next = new Map(previousStatuses)
+        for (const [url, status] of fetched) {
+          if (status !== null || !previousStatuses.has(url)) {
+            next.set(url, status)
+          }
+        }
+        lastPrStatuses = next
+        return next
+      })
     })()
+    setStatuses(previousStatuses => {
+      const next = pruneMap(previousStatuses, new Set(urls))
+      if (next !== previousStatuses) lastPrStatuses = next
+      return next
+    })
     const nextJobs = sortJobs(
       records.map((job) => ({
         ...job,
-        activity: deriveActivity(job.state, lastPrStatuses),
+        activity: deriveActivity(job.state, statusesRef.current),
       })),
     )
     lastJobs = nextJobs
@@ -2223,12 +2277,6 @@ export function FleetView({
   }, [])
 
   useEffect(() => {
-    void readPrStatusCache().then((cached) => {
-      if (!lastPrStatuses.size) {
-        lastPrStatuses = new Map(cached)
-        setStatuses(lastPrStatuses)
-      }
-    })
     void poll()
     const timer = setInterval(() => void poll(), 2_000)
     return () => clearInterval(timer)
@@ -2613,6 +2661,7 @@ export function FleetView({
           loopKicks: lastLoopTimelines,
           statuses: sessionStatusesRef.current,
           statusesTs: lastSessionStatusesTs,
+          prStatuses: statusesRef.current,
           respawnResult,
         })
       } else {
@@ -3277,6 +3326,7 @@ export function FleetView({
               loopKicks: lastLoopTimelines,
               statuses: sessionStatusesRef.current,
               statusesTs: lastSessionStatusesTs,
+              prStatuses: statusesRef.current,
               freshDispatch: true,
             })
           }
@@ -3767,6 +3817,7 @@ export async function mountFleetView(root: Root): Promise<void> {
       lastLoopTimelines = action.loopKicks
       lastSessionStatuses = action.statuses
       lastSessionStatusesTs = action.statusesTs
+      lastPrStatuses = action.prStatuses
 
       const openingAt = Date.now()
       const respawn =

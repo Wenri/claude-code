@@ -46,7 +46,7 @@ import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
 import type { MCPServerConnection } from '../../services/mcp/types.js';
 import { abortPromptSuggestion, logSuggestionSuppressed } from '../../services/PromptSuggestion/promptSuggestion.js';
-import { type ActiveSpeculationState, abortSpeculation } from '../../services/PromptSuggestion/speculation.js';
+import { type ActiveSpeculationState, abortSpeculation, SPECULATION_STALE_TIMEOUT_MS } from '../../services/PromptSuggestion/speculation.js';
 import { getActiveAgentForInput, getViewedTeammateTask } from '../../state/selectors.js';
 import { enterTeammateView, exitTeammateView, stopOrDismissAgent } from '../../state/teammateViewHelpers.js';
 import type { ToolPermissionContext } from '../../Tool.js';
@@ -1058,21 +1058,25 @@ function PromptInput({
     if (inputMatchesSuggestion && suggestionText && !hasImages && !state.viewingAgentTaskId) {
       // If speculation is active, inject messages immediately as they stream
       if (speculation.status === 'active') {
-        markAccepted();
-        // skipReset: resetSuggestion would abort the speculation before we accept it
-        logOutcomeAtSubmission(suggestionText, {
-          skipReset: true
-        });
-        void onSubmitProp(suggestionText, {
-          setCursorOffset,
-          clearBuffer,
-          resetHistory
-        }, {
-          state: speculation,
-          speculationSessionTimeSavedMs: speculationSessionTimeSavedMs,
-          setAppState
-        });
-        return; // Skip normal query - speculation handled it
+        if (Date.now() - speculation.startTime > SPECULATION_STALE_TIMEOUT_MS) {
+          abortSpeculation(setAppState, 'stale');
+        } else {
+          markAccepted();
+          // skipReset: resetSuggestion would abort the speculation before we accept it
+          logOutcomeAtSubmission(suggestionText, {
+            skipReset: true
+          });
+          void onSubmitProp(suggestionText, {
+            setCursorOffset,
+            clearBuffer,
+            resetHistory
+          }, {
+            state: speculation,
+            speculationSessionTimeSavedMs: speculationSessionTimeSavedMs,
+            setAppState
+          });
+          return; // Skip normal query - speculation handled it
+        }
       }
 
       // Regular suggestion acceptance (requires shownAt > 0)

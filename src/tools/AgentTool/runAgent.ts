@@ -54,7 +54,10 @@ import type {
   ToolUseSummaryMessage,
   UserMessage,
 } from '../../types/message.js'
-import { createAttachmentMessage } from '../../utils/attachments.js'
+import {
+  createAttachmentMessage,
+  getDeferredToolsDeltaAttachment,
+} from '../../utils/attachments.js'
 import { AbortError } from '../../utils/errors.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { getDisplayPath } from '../../utils/file.js'
@@ -740,6 +743,17 @@ export async function* runAgent({
     agentMcpTools.length > 0
       ? uniqBy([...resolvedTools, ...agentMcpTools], 'name')
       : resolvedTools
+
+  if (!useExactTools) {
+    for (const attachment of getDeferredToolsDeltaAttachment(
+      allTools,
+      resolvedAgentModel,
+      initialMessages,
+      { callSite: 'attachments_subagent', querySource },
+    )) {
+      initialMessages.push(createAttachmentMessage(attachment))
+    }
+  }
 
   // Build agent-specific options
   const agentOptions: ToolUseContext['options'] = {

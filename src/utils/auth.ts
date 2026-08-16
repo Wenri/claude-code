@@ -1697,6 +1697,7 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
     })
     return false
   }
+  let refreshTokenUsed: string | null = null
   try {
     // Check one more time after acquiring lock
     getClaudeAIOAuthTokens.cache?.clear?.()
@@ -1705,6 +1706,7 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
     if (!lockedTokens?.refreshToken) {
       return false
     }
+    refreshTokenUsed = lockedTokens.refreshToken
     if (lockedTokens.accessToken !== accessTokenBeforeRefresh) {
       logEvent('tengu_oauth_token_refresh_race_resolved', {})
       return true
@@ -1742,8 +1744,8 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
       return true
     }
 
-    if (isInvalidGrantError(error) && currentTokens?.refreshToken) {
-      clearRejectedOAuthRefreshToken(currentTokens.refreshToken)
+    if (isInvalidGrantError(error) && refreshTokenUsed) {
+      clearRejectedOAuthRefreshToken(refreshTokenUsed)
     }
 
     return false
@@ -1932,12 +1934,21 @@ export function getSubscriptionName(): string {
 }
 
 /** Check if using third-party services (Bedrock or Vertex or Foundry) */
-export function isUsing3PServices(): boolean {
+function isUsingExplicit3PProvider(): boolean {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST)) {
+    return false
+  }
   return !!(
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
+  )
+}
+
+export function isUsing3PServices(): boolean {
+  return (
+    isUsingExplicit3PProvider() ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
   )
 }
 

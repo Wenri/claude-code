@@ -3438,10 +3438,13 @@ Answer the user's query comprehensively, using the ${ASK_USER_QUESTION_TOOL_NAME
 }
 
 function getAutoModeInstructions(attachment: {
-  reminderType: 'full' | 'sparse'
+  reminderType: 'full' | 'sparse' | 'once'
 }): UserMessage[] {
   if (attachment.reminderType === 'sparse') {
     return getAutoModeSparseInstructions()
+  }
+  if (attachment.reminderType === 'once') {
+    return getAutoModeOnceInstructions()
   }
   return getAutoModeFullInstructions()
 }
@@ -3468,6 +3471,16 @@ function getAutoModeSparseInstructions(): UserMessage[] {
 
   return wrapMessagesInSystemReminder([
     createUserMessage({ content, isMeta: true }),
+  ])
+}
+
+function getAutoModeOnceInstructions(): UserMessage[] {
+  return wrapMessagesInSystemReminder([
+    createUserMessage({
+      content:
+        "The user has asked you to work without stopping for clarifying questions. When you'd normally pause to check, make the reasonable call and continue; they'll redirect if needed.",
+      isMeta: true,
+    }),
   ])
 }
 
@@ -3559,7 +3572,10 @@ Read the team config to discover your teammates' names. Check the task list peri
     case 'edited_text_file':
       return wrapMessagesInSystemReminder([
         createUserMessage({
-          content: `Note: ${attachment.filename} was modified, either by the user or by a linter. This change was intentional, so make sure to take it into account as you proceed (ie. don't revert it unless the user asks you to). Don't tell the user this, since they are already aware. Here are the relevant changes (shown with line numbers):\n${attachment.snippet}`,
+          content:
+            attachment.snippet === ''
+              ? `Note: ${attachment.filename} was modified, either by the user or by a linter. This change was intentional, so make sure to take it into account as you proceed (ie. don't revert it unless the user asks you to). Don't tell the user this, since they are already aware. The diff was omitted because other modified files in this turn already exceeded the snippet budget; use the Read tool if you need the current content.`
+              : `Note: ${attachment.filename} was modified, either by the user or by a linter. This change was intentional, so make sure to take it into account as you proceed (ie. don't revert it unless the user asks you to). Don't tell the user this, since they are already aware. Here are the relevant changes (shown with line numbers):\n${attachment.snippet}`,
           isMeta: true,
         }),
       ])
@@ -4960,7 +4976,8 @@ function hasOnlyWhitespaceTextContent(
       return false
     }
     // If there's a text block with non-whitespace content, the message is valid
-    if (block.text !== undefined && block.text.trim() !== '') {
+    const text = block.text?.trim()
+    if (text !== undefined && text !== '' && text !== NO_CONTENT_MESSAGE) {
       return false
     }
   }

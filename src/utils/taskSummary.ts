@@ -34,6 +34,12 @@ const sinksBySurface: Record<ClassifierSurface, ClassifierSink[]> = {
   cli: ['summary'],
 }
 
+const REMOTE_CCR_ENTRYPOINTS = new Set([
+  'remote',
+  'remote_desktop',
+  'remote_mobile',
+])
+
 function envBoolean(value: string | undefined): boolean {
   if (value === undefined) return false
   return ['1', 'true', 'yes', 'on'].includes(value.toLowerCase())
@@ -57,11 +63,20 @@ export function detectSurfaces(options?: {
   }
   const surfaces = new Set<ClassifierSurface>()
   if (options?.isWatched ?? isFleetViewWatching()) surfaces.add('watched')
-  if (
-    options?.isCcr ??
-    (envBoolean(process.env.CLAUDE_CODE_REMOTE) ||
-      getRuntimeCapabilities().workspace === 'remote')
-  ) {
+  let isCcr = options?.isCcr
+  if (isCcr === undefined) {
+    if (getRuntimeCapabilities().workspace === 'remote') {
+      isCcr = true
+    } else if (
+      envBoolean(process.env.CLAUDE_CODE_REMOTE) &&
+      !process.env.BUGHUNTER_FLEET_SIZE
+    ) {
+      isCcr = REMOTE_CCR_ENTRYPOINTS.has(
+        process.env.CLAUDE_CODE_ENTRYPOINT ?? 'remote',
+      )
+    }
+  }
+  if (isCcr) {
     surfaces.add('ccr')
   }
   if (

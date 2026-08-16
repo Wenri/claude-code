@@ -1966,7 +1966,12 @@ export const fetchToolsForClient = memoizeWithLRU(
             // In skip-prefix mode, use the original name for model invocation so MCP tools
             // can override builtins by name. mcpInfo is used for permission checking.
             name: skipPrefix ? tool.name : fullyQualifiedName,
-            mcpInfo: { serverName: client.name, toolName: tool.name },
+            mcpInfo: {
+              serverName: client.name,
+              toolName: tool.name,
+              serverInfoName: client.serverInfo?.name,
+              execution: tool.execution,
+            },
             isMcp: true,
             // Collapse whitespace: _meta is open to external MCP servers, and
             // a newline here would inject orphan lines into the deferred-tool

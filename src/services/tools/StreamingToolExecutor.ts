@@ -264,9 +264,6 @@ export class StreamingToolExecutor {
    */
   private async executeTool(tool: TrackedTool): Promise<void> {
     tool.status = 'executing'
-    this.toolUseContext.setInProgressToolUseIDs(prev =>
-      new Set(prev).add(tool.id),
-    )
     this.updateInterruptibleState()
 
     const messages: Message[] = []
@@ -458,7 +455,9 @@ export class StreamingToolExecutor {
     while (this.hasUnfinishedTools()) {
       await this.processQueue()
 
+      let hasCompletedResults = false
       for (const result of this.getCompletedResults()) {
+        hasCompletedResults = true
         yield result
       }
 
@@ -466,7 +465,7 @@ export class StreamingToolExecutor {
       // OR for progress to become available
       if (
         this.hasExecutingTools() &&
-        !this.hasCompletedResults() &&
+        !hasCompletedResults &&
         !this.hasPendingProgress()
       ) {
         const executingPromises = this.tools
@@ -487,13 +486,6 @@ export class StreamingToolExecutor {
     for (const result of this.getCompletedResults()) {
       yield result
     }
-  }
-
-  /**
-   * Check if there are any completed results ready to yield
-   */
-  private hasCompletedResults(): boolean {
-    return this.tools.some(t => t.status === 'completed')
   }
 
   /**

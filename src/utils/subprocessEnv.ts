@@ -71,7 +71,7 @@ const GHA_SUBPROCESS_SCRUB = [
 // Registered by init.ts after the upstreamproxy module is dynamically imported
 // in CCR sessions. Stays undefined in non-CCR startups so we never pull in the
 // upstreamproxy module graph (upstreamproxy.ts + relay.ts) via a static import.
-let _getUpstreamProxyEnv: (() => Record<string, string>) | undefined
+let _getEgressGatewayEnv: (() => Record<string, string>) | undefined
 let scrubEnabled: boolean | undefined
 let scrubSandboxAvailable: boolean | undefined
 let scriptCaps: Record<string, number> | null | undefined
@@ -134,14 +134,14 @@ const JAVA_OPTION_UNSAFE_CHARS = /[ \t\n\v\f\r'"]/u
  * Called from init.ts to wire up the proxy env function after the upstreamproxy
  * module has been lazily loaded. Must be called before any subprocess is spawned.
  */
-export function registerUpstreamProxyEnvFn(
+export function registerEgressGatewayEnvFn(
   fn: () => Record<string, string>,
 ): void {
-  _getUpstreamProxyEnv = fn
+  _getEgressGatewayEnv = fn
 }
 
-export function upstreamProxyEnv(): Record<string, string> {
-  return _getUpstreamProxyEnv?.() ?? {}
+export function egressGatewayEnv(): Record<string, string> {
+  return _getEgressGatewayEnv?.() ?? {}
 }
 
 type ParsedProxy = {
@@ -291,7 +291,7 @@ function getMcpAllowedProcessEnv(): NodeJS.ProcessEnv {
 
 export function mcpSubprocessEnv(): NodeJS.ProcessEnv {
   if (!shouldUseMcpAllowlistEnv()) return subprocessEnv()
-  return { ...getMcpAllowedProcessEnv(), ...upstreamProxyEnv() }
+  return { ...getMcpAllowedProcessEnv(), ...egressGatewayEnv() }
 }
 
 function getScriptCaps(): Record<string, number> | null {
@@ -625,7 +625,7 @@ export function subprocessEnv(): NodeJS.ProcessEnv {
   // in agent subprocesses route through the local relay. Returns {} when the
   // proxy is disabled or not registered (non-CCR), so this is a no-op outside
   // CCR containers.
-  const proxyEnv = upstreamProxyEnv()
+  const proxyEnv = egressGatewayEnv()
   const hasProxyEnv = Object.keys(proxyEnv).length > 0
   const remoteProxyEnv = isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)
     ? getRemoteProxyEnv(

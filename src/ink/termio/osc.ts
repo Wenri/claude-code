@@ -162,6 +162,9 @@ export async function setClipboard(text: string): Promise<string> {
 // Cached after first attempt so repeated mouse-ups skip the probe chain.
 let linuxCopy: 'wl-copy' | 'xclip' | 'xsel' | null | undefined
 
+const POWERSHELL_CLIPBOARD_COMMAND =
+  '[Console]::InputEncoding = [Text.Encoding]::UTF8; Set-Clipboard -Value ([Console]::In.ReadToEnd())'
+
 /**
  * Shell out to a native clipboard utility as a safety net for OSC 52.
  * Only called when not in an SSH session (over SSH, these would write to
@@ -211,9 +214,11 @@ function copyNative(text: string): void {
       return
     }
     case 'win32':
-      // clip.exe is always available on Windows. Unicode handling is
-      // imperfect (system locale encoding) but good enough for a fallback.
-      void execFileNoThrow('clip', [], opts)
+      void execFileNoThrow(
+        'powershell',
+        ['-NoProfile', '-NonInteractive', '-Command', POWERSHELL_CLIPBOARD_COMMAND],
+        opts,
+      )
       return
   }
 }

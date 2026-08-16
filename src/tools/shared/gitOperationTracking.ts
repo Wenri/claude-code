@@ -8,7 +8,11 @@
  * external binaries with the same argv syntax).
  */
 
-import { getCommitCounter, getPrCounter } from '../../bootstrap/state.js'
+import {
+  getCommitCounter,
+  getPrCounter,
+  setSessionPrResolved,
+} from '../../bootstrap/state.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -262,6 +266,12 @@ export function trackGitOperations(
       operation:
         prHit.op as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
+    if (
+      (prHit.action === 'merged' && !/--auto\b/.test(command)) ||
+      prHit.action === 'closed'
+    ) {
+      setSessionPrResolved(true)
+    }
   }
   if (prHit?.action === 'created') {
     getPrCounter()?.add(1)

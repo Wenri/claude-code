@@ -333,10 +333,7 @@ export async function* handleStopHooks(
         )
       if (!calledBrief && !alreadyEnforced) {
         briefEnforcementError = createUserMessage({
-          content: getStopHookMessage({
-            blockingError: `You ended the turn without calling ${briefPromptModule.BRIEF_TOOL_NAME}. ${briefPromptModule.BRIEF_ENFORCE_SENTINEL}`,
-            command: 'brief-mode-enforce',
-          }),
+          content: `${briefPromptModule.BRIEF_ENFORCE_SENTINEL} ${briefToolModule.getBriefEnforceText()}`,
           isMeta: true,
         })
         yield briefEnforcementError

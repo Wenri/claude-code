@@ -581,7 +581,12 @@ export type Tool<
    * Present on all MCP tools regardless of whether `name` is prefixed (mcp__server__tool)
    * or unprefixed (CLAUDE_AGENT_SDK_MCP_NO_PREFIX mode).
    */
-  mcpInfo?: { serverName: string; toolName: string }
+  mcpInfo?: {
+    serverName: string
+    toolName: string
+    serverInfoName?: string
+    execution?: unknown
+  }
   readonly name: string
   /**
    * Maximum size in characters for tool result before it gets persisted to disk.

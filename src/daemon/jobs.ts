@@ -318,35 +318,28 @@ export async function renameJob(
   sessionId: string,
   name: string,
   source: 'user' | 'auto' = 'user',
-): Promise<void> {
+): Promise<boolean> {
   const isCurrentSession = sessionId === getSessionId()
   const jobDir = getJobDir(
     isCurrentSession ? getCurrentJobShort() : sessionId.slice(0, 8),
   )
   const first = await readJobState(jobDir)
-  if (
-    !first ||
-    (!isCurrentSession && first.sessionId !== sessionId) ||
-    first.name === name
-  ) {
-    return
+  if (!first || (!isCurrentSession && first.sessionId !== sessionId)) {
+    return false
   }
+  if (first.name === name) return true
   invalidateJobState(jobDir)
   const latest = (await readJobState(jobDir)) ?? first
-  if (
-    (!isCurrentSession && latest.sessionId !== sessionId) ||
-    latest.name === name
-  ) {
-    return
-  }
-  if (source === 'auto' && latest.name) return
-  await writeJobState(jobDir, {
+  if (!isCurrentSession && latest.sessionId !== sessionId) return false
+  if (latest.name === name || (source === 'auto' && latest.name)) return true
+  return writeJobState(jobDir, {
     ...latest,
     name,
     nameSource: source,
     updatedAt: new Date().toISOString(),
-  }).catch(error => {
+  }).then(() => true, error => {
     if (!isENOENT(error)) logError(error)
+    return false
   })
 }
 

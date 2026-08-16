@@ -1070,6 +1070,12 @@ export const SettingsSchema = lazySchema(() =>
         .describe(
           'Reduce or disable animations for accessibility (spinner shimmer, flash effects, etc.)',
         ),
+      doneMeansMerged: z
+        .boolean()
+        .optional()
+        .describe(
+          '@internal When true, Claude keeps working until the PR is ready for you to merge, a cron/Monitor is armed to resume later, or it hands you a self-contained next step.',
+        ),
       autoMemoryEnabled: z
         .boolean()
         .optional()
@@ -1270,6 +1276,12 @@ export const SettingsSchema = lazySchema(() =>
         .boolean()
         .optional()
         .describe('Start Remote Control bridge automatically each session'),
+      isolatePeerMachines: z
+        .boolean()
+        .optional()
+        .describe(
+          'Require explicit approval before SendMessage can reach a peer session on another machine via Remote Control',
+        ),
       daemonColdStart: z
         .enum(['transient', 'ask'])
         .optional()

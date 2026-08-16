@@ -141,6 +141,30 @@ export function isMediaSizeError(raw: string): boolean {
   )
 }
 
+export type OversizedImageLocation = {
+  messageIdx: number
+  contentIdx: number
+}
+
+export function parseImageDimensionApiError(
+  error: unknown,
+): OversizedImageLocation | undefined {
+  if (!(error instanceof APIError) || error.status !== 400) return undefined
+  if (!/dimensions exceed max allowed size.*\d+ pixels/.test(error.message)) {
+    return undefined
+  }
+  const match = error.message.match(
+    /messages\.(\d+)\.content\.(\d+)\.image/,
+  )
+  if (!match) return undefined
+  return {
+    messageIdx: Number(match[1]),
+    contentIdx: Number(match[2]),
+  }
+}
+
+export const parseOversizedImageDimensionError = parseImageDimensionApiError
+
 /**
  * Message-level predicate: is this assistant message a media-size rejection?
  * Parallel to isPromptTooLongMessage. Checks errorDetails (the raw API error
@@ -199,7 +223,7 @@ export function getRequestTooLargeErrorMessage(): string {
     : `Request too large (${limits}). Double press esc to go back and try with a smaller file.`
 }
 export const OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE =
-  'Your account does not have access to Claude Code. Please run /login.'
+  'Your organization has disabled Claude subscription access for Claude Code · Use an Anthropic API key instead, or ask your admin to enable access'
 
 export function getTokenRevokedErrorMessage(): string {
   return getIsNonInteractiveSession()
@@ -208,9 +232,7 @@ export function getTokenRevokedErrorMessage(): string {
 }
 
 export function getOauthOrgNotAllowedErrorMessage(): string {
-  return getIsNonInteractiveSession()
-    ? 'Your organization does not have access to Claude. Please login again or contact your administrator.'
-    : OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE
+  return OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE
 }
 
 /**
@@ -905,7 +927,7 @@ function getAssistantMessageFromErrorInternal(
     )
   ) {
     return createAssistantAPIErrorMessage({
-      error: 'authentication_failed',
+      error: 'oauth_org_not_allowed',
       content: getOauthOrgNotAllowedErrorMessage(),
     })
   }

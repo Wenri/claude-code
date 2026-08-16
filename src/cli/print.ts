@@ -261,6 +261,8 @@ import {
   restoreSessionMetadata,
   addSessionMirror,
   flushSessionStorage,
+  getCurrentSessionIsolationLatch,
+  saveIsolationLatch,
 } from 'src/utils/sessionStorage.js'
 import { incrementPromptCount } from 'src/utils/commitAttribution.js'
 import {
@@ -1494,7 +1496,9 @@ function runHeadlessStreaming(
   // TODO: Clean up this code to avoid passing around a mutable array.
   const mutableMessages: Message[] = initialMessages
   const isolationLatch = createToolIsolationLatch(
-    getIsolationClassFromMessages(initialMessages, tools),
+    getCurrentSessionIsolationLatch() ??
+      getIsolationClassFromMessages(initialMessages, tools),
+    saveIsolationLatch,
   )
   const sessionEnvVars = getSessionEnvVars()
   const tmuxSocket = DEFAULT_TMUX_SOCKET

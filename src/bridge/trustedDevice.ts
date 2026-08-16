@@ -70,6 +70,11 @@ export function getTrustedDeviceToken(): string | undefined {
   return readStoredTrustedDeviceToken()
 }
 
+export function getTrustedDeviceUnenrolledReason(): string | null {
+  if (!isTrustedDeviceGateEnabled() || getTrustedDeviceToken()) return null
+  return 'Your organization requires Trusted Devices for Remote Control, but this device is not enrolled. Please run `/login` in Claude Code to enroll this device.'
+}
+
 export function clearTrustedDeviceTokenCache(): void {
   readStoredToken.cache?.clear?.()
 }
