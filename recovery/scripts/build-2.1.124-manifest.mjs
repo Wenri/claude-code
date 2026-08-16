@@ -66,6 +66,11 @@ const expectedKnownDeltaClosure = {
   unmatchedBaselineUnits: 0,
   unresolvedTargetUnits: 0,
 }
+const expectedAccountingClusterIds = [
+  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
+  158, 159, 165, 176, 190, 202,
+]
+const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -242,6 +247,12 @@ const semanticClusterIds = [
   ...semanticClusterInventory.direct.flatMap(entry => entry.clusterIds),
   ...semanticClusterInventory.accountingOnly.flatMap(entry => entry.clusterIds),
 ].sort((left, right) => left - right)
+const semanticDirectClusterIds = semanticClusterInventory.direct.flatMap(
+  entry => entry.clusterIds,
+)
+const semanticAccountingClusterIds = semanticClusterInventory.accountingOnly.flatMap(
+  entry => entry.clusterIds,
+)
 assert(
   new Set(semanticClusterIds).size === 205 &&
     JSON.stringify(semanticClusterIds) === JSON.stringify(
@@ -254,6 +265,18 @@ assert(
   'complete known-delta semantic cluster partition',
 )
 assert(
+  requiredDirectClusterIds.every(clusterId =>
+    semanticDirectClusterIds.includes(clusterId) &&
+      !semanticAccountingClusterIds.includes(clusterId)),
+  'reviewed mixed-active clusters must be direct',
+)
+assert(
+  JSON.stringify(
+    [...semanticAccountingClusterIds].sort((left, right) => left - right),
+  ) === JSON.stringify(expectedAccountingClusterIds),
+  'accounting-only clusters differ from the conservative reviewed set',
+)
+assert(
   JSON.stringify(
     semanticClusterInventory.direct
       .map(entry => [entry.rowId, entry.clusterIds])
@@ -264,6 +287,33 @@ assert(
       .sort((left, right) => left[0].localeCompare(right[0])),
   ),
   'semantic cluster direct rows differ from the catalog',
+)
+const directRowById = new Map(
+  directEvidence.rows.map(row => [row.id, row]),
+)
+assert(
+  semanticClusterInventory.direct.every(entry => {
+    const row = directRowById.get(entry.rowId)
+    return row !== undefined &&
+      entry.clusterBindings.length === entry.clusterIds.length &&
+      JSON.stringify(entry.clusterBindings.map(binding => binding.clusterId)) ===
+        JSON.stringify(entry.clusterIds) &&
+      JSON.stringify(row.semanticClusterBindings) ===
+        JSON.stringify(entry.clusterBindings)
+  }),
+  'catalog must preserve one exact witness binding per direct cluster',
+)
+const obligationByRawId = new Map(
+  obligations.obligations.map(obligation => [
+    obligation.catalogBinding?.rawId,
+    obligation,
+  ]),
+)
+assert(
+  directEvidence.rows.every(row =>
+    JSON.stringify(obligationByRawId.get(row.id)?.semanticClusterBindings) ===
+      JSON.stringify(row.semanticClusterBindings)),
+  'semantic obligations must preserve every direct cluster binding',
 )
 assert(
   JSON.stringify(obligations.semanticClusterInventory) === JSON.stringify({

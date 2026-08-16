@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { gunzipSync } from 'node:zlib'
 
 const BASELINE_BYTES = 13_949_576
 const BASELINE_SHA256 =
@@ -30,6 +31,10 @@ const ACCOUNTING_REASONS = new Set([
   'initializer-linkage',
   'metadata',
 ])
+const EXPECTED_ACCOUNTING_CLUSTER_IDS = [
+  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
+  158, 159, 165, 176, 190, 202,
+]
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 
 function sha256(value) {
@@ -135,6 +140,42 @@ function readPinnedClusterInventory(catalog) {
     allClusters,
     Array.from({ length: EXPECTED_CLUSTER_COUNT }, (_, index) => index + 1),
   )
+  for (const clusterId of [12, 69, 115, 186, 188, 189]) {
+    assert.equal(directClusters.includes(clusterId), true)
+    assert.equal(accountingOnlyClusters.includes(clusterId), false)
+  }
+  assert.deepEqual(
+    [...accountingOnlyClusters].sort((left, right) => left - right),
+    EXPECTED_ACCOUNTING_CLUSTER_IDS,
+  )
+  const clusterLedgerRecord = proof.artifacts?.clusterLedger
+  assert.deepEqual(
+    clusterLedgerRecord?.path,
+    'structural/semantic-cluster-ledger.json.gz',
+  )
+  const clusterLedgerCatalogPath =
+    'recovery/cases/2.1.123-to-2.1.124/' + clusterLedgerRecord.path
+  assert.deepEqual(
+    catalog.inputs.find(entry => entry.path === clusterLedgerCatalogPath),
+    {
+      path: clusterLedgerCatalogPath,
+      bytes: clusterLedgerRecord.bytes,
+      sha256: clusterLedgerRecord.sha256,
+    },
+  )
+  const clusterLedgerBytes = fs.readFileSync(
+    path.join(repo, clusterLedgerCatalogPath),
+  )
+  assert.equal(clusterLedgerBytes.length, clusterLedgerRecord.bytes)
+  assert.equal(sha256(clusterLedgerBytes), clusterLedgerRecord.sha256)
+  const clusterLedger = JSON.parse(
+    gunzipSync(clusterLedgerBytes).toString('utf8'),
+  )
+  assert.equal(clusterLedger.coverage?.clusterCount, EXPECTED_CLUSTER_COUNT)
+  const clusterById = new Map(
+    clusterLedger.clusters.map(cluster => [cluster.id, cluster]),
+  )
+  assert.equal(clusterById.size, EXPECTED_CLUSTER_COUNT)
   for (const entry of inventory.accountingOnly) {
     assert.ok(ACCOUNTING_REASONS.has(entry.reason), 'accounting-only reason')
     assert.ok(
@@ -160,7 +201,25 @@ function readPinnedClusterInventory(catalog) {
     for (const relative of entry.sourcePaths) {
       assertSafeSourcePath(relative, entry.rowId)
     }
+    assert.deepEqual(
+      entry.clusterBindings.map(binding => binding.clusterId),
+      entry.clusterIds,
+      `${entry.rowId}: exact cluster-binding IDs`,
+    )
+    assert.deepEqual(
+      [...new Set(entry.clusterBindings.flatMap(binding =>
+        binding.sourceWitnesses.map(sourceWitness => sourceWitness.path)))].sort(),
+      entry.sourcePaths,
+      `${entry.rowId}: cluster-binding source union`,
+    )
+    assert.deepEqual(
+      [...new Set(entry.clusterBindings.flatMap(binding => binding.testIds))].sort(),
+      entry.testIds,
+      `${entry.rowId}: cluster-binding test union`,
+    )
   }
+  const semanticClusterBindings = inventory.direct.flatMap(entry =>
+    entry.clusterBindings.map(binding => ({ rowId: entry.rowId, ...binding })))
   assert.deepEqual(catalog.clusterInventory, {
     proof: record,
     totalClusters: EXPECTED_CLUSTER_COUNT,
@@ -168,12 +227,16 @@ function readPinnedClusterInventory(catalog) {
     directClusters: directClusters.length,
     accountingOnlyGroups: inventory.accountingOnly.length,
     accountingOnlyClusters: accountingOnlyClusters.length,
+    clusterBindingCount: directClusters.length,
+    clusterBindingsSha256: sha256(Buffer.from(
+      `${JSON.stringify(semanticClusterBindings)}\n`,
+    )),
     partitionSha256: sha256(Buffer.from(`${[
       ...directClusters.map(clusterId => `direct\t${clusterId}`),
       ...accountingOnlyClusters.map(clusterId => `accounting-only\t${clusterId}`),
     ].sort().join('\n')}\n`)),
   })
-  return inventory
+  return { inventory, clusterById }
 }
 
 function changedSourcePaths() {
@@ -228,7 +291,8 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
   const target = readBundle(
     'CLAUDE_CODE_2_1_124_BUNDLE', TARGET_BYTES, TARGET_SHA256)
   const catalog = readPinnedCatalog()
-  const clusterInventory = readPinnedClusterInventory(catalog)
+  const { inventory: clusterInventory, clusterById } =
+    readPinnedClusterInventory(catalog)
   assert.equal(catalog.schemaVersion, 1)
   assert.equal(catalog.case, '2.1.123-to-2.1.124')
   assert.equal(catalog.release, '2.1.124')
@@ -263,12 +327,33 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
     const semantic = clusterByRow.get(row.id)
     assert.ok(semantic, `${row.id}: semantic cluster binding`)
     assert.deepEqual(row.semanticClusterIds, semantic.clusterIds)
+    assert.deepEqual(row.semanticClusterBindings, semantic.clusterBindings)
     assert.deepEqual(row.semanticTargetWitnesses, semantic.targetWitnesses)
     assert.deepEqual(
       row.targetFragments.map(fragment => fragment.text),
       semantic.targetWitnesses.map(witness => witness.value),
     )
     assert.deepEqual(row.focusedTests, semantic.testIds)
+    const semanticSourceWitnesses = [
+      ...new Map(
+        semantic.clusterBindings.flatMap(binding =>
+          binding.sourceWitnesses.map(sourceWitness => [
+            `${sourceWitness.path}\u0000${sourceWitness.fragment}`,
+            sourceWitness,
+          ])),
+      ).values(),
+    ].sort((left, right) =>
+      left.path.localeCompare(right.path) ||
+        left.fragment.localeCompare(right.fragment))
+    assert.deepEqual(
+      row.sourceAssertions.map(assertion => ({
+        path: assertion.path,
+        fragment: assertion.fragment,
+        count: assertion.count,
+      })),
+      semanticSourceWitnesses,
+      `${row.id}: exact cluster source callsites`,
+    )
     assert.deepEqual(row.sourcePathAbsences, semantic.sourcePathAbsences ?? [])
     assert.deepEqual(
       row.sourceFileAbsences.map(entry => entry.path),
@@ -308,6 +393,55 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
         `${row.id}: semantic target witness count`,
       )
     }
+    assert.deepEqual(
+      row.semanticClusterBindings.map(binding => binding.clusterId),
+      row.semanticClusterIds,
+      `${row.id}: one witness binding per direct cluster`,
+    )
+    for (const binding of row.semanticClusterBindings) {
+      const cluster = clusterById.get(binding.clusterId)
+      assert.ok(cluster, `${row.id}/C${binding.clusterId}: cluster ledger entry`)
+      const witness = binding.targetWitness
+      assert.equal(witness.kind, 'raw-statement')
+      assert.ok(['baseline', 'target'].includes(witness.side))
+      const statement = cluster[`${witness.side}Statements`].find(
+        value => value.index === witness.statementIndex,
+      )
+      assert.ok(statement, `${row.id}/C${binding.clusterId}: statement entry`)
+      assert.deepEqual(
+        {
+          start: witness.start,
+          end: witness.end,
+          bytes: witness.bytes,
+          sha256: witness.sha256,
+        },
+        statement.raw,
+        `${row.id}/C${binding.clusterId}: cluster-ledger statement identity`,
+      )
+      const sideSource = witness.side === 'target' ? target : baseline
+      const otherSource = witness.side === 'target' ? baseline : target
+      const statementText = sideSource.slice(witness.start, witness.end)
+      assert.equal(Buffer.byteLength(statementText), witness.bytes)
+      assert.equal(sha256(statementText), witness.sha256)
+      assert.equal(occurrences(sideSource, statementText), witness.count)
+      assert.equal(
+        occurrences(otherSource, statementText),
+        witness.otherSideCount,
+      )
+      assert.notEqual(witness.count, witness.otherSideCount)
+      assert.ok(binding.sourceWitnesses.length > 0)
+      assert.ok(binding.testIds.length > 0)
+      for (const sourceWitness of binding.sourceWitnesses) {
+        assertSafeSourcePath(sourceWitness.path, `${row.id}/C${binding.clusterId}`)
+        const source = fs.readFileSync(path.join(repo, sourceWitness.path), 'utf8')
+        assert.equal(
+          occurrences(source, sourceWitness.fragment),
+          sourceWitness.count,
+          `${row.id}/C${binding.clusterId}: source callsite count`,
+        )
+        assert.ok(sourceWitness.count > 0)
+      }
+    }
     assert.equal(
       row.targetFragments.some(
         fragment => fragment.baselineCount !== fragment.targetCount,
@@ -316,6 +450,11 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
       `${row.id}: adjacent bundle evidence`,
     )
     assert.notEqual(row.retained, true, `${row.id}: retained bypass`)
+    assert.notDeepEqual(
+      semantic.sourcePaths,
+      changedSourcePaths(),
+      `${row.id}: row-local source ownership must not equal the global delta`,
+    )
   }
 })
 
@@ -345,6 +484,11 @@ test('every changed source path and focused suite is bound to an exact row', () 
     changedSourcePaths().filter(value => !assertedPaths.has(value)),
     [],
     'all changed source paths have exact row evidence',
+  )
+  assert.deepEqual(
+    [...assertedPaths].filter(value => !changedSourcePaths().includes(value)).sort(),
+    [],
+    'row source owners stay inside the exact changed-source boundary',
   )
   assert.deepEqual(
     focusedTestIds().filter(value => !boundTests.has(value)),

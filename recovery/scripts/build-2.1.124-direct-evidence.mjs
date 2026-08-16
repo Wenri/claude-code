@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { gunzipSync } from 'node:zlib'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.123-to-2.1.124')
@@ -30,6 +31,11 @@ const accountingReasons = new Set([
   'initializer-linkage',
   'metadata',
 ])
+const expectedAccountingClusterIds = [
+  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
+  158, 159, 165, 176, 190, 202,
+]
+const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -88,7 +94,11 @@ function bundleRecord(text, baseline, target) {
 
 function sourceRecord(assertion) {
   assert(
-    typeof assertion.path === 'string' && assertion.path.startsWith('src/'),
+    typeof assertion.path === 'string' &&
+      assertion.path.startsWith('src/') &&
+      !assertion.path.split('/').some(
+        part => part === '' || part === '.' || part === '..',
+      ),
     `unsafe source assertion path: ${assertion.path}`,
   )
   assert(
@@ -99,6 +109,9 @@ function sourceRecord(assertion) {
   const source = fs.readFileSync(filename, 'utf8')
   const count = occurrences(source, assertion.fragment)
   assert(count > 0, `${assertion.path}: absent source fragment`)
+  if (assertion.count !== undefined) {
+    assert(count === assertion.count, `${assertion.path}: source fragment count`)
+  }
   const value = Buffer.from(assertion.fragment)
   return {
     path: assertion.path,
@@ -107,6 +120,106 @@ function sourceRecord(assertion) {
     sha256: sha256(value),
     count,
   }
+}
+
+function validateClusterBindings(entry, baseline, target, clusterById) {
+  const bindings = entry.clusterBindings
+  assert(
+    Array.isArray(bindings) && bindings.length === entry.clusterIds.length,
+    `${entry.rowId}: cluster bindings are not one-to-one`,
+  )
+  assert(
+    JSON.stringify(bindings.map(binding => binding.clusterId)) ===
+      JSON.stringify(entry.clusterIds),
+    `${entry.rowId}: cluster binding IDs differ from direct cluster IDs`,
+  )
+  for (const binding of bindings) {
+    const cluster = clusterById.get(binding.clusterId)
+    assert(cluster !== undefined,
+      `${entry.rowId}/C${binding.clusterId}: absent cluster-ledger entry`)
+    const witness = binding.targetWitness
+    assert(
+      witness?.kind === 'raw-statement' &&
+        ['baseline', 'target'].includes(witness.side) &&
+        Number.isSafeInteger(witness.statementIndex) &&
+        Number.isSafeInteger(witness.start) &&
+        witness.start >= 0 &&
+        Number.isSafeInteger(witness.end) &&
+        witness.end > witness.start &&
+        Number.isSafeInteger(witness.bytes) &&
+        witness.bytes > 0 &&
+        typeof witness.sha256 === 'string' &&
+        /^[0-9a-f]{64}$/.test(witness.sha256) &&
+        Number.isSafeInteger(witness.count) &&
+        witness.count > 0 &&
+        Number.isSafeInteger(witness.otherSideCount) &&
+        witness.otherSideCount >= 0 &&
+        witness.count !== witness.otherSideCount,
+      `${entry.rowId}/C${binding.clusterId}: invalid raw-statement witness`,
+    )
+    const statement = cluster[`${witness.side}Statements`]?.find(
+      value => value.index === witness.statementIndex,
+    )
+    assert(
+      statement !== undefined &&
+        JSON.stringify({
+          start: witness.start,
+          end: witness.end,
+          bytes: witness.bytes,
+          sha256: witness.sha256,
+        }) === JSON.stringify(statement.raw),
+      `${entry.rowId}/C${binding.clusterId}: witness is not in its cluster ledger`,
+    )
+    const sideSource = witness.side === 'target' ? target : baseline
+    const otherSource = witness.side === 'target' ? baseline : target
+    const statementText = sideSource.slice(witness.start, witness.end)
+    assert(
+      Buffer.byteLength(statementText) === witness.bytes &&
+        sha256(Buffer.from(statementText)) === witness.sha256 &&
+        occurrences(sideSource, statementText) === witness.count &&
+        occurrences(otherSource, statementText) === witness.otherSideCount,
+      `${entry.rowId}/C${binding.clusterId}: raw-statement extraction or adjacent count`,
+    )
+    assert(
+      Array.isArray(binding.sourceWitnesses) &&
+        binding.sourceWitnesses.length > 0,
+      `${entry.rowId}/C${binding.clusterId}: no source owner or callsite`,
+    )
+    const sourceKeys = new Set()
+    for (const sourceWitness of binding.sourceWitnesses) {
+      const sourceRecordValue = sourceRecord(sourceWitness)
+      assert(
+        entry.sourcePaths.includes(sourceWitness.path) &&
+          sourceRecordValue.count === sourceWitness.count,
+        `${entry.rowId}/C${binding.clusterId}: source owner or callsite binding`,
+      )
+      const key = `${sourceWitness.path}\u0000${sourceWitness.fragment}`
+      assert(!sourceKeys.has(key),
+        `${entry.rowId}/C${binding.clusterId}: duplicate source witness`)
+      sourceKeys.add(key)
+    }
+    assert(
+      Array.isArray(binding.testIds) &&
+        binding.testIds.length > 0 &&
+        new Set(binding.testIds).size === binding.testIds.length &&
+        JSON.stringify(binding.testIds) ===
+          JSON.stringify([...binding.testIds].sort()),
+      `${entry.rowId}/C${binding.clusterId}: invalid focused tests`,
+    )
+  }
+  assert(
+    JSON.stringify([
+      ...new Set(bindings.flatMap(binding =>
+        binding.sourceWitnesses.map(sourceWitness => sourceWitness.path))),
+    ].sort()) === JSON.stringify(entry.sourcePaths),
+    `${entry.rowId}: row source paths differ from cluster bindings`,
+  )
+  assert(
+    JSON.stringify([
+      ...new Set(bindings.flatMap(binding => binding.testIds)),
+    ].sort()) === JSON.stringify(entry.testIds),
+    `${entry.rowId}: row tests differ from cluster bindings`,
+  )
 }
 
 function sourcePathAbsenceRecord(absence) {
@@ -225,9 +338,52 @@ assert(
     clusterInventory.accountingOnly.length > 0,
   'known-delta semantic cluster inventory',
 )
+const clusterLedgerRecord = knownDeltaProof.artifacts?.clusterLedger
+assert(
+  clusterLedgerRecord?.path ===
+      'structural/semantic-cluster-ledger.json.gz' &&
+    Number.isSafeInteger(clusterLedgerRecord.bytes) &&
+    clusterLedgerRecord.bytes > 0 &&
+    typeof clusterLedgerRecord.sha256 === 'string' &&
+    /^[0-9a-f]{64}$/.test(clusterLedgerRecord.sha256),
+  'semantic cluster ledger proof binding',
+)
+const clusterLedgerPath = path.join(caseRoot, clusterLedgerRecord.path)
+const clusterLedgerBytes = fs.readFileSync(clusterLedgerPath)
+assert(
+  clusterLedgerBytes.length === clusterLedgerRecord.bytes &&
+    sha256(clusterLedgerBytes) === clusterLedgerRecord.sha256,
+  'semantic cluster ledger artifact identity',
+)
+const semanticClusterLedger = JSON.parse(
+  gunzipSync(clusterLedgerBytes).toString('utf8'),
+)
+assert(
+  semanticClusterLedger.schemaVersion === 1 &&
+    semanticClusterLedger.coverage?.clusterCount === expectedClusterCount &&
+    Array.isArray(semanticClusterLedger.clusters) &&
+    semanticClusterLedger.clusters.length === expectedClusterCount,
+  'semantic cluster ledger topology',
+)
+const semanticClusterById = new Map(
+  semanticClusterLedger.clusters.map(cluster => [cluster.id, cluster]),
+)
+assert(semanticClusterById.size === expectedClusterCount,
+  'semantic cluster ledger IDs are unique')
 const directClusters = clusterInventory.direct.flatMap(entry => entry.clusterIds)
 const accountingOnlyClusters = clusterInventory.accountingOnly.flatMap(
   entry => entry.clusterIds,
+)
+assert(
+  requiredDirectClusterIds.every(clusterId =>
+    directClusters.includes(clusterId) &&
+      !accountingOnlyClusters.includes(clusterId)),
+  'reviewed mixed-active clusters must be direct',
+)
+assert(
+  JSON.stringify([...accountingOnlyClusters].sort((left, right) => left - right)) ===
+    JSON.stringify(expectedAccountingClusterIds),
+  'accounting-only clusters differ from the conservative reviewed set',
 )
 const allClusters = [...directClusters, ...accountingOnlyClusters]
   .sort((left, right) => left - right)
@@ -269,6 +425,11 @@ const clusterPartitionSha256 = sha256(Buffer.from(`${[
   ...directClusters.map(clusterId => `direct\t${clusterId}`),
   ...accountingOnlyClusters.map(clusterId => `accounting-only\t${clusterId}`),
 ].sort().join('\n')}\n`))
+const semanticClusterBindings = clusterInventory.direct.flatMap(entry =>
+  entry.clusterBindings.map(binding => ({ rowId: entry.rowId, ...binding })))
+const clusterBindingsSha256 = sha256(Buffer.from(
+  `${JSON.stringify(semanticClusterBindings)}\n`,
+))
 assert(
   JSON.stringify(specs.clusterInventory?.proof) ===
       JSON.stringify(metadata(knownDeltaProofPath)) &&
@@ -279,13 +440,30 @@ assert(
       clusterInventory.accountingOnly.length &&
     specs.clusterInventory?.accountingOnlyClusters ===
       accountingOnlyClusters.length &&
-    specs.clusterInventory?.partitionSha256 === clusterPartitionSha256,
+    specs.clusterInventory?.partitionSha256 === clusterPartitionSha256 &&
+    specs.clusterInventory?.clusterBindingCount === directClusters.length &&
+    specs.clusterInventory?.clusterBindingsSha256 === clusterBindingsSha256,
   'direct specs pin the complete semantic cluster inventory',
 )
 assert(
   JSON.stringify(specs.changedSourceRows) === JSON.stringify(changedSourceRows()),
   'direct specs changed-source boundary',
 )
+const changedSourcePathList = changedSourcePaths()
+const changedSourcePathSet = new Set(changedSourcePathList)
+for (const entry of clusterInventory.direct) {
+  const unexpectedSourcePaths = entry.sourcePaths.filter(
+    sourcePath => !changedSourcePathSet.has(sourcePath),
+  )
+  assert(
+    unexpectedSourcePaths.length === 0,
+    `${entry.rowId}: semantic source owners outside changed-source boundary`,
+  )
+  assert(
+    JSON.stringify(entry.sourcePaths) !== JSON.stringify(changedSourcePathList),
+    `${entry.rowId}: direct row may not claim the complete global changed-source inventory`,
+  )
+}
 
 const baselineBytes = fs.readFileSync(baselinePath)
 const targetBytes = fs.readFileSync(targetPath)
@@ -303,6 +481,9 @@ assert(
 )
 const baseline = baselineBytes.toString('utf8')
 const target = targetBytes.toString('utf8')
+for (const entry of clusterInventory.direct) {
+  validateClusterBindings(entry, baseline, target, semanticClusterById)
+}
 const releaseAbsence = JSON.parse(fs.readFileSync(releaseAbsencePath, 'utf8'))
 assert(
   releaseAbsence.kind === 'authenticated-public-release-absence' &&
@@ -381,14 +562,29 @@ assert(
 const rows = specs.rows.map(spec => {
   const semantic = clusterDirectByRow.get(spec.id)
   assert(semantic !== undefined, `${spec.id}: no semantic cluster binding`)
+  const semanticSourceAssertions = [
+    ...new Map(
+      semantic.clusterBindings.flatMap(binding =>
+        binding.sourceWitnesses.map(sourceWitness => [
+          `${sourceWitness.path}\u0000${sourceWitness.fragment}`,
+          sourceWitness,
+        ])),
+    ).values(),
+  ].sort((left, right) =>
+    left.path.localeCompare(right.path) ||
+      left.fragment.localeCompare(right.fragment))
   assert(
     JSON.stringify(spec.semanticClusterIds) ===
         JSON.stringify(semantic.clusterIds) &&
+      JSON.stringify(spec.semanticClusterBindings) ===
+        JSON.stringify(semantic.clusterBindings) &&
       JSON.stringify(spec.semanticTargetWitnesses) ===
         JSON.stringify(semantic.targetWitnesses) &&
       JSON.stringify(spec.targetFragments) ===
         JSON.stringify(semantic.targetWitnesses.map(witness => witness.value)) &&
       JSON.stringify(spec.focusedTests) === JSON.stringify(semantic.testIds) &&
+      JSON.stringify(spec.sourceAssertions) ===
+        JSON.stringify(semanticSourceAssertions) &&
       JSON.stringify(spec.sourcePathAbsences) ===
         JSON.stringify(semantic.sourcePathAbsences ?? []) &&
       JSON.stringify(spec.sourceFileAbsences) ===
@@ -444,6 +640,7 @@ const rows = specs.rows.map(spec => {
     rationale: spec.rationale,
     evidenceKind: 'reviewed-row-scoped-direct-evidence',
     semanticClusterIds: spec.semanticClusterIds,
+    semanticClusterBindings: spec.semanticClusterBindings,
     semanticTargetWitnesses: spec.semanticTargetWitnesses,
     focusedTests: [...new Set(spec.focusedTests)].sort(),
     targetFragments,
@@ -474,13 +671,13 @@ assert(
   'catalog deleted source paths differ from git',
 )
 const boundTests = new Set(rows.flatMap(row => row.focusedTests))
-const missingPaths = changedSourcePaths().filter(value => !assertedPaths.has(value))
+const missingPaths = changedSourcePathList.filter(value => !assertedPaths.has(value))
 const missingTests = [...focusedTestIds].filter(value => !boundTests.has(value)).sort()
 assert(missingPaths.length === 0,
   `changed source paths without direct evidence:\n${missingPaths.join('\n')}`)
 assert(missingTests.length === 0,
   `focused tests without direct row bindings:\n${missingTests.join('\n')}`)
-assert(changedSourcePaths().length > 0, 'expected changed source paths')
+assert(changedSourcePathList.length > 0, 'expected changed source paths')
 assert(focusedTestIds.size > 0, 'expected focused tests')
 assert(rows.length > 0, 'expected hidden direct evidence rows')
 
@@ -509,6 +706,7 @@ const output = {
     fullChangelogPath,
     tagRefsPath,
     knownDeltaProofPath,
+    clusterLedgerPath,
     ...inventoryPaths,
   ].map(metadata),
   clusterInventory: specs.clusterInventory,

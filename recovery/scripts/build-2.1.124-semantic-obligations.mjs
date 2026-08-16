@@ -200,6 +200,8 @@ for (const row of directEvidence.rows) {
   assert(
     JSON.stringify(row.semanticClusterIds) ===
         JSON.stringify(semantic.clusterIds) &&
+      JSON.stringify(row.semanticClusterBindings) ===
+        JSON.stringify(semantic.clusterBindings) &&
       JSON.stringify(row.semanticTargetWitnesses) ===
         JSON.stringify(semantic.targetWitnesses),
     `${row.id}: semantic cluster binding`,
@@ -294,6 +296,7 @@ function obligation(row) {
       kind: row.evidenceKind,
     },
     semanticClusterIds: row.semanticClusterIds,
+    semanticClusterBindings: row.semanticClusterBindings,
     localizationBasis: 'authenticated-behavior-test',
     localizationBoundary:
       'The pinned direct-evidence test loads this exact catalog identity and verifies this row’s authenticated adjacent-bundle counts, exact source fragment hashes and counts, row-scoped fragment absences, and authenticated deleted-file identities.',

@@ -44,6 +44,11 @@ const expectedKnownDeltaClosure = {
   unmatchedBaselineUnits: 0,
   unresolvedTargetUnits: 0,
 }
+const expectedAccountingClusterIds = [
+  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
+  158, 159, 165, 176, 190, 202,
+]
+const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 function expectedTestsForRepo(repo) {
   return fs
     .readdirSync(path.join(repo, 'recovery/test'))
@@ -138,6 +143,17 @@ function assert(condition, message) {
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
+}
+
+function occurrences(contents, fragment) {
+  assert(fragment.length > 0, 'cannot count an empty fragment')
+  let count = 0
+  let offset = 0
+  while ((offset = contents.indexOf(fragment, offset)) !== -1) {
+    count += 1
+    offset += fragment.length
+  }
+  return count
 }
 
 function readPinned(root, metadata, label) {
@@ -293,6 +309,24 @@ function main() {
       JSON.stringify(row.semanticClusterIds) === JSON.stringify(
         [...row.semanticClusterIds].sort((left, right) => left - right),
       ) &&
+      Array.isArray(row.semanticClusterBindings) &&
+      row.semanticClusterBindings.length === row.semanticClusterIds.length &&
+      JSON.stringify(
+        row.semanticClusterBindings.map(binding => binding.clusterId),
+      ) === JSON.stringify(row.semanticClusterIds) &&
+      row.semanticClusterBindings.every(binding =>
+        binding.targetWitness?.kind === 'raw-statement' &&
+        ['baseline', 'target'].includes(binding.targetWitness.side) &&
+        Number.isSafeInteger(binding.targetWitness.count) &&
+        binding.targetWitness.count > 0 &&
+        Number.isSafeInteger(binding.targetWitness.otherSideCount) &&
+        binding.targetWitness.otherSideCount >= 0 &&
+        binding.targetWitness.count !==
+          binding.targetWitness.otherSideCount &&
+        Array.isArray(binding.sourceWitnesses) &&
+        binding.sourceWitnesses.length > 0 &&
+        Array.isArray(binding.testIds) &&
+        binding.testIds.length > 0) &&
       Array.isArray(row.semanticTargetWitnesses) &&
       row.semanticTargetWitnesses.length === row.targetFragments.length &&
       row.semanticTargetWitnesses.every((witness, index) =>
@@ -306,7 +340,7 @@ function main() {
       row.targetFragments.some(
         fragment => fragment.baselineCount !== fragment.targetCount,
       )),
-    'every direct row needs counted adjacent literal cluster evidence',
+    'every direct row needs exact per-cluster and row-level adjacent evidence',
   )
   assert(
     summary.coverage.unclassifiedTokens === 0 &&
@@ -583,6 +617,35 @@ function main() {
       ),
     'semantic clusters partition exactly 1..205',
   )
+  assert(
+    requiredDirectClusterIds.every(clusterId =>
+      directClusters.includes(clusterId) &&
+        !accountingOnlyClusters.includes(clusterId)),
+    'reviewed mixed-active clusters must be direct',
+  )
+  assert(
+    JSON.stringify(
+      [...accountingOnlyClusters].sort((left, right) => left - right),
+    ) === JSON.stringify(expectedAccountingClusterIds),
+    'accounting-only clusters differ from the conservative reviewed set',
+  )
+  const changedSourcePaths = direct.changedSourceRows
+    .map(entry => entry.path)
+    .sort()
+  const semanticSourcePaths = [
+    ...new Set(clusterInventory.direct.flatMap(entry => entry.sourcePaths)),
+  ].sort()
+  assert(
+    JSON.stringify(semanticSourcePaths) ===
+      JSON.stringify(changedSourcePaths),
+    'semantic source-owner union differs from exact changed-source boundary',
+  )
+  assert(
+    clusterInventory.direct.every(entry =>
+      JSON.stringify(entry.sourcePaths) !==
+        JSON.stringify(changedSourcePaths)),
+    'a direct semantic row claims the complete global source delta',
+  )
   const accountingReasons = new Set([
     'dependency',
     'exact-relocation',
@@ -606,6 +669,11 @@ function main() {
     bytes: knownDeltaProofValue.length,
     sha256: sha256(knownDeltaProofValue),
   }
+  const semanticClusterBindings = clusterInventory.direct.flatMap(entry =>
+    entry.clusterBindings.map(binding => ({ rowId: entry.rowId, ...binding })))
+  const clusterBindingsSha256 = sha256(Buffer.from(
+    `${JSON.stringify(semanticClusterBindings)}\n`,
+  ))
   assert(
     JSON.stringify(direct.clusterInventory?.proof) ===
         JSON.stringify(knownDeltaProofRepositoryMetadata) &&
@@ -616,6 +684,9 @@ function main() {
         clusterInventory.accountingOnly.length &&
       direct.clusterInventory?.accountingOnlyClusters ===
         accountingOnlyClusters.length &&
+      direct.clusterInventory?.clusterBindingCount === directClusters.length &&
+      direct.clusterInventory?.clusterBindingsSha256 ===
+        clusterBindingsSha256 &&
       direct.coverageDeclarations?.clusterInventoryFullyBound === true,
     'direct catalog pins the complete semantic cluster inventory',
   )
@@ -642,6 +713,38 @@ function main() {
     clusterInventory.direct.every(entry => {
       const row = directById.get(entry.rowId)
       if (row === undefined || entry.retained === true) return false
+      const bindingSourceWitnesses = [
+        ...new Map(
+          entry.clusterBindings.flatMap(binding =>
+            binding.sourceWitnesses.map(sourceWitness => [
+              `${sourceWitness.path}\u0000${sourceWitness.fragment}`,
+              sourceWitness,
+            ])),
+        ).values(),
+      ].sort((left, right) =>
+        left.path.localeCompare(right.path) ||
+          left.fragment.localeCompare(right.fragment))
+      const bindingSourcePaths = [
+        ...new Set(bindingSourceWitnesses.map(witness => witness.path)),
+      ].sort()
+      const bindingTestIds = [
+        ...new Set(entry.clusterBindings.flatMap(binding => binding.testIds)),
+      ].sort()
+      const sourceWitnessesValid = bindingSourceWitnesses.every(witness => {
+        if (
+          typeof witness.path !== 'string' ||
+          !witness.path.startsWith('src/') ||
+          witness.path.split('/').some(
+            part => part === '' || part === '.' || part === '..',
+          ) ||
+          typeof witness.fragment !== 'string' ||
+          witness.fragment.length === 0 ||
+          !Number.isSafeInteger(witness.count) ||
+          witness.count <= 0
+        ) return false
+        const source = fs.readFileSync(path.join(repo, witness.path), 'utf8')
+        return occurrences(source, witness.fragment) === witness.count
+      })
       const sourcePaths = [...new Set([
         ...row.sourceAssertions.map(assertion => assertion.path),
         ...row.sourcePathAbsences.flatMap(absence => absence.paths),
@@ -650,6 +753,20 @@ function main() {
       return (
         JSON.stringify(row.semanticClusterIds) ===
           JSON.stringify(entry.clusterIds) &&
+        entry.clusterBindings.length === entry.clusterIds.length &&
+        JSON.stringify(entry.clusterBindings.map(binding => binding.clusterId)) ===
+          JSON.stringify(entry.clusterIds) &&
+        JSON.stringify(row.semanticClusterBindings) ===
+          JSON.stringify(entry.clusterBindings) &&
+        sourceWitnessesValid &&
+        JSON.stringify(bindingSourcePaths) ===
+          JSON.stringify(entry.sourcePaths) &&
+        JSON.stringify(bindingTestIds) === JSON.stringify(entry.testIds) &&
+        JSON.stringify(row.sourceAssertions.map(assertion => ({
+          path: assertion.path,
+          fragment: assertion.fragment,
+          count: assertion.count,
+        }))) === JSON.stringify(bindingSourceWitnesses) &&
         JSON.stringify(row.semanticTargetWitnesses) ===
           JSON.stringify(entry.targetWitnesses) &&
         JSON.stringify(row.focusedTests) === JSON.stringify(entry.testIds) &&
@@ -727,8 +844,10 @@ function main() {
       path.join(path.resolve(args.artifacts), baselineAnalyzable.localPath),
       '--target',
       path.join(path.resolve(args.artifacts), targetAnalyzable.localPath),
-      '--output',
+      '--case-root',
       caseRoot,
+      '--source-root',
+      repo,
     ],
     { cwd: repo, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 },
   )

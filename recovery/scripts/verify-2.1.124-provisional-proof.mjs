@@ -1,12 +1,26 @@
 #!/usr/bin/env node
 
 import crypto from 'node:crypto'
+import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.123-to-2.1.124')
+const baseRevision = '338d170737e8294c489481bc2e8fac52d8ce5f85'
+const accountingReasons = new Set([
+  'dependency',
+  'exact-relocation',
+  'identifier-only',
+  'initializer-linkage',
+  'metadata',
+])
+const expectedAccountingClusterIds = [
+  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
+  158, 159, 165, 176, 190, 202,
+]
+const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -14,6 +28,25 @@ function assert(condition, message) {
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
+}
+
+function occurrences(contents, fragment) {
+  assert(fragment.length > 0, 'cannot count an empty fragment')
+  let count = 0
+  let offset = 0
+  while ((offset = contents.indexOf(fragment, offset)) !== -1) {
+    count += 1
+    offset += fragment.length
+  }
+  return count
+}
+
+function changedSourcePaths() {
+  return execFileSync(
+    'git',
+    ['diff', '--name-only', '--no-renames', `${baseRevision}..HEAD`, '--', 'src'],
+    { cwd: repo, encoding: 'utf8' },
+  ).trim().split('\n').filter(Boolean).sort()
 }
 
 function pinnedCaseEvidence(record, label) {
@@ -91,6 +124,159 @@ const semanticClusterIds = [
   ...semanticClusterInventory.direct.flatMap(entry => entry.clusterIds),
   ...semanticClusterInventory.accountingOnly.flatMap(entry => entry.clusterIds),
 ].sort((left, right) => left - right)
+assert(
+  new Set(semanticClusterInventory.direct.map(entry => entry.rowId)).size ===
+    semanticClusterInventory.direct.length,
+  'duplicate direct semantic cluster row ID',
+)
+for (const entry of semanticClusterInventory.direct) {
+  assert(
+    typeof entry.rowId === 'string' &&
+      /^[A-Za-z0-9][A-Za-z0-9-]*$/.test(entry.rowId) &&
+      entry.retained !== true &&
+      Array.isArray(entry.clusterIds) &&
+      entry.clusterIds.length > 0 &&
+      Array.isArray(entry.sourcePaths) &&
+      entry.sourcePaths.length > 0 &&
+      new Set(entry.sourcePaths).size === entry.sourcePaths.length &&
+      JSON.stringify(entry.sourcePaths) ===
+        JSON.stringify([...entry.sourcePaths].sort()) &&
+      entry.sourcePaths.every(sourcePath =>
+        typeof sourcePath === 'string' &&
+          sourcePath.startsWith('src/') &&
+          !sourcePath.split('/').some(
+            part => part === '' || part === '.' || part === '..',
+          )) &&
+      Array.isArray(entry.targetWitnesses) &&
+      entry.targetWitnesses.length > 0 &&
+      new Set(entry.targetWitnesses.map(witness => witness.value)).size ===
+        entry.targetWitnesses.length &&
+      entry.targetWitnesses.every(witness =>
+        witness.kind === 'literal' &&
+          typeof witness.value === 'string' &&
+          witness.value.length > 0 &&
+          Number.isSafeInteger(witness.count) &&
+          witness.count > 0) &&
+      Array.isArray(entry.testIds) &&
+      entry.testIds.length > 0 &&
+      new Set(entry.testIds).size === entry.testIds.length &&
+      JSON.stringify(entry.testIds) ===
+        JSON.stringify([...entry.testIds].sort()) &&
+      entry.testIds.every(testId =>
+        typeof testId === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(testId)),
+    `${entry.rowId ?? 'direct cluster'}: invalid direct cluster evidence`,
+  )
+  const bindings = entry.clusterBindings
+  assert(
+    Array.isArray(bindings) &&
+      bindings.length === entry.clusterIds.length &&
+      JSON.stringify(bindings.map(binding => binding.clusterId)) ===
+        JSON.stringify(entry.clusterIds),
+    `${entry.rowId}: cluster bindings are not one-to-one`,
+  )
+  for (const binding of bindings) {
+    const witness = binding.targetWitness
+    assert(
+      witness?.kind === 'raw-statement' &&
+        ['baseline', 'target'].includes(witness.side) &&
+        Number.isSafeInteger(witness.statementIndex) &&
+        witness.statementIndex >= 0 &&
+        Number.isSafeInteger(witness.start) &&
+        witness.start >= 0 &&
+        Number.isSafeInteger(witness.end) &&
+        witness.end > witness.start &&
+        Number.isSafeInteger(witness.bytes) &&
+        witness.bytes > 0 &&
+        typeof witness.sha256 === 'string' &&
+        /^[0-9a-f]{64}$/.test(witness.sha256) &&
+        Number.isSafeInteger(witness.count) &&
+        witness.count > 0 &&
+        Number.isSafeInteger(witness.otherSideCount) &&
+        witness.otherSideCount >= 0 &&
+        witness.count !== witness.otherSideCount,
+      `${entry.rowId}/C${binding.clusterId}: invalid statement witness`,
+    )
+    assert(
+      Array.isArray(binding.sourceWitnesses) &&
+        binding.sourceWitnesses.length > 0 &&
+        binding.sourceWitnesses.every(sourceWitness => {
+          if (
+            typeof sourceWitness.path !== 'string' ||
+            !sourceWitness.path.startsWith('src/') ||
+            sourceWitness.path.split('/').some(
+              part => part === '' || part === '.' || part === '..'
+            ) ||
+            typeof sourceWitness.fragment !== 'string' ||
+            sourceWitness.fragment.length === 0 ||
+            !Number.isSafeInteger(sourceWitness.count) ||
+            sourceWitness.count <= 0
+          ) return false
+          const source = fs.readFileSync(
+            path.join(repo, sourceWitness.path),
+            'utf8',
+          )
+          return occurrences(source, sourceWitness.fragment) ===
+            sourceWitness.count
+        }) &&
+        Array.isArray(binding.testIds) &&
+        binding.testIds.length > 0,
+      `${entry.rowId}/C${binding.clusterId}: source/test binding`,
+    )
+  }
+  assert(
+    JSON.stringify([
+      ...new Set(bindings.flatMap(binding =>
+        binding.sourceWitnesses.map(sourceWitness => sourceWitness.path))),
+    ].sort()) === JSON.stringify(entry.sourcePaths) &&
+      JSON.stringify([
+        ...new Set(bindings.flatMap(binding => binding.testIds)),
+      ].sort()) === JSON.stringify(entry.testIds),
+    `${entry.rowId}: row fields differ from cluster-binding unions`,
+  )
+}
+for (const [index, entry] of semanticClusterInventory.accountingOnly.entries()) {
+  assert(
+    Array.isArray(entry.clusterIds) &&
+      entry.clusterIds.length > 0 &&
+      accountingReasons.has(entry.reason) &&
+      entry.evidence &&
+      typeof entry.evidence === 'object' &&
+      !Array.isArray(entry.evidence) &&
+      Object.keys(entry.evidence).length > 0,
+    `accounting-only cluster group ${index + 1}: invalid evidence`,
+  )
+}
+const directClusterIds = new Set(
+  semanticClusterInventory.direct.flatMap(entry => entry.clusterIds),
+)
+const accountingClusterIds = new Set(
+  semanticClusterInventory.accountingOnly.flatMap(entry => entry.clusterIds),
+)
+assert(
+  requiredDirectClusterIds.every(clusterId =>
+    directClusterIds.has(clusterId) && !accountingClusterIds.has(clusterId)),
+  'reviewed mixed-active clusters must be direct',
+)
+assert(
+  JSON.stringify([...accountingClusterIds].sort((left, right) => left - right)) ===
+    JSON.stringify(expectedAccountingClusterIds),
+  'accounting-only clusters differ from the conservative reviewed set',
+)
+const changedPaths = changedSourcePaths()
+const boundSourcePaths = [
+  ...new Set(
+    semanticClusterInventory.direct.flatMap(entry => entry.sourcePaths),
+  ),
+].sort()
+assert(
+  JSON.stringify(boundSourcePaths) === JSON.stringify(changedPaths),
+  'semantic cluster source-owner union differs from changed Git topology',
+)
+assert(
+  semanticClusterInventory.direct.every(entry =>
+    JSON.stringify(entry.sourcePaths) !== JSON.stringify(changedPaths)),
+  'a direct row claims the complete global changed-source inventory',
+)
 
 assert(draft.schemaVersion === 4, 'draft schema')
 assert(draft.case === '2.1.123-to-2.1.124', 'draft case')

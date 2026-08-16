@@ -64,7 +64,11 @@ if (
   direct.clusterInventory?.accountingOnlyGroups !==
     clusterInventory.accountingOnlyGroups ||
   direct.clusterInventory?.accountingOnlyClusters !==
-    clusterInventory.accountingOnlyClusters
+    clusterInventory.accountingOnlyClusters ||
+  direct.clusterInventory?.clusterBindingCount !==
+    clusterInventory.directClusters ||
+  typeof direct.clusterInventory?.clusterBindingsSha256 !== 'string' ||
+  !/^[0-9a-f]{64}$/.test(direct.clusterInventory.clusterBindingsSha256)
 ) {
   throw new Error('semantic cluster partition is not exactly sealed')
 }
@@ -160,6 +164,7 @@ The Linux x64 2.1.124 published package and embedded JavaScript graph are recons
 - The structural ledger accounts for all ${number(coverage.targetTokens)} target tokens across ${number(coverage.regions)} regions, with zero unclassified tokens.
 - The deterministic known-delta proof closes all ${number(structural.knownDeltaClosure.targetUnits)} target structural units and ${number(structural.knownDeltaClosure.targetTokens)} target tokens with zero changed, moved, unresolved, unmatched-baseline, or unresolved-target residue. Its exact inputs are \`${structural.metadataNormalizedLedger.path}\` and \`${structural.knownDeltaExactLedger.path}\`; \`${structural.knownDeltaProof.path}\` pins their byte lengths and SHA-256 identities.
 - Its ${number(clusterInventory.totalClusters)} readable semantic clusters are partitioned exactly once: ${number(clusterInventory.directClusters)} clusters in ${number(clusterInventory.directGroups)} direct source/test groups and ${number(clusterInventory.accountingOnlyClusters)} clusters in ${number(clusterInventory.accountingOnlyGroups)} evidence-backed accounting-only groups.
+- Every one of the ${number(clusterInventory.directClusters)} direct clusters has its own count-changing authenticated statement slice, exact recovered-source owner/callsite witness, and focused-test binding; the complete binding map is pinned by SHA-256.
 
 ## Semantic closure
 
@@ -208,7 +213,7 @@ This directory binds the authenticated 2.1.123→2.1.124 generated bundle to the
 
 The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, path-scoped fragment removals, and deleted source files against their base identities. Each direct row is consumed exactly once. The catalog identity is itself pinned and loaded by \`recovery-2.1.124-direct-evidence.test.mjs\`; every other release-scoped focused suite is frozen and consumed by at least one row.
 
-The known-delta proof also pins the exhaustive 205-cluster partition. Every direct cluster group maps to one catalog row; accounting-only groups are limited to authenticated metadata, exact relocation, dependency, identifier-only, or initializer-linkage evidence.
+The known-delta proof also pins the exhaustive 205-cluster partition. Every direct cluster maps one-to-one to an authenticated statement witness plus exact source owner/callsite and focused tests, and every direct group maps to one catalog row. Accounting-only groups are limited to authenticated metadata, exact relocation, dependency, identifier-only, or initializer-linkage evidence.
 
 Closure invariants:
 
@@ -270,7 +275,8 @@ Expected frozen result: ${identity.verification.targetTests.tests} tests, ${iden
 pixi run node recovery/scripts/verify-2.1.124-semantic-delta.mjs \\
   --baseline "$ARTIFACTS/${baselineInner.localPath}" \\
   --target "$ARTIFACTS/${targetInner.localPath}" \\
-  --output recovery/cases/2.1.123-to-2.1.124
+  --case-root recovery/cases/2.1.123-to-2.1.124 \\
+  --source-root .
 \`\`\`
 
 The rebuilt exact ledger must retain ${number(structural.knownDeltaClosure.targetUnits)} matched units and ${number(structural.knownDeltaClosure.targetTokens)} matched tokens, with zero changed, moved, unresolved, unmatched-baseline, or unresolved-target residue.

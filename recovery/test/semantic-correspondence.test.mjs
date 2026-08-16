@@ -278,6 +278,24 @@ function fixture() {
           },
         ],
         semanticClusterIds: [1, 2],
+        semanticClusterBindings: [
+          {
+            clusterId: 1,
+            targetWitness: { kind: 'fixture', sha256: sha256('cluster-1') },
+            sourceWitnesses: [
+              { path: 'src/answer.ts', fragment: sourceFragment, count: 1 },
+            ],
+            testIds: ['answer-change'],
+          },
+          {
+            clusterId: 2,
+            targetWitness: { kind: 'fixture', sha256: sha256('cluster-2') },
+            sourceWitnesses: [
+              { path: 'src/answer.ts', fragment: sourceFragment, count: 1 },
+            ],
+            testIds: ['answer-change'],
+          },
+        ],
         testIds: ['answer-change'],
       },
     ],
@@ -415,6 +433,11 @@ test('builds and verifies exhaustive bundle-to-source semantic correspondence', 
       generated.report.obligationWitnesses[0].semanticClusterIds,
       [1, 2],
     )
+    assert.deepEqual(
+      generated.report.obligationWitnesses[0].semanticClusterBindings,
+      JSON.parse(fs.readFileSync(files.obligationsPath))
+        .obligations[0].semanticClusterBindings,
+    )
   } finally {
     fs.rmSync(files.root, { recursive: true, force: true })
   }
@@ -429,6 +452,21 @@ test('rejects non-canonical semantic cluster IDs', () => {
     assert.throws(
       () => generate(files),
       /answer-change: invalid semantic cluster IDs/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects semantic cluster bindings that do not cover every cluster ID', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    obligations.obligations[0].semanticClusterBindings.pop()
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid semantic cluster bindings/,
     )
   } finally {
     fs.rmSync(files.root, { recursive: true, force: true })

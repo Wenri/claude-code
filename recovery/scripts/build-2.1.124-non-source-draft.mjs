@@ -12,6 +12,11 @@ const priorManifestPath = path.join(
   repo,
   'recovery/cases/2.1.122-to-2.1.123/manifest.json',
 )
+const expectedAccountingClusterIds = [
+  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
+  158, 159, 165, 176, 190, 202,
+]
+const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 
 function usage() {
   console.error(
@@ -229,6 +234,45 @@ function main() {
         Array.from({ length: 205 }, (_, index) => index + 1),
       ),
     'semantic clusters partition exactly 1..205',
+  )
+  const directClusterIds = semanticClusterInventory.direct.flatMap(
+    entry => entry.clusterIds,
+  )
+  const accountingClusterIds = semanticClusterInventory.accountingOnly.flatMap(
+    entry => entry.clusterIds,
+  )
+  assert(
+    requiredDirectClusterIds.every(clusterId =>
+      directClusterIds.includes(clusterId) &&
+        !accountingClusterIds.includes(clusterId)),
+    'reviewed mixed-active clusters must be direct',
+  )
+  assert(
+    JSON.stringify([...accountingClusterIds].sort((left, right) => left - right)) ===
+      JSON.stringify(expectedAccountingClusterIds),
+    'accounting-only clusters differ from the conservative reviewed set',
+  )
+  assert(
+    semanticClusterInventory.direct.every(entry =>
+      Array.isArray(entry.clusterBindings) &&
+        entry.clusterBindings.length === entry.clusterIds.length &&
+        JSON.stringify(
+          entry.clusterBindings.map(binding => binding.clusterId),
+        ) === JSON.stringify(entry.clusterIds) &&
+        entry.clusterBindings.every(binding =>
+          binding.targetWitness?.kind === 'raw-statement' &&
+            ['baseline', 'target'].includes(binding.targetWitness.side) &&
+            Number.isSafeInteger(binding.targetWitness.count) &&
+            binding.targetWitness.count > 0 &&
+            Number.isSafeInteger(binding.targetWitness.otherSideCount) &&
+            binding.targetWitness.otherSideCount >= 0 &&
+            binding.targetWitness.count !==
+              binding.targetWitness.otherSideCount &&
+            Array.isArray(binding.sourceWitnesses) &&
+            binding.sourceWitnesses.length > 0 &&
+            Array.isArray(binding.testIds) &&
+            binding.testIds.length > 0)),
+    'every direct cluster needs an exact statement/source/test binding',
   )
   assertDeepEqual(
     knownDeltaProof.authenticatedInputs,

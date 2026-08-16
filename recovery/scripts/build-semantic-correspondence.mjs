@@ -1264,6 +1264,7 @@ function validateObligations({
         ['source absences', obligation.sourceAbsences ?? [], boundDirectEvidenceRow.sourceAbsences],
         ['source file absences', obligation.sourceFileAbsences ?? [], boundDirectEvidenceRow.sourceFileAbsences ?? []],
         ['semantic cluster IDs', obligation.semanticClusterIds ?? [], boundDirectEvidenceRow.semanticClusterIds ?? []],
+        ['semantic cluster bindings', obligation.semanticClusterBindings ?? [], boundDirectEvidenceRow.semanticClusterBindings ?? []],
       ]) {
         assertEqual(
           JSON.stringify(actual),
@@ -1675,6 +1676,28 @@ function validateObligations({
         `${obligation.id}: invalid semantic cluster IDs`,
       )
     }
+    const semanticClusterBindings = obligation.semanticClusterBindings ?? []
+    if (obligation.semanticClusterBindings !== undefined) {
+      assert(
+        Array.isArray(semanticClusterBindings) &&
+          semanticClusterBindings.length === semanticClusterIds.length &&
+          JSON.stringify(
+            semanticClusterBindings.map(binding => binding.clusterId),
+          ) === JSON.stringify(semanticClusterIds) &&
+          semanticClusterBindings.every(binding =>
+            binding &&
+              typeof binding === 'object' &&
+              !Array.isArray(binding) &&
+              binding.targetWitness &&
+              typeof binding.targetWitness === 'object' &&
+              !Array.isArray(binding.targetWitness) &&
+              Array.isArray(binding.sourceWitnesses) &&
+              binding.sourceWitnesses.length > 0 &&
+              Array.isArray(binding.testIds) &&
+              binding.testIds.length > 0),
+        `${obligation.id}: invalid semantic cluster bindings`,
+      )
+    }
     obligationWitnesses.push({
       id: obligation.id,
       classification: obligation.classification,
@@ -1709,6 +1732,9 @@ function validateObligations({
       })),
       testIds: [...(obligation.testIds ?? [])].sort(),
       ...(semanticClusterIds.length === 0 ? {} : { semanticClusterIds }),
+      ...(semanticClusterBindings.length === 0
+        ? {}
+        : { semanticClusterBindings }),
       ...(obligation.catalogBinding === undefined
         ? {}
         : {
