@@ -39,6 +39,7 @@ import {
 } from './model.js'
 import { has1mContext } from '../context.js'
 import { getGlobalConfig } from '../config.js'
+import { getGatewayModelOptions } from './gatewayModelDiscovery.js'
 
 // @[MODEL LAUNCH]: Update all the available and default model option strings below.
 
@@ -529,6 +530,13 @@ export function getModelOptions(fastMode = false): ModelOption[] {
 
   // Append additional model options fetched during bootstrap
   for (const opt of getGlobalConfig().additionalModelOptionsCache ?? []) {
+    if (!options.some(existing => existing.value === opt.value)) {
+      options.push(opt)
+    }
+  }
+
+  // Append models discovered from a configured Anthropic-compatible gateway.
+  for (const opt of getGatewayModelOptions()) {
     if (!options.some(existing => existing.value === opt.value)) {
       options.push(opt)
     }
