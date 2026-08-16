@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.122-to-2.1.123",
+  "release": "2.1.123",
+  "complete": false,
+  "coverageDeclarations": {
+    "officialRowsEnumerated": true,
+    "hiddenInventoryComplete": false,
+    "daemonInventoryComplete": false,
+    "residualAuditComplete": false,
+    "changedSourcePathsFullyBound": false,
+    "focusedTestsFullyBound": false
+  },
+  "rows": [
+    {
+      "id": "B01",
+      "category": "official",
+      "releaseBullet": 1,
+      "title": "Fixed OAuth authentication failing with a 401 retry loop when `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` is set",
+      "status": "pending-source-recovery",
+      "targetFragments": [],
+      "sourceAssertions": [],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "Pending exact adjacent-bundle and recovered-source evidence."
+    }
+  ]
+}

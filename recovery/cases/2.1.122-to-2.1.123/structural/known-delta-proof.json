@@ -1,0 +1,715 @@
+{
+  "schemaVersion": 1,
+  "kind": "release-2.1.123-known-semantic-delta-proof",
+  "case": "2.1.122-to-2.1.123",
+  "release": "2.1.123",
+  "complete": true,
+  "claim": "After exact build-identity normalization, the complete active 2.1.122-to-2.1.123 token delta is the OAuth beta provider/kill-switch predicate split recorded here. Scope-normalized top-level token identity is exact after synthesis; comments and whitespace are outside the semantic claim.",
+  "authenticatedInputs": {
+    "baseline": {
+      "bytes": 13949544,
+      "sha256": "b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c"
+    },
+    "target": {
+      "bytes": 13949576,
+      "sha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd"
+    }
+  },
+  "metadataNormalization": {
+    "replacementCardinalityPerValue": 162,
+    "replacements": [
+      {
+        "field": "version",
+        "count": 162,
+        "rawCount": 163,
+        "baseline": {
+          "value": "2.1.122",
+          "sha256": "7a4dc63ed7104f8164878ef68c277c649e1eddbdd16ca730515b575779acb32f"
+        },
+        "target": {
+          "value": "2.1.123",
+          "sha256": "5f51acab2ba5647f09dac500fe9e08daa81d40b5700e9db2c17e0a8db7597d44"
+        }
+      },
+      {
+        "field": "buildTimestamp",
+        "count": 162,
+        "rawCount": 162,
+        "baseline": {
+          "value": "2026-04-28T01:31:31Z",
+          "sha256": "b58f7849f937dc161a8d2346db3bf83fbaa602d9ad7534eaf8dcb0538e0b5637"
+        },
+        "target": {
+          "value": "2026-04-29T00:34:52Z",
+          "sha256": "90db469ea3e26dd07545ed475514a690b4c58faadefaff9330ca952a8d5ddc89"
+        }
+      },
+      {
+        "field": "sourceRevision",
+        "count": 162,
+        "rawCount": 162,
+        "baseline": {
+          "value": "70046c58fb1c720f82bcbf39a3447dadf5bd33b2",
+          "sha256": "13888e4a4f407b5aea02b822e8c2915be730352ea6a548d5a98b35442d66a302"
+        },
+        "target": {
+          "value": "54903ade25087ef906df59ec6a608cc3a50a3f06",
+          "sha256": "d9990a36c93f743ad6ae895c6a078b2d533011ebecd0142b44b605358a4683e1"
+        }
+      }
+    ],
+    "rawLiteralDelta": [
+      {
+        "key": "string:\"2.1.122\"",
+        "baseline": 162,
+        "target": 0,
+        "delta": -162
+      },
+      {
+        "key": "string:\"2.1.123\"",
+        "baseline": 0,
+        "target": 162,
+        "delta": 162
+      },
+      {
+        "key": "string:\"2026-04-28T01:31:31Z\"",
+        "baseline": 162,
+        "target": 0,
+        "delta": -162
+      },
+      {
+        "key": "string:\"2026-04-29T00:34:52Z\"",
+        "baseline": 0,
+        "target": 162,
+        "delta": 162
+      },
+      {
+        "key": "string:\"54903ade25087ef906df59ec6a608cc3a50a3f06\"",
+        "baseline": 0,
+        "target": 162,
+        "delta": 162
+      },
+      {
+        "key": "string:\"70046c58fb1c720f82bcbf39a3447dadf5bd33b2\"",
+        "baseline": 162,
+        "target": 0,
+        "delta": -162
+      }
+    ],
+    "normalizedTarget": {
+      "bytes": 13949576,
+      "sha256": "d08802b85a5caf467db38fd74f14435ea4e476b4241b7f847533b9e3cdeeaa7c"
+    }
+  },
+  "knownDelta": {
+    "oauthBetaHeader": "oauth-2025-04-20",
+    "callCounts": {
+      "baselineCombined": 12,
+      "targetKillSwitch": 11,
+      "targetProvider": 4
+    },
+    "syntheticCallCounts": {
+      "killSwitch": 11,
+      "provider": 4
+    },
+    "slices": [
+      {
+        "id": "baseline-combined-provider-and-kill-switch",
+        "surface": "baseline",
+        "text": "function Tb(){let H=qK();return(H===\"firstParty\"||H===\"anthropicAws\"||H===\"foundry\")&&!IH(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)}",
+        "bytes": 142,
+        "sha256": "427f9782618293253302a1f6ef03077d67b20f456505e8fe391b60cfb4145abb",
+        "count": 1
+      },
+      {
+        "id": "target-provider-only-helper",
+        "surface": "target",
+        "text": "function an8(){let H=qK();return H===\"firstParty\"||H===\"anthropicAws\"||H===\"foundry\"}",
+        "bytes": 85,
+        "sha256": "2f5a5d66fb2a75ebceac10fb1113c8a94bc41dad7fe94f34fe3185c69e603d86",
+        "count": 1
+      },
+      {
+        "id": "target-kill-switch-helper",
+        "surface": "target",
+        "text": "function bp(){return an8()&&!IH(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)}",
+        "bytes": 84,
+        "sha256": "1c0dac7880f360d384fd1c70fe65925f5a3b8c5314a064dd9537aba152660679",
+        "count": 1
+      },
+      {
+        "id": "baseline-outgoing-beta-filter",
+        "surface": "baseline",
+        "text": "function tqK(H){if(Tb())return H;return H.filter(($)=>sqK.has($))}",
+        "bytes": 66,
+        "sha256": "ca09b678e0cfc1fe27b2722b8ba3549e545fdd401ba4bb8bfb00fea22c237874",
+        "count": 1
+      },
+      {
+        "id": "target-outgoing-beta-filter",
+        "surface": "target",
+        "text": "function eqK(H){if(an8())return H;return H.filter(($)=>tqK.has($))}",
+        "bytes": 67,
+        "sha256": "fe762ab7c6ec7e91341e58afb1daa3b5a3b842f2d0efdb1a1f2d01dff6876351",
+        "count": 1
+      },
+      {
+        "id": "baseline-oauth-wif-condition",
+        "surface": "baseline",
+        "text": "if(Iq()||_&&!eL()&&oI())$.push(Lw)",
+        "bytes": 34,
+        "sha256": "29abf396b11aacacf2bfc4d688ccc079e25683257993f22e82d581884954051d",
+        "count": 1
+      },
+      {
+        "id": "target-oauth-wif-condition",
+        "surface": "target",
+        "text": "if(Iq()||an8()&&!eL()&&oI())$.push(Lw)",
+        "bytes": 38,
+        "sha256": "7e5200863422ed9f1268f2a25f25a220f31985534c717384d9d0a491722196e8",
+        "count": 1
+      },
+      {
+        "id": "oauth-beta-binding",
+        "surface": "both",
+        "text": "Lw=\"oauth-2025-04-20\"",
+        "bytes": 21,
+        "sha256": "82d73766b4363a65a1b838bc6aba61fc0e543b0b482a79013cfbe32872d4d314",
+        "baselineCount": 1,
+        "targetCount": 1
+      }
+    ],
+    "syntheticBaseline": {
+      "bytes": 13949764,
+      "sha256": "f33bda99465bcb10ccd4f2e9461fcec1d3913a7fc680668210283a14f0186d73"
+    }
+  },
+  "finiteInventories": {
+    "literalDelta": [],
+    "moduleSurfaceDelta": [],
+    "nodeTypeDelta": [
+      {
+        "key": "BlockStatement",
+        "baseline": 68556,
+        "target": 68557,
+        "delta": 1
+      },
+      {
+        "key": "CallExpression",
+        "baseline": 210760,
+        "target": 210762,
+        "delta": 2
+      },
+      {
+        "key": "FunctionDeclaration",
+        "baseline": 16443,
+        "target": 16444,
+        "delta": 1
+      },
+      {
+        "key": "Identifier",
+        "baseline": 1277369,
+        "target": 1277371,
+        "delta": 2
+      },
+      {
+        "key": "ReturnStatement",
+        "baseline": 50699,
+        "target": 50700,
+        "delta": 1
+      }
+    ],
+    "operatorDelta": [],
+    "semanticPropertyDelta": []
+  },
+  "ledgers": {
+    "rawAdjacent": {
+      "baseline": {
+        "bytes": 13949544,
+        "sha256": "b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c",
+        "tokenCount": 4394491,
+        "utf16Length": 13949544,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4394491,
+          "scanned": 4394491
+        },
+        "unitCount": 22301
+      },
+      "target": {
+        "bytes": 13949576,
+        "sha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd",
+        "tokenCount": 4394501,
+        "utf16Length": 13949576,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4394501,
+          "scanned": 4394501
+        },
+        "unitCount": 22302
+      },
+      "globalBindingPairCount": 31607,
+      "pairCount": 22210,
+      "coverage": {
+        "tokens": {
+          "changed": 7865,
+          "matched": 4253806,
+          "moved": 0,
+          "unresolved": 132830,
+          "total": 4394501,
+          "ledgerTotal": 4394501,
+          "resolved": 4261671,
+          "resolvedFraction": 0.9697735874903658,
+          "exactStructuralFraction": 0.9679838507261689
+        },
+        "units": {
+          "changed": 9,
+          "matched": 22201,
+          "moved": 0,
+          "unresolved": 92,
+          "total": 22302
+        },
+        "moveEvidence": {
+          "ambiguousDuplicate": {
+            "tokens": 0,
+            "units": 0
+          },
+          "unique": {
+            "tokens": 0,
+            "units": 0
+          }
+        }
+      },
+      "unmatchedBaselineCount": 91,
+      "unresolvedTargetCount": 92,
+      "changedTargetIndices": [
+        6281,
+        6282,
+        6284,
+        10140,
+        18240,
+        19574,
+        19588,
+        19592,
+        22301
+      ],
+      "unresolvedTargetIndices": [
+        10,
+        13,
+        4773,
+        4778,
+        6279,
+        6280,
+        6286,
+        6329,
+        6333,
+        6335,
+        6341,
+        6391,
+        6393,
+        6405,
+        6645,
+        6666,
+        6809,
+        9466,
+        9931,
+        10113,
+        10568,
+        11133,
+        11734,
+        11735,
+        11775,
+        11788,
+        11799,
+        11800,
+        11805,
+        11821,
+        11825,
+        11869,
+        11886,
+        12270,
+        13205,
+        14194,
+        15001,
+        15112,
+        15115,
+        15761,
+        15767,
+        15768,
+        15959,
+        16063,
+        16402,
+        16408,
+        16457,
+        16530,
+        17031,
+        17032,
+        17128,
+        17219,
+        17220,
+        18040,
+        18068,
+        18069,
+        18239,
+        18379,
+        18643,
+        18694,
+        18695,
+        18754,
+        19025,
+        19210,
+        19282,
+        19493,
+        19541,
+        19608,
+        19632,
+        19649,
+        19750,
+        19805,
+        20229,
+        20232,
+        20236,
+        20239,
+        20999,
+        21003,
+        21067,
+        21515,
+        21516,
+        21618,
+        22042,
+        22075,
+        22170,
+        22189,
+        22202,
+        22223,
+        22234,
+        22257,
+        22290,
+        22300
+      ]
+    },
+    "metadataNormalized": {
+      "baseline": {
+        "bytes": 13949544,
+        "sha256": "b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c",
+        "tokenCount": 4394491,
+        "utf16Length": 13949544,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4394491,
+          "scanned": 4394491
+        },
+        "unitCount": 22301
+      },
+      "target": {
+        "bytes": 13949576,
+        "sha256": "d08802b85a5caf467db38fd74f14435ea4e476b4241b7f847533b9e3cdeeaa7c",
+        "tokenCount": 4394501,
+        "utf16Length": 13949576,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4394501,
+          "scanned": 4394501
+        },
+        "unitCount": 22302
+      },
+      "globalBindingPairCount": 31628,
+      "pairCount": 22299,
+      "coverage": {
+        "tokens": {
+          "changed": 7803,
+          "matched": 4386130,
+          "moved": 0,
+          "unresolved": 568,
+          "total": 4394501,
+          "ledgerTotal": 4394501,
+          "resolved": 4393933,
+          "resolvedFraction": 0.999870747554728,
+          "exactStructuralFraction": 0.9980951193320925
+        },
+        "units": {
+          "changed": 7,
+          "matched": 22292,
+          "moved": 0,
+          "unresolved": 3,
+          "total": 22302
+        },
+        "moveEvidence": {
+          "ambiguousDuplicate": {
+            "tokens": 0,
+            "units": 0
+          },
+          "unique": {
+            "tokens": 0,
+            "units": 0
+          }
+        }
+      },
+      "unmatchedBaselineCount": 2,
+      "unresolvedTargetCount": 3,
+      "changedTargetIndices": [
+        6281,
+        6282,
+        6284,
+        10140,
+        19574,
+        19588,
+        19592
+      ],
+      "unresolvedTargetIndices": [
+        6279,
+        6280,
+        6286
+      ]
+    },
+    "knownDeltaExact": {
+      "baseline": {
+        "bytes": 13949764,
+        "sha256": "f33bda99465bcb10ccd4f2e9461fcec1d3913a7fc680668210283a14f0186d73",
+        "tokenCount": 4394501,
+        "utf16Length": 13949764,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4394501,
+          "scanned": 4394501
+        },
+        "unitCount": 22302
+      },
+      "target": {
+        "bytes": 13949576,
+        "sha256": "d08802b85a5caf467db38fd74f14435ea4e476b4241b7f847533b9e3cdeeaa7c",
+        "tokenCount": 4394501,
+        "utf16Length": 13949576,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4394501,
+          "scanned": 4394501
+        },
+        "unitCount": 22302
+      },
+      "globalBindingPairCount": 31630,
+      "pairCount": 22302,
+      "coverage": {
+        "tokens": {
+          "changed": 0,
+          "matched": 4394501,
+          "moved": 0,
+          "unresolved": 0,
+          "total": 4394501,
+          "ledgerTotal": 4394501,
+          "resolved": 4394501,
+          "resolvedFraction": 1,
+          "exactStructuralFraction": 1
+        },
+        "units": {
+          "changed": 0,
+          "matched": 22302,
+          "moved": 0,
+          "unresolved": 0,
+          "total": 22302
+        },
+        "moveEvidence": {
+          "ambiguousDuplicate": {
+            "tokens": 0,
+            "units": 0
+          },
+          "unique": {
+            "tokens": 0,
+            "units": 0
+          }
+        }
+      },
+      "unmatchedBaselineCount": 0,
+      "unresolvedTargetCount": 0,
+      "changedTargetIndices": [],
+      "unresolvedTargetIndices": []
+    }
+  },
+  "attribution": {
+    "schemaVersion": 1,
+    "kind": "generated-source-ownership-and-attribution-inventory",
+    "offsetUnit": "utf16-code-units",
+    "claim": "Fail-closed incremental attribution from the authenticated adjacent bundles and zero-residue known-delta proof: exact-generated before and after one changed region owned by ../src/utils/betas.ts.",
+    "artifacts": {
+      "baselineBundle": {
+        "bytes": 13949544,
+        "sha256": "b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c"
+      },
+      "targetBundle": {
+        "bytes": 13949576,
+        "sha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd"
+      }
+    },
+    "options": {
+      "strategy": "authenticated-known-delta-contiguous-partition",
+      "changedTargetOffsetStart": 2858499,
+      "changedTargetOffsetEnd": 2860318
+    },
+    "baselineOwnership": {
+      "sourceCount": 1,
+      "sourceKinds": {
+        "application": 1,
+        "nodeModules": 0,
+        "vendor": 0
+      },
+      "mappedSegmentCount": 1,
+      "contiguousRunCount": 1,
+      "eachSourceHasExactlyOneContiguousRun": true,
+      "generatedHeaderUtf16": 2858499
+    },
+    "literalEvidence": {
+      "uniqueCommonAnchorCount": 0,
+      "monotoneAnchorCount": 0,
+      "nonMonotoneAnchorCount": 0,
+      "monotoneFraction": 1,
+      "partitionCount": 3,
+      "tokenCountDelta": 10,
+      "utf16LengthDelta": 32,
+      "locatedSourceCount": 1,
+      "locatedApplicationSourceCount": 1,
+      "splitTargetClusterSourceCount": 0
+    },
+    "initializerEvidence": {
+      "baseline": {
+        "count": 1
+      },
+      "target": {
+        "count": 1,
+        "statuses": {
+          "anchored-single-baseline-unit": 1
+        }
+      },
+      "targetNetCountDelta": 0
+    },
+    "coverage": {
+      "partitionCount": 3,
+      "targetPartitionUtf16": 13949576,
+      "exactAnchorCount": 0,
+      "exactAnchorTargetUtf16": 0,
+      "exactGeneratedPartitionCount": 2,
+      "exactGeneratedTargetUtf16": 13947757,
+      "changedHighConfidencePartitionCount": 1,
+      "changedHighConfidenceTargetUtf16": 1819,
+      "changedCandidatePartitionCount": 0,
+      "changedCandidateTargetUtf16": 0,
+      "unresolvedPartitionCount": 0,
+      "unresolvedTargetUtf16": 0,
+      "accountedTargetUtf16": 13949576,
+      "targetUtf16": 13949576,
+      "unaccountedTargetUtf16": 0,
+      "targetRangeCount": 3,
+      "targetRangeUtf16": 13949576
+    },
+    "reportFiles": {
+      "sources": {
+        "path": "sources.jsonl.gz",
+        "bytes": 293,
+        "sha256": "6d440658bf1873d0a3acbcd758f2d5ecfccb0e18abb0b961675a9e9ad79c955f"
+      },
+      "targetInitializers": {
+        "path": "target-initializers.jsonl.gz",
+        "bytes": 245,
+        "sha256": "88faeb040018383a0b13f4facde21b979aa0e16a95c00bcf1e5c11300a312b46"
+      },
+      "targetPartitions": {
+        "path": "target-partitions.jsonl.gz",
+        "bytes": 790,
+        "sha256": "3e15db83e1ecbe6a1cb37b39b18030c2b85e5f31c458772e175a128fb8ca4f0d"
+      },
+      "targetRanges": {
+        "path": "target-ranges.jsonl.gz",
+        "bytes": 425,
+        "sha256": "da4d2e9a93b78ca78095dc1e91ff37881331b9ff6280d091099b8095dc2c1719"
+      }
+    },
+    "limitations": [
+      "This is release-incremental attribution, not a baseline source-map inventory.",
+      "Exact-generated means scope-normalized token identity after the authenticated metadata normalization and known-delta synthesis.",
+      "Comments and whitespace are outside the semantic ownership claim."
+    ]
+  },
+  "artifacts": {
+    "rawLedger": {
+      "path": "structural/generated-delta.json.gz",
+      "bytes": 2249391,
+      "sha256": "a25b8e0101631589db1a92c4d5d306aa60806228263921d2b8e37b8173a24e24"
+    },
+    "metadataLedger": {
+      "path": "structural/metadata-normalized-delta.json.gz",
+      "bytes": 2228952,
+      "sha256": "7588d83842cd9a92c6c397af15253dd2b7bb76a575af62fd0f3ea594c79fc6b7"
+    },
+    "exactLedger": {
+      "path": "structural/known-delta-ledger.json.gz",
+      "bytes": 2228225,
+      "sha256": "0c5766e6ead785c802053e1b71a3dee825df1076efba4708a7f55c19ebc6d2d1"
+    },
+    "attribution": {
+      "summary": {
+        "path": "attribution/summary.json",
+        "bytes": 3304,
+        "sha256": "05aba1ff7bebacad5a490ef6d578099d3c89c4d1d129034ad3d1c85524668849"
+      },
+      "sources": {
+        "path": "attribution/sources.jsonl.gz",
+        "bytes": 293,
+        "sha256": "6d440658bf1873d0a3acbcd758f2d5ecfccb0e18abb0b961675a9e9ad79c955f"
+      },
+      "targetInitializers": {
+        "path": "attribution/target-initializers.jsonl.gz",
+        "bytes": 245,
+        "sha256": "88faeb040018383a0b13f4facde21b979aa0e16a95c00bcf1e5c11300a312b46"
+      },
+      "targetPartitions": {
+        "path": "attribution/target-partitions.jsonl.gz",
+        "bytes": 790,
+        "sha256": "3e15db83e1ecbe6a1cb37b39b18030c2b85e5f31c458772e175a128fb8ca4f0d"
+      },
+      "targetRanges": {
+        "path": "attribution/target-ranges.jsonl.gz",
+        "bytes": 425,
+        "sha256": "da4d2e9a93b78ca78095dc1e91ff37881331b9ff6280d091099b8095dc2c1719"
+      }
+    }
+  },
+  "readableDiff": {
+    "metadata": {
+      "path": "readable-diff/metadata.json",
+      "bytes": 3840,
+      "sha256": "9fcc8a8b91a016974072e35193ee45a57e564f315b93d867dfbd1ea6343b7b91"
+    },
+    "statements": {
+      "baseline": 22301,
+      "target": 22302
+    },
+    "matching": {
+      "duplicateSharedFingerprints": 707,
+      "structurallyUniquePairs": 15531,
+      "uniqueBaselineFingerprints": 15622,
+      "uniqueTargetFingerprints": 15623
+    },
+    "renames": {
+      "accepted": 8533,
+      "edits": 22177,
+      "rejected": 11208
+    },
+    "comparisonInvariantHashesEqual": true,
+    "outputs": {
+      "normalized.diff.gz": {
+        "path": "readable-diff/normalized.diff.gz",
+        "bytes": 4734999,
+        "sha256": "48a92147b2d13f1256d38dda3f5b366a5e31c0cb698faec903f04fbda6ea86a2"
+      },
+      "renames.tsv": {
+        "path": "readable-diff/renames.tsv",
+        "bytes": 102233,
+        "sha256": "c1eacd6414a7a686cef1626f323b5799a1f584279c3a2ef9d1bb3253d0be92b3"
+      },
+      "statements.diff": {
+        "path": "readable-diff/statements.diff",
+        "bytes": 38029,
+        "sha256": "55658edd3996c2a4d9ee4c8a472f6cf1be12e0e8342e6c4d14847345d793dc4b"
+      }
+    }
+  }
+}
