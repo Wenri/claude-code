@@ -208,8 +208,10 @@ import { provisionContentReplacementState, reconstructContentReplacementState, t
 import { partialCompactConversation } from '../services/compact/compact.js';
 import type { LogOption } from '../types/logs.js';
 import type { AgentColorName } from '../tools/AgentTool/agentColorManager.js';
-import { fileHistoryMakeSnapshot, type FileHistoryState, fileHistoryRewind, type FileHistorySnapshot, copyFileHistoryForResume, fileHistoryEnabled, fileHistoryHasAnyChanges } from '../utils/fileHistory.js';
-import { type AttributionState, incrementPromptCount } from '../utils/commitAttribution.js';
+import { applyFileHistoryOp as reduceFileHistoryOp, fileHistoryMakeSnapshot, fileHistoryRewind, type FileHistorySnapshot, copyFileHistoryForResume, fileHistoryEnabled, fileHistoryHasAnyChanges } from '../utils/fileHistory.js';
+import { applyAttributionOp as reduceAttributionOp, incrementPromptCount } from '../utils/commitAttribution.js';
+import { makeSessionHooksRegistry } from '../utils/hooks/sessionHooks.js';
+import { makeSetWebBrowserSlice } from '../utils/webBrowserState.js';
 import { recordAttributionSnapshot } from '../utils/sessionStorage.js';
 import { computeStandaloneAgentContext, restoreAgentFromSession, restoreSessionStateFromLog, restoreWorktreeForResume, exitRestoredWorktree } from '../utils/sessionRestore.js';
 import { restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
@@ -2756,9 +2758,20 @@ export function REPL({
         }),
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
+      setWebBrowserSlice: makeSetWebBrowserSlice(setAppState),
+      setComputerUseMcpState(updater) {
+        setAppState(prev => {
+          const computerUseMcpState = updater(prev.computerUseMcpState);
+          return computerUseMcpState === prev.computerUseMcpState ? prev : {
+            ...prev,
+            computerUseMcpState
+          };
+        });
+      },
       agentLifecycle: createAgentLifecycle(setAppState),
       teammateColors,
       taskRegistry,
+      sessionHooksRegistry: makeSessionHooksRegistry(setAppState),
       replHydration: {
         kind: 'resume'
       },
@@ -2767,12 +2780,10 @@ export function REPL({
       turnStartIndex: 0,
       setMessages,
       applyMessageOp,
-      updateFileHistoryState(updater: (prev: FileHistoryState) => FileHistoryState) {
-        // Perf: skip the setState when the updater returns the same reference
-        // (e.g. fileHistoryTrackEdit returns `state` when the file is already
-        // tracked). Otherwise every no-op call would notify all store listeners.
+      getFileHistoryState: () => store.getState().fileHistory,
+      applyFileHistoryOp(operation) {
         setAppState(prev => {
-          const updated = updater(prev.fileHistory);
+          const updated = reduceFileHistoryOp(prev.fileHistory, operation);
           if (updated === prev.fileHistory) return prev;
           return {
             ...prev,
@@ -2780,9 +2791,9 @@ export function REPL({
           };
         });
       },
-      updateAttributionState(updater: (prev: AttributionState) => AttributionState) {
+      applyAttributionOp(operation) {
         setAppState(prev => {
-          const updated = updater(prev.attribution);
+          const updated = reduceAttributionOp(prev.attribution, operation);
           if (updated === prev.attribution) return prev;
           return {
             ...prev,
@@ -3443,12 +3454,19 @@ export function REPL({
 
       // Create file history snapshot for code rewind
       if (fileHistoryEnabled()) {
-        void fileHistoryMakeSnapshot((updater: (prev: FileHistoryState) => FileHistoryState) => {
-          setAppState(prev => ({
-            ...prev,
-            fileHistory: updater(prev.fileHistory)
-          }));
-        }, initialMsg.message.uuid);
+        void fileHistoryMakeSnapshot(
+          () => store.getState().fileHistory,
+          operation => {
+            setAppState(prev => {
+              const fileHistory = reduceFileHistoryOp(prev.fileHistory, operation);
+              return fileHistory === prev.fileHistory ? prev : {
+                ...prev,
+                fileHistory
+              };
+            });
+          },
+          initialMsg.message.uuid
+        );
       }
 
       // Ensure SessionStart hook context is available before the first API
@@ -5412,12 +5430,10 @@ export function REPL({
           // inputValue is REPL state; typed text survives the round-trip.
           <MessageActionsBar cursor={cursor} />}
                 {focusedInputDialog === 'message-selector' && <MessageSelector messages={messages} preselectedMessage={messageSelectorPreselect} onPreRestore={onCancel} onRestoreCode={async (message: UserMessage) => {
-            await fileHistoryRewind((updater: (prev: FileHistoryState) => FileHistoryState) => {
-              setAppState(prev => ({
-                ...prev,
-                fileHistory: updater(prev.fileHistory)
-              }));
-            }, message.uuid);
+            await fileHistoryRewind(
+              () => store.getState().fileHistory,
+              message.uuid
+            );
           }} onSummarize={async (message: UserMessage, feedback?: string, direction: PartialCompactDirection = 'from') => {
             // Project snipped messages so the compact model
             // doesn't summarize content that was intentionally removed.

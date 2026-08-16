@@ -75,6 +75,7 @@ import type { AgentLifecycle } from './utils/agentLifecycle.js'
 import type { SetClassifierApprovals } from './utils/classifierApprovals.js'
 import type { TaskRegistry } from './utils/task/framework.js'
 import type { TeammateColors } from './utils/swarm/teammateLayoutManager.js'
+import type { SessionHooksRegistry } from './utils/hooks/sessionHooks.js'
 
 // Re-export progress types for backwards compatibility
 export type {
@@ -103,9 +104,10 @@ import type {
   ReplHydration,
   ReplIsolationLatch,
 } from './tools/REPLTool/types.js'
-import type { AttributionState } from './utils/commitAttribution.js'
-import type { FileHistoryState } from './utils/fileHistory.js'
+import type { AttributionOp } from './utils/commitAttribution.js'
+import type { FileHistoryOp, FileHistoryState } from './utils/fileHistory.js'
 import type { Theme, ThemeName } from './utils/theme.js'
+import type { SetWebBrowserSlice } from './utils/webBrowserState.js'
 
 export type SetSDKStatus = (
   status: SDKStatus,
@@ -274,6 +276,13 @@ export type ToolUseContext = {
   agentLifecycle: AgentLifecycle
   teammateColors: TeammateColors
   taskRegistry: TaskRegistry
+  sessionHooksRegistry: SessionHooksRegistry
+  setWebBrowserSlice: SetWebBrowserSlice
+  setComputerUseMcpState?: (
+    updater: (
+      previous: AppState['computerUseMcpState'],
+    ) => AppState['computerUseMcpState'],
+  ) => void
   replHydration?: ReplHydration
   isolationLatch?: ReplIsolationLatch
   onPermissionDenial?: (
@@ -342,12 +351,9 @@ export type ToolUseContext = {
   onCompactProgress?: (event: CompactProgressEvent) => void
   setSDKStatus?: SetSDKStatus
   openMessageSelector?: () => void
-  updateFileHistoryState: (
-    updater: (prev: FileHistoryState) => FileHistoryState,
-  ) => void
-  updateAttributionState: (
-    updater: (prev: AttributionState) => AttributionState,
-  ) => void
+  getFileHistoryState: () => FileHistoryState | undefined
+  applyFileHistoryOp: (operation: FileHistoryOp) => void
+  applyAttributionOp: (operation: AttributionOp) => void
   setConversationId?: (id: UUID) => void
   agentId?: AgentId // Only set for subagents; use getSessionId() for session ID. Hooks use this to distinguish subagent calls.
   agentType?: string // Subagent type name. For the main thread's --agent type, hooks fall back to getMainThreadAgentType().

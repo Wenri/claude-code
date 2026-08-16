@@ -1009,7 +1009,6 @@ export async function runHeadless(
     const result = await handleRewindFiles(
       options.rewindFiles as UUID,
       currentAppState,
-      setAppState,
       false,
     )
     if (!result.canRewind) {
@@ -3817,7 +3816,6 @@ function runHeadlessStreaming(
           const result = await handleRewindFiles(
             message.request.user_message_id as UUID,
             appState,
-            setAppState,
             message.request.dry_run ?? false,
           )
           if (result.canRewind || message.request.dry_run) {
@@ -5751,7 +5749,6 @@ async function handleInitializeRequest(
 async function handleRewindFiles(
   userMessageId: UUID,
   appState: AppState,
-  setAppState: (updater: (prev: AppState) => AppState) => void,
   dryRun: boolean,
 ): Promise<RewindFilesResult> {
   if (!fileHistoryEnabled()) {
@@ -5778,14 +5775,7 @@ async function handleRewindFiles(
   }
 
   try {
-    await fileHistoryRewind(
-      updater =>
-        setAppState(prev => ({
-          ...prev,
-          fileHistory: updater(prev.fileHistory),
-        })),
-      userMessageId,
-    )
+    await fileHistoryRewind(() => appState.fileHistory, userMessageId)
   } catch (error) {
     return {
       canRewind: false,

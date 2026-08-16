@@ -60,17 +60,19 @@ import { createAgentLifecycle } from './utils/agentLifecycle.js'
 import { makeSetClassifierApprovals } from './utils/classifierApprovals.js'
 import { createTeammateColors } from './utils/swarm/teammateLayoutManager.js'
 import type { HookDeferredToolAttachment } from './utils/attachments.js'
-import type { AttributionState } from './utils/commitAttribution.js'
+import { applyAttributionOp as reduceAttributionOp } from './utils/commitAttribution.js'
 import { getConfigValue } from './utils/settings/configSettings.js'
 import { getCwd } from './utils/cwd.js'
 import { logForDebugging } from './utils/debug.js'
 import { isBareMode, isEnvTruthy } from './utils/envUtils.js'
 import { getFastModeState } from './utils/fastMode.js'
 import {
-  type FileHistoryState,
+  applyFileHistoryOp as reduceFileHistoryOp,
   fileHistoryEnabled,
   fileHistoryMakeSnapshot,
 } from './utils/fileHistory.js'
+import { makeSessionHooksRegistry } from './utils/hooks/sessionHooks.js'
+import { makeSetWebBrowserSlice } from './utils/webBrowserState.js'
 import {
   cloneFileStateCache,
   type FileStateCache,
@@ -524,9 +526,11 @@ export class QueryEngine {
         }),
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
+      setWebBrowserSlice: makeSetWebBrowserSlice(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
       teammateColors: createTeammateColors(getAppState, setAppState),
       taskRegistry: createTaskRegistry(getAppState, setAppState),
+      sessionHooksRegistry: makeSessionHooksRegistry(setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
@@ -540,20 +544,17 @@ export class QueryEngine {
       setInProgressToolUseIDs: () => {},
       addResponseLength: () => {},
       resetResponseLength: () => {},
-      updateFileHistoryState: (
-        updater: (prev: FileHistoryState) => FileHistoryState,
-      ) => {
+      getFileHistoryState: () => getAppState().fileHistory,
+      applyFileHistoryOp: operation => {
         setAppState(prev => {
-          const updated = updater(prev.fileHistory)
+          const updated = reduceFileHistoryOp(prev.fileHistory, operation)
           if (updated === prev.fileHistory) return prev
           return { ...prev, fileHistory: updated }
         })
       },
-      updateAttributionState: (
-        updater: (prev: AttributionState) => AttributionState,
-      ) => {
+      applyAttributionOp: operation => {
         setAppState(prev => {
-          const updated = updater(prev.attribution)
+          const updated = reduceAttributionOp(prev.attribution, operation)
           if (updated === prev.attribution) return prev
           return { ...prev, attribution: updated }
         })
@@ -839,9 +840,11 @@ export class QueryEngine {
         }),
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
+      setWebBrowserSlice: makeSetWebBrowserSlice(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
       teammateColors: createTeammateColors(getAppState, setAppState),
       taskRegistry: createTaskRegistry(getAppState, setAppState),
+      sessionHooksRegistry: makeSessionHooksRegistry(setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
@@ -855,8 +858,9 @@ export class QueryEngine {
       setInProgressToolUseIDs: () => {},
       addResponseLength: () => {},
       resetResponseLength: () => {},
-      updateFileHistoryState: processUserInputContext.updateFileHistoryState,
-      updateAttributionState: processUserInputContext.updateAttributionState,
+      getFileHistoryState: processUserInputContext.getFileHistoryState,
+      applyFileHistoryOp: processUserInputContext.applyFileHistoryOp,
+      applyAttributionOp: processUserInputContext.applyAttributionOp,
       setSDKStatus,
     }
 
@@ -1005,12 +1009,8 @@ export class QueryEngine {
         .filter(messageSelector().selectableUserMessagesFilter)
         .forEach(message => {
           void fileHistoryMakeSnapshot(
-            (updater: (prev: FileHistoryState) => FileHistoryState) => {
-              setAppState(prev => ({
-                ...prev,
-                fileHistory: updater(prev.fileHistory),
-              }))
-            },
+            processUserInputContext.getFileHistoryState,
+            processUserInputContext.applyFileHistoryOp,
             message.uuid,
           )
         })

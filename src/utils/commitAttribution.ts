@@ -191,6 +191,36 @@ export type AttributionState = {
   escapeCountAtLastCommit: number
 }
 
+export type AttributionFileChange = {
+  path: string
+  type: 'modified' | 'created' | 'deleted'
+  oldContent: string
+  newContent: string
+  mtime?: number
+}
+
+export type AttributionOp =
+  | {
+      kind: 'trackEdit'
+      surface: string
+      filePath: string
+      oldContent: string
+      newContent: string
+      userModified: boolean
+      mtime?: number
+    }
+  | {
+      kind: 'trackBulk'
+      surface: string
+      changes: ReadonlyArray<AttributionFileChange>
+    }
+  | {
+      kind: 'commitBoundary'
+      promptCountAtLastCommit: number
+      permissionPromptCountAtLastCommit: number
+      escapeCountAtLastCommit: number
+    }
+
 /**
  * Summary of Claude's contribution for a commit.
  */
@@ -488,13 +518,7 @@ export function trackFileDeletion(
  */
 export function trackBulkFileChanges(
   state: AttributionState,
-  changes: ReadonlyArray<{
-    path: string
-    type: 'modified' | 'created' | 'deleted'
-    oldContent: string
-    newContent: string
-    mtime?: number
-  }>,
+  changes: ReadonlyArray<AttributionFileChange>,
 ): AttributionState {
   // Create ONE copy of the Map, then mutate it for each file
   const newFileStates = new Map(state.fileStates)
@@ -538,6 +562,37 @@ export function trackBulkFileChanges(
   return {
     ...state,
     fileStates: newFileStates,
+  }
+}
+
+/** Apply an attribution operation carried by ToolUseContext. */
+export function applyAttributionOp(
+  state: AttributionState,
+  operation: AttributionOp,
+): AttributionState {
+  switch (operation.kind) {
+    case 'trackEdit':
+      return trackFileModification(
+        { ...state, surface: operation.surface },
+        operation.filePath,
+        operation.oldContent,
+        operation.newContent,
+        operation.userModified,
+        operation.mtime,
+      )
+    case 'trackBulk':
+      return trackBulkFileChanges(
+        { ...state, surface: operation.surface },
+        operation.changes,
+      )
+    case 'commitBoundary':
+      return {
+        ...state,
+        promptCountAtLastCommit: operation.promptCountAtLastCommit,
+        permissionPromptCountAtLastCommit:
+          operation.permissionPromptCountAtLastCommit,
+        escapeCountAtLastCommit: operation.escapeCountAtLastCommit,
+      }
   }
 }
 

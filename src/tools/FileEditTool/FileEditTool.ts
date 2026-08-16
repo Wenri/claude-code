@@ -419,7 +419,8 @@ export const FileEditTool = buildTool({
     {
       readFileState,
       userModified,
-      updateFileHistoryState,
+      getFileHistoryState,
+      applyFileHistoryOp,
       dynamicSkillDirTriggers,
       setAppState,
       agentId,
@@ -465,7 +466,8 @@ export const FileEditTool = buildTool({
       // check (idempotent v1 backup keyed on content hash; if staleness fails
       // later we just have an unused backup, not corrupt state).
       await fileHistoryTrackEdit(
-        updateFileHistoryState,
+        getFileHistoryState,
+        applyFileHistoryOp,
         absoluteFilePath,
         parentMessage.uuid,
       )

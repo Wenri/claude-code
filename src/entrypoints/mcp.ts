@@ -20,6 +20,7 @@ import { createAbortController } from '../utils/abortController.js'
 import { NOOP_AGENT_LIFECYCLE } from '../utils/agentLifecycle.js'
 import { NOOP_SET_CLASSIFIER_APPROVALS } from '../utils/classifierApprovals.js'
 import { NOOP_TEAMMATE_COLORS } from '../utils/swarm/teammateLayoutManager.js'
+import { NOOP_SESSION_HOOKS_REGISTRY } from '../utils/hooks/sessionHooks.js'
 import { createFileStateCacheWithSizeLimit } from '../utils/fileStateCache.js'
 import { logError } from '../utils/log.js'
 import { createAssistantMessage } from '../utils/messages.js'
@@ -144,17 +145,20 @@ export function createMCPServer(debug: boolean, verbose: boolean): Server {
         setToolPermissionContext: () => {},
         setClassifierApprovals: NOOP_SET_CLASSIFIER_APPROVALS,
         setReplContext: () => {},
+        setWebBrowserSlice: () => {},
         agentLifecycle: NOOP_AGENT_LIFECYCLE,
         teammateColors: NOOP_TEAMMATE_COLORS,
         taskRegistry: createTaskRegistry(() => getDefaultAppState(), () => {}),
+        sessionHooksRegistry: NOOP_SESSION_HOOKS_REGISTRY,
         messages: [],
         turnStartIndex: 0,
         readFileState: readFileStateCache,
         setInProgressToolUseIDs: () => {},
         addResponseLength: () => {},
         resetResponseLength: () => {},
-        updateFileHistoryState: () => {},
-        updateAttributionState: () => {},
+        getFileHistoryState: () => undefined,
+        applyFileHistoryOp: () => {},
+        applyAttributionOp: () => {},
       }
 
       // TODO: validate input types with zod

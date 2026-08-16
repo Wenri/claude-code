@@ -2206,7 +2206,7 @@ async function* executeHooks({
     const context = toolUseContext
       ? {
           getAppState: toolUseContext.getAppState,
-          updateAttributionState: toolUseContext.updateAttributionState,
+          applyAttributionOp: toolUseContext.applyAttributionOp,
         }
       : undefined
     for (const [i, { hook }] of matchingHooks.entries()) {
@@ -5408,7 +5408,7 @@ async function executeHookCallback({
   const context = toolUseContext
     ? {
         getAppState: toolUseContext.getAppState,
-        updateAttributionState: toolUseContext.updateAttributionState,
+        applyAttributionOp: toolUseContext.applyAttributionOp,
       }
     : undefined
   const json = await hook.callback(

@@ -323,7 +323,7 @@ export const NotebookEditTool = buildTool({
       cell_type,
       edit_mode: originalEditMode,
     },
-    { readFileState, updateFileHistoryState },
+    { readFileState, getFileHistoryState, applyFileHistoryOp },
     _,
     parentMessage,
   ) {
@@ -333,7 +333,8 @@ export const NotebookEditTool = buildTool({
 
     if (fileHistoryEnabled()) {
       await fileHistoryTrackEdit(
-        updateFileHistoryState,
+        getFileHistoryState,
+        applyFileHistoryOp,
         fullPath,
         parentMessage.uuid,
       )

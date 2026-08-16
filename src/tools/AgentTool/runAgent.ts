@@ -68,7 +68,6 @@ import {
   createSubagentContext,
 } from '../../utils/forkedAgent.js'
 import { registerFrontmatterHooks } from '../../utils/hooks/registerFrontmatterHooks.js'
-import { clearSessionHooks } from '../../utils/hooks/sessionHooks.js'
 import {
   executeStopHooks,
   executeSubagentStartHooks,
@@ -487,10 +486,7 @@ export async function* runAgent({
       agentPermissionMode &&
       parentContext.mode !== 'bypassPermissions' &&
       parentContext.mode !== 'acceptEdits' &&
-      !(
-        feature('TRANSCRIPT_CLASSIFIER') &&
-        parentContext.mode === 'auto'
-      )
+      parentContext.mode !== 'auto'
     ) {
       toolPermissionContext = {
         ...toolPermissionContext,
@@ -648,7 +644,7 @@ export async function* runAgent({
     isSourceAdminTrusted(agentDefinition.source)
   if (agentDefinition.hooks && hooksAllowedForThisAgent) {
     registerFrontmatterHooks(
-      rootSetAppState,
+      toolUseContext.sessionHooksRegistry,
       agentId,
       agentDefinition.hooks,
       `agent '${agentDefinition.agentType}'`,
@@ -995,7 +991,7 @@ export async function* runAgent({
     await mcpCleanup()
     // Clean up agent's session hooks
     if (agentDefinition.hooks) {
-      clearSessionHooks(rootSetAppState, agentId)
+      toolUseContext.sessionHooksRegistry.clear(agentId)
     }
     // Clean up prompt cache tracking state for this agent
     if (shouldTrackPromptCacheBreaks()) {

@@ -29,6 +29,8 @@ import type { CacheSafeParams } from './forkedAgent.js'
 import { getMainLoopModel } from './model/model.js'
 import { asSystemPrompt } from './systemPromptType.js'
 import { createTaskRegistry } from './task/framework.js'
+import { makeSessionHooksRegistry } from './hooks/sessionHooks.js'
+import { makeSetWebBrowserSlice } from './webBrowserState.js'
 import {
   shouldEnableThinkingByDefault,
   type ThinkingConfig,
@@ -217,16 +219,19 @@ export async function buildSideQuestionFallbackParams({
       }),
     setClassifierApprovals: makeSetClassifierApprovals(setAppState),
     setReplContext: makeSetReplContext(setAppState),
+    setWebBrowserSlice: makeSetWebBrowserSlice(setAppState),
     agentLifecycle: createAgentLifecycle(setAppState),
     teammateColors: createTeammateColors(getAppState, setAppState),
     taskRegistry: createTaskRegistry(getAppState, setAppState),
+    sessionHooksRegistry: makeSessionHooksRegistry(setAppState),
     messages: forkContextMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},
     addResponseLength: () => {},
     resetResponseLength: () => {},
-    updateFileHistoryState: () => {},
-    updateAttributionState: () => {},
+    getFileHistoryState: () => undefined,
+    applyFileHistoryOp: () => {},
+    applyAttributionOp: () => {},
   }
 
   return {

@@ -385,7 +385,7 @@ export function detectBlockedSleepPattern(command: string): string | null {
 type SimulatedSedEditResult = {
   data: Out;
 };
-type SimulatedSedEditContext = Pick<ToolUseContext, 'readFileState' | 'updateFileHistoryState'>;
+type SimulatedSedEditContext = Pick<ToolUseContext, 'readFileState' | 'getFileHistoryState' | 'applyFileHistoryOp'>;
 
 function isRuleBasedPermissionDecision(
   reason: PermissionDecisionReason | undefined,
@@ -437,7 +437,7 @@ async function applySedEdit(simulatedEdit: {
 
   // Track file history before making changes (for undo support)
   if (fileHistoryEnabled() && parentMessage) {
-    await fileHistoryTrackEdit(toolUseContext.updateFileHistoryState, absoluteFilePath, parentMessage.uuid);
+    await fileHistoryTrackEdit(toolUseContext.getFileHistoryState, toolUseContext.applyFileHistoryOp, absoluteFilePath, parentMessage.uuid);
   }
 
   // Detect line endings and write new content

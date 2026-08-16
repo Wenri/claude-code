@@ -21,7 +21,6 @@ import { createAbortController } from './abortController.js'
 import type { PastedContent } from './config.js'
 import { logForDebugging } from './debug.js'
 import type { EffortValue } from './effort.js'
-import type { FileHistoryState } from './fileHistory.js'
 import { fileHistoryEnabled, fileHistoryMakeSnapshot } from './fileHistory.js'
 import { gracefulShutdownSync } from './gracefulShutdown.js'
 import { enqueue } from './messageQueueManager.js'
@@ -530,12 +529,8 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
         queryCheckpoint('query_file_history_snapshot_start')
         newMessages.filter(selectableUserMessagesFilter).forEach(message => {
           void fileHistoryMakeSnapshot(
-            (updater: (prev: FileHistoryState) => FileHistoryState) => {
-              setAppState(prev => ({
-                ...prev,
-                fileHistory: updater(prev.fileHistory),
-              }))
-            },
+            processContext.getFileHistoryState,
+            processContext.applyFileHistoryOp,
             message.uuid,
           )
         })

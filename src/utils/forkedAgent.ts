@@ -476,9 +476,14 @@ export function createSubagentContext(
       parentContext.setAppStateForTasks ?? parentContext.setAppState,
     setClassifierApprovals: parentContext.setClassifierApprovals,
     setReplContext: parentContext.setReplContext,
+    setWebBrowserSlice: parentContext.setWebBrowserSlice,
+    setComputerUseMcpState: overrides?.shareSetAppState
+      ? parentContext.setComputerUseMcpState
+      : undefined,
     agentLifecycle: parentContext.agentLifecycle,
     teammateColors: parentContext.teammateColors,
     taskRegistry: parentContext.taskRegistry,
+    sessionHooksRegistry: parentContext.sessionHooksRegistry,
     isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,
     // Async subagents whose setAppState is a no-op need local denial tracking
     // so the denial counter actually accumulates across retries.
@@ -497,10 +502,11 @@ export function createSubagentContext(
     pushApiMetricsEntry: overrides?.shareSetResponseLength
       ? parentContext.pushApiMetricsEntry
       : undefined,
-    updateFileHistoryState: () => {},
-    // Attribution is scoped and functional (prev => next) — safe to share even
-    // when setAppState is stubbed. Concurrent calls compose via React's state queue.
-    updateAttributionState: parentContext.updateAttributionState,
+    getFileHistoryState: () => undefined,
+    applyFileHistoryOp: () => {},
+    // Attribution operations are safe to share even when this context's
+    // setAppState is stubbed; the parent facade dispatches into the root store.
+    applyAttributionOp: parentContext.applyAttributionOp,
 
     // UI callbacks - undefined for subagents (can't control parent UI)
     addNotification: undefined,

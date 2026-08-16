@@ -293,7 +293,8 @@ export const FileWriteTool = buildTool({
     { file_path, content },
     {
       readFileState,
-      updateFileHistoryState,
+      getFileHistoryState,
+      applyFileHistoryOp,
       dynamicSkillDirTriggers,
       userModified,
       setAppState,
@@ -333,7 +334,8 @@ export const FileWriteTool = buildTool({
       // check (idempotent v1 backup keyed on content hash; if staleness fails
       // later we just have an unused backup, not corrupt state).
       await fileHistoryTrackEdit(
-        updateFileHistoryState,
+        getFileHistoryState,
+        applyFileHistoryOp,
         fullFilePath,
         parentMessage.uuid,
       )

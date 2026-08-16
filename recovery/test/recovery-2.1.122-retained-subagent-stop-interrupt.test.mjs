@@ -64,7 +64,7 @@ test('source drains SubagentStop before destroying agent-scoped resources', () =
   const hookCleanup = source.indexOf('if (!completedNormally) {')
   const mcpCleanup = source.indexOf('await mcpCleanup()', hookCleanup)
   const registryCleanup = source.indexOf(
-    'clearSessionHooks(rootSetAppState, agentId)',
+    'toolUseContext.sessionHooksRegistry.clear(agentId)',
     hookCleanup,
   )
   assert.ok(hookCleanup >= 0)
