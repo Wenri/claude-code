@@ -2409,7 +2409,13 @@ async function run(): Promise<CommanderCommand> {
     if (isNonInteractiveSession && mainThreadAgentDefinition && !systemPrompt && !isBuiltInAgent(mainThreadAgentDefinition)) {
       const agentSystemPrompt = mainThreadAgentDefinition.getSystemPrompt();
       if (agentSystemPrompt) {
-        systemPrompt = agentSystemPrompt;
+        if (mainThreadAgentDefinition.appendSystemPrompt) {
+          appendSystemPrompt = appendSystemPrompt
+            ? `${agentSystemPrompt}\n\n${appendSystemPrompt}`
+            : agentSystemPrompt;
+        } else {
+          systemPrompt = agentSystemPrompt;
+        }
       }
     }
 

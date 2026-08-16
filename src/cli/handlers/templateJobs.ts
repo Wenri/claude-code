@@ -19,6 +19,7 @@ import { errorMessage } from '../../utils/errors.js'
 import { bgSupervisorNoun } from '../../utils/agentsFleet.js'
 import { canonicalizePath } from '../../utils/sessionStoragePortable.js'
 import { sendToUdsSocket } from '../../utils/udsClient.js'
+import { CLAUDE_AGENT } from '../../tools/AgentTool/built-in/claudeAgent.js'
 import {
   deleteBgJob,
   respawnBgJob,
@@ -29,6 +30,12 @@ export interface TemplateJob {
   name: string
   description?: string
   initialPrompt?: string
+}
+
+export const DEFAULT_TEMPLATE: TemplateJob = {
+  name: CLAUDE_AGENT.agentType,
+  description: CLAUDE_AGENT.whenToUse,
+  initialPrompt: CLAUDE_AGENT.initialPrompt,
 }
 
 export async function dispatchTemplateJob(
@@ -204,7 +211,7 @@ export async function prewarmTemplateJob(
     try {
       const canonicalCwd = await canonicalizePath(cwd)
       const result = await spawnBgSession(
-        ['--agent', 'general-purpose'],
+        ['--agent', DEFAULT_TEMPLATE.name],
         sessionId,
         'fleet',
         canonicalCwd,
@@ -251,7 +258,7 @@ export async function claimPrewarmedJob(
       }
     }
     return dispatchTemplateJob(
-      { name: 'general-purpose' },
+      DEFAULT_TEMPLATE,
       intent,
       claimed?.sessionId,
       claimed?.cwd,
@@ -259,7 +266,7 @@ export async function claimPrewarmedJob(
   }
   if (!claimed) return fallBackToFreshJob('no-spare')
   const state = createInitialJobState({
-    template: { name: 'general-purpose' },
+    template: DEFAULT_TEMPLATE,
     intent,
     detail: intent.replace(/[\r\n]+/g, ' ').slice(0, 80),
     sessionId: claimed.sessionId,

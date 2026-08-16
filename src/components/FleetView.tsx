@@ -72,6 +72,7 @@ import {
 } from '../cli/bg.js'
 import {
   claimPrewarmedJob,
+  DEFAULT_TEMPLATE,
   dispatchTemplateJob,
   getPrewarmedJob,
   markPrewarmedJobReady,
@@ -164,11 +165,6 @@ const CONTROL_RE = /[\x00-\x08\x0E-\x1F\x7F-\x9F]/g
 export const AUTO_RELAUNCH_UNFOCUSED_MS = 3_600_000
 export const AUTO_RELAUNCH_MIN_INTERVAL_MS = 21_600_000
 export const AUTO_RELAUNCH_ENV_KEY = 'CLAUDE_AGENTS_AUTO_RELAUNCHED_AT'
-const DEFAULT_TEMPLATE: FleetTemplate = {
-  name: 'general-purpose',
-  description: 'General-purpose background agent',
-}
-
 function shouldUseFleetAlternateScreen(): boolean {
   if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_NO_FLICKER)) return false
   if (isEnvTruthy(process.env.CLAUDE_CODE_NO_FLICKER)) return true
