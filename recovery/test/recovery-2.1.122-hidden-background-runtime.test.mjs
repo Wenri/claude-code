@@ -79,7 +79,7 @@ test('falls back from every spare claim failure to a fresh job', () => {
     "fallBackToFreshJob('state-write', errorMessage(error))",
     "? 'enojob' : 'reply'",
     "fallBackToFreshJob('reply-throw', errorMessage(error))",
-    "dispatchTemplateJob( { name: 'general-purpose' }, intent, claimed?.sessionId, claimed?.cwd",
+    'dispatchTemplateJob( DEFAULT_TEMPLATE, intent, claimed?.sessionId, claimed?.cwd',
   ]) {
     assert.ok(contents.includes(compact(fragment)), fragment)
   }
