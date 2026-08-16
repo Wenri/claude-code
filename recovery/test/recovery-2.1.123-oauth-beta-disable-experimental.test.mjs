@@ -127,13 +127,13 @@ test('authenticates the adjacent OAuth beta predicate split', () => {
   )
 })
 
-test('provider and kill-switch truth table keeps OAuth independent', () => {
+test('provider and kill-switch truth table preserves OAuth only before compatible-provider filtering', () => {
   const compatibleProviders = new Set([
     'firstParty',
     'anthropicAws',
     'foundry',
   ])
-  const safeBetas = new Set(['claude-code', 'oauth'])
+  const safeBetas = new Set(['claude-code'])
   const providerOnly = provider => compatibleProviders.has(provider)
   const experimental = (provider, disabled) =>
     providerOnly(provider) && !disabled
@@ -150,8 +150,8 @@ test('provider and kill-switch truth table keeps OAuth independent', () => {
       provider,
     )
     assert.deepEqual(
-      filter(provider, ['oauth', 'experimental-only']),
-      ['oauth', 'experimental-only'],
+      filter(provider, ['claude-code', 'oauth', 'experimental-only']),
+      ['claude-code', 'oauth', 'experimental-only'],
       provider,
     )
   }
@@ -162,8 +162,8 @@ test('provider and kill-switch truth table keeps OAuth independent', () => {
       provider,
     )
     assert.deepEqual(
-      filter(provider, ['oauth', 'experimental-only']),
-      ['oauth'],
+      filter(provider, ['claude-code', 'oauth', 'experimental-only']),
+      ['claude-code'],
       provider,
     )
   }
