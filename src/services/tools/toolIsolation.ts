@@ -33,8 +33,14 @@ const NO_ISOLATION: ToolIsolationResult = {
 
 export function createToolIsolationLatch(
   current: ToolIsolationClass | null = null,
-): { current: ToolIsolationClass | null; exemptServers?: Set<string> } {
-  return { current }
+  onLatch?: (value: ToolIsolationClass) => void,
+): {
+  current: ToolIsolationClass | null
+  exemptServers?: Set<string>
+  onLatch?: (value: ToolIsolationClass) => void
+} {
+  if (current) onLatch?.(current)
+  return { current, onLatch }
 }
 
 export function addWebSearchIsolationExemptMcpServers(
@@ -132,7 +138,10 @@ export function checkToolIsolation(
       activeLatch,
     }
   }
-  if (!activeLatch) latch.current = classifiedAs
+  if (!activeLatch) {
+    latch.current = classifiedAs
+    latch.onLatch?.(classifiedAs)
+  }
   return {
     denyMessage: null,
     classifiedAs,

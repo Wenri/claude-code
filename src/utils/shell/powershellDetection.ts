@@ -1,10 +1,20 @@
-import { realpath, stat } from 'fs/promises'
+import { lstat, realpath, stat } from 'fs/promises'
+import { join } from 'path'
 import { getPlatform } from '../platform.js'
 import { which } from '../which.js'
 
 async function probePath(p: string): Promise<string | null> {
   try {
     return (await stat(p)).isFile() ? p : null
+  } catch {
+    return null
+  }
+}
+
+async function probeSymlinkPath(p: string): Promise<string | null> {
+  try {
+    await lstat(p)
+    return p
   } catch {
     return null
   }
@@ -18,8 +28,9 @@ async function probePath(p: string): Promise<string | null> {
  * via a symlink chain like /usr/bin/pwsh → /snap/bin/pwsh — probe known
  * apt/rpm install locations instead: the snap launcher can hang in
  * subprocesses while snapd initializes confinement, but the underlying
- * binary at /opt/microsoft/powershell/7/pwsh is reliable. On
- * Windows/macOS, PATH is sufficient.
+ * binary at /opt/microsoft/powershell/7/pwsh is reliable. On Windows, also
+ * probes the standard MSI, WindowsApps, and dotnet tool
+ * locations before falling back to Windows PowerShell 5.1.
  */
 export async function findPowerShell(): Promise<string | null> {
   const pwshPath = await which('pwsh')
@@ -46,6 +57,27 @@ export async function findPowerShell(): Promise<string | null> {
       }
     }
     return pwshPath
+  }
+
+  if (getPlatform() === 'windows') {
+    const programFiles = process.env.ProgramFiles
+    const localAppData = process.env.LOCALAPPDATA
+    const userProfile = process.env.USERPROFILE
+    const fallbackPath =
+      (programFiles
+        ? await probePath(join(programFiles, 'PowerShell', '7', 'pwsh.exe'))
+        : null) ??
+      (localAppData
+        ? await probeSymlinkPath(
+            join(localAppData, 'Microsoft', 'WindowsApps', 'pwsh.exe'),
+          )
+        : null) ??
+      (userProfile
+        ? await probePath(join(userProfile, '.dotnet', 'tools', 'pwsh.exe'))
+        : null)
+    if (fallbackPath) {
+      return fallbackPath
+    }
   }
 
   const powershellPath = await which('powershell')
