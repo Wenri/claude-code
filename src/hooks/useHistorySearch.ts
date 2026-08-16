@@ -5,9 +5,7 @@ import {
   getValueFromInput,
 } from '../components/PromptInput/inputModes.js'
 import { makeHistoryReader } from '../history.js'
-import { KeyboardEvent } from '../ink/events/keyboard-event.js'
-// eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
-import { useInput } from '../ink.js'
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import { useKeybinding, useKeybindings } from '../keybindings/useKeybinding.js'
 import type { PromptInputMode } from '../types/textInputTypes.js'
 import type { HistoryEntry } from '../utils/config.js'
@@ -266,17 +264,6 @@ export function useHistorySearch(
       handleCancel()
     }
   }
-
-  // Backward-compat bridge: PromptInput doesn't yet wire handleKeyDown to
-  // <Box onKeyDown>. Subscribe via useInput and adapt InputEvent →
-  // KeyboardEvent until the consumer is migrated (separate PR).
-  // TODO(onKeyDown-migration): remove once PromptInput passes handleKeyDown.
-  useInput(
-    (_input, _key, event) => {
-      handleKeyDown(new KeyboardEvent(event.keypress))
-    },
-    { isActive: isSearching },
-  )
 
   // Keep a ref to searchHistory to avoid it being a dependency of useEffect
   const searchHistoryRef = useRef(searchHistory)

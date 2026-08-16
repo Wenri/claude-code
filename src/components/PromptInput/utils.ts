@@ -2,7 +2,7 @@ import {
   hasUsedBackslashReturn,
   isShiftEnterKeyBindingInstalled,
 } from '../../commands/terminalSetup/terminalSetup.js'
-import type { Key } from '../../ink.js'
+import type { KeyboardEvent } from '../../ink/events/keyboard-event.js'
 import { env } from '../../utils/env.js'
 import { getConfigValue } from '../../utils/settings/configSettings.js'
 /**
@@ -35,23 +35,26 @@ export function getNewlineInstructions(): string {
  * with whitespace — i.e., a normal letter/digit/symbol the user typed.
  * Used to gate the lazy space inserted after an image pill.
  */
-export function isNonSpacePrintable(input: string, key: Key): boolean {
+export function isNonSpacePrintable(
+  input: string,
+  event: KeyboardEvent,
+): boolean {
   if (
-    key.ctrl ||
-    key.meta ||
-    key.escape ||
-    key.return ||
-    key.tab ||
-    key.backspace ||
-    key.delete ||
-    key.upArrow ||
-    key.downArrow ||
-    key.leftArrow ||
-    key.rightArrow ||
-    key.pageUp ||
-    key.pageDown ||
-    key.home ||
-    key.end
+    event.ctrl ||
+    event.meta ||
+    event.name === 'escape' ||
+    event.name === 'return' ||
+    event.name === 'tab' ||
+    event.name === 'backspace' ||
+    event.name === 'delete' ||
+    event.name === 'up' ||
+    event.name === 'down' ||
+    event.name === 'left' ||
+    event.name === 'right' ||
+    event.name === 'pageup' ||
+    event.name === 'pagedown' ||
+    event.name === 'home' ||
+    event.name === 'end'
   ) {
     return false
   }

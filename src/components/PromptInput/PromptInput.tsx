@@ -35,11 +35,12 @@ import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { useTypeahead } from '../../hooks/useTypeahead.js';
 import type { BorderTextOptions } from '../../ink/render-border.js';
 import type { DOMElement } from '../../ink/dom.js';
+import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 import instances from '../../ink/instances.js';
 import { nodeCache } from '../../ink/node-cache.js';
 import { selectionBounds, type SelectionState } from '../../ink/selection.js';
 import { stringWidth } from '../../ink/stringWidth.js';
-import { Box, type ClickEvent, type Key, Text, useInput } from '../../ink.js';
+import { Box, type ClickEvent, Text } from '../../ink.js';
 import { useOptionalKeybindingContext } from '../../keybindings/KeybindingContext.js';
 import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
@@ -379,7 +380,8 @@ function PromptInput({
     historyQuery,
     setHistoryQuery,
     historyMatch,
-    historyFailedMatch
+    historyFailedMatch,
+    handleKeyDown: handleHistoryKeyDown
   } = useHistorySearch(entry => {
     setPastedContents(entry.pastedContents);
     void onSubmit(entry.display);
@@ -1038,8 +1040,8 @@ function PromptInput({
     }
 
     // Enter in selection modes confirms selection (useBackgroundTaskNavigation).
-    // BaseTextInput's useInput registers before that hook (child effects fire first),
-    // so without this guard Enter would double-fire and auto-submit the suggestion.
+    // Keep selection-mode Enter from auto-submitting the suggestion after the
+    // navigation handler confirms the selection.
     if (state.viewSelectionMode === 'selecting-agent') {
       return;
     }
@@ -1153,7 +1155,8 @@ function PromptInput({
     commandArgumentHint,
     suggestionsEmptyMessage,
     inlineGhostText,
-    maxColumnWidth
+    maxColumnWidth,
+    handleKeyDown: handleTypeaheadKeyDown
   } = useTypeahead({
     commands,
     onInputChange: trackAndSetInput,
@@ -1319,10 +1322,10 @@ function PromptInput({
       insertTextAtCursor(text);
     }
   }
-  const lazySpaceInputFilter = useCallback((input: string, key: Key): string => {
+  const lazySpaceInputFilter = useCallback((input: string, event: KeyboardEvent): string => {
     if (!pendingSpaceAfterPillRef.current) return input;
     pendingSpaceAfterPillRef.current = false;
-    if (isNonSpacePrintable(input, key)) return ' ' + input;
+    if (isNonSpacePrintable(input, event)) return ' ' + input;
     return input;
   }, []);
   function insertTextAtCursor(text: string) {
@@ -1937,7 +1940,7 @@ function PromptInput({
 
   // Footer indicator navigation keybindings. ↑/↓ live here (not in
   // handleHistoryUp/Down) because TextInput focus=false when a pill is
-  // selected — its useInput is inactive, so this is the only path.
+  // selected, so this is the only path.
   useKeybindings({
     'footer:up': () => {
       // ↑ scrolls within the coordinator task list before leaving the pill
@@ -2061,13 +2064,20 @@ function PromptInput({
     context: 'Footer',
     isActive: !!footerItemSelected && !isModalOverlayActive
   });
-  useInput((char, key) => {
+  function handleKeyDownBefore(event: KeyboardEvent): void {
     // Skip all input handling when a full-screen dialog is open. These dialogs
     // render via early return, but hooks run unconditionally — so without this
     // guard, Escape inside a dialog leaks to the double-press message-selector.
     if (showTeamsDialog || showQuickOpen || showGlobalSearch || showHistoryPicker) {
       return;
     }
+
+    handleHistoryKeyDown(event);
+    if (event.defaultPrevented || event.didStopImmediatePropagation()) return;
+    handleTypeaheadKeyDown(event);
+    if (event.defaultPrevented || event.didStopImmediatePropagation()) return;
+
+    const char = event.key;
 
     // Detect failed Alt shortcuts on macOS (Option key produces special characters)
     if (getPlatform() === 'macos' && isMacosOptionChar(char)) {
@@ -2094,20 +2104,20 @@ function PromptInput({
     // the input and type the char. Nav keys are captured by useKeybindings
     // above, so anything reaching here is genuinely not a footer action.
     // onChange clears footerSelection, so no explicit deselect.
-    if (footerItemSelected && char && !key.ctrl && !key.meta && !key.escape && !key.return) {
+    if (footerItemSelected && char && !event.ctrl && !event.meta && event.name !== 'escape' && event.name !== 'return') {
       onChange(input.slice(0, cursorOffset) + char + input.slice(cursorOffset));
       setCursorOffset(cursorOffset + char.length);
       return;
     }
 
     // Exit special modes when backspace/escape/delete/ctrl+u is pressed at cursor position 0
-    if (cursorOffset === 0 && (key.escape || key.backspace || key.delete || key.ctrl && char === 'u')) {
+    if (cursorOffset === 0 && (event.name === 'escape' || event.name === 'backspace' || event.name === 'delete' || event.ctrl && char === 'u')) {
       onModeChange('prompt');
       setHelpOpen(false);
     }
 
     // Exit help mode when backspace is pressed and input is empty
-    if (helpOpen && input === '' && (key.backspace || key.delete)) {
+    if (helpOpen && input === '' && (event.name === 'backspace' || event.name === 'delete')) {
       setHelpOpen(false);
     }
 
@@ -2118,7 +2128,7 @@ function PromptInput({
     // - when input is empty, pop from command queue
 
     // Handle ESC key press
-    if (key.escape) {
+    if (event.name === 'escape') {
       // Abort active speculation
       if (speculation.status === 'active') {
         abortSpeculation(setAppState);
@@ -2154,10 +2164,10 @@ function PromptInput({
         doublePressEscFromEmpty();
       }
     }
-    if (key.return && helpOpen) {
+    if (event.name === 'return' && helpOpen) {
       setHelpOpen(false);
     }
-  });
+  }
   const swarmBanner = useSwarmBanner();
   const fastModeCooldown = isFastModeEnabled() ? isFastModeCooldown() : false;
   const showFastIcon = isFastModeEnabled() ? isFastMode && (isFastModeAvailable() || fastModeCooldown) : false;
@@ -2409,6 +2419,7 @@ function PromptInput({
   }
   const baseProps: BaseTextInputProps = {
     multiline: true,
+    onKeyDownBefore: handleKeyDownBefore,
     onSubmit,
     onChange,
     value: historyMatch ? getValueFromInput(typeof historyMatch === 'string' ? historyMatch : historyMatch.display) : input,
