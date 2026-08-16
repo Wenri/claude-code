@@ -1451,7 +1451,9 @@ export async function attachJob(short: string): Promise<FleetAttachResult> {
         ? `${bgSupervisorNounCap()} is still starting — try again in a moment`
         : daemonUnavailable.test(outcome.msg)
           ? `${bgSupervisorNounCap()} didn't respond after starting — try again in a moment`
-          : `Couldn't attach — ${outcome.msg}`,
+          : outcome.msg
+            ? `Couldn't attach — ${outcome.msg}`
+            : "Couldn't attach to that session",
     }
   }
   logForDebugging('[PERF:bg-attach-end]')
