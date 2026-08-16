@@ -4501,10 +4501,11 @@ async function run(): Promise<CommanderCommand> {
   pluginCmd.command('validate <path>').description('Validate a plugin or marketplace manifest').addOption(coworkOption()).action(async (manifestPath: string, options: {
     cowork?: boolean;
   }) => {
-    const {
-      pluginValidateHandler
-    } = await import('./cli/handlers/plugins.js');
-    await pluginValidateHandler(manifestPath, options);
+    const [{ pluginValidateHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await pluginValidateHandler(await createSubcommandRoot(), manifestPath, options);
   });
 
   pluginCmd.command('tag [path]').description('Create a {name}--v{version} git tag for a plugin release, validating that plugin.json and any enclosing marketplace entry agree').option('--push', 'Push the tag to --remote after creating it').option('--dry-run', 'Print what would be tagged without creating it').option('-f, --force', 'Skip the dirty-working-tree and tag-already-exists checks').option('-m, --message <msg>', 'Tag annotation message (use %s for the version)').option('--remote <name>', 'Remote to push to with --push', 'origin').action(async (pluginPath: string | undefined, options: {
@@ -4528,10 +4529,12 @@ async function run(): Promise<CommanderCommand> {
     available?: boolean;
     cowork?: boolean;
   }) => {
-    const {
-      pluginListHandler
-    } = await import('./cli/handlers/plugins.js');
-    await pluginListHandler(options);
+    const [{ pluginListHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await pluginListHandler(await createSubcommandRoot(), options);
+    process.exit(0);
   });
 
   // Marketplace subcommands
@@ -4541,35 +4544,41 @@ async function run(): Promise<CommanderCommand> {
     sparse?: string[];
     scope?: string;
   }) => {
-    const {
-      marketplaceAddHandler
-    } = await import('./cli/handlers/plugins.js');
-    await marketplaceAddHandler(source, options);
+    const [{ marketplaceAddHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await marketplaceAddHandler(await createSubcommandRoot(), source, options);
   });
   marketplaceCmd.command('list').description('List all configured marketplaces').option('--json', 'Output as JSON').addOption(coworkOption()).action(async (options: {
     json?: boolean;
     cowork?: boolean;
   }) => {
-    const {
-      marketplaceListHandler
-    } = await import('./cli/handlers/plugins.js');
-    await marketplaceListHandler(options);
+    const [{ marketplaceListHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await marketplaceListHandler(await createSubcommandRoot(), options);
+    process.exit(0);
   });
   marketplaceCmd.command('remove <name>').alias('rm').description('Remove a configured marketplace').addOption(coworkOption()).action(async (name: string, options: {
     cowork?: boolean;
   }) => {
-    const {
-      marketplaceRemoveHandler
-    } = await import('./cli/handlers/plugins.js');
-    await marketplaceRemoveHandler(name, options);
+    const [{ marketplaceRemoveHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await marketplaceRemoveHandler(await createSubcommandRoot(), name, options);
+    process.exit(0);
   });
   marketplaceCmd.command('update [name]').description('Update marketplace(s) from their source - updates all if no name specified').addOption(coworkOption()).action(async (name: string | undefined, options: {
     cowork?: boolean;
   }) => {
-    const {
-      marketplaceUpdateHandler
-    } = await import('./cli/handlers/plugins.js');
-    await marketplaceUpdateHandler(name, options);
+    const [{ marketplaceUpdateHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await marketplaceUpdateHandler(await createSubcommandRoot(), name, options);
   });
 
   // Plugin install command
@@ -4577,10 +4586,11 @@ async function run(): Promise<CommanderCommand> {
     scope?: string;
     cowork?: boolean;
   }) => {
-    const {
-      pluginInstallHandler
-    } = await import('./cli/handlers/plugins.js');
-    await pluginInstallHandler(plugin, options);
+    const [{ pluginInstallHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await pluginInstallHandler(await createSubcommandRoot(), plugin, options);
   });
 
   // Plugin uninstall command
@@ -4591,10 +4601,11 @@ async function run(): Promise<CommanderCommand> {
     prune?: boolean;
     yes?: boolean;
   }) => {
-    const {
-      pluginUninstallHandler
-    } = await import('./cli/handlers/plugins.js');
-    await pluginUninstallHandler(plugin, options);
+    const [{ pluginUninstallHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await pluginUninstallHandler(await createSubcommandRoot(), plugin, options);
   });
 
   pluginCmd.command('prune').alias('autoremove').description('Remove auto-installed dependencies that are no longer needed').option('-s, --scope <scope>', 'Prune at scope: user, project, or local', 'user').option('--dry-run', 'List what would be removed without removing').option('-y, --yes', 'Skip the confirmation prompt (required when stdin is not a TTY)').addOption(coworkOption()).action(async (options: {
@@ -4603,10 +4614,11 @@ async function run(): Promise<CommanderCommand> {
     dryRun?: boolean;
     yes?: boolean;
   }) => {
-    const {
-      pluginPruneHandler
-    } = await import('./cli/handlers/plugins.js');
-    await pluginPruneHandler(options);
+    const [{ pluginPruneHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await pluginPruneHandler(await createSubcommandRoot(), options);
   });
 
   // Plugin enable command
@@ -4614,10 +4626,12 @@ async function run(): Promise<CommanderCommand> {
     scope?: string;
     cowork?: boolean;
   }) => {
-    const {
-      pluginEnableHandler
-    } = await import('./cli/handlers/plugins.js');
-    await pluginEnableHandler(plugin, options);
+    const [{ pluginEnableHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await pluginEnableHandler(await createSubcommandRoot(), plugin, options);
+    process.exit(0);
   });
 
   // Plugin disable command
@@ -4626,10 +4640,11 @@ async function run(): Promise<CommanderCommand> {
     cowork?: boolean;
     all?: boolean;
   }) => {
-    const {
-      pluginDisableHandler
-    } = await import('./cli/handlers/plugins.js');
-    await pluginDisableHandler(plugin, options);
+    const [{ pluginDisableHandler }, { createSubcommandRoot }] = await Promise.all([
+      import('./cli/handlers/plugins.js'),
+      import('./cli/handlers/util.js'),
+    ]);
+    await pluginDisableHandler(await createSubcommandRoot(), plugin, options);
   });
 
   // Plugin update command

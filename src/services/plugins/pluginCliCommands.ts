@@ -62,7 +62,7 @@ type PluginCliCommand =
  * tengu_plugin_command_failed before exit so dashboards can compute a
  * success rate against the corresponding success events.
  */
-function handlePluginCommandError(
+export function handlePluginCommandError(
   error: unknown,
   command: PluginCliCommand,
   plugin?: string,
@@ -115,19 +115,13 @@ function handlePluginCommandError(
 export async function installPlugin(
   plugin: string,
   scope: InstallableScope = 'user',
-): Promise<void> {
+): Promise<string> {
   try {
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`Installing plugin "${plugin}"...`)
-
     const result = await installPluginOp(plugin, scope)
 
     if (!result.success) {
       throw new Error(result.message)
     }
-
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${figures.tick} ${result.message}`)
 
     // _PROTO_* routes to PII-tagged plugin_name/marketplace_name BQ columns.
     // Unredacted plugin_id was previously logged to general-access
@@ -150,8 +144,7 @@ export async function installPlugin(
       ...buildPluginTelemetryFields(name, marketplace, getManagedPluginNames()),
     })
 
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
+    return result.message
   } catch (error) {
     handlePluginCommandError(error, 'install', plugin)
   }
@@ -168,7 +161,7 @@ export async function uninstallPlugin(
   keepData = false,
   prune = false,
   yes = false,
-): Promise<void> {
+): Promise<string> {
   try {
     const result = await uninstallPluginOp(plugin, scope, !keepData)
 
@@ -197,26 +190,19 @@ export async function uninstallPlugin(
       if (prune) {
         writeToStdout(`${figures.tick} ${result.message}\n`)
         uninstallPrinted = true
-        const pruneResult = await formatAndPruneAutoDependencies(scan, scope, {
+        return await formatAndPruneAutoDependencies(scan, scope, {
           dryRun: false,
           yes,
           deleteDataDir: !keepData,
         })
-        writeToStdout(`${pruneResult}\n`)
-      } else {
-        writeToStdout(
-          `${figures.tick} ${result.message}${formatOrphanedAutoDependenciesHint(scan.orphans, scope)}\n`,
-        )
       }
+      return `${result.message}${formatOrphanedAutoDependenciesHint(scan.orphans, scope)}`
     } catch (error) {
       logError(error)
-      writeToStdout(
-        `${uninstallPrinted ? '' : `${figures.tick} ${result.message}\n`}(${prune ? 'prune' : 'orphan scan'} failed: ${errorMessage(error)})\n`,
-      )
+      const failure = `(${prune ? 'prune' : 'orphan scan'} failed: ${errorMessage(error)})`
+      if (uninstallPrinted) return failure
+      return `${prune ? `${figures.tick} ${result.message}` : result.message}\n${failure}`
     }
-
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
   } catch (error) {
     handlePluginCommandError(error, 'uninstall', plugin)
   }
@@ -297,17 +283,14 @@ async function formatAndPruneAutoDependencies(
 export async function prunePlugins(
   scope: InstallableScope = 'user',
   { dryRun = false, yes = false }: { dryRun?: boolean; yes?: boolean } = {},
-): Promise<void> {
+): Promise<string> {
   try {
     const scan = await scanOrphanedAutoDependencies(scope)
-    const result = await formatAndPruneAutoDependencies(scan, scope, {
+    return await formatAndPruneAutoDependencies(scan, scope, {
       dryRun,
       yes,
       deleteDataDir: true,
     })
-    writeToStdout(`${result}\n`)
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
   } catch (error) {
     handlePluginCommandError(error, 'prune')
   }
@@ -321,37 +304,8 @@ export async function prunePlugins(
 export async function enablePlugin(
   plugin: string,
   scope?: InstallableScope,
-): Promise<void> {
-  try {
-    const result = await enablePluginOp(plugin, scope)
-
-    if (!result.success) {
-      throw new Error(result.message)
-    }
-
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${figures.tick} ${result.message}`)
-
-    const { name, marketplace } = parsePluginIdentifier(
-      result.pluginId || plugin,
-    )
-    logEvent('tengu_plugin_enabled_cli', {
-      _PROTO_plugin_name:
-        name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-      ...(marketplace && {
-        _PROTO_marketplace_name:
-          marketplace as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-      }),
-      scope:
-        result.scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...buildPluginTelemetryFields(name, marketplace, getManagedPluginNames()),
-    })
-
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
-  } catch (error) {
-    handlePluginCommandError(error, 'enable', plugin)
-  }
+): ReturnType<typeof enablePluginOp> {
+  return enablePluginOp(plugin, scope)
 }
 
 /**
@@ -362,16 +316,13 @@ export async function enablePlugin(
 export async function disablePlugin(
   plugin: string,
   scope?: InstallableScope,
-): Promise<void> {
+): Promise<string> {
   try {
     const result = await disablePluginOp(plugin, scope)
 
     if (!result.success) {
       throw new Error(result.message)
     }
-
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${figures.tick} ${result.message}`)
 
     const { name, marketplace } = parsePluginIdentifier(
       result.pluginId || plugin,
@@ -388,8 +339,7 @@ export async function disablePlugin(
       ...buildPluginTelemetryFields(name, marketplace, getManagedPluginNames()),
     })
 
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
+    return `${figures.tick} ${result.message}`
   } catch (error) {
     handlePluginCommandError(error, 'disable', plugin)
   }
@@ -398,7 +348,7 @@ export async function disablePlugin(
 /**
  * CLI command: Disable all enabled plugins non-interactively
  */
-export async function disableAllPlugins(): Promise<void> {
+export async function disableAllPlugins(): Promise<string> {
   try {
     const result = await disableAllPluginsOp()
 
@@ -406,13 +356,8 @@ export async function disableAllPlugins(): Promise<void> {
       throw new Error(result.message)
     }
 
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${figures.tick} ${result.message}`)
-
     logEvent('tengu_plugin_disabled_all_cli', {})
-
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
+    return `${figures.tick} ${result.message}`
   } catch (error) {
     handlePluginCommandError(error, 'disable-all')
   }
@@ -440,7 +385,7 @@ export async function updatePluginCli(
 
     writeToStdout(`${figures.tick} ${result.message}\n`)
 
-    if (!result.alreadyUpToDate) {
+    if (!result.alreadyUpToDate && !result.skipped) {
       const { name, marketplace } = parsePluginIdentifier(
         result.pluginId || plugin,
       )
