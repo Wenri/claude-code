@@ -13,7 +13,7 @@ import {
 import { generateTaskId } from '../Task.js'
 import { pwd, setCwdForContext } from './cwd.js'
 import { logForDebugging } from './debug.js'
-import { errorMessage, isENOENT } from './errors.js'
+import { errorMessage, getErrnoCode, isENOENT } from './errors.js'
 import { getFsImplementation } from './fsOperations.js'
 import { logError } from './log.js'
 import {
@@ -381,19 +381,35 @@ export async function exec(
         },
       }
     }
+
+    // The sandbox runtime reads CLAUDE_TMPDIR while it builds the wrapper, so
+    // make the directory available before wrapping the command.  A concurrent
+    // creator is equally usable; other failures stay fail-soft and leave the
+    // caller's environment unchanged.
+    let sandboxTmpDirUsable = false
+    try {
+      const fs = getFsImplementation()
+      await fs.mkdir(sandboxTmpDir, { mode: 0o700 })
+      sandboxTmpDirUsable = true
+    } catch (error) {
+      if (getErrnoCode(error) === 'EEXIST') {
+        sandboxTmpDirUsable = true
+      } else {
+        logForDebugging(
+          `Failed to create ${sandboxTmpDir} directory: ${error}`,
+        )
+      }
+    }
+    if (sandboxTmpDirUsable && !process.env.CLAUDE_TMPDIR) {
+      process.env.CLAUDE_TMPDIR = sandboxTmpDir
+    }
+
     commandString = await SandboxManager.wrapWithSandbox(
       commandString,
       sandboxBinShell,
       scrubConfig,
       abortSignal,
     )
-    // Create sandbox temp directory for sandboxed processes with secure permissions
-    try {
-      const fs = getFsImplementation()
-      await fs.mkdir(sandboxTmpDir, { mode: 0o700 })
-    } catch (error) {
-      logForDebugging(`Failed to create ${sandboxTmpDir} directory: ${error}`)
-    }
   }
 
   const spawnBinary = isSandboxedPowerShell ? '/bin/sh' : binShell
