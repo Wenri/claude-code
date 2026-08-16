@@ -6,6 +6,10 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { parse } from 'acorn'
+import {
+  assertRelease21124GeneratedInputContract,
+  assertRelease21124SourceOracleDeclaration,
+} from '../lib/release-2.1.124-input-contract.mjs'
 
 const defaultRepo = fileURLToPath(new URL('../..', import.meta.url))
 const expectedStructuralArtifacts = {
@@ -331,6 +335,37 @@ function readCommitFile(repo, revision, relative) {
   return result.stdout
 }
 
+function authenticateArtifact(root, artifact, label) {
+  assert(artifact && typeof artifact.localPath === 'string',
+    `${label}: missing artifact`)
+  const parts = artifact.localPath.split('/')
+  assert(
+    !path.isAbsolute(artifact.localPath) &&
+      !artifact.localPath.includes('\\') &&
+      parts.length > 0 &&
+      !parts.some(part => part === '' || part === '.' || part === '..'),
+    `${label}: unsafe artifact path`,
+  )
+  const resolvedRoot = path.resolve(root)
+  const rootStatus = fs.lstatSync(resolvedRoot)
+  assert(rootStatus.isDirectory() && !rootStatus.isSymbolicLink(),
+    `${label}: artifact root must be a real directory`)
+  let filename = resolvedRoot
+  for (const [index, part] of parts.entries()) {
+    filename = path.join(filename, part)
+    const status = fs.lstatSync(filename)
+    assert(!status.isSymbolicLink(), `${label}: artifact path traverses a symlink`)
+    assert(
+      index === parts.length - 1 ? status.isFile() : status.isDirectory(),
+      `${label}: artifact path component has the wrong type`,
+    )
+  }
+  const value = fs.readFileSync(filename)
+  assert(value.length === artifact.bytes, `${label}: byte length`)
+  assert(sha256(value) === artifact.sha256, `${label}: SHA-256`)
+  return filename
+}
+
 function main() {
   const args = parseArguments(process.argv.slice(2))
   if (!args.artifacts || !args['baseline-tarball']) {
@@ -369,14 +404,52 @@ function main() {
     'semantic closure',
   )
 
+  const attributionSummaryBytes = fs.readFileSync(
+    path.join(caseRoot, 'attribution/summary.json'),
+  )
+  const readableMetadataBytes = fs.readFileSync(
+    path.join(caseRoot, 'readable-diff/metadata.json'),
+  )
+  const generatedInputContract = assertRelease21124GeneratedInputContract({
+    artifacts: manifest.artifacts,
+    attribution: JSON.parse(attributionSummaryBytes),
+    attributionSummary: {
+      bytes: attributionSummaryBytes.length,
+      sha256: sha256(attributionSummaryBytes),
+    },
+    readable: JSON.parse(readableMetadataBytes),
+    readableMetadata: {
+      bytes: readableMetadataBytes.length,
+      sha256: sha256(readableMetadataBytes),
+    },
+  })
+  for (const [name, expected] of Object.entries(generatedInputContract)) {
+    const section = manifest.generatedRecovery[
+      name === 'readable' ? 'readableDiff' : name
+    ]
+    const declared = Object.fromEntries(
+      Object.keys(expected).map(key => [key, section?.[key]]),
+    )
+    assert(
+      JSON.stringify(declared) === JSON.stringify(expected),
+      `${name}: generated input contract`,
+    )
+  }
+  assertRelease21124SourceOracleDeclaration(
+    manifest,
+    generatedInputContract,
+  )
+
   const semantic = manifest.generatedRecovery?.semanticCorrespondence
   assert(
     semantic?.status === 'verified-zero-unclassified-zero-unverified',
     'semantic status',
   )
   assert(
-    semantic.changelog === 'evidence/RELEASE-2.1.124-ABSENCE.json',
-    'semantic proof uses authenticated release-absence evidence',
+    semantic.changelog === 'evidence/RELEASE-2.1.124-ABSENCE.json' &&
+      semantic.baselineArtifact === 'baselineAnalyzableBundle' &&
+      semantic.targetArtifact === 'targetAnalyzableBundle',
+    'semantic proof uses adjacent bundles and authenticated release absence',
   )
   const direct = readPinned(
     caseRoot,
@@ -1083,14 +1156,28 @@ function main() {
     baselineAnalyzable?.localPath && targetAnalyzable?.localPath,
     'adjacent analyzable artifact paths',
   )
+  const artifactRoot = path.resolve(args.artifacts)
+  const authenticatedGeneratedArtifacts = new Map(
+    [
+      'sourceOracleBundle',
+      'sourceOracleMap',
+      'baselineAnalyzableBundle',
+      'targetAnalyzableBundle',
+      'targetPackageJson',
+      'targetDeclarations',
+    ].map(id => [
+      id,
+      authenticateArtifact(artifactRoot, artifactById.get(id), id),
+    ]),
+  )
   const semanticDelta = spawnSync(
     process.execPath,
     [
       path.join(repo, 'recovery/scripts/verify-2.1.124-semantic-delta.mjs'),
       '--baseline',
-      path.join(path.resolve(args.artifacts), baselineAnalyzable.localPath),
+      authenticatedGeneratedArtifacts.get('baselineAnalyzableBundle'),
       '--target',
-      path.join(path.resolve(args.artifacts), targetAnalyzable.localPath),
+      authenticatedGeneratedArtifacts.get('targetAnalyzableBundle'),
       '--case-root',
       caseRoot,
       '--source-root',

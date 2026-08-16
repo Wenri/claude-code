@@ -12,7 +12,8 @@ function usage() {
   console.error(
     'Usage: verify-attribution-report.mjs --report DIR ' +
       '[--expected-summary-sha256 HEX] ' +
-      '[--expected-baseline-sha256 HEX] [--expected-target-sha256 HEX]',
+      '[--expected-baseline-sha256 HEX] ' +
+      '[--expected-source-map-sha256 HEX] [--expected-target-sha256 HEX]',
   )
 }
 
@@ -118,6 +119,7 @@ function assertCountMap(actual, expected, label) {
 export function verifyAttributionReport({
   reportDirectory,
   expectedBaselineSha256,
+  expectedSourceMapSha256,
   expectedSummarySha256,
   expectedTargetSha256,
 }) {
@@ -152,6 +154,14 @@ export function verifyAttributionReport({
       summary.artifacts.targetBundle.sha256,
       expectedTargetSha256,
       'target bundle SHA-256',
+    )
+  }
+  if (expectedSourceMapSha256 !== undefined) {
+    assertSha256(expectedSourceMapSha256, 'expected source-map SHA-256')
+    assertEqual(
+      summary.artifacts.baselineSourceMap?.sha256,
+      expectedSourceMapSha256,
+      'baseline source-map SHA-256',
     )
   }
 
@@ -486,6 +496,7 @@ function main() {
       verifyAttributionReport({
         reportDirectory: args.report,
         expectedBaselineSha256: args['expected-baseline-sha256'],
+        expectedSourceMapSha256: args['expected-source-map-sha256'],
         expectedSummarySha256: args['expected-summary-sha256'],
         expectedTargetSha256: args['expected-target-sha256'],
       }),

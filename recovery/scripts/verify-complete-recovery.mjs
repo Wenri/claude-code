@@ -202,22 +202,32 @@ function main() {
   const attributionTargetEvidence = evidenceFor(
     generated.attribution.targetArtifact ?? 'targetBundle',
   )
+  const attributionSourceMapEvidence = generated.attribution.sourceMapArtifact
+    ? evidenceFor(generated.attribution.sourceMapArtifact)
+    : null
+  const attributionArguments = [
+    '--report',
+    safeRelative(
+      caseRoot,
+      generated.attribution.directory,
+      'attribution report',
+    ),
+    '--expected-summary-sha256',
+    attributionSummary.sha256,
+    '--expected-baseline-sha256',
+    attributionBaselineEvidence.sha256,
+    '--expected-target-sha256',
+    attributionTargetEvidence.sha256,
+  ]
+  if (attributionSourceMapEvidence !== null) {
+    attributionArguments.push(
+      '--expected-source-map-sha256',
+      attributionSourceMapEvidence.sha256,
+    )
+  }
   const attribution = runJson(
     path.join(scripts, 'verify-attribution-report.mjs'),
-    [
-      '--report',
-      safeRelative(
-        caseRoot,
-        generated.attribution.directory,
-        'attribution report',
-      ),
-      '--expected-summary-sha256',
-      attributionSummary.sha256,
-      '--expected-baseline-sha256',
-      attributionBaselineEvidence.sha256,
-      '--expected-target-sha256',
-      attributionTargetEvidence.sha256,
-    ],
+    attributionArguments,
     repositoryRoot,
   )
 

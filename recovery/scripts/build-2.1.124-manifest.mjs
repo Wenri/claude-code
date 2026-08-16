@@ -4,6 +4,10 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import {
+  assertRelease21124GeneratedInputContract,
+  assertRelease21124SourceOracleDeclaration,
+} from '../lib/release-2.1.124-input-contract.mjs'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.123-to-2.1.124')
@@ -30,6 +34,8 @@ const knownDeltaProofPath = path.join(
   caseRoot,
   'structural/known-delta-proof.json',
 )
+const attributionSummaryPath = path.join(caseRoot, 'attribution/summary.json')
+const readableMetadataPath = path.join(caseRoot, 'readable-diff/metadata.json')
 const expectedStructuralArtifacts = {
   rawLedger: {
     path: 'structural/generated-delta.json.gz',
@@ -170,6 +176,8 @@ const obligations = JSON.parse(fs.readFileSync(obligationsPath, 'utf8'))
 const directEvidence = JSON.parse(fs.readFileSync(directEvidencePath, 'utf8'))
 const semanticSummary = JSON.parse(fs.readFileSync(semanticSummaryPath, 'utf8'))
 const knownDeltaProof = JSON.parse(fs.readFileSync(knownDeltaProofPath, 'utf8'))
+const attribution = JSON.parse(fs.readFileSync(attributionSummaryPath, 'utf8'))
+const readable = JSON.parse(fs.readFileSync(readableMetadataPath, 'utf8'))
 const knownDeltaProofRepositoryMetadata = metadata(knownDeltaProofPath, repo)
 const semanticClusterInventory = knownDeltaProof.knownDelta?.clusterInventory
 const expectedFocusedTests = [
@@ -226,6 +234,26 @@ const baselineDeclarations = draftArtifacts.get('baselineDeclarations')
 const targetDeclarations = draftArtifacts.get('targetDeclarations')
 const baselinePackageJson = draftArtifacts.get('baselinePackageJson')
 const targetPackageJson = draftArtifacts.get('targetPackageJson')
+const generatedInputContract = assertRelease21124GeneratedInputContract({
+  artifacts: draft.artifacts,
+  attribution,
+  attributionSummary: metadata(attributionSummaryPath),
+  readable,
+  readableMetadata: metadata(readableMetadataPath),
+})
+for (const [name, expected] of Object.entries(generatedInputContract)) {
+  const declared = Object.fromEntries(
+    Object.keys(expected).map(key => [
+      key,
+      draft.generatedRecovery[name === 'readable' ? 'readableDiff' : name]?.[key],
+    ]),
+  )
+  assert(
+    JSON.stringify(declared) === JSON.stringify(expected),
+    `${name}: generated input contract`,
+  )
+}
+assertRelease21124SourceOracleDeclaration(draft, generatedInputContract)
 assert(
   baselineDeclarations?.bytes === targetDeclarations?.bytes &&
     baselineDeclarations?.sha256 === targetDeclarations?.sha256,
@@ -880,6 +908,10 @@ manifest.generatedRecovery.semanticCatalogContract = {
 manifest.generatedRecovery.attribution.status =
   'verified-exhaustive-target-coverage'
 manifest.generatedRecovery.attribution.summary = 'attribution/summary.json'
+Object.assign(
+  manifest.generatedRecovery.attribution,
+  generatedInputContract.attribution,
+)
 manifest.generatedRecovery.structural.status =
   'verified-zero-residue-known-delta-ledger'
 manifest.generatedRecovery.structural.semanticClusterInventory = {
@@ -889,6 +921,10 @@ manifest.generatedRecovery.structural.semanticClusterInventory = {
   partitionSha256: directEvidence.clusterInventory.partitionSha256,
 }
 manifest.generatedRecovery.readableDiff.status = 'verified-review-layer'
+Object.assign(
+  manifest.generatedRecovery.readableDiff,
+  generatedInputContract.readable,
+)
 manifest.generatedRecovery.fileAssertions = recoveredFileAssertions
 manifest.sourceFreeze = {
   status: 'immutable-and-self-verifying',

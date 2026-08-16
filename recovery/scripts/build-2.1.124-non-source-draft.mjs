@@ -5,6 +5,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import zlib from 'node:zlib'
 import { fileURLToPath } from 'node:url'
+import {
+  assertRelease21124GeneratedInputContract,
+  assertRelease21124SourceOracleDeclaration,
+} from '../lib/release-2.1.124-input-contract.mjs'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.123-to-2.1.124')
@@ -803,6 +807,13 @@ function main() {
     artifacts.find(item => item.id === 'targetImageProcessorJs'),
     artifacts.find(item => item.id === 'targetAudioCaptureJs'),
   ]
+  const generatedInputContract = assertRelease21124GeneratedInputContract({
+    artifacts,
+    attribution,
+    attributionSummary: assertion('attribution/summary.json'),
+    readable,
+    readableMetadata: assertion('readable-diff/metadata.json'),
+  })
   for (const artifact of artifacts) {
     const filename = path.join(args.artifacts, artifact.localPath)
     const actual = evidence(filename)
@@ -874,7 +885,7 @@ function main() {
       bundleArtifact: 'sourceOracleBundle',
       mapArtifact: 'sourceOracleMap',
       relationship:
-        'The matching 2.1.88 bundle/map pair is retained only as the cumulative historical source oracle. The 2.1.124 incremental attribution and deterministic known-delta proof use the authenticated adjacent 2.1.123 and 2.1.124 analyzable Linux x64 bundles directly.',
+        'The matching 2.1.88 bundle/map pair is the cumulative historical ownership oracle used by generated attribution. The structural ledger, readable diff, deterministic known-delta proof, and semantic-correspondence witness/count comparisons independently use the authenticated adjacent 2.1.123 and 2.1.124 analyzable Linux x64 bundles; semantic correspondence consumes cumulative attribution only as target ownership evidence.',
       appliedSourceTree: { status: 'pending-source-recovery' },
     },
     sourceLineage: { status: 'pending-source-recovery-and-freeze' },
@@ -945,8 +956,7 @@ function main() {
       attribution: {
         status: 'authenticated-inputs-exhaustively-accounted',
         directory: 'attribution',
-        baselineArtifact: 'baselineAnalyzableBundle',
-        targetArtifact: 'targetAnalyzableBundle',
+        ...generatedInputContract.attribution,
         offsetUnit: 'utf16-code-units',
         targetUtf16: attribution.coverage.targetUtf16,
         accountedTargetUtf16: attribution.coverage.accountedTargetUtf16,
@@ -1006,12 +1016,11 @@ function main() {
       readableDiff: {
         status: 'authenticated-inputs-invariant-preserving',
         directory: 'readable-diff',
+        ...generatedInputContract.readable,
         comparisonInvariantHashesEqual:
           readable.verification.comparisonInvariantHashesEqual,
         metadata: 'readable-diff/metadata.json',
         fullDiff: 'readable-diff/normalized.diff.gz',
-        baselineArtifact: 'baselineAnalyzableBundle',
-        targetArtifact: 'targetAnalyzableBundle',
       },
       semanticCorrespondence: {
         status: 'pending-source-and-semantic-closure',
@@ -1036,6 +1045,7 @@ function main() {
       ],
     },
   }
+  assertRelease21124SourceOracleDeclaration(draft, generatedInputContract)
   fs.writeFileSync(
     path.join(caseRoot, 'manifest.non-source-draft.json'),
     `${JSON.stringify(draft, null, 2)}\n`,

@@ -5,6 +5,10 @@ import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import {
+  assertRelease21124GeneratedInputContract,
+  assertRelease21124SourceOracleDeclaration,
+} from '../lib/release-2.1.124-input-contract.mjs'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.123-to-2.1.124')
@@ -83,6 +87,10 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function evidence(value) {
+  return { bytes: value.length, sha256: sha256(value) }
+}
+
 function occurrences(contents, fragment) {
   assert(fragment.length > 0, 'cannot count an empty fragment')
   let count = 0
@@ -127,6 +135,34 @@ function pinnedCaseEvidence(record, label) {
 const draft = JSON.parse(
   fs.readFileSync(path.join(caseRoot, 'manifest.non-source-draft.json'), 'utf8'),
 )
+const attributionSummaryBytes = fs.readFileSync(
+  path.join(caseRoot, 'attribution/summary.json'),
+)
+const attribution = JSON.parse(attributionSummaryBytes)
+const readableMetadataBytes = fs.readFileSync(
+  path.join(caseRoot, 'readable-diff/metadata.json'),
+)
+const readable = JSON.parse(readableMetadataBytes)
+const generatedInputContract = assertRelease21124GeneratedInputContract({
+  artifacts: draft.artifacts,
+  attribution,
+  attributionSummary: evidence(attributionSummaryBytes),
+  readable,
+  readableMetadata: evidence(readableMetadataBytes),
+})
+for (const [name, expected] of Object.entries(generatedInputContract)) {
+  const section = draft.generatedRecovery[
+    name === 'readable' ? 'readableDiff' : name
+  ]
+  const declared = Object.fromEntries(
+    Object.keys(expected).map(key => [key, section?.[key]]),
+  )
+  assert(
+    JSON.stringify(declared) === JSON.stringify(expected),
+    `${name}: generated input contract`,
+  )
+}
+assertRelease21124SourceOracleDeclaration(draft, generatedInputContract)
 const freeze = JSON.parse(
   fs.readFileSync(path.join(caseRoot, 'freeze-index.json'), 'utf8'),
 )
