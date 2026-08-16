@@ -34,7 +34,10 @@ import {
   isOfficialMarketplaceName,
   parsePluginIdentifier,
 } from 'src/utils/plugins/pluginIdentifier.js'
-import { buildPluginCommandTelemetryFields } from 'src/utils/telemetry/pluginTelemetry.js'
+import {
+  buildPluginCommandTelemetryFields,
+  recordSkillActivated,
+} from 'src/utils/telemetry/pluginTelemetry.js'
 import { buildSkillTelemetryFields } from 'src/utils/telemetry/skillLoadedEvent.js'
 import { z } from 'zod/v4'
 import {
@@ -50,7 +53,6 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
   logEvent,
 } from '../../services/analytics/index.js'
-import { isToolDetailsLoggingEnabled } from '../../services/analytics/metadata.js'
 import { getAgentContext } from '../../utils/agentContext.js'
 import { errorMessage } from '../../utils/errors.js'
 import {
@@ -69,7 +71,6 @@ import { resolveSkillModelOverride } from '../../utils/model/model.js'
 import { recordSkillUsage } from '../../utils/suggestions/skillUsageTracking.js'
 import { escapeRegExp } from '../../utils/stringUtils.js'
 import { findClosestCommand } from '../../utils/suggestions/commandSuggestions.js'
-import { logOTelEvent } from '../../utils/telemetry/events.js'
 import {
   getTeamArtifactAnalyticsMetadata,
   getTeamArtifactAuthor,
@@ -208,6 +209,8 @@ async function executeForkedSkill(
     ? parsePluginIdentifier(command.pluginInfo.repository).marketplace
     : undefined
   const queryDepth = context.queryTracking?.depth ?? 0
+  const invocationTrigger =
+    queryDepth > 0 ? 'nested-skill' : 'claude-proactive'
   const parentAgentId = getAgentContext()?.agentId
   logEvent('tengu_skill_tool_invocation', {
     command_name:
@@ -219,9 +222,8 @@ async function executeForkedSkill(
       commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
     execution_context:
       'fork' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    invocation_trigger: (queryDepth > 0
-      ? 'nested-skill'
-      : 'claude-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    invocation_trigger:
+      invocationTrigger as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     query_depth: queryDepth,
     ...(parentAgentId && {
       parent_agent_id:
@@ -257,7 +259,7 @@ async function executeForkedSkill(
       ...buildPluginCommandTelemetryFields(command.pluginInfo),
     }),
   })
-  logSkillActivated(commandName, command)
+  recordSkillActivated(commandName, command, invocationTrigger)
 
   const {
     modifiedGetAppState,
@@ -768,6 +770,8 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
         ? parsePluginIdentifier(command.pluginInfo.repository).marketplace
         : undefined
     const queryDepth = context.queryTracking?.depth ?? 0
+    const invocationTrigger =
+      queryDepth > 0 ? 'nested-skill' : 'claude-proactive'
     const parentAgentId = getAgentContext()?.agentId
     logEvent('tengu_skill_tool_invocation', {
       command_name:
@@ -779,9 +783,8 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
         commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
       execution_context:
         'inline' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      invocation_trigger: (queryDepth > 0
-        ? 'nested-skill'
-        : 'claude-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      invocation_trigger:
+        invocationTrigger as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       query_depth: queryDepth,
       ...(parentAgentId && {
         parent_agent_id:
@@ -823,7 +826,7 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           ...buildPluginCommandTelemetryFields(command.pluginInfo),
         }),
     })
-    logSkillActivated(commandName, command)
+    recordSkillActivated(commandName, command, invocationTrigger)
 
     // Get the tool use ID from the parent message for linking newMessages
     const toolUseID = getToolUseIDFromParentMessage(
@@ -1041,32 +1044,6 @@ function isOfficialMarketplaceSkill(command: PromptCommand): boolean {
   return isOfficialMarketplaceName(
     parsePluginIdentifier(command.pluginInfo.repository).marketplace,
   )
-}
-
-function logSkillActivated(
-  commandName: string,
-  command: Command | undefined,
-): void {
-  const source = command?.type === 'prompt' ? command.source : undefined
-  const pluginInfo =
-    command?.type === 'prompt' ? command.pluginInfo : undefined
-  const marketplace = pluginInfo
-    ? parsePluginIdentifier(pluginInfo.repository).marketplace
-    : undefined
-  const canLogNames =
-    source === 'builtin' ||
-    source === 'bundled' ||
-    (source === 'plugin' && isOfficialMarketplaceName(marketplace)) ||
-    isToolDetailsLoggingEnabled()
-
-  void logOTelEvent('skill_activated', {
-    'skill.name': canLogNames ? commandName : 'custom_skill',
-    ...(source && { 'skill.source': source }),
-    ...(command?.kind && { 'skill.kind': command.kind }),
-    ...(canLogNames &&
-      pluginInfo && { 'plugin.name': pluginInfo.pluginManifest.name }),
-    ...(canLogNames && marketplace && { 'marketplace.name': marketplace }),
-  })
 }
 
 /**
