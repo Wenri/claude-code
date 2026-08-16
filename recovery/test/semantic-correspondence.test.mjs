@@ -363,6 +363,22 @@ test('rejects an uncovered release bullet', () => {
   }
 })
 
+test('rejects a non-release obligation not marked hidden', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    obligations.obligations[0].releaseBullets = []
+    delete obligations.obligations[0].hidden
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: non-release obligation must be marked hidden/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
 test('rejects source drift after the report is frozen', () => {
   const files = fixture()
   try {

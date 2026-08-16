@@ -640,6 +640,11 @@ function verifyTestFileAssertions(
         `Missing sourceLineage test file assertion for ${relative}`,
       )
     }
+    // Source imports are already covered by the frozen source tree, overlay,
+    // and per-file assertion above. Treat them as leaves here: source files may
+    // use TypeScript syntax, while this closure parser intentionally handles
+    // JavaScript test/support modules.
+    if (relative.startsWith(`${lineage.root}/`)) continue
     const source = fs.readFileSync(record.filename, 'utf8')
     for (const specifier of relativeModuleSpecifiers(source)) {
       const dependency = resolveRelativeModule(

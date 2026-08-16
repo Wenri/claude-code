@@ -19,6 +19,10 @@ function expectedTestsForRepo(repo) {
     .sort()
 }
 
+function expectedTestAssertionsForRepo(repo) {
+  return [...expectedTestsForRepo(repo), 'src/utils/messageOperations.ts'].sort()
+}
+
 function parseArguments(argv) {
   const result = {}
   const allowed = new Set(['artifacts', 'baseline-tarball', 'case', 'repo'])
@@ -64,6 +68,7 @@ function main() {
   }
   const repo = path.resolve(args.repo ?? defaultRepo)
   const expectedTests = expectedTestsForRepo(repo)
+  const expectedTestAssertions = expectedTestAssertionsForRepo(repo)
   const manifestPath = path.resolve(
     args.case ??
       path.join(
@@ -139,8 +144,10 @@ function main() {
     'exact source-lineage semantic tests',
   )
   assert(
-    manifest.sourceLineage.testFileAssertions.length === expectedTests.length,
-    'source-lineage test assertions',
+    JSON.stringify(
+      manifest.sourceLineage.testFileAssertions.map(entry => entry.path),
+    ) === JSON.stringify(expectedTestAssertions),
+    'exact source-lineage test assertions and direct dependencies',
   )
   assert(
     manifest.sourceLineage.testArtifactEnvironment

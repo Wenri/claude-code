@@ -87,6 +87,14 @@ assert(directEvidence.release === '2.1.122', 'direct evidence release')
 assert(directEvidence.rows.length === directEvidence.rowCount, 'direct rows')
 assert(new Set(directIds).size === directIds.length, 'unique direct row IDs')
 assert(bulletTexts.length === 18, 'official changelog bullet count')
+assert(
+  directEvidence.categoryCounts.official === 18 &&
+    directEvidence.categoryCounts.hidden === 10 &&
+    directEvidence.categoryCounts.daemon === 1 &&
+    directEvidence.categoryCounts.residual === 3 &&
+    Object.keys(directEvidence.categoryCounts).length === 4,
+  'exact direct-evidence category partition',
+)
 
 const testMetadata = metadata(directTestPath)
 const testSource = fs.readFileSync(directTestPath, 'utf8')
@@ -131,7 +139,7 @@ function obligation(row) {
     releaseBullets:
       row.category === 'official' ? [row.releaseBullet] : [],
     category: row.category,
-    ...(row.category === 'hidden' ? { hidden: true } : {}),
+    ...(row.category !== 'official' ? { hidden: true } : {}),
     rationale: `${row.id}: ${row.rationale}`,
     targetFragments: row.targetFragments,
     ...(row.targetAbsences.length > 0
@@ -164,6 +172,14 @@ assert(
 assert(
   obligations.filter(value => value.releaseBullets.length === 1).length === 18,
   'official obligation total',
+)
+assert(
+  obligations.every(value =>
+    value.category === 'official'
+      ? value.releaseBullets.length === 1 && value.hidden !== true
+      : value.releaseBullets.length === 0 && value.hidden === true,
+  ),
+  'official and non-release hidden obligations are an exact partition',
 )
 assert(
   obligations.every(value => value.classification.startsWith('source-localized-')),

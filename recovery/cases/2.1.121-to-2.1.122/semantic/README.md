@@ -1,34 +1,22 @@
-# Claude Code 2.1.122 semantic recovery proof
+# 2.1.122 semantic correspondence
 
-This directory is intentionally incomplete at the acquisition checkpoint. The
-authenticated non-source case reconstructs the published wrapper package and
-embedded JavaScript graph exactly, but it does not claim that the source tree
-has recovered the 2.1.122 semantics.
+This directory binds the authenticated 2.1.121→2.1.122 generated bundle to the recovered source tree without treating a suite-level ledger as row evidence.
 
-The proof closes only after all of these fail-closed gates succeed:
+- `direct-evidence.json`: 32 reviewed, row-scoped evidence records (daemon 1, hidden 10, official 18, residual 3).
+- `obligations.json`: one obligation per direct row, all catalog-bound and source-localized.
+- `semantic-correspondence.json.gz`: canonical whole-bundle ownership and obligation report.
+- `summary.json`: deterministic public summary and identities.
 
-1. `recovery/2.1.122-direct-evidence-specs.json` is regenerated with
-   `--final`; every coverage declaration is true and every row has exact
-   adjacent-bundle, source, and focused-test evidence.
-2. `build-2.1.122-direct-evidence.mjs` rejects any unbound changed `src` path,
-   any unbound 2.1.122 focused test, any missing witness, and any false
-   retained marker.
-3. `recovery-2.1.122-direct-evidence.test.mjs` is pinned to the final catalog
-   byte length and SHA-256. Its zero/zero provisional pin deliberately fails.
-4. Source lineage, a reversible overlay, semantic obligations, correspondence,
-   final documentation, and the aggregate manifest remain absent until the
-   recovered source commit is immutable and the residual audit is zero.
+The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, path-scoped fragment removals, and deleted source files against their base identities. Each direct row is consumed exactly once. The catalog identity is itself pinned and loaded by `recovery-2.1.122-direct-evidence.test.mjs`; every other release-scoped focused suite is frozen and consumed by at least one row.
 
-No source identity is inferred from minified names. Row evidence must use exact
-counts in both authenticated adjacent `cli.inner.js` artifacts and exact
-source fragments or explicit source-path absences.
+Closure invariants:
 
-The exact extracted changelog section intentionally retains its separator
-blank line. Consequently `git diff --check` has one acquisition-metadata
-diagnostic and no others:
+- target tokens: 4,394,491
+- accounted tokens: 4,394,491
+- unclassified tokens: 0
+- official bullets covered: 18/18
+- obligations: 32
+- unverified obligations: 0
+- unresolved application source owners: 0
 
-`recovery/cases/2.1.121-to-2.1.122/evidence/CHANGELOG-2.1.122.md:21: new blank line at EOF.`
-
-The final source freeze must pin the exact 91-byte diagnostic stream SHA-256
-`1075939c016a1591ae25d94a2c587ba8e2fa151b05326ee93197f55584393902`,
-while continuing to require zero diagnostics under `src/`.
+The report proves semantic reproduction, not recovery of original authored spelling.

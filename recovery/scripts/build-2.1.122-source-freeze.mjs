@@ -26,11 +26,24 @@ const targetTests = fs
   .filter(name => /^recovery-2\.1\.122-.*\.test\.mjs$/.test(name))
   .map(name => `recovery/test/${name}`)
   .sort()
+const targetTestDependencies = ['src/utils/messageOperations.ts']
 assert(
   targetTests.includes(
     'recovery/test/recovery-2.1.122-direct-evidence.test.mjs',
   ),
   'direct-evidence suite is part of the frozen test set',
+)
+assert(
+  fs
+    .readFileSync(
+      path.join(
+        repo,
+        'recovery/test/recovery-2.1.122-retained-persistence-message-ops.test.mjs',
+      ),
+      'utf8',
+    )
+    .includes("from '../../src/utils/messageOperations.ts'"),
+  'the direct source dependency remains connected to its focused test',
 )
 
 function usage() {
@@ -625,9 +638,9 @@ function main() {
       .join('\n')}\n`,
   )
 
-  const testFileAssertions = targetTests.map(relative =>
-    metadata(path.join(repo, relative), repo),
-  )
+  const testFileAssertions = [...targetTests, ...targetTestDependencies]
+    .sort()
+    .map(relative => metadata(path.join(repo, relative), repo))
   const sourceLineage = {
     root: 'src',
     baseCommit,
