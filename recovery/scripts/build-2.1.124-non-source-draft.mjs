@@ -14,9 +14,26 @@ const priorManifestPath = path.join(
 )
 const expectedAccountingClusterIds = [
   1, 2, 4, 9, 10, 11, 16, 26, 31, 33, 34, 36, 47, 56, 60, 61, 74, 86, 97, 98, 112,
-  113, 114, 116, 122, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
+  113, 114, 116, 123, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
 ]
-const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
+const expectedAccountingReasonGroups = {
+  dependency: [1, 2, 9, 10, 11, 26],
+  'identifier-only': [74, 86, 157, 158, 165, 190],
+  'initializer-linkage': [
+    4, 16, 31, 33, 34, 36, 47, 56, 60, 61, 97, 98, 112, 116, 138,
+    141, 145, 147, 176, 179, 202,
+  ],
+  'exact-relocation': [113, 114, 123, 159],
+}
+const expectedInitializerPairedDirectClusterIds = [
+  3, 17, 18, 32, 35, 62, 110, 122, 151, 167, 168, 180,
+]
+const requiredDirectClusterIds = [12, 69, 115, 122, 186, 188, 189]
+const expectedDirectClusterCount = 168
+const expectedAccountingClusterCount = 37
+const expectedDirectSourcePathCount = 121
+const expectedSupportSourcePathCount = 10
+const expectedChangedSourcePathCount = 131
 
 function usage() {
   console.error(
@@ -55,6 +72,42 @@ function clone(value) {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+function validateAccountingTopology(entries, directClusterIds) {
+  assert(
+    directClusterIds.length === expectedDirectClusterCount &&
+      entries.flatMap(entry => entry.clusterIds).length ===
+        expectedAccountingClusterCount,
+    'direct/accounting cluster counts',
+  )
+  for (const [reason, expectedIds] of Object.entries(
+    expectedAccountingReasonGroups,
+  )) {
+    const reasonEntries = entries.filter(entry => entry.reason === reason)
+    assert(reasonEntries.length === 1, `${reason}: accounting group count`)
+    const actualIds = reasonEntries
+      .flatMap(entry => entry.clusterIds)
+      .sort((left, right) => left - right)
+    assert(JSON.stringify(actualIds) === JSON.stringify(expectedIds),
+      `${reason}: accounting cluster topology`)
+  }
+  const initializerEntries = entries.filter(
+    entry => entry.reason === 'initializer-linkage',
+  )
+  assert(
+    entries.every(entry =>
+      typeof entry.evidence?.classification === 'string' &&
+        entry.evidence.classification.length >= 20 &&
+        (entry.reason === 'initializer-linkage' ||
+          entry.evidence.pairedDirectClusterIds === undefined)) &&
+      initializerEntries.length === 1 &&
+      JSON.stringify(initializerEntries[0].evidence.pairedDirectClusterIds) ===
+        JSON.stringify(expectedInitializerPairedDirectClusterIds) &&
+      expectedInitializerPairedDirectClusterIds.every(clusterId =>
+        directClusterIds.includes(clusterId)),
+    'accounting evidence and initializer/direct pairing',
+  )
 }
 
 function assertDeepEqual(actual, expected, message) {
@@ -324,6 +377,10 @@ function main() {
   const accountingClusterIds = semanticClusterInventory.accountingOnly.flatMap(
     entry => entry.clusterIds,
   )
+  validateAccountingTopology(
+    semanticClusterInventory.accountingOnly,
+    directClusterIds,
+  )
   assert(
     requiredDirectClusterIds.every(clusterId =>
       directClusterIds.includes(clusterId) &&
@@ -362,7 +419,7 @@ function main() {
             Array.isArray(binding.sourceWitnesses) &&
             binding.sourceWitnesses.length > 0 &&
             binding.sourceWitnesses.every(witness =>
-              reviewedSourceWitnessShape(witness)) &&
+              reviewedSourceWitnessShape(witness, true)) &&
             Array.isArray(binding.testIds) &&
             binding.testIds.length > 0 &&
             new Set(binding.testIds).size === binding.testIds.length &&
@@ -449,6 +506,9 @@ function main() {
   const changedPaths = knownDeltaProof.knownDelta?.changedSourcePaths?.paths
   assert(
     Array.isArray(changedPaths) &&
+      changedPaths.length === expectedChangedSourcePathCount &&
+      preciseOwnerPaths.length === expectedDirectSourcePathCount &&
+      supportPaths.length === expectedSupportSourcePathCount &&
       new Set(supportPaths).size === supportPaths.length &&
       supportPaths.every(sourcePath => !preciseOwnerPaths.includes(sourcePath)) &&
       JSON.stringify([...new Set([

@@ -28,9 +28,27 @@ const accountingReasons = new Set([
 ])
 const expectedAccountingClusterIds = [
   1, 2, 4, 9, 10, 11, 16, 26, 31, 33, 34, 36, 47, 56, 60, 61, 74, 86, 97, 98, 112,
-  113, 114, 116, 122, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
+  113, 114, 116, 123, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
 ]
-const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
+const expectedAccountingReasonGroups = {
+  dependency: [1, 2, 9, 10, 11, 26],
+  'identifier-only': [74, 86, 157, 158, 165, 190],
+  'initializer-linkage': [
+    4, 16, 31, 33, 34, 36, 47, 56, 60, 61, 97, 98, 112, 116, 138,
+    141, 145, 147, 176, 179, 202,
+  ],
+  'exact-relocation': [113, 114, 123, 159],
+}
+const expectedInitializerPairedDirectClusterIds = [
+  3, 17, 18, 32, 35, 62, 110, 122, 151, 167, 168, 180,
+]
+const requiredDirectClusterIds = [12, 69, 115, 122, 186, 188, 189]
+const expectedDirectClusterCount = 168
+const expectedAccountingClusterCount = 37
+const expectedDirectSourcePathCount = 121
+const expectedSupportSourcePathCount = 10
+const expectedChangedSourcePathCount = 131
+const expectedFocusedTestCount = 11
 const final = process.argv.slice(2).includes('--final')
 
 if (process.argv.slice(2).some(argument => argument !== '--final')) {
@@ -39,6 +57,42 @@ if (process.argv.slice(2).some(argument => argument !== '--final')) {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+function validateAccountingTopology(entries, directClusterIds) {
+  assert(
+    directClusterIds.length === expectedDirectClusterCount &&
+      entries.flatMap(entry => entry.clusterIds).length ===
+        expectedAccountingClusterCount,
+    'direct/accounting cluster counts',
+  )
+  for (const [reason, expectedIds] of Object.entries(
+    expectedAccountingReasonGroups,
+  )) {
+    const reasonEntries = entries.filter(entry => entry.reason === reason)
+    assert(reasonEntries.length === 1, `${reason}: accounting group count`)
+    const actualIds = reasonEntries
+      .flatMap(entry => entry.clusterIds)
+      .sort((left, right) => left - right)
+    assert(JSON.stringify(actualIds) === JSON.stringify(expectedIds),
+      `${reason}: accounting cluster topology`)
+  }
+  const initializerEntries = entries.filter(
+    entry => entry.reason === 'initializer-linkage',
+  )
+  assert(
+    entries.every(entry =>
+      typeof entry.evidence?.classification === 'string' &&
+        entry.evidence.classification.length >= 20 &&
+        (entry.reason === 'initializer-linkage' ||
+          entry.evidence.pairedDirectClusterIds === undefined)) &&
+      initializerEntries.length === 1 &&
+      JSON.stringify(initializerEntries[0].evidence.pairedDirectClusterIds) ===
+        JSON.stringify(expectedInitializerPairedDirectClusterIds) &&
+      expectedInitializerPairedDirectClusterIds.every(clusterId =>
+        directClusterIds.includes(clusterId)),
+    'accounting evidence and initializer/direct pairing',
+  )
 }
 
 function sha256(value) {
@@ -82,7 +136,7 @@ function validateReviewedSourceWitness(sourceWitness, label) {
       sourceWitness.fragment.length > 0 &&
       Number.isSafeInteger(sourceWitness.count) &&
       sourceWitness.count > 0 &&
-      typeof sourceWitness.reviewed === 'boolean' &&
+      sourceWitness.reviewed === true &&
       Array.isArray(sourceWitness.matchedSemanticTerms) &&
       sourceWitness.matchedSemanticTerms.every(term =>
         typeof term === 'string' && term.length > 0) &&
@@ -90,9 +144,7 @@ function validateReviewedSourceWitness(sourceWitness, label) {
         sourceWitness.matchedSemanticTerms.length &&
       JSON.stringify(sourceWitness.matchedSemanticTerms) === JSON.stringify(
         [...sourceWitness.matchedSemanticTerms].sort(),
-      ) &&
-      (sourceWitness.reviewed === true ||
-        sourceWitness.matchedSemanticTerms.length > 0),
+      ),
     `${label}: invalid reviewed source witness`,
   )
   const source = fs.readFileSync(path.join(repo, sourcePath), 'utf8')
@@ -488,6 +540,7 @@ function clusterInventory() {
   const accountingClusterIds = inventory.accountingOnly.flatMap(
     entry => entry.clusterIds,
   )
+  validateAccountingTopology(inventory.accountingOnly, directClusterIds)
   assert(
     requiredDirectClusterIds.every(clusterId =>
       directClusterIds.includes(clusterId) &&
@@ -583,7 +636,10 @@ const supportSourcePaths = new Set(
   supportBindings.map(binding => binding.sourceWitness.path),
 )
 assert(
-  [...supportSourcePaths].every(sourcePath => !directSourcePaths.has(sourcePath)),
+  changedRows.length === expectedChangedSourcePathCount &&
+    directSourcePaths.size === expectedDirectSourcePathCount &&
+    supportSourcePaths.size === expectedSupportSourcePathCount &&
+    [...supportSourcePaths].every(sourcePath => !directSourcePaths.has(sourcePath)),
   'precise cluster owners and support source paths overlap',
 )
 const reviewedSourcePaths = new Set([
@@ -620,7 +676,8 @@ const reviewedFocusedTests = [
 assert(reviewedFocusedTests.includes('semantic-delta'),
   'semantic cluster inventory must bind the semantic-delta suite')
 assert(
-  JSON.stringify(focusedTestIds()) === JSON.stringify(reviewedFocusedTests),
+  reviewedFocusedTests.length === expectedFocusedTestCount &&
+    JSON.stringify(focusedTestIds()) === JSON.stringify(reviewedFocusedTests),
   'focused tests differ from the exact semantic cluster inventory',
 )
 

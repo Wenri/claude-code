@@ -33,8 +33,25 @@ const ACCOUNTING_REASONS = new Set([
 ])
 const EXPECTED_ACCOUNTING_CLUSTER_IDS = [
   1, 2, 4, 9, 10, 11, 16, 26, 31, 33, 34, 36, 47, 56, 60, 61, 74, 86, 97, 98, 112,
-  113, 114, 116, 122, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
+  113, 114, 116, 123, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
 ]
+const EXPECTED_ACCOUNTING_REASON_GROUPS = {
+  dependency: [1, 2, 9, 10, 11, 26],
+  'identifier-only': [74, 86, 157, 158, 165, 190],
+  'initializer-linkage': [
+    4, 16, 31, 33, 34, 36, 47, 56, 60, 61, 97, 98, 112, 116, 138,
+    141, 145, 147, 176, 179, 202,
+  ],
+  'exact-relocation': [113, 114, 123, 159],
+}
+const EXPECTED_INITIALIZER_PAIRED_DIRECT_CLUSTER_IDS = [
+  3, 17, 18, 32, 35, 62, 110, 122, 151, 167, 168, 180,
+]
+const EXPECTED_DIRECT_CLUSTER_COUNT = 168
+const EXPECTED_ACCOUNTING_CLUSTER_COUNT = 37
+const EXPECTED_DIRECT_SOURCE_PATH_COUNT = 121
+const EXPECTED_SUPPORT_SOURCE_PATH_COUNT = 10
+const EXPECTED_CHANGED_SOURCE_PATH_COUNT = 131
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 
 function sha256(value) {
@@ -99,6 +116,47 @@ function sourceWitnessProjection(witness) {
   }
 }
 
+function assertAccountingTopology(entries, directClusterIds) {
+  assert.equal(directClusterIds.length, EXPECTED_DIRECT_CLUSTER_COUNT)
+  assert.equal(
+    entries.flatMap(entry => entry.clusterIds).length,
+    EXPECTED_ACCOUNTING_CLUSTER_COUNT,
+  )
+  for (const [reason, expectedIds] of Object.entries(
+    EXPECTED_ACCOUNTING_REASON_GROUPS,
+  )) {
+    const reasonEntries = entries.filter(entry => entry.reason === reason)
+    assert.equal(reasonEntries.length, 1, `${reason}: accounting group count`)
+    assert.deepEqual(
+      reasonEntries
+        .flatMap(entry => entry.clusterIds)
+        .sort((left, right) => left - right),
+      expectedIds,
+      `${reason}: accounting cluster topology`,
+    )
+  }
+  const initializerEntries = entries.filter(
+    entry => entry.reason === 'initializer-linkage',
+  )
+  assert.equal(initializerEntries.length, 1)
+  assert.deepEqual(
+    initializerEntries[0].evidence.pairedDirectClusterIds,
+    EXPECTED_INITIALIZER_PAIRED_DIRECT_CLUSTER_IDS,
+  )
+  assert.ok(EXPECTED_INITIALIZER_PAIRED_DIRECT_CLUSTER_IDS.every(clusterId =>
+    directClusterIds.includes(clusterId)))
+  for (const entry of entries) {
+    assert.ok(
+      typeof entry.evidence?.classification === 'string' &&
+        entry.evidence.classification.length >= 20,
+      `${entry.reason}: accounting classification`,
+    )
+    if (entry.reason !== 'initializer-linkage') {
+      assert.equal(entry.evidence.pairedDirectClusterIds, undefined)
+    }
+  }
+}
+
 function assertRawStatementWitness({ baseline, cluster, label, target, witness }) {
   assert.equal(witness?.kind, 'raw-statement', `${label}: witness kind`)
   assert.ok(['baseline', 'target'].includes(witness.side), `${label}: witness side`)
@@ -127,6 +185,7 @@ function assertRawStatementWitness({ baseline, cluster, label, target, witness }
     `${label}: other-side count`)
   assert.notEqual(witness.count, witness.otherSideCount,
     `${label}: adjacent count change`)
+  return statementText
 }
 
 function readBundle(environmentName, expectedBytes, expectedSha256) {
@@ -201,6 +260,7 @@ function readPinnedClusterInventory(catalog) {
   const accountingOnlyClusters = inventory.accountingOnly.flatMap(
     entry => entry.clusterIds,
   )
+  assertAccountingTopology(inventory.accountingOnly, directClusters)
   const allClusters = [...directClusters, ...accountingOnlyClusters]
     .sort((left, right) => left - right)
   assert.equal(new Set(allClusters).size, EXPECTED_CLUSTER_COUNT)
@@ -208,7 +268,7 @@ function readPinnedClusterInventory(catalog) {
     allClusters,
     Array.from({ length: EXPECTED_CLUSTER_COUNT }, (_, index) => index + 1),
   )
-  for (const clusterId of [12, 69, 115, 186, 188, 189]) {
+  for (const clusterId of [12, 69, 115, 122, 186, 188, 189]) {
     assert.equal(directClusters.includes(clusterId), true)
     assert.equal(accountingOnlyClusters.includes(clusterId), false)
   }
@@ -470,6 +530,9 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
     changedSourcePaths(),
     'precise owners plus support paths close the Git source boundary',
   )
+  assert.equal(preciseOwnerPaths.length, EXPECTED_DIRECT_SOURCE_PATH_COUNT)
+  assert.equal(supportPaths.length, EXPECTED_SUPPORT_SOURCE_PATH_COUNT)
+  assert.equal(changedSourcePaths().length, EXPECTED_CHANGED_SOURCE_PATH_COUNT)
   assert.equal(catalog.changedSourcePathCount, changedSourcePaths().length)
   assert.ok(focusedTestIds().includes('semantic-delta'))
   assert.equal(catalog.focusedTestCount, focusedTestIds().length)
@@ -606,7 +669,7 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
           targetWitnesses.length,
           `${row.id}/C${binding.clusterId}: unique statement witnesses`,
         )
-        targetWitnesses.forEach((witness, index) =>
+        const selectedRawStatements = targetWitnesses.map((witness, index) =>
           assertRawStatementWitness({
             baseline,
             cluster,
@@ -614,13 +677,28 @@ test('the final catalog is pinned to both authenticated adjacent bundles', () =>
             target,
             witness,
           }))
+        const allClusterRawStatements = [
+          ...cluster.baselineStatements.map(statement =>
+            baseline.slice(statement.raw.start, statement.raw.end)),
+          ...cluster.targetStatements.map(statement =>
+            target.slice(statement.raw.start, statement.raw.end)),
+        ]
         assert.ok(binding.sourceWitnesses.length > 0)
         assert.ok(binding.testIds.length > 0)
         for (const sourceWitness of binding.sourceWitnesses) {
           assertReviewedSourceWitness(
             sourceWitness,
             `${row.id}/C${binding.clusterId}`,
+            true,
           )
+          for (const term of sourceWitness.matchedSemanticTerms) {
+            if (allClusterRawStatements.some(statement => statement.includes(term))) {
+              assert.ok(
+                selectedRawStatements.some(statement => statement.includes(term)),
+                `${row.id}/C${binding.clusterId}: selected raw witnesses omit source term ${JSON.stringify(term)}`,
+              )
+            }
+          }
         }
       }
     }

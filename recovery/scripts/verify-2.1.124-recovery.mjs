@@ -46,9 +46,26 @@ const expectedKnownDeltaClosure = {
 }
 const expectedAccountingClusterIds = [
   1, 2, 4, 9, 10, 11, 16, 26, 31, 33, 34, 36, 47, 56, 60, 61, 74, 86, 97, 98, 112,
-  113, 114, 116, 122, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
+  113, 114, 116, 123, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
 ]
-const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
+const expectedAccountingReasonGroups = {
+  dependency: [1, 2, 9, 10, 11, 26],
+  'identifier-only': [74, 86, 157, 158, 165, 190],
+  'initializer-linkage': [
+    4, 16, 31, 33, 34, 36, 47, 56, 60, 61, 97, 98, 112, 116, 138,
+    141, 145, 147, 176, 179, 202,
+  ],
+  'exact-relocation': [113, 114, 123, 159],
+}
+const expectedInitializerPairedDirectClusterIds = [
+  3, 17, 18, 32, 35, 62, 110, 122, 151, 167, 168, 180,
+]
+const requiredDirectClusterIds = [12, 69, 115, 122, 186, 188, 189]
+const expectedDirectClusterCount = 168
+const expectedAccountingClusterCount = 37
+const expectedDirectSourcePathCount = 121
+const expectedSupportSourcePathCount = 10
+const expectedChangedSourcePathCount = 131
 function expectedTestsForRepo(repo) {
   return fs
     .readdirSync(path.join(repo, 'recovery/test'))
@@ -139,6 +156,42 @@ function parseArguments(argv) {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+function validateAccountingTopology(entries, directClusterIds) {
+  assert(
+    directClusterIds.length === expectedDirectClusterCount &&
+      entries.flatMap(entry => entry.clusterIds).length ===
+        expectedAccountingClusterCount,
+    'direct/accounting cluster counts',
+  )
+  for (const [reason, expectedIds] of Object.entries(
+    expectedAccountingReasonGroups,
+  )) {
+    const reasonEntries = entries.filter(entry => entry.reason === reason)
+    assert(reasonEntries.length === 1, `${reason}: accounting group count`)
+    const actualIds = reasonEntries
+      .flatMap(entry => entry.clusterIds)
+      .sort((left, right) => left - right)
+    assert(JSON.stringify(actualIds) === JSON.stringify(expectedIds),
+      `${reason}: accounting cluster topology`)
+  }
+  const initializerEntries = entries.filter(
+    entry => entry.reason === 'initializer-linkage',
+  )
+  assert(
+    entries.every(entry =>
+      typeof entry.evidence?.classification === 'string' &&
+        entry.evidence.classification.length >= 20 &&
+        (entry.reason === 'initializer-linkage' ||
+          entry.evidence.pairedDirectClusterIds === undefined)) &&
+      initializerEntries.length === 1 &&
+      JSON.stringify(initializerEntries[0].evidence.pairedDirectClusterIds) ===
+        JSON.stringify(expectedInitializerPairedDirectClusterIds) &&
+      expectedInitializerPairedDirectClusterIds.every(clusterId =>
+        directClusterIds.includes(clusterId)),
+    'accounting evidence and initializer/direct pairing',
+  )
 }
 
 function sha256(value) {
@@ -708,6 +761,7 @@ function main() {
   const accountingOnlyClusters = clusterInventory.accountingOnly.flatMap(
     entry => entry.clusterIds,
   )
+  validateAccountingTopology(clusterInventory.accountingOnly, directClusters)
   const allClusterIds = [...directClusters, ...accountingOnlyClusters]
     .sort((left, right) => left - right)
   assert(
@@ -739,7 +793,10 @@ function main() {
     .map(binding => binding.sourceWitness?.path)
     .sort()
   assert(
-    new Set(supportSourcePaths).size === supportSourcePaths.length &&
+    changedSourcePaths.length === expectedChangedSourcePathCount &&
+      preciseClusterSourcePaths.length === expectedDirectSourcePathCount &&
+      supportSourcePaths.length === expectedSupportSourcePathCount &&
+      new Set(supportSourcePaths).size === supportSourcePaths.length &&
       supportSourcePaths.every(sourcePath =>
         !preciseClusterSourcePaths.includes(sourcePath)) &&
       JSON.stringify([...preciseClusterSourcePaths, ...supportSourcePaths].sort()) ===
@@ -887,7 +944,7 @@ function main() {
         ...new Set(entry.clusterBindings.flatMap(binding => binding.testIds)),
       ].sort()
       const sourceWitnessesValid = bindingSourceWitnesses.every(witness => {
-        return reviewedSourceWitness(repo, witness)
+        return reviewedSourceWitness(repo, witness, true)
       })
       const sourcePaths = [...new Set([
         ...row.sourceAssertions.map(assertion => assertion.path),
