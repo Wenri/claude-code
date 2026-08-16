@@ -11,7 +11,7 @@ import type { ToolPermissionContext, Tool as ToolType, ToolUseContext } from '..
 import { consumeSpeculativeClassifierCheck, peekSpeculativeClassifierCheck } from '../tools/BashTool/bashPermissions.js';
 import { BASH_TOOL_NAME } from '../tools/BashTool/toolName.js';
 import type { AssistantMessage } from '../types/message.js';
-import { getAutoModeDenials, recordAutoModeDenial, removeAutoModeDenial } from '../utils/autoModeDenials.js';
+import { useRecentDenials } from '../context/recentDenials.js';
 import { clearClassifierChecking, setClassifierApproval, setYoloClassifierApproval } from '../utils/classifierApprovals.js';
 import { logForDebugging } from '../utils/debug.js';
 import { AbortError } from '../utils/errors.js';
@@ -26,12 +26,17 @@ import { createPermissionContext, createPermissionQueueOps } from './toolPermiss
 import { logPermissionDecision } from './toolPermission/permissionLogging.js';
 export type CanUseToolFn<Input extends Record<string, unknown> = Record<string, unknown>> = (tool: ToolType, input: Input, toolUseContext: ToolUseContext, assistantMessage: AssistantMessage, toolUseID: string, forceDecision?: PermissionDecision<Input>) => Promise<PermissionDecision<Input>>;
 function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
-  const $ = _c(3);
+  const $ = _c(6);
+  const {
+    recordDenial,
+    getDenials,
+    removeDenial
+  } = useRecentDenials();
   let t0;
-  if ($[0] !== setToolPermissionContext || $[1] !== setToolUseConfirmQueue) {
+  if ($[0] !== getDenials || $[1] !== recordDenial || $[2] !== removeDenial || $[3] !== setToolPermissionContext || $[4] !== setToolUseConfirmQueue) {
     t0 = async (tool, input, toolUseContext, assistantMessage, toolUseID, forceDecision) => {
       const inputKey = tool.name === BASH_TOOL_NAME ? jsonStringify({ command: input.command }) : jsonStringify(input);
-      const previousDenial = getAutoModeDenials().find(denial => denial.toolName === tool.name && denial.inputKey === inputKey);
+      const previousDenial = getDenials().find(denial => denial.toolName === tool.name && denial.inputKey === inputKey);
       const decision = new Promise(resolve => {
       const ctx = createPermissionContext(tool, input, toolUseContext, assistantMessage, toolUseID, setToolPermissionContext, createPermissionQueueOps(setToolUseConfirmQueue));
       if (ctx.resolveIfAborted(resolve)) {
@@ -78,7 +83,7 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
                 source: "config"
               });
               if (feature("TRANSCRIPT_CLASSIFIER") && result.decisionReason?.type === "classifier" && result.decisionReason.classifier === "auto-mode") {
-                recordAutoModeDenial({
+                recordDenial({
                   toolName: tool.name,
                   display: description,
                   inputKey,
@@ -193,16 +198,19 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
             msSinceDeny: Date.now() - previousDenial.timestamp,
             allowReasonType: result.decisionReason?.type,
           });
-          removeAutoModeDenial(previousDenial);
+          removeDenial(previousDenial);
         });
       }
       return decision;
     };
-    $[0] = setToolPermissionContext;
-    $[1] = setToolUseConfirmQueue;
-    $[2] = t0;
+    $[0] = getDenials;
+    $[1] = recordDenial;
+    $[2] = removeDenial;
+    $[3] = setToolPermissionContext;
+    $[4] = setToolUseConfirmQueue;
+    $[5] = t0;
   } else {
-    t0 = $[2];
+    t0 = $[5];
   }
   return t0;
 }
