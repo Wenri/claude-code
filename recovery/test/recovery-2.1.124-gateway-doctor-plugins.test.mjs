@@ -88,6 +88,7 @@ test('authenticates the 2.1.124 gateway, Doctor, and plugin clusters', () => {
     [10_214_764, 143, '61a65a25098c88785f882183a5ea6d2b5ddd3e8640fa0fe28af76c445dfefbe3'],
     [10_214_907, 1_371, 'f542b93818c107f0071b187ad19677f8925921cd9ec616e7b2889e0f1b36075b'],
     [10_496_142, 29_987, '97cba04ddd7569c58d434db5a0dc770418558a4b13b51fa539b916d824aa62a5'],
+    [13_846_986, 636, 'd0f04cfe5394a926eb15cb73ab3a6ee85d0c1f89e3f02385992e50edf421d629'],
   ]
   for (const [offset, bytes, expected] of targetStatements) {
     assert.equal(
@@ -102,6 +103,7 @@ test('authenticates the 2.1.124 gateway, Doctor, and plugin clusters', () => {
     '"[gatewayDiscovery] response body failed validation"',
     '"[gatewayDiscovery] 0 usable models after filter"',
     'for(let Y of Rl7())if(!$.some((f)=>f.value===Y.value))$.push(Y);',
+    ',$7K(),Cl7(),hS.initialize()',
     'function qt_(){return u6.isSupportedPlatform()&&u6.isSandboxEnabledInSettings()&&u6.isPlatformInEnabledList()?u6.checkDependencies().errors:[]}',
     'iH!=="uninstall"&&iH!=="update"&&r$',
   ]
@@ -136,6 +138,11 @@ test('source recovers gateway discovery and duplicate-safe model merging', () =>
   assertSourceFragments('src/utils/model/modelOptions.ts', [
     "import { getGatewayModelOptions } from './gatewayModelDiscovery.js'",
     'for (const opt of getGatewayModelOptions()) { if (!options.some(existing => existing.value === opt.value)) { options.push(opt) } }',
+  ])
+
+  assertSourceFragments('src/main.tsx', [
+    "import { refreshGatewayModels } from 'src/utils/model/gatewayModelDiscovery.js'",
+    'void refreshModelCapabilities() void refreshGatewayModels()',
   ])
 
   const discovered = [
