@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "kind": "whole-bundle-source-correspondence",
+  "claim": "Exhaustive generated-unit ownership correspondence plus authenticated behavior obligations and source assertions. Passing focused tests in the source-lineage gate is separately required for the combined source-facing semantic reproduction claim; upstream authored spelling is not claimed byte-identical.",
+  "report": {
+    "path": "semantic-correspondence.json.gz",
+    "bytes": 731811,
+    "sha256": "d20ba92c553c64875007f92ac8acb2ea5d75e8db7b98cf30ce55000fa095db50"
+  },
+  "inputs": {
+    "baseline": {
+      "path": "cli.inner.js",
+      "bytes": 13949576,
+      "sha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd"
+    },
+    "target": {
+      "path": "cli.inner.js",
+      "bytes": 13980928,
+      "sha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590"
+    },
+    "attributionSummary": {
+      "bytes": 4364,
+      "sha256": "9df5dd4681d00b4053d226e46a3c7ecb35445408dd2754611464aa05702bfab9"
+    },
+    "attributionSources": {
+      "bytes": 467892,
+      "sha256": "9cf80d48545f9f10cae5236259f9825067a93cd01a514351c40994ddac2deb4a"
+    },
+    "attributionPartitions": {
+      "bytes": 2913743,
+      "sha256": "933f1ee6f9909b2aef4d7947f17ddffac4127c6dfad64a7c00540621ec94ae0b"
+    },
+    "attributionTargetRanges": {
+      "bytes": 3410880,
+      "sha256": "3e7d68c0615d346ec18715f879340e6fa2c1627b8a83bb1ef854a2a28bddfb2f"
+    },
+    "structural": {
+      "bytes": 2415762,
+      "sha256": "0675cd7f48b2d74b5922e5eacabd76a8a151d9cdd6f515d76e2aa350fb83e982"
+    },
+    "obligations": {
+      "bytes": 364376,
+      "sha256": "bcb6485e23e6fe65c44fcbe3a5cc3a6c1dd26e8255744cbbd358c0c0e90d509d"
+    },
+    "changelog": {
+      "bytes": 942,
+      "sha256": "7f7f09c7e8a7853638044b07d35673a7a3f6aca77248a16e276d3b6019d312e8"
+    },
+    "releaseProvenance": {
+      "bytes": 5882,
+      "sha256": "5c1591fd4f1391f9f96d074586f5366399eb23c501be008f6e7c415ad66a894b"
+    },
+    "officialReleaseAbsence": {
+      "bytes": 942,
+      "sha256": "7f7f09c7e8a7853638044b07d35673a7a3f6aca77248a16e276d3b6019d312e8"
+    },
+    "absenceAuditFullChangelog": {
+      "bytes": 268769,
+      "sha256": "efeda64b42e26075ebdc26bc3e7ee71416aa9d02f08e908c0e4f1b78bef4a67e"
+    },
+    "absenceAuditGitTagRefs": {
+      "bytes": 11430,
+      "sha256": "476465042835e67376b8d9d7ecc01935cdc2a19bc31b9c7c74481f8574a86fbc"
+    }
+  },
+  "sourceTree": {
+    "files": 2166,
+    "bytes": 32824273,
+    "manifestSha256": "c02a43b6e86419c40daa30c3077957e7b9bab6ac34186a494ac1b697ac5807d2"
+  },
+  "sourceOwnership": {
+    "total": 4756,
+    "application": 1902,
+    "dependency": 2850,
+    "vendor": 4,
+    "generated": 0,
+    "unresolvedApplication": 0
+  },
+  "coverage": {
+    "regions": 22358,
+    "targetTokens": 4405970,
+    "accountedTokens": 4405970,
+    "unclassifiedTokens": 0,
+    "ownershipTokens": {
+      "dependency-candidate": 451298,
+      "dependency-owned-exact": 1206216,
+      "mixed-candidate": 712429,
+      "source-owned-exact": 887801,
+      "source-attributed-high": 117211,
+      "source-candidate": 1009471,
+      "dependency-attributed-high": 21544
+    },
+    "deltaTokens": {
+      "matched": 3705208,
+      "unresolved": 382313,
+      "changed": 301783,
+      "moved": 16666
+    },
+    "deltaOwnershipTokens": {
+      "matched:dependency-candidate": 439196,
+      "unresolved:dependency-candidate": 11716,
+      "matched:dependency-owned-exact": 1202818,
+      "changed:dependency-candidate": 386,
+      "matched:mixed-candidate": 632481,
+      "unresolved:mixed-candidate": 49527,
+      "matched:source-owned-exact": 537098,
+      "matched:source-attributed-high": 104266,
+      "matched:source-candidate": 767934,
+      "unresolved:source-candidate": 97547,
+      "matched:dependency-attributed-high": 21415,
+      "unresolved:dependency-owned-exact": 3398,
+      "unresolved:source-owned-exact": 208962,
+      "unresolved:source-attributed-high": 11034,
+      "unresolved:dependency-attributed-high": 129,
+      "changed:source-candidate": 138884,
+      "moved:mixed-candidate": 10655,
+      "changed:mixed-candidate": 19766,
+      "changed:source-owned-exact": 140987,
+      "moved:source-candidate": 5106,
+      "changed:source-attributed-high": 1760,
+      "moved:source-attributed-high": 151,
+      "moved:source-owned-exact": 754
+    },
+    "obligations": {
+      "obligationCount": 27,
+      "fragmentCount": 28,
+      "targetAbsenceCount": 0,
+      "sourceAssertionCount": 257,
+      "sourceAbsenceCount": 0,
+      "sourceRemovalCount": 17,
+      "sourceFileAbsenceCount": 0,
+      "releaseBulletCount": 0,
+      "releaseBulletsCovered": 0,
+      "testCatalogEntries": 12,
+      "usedTestCatalogEntries": 12,
+      "classifications": {
+        "source-localized-adjacent": 27
+      },
+      "localizationBases": {
+        "authenticated-behavior-test": 27
+      },
+      "manualLocalizationCount": 27,
+      "unverifiedObligationCount": 0
+    }
+  }
+}

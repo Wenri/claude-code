@@ -1,0 +1,24 @@
+# 2.1.124 semantic correspondence
+
+This directory binds the authenticated 2.1.123→2.1.124 generated bundle to the recovered source tree without treating a suite-level ledger as row evidence.
+
+- `direct-evidence.json`: 27 reviewed, row-scoped evidence records (hidden 27).
+- `obligations.json`: one obligation per direct row, all catalog-bound and source-localized.
+- `semantic-correspondence.json.gz`: canonical whole-bundle ownership and obligation report.
+- `summary.json`: deterministic public summary and identities.
+
+The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, path-scoped fragment removals, and deleted source files against their base identities. Each direct row is consumed exactly once. The catalog identity is itself pinned and loaded by `recovery-2.1.124-direct-evidence.test.mjs`; every other release-scoped focused suite is frozen and consumed by at least one row.
+
+The known-delta proof also pins the exhaustive 205-cluster partition. Every direct cluster maps one-to-one to an authenticated statement witness plus exact source owner/callsite and focused tests, and every direct group maps to one catalog row. Separate reviewed support rows cover 10 prerequisite or inherited-residual source paths without falsely assigning them a cluster ID; each inherits authenticated target witnesses through explicit direct-cluster relations. Accounting-only groups are limited to authenticated metadata, exact relocation, dependency, identifier-only, or initializer-linkage evidence.
+
+Closure invariants:
+
+- target tokens: 4,405,970
+- accounted tokens: 4,405,970
+- unclassified tokens: 0
+- official bullets covered: 0/0
+- obligations: 27
+- unverified obligations: 0
+- unresolved application source owners: 0
+
+The report proves semantic reproduction, not recovery of original authored spelling.
