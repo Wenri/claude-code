@@ -45,8 +45,8 @@ const expectedKnownDeltaClosure = {
   unresolvedTargetUnits: 0,
 }
 const expectedAccountingClusterIds = [
-  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
-  158, 159, 165, 176, 190, 202,
+  1, 2, 4, 9, 10, 11, 16, 26, 31, 33, 34, 36, 47, 56, 60, 61, 74, 86, 97, 98, 112,
+  113, 114, 116, 122, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
 ]
 const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 function expectedTestsForRepo(repo) {
@@ -154,6 +154,84 @@ function occurrences(contents, fragment) {
     offset += fragment.length
   }
   return count
+}
+
+function safeSourcePath(relative) {
+  return typeof relative === 'string' &&
+    relative.startsWith('src/') &&
+    !relative.split('/').some(part => part === '' || part === '.' || part === '..')
+}
+
+function sourceWitnessProjection(witness) {
+  return {
+    path: witness.path,
+    fragment: witness.fragment,
+    count: witness.count,
+  }
+}
+
+function reviewedSourceWitness(repo, witness, requireReviewed = false) {
+  if (
+    !safeSourcePath(witness?.path) ||
+    typeof witness.fragment !== 'string' ||
+    witness.fragment.length === 0 ||
+    !Number.isSafeInteger(witness.count) ||
+    witness.count <= 0 ||
+    typeof witness.reviewed !== 'boolean' ||
+    !Array.isArray(witness.matchedSemanticTerms) ||
+    witness.matchedSemanticTerms.some(term =>
+      typeof term !== 'string' || term.length === 0) ||
+    new Set(witness.matchedSemanticTerms).size !==
+      witness.matchedSemanticTerms.length ||
+    JSON.stringify(witness.matchedSemanticTerms) !== JSON.stringify(
+      [...witness.matchedSemanticTerms].sort(),
+    ) ||
+    (witness.reviewed !== true && witness.matchedSemanticTerms.length === 0) ||
+    (requireReviewed && witness.reviewed !== true)
+  ) return false
+  const source = fs.readFileSync(path.join(repo, witness.path), 'utf8')
+  return occurrences(source, witness.fragment) === witness.count
+}
+
+function rawStatementWitnessShape(witness) {
+  return witness?.kind === 'raw-statement' &&
+    ['baseline', 'target'].includes(witness.side) &&
+    Number.isSafeInteger(witness.statementIndex) &&
+    witness.statementIndex >= 0 &&
+    Number.isSafeInteger(witness.start) &&
+    witness.start >= 0 &&
+    Number.isSafeInteger(witness.end) &&
+    witness.end > witness.start &&
+    Number.isSafeInteger(witness.bytes) &&
+    witness.bytes > 0 &&
+    typeof witness.sha256 === 'string' &&
+    /^[0-9a-f]{64}$/.test(witness.sha256) &&
+    Number.isSafeInteger(witness.count) &&
+    witness.count > 0 &&
+    Number.isSafeInteger(witness.otherSideCount) &&
+    witness.otherSideCount >= 0 &&
+    witness.count !== witness.otherSideCount
+}
+
+function clusterTargetWitnessesShape(binding) {
+  const additional = binding.additionalTargetWitnesses ?? []
+  const witnesses = [binding.targetWitness, ...additional]
+  return rawStatementWitnessShape(binding.targetWitness) &&
+    Array.isArray(additional) &&
+    (binding.additionalTargetWitnesses === undefined || additional.length > 0) &&
+    additional.every(rawStatementWitnessShape) &&
+    JSON.stringify(additional.map(witness => [
+      witness.side,
+      witness.statementIndex,
+    ])) === JSON.stringify(
+      additional
+        .map(witness => [witness.side, witness.statementIndex])
+        .sort((left, right) =>
+          left[0].localeCompare(right[0]) || left[1] - right[1]),
+    ) &&
+    new Set(witnesses.map(witness =>
+      `${witness?.side}\u0000${witness?.statementIndex}`)).size ===
+      witnesses.length
 }
 
 function readPinned(root, metadata, label) {
@@ -294,39 +372,15 @@ function main() {
       ) === JSON.stringify(expectedFocusedTests),
     'exact hidden focused-test bindings',
   )
-  assert(
-    direct.rows.every(
-      row => row.evidenceKind === 'reviewed-row-scoped-direct-evidence',
-    ),
-    'every row must use direct evidence',
+  const semanticCatalogRows = direct.rows.filter(
+    row => row.semanticClusterIds !== undefined,
+  )
+  const supportCatalogRows = direct.rows.filter(
+    row => row.sourceChangeSupport !== undefined,
   )
   assert(
     direct.rows.every(row =>
       row.retained !== true &&
-      Array.isArray(row.semanticClusterIds) &&
-      row.semanticClusterIds.length > 0 &&
-      new Set(row.semanticClusterIds).size === row.semanticClusterIds.length &&
-      JSON.stringify(row.semanticClusterIds) === JSON.stringify(
-        [...row.semanticClusterIds].sort((left, right) => left - right),
-      ) &&
-      Array.isArray(row.semanticClusterBindings) &&
-      row.semanticClusterBindings.length === row.semanticClusterIds.length &&
-      JSON.stringify(
-        row.semanticClusterBindings.map(binding => binding.clusterId),
-      ) === JSON.stringify(row.semanticClusterIds) &&
-      row.semanticClusterBindings.every(binding =>
-        binding.targetWitness?.kind === 'raw-statement' &&
-        ['baseline', 'target'].includes(binding.targetWitness.side) &&
-        Number.isSafeInteger(binding.targetWitness.count) &&
-        binding.targetWitness.count > 0 &&
-        Number.isSafeInteger(binding.targetWitness.otherSideCount) &&
-        binding.targetWitness.otherSideCount >= 0 &&
-        binding.targetWitness.count !==
-          binding.targetWitness.otherSideCount &&
-        Array.isArray(binding.sourceWitnesses) &&
-        binding.sourceWitnesses.length > 0 &&
-        Array.isArray(binding.testIds) &&
-        binding.testIds.length > 0) &&
       Array.isArray(row.semanticTargetWitnesses) &&
       row.semanticTargetWitnesses.length === row.targetFragments.length &&
       row.semanticTargetWitnesses.every((witness, index) =>
@@ -340,7 +394,51 @@ function main() {
       row.targetFragments.some(
         fragment => fragment.baselineCount !== fragment.targetCount,
       )),
-    'every direct row needs exact per-cluster and row-level adjacent evidence',
+    'every catalog row needs exact row-level adjacent evidence',
+  )
+  assert(
+    semanticCatalogRows.length > 0 &&
+      supportCatalogRows.length > 0 &&
+      semanticCatalogRows.length + supportCatalogRows.length === direct.rowCount &&
+      semanticCatalogRows.every(row =>
+        row.evidenceKind === 'reviewed-row-scoped-direct-evidence' &&
+        row.sourceChangeSupport === undefined &&
+        row.relatedDirectClusterIds === undefined &&
+        Array.isArray(row.semanticClusterIds) &&
+        row.semanticClusterIds.length > 0 &&
+        new Set(row.semanticClusterIds).size === row.semanticClusterIds.length &&
+        JSON.stringify(row.semanticClusterIds) === JSON.stringify(
+          [...row.semanticClusterIds].sort((left, right) => left - right),
+        ) &&
+        Array.isArray(row.semanticClusterBindings) &&
+        row.semanticClusterBindings.length === row.semanticClusterIds.length &&
+        JSON.stringify(
+          row.semanticClusterBindings.map(binding => binding.clusterId),
+        ) === JSON.stringify(row.semanticClusterIds) &&
+        row.semanticClusterBindings.every(binding =>
+          clusterTargetWitnessesShape(binding) &&
+          Array.isArray(binding.sourceWitnesses) &&
+          binding.sourceWitnesses.length > 0 &&
+          Array.isArray(binding.testIds) &&
+          binding.testIds.length > 0)),
+    'semantic catalog rows need exact per-cluster evidence',
+  )
+  assert(
+    supportCatalogRows.every(row =>
+      row.evidenceKind === 'reviewed-source-change-support-evidence' &&
+      row.semanticClusterIds === undefined &&
+      row.semanticClusterBindings === undefined &&
+      row.sourceChangeSupport?.id === row.id &&
+      ['owning-direct-prerequisite', 'inherited-residual'].includes(
+        row.sourceChangeSupport?.classification,
+      ) &&
+      row.sourceChangeSupport?.sourceWitness?.reviewed === true &&
+      Array.isArray(row.relatedDirectClusterIds) &&
+      row.relatedDirectClusterIds.length > 0 &&
+      JSON.stringify(row.relatedDirectClusterIds) === JSON.stringify(
+        row.sourceChangeSupport.relatedDirectClusterIds,
+      )),
+    'support catalog rows need explicit reviewed bundle relations',
   )
   assert(
     summary.coverage.unclassifiedTokens === 0 &&
@@ -599,7 +697,9 @@ function main() {
       Array.isArray(clusterInventory.direct) &&
       clusterInventory.direct.length > 0 &&
       Array.isArray(clusterInventory.accountingOnly) &&
-      clusterInventory.accountingOnly.length > 0,
+      clusterInventory.accountingOnly.length > 0 &&
+      Array.isArray(clusterInventory.supportBindings) &&
+      clusterInventory.supportBindings.length > 0,
     'known-delta semantic cluster inventory',
   )
   const directClusters = clusterInventory.direct.flatMap(
@@ -632,19 +732,62 @@ function main() {
   const changedSourcePaths = direct.changedSourceRows
     .map(entry => entry.path)
     .sort()
-  const semanticSourcePaths = [
+  const preciseClusterSourcePaths = [
     ...new Set(clusterInventory.direct.flatMap(entry => entry.sourcePaths)),
   ].sort()
+  const supportSourcePaths = clusterInventory.supportBindings
+    .map(binding => binding.sourceWitness?.path)
+    .sort()
   assert(
-    JSON.stringify(semanticSourcePaths) ===
+    new Set(supportSourcePaths).size === supportSourcePaths.length &&
+      supportSourcePaths.every(sourcePath =>
+        !preciseClusterSourcePaths.includes(sourcePath)) &&
+      JSON.stringify([...preciseClusterSourcePaths, ...supportSourcePaths].sort()) ===
       JSON.stringify(changedSourcePaths),
-    'semantic source-owner union differs from exact changed-source boundary',
+    'precise cluster owners plus support paths differ from changed source',
   )
   assert(
     clusterInventory.direct.every(entry =>
       JSON.stringify(entry.sourcePaths) !==
         JSON.stringify(changedSourcePaths)),
     'a direct semantic row claims the complete global source delta',
+  )
+  const directClusterIdSet = new Set(directClusters)
+  assert(
+    JSON.stringify(clusterInventory.supportBindings.map(binding => binding.id)) ===
+        JSON.stringify(
+          clusterInventory.supportBindings.map(binding => binding.id).sort(),
+        ) &&
+      new Set(clusterInventory.supportBindings.map(binding => binding.id)).size ===
+        clusterInventory.supportBindings.length &&
+      clusterInventory.supportBindings.every(binding =>
+        typeof binding.id === 'string' &&
+        /^[a-z0-9][a-z0-9-]*$/.test(binding.id) &&
+        ['owning-direct-prerequisite', 'inherited-residual'].includes(
+          binding.classification,
+        ) &&
+        typeof binding.reason === 'string' &&
+        binding.reason.trim() === binding.reason &&
+        binding.reason.length >= 20 &&
+        binding.clusterId === undefined &&
+        binding.clusterIds === undefined &&
+        reviewedSourceWitness(repo, binding.sourceWitness, true) &&
+        Array.isArray(binding.testIds) &&
+        binding.testIds.length > 0 &&
+        new Set(binding.testIds).size === binding.testIds.length &&
+        JSON.stringify(binding.testIds) === JSON.stringify(
+          [...binding.testIds].sort(),
+        ) &&
+        Array.isArray(binding.relatedDirectClusterIds) &&
+        binding.relatedDirectClusterIds.length > 0 &&
+        new Set(binding.relatedDirectClusterIds).size ===
+          binding.relatedDirectClusterIds.length &&
+        JSON.stringify(binding.relatedDirectClusterIds) === JSON.stringify(
+          [...binding.relatedDirectClusterIds].sort((left, right) => left - right),
+        ) &&
+        binding.relatedDirectClusterIds.every(clusterId =>
+          directClusterIdSet.has(clusterId))),
+    'source-change support bindings require reviewed direct-cluster relations',
   )
   const accountingReasons = new Set([
     'dependency',
@@ -674,6 +817,9 @@ function main() {
   const clusterBindingsSha256 = sha256(Buffer.from(
     `${JSON.stringify(semanticClusterBindings)}\n`,
   ))
+  const supportBindingsSha256 = sha256(Buffer.from(
+    `${JSON.stringify(clusterInventory.supportBindings)}\n`,
+  ))
   assert(
     JSON.stringify(direct.clusterInventory?.proof) ===
         JSON.stringify(knownDeltaProofRepositoryMetadata) &&
@@ -687,8 +833,14 @@ function main() {
       direct.clusterInventory?.clusterBindingCount === directClusters.length &&
       direct.clusterInventory?.clusterBindingsSha256 ===
         clusterBindingsSha256 &&
-      direct.coverageDeclarations?.clusterInventoryFullyBound === true,
-    'direct catalog pins the complete semantic cluster inventory',
+      direct.clusterInventory?.supportBindingCount ===
+        clusterInventory.supportBindings.length &&
+      direct.clusterInventory?.supportSourcePathCount ===
+        clusterInventory.supportBindings.length &&
+      direct.clusterInventory?.supportBindingsSha256 === supportBindingsSha256 &&
+      direct.coverageDeclarations?.clusterInventoryFullyBound === true &&
+      direct.coverageDeclarations?.sourceSupportFullyBound === true,
+    'direct catalog pins the complete semantic/support inventory',
   )
   assert(
     direct.inputs.some(entry =>
@@ -696,19 +848,23 @@ function main() {
         JSON.stringify(knownDeltaProofRepositoryMetadata)),
     'direct catalog input pins known-delta proof',
   )
-  assert(
-    JSON.stringify(
-      clusterInventory.direct
-        .map(entry => [entry.rowId, entry.clusterIds])
-        .sort((left, right) => left[0].localeCompare(right[0])),
-    ) === JSON.stringify(
-      direct.rows
-        .map(row => [row.id, row.semanticClusterIds])
-        .sort((left, right) => left[0].localeCompare(right[0])),
-    ),
-    'direct catalog rows consume every direct semantic cluster group',
-  )
   const directById = new Map(direct.rows.map(row => [row.id, row]))
+  const semanticDirectById = new Map(
+    clusterInventory.direct.map(entry => [entry.rowId, entry]),
+  )
+  const supportById = new Map(
+    clusterInventory.supportBindings.map(binding => [binding.id, binding]),
+  )
+  assert(
+    semanticDirectById.size === clusterInventory.direct.length &&
+      supportById.size === clusterInventory.supportBindings.length &&
+      [...supportById.keys()].every(id => !semanticDirectById.has(id)) &&
+      JSON.stringify([...directById.keys()].sort()) === JSON.stringify([
+        ...semanticDirectById.keys(),
+        ...supportById.keys(),
+      ].sort()),
+    'direct catalog rows consume every semantic and support group',
+  )
   assert(
     clusterInventory.direct.every(entry => {
       const row = directById.get(entry.rowId)
@@ -731,19 +887,7 @@ function main() {
         ...new Set(entry.clusterBindings.flatMap(binding => binding.testIds)),
       ].sort()
       const sourceWitnessesValid = bindingSourceWitnesses.every(witness => {
-        if (
-          typeof witness.path !== 'string' ||
-          !witness.path.startsWith('src/') ||
-          witness.path.split('/').some(
-            part => part === '' || part === '.' || part === '..',
-          ) ||
-          typeof witness.fragment !== 'string' ||
-          witness.fragment.length === 0 ||
-          !Number.isSafeInteger(witness.count) ||
-          witness.count <= 0
-        ) return false
-        const source = fs.readFileSync(path.join(repo, witness.path), 'utf8')
-        return occurrences(source, witness.fragment) === witness.count
+        return reviewedSourceWitness(repo, witness)
       })
       const sourcePaths = [...new Set([
         ...row.sourceAssertions.map(assertion => assertion.path),
@@ -766,7 +910,9 @@ function main() {
           path: assertion.path,
           fragment: assertion.fragment,
           count: assertion.count,
-        }))) === JSON.stringify(bindingSourceWitnesses) &&
+        }))) === JSON.stringify(
+          bindingSourceWitnesses.map(sourceWitnessProjection),
+        ) &&
         JSON.stringify(row.semanticTargetWitnesses) ===
           JSON.stringify(entry.targetWitnesses) &&
         JSON.stringify(row.focusedTests) === JSON.stringify(entry.testIds) &&
@@ -780,6 +926,47 @@ function main() {
       )
     }),
     'direct catalog semantic cluster source/test/witness bindings',
+  )
+  const directEntryByClusterId = new Map(
+    clusterInventory.direct.flatMap(entry =>
+      entry.clusterIds.map(clusterId => [clusterId, entry])),
+  )
+  const relatedTargetWitnesses = binding => {
+    const relatedEntries = new Map()
+    for (const clusterId of binding.relatedDirectClusterIds) {
+      const entry = directEntryByClusterId.get(clusterId)
+      assert(entry !== undefined, `${binding.id}: related cluster is not direct`)
+      relatedEntries.set(entry.rowId, entry)
+    }
+    return [
+      ...new Map(
+        [...relatedEntries.values()].flatMap(entry =>
+          entry.targetWitnesses.map(witness => [witness.value, witness])),
+      ).values(),
+    ].sort((left, right) => left.value.localeCompare(right.value))
+  }
+  assert(
+    clusterInventory.supportBindings.every(binding => {
+      const row = directById.get(binding.id)
+      const targetWitnesses = relatedTargetWitnesses(binding)
+      return row !== undefined &&
+        row.evidenceKind === 'reviewed-source-change-support-evidence' &&
+        row.semanticClusterIds === undefined &&
+        row.semanticClusterBindings === undefined &&
+        JSON.stringify(row.sourceChangeSupport) === JSON.stringify(binding) &&
+        JSON.stringify(row.relatedDirectClusterIds) ===
+          JSON.stringify(binding.relatedDirectClusterIds) &&
+        JSON.stringify(row.semanticTargetWitnesses) ===
+          JSON.stringify(targetWitnesses) &&
+        JSON.stringify(row.targetFragments.map(fragment => fragment.text)) ===
+          JSON.stringify(targetWitnesses.map(witness => witness.value)) &&
+        JSON.stringify(row.sourceAssertions.map(sourceWitnessProjection)) ===
+          JSON.stringify([sourceWitnessProjection(binding.sourceWitness)]) &&
+        row.sourcePathAbsences.length === 0 &&
+        row.sourceFileAbsences.length === 0 &&
+        JSON.stringify(row.focusedTests) === JSON.stringify(binding.testIds)
+    }),
+    'direct catalog source-change support/test/target bindings',
   )
   const directRowIdsSha256 = sha256(Buffer.from(
     `${direct.rows.map(row => row.id).join('\n')}\n`,
@@ -805,6 +992,10 @@ function main() {
         clusterInventory.accountingOnly.length &&
       structural.semanticClusterInventory.accountingOnlyClusters ===
         accountingOnlyClusters.length &&
+      structural.semanticClusterInventory.supportBindings ===
+        clusterInventory.supportBindings.length &&
+      structural.semanticClusterInventory.supportSourcePaths ===
+        clusterInventory.supportBindings.length &&
       JSON.stringify(structural.semanticClusterInventory.proof) ===
         JSON.stringify(knownDeltaProofRepositoryMetadata) &&
       structural.semanticClusterInventory.partitionSha256 ===

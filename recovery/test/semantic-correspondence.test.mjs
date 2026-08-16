@@ -473,6 +473,90 @@ test('rejects semantic cluster bindings that do not cover every cluster ID', () 
   }
 })
 
+test('preserves explicit source-change support without adding cluster ownership', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    const obligation = obligations.obligations[0]
+    delete obligation.semanticClusterIds
+    delete obligation.semanticClusterBindings
+    obligation.sourceChangeSupport = {
+      id: 'answer-support',
+      classification: 'owning-direct-prerequisite',
+      reason: 'Reviewed prerequisite for the related direct answer cluster.',
+      sourceWitness: {
+        path: 'src/answer.ts',
+        fragment: 'answer = 2',
+        count: 1,
+        reviewed: true,
+        matchedSemanticTerms: ['answer'],
+      },
+      testIds: ['answer-change'],
+      relatedDirectClusterIds: [1],
+    }
+    obligation.relatedDirectClusterIds = [1]
+    writeJson(files.obligationsPath, obligations)
+    const generated = generate(files)
+    const witness = generated.report.obligationWitnesses[0]
+    assert.deepEqual(witness.sourceChangeSupport, obligation.sourceChangeSupport)
+    assert.deepEqual(witness.relatedDirectClusterIds, [1])
+    assert.equal(witness.semanticClusterIds, undefined)
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects source-change support without a direct-cluster relation', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    const obligation = obligations.obligations[0]
+    delete obligation.semanticClusterIds
+    delete obligation.semanticClusterBindings
+    obligation.sourceChangeSupport = { id: 'answer-support' }
+    obligation.relatedDirectClusterIds = []
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid source-change support binding/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects source-change support path traversal', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    const obligation = obligations.obligations[0]
+    delete obligation.semanticClusterIds
+    delete obligation.semanticClusterBindings
+    obligation.sourceChangeSupport = {
+      id: 'answer-support',
+      classification: 'owning-direct-prerequisite',
+      reason: 'Reviewed prerequisite for the related direct answer cluster.',
+      sourceWitness: {
+        path: 'src/../answer.ts',
+        fragment: 'answer = 2',
+        count: 1,
+        reviewed: true,
+        matchedSemanticTerms: ['answer'],
+      },
+      testIds: ['answer-change'],
+      relatedDirectClusterIds: [1],
+    }
+    obligation.relatedDirectClusterIds = [1]
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid source-change support binding/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
 test('uses independently pinned obligation release evidence when attribution is incremental', () => {
   const files = fixture()
   try {

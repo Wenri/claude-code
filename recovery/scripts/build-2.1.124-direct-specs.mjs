@@ -27,8 +27,8 @@ const accountingReasons = new Set([
   'metadata',
 ])
 const expectedAccountingClusterIds = [
-  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
-  158, 159, 165, 176, 190, 202,
+  1, 2, 4, 9, 10, 11, 16, 26, 31, 33, 34, 36, 47, 56, 60, 61, 74, 86, 97, 98, 112,
+  113, 114, 116, 122, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
 ]
 const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 const final = process.argv.slice(2).includes('--final')
@@ -73,6 +73,34 @@ function occurrences(contents, fragment) {
     offset += fragment.length
   }
   return count
+}
+
+function validateReviewedSourceWitness(sourceWitness, label) {
+  const sourcePath = safeSourcePath(sourceWitness?.path, label)
+  assert(
+    typeof sourceWitness.fragment === 'string' &&
+      sourceWitness.fragment.length > 0 &&
+      Number.isSafeInteger(sourceWitness.count) &&
+      sourceWitness.count > 0 &&
+      typeof sourceWitness.reviewed === 'boolean' &&
+      Array.isArray(sourceWitness.matchedSemanticTerms) &&
+      sourceWitness.matchedSemanticTerms.every(term =>
+        typeof term === 'string' && term.length > 0) &&
+      new Set(sourceWitness.matchedSemanticTerms).size ===
+        sourceWitness.matchedSemanticTerms.length &&
+      JSON.stringify(sourceWitness.matchedSemanticTerms) === JSON.stringify(
+        [...sourceWitness.matchedSemanticTerms].sort(),
+      ) &&
+      (sourceWitness.reviewed === true ||
+        sourceWitness.matchedSemanticTerms.length > 0),
+    `${label}: invalid reviewed source witness`,
+  )
+  const source = fs.readFileSync(path.join(repo, sourcePath), 'utf8')
+  assert(
+    occurrences(source, sourceWitness.fragment) === sourceWitness.count,
+    `${label}: source witness count`,
+  )
+  return sourcePath
 }
 
 function changedSourceRows() {
@@ -127,6 +155,29 @@ function validateClusterIds(clusterIds, label) {
   )
 }
 
+function validateRawStatementWitness(witness, label) {
+  assert(
+    witness?.kind === 'raw-statement' &&
+      ['baseline', 'target'].includes(witness.side) &&
+      Number.isSafeInteger(witness.statementIndex) &&
+      witness.statementIndex >= 0 &&
+      Number.isSafeInteger(witness.start) &&
+      witness.start >= 0 &&
+      Number.isSafeInteger(witness.end) &&
+      witness.end > witness.start &&
+      Number.isSafeInteger(witness.bytes) &&
+      witness.bytes > 0 &&
+      typeof witness.sha256 === 'string' &&
+      /^[0-9a-f]{64}$/.test(witness.sha256) &&
+      Number.isSafeInteger(witness.count) &&
+      witness.count > 0 &&
+      Number.isSafeInteger(witness.otherSideCount) &&
+      witness.otherSideCount >= 0 &&
+      witness.count !== witness.otherSideCount,
+    `${label}: invalid raw-statement witness`,
+  )
+}
+
 function validateClusterBindings(entry) {
   const bindings = entry.clusterBindings
   assert(
@@ -140,27 +191,37 @@ function validateClusterBindings(entry) {
   )
   const sourceWitnesses = new Map()
   for (const binding of bindings) {
-    const witness = binding.targetWitness
+    const additionalTargetWitnesses = binding.additionalTargetWitnesses ?? []
     assert(
-      witness?.kind === 'raw-statement' &&
-        ['baseline', 'target'].includes(witness.side) &&
-        Number.isSafeInteger(witness.statementIndex) &&
-        witness.statementIndex >= 0 &&
-        Number.isSafeInteger(witness.start) &&
-        witness.start >= 0 &&
-        Number.isSafeInteger(witness.end) &&
-        witness.end > witness.start &&
-        Number.isSafeInteger(witness.bytes) &&
-        witness.bytes > 0 &&
-        typeof witness.sha256 === 'string' &&
-        /^[0-9a-f]{64}$/.test(witness.sha256) &&
-        Number.isSafeInteger(witness.count) &&
-        witness.count > 0 &&
-        Number.isSafeInteger(witness.otherSideCount) &&
-        witness.otherSideCount >= 0 &&
-        witness.count !== witness.otherSideCount,
-      `${entry.rowId}/C${binding.clusterId}: invalid raw-statement witness`,
+      Array.isArray(additionalTargetWitnesses) &&
+        (binding.additionalTargetWitnesses === undefined ||
+          additionalTargetWitnesses.length > 0) &&
+        JSON.stringify(additionalTargetWitnesses.map(witness => [
+          witness.side,
+          witness.statementIndex,
+        ])) === JSON.stringify(
+          additionalTargetWitnesses
+            .map(witness => [witness.side, witness.statementIndex])
+            .sort((left, right) =>
+              left[0].localeCompare(right[0]) || left[1] - right[1]),
+        ),
+      `${entry.rowId}/C${binding.clusterId}: additional witnesses are not canonical`,
     )
+    const targetWitnesses = [
+      binding.targetWitness,
+      ...additionalTargetWitnesses,
+    ]
+    assert(
+      new Set(targetWitnesses.map(witness =>
+        `${witness?.side}\u0000${witness?.statementIndex}`)).size ===
+        targetWitnesses.length,
+      `${entry.rowId}/C${binding.clusterId}: duplicate statement witness`,
+    )
+    targetWitnesses.forEach((witness, index) =>
+      validateRawStatementWitness(
+        witness,
+        `${entry.rowId}/C${binding.clusterId}/W${index + 1}`,
+      ))
     assert(
       Array.isArray(binding.sourceWitnesses) &&
         binding.sourceWitnesses.length > 0,
@@ -168,22 +229,13 @@ function validateClusterBindings(entry) {
     )
     const bindingSourceKeys = new Set()
     for (const sourceWitness of binding.sourceWitnesses) {
-      const sourcePath = safeSourcePath(
-        sourceWitness.path,
+      const sourcePath = validateReviewedSourceWitness(
+        sourceWitness,
         `${entry.rowId}/C${binding.clusterId}: source witness`,
       )
       assert(
-        entry.sourcePaths.includes(sourcePath) &&
-          typeof sourceWitness.fragment === 'string' &&
-          sourceWitness.fragment.length > 0 &&
-          Number.isSafeInteger(sourceWitness.count) &&
-          sourceWitness.count > 0,
-        `${entry.rowId}/C${binding.clusterId}: invalid source witness`,
-      )
-      const source = fs.readFileSync(path.join(repo, sourcePath), 'utf8')
-      assert(
-        occurrences(source, sourceWitness.fragment) === sourceWitness.count,
-        `${entry.rowId}/C${binding.clusterId}: source witness count`,
+        entry.sourcePaths.includes(sourcePath),
+        `${entry.rowId}/C${binding.clusterId}: source witness outside owners`,
       )
       const key = `${sourcePath}\u0000${sourceWitness.fragment}`
       assert(
@@ -231,6 +283,68 @@ function validateClusterBindings(entry) {
       left.path.localeCompare(right.path) ||
       left.fragment.localeCompare(right.fragment),
   )
+}
+
+function validateSupportBindings(inventory, directClusterIds) {
+  const bindings = inventory.supportBindings
+  assert(
+    Array.isArray(bindings) && bindings.length > 0,
+    'source-change support bindings are missing',
+  )
+  assert(
+    JSON.stringify(bindings.map(binding => binding.id)) === JSON.stringify(
+      bindings.map(binding => binding.id).sort(),
+    ),
+    'source-change support bindings are not canonical',
+  )
+  const ids = new Set()
+  const paths = new Set()
+  const directClusterIdSet = new Set(directClusterIds)
+  for (const binding of bindings) {
+    assert(
+      typeof binding.id === 'string' &&
+        /^[a-z0-9][a-z0-9-]*$/.test(binding.id) &&
+        !ids.has(binding.id) &&
+        ['owning-direct-prerequisite', 'inherited-residual'].includes(
+          binding.classification,
+        ) &&
+        typeof binding.reason === 'string' &&
+        binding.reason.trim() === binding.reason &&
+        binding.reason.length >= 20 &&
+        binding.clusterId === undefined &&
+        binding.clusterIds === undefined,
+      `${binding.id ?? 'support binding'}: invalid reviewed support identity`,
+    )
+    ids.add(binding.id)
+    const sourcePath = validateReviewedSourceWitness(
+      binding.sourceWitness,
+      `${binding.id}: support source witness`,
+    )
+    assert(binding.sourceWitness.reviewed === true,
+      `${binding.id}: support source witness must be explicitly reviewed`)
+    assert(!paths.has(sourcePath), `${binding.id}: duplicate support source path`)
+    paths.add(sourcePath)
+    validateClusterIds(
+      binding.relatedDirectClusterIds,
+      `${binding.id}: related direct clusters`,
+    )
+    assert(
+      binding.relatedDirectClusterIds.every(clusterId =>
+        directClusterIdSet.has(clusterId)),
+      `${binding.id}: relation references a non-direct cluster`,
+    )
+    assert(
+      Array.isArray(binding.testIds) &&
+        binding.testIds.length > 0 &&
+        new Set(binding.testIds).size === binding.testIds.length &&
+        JSON.stringify(binding.testIds) ===
+          JSON.stringify([...binding.testIds].sort()) &&
+        binding.testIds.every(testId =>
+          typeof testId === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(testId)),
+      `${binding.id}: invalid support focused tests`,
+    )
+  }
+  return bindings
 }
 
 function validateSourcePathAbsences(entry) {
@@ -385,6 +499,16 @@ function clusterInventory() {
       JSON.stringify(expectedAccountingClusterIds),
     'accounting-only clusters differ from the conservative reviewed set',
   )
+  const supportBindings = validateSupportBindings(
+    inventory,
+    directClusterIds,
+  )
+  assert(
+    supportBindings.every(binding =>
+      !directRowIds.has(binding.id) &&
+        !directObligationIds.has(`hidden-${binding.id}`)),
+    'support binding ID or obligation collides with a direct semantic row',
+  )
   const allClusterIds = [...directClusterIds, ...accountingClusterIds]
     .sort((left, right) => left - right)
   assert(new Set(allClusterIds).size === allClusterIds.length,
@@ -395,7 +519,7 @@ function clusterInventory() {
     ),
     'semantic cluster partition is not exactly 1..205',
   )
-  return { inventory, directClusterIds, accountingClusterIds }
+  return { inventory, directClusterIds, accountingClusterIds, supportBindings }
 }
 
 const releaseAbsence = JSON.parse(fs.readFileSync(releaseAbsencePath, 'utf8'))
@@ -419,6 +543,7 @@ if (!final) {
       daemonInventoryComplete: false,
       residualAuditComplete: false,
       clusterInventoryFullyBound: false,
+      sourceSupportFullyBound: false,
       changedSourcePathsFullyBound: false,
       focusedTestsFullyBound: false,
     },
@@ -435,7 +560,12 @@ if (!final) {
   process.exit(0)
 }
 
-const { inventory, directClusterIds, accountingClusterIds } = clusterInventory()
+const {
+  inventory,
+  directClusterIds,
+  accountingClusterIds,
+  supportBindings,
+} = clusterInventory()
 const semanticClusterBindings = inventory.direct.flatMap(entry =>
   entry.clusterBindings.map(binding => ({ rowId: entry.rowId, ...binding })))
 assert(
@@ -449,19 +579,30 @@ const changedPaths = changedRows.map(row => row.path)
 const directSourcePaths = new Set(
   inventory.direct.flatMap(entry => entry.sourcePaths),
 )
+const supportSourcePaths = new Set(
+  supportBindings.map(binding => binding.sourceWitness.path),
+)
+assert(
+  [...supportSourcePaths].every(sourcePath => !directSourcePaths.has(sourcePath)),
+  'precise cluster owners and support source paths overlap',
+)
+const reviewedSourcePaths = new Set([
+  ...directSourcePaths,
+  ...supportSourcePaths,
+])
 const missingChangedPaths = changedRows
   .map(row => row.path)
-  .filter(sourcePath => !directSourcePaths.has(sourcePath))
-const unexpectedSourcePaths = [...directSourcePaths]
+  .filter(sourcePath => !reviewedSourcePaths.has(sourcePath))
+const unexpectedSourcePaths = [...reviewedSourcePaths]
   .filter(sourcePath => !statusByPath.has(sourcePath))
   .sort()
 assert(
   missingChangedPaths.length === 0,
-  `changed source paths missing from semantic clusters:\n${missingChangedPaths.join('\n')}`,
+  `changed source paths missing from precise owners/support:\n${missingChangedPaths.join('\n')}`,
 )
 assert(
   unexpectedSourcePaths.length === 0,
-  `semantic cluster source owners outside the changed-source boundary:\n${unexpectedSourcePaths.join('\n')}`,
+  `semantic owner/support paths outside the changed-source boundary:\n${unexpectedSourcePaths.join('\n')}`,
 )
 for (const entry of inventory.direct) {
   assert(
@@ -471,7 +612,10 @@ for (const entry of inventory.direct) {
 }
 
 const reviewedFocusedTests = [
-  ...new Set(inventory.direct.flatMap(entry => entry.testIds)),
+  ...new Set([
+    ...inventory.direct.flatMap(entry => entry.testIds),
+    ...supportBindings.flatMap(binding => binding.testIds),
+  ]),
 ].sort()
 assert(reviewedFocusedTests.includes('semantic-delta'),
   'semantic cluster inventory must bind the semantic-delta suite')
@@ -480,7 +624,7 @@ assert(
   'focused tests differ from the exact semantic cluster inventory',
 )
 
-const rows = [...inventory.direct]
+const semanticRows = [...inventory.direct]
   .sort((left, right) => left.rowId.localeCompare(right.rowId))
   .map(entry => {
     const deletedSourcePaths = entry.sourcePaths
@@ -518,6 +662,52 @@ const rows = [...inventory.direct]
           `source owners and focused ${entry.testIds.join(', ')} verification.`,
     }
   })
+const directEntryByClusterId = new Map(
+  inventory.direct.flatMap(entry =>
+    entry.clusterIds.map(clusterId => [clusterId, entry])),
+)
+const supportRows = supportBindings.map(binding => {
+  const relatedEntries = [
+    ...new Map(
+      binding.relatedDirectClusterIds.map(clusterId => {
+        const entry = directEntryByClusterId.get(clusterId)
+        assert(entry !== undefined,
+          `${binding.id}: related direct cluster is missing`)
+        return [entry.rowId, entry]
+      }),
+    ).values(),
+  ]
+  const targetWitnesses = [
+    ...new Map(
+      relatedEntries.flatMap(entry =>
+        entry.targetWitnesses.map(witness => [witness.value, witness])),
+    ).values(),
+  ].sort((left, right) => left.value.localeCompare(right.value))
+  assert(targetWitnesses.length > 0,
+    `${binding.id}: support row has no related bundle witness`)
+  assert(statusByPath.get(binding.sourceWitness.path) !== 'D',
+    `${binding.id}: deleted support source is unsupported`)
+  return {
+    id: binding.id,
+    obligationId: `hidden-${binding.id}`,
+    category: 'hidden',
+    title: binding.id.replaceAll('-', ' '),
+    status: 'verified',
+    sourceChangeSupport: binding,
+    relatedDirectClusterIds: binding.relatedDirectClusterIds,
+    semanticTargetWitnesses: targetWitnesses,
+    targetFragments: targetWitnesses.map(witness => witness.value),
+    sourceAssertions: [binding.sourceWitness],
+    sourcePathAbsences: [],
+    sourceFileAbsences: [],
+    focusedTests: binding.testIds,
+    rationale: binding.reason,
+  }
+})
+const rows = [...semanticRows, ...supportRows]
+  .sort((left, right) => left.id.localeCompare(right.id))
+assert(new Set(rows.map(row => row.id)).size === rows.length,
+  'semantic and support row IDs are not unique')
 
 const output = {
   schemaVersion: 1,
@@ -535,6 +725,11 @@ const output = {
     clusterBindingsSha256: sha256(Buffer.from(
       `${JSON.stringify(semanticClusterBindings)}\n`,
     )),
+    supportBindingCount: supportBindings.length,
+    supportSourcePathCount: supportSourcePaths.size,
+    supportBindingsSha256: sha256(Buffer.from(
+      `${JSON.stringify(supportBindings)}\n`,
+    )),
     partitionSha256: sha256(Buffer.from(`${[
       ...directClusterIds.map(clusterId => `direct\t${clusterId}`),
       ...accountingClusterIds.map(clusterId => `accounting-only\t${clusterId}`),
@@ -547,6 +742,7 @@ const output = {
     daemonInventoryComplete: true,
     residualAuditComplete: true,
     clusterInventoryFullyBound: true,
+    sourceSupportFullyBound: true,
     changedSourcePathsFullyBound: true,
     focusedTestsFullyBound: true,
   },

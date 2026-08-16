@@ -68,7 +68,16 @@ if (
   direct.clusterInventory?.clusterBindingCount !==
     clusterInventory.directClusters ||
   typeof direct.clusterInventory?.clusterBindingsSha256 !== 'string' ||
-  !/^[0-9a-f]{64}$/.test(direct.clusterInventory.clusterBindingsSha256)
+  !/^[0-9a-f]{64}$/.test(direct.clusterInventory.clusterBindingsSha256) ||
+  !Number.isSafeInteger(clusterInventory.supportBindings) ||
+  clusterInventory.supportBindings <= 0 ||
+  clusterInventory.supportSourcePaths !== clusterInventory.supportBindings ||
+  direct.clusterInventory?.supportBindingCount !==
+    clusterInventory.supportBindings ||
+  direct.clusterInventory?.supportSourcePathCount !==
+    clusterInventory.supportSourcePaths ||
+  typeof direct.clusterInventory?.supportBindingsSha256 !== 'string' ||
+  !/^[0-9a-f]{64}$/.test(direct.clusterInventory.supportBindingsSha256)
 ) {
   throw new Error('semantic cluster partition is not exactly sealed')
 }
@@ -165,6 +174,7 @@ The Linux x64 2.1.124 published package and embedded JavaScript graph are recons
 - The deterministic known-delta proof closes all ${number(structural.knownDeltaClosure.targetUnits)} target structural units and ${number(structural.knownDeltaClosure.targetTokens)} target tokens with zero changed, moved, unresolved, unmatched-baseline, or unresolved-target residue. Its exact inputs are \`${structural.metadataNormalizedLedger.path}\` and \`${structural.knownDeltaExactLedger.path}\`; \`${structural.knownDeltaProof.path}\` pins their byte lengths and SHA-256 identities.
 - Its ${number(clusterInventory.totalClusters)} readable semantic clusters are partitioned exactly once: ${number(clusterInventory.directClusters)} clusters in ${number(clusterInventory.directGroups)} direct source/test groups and ${number(clusterInventory.accountingOnlyClusters)} clusters in ${number(clusterInventory.accountingOnlyGroups)} evidence-backed accounting-only groups.
 - Every one of the ${number(clusterInventory.directClusters)} direct clusters has its own count-changing authenticated statement slice, exact recovered-source owner/callsite witness, and focused-test binding; the complete binding map is pinned by SHA-256.
+- ${number(clusterInventory.supportBindings)} reviewed source-change support rows cover prerequisites and inherited residual synchronization outside precise cluster owners. Each has an exact source witness, focused tests, and a nonempty relation to direct cluster bundle evidence; precise owner and support paths are disjoint and jointly close the changed-source boundary.
 
 ## Semantic closure
 
@@ -213,7 +223,7 @@ This directory binds the authenticated 2.1.123→2.1.124 generated bundle to the
 
 The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, path-scoped fragment removals, and deleted source files against their base identities. Each direct row is consumed exactly once. The catalog identity is itself pinned and loaded by \`recovery-2.1.124-direct-evidence.test.mjs\`; every other release-scoped focused suite is frozen and consumed by at least one row.
 
-The known-delta proof also pins the exhaustive 205-cluster partition. Every direct cluster maps one-to-one to an authenticated statement witness plus exact source owner/callsite and focused tests, and every direct group maps to one catalog row. Accounting-only groups are limited to authenticated metadata, exact relocation, dependency, identifier-only, or initializer-linkage evidence.
+The known-delta proof also pins the exhaustive 205-cluster partition. Every direct cluster maps one-to-one to an authenticated statement witness plus exact source owner/callsite and focused tests, and every direct group maps to one catalog row. Separate reviewed support rows cover ${number(clusterInventory.supportSourcePaths)} prerequisite or inherited-residual source paths without falsely assigning them a cluster ID; each inherits authenticated target witnesses through explicit direct-cluster relations. Accounting-only groups are limited to authenticated metadata, exact relocation, dependency, identifier-only, or initializer-linkage evidence.
 
 Closure invariants:
 

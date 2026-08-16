@@ -188,24 +188,48 @@ assert(
 const clusterByRowId = new Map(
   clusterInventory.direct.map(entry => [entry.rowId, entry]),
 )
+const supportById = new Map(
+  clusterInventory.supportBindings.map(binding => [binding.id, binding]),
+)
 assert(clusterByRowId.size === clusterInventory.direct.length,
   'unique semantic cluster row IDs')
+assert(supportById.size === clusterInventory.supportBindings.length,
+  'unique source-change support IDs')
 assert(
-  JSON.stringify([...clusterByRowId.keys()].sort()) ===
+  JSON.stringify([
+    ...clusterByRowId.keys(),
+    ...supportById.keys(),
+  ].sort()) ===
     JSON.stringify(directIds.slice().sort()),
-  'semantic cluster rows and direct evidence rows differ',
+  'semantic/support rows and direct evidence rows differ',
 )
 for (const row of directEvidence.rows) {
   const semantic = clusterByRowId.get(row.id)
-  assert(
-    JSON.stringify(row.semanticClusterIds) ===
-        JSON.stringify(semantic.clusterIds) &&
-      JSON.stringify(row.semanticClusterBindings) ===
-        JSON.stringify(semantic.clusterBindings) &&
-      JSON.stringify(row.semanticTargetWitnesses) ===
-        JSON.stringify(semantic.targetWitnesses),
-    `${row.id}: semantic cluster binding`,
-  )
+  const support = supportById.get(row.id)
+  assert((semantic === undefined) !== (support === undefined),
+    `${row.id}: exact semantic/support binding`)
+  if (semantic !== undefined) {
+    assert(
+      JSON.stringify(row.semanticClusterIds) ===
+          JSON.stringify(semantic.clusterIds) &&
+        JSON.stringify(row.semanticClusterBindings) ===
+          JSON.stringify(semantic.clusterBindings) &&
+        row.sourceChangeSupport === undefined &&
+        row.relatedDirectClusterIds === undefined &&
+        JSON.stringify(row.semanticTargetWitnesses) ===
+          JSON.stringify(semantic.targetWitnesses),
+      `${row.id}: semantic cluster binding`,
+    )
+  } else {
+    assert(
+      row.semanticClusterIds === undefined &&
+        row.semanticClusterBindings === undefined &&
+        JSON.stringify(row.sourceChangeSupport) === JSON.stringify(support) &&
+        JSON.stringify(row.relatedDirectClusterIds) ===
+          JSON.stringify(support.relatedDirectClusterIds),
+      `${row.id}: source-change support binding`,
+    )
+  }
 }
 assert(
   provenance.schemaVersion === 1 &&
@@ -295,8 +319,15 @@ function obligation(row) {
       rowSha256: sha256(Buffer.from(JSON.stringify(row))),
       kind: row.evidenceKind,
     },
-    semanticClusterIds: row.semanticClusterIds,
-    semanticClusterBindings: row.semanticClusterBindings,
+    ...(row.semanticClusterIds === undefined
+      ? {
+          sourceChangeSupport: row.sourceChangeSupport,
+          relatedDirectClusterIds: row.relatedDirectClusterIds,
+        }
+      : {
+          semanticClusterIds: row.semanticClusterIds,
+          semanticClusterBindings: row.semanticClusterBindings,
+        }),
     localizationBasis: 'authenticated-behavior-test',
     localizationBoundary:
       'The pinned direct-evidence test loads this exact catalog identity and verifies this row’s authenticated adjacent-bundle counts, exact source fragment hashes and counts, row-scoped fragment absences, and authenticated deleted-file identities.',

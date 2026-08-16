@@ -13,8 +13,8 @@ const priorManifestPath = path.join(
   'recovery/cases/2.1.122-to-2.1.123/manifest.json',
 )
 const expectedAccountingClusterIds = [
-  1, 2, 9, 10, 11, 26, 56, 97, 98, 113, 114, 116, 138, 141, 145, 157,
-  158, 159, 165, 176, 190, 202,
+  1, 2, 4, 9, 10, 11, 16, 26, 31, 33, 34, 36, 47, 56, 60, 61, 74, 86, 97, 98, 112,
+  113, 114, 116, 122, 138, 141, 145, 147, 157, 158, 159, 165, 176, 179, 190, 202,
 ]
 const requiredDirectClusterIds = [12, 69, 115, 186, 188, 189]
 
@@ -59,6 +59,64 @@ function assert(condition, message) {
 
 function assertDeepEqual(actual, expected, message) {
   assert(JSON.stringify(actual) === JSON.stringify(expected), message)
+}
+
+function occurrences(contents, fragment) {
+  assert(fragment.length > 0, 'cannot count an empty fragment')
+  let count = 0
+  let offset = 0
+  while ((offset = contents.indexOf(fragment, offset)) !== -1) {
+    count += 1
+    offset += fragment.length
+  }
+  return count
+}
+
+function safeSourcePath(relative) {
+  return typeof relative === 'string' &&
+    relative.startsWith('src/') &&
+    !relative.split('/').some(part => part === '' || part === '.' || part === '..')
+}
+
+function rawStatementWitnessShape(witness) {
+  return witness?.kind === 'raw-statement' &&
+    ['baseline', 'target'].includes(witness.side) &&
+    Number.isSafeInteger(witness.statementIndex) &&
+    witness.statementIndex >= 0 &&
+    Number.isSafeInteger(witness.start) &&
+    witness.start >= 0 &&
+    Number.isSafeInteger(witness.end) &&
+    witness.end > witness.start &&
+    Number.isSafeInteger(witness.bytes) &&
+    witness.bytes > 0 &&
+    typeof witness.sha256 === 'string' &&
+    /^[0-9a-f]{64}$/.test(witness.sha256) &&
+    Number.isSafeInteger(witness.count) &&
+    witness.count > 0 &&
+    Number.isSafeInteger(witness.otherSideCount) &&
+    witness.otherSideCount >= 0 &&
+    witness.count !== witness.otherSideCount
+}
+
+function clusterTargetWitnessesShape(binding) {
+  const additional = binding.additionalTargetWitnesses ?? []
+  const witnesses = [binding.targetWitness, ...additional]
+  return rawStatementWitnessShape(binding.targetWitness) &&
+    Array.isArray(additional) &&
+    (binding.additionalTargetWitnesses === undefined || additional.length > 0) &&
+    additional.every(rawStatementWitnessShape) &&
+    JSON.stringify(additional.map(witness => [
+      witness.side,
+      witness.statementIndex,
+    ])) === JSON.stringify(
+      additional
+        .map(witness => [witness.side, witness.statementIndex])
+        .sort((left, right) =>
+          left[0].localeCompare(right[0]) || left[1] - right[1]),
+    ) &&
+    new Set(witnesses.map(witness =>
+      `${witness?.side}\u0000${witness?.statementIndex}`)).size ===
+      witnesses.length
 }
 
 function renamePriorArtifact(priorArtifacts, id, newId, argument) {
@@ -260,19 +318,89 @@ function main() {
           entry.clusterBindings.map(binding => binding.clusterId),
         ) === JSON.stringify(entry.clusterIds) &&
         entry.clusterBindings.every(binding =>
-          binding.targetWitness?.kind === 'raw-statement' &&
-            ['baseline', 'target'].includes(binding.targetWitness.side) &&
-            Number.isSafeInteger(binding.targetWitness.count) &&
-            binding.targetWitness.count > 0 &&
-            Number.isSafeInteger(binding.targetWitness.otherSideCount) &&
-            binding.targetWitness.otherSideCount >= 0 &&
-            binding.targetWitness.count !==
-              binding.targetWitness.otherSideCount &&
+          clusterTargetWitnessesShape(binding) &&
             Array.isArray(binding.sourceWitnesses) &&
             binding.sourceWitnesses.length > 0 &&
             Array.isArray(binding.testIds) &&
             binding.testIds.length > 0)),
     'every direct cluster needs an exact statement/source/test binding',
+  )
+  const supportBindings = semanticClusterInventory.supportBindings
+  const directClusterIdSet = new Set(directClusterIds)
+  const directRowIdSet = new Set(
+    semanticClusterInventory.direct.map(entry => entry.rowId),
+  )
+  assert(
+    Array.isArray(supportBindings) &&
+      supportBindings.length > 0 &&
+      new Set(supportBindings.map(binding => binding.id)).size ===
+        supportBindings.length &&
+      JSON.stringify(supportBindings.map(binding => binding.id)) ===
+        JSON.stringify(supportBindings.map(binding => binding.id).sort()) &&
+      supportBindings.every(binding =>
+        typeof binding.id === 'string' &&
+          /^[a-z0-9][a-z0-9-]*$/.test(binding.id) &&
+          !directRowIdSet.has(binding.id) &&
+          ['owning-direct-prerequisite', 'inherited-residual'].includes(
+            binding.classification,
+          ) &&
+          typeof binding.reason === 'string' &&
+          binding.reason.length >= 20 &&
+          binding.clusterId === undefined &&
+          binding.clusterIds === undefined &&
+          binding.sourceWitness?.reviewed === true &&
+          safeSourcePath(binding.sourceWitness.path) &&
+          typeof binding.sourceWitness.fragment === 'string' &&
+          binding.sourceWitness.fragment.length > 0 &&
+          Number.isSafeInteger(binding.sourceWitness.count) &&
+          binding.sourceWitness.count > 0 &&
+          Array.isArray(binding.sourceWitness.matchedSemanticTerms) &&
+          binding.sourceWitness.matchedSemanticTerms.every(term =>
+            typeof term === 'string' && term.length > 0) &&
+          new Set(binding.sourceWitness.matchedSemanticTerms).size ===
+            binding.sourceWitness.matchedSemanticTerms.length &&
+          JSON.stringify(binding.sourceWitness.matchedSemanticTerms) ===
+            JSON.stringify([...binding.sourceWitness.matchedSemanticTerms].sort()) &&
+          occurrences(
+            fs.readFileSync(path.join(repo, binding.sourceWitness.path), 'utf8'),
+            binding.sourceWitness.fragment,
+          ) === binding.sourceWitness.count &&
+          Array.isArray(binding.relatedDirectClusterIds) &&
+          binding.relatedDirectClusterIds.length > 0 &&
+          new Set(binding.relatedDirectClusterIds).size ===
+            binding.relatedDirectClusterIds.length &&
+          JSON.stringify(binding.relatedDirectClusterIds) === JSON.stringify(
+            [...binding.relatedDirectClusterIds].sort((left, right) => left - right),
+          ) &&
+          binding.relatedDirectClusterIds.every(clusterId =>
+            directClusterIdSet.has(clusterId)) &&
+          Array.isArray(binding.testIds) &&
+          binding.testIds.length > 0 &&
+          new Set(binding.testIds).size === binding.testIds.length &&
+          JSON.stringify(binding.testIds) ===
+            JSON.stringify([...binding.testIds].sort())),
+    'reviewed source-change support binding schema',
+  )
+  const preciseOwnerPaths = [
+    ...new Set(
+      semanticClusterInventory.direct.flatMap(entry => entry.sourcePaths),
+    ),
+  ].sort()
+  const supportPaths = supportBindings
+    .map(binding => binding.sourceWitness.path)
+    .sort()
+  const changedPaths = knownDeltaProof.knownDelta?.changedSourcePaths?.paths
+  assert(
+    Array.isArray(changedPaths) &&
+      new Set(supportPaths).size === supportPaths.length &&
+      supportPaths.every(sourcePath => !preciseOwnerPaths.includes(sourcePath)) &&
+      JSON.stringify([...new Set([
+        ...preciseOwnerPaths,
+        ...supportPaths,
+      ])].sort()) === JSON.stringify(changedPaths) &&
+      semanticClusterInventory.direct.every(entry =>
+        JSON.stringify(entry.sourcePaths) !== JSON.stringify(changedPaths)),
+    'precise cluster owners plus support paths close changed-source topology',
   )
   assertDeepEqual(
     knownDeltaProof.authenticatedInputs,
@@ -754,6 +882,8 @@ function main() {
             (sum, entry) => sum + entry.clusterIds.length,
             0,
           ),
+          supportBindings: supportBindings.length,
+          supportSourcePaths: supportPaths.length,
           status: 'complete-partition-source-bindings-pending',
         },
       },

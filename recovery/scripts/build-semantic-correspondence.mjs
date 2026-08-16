@@ -1265,6 +1265,8 @@ function validateObligations({
         ['source file absences', obligation.sourceFileAbsences ?? [], boundDirectEvidenceRow.sourceFileAbsences ?? []],
         ['semantic cluster IDs', obligation.semanticClusterIds ?? [], boundDirectEvidenceRow.semanticClusterIds ?? []],
         ['semantic cluster bindings', obligation.semanticClusterBindings ?? [], boundDirectEvidenceRow.semanticClusterBindings ?? []],
+        ['source change support', obligation.sourceChangeSupport ?? null, boundDirectEvidenceRow.sourceChangeSupport ?? null],
+        ['related direct clusters', obligation.relatedDirectClusterIds ?? [], boundDirectEvidenceRow.relatedDirectClusterIds ?? []],
       ]) {
         assertEqual(
           JSON.stringify(actual),
@@ -1698,6 +1700,76 @@ function validateObligations({
         `${obligation.id}: invalid semantic cluster bindings`,
       )
     }
+    const sourceChangeSupport = obligation.sourceChangeSupport
+    const relatedDirectClusterIds = obligation.relatedDirectClusterIds ?? []
+    if (sourceChangeSupport !== undefined) {
+      const supportWitness = sourceChangeSupport.sourceWitness
+      assert(
+        obligation.semanticClusterIds === undefined &&
+          obligation.semanticClusterBindings === undefined &&
+          sourceChangeSupport &&
+          typeof sourceChangeSupport === 'object' &&
+          !Array.isArray(sourceChangeSupport) &&
+          typeof sourceChangeSupport.id === 'string' &&
+          /^[a-z0-9][a-z0-9-]*$/.test(sourceChangeSupport.id) &&
+          ['owning-direct-prerequisite', 'inherited-residual'].includes(
+            sourceChangeSupport.classification,
+          ) &&
+          typeof sourceChangeSupport.reason === 'string' &&
+          sourceChangeSupport.reason.trim() === sourceChangeSupport.reason &&
+          sourceChangeSupport.reason.length >= 20 &&
+          sourceChangeSupport.clusterId === undefined &&
+          sourceChangeSupport.clusterIds === undefined &&
+          supportWitness?.reviewed === true &&
+          typeof supportWitness.path === 'string' &&
+          supportWitness.path.startsWith('src/') &&
+          !supportWitness.path.split('/').some(
+            part => part === '' || part === '.' || part === '..',
+          ) &&
+          typeof supportWitness.fragment === 'string' &&
+          supportWitness.fragment.length > 0 &&
+          Number.isSafeInteger(supportWitness.count) &&
+          supportWitness.count > 0 &&
+          Array.isArray(supportWitness.matchedSemanticTerms) &&
+          supportWitness.matchedSemanticTerms.every(term =>
+            typeof term === 'string' && term.length > 0) &&
+          new Set(supportWitness.matchedSemanticTerms).size ===
+            supportWitness.matchedSemanticTerms.length &&
+          JSON.stringify(supportWitness.matchedSemanticTerms) === JSON.stringify(
+            [...supportWitness.matchedSemanticTerms].sort(),
+          ) &&
+          Array.isArray(sourceChangeSupport.testIds) &&
+          sourceChangeSupport.testIds.length > 0 &&
+          new Set(sourceChangeSupport.testIds).size ===
+            sourceChangeSupport.testIds.length &&
+          JSON.stringify(sourceChangeSupport.testIds) === JSON.stringify(
+            [...sourceChangeSupport.testIds].sort(),
+          ) &&
+          Array.isArray(relatedDirectClusterIds) &&
+          relatedDirectClusterIds.length > 0 &&
+          relatedDirectClusterIds.every(clusterId =>
+            Number.isSafeInteger(clusterId) && clusterId >= 1) &&
+          new Set(relatedDirectClusterIds).size ===
+            relatedDirectClusterIds.length &&
+          JSON.stringify(relatedDirectClusterIds) === JSON.stringify(
+            [...relatedDirectClusterIds].sort((left, right) => left - right),
+          ) &&
+          JSON.stringify(sourceChangeSupport.relatedDirectClusterIds) ===
+            JSON.stringify(relatedDirectClusterIds) &&
+          sourceChangeSupport.testIds.every(testId =>
+            obligation.testIds.includes(testId)) &&
+          obligation.sourceAssertions.some(assertion =>
+            assertion.path === supportWitness.path &&
+              assertion.fragment === supportWitness.fragment &&
+              assertion.count === supportWitness.count),
+        `${obligation.id}: invalid source-change support binding`,
+      )
+    } else {
+      assert(
+        obligation.relatedDirectClusterIds === undefined,
+        `${obligation.id}: related direct clusters need source-change support`,
+      )
+    }
     obligationWitnesses.push({
       id: obligation.id,
       classification: obligation.classification,
@@ -1735,6 +1807,9 @@ function validateObligations({
       ...(semanticClusterBindings.length === 0
         ? {}
         : { semanticClusterBindings }),
+      ...(sourceChangeSupport === undefined
+        ? {}
+        : { sourceChangeSupport, relatedDirectClusterIds }),
       ...(obligation.catalogBinding === undefined
         ? {}
         : {
