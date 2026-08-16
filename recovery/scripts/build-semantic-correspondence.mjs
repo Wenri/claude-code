@@ -91,6 +91,14 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function gitBlobSha1(value) {
+  return crypto
+    .createHash('sha1')
+    .update(`blob ${value.length}\0`)
+    .update(value)
+    .digest('hex')
+}
+
 function evidence(filename) {
   const value = fs.readFileSync(filename)
   return { bytes: value.length, sha256: sha256(value) }
@@ -155,6 +163,191 @@ function readJson(filename, label) {
     throw new Error(`${label} is not valid JSON: ${filename}`, { cause: error })
   }
   return parsed
+}
+
+function authenticatedReleaseEvidence({
+  attribution,
+  changelogPath,
+  changelogText,
+  obligations,
+  sourceRoot,
+}) {
+  const inherited = attribution.releaseEvidence?.officialChangelog
+  if (inherited !== undefined) {
+    return { official: inherited, inputs: {} }
+  }
+
+  const declared = obligations.officialReleaseEvidence
+  assert(
+    declared && typeof declared === 'object' && !Array.isArray(declared),
+    'release evidence is absent from both attribution and obligations',
+  )
+  const repositoryRoot = path.dirname(sourceRoot)
+  const pinnedFile = (record, label) => {
+    assert(
+      record &&
+        typeof record.path === 'string' &&
+        record.path.startsWith('recovery/') &&
+        Number.isSafeInteger(record.bytes) &&
+        record.bytes >= 0 &&
+        typeof record.sha256 === 'string' &&
+        SHA256_PATTERN.test(record.sha256),
+      `${label}: invalid pinned file evidence`,
+    )
+    const filename = safeExistingRegularFile(repositoryRoot, record.path, label)
+    const value = fs.readFileSync(filename)
+    assertEqual(value.length, record.bytes, `${label} bytes`)
+    assertEqual(sha256(value), record.sha256, `${label} SHA-256`)
+    return { filename, value }
+  }
+  const provenanceFile = pinnedFile(
+    declared.provenance,
+    'release provenance',
+  )
+  const fullFile = pinnedFile(
+    declared.fullChangelog,
+    'full official changelog',
+  )
+  const sectionFile = pinnedFile(
+    declared.sectionArtifact,
+    'official changelog section',
+  )
+  assertEqual(
+    path.resolve(sectionFile.filename),
+    path.resolve(changelogPath),
+    'official changelog section path',
+  )
+  assert(
+    sectionFile.value.equals(Buffer.from(changelogText)),
+    'official changelog section differs from --changelog',
+  )
+
+  const provenance = JSON.parse(provenanceFile.value.toString('utf8'))
+  assertEqual(provenance.schemaVersion, 1, 'release provenance schema')
+  assert(
+    typeof declared.section === 'string' && declared.section.length > 0,
+    'official release section is absent',
+  )
+  assert(
+    Number.isSafeInteger(declared.bulletCount) && declared.bulletCount > 0,
+    'official release bullet count is invalid',
+  )
+  assert(
+    Array.isArray(declared.bullets) &&
+      declared.bullets.length === declared.bulletCount &&
+      declared.bullets.every(
+        bullet => typeof bullet === 'string' && bullet.length > 0,
+      ),
+    'official release bullet inventory is invalid',
+  )
+  assertEqual(provenance.release, declared.section, 'release provenance version')
+  assertEqual(
+    provenance.git?.tag,
+    `v${declared.section}`,
+    'release provenance Git tag',
+  )
+  assert(
+    /^[a-f0-9]{40}$/.test(provenance.git?.commit ?? ''),
+    'release provenance Git commit',
+  )
+  assertEqual(
+    provenance.changelog?.fullBytes,
+    declared.fullChangelog.bytes,
+    'provenance full changelog bytes',
+  )
+  assertEqual(
+    provenance.changelog?.fullSha256,
+    declared.fullChangelog.sha256,
+    'provenance full changelog SHA-256',
+  )
+  assertEqual(
+    provenance.changelog?.fullGitBlobSha1,
+    gitBlobSha1(fullFile.value),
+    'provenance full changelog Git blob SHA-1',
+  )
+  assertEqual(
+    provenance.changelog?.sectionBytes,
+    declared.sectionArtifact.bytes,
+    'provenance changelog section bytes',
+  )
+  assertEqual(
+    provenance.changelog?.sectionSha256,
+    declared.sectionArtifact.sha256,
+    'provenance changelog section SHA-256',
+  )
+  assertEqual(
+    provenance.changelog?.bulletCount,
+    declared.bulletCount,
+    'provenance release bullet count',
+  )
+  const sectionParts = relativeParts(
+    provenance.changelog.sectionPath,
+    'provenance changelog section path',
+  )
+  const fullParts = relativeParts(
+    provenance.changelog.fullPath,
+    'provenance full changelog path',
+  )
+  let caseRoot = sectionFile.filename
+  for (let index = 0; index < sectionParts.length; index += 1) {
+    caseRoot = path.dirname(caseRoot)
+  }
+  assertEqual(
+    path.resolve(sectionFile.filename),
+    path.join(caseRoot, ...sectionParts),
+    'release section case-root binding',
+  )
+  assertEqual(
+    path.resolve(fullFile.filename),
+    path.join(caseRoot, ...fullParts),
+    'full changelog case-root binding',
+  )
+  assertEqual(
+    path.resolve(provenanceFile.filename),
+    path.join(caseRoot, 'evidence/provenance.json'),
+    'release provenance case-root binding',
+  )
+
+  const sectionLines = changelogText.split('\n')
+  assertEqual(sectionLines.at(-1), '', 'official section trailing newline')
+  assertEqual(
+    sectionLines[0],
+    `## ${declared.section}`,
+    'official section heading',
+  )
+  assertEqual(sectionLines[1], '', 'official section heading separator')
+  const contentLines = sectionLines.slice(2, -1).filter(line => line !== '')
+  assert(
+    contentLines.every(line => line.startsWith('- ')),
+    'official section contains non-bullet content',
+  )
+  const bullets = contentLines.map(line => line.slice(2))
+  assertEqual(bullets.length, declared.bulletCount, 'official section bullet count')
+  assertEqual(
+    JSON.stringify(bullets),
+    JSON.stringify(declared.bullets),
+    'official section exact bullets',
+  )
+  assertEqual(
+    countOccurrences(fullFile.value.toString('utf8'), changelogText),
+    1,
+    'official section containment in full changelog',
+  )
+
+  return {
+    official: {
+      bytes: declared.fullChangelog.bytes,
+      sha256: declared.fullChangelog.sha256,
+      section: declared.section,
+      bulletCount: declared.bulletCount,
+      bullets,
+    },
+    inputs: {
+      releaseProvenance: evidence(provenanceFile.filename),
+      officialChangelog: evidence(fullFile.filename),
+      officialChangelogSection: evidence(sectionFile.filename),
+    },
+  }
 }
 
 function readCanonicalGzipJson(filename, label) {
@@ -1459,11 +1652,18 @@ export function buildSemanticCorrespondence({
   assertEqual(tokenTotal, structural.target.tokenCount, 'semantic token coverage')
 
   const sourceTree = summarizeSourceTree(sourceRoot)
+  const releaseEvidence = authenticatedReleaseEvidence({
+    attribution,
+    changelogPath,
+    changelogText,
+    obligations,
+    sourceRoot,
+  })
   const obligationCoverage = validateObligations({
     baselineText,
     changelogText,
     obligations,
-    officialReleaseEvidence: attribution.releaseEvidence.officialChangelog,
+    officialReleaseEvidence: releaseEvidence.official,
     sourceRecords,
     sourceRoot,
     targetRanges,
@@ -1488,6 +1688,7 @@ export function buildSemanticCorrespondence({
       structural: evidence(structuralPath),
       obligations: evidence(obligationsPath),
       changelog: evidence(changelogPath),
+      ...releaseEvidence.inputs,
     },
     sourceTree: publicTreeSummary(sourceTree),
     sourceOwnership: {

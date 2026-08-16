@@ -16,6 +16,14 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function gitBlobSha1(value) {
+  return crypto
+    .createHash('sha1')
+    .update(`blob ${value.length}\0`)
+    .update(value)
+    .digest('hex')
+}
+
 function writeJson(filename, value) {
   fs.mkdirSync(path.dirname(filename), { recursive: true })
   fs.writeFileSync(filename, `${JSON.stringify(value, null, 2)}\n`)
@@ -286,6 +294,58 @@ function fixture() {
   }
 }
 
+function useObligationReleaseEvidence(files) {
+  const release = '1.0.0'
+  const bullet = 'Changed the answer from one to two'
+  const evidenceRoot = path.join(files.root, 'recovery/cases/example/evidence')
+  const provenancePath = path.join(evidenceRoot, 'provenance.json')
+  const fullPath = path.join(evidenceRoot, 'official-CHANGELOG.md')
+  const sectionPath = path.join(evidenceRoot, 'CHANGELOG-1.0.0.md')
+  const section = `## ${release}\n\n- ${bullet}\n`
+  fs.mkdirSync(evidenceRoot, { recursive: true })
+  fs.writeFileSync(sectionPath, section)
+  fs.writeFileSync(fullPath, `# Changelog\n\n${section}`)
+  const record = filename => {
+    const value = fs.readFileSync(filename)
+    return {
+      path: path.relative(files.root, filename).replaceAll('\\', '/'),
+      bytes: value.length,
+      sha256: sha256(value),
+    }
+  }
+  writeJson(provenancePath, {
+    schemaVersion: 1,
+    release,
+    git: { tag: `v${release}`, commit: '1'.repeat(40) },
+    changelog: {
+      fullPath: 'evidence/official-CHANGELOG.md',
+      fullBytes: record(fullPath).bytes,
+      fullSha256: record(fullPath).sha256,
+      fullGitBlobSha1: gitBlobSha1(fs.readFileSync(fullPath)),
+      sectionPath: 'evidence/CHANGELOG-1.0.0.md',
+      sectionBytes: record(sectionPath).bytes,
+      sectionSha256: record(sectionPath).sha256,
+      bulletCount: 1,
+    },
+  })
+  const attributionPath = path.join(files.attribution, 'summary.json')
+  const attribution = JSON.parse(fs.readFileSync(attributionPath))
+  delete attribution.releaseEvidence
+  writeJson(attributionPath, attribution)
+  const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+  obligations.officialReleaseEvidence = {
+    provenance: record(provenancePath),
+    fullChangelog: record(fullPath),
+    sectionArtifact: record(sectionPath),
+    section: release,
+    bulletCount: 1,
+    bullets: [bullet],
+  }
+  writeJson(files.obligationsPath, obligations)
+  files.changelogPath = sectionPath
+  return { fullPath, provenancePath, record, section, sectionPath }
+}
+
 function generate(files) {
   const report = buildSemanticCorrespondence({
     attributionDirectory: files.attribution,
@@ -334,6 +394,49 @@ test('builds and verifies exhaustive bundle-to-source semantic correspondence', 
     })
     assert.equal(result.status, 'whole-bundle-source-correspondence-verified')
     assert.equal(result.obligations.releaseBulletsCovered, 1)
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('uses independently pinned obligation release evidence when attribution is incremental', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    const generated = generate(files)
+    const { path: _path, ...fullEvidence } = release.record(release.fullPath)
+    assert.deepEqual(generated.report.inputs.officialChangelog, fullEvidence)
+    assert.equal(generated.report.coverage.obligations.releaseBulletsCovered, 1)
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects a fully repinned release section that occurs twice in the official changelog', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    fs.writeFileSync(
+      release.fullPath,
+      `# Changelog\n\n${release.section}${release.section}`,
+    )
+    const provenance = JSON.parse(fs.readFileSync(release.provenancePath))
+    provenance.changelog.fullBytes = release.record(release.fullPath).bytes
+    provenance.changelog.fullSha256 = release.record(release.fullPath).sha256
+    provenance.changelog.fullGitBlobSha1 = gitBlobSha1(
+      fs.readFileSync(release.fullPath),
+    )
+    writeJson(release.provenancePath, provenance)
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    obligations.officialReleaseEvidence.fullChangelog =
+      release.record(release.fullPath)
+    obligations.officialReleaseEvidence.provenance =
+      release.record(release.provenancePath)
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /official section containment in full changelog: expected 1, got 2/,
+    )
   } finally {
     fs.rmSync(files.root, { recursive: true, force: true })
   }

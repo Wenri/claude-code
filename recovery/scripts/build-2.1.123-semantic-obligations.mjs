@@ -11,6 +11,11 @@ const caseRoot = path.join(repo, 'recovery/cases/2.1.122-to-2.1.123')
 const semanticRoot = path.join(caseRoot, 'semantic')
 const outputPath = path.join(semanticRoot, 'obligations.json')
 const directEvidencePath = path.join(semanticRoot, 'direct-evidence.json')
+const provenancePath = path.join(caseRoot, 'evidence/provenance.json')
+const fullChangelogPath = path.join(
+  caseRoot,
+  'evidence/claude-code-CHANGELOG-e512ec99.md',
+)
 const directTestPath = path.join(
   repo,
   'recovery/test/recovery-2.1.123-direct-evidence.test.mjs',
@@ -52,6 +57,25 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function gitBlobSha1(value) {
+  return crypto
+    .createHash('sha1')
+    .update(`blob ${value.length}\0`)
+    .update(value)
+    .digest('hex')
+}
+
+function occurrences(contents, fragment) {
+  assert(fragment.length > 0, 'cannot count an empty fragment')
+  let count = 0
+  let offset = 0
+  while ((offset = contents.indexOf(fragment, offset)) !== -1) {
+    count += 1
+    offset += fragment.length
+  }
+  return count
+}
+
 function metadata(filename) {
   const value = fs.readFileSync(filename)
   return {
@@ -87,6 +111,9 @@ const bulletTexts = fs
   .split('\n')
   .filter(line => line.startsWith('- '))
   .map(line => line.slice(2))
+const provenance = JSON.parse(fs.readFileSync(provenancePath, 'utf8'))
+const fullChangelog = fs.readFileSync(fullChangelogPath)
+const sectionChangelog = fs.readFileSync(changelogPath)
 
 assert(directEvidence.schemaVersion === 1, 'direct evidence schema')
 assert(directEvidence.release === '2.1.123', 'direct evidence release')
@@ -100,6 +127,41 @@ assert(
 )
 assert(directEvidence.changedSourcePathCount === 1, 'one changed source path')
 assert(directEvidence.rowCount === 1, 'one direct evidence row')
+assert(
+  fullChangelog.length === 264_551 &&
+    sha256(fullChangelog) ===
+      '10565504230aa417ecd21163e559d8d17e45e4c016a950d16fdfba4a5be9d531',
+  'full official changelog identity',
+)
+assert(
+  sectionChangelog.length === 127 &&
+    sha256(sectionChangelog) ===
+      '7268a65de1722072c17c0241e5b74e6f02ca1d3335a4d8a7bd9497daef17ab4c',
+  'official changelog section identity',
+)
+assert(
+  provenance.schemaVersion === 1 &&
+    provenance.release === '2.1.123' &&
+    provenance.git?.tag === 'v2.1.123' &&
+    provenance.git?.commit ===
+      'e512ec99188d191b07662fc9f69c5764f750a302' &&
+    provenance.changelog?.fullPath ===
+      'evidence/claude-code-CHANGELOG-e512ec99.md' &&
+    provenance.changelog?.fullBytes === fullChangelog.length &&
+    provenance.changelog?.fullSha256 === sha256(fullChangelog) &&
+    provenance.changelog?.fullGitBlobSha1 === gitBlobSha1(fullChangelog) &&
+    provenance.changelog?.sectionPath ===
+      'evidence/CHANGELOG-2.1.123.md' &&
+    provenance.changelog?.sectionBytes === sectionChangelog.length &&
+    provenance.changelog?.sectionSha256 === sha256(sectionChangelog) &&
+    provenance.changelog?.bulletCount === 1,
+  'official changelog provenance',
+)
+assert(
+  occurrences(fullChangelog.toString('utf8'), sectionChangelog.toString('utf8')) ===
+    1,
+  'official changelog section unique containment',
+)
 
 const testMetadata = metadata(directTestPath)
 const testSource = fs.readFileSync(directTestPath, 'utf8')
@@ -194,6 +256,14 @@ assert(
 const output = {
   schemaVersion: 1,
   releaseBulletCount: 1,
+  officialReleaseEvidence: {
+    provenance: metadata(provenancePath),
+    fullChangelog: metadata(fullChangelogPath),
+    sectionArtifact: metadata(changelogPath),
+    section: '2.1.123',
+    bulletCount: 1,
+    bullets: bulletTexts,
+  },
   releaseBulletEvidence: bulletTexts.map((text, index) => ({
     number: index + 1,
     text,
