@@ -143,6 +143,37 @@ assert(directEvidence.categoryCounts.official === 18, 'official row total')
 assert(directEvidence.categoryCounts.hidden === 10, 'hidden H01-H10 total')
 assert(directEvidence.categoryCounts.daemon > 0, 'daemon row total')
 assert(directEvidence.categoryCounts.residual > 0, 'residual row total')
+const directSourceFileAbsenceCount = directEvidence.rows.reduce(
+  (sum, row) => sum + (row.sourceFileAbsences ?? []).length,
+  0,
+)
+const catalogDeletedSources = directEvidence.rows
+  .flatMap(row => row.sourceFileAbsences ?? [])
+  .map(entry => ({
+    path: entry.path,
+    status: 'D',
+    base: { bytes: entry.baseBytes, sha256: entry.baseSha256 },
+    target: null,
+  }))
+  .sort((left, right) => left.path.localeCompare(right.path))
+const lineageDeletedSources = sourceLineage.changedFiles
+  .filter(entry => entry.status === 'D')
+  .map(entry => ({
+    path: entry.path,
+    status: entry.status,
+    base: entry.base,
+    target: entry.target,
+  }))
+  .sort((left, right) => left.path.localeCompare(right.path))
+assert(
+  JSON.stringify(catalogDeletedSources) === JSON.stringify(lineageDeletedSources),
+  'direct catalog and reversible overlay deleted-source identities differ',
+)
+assert(
+  semanticSummary.coverage.obligations.sourceFileAbsenceCount ===
+    directSourceFileAbsenceCount,
+  'semantic and direct deleted-source counts differ',
+)
 assert(
   semanticSummary.coverage.obligations.obligationCount ===
       obligations.obligations.length &&
@@ -375,6 +406,8 @@ manifest.generatedRecovery.semanticCorrespondence = {
     sourceAssertions: semanticSummary.coverage.obligations.sourceAssertionCount,
     sourceAbsences: semanticSummary.coverage.obligations.sourceAbsenceCount,
     sourceRemovals: semanticSummary.coverage.obligations.sourceRemovalCount,
+    sourceFileAbsences:
+      semanticSummary.coverage.obligations.sourceFileAbsenceCount,
   },
   targetTokens: semanticSummary.coverage.targetTokens,
   accountedTokens: semanticSummary.coverage.accountedTokens,
@@ -410,6 +443,7 @@ manifest.generatedRecovery.semanticCatalogContract = {
       (sum, row) => sum + row.sourcePathAbsences.length,
       0,
     ),
+    sourceFileAbsences: directSourceFileAbsenceCount,
   },
 }
 manifest.generatedRecovery.attribution.status =

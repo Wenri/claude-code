@@ -14,6 +14,7 @@ const inventoryPath = path.join(
 )
 const outputPath = path.join(repo, 'recovery/2.1.122-direct-evidence-specs.json')
 const baseRevision = '11890981447ee2cea3407c608f4411e43e5fe72a'
+const reviewedDeletedSourcePaths = ['src/utils/autoModeDenials.ts']
 const final = process.argv.slice(2).includes('--final')
 
 if (process.argv.slice(2).some(argument => argument !== '--final')) {
@@ -38,7 +39,7 @@ function sourceAssertion(sourcePath, fragment) {
   return { path: sourcePath, fragment }
 }
 
-function changedSourcePaths() {
+function changedSourceRows() {
   const rows = execFileSync(
     'git',
     ['diff', '--name-status', '--no-renames', `${baseRevision}..HEAD`, '--', 'src'],
@@ -53,10 +54,20 @@ function changedSourcePaths() {
     })
   assert(rows.length > 0, 'no changed source paths')
   assert(
-    rows.every(row => row.status === 'A' || row.status === 'M'),
-    'deleted source paths require an explicit reviewed absence witness',
+    rows.every(row => ['A', 'M', 'D'].includes(row.status)),
+    'unsupported changed source status',
   )
-  return rows.map(row => row.path).sort()
+  const sorted = rows.sort((left, right) => left.path.localeCompare(right.path))
+  assert(
+    JSON.stringify(sorted.filter(row => row.status === 'D').map(row => row.path)) ===
+      JSON.stringify(reviewedDeletedSourcePaths),
+    'deleted source paths differ from the exact reviewed set',
+  )
+  return sorted
+}
+
+function changedSourcePaths() {
+  return changedSourceRows().map(row => row.path)
 }
 
 function focusedTestIds() {
@@ -153,6 +164,7 @@ if (!final) {
       targetFragments: [],
       sourceAssertions: [],
       sourcePathAbsences: [],
+      sourceFileAbsences: [],
       focusedTests: [],
       rationale: 'Pending exact adjacent-bundle and recovered-source evidence.',
     }
@@ -306,6 +318,7 @@ const officialRows = bullets.map((title, index) => {
     targetFragments,
     sourceAssertions,
     sourcePathAbsences: [],
+    sourceFileAbsences: [],
     focusedTests: [
       inventoryRow ? 'official-owned-cluster' : 'ui-config-input',
     ],
@@ -429,7 +442,7 @@ const categoryDefinitions = [
     title: 'Tools, permissions, hooks, and execution guards',
     targetFragments: ['hook_execution_start'],
     retained: true,
-    path: /(?:tools|hooks|permission|Tool\.ts|toolExecution)/i,
+    path: /(?:tools|hooks|permission|Tool\.ts|toolExecution|autoMode|Denial)/i,
     test: /(?:tool|permission|hook|monitor|computer-use|auto-mode|policy|post-tool)/i,
   },
   {
@@ -443,26 +456,47 @@ const categoryDefinitions = [
   },
 ]
 
+const sourceCategoryOverrides = new Map([
+  ['src/context/recentDenials.tsx', 'H10'],
+  ['src/utils/autoModeDenials.ts', 'H10'],
+])
+
+const testCategoryOverrides = new Map([
+  ['retained-app-provider-isolation', 'H10'],
+])
+
 const categoryById = new Map(
   categoryDefinitions.map(definition => [
     definition.id,
-    { ...definition, sourceAssertions: [], focusedTests: [] },
+    {
+      ...definition,
+      sourceAssertions: [],
+      sourceFileAbsences: [],
+      focusedTests: [],
+    },
   ]),
 )
 
-for (const sourcePath of changedSourcePaths()) {
-  const definition = categoryDefinitions.find(entry => entry.path.test(sourcePath))
+for (const { status, path: sourcePath } of changedSourceRows()) {
+  const override = sourceCategoryOverrides.get(sourcePath)
+  const definition = categoryDefinitions.find(entry =>
+    override === undefined ? entry.path.test(sourcePath) : entry.id === override)
   assert(definition, `${sourcePath}: no semantic category`)
-  categoryById
-    .get(definition.id)
-    .sourceAssertions.push(
+  const category = categoryById.get(definition.id)
+  if (status === 'D') {
+    category.sourceFileAbsences.push(sourcePath)
+  } else {
+    category.sourceAssertions.push(
       sourceAssertion(sourcePath, selectSourceFragment(sourcePath)),
     )
+  }
 }
 
 for (const testId of focusedTestIds()) {
   if (testId === 'official-owned-cluster' || testId === 'ui-config-input') continue
-  const definition = categoryDefinitions.find(entry => entry.test.test(testId))
+  const override = testCategoryOverrides.get(testId)
+  const definition = categoryDefinitions.find(entry =>
+    override === undefined ? entry.test.test(testId) : entry.id === override)
   assert(definition, `${testId}: no semantic test category`)
   categoryById.get(definition.id).focusedTests.push(testId)
 }
@@ -482,9 +516,10 @@ const categoryRows = categoryDefinitions.map(definition => {
       left.path.localeCompare(right.path),
     ),
     sourcePathAbsences: definition.sourcePathAbsences ?? [],
+    sourceFileAbsences: value.sourceFileAbsences.sort(),
     focusedTests: [...new Set(value.focusedTests)].sort(),
     rationale:
-      `Authenticated adjacent-bundle witnesses and the complete focused suite bind the recovered ${definition.title.toLowerCase()} surface; every changed source path in this family is pinned by an exact current-source fragment.`,
+      `Authenticated adjacent-bundle witnesses and the complete focused suite bind the recovered ${definition.title.toLowerCase()} surface; every added or modified source path is pinned by an exact current-source fragment, and every deleted source path by its authenticated base identity.`,
   }
 })
 
@@ -498,6 +533,7 @@ const residualRows = inventory.residuals.map((residual, index) => ({
     entry.includes.map(fragment => sourceAssertion(entry.path, fragment)),
   ),
   sourcePathAbsences: [],
+  sourceFileAbsences: [],
   focusedTests: ['official-owned-cluster'],
   rationale: residual.normalized_witness,
 }))

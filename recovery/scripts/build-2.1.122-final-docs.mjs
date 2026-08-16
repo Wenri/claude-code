@@ -102,7 +102,7 @@ The Linux x64 2.1.122 published package and embedded JavaScript graph are recons
 The row-scoped direct catalog contains ${direct.rowCount} obligations (${categories}). It covers all 18 official changelog bullets exactly once, H01-H10, the daemon/background lifecycle, and every finite residual source cluster.
 
 - Bundle witnesses: ${number(obligations.fragmentCount)} fragments and ${number(obligations.targetAbsenceCount)} explicit target absences.
-- Source witnesses: ${number(obligations.sourceAssertionCount)} exact assertions and ${number(obligations.sourceRemovalCount)} path-scoped removals.
+- Source witnesses: ${number(obligations.sourceAssertionCount)} exact assertions, ${number(obligations.sourceRemovalCount)} path-scoped fragment removals, and ${number(obligations.sourceFileAbsenceCount)} authenticated deleted-file identities.
 - Classifications: ${Object.entries(obligations.classifications)
   .map(([name, count]) => `${name} ${count}`)
   .join(', ')}.
@@ -142,7 +142,7 @@ This directory binds the authenticated 2.1.121→2.1.122 generated bundle to the
 - \`semantic-correspondence.json.gz\`: canonical whole-bundle ownership and obligation report.
 - \`summary.json\`: deterministic public summary and identities.
 
-The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, and path-scoped source removals. Each direct row is consumed exactly once. The catalog identity is itself pinned and loaded by \`recovery-2.1.122-direct-evidence.test.mjs\`; every other release-scoped focused suite is frozen and consumed by at least one row.
+The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, path-scoped fragment removals, and deleted source files against their base identities. Each direct row is consumed exactly once. The catalog identity is itself pinned and loaded by \`recovery-2.1.122-direct-evidence.test.mjs\`; every other release-scoped focused suite is frozen and consumed by at least one row.
 
 Closure invariants:
 

@@ -102,12 +102,53 @@ function sourcePathAbsenceRecord(absence) {
   }
 }
 
+function sourceFileAbsenceRecord(relative) {
+  assert(
+    typeof relative === 'string' && relative.startsWith('src/'),
+    `unsafe deleted source path: ${relative}`,
+  )
+  const filename = path.resolve(repo, relative)
+  assert(
+    filename.startsWith(`${path.resolve(repo, 'src')}${path.sep}`),
+    `deleted source path escapes src: ${relative}`,
+  )
+  assert(
+    !fs.existsSync(filename),
+    `deleted source path still exists: ${relative}`,
+  )
+  const baseValue = execFileSync(
+    'git',
+    ['show', `${baseRevision}:${relative}`],
+    { cwd: repo, maxBuffer: 32 * 1024 * 1024 },
+  )
+  return {
+    path: relative,
+    baseBytes: baseValue.length,
+    baseSha256: sha256(baseValue),
+  }
+}
+
 function changedSourcePaths() {
   return execFileSync(
     'git',
     ['diff', '--name-only', `${baseRevision}..HEAD`, '--', 'src'],
     { cwd: repo, encoding: 'utf8' },
   ).trim().split('\n').filter(Boolean).sort()
+}
+
+function deletedSourcePaths() {
+  return execFileSync(
+    'git',
+    ['diff', '--name-status', '--no-renames', `${baseRevision}..HEAD`, '--', 'src'],
+    { cwd: repo, encoding: 'utf8' },
+  )
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map(line => line.split('\t'))
+    .filter(([status]) => status === 'D')
+    .map(([, relative]) => relative)
+    .sort()
 }
 
 const specs = JSON.parse(fs.readFileSync(specsPath, 'utf8'))
@@ -201,13 +242,28 @@ const rows = specs.rows.map(spec => {
     sourceAssertions: spec.sourceAssertions.map(sourceRecord),
     sourceAbsences: [],
     sourcePathAbsences: (spec.sourcePathAbsences ?? []).map(sourcePathAbsenceRecord),
+    sourceFileAbsences: (spec.sourceFileAbsences ?? []).map(
+      sourceFileAbsenceRecord,
+    ),
   }
 })
 
 const assertedPaths = new Set(rows.flatMap(row => [
   ...row.sourceAssertions.map(assertion => assertion.path),
   ...row.sourcePathAbsences.flatMap(absence => absence.paths),
+  ...row.sourceFileAbsences.map(absence => absence.path),
 ]))
+const catalogDeletedPaths = rows
+  .flatMap(row => row.sourceFileAbsences.map(absence => absence.path))
+  .sort()
+assert(
+  new Set(catalogDeletedPaths).size === catalogDeletedPaths.length,
+  'duplicate deleted source path evidence',
+)
+assert(
+  JSON.stringify(catalogDeletedPaths) === JSON.stringify(deletedSourcePaths()),
+  'catalog deleted source paths differ from git',
+)
 const boundTests = new Set(rows.flatMap(row => row.focusedTests))
 const missingPaths = changedSourcePaths().filter(value => !assertedPaths.has(value))
 const missingTests = [...focusedTestIds].filter(value => !boundTests.has(value)).sort()

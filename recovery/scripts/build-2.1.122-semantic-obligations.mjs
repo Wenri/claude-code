@@ -114,9 +114,11 @@ function obligation(row) {
     fragment => fragment.baselineCount !== fragment.targetCount,
   )
   const removals = sourceRemovals(row)
+  const fileAbsences = row.sourceFileAbsences ?? []
   const assertedPaths = new Set([
     ...row.sourceAssertions.map(entry => entry.path),
     ...removals.map(entry => entry.path),
+    ...fileAbsences.map(entry => entry.path),
   ])
   const retainedSourcePaths = [...assertedPaths]
     .filter(sourcePath => !changedPaths.has(sourcePath))
@@ -138,6 +140,7 @@ function obligation(row) {
     sourceAssertions: row.sourceAssertions,
     sourceAbsences: row.sourceAbsences ?? [],
     ...(removals.length > 0 ? { sourceRemovals: removals } : {}),
+    ...(fileAbsences.length > 0 ? { sourceFileAbsences: fileAbsences } : {}),
     testIds: ['adjacent', ...(row.focusedTests ?? [])],
     catalogBinding: {
       ...directEvidenceMetadata,
@@ -147,7 +150,7 @@ function obligation(row) {
     },
     localizationBasis: 'authenticated-behavior-test',
     localizationBoundary:
-      'The pinned direct-evidence test loads this exact catalog identity and verifies this row’s authenticated adjacent-bundle counts, exact source fragment hashes and counts, and row-scoped source absences.',
+      'The pinned direct-evidence test loads this exact catalog identity and verifies this row’s authenticated adjacent-bundle counts, exact source fragment hashes and counts, row-scoped fragment absences, and authenticated deleted-file identities.',
     retainedSourcePaths,
   }
 }
@@ -175,7 +178,10 @@ const output = {
     text,
     sha256: sha256(Buffer.from(text)),
   })),
-  sourceAliases: {},
+  sourceAliases: {
+    'src/commands/advisor.ts': 'src/commands/advisor/advisor.tsx',
+    'src/utils/autoModeDenials.ts': 'src/context/recentDenials.tsx',
+  },
   directEvidenceCatalog: {
     ...directEvidenceMetadata,
     rowCount: directEvidence.rowCount,

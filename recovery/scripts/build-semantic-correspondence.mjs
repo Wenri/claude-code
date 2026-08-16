@@ -588,6 +588,7 @@ function validateObligations({
   let sourceAssertionCount = 0
   let sourceAbsenceCount = 0
   let sourceRemovalCount = 0
+  let sourceFileAbsenceCount = 0
   const classifications = {}
   const localizationBases = {}
   let sourceTypeScriptTexts = null
@@ -726,6 +727,7 @@ function validateObligations({
         ['target absences', obligation.targetAbsences ?? [], boundDirectEvidenceRow.targetAbsences],
         ['source assertions', obligation.sourceAssertions ?? [], boundDirectEvidenceRow.sourceAssertions],
         ['source absences', obligation.sourceAbsences ?? [], boundDirectEvidenceRow.sourceAbsences],
+        ['source file absences', obligation.sourceFileAbsences ?? [], boundDirectEvidenceRow.sourceFileAbsences ?? []],
       ]) {
         assertEqual(
           JSON.stringify(actual),
@@ -977,9 +979,39 @@ function validateObligations({
       )
       sourceRemovalCount += 1
     }
+    const sourceFileAbsences = obligation.sourceFileAbsences ?? []
+    assert(
+      Array.isArray(sourceFileAbsences),
+      `${obligation.id}: sourceFileAbsences must be an array`,
+    )
+    for (const absence of sourceFileAbsences) {
+      assert(
+        typeof absence.path === 'string' && absence.path.startsWith('src/'),
+        `${obligation.id}: unsafe deleted source path`,
+      )
+      const filename = path.resolve(path.dirname(sourceRoot), absence.path)
+      assert(
+        filename.startsWith(`${path.resolve(sourceRoot)}${path.sep}`),
+        `${obligation.id}: deleted source path escapes src`,
+      )
+      assert(
+        !fs.existsSync(filename),
+        `${obligation.id}: deleted source path still exists`,
+      )
+      assert(
+        Number.isInteger(absence.baseBytes) && absence.baseBytes > 0,
+        `${obligation.id}: deleted source base byte length`,
+      )
+      assert(
+        typeof absence.baseSha256 === 'string' &&
+          SHA256_PATTERN.test(absence.baseSha256),
+        `${obligation.id}: deleted source base SHA-256`,
+      )
+      sourceFileAbsenceCount += 1
+    }
     if (localizationBasis !== 'authenticated-behavior-test') {
       assert(
-        sourceRemovals.length === 0,
+        sourceRemovals.length === 0 && sourceFileAbsences.length === 0,
         `${obligation.id}: source removals require authenticated-behavior-test localization`,
       )
     }
@@ -1037,6 +1069,7 @@ function validateObligations({
       const assertedPaths = new Set([
         ...(obligation.sourceAssertions ?? []).map(assertion => assertion.path),
         ...sourceRemovals.map(removal => removal.path),
+        ...sourceFileAbsences.map(absence => absence.path),
       ])
       for (const retainedPath of retainedSourcePaths) {
         assert(
@@ -1106,11 +1139,17 @@ function validateObligations({
         [
           ...(obligation.sourceAssertions ?? []).map(assertion => assertion.path),
           ...sourceRemovals.map(removal => removal.path),
+          ...sourceFileAbsences.map(absence => absence.path),
         ],
       )].sort(),
       sourceRemovals: sourceRemovals.map(removal => ({
         path: removal.path,
         sha256: removal.sha256,
+      })),
+      sourceFileAbsences: sourceFileAbsences.map(absence => ({
+        path: absence.path,
+        baseBytes: absence.baseBytes,
+        baseSha256: absence.baseSha256,
       })),
       sourceAbsences: sourceAbsences.map(absence => ({
         scope: absence.scope,
@@ -1155,6 +1194,7 @@ function validateObligations({
       sourceAssertionCount,
       sourceAbsenceCount,
       sourceRemovalCount,
+      sourceFileAbsenceCount,
       releaseBulletCount: obligations.releaseBulletCount,
       releaseBulletsCovered: coveredBullets.size,
       testCatalogEntries: testCatalog.size,

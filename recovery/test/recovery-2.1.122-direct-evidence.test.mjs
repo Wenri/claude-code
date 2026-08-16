@@ -66,6 +66,21 @@ function changedSourcePaths() {
   ).trim().split('\n').filter(Boolean).sort()
 }
 
+function deletedSourcePaths() {
+  return execFileSync(
+    'git',
+    ['diff', '--name-status', '--no-renames', `${BASE_REVISION}..HEAD`, '--', 'src'],
+    { cwd: repo, encoding: 'utf8' },
+  )
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map(line => line.split('\t'))
+    .filter(([status]) => status === 'D')
+    .map(([, relative]) => relative)
+    .sort()
+}
+
 function focusedTestIds() {
   return fs.readdirSync(path.join(repo, 'recovery/test'))
     .filter(name =>
@@ -128,8 +143,22 @@ test('every changed source path and focused suite is bound to an exact row', () 
   const assertedPaths = new Set(catalog.rows.flatMap(row => [
     ...row.sourceAssertions.map(assertion => assertion.path),
     ...(row.sourcePathAbsences ?? []).flatMap(absence => absence.paths),
+    ...(row.sourceFileAbsences ?? []).map(absence => absence.path),
   ]))
   const boundTests = new Set(catalog.rows.flatMap(row => row.focusedTests))
+  const catalogDeletedPaths = catalog.rows
+    .flatMap(row => (row.sourceFileAbsences ?? []).map(absence => absence.path))
+    .sort()
+  assert.equal(
+    new Set(catalogDeletedPaths).size,
+    catalogDeletedPaths.length,
+    'deleted source paths are unique',
+  )
+  assert.deepEqual(
+    catalogDeletedPaths,
+    deletedSourcePaths(),
+    'catalog deleted source paths exactly match git',
+  )
   assert.deepEqual(
     changedSourcePaths().filter(value => !assertedPaths.has(value)),
     [],
@@ -170,6 +199,30 @@ test('source witnesses and absences are exact and self-authenticating', () => {
         0,
       )
       assert.equal(count, 0, `${row.id}: required absence`)
+    }
+    for (const absence of row.sourceFileAbsences ?? []) {
+      assert.ok(absence.path.startsWith('src/'), `${row.id}: safe deleted path`)
+      const filename = path.resolve(repo, absence.path)
+      assert.ok(
+        filename.startsWith(`${path.resolve(repo, 'src')}${path.sep}`),
+        `${row.id}: deleted source path stays inside src`,
+      )
+      assert.equal(
+        fs.existsSync(filename),
+        false,
+        `${row.id}: deleted source file is absent`,
+      )
+      const baseValue = execFileSync(
+        'git',
+        ['show', `${BASE_REVISION}:${absence.path}`],
+        { cwd: repo },
+      )
+      assert.equal(baseValue.length, absence.baseBytes, `${row.id}: base bytes`)
+      assert.equal(
+        sha256(baseValue),
+        absence.baseSha256,
+        `${row.id}: base SHA-256`,
+      )
     }
   }
 })
