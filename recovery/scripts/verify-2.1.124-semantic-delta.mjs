@@ -22,6 +22,7 @@ export function verifyRelease21124SemanticDelta({
   baselinePath,
   targetPath,
   caseRoot,
+  sourceRoot,
 }) {
   const structural = path.join(path.resolve(caseRoot), 'structural')
   const paths = {
@@ -39,6 +40,7 @@ export function verifyRelease21124SemanticDelta({
   const result = rebuildRelease21124Core({
     baselinePath,
     targetPath,
+    sourceRoot,
     ...paths,
   })
   const proofPath = path.join(structural, 'known-delta-proof.json')
@@ -64,6 +66,7 @@ export function verifyRelease21124SemanticDelta({
     )
   }
   return {
+    status: '2.1.124-semantic-delta-verified',
     complete: true,
     clusters: committed.knownDelta.clusterInventory.totalClusters,
     directClusters: committed.knownDelta.clusterInventory.direct.reduce(
@@ -75,14 +78,19 @@ export function verifyRelease21124SemanticDelta({
         (sum, row) => sum + row.clusterIds.length,
         0,
       ),
+    supportBindings:
+      committed.knownDelta.clusterInventory.supportBindings.length,
     exact: committed.ledgers.knownDeltaExact.coverage,
-    proof: { path: proofPath, ...evidence(proofPath) },
+    proof: {
+      path: 'structural/known-delta-proof.json',
+      ...evidence(proofPath),
+    },
   }
 }
 
 function parseArguments(argv) {
   const result = {}
-  const allowed = new Set(['baseline', 'target', 'case-root'])
+  const allowed = new Set(['baseline', 'target', 'case-root', 'source-root'])
   for (let index = 0; index < argv.length; index += 2) {
     const key = argv[index]?.replace(/^--/, '')
     const value = argv[index + 1]
@@ -94,12 +102,13 @@ function parseArguments(argv) {
 
 function main() {
   const args = parseArguments(process.argv.slice(2))
-  assert(args.baseline && args.target && args['case-root'],
-    'Usage: verify-2.1.124-semantic-delta.mjs --baseline PATH --target PATH --case-root PATH')
+  assert(args.baseline && args.target && args['case-root'] && args['source-root'],
+    'Usage: verify-2.1.124-semantic-delta.mjs --baseline PATH --target PATH --case-root PATH --source-root PATH')
   console.log(JSON.stringify(verifyRelease21124SemanticDelta({
     baselinePath: args.baseline,
     targetPath: args.target,
     caseRoot: args['case-root'],
+    sourceRoot: args['source-root'],
   }), null, 2))
 }
 
