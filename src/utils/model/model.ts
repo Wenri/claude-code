@@ -39,6 +39,10 @@ export type ModelShortName = string
 export type ModelName = string
 export type ModelSetting = ModelName | ModelAlias | null
 
+export const DEFAULT_3P_OPUS_KEY = 'opus46' as const
+export const DEFAULT_3P_SONNET_KEY = 'sonnet45' as const
+export const DEFAULT_3P_HAIKU_KEY = 'haiku45' as const
+
 export function getSmallFastModel(): ModelName {
   return process.env.ANTHROPIC_SMALL_FAST_MODEL || getDefaultHaikuModel()
 }
@@ -117,7 +121,7 @@ export function getDefaultOpusModel(): ModelName {
   // even when values match, since 3P availability lags firstParty and
   // these will diverge again at the next model launch.
   if (!isDirectAnthropicAPIProvider()) {
-    return getModelStrings().opus46
+    return getModelStrings()[DEFAULT_3P_OPUS_KEY]
   }
   return getModelStrings().opus47
 }
@@ -129,7 +133,7 @@ export function getDefaultSonnetModel(): ModelName {
   }
   // Default to Sonnet 4.5 for 3P since they may not have 4.6 yet
   if (getAPIProvider() !== 'firstParty') {
-    return getModelStrings().sonnet45
+    return getModelStrings()[DEFAULT_3P_SONNET_KEY]
   }
   return getModelStrings().sonnet46
 }
@@ -141,7 +145,7 @@ export function getDefaultHaikuModel(): ModelName {
   }
 
   // Haiku 4.5 is available on all platforms (first-party, Foundry, Bedrock, Vertex)
-  return getModelStrings().haiku45
+  return getModelStrings()[DEFAULT_3P_HAIKU_KEY]
 }
 
 /**
@@ -355,7 +359,7 @@ export function renderModelSetting(setting: ModelName | ModelAlias): string {
   return renderModelName(setting)
 }
 
-export function getModelSourceSuffix(): string {
+export function getModelSourceAnnotation(): string {
   if (getMainLoopModelOverride() !== undefined) return ''
   if (process.env.ANTHROPIC_MODEL) return ''
   switch (getEffectiveSettingSource('model')) {
@@ -366,6 +370,10 @@ export function getModelSourceSuffix(): string {
     default:
       return ''
   }
+}
+
+export function getModelSourceSuffix(): string {
+  return getModelSourceAnnotation()
 }
 
 // @[MODEL LAUNCH]: Add display name cases for the new model (base + [1m] variant if applicable).
@@ -573,7 +581,7 @@ const LEGACY_OPUS_FIRSTPARTY = [
   'claude-opus-4-1',
 ]
 
-function isLegacyOpusFirstParty(model: string): boolean {
+export function isLegacyOpusFirstParty(model: string): boolean {
   return LEGACY_OPUS_FIRSTPARTY.includes(model)
 }
 
