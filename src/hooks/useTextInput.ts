@@ -1,7 +1,12 @@
 import { isInputModeCharacter } from 'src/components/PromptInput/inputModes.js'
 import { useNotifications } from 'src/context/notifications.js'
-import stripAnsi from 'strip-ansi'
 import { markBackslashReturnUsed } from '../commands/terminalSetup/terminalSetup.js'
+import {
+  getLatestKill,
+  getNextYank,
+  type KillRingStore,
+  useKillRing,
+} from '../context/killRing.js'
 import { addToHistory } from '../history.js'
 import type { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type {
@@ -10,13 +15,6 @@ import type {
 } from '../types/textInputTypes.js'
 import {
   Cursor,
-  getLastKill,
-  pushToKillRing,
-  recordYank,
-  resetKillAccumulation,
-  resetYankState,
-  updateYankLength,
-  yankPop,
 } from '../utils/Cursor.js'
 import { env } from '../utils/env.js'
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js'
@@ -92,6 +90,7 @@ export type UseTextInputProps = {
   dim?: (text: string) => string
   selectionAnchor?: number | null
   selectionLinewise?: boolean
+  killRing?: KillRingStore
 }
 
 export function useTextInput({
@@ -122,7 +121,10 @@ export function useTextInput({
   dim,
   selectionAnchor,
   selectionLinewise = false,
+  killRing: killRingOverride,
 }: UseTextInputProps): TextInputState {
+  const defaultKillRing = useKillRing()
+  const killRing = killRingOverride ?? defaultKillRing
   // Pre-warm the modifiers module for Apple Terminal (has internal guard, safe to call multiple times)
   if (env.terminal === 'Apple_Terminal') {
     prewarmModifiers()
@@ -130,7 +132,8 @@ export function useTextInput({
 
   const offset = externalOffset
   const setOffset = onOffsetChange
-  const cursor = Cursor.fromText(originalValue, columns, offset)
+  let cursor = Cursor.fromText(originalValue, columns, offset)
+  let submitted = false
   const { addNotification, removeNotification } = useNotifications()
 
   const handleCtrlC = useDoublePress(
@@ -212,45 +215,54 @@ export function useTextInput({
 
   function killToLineEnd(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteToLineEnd()
-    pushToKillRing(killed, 'append')
+    killRing.dispatch({ type: 'kill', text: killed, direction: 'append' })
     return newCursor
   }
 
   function killToLineStart(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteToLineStart()
-    pushToKillRing(killed, 'prepend')
+    killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })
+    if (killed.length >= 3) {
+      addNotification({
+        key: 'kill-paste-hint',
+        text: 'Ctrl+Y to paste deleted text',
+        priority: 'immediate',
+        timeoutMs: 5000,
+      })
+    }
     return newCursor
   }
 
   function killWordBefore(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteWordBefore()
-    pushToKillRing(killed, 'prepend')
+    killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })
     return newCursor
   }
 
   function yank(): Cursor {
-    const text = getLastKill()
+    const text = getLatestKill(killRing.state)
     if (text.length > 0) {
       const startOffset = cursor.offset
       const newCursor = cursor.insert(text)
-      recordYank(startOffset, text.length)
+      killRing.dispatch({ type: 'yank', start: startOffset, length: text.length })
       return newCursor
     }
     return cursor
   }
 
   function handleYankPop(): Cursor {
-    const popResult = yankPop()
+    const popResult = getNextYank(killRing.state)
     if (!popResult) {
       return cursor
     }
     const { text, start, length } = popResult
+    killRing.dispatch({ type: 'yankPop' })
     // Replace the previously yanked text with the new one
     const before = cursor.text.slice(0, start)
     const after = cursor.text.slice(start + length)
     const newText = before + text + after
     const newOffset = start + text.length
-    updateYankLength(text.length)
+    killRing.dispatch({ type: 'updateYankLength', length: text.length })
     return Cursor.fromText(newText, columns, newOffset)
   }
 
@@ -299,7 +311,10 @@ export function useTextInput({
     if (env.terminal === 'Apple_Terminal' && isModifierPressed('shift')) {
       return cursor.insert('\n')
     }
-    onSubmit?.(originalValue)
+    if (onSubmit) {
+      onSubmit(cursor.text)
+      submitted = true
+    }
     return cursor
   }
 
@@ -419,17 +434,10 @@ export function useTextInput({
     if (IGNORED_KEY_NAMES.has(event.name)) return NOOP_HANDLER
     return function (input: string) {
       if (input.length === 0) return
-      // Trailing \r after text is SSH-coalesced Enter ("o\r") — strip it
-      // while retaining embedded/newline paste content.
-      const text = stripAnsi(input)
-        // eslint-disable-next-line custom-rules/no-lookbehind-regex -- .replace(re, str) on 1-2 char keystrokes: no-match returns same string (Object.is), regex never runs
-        .replace(/(?<=[^\\\r\n])\r$/, '')
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n')
       if (cursor.isAtStart() && isInputModeCharacter(input)) {
-        return cursor.insert(text).left()
+        return cursor.insert(input).left()
       }
-      return cursor.insert(text)
+      return cursor.insert(input)
     }
   }
 
@@ -466,44 +474,8 @@ export function useTextInput({
       return
     }
 
-    // Fix Issue #1853: Filter DEL characters that interfere with backspace in SSH/tmux
-    // In SSH/tmux environments, backspace generates both key events and raw DEL chars
-    if (
-      event.name !== 'backspace' &&
-      event.name !== 'delete' &&
-      input.includes('\x7f')
-    ) {
-      const delCount = (input.match(/\x7f/g) || []).length
-
-      // Apply all DEL characters as backspace operations synchronously
-      // Try to delete tokens first, fall back to character backspace
-      let currentCursor = cursor
-      for (let i = 0; i < delCount; i++) {
-        currentCursor =
-          currentCursor.deleteTokenBefore() ?? currentCursor.backspace()
-      }
-
-      // Update state once with the final result
-      if (!cursor.equals(currentCursor)) {
-        if (cursor.text !== currentCursor.text) {
-          onChange(currentCursor.text)
-        }
-        setOffset(currentCursor.offset)
-      }
-      resetKillAccumulation()
-      resetYankState()
-      event.preventDefault()
-      return
-    }
-
-    // Reset kill accumulation for non-kill keys
-    if (!isKillKey(event)) {
-      resetKillAccumulation()
-    }
-
-    // Reset yank state for non-yank keys (breaks yank-pop chain)
-    if (!isYankKey(event)) {
-      resetYankState()
+    if (!isKillKey(event) && !isYankKey(event)) {
+      killRing.dispatch({ type: 'interrupt' })
     }
 
     const nextCursor = mapKey(event)(filteredInput)
@@ -515,21 +487,10 @@ export function useTextInput({
         }
         setOffset(nextCursor.offset)
       }
-      // SSH-coalesced Enter: on slow links, "o" + Enter can arrive as one
-      // chunk "o\r". parseKeypress only matches s === '\r', so it hit the
-      // default handler above (which stripped the trailing \r). Text with
-      // exactly one trailing \r is coalesced Enter; lone \r is Alt+Enter
-      // (newline); embedded \r is multi-line paste.
-      if (
-        filteredInput.length > 1 &&
-        filteredInput.endsWith('\r') &&
-        !filteredInput.slice(0, -1).includes('\r') &&
-        // Backslash+CR is a stale VS Code Shift+Enter binding, not
-        // coalesced Enter. See default handler above.
-        filteredInput[filteredInput.length - 2] !== '\\'
-      ) {
-        onSubmit?.(nextCursor.text)
-      }
+    }
+    if (submitted) {
+      submitted = false
+      cursor = Cursor.fromText('', columns, 0)
     }
   }
 

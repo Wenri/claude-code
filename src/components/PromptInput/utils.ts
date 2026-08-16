@@ -5,6 +5,40 @@ import {
 import type { KeyboardEvent } from '../../ink/events/keyboard-event.js'
 import { env } from '../../utils/env.js'
 import { getConfigValue } from '../../utils/settings/configSettings.js'
+
+const NON_PRINTABLE_INPUT_KEYS = new Set([
+  'escape',
+  'return',
+  'enter',
+  'tab',
+  'backspace',
+  'delete',
+  'up',
+  'down',
+  'left',
+  'right',
+  'pageup',
+  'pagedown',
+  'home',
+  'end',
+  'insert',
+  'clear',
+  'center',
+  'undefined',
+  'mouse',
+  'f1',
+  'f2',
+  'f3',
+  'f4',
+  'f5',
+  'f6',
+  'f7',
+  'f8',
+  'f9',
+  'f10',
+  'f11',
+  'f12',
+])
 /**
  * Helper function to check if vim mode is currently enabled
  * @returns boolean indicating if vim mode is active
@@ -39,24 +73,7 @@ export function isNonSpacePrintable(
   input: string,
   event: KeyboardEvent,
 ): boolean {
-  if (
-    event.ctrl ||
-    event.meta ||
-    event.name === 'escape' ||
-    event.name === 'return' ||
-    event.name === 'tab' ||
-    event.name === 'backspace' ||
-    event.name === 'delete' ||
-    event.name === 'up' ||
-    event.name === 'down' ||
-    event.name === 'left' ||
-    event.name === 'right' ||
-    event.name === 'pageup' ||
-    event.name === 'pagedown' ||
-    event.name === 'home' ||
-    event.name === 'end'
-  ) {
-    return false
-  }
-  return input.length > 0 && !/^\s/.test(input) && !input.startsWith('\x1b')
+  if (event.ctrl || event.meta) return false
+  if (NON_PRINTABLE_INPUT_KEYS.has(input)) return false
+  return input.length > 0 && !/^\s/.test(input)
 }

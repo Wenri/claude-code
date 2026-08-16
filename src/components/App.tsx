@@ -1,6 +1,7 @@
 import { c as _c } from "react/compiler-runtime";
 import React from 'react';
 import { FpsMetricsProvider } from '../context/fpsMetrics.js';
+import { KillRingProvider } from '../context/killRing.js';
 import { SelectionDeleteProvider } from '../context/selectionDelete.js';
 import { StatsProvider, type StatsStore } from '../context/stats.js';
 import { type AppState, AppStateProvider } from '../state/AppState.js';
@@ -27,7 +28,7 @@ export function App(t0) {
   } = t0;
   let t1;
   if ($[0] !== children || $[1] !== initialState) {
-    t1 = <AppStateProvider initialState={initialState} onChangeAppState={onChangeAppState}><SelectionDeleteProvider>{children}</SelectionDeleteProvider></AppStateProvider>;
+    t1 = <AppStateProvider initialState={initialState} onChangeAppState={onChangeAppState}><KillRingProvider><SelectionDeleteProvider>{children}</SelectionDeleteProvider></KillRingProvider></AppStateProvider>;
     $[0] = children;
     $[1] = initialState;
     $[2] = t1;

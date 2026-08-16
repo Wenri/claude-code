@@ -4,20 +4,17 @@ import {
   useState,
   type MutableRefObject,
 } from 'react'
+import {
+  getLatestKill,
+  getNextYank,
+  type KillRingStore,
+  useKillRing,
+} from '../context/killRing.js'
 import { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type { PasteEvent } from '../ink/events/paste-event.js'
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
 import { useInput } from '../ink.js'
-import {
-  Cursor,
-  getLastKill,
-  pushToKillRing,
-  recordYank,
-  resetKillAccumulation,
-  resetYankState,
-  updateYankLength,
-  yankPop,
-} from '../utils/Cursor.js'
+import { Cursor } from '../utils/Cursor.js'
 import { useTerminalSize } from './useTerminalSize.js'
 
 type UseSearchInputOptions = {
@@ -42,6 +39,7 @@ type UseSearchInputOptions = {
   onSpaceOnEmpty?: () => void
   /** Transitional bridge for call sites that have not mounted DOM handlers yet. */
   useLegacyInput?: boolean
+  killRing?: KillRingStore
 }
 
 type UseSearchInputReturn = {
@@ -110,7 +108,10 @@ export function useSearchInput({
   multiline = false,
   onSpaceOnEmpty,
   useLegacyInput = true,
+  killRing: killRingOverride,
 }: UseSearchInputOptions): UseSearchInputReturn {
+  const defaultKillRing = useKillRing()
+  const killRing = killRingOverride ?? defaultKillRing
   const { columns: terminalColumns } = useTerminalSize()
   const effectiveColumns = columns ?? terminalColumns
   const [query, setQueryState] = useState(initialQuery)
@@ -149,10 +150,8 @@ export function useSearchInput({
       return
     }
 
-    // Reset kill accumulation for non-kill keys
     if (!isKillKey(e) && !isYankKey(e)) {
-      resetKillAccumulation()
-      resetYankState()
+      killRing.dispatch({ type: 'interrupt' })
     }
 
     // Exit conditions
@@ -232,7 +231,7 @@ export function useSearchInput({
       if (e.meta) {
         // Meta+Backspace: kill word before
         const { cursor: newCursor, killed } = cursor.deleteWordBefore()
-        pushToKillRing(killed, 'prepend')
+        killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })
         updateQuery(newCursor.text)
         updateCursorOffset(newCursor.offset)
         return
@@ -335,31 +334,35 @@ export function useSearchInput({
         }
         case 'k': {
           const { cursor: newCursor, killed } = cursor.deleteToLineEnd()
-          pushToKillRing(killed, 'append')
+          killRing.dispatch({ type: 'kill', text: killed, direction: 'append' })
           updateQuery(newCursor.text)
           updateCursorOffset(newCursor.offset)
           return
         }
         case 'u': {
           const { cursor: newCursor, killed } = cursor.deleteToLineStart()
-          pushToKillRing(killed, 'prepend')
+          killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })
           updateQuery(newCursor.text)
           updateCursorOffset(newCursor.offset)
           return
         }
         case 'w': {
           const { cursor: newCursor, killed } = cursor.deleteWordBefore()
-          pushToKillRing(killed, 'prepend')
+          killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })
           updateQuery(newCursor.text)
           updateCursorOffset(newCursor.offset)
           return
         }
         case 'y': {
-          const text = getLastKill()
+          const text = getLatestKill(killRing.state)
           if (text.length > 0) {
             const startOffset = cursor.offset
             const newCursor = cursor.insert(text)
-            recordYank(startOffset, text.length)
+            killRing.dispatch({
+              type: 'yank',
+              start: startOffset,
+              length: text.length,
+            })
             updateQuery(newCursor.text)
             updateCursorOffset(newCursor.offset)
           }
@@ -395,14 +398,18 @@ export function useSearchInput({
           return
         }
         case 'y': {
-          const popResult = yankPop()
+          const popResult = getNextYank(killRing.state)
           if (popResult) {
             const { text, start, length } = popResult
+            killRing.dispatch({ type: 'yankPop' })
             const before = currentQuery.slice(0, start)
             const after = currentQuery.slice(start + length)
             const newText = before + text + after
             const newOffset = start + text.length
-            updateYankLength(text.length)
+            killRing.dispatch({
+              type: 'updateYankLength',
+              length: text.length,
+            })
             updateQuery(newText)
             updateCursorOffset(newOffset)
           }

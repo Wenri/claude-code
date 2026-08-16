@@ -163,6 +163,7 @@ export function usePasteHandler({
         /\/TemporaryItems\/.*screencaptureui.*\/Screenshot/i.test(pastedText)
       void Promise.all(imagePaths.map(imagePath => tryReadImageFromPath(imagePath)))
         .then(results => {
+          if (!isMountedRef.current) return
           const validImages = results.filter(
             (result): result is NonNullable<typeof result> => result !== null,
           )
