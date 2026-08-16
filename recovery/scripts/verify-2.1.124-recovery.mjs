@@ -8,28 +8,26 @@ import { fileURLToPath } from 'node:url'
 import { parse } from 'acorn'
 
 const defaultRepo = fileURLToPath(new URL('../..', import.meta.url))
-// Replaced by the exact-identity seal after the semantic proof freezes. Zero
-// identities keep final verification fail-closed in the meantime.
 const expectedStructuralArtifacts = {
   rawLedger: {
     path: 'structural/generated-delta.json.gz',
-    bytes: 0,
-    sha256: '0'.repeat(64),
+    bytes: 2_415_762,
+    sha256: '0675cd7f48b2d74b5922e5eacabd76a8a151d9cdd6f515d76e2aa350fb83e982',
   },
   metadataNormalizedLedger: {
     path: 'structural/metadata-normalized-delta.json.gz',
-    bytes: 0,
-    sha256: '0'.repeat(64),
+    bytes: 2_397_530,
+    sha256: 'de7f4b2a3bd15392758ac3c981d4759f54bfcdb9a5ee3a810d8215fe4da3e460',
   },
   knownDeltaExactLedger: {
     path: 'structural/known-delta-ledger.json.gz',
-    bytes: 0,
-    sha256: '0'.repeat(64),
+    bytes: 2_234_460,
+    sha256: '97cf1e6fe195eb4a2605cb0ade2de5fe8963adcb1a02ab2cafd731a783f54a24',
   },
   knownDeltaProof: {
     path: 'structural/known-delta-proof.json',
-    bytes: 0,
-    sha256: '0'.repeat(64),
+    bytes: 347_925,
+    sha256: '4104bbbd6c14f7703ac5fca78ff1a1ac30925aea53e70ed3f4c080434594e06b',
   },
 }
 const expectedKnownDeltaClosure = {

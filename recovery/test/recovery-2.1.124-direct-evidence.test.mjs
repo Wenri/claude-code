@@ -14,10 +14,9 @@ const TARGET_BYTES = 13_980_928
 const TARGET_SHA256 =
   'dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590'
 
-// Pinned only after the final source tree and focused-suite topology are frozen.
-const CATALOG_BYTES = 0
+const CATALOG_BYTES = 360_116
 const CATALOG_SHA256 =
-  '0000000000000000000000000000000000000000000000000000000000000000'
+  '55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3'
 const CATALOG_PATH =
   'recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json'
 const KNOWN_DELTA_PROOF_PATH =
