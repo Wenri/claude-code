@@ -1,0 +1,689 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.124-to-2.1.126",
+  "baseline": "2.1.124",
+  "release": "2.1.126",
+  "complete": true,
+  "rows": [
+    {
+      "id": "B01",
+      "releaseBullet": 1,
+      "title": "The `/model` picker now lists models from your gateway's `/v1/models` endpoint when `ANTHROPIC_BASE_URL` points at an Anthropic-compatible gateway",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "gateway-doctor-plugins"
+      ],
+      "targetFragments": [
+        "[gatewayDiscovery] 0 usable models after filter"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/model/gatewayModelDiscovery.ts",
+          "fragment": "const url = `${baseUrl.replace(/\\/+$/, '')}/v1/models?limit=1000`",
+          "count": 1
+        },
+        {
+          "path": "src/utils/model/modelOptions.ts",
+          "fragment": "for (const opt of getGatewayModelOptions()) {",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed gateway discovery row retains both the authenticated model-list sentinel and the source path that adds discovered models to the picker."
+    },
+    {
+      "id": "B02",
+      "releaseBullet": 2,
+      "title": "- Added `claude project purge [path]` to delete all Claude Code state for a project (transcripts, tasks, file history, config entry) — supports `--dry-run`, `-y/--yes`, `-i/--interactive`, and `--all`",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "cli-project-warning-helper",
+        "project-purge",
+        "project-purge-directory-enumeration"
+      ],
+      "targetFragments": [
+        "purge [path]"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/exit.ts",
+          "fragment": "export function cliWarn(msg: string): void {",
+          "count": 1
+        },
+        {
+          "path": "src/cli/handlers/project.tsx",
+          "fragment": "export async function purgeProjectHandler(",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sessionStoragePortable.ts",
+          "fragment": "export async function findProjectDirs(projectPath: string): Promise<string[]> {",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed purge command, directory enumeration, and warning-helper rows retain the command surface and its reviewed deletion-support source."
+    },
+    {
+      "id": "B03",
+      "releaseBullet": 3,
+      "title": "`--dangerously-skip-permissions` now bypasses prompts for writes to `.claude/`, `.git/`, `.vscode/`, shell config files, and other previously-protected paths (catastrophic removal commands still prompt as a safety net)",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "tool-execution-classifier"
+      ],
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/permissions/permissions.ts",
+          "fragment": "reason.reason.startsWith('Dangerous rmdir operation'),",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed permission row retains the bypass safety-net witness that continues to require approval for catastrophic recursive directory removal."
+    },
+    {
+      "id": "B04",
+      "releaseBullet": 4,
+      "title": "`claude auth login` now accepts the OAuth code pasted into the terminal when the browser callback can't reach localhost (WSL2, SSH, containers)",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "oauth-mcp-auth"
+      ],
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/auth.ts",
+          "fragment": "process.stdout.write('Paste code here if prompted > ')",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed OAuth row retains the terminal paste fallback used when the localhost browser callback cannot complete."
+    },
+    {
+      "id": "B05",
+      "releaseBullet": 5,
+      "title": "`claude_code.skill_activated` OpenTelemetry event now fires for user-typed slash commands and carries a new `invocation_trigger` attribute (`\"user-slash\"`, `\"claude-proactive\"`, or `\"nested-skill\"`)",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "brief-skill-telemetry"
+      ],
+      "targetFragments": [
+        "invocation_trigger"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/SkillTool/SkillTool.ts",
+          "fragment": "recordSkillActivated(commandName, command, invocationTrigger)",
+          "count": 2
+        }
+      ],
+      "rationale": "The sealed skill telemetry row retains the invocation-trigger bundle sentinel and the reviewed activation-recording callsite."
+    },
+    {
+      "id": "B06",
+      "releaseBullet": 6,
+      "title": "Auto mode: the spinner now turns red when a permission check stalls, instead of looking like the tool is running",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "tool-execution-classifier"
+      ],
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "toolUseContext.setInProgressToolUseIDs(previous =>",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed tool-execution row retains the post-permission in-progress transition that keeps a stalled permission check out of the running-tool state."
+    },
+    {
+      "id": "B07",
+      "releaseBullet": 7,
+      "title": "Host-managed deployments (`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`) no longer auto-disable analytics on Bedrock/Vertex/Foundry",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "settings-runtime"
+      ],
+      "targetFragments": [
+        "token-efficient-tools-2026-03-28"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "if (isEnvTruthy(process.env.CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST)) {",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed settings/runtime row retains the host-managed provider branch used to preserve deployment-controlled analytics behavior."
+    },
+    {
+      "id": "B08",
+      "releaseBullet": 8,
+      "title": "Windows: PowerShell 7 installed via the Microsoft Store, MSI without PATH, or `.NET global tool` is now detected",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "terminal-bash-scroll"
+      ],
+      "targetFragments": [
+        " \\xB7 wheelFlood"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/shell/powershellDetection.ts",
+          "fragment": "? await probePath(join(userProfile, '.dotnet', 'tools', 'pwsh.exe'))",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed Windows terminal row retains the reviewed PowerShell probing path for installations outside the ordinary PATH search."
+    },
+    {
+      "id": "B09",
+      "releaseBullet": 9,
+      "title": "Windows: when the PowerShell tool is enabled, Claude now treats PowerShell as the primary shell instead of defaulting to Bash",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "commands-ui"
+      ],
+      "targetFragments": [
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/constants/prompts.ts",
+          "fragment": "return 'Shell: PowerShell (use PowerShell syntax — e.g., $null not /dev/null, $env:VAR not $VAR, backtick for line continuation). Bash is also available via the Bash tool for POSIX scripts.'",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed command/UI row retains the system prompt that identifies PowerShell as the primary Windows shell while keeping Bash available."
+    },
+    {
+      "id": "B11",
+      "releaseBullet": 11,
+      "title": "**Security:** Fixed `allowManagedDomainsOnly` / `allowManagedReadPathsOnly` being ignored when a higher-priority managed-settings source lacked a `sandbox` block",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "settings-runtime"
+      ],
+      "targetFragments": [
+        "token-efficient-tools-2026-03-28"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sandbox/sandbox-adapter.ts",
+          "fragment": "const allowManagedDomainsOnly = policyTiers.some(",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sandbox/sandbox-adapter.ts",
+          "fragment": "for (const p of policySettings.sandbox?.filesystem?.allowRead || []) {",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed settings/runtime row retains both managed-domain and managed-read-path aggregation across every policy tier."
+    },
+    {
+      "id": "B12",
+      "releaseBullet": 12,
+      "title": "Fixed pasting an image larger than 2000px breaking the session — images are now downscaled on paste, and oversized images in history are automatically removed and the request retried",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "image-read-retry"
+      ],
+      "targetFragments": [
+        "dimensions exceed max allowed size"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "`Removed oversized image at messages.${oversizedImage.messageIdx}.content.${oversizedImage.contentIdx} (exceeded 2000px many-image limit); retrying.`,",
+          "count": 1
+        },
+        {
+          "path": "src/utils/imageResizer.ts",
+          "fragment": "const fallbackDimensions = getImageDimensionsFromBuffer(imageBuffer)",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed image/retry row retains dimension-aware resizing and the targeted retry removal of an oversized historical image."
+    },
+    {
+      "id": "B13",
+      "releaseBullet": 13,
+      "title": "Fixed showing the login screen for \"OAuth not allowed for organization\" errors — now shows guidance to contact your admin",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "oauth-mcp-auth"
+      ],
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/errors.ts",
+          "fragment": "'Your organization has disabled Claude subscription access for Claude Code · Use an Anthropic API key instead, or ask your admin to enable access'",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed OAuth row retains the organization-policy error classification and its administrator guidance instead of routing to login."
+    },
+    {
+      "id": "B14",
+      "releaseBullet": 14,
+      "title": "Fixed OAuth login failing with timeout on slow or proxied connections, in IPv6-only devcontainers, and when the browser callback can't reach localhost",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "oauth-mcp-auth"
+      ],
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/oauth/auth-code-listener.ts",
+          "fragment": "this.localServer.listen(port ?? 0, '127.0.0.1', () => {",
+          "count": 1
+        },
+        {
+          "path": "src/services/oauth/client.ts",
+          "fragment": "timeout: 30000,",
+          "count": 2
+        }
+      ],
+      "rationale": "The sealed OAuth row retains the explicit loopback listener and extended client timeout used by slow, proxied, and callback-limited environments."
+    },
+    {
+      "id": "B15",
+      "releaseBullet": 15,
+      "title": "Fixed a rare race where a concurrent credential write could clear a valid OAuth refresh token",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "settings-runtime"
+      ],
+      "targetFragments": [
+        "token-efficient-tools-2026-03-28"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "refreshTokenUsed = lockedTokens.refreshToken",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed settings/runtime row retains the locked refresh-token identity used to avoid clearing a concurrently replaced valid credential."
+    },
+    {
+      "id": "B16",
+      "releaseBullet": 16,
+      "title": "Fixed API retry countdown sticking at \"0s\" instead of counting down between attempts",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "tool-execution-classifier"
+      ],
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/messages/SystemAPIErrorMessage.tsx",
+          "fragment": "const remainingMs = Math.max(0, Math.ceil((retryDeadline - Date.now()) / 1000)) * 1000;",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed tool/runtime row retains deadline-based retry countdown calculation, preventing a stale zero-second display between attempts."
+    },
+    {
+      "id": "B19",
+      "releaseBullet": 19,
+      "title": "Fixed a hang where the assistant could finish thinking but show no output after a run of empty turns",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "compact-messages"
+      ],
+      "targetFragments": [
+        "CLAUDE_CODE_COLD_COMPACT"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/Messages.tsx",
+          "fragment": "!turnsWithReplacementText.has(messageTurns[index]!)",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed message-rendering row retains the per-turn replacement-text guard that prevents later assistant text from being hidden."
+    },
+    {
+      "id": "B20",
+      "releaseBullet": 20,
+      "title": "Fixed overly fast trackpad scrolling in Cursor and VS Code 1.92–1.104 integrated terminals",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "terminal-bash-scroll"
+      ],
+      "targetFragments": [
+        " \\xB7 wheelFlood"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/ink/scroll-config.ts",
+          "fragment": "return version !== null && version >= 1_092_000 && version < 1_105_000",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed terminal row retains the affected Cursor and VS Code wheel-flood version window and its corrected scroll configuration."
+    },
+    {
+      "id": "B21",
+      "releaseBullet": 21,
+      "title": "Fixed claude.ai MCP connectors being suppressed by manual servers stuck in needs-auth state",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "oauth-mcp-auth"
+      ],
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/config.ts",
+          "fragment": "(hasMcpDiscoveryButNoToken(name, config, oauthEntries) ||\n        hasExpiredMcpAccessTokenWithoutRefresh(name, config, oauthEntries))",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed MCP/OAuth row retains the credential-state distinction used to avoid suppressing valid managed connectors behind stale manual servers."
+    },
+    {
+      "id": "B22",
+      "releaseBullet": 22,
+      "title": "Fixed Japanese/Korean/Chinese text rendering as garbled characters on Windows in no-flicker mode",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "commands-ui"
+      ],
+      "targetFragments": [
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/bg.ts",
+          "fragment": "'\\x1B[0m' +",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed command/UI row retains the terminal-state reset added when leaving the attached no-flicker terminal surface on Windows."
+    },
+    {
+      "id": "B23",
+      "releaseBullet": 23,
+      "title": "Fixed `Ctrl+L` clearing the prompt input — it now only forces a screen redraw, matching readline behavior",
+      "disposition": "authenticated-release-note-discrepancy",
+      "targetFragments": [
+        "\"ctrl+l\":\"chat:clearInput\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/keybindings/defaultBindings.ts",
+          "fragment": "'ctrl+l': 'chat:clearInput',",
+          "count": 1
+        }
+      ],
+      "observedBehavior": "Both adjacent bundles and recovered source bind Ctrl+L to chat:clearInput; app:redraw exists but has no default Ctrl+L binding.",
+      "rationale": "The authenticated release note contradicts the published Linux x64 bundle, so the artifact behavior is preserved and reported explicitly."
+    },
+    {
+      "id": "B24",
+      "releaseBullet": 24,
+      "title": "Fixed deferred tools (WebSearch, WebFetch, etc.) not being available to skills with `context: fork` and other subagents on their first turn",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "tool-execution-classifier"
+      ],
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/AgentTool/runAgent.ts",
+          "fragment": "callSite: 'attachments_subagent',",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed tool-execution row retains first-turn deferred-tool attachment propagation for forked skills and subagents."
+    },
+    {
+      "id": "B25",
+      "releaseBullet": 25,
+      "title": "Fixed plan-mode tools being unavailable in interactive sessions launched with `--channels`",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "tool-execution-classifier"
+      ],
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/EnterPlanModeTool/EnterPlanModeTool.ts",
+          "fragment": "getAllowedChannels().length > 0 &&\n      getIsNonInteractiveSession()",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed tool-execution row retains the interactive-session guard that no longer removes plan-mode tools merely because channels are configured."
+    },
+    {
+      "id": "B26",
+      "releaseBullet": 26,
+      "title": "Fixed blank remote-session transcript when certain messaging tools are unavailable",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "sdk-print-share"
+      ],
+      "targetFragments": [
+        "ccshare_url"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/QueryEngine.ts",
+          "fragment": "origin: options?.origin,",
+          "count": 9
+        }
+      ],
+      "rationale": "The sealed SDK row retains origin propagation on every terminal result, preserving remote transcript routing when messaging tools are absent."
+    },
+    {
+      "id": "B27",
+      "releaseBullet": 27,
+      "title": "Fixed `/plugin` Uninstall reporting \"Enabled\" instead of \"Uninstalled\"",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "gateway-doctor-plugins"
+      ],
+      "targetFragments": [
+        "[gatewayDiscovery] 0 usable models after filter"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/plugin/ManagePlugins.tsx",
+          "fragment": "if (operation !== 'uninstall' && operation !== 'update' && enabledAfter) {",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed plugin row retains the operation guard that prevents a successful uninstall from being reported through the enabled path."
+    },
+    {
+      "id": "B28",
+      "releaseBullet": 28,
+      "title": "Bounded total size of file-modified reminders when a linter touches many files at once",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "image-read-retry"
+      ],
+      "targetFragments": [
+        "dimensions exceed max allowed size"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/attachments.ts",
+          "fragment": "const MAX_EDITED_TEXT_FILE_SNIPPET_BUDGET = 16_384",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed attachment row retains the aggregate edited-file snippet budget that bounds linter-generated file-modified reminders."
+    },
+    {
+      "id": "B29",
+      "releaseBullet": 29,
+      "title": "Fixed `/remote-control` retries appearing stuck on \"connecting…\" — each retry now shows its result, and unenrolled trusted-device failures are caught up-front",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "commands-ui",
+        "oauth-mcp-auth"
+      ],
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/",
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/trustedDevice.ts",
+          "fragment": "export function getTrustedDeviceUnenrolledReason(): string | null {",
+          "count": 1
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "{' '}· {detail || '/remote-control'}",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed Remote Control rows retain per-attempt result details and the up-front trusted-device enrollment failure check."
+    },
+    {
+      "id": "B30",
+      "releaseBullet": 30,
+      "title": "Fixed Remote Control failure notification not showing the error reason for initial connection failures",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "commands-ui",
+        "oauth-mcp-auth"
+      ],
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/",
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/trustedDevice.ts",
+          "fragment": "export function getTrustedDeviceUnenrolledReason(): string | null {",
+          "count": 1
+        },
+        {
+          "path": "src/components/PromptInput/PromptInputFooter.tsx",
+          "fragment": "const error = useAppState(s_4 => s_4.replBridgeError);",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed Remote Control rows retain the explicit initial error state and the reviewed reason surfaced for trusted-device failures."
+    },
+    {
+      "id": "B31",
+      "releaseBullet": 31,
+      "title": "Windows: clipboard writes no longer expose copied content in process command-line arguments visible to EDR/SIEM telemetry; also fixes >22KB selections not reaching the clipboard",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "terminal-bash-scroll"
+      ],
+      "targetFragments": [
+        " \\xB7 wheelFlood"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/ink/termio/osc.ts",
+          "fragment": "const POWERSHELL_CLIPBOARD_COMMAND =",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed Windows terminal row retains stdin-based PowerShell clipboard transport, keeping copied contents out of process arguments."
+    },
+    {
+      "id": "B32",
+      "releaseBullet": 32,
+      "title": "PowerShell tool: bare `--` (e.g. `git diff -- file`) is no longer mis-flagged as the `--%` stop-parsing token",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "image-read-retry"
+      ],
+      "targetFragments": [
+        "dimensions exceed max allowed size"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/powershell/parser.ts",
+          "fragment": "if ($tok.Kind -eq $tk::Generic -and ($tok.Text -replace '[\\u2013\\u2014\\u2015]','-') -eq '--%') {",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed PowerShell parser witness retains exact stop-parsing-token recognition without treating a bare double dash as that token."
+    },
+    {
+      "id": "B33",
+      "releaseBullet": 33,
+      "title": "Fixed Agent SDK hang when the model emits a malformed tool name in a parallel tool call batch",
+      "disposition": "inherited-retained",
+      "retained": true,
+      "inheritedRowIds": [
+        "sdk-print-share",
+        "tool-execution-classifier"
+      ],
+      "targetFragments": [
+        "ccshare_url",
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/QueryEngine.ts",
+          "fragment": "origin: options?.origin,",
+          "count": 9
+        },
+        {
+          "path": "src/services/tools/StreamingToolExecutor.ts",
+          "fragment": "let hasCompletedResults = false",
+          "count": 1
+        }
+      ],
+      "rationale": "The sealed SDK and streaming rows retain terminal result provenance and one-pass completed-result tracking for malformed parallel tool batches."
+    }
+  ]
+}
