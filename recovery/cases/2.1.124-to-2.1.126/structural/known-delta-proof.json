@@ -1,0 +1,840 @@
+{
+  "schemaVersion": 1,
+  "kind": "release-2.1.126-known-semantic-delta-proof",
+  "case": "2.1.124-to-2.1.126",
+  "release": "2.1.126",
+  "complete": true,
+  "claim": "Authenticated adjacent inner bundles are exhaustively partitioned into six post-metadata, binding-aware semantic clusters. Five active clusters bind every changed raw statement, exact reviewed source owners or removals, and focused tests; the remaining settings initializer cluster is explicitly accounting-only. The frozen four-path source tree closes without support bindings, all identifiers/properties/operators/literals are audited, and the exact normalized ledger has zero semantic residue.",
+  "authenticatedInputs": {
+    "baseline": {
+      "bytes": 13980928,
+      "sha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590"
+    },
+    "target": {
+      "bytes": 13980411,
+      "sha256": "e9d40219be0cad9009c115ec637df4976e987c33d4b7a88cc5f047ead9ad828d"
+    }
+  },
+  "metadataNormalization": {
+    "replacementCardinalityPerValue": 162,
+    "replacements": [
+      {
+        "field": "version",
+        "count": 162,
+        "rawCount": 163,
+        "baseline": {
+          "value": "2.1.124",
+          "sha256": "5ebe9c6de9ec9525a793f736081f3858867f4551071db1804a0811326d710786"
+        },
+        "target": {
+          "value": "2.1.126",
+          "sha256": "a2adb2c209b84394e84c32d437cedd91193a2441eae01a50a400bb37f5ca7c18"
+        }
+      },
+      {
+        "field": "buildTimestamp",
+        "count": 162,
+        "rawCount": 162,
+        "baseline": {
+          "value": "2026-04-30T00:25:36Z",
+          "sha256": "736c530475c529e67ef6a039937c80953cf8ac14f69d04556f90edaf0c4b65e3"
+        },
+        "target": {
+          "value": "2026-04-30T16:01:00Z",
+          "sha256": "4cb401d70f1a3eac0b65a0893e38971a6ce6ac8d5e6f3e9ae40e4a090caa4d1c"
+        }
+      },
+      {
+        "field": "sourceRevision",
+        "count": 162,
+        "rawCount": 162,
+        "baseline": {
+          "value": "241621312a512bb8563f31eaa762903c15edaa07",
+          "sha256": "b2740f68bfe12b07c94bde0bcac92d960aabc04df664ae0a73bcfc8ab013812d"
+        },
+        "target": {
+          "value": "e44c1d97bd39dbf2525164f3fd33be6edbf1661e",
+          "sha256": "319ee7b840f451b27d317d00563995439befa4cabc49cd93c648a69749ba8d66"
+        }
+      }
+    ],
+    "normalizedTarget": {
+      "bytes": 13980411,
+      "sha256": "271bf76a599bc3743abf29769b21ed1ba99b646596f4296b6f3d78b83bd4c017"
+    }
+  },
+  "knownDelta": {
+    "changedSourcePaths": {
+      "baseRevision": "ae866640a6d67891fe14aeff5bc41da10784b979",
+      "overlayRevision": "5b99258953100cc337aa42a047dc7d059657c6f8",
+      "recoveredSourceTree": "5632342fec59adeeea18e0d0fc8ab4aff3d72893",
+      "count": 4,
+      "paths": [
+        "src/commands/effort/effort.tsx",
+        "src/services/api/claude.ts",
+        "src/services/api/client.ts",
+        "src/tools/FileReadTool/FileReadTool.ts"
+      ]
+    },
+    "releaseBulletClassification": {
+      "total": 33,
+      "activeAdjacent": [
+        10,
+        17,
+        18
+      ],
+      "baselineRetained": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "hiddenAdjacentRows": [
+        "effort-settings-persistence"
+      ]
+    },
+    "clusterInventory": {
+      "schemaVersion": 1,
+      "totalClusters": 6,
+      "direct": [
+        {
+          "clusterIds": [
+            1,
+            6
+          ],
+          "rowId": "stream-idle-timeout",
+          "title": "Shared five-minute stream idle timeout floor",
+          "releaseBullets": [
+            17,
+            18
+          ],
+          "sourcePaths": [
+            "src/services/api/claude.ts",
+            "src/services/api/client.ts"
+          ],
+          "targetWitnesses": [
+            {
+              "kind": "literal",
+              "value": "Number(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS)||0",
+              "count": 1
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ],
+          "clusterBindings": [
+            {
+              "clusterId": 1,
+              "targetWitness": {
+                "kind": "raw-statement",
+                "side": "target",
+                "statementIndex": 6249,
+                "start": 2851304,
+                "end": 2851396,
+                "bytes": 92,
+                "sha256": "382441803fd00579637b0cc6cf8ab32e34532fab79d11458855268cfd34495a7",
+                "normalizedSha256": "382441803fd00579637b0cc6cf8ab32e34532fab79d11458855268cfd34495a7",
+                "count": 1,
+                "otherSideCount": 0
+              },
+              "additionalTargetWitnesses": [
+                {
+                  "kind": "raw-statement",
+                  "side": "target",
+                  "statementIndex": 6252,
+                  "start": 2852741,
+                  "end": 2853426,
+                  "bytes": 685,
+                  "sha256": "6a7d21830f4fbdba0026d4420cd5c769d61521c1aa8cd5d33551b019ec61f503",
+                  "normalizedSha256": "6a7d21830f4fbdba0026d4420cd5c769d61521c1aa8cd5d33551b019ec61f503",
+                  "count": 1,
+                  "otherSideCount": 0
+                }
+              ],
+              "sourceWitnesses": [
+                {
+                  "path": "src/services/api/client.ts",
+                  "fragment": "export function getStreamIdleTimeoutMs(): number {",
+                  "count": 1,
+                  "matchedSemanticTerms": [],
+                  "reviewed": true
+                },
+                {
+                  "path": "src/services/api/client.ts",
+                  "fragment": "addStreamIdleTimeout(response.body, getStreamIdleTimeoutMs())",
+                  "count": 1,
+                  "matchedSemanticTerms": [],
+                  "reviewed": true
+                }
+              ],
+              "testIds": [
+                "active-semantics",
+                "semantic-delta"
+              ]
+            },
+            {
+              "clusterId": 6,
+              "targetWitness": {
+                "kind": "raw-statement",
+                "side": "target",
+                "statementIndex": 19637,
+                "start": 11901742,
+                "end": 11925184,
+                "bytes": 23442,
+                "sha256": "e7cec693269bae0ef6899d2436c796220aaa2272091642303e9ec8521a3246bc",
+                "normalizedSha256": "d0d60e1d273fd2c25f591af3006d54553f7d286b4720180577fad7637cf60346",
+                "count": 1,
+                "otherSideCount": 0
+              },
+              "sourceWitnesses": [
+                {
+                  "path": "src/services/api/claude.ts",
+                  "fragment": "const STREAM_IDLE_TIMEOUT_MS = getStreamIdleTimeoutMs()",
+                  "count": 1,
+                  "matchedSemanticTerms": [],
+                  "reviewed": true
+                }
+              ],
+              "testIds": [
+                "active-semantics",
+                "semantic-delta"
+              ]
+            }
+          ]
+        },
+        {
+          "clusterIds": [
+            2,
+            3
+          ],
+          "rowId": "file-read-malware-reminder-removal",
+          "title": "FileRead malware reminder and model side channel removal",
+          "releaseBullets": [
+            10
+          ],
+          "sourcePaths": [
+            "src/tools/FileReadTool/FileReadTool.ts"
+          ],
+          "targetWitnesses": [
+            {
+              "kind": "literal",
+              "value": "Whenever you read a file, you should consider whether it would be considered malware.",
+              "count": 0
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ],
+          "clusterBindings": [
+            {
+              "clusterId": 2,
+              "targetWitness": {
+                "kind": "raw-statement",
+                "side": "baseline",
+                "statementIndex": 14805,
+                "start": 9226235,
+                "end": 9226273,
+                "bytes": 38,
+                "sha256": "00ef67e6791e11c5b45986223405f3d1ec135a27b4b2cd32b5fdd08e6885bba7",
+                "normalizedSha256": "00ef67e6791e11c5b45986223405f3d1ec135a27b4b2cd32b5fdd08e6885bba7",
+                "count": 1,
+                "otherSideCount": 0
+              },
+              "sourceWitnesses": [],
+              "sourceAbsences": [
+                {
+                  "path": "src/tools/FileReadTool/FileReadTool.ts",
+                  "fragment": "function shouldIncludeFileReadMitigation(model: string): boolean {"
+                },
+                {
+                  "path": "src/tools/FileReadTool/FileReadTool.ts",
+                  "fragment": "const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])"
+                }
+              ],
+              "testIds": [
+                "active-semantics",
+                "semantic-delta"
+              ]
+            },
+            {
+              "clusterId": 3,
+              "targetWitness": {
+                "kind": "raw-statement",
+                "side": "target",
+                "statementIndex": 14812,
+                "start": 9231431,
+                "end": 9239771,
+                "bytes": 8340,
+                "sha256": "0ee987f052c1a875e79a356f36e0d19e1f0dadf35e54a6eac7a415b5bfd51b10",
+                "normalizedSha256": "81ff77f45a9b31e8b613cf76c9d05cbf5b4b8e2fcdc7a930778b5a7b05a96f2a",
+                "count": 1,
+                "otherSideCount": 0
+              },
+              "additionalTargetWitnesses": [
+                {
+                  "kind": "raw-statement",
+                  "side": "target",
+                  "statementIndex": 14809,
+                  "start": 9226575,
+                  "end": 9230734,
+                  "bytes": 4159,
+                  "sha256": "b396555bbaf648919a0081adb3b070f9b9fd5fbf054f63b8935c1e11a5d8cec1",
+                  "normalizedSha256": "e4e64fe81aa3dbe5e2fcf264e0707ab4373015043b078aa946531dc39d432191",
+                  "count": 1,
+                  "otherSideCount": 0
+                },
+                {
+                  "kind": "raw-statement",
+                  "side": "target",
+                  "statementIndex": 14811,
+                  "start": 9231384,
+                  "end": 9231431,
+                  "bytes": 47,
+                  "sha256": "69b77d354765bfde3b5e1898de1cf5e9a759f3bed1e63c5f7f43db5bce11d72e",
+                  "normalizedSha256": "69b77d354765bfde3b5e1898de1cf5e9a759f3bed1e63c5f7f43db5bce11d72e",
+                  "count": 1,
+                  "otherSideCount": 0
+                }
+              ],
+              "sourceWitnesses": [
+                {
+                  "path": "src/tools/FileReadTool/FileReadTool.ts",
+                  "fragment": "memoryFileFreshnessPrefix(data) + formatFileLines(data.file)",
+                  "count": 1,
+                  "matchedSemanticTerms": [],
+                  "reviewed": true
+                }
+              ],
+              "sourceAbsences": [
+                {
+                  "path": "src/tools/FileReadTool/FileReadTool.ts",
+                  "fragment": "export const CYBER_RISK_MITIGATION_REMINDER ="
+                },
+                {
+                  "path": "src/tools/FileReadTool/FileReadTool.ts",
+                  "fragment": "const fileReadModels = new WeakMap<object, string>()"
+                },
+                {
+                  "path": "src/tools/FileReadTool/FileReadTool.ts",
+                  "fragment": "fileReadModels.set(data, context.options.mainLoopModel)"
+                }
+              ],
+              "testIds": [
+                "active-semantics",
+                "semantic-delta"
+              ]
+            }
+          ],
+          "sourcePathAbsences": [
+            {
+              "paths": [
+                "src/tools/FileReadTool/FileReadTool.ts"
+              ],
+              "fragment": "const fileReadModels = new WeakMap<object, string>()"
+            },
+            {
+              "paths": [
+                "src/tools/FileReadTool/FileReadTool.ts"
+              ],
+              "fragment": "const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])"
+            },
+            {
+              "paths": [
+                "src/tools/FileReadTool/FileReadTool.ts"
+              ],
+              "fragment": "export const CYBER_RISK_MITIGATION_REMINDER ="
+            },
+            {
+              "paths": [
+                "src/tools/FileReadTool/FileReadTool.ts"
+              ],
+              "fragment": "fileReadModels.set(data, context.options.mainLoopModel)"
+            },
+            {
+              "paths": [
+                "src/tools/FileReadTool/FileReadTool.ts"
+              ],
+              "fragment": "function shouldIncludeFileReadMitigation(model: string): boolean {"
+            }
+          ]
+        },
+        {
+          "clusterIds": [
+            4
+          ],
+          "rowId": "effort-settings-persistence",
+          "title": "Effort changes persist to user settings before local side effects",
+          "releaseBullets": [],
+          "sourcePaths": [
+            "src/commands/effort/effort.tsx"
+          ],
+          "targetWitnesses": [
+            {
+              "kind": "literal",
+              "value": "Failed to set effort level: ",
+              "count": 2
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ],
+          "clusterBindings": [
+            {
+              "clusterId": 4,
+              "targetWitness": {
+                "kind": "raw-statement",
+                "side": "target",
+                "statementIndex": 18381,
+                "start": 11258206,
+                "end": 11259159,
+                "bytes": 953,
+                "sha256": "554f8295b370ba8e6f986a8f8663372ac80a8125a496b54aa3aeb1e4620609a8",
+                "normalizedSha256": "ee2acf8abd1ecef234a9d0ae5605fd8ba98e8cb67e218ac424f023b525d03dfd",
+                "count": 1,
+                "otherSideCount": 0
+              },
+              "additionalTargetWitnesses": [
+                {
+                  "kind": "raw-statement",
+                  "side": "target",
+                  "statementIndex": 18383,
+                  "start": 11259363,
+                  "end": 11259926,
+                  "bytes": 563,
+                  "sha256": "dc27179a431cd66fbb0083b5ab5ce3cb9000efd254b460c35244a1411a636547",
+                  "normalizedSha256": "449bb31465a37587d0c6f1be52810ee449aedcda499003258995cd16ee599063",
+                  "count": 1,
+                  "otherSideCount": 0
+                }
+              ],
+              "sourceWitnesses": [
+                {
+                  "path": "src/commands/effort/effort.tsx",
+                  "fragment": "updateSettingsForSource('userSettings', {",
+                  "count": 2,
+                  "matchedSemanticTerms": [],
+                  "reviewed": true
+                },
+                {
+                  "path": "src/commands/effort/effort.tsx",
+                  "fragment": "Failed to set effort level:",
+                  "count": 2,
+                  "matchedSemanticTerms": [],
+                  "reviewed": true
+                }
+              ],
+              "testIds": [
+                "active-semantics",
+                "semantic-delta"
+              ]
+            }
+          ]
+        }
+      ],
+      "accountingOnly": [
+        {
+          "clusterIds": [
+            5
+          ],
+          "reason": "initializer-linkage",
+          "evidence": {
+            "classification": "settings module initializer linkage paired with active effort persistence",
+            "pairedDirectClusterIds": [
+              4
+            ],
+            "clusterRationales": {
+              "5": "The added settings initializer call links the import used by C4; it has no independent literal, property, or operator semantic delta."
+            },
+            "statementPair": {
+              "baseline": {
+                "index": 18398,
+                "type": "VariableDeclaration",
+                "raw": {
+                  "start": 11266468,
+                  "end": 11266795,
+                  "bytes": 327,
+                  "sha256": "224525ef049882b47ba144fb62e992a8368bd4bee0a306d71b6ea501f20f1963"
+                },
+                "normalized": {
+                  "bytes": 327,
+                  "sha256": "224525ef049882b47ba144fb62e992a8368bd4bee0a306d71b6ea501f20f1963"
+                }
+              },
+              "target": {
+                "index": 18398,
+                "type": "VariableDeclaration",
+                "raw": {
+                  "start": 11266006,
+                  "end": 11266338,
+                  "bytes": 332,
+                  "sha256": "6c6ed9ce9024d715634fe81d7fb9f49357e75183bd46042290142acc2c8d435e"
+                },
+                "normalized": {
+                  "bytes": 332,
+                  "sha256": "08685f6ff7b4fc0ca7c785cb27b6f424c98ce813968041d64371cd87ea834323"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "supportBindings": []
+    }
+  },
+  "ledgers": {
+    "rawAdjacent": {
+      "baseline": {
+        "bytes": 13980928,
+        "sha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590",
+        "tokenCount": 4405970,
+        "utf16Length": 13980928,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4405970,
+          "scanned": 4405970
+        },
+        "unitCount": 22358
+      },
+      "target": {
+        "bytes": 13980411,
+        "sha256": "e9d40219be0cad9009c115ec637df4976e987c33d4b7a88cc5f047ead9ad828d",
+        "tokenCount": 4405944,
+        "utf16Length": 13980411,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4405944,
+          "scanned": 4405944
+        },
+        "unitCount": 22358
+      },
+      "globalBindingPairCount": 31674,
+      "pairCount": 22257,
+      "coverage": {
+        "tokens": {
+          "changed": 4,
+          "matched": 4259415,
+          "moved": 46,
+          "unresolved": 146479,
+          "total": 4405944,
+          "ledgerTotal": 4405944,
+          "resolved": 4259465,
+          "resolvedFraction": 0.9667542301944827,
+          "exactStructuralFraction": 0.966753322330016
+        },
+        "units": {
+          "changed": 1,
+          "matched": 22254,
+          "moved": 2,
+          "unresolved": 101,
+          "total": 22358
+        },
+        "moveEvidence": {
+          "ambiguousDuplicate": {
+            "tokens": 46,
+            "units": 2
+          },
+          "unique": {
+            "tokens": 0,
+            "units": 0
+          }
+        }
+      },
+      "unmatchedBaselineCount": 101,
+      "unresolvedTargetCount": 101,
+      "changedTargetIndices": [
+        22357
+      ],
+      "unresolvedTargetIndices": [
+        10,
+        13,
+        3290,
+        4344,
+        4536,
+        4779,
+        4784,
+        6249,
+        6252,
+        6336,
+        6340,
+        6342,
+        6348,
+        6398,
+        6400,
+        6412,
+        6653,
+        6674,
+        6818,
+        9480,
+        9946,
+        10128,
+        10583,
+        11149,
+        11751,
+        11752,
+        11792,
+        11805,
+        11816,
+        11817,
+        11822,
+        11838,
+        11842,
+        11886,
+        11903,
+        12325,
+        13266,
+        14258,
+        14809,
+        14812,
+        15033,
+        15144,
+        15147,
+        15794,
+        15800,
+        15801,
+        15995,
+        16106,
+        16445,
+        16451,
+        16500,
+        16574,
+        17075,
+        17076,
+        17172,
+        17263,
+        17264,
+        18084,
+        18112,
+        18113,
+        18283,
+        18381,
+        18383,
+        18398,
+        18423,
+        18687,
+        18738,
+        18739,
+        18798,
+        19069,
+        19256,
+        19327,
+        19328,
+        19537,
+        19585,
+        19637,
+        19653,
+        19677,
+        19698,
+        19802,
+        19857,
+        20281,
+        20284,
+        20288,
+        20291,
+        21056,
+        21060,
+        21124,
+        21548,
+        21549,
+        21651,
+        22078,
+        22111,
+        22227,
+        22246,
+        22258,
+        22279,
+        22290,
+        22313,
+        22346,
+        22356
+      ]
+    },
+    "metadataNormalized": {
+      "baseline": {
+        "bytes": 13980928,
+        "sha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590",
+        "tokenCount": 4405970,
+        "utf16Length": 13980928,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4405970,
+          "scanned": 4405970
+        },
+        "unitCount": 22358
+      },
+      "target": {
+        "bytes": 13980411,
+        "sha256": "271bf76a599bc3743abf29769b21ed1ba99b646596f4296b6f3d78b83bd4c017",
+        "tokenCount": 4405944,
+        "utf16Length": 13980411,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4405944,
+          "scanned": 4405944
+        },
+        "unitCount": 22358
+      },
+      "globalBindingPairCount": 31698,
+      "pairCount": 22346,
+      "coverage": {
+        "tokens": {
+          "changed": 0,
+          "matched": 4392375,
+          "moved": 46,
+          "unresolved": 13523,
+          "total": 4405944,
+          "ledgerTotal": 4405944,
+          "resolved": 4392421,
+          "resolvedFraction": 0.9969307372041043,
+          "exactStructuralFraction": 0.9969307372041043
+        },
+        "units": {
+          "changed": 0,
+          "matched": 22344,
+          "moved": 2,
+          "unresolved": 12,
+          "total": 22358
+        },
+        "moveEvidence": {
+          "ambiguousDuplicate": {
+            "tokens": 46,
+            "units": 2
+          },
+          "unique": {
+            "tokens": 0,
+            "units": 0
+          }
+        }
+      },
+      "unmatchedBaselineCount": 12,
+      "unresolvedTargetCount": 12,
+      "changedTargetIndices": [],
+      "unresolvedTargetIndices": [
+        3290,
+        4344,
+        4536,
+        6249,
+        6252,
+        14809,
+        14812,
+        18381,
+        18383,
+        18398,
+        19327,
+        19637
+      ]
+    },
+    "knownDeltaExact": {
+      "baseline": {
+        "bytes": 13980411,
+        "sha256": "271bf76a599bc3743abf29769b21ed1ba99b646596f4296b6f3d78b83bd4c017",
+        "tokenCount": 4405944,
+        "utf16Length": 13980411,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4405944,
+          "scanned": 4405944
+        },
+        "unitCount": 22358
+      },
+      "target": {
+        "bytes": 13980411,
+        "sha256": "271bf76a599bc3743abf29769b21ed1ba99b646596f4296b6f3d78b83bd4c017",
+        "tokenCount": 4405944,
+        "utf16Length": 13980411,
+        "failureCount": 0,
+        "tokenAccounting": {
+          "accounted": 4405944,
+          "scanned": 4405944
+        },
+        "unitCount": 22358
+      },
+      "globalBindingPairCount": 31734,
+      "pairCount": 22358,
+      "coverage": {
+        "tokens": {
+          "changed": 0,
+          "matched": 4405944,
+          "moved": 0,
+          "unresolved": 0,
+          "total": 4405944,
+          "ledgerTotal": 4405944,
+          "resolved": 4405944,
+          "resolvedFraction": 1,
+          "exactStructuralFraction": 1
+        },
+        "units": {
+          "changed": 0,
+          "matched": 22358,
+          "moved": 0,
+          "unresolved": 0,
+          "total": 22358
+        },
+        "moveEvidence": {
+          "ambiguousDuplicate": {
+            "tokens": 0,
+            "units": 0
+          },
+          "unique": {
+            "tokens": 0,
+            "units": 0
+          }
+        }
+      },
+      "unmatchedBaselineCount": 0,
+      "unresolvedTargetCount": 0,
+      "changedTargetIndices": [],
+      "unresolvedTargetIndices": []
+    }
+  },
+  "artifacts": {
+    "rawLedger": {
+      "path": "structural/generated-delta.json.gz",
+      "bytes": 2257547,
+      "sha256": "c5032b816690e1df5c30d1286278d674414671a6055ebf726b53b00f1073b88a"
+    },
+    "metadataLedger": {
+      "path": "structural/metadata-normalized-delta.json.gz",
+      "bytes": 2237149,
+      "sha256": "f7b4ace72ab4505a17b25310399bfacbff3ee07c6378440e6e1e2fdb2888458b"
+    },
+    "exactLedger": {
+      "path": "structural/known-delta-ledger.json.gz",
+      "bytes": 2234299,
+      "sha256": "66e0052214d8a90a10058f383e09ab7d9480836eeed1d1d41973a83de55fc1c9"
+    },
+    "clusterLedger": {
+      "path": "structural/semantic-cluster-ledger.json.gz",
+      "bytes": 5818,
+      "sha256": "a4dd3dfcca8a075b20aa24d8c6dad3cfde8b4fa54bce0a3979469531bb2fa622"
+    }
+  }
+}
