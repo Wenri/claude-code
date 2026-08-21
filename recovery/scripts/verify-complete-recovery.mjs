@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
 function usage() {
   console.error(
@@ -108,7 +109,11 @@ function main() {
     ? path.resolve(args.repo)
     : path.resolve(caseRoot, '../../..')
   const artifactsRoot = path.resolve(args.artifacts)
-  const scripts = path.resolve(repositoryRoot, 'recovery/scripts')
+  const toolingRoot = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../..',
+  )
+  const scripts = path.join(toolingRoot, 'recovery/scripts')
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
   const baseline = artifactPath(manifest, artifactsRoot, 'baselineBundle')
   const target = artifactPath(manifest, artifactsRoot, 'targetBundle')
@@ -165,9 +170,35 @@ function main() {
       )
     : runJson(
         path.join(scripts, 'verify-recovered-patches.mjs'),
-        ['--case', manifestPath, '--artifacts', artifactsRoot],
+        [
+          '--case',
+          manifestPath,
+          '--artifacts',
+          artifactsRoot,
+          '--repo',
+          repositoryRoot,
+        ],
         repositoryRoot,
       )
+  const hasLegacySourceReproduction =
+    manifest.semanticSourceLineage !== undefined
+  const sourceReproductionAudit = hasLegacySourceReproduction
+    ? runJson(
+        path.join(scripts, 'audit-source-reproduction.mjs'),
+        [
+          '--artifacts',
+          artifactsRoot,
+          '--case',
+          manifestPath,
+          '--repo',
+          toolingRoot,
+          '--ledger',
+          path.join(toolingRoot, 'recovery/source-reproduction-gaps.json'),
+        ],
+        repositoryRoot,
+      )
+    : null
+  const sourceReproduction = sourceReproductionAudit?.results[0] ?? null
   const exactBundleDelta = runJson(
     path.join(scripts, 'build-exact-delta.mjs'),
     [
@@ -491,6 +522,7 @@ function main() {
           evidence: evidence.status,
           bunExtraction: bunExtraction?.status ?? null,
           sourcePatches: sourcePatches.status,
+          sourceReproduction: sourceReproductionAudit?.status ?? null,
           exactBundleDelta: exactBundleDelta.status,
           attribution: attribution.status,
           structural: structural.status,
@@ -515,6 +547,44 @@ function main() {
             sourcePatches.appliedSourceTree?.files.length ??
             sourcePatches.target?.files ??
             0,
+          ...(sourceReproductionAudit === null
+            ? {}
+            : {
+                semanticCriterion:
+                  sourceReproduction.sourceReproduction.criterion,
+                semanticAncestryCasesVerified:
+                  sourceReproductionAudit.ancestryCasesVerified,
+                firstPartySemanticEquivalentFromSrc:
+                  sourceReproduction.sourceReproduction
+                    .firstPartySemanticEquivalentFromSrc,
+                wholeBundleSemanticEquivalentFromSrc:
+                  sourceReproduction.sourceReproduction
+                    .wholeBundleSemanticEquivalentFromSrc,
+                semanticBuildInputs:
+                  sourceReproduction.sourceReproduction.buildInputs,
+                semanticTargetCommit:
+                  sourceReproduction.sourceReproduction.targetCommit,
+                semanticSupplements:
+                  sourceReproduction.sourceReproduction
+                    .cumulativeSupplements,
+                semanticCoverage:
+                  sourceReproduction.sourceReproduction.coverage,
+                semanticEvidenceTests:
+                  sourceReproduction.sourceReproduction
+                    .semanticEvidenceTests,
+                semanticLiteralResidueAudit:
+                  sourceReproduction.sourceReproduction
+                    .semanticLiteralResidueAudit,
+                semanticAncestryEvidenceTests:
+                  sourceReproductionAudit.semanticEvidenceTests,
+                currentSourceSemanticEvidenceTests:
+                  sourceReproductionAudit.currentSourceSemanticEvidenceTests,
+                currentSourceSemanticOwnerSyntax:
+                  sourceReproductionAudit.currentSourceSemanticOwnerSyntax,
+                byteExactSourceBuildClaimed:
+                  sourceReproduction.sourceReproduction
+                    .byteExactSourceBuildClaimed,
+              }),
         },
         bundle: {
           bytes: exactBundleDelta.target.bytes,
