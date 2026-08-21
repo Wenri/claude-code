@@ -338,24 +338,52 @@ const rows = expectedRetained.map(releaseBullet => {
   const id = 'B' + String(releaseBullet).padStart(2, '0')
   const title = bullets[releaseBullet - 1]
   if (releaseBullet === 23) {
-    const fragment = "'ctrl+l': 'chat:clearInput',"
-    const sourcePath = 'src/keybindings/defaultBindings.ts'
-    const count = occurrences(
-      fs.readFileSync(path.join(repo, sourcePath), 'utf8'),
-      fragment,
-    )
-    assert.equal(count, 1, 'B23 contradictory source witness')
+    const bindingFragment = "'ctrl+l': 'chat:clearInput',"
+    const bindingPath = 'src/keybindings/defaultBindings.ts'
+    const handlerFragment = `const handleClearInput = useCallback(() => {
+    setRedrawVersion(version => version + 1);
+    clearActionShortcutRef.current = clearInputShortcut;
+    clearDoublePress();
+  }, [clearInputShortcut, clearDoublePress]);`
+    const handlerPath = 'src/components/PromptInput/PromptInput.tsx'
+    const sourceAssertions = canonicalWitnesses([
+      {
+        path: bindingPath,
+        fragment: bindingFragment,
+        count: occurrences(
+          fs.readFileSync(path.join(repo, bindingPath), 'utf8'),
+          bindingFragment,
+        ),
+      },
+      {
+        path: handlerPath,
+        fragment: handlerFragment,
+        count: occurrences(
+          fs.readFileSync(path.join(repo, handlerPath), 'utf8'),
+          handlerFragment,
+        ),
+      },
+    ])
+    for (const witness of sourceAssertions) {
+      assert.equal(witness.count, 1, 'B23 source witness ' + witness.path)
+    }
     return {
       id,
       releaseBullet,
       title,
-      disposition: 'authenticated-release-note-discrepancy',
-      targetFragments: ['"ctrl+l":"chat:clearInput"'],
-      sourceAssertions: [{ path: sourcePath, fragment, count }],
+      disposition: 'target-retained-source-repair',
+      retained: true,
+      targetFragments: [
+        '"ctrl+l":"chat:clearInput"',
+        '"chat:clearInput":PC',
+        'm9("chat:clearInput","Chat","ctrl+l")',
+        'PC=Aq.useCallback(()=>{z1((y$)=>y$+1),b9.current=y7,iz()},[y7,iz])',
+      ].sort(),
+      sourceAssertions,
       observedBehavior:
-        'Both adjacent bundles and recovered source bind Ctrl+L to chat:clearInput; app:redraw exists but has no default Ctrl+L binding.',
+        'Both adjacent bundles bind Ctrl+L to chat:clearInput, whose callback only increments redraw state, updates the shortcut reference, and invokes the fullscreen double-press helper; recovered source now preserves that redraw-only prompt behavior.',
       rationale:
-        'The authenticated release note contradicts the published Linux x64 bundle, so the artifact behavior is preserved and reported explicitly.',
+        'This byte-identical target-retained behavior repairs an inherited source gap that the sealed 2.1.124 direct catalog did not project; it is not part of the adjacent active bundle delta.',
     }
   }
 
@@ -418,5 +446,8 @@ console.log(JSON.stringify({
   ).length,
   releaseNoteDiscrepancies: rows.filter(
     row => row.disposition === 'authenticated-release-note-discrepancy',
+  ).length,
+  targetRetainedSourceRepairs: rows.filter(
+    row => row.disposition === 'target-retained-source-repair',
   ).length,
 }))

@@ -440,19 +440,28 @@
       "id": "B23",
       "releaseBullet": 23,
       "title": "Fixed `Ctrl+L` clearing the prompt input — it now only forces a screen redraw, matching readline behavior",
-      "disposition": "authenticated-release-note-discrepancy",
+      "disposition": "target-retained-source-repair",
+      "retained": true,
       "targetFragments": [
-        "\"ctrl+l\":\"chat:clearInput\""
+        "\"chat:clearInput\":PC",
+        "\"ctrl+l\":\"chat:clearInput\"",
+        "PC=Aq.useCallback(()=>{z1((y$)=>y$+1),b9.current=y7,iz()},[y7,iz])",
+        "m9(\"chat:clearInput\",\"Chat\",\"ctrl+l\")"
       ],
       "sourceAssertions": [
+        {
+          "path": "src/components/PromptInput/PromptInput.tsx",
+          "fragment": "const handleClearInput = useCallback(() => {\n    setRedrawVersion(version => version + 1);\n    clearActionShortcutRef.current = clearInputShortcut;\n    clearDoublePress();\n  }, [clearInputShortcut, clearDoublePress]);",
+          "count": 1
+        },
         {
           "path": "src/keybindings/defaultBindings.ts",
           "fragment": "'ctrl+l': 'chat:clearInput',",
           "count": 1
         }
       ],
-      "observedBehavior": "Both adjacent bundles and recovered source bind Ctrl+L to chat:clearInput; app:redraw exists but has no default Ctrl+L binding.",
-      "rationale": "The authenticated release note contradicts the published Linux x64 bundle, so the artifact behavior is preserved and reported explicitly."
+      "observedBehavior": "Both adjacent bundles bind Ctrl+L to chat:clearInput, whose callback only increments redraw state, updates the shortcut reference, and invokes the fullscreen double-press helper; recovered source now preserves that redraw-only prompt behavior.",
+      "rationale": "This byte-identical target-retained behavior repairs an inherited source gap that the sealed 2.1.124 direct catalog did not project; it is not part of the adjacent active bundle delta."
     },
     {
       "id": "B24",
