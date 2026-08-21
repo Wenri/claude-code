@@ -531,6 +531,18 @@ export function authenticatedReleaseEvidence({
 
   const provenance = JSON.parse(provenanceFile.value.toString('utf8'))
   assertEqual(provenance.schemaVersion, 1, 'release provenance schema')
+  const presenceFile = declared.presenceArtifact === undefined
+    ? null
+    : pinnedFile(declared.presenceArtifact, 'public release presence')
+  const tagRefsFile = declared.tagRefs === undefined
+    ? null
+    : pinnedFile(declared.tagRefs, 'public release tag refs')
+  const skippedAbsenceFile = declared.skippedVersionAbsenceArtifact === undefined
+    ? null
+    : pinnedFile(
+        declared.skippedVersionAbsenceArtifact,
+        'skipped registry version absence',
+      )
   assert(
     typeof declared.section === 'string' && declared.section.length > 0,
     'official release section is absent',
@@ -549,12 +561,15 @@ export function authenticatedReleaseEvidence({
   )
   assertEqual(provenance.release, declared.section, 'release provenance version')
   assertEqual(
-    provenance.git?.tag,
+    provenance.git?.tag ?? provenance.git?.targetTag,
     `v${declared.section}`,
     'release provenance Git tag',
   )
   assert(
-    /^[a-f0-9]{40}$/.test(provenance.git?.commit ?? ''),
+    /^[a-f0-9]{40}$/.test(
+      provenance.git?.commit ??
+        provenance.git?.nearestTags?.target?.commit ?? '',
+    ),
     'release provenance Git commit',
   )
   assertEqual(
@@ -573,22 +588,26 @@ export function authenticatedReleaseEvidence({
     'provenance full changelog Git blob SHA-1',
   )
   assertEqual(
-    provenance.changelog?.sectionBytes,
+    provenance.changelog?.sectionBytes ??
+      provenance.changelog?.targetSectionBytes,
     declared.sectionArtifact.bytes,
     'provenance changelog section bytes',
   )
   assertEqual(
-    provenance.changelog?.sectionSha256,
+    provenance.changelog?.sectionSha256 ??
+      provenance.changelog?.targetSectionSha256,
     declared.sectionArtifact.sha256,
     'provenance changelog section SHA-256',
   )
   assertEqual(
-    provenance.changelog?.bulletCount,
+    provenance.changelog?.bulletCount ??
+      provenance.changelog?.targetBulletCount,
     declared.bulletCount,
     'provenance release bullet count',
   )
   const sectionParts = relativeParts(
-    provenance.changelog.sectionPath,
+    provenance.changelog.sectionPath ??
+      provenance.changelog.targetSectionPath,
     'provenance changelog section path',
   )
   const fullParts = relativeParts(
@@ -614,6 +633,118 @@ export function authenticatedReleaseEvidence({
     path.join(caseRoot, 'evidence/provenance.json'),
     'release provenance case-root binding',
   )
+  assert(
+    [presenceFile, tagRefsFile, skippedAbsenceFile].every(value => value === null) ||
+      [presenceFile, tagRefsFile, skippedAbsenceFile].every(value => value !== null),
+    'public-presence extensions must pin presence, refs, and skipped absence together',
+  )
+  if (presenceFile !== null) {
+    const relativeToCase = filename =>
+      path.relative(caseRoot, filename).replaceAll('\\', '/')
+    for (const [file, label] of [
+      [presenceFile, 'release presence'],
+      [tagRefsFile, 'release tag refs'],
+      [skippedAbsenceFile, 'skipped-version absence'],
+    ]) {
+      assertEqual(
+        path.dirname(file.filename),
+        path.join(caseRoot, 'evidence'),
+        `${label} same-case evidence directory`,
+      )
+    }
+    const presence = JSON.parse(presenceFile.value.toString('utf8'))
+    assert(
+      presence.schemaVersion === 1 &&
+        presence.kind === 'authenticated-public-release-presence' &&
+        presence.release === declared.section &&
+        presence.tag?.name === `v${declared.section}` &&
+        presence.tag?.present === true &&
+        /^[a-f0-9]{40}$/.test(presence.tag?.commit ?? '') &&
+        /^[a-f0-9]{40}$/.test(presence.tag?.tree ?? '') &&
+        presence.changelog?.heading === `## ${declared.section}` &&
+        presence.changelog?.present === true &&
+        presence.changelog?.bulletCount === declared.bulletCount,
+      'authenticated public release presence schema',
+    )
+    for (const [record, file, label] of [
+      [presence.tag.refs, tagRefsFile, 'release presence tag refs'],
+      [presence.changelog.fullSnapshot, fullFile, 'release presence full changelog'],
+      [presence.changelog.section, sectionFile, 'release presence section'],
+    ]) {
+      assertEqual(record.path, relativeToCase(file.filename), `${label} path`)
+      assertEqual(record.bytes, file.value.length, `${label} bytes`)
+      assertEqual(record.sha256, sha256(file.value), `${label} SHA-256`)
+    }
+    assertEqual(
+      presence.changelog.fullSnapshot.gitBlobSha1,
+      gitBlobSha1(fullFile.value),
+      'release presence full changelog Git blob SHA-1',
+    )
+    assertEqual(
+      provenance.publicReleasePresence?.path,
+      relativeToCase(presenceFile.filename),
+      'release provenance presence path',
+    )
+    assertEqual(
+      provenance.publicReleasePresence?.bytes,
+      presenceFile.value.length,
+      'release provenance presence bytes',
+    )
+    assertEqual(
+      provenance.publicReleasePresence?.sha256,
+      sha256(presenceFile.value),
+      'release provenance presence SHA-256',
+    )
+    assertEqual(
+      JSON.stringify(provenance.publicReleasePresence?.tag),
+      JSON.stringify(presence.tag),
+      'release provenance presence tag',
+    )
+    assertEqual(
+      JSON.stringify(provenance.publicReleasePresence?.changelog),
+      JSON.stringify(presence.changelog),
+      'release provenance presence changelog',
+    )
+    const refs = tagRefsFile.value.toString('utf8').split('\n').filter(Boolean)
+    assert(
+      refs.some(line =>
+        line.endsWith(`\trefs/tags/v${declared.section}`) ||
+          line.endsWith(`\trefs/tags/v${declared.section}^{}`)),
+      'authenticated target tag is absent from pinned refs',
+    )
+    const skipped = JSON.parse(skippedAbsenceFile.value.toString('utf8'))
+    assert(
+      skipped.schemaVersion === 1 &&
+        skipped.kind === 'authoritative-npm-registry-version-absence' &&
+        Array.isArray(skipped.semanticVersionGap?.skipped) &&
+        skipped.semanticVersionGap.skipped.length > 0 &&
+        skipped.semanticVersionGap.target === declared.section &&
+        skipped.publishedAdjacency?.targetIsNextPublishedVersion === true &&
+        skipped.publishedAdjacency?.skippedVersionsAbsent === true &&
+        Array.isArray(skipped.packages) &&
+        skipped.packages.length > 0 &&
+        skipped.packages.every(entry =>
+          entry.packument?.skippedVersionPresent === false &&
+            entry.packument?.skippedPublicationTimePresent === false &&
+            entry.missingVersionEndpoint?.httpStatus === 404),
+      'authoritative skipped-version absence schema',
+    )
+    assertEqual(
+      provenance.npm?.skippedVersionAbsence?.path,
+      relativeToCase(skippedAbsenceFile.filename),
+      'release provenance skipped-version path',
+    )
+    assertEqual(
+      provenance.npm?.skippedVersionAbsence?.bytes,
+      skippedAbsenceFile.value.length,
+      'release provenance skipped-version bytes',
+    )
+    assertEqual(
+      provenance.npm?.skippedVersionAbsence?.sha256,
+      sha256(skippedAbsenceFile.value),
+      'release provenance skipped-version SHA-256',
+    )
+  }
 
   const sectionLines = changelogText.split('\n')
   assertEqual(sectionLines.at(-1), '', 'official section trailing newline')
@@ -681,6 +812,13 @@ export function authenticatedReleaseEvidence({
       releaseProvenance: evidence(provenanceFile.filename),
       officialChangelog: evidence(fullFile.filename),
       officialChangelogSection: evidence(sectionFile.filename),
+      ...(presenceFile === null
+        ? {}
+        : {
+            officialReleasePresence: evidence(presenceFile.filename),
+            officialReleaseTagRefs: evidence(tagRefsFile.filename),
+            skippedVersionAbsence: evidence(skippedAbsenceFile.filename),
+          }),
     },
   }
 }
@@ -1051,6 +1189,55 @@ function validateObligations({
     if (entry.sha256 !== undefined) {
       assertEqual(sha256(value), entry.sha256, `${entry.id} test SHA-256`)
     }
+    if (entry.inheritedFrom !== undefined) {
+      const inherited = entry.inheritedFrom
+      const prior = inherited?.priorObligations
+      assert(
+        inherited &&
+          typeof inherited === 'object' &&
+          !Array.isArray(inherited) &&
+          typeof inherited.release === 'string' &&
+          /^\d+\.\d+\.\d+$/.test(inherited.release) &&
+          typeof inherited.priorTestId === 'string' &&
+          /^[a-z0-9][a-z0-9-]*$/.test(inherited.priorTestId) &&
+          prior &&
+          typeof prior.path === 'string' &&
+          prior.path.startsWith('recovery/cases/') &&
+          prior.path.endsWith(
+            `-to-${inherited.release}/semantic/obligations.json`,
+          ) &&
+          Number.isSafeInteger(prior.bytes) &&
+          prior.bytes > 0 &&
+          typeof prior.sha256 === 'string' &&
+          /^[0-9a-f]{64}$/.test(prior.sha256),
+        `${entry.id}: invalid inherited test provenance`,
+      )
+      const priorFilename = safeExistingRegularFile(
+        path.dirname(sourceRoot),
+        prior.path,
+        `${entry.id} prior obligations`,
+      )
+      const priorValue = fs.readFileSync(priorFilename)
+      assertEqual(priorValue.length, prior.bytes,
+        `${entry.id} prior obligations bytes`)
+      assertEqual(sha256(priorValue), prior.sha256,
+        `${entry.id} prior obligations SHA-256`)
+      const priorObligations = readJson(
+        priorFilename,
+        `${entry.id} prior obligations`,
+      )
+      const priorTest = priorObligations.testCatalog?.find(
+        candidate => candidate.id === inherited.priorTestId,
+      )
+      assert(
+        priorObligations.schemaVersion === 1 &&
+          priorTest !== undefined &&
+          priorTest.path === entry.path &&
+          priorTest.bytes === value.length &&
+          priorTest.sha256 === sha256(value),
+        `${entry.id}: inherited test differs from sealed prior obligations`,
+      )
+    }
     const testSource = value.toString('utf8')
     let authenticatedText = testSource
     const literalArrays = entry.literalArrays ?? []
@@ -1267,6 +1454,7 @@ function validateObligations({
         ['semantic cluster bindings', obligation.semanticClusterBindings ?? [], boundDirectEvidenceRow.semanticClusterBindings ?? []],
         ['source change support', obligation.sourceChangeSupport ?? null, boundDirectEvidenceRow.sourceChangeSupport ?? null],
         ['related direct clusters', obligation.relatedDirectClusterIds ?? [], boundDirectEvidenceRow.relatedDirectClusterIds ?? []],
+        ['target-retained source repair', obligation.targetRetainedSourceRepair ?? null, boundDirectEvidenceRow.targetRetainedSourceRepair ?? null],
       ]) {
         assertEqual(
           JSON.stringify(actual),
@@ -1393,6 +1581,35 @@ function validateObligations({
       assert(
         hasAdjacentCountEvidence,
         `${obligation.id}: adjacent claim needs count-different bundle evidence`,
+      )
+    }
+    const targetRetainedSourceRepair = obligation.targetRetainedSourceRepair
+    if (targetRetainedSourceRepair !== undefined) {
+      assert(
+        obligation.classification === 'source-localized-inherited' &&
+          targetRetainedSourceRepair &&
+          typeof targetRetainedSourceRepair === 'object' &&
+          !Array.isArray(targetRetainedSourceRepair) &&
+          typeof targetRetainedSourceRepair.observedBehavior === 'string' &&
+          targetRetainedSourceRepair.observedBehavior.length >= 20 &&
+          targetRetainedSourceRepair.authenticatedBundleInvariant ===
+            'unchanged-positive-counts-required' &&
+          Array.isArray(targetRetainedSourceRepair.testIds) &&
+          targetRetainedSourceRepair.testIds.length > 0 &&
+          targetRetainedSourceRepair.testIds.every(testId =>
+            (obligation.testIds ?? []).includes(testId)) &&
+          hasAdjacentCountEvidence === false &&
+          obligation.targetFragments.length > 0 &&
+          obligation.targetFragments.every(fragment =>
+            fragment.baselineCount > 0 &&
+              fragment.baselineCount === fragment.targetCount) &&
+          Array.isArray(obligation.sourceAssertions) &&
+          obligation.sourceAssertions.length > 0 &&
+          (obligation.testIds ?? []).includes('adjacent') &&
+          boundDirectEvidenceRow !== null &&
+          obligation.semanticClusterIds === undefined &&
+          obligation.sourceChangeSupport === undefined,
+        `${obligation.id}: invalid target-retained source repair`,
       )
     }
     const sourceLocalized = obligation.classification.startsWith('source-localized-')
@@ -1694,7 +1911,18 @@ function validateObligations({
               typeof binding.targetWitness === 'object' &&
               !Array.isArray(binding.targetWitness) &&
               Array.isArray(binding.sourceWitnesses) &&
-              binding.sourceWitnesses.length > 0 &&
+              Array.isArray(binding.sourceAbsences ?? []) &&
+              binding.sourceWitnesses.length +
+                  (binding.sourceAbsences ?? []).length >
+                0 &&
+              (binding.sourceAbsences ?? []).every(sourceAbsence =>
+                typeof sourceAbsence?.path === 'string' &&
+                  sourceAbsence.path.startsWith('src/') &&
+                  !sourceAbsence.path.split('/').some(
+                    part => part === '' || part === '.' || part === '..',
+                  ) &&
+                  typeof sourceAbsence.fragment === 'string' &&
+                  sourceAbsence.fragment.length > 0) &&
               Array.isArray(binding.testIds) &&
               binding.testIds.length > 0),
         `${obligation.id}: invalid semantic cluster bindings`,
@@ -1810,6 +2038,9 @@ function validateObligations({
       ...(sourceChangeSupport === undefined
         ? {}
         : { sourceChangeSupport, relatedDirectClusterIds }),
+      ...(targetRetainedSourceRepair === undefined
+        ? {}
+        : { targetRetainedSourceRepair }),
       ...(obligation.catalogBinding === undefined
         ? {}
         : {
@@ -1867,7 +2098,7 @@ function validateObligations({
         localizationBases['authenticated-behavior-test'] ?? 0,
       unverifiedObligationCount: obligations.obligations.filter(obligation =>
         obligation.classification === 'external-component' ||
-        obligation.classification === 'release-note-unobservable' ||
+          obligation.classification === 'release-note-unobservable' ||
         obligation.classification === 'generated-runtime-adjacent',
       ).length,
     },
@@ -1877,6 +2108,9 @@ function validateObligations({
       path: entry.path,
       bytes: entry.bytes,
       sha256: entry.sha256,
+      ...(entry.inheritedFrom === undefined
+        ? {}
+        : { inheritedFrom: entry.inheritedFrom }),
       evidence: (entry.evidence ?? []).map(item => ({
         path: item.path,
         bytes: item.bytes,

@@ -334,8 +334,34 @@ function main() {
         manifest.sourceLineage?.tests?.files ??
         [],
     )
+    let executedCurrentTestFiles = 0
+    let authenticatedInheritedTestFiles = 0
     for (const testEntry of semanticCorrespondence.testCatalog) {
-      if (!lineageTestFiles.has(testEntry.path)) {
+      if (lineageTestFiles.has(testEntry.path)) {
+        if (testEntry.inheritedFrom !== undefined) {
+          throw new Error(
+            `Current source-lineage test is falsely marked inherited: ${testEntry.path}`,
+          )
+        }
+        executedCurrentTestFiles += 1
+      } else if (testEntry.inheritedFrom !== undefined) {
+        const inherited = testEntry.inheritedFrom
+        if (
+          typeof inherited.release !== 'string' ||
+          !/^\d+\.\d+\.\d+$/.test(inherited.release) ||
+          typeof inherited.priorTestId !== 'string' ||
+          !/^[a-z0-9][a-z0-9-]*$/.test(inherited.priorTestId) ||
+          typeof inherited.priorObligations?.path !== 'string' ||
+          !inherited.priorObligations.path.endsWith(
+            `-to-${inherited.release}/semantic/obligations.json`,
+          )
+        ) {
+          throw new Error(
+            `Semantic inherited-test provenance is invalid: ${testEntry.path}`,
+          )
+        }
+        authenticatedInheritedTestFiles += 1
+      } else {
         throw new Error(
           `Semantic test is not executed by source lineage: ${testEntry.path}`,
         )
@@ -378,7 +404,8 @@ function main() {
     semanticReproduction = {
       status: 'whole-bundle-source-semantics-verified',
       correspondence: semanticCorrespondence.status,
-      executedTestFiles: semanticCorrespondence.testCatalog.length,
+      executedTestFiles: executedCurrentTestFiles,
+      authenticatedInheritedTestFiles,
       targetTokens: semanticCorrespondence.targetTokens,
       unclassifiedTokens: semanticCorrespondence.unclassifiedTokens,
       manualLocalizationCount:
