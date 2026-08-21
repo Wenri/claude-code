@@ -3,8 +3,11 @@ import test from 'node:test'
 import {
   RELEASE_2_1_126,
   RELEASE_2_1_126_GENERATED_INPUTS,
+  RELEASE_2_1_126_INHERITED_TEST_PROVENANCE,
   ZERO_SHA256,
+  assertRelease21126CommitReachability,
   assertRelease21126GeneratedInputContract,
+  assertRelease21126InheritedTestProvenance,
   assertRelease21126SourceOracleDeclaration,
   assertRelease21126TopologyFrozen,
 } from '../lib/release-2.1.126-input-contract.mjs'
@@ -105,5 +108,47 @@ test('cross-binds cumulative and adjacent baseline declarations', () => {
   assert.throws(
     () => assertRelease21126SourceOracleDeclaration(contradictory, contract),
     /adjacent readable\/structural baselines/,
+  )
+})
+
+test('rejects forged inherited-test provenance', () => {
+  const expected = RELEASE_2_1_126_INHERITED_TEST_PROVENANCE
+  const obligations = {
+    nonActiveOfficialEvidence: {
+      priorObligations: structuredClone(expected.priorObligations),
+    },
+    testCatalog: expected.priorTestIds.map(priorTestId => ({
+      inheritedFrom: {
+        release: expected.release,
+        priorTestId,
+        priorObligations: structuredClone(expected.priorObligations),
+      },
+    })),
+  }
+  assert.doesNotThrow(() =>
+    assertRelease21126InheritedTestProvenance(obligations),
+  )
+  obligations.testCatalog[0].inheritedFrom.priorObligations.path =
+    'recovery/cases/forged-to-2.1.124/semantic/obligations.json'
+  assert.throws(
+    () => assertRelease21126InheritedTestProvenance(obligations),
+    /sealed inherited test provenance/,
+  )
+})
+
+test('rejects an unreachable source-freeze target commit', () => {
+  assert.doesNotThrow(() =>
+    assertRelease21126CommitReachability({
+      baseToTarget: true,
+      targetToHead: true,
+    }),
+  )
+  assert.throws(
+    () =>
+      assertRelease21126CommitReachability({
+        baseToTarget: true,
+        targetToHead: false,
+      }),
+    /not reachable from HEAD/,
   )
 })

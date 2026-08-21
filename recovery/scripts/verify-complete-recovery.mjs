@@ -348,10 +348,11 @@ function main() {
         const inherited = testEntry.inheritedFrom
         if (
           typeof inherited.release !== 'string' ||
-          !/^\d+\.\d+\.\d+$/.test(inherited.release) ||
+          inherited.release !== manifest.releaseAdjacency?.baseline ||
           typeof inherited.priorTestId !== 'string' ||
           !/^[a-z0-9][a-z0-9-]*$/.test(inherited.priorTestId) ||
           typeof inherited.priorObligations?.path !== 'string' ||
+          !inherited.priorObligations.path.startsWith('recovery/cases/') ||
           !inherited.priorObligations.path.endsWith(
             `-to-${inherited.release}/semantic/obligations.json`,
           )

@@ -10,6 +10,7 @@ import { parse } from 'acorn'
 import {
   RELEASE_2_1_126,
   RELEASE_2_1_126_GENERATED_INPUTS,
+  assertRelease21126CommitReachability,
   assertRelease21126TopologyFrozen,
 } from '../lib/release-2.1.126-input-contract.mjs'
 
@@ -241,6 +242,21 @@ function git(args, options = {}) {
   return run('git', args, options)
 }
 
+function gitIsAncestor(ancestor, descendant) {
+  const result = spawnSync(
+    'git',
+    ['merge-base', '--is-ancestor', ancestor, descendant],
+    { cwd: repo, encoding: 'utf8' },
+  )
+  if (result.error) throw result.error
+  if (result.status === 0) return true
+  if (result.status === 1) return false
+  throw new Error(
+    `git merge-base --is-ancestor failed (${result.status})\n` +
+      `${result.stdout ?? ''}${result.stderr ?? ''}`,
+  )
+}
+
 function write(relative, value) {
   const filename = path.join(freezeRoot, relative)
   fs.mkdirSync(path.dirname(filename), { recursive: true })
@@ -406,6 +422,10 @@ function main() {
     `${args['target-commit']}^{commit}`,
   ]).trim()
   assert(/^[a-f0-9]{40}$/.test(targetCommit), 'target commit identity')
+  assertRelease21126CommitReachability({
+    baseToTarget: gitIsAncestor(baseCommit, targetCommit),
+    targetToHead: gitIsAncestor(targetCommit, 'HEAD'),
+  })
   assert(
     git(['merge-base', '--is-ancestor', sourceRecovery.sourceCommit, targetCommit]) === '',
     'target commit does not descend from the frozen source recovery commit',

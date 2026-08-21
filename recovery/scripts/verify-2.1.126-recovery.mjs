@@ -9,7 +9,9 @@ import { parse } from 'acorn'
 import {
   RELEASE_2_1_126,
   RELEASE_2_1_126_GENERATED_INPUTS,
+  assertRelease21126CommitReachability,
   assertRelease21126GeneratedInputContract,
+  assertRelease21126InheritedTestProvenance,
   assertRelease21126SourceOracleDeclaration,
   assertRelease21126TopologyFrozen,
 } from '../lib/release-2.1.126-input-contract.mjs'
@@ -326,6 +328,37 @@ function readCommitFile(repo, revision, relative) {
   return result.stdout
 }
 
+function gitOutput(repo, args, label) {
+  const result = spawnSync('git', args, {
+    cwd: repo,
+    encoding: 'utf8',
+    maxBuffer: 128 * 1024 * 1024,
+  })
+  if (result.error) throw result.error
+  if (result.status !== 0) {
+    throw new Error(
+      `${label} failed (${result.status})\n` +
+        `${result.stdout ?? ''}${result.stderr ?? ''}`,
+    )
+  }
+  return result.stdout.trim()
+}
+
+function gitIsAncestor(repo, ancestor, descendant) {
+  const result = spawnSync(
+    'git',
+    ['merge-base', '--is-ancestor', ancestor, descendant],
+    { cwd: repo, encoding: 'utf8' },
+  )
+  if (result.error) throw result.error
+  if (result.status === 0) return true
+  if (result.status === 1) return false
+  throw new Error(
+    `git merge-base --is-ancestor failed (${result.status})\n` +
+      `${result.stdout ?? ''}${result.stderr ?? ''}`,
+  )
+}
+
 function authenticateArtifact(root, artifact, label) {
   assert(artifact && typeof artifact.localPath === 'string',
     `${label}: missing artifact`)
@@ -536,6 +569,12 @@ function main() {
     semantic.fileIdentities.summary,
     'semantic summary',
   )
+  const obligations = readPinned(
+    caseRoot,
+    semantic.fileIdentities.obligations,
+    'semantic obligations',
+  )
+  assertRelease21126InheritedTestProvenance(obligations)
   assert(direct.rowCount === direct.rows.length, 'direct row count')
   assert(new Set(direct.rows.map(row => row.id)).size === direct.rowCount, 'row IDs')
   const expectedFocusedTests = [
@@ -856,9 +895,32 @@ function main() {
     sourceIdentity.base.commit ===
         'ae866640a6d67891fe14aeff5bc41da10784b979' &&
       /^[a-f0-9]{40}$/.test(sourceIdentity.target.commit) &&
-      sourceIdentity.target.commit === manifest.sourceLineage.targetCommit,
+      sourceIdentity.target.commit === manifest.sourceLineage.targetCommit &&
+      sourceIdentity.base.tree === manifest.sourceLineage.baseGitTree &&
+      sourceIdentity.base.srcTree === manifest.sourceLineage.baseSrcGitTree &&
+      sourceIdentity.target.tree === manifest.sourceLineage.targetGitTree &&
+      sourceIdentity.target.srcTree === manifest.sourceLineage.targetSrcGitTree,
     'source-freeze commit identities',
   )
+  assert(
+    gitOutput(repo, ['rev-parse', `${sourceIdentity.base.commit}^{tree}`],
+      'resolve source-freeze base tree') === sourceIdentity.base.tree &&
+      gitOutput(repo, ['rev-parse', `${sourceIdentity.base.commit}:src`],
+        'resolve source-freeze base src tree') === sourceIdentity.base.srcTree &&
+      gitOutput(repo, ['rev-parse', `${sourceIdentity.target.commit}^{tree}`],
+        'resolve source-freeze target tree') === sourceIdentity.target.tree &&
+      gitOutput(repo, ['rev-parse', `${sourceIdentity.target.commit}:src`],
+        'resolve source-freeze target src tree') === sourceIdentity.target.srcTree,
+    'source-freeze commit/tree identities differ from the repository',
+  )
+  assertRelease21126CommitReachability({
+    baseToTarget: gitIsAncestor(
+      repo,
+      sourceIdentity.base.commit,
+      sourceIdentity.target.commit,
+    ),
+    targetToHead: gitIsAncestor(repo, sourceIdentity.target.commit, 'HEAD'),
+  })
   const expectedDiffCheck = sourceIdentity.verification.diffCheck
   assert(
     expectedDiffCheck.scope === 'full-target-tree' &&

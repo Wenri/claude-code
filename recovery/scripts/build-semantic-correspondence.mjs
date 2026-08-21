@@ -1167,6 +1167,8 @@ function validateObligations({
     throw new Error(`${label}: unterminated ${declaration}`)
   }
   assert(Array.isArray(obligations.testCatalog), 'testCatalog must be an array')
+  const inheritedPriorObligations =
+    obligations.nonActiveOfficialEvidence?.priorObligations
   for (const entry of obligations.testCatalog) {
     assert(
       typeof entry.id === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(entry.id),
@@ -1206,6 +1208,8 @@ function validateObligations({
           prior.path.endsWith(
             `-to-${inherited.release}/semantic/obligations.json`,
           ) &&
+          JSON.stringify(prior) ===
+            JSON.stringify(inheritedPriorObligations) &&
           Number.isSafeInteger(prior.bytes) &&
           prior.bytes > 0 &&
           typeof prior.sha256 === 'string' &&

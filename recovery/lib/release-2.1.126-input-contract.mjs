@@ -12,6 +12,26 @@ export const RELEASE_2_1_126 = Object.freeze({
   skippedRegistryAbsence: 'evidence/REGISTRY-2.1.125-ABSENCE.json',
 })
 
+export const RELEASE_2_1_126_INHERITED_TEST_PROVENANCE = Object.freeze({
+  release: RELEASE_2_1_126.baseline,
+  priorObligations: Object.freeze({
+    path: 'recovery/cases/2.1.123-to-2.1.124/semantic/obligations.json',
+    bytes: 364_376,
+    sha256:
+      'bcb6485e23e6fe65c44fcbe3a5cc3a6c1dd26e8255744cbbd358c0c0e90d509d',
+  }),
+  priorTestIds: Object.freeze([
+    'gateway-doctor-plugins',
+    'mcp-oauth-dedup',
+    'project-purge',
+    'runtime-tail',
+    'semantic-delta',
+    'skill-activation-telemetry',
+    'ui-command-semantics',
+    'ui-sdk-tail',
+  ]),
+})
+
 export const ZERO_SHA256 = '0'.repeat(64)
 export const ZERO_IDENTITY = Object.freeze({ bytes: 0, sha256: ZERO_SHA256 })
 
@@ -183,6 +203,43 @@ function identity(record, label) {
     `${label}: invalid artifact identity`,
   )
   return { bytes: record.bytes, sha256: record.sha256 }
+}
+
+export function assertRelease21126InheritedTestProvenance(obligations) {
+  const expected = RELEASE_2_1_126_INHERITED_TEST_PROVENANCE
+  const inheritedTests = obligations?.testCatalog
+    ?.filter(entry => entry.inheritedFrom !== undefined)
+    .sort((left, right) =>
+      left.inheritedFrom.priorTestId.localeCompare(
+        right.inheritedFrom.priorTestId,
+      ))
+  assert(Array.isArray(inheritedTests), 'inherited test catalog is absent')
+  same(
+    obligations.nonActiveOfficialEvidence?.priorObligations,
+    expected.priorObligations,
+    'sealed prior obligations identity',
+  )
+  same(
+    inheritedTests.map(entry => entry.inheritedFrom.priorTestId),
+    expected.priorTestIds,
+    'sealed inherited test IDs',
+  )
+  assert(
+    inheritedTests.every(entry =>
+      entry.inheritedFrom.release === expected.release &&
+        JSON.stringify(entry.inheritedFrom.priorObligations) ===
+          JSON.stringify(expected.priorObligations)),
+    'sealed inherited test provenance',
+  )
+  return expected
+}
+
+export function assertRelease21126CommitReachability({
+  baseToTarget,
+  targetToHead,
+}) {
+  assert(baseToTarget === true, '2.1.124 base is not an ancestor of target')
+  assert(targetToHead === true, 'source-freeze target is not reachable from HEAD')
 }
 
 function assertFrozenIdentity(record, label) {
