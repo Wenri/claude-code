@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "kind": "authoritative-npm-registry-version-absence",
+  "registry": "https://registry.npmjs.org",
+  "transport": "HTTPS with the host platform trust store",
+  "release": "2.1.125",
+  "semanticVersionGap": {
+    "baseline": "2.1.124",
+    "skipped": [
+      "2.1.125"
+    ],
+    "target": "2.1.126"
+  },
+  "publishedAdjacency": {
+    "sequence": [
+      "2.1.124",
+      "2.1.126"
+    ],
+    "targetIsNextPublishedVersion": true,
+    "skippedVersionsAbsent": true
+  },
+  "packages": [
+    {
+      "name": "@anthropic-ai/claude-code",
+      "packument": {
+        "url": "https://registry.npmjs.org/@anthropic-ai%2fclaude-code",
+        "httpStatus": 200,
+        "versionWindow": [
+          "2.1.114",
+          "2.1.116",
+          "2.1.117",
+          "2.1.118",
+          "2.1.119",
+          "2.1.120",
+          "2.1.121",
+          "2.1.122",
+          "2.1.123",
+          "2.1.124",
+          "2.1.126"
+        ],
+        "skippedVersionPresent": false,
+        "skippedPublicationTimePresent": false,
+        "baselinePublishedAt": "2026-04-30T01:39:41.460Z",
+        "targetPublishedAt": "2026-04-30T20:30:34.530Z"
+      },
+      "missingVersionEndpoint": {
+        "url": "https://registry.npmjs.org/@anthropic-ai%2fclaude-code/2.1.125",
+        "httpStatus": 404,
+        "body": {
+          "bytes": 28,
+          "sha256": "fefa83edd887f5aa6f5741c230e6a0121e0039db064aa4849a4185f152d6e683",
+          "json": "version not found: 2.1.125"
+        }
+      }
+    },
+    {
+      "name": "@anthropic-ai/claude-code-linux-x64",
+      "packument": {
+        "url": "https://registry.npmjs.org/@anthropic-ai%2fclaude-code-linux-x64",
+        "httpStatus": 200,
+        "versionWindow": [
+          "2.1.114",
+          "2.1.116",
+          "2.1.117",
+          "2.1.118",
+          "2.1.119",
+          "2.1.120",
+          "2.1.121",
+          "2.1.122",
+          "2.1.123",
+          "2.1.124",
+          "2.1.126"
+        ],
+        "skippedVersionPresent": false,
+        "skippedPublicationTimePresent": false,
+        "baselinePublishedAt": "2026-04-30T01:38:46.793Z",
+        "targetPublishedAt": "2026-04-30T20:29:31.361Z"
+      },
+      "missingVersionEndpoint": {
+        "url": "https://registry.npmjs.org/@anthropic-ai%2fclaude-code-linux-x64/2.1.125",
+        "httpStatus": 404,
+        "body": {
+          "bytes": 28,
+          "sha256": "fefa83edd887f5aa6f5741c230e6a0121e0039db064aa4849a4185f152d6e683",
+          "json": "version not found: 2.1.125"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.124-to-2.1.126",
+  "algorithm": "zstd-dictionary-patch",
+  "tool": "Zstandard CLI 1.5.7",
+  "files": [
+    {
+      "path": "cli.js",
+      "baseline": {
+        "bytes": 13981018,
+        "sha256": "3214b62d9f7e3763a59211ad95a570d03f37e37c6aa87686cd9b6ccf4827eacb"
+      },
+      "target": {
+        "bytes": 13980501,
+        "sha256": "99ea0a1eaab285e1c4fa3602458cdc4ee3f81fc622c3dc90906a7e306dd75a0f"
+      },
+      "payload": {
+        "path": "diff/cli.js.zstd-delta",
+        "bytes": 604902,
+        "sha256": "b64b1a0af3f8df6613a2ec6621dd097b681bb6420b23ea1e81a9d12806018176"
+      }
+    },
+    {
+      "path": "image-processor.js",
+      "baseline": {
+        "bytes": 1976,
+        "sha256": "dc2073caf18c06e7944416e90021929fba17e2fa8e371173917cc379a9d0be2b"
+      },
+      "target": {
+        "bytes": 1976,
+        "sha256": "f7961b57b01f68ca5648ef123e5a6c44b5461a2baa0f84e0ce3ad3ac3d4e9d70"
+      },
+      "payload": {
+        "path": "diff/image-processor.js.zstd-delta",
+        "bytes": 26,
+        "sha256": "5aafcbfe31dcc1f8112e1c8591d8d07f578f7e1b495912dcf49a116c86fe7dba"
+      }
+    },
+    {
+      "path": "audio-capture.js",
+      "baseline": {
+        "bytes": 1974,
+        "sha256": "014fbdebbffb574016538720b02137b88b42c2535c74f0d7e2bbe3d42837920e"
+      },
+      "target": {
+        "bytes": 1974,
+        "sha256": "c85673c7958c82a0e9aed0d52d39fa5bb5bb25e226352319b7eeb4ac682bf76f"
+      },
+      "payload": {
+        "path": "diff/audio-capture.js.zstd-delta",
+        "bytes": 26,
+        "sha256": "3696c725f51add396be8bde7ff4219101f3a9550cb30042f2cb7798ad80a5c4a"
+      }
+    },
+    {
+      "path": "package.json",
+      "baseline": {
+        "bytes": 1476,
+        "sha256": "d770813a0e1686ed8696fc543644a16c4269b4ac28df85e40c6ee07f751decd9"
+      },
+      "target": {
+        "bytes": 1476,
+        "sha256": "83e82576db90bbaeb072858c55ca709409cb214031d1de0a9401680513ded5e5"
+      },
+      "payload": {
+        "path": "diff/package.json.zstd-delta",
+        "bytes": 55,
+        "sha256": "a1d0cf5d7e565c7641bd0e04a4c186dbf9938fa1b946825a97d24becb4f6e6da"
+      }
+    }
+  ],
+  "totalPayloadBytes": 605009
+}
