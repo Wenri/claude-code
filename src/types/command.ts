@@ -6,13 +6,13 @@ import type { ScopedMcpServerConfig } from '../services/mcp/types.js'
 import type { ToolUseContext } from '../Tool.js'
 import type { EffortValue } from '../utils/effort.js'
 import type { IDEExtensionInstallationStatus, IdeType } from '../utils/ide.js'
+import type { MessageOperation } from '../utils/messageOperations.js'
 import type { SettingSource } from '../utils/settings/constants.js'
 import type { HooksSettings } from '../utils/settings/types.js'
 import type { ThemeName } from '../utils/theme.js'
 import type { LogOption } from './logs.js'
 import type { Message } from './message.js'
 import type { PluginManifest } from './plugin.js'
-import type { MessageOperation } from '../utils/messageOperations.js'
 
 export type LocalCommandResult =
   | { type: 'text'; value: string }

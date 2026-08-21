@@ -40,7 +40,6 @@ import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
 import { isXtermJs } from '../../ink/terminal.js';
 import { useHasSelection, useSelection } from '../../ink/hooks/use-selection.js';
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js';
-import { isBgSession } from '../../utils/concurrentSessions.js';
 import { getPlatform } from '../../utils/platform.js';
 import { PrBadge } from '../PrBadge.js';
 import { isBgSession } from '../../utils/concurrentSessions.js';
@@ -60,6 +59,7 @@ type Props = {
   exitMessage: {
     show: boolean;
     key?: string;
+    action?: 'clear';
   };
   leftArrowPending: boolean;
   vimMode: VimMode | undefined;
@@ -166,11 +166,13 @@ export function PromptInputFooterLeftSide(t0) {
       isBgSession() &&
       getCurrentWorktreeSession() === null &&
       count(Object.values(appStateStore.getState().tasks), isBackgroundTask) > 0;
-    const exitAction = !isBgSession()
-      ? 'exit'
-      : canDetach
-        ? 'detach (session keeps running)'
-        : 'stop session';
+    const exitAction = exitMessage.action === 'clear'
+      ? '/clear'
+      : !isBgSession()
+        ? 'exit'
+        : canDetach
+          ? 'detach (session keeps running)'
+          : 'stop session';
     return <Text dimColor={true} key="exit-message">Press {exitMessage.key} again to {exitAction}</Text>;
   }
   if (isPasting) {
@@ -398,11 +400,6 @@ function ModeIndicator({
     parts.push(<ProactiveCountdown key="proactive" />);
   } else if (!hasTeammatePills && showHint) {
     parts.push(...hintParts);
-  }
-  if (isBgSession() && isInputEmpty) {
-    parts.push(<Text dimColor key="bg-detach">
-        {figures.arrowLeft} for agents
-      </Text>);
   }
 
   // When we have teammate pills, always render them on their own line above other parts

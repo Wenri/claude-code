@@ -218,8 +218,6 @@ export type PendingCacheEdits = {
 
 export type MicrocompactResult = {
   messages: Message[]
-  tokensSaved?: number
-  clearedIds?: Set<string>
   compactionInfo?: {
     pendingCacheEdits?: PendingCacheEdits
   }
@@ -229,7 +227,7 @@ export type MicrocompactResult = {
  * Walk messages and collect tool_use IDs whose tool name is in
  * COMPACTABLE_TOOLS, in encounter order. Shared by both microcompact paths.
  */
-export function collectCompactableToolIds(messages: Message[]): string[] {
+function collectCompactableToolIds(messages: Message[]): string[] {
   const ids: string[] = []
   for (const message of messages) {
     if (

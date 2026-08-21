@@ -11,6 +11,7 @@ import type { WheelEvent } from '../ink/events/wheel-event.js'
 import wrapText from '../ink/wrap-text.js'
 import { Box, Text } from '../ink.js'
 import type { ResultDedupState } from '../services/tools/resultDedup.js'
+import type { MemorySelector } from '../memdir/findRelevantMemories.js'
 import { useSetAppState } from '../state/AppState.js'
 import type { AppState } from '../state/AppStateStore.js'
 import type { RemoteAgentTaskState } from '../tasks/RemoteAgentTask/RemoteAgentTask.js'
@@ -42,6 +43,7 @@ type Props = {
   readFileState: FileStateCache
   discoveredSkillNames?: Set<string>
   loadedNestedMemoryPaths?: Set<string>
+  memorySelector?: MemorySelector
   getAppState: () => AppState
   setConversationId: (id: UUID) => void
   resultDedupState: ResultDedupState
@@ -65,6 +67,7 @@ export function UltraplanChoiceDialog({
   readFileState,
   discoveredSkillNames,
   loadedNestedMemoryPaths,
+  memorySelector,
   getAppState,
   setConversationId,
   resultDedupState,
@@ -98,6 +101,7 @@ export function UltraplanChoiceDialog({
           readFileState,
           discoveredSkillNames,
           loadedNestedMemoryPaths,
+          memorySelector,
           getAppState,
           setAppState,
           setConversationId,

@@ -1,7 +1,7 @@
 import { feature } from 'bun:bundle'
 import { basename } from 'path'
 import { useCallback, useEffect, useRef } from 'react'
-import { clearInputsForServer, getSessionId } from '../../bootstrap/state.js'
+import { getSessionId } from '../../bootstrap/state.js'
 import type { Command } from '../../commands.js'
 import type { Tool } from '../../Tool.js'
 import {
@@ -55,7 +55,10 @@ import {
 import type { AppState } from 'src/state/AppState.js'
 import type { PluginError } from 'src/types/plugin.js'
 import { logForDebugging } from 'src/utils/debug.js'
-import { getAllowedChannels } from '../../bootstrap/state.js'
+import {
+  clearInputsForServer,
+  getAllowedChannels,
+} from '../../bootstrap/state.js'
 import { useNotifications } from '../../context/notifications.js'
 import {
   useAppState,
@@ -178,11 +181,11 @@ export function useManageMCPConnections(
   const channelWarnedKindsRef = useRef<
     Set<'disabled' | 'auth' | 'policy' | 'marketplace' | 'allowlist'>
   >(new Set())
-  // A late managed-settings refresh can temporarily change the gate result
-  // after a channel handler has already been installed. Keep track of that
-  // successful registration so a non-transient skip cannot silently drop all
-  // subsequent channel messages.
-  const registeredChannelServersRef = useRef<Set<string>>(new Set())
+  // Remember servers whose live channel handlers have been installed. A
+  // stable policy/allowlist re-gate must not silently tear down a handler that
+  // was already trusted earlier in the session; transient auth/disabled/
+  // capability failures do tear it down.
+  const channelRegisteredServersRef = useRef<Set<string>>(new Set())
   // Channel permission callbacks — constructed once, stable ref. Stored in
   // AppState so interactiveHandler can subscribe. The pending Map lives inside
   // the closure (not module-level, not AppState — functions-in-state is brittle).
@@ -514,7 +517,8 @@ export function useManageMCPConnections(
               void reconnectWithBackoff()
               clearInputsForServer(client.name)
             } else {
-              registeredChannelServersRef.current.delete(client.name)
+              channelRegisteredServersRef.current.delete(client.name)
+              initialConnectAttemptsRef.current.delete(client.name)
               clearInputsForServer(client.name)
               updateServer({ ...client, type: 'failed' })
             }
@@ -542,7 +546,7 @@ export function useManageMCPConnections(
                 : undefined
             let registered = false
             const registerChannelHandlers = () => {
-              registeredChannelServersRef.current.add(client.name)
+              channelRegisteredServersRef.current.add(client.name)
               client.client.setNotificationHandler(
                 ChannelMessageNotificationSchema(),
                 async notification => {
@@ -599,21 +603,21 @@ export function useManageMCPConnections(
               }
             }
             switch (gate.action) {
-              case 'register':
+              case 'register': {
                 logMCPDebug(client.name, 'Channel notifications registered')
                 registerChannelHandlers()
                 registered = true
                 break
+              }
               case 'skip': {
-                const isTransientSkip =
+                const transient =
                   gate.kind === 'auth' ||
                   gate.kind === 'disabled' ||
                   gate.kind === 'capability'
-                const wasRegistered = registeredChannelServersRef.current.has(
-                  client.name,
-                )
-                if (isTransientSkip) {
-                  registeredChannelServersRef.current.delete(client.name)
+                const wasRegistered =
+                  channelRegisteredServersRef.current.has(client.name)
+                if (transient) {
+                  channelRegisteredServersRef.current.delete(client.name)
                   client.client.removeNotificationHandler(
                     'notifications/claude/channel',
                   )
@@ -938,13 +942,13 @@ export function useManageMCPConnections(
         //      cache is empty → real connect attempt → spawn/OAuth just to
         //      immediately kill it. Only connected servers need cleanup.
         for (const s of stale) {
+          channelRegisteredServersRef.current.delete(s.name)
           initialConnectAttemptsRef.current.delete(s.name)
           const timer = reconnectTimersRef.current.get(s.name)
           if (timer) {
             clearTimeout(timer)
             reconnectTimersRef.current.delete(s.name)
           }
-          registeredChannelServersRef.current.delete(s.name)
           clearInputsForServer(s.name)
           if (s.type === 'connected') {
             s.client.onclose = undefined
@@ -1053,13 +1057,34 @@ export function useManageMCPConnections(
         // Suppress claude.ai connectors that duplicate an enabled manual server.
         // Keys never collide (`slack` vs `claude.ai Slack`) so the merge below
         // won't catch this — need content-based dedup by URL signature.
-        if (Object.keys(claudeaiConfigs).length > 0) {
-          const { servers: dedupedClaudeAi } = dedupClaudeAiMcpServers(
-            claudeaiConfigs,
-            configs,
-          )
-          claudeaiConfigs = dedupedClaudeAi
-        }
+        const {
+          servers: dedupedClaudeAi,
+          suppressed: suppressedClaudeAiConnectors,
+        } = dedupClaudeAiMcpServers(claudeaiConfigs, configs)
+        setAppState(prevState => {
+          const previous = prevState.mcp.suppressedClaudeAiConnectors
+          if (
+            previous.length === suppressedClaudeAiConnectors.length &&
+            previous.every(
+              (item, index) =>
+                item.name === suppressedClaudeAiConnectors[index]?.name &&
+                item.duplicateOf ===
+                  suppressedClaudeAiConnectors[index]?.duplicateOf &&
+                item.duplicateOfScope ===
+                  suppressedClaudeAiConnectors[index]?.duplicateOfScope,
+            )
+          ) {
+            return prevState
+          }
+          return {
+            ...prevState,
+            mcp: {
+              ...prevState.mcp,
+              suppressedClaudeAiConnectors,
+            },
+          }
+        })
+        claudeaiConfigs = dedupedClaudeAi
 
         if (Object.keys(claudeaiConfigs).length > 0) {
           // Add claude.ai servers as pending immediately so they show up in UI
@@ -1234,7 +1259,8 @@ export function useManageMCPConnections(
         // Persist disabled state to disk FIRST before clearing cache
         // This is important because the onclose handler checks disk state
         setMcpServerEnabled(serverName, false)
-        registeredChannelServersRef.current.delete(serverName)
+        channelRegisteredServersRef.current.delete(serverName)
+        initialConnectAttemptsRef.current.delete(serverName)
         clearInputsForServer(serverName)
 
         // Disabling: disconnect and clean up if currently connected

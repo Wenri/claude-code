@@ -15,7 +15,10 @@ import {
   getUserContext,
   setSystemPromptInjection,
 } from '../../context.js'
-import { clearFileSuggestionCaches } from '../../hooks/fileSuggestions.js'
+import {
+  globalFileIndexCache,
+  resetFileIndexCache,
+} from '../../hooks/fileSuggestions.js'
 import { clearAllPendingCallbacks } from '../../hooks/useSwarmPermissionPoller.js'
 import { clearAllDumpState } from '../../services/api/dumpPrompts.js'
 import { resetPromptCacheBreakDetection } from '../../services/api/promptCacheBreakDetection.js'
@@ -30,6 +33,7 @@ import { clearCommandPrefixCaches } from '../../utils/bash/commands.js'
 import { resetGetMemoryFilesCache } from '../../utils/claudemd.js'
 import { clearRepositoryCaches } from '../../utils/detectRepository.js'
 import { clearResolveGitDirCache } from '../../utils/git/gitFilesystem.js'
+import { clearSessionEnvVars } from '../../utils/sessionEnvVars.js'
 
 /**
  * Clear all session-related caches.
@@ -45,7 +49,7 @@ import { clearResolveGitDirCache } from '../../utils/git/gitFilesystem.js'
  */
 export function clearSessionCaches(
   preservedAgentIds: ReadonlySet<string> = new Set(),
-  setAppState?: (updater: (previous: AppState) => AppState) => void,
+  setAppState?: (updater: (prev: AppState) => AppState) => void,
 ): void {
   const hasPreserved = preservedAgentIds.size > 0
   // Clear context caches
@@ -54,7 +58,7 @@ export function clearSessionCaches(
   getGitStatus.cache.clear?.()
   getSessionStartDate.cache.clear?.()
   // Clear file suggestion caches (for @ mentions)
-  clearFileSuggestionCaches()
+  resetFileIndexCache(globalFileIndexCache)
 
   // Clear commands/skills cache
   clearCommandsCache()
@@ -83,15 +87,15 @@ export function clearSessionCaches(
   // 'session_start' on the next getMemoryFiles() call.
   resetGetMemoryFilesCache('session_start')
 
-  setAppState?.(previous => {
+  setAppState?.(prev => {
     if (
-      previous.storedImagePaths.size === 0 &&
-      previous.imageDescriptions.size === 0
+      prev.storedImagePaths.size === 0 &&
+      prev.imageDescriptions.size === 0
     ) {
-      return previous
+      return prev
     }
     return {
-      ...previous,
+      ...prev,
       storedImagePaths: new Map(),
       imageDescriptions: new Map(),
     }
@@ -134,6 +138,8 @@ export function clearSessionCaches(
   resetAllLSPDiagnosticState()
   // Clear tracked magic docs
   clearTrackedMagicDocs()
+  // Clear session environment variables
+  clearSessionEnvVars()
   // Clear WebFetch URL cache (up to 50MB of cached page content)
   void import('../../tools/WebFetchTool/utils.js').then(
     ({ clearWebFetchCache }) => clearWebFetchCache(),

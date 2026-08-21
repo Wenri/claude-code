@@ -62,7 +62,7 @@ type PluginCliCommand =
  * tengu_plugin_command_failed before exit so dashboards can compute a
  * success rate against the corresponding success events.
  */
-function handlePluginCommandError(
+export function handlePluginCommandError(
   error: unknown,
   command: PluginCliCommand,
   plugin?: string,
@@ -161,7 +161,7 @@ export async function uninstallPlugin(
   keepData = false,
   prune = false,
   yes = false,
-): Promise<void> {
+): Promise<string> {
   try {
     const result = await uninstallPluginOp(plugin, scope, !keepData)
 
@@ -190,26 +190,19 @@ export async function uninstallPlugin(
       if (prune) {
         writeToStdout(`${figures.tick} ${result.message}\n`)
         uninstallPrinted = true
-        const pruneResult = await formatAndPruneAutoDependencies(scan, scope, {
+        return await formatAndPruneAutoDependencies(scan, scope, {
           dryRun: false,
           yes,
           deleteDataDir: !keepData,
         })
-        writeToStdout(`${pruneResult}\n`)
-      } else {
-        writeToStdout(
-          `${figures.tick} ${result.message}${formatOrphanedAutoDependenciesHint(scan.orphans, scope)}\n`,
-        )
       }
+      return `${result.message}${formatOrphanedAutoDependenciesHint(scan.orphans, scope)}`
     } catch (error) {
       logError(error)
-      writeToStdout(
-        `${uninstallPrinted ? '' : `${figures.tick} ${result.message}\n`}(${prune ? 'prune' : 'orphan scan'} failed: ${errorMessage(error)})\n`,
-      )
+      const failure = `(${prune ? 'prune' : 'orphan scan'} failed: ${errorMessage(error)})`
+      if (uninstallPrinted) return failure
+      return `${prune ? `${figures.tick} ${result.message}` : result.message}\n${failure}`
     }
-
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
   } catch (error) {
     handlePluginCommandError(error, 'uninstall', plugin)
   }
@@ -290,17 +283,14 @@ async function formatAndPruneAutoDependencies(
 export async function prunePlugins(
   scope: InstallableScope = 'user',
   { dryRun = false, yes = false }: { dryRun?: boolean; yes?: boolean } = {},
-): Promise<void> {
+): Promise<string> {
   try {
     const scan = await scanOrphanedAutoDependencies(scope)
-    const result = await formatAndPruneAutoDependencies(scan, scope, {
+    return await formatAndPruneAutoDependencies(scan, scope, {
       dryRun,
       yes,
       deleteDataDir: true,
     })
-    writeToStdout(`${result}\n`)
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0)
   } catch (error) {
     handlePluginCommandError(error, 'prune')
   }
@@ -314,33 +304,8 @@ export async function prunePlugins(
 export async function enablePlugin(
   plugin: string,
   scope?: InstallableScope,
-): Promise<string> {
-  try {
-    const result = await enablePluginOp(plugin, scope)
-
-    if (!result.success) {
-      throw new Error(result.message)
-    }
-
-    const { name, marketplace } = parsePluginIdentifier(
-      result.pluginId || plugin,
-    )
-    logEvent('tengu_plugin_enabled_cli', {
-      _PROTO_plugin_name:
-        name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-      ...(marketplace && {
-        _PROTO_marketplace_name:
-          marketplace as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-      }),
-      scope:
-        result.scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...buildPluginTelemetryFields(name, marketplace, getManagedPluginNames()),
-    })
-
-    return result.message
-  } catch (error) {
-    handlePluginCommandError(error, 'enable', plugin)
-  }
+): ReturnType<typeof enablePluginOp> {
+  return enablePluginOp(plugin, scope)
 }
 
 /**

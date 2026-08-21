@@ -8,6 +8,7 @@ export const COMMAND_ARGS_TAG = 'command-args'
 export const BASH_INPUT_TAG = 'bash-input'
 export const BASH_STDOUT_TAG = 'bash-stdout'
 export const BASH_STDERR_TAG = 'bash-stderr'
+export const BASH_EXIT_CODE_TAG = 'bash-exit-code'
 export const LOCAL_COMMAND_STDOUT_TAG = 'local-command-stdout'
 export const LOCAL_COMMAND_STDERR_TAG = 'local-command-stderr'
 export const LOCAL_COMMAND_CAVEAT_TAG = 'local-command-caveat'
@@ -17,6 +18,7 @@ export const TERMINAL_OUTPUT_TAGS = [
   BASH_INPUT_TAG,
   BASH_STDOUT_TAG,
   BASH_STDERR_TAG,
+  BASH_EXIT_CODE_TAG,
   LOCAL_COMMAND_STDOUT_TAG,
   LOCAL_COMMAND_STDERR_TAG,
   LOCAL_COMMAND_CAVEAT_TAG,
@@ -54,7 +56,6 @@ export const TEAMMATE_MESSAGE_TAG = 'teammate-message'
 // XML tag name for external channel messages
 export const CHANNEL_MESSAGE_TAG = 'channel-message'
 export const CHANNEL_TAG = 'channel'
-export const EXTERNAL_PLUGIN_INPUT_PREFIX = '<input source="'
 
 // XML tag name for cross-session UDS messages (another Claude session's inbox)
 export const CROSS_SESSION_MESSAGE_TAG = 'cross-session-message'

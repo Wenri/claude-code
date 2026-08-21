@@ -24,16 +24,11 @@ import type { EffortValue } from './effort.js'
 import { fileHistoryEnabled, fileHistoryMakeSnapshot } from './fileHistory.js'
 import { gracefulShutdownSync } from './gracefulShutdown.js'
 import { enqueue } from './messageQueueManager.js'
-import { extractTextContent } from './messages.js'
 import { resolveSkillModelOverride } from './model/model.js'
 import type { ProcessUserInputContext } from './processUserInput/processUserInput.js'
 import { processUserInput } from './processUserInput/processUserInput.js'
 import type { QueryGuard } from './QueryGuard.js'
 import { queryCheckpoint, startQueryProfile } from './queryProfiler.js'
-import {
-  endInteractionSpan,
-  runWithInteractionSpan,
-} from './telemetry/sessionTracing.js'
 import { runWithWorkload } from './workloadContext.js'
 
 function exit(): void {
@@ -74,6 +69,7 @@ type BaseExecutionParams = {
     input?: string,
     effort?: EffortValue,
     clientPlatform?: string,
+    activeSkill?: string,
   ) => Promise<void>
   setAppState: (updater: (prev: AppState) => AppState) => void
   onBeforeQuery?: (input: string, newMessages: Message[]) => Promise<boolean>
@@ -197,6 +193,7 @@ export async function handlePromptSubmit(
   // Handle exit commands by triggering the exit command instead of direct process.exit
   // Skip for remote bridge messages — "exit" typed on iOS shouldn't kill the local session
   if (
+    mode !== 'bash' &&
     !skipSlashCommands &&
     ['exit', 'quit', ':q', ':q!', ':wq', ':wq!'].includes(input.trim())
   ) {
@@ -465,13 +462,6 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
       commands.every(c => c.workload === firstWorkload)
         ? firstWorkload
         : undefined
-    const firstInput = commands[0]?.value
-    const interactionPrompt =
-      typeof firstInput === 'string'
-        ? firstInput
-        : firstInput
-          ? extractTextContent(firstInput, '\n')
-          : ''
 
     // Wrap the entire turn (processUserInput loop + onQuery) in an
     // AsyncLocalStorage context. This is the ONLY way to correctly
@@ -481,8 +471,8 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
     // context — isolated from the parent's continuation. A process-global
     // mutable slot would be clobbered at the detached closure's first
     // await by this function's synchronous return path. See state.ts.
-    await runWithWorkload(turnWorkload, () =>
-      runWithInteractionSpan(interactionPrompt, async () => {
+    await runWithWorkload(turnWorkload, async () => {
+      const processContext = makeContext()
       for (let i = 0; i < commands.length; i++) {
         const cmd = commands[i]!
         const isFirst = i === 0
@@ -491,7 +481,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           preExpansionInput: cmd.preExpansionValue,
           mode: cmd.mode,
           setToolJSX,
-          context: makeContext(),
+          context: processContext,
           pastedContents: isFirst ? cmd.pastedContents : undefined,
           messages,
           setUserInputOnProcessing: isFirst
@@ -537,11 +527,10 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
       queryCheckpoint('query_process_user_input_end')
       if (fileHistoryEnabled()) {
         queryCheckpoint('query_file_history_snapshot_start')
-        const snapshotContext = makeContext()
         newMessages.filter(selectableUserMessagesFilter).forEach(message => {
           void fileHistoryMakeSnapshot(
-            snapshotContext.getFileHistoryState,
-            snapshotContext.applyFileHistoryOp,
+            processContext.getFileHistoryState,
+            processContext.applyFileHistoryOp,
             message.uuid,
           )
         })
@@ -582,6 +571,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           primaryInput,
           effort,
           clientPlatform,
+          processContext.options.activeSkill,
         )
       } else {
         // Local slash commands that skip messages (e.g., /model, /theme).
@@ -597,7 +587,6 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
         })
         resetHistory()
         setAbortController(null)
-        endInteractionSpan()
       }
 
       // Handle nextInput from commands that want to chain (e.g., /discover activation)
@@ -608,8 +597,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           params.onInputChange(nextInput)
         }
       }
-      }),
-    )
+    }) // end runWithWorkload — ALS context naturally scoped, no finally needed
   } finally {
     // Safety net: release the guard reservation if processUserInput threw
     // or onQuery was skipped. No-op if onQuery already ran (guard is idle
@@ -622,6 +610,5 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
     // turn's resetLoadingState. Harmless when onQuery ran: setMessages grew
     // displayedMessages past the baseline, so REPL.tsx already hid it.
     setUserInputOnProcessing(undefined)
-    endInteractionSpan()
   }
 }

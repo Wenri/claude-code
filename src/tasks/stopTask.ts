@@ -8,50 +8,15 @@ import {
   TASK_NOTIFICATION_TAG,
   TOOL_USE_ID_TAG,
 } from '../constants/xml.js'
-import type { TaskStateBase } from '../Task.js'
+import type { SetAppState } from '../Task.js'
 import { getTaskByType } from '../tasks.js'
 import { asAgentId, type AgentId } from '../types/ids.js'
+import { getAgentContext } from '../utils/agentContext.js'
 import { enqueuePendingNotification } from '../utils/messageQueueManager.js'
 import { emitTaskTerminatedSdk } from '../utils/sdkEventQueue.js'
 import type { TaskRegistry } from '../utils/task/framework.js'
 import { escapeXml } from '../utils/xml.js'
 import { isLocalShellTask } from './LocalShellTask/guards.js'
-
-function enqueueTaskStoppedByMainNotification({
-  taskId,
-  toolUseId,
-  description,
-  ownerAgentId,
-}: {
-  taskId: string
-  toolUseId?: string
-  description: string
-  ownerAgentId: AgentId
-}): void {
-  const summary = `Task "${description}" was stopped by main session`
-  const toolUseIdLine = toolUseId
-    ? `\n<${TOOL_USE_ID_TAG}>${escapeXml(toolUseId)}</${TOOL_USE_ID_TAG}>`
-    : ''
-  const message = `<${TASK_NOTIFICATION_TAG}>
-<${TASK_ID_TAG}>${escapeXml(taskId)}</${TASK_ID_TAG}>${toolUseIdLine}
-<${STATUS_TAG}>stopped</${STATUS_TAG}>
-<${SUMMARY_TAG}>${escapeXml(summary)}</${SUMMARY_TAG}>
-</${TASK_NOTIFICATION_TAG}>`
-  enqueuePendingNotification({
-    value: message,
-    mode: 'task-notification',
-    priority: 'next',
-    agentId: asAgentId(ownerAgentId),
-  })
-}
-
-function canCallerStopTask(
-  callerAgentId: AgentId | undefined,
-  ownerAgentId: AgentId | undefined,
-): boolean {
-  if (callerAgentId === undefined) return true
-  return callerAgentId === ownerAgentId
-}
 
 export class StopTaskError extends Error {
   constructor(
@@ -69,7 +34,7 @@ export class StopTaskError extends Error {
 
 type StopTaskContext = {
   taskRegistry: TaskRegistry
-  setAppState: import('../Task.js').SetAppState
+  setAppState: SetAppState
   callerAgentId?: AgentId
 }
 
@@ -77,6 +42,56 @@ type StopTaskResult = {
   taskId: string
   taskType: string
   command: string | undefined
+}
+
+export function getTaskStopCallerAgentId(context: {
+  agentId?: AgentId
+}): AgentId | undefined {
+  if (context.agentId) return context.agentId
+  const agentContext = getAgentContext()
+  return agentContext ? asAgentId(agentContext.agentId) : undefined
+}
+
+function canStopTask(
+  callerAgentId: AgentId | undefined,
+  ownerAgentId: string | undefined,
+): boolean {
+  if (callerAgentId === undefined) return true
+  return callerAgentId === ownerAgentId
+}
+
+function formatStopper(agentId: string | undefined): string {
+  return agentId ?? 'main session'
+}
+
+function enqueueTaskStoppedForOwner({
+  taskId,
+  toolUseId,
+  description,
+  ownerAgentId,
+  stopperAgentId,
+}: {
+  taskId: string
+  toolUseId?: string
+  description: string
+  ownerAgentId: string
+  stopperAgentId?: AgentId
+}): void {
+  const summary = `Task "${description}" was stopped by ${formatStopper(stopperAgentId)}`
+  const toolUseIdLine = toolUseId
+    ? `\n<${TOOL_USE_ID_TAG}>${escapeXml(toolUseId)}</${TOOL_USE_ID_TAG}>`
+    : ''
+  const message = `<${TASK_NOTIFICATION_TAG}>
+<${TASK_ID_TAG}>${escapeXml(taskId)}</${TASK_ID_TAG}>${toolUseIdLine}
+<${STATUS_TAG}>stopped</${STATUS_TAG}>
+<${SUMMARY_TAG}>${escapeXml(summary)}</${SUMMARY_TAG}>
+</${TASK_NOTIFICATION_TAG}>`
+  enqueuePendingNotification({
+    value: message,
+    mode: 'task-notification',
+    priority: 'next',
+    agentId: asAgentId(ownerAgentId),
+  })
 }
 
 /**
@@ -91,9 +106,7 @@ export async function stopTask(
   context: StopTaskContext,
 ): Promise<StopTaskResult> {
   const { taskRegistry, setAppState, callerAgentId } = context
-  const task = taskRegistry.get(taskId) as
-    | (TaskStateBase & { agentId?: AgentId })
-    | undefined
+  const task = taskRegistry.get(taskId)
 
   if (!task) {
     throw new StopTaskError(`No task found with ID: ${taskId}`, 'not_found')
@@ -106,9 +119,9 @@ export async function stopTask(
     )
   }
 
-  if (!canCallerStopTask(callerAgentId, task.agentId)) {
+  if (!canStopTask(callerAgentId, task.agentId)) {
     throw new StopTaskError(
-      `Task ${taskId} is owned by ${task.agentId ?? 'main session'}; agent ${callerAgentId} cannot stop it.`,
+      `Task ${taskId} is owned by ${formatStopper(task.agentId)}; agent ${callerAgentId} cannot stop it.`,
       'not_owner',
     )
   }
@@ -143,13 +156,12 @@ export async function stopTask(
       })
     }
   }
-
   if (
     isLocalShellTask(task) &&
     task.agentId !== undefined &&
     callerAgentId !== task.agentId
   ) {
-    enqueueTaskStoppedByMainNotification({
+    enqueueTaskStoppedForOwner({
       taskId,
       toolUseId: task.toolUseId,
       description: task.description,

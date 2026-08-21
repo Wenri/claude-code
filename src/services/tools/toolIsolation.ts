@@ -33,8 +33,28 @@ const NO_ISOLATION: ToolIsolationResult = {
 
 export function createToolIsolationLatch(
   current: ToolIsolationClass | null = null,
-): { current: ToolIsolationClass | null } {
-  return { current }
+  onLatch?: (value: ToolIsolationClass) => void,
+): {
+  current: ToolIsolationClass | null
+  exemptServers?: Set<string>
+  onLatch?: (value: ToolIsolationClass) => void
+} {
+  if (current) onLatch?.(current)
+  return { current, onLatch }
+}
+
+export function addWebSearchIsolationExemptMcpServers(
+  latch: {
+    current: ToolIsolationClass | null
+    exemptServers?: Set<string>
+  },
+  servers: readonly string[],
+): void {
+  if (servers.length === 0) return
+  latch.exemptServers = new Set([
+    ...(latch.exemptServers ?? EXCLUDED_CONNECTOR_SERVERS),
+    ...servers.map(normalizeNameForMCP),
+  ])
 }
 
 function isToolIsolationEnabled(): boolean {
@@ -47,12 +67,13 @@ function isToolIsolationEnabled(): boolean {
 function classifyToolName(
   toolName: string,
   mcpServerName?: string,
+  exemptServers: ReadonlySet<string> = EXCLUDED_CONNECTOR_SERVERS,
 ): ToolIsolationClass | null {
   if (toolName === 'WebSearch' || toolName === 'WebFetch') return 'web'
   if (toolName === 'McpSearch' || toolName === 'McpFetch') return 'connectors'
   if (
     mcpServerName &&
-    !EXCLUDED_CONNECTOR_SERVERS.has(normalizeNameForMCP(mcpServerName))
+    !exemptServers.has(normalizeNameForMCP(mcpServerName))
   ) {
     return 'connectors'
   }
@@ -61,13 +82,15 @@ function classifyToolName(
 
 export function classifyToolIsolation(
   tool: Pick<Tool, 'name' | 'mcpInfo'>,
+  exemptServers: ReadonlySet<string> = EXCLUDED_CONNECTOR_SERVERS,
 ): ToolIsolationClass | null {
-  return classifyToolName(tool.name, tool.mcpInfo?.serverName)
+  return classifyToolName(tool.name, tool.mcpInfo?.serverName, exemptServers)
 }
 
 export function getIsolationClassFromMessages(
   messages: readonly Message[],
   tools: readonly Tool[],
+  exemptServers: ReadonlySet<string> = EXCLUDED_CONNECTOR_SERVERS,
 ): ToolIsolationClass | null {
   if (!getFeatureValue_CACHED_MAY_BE_STALE(ISOLATION_GATE, false)) return null
   const toolsByName = new Map(tools.map(tool => [tool.name, tool]))
@@ -79,12 +102,13 @@ export function getIsolationClassFromMessages(
       if (block.type !== 'tool_use') continue
       const tool = toolsByName.get(block.name)
       const classification = tool
-        ? classifyToolIsolation(tool)
+        ? classifyToolIsolation(tool, exemptServers)
         : classifyToolName(
             block.name,
             block.name.startsWith('mcp__')
               ? block.name.split('__')[1]
               : undefined,
+            exemptServers,
           )
       if (classification !== null) return classification
     }
@@ -104,7 +128,7 @@ export function checkToolIsolation(
 ): ToolIsolationResult {
   const latch = context.isolationLatch
   if (!latch || !isToolIsolationEnabled()) return NO_ISOLATION
-  const classifiedAs = classifyToolIsolation(tool)
+  const classifiedAs = classifyToolIsolation(tool, latch.exemptServers)
   if (!classifiedAs) return NO_ISOLATION
   const activeLatch = latch.current
   if (activeLatch && activeLatch !== classifiedAs) {
@@ -114,7 +138,10 @@ export function checkToolIsolation(
       activeLatch,
     }
   }
-  if (!activeLatch) latch.current = classifiedAs
+  if (!activeLatch) {
+    latch.current = classifiedAs
+    latch.onLatch?.(classifiedAs)
+  }
   return {
     denyMessage: null,
     classifiedAs,

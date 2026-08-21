@@ -139,19 +139,6 @@ function getAutoMemDirname(): string {
 }
 
 /**
- * Whether the compact, frontmatter-stamped memory layout is active.
- *
- * This gate is part of the memory path identity: toggling it must invalidate
- * the memoized path so callers move between `memory/` and `tiny_memory/`.
- */
-export function isTinyMemoryEnabled(): boolean {
-  return getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_billiard_aviary',
-    false,
-  )
-}
-
-/**
  * Normalize and validate a candidate auto-memory directory path.
  *
  * SECURITY: Rejects paths that would be dangerous as a read-allowlist root
@@ -287,9 +274,6 @@ export const getAutoMemPath = memoize(
       return override
     }
     const projectsDir = join(getMemoryBaseDir(), 'projects')
-    const memoryDirName = isTinyMemoryEnabled()
-      ? TINY_MEM_DIRNAME
-      : AUTO_MEM_DIRNAME
     return (
       join(projectsDir, sanitizePath(getAutoMemBase()), getAutoMemDirname()) +
       sep

@@ -133,7 +133,16 @@ export function resetYankState(): void {
 // Pre-compiled regex patterns for Vim word detection (avoid creating in hot loops)
 export const VIM_WORD_CHAR_REGEX = /^[\p{L}\p{N}\p{M}_]$/u
 export const WHITESPACE_REGEX = /\s/
-const NUMBER_CHAR_REGEX = /\p{N}/u
+
+const INPUT_PLACEHOLDER_PATTERN =
+  '\\[(?:Pasted text|Image|\\.\\.\\.Truncated text) #\\d+(?: \\+\\d+ lines)?\\.*\\]'
+const INPUT_PLACEHOLDER_END_REGEX = new RegExp(
+  INPUT_PLACEHOLDER_PATTERN + '$',
+)
+const INPUT_PLACEHOLDER_START_REGEX = new RegExp(
+  '^' + INPUT_PLACEHOLDER_PATTERN,
+)
+const INPUT_PLACEHOLDER_GLOBAL_REGEX = new RegExp(INPUT_PLACEHOLDER_PATTERN, 'g')
 
 // Exported helper functions for Vim character classification
 export const isVimWordChar = (ch: string): boolean =>
@@ -353,7 +362,7 @@ export class Cursor {
   left(): Cursor {
     if (this.offset === 0) return this
 
-    const chip = this.imageRefEndingAt(this.offset)
+    const chip = this.placeholderEndingAt(this.offset)
     if (chip) return new Cursor(this.measuredText, chip.start)
 
     const prevOffset = this.measuredText.prevOffset(this.offset)
@@ -363,7 +372,7 @@ export class Cursor {
   right(): Cursor {
     if (this.offset >= this.text.length) return this
 
-    const chip = this.imageRefStartingAt(this.offset)
+    const chip = this.placeholderStartingAt(this.offset)
     if (chip) return new Cursor(this.measuredText, chip.end)
 
     const nextOffset = this.measuredText.nextOffset(this.offset)
@@ -371,35 +380,40 @@ export class Cursor {
   }
 
   /**
-   * If an [Image #N] chip ends at `offset`, return its bounds. Used by left()
-   * to hop the cursor over the chip instead of stepping into it.
+   * If an input placeholder ends at `offset`, return its bounds. Used by
+   * left() to hop the cursor over it instead of stepping into it.
    */
-  imageRefEndingAt(offset: number): { start: number; end: number } | null {
-    const m = this.text.slice(0, offset).match(/\[Image #\d+\]$/)
+  placeholderEndingAt(offset: number): { start: number; end: number } | null {
+    const m = this.text.slice(0, offset).match(INPUT_PLACEHOLDER_END_REGEX)
     return m ? { start: offset - m[0].length, end: offset } : null
   }
 
-  imageRefStartingAt(offset: number): { start: number; end: number } | null {
-    const m = this.text.slice(offset).match(/^\[Image #\d+\]/)
+  placeholderStartingAt(
+    offset: number,
+  ): { start: number; end: number } | null {
+    const m = this.text.slice(offset).match(INPUT_PLACEHOLDER_START_REGEX)
     return m ? { start: offset, end: offset + m[0].length } : null
   }
 
-  /**
-   * If offset lands strictly inside an [Image #N] chip, snap it to the given
-   * boundary. Used by word-movement methods so Ctrl+W / Alt+D never leave a
-   * partial chip.
-   */
-  snapOutOfImageRef(offset: number, toward: 'start' | 'end'): number {
-    const re = /\[Image #\d+\]/g
-    let m
-    while ((m = re.exec(this.text)) !== null) {
+  placeholderContaining(
+    offset: number,
+  ): { start: number; end: number } | null {
+    for (const m of this.text.matchAll(INPUT_PLACEHOLDER_GLOBAL_REGEX)) {
       const start = m.index
       const end = start + m[0].length
       if (offset > start && offset < end) {
-        return toward === 'start' ? start : end
+        return { start, end }
       }
+      if (start >= offset) break
     }
-    return offset
+    return null
+  }
+
+  /** Keep cursor and operator motions from splitting an input placeholder. */
+  snapOutOfPlaceholder(offset: number, toward: 'start' | 'end'): number {
+    const placeholder = this.placeholderContaining(offset)
+    if (!placeholder) return offset
+    return toward === 'start' ? placeholder.start : placeholder.end
   }
 
   up(): Cursor {
@@ -623,13 +637,21 @@ export class Cursor {
       return this
     }
 
+    const placeholder =
+      this.placeholderStartingAt(this.offset) ??
+      this.placeholderContaining(this.offset)
+    if (placeholder) {
+      return new Cursor(this.measuredText, placeholder.end)
+    }
+
     // Use Intl.Segmenter for proper word boundary detection (including CJK)
     const wordBoundaries = this.measuredText.getWordBoundaries()
 
     // Find the next word start boundary after current position
     for (const boundary of wordBoundaries) {
       if (boundary.isWordLike && boundary.start > this.offset) {
-        return new Cursor(this.measuredText, boundary.start)
+        const offset = this.snapOutOfPlaceholder(boundary.start, 'end')
+        return new Cursor(this.measuredText, offset)
       }
     }
 
@@ -644,6 +666,10 @@ export class Cursor {
 
     // Use Intl.Segmenter for proper word boundary detection (including CJK)
     const wordBoundaries = this.measuredText.getWordBoundaries()
+    const placeholderAdjustedEnd = (offset: number): number => {
+      const placeholder = this.placeholderContaining(offset)
+      return placeholder ? placeholder.end - 1 : offset
+    }
 
     // Find the current word boundary we're in
     for (const boundary of wordBoundaries) {
@@ -652,7 +678,10 @@ export class Cursor {
       // If we're inside this word but NOT at the last character
       if (this.offset >= boundary.start && this.offset < boundary.end - 1) {
         // Move to end of this word (last character position)
-        return new Cursor(this.measuredText, boundary.end - 1)
+        return new Cursor(
+          this.measuredText,
+          placeholderAdjustedEnd(boundary.end - 1),
+        )
       }
 
       // If we're at the last character of a word (end - 1), find the next word's end
@@ -660,7 +689,10 @@ export class Cursor {
         // Find next word
         for (const nextBoundary of wordBoundaries) {
           if (nextBoundary.isWordLike && nextBoundary.start > this.offset) {
-            return new Cursor(this.measuredText, nextBoundary.end - 1)
+            return new Cursor(
+              this.measuredText,
+              placeholderAdjustedEnd(nextBoundary.end - 1),
+            )
           }
         }
         return this
@@ -670,7 +702,10 @@ export class Cursor {
     // If not in a word, find the next word and go to its end
     for (const boundary of wordBoundaries) {
       if (boundary.isWordLike && boundary.start > this.offset) {
-        return new Cursor(this.measuredText, boundary.end - 1)
+        return new Cursor(
+          this.measuredText,
+          placeholderAdjustedEnd(boundary.end - 1),
+        )
       }
     }
 
@@ -680,6 +715,15 @@ export class Cursor {
   prevWord(): Cursor {
     if (this.isAtStart()) {
       return this
+    }
+
+    const endingPlaceholder = this.placeholderEndingAt(this.offset)
+    if (endingPlaceholder) {
+      return new Cursor(this.measuredText, endingPlaceholder.start)
+    }
+    const containingPlaceholder = this.placeholderContaining(this.offset)
+    if (containingPlaceholder) {
+      return new Cursor(this.measuredText, containingPlaceholder.start)
     }
 
     // Use Intl.Segmenter for proper word boundary detection (including CJK)
@@ -696,7 +740,8 @@ export class Cursor {
       if (boundary.start < this.offset) {
         // If we're inside this word (not at the start), go to its start
         if (this.offset > boundary.start && this.offset <= boundary.end) {
-          return new Cursor(this.measuredText, boundary.start)
+          const offset = this.snapOutOfPlaceholder(boundary.start, 'start')
+          return new Cursor(this.measuredText, offset)
         }
         // Otherwise, remember this as a candidate for previous word
         prevWordStart = boundary.start
@@ -704,7 +749,8 @@ export class Cursor {
     }
 
     if (prevWordStart !== null) {
-      return new Cursor(this.measuredText, prevWordStart)
+      const offset = this.snapOutOfPlaceholder(prevWordStart, 'start')
+      return new Cursor(this.measuredText, offset)
     }
 
     return new Cursor(this.measuredText, 0)
@@ -718,6 +764,20 @@ export class Cursor {
   nextVimWord(): Cursor {
     if (this.isAtEnd()) {
       return this
+    }
+
+    const placeholder =
+      this.placeholderStartingAt(this.offset) ??
+      this.placeholderContaining(this.offset)
+    if (placeholder) {
+      let offset = placeholder.end
+      while (
+        offset < this.text.length &&
+        WHITESPACE_REGEX.test(this.graphemeAt(offset))
+      ) {
+        offset = this.measuredText.nextOffset(offset)
+      }
+      return new Cursor(this.measuredText, offset)
     }
 
     let pos = this.offset
@@ -745,12 +805,19 @@ export class Cursor {
       pos = advance(pos)
     }
 
-    return new Cursor(this.measuredText, pos)
+    return new Cursor(this.measuredText, this.snapOutOfPlaceholder(pos, 'end'))
   }
 
   endOfVimWord(): Cursor {
     if (this.isAtEnd()) {
       return this
+    }
+
+    const placeholder =
+      this.placeholderStartingAt(this.offset) ??
+      this.placeholderContaining(this.offset)
+    if (placeholder && this.offset < placeholder.end - 1) {
+      return new Cursor(this.measuredText, placeholder.end - 1)
     }
 
     const text = this.text
@@ -791,12 +858,25 @@ export class Cursor {
       }
     }
 
+    const endingPlaceholder =
+      this.placeholderStartingAt(pos) ?? this.placeholderContaining(pos)
+    if (endingPlaceholder) pos = endingPlaceholder.end - 1
+
     return new Cursor(this.measuredText, pos)
   }
 
   prevVimWord(): Cursor {
     if (this.isAtStart()) {
       return this
+    }
+
+    const endingPlaceholder = this.placeholderEndingAt(this.offset)
+    if (endingPlaceholder) {
+      return new Cursor(this.measuredText, endingPlaceholder.start)
+    }
+    const containingPlaceholder = this.placeholderContaining(this.offset)
+    if (containingPlaceholder) {
+      return new Cursor(this.measuredText, containingPlaceholder.start)
     }
 
     let pos = this.offset
@@ -828,7 +908,10 @@ export class Cursor {
       }
     }
 
-    return new Cursor(this.measuredText, pos)
+    return new Cursor(
+      this.measuredText,
+      this.snapOutOfPlaceholder(pos, 'start'),
+    )
   }
 
   nextWORD(): Cursor {
@@ -850,6 +933,13 @@ export class Cursor {
       return this
     }
 
+    const placeholder =
+      this.placeholderStartingAt(this.offset) ??
+      this.placeholderContaining(this.offset)
+    if (placeholder && this.offset < placeholder.end - 1) {
+      return new Cursor(this.measuredText, placeholder.end - 1)
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cursor: Cursor = this
 
@@ -868,6 +958,10 @@ export class Cursor {
     // If we're on a whitespace character, find the next WORD
     if (cursor.isOverWhitespace()) {
       cursor = cursor.nextWORD()
+      const nextPlaceholder = cursor.placeholderStartingAt(cursor.offset)
+      if (nextPlaceholder) {
+        return new Cursor(cursor.measuredText, nextPlaceholder.end - 1)
+      }
     }
 
     // Now move to the end of the current WORD
@@ -977,7 +1071,7 @@ export class Cursor {
     if (this.isAtStart()) {
       return { cursor: this, killed: '' }
     }
-    const target = this.snapOutOfImageRef(this.prevWord().offset, 'start')
+    const target = this.snapOutOfPlaceholder(this.prevWord().offset, 'start')
     const prevWordCursor = new Cursor(this.measuredText, target)
     const killed = this.text.slice(prevWordCursor.offset, this.offset)
     return { cursor: prevWordCursor.modifyText(this), killed }
@@ -997,7 +1091,7 @@ export class Cursor {
   deleteTokenBefore(): Cursor | null {
     // Cursor at chip.start is the "selected" state — backspace deletes the
     // chip forward, not the char before it.
-    const chipAfter = this.imageRefStartingAt(this.offset)
+    const chipAfter = this.placeholderStartingAt(this.offset)
     if (chipAfter) {
       const end =
         this.text[chipAfter.end] === ' ' ? chipAfter.end + 1 : chipAfter.end
@@ -1033,7 +1127,7 @@ export class Cursor {
       return this
     }
 
-    const target = this.snapOutOfImageRef(this.nextWord().offset, 'end')
+    const target = this.snapOutOfPlaceholder(this.nextWord().offset, 'end')
     return this.modifyText(new Cursor(this.measuredText, target))
   }
 
@@ -1238,12 +1332,10 @@ export class MeasuredText {
     if (!this.wordBoundariesCache) {
       this.wordBoundariesCache = []
       for (const segment of getWordSegmenter().segment(this.text)) {
-        const isWordLike =
-          segment.isWordLike || NUMBER_CHAR_REGEX.test(segment.segment)
         this.wordBoundariesCache.push({
           start: segment.index,
           end: segment.index + segment.segment.length,
-          isWordLike,
+          isWordLike: segment.isWordLike ?? false,
         })
       }
     }

@@ -1,7 +1,7 @@
 import { c as _c } from "react/compiler-runtime";
 import { feature } from 'bun:bundle';
 import figures from 'figures';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { stringWidth } from '../ink/stringWidth.js';
 import { Box, Text } from '../ink.js';
@@ -182,13 +182,7 @@ export function CompanionSprite(): React.ReactNode {
     columns
   } = useTerminalSize();
   const [tick, setTick] = useState(0);
-  const [{ startTick, forReaction }, setReactionStart] = useState({
-    startTick: tick,
-    forReaction: reaction
-  });
-  if (reaction !== forReaction) {
-    setReactionStart({ startTick: tick, forReaction: reaction });
-  }
+  const lastSpokeTick = useRef(0);
   // Sync-during-render (not useEffect) so the first post-pet render already
   // has petStartTick=tick and petAge=0 — otherwise frame 0 is skipped.
   const [{
@@ -210,6 +204,7 @@ export function CompanionSprite(): React.ReactNode {
   }, []);
   useEffect(() => {
     if (!reaction) return;
+    lastSpokeTick.current = tick;
     const timer = setTimeout(setA => setA((prev: AppState) => prev.companionReaction === undefined ? prev : {
       ...prev,
       companionReaction: undefined
@@ -222,7 +217,7 @@ export function CompanionSprite(): React.ReactNode {
   if (!companion || getGlobalConfig().companionMuted) return null;
   const color = RARITY_COLORS[companion.rarity];
   const colWidth = spriteColWidth(stringWidth(companion.name));
-  const bubbleAge = reaction ? tick - startTick : 0;
+  const bubbleAge = reaction ? tick - lastSpokeTick.current : 0;
   const fading = reaction !== undefined && bubbleAge >= BUBBLE_SHOW - FADE_WINDOW;
   const petAge = petAt ? tick - petStartTick : Infinity;
   const petting = petAge * TICK_MS < PET_BURST_MS;

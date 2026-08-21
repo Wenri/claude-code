@@ -5,7 +5,6 @@ import type { Tools, ToolPermissionContext } from '../Tool.js'
 import { assembleToolPool } from '../tools.js'
 import { useAppState } from '../state/AppState.js'
 import { mergeAndFilterTools } from '../utils/toolPool.js'
-import { setReplBridgeActive } from '../bootstrap/state.js'
 
 /**
  * React hook that assembles the full tool pool for the REPL.
@@ -28,11 +27,14 @@ export function useMergedTools(
   const replBridgeOutboundOnly = useAppState(
     state => state.replBridgeOutboundOnly,
   )
+  const skillTools = useAppState(state => state.skillTools)
   setReplBridgeActive(replBridgeEnabled && !replBridgeOutboundOnly)
   return useMemo(() => {
     // assembleToolPool is the shared function that both REPL and runAgent use.
     // It handles: getTools() + MCP deny-rule filtering + dedup + MCP CLI exclusion.
-    const assembled = assembleToolPool(toolPermissionContext, mcpTools)
+    const assembled = assembleToolPool(toolPermissionContext, mcpTools, {
+      skillTools,
+    })
 
     return mergeAndFilterTools(
       initialTools,
@@ -42,6 +44,7 @@ export function useMergedTools(
   }, [
     initialTools,
     mcpTools,
+    skillTools,
     toolPermissionContext,
     replBridgeEnabled,
     replBridgeOutboundOnly,

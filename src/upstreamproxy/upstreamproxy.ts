@@ -27,7 +27,7 @@ import { logForDebugging } from '../utils/debug.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
 import { isENOENT } from '../utils/errors.js'
 import { getSessionIngressAuthToken } from '../utils/sessionIngressAuth.js'
-import { startUpstreamProxyRelay } from './relay.js'
+import { startEgressGatewayRelay } from './relay.js'
 
 export const SESSION_TOKEN_PATH = '/run/ccr/session_token'
 const SYSTEM_CA_BUNDLE = '/etc/ssl/certs/ca-certificates.crt'
@@ -61,13 +61,18 @@ const NO_PROXY_LIST = [
   'proxy.golang.org',
 ].join(',')
 
-type UpstreamProxyState = {
+type EgressGatewayState = {
   enabled: boolean
   port?: number
   caBundlePath?: string
 }
 
-let state: UpstreamProxyState = { enabled: false }
+let state: EgressGatewayState = { enabled: false }
+
+const GATEWAY_BASES = [
+  '/v1/code/egress/gateway',
+  '/v1/code/upstreamproxy',
+] as const
 
 /**
  * Initialize upstreamproxy. Called once from init.ts. Safe to call when the
@@ -75,14 +80,13 @@ let state: UpstreamProxyState = { enabled: false }
  *
  * Overridable paths are for tests; production uses the defaults.
  */
-export async function initUpstreamProxy(opts?: {
+export async function initEgressGateway(opts?: {
   tokenPath?: string
   systemCaPath?: string
   caBundlePath?: string
-  awsConfigPath?: string
   ccrBaseUrl?: string
   awsConfigPath?: string
-}): Promise<UpstreamProxyState> {
+}): Promise<EgressGatewayState> {
   if (!isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)) {
     return state
   }
@@ -90,14 +94,17 @@ export async function initUpstreamProxy(opts?: {
   // warm) and injects this env var via StartupContext.EnvironmentVariables.
   // Every CCR session is a fresh container with no GB cache, so a client-side
   // GB check here always returned the default (false).
-  if (!isEnvTruthy(process.env.CCR_UPSTREAM_PROXY_ENABLED)) {
+  if (
+    !isEnvTruthy(process.env.CCR_EGRESS_GATEWAY_ENABLED) &&
+    !isEnvTruthy(process.env.CCR_UPSTREAM_PROXY_ENABLED)
+  ) {
     return state
   }
 
   const sessionId = process.env.CLAUDE_CODE_REMOTE_SESSION_ID
   if (!sessionId) {
     logForDebugging(
-      '[upstreamproxy] CLAUDE_CODE_REMOTE_SESSION_ID unset; proxy disabled',
+      '[egress-gateway] CLAUDE_CODE_REMOTE_SESSION_ID unset; proxy disabled',
       { level: 'warn' },
     )
     return state
@@ -108,11 +115,11 @@ export async function initUpstreamProxy(opts?: {
   const tokenFileExisted = tokenResult.existed
   const token = tokenResult.token ?? getSessionIngressAuthToken()
   if (!token) {
-    logForDebugging('[upstreamproxy] no session token; proxy disabled')
+    logForDebugging('[egress-gateway] no session token; proxy disabled')
     return state
   }
   logForDebugging(
-    `[upstreamproxy] token via ${tokenFileExisted ? tokenPath : 'sessionIngressAuth'}`,
+    `[egress-gateway] token via ${tokenFileExisted ? tokenPath : 'sessionIngressAuth'}`,
   )
 
   setNonDumpable()
@@ -128,35 +135,35 @@ export async function initUpstreamProxy(opts?: {
   const caBundlePath =
     opts?.caBundlePath ?? join(homedir(), '.ccr', 'ca-bundle.crt')
 
-  const caOk = await downloadCaBundle(
+  const caResult = await downloadCaBundle(
     baseUrl,
     opts?.systemCaPath ?? SYSTEM_CA_BUNDLE,
     caBundlePath,
   )
-  if (!caOk) return state
+  if (!caResult.ok) return state
 
   await ensureAwsConfig(
     opts?.awsConfigPath ?? join(homedir(), '.aws', 'config'),
   )
 
   try {
-    const wsUrl = baseUrl.replace(/^http/, 'ws') + '/v1/code/upstreamproxy/ws'
-    const relay = await startUpstreamProxyRelay({ wsUrl, sessionId, token })
+    const wsUrl = baseUrl.replace(/^http/, 'ws') + caResult.gatewayBase + '/ws'
+    const relay = await startEgressGatewayRelay({ wsUrl, sessionId, token })
     registerCleanup(async () => relay.stop())
     state = { enabled: true, port: relay.port, caBundlePath }
-    logForDebugging(`[upstreamproxy] enabled on 127.0.0.1:${relay.port}`)
+    logForDebugging(`[egress-gateway] enabled on 127.0.0.1:${relay.port}`)
     // Only unlink after the listener is up: if CA download or listen()
     // fails, a supervisor restart can retry with the token still on disk.
     if (tokenFileExisted) {
       await unlink(tokenPath).catch(() => {
-        logForDebugging('[upstreamproxy] token file unlink failed', {
+        logForDebugging('[egress-gateway] token file unlink failed', {
           level: 'warn',
         })
       })
     }
   } catch (err) {
     logForDebugging(
-      `[upstreamproxy] relay start failed: ${err instanceof Error ? err.message : String(err)}; proxy disabled`,
+      `[egress-gateway] relay start failed: ${err instanceof Error ? err.message : String(err)}; proxy disabled`,
       { level: 'warn' },
     )
   }
@@ -169,7 +176,7 @@ export async function initUpstreamProxy(opts?: {
  * disabled. Called from subprocessEnv() so Bash/MCP/LSP/hooks all inherit
  * the same recipe.
  */
-export function getUpstreamProxyEnv(): Record<string, string> {
+export function getEgressGatewayEnv(): Record<string, string> {
   if (!state.enabled || !state.port || !state.caBundlePath) {
     // Child CLI processes can't re-initialize the relay (token file was
     // unlinked by the parent), but the parent's relay is still running and
@@ -219,7 +226,7 @@ export function getUpstreamProxyEnv(): Record<string, string> {
 }
 
 /** Test-only: reset module state between test cases. */
-export function resetUpstreamProxyForTests(): void {
+export function resetEgressGatewayForTests(): void {
   state = { enabled: false }
 }
 
@@ -232,7 +239,7 @@ async function readToken(
   } catch (err) {
     if (isENOENT(err)) return { existed: false, token: null }
     logForDebugging(
-      `[upstreamproxy] token read failed: ${err instanceof Error ? err.message : String(err)}`,
+      `[egress-gateway] token read failed: ${err instanceof Error ? err.message : String(err)}`,
       { level: 'warn' },
     )
     return { existed: false, token: null }
@@ -259,7 +266,7 @@ function setNonDumpable(): void {
     const rc = lib.symbols.prctl(PR_SET_DUMPABLE, 0n, 0n, 0n, 0n)
     if (rc !== 0) {
       logForDebugging(
-        '[upstreamproxy] prctl(PR_SET_DUMPABLE,0) returned nonzero',
+        '[egress-gateway] prctl(PR_SET_DUMPABLE,0) returned nonzero',
         {
           level: 'warn',
         },
@@ -267,7 +274,7 @@ function setNonDumpable(): void {
     }
   } catch (err) {
     logForDebugging(
-      `[upstreamproxy] prctl unavailable: ${err instanceof Error ? err.message : String(err)}`,
+      `[egress-gateway] prctl unavailable: ${err instanceof Error ? err.message : String(err)}`,
       { level: 'warn' },
     )
   }
@@ -277,33 +284,39 @@ async function downloadCaBundle(
   baseUrl: string,
   systemCaPath: string,
   outPath: string,
-): Promise<boolean> {
-  try {
-    // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-    const resp = await fetch(`${baseUrl}/v1/code/upstreamproxy/ca-cert`, {
-      // Bun has no default fetch timeout — a hung endpoint would block CLI
-      // startup forever. 5s is generous for a small PEM.
-      signal: AbortSignal.timeout(5000),
-    })
-    if (!resp.ok) {
+): Promise<{ ok: false } | { ok: true; gatewayBase: string }> {
+  const signal = AbortSignal.timeout(5000)
+  for (const gatewayBase of GATEWAY_BASES) {
+    try {
+      // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
+      const response = await fetch(`${baseUrl}${gatewayBase}/ca-cert`, {
+        signal,
+      })
+      if (response.status === 404 || response.status >= 500) continue
+      if (!response.ok) {
+        logForDebugging(
+          `[egress-gateway] ca-cert fetch ${response.status}; proxy disabled`,
+          { level: 'warn' },
+        )
+        return { ok: false }
+      }
+      const ccrCa = await response.text()
+      const systemCa = await readFile(systemCaPath, 'utf8').catch(() => '')
+      await mkdir(join(outPath, '..'), { recursive: true })
+      await writeFile(outPath, systemCa + '\n' + ccrCa, 'utf8')
+      return { ok: true, gatewayBase }
+    } catch (error) {
       logForDebugging(
-        `[upstreamproxy] ca-cert fetch ${resp.status}; proxy disabled`,
+        `[egress-gateway] ca-cert ${gatewayBase} failed: ${error instanceof Error ? error.message : String(error)}`,
         { level: 'warn' },
       )
-      return false
     }
-    const ccrCa = await resp.text()
-    const systemCa = await readFile(systemCaPath, 'utf8').catch(() => '')
-    await mkdir(join(outPath, '..'), { recursive: true })
-    await writeFile(outPath, systemCa + '\n' + ccrCa, 'utf8')
-    return true
-  } catch (err) {
-    logForDebugging(
-      `[upstreamproxy] ca-cert download failed: ${err instanceof Error ? err.message : String(err)}; proxy disabled`,
-      { level: 'warn' },
-    )
-    return false
   }
+  logForDebugging(
+    '[egress-gateway] ca-cert fetch exhausted; proxy disabled',
+    { level: 'warn' },
+  )
+  return { ok: false }
 }
 
 async function ensureAwsConfig(path: string): Promise<void> {
@@ -320,7 +333,7 @@ s3 =
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'EEXIST') return
     logForDebugging(
-      `[upstreamproxy] aws config write failed: ${error instanceof Error ? error.message : String(error)}`,
+      `[egress-gateway] aws config write failed: ${error instanceof Error ? error.message : String(error)}`,
       { level: 'warn' },
     )
   }

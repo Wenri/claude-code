@@ -1,4 +1,5 @@
 import {
+  access,
   lstat,
   mkdir,
   readFile,
@@ -15,6 +16,7 @@ import chokidar, { type FSWatcher } from 'chokidar'
 import { logEvent } from '../services/analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { bgSupervisorNoun } from '../utils/agentsFleet.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { logForDebugging } from '../utils/debug.js'
 import { getErrnoCode, isENOENT } from '../utils/errors.js'
 import {
@@ -69,9 +71,8 @@ import { connectPtyHost, type PtyClient } from './ptyClient.js'
 import { killWorkerThroughPty } from './orphanReaper.js'
 import { controlPeerMatchesCurrentUser } from './peerCredentials.js'
 import {
-  killSparePty,
+  claimSpare,
   reapOrphanSpares,
-  sendSpareClaim,
   spawnSpare,
   type SpareProcess,
 } from './spare.js'
@@ -242,9 +243,11 @@ function launchArgs(
   dispatch: Dispatch,
   attempt: number,
   currentTranscriptValid: boolean,
+  resumeSessionId: string,
+  respawnFlags: string[],
 ): string[] {
   if (attempt > 1 && currentTranscriptValid) {
-    return ['--resume', dispatch.sessionId, ...dispatch.respawnFlags]
+    return ['--resume', resumeSessionId, ...respawnFlags]
   }
   if (dispatch.launch.mode === 'resume') {
     return [
@@ -402,7 +405,8 @@ function connectRendezvous(
       try {
         socket.write(`${JSON.stringify(message)}\n`)
         return true
-      } catch {
+      } catch (error) {
+        logForDebugging(`[bg-rv] send failed: ${String(error)}`)
         return false
       }
     },
@@ -454,6 +458,7 @@ export class BackgroundHandle {
     this.attempt = adopted?.attempt ?? 0
     this.cols = dispatch.cols ?? 200
     this.rows = dispatch.rows ?? 50
+    if (adopted) this.lastInputAt = Date.now()
     this.record = {
       short: dispatch.short,
       nonce: dispatch.nonce,
@@ -513,19 +518,18 @@ export class BackgroundHandle {
     handle.attempt = 1
     handle.ptySocket = options.ptySockPath
     handle.rendezvousSocket = getRendezvousSocketPath(dispatch.short)
-    handle.cols = 0
     handle.wirePty(connectPtyHost(options.ptySockPath, options.pid))
+    handle.resize(dispatch.cols ?? 200, dispatch.rows ?? 50)
     handle.connectRendezvous()
     void getProcessStartTokenAsync(options.pid).then((token) => {
       if (
-        !token ||
         handle.record.pid !== options.pid ||
         handle.isDetached ||
         handle.record.outcome
       ) {
         return
       }
-      handle.procStart = token
+      if (token) handle.procStart = token
       handle.patch({ pid: options.pid })
     })
     return handle
@@ -536,14 +540,22 @@ export class BackgroundHandle {
     auth?: AuthSnapshot,
   ): { env: NodeJS.ProcessEnv; argv: string[] } {
     const jobDir = getJobDir(dispatch.short)
+    const env = jobEnvironment(
+      dispatch,
+      jobDir,
+      getRendezvousSocketPath(dispatch.short),
+      auth,
+    )
+    if (dispatch.reattachEnv) Object.assign(env, dispatch.reattachEnv)
     return {
-      env: jobEnvironment(
+      env,
+      argv: launchArgs(
         dispatch,
-        jobDir,
-        getRendezvousSocketPath(dispatch.short),
-        auth,
+        1,
+        false,
+        dispatch.sessionId,
+        dispatch.respawnFlags,
       ),
-      argv: launchArgs(dispatch, 1, false),
     }
   }
 
@@ -641,6 +653,10 @@ export class BackgroundHandle {
 
   decModeSnapshot(): number[] {
     return this.decModes.snapshot()
+  }
+
+  noteActivity(): void {
+    this.lastInputAt = Date.now()
   }
 
   write(value: string): void {
@@ -876,11 +892,16 @@ export class BackgroundHandle {
       dispatch.launch.mode === 'resume' ? dispatch.launch.sessionId : undefined
     let currentTranscriptValid = false
     let sourceTranscriptMissing = false
+    let resumeSessionId = dispatch.sessionId
+    let respawnFlags = dispatch.respawnFlags
     if (this.attempt > 1) {
+      const state = await readJobState(jobDir)
+      resumeSessionId = state?.resumeSessionId ?? dispatch.sessionId
+      respawnFlags = state?.respawnFlags ?? dispatch.respawnFlags
       const cwd = await canonicalizePath(dispatch.cwd)
       const currentTranscript = join(
         getProjectDir(cwd),
-        `${dispatch.sessionId}.jsonl`,
+        `${resumeSessionId}.jsonl`,
       )
       currentTranscriptValid = await hasTranscriptMessages(currentTranscript)
       sourceTranscriptMissing =
@@ -918,7 +939,13 @@ export class BackgroundHandle {
       return
     }
     const launcher = pinnedWorkerLauncher()
-    const args = launchArgs(dispatch, this.attempt, currentTranscriptValid)
+    const args = launchArgs(
+      dispatch,
+      this.attempt,
+      currentTranscriptValid,
+      resumeSessionId,
+      respawnFlags,
+    )
     const env = jobEnvironment(
       dispatch,
       jobDir,
@@ -929,8 +956,9 @@ export class BackgroundHandle {
       env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN = '1'
     }
     if (reattachEnv) Object.assign(env, reattachEnv)
+    let pty: PtyClient
     try {
-      const pty = this.spawnPty(
+      pty = this.spawnPty(
         launcher.cmd,
         [...launcher.prefixArgs, ...args],
         {
@@ -941,41 +969,59 @@ export class BackgroundHandle {
           ptySock: this.ptySocket,
         },
       )
-      if (process.platform === 'win32') {
-        void mkdir(getPtyPidDir(), { recursive: true })
-          .then(() => writeFile(getPtyPidPath(dispatch.short), String(pty.pid)))
-          .catch(() => {})
-      }
-      this.wirePty(pty)
-      this.rendezvous?.close()
-      this.rendezvous = undefined
-      this.connectRendezvous()
-      this.patch({
-        pid: pty.pid,
-        attempt: this.attempt,
-        state: this.attempt > 1 ? 'resuming' : 'running',
-        detail: '',
-        cliVersion: MACRO.VERSION,
-      })
-      logEvent('tengu_bg_worker_spawn', {
-        attempt: this.attempt,
-        source: this.dispatch.source,
-      })
-      void getProcessStartTokenAsync(pty.pid).then((token) => {
-        if (
-          !token ||
-          this.record.pid !== pty.pid ||
-          this.isDetached ||
-          this.record.outcome
-        ) {
+    } catch (error) {
+      if (isENOENT(error)) {
+        const cwdExists = await access(dispatch.cwd).then(
+          () => true,
+          () => false,
+        )
+        if (this.record.outcome) return
+        if (!cwdExists) {
+          const detail = `working directory no longer exists: ${dispatch.cwd}`
+          logEvent('tengu_bg_spawn_cwd_gone', { attempt: this.attempt })
+          this.patch({ state: 'crashed', detail })
+          const output = `\r\n\x1b[2m[${detail} — this job cannot be respawned]\x1b[0m\r\n`
+          this.pushRing(output)
+          this.onStream.emit(output)
+          this.finish('crashed')
           return
         }
-        this.procStart = token
-        this.patch({ pid: pty.pid })
-      })
-    } catch (error) {
+      }
       this.scheduleRespawn(String(error))
+      return
     }
+    if (process.platform === 'win32') {
+      void mkdir(getPtyPidDir(), { recursive: true })
+        .then(() => writeFile(getPtyPidPath(dispatch.short), String(pty.pid)))
+        .catch(() => {})
+    }
+    this.wirePty(pty)
+    this.rendezvous?.close()
+    this.rendezvous = undefined
+    this.connectRendezvous()
+    this.patch({
+      pid: pty.pid,
+      attempt: this.attempt,
+      state: this.attempt > 1 ? 'resuming' : 'running',
+      detail: '',
+      cliVersion: MACRO.VERSION,
+    })
+    logEvent('tengu_bg_worker_spawn', {
+      attempt: this.attempt,
+      source: this.dispatch.source,
+    })
+    void getProcessStartTokenAsync(pty.pid).then(token => {
+      if (
+        !token ||
+        this.record.pid !== pty.pid ||
+        this.isDetached ||
+        this.record.outcome
+      ) {
+        return
+      }
+      this.procStart = token
+      this.patch({ pid: pty.pid })
+    })
   }
 
   private wirePty(pty: PtyClient): void {
@@ -1161,6 +1207,9 @@ export class BackgroundHandle {
       detail: `${detail}; respawning`,
     })
     this.procStart = undefined
+    const notice = `\r\n\x1b[2m[worker crashed (${detail}) — respawning…]\x1b[0m\r\n`
+    this.pushRing(notice)
+    this.stream.emit(notice)
     this.respawnTimer = setTimeout(() => {
       this.respawnTimer = undefined
       if (this.phase.kind !== 'retiring' && this.phase.kind !== 'retired') {
@@ -1257,12 +1306,11 @@ function writeRoster(handles: Map<string, BackgroundHandle>): Promise<void> {
       workers,
     }
     await mkdir(dirname(getRosterPath()), { recursive: true, mode: 0o700 })
-    const temporary = `${getRosterPath()}.tmp.${process.pid}`
-    await writeFile(temporary, JSON.stringify(manifest, null, 2), {
-      encoding: 'utf8',
-      mode: 0o600,
-    })
-    await rename(temporary, getRosterPath())
+    await atomicWriteFile(
+      getRosterPath(),
+      JSON.stringify(manifest, null, 2),
+      0o600,
+    )
   })
   rosterWrite = next.catch(() => {})
   return next
@@ -1803,6 +1851,7 @@ async function handleControl(
         cols: message.cols,
         rows: message.rows,
       })
+      handle.noteActivity()
       const cancelResizeRestore = handle.resizeForRepaint(
         message.cols,
         message.rows,
@@ -2245,27 +2294,12 @@ export async function runBackgroundSupervisor(options?: {
       const claimed = spare
       spare = null
       try {
-        handle = BackgroundHandle.claim(value, {
-          pid: claimed.hostPid,
-          ptySockPath: claimed.ptySock,
-          spawnPty,
-          getAuthSnapshot: options?.getAuthSnapshot,
-        })
-        const frame = BackgroundHandle.buildClaimFrame(
+        handle = claimSpare(
           value,
-          options?.getAuthSnapshot?.(),
+          claimed,
+          spawnPty,
+          options?.getAuthSnapshot,
         )
-        void sendSpareClaim(claimed.claimSock, {
-          cwd: value.cwd,
-          env: frame.env,
-          argv: frame.argv,
-          sessionId: value.sessionId,
-        }).catch((error) => {
-          logForDebugging(`[bg-spare] send-claim failed: ${String(error)}`, {
-            level: 'warn',
-          })
-          killSparePty(claimed.ptySock)
-        })
         logEvent('tengu_bg_spare_claim', {
           age_ms: Date.now() - claimed.startedAt,
         })

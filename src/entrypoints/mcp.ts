@@ -8,7 +8,6 @@ import {
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js'
 import { getDefaultAppState } from 'src/state/AppStateStore.js'
-import { AGENT_COLORS } from '../tools/AgentTool/agentColorManager.js'
 import review from '../commands/review.js'
 import type { Command } from '../commands.js'
 import {
@@ -17,8 +16,11 @@ import {
   type ToolUseContext,
 } from '../Tool.js'
 import { getTools } from '../tools.js'
-import { createSkillState, setSkillState } from '../skills/loadSkillsDir.js'
 import { createAbortController } from '../utils/abortController.js'
+import { NOOP_AGENT_LIFECYCLE } from '../utils/agentLifecycle.js'
+import { NOOP_SET_CLASSIFIER_APPROVALS } from '../utils/classifierApprovals.js'
+import { NOOP_TEAMMATE_COLORS } from '../utils/swarm/teammateLayoutManager.js'
+import { NOOP_SESSION_HOOKS_REGISTRY } from '../utils/hooks/sessionHooks.js'
 import { createFileStateCacheWithSizeLimit } from '../utils/fileStateCache.js'
 import { logError } from '../utils/log.js'
 import { createAssistantMessage } from '../utils/messages.js'
@@ -26,48 +28,14 @@ import { getMainLoopModel } from '../utils/model/model.js'
 import { hasPermissionsToUseTool } from '../utils/permissions/permissions.js'
 import { setCwd } from '../utils/Shell.js'
 import { jsonStringify } from '../utils/slowOperations.js'
+import { createTaskRegistry } from '../utils/task/framework.js'
 import { getErrorParts } from '../utils/toolErrors.js'
 import { zodToJsonSchema } from '../utils/zodToJsonSchema.js'
 
 type ToolInput = Tool['inputSchema']
+type ToolOutput = Tool['outputSchema']
 
 const MCP_COMMANDS: Command[] = [review]
-
-const MCP_TASK_REGISTRY = {
-  register() {},
-  update() {},
-  remove() {},
-  evictTerminal() {},
-  applyOffsetsAndEvict() {},
-  get() {
-    return undefined
-  },
-  all() {
-    return {}
-  },
-}
-
-const MCP_SESSION_HOOKS_REGISTRY = {
-  add() {},
-  addFunction() {
-    return ''
-  },
-  remove() {},
-  removeFunction() {},
-  clear() {},
-}
-
-const MCP_AGENT_LIFECYCLE = {
-  markTypeInvoked() {},
-  registerName() {},
-  clearTodos() {},
-}
-
-const MCP_TEAMMATE_COLORS = {
-  assign: () => AGENT_COLORS[0],
-  get: () => undefined,
-  clear() {},
-}
 
 export async function startMCPServer(
   cwd: string,
@@ -81,7 +49,6 @@ export async function startMCPServer(
 }
 
 export function createMCPServer(debug: boolean, verbose: boolean): Server {
-  setSkillState(createSkillState())
   // Use size-limited LRU cache for readFileState to prevent unbounded memory growth
   // 100 files and 25MB limit should be sufficient for MCP server operations
   const READ_FILE_STATE_CACHE_SIZE = 100
@@ -108,7 +75,23 @@ export function createMCPServer(debug: boolean, verbose: boolean): Server {
       const tools = getTools(toolPermissionContext)
       return {
         tools: await Promise.all(
-          tools.map(async tool => ({
+          tools.map(async tool => {
+            let outputSchema: ToolOutput | undefined
+            if (tool.outputSchema) {
+              const convertedSchema = zodToJsonSchema(tool.outputSchema)
+              // MCP SDK requires outputSchema to have type: "object" at root level
+              // Skip schemas with anyOf/oneOf at root (from z.union, z.discriminatedUnion, etc.)
+              // See: https://github.com/anthropics/claude-code/issues/8014
+              if (
+                typeof convertedSchema === 'object' &&
+                convertedSchema !== null &&
+                'type' in convertedSchema &&
+                convertedSchema.type === 'object'
+              ) {
+                outputSchema = convertedSchema as ToolOutput
+              }
+            }
+            return {
               ...tool,
               description: await tool.prompt({
                 getToolPermissionContext: async () => toolPermissionContext,
@@ -116,8 +99,9 @@ export function createMCPServer(debug: boolean, verbose: boolean): Server {
                 agents: [],
               }),
               inputSchema: zodToJsonSchema(tool.inputSchema) as ToolInput,
-              outputSchema: undefined,
-            })),
+              outputSchema,
+            }
+          }),
         ),
       }
     },
@@ -136,7 +120,7 @@ export function createMCPServer(debug: boolean, verbose: boolean): Server {
 
       // Assume MCP servers do not read messages separately from the tool
       // call arguments.
-      const toolUseContext = {
+      const toolUseContext: ToolUseContext = {
         abortController: createAbortController(),
         options: {
           commands: MCP_COMMANDS,
@@ -151,8 +135,21 @@ export function createMCPServer(debug: boolean, verbose: boolean): Server {
           agentDefinitions: { activeAgents: [], allAgents: [] },
         },
         getAppState: () => getDefaultAppState(),
+        getToolPermissionContext: () =>
+          getDefaultAppState().toolPermissionContext,
+        getEffortValue: () => undefined,
+        getAutoCompactWindow: () => undefined,
+        getFastMode: () => false,
+        getCacheBreakerPhrase: () => undefined,
         setAppState: () => {},
+        setToolPermissionContext: () => {},
+        setClassifierApprovals: NOOP_SET_CLASSIFIER_APPROVALS,
         setReplContext: () => {},
+        setWebBrowserSlice: () => {},
+        agentLifecycle: NOOP_AGENT_LIFECYCLE,
+        teammateColors: NOOP_TEAMMATE_COLORS,
+        taskRegistry: createTaskRegistry(() => getDefaultAppState(), () => {}),
+        sessionHooksRegistry: NOOP_SESSION_HOOKS_REGISTRY,
         messages: [],
         turnStartIndex: 0,
         readFileState: readFileStateCache,
@@ -162,7 +159,7 @@ export function createMCPServer(debug: boolean, verbose: boolean): Server {
         getFileHistoryState: () => undefined,
         applyFileHistoryOp: () => {},
         applyAttributionOp: () => {},
-      } as unknown as ToolUseContext
+      }
 
       // TODO: validate input types with zod
       try {

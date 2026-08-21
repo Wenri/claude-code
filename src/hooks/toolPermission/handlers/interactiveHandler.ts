@@ -69,7 +69,6 @@ function handleInteractivePermission(
 
   const { resolve: resolveOnce, isResolved, claim } = createResolveOnce(resolve)
   let userInteracted = false
-  const { setClassifierApprovals } = ctx.toolUseContext
   let checkmarkTransitionTimer: ReturnType<typeof setTimeout> | undefined
   // Hoisted so onDismissCheckmark (Esc during checkmark window) can also
   // remove the abort listener — not just the timer callback.
@@ -121,7 +120,10 @@ function handleInteractivePermission(
         return
       }
       userInteracted = true
-      clearClassifierChecking(setClassifierApprovals, ctx.toolUseID)
+      clearClassifierChecking(
+        ctx.toolUseContext.setClassifierApprovals,
+        ctx.toolUseID,
+      )
       clearClassifierIndicator()
     },
     onDismissCheckmark() {
@@ -262,7 +264,10 @@ function handleInteractivePermission(
       response => {
         if (!claim()) return // Local user/hook/classifier already responded
         signal.removeEventListener('abort', unsubscribe)
-        clearClassifierChecking(setClassifierApprovals, ctx.toolUseID)
+        clearClassifierChecking(
+          ctx.toolUseContext.setClassifierApprovals,
+          ctx.toolUseID,
+        )
         clearClassifierIndicator()
         ctx.removeFromQueue()
         channelUnsubscribe?.()
@@ -370,7 +375,10 @@ function handleInteractivePermission(
         response => {
           if (!claim()) return // Another racer won
           channelUnsubscribe?.() // both: map delete + listener remove
-          clearClassifierChecking(setClassifierApprovals, ctx.toolUseID)
+          clearClassifierChecking(
+            ctx.toolUseContext.setClassifierApprovals,
+            ctx.toolUseID,
+          )
           clearClassifierIndicator()
           ctx.removeFromQueue()
           // Bridge is the other remote — tell it we're done.
@@ -428,7 +436,10 @@ function handleInteractivePermission(
       if (hookDecision && 'reprompted' in hookDecision) {
         if (isResolved()) return
         userInteracted = true
-        clearClassifierChecking(setClassifierApprovals, ctx.toolUseID)
+        clearClassifierChecking(
+          ctx.toolUseContext.setClassifierApprovals,
+          ctx.toolUseID,
+        )
         clearClassifierIndicator()
         if (bridgeCallbacks && bridgeRequestId) {
           bridgeCallbacks.cancelRequest(bridgeRequestId)
@@ -460,7 +471,10 @@ function handleInteractivePermission(
     // UI indicator for "classifier running" — set here (not in
     // toolExecution.ts) so commands that auto-allow via prefix rules
     // don't flash the indicator for a split second before allow returns.
-    setClassifierChecking(setClassifierApprovals, ctx.toolUseID)
+    setClassifierChecking(
+      ctx.toolUseContext.setClassifierApprovals,
+      ctx.toolUseID,
+    )
     void executeAsyncClassifierCheck(
       result.pendingClassifierCheck,
       ctx.toolUseContext.abortController.signal,
@@ -468,7 +482,10 @@ function handleInteractivePermission(
       {
         shouldContinue: () => !isResolved() && !userInteracted,
         onComplete: () => {
-          clearClassifierChecking(setClassifierApprovals, ctx.toolUseID)
+          clearClassifierChecking(
+            ctx.toolUseContext.setClassifierApprovals,
+            ctx.toolUseID,
+          )
           clearClassifierIndicator()
         },
         onAllow: decisionReason => {
@@ -477,7 +494,10 @@ function handleInteractivePermission(
             bridgeCallbacks.cancelRequest(bridgeRequestId)
           }
           channelUnsubscribe?.()
-          clearClassifierChecking(setClassifierApprovals, ctx.toolUseID)
+          clearClassifierChecking(
+            ctx.toolUseContext.setClassifierApprovals,
+            ctx.toolUseID,
+          )
 
           const matchedRule =
             decisionReason.type === 'classifier'
@@ -501,13 +521,13 @@ function handleInteractivePermission(
           ) {
             if (decisionReason.classifier === 'auto-mode') {
               setYoloClassifierApproval(
-                setClassifierApprovals,
+                ctx.toolUseContext.setClassifierApprovals,
                 ctx.toolUseID,
                 decisionReason.reason,
               )
             } else if (matchedRule) {
               setClassifierApproval(
-                setClassifierApprovals,
+                ctx.toolUseContext.setClassifierApprovals,
                 ctx.toolUseID,
                 matchedRule,
               )

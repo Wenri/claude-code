@@ -13,7 +13,6 @@ import type { PermissionResult } from '../../utils/permissions/PermissionResult.
 import type { PermissionUpdate } from '../../utils/permissions/PermissionUpdateSchema.js'
 import { createPermissionRequestMessage } from '../../utils/permissions/permissions.js'
 import { BashTool } from './BashTool.js'
-import { bashCommandIsSafeAsync_DEPRECATED } from './bashSecurity.js'
 
 export type CommandIdentityCheckers = {
   isNormalizedCdCommand: (command: string) => boolean
@@ -27,17 +26,15 @@ async function segmentedCommandPermissionResult(
     input: z.infer<typeof BashTool.inputSchema>,
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
-  cdCommandsKeepCurrentDirectory?: (
-    subcommands: string[],
-  ) => Promise<boolean>,
+  cdCommandsAreNoOps?: (commands: string[]) => Promise<boolean>,
 ): Promise<PermissionResult> {
   const segmentResults = new Map<string, PermissionResult>()
 
-  // Evaluate every segment first so an explicit deny takes precedence over
-  // the compound-command safety prompts below.
+  // Check each segment through the full permission system
   for (const segment of segments) {
     const trimmedSegment = segment.trim()
-    if (!trimmedSegment) continue
+    if (!trimmedSegment) continue // Skip empty segments
+
     const segmentResult = await bashToolHasPermissionFn({
       ...input,
       command: trimmedSegment,
@@ -45,9 +42,11 @@ async function segmentedCommandPermissionResult(
     segmentResults.set(trimmedSegment, segmentResult)
   }
 
+  // Check if any segment is denied (after evaluating all)
   const deniedSegment = Array.from(segmentResults.entries()).find(
     ([, result]) => result.behavior === 'deny',
   )
+
   if (deniedSegment) {
     const [segmentCommand, segmentResult] = deniedSegment
     return {
@@ -63,7 +62,8 @@ async function segmentedCommandPermissionResult(
     }
   }
 
-  // Check for multiple cd commands across all segments
+  // Check for multiple cd commands across all segments after explicit denials
+  // have had a chance to win.
   const cdCommands = segments.filter(segment => {
     const trimmed = segment.trim()
     return checkers.isNormalizedCdCommand(trimmed)
@@ -82,33 +82,25 @@ async function segmentedCommandPermissionResult(
     }
   }
 
-  // SECURITY: Check for cd+git across pipe segments to prevent bare repo fsmonitor bypass.
-  // When cd and git are in different pipe segments (e.g., "cd sub && echo | git status"),
-  // each segment is checked independently and neither triggers the cd+git check in
-  // bashPermissions.ts. We must detect this cross-segment pattern here.
-  // Each pipe segment can itself be a compound command (e.g., "cd sub && echo"),
-  // so we split each segment into subcommands before checking.
+  // SECURITY: Check for cd+git across pipe segments to prevent execution of
+  // untrusted hooks after changing directory. A statically-provable no-op cd
+  // (for example `cd .`) is safe and does not need this extra prompt.
   {
     let hasCd = false
     let hasGit = false
-    const compoundSubcommands: string[] = []
+    const subcommands: string[] = []
     for (const segment of segments) {
-      const subcommands = splitCommand_DEPRECATED(segment)
-      for (const sub of subcommands) {
+      for (const sub of splitCommand_DEPRECATED(segment)) {
         const trimmed = sub.trim()
-        compoundSubcommands.push(trimmed)
-        if (checkers.isNormalizedCdCommand(trimmed)) {
-          hasCd = true
-        }
-        if (checkers.isNormalizedGitCommand(trimmed)) {
-          hasGit = true
-        }
+        subcommands.push(trimmed)
+        if (checkers.isNormalizedCdCommand(trimmed)) hasCd = true
+        if (checkers.isNormalizedGitCommand(trimmed)) hasGit = true
       }
     }
     if (
       hasCd &&
       hasGit &&
-      !(await cdCommandsKeepCurrentDirectory?.(compoundSubcommands))
+      !(cdCommandsAreNoOps ? await cdCommandsAreNoOps(subcommands) : false)
     ) {
       const decisionReason = {
         type: 'other' as const,
@@ -194,9 +186,7 @@ export async function checkCommandOperatorPermissions(
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
   astRoot: Node | null | typeof PARSE_ABORTED,
-  cdCommandsKeepCurrentDirectory?: (
-    subcommands: string[],
-  ) => Promise<boolean>,
+  cdCommandsAreNoOps?: (commands: string[]) => Promise<boolean>,
 ): Promise<PermissionResult> {
   const parsed =
     astRoot && astRoot !== PARSE_ABORTED
@@ -210,7 +200,7 @@ export async function checkCommandOperatorPermissions(
     bashToolHasPermissionFn,
     checkers,
     parsed,
-    cdCommandsKeepCurrentDirectory,
+    cdCommandsAreNoOps,
   )
 }
 
@@ -225,9 +215,7 @@ async function bashToolCheckCommandOperatorPermissions(
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
   parsed: IParsedCommand,
-  cdCommandsKeepCurrentDirectory?: (
-    subcommands: string[],
-  ) => Promise<boolean>,
+  cdCommandsAreNoOps?: (commands: string[]) => Promise<boolean>,
 ): Promise<PermissionResult> {
   // 1. Check for unsafe compound commands (subshells, command groups).
   const tsAnalysis = parsed.getTreeSitterAnalysis()
@@ -236,16 +224,10 @@ async function bashToolCheckCommandOperatorPermissions(
       tsAnalysis.compoundStructure.hasCommandGroup
     : isUnsafeCompoundCommand_DEPRECATED(input.command)
   if (isUnsafeCompound) {
-    // This command contains an operator like `>` that we don't support as a subcommand separator
-    // Check if bashCommandIsSafe_DEPRECATED has a more specific message
-    const safetyResult = await bashCommandIsSafeAsync_DEPRECATED(input.command)
-
     const decisionReason = {
       type: 'other' as const,
       reason:
-        safetyResult.behavior === 'ask' && safetyResult.message
-          ? safetyResult.message
-          : 'This command uses shell operators that require approval for safety',
+        'This command uses shell operators that require approval for safety',
       bashMissKind: 'shell-operators',
     }
     return {
@@ -278,6 +260,6 @@ async function bashToolCheckCommandOperatorPermissions(
     segments,
     bashToolHasPermissionFn,
     checkers,
-    cdCommandsKeepCurrentDirectory,
+    cdCommandsAreNoOps,
   )
 }

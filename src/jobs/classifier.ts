@@ -12,7 +12,7 @@ import { logForDebugging } from '../utils/debug.js'
 import { getSmallFastModel } from '../utils/model/model.js'
 import { permissionBlockSignal } from '../utils/permissionBlockSignal.js'
 import {
-  cacheSessionTitle,
+  cacheAiTitle,
   getTranscriptPath,
   saveAgentName,
   worktreeStateSignal,
@@ -25,6 +25,7 @@ import {
   updateSessionName,
 } from '../utils/concurrentSessions.js'
 import {
+  getCurrentJobShort,
   getJobDir,
   isSettledJob,
   isTerminalState,
@@ -33,7 +34,7 @@ import {
   writeJobState,
   type JobState,
 } from '../daemon/jobs.js'
-import { sendRendezvous } from '../daemon/rendezvous.js'
+import { sendRv } from '../daemon/rendezvous.js'
 import { sleep } from '../utils/sleep.js'
 
 export const LINK_SCAN_MAX_BYTES = 4_194_304
@@ -497,14 +498,80 @@ function normalize(
   }
 }
 
+const STATE_DESCRIPTIONS = {
+  working:
+    'actively progressing on the task — narrating plans, calling tools, or writing code; no pending question for the user',
+  blocked:
+    'the last message ends on a direct question or explicit request for the user ("want me to…?", "which do you prefer?", "approve this?") — nothing will happen until the user replies',
+  done: 'the task the user asked for is fully delivered and there is no further work the agent plans to do — not just a progress update, not "almost done", not "let me know what you think"',
+  failed:
+    'the agent has given up or hit something unrecoverable — missing credential, broken build it cannot fix, wrong repo, task impossible as framed; distinct from blocked (user can unblock) and done (succeeded)',
+}
+
+const stateDescriptions = Object.entries(STATE_DESCRIPTIONS)
+  .map(([state, description]) => `  "${state}": ${description}`)
+  .join('\n')
+
+const CLASSIFIER_EXAMPLES = `EXAMPLES (message → classification):
+
+"Reading config files to understand the setup."
+→ {"state":"working","detail":"reading config files","tempo":"active","output":{}}
+
+"I found the bug in auth.ts:42. Want me to fix it or just report?"
+→ {"state":"blocked","detail":"found bug, awaiting direction","tempo":"blocked","needs":"Want me to fix it or just report?","output":{}}
+
+"PR opened: https://github.com/acme/repo/pull/123\\nresult: fixed auth race in auth.ts, PR #123"
+→ {"state":"done","detail":"opened PR #123","tempo":"idle","output":{"result":"fixed auth race in auth.ts, PR #123"}}
+
+"I can't proceed — the repo requires GITHUB_TOKEN and it's not set."
+→ {"state":"blocked","detail":"missing GITHUB_TOKEN","tempo":"blocked","needs":"set GITHUB_TOKEN env var","output":{}}
+
+"Can't run the tests — needs the openapi.yaml file which isn't in this checkout. Stopping here."
+→ {"state":"blocked","detail":"missing openapi.yaml","tempo":"blocked","needs":"provide config/openapi.yaml","output":{}}
+  ("stopping" + names a specific missing resource → blocked, not failed)
+
+"The build is broken on main and I can't reproduce locally. Giving up."
+→ {"state":"failed","detail":"cannot reproduce build failure","tempo":"idle","output":{}}
+  (no specific resource would unblock; exhausted approaches → failed)
+
+"Tests pass. Let me know if you want me to also update the docs."
+→ {"state":"done","detail":"tests pass","tempo":"idle","output":{"result":"tests pass"}}
+  (offer of optional extra work ≠ blocked; the ask is satisfied)
+
+"Waiting for CI to finish (~8 min)."
+→ {"state":"working","detail":"waiting for CI","tempo":"idle","output":{}}
+
+"API Error: 401 Invalid API key · Please run /login"
+→ {"state":"blocked","detail":"authentication failed","tempo":"blocked","needs":"run /login","output":{}}`
+
 const CLASSIFIER_PROMPT = `You are a background-agent state classifier. Given the tail of an agent's assistant-message transcript, return JSON describing the agent's current state.
 
-STATES: working (actively progressing), blocked (needs a user reply), done (fully delivered), failed (unrecoverable or gave up).
+STATES — the agent can cycle between non-terminals (working↔blocked) or land on a terminal (done/failed):
+${stateDescriptions}
 
-Only change state if the tail clearly indicates a transition. When uncertain, keep current. Questions to the user are blocked, except optional follow-up offers after delivering the ask. Waiting for CI or another external process is working with tempo idle. A named missing credential/file/decision is blocked; structural impossibility is failed. API/auth/infra errors are blocked, never failed.
+Only change state if the tail clearly indicates a transition. When uncertain, keep current — stale-correct beats wrong. Don't jump backward unless the job explicitly restarted.
 
-Return ONLY JSON:
-{"state":"<working|blocked|done|failed>","detail":"<one concise line>","tempo":"<active|idle|blocked>","needs":"<when blocked>","output":{"result":"<finished deliverable, when any>"}}`
+DISAMBIGUATION:
+  • Tail ends on a question to the user → "blocked" (even if prior work finished). Exception: "let me know if you want X too" after delivering the ask is an optional offer → "done".
+  • Agent asks the user to RUN something it can't (auth login, interactive CLI, provide a secret) → "blocked", needs = the command/value.
+  • Agent says it's waiting on CI/build/external process it started → "working" with tempo:"idle" (not blocked — no user action unblocks it).
+  • Agent hit an error but is retrying/investigating → "working".
+  • Agent stopped and names a SPECIFIC missing thing the user could supply (file, env var, credential, OTP, path, decision) → "blocked", even if phrased as "can't proceed" / "stopping here". Test: would handing the user that one thing unblock it? Yes → blocked.
+  • Agent stopped and the task is structurally impossible (wrong repo, feature doesn't exist, premise false, tried everything) → "failed".
+  • API/auth/infra error text → "blocked" (transient or user-fixable), needs = the fix. Never "failed" for these. Covers: Anthropic API ("401", "/login", "rate limited", "overloaded", "529", "credit balance", "usage limit"); MCP servers (OAuth token expired/revoked, vault credential missing, MCP auth/unauthorized); external services (GitHub "bad credentials", GitLab PAT, "gh auth login", "gcloud auth login", "aws sso login", Stripe 401, Slack token); any prose naming a specific re-auth step.
+  • Scope notes, caveats, or follow-up offers AFTER a committed deliverable ("out of scope", "happy to also X if you want", "note: Y is untested") → "done". The deliverable shipped; the note is FYI.
+
+${CLASSIFIER_EXAMPLES}
+
+OUTPUT:
+  • "state": one of working/blocked/done/failed
+  • "detail": one concise line describing what the agent is doing
+  • "tempo": "active" (model working) / "idle" (external — CI, reviewer, timer) / "blocked" (you — can't proceed without your reply)
+  • "needs": when tempo="blocked", the exact question or command the user should act on, copied verbatim from the tail. Omit otherwise.
+  • "output.result": one-sentence headline naming a finished deliverable (direct answer, URL/path the agent PRODUCED, command the user should run next). Max ${DETAIL_MAX} chars, first sentence verbatim. If the tail has \`result:\` on its own line, that line IS the result. Omit ({}) when still working, or when the "outcome" is just "done"/"finished" with no info, or when it restates the ask/state/detail.
+
+Respond with ONLY this JSON, no code fences:
+{"state":"<name>","detail":"<one-line>","tempo":"<active|idle|blocked>","needs":"<when-blocked>","output":{...}}`
 
 function classifierInput(options: {
   tail: string
@@ -646,6 +713,7 @@ export type ClassifierJobState = {
   lastClassifyAt: number
   capturedIntent: string
   inFlight: Promise<void> | null
+  nameInFlight: boolean
   dispatchEmitted: boolean
   latestAsk: string
   kicked: boolean
@@ -664,6 +732,7 @@ export function createClassifierJobState(): ClassifierJobState {
     lastClassifyAt: 0,
     capturedIntent: '',
     inFlight: null,
+    nameInFlight: false,
     dispatchEmitted: false,
     latestAsk: '',
     kicked: false,
@@ -719,7 +788,7 @@ async function writeStateAndNotify(
   patch: Record<string, unknown>,
 ): Promise<void> {
   await writeJobState(jobDir, state)
-  if (Object.keys(patch).length) sendRendezvous({ type: 'state', patch })
+  if (Object.keys(patch).length) sendRv({ type: 'state', patch })
 }
 
 export function markTurnActive(
@@ -823,6 +892,7 @@ export async function setPermissionBlock(
 export function apiFailureClassification(
   type:
     | 'authentication_failed'
+    | 'oauth_org_not_allowed'
     | 'billing_error'
     | 'rate_limit'
     | 'server_error'
@@ -835,6 +905,11 @@ export function apiFailureClassification(
   switch (type) {
     case 'authentication_failed':
       return { state: 'blocked', needs: 'login required — run /login' }
+    case 'oauth_org_not_allowed':
+      return {
+        state: 'blocked',
+        needs: 'org disabled OAuth — use API key or ask admin',
+      }
     case 'billing_error':
       return { state: 'blocked', needs: 'usage limit reached — check plan' }
     case 'rate_limit':
@@ -1043,7 +1118,7 @@ verbs like fix/add/update. Respond with ONLY the label.${avoid}`,
     { ...current, name: candidate, nameSource: 'auto', updatedAt: now },
     { name: candidate },
   )
-  cacheSessionTitle(candidate)
+  cacheAiTitle(candidate)
   void updateSessionName(candidate)
   void saveAgentName(getSessionId(), candidate, getTranscriptPath(), 'auto')
 }
@@ -1192,6 +1267,7 @@ export async function classifyAndPush(
         name: latest?.name,
         nameSource: latest?.nameSource,
         sessionId: latest?.sessionId ?? getSessionId(),
+        resumeSessionId: getSessionId(),
         cliVersion: MACRO.VERSION,
         cwd: current?.cwd ?? getCwd(),
         ...worktreeOwnershipFields(
@@ -1227,7 +1303,12 @@ export async function classifyAndPush(
       'utf8',
     ).catch(() => {})
     const intent = current?.intent || fallbackIntent || state.capturedIntent
-    if (!current?.name && intent && engine === 'llm') {
+    if (
+      !current?.name &&
+      intent &&
+      engine === 'llm' &&
+      !state.nameInFlight
+    ) {
       const firstAssistantText = messages
         .map(message => assistantText([message]))
         .find(Boolean)
@@ -1238,7 +1319,12 @@ export async function classifyAndPush(
           .trim(),
         500,
       )
-      void generateJobName(jobDir, intent, context).catch(() => {})
+      state.nameInFlight = true
+      void generateJobName(jobDir, intent, context)
+        .catch(() => {})
+        .finally(() => {
+          state.nameInFlight = false
+        })
     }
     logForDebugging(
       `[classifier] ${state.prevState} · ${classified.detail}${needs ? ` · needs: ${needs}` : ''}`,
@@ -1415,14 +1501,14 @@ export function ensurePermissionBridge(state: ClassifierJobState): void {
   state.permissionBridgeSubscribed = true
   permissionBlockSignal.subscribe(needs => {
     if (!isBgSession()) return
-    const short = getSessionId().slice(0, 8)
+    const short = getCurrentJobShort()
     state.bridgeWriteChain = state.bridgeWriteChain.then(() =>
       setPermissionBlock(short, needs).catch(() => {}),
     )
   })
   worktreeStateSignal.subscribe(worktree => {
     if (!isBgSession()) return
-    const short = getSessionId().slice(0, 8)
+    const short = getCurrentJobShort()
     state.bridgeWriteChain = state.bridgeWriteChain.then(() =>
       setWorktreeOwnership(short, worktree).catch(() => {}),
     )

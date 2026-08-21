@@ -8,27 +8,45 @@ import { ValidationErrorsList } from './ValidationErrorsList.js'
 type Props = {
   settingsErrors: ValidationError[]
   onContinue: () => void
+  onFix: () => void
   onExit: () => void
 }
 
+/**
+ * Dialog shown when settings files have validation errors or warnings.
+ * Errors require an explicit decision; warnings default to continuing.
+ */
 export function InvalidSettingsDialog({
   settingsErrors,
   onContinue,
+  onFix,
   onExit,
 }: Props): React.ReactNode {
   function handleSelect(value: string): void {
-    if (value === 'exit') onExit()
-    else onContinue()
+    if (value === 'exit') {
+      onExit()
+    } else if (value === 'fix') {
+      onFix()
+    } else {
+      onContinue()
+    }
   }
 
-  const hasErrors = settingsErrors.some(isError)
+  const hasErrors = settingsErrors.some(
+    (validationError) => validationError.severity !== 'warning',
+  )
   const options = hasErrors
     ? [
+        { label: 'Fix with Claude', value: 'fix' },
         { label: 'Exit and fix manually', value: 'exit' },
-        { label: 'Continue without these settings', value: 'continue' },
+        {
+          label: 'Continue without these settings',
+          value: 'continue',
+        },
       ]
     : [
         { label: 'Continue', value: 'continue' },
+        { label: 'Fix with Claude', value: 'fix' },
         { label: 'Exit and fix manually', value: 'exit' },
       ]
   const title = hasErrors ? 'Settings Error' : 'Settings Warning'
@@ -44,8 +62,4 @@ export function InvalidSettingsDialog({
       <Select options={options} onChange={handleSelect} />
     </Dialog>
   )
-}
-
-function isError(error: ValidationError): boolean {
-  return error.severity !== 'warning'
 }

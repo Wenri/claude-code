@@ -50,19 +50,6 @@ function keyFromParsed(parsed: ParsedKey): string {
 
   // Special keys (arrows, F-keys, return, tab, escape, etc.): sequence is
   // either an escape sequence (\x1b[B) or a control byte (\r, \t), so use
-  // the parsed name. Normalize shifted single-letter names to the same
-  // uppercase value reported for printable shifted input.
-  if (name) {
-    if (parsed.shift && name.length === 1 && name >= 'a' && name <= 'z') {
-      return name.toUpperCase()
-    }
-    return name
-  }
-
-  // Unknown escape sequences and raw mouse fragments are terminal protocol
-  // input, not keyboard text.
-  if (seq.charCodeAt(0) === 0x1b) return ''
-  if (/^(\[<\d[\d;]*[Mm]?)+$/.test(seq)) return ''
-
-  return seq
+  // the parsed name. Browsers report e.key === 'ArrowDown'.
+  return name || seq
 }

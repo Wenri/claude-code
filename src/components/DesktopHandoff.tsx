@@ -4,7 +4,7 @@ import type { CommandResultDisplay } from '../commands.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- raw input for "any key" dismiss and y/n prompt
 import { Box, Text, useInput } from '../ink.js';
 import { openBrowser } from '../utils/browser.js';
-import { getDesktopInstallStatus, openCurrentSessionInDesktop } from '../utils/desktopDeepLink.js';
+import { getDesktopInstallStatus, MIN_DESKTOP_VERSION, openCurrentSessionInDesktop } from '../utils/desktopDeepLink.js';
 import { errorMessage } from '../utils/errors.js';
 import { gracefulShutdown } from '../utils/gracefulShutdown.js';
 import { flushSessionStorage } from '../utils/sessionStorage.js';
@@ -77,7 +77,7 @@ export function DesktopHandoff(t0) {
           return;
         }
         if (installStatus.status === "version-too-old") {
-          setDownloadMessage(`Claude Desktop needs to be updated (found v${installStatus.version}, need v1.1.2396+).`);
+          setDownloadMessage(`Claude Desktop needs to be updated (found v${installStatus.version}, need v${MIN_DESKTOP_VERSION}+).`);
           setState("prompt-download");
           return;
         }

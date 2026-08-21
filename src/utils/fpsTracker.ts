@@ -5,7 +5,6 @@ export type FpsMetrics = {
 
 export class FpsTracker {
   private frameDurations: number[] = []
-  private totalFrames = 0
   private firstRenderTime: number | undefined
   private lastRenderTime: number | undefined
 
@@ -15,16 +14,12 @@ export class FpsTracker {
       this.firstRenderTime = now
     }
     this.lastRenderTime = now
-    this.totalFrames++
     this.frameDurations.push(durationMs)
-    if (this.frameDurations.length > 3600) {
-      this.frameDurations.splice(0, this.frameDurations.length >> 1)
-    }
   }
 
   getMetrics(): FpsMetrics | undefined {
     if (
-      this.totalFrames === 0 ||
+      this.frameDurations.length === 0 ||
       this.firstRenderTime === undefined ||
       this.lastRenderTime === undefined
     ) {
@@ -36,7 +31,8 @@ export class FpsTracker {
       return undefined
     }
 
-    const averageFps = this.totalFrames / (totalTimeMs / 1000)
+    const totalFrames = this.frameDurations.length
+    const averageFps = totalFrames / (totalTimeMs / 1000)
 
     const sorted = this.frameDurations.slice().sort((a, b) => b - a)
     const p99Index = Math.max(0, Math.ceil(sorted.length * 0.01) - 1)

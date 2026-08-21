@@ -80,6 +80,7 @@ function AskUserQuestionPermissionRequestBody(t0) {
     onReject,
     highlight
   } = t0;
+  const setAppState = useSetAppState();
   let t1;
   if ($[0] !== toolUseConfirm.input) {
     t1 = AskUserQuestionTool.inputSchema.safeParse(toolUseConfirm.input);
@@ -172,11 +173,8 @@ function AskUserQuestionPermissionRequestBody(t0) {
     t6 = $[15];
   }
   const [pastedContentsByQuestion, setPastedContentsByQuestion] = useState(t6);
-  const setAppState = useSetAppState();
   const nextPasteIdRef = useRef(0);
-  let t7;
-  if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
-    t7 = function onImagePaste(questionText, base64Image, mediaType, filename, dimensions, _sourcePath) {
+  const onImagePaste = useCallback(function onImagePaste(questionText, base64Image, mediaType, filename, dimensions, _sourcePath) {
       nextPasteIdRef.current = nextPasteIdRef.current + 1;
       const pasteId = nextPasteIdRef.current;
       const newContent = {
@@ -196,12 +194,7 @@ function AskUserQuestionPermissionRequestBody(t0) {
           [pasteId]: newContent
         }
       }));
-    };
-    $[16] = t7;
-  } else {
-    t7 = $[16];
-  }
-  const onImagePaste = t7;
+    }, [setAppState]);
   let t8;
   if ($[17] === Symbol.for("react.memo_cache_sentinel")) {
     t8 = (questionText_0, id) => {

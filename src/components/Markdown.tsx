@@ -1,5 +1,4 @@
 import { c as _c } from "react/compiler-runtime";
-import chalk from 'chalk';
 import { marked, type Token, type Tokens } from 'marked';
 import React, { Suspense, use, useMemo, useRef } from 'react';
 import { useSettings } from '../hooks/useSettings.js';
@@ -29,8 +28,7 @@ const tokenCache = new Map<string, Token[]>();
 // plain sentences. Checked via indexOf (not regex) for speed.
 // Single regex: matches any MD marker or ordered-list start (N. at line start).
 // One pass instead of 10× includes scans.
-const MD_SYNTAX_RE =
-  /[#*`|[>\-_~]|\n\n|(?:^|\n) {0,3}\d+\. |https?:\/\/|www\./
+const MD_SYNTAX_RE = /[#*`|[>\-_~]|\n\n|^\d+\. |\n\d+\. /;
 function hasMarkdownSyntax(s: string): boolean {
   // Sample first 500 chars — if markdown exists it's usually early (headers,
   // code fence, list). Long tool outputs are mostly plain text tails.
@@ -138,7 +136,7 @@ function MarkdownBody(t0) {
     let nonTableContent = "";
     const flushNonTableContent = function flushNonTableContent() {
       if (nonTableContent) {
-        elements.push(<Ansi key={elements.length} dimColor={dimColor}>{nonTableContent.replace(/^\n+/, '').trimEnd()}</Ansi>);
+        elements.push(<Ansi key={elements.length} dimColor={dimColor}>{nonTableContent.trim()}</Ansi>);
         nonTableContent = "";
       }
     };
@@ -146,9 +144,6 @@ function MarkdownBody(t0) {
       if (token.type === "table") {
         flushNonTableContent();
         elements.push(<MarkdownTable key={elements.length} token={token as Tokens.Table} highlight={highlight} />);
-      } else if (token.type === "blockquote") {
-        flushNonTableContent();
-        elements.push(<MarkdownBlockquote key={elements.length} token={token as Tokens.Blockquote} theme={theme} highlight={highlight} dimColor={dimColor} />);
       } else {
         nonTableContent = nonTableContent + formatToken(token, theme, 0, null, null, highlight);
         nonTableContent;
@@ -173,20 +168,6 @@ function MarkdownBody(t0) {
     t1 = $[6];
   }
   return t1;
-}
-function MarkdownBlockquote({
-  token,
-  theme,
-  highlight,
-  dimColor
-}: {
-  token: Tokens.Blockquote;
-  theme: ReturnType<typeof useTheme>[0];
-  highlight: CliHighlight | null;
-  dimColor?: boolean;
-}) {
-  const content = chalk.italic(token.tokens.map(token_0 => formatToken(token_0, theme, 0, null, null, highlight)).join('').replace(/^\n+/, '').trimEnd());
-  return <Box borderStyle="quote" borderTop={false} borderBottom={false} borderRight={false} borderDimColor paddingLeft={1}><Ansi dimColor={dimColor}>{content}</Ansi></Box>;
 }
 type StreamingProps = {
   children: string;

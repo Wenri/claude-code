@@ -63,6 +63,9 @@ import { gracefulShutdown } from '../gracefulShutdown.js'
 import { getMainLoopModel } from '../model/model.js'
 import { getPlatform } from '../platform.js'
 import { isBashToolEnabled } from '../shell/shellToolUtils.js'
+import { isScrubEnabled } from '../subprocessEnv.js'
+import { getLeaderToolUseConfirmQueue } from '../swarm/leaderPermissionBridge.js'
+import { logPermissionModeChanged } from '../telemetry/events.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
   DANGEROUS_BASH_PATTERNS,
@@ -595,6 +598,7 @@ export function restoreDangerousPermissions(
  * @param fromMode The current permission mode
  * @param toMode The target permission mode
  * @param context The current tool permission context
+ * @param trigger Optional source of the transition for telemetry
  */
 export function transitionPermissionMode(
   fromMode: string,
@@ -649,22 +653,22 @@ export function transitionPermissionMode(
   return context
 }
 
-export type SetPermissionModeResult =
+export type SetPermissionModeWithGuardsResult =
   | { ok: true; mode: PermissionMode }
   | { ok: false; error: string }
 
 /**
- * Validate and apply an explicit permission-mode change outside the TUI mode
- * carousel. Policy checks happen before transitionPermissionMode so rejected
- * requests cannot partially activate auto or bypass-permissions state.
+ * Validate and apply an externally requested permission-mode transition.
+ * The context setter is injectable so non-React entrypoints can retain the
+ * same policy guards and queued-permission refresh behavior.
  */
-export function setPermissionMode(
+export function setPermissionModeWithGuards(
   mode: PermissionMode,
-  currentContext: ToolPermissionContext,
+  initialContext: ToolPermissionContext,
   setToolPermissionContext: (
-    updater: (previous: ToolPermissionContext) => ToolPermissionContext,
+    updater: (context: ToolPermissionContext) => ToolPermissionContext,
   ) => void,
-): SetPermissionModeResult {
+): SetPermissionModeWithGuardsResult {
   if (mode === 'bypassPermissions') {
     if (isBypassPermissionsModeDisabled()) {
       return {
@@ -673,7 +677,7 @@ export function setPermissionMode(
           'Cannot set permission mode to bypassPermissions because it is disabled by settings or configuration',
       }
     }
-    if (!currentContext.isBypassPermissionsModeAvailable) {
+    if (!initialContext.isBypassPermissionsModeAvailable) {
       return {
         ok: false,
         error:
@@ -692,21 +696,23 @@ export function setPermissionMode(
     }
   }
 
-  setToolPermissionContext(previous => {
-    if (previous.mode === mode) return previous
+  setToolPermissionContext(context => {
+    if (context.mode === mode) return context
     return {
-      ...transitionPermissionMode(previous.mode, mode, previous),
+      ...transitionPermissionMode(context.mode, mode, context),
       mode,
     }
   })
+
   setImmediate(() => {
-    getLeaderToolUseConfirmQueue()?.(currentQueue => {
-      currentQueue.forEach(item => {
+    getLeaderToolUseConfirmQueue()?.(queue => {
+      queue.forEach(item => {
         void item.recheckPermission()
       })
-      return currentQueue
+      return queue
     })
   })
+
   return { ok: true, mode }
 }
 
@@ -761,19 +767,20 @@ export function initialPermissionModeFromCLI({
   agentPermissionMode?: PermissionMode
 }): { mode: PermissionMode; notification?: string } {
   if (isScrubEnabled()) {
-    const nonDefaultModeRequested = Boolean(
+    const requestedNonDefault = Boolean(
       dangerouslySkipPermissions ||
-        (permissionModeCli && permissionModeCli !== 'default'),
+        (permissionModeCli && permissionModeCli !== 'default') ||
+        (agentPermissionMode && agentPermissionMode !== 'default'),
     )
-    const notification =
+    const warning =
       'Permission mode forced to default — CLAUDE_CODE_SUBPROCESS_ENV_SCRUB is set ' +
       '(allowed_non_write_users hardening). Declare allowedTools explicitly, or set CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0 to opt out.'
-    if (nonDefaultModeRequested) {
-      process.stderr.write(`⚠ ${notification}\n`)
+    if (requestedNonDefault) {
+      process.stderr.write(`⚠ ${warning}\n`)
     }
     return {
       mode: 'default',
-      notification: nonDefaultModeRequested ? notification : undefined,
+      notification: requestedNonDefault ? warning : undefined,
     }
   }
 

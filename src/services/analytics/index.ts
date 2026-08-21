@@ -66,6 +66,11 @@ type QueuedEvent = {
   async: boolean
 }
 
+export type AnalyticsState = {
+  eventQueue: QueuedEvent[]
+  sink: AnalyticsSink | null
+}
+
 /**
  * Sink interface for the analytics backend
  */
@@ -77,16 +82,17 @@ export type AnalyticsSink = {
   ) => Promise<void>
 }
 
-type AnalyticsState = {
-  eventQueue: QueuedEvent[]
-  sink: AnalyticsSink | null
-}
-
 export function createAnalyticsState(): AnalyticsState {
   return { eventQueue: [], sink: null }
 }
 
 let globalAnalyticsState = createAnalyticsState()
+
+export function _setGlobalAnalyticsStateForTesting(
+  state: AnalyticsState,
+): void {
+  globalAnalyticsState = state
+}
 
 /**
  * Attach the analytics sink that will receive all events.

@@ -12,7 +12,7 @@ import { logError } from '../../utils/log.js';
 import { enqueuePendingNotification } from '../../utils/messageQueueManager.js';
 import type { ShellCommand } from '../../utils/ShellCommand.js';
 import { evictTaskOutput, getTaskOutputPath } from '../../utils/task/diskOutput.js';
-import { createTaskRegistry, type TaskRegistry } from '../../utils/task/framework.js';
+import { registerTask, updateTaskState } from '../../utils/task/framework.js';
 import { escapeXml } from '../../utils/xml.js';
 import { backgroundAgentTask, isLocalAgentTask } from '../LocalAgentTask/LocalAgentTask.js';
 import { isMainSessionTask } from '../LocalMainSessionTask.js';
@@ -102,12 +102,12 @@ The command is likely blocked on an interactive prompt. Kill this task and re-ru
     clearInterval(timer);
   };
 }
-function enqueueShellNotification(taskId: string, description: string, status: 'completed' | 'failed' | 'killed', exitCode: number | undefined, taskRegistry: TaskRegistry, abortSpeculationForTask?: () => void, toolUseId?: string, kind: BashTaskKind = 'bash', agentId?: AgentId): void {
+function enqueueShellNotification(taskId: string, description: string, status: 'completed' | 'failed' | 'killed', exitCode: number | undefined, setAppState: SetAppState, toolUseId?: string, kind: BashTaskKind = 'bash', agentId?: AgentId): void {
   // Atomically check and set notified flag to prevent duplicate notifications.
   // If the task was already marked as notified (e.g., by TaskStopTool), skip
   // enqueueing to avoid sending redundant messages to the model.
   let shouldEnqueue = false;
-  taskRegistry.update(taskId, task => {
+  updateTaskState(taskId, setAppState, task => {
     if (task.notified) {
       return task;
     }
@@ -124,7 +124,7 @@ function enqueueShellNotification(taskId: string, description: string, status: '
   // Abort any active speculation — background task state changed, so speculated
   // results may reference stale task output. The prompt suggestion text is
   // preserved; only the pre-computed response is discarded.
-  abortSpeculationForTask?.();
+  abortSpeculation(setAppState);
   let summary: string;
   if (feature('MONITOR_TOOL') && kind === 'monitor') {
     // Monitor is streaming-only (post-#22764) — the script exiting means
@@ -173,8 +173,8 @@ function enqueueShellNotification(taskId: string, description: string, status: '
 export const LocalShellTask: Task = {
   name: 'LocalShellTask',
   type: 'local_bash',
-  async kill(taskId, taskRegistry) {
-    killTask(taskId, taskRegistry);
+  async kill(taskId, _taskRegistry, setAppState) {
+    killTask(taskId, setAppState);
   }
 };
 export async function spawnShellTask(input: LocalShellSpawnInput & {
@@ -189,7 +189,7 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
     kind
   } = input;
   const {
-    taskRegistry
+    setAppState
   } = context;
 
   // TaskOutput owns the data — use its taskId so disk writes are consistent
@@ -198,7 +198,7 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
   } = shellCommand;
   const taskId = taskOutput.taskId;
   const unregisterCleanup = registerCleanup(async () => {
-    killTask(taskId, taskRegistry);
+    killTask(taskId, setAppState);
   });
   const taskState: LocalShellTaskState = {
     ...createTaskStateBase(taskId, 'local_bash', description, toolUseId),
@@ -213,7 +213,7 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
     agentId,
     kind
   };
-  taskRegistry.register(taskState);
+  registerTask(taskState, setAppState);
 
   // Data flows through TaskOutput automatically — no stream listeners needed.
   // Just transition to backgrounded state so the process keeps running.
@@ -223,7 +223,7 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
     cancelStallWatchdog();
     await flushAndCleanup(shellCommand);
     let wasKilled = false;
-    taskRegistry.update<LocalShellTaskState>(taskId, task => {
+    updateTaskState<LocalShellTaskState>(taskId, setAppState, task => {
       if (task.status === 'killed') {
         wasKilled = true;
         return task;
@@ -240,7 +240,7 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
         endTime: Date.now()
       };
     });
-    enqueueShellNotification(taskId, description, wasKilled ? 'killed' : result.code === 0 ? 'completed' : 'failed', result.code, taskRegistry, context.abortSpeculation, toolUseId, kind, agentId);
+    enqueueShellNotification(taskId, description, wasKilled ? 'killed' : result.code === 0 ? 'completed' : 'failed', result.code, setAppState, toolUseId, kind, agentId);
     void evictTaskOutput(taskId);
   });
   return {
@@ -258,7 +258,7 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
  */
 export function registerForeground(input: LocalShellSpawnInput & {
   shellCommand: ShellCommand;
-}, taskRegistry: TaskRegistry, toolUseId?: string): string {
+}, setAppState: SetAppState, toolUseId?: string): string {
   const {
     command,
     description,
@@ -267,7 +267,7 @@ export function registerForeground(input: LocalShellSpawnInput & {
   } = input;
   const taskId = shellCommand.taskOutput.taskId;
   const unregisterCleanup = registerCleanup(async () => {
-    killTask(taskId, taskRegistry);
+    killTask(taskId, setAppState);
   });
   const taskState: LocalShellTaskState = {
     ...createTaskStateBase(taskId, 'local_bash', description, toolUseId),
@@ -282,7 +282,7 @@ export function registerForeground(input: LocalShellSpawnInput & {
     // Not yet backgrounded - running in foreground
     agentId
   };
-  taskRegistry.register(taskState);
+  registerTask(taskState, setAppState);
   return taskId;
 }
 
@@ -291,7 +291,6 @@ export function registerForeground(input: LocalShellSpawnInput & {
  * @returns true if backgrounded successfully, false otherwise
  */
 function backgroundTask(taskId: string, getAppState: () => AppState, setAppState: SetAppState): boolean {
-  const taskRegistry = createTaskRegistry(getAppState, setAppState);
   // Step 1: Get the task and shell command from current state
   const state = getAppState();
   const task = state.tasks[taskId];
@@ -334,7 +333,7 @@ function backgroundTask(taskId: string, getAppState: () => AppState, setAppState
     await flushAndCleanup(shellCommand);
     let wasKilled = false;
     let cleanupFn: (() => void) | undefined;
-    taskRegistry.update<LocalShellTaskState>(taskId, t => {
+    updateTaskState<LocalShellTaskState>(taskId, setAppState, t => {
       if (t.status === 'killed') {
         wasKilled = true;
         return t;
@@ -358,10 +357,10 @@ function backgroundTask(taskId: string, getAppState: () => AppState, setAppState
     // Call cleanup outside of the state updater (avoid side effects in updater)
     cleanupFn?.();
     if (wasKilled) {
-      enqueueShellNotification(taskId, description, 'killed', result.code, taskRegistry, () => abortSpeculation(setAppState), toolUseId, kind, agentId);
+      enqueueShellNotification(taskId, description, 'killed', result.code, setAppState, toolUseId, kind, agentId);
     } else {
       const finalStatus = result.code === 0 ? 'completed' : 'failed';
-      enqueueShellNotification(taskId, description, finalStatus, result.code, taskRegistry, () => abortSpeculation(setAppState), toolUseId, kind, agentId);
+      enqueueShellNotification(taskId, description, finalStatus, result.code, setAppState, toolUseId, kind, agentId);
     }
     void evictTaskOutput(taskId);
   });
@@ -390,7 +389,6 @@ export function hasForegroundTasks(state: AppState): boolean {
 }
 export function backgroundAll(getAppState: () => AppState, setAppState: SetAppState): void {
   const state = getAppState();
-  const taskRegistry = createTaskRegistry(getAppState, setAppState);
 
   // Background all foreground bash tasks
   const foregroundBashTaskIds = Object.keys(state.tasks).filter(id => {
@@ -407,7 +405,7 @@ export function backgroundAll(getAppState: () => AppState, setAppState: SetAppSt
     return isLocalAgentTask(task) && !task.isBackgrounded;
   });
   for (const taskId of foregroundAgentTaskIds) {
-    backgroundAgentTask(taskId, taskRegistry);
+    backgroundAgentTask(taskId, getAppState, setAppState);
   }
 }
 
@@ -419,19 +417,26 @@ export function backgroundAll(getAppState: () => AppState, setAppState: SetAppSt
  * already registered the task (avoiding duplicate task_started SDK events
  * and leaked cleanup callbacks).
  */
-export function backgroundExistingForegroundTask(taskId: string, shellCommand: ShellCommand, description: string, taskRegistry: TaskRegistry, abortSpeculationForTask?: () => void, toolUseId?: string): boolean {
+export function backgroundExistingForegroundTask(taskId: string, shellCommand: ShellCommand, description: string, setAppState: SetAppState, toolUseId?: string): boolean {
   if (!shellCommand.background(taskId)) {
     return false;
   }
   let agentId: AgentId | undefined;
-  taskRegistry.update<LocalShellTaskState>(taskId, prevTask => {
+  setAppState(prev => {
+    const prevTask = prev.tasks[taskId];
     if (!isLocalShellTask(prevTask) || prevTask.isBackgrounded) {
-      return prevTask;
+      return prev;
     }
     agentId = prevTask.agentId;
     return {
-      ...prevTask,
-      isBackgrounded: true
+      ...prev,
+      tasks: {
+        ...prev.tasks,
+        [taskId]: {
+          ...prevTask,
+          isBackgrounded: true
+        }
+      }
     };
   });
   const cancelStallWatchdog = startStallWatchdog(taskId, description, undefined, toolUseId, agentId);
@@ -442,7 +447,7 @@ export function backgroundExistingForegroundTask(taskId: string, shellCommand: S
     await flushAndCleanup(shellCommand);
     let wasKilled = false;
     let cleanupFn: (() => void) | undefined;
-    taskRegistry.update<LocalShellTaskState>(taskId, t => {
+    updateTaskState<LocalShellTaskState>(taskId, setAppState, t => {
       if (t.status === 'killed') {
         wasKilled = true;
         return t;
@@ -462,7 +467,7 @@ export function backgroundExistingForegroundTask(taskId: string, shellCommand: S
     });
     cleanupFn?.();
     const finalStatus = wasKilled ? 'killed' : result.code === 0 ? 'completed' : 'failed';
-    enqueueShellNotification(taskId, description, finalStatus, result.code, taskRegistry, abortSpeculationForTask, toolUseId, undefined, agentId);
+    enqueueShellNotification(taskId, description, finalStatus, result.code, setAppState, toolUseId, undefined, agentId);
     void evictTaskOutput(taskId);
   });
   return true;
@@ -473,8 +478,8 @@ export function backgroundExistingForegroundTask(taskId: string, shellCommand: S
  * Used when backgrounding raced with completion — the tool result already
  * carries the full output, so the <task_notification> would be redundant.
  */
-export function markTaskNotified(taskId: string, taskRegistry: TaskRegistry): void {
-  taskRegistry.update(taskId, t => t.notified ? t : {
+export function markTaskNotified(taskId: string, setAppState: SetAppState): void {
+  updateTaskState(taskId, setAppState, t => t.notified ? t : {
     ...t,
     notified: true
   });
@@ -483,19 +488,26 @@ export function markTaskNotified(taskId: string, taskRegistry: TaskRegistry): vo
 /**
  * Unregister a foreground task when the command completes without being backgrounded.
  */
-export function unregisterForeground(taskId: string, taskRegistry: TaskRegistry): void {
-  const task = taskRegistry.get<LocalShellTaskState>(taskId);
+export function unregisterForeground(taskId: string, setAppState: SetAppState): void {
   let cleanupFn: (() => void) | undefined;
-  if (task) {
+  setAppState(prev => {
+    const task = prev.tasks[taskId];
     // Only remove if it's a foreground task (not backgrounded)
     if (!isLocalShellTask(task) || task.isBackgrounded) {
-      return;
+      return prev;
     }
 
     // Capture cleanup function to call outside of updater
     cleanupFn = task.unregisterCleanup;
-    taskRegistry.remove(taskId);
-  }
+    const {
+      [taskId]: removed,
+      ...rest
+    } = prev.tasks;
+    return {
+      ...prev,
+      tasks: rest
+    };
+  });
 
   // Call cleanup outside of the state updater (avoid side effects in updater)
   cleanupFn?.();

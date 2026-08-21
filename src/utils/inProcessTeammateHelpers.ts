@@ -14,12 +14,14 @@ import {
   type InProcessTeammateTaskState,
   isInProcessTeammateTask,
 } from '../tasks/InProcessTeammateTask/types.js'
-import type { TaskRegistry } from './task/framework.js'
+import { updateTaskState } from './task/framework.js'
 import {
   isPermissionResponse,
   isSandboxPermissionResponse,
   type PlanApprovalResponseMessage,
 } from './teammateMailbox.js'
+
+type SetAppState = (updater: (prev: AppState) => AppState) => void
 
 /**
  * Find the task ID for an in-process teammate by agent name.
@@ -52,10 +54,10 @@ export function findInProcessTeammateTaskId(
  */
 export function setAwaitingPlanApproval(
   taskId: string,
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
   awaiting: boolean,
 ): void {
-  taskRegistry.update<InProcessTeammateTaskState>(taskId, task => ({
+  updateTaskState<InProcessTeammateTaskState>(taskId, setAppState, task => ({
     ...task,
     awaitingPlanApproval: awaiting,
   }))
@@ -75,9 +77,9 @@ export function setAwaitingPlanApproval(
 export function handlePlanApprovalResponse(
   taskId: string,
   _response: PlanApprovalResponseMessage,
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
 ): void {
-  setAwaitingPlanApproval(taskId, taskRegistry, false)
+  setAwaitingPlanApproval(taskId, setAppState, false)
 }
 
 // ============ Permission Delegation Helpers ============

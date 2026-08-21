@@ -589,10 +589,6 @@ export function extractOutputRedirections(cmd: string): {
 } {
   const redirections: Array<{ target: string; operator: '>' | '>>' }> = []
   let hasDangerousRedirection = false
-  let dangerousRedirectionReason:
-    | 'network_device'
-    | 'shell_expansion'
-    | undefined
 
   // SECURITY: Extract heredocs BEFORE line-continuation joining AND parsing.
   // This matches splitCommandWithOperators (line 101). Quoted-heredoc bodies
@@ -750,9 +746,6 @@ export function extractOutputRedirections(cmd: string): {
       )
       if (dangerous) {
         hasDangerousRedirection = true
-        if (dangerousRedirectionReason !== 'network_device') {
-          dangerousRedirectionReason = 'shell_expansion'
-        }
       }
       if (skip > 0) {
         i += skip

@@ -40,6 +40,76 @@ export type TaskAttachment = {
 
 type SetAppState = (updater: (prev: AppState) => AppState) => void
 
+export type TaskRegistry = {
+  register(task: TaskState): void
+  update<T extends TaskState>(taskId: string, updater: (task: T) => T): void
+  remove(taskId: string): void
+  evictTerminal(taskId: string): void
+  applyOffsetsAndEvict(
+    updatedTaskOffsets: Record<string, number>,
+    evictedTaskIds: string[],
+  ): void
+  get(taskId: string): TaskState | undefined
+  all(): Record<string, TaskState>
+}
+
+function removeAgentNameForTask(
+  registry: AppState['agentNameRegistry'],
+  taskId: string,
+): AppState['agentNameRegistry'] {
+  let next: AppState['agentNameRegistry'] | undefined
+  for (const [name, agentId] of registry) {
+    if (agentId !== taskId) continue
+    next ??= new Map(registry)
+    next.delete(name)
+  }
+  return next ?? registry
+}
+
+export function createTaskRegistry(
+  getAppState: () => AppState,
+  setAppState: SetAppState,
+): TaskRegistry {
+  return {
+    register(task) {
+      registerTask(task, setAppState)
+    },
+    update(taskId, updater) {
+      updateTaskState(taskId, setAppState, updater)
+    },
+    remove(taskId) {
+      setAppState(previous => {
+        if (!(taskId in previous.tasks)) return previous
+        const { [taskId]: _removed, ...tasks } = previous.tasks
+        return {
+          ...previous,
+          tasks,
+          agentNameRegistry: removeAgentNameForTask(
+            previous.agentNameRegistry,
+            taskId,
+          ),
+        }
+      })
+    },
+    evictTerminal(taskId) {
+      evictTerminalTask(taskId, setAppState)
+    },
+    applyOffsetsAndEvict(updatedTaskOffsets, evictedTaskIds) {
+      applyTaskOffsetsAndEvictions(
+        setAppState,
+        updatedTaskOffsets,
+        evictedTaskIds,
+      )
+    },
+    get(taskId) {
+      return getAppState().tasks[taskId]
+    },
+    all() {
+      return getAppState().tasks
+    },
+  }
+}
+
 type TaskStatePatch = {
   status?: TaskStatus
   description?: string
@@ -217,9 +287,7 @@ export function getRunningTasks(state: AppState): TaskState[] {
  * Generate attachments for tasks with new output or status changes.
  * Called by the framework to create push notifications.
  */
-export async function generateTaskAttachments(
-  tasks: Record<string, TaskState>,
-): Promise<{
+export async function generateTaskAttachments(state: AppState): Promise<{
   attachments: TaskAttachment[]
   // Only the offset patch — NOT the full task. The task may transition to
   // completed during getTaskOutputDelta's async disk read, and spreading the
@@ -230,6 +298,8 @@ export async function generateTaskAttachments(
   const attachments: TaskAttachment[] = []
   const updatedTaskOffsets: Record<string, number> = {}
   const evictedTaskIds: string[] = []
+  const tasks = state.tasks ?? {}
+
   for (const taskState of Object.values(tasks)) {
     if (taskState.notified) {
       switch (taskState.status) {
@@ -326,7 +396,7 @@ export async function pollTasks(
 ): Promise<void> {
   const state = getAppState()
   const { attachments, updatedTaskOffsets, evictedTaskIds } =
-    await generateTaskAttachments(state.tasks)
+    await generateTaskAttachments(state)
 
   applyTaskOffsetsAndEvictions(setAppState, updatedTaskOffsets, evictedTaskIds)
 

@@ -164,12 +164,11 @@ function Install({
         });
 
         // If user explicitly specified a channel, save it to settings
-        if (target === 'latest' || target === 'stable' || target === 'rc') {
-          const autoUpdatesChannel = target === 'rc' ? 'stable' : target;
+        if (target === 'latest' || target === 'stable') {
           updateSettingsForSource('userSettings', {
-            autoUpdatesChannel
+            autoUpdatesChannel: target
           });
-          logForDebugging(`Install: Saved autoUpdatesChannel=${autoUpdatesChannel} to user settings`);
+          logForDebugging(`Install: Saved autoUpdatesChannel=${target} to user settings`);
         }
 
         // Combine all warning/info messages (convert SetupMessage to string)

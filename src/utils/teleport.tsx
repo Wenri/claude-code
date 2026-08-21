@@ -9,7 +9,6 @@ import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEve
 import { isPolicyAllowed } from 'src/services/policyLimits/index.js';
 import { z } from 'zod/v4';
 import { getTeleportErrors, TeleportError, type TeleportLocalErrorType } from '../components/TeleportError.js';
-import { isTrustedDeviceGateEnabled } from '../bridge/trustedDevice.js';
 import { getOauthConfig } from '../constants/oauth.js';
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js';
 import type { Root } from '../ink.js';
@@ -31,6 +30,7 @@ import { errorMessage, TeleportOperationError, toError } from './errors.js';
 import { execFileNoThrow } from './execFileNoThrow.js';
 import { truncateToWidth } from './format.js';
 import { findGitRoot, getDefaultBranch, getIsClean, gitExe } from './git.js';
+import { isSafeRefName } from './git/gitFilesystem.js';
 import { safeParseJSON } from './json.js';
 import { logError } from './log.js';
 import { createSystemMessage, createUserMessage, extractTextContent } from './messages.js';
@@ -323,6 +323,12 @@ export async function checkOutTeleportedSessionBranch(branch?: string): Promise<
     const currentBranch = await getCurrentBranch();
     logForDebugging(`Current branch before teleport: '${currentBranch}'`);
     if (branch) {
+      if (!isSafeRefName(branch)) {
+        throw new TeleportOperationError(
+          `Invalid branch name from remote session: ${branch}`,
+          chalk.red('Invalid branch name from remote session\n'),
+        );
+      }
       logForDebugging(`Switching to branch '${branch}'...`);
       await fetchFromOrigin(branch);
       await checkoutBranch(branch);
@@ -932,6 +938,12 @@ export async function teleportToRemote(options: {
     initialMessage,
     signal
   } = options;
+  if (!isPolicyAllowed('allow_remote_sessions')) {
+    options.onCreateFail?.(
+      "Remote sessions are disabled by your organization's policy.",
+    );
+    return null;
+  }
   try {
     // Check authentication
     await checkAndRefreshOAuthTokenIfNeeded();

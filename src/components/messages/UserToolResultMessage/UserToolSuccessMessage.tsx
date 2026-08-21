@@ -6,7 +6,7 @@ import { Box, Text, useTheme } from '../../../ink.js';
 import { useAppState, useAppStateStore } from '../../../state/AppState.js';
 import { filterToolProgressMessages, type Tool, type Tools } from '../../../Tool.js';
 import type { NormalizedUserMessage, ProgressMessage } from '../../../types/message.js';
-import { createClassifierApprovalsSetter, deleteClassifierApproval, getClassifierApproval, getYoloClassifierApproval } from '../../../utils/classifierApprovals.js';
+import { deleteClassifierApproval, getClassifierApproval, getYoloClassifierApproval, makeSetClassifierApprovals } from '../../../utils/classifierApprovals.js';
 import type { buildMessageLookups } from '../../../utils/messages.js';
 import { MessageResponse } from '../../MessageResponse.js';
 import { HookProgressMessage } from '../HookProgressMessage.js';
@@ -35,21 +35,21 @@ export function UserToolSuccessMessage({
   isTranscriptMode
 }: Props): React.ReactNode {
   const [theme] = useTheme();
-  const appStateStore = useAppStateStore();
   // Hook stays inside feature() ternary so external builds don't pay a
   // per-scrollback-message store subscription — same pattern as
   // UserPromptMessage.tsx.
   const isBriefOnly = feature('KAIROS') || feature('KAIROS_BRIEF') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useAppState(s => s.isBriefOnly) : false;
+  const store = useAppStateStore();
 
   // Capture classifier approval once on mount, then delete from Map to prevent linear growth.
   // useState lazy initializer ensures the value persists across re-renders.
-  const [classifierRule] = React.useState(() => getClassifierApproval(appStateStore.getState(), toolUseID));
-  const [yoloReason] = React.useState(() => getYoloClassifierApproval(appStateStore.getState(), toolUseID));
+  const [classifierRule] = React.useState(() => getClassifierApproval(store.getState(), toolUseID));
+  const [yoloReason] = React.useState(() => getYoloClassifierApproval(store.getState(), toolUseID));
   React.useEffect(() => {
-    deleteClassifierApproval(createClassifierApprovalsSetter(appStateStore.setState), toolUseID);
-  }, [appStateStore, toolUseID]);
+    deleteClassifierApproval(makeSetClassifierApprovals(store.setState), toolUseID);
+  }, [store, toolUseID]);
   if (!message.toolUseResult || !tool) {
     return null;
   }

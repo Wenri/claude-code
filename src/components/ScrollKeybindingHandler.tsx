@@ -1,6 +1,5 @@
 import React, { type RefObject, useEffect, useRef } from 'react';
 import { useNotifications } from '../context/notifications.js';
-import { useIsModalOverlayActive } from '../context/overlayContext.js';
 import { useSelectionDelete } from '../context/selectionDelete.js';
 import { useCopyOnSelect, useSelectionBgColor } from '../hooks/useCopyOnSelect.js';
 import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js';
@@ -12,8 +11,12 @@ import { getClipboardPath } from '../ink/termio/osc.js';
 import { type Key, useInput, useStdin } from '../ink.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { logEvent } from '../services/analytics/index.js';
+import {
+  getSessionsSinceLastShown,
+  recordTipShown,
+} from '../services/tips/tipHistory.js'
+import { getGlobalConfig } from '../utils/config.js'
 import { logForDebugging } from '../utils/debug.js';
-import { countGraphemes } from '../utils/intl.js';
 type Props = {
   scrollRef: RefObject<ScrollBoxHandle | null>;
   isActive: boolean;
@@ -71,6 +74,9 @@ const WHEEL_BOUNCE_GAP_MAX_MS = 200; // flip-back must arrive within this
 // compensate. At gap=100ms (m≈0.63): one click gives 1+15*0.63≈10.5.
 const WHEEL_MODE_STEP = 15;
 const WHEEL_MODE_CAP = 15;
+const AUTO_COPY_CONFIG_HINT_ID = 'auto-copy-config-hint'
+const AUTO_COPY_CONFIG_HINT_SESSION_GAP = 10
+const AUTO_COPY_CONFIG_HINT_MAX_USES = 5
 // Max mult growth per event. Without this, the +STEP*m term jumps mult
 // from 1→10 in one event when wheelMode engages mid-scroll (bounce
 // detected after N events in trackpad mode at mult=1). User sees scroll
@@ -316,13 +322,10 @@ export function initWheelAccel(useDecayCurve = false, base = 1): WheelAccelState
   };
 }
 
-// Resolve the shared input/drain policy lazily on the first wheel event, after
-// globalSettings.env and the asynchronous XTVERSION probe have had time to
-// settle. The renderer reads the same cached config, so the curve and drain
-// algorithms cannot disagree about terminal detection.
+// Lazy-init after settings env and the async XTVERSION probe have settled.
 function initAndLogWheelAccel(): WheelAccelState {
   const config = getScrollConfig();
-  logForDebugging(`wheel accel: ${config.useDecayCurve ? 'decay' : 'window (native)'} · base=${config.base} · platform=${config.platform} · TERM_PROGRAM=${config.termProgram}`);
+  logForDebugging(`wheel accel: ${config.useDecayCurve ? 'decay' : 'window (native)'} · base=${config.base} · platform=${config.platform} · TERM_PROGRAM=${config.termProgram}${config.wheelFlood ? ' · wheelFlood' : ''}`);
   return initWheelAccel(config.useDecayCurve, config.base);
 }
 
@@ -337,44 +340,6 @@ const AUTOSCROLL_INTERVAL_MS = 50;
 // run until a scroll boundary. Cap bounds the damage; any new drag motion
 // event restarts the count via check()→start().
 const AUTOSCROLL_MAX_TICKS = 200; // 10s @ 50ms
-const AUTO_COPY_CONFIG_HINT_KEY = 'auto-copy-config-hint';
-const AUTO_COPY_CONFIG_HINT_INTERVAL = 10;
-const AUTO_COPY_CONFIG_HINT_LIMIT = 5;
-
-function useArrowScrollHint(
-  addNotification: ReturnType<typeof useNotifications>['addNotification']
-): void {
-  const { internal_eventEmitter } = useStdin();
-  const didLog = useRef(false);
-  useEffect(() => {
-    const onArrowBurst = (event: { direction: 'up' | 'down'; count: number }): void => {
-      if (!didLog.current) {
-        didLog.current = true;
-        logEvent('tengu_scroll_arrows_detected', {
-          count: event.count,
-          up: event.direction === 'up'
-        });
-      }
-      setTimeout(showArrowScrollHint, 200, addNotification);
-    };
-    internal_eventEmitter.on('arrow-burst', onArrowBurst);
-    return () => {
-      internal_eventEmitter.off('arrow-burst', onArrowBurst);
-    };
-  }, [internal_eventEmitter, addNotification]);
-}
-
-export function showArrowScrollHint(
-  addNotification: ReturnType<typeof useNotifications>['addNotification']
-): void {
-  addNotification({
-    key: 'scroll-as-arrows',
-    priority: 'immediate',
-    text: 'Scroll wheel is sending arrow keys · run /terminal-setup to fix',
-    color: 'warning',
-    timeoutMs: 12_000
-  });
-}
 
 function useArrowScrollHint(
   addNotification: ReturnType<typeof useNotifications>['addNotification'],
@@ -433,15 +398,14 @@ export function ScrollKeybindingHandler({
   // raw-mode-enable time) has resolved by then — initializing in useRef()
   // would read getWheelBase() before the probe reply arrives over SSH.
   const wheelAccel = useRef<WheelAccelState | null>(null);
-  const autoCopyConfigHintCount = useRef(-1);
-  useArrowScrollHint(addNotification);
-  function showCopiedToast(text: string, autoCopy = false): void {
+  const autoCopyHintUses = useRef(-1)
+  function showCopiedToast(text: string, isAutoCopy = false): void {
     // getClipboardPath reads env synchronously — predicts what setClipboard
     // did (native pbcopy / tmux load-buffer / raw OSC 52) so we can tell
     // the user whether paste will Just Work or needs prefix+].
     const path = getClipboardPath();
-    const n = countGraphemes(text);
-    const unit = n === 1 ? 'char' : 'chars';
+    const n = text.length;
+    const unit = n === 1 ? 'char' : 'chars'
     let msg: string;
     switch (path) {
       case 'native':
@@ -454,20 +418,27 @@ export function ScrollKeybindingHandler({
         msg = `sent ${n} ${unit} via OSC 52 · check terminal clipboard settings if paste fails`;
         break;
     }
-    let timeoutMs = path === 'native' ? 2000 : 4000;
-    if (autoCopy && path === 'native' && getGlobalConfig().copyOnSelect === undefined) {
-      if (autoCopyConfigHintCount.current === -1) {
-        if (getSessionsSinceLastShown(AUTO_COPY_CONFIG_HINT_KEY) >= AUTO_COPY_CONFIG_HINT_INTERVAL) {
-          recordTipShown(AUTO_COPY_CONFIG_HINT_KEY);
-          autoCopyConfigHintCount.current = 0;
+    let timeoutMs = path === 'native' ? 2000 : 4000
+    if (
+      isAutoCopy &&
+      path === 'native' &&
+      getGlobalConfig().copyOnSelect === undefined
+    ) {
+      if (autoCopyHintUses.current === -1) {
+        if (
+          getSessionsSinceLastShown(AUTO_COPY_CONFIG_HINT_ID) >=
+          AUTO_COPY_CONFIG_HINT_SESSION_GAP
+        ) {
+          recordTipShown(AUTO_COPY_CONFIG_HINT_ID)
+          autoCopyHintUses.current = 0
         } else {
-          autoCopyConfigHintCount.current = AUTO_COPY_CONFIG_HINT_LIMIT;
+          autoCopyHintUses.current = AUTO_COPY_CONFIG_HINT_MAX_USES
         }
       }
-      if (autoCopyConfigHintCount.current < AUTO_COPY_CONFIG_HINT_LIMIT) {
-        autoCopyConfigHintCount.current++;
-        msg += ' · disable auto-copy in /config';
-        timeoutMs = 4000;
+      if (autoCopyHintUses.current < AUTO_COPY_CONFIG_HINT_MAX_USES) {
+        autoCopyHintUses.current++
+        msg += ' · disable auto-copy in /config'
+        timeoutMs = 4000
       }
     }
     addNotification({
@@ -591,90 +562,49 @@ export function ScrollKeybindingHandler({
     'selection:copy': copyAndToast
   }, {
     context: 'Scroll',
-    isActive: handlerIsActive
+    isActive
   });
 
-  function performNamedScroll(action: ModalPagerAction): void {
-    const s = scrollRef.current;
-    if (!s) return;
-    const sticky = applyModalPagerAction(s, action, delta => translateSelectionForJump(s, delta));
-    if (sticky === null) return;
-    onScroll?.(sticky, s);
-  }
+  // scroll:halfPage*/fullPage* have no default key bindings — ctrl+u/d/b/f
+  // all have real owners in normal mode (kill-line/exit/task:background/
+  // kill-agents). Transcript mode gets them via the isModal raw useInput
+  // below. These handlers stay for custom rebinds only.
   useKeybindings({
-    'scroll:halfPageUp': () => performNamedScroll('halfPageUp'),
-    'scroll:halfPageDown': () => performNamedScroll('halfPageDown'),
-    'scroll:fullPageUp': () => performNamedScroll('fullPageUp'),
-    'scroll:fullPageDown': () => performNamedScroll('fullPageDown')
-  }, {
-    context: 'Scroll',
-    isActive: handlerIsActive
-  });
-
-  useKeybindings({
-    'scroll:lineUp': () => performNamedScroll('lineUp'),
-    'scroll:lineDown': () => performNamedScroll('lineDown'),
-    'scroll:halfPageUp': () => performNamedScroll('halfPageUp'),
-    'scroll:halfPageDown': () => performNamedScroll('halfPageDown'),
-    'scroll:fullPageUp': () => performNamedScroll('fullPageUp'),
-    'scroll:fullPageDown': () => performNamedScroll('fullPageDown'),
-    'scroll:top': () => performNamedScroll('top'),
-    'scroll:bottom': () => performNamedScroll('bottom')
-  }, {
-    context: 'Transcript',
-    isActive: handlerIsActive && isModal
-  });
-
-  function extendSelection(move: FocusMove): boolean | void {
-    if (!selection.hasSelection()) return false;
-    if (move === 'up' || move === 'down') {
-      const s = scrollRef.current;
-      const state = selection.getState();
-      if (s && state?.anchor && state.focus) {
-        const top = s.getViewportTop();
-        const bottom = top + s.getViewportHeight() - 1;
-        const anchorInViewport = state.anchor.row >= top && state.anchor.row <= bottom;
-        const extendingAbove = anchorInViewport && move === 'up' && state.focus.row <= top;
-        const extendingBelow = anchorInViewport && move === 'down' && state.focus.row >= bottom;
-        if (extendingAbove || extendingBelow) {
-          const max = Math.max(0, s.getScrollHeight() - s.getViewportHeight());
-          const canScroll = extendingAbove ? s.getScrollTop() > 0 : s.getScrollTop() < max;
-          if (s.getPendingDelta() === 0 && canScroll) {
-            const scrolledOff = extendingAbove ? state.scrolledOffAbove : state.scrolledOffBelow;
-            if (scrolledOff.length > 0) {
-              state.scrolledOffAbove = [];
-              state.scrolledOffBelow = [];
-              state.scrolledOffAboveSW = [];
-              state.scrolledOffBelowSW = [];
-              state.virtualAnchorRow = undefined;
-            }
-            if (extendingAbove) {
-              selection.captureScrolledRows(bottom, bottom, 'below');
-              selection.shiftAnchor(1, top, bottom);
-              s.scrollBy(-1);
-            } else {
-              selection.captureScrolledRows(top, top, 'above');
-              selection.shiftAnchor(-1, top, bottom);
-              s.scrollBy(1);
-            }
-            onScroll?.(false, s);
-          }
-          return;
-        }
-      }
+    'scroll:halfPageUp': () => {
+      const s_6 = scrollRef.current;
+      if (!s_6) return;
+      const d_1 = -Math.max(1, Math.floor(s_6.getViewportHeight() / 2));
+      translateSelectionForJump(s_6, d_1);
+      const sticky_1 = jumpBy(s_6, d_1);
+      onScroll?.(sticky_1, s_6);
+    },
+    'scroll:halfPageDown': () => {
+      const s_7 = scrollRef.current;
+      if (!s_7) return;
+      const d_2 = Math.max(1, Math.floor(s_7.getViewportHeight() / 2));
+      translateSelectionForJump(s_7, d_2);
+      const sticky_2 = jumpBy(s_7, d_2);
+      onScroll?.(sticky_2, s_7);
+    },
+    'scroll:fullPageUp': () => {
+      const s_8 = scrollRef.current;
+      if (!s_8) return;
+      const d_3 = -Math.max(1, s_8.getViewportHeight());
+      translateSelectionForJump(s_8, d_3);
+      const sticky_3 = jumpBy(s_8, d_3);
+      onScroll?.(sticky_3, s_8);
+    },
+    'scroll:fullPageDown': () => {
+      const s_9 = scrollRef.current;
+      if (!s_9) return;
+      const d_4 = Math.max(1, s_9.getViewportHeight());
+      translateSelectionForJump(s_9, d_4);
+      const sticky_4 = jumpBy(s_9, d_4);
+      onScroll?.(sticky_4, s_9);
     }
-    selection.moveFocus(move);
-  }
-  useKeybindings({
-    'selection:extendLeft': () => extendSelection('left'),
-    'selection:extendRight': () => extendSelection('right'),
-    'selection:extendUp': () => extendSelection('up'),
-    'selection:extendDown': () => extendSelection('down'),
-    'selection:extendLineStart': () => extendSelection('lineStart'),
-    'selection:extendLineEnd': () => extendSelection('lineEnd')
   }, {
     context: 'Scroll',
-    isActive: handlerIsActive
+    isActive
   });
 
   // Modal pager keys — transcript mode only. less/tmux copy-mode lineage:
@@ -694,12 +624,14 @@ export function ScrollKeybindingHandler({
   // template. Single-shot via OVERSCAN_ROWS=80; two-phase was tried and
   // abandoned (❯ oscillation). See team memory scroll-copy-mode-design.md.
   useInput((input, key, event) => {
-    const action = repeatedModalPagerAction(input, key);
-    if (!action) return;
-    for (let repeat = 0; repeat < input.length; repeat++) performNamedScroll(action);
+    const s_10 = scrollRef.current;
+    if (!s_10) return;
+    const sticky_5 = applyModalPagerAction(s_10, modalPagerAction(input, key), d_5 => translateSelectionForJump(s_10, d_5));
+    if (sticky_5 === null) return;
+    onScroll?.(sticky_5, s_10);
     event.stopImmediatePropagation();
   }, {
-    isActive: handlerIsActive && isModal
+    isActive: isActive && isModal
   });
 
   // Esc clears selection; any other keystroke also clears it (matches
@@ -725,7 +657,6 @@ export function ScrollKeybindingHandler({
       event_0.stopImmediatePropagation();
       return;
     }
-    if (isModal && isModalPagerInput(input_0, key_0)) return;
     if (!isModal && (key_0.backspace || key_0.delete) && !key_0.ctrl && !key_0.meta && !key_0.shift && !key_0.super) {
       const state = selection.getState();
       if (state && selectionDelete.tryDelete(state)) {
@@ -734,14 +665,20 @@ export function ScrollKeybindingHandler({
         return;
       }
     }
+    const move = selectionFocusMoveForKey(key_0);
+    if (move) {
+      selection.moveFocus(move);
+      event_0.stopImmediatePropagation();
+      return;
+    }
     if (shouldClearSelectionOnKey(key_0)) {
       selection.clearSelection();
     }
   }, {
-    isActive: handlerIsActive
+    isActive
   });
-  useDragToScroll(scrollRef, selection, handlerIsActive, onScroll);
-  useCopyOnSelect(selection, handlerIsActive, text => showCopiedToast(text, true));
+  useDragToScroll(scrollRef, selection, isActive, onScroll);
+  useCopyOnSelect(selection, isActive, text => showCopiedToast(text, true));
   useSelectionBgColor(selection);
   return null;
 }
@@ -1007,22 +944,6 @@ export function scrollUp(s: ScrollBoxHandle, amount: number): void {
 export type ModalPagerAction = 'lineUp' | 'lineDown' | 'halfPageUp' | 'halfPageDown' | 'fullPageUp' | 'fullPageDown' | 'top' | 'bottom';
 
 /**
- * Whether a key belongs to the modal pager's input vocabulary. This stays
- * broader than `modalPagerAction`: while the scroll handle is unavailable,
- * pager keys must still preserve the current selection instead of falling
- * through to the selection-clearing observer.
- */
-export function isModalPagerInput(
-  input: string,
-  key: Pick<Key, 'ctrl' | 'upArrow' | 'downArrow' | 'home' | 'end'>,
-): boolean {
-  if (key.upArrow || key.downArrow || key.home || key.end) return true;
-  if (input.length !== 1) return false;
-  if (key.ctrl) return 'udbfnp'.includes(input);
-  return 'jkgGb '.includes(input);
-}
-
-/**
  * Maps a keystroke to a modal pager action. Exported for testing.
  * Returns null for keys the modal pager doesn't handle (they fall through).
  *
@@ -1090,37 +1011,6 @@ export function modalPagerAction(input: string, key: Pick<Key, 'ctrl' | 'meta' |
       return 'lineUp';
     // less: space = page down, b = page up. ctrl+b already maps above;
     // bare b is the less-native version.
-    case ' ':
-      return 'fullPageDown';
-    case 'b':
-      return 'fullPageUp';
-    default:
-      return null;
-  }
-}
-
-/**
- * Maps a coalesced run of repeated printable input to its pager action.
- * Single keys are owned by Transcript keybindings; this fallback preserves
- * every repeat when Ink delivers a held key as one multi-character batch.
- */
-export function repeatedModalPagerAction(
-  input: string,
-  key: Pick<Key, 'ctrl' | 'meta' | 'shift'>,
-): ModalPagerAction | null {
-  if (input.length < 2) return null;
-  const c = input[0];
-  if (!c || input !== c.repeat(input.length)) return null;
-  if (key.ctrl || key.meta) return null;
-  if (c === 'G' || c === 'g' && key.shift) return 'bottom';
-  if (key.shift) return null;
-  switch (c) {
-    case 'g':
-      return 'top';
-    case 'j':
-      return 'lineDown';
-    case 'k':
-      return 'lineUp';
     case ' ':
       return 'fullPageDown';
     case 'b':

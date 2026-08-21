@@ -18,6 +18,8 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
   logEvent,
 } from '../../services/analytics/index.js'
+import { isToolDetailsLoggingEnabled } from '../../services/analytics/metadata.js'
+import type { Command } from '../../types/command.js'
 import type {
   LoadedPlugin,
   PluginError,
@@ -27,6 +29,7 @@ import {
   isOfficialMarketplaceName,
   parsePluginIdentifier,
 } from '../plugins/pluginIdentifier.js'
+import { logOTelEvent } from './events.js'
 
 // builtinPlugins.ts:BUILTIN_MARKETPLACE_NAME — inlined to avoid the cycle
 // through commands.js. Marketplace schemas.ts enforces 'builtin' is reserved.
@@ -97,34 +100,36 @@ export type InvocationTrigger =
   | 'claude-proactive'
   | 'nested-skill'
 
+export function recordSkillActivated(
+  commandName: string,
+  command: Command | undefined,
+  invocationTrigger: InvocationTrigger,
+): void {
+  const source = command?.type === 'prompt' ? command.source : undefined
+  const pluginInfo =
+    command?.type === 'prompt' ? command.pluginInfo : undefined
+  const marketplace = pluginInfo
+    ? parsePluginIdentifier(pluginInfo.repository).marketplace
+    : undefined
+  const canLogNames =
+    source === 'builtin' ||
+    source === 'bundled' ||
+    (source === 'plugin' && isOfficialMarketplaceName(marketplace)) ||
+    isToolDetailsLoggingEnabled()
+
+  void logOTelEvent('skill_activated', {
+    'skill.name': canLogNames ? commandName : 'custom_skill',
+    invocation_trigger: invocationTrigger,
+    ...(source && { 'skill.source': source }),
+    ...(command?.kind && { 'skill.kind': command.kind }),
+    ...(canLogNames &&
+      pluginInfo && { 'plugin.name': pluginInfo.pluginManifest.name }),
+    ...(canLogNames && marketplace && { 'marketplace.name': marketplace }),
+  })
+}
+
 /** Where a skill invocation executes. */
 export type SkillExecutionContext = 'fork' | 'inline' | 'remote'
-
-export function buildSkillTelemetryFields(
-  source?: string,
-  loadedFrom?: string,
-  kind?: string,
-  createdBy?: string,
-): Record<string, AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS> {
-  return {
-    ...(source && {
-      skill_source:
-        source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-    ...(loadedFrom && {
-      skill_loaded_from:
-        loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-    ...(kind && {
-      skill_kind:
-        kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-    ...(createdBy && {
-      skill_created_by:
-        createdBy as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-  }
-}
 
 /** How a plugin install was initiated. */
 export type InstallSource =
@@ -248,9 +253,7 @@ export function logPluginsEnabledForSession(
       ...(plugin.settings && {
         settings_keys: Object.keys(plugin.settings)
           .sort()
-          .join(
-            ',',
-          ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          .join(',') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       }),
       ...(plugin.manifest.version && {
         version: plugin.manifest

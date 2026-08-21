@@ -18,7 +18,6 @@ import {
   isShallowClone as isShallowCloneFs,
   resolveGitDir,
 } from './git/gitFilesystem.js'
-import { parseConfigString } from './git/gitConfigParser.js'
 import { logError } from './log.js'
 import { memoizeWithLRU } from './memoize.js'
 import { whichSync } from './which.js'
@@ -283,11 +282,12 @@ export const getRemoteUrl = async (): Promise<string | null> => {
   return getCachedRemoteUrl()
 }
 
-/** Redacts credentials embedded in HTTP(S) and SSH-style remote URLs. */
-export function redactGitRemoteCredentials(
-  url: string | null | undefined,
-): string | null | undefined {
-  return url == null ? url : url.replace(/:\/\/[^/]*@/, '://***@')
+export function redactGitRemoteCredentials<T extends string | null | undefined>(
+  remoteUrl: T,
+): T {
+  return (remoteUrl == null
+    ? remoteUrl
+    : remoteUrl.replace(/:\/\/[^/]*@/, '://***@')) as T
 }
 
 /**

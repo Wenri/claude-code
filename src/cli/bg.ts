@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'crypto'
 import chalk from 'chalk'
-import { mkdir, readdir, rename, rm, unlink, writeFile } from 'fs/promises'
+import { mkdir, readdir, rm, unlink, writeFile } from 'fs/promises'
 import { connect } from 'net'
 import { join } from 'path'
 import { setTimeout as delay } from 'timers/promises'
@@ -9,6 +9,7 @@ import {
   getAgentDefinitionsWithOverrides,
 } from '../tools/AgentTool/loadAgentsDir.js'
 import { getCwd } from '../utils/cwd.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import {
   getMainLoopModelOverride,
   getSessionId,
@@ -21,6 +22,7 @@ import {
 import {
   flushSessionStorage,
   saveAiGeneratedTitle,
+  getCurrentSessionAiTitle,
   getCurrentSessionTitle,
   getCurrentSessionFile,
   isTranscriptPersistenceDisabled,
@@ -47,6 +49,12 @@ import { errorMessage } from '../utils/errors.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
 import { relaunch } from '../utils/relaunch.js'
 import { withTimeout } from '../utils/sleep.js'
+import { peekForStdinData } from '../utils/process.js'
+import { getGlobalConfig } from '../utils/config.js'
+import {
+  hasAutoModeOptIn,
+  hasSkipDangerousModePermissionPrompt,
+} from '../utils/settings/settings.js'
 import { hasTranscriptMessages } from '../utils/transcriptValidation.js'
 import {
   CURSOR_HOME,
@@ -100,6 +108,13 @@ import {
 } from '../daemon/protocol.js'
 
 const BG_FLAGS = ['--bg', '--background']
+const CTRL_B = 2
+const CTRL_Z = 26
+const DETACH_KEY = 100
+const KITTY_CTRL_B = Buffer.from('\x1B[98;5u', 'latin1')
+const MODIFY_OTHER_KEYS_CTRL_B = Buffer.from('\x1B[27;5;98~', 'latin1')
+const KITTY_CTRL_Z = Buffer.from('\x1B[122;5u', 'latin1')
+const MODIFY_OTHER_KEYS_CTRL_Z = Buffer.from('\x1B[27;5;122~', 'latin1')
 
 function enterAttachedTerminal(decModes: number[] = []): string {
   return (
@@ -123,6 +138,7 @@ function leaveAttachedTerminal(
     ESU +
     decModes.map(decreset).reverse().join('') +
     SHOW_CURSOR +
+    '\x1B[0m' +
     DISABLE_KITTY_KEYBOARD +
     DISABLE_MODIFY_OTHER_KEYS +
     (holdScreen ? '' : EXIT_ALT_SCREEN)
@@ -188,9 +204,13 @@ export function deriveBackgroundSeed(
     if (intent && detail !== undefined) break
   }
   if (!foundHuman) return null
+  const sessionId = getSessionId()
+  const customTitle = getCurrentSessionTitle(sessionId)
+  const aiTitle = getCurrentSessionAiTitle(sessionId)
   return {
     intent: (intent || '(backgrounded)').slice(0, 200),
-    name: getCurrentSessionTitle(getSessionId()),
+    name: customTitle ?? aiTitle,
+    nameSource: customTitle ? 'user' : aiTitle ? 'auto' : undefined,
     detail,
   }
 }
@@ -212,7 +232,7 @@ export interface SpawnBgOptions {
 }
 
 export type SpawnBgResult =
-  | { ok: true; short: string; sessionId: string }
+  | { ok: true; short: string; sessionId: string; idle: boolean }
   | { ok: false; error: string }
 
 function inheritedEnv(): Record<string, string> {
@@ -268,11 +288,13 @@ const RESPAWN_VALUE_FLAGS = new Set([
   '-m',
   '--permission-mode',
   '--agent',
+  '--agents',
   '--routine',
   '--effort',
   '--add-dir',
   '--mcp-config',
   '--settings',
+  '--setting-sources',
   '--system-prompt',
   '--system-prompt-file',
   '--append-system-prompt',
@@ -283,8 +305,24 @@ const RESPAWN_VALUE_FLAGS = new Set([
   '--allowedTools',
   '--disallowed-tools',
   '--disallowedTools',
+  '--tools',
   '--session-id',
   '--debug-file',
+  '-n',
+  '--name',
+  '--autocompact',
+  '--betas',
+  '--file',
+  '--max-budget-usd',
+  '--max-thinking-tokens',
+  '--max-turns',
+  '--task-budget',
+  '--plan-mode-instructions',
+  '--plugin-dir',
+  '--resume-session-at',
+  '--rewind-files',
+  '--thinking',
+  '--thinking-display',
 ])
 
 function persistentRespawnFlags(args: string[]): string[] {
@@ -329,14 +367,48 @@ function stripSessionIdFlags(args: string[]): string[] {
   return stripped
 }
 
+const OPTION_VALUE_FLAGS = new Set([
+  '--prefill',
+  '--prefill-b64',
+  '--deep-link-repo',
+  '--deep-link-last-fetch',
+  '--deep-link-cwd-b64',
+  '--handle-uri',
+  '--settings',
+  '--managed-settings',
+  '--setting-sources',
+])
+
 function optionValue(name: string, args: string[]): string | undefined {
   for (let index = 0; index < args.length; index++) {
     const arg = args[index]
     if (arg === '--') break
     if (arg.startsWith(`${name}=`)) return arg.slice(name.length + 1)
     if (arg === name && index + 1 < args.length) return args[index + 1]
+    if (arg !== undefined && OPTION_VALUE_FLAGS.has(arg)) index++
   }
   return undefined
+}
+
+function getBackgroundLaunchSafetyError(args: string[]): string | null {
+  const separator = args.indexOf('--')
+  const beforeSeparator = separator >= 0 ? args.slice(0, separator) : args
+  const permissionMode = optionValue('--permission-mode', beforeSeparator)
+  const requestsBypass =
+    permissionMode === 'bypassPermissions' ||
+    beforeSeparator.includes('--dangerously-skip-permissions') ||
+    beforeSeparator.includes('--allow-dangerously-skip-permissions')
+  if (
+    requestsBypass &&
+    !hasSkipDangerousModePermissionPrompt() &&
+    !getGlobalConfig().bypassPermissionsModeAccepted
+  ) {
+    return '--bg with bypassPermissions requires accepting the disclaimer first. Run `claude --dangerously-skip-permissions` once interactively.'
+  }
+  if (permissionMode === 'auto' && !hasAutoModeOptIn()) {
+    return '--bg with auto mode requires opting in first. Run `claude --permission-mode auto` once interactively.'
+  }
+  return null
 }
 
 export async function preSeedReplBgJob(
@@ -373,9 +445,7 @@ export async function preSeedReplBgJob(
 let daemonWasReachable = false
 
 async function atomicDispatch(path: string, dispatch: Dispatch): Promise<void> {
-  const temporary = `${path}.tmp.${process.pid}.${randomBytes(4).toString('hex')}`
-  await writeFile(temporary, JSON.stringify(dispatch), 'utf8')
-  await rename(temporary, path)
+  await atomicWriteFile(path, JSON.stringify(dispatch), 0o600)
 }
 
 type DispatchResult =
@@ -542,6 +612,8 @@ export async function spawnBgSession(
   options?: SpawnBgOptions,
   reattachEnv?: Record<string, string>,
 ): Promise<SpawnBgResult> {
+  const safetyError = getBackgroundLaunchSafetyError(args)
+  if (safetyError) return { ok: false, error: safetyError }
   const sessionId = suppliedSessionId ?? randomUUID()
   const short = sessionId.slice(0, 8)
   const jobDir = getJobDir(short)
@@ -601,13 +673,13 @@ export async function spawnBgSession(
       separator >= 0
         ? rawRespawnFlags
         : persistentRespawnFlags(rawRespawnFlags)
+    const intent = options?.intent ?? inferredIntent ?? ''
+    const idle = !agentName && intent === '' && !options?.detail
     let seeded = false
     let seedWrite: Promise<void> | undefined
     const freshDir = suppliedSessionId === undefined
     const existingState = freshDir ? null : await readJobState(jobDir)
     if (source !== 'fleet' && existingState === null) {
-      const intent = options?.intent ?? inferredIntent ?? ''
-      const idle = !agentName && intent === '' && !options?.detail
       seedWrite = writeJobState(
         jobDir,
         createInitialJobState({
@@ -717,7 +789,7 @@ export async function spawnBgSession(
             return
           }
         }
-        if (seeded) await rm(jobDir, { recursive: true, force: false }).catch(() => {})
+        if (seeded) await rm(jobDir, { recursive: true, force: true }).catch(() => {})
         if (result.reason === 'stale-short') {
           throw new Error('Previous session is still shutting down — try again in a moment')
         }
@@ -726,10 +798,10 @@ export async function spawnBgSession(
         )
       },
     )
-    return { ok: true, short, sessionId }
+    return { ok: true, short, sessionId, idle }
   } catch (error) {
     if (source !== 'fleet') {
-      await rm(jobDir, { recursive: true, force: false }).catch(() => {})
+      await rm(jobDir, { recursive: true, force: true }).catch(() => {})
     }
     return {
       ok: false,
@@ -936,14 +1008,86 @@ export function formatBgHints(short: string, name?: string): string {
   ].join('\n')
 }
 
+const MAX_BACKGROUND_STDIN_BYTES = 1_048_576
+
+export async function readBgStdin(
+  stdin: typeof process.stdin = process.stdin,
+): Promise<string> {
+  if (stdin.isTTY) return ''
+  stdin.setEncoding('utf8')
+  let input = ''
+  let truncated = false
+  const onData = (chunk: string) => {
+    if (truncated) return
+    if (input.length + chunk.length > MAX_BACKGROUND_STDIN_BYTES) {
+      input += chunk.slice(0, MAX_BACKGROUND_STDIN_BYTES - input.length)
+      truncated = true
+      return
+    }
+    input += chunk
+  }
+  stdin.on('data', onData)
+  const timedOut = await peekForStdinData(stdin, 3_000)
+  stdin.off('data', onData)
+  if (timedOut) return ''
+  if (truncated) {
+    process.stderr.write(
+      `warning: piped stdin exceeds ${MAX_BACKGROUND_STDIN_BYTES} bytes, truncated\n`,
+    )
+  }
+  return input.replace(/\r?\n$/, '')
+}
+
+export function withStdinPositional(args: string[], stdin: string): string[] {
+  const separator = args.indexOf('--')
+  if (separator >= 0) {
+    const positional = args.slice(separator + 1).join(' ')
+    return [
+      ...args.slice(0, separator),
+      '--',
+      positional ? `${positional}\n${stdin}` : stdin,
+    ]
+  }
+  let positionalIndex = -1
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index]!
+    if (arg.startsWith('-')) {
+      const next = args[index + 1]
+      if (
+        next !== undefined &&
+        (RESPAWN_VALUE_FLAGS.has(arg) || !next.startsWith('-'))
+      ) {
+        index++
+      }
+      continue
+    }
+    positionalIndex = index
+  }
+  if (positionalIndex >= 0) {
+    const combined = [...args]
+    combined[positionalIndex] = `${args[positionalIndex]}\n${stdin}`
+    return combined
+  }
+  return [...args, '--', stdin]
+}
+
 export async function handleBgFlag(args: string[]): Promise<void> {
-  const result = await spawnBgSession(args.filter((arg) => !BG_FLAGS.includes(arg)))
+  const filteredArgs = args.filter((arg) => !BG_FLAGS.includes(arg))
+  const stdin = await readBgStdin()
+  const result = await spawnBgSession(
+    stdin ? withStdinPositional(filteredArgs, stdin) : filteredArgs,
+  )
   if (!result.ok) {
     process.stderr.write(`${result.error}\n`)
     process.exit(1)
     return
   }
-  process.stdout.write(`${formatBgHints(result.short)}\n`)
+  process.stdout.write(
+    `${formatBgHints(
+      result.short,
+      result.idle ? '(idle — attach to send a prompt)' : undefined,
+    )}\n`,
+  )
 }
 
 async function resolveJobPrefix(
@@ -1017,6 +1161,18 @@ export function detachSuffixLength(buffer: Buffer): number {
     return length
   }
   return 0
+}
+
+function bufferMatchesAt(
+  buffer: Buffer,
+  offset: number,
+  sequence: Buffer,
+): boolean {
+  return (
+    buffer.length - offset >= sequence.length &&
+    buffer.compare(sequence, 0, sequence.length, offset, offset + sequence.length) ===
+      0
+  )
 }
 
 async function attachTerminal(
@@ -1093,11 +1249,30 @@ async function attachTerminal(
         if (inputPrefix) {
           inputPrefix = false
           if (index > start) socket.write(chunk.subarray(start, index))
-          if (byte === 100) return finish({ outcome: 'detached' })
-          socket.write(Buffer.from([2, byte]))
+          if (byte === DETACH_KEY) return finish({ outcome: 'detached' })
+          socket.write(Buffer.from([CTRL_B, byte]))
           start = index + 1
-        } else if (byte === 2) {
+          continue
+        }
+        if (
+          byte === CTRL_Z ||
+          bufferMatchesAt(chunk, index, KITTY_CTRL_Z) ||
+          bufferMatchesAt(chunk, index, MODIFY_OTHER_KEYS_CTRL_Z)
+        ) {
           if (index > start) socket.write(chunk.subarray(start, index))
+          return finish({ outcome: 'detached' })
+        }
+        const prefixLength =
+          byte === CTRL_B
+            ? 1
+            : bufferMatchesAt(chunk, index, KITTY_CTRL_B)
+              ? KITTY_CTRL_B.length
+              : bufferMatchesAt(chunk, index, MODIFY_OTHER_KEYS_CTRL_B)
+                ? MODIFY_OTHER_KEYS_CTRL_B.length
+                : 0
+        if (prefixLength) {
+          if (index > start) socket.write(chunk.subarray(start, index))
+          index += prefixLength - 1
           start = index + 1
           inputPrefix = true
         }
@@ -1277,7 +1452,9 @@ export async function attachJob(short: string): Promise<FleetAttachResult> {
         ? `${bgSupervisorNounCap()} is still starting — try again in a moment`
         : daemonUnavailable.test(outcome.msg)
           ? `${bgSupervisorNounCap()} didn't respond after starting — try again in a moment`
-          : `Couldn't attach — ${outcome.msg}`,
+          : outcome.msg
+            ? `Couldn't attach — ${outcome.msg}`
+            : "Couldn't attach to that session",
     }
   }
   logForDebugging('[PERF:bg-attach-end]')
@@ -1497,9 +1674,10 @@ export async function respawnBgJob(
   while ((await isBackgroundJobAlive(short)) && Date.now() < deadline) {
     await delay(100)
   }
+  const resumeSessionId = state.resumeSessionId ?? state.sessionId
   const transcript = join(
     getProjectDir(await canonicalizePath(state.cwd)),
-    `${state.sessionId}.jsonl`,
+    `${resumeSessionId}.jsonl`,
   )
   const exists = await hasTranscriptMessages(transcript)
   if (!exists) await rm(transcript, { force: false }).catch(() => {})
@@ -1513,13 +1691,13 @@ export async function respawnBgJob(
           : []
   const initialPrompt = options?.initialPrompt ?? (exists ? undefined : state.intent)
   const args = [
-    ...(exists ? ['--resume', state.sessionId] : []),
+    ...(exists ? ['--resume', resumeSessionId] : []),
     ...templateArgs,
     ...(initialPrompt ? ['--', initialPrompt] : []),
   ]
   const spawned = await spawnBgSession(
     args,
-    state.sessionId,
+    resumeSessionId,
     'fleet',
     state.cwd,
     undefined,

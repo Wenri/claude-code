@@ -1,7 +1,10 @@
 import { feature } from 'bun:bundle'
 import { z } from 'zod/v4'
 import { getKairosActive, getUserMsgOptIn } from '../../bootstrap/state.js'
-import { getFeatureValue_CACHED_WITH_REFRESH } from '../../services/analytics/growthbook.js'
+import {
+  getFeatureValue_CACHED_MAY_BE_STALE,
+  getFeatureValue_CACHED_WITH_REFRESH,
+} from '../../services/analytics/growthbook.js'
 import { logEvent } from '../../services/analytics/index.js'
 import type { ValidationResult } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
@@ -17,27 +20,26 @@ import {
 } from './prompt.js'
 import { renderToolResultMessage, renderToolUseMessage } from './UI.js'
 
+const preResolvedAttachmentSchema = lazySchema(() =>
+  z
+    .strictObject({
+      file_uuid: z.string(),
+      file_name: z.string(),
+      size: z.number(),
+      is_image: z.boolean(),
+    })
+    .describe(
+      'A file already uploaded to the filestore (e.g. by the device attach_file tool). Passed through without local stat or upload.',
+    ),
+)
+
 const inputSchema = lazySchema(() =>
   z.strictObject({
     message: z
       .string()
       .describe('The message for the user. Supports markdown formatting.'),
     attachments: z
-      .array(
-        z.union([
-          z.string(),
-          z
-            .strictObject({
-              file_uuid: z.string(),
-              file_name: z.string(),
-              size: z.number(),
-              is_image: z.boolean(),
-            })
-            .describe(
-              'A file already uploaded to the filestore (e.g. by the device attach_file tool). Passed through without local stat or upload.',
-            ),
-        ]),
-      )
+      .array(z.union([z.string(), preResolvedAttachmentSchema()]))
       .optional()
       .describe(
         'Optional attachments for the user to see alongside your message. Each entry is either a file path (absolute or relative to cwd) for a file you can read locally, or a pre-resolved {file_uuid, file_name, size, is_image} object you obtained from a device tool such as attach_file.',
@@ -79,6 +81,7 @@ type OutputSchema = ReturnType<typeof outputSchema>
 export type Output = z.infer<OutputSchema>
 
 const KAIROS_BRIEF_REFRESH_MS = 5 * 60 * 1000
+const DEFAULT_BRIEF_ENFORCE_TEXT = `In brief mode, plain assistant text is hidden from the user — only ${BRIEF_TOOL_NAME} reaches them. Call it now with your substantive reply for this turn. Do not mention this reminder; the message should read as if you wrote it unprompted, addressing only what the user actually asked. If you genuinely have nothing useful to tell the user, you may end the turn without calling it.`
 
 /**
  * Entitlement check — is the user ALLOWED to use Brief? Combines build-time
@@ -145,6 +148,16 @@ export function isBriefEnabled(): boolean {
   return feature('KAIROS') || feature('KAIROS_BRIEF')
     ? (getKairosActive() || getUserMsgOptIn()) && isBriefEntitled()
     : false
+}
+
+export function getBriefEnforceText(): string {
+  const configured = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_kairos_brief_stop_hook_text',
+    '',
+  )
+  return typeof configured === 'string' && configured.length > 0
+    ? configured
+    : DEFAULT_BRIEF_ENFORCE_TEXT
 }
 
 export const BriefTool = buildTool({

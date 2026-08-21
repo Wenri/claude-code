@@ -5,6 +5,10 @@
 import { feature } from 'bun:bundle'
 import { randomUUID, type UUID } from 'crypto'
 import {
+  resetMemorySelector,
+  type MemorySelector,
+} from '../../memdir/findRelevantMemories.js'
+import {
   getLastMainRequestId,
   getOriginalCwd,
   getSessionId,
@@ -23,10 +27,6 @@ import {
 import { isLocalShellTask } from '../../tasks/LocalShellTask/guards.js'
 import { asAgentId } from '../../types/ids.js'
 import type { Message } from '../../types/message.js'
-import {
-  clearMemorySelectorState,
-  type MemorySelectorState,
-} from '../../memdir/findRelevantMemories.js'
 import { createEmptyAttributionState } from '../../utils/commitAttribution.js'
 import type { FileStateCache } from '../../utils/fileStateCache.js'
 import type { ReplIsolationLatch } from '../../tools/REPLTool/types.js'
@@ -44,6 +44,7 @@ import {
   getCurrentSessionTitle,
   resetSessionFilePointer,
   saveCustomTitle,
+  saveIsolationLatch,
   saveWorktreeState,
 } from '../../utils/sessionStorage.js'
 import {
@@ -51,11 +52,6 @@ import {
   initTaskOutputAsSymlink,
 } from '../../utils/task/diskOutput.js'
 import { getCurrentWorktreeSession } from '../../utils/worktree.js'
-import {
-  resetToolResultDedupState,
-  type ToolResultDedupState,
-} from '../../utils/toolErrors.js'
-import type { ToolIsolationLatch } from '../../utils/toolIsolation.js'
 import { clearSessionCaches } from './caches.js'
 import {
   clearResultDedupState,
@@ -66,8 +62,8 @@ export async function clearConversation({
   setMessages,
   readFileState,
   discoveredSkillNames,
+  discoveredRemoteSkills,
   loadedNestedMemoryPaths,
-  sessionEnvVars,
   memorySelector,
   getAppState,
   setAppState,
@@ -78,9 +74,9 @@ export async function clearConversation({
   setMessages: (updater: (prev: Message[]) => Message[]) => void
   readFileState: FileStateCache
   discoveredSkillNames?: Set<string>
+  discoveredRemoteSkills?: Map<string, unknown>
   loadedNestedMemoryPaths?: Set<string>
-  sessionEnvVars?: Map<string, string>
-  memorySelector?: MemorySelectorState
+  memorySelector?: MemorySelector
   getAppState?: () => AppState
   setAppState?: (f: (prev: AppState) => AppState) => void
   setConversationId?: (id: UUID) => void
@@ -153,9 +149,13 @@ export async function clearConversation({
   setCwd(getOriginalCwd())
   readFileState.clear()
   discoveredSkillNames?.clear()
+  discoveredRemoteSkills?.clear()
   loadedNestedMemoryPaths?.clear()
+  resetMemorySelector(memorySelector)
   if (resultDedupState) clearResultDedupState(resultDedupState)
-  if (isolationLatch) isolationLatch.current = null
+  if (isolationLatch && preservedAgentIds.size === 0) {
+    isolationLatch.current = null
+  }
 
   // Clean out necessary items from App State
   if (setAppState) {
@@ -213,6 +213,7 @@ export async function clearConversation({
           commands: [],
           resources: {},
           resourceTemplates: {},
+          suppressedClaudeAiConnectors: [],
           pluginReconnectKey: prev.mcp.pluginReconnectKey,
         },
       }
@@ -272,6 +273,9 @@ export async function clearConversation({
   const worktreeSession = getCurrentWorktreeSession()
   if (worktreeSession) {
     saveWorktreeState(worktreeSession)
+  }
+  if (isolationLatch?.current) {
+    saveIsolationLatch(isolationLatch.current)
   }
 
   // Execute SessionStart hooks after clearing

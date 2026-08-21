@@ -11,7 +11,6 @@ import {
 import {
   extractMcpToolDetails,
   extractSkillName,
-  extractSubagentType,
   extractToolInputForTelemetry,
   getFileExtensionForAnalytics,
   getFileExtensionsFromBashCommand,
@@ -24,11 +23,12 @@ import {
   getCodeEditToolDecisionCounter,
   getStatsStore,
 } from '../../bootstrap/state.js'
-import { ALL_AGENT_DISALLOWED_TOOLS } from '../../constants/tools.js'
 import {
   buildCodeEditToolAttributes,
   isCodeEditingTool,
 } from '../../hooks/toolPermission/permissionLogging.js'
+import { ASK_USER_QUESTION_TOOL_NAME } from '../../tools/AskUserQuestionTool/prompt.js'
+import { AGENT_TOOL_NAME } from '../../tools/AgentTool/constants.js'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import {
   findToolByName,
@@ -50,8 +50,15 @@ import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_READ_TOOL_NAME } from '../../tools/FileReadTool/prompt.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
 import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../../tools/ExitPlanModeTool/constants.js'
+import { ENTER_PLAN_MODE_TOOL_NAME } from '../../tools/EnterPlanModeTool/constants.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../../tools/NotebookEditTool/constants.js'
 import { POWERSHELL_TOOL_NAME } from '../../tools/PowerShellTool/toolName.js'
+import {
+  isReplModeEnabled,
+  REPL_ONLY_TOOLS,
+  REPL_TOOL_NAME,
+} from '../../tools/REPLTool/constants.js'
+import { TASK_OUTPUT_TOOL_NAME } from '../../tools/TaskOutputTool/constants.js'
 import { TodoWriteTool } from '../../tools/TodoWriteTool/TodoWriteTool.js'
 import { parseGitCommitId } from '../../tools/shared/gitOperationTracking.js'
 import {
@@ -73,14 +80,14 @@ import { logForDebugging } from '../../utils/debug.js'
 import {
   AbortError,
   errorMessage,
-  getErrnoCode,
+  classifyTelemetryError,
   ShellError,
-  TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
 } from '../../utils/errors.js'
 import { executePermissionDeniedHooks } from '../../utils/hooks.js'
 import { logError } from '../../utils/log.js'
 import { expandPath } from '../../utils/path.js'
 import { checkEditableInternalPath } from '../../utils/permissions/filesystem.js'
+import { WORKSPACE_BASH_TOOL_NAME } from '../../utils/permissions/permissionRuleParser.js'
 import {
   CANCEL_MESSAGE,
   createProgressMessage,
@@ -111,12 +118,9 @@ import {
   startToolSpan,
 } from '../../utils/telemetry/sessionTracing.js'
 import {
-  applyToolResultDedup,
   formatError,
   formatZodValidationError,
-  resyncReadFileStateAfterPostToolUse,
 } from '../../utils/toolErrors.js'
-import { evaluateToolIsolation } from '../../utils/toolIsolation.js'
 import {
   processPreMappedToolResultBlock,
   processToolResultBlock,
@@ -128,7 +132,6 @@ import {
   isToolSearchToolAvailable,
 } from '../../utils/toolSearch.js'
 import {
-  markMcpServerNeedsAuth,
   McpAuthError,
   McpToolCallError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
 } from '../mcp/client.js'
@@ -147,12 +150,44 @@ import {
   runPreToolUseHooks,
 } from './toolHooks.js'
 import { checkToolIsolation } from './toolIsolation.js'
+import { resyncReadFileStateAfterPostToolUse } from './postToolUseFileSync.js'
 
 /** Minimum total hook duration (ms) to show inline timing summary */
 export const HOOK_TIMING_DISPLAY_THRESHOLD_MS = 500
 /** Log a debug warning when hooks/permission-decision block for this long. Matches
  * BashTool's PROGRESS_THRESHOLD_MS — the collapsed view feels stuck past this. */
 const SLOW_PHASE_LOG_THRESHOLD_MS = 2000
+
+const SUBAGENT_UNAVAILABLE_TOOLS = new Set([
+  TASK_OUTPUT_TOOL_NAME,
+  EXIT_PLAN_MODE_V2_TOOL_NAME,
+  ENTER_PLAN_MODE_TOOL_NAME,
+  AGENT_TOOL_NAME,
+  ASK_USER_QUESTION_TOOL_NAME,
+])
+
+function getUnknownToolRecoveryGuidance(
+  toolName: string,
+  availableTools: readonly Tool[],
+  agentId: string | undefined,
+): string {
+  if (
+    isReplModeEnabled() &&
+    REPL_ONLY_TOOLS.has(toolName) &&
+    findToolByName(availableTools, REPL_TOOL_NAME)
+  ) {
+    return `. ${toolName} is only available inside ${REPL_TOOL_NAME}. Use ${REPL_TOOL_NAME} with code: await ${toolName}({...}).`
+  }
+
+  const knownTool = findToolByName(getAllBaseTools(), toolName)
+  if (agentId && knownTool && SUBAGENT_UNAVAILABLE_TOOLS.has(knownTool.name)) {
+    return `. ${toolName} is not available inside subagents. Complete the task with the tools provided and return findings to the orchestrator.`
+  }
+  if (knownTool) {
+    return `. ${toolName} exists but is not enabled in this context. Use one of the available tools instead.`
+  }
+  return ''
+}
 
 /**
  * Classify a tool execution error into a telemetry-safe string.
@@ -166,26 +201,7 @@ const SLOW_PHASE_LOG_THRESHOLD_MS = 2000
  * - Fallback: "Error" (better than a mangled 3-char identifier)
  */
 export function classifyToolError(error: unknown): string {
-  if (
-    error instanceof TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-  ) {
-    return error.telemetryMessage.slice(0, 200)
-  }
-  if (error instanceof Error) {
-    // Node.js filesystem errors have a `code` property (ENOENT, EACCES, etc.)
-    // These are safe to log and much more useful than the constructor name.
-    const errnoCode = getErrnoCode(error)
-    if (typeof errnoCode === 'string') {
-      return `Error:${errnoCode}`
-    }
-    // ShellError, ImageSizeError, etc. have stable `.name` properties
-    // that survive minification (they're set in the constructor).
-    if (error.name && error.name !== 'Error' && error.name.length > 3) {
-      return error.name.slice(0, 60)
-    }
-    return 'Error'
-  }
-  return 'UnknownError'
+  return classifyTelemetryError(error)
 }
 
 /**
@@ -352,32 +368,6 @@ function getMcpServerBaseUrlFromToolName(
   return getLoggingSafeMcpBaseUrl(serverConnection.config)
 }
 
-export function getUnavailableToolHint(
-  toolName: string,
-  tools: readonly Tool[],
-  agentId: string | undefined,
-): string {
-  if (
-    isReplModeEnabled() &&
-    REPL_ONLY_TOOLS.has(toolName) &&
-    findToolByName(tools, REPL_TOOL_NAME)
-  ) {
-    return `. ${toolName} is only available inside ${REPL_TOOL_NAME}. Use ${REPL_TOOL_NAME} with code: await ${toolName}({...}).`
-  }
-  const registeredTool = findToolByName(getAllBaseTools(), toolName)
-  if (
-    agentId &&
-    registeredTool &&
-    ALL_AGENT_DISALLOWED_TOOLS.has(registeredTool.name)
-  ) {
-    return `. ${toolName} is not available inside subagents. Complete the task with the tools provided and return findings to the orchestrator.`
-  }
-  if (registeredTool) {
-    return `. ${toolName} exists but is not enabled in this context. Use one of the available tools instead.`
-  }
-  return ''
-}
-
 export async function* runToolUse(
   toolUse: ToolUseBlock,
   assistantMessage: AssistantMessage,
@@ -412,7 +402,7 @@ export async function* runToolUse(
   // Check if the tool exists
   if (!tool) {
     const sanitizedToolName = sanitizeToolNameForAnalytics(toolName)
-    const unavailableHint = getUnavailableToolHint(
+    const recoveryGuidance = getUnknownToolRecoveryGuidance(
       toolName,
       toolUseContext.options.tools,
       toolUseContext.agentId,
@@ -452,12 +442,12 @@ export async function* runToolUse(
         content: [
           {
             type: 'tool_result',
-            content: `<tool_use_error>Error: No such tool available: ${toolName}${unavailableHint}</tool_use_error>`,
+            content: `<tool_use_error>Error: No such tool available: ${toolName}${recoveryGuidance}</tool_use_error>`,
             is_error: true,
             tool_use_id: toolUse.id,
           },
         ],
-        toolUseResult: `Error: No such tool available: ${toolName}${unavailableHint}`,
+        toolUseResult: `Error: No such tool available: ${toolName}${recoveryGuidance}`,
         sourceToolAssistantUUID: assistantMessage.uuid,
       }),
     }
@@ -1110,35 +1100,21 @@ async function checkPermissionsAndCallTool(
 
   const toolAttributes: Record<string, string | number | boolean> = {}
   if (processedInput && typeof processedInput === 'object') {
-    if (
-      tool.name === FILE_READ_TOOL_NAME &&
-      'file_path' in processedInput &&
-      isToolDetailsLoggingEnabled()
-    ) {
+    if (tool.name === FILE_READ_TOOL_NAME && 'file_path' in processedInput) {
       toolAttributes.file_path = String(processedInput.file_path)
     } else if (
       (tool.name === FILE_EDIT_TOOL_NAME ||
         tool.name === FILE_WRITE_TOOL_NAME) &&
-      'file_path' in processedInput &&
-      isToolDetailsLoggingEnabled()
+      'file_path' in processedInput
     ) {
       toolAttributes.file_path = String(processedInput.file_path)
-    } else if (
-      tool.name === BASH_TOOL_NAME &&
-      'command' in processedInput &&
-      isToolDetailsLoggingEnabled()
-    ) {
+    } else if (tool.name === BASH_TOOL_NAME && 'command' in processedInput) {
       const bashInput = processedInput as BashToolInput
       toolAttributes.full_command = bashInput.command
-    } else if (isToolDetailsLoggingEnabled()) {
-      const skillName = extractSkillName(tool.name, processedInput)
-      if (skillName) toolAttributes.skill_name = skillName
-      const subagentType = extractSubagentType(tool.name, processedInput)
-      if (subagentType) toolAttributes.subagent_type = subagentType
     }
   }
 
-  const toolSpan = startToolSpan(
+  startToolSpan(
     tool.name,
     toolAttributes,
     isBetaTracingEnabled() ? jsonStringify(processedInput) : undefined,
@@ -1147,7 +1123,7 @@ async function checkPermissionsAndCallTool(
 
   // Check whether we have permission to use the tool,
   // and ask the user for permission if we don't
-  const permissionMode = toolUseContext.getAppState().toolPermissionContext.mode
+  const permissionMode = toolUseContext.getToolPermissionContext().mode
   const permissionStart = Date.now()
 
   const resolved = await resolveHookPermissionDecision(
@@ -1161,6 +1137,9 @@ async function checkPermissionsAndCallTool(
   )
   const permissionDecision = resolved.decision
   processedInput = resolved.input
+  if (permissionDecision.behavior !== 'allow') {
+    toolUseContext.onPermissionDenial?.(tool, toolUseID, processedInput)
+  }
   const permissionDurationMs = Date.now() - permissionStart
   // In auto mode, canUseTool awaits the classifier (side_query) — if that's
   // slow the collapsed view shows "Running…" with no (Ns) tick since
@@ -1229,7 +1208,7 @@ async function checkPermissionsAndCallTool(
     logForDebugging(`${tool.name} tool permission denied`)
     const decisionInfo = toolUseContext.toolDecisions?.get(toolUseID)
     endToolBlockedOnUserSpan('reject', decisionInfo?.source || 'unknown')
-    endToolSpan(toolSpan)
+    endToolSpan()
 
     logEvent('tengu_tool_use_can_use_tool_rejected', {
       messageID:
@@ -1431,6 +1410,25 @@ async function checkPermissionsAndCallTool(
           dangerouslyDisableSandbox: bashInput.dangerouslyDisableSandbox,
         }),
       }
+    } else if (
+      tool.name === WORKSPACE_BASH_TOOL_NAME &&
+      'command' in processedInput &&
+      typeof processedInput.command === 'string'
+    ) {
+      const workspaceBashInput = processedInput as {
+        command: string
+        timeout_ms?: number
+      }
+      const commandParts = workspaceBashInput.command.trim().split(/\s+/)
+      const bashCommand = commandParts[0] || ''
+
+      toolParameters = {
+        bash_command: bashCommand,
+        full_command: workspaceBashInput.command,
+        ...(workspaceBashInput.timeout_ms !== undefined && {
+          timeout: workspaceBashInput.timeout_ms,
+        }),
+      }
     }
 
     const mcpDetails = extractMcpToolDetails(tool.name)
@@ -1441,10 +1439,6 @@ async function checkPermissionsAndCallTool(
     const skillName = extractSkillName(tool.name, processedInput)
     if (skillName) {
       toolParameters.skill_name = skillName
-    }
-    const subagentType = extractSubagentType(tool.name, processedInput)
-    if (subagentType) {
-      toolParameters.subagent_type = subagentType
     }
   }
 
@@ -1496,6 +1490,9 @@ async function checkPermissionsAndCallTool(
       processedInput.command,
     )
   }
+  toolUseContext.setInProgressToolUseIDs(previous =>
+    new Set(previous).add(toolUseID),
+  )
   logForDebugging(
     `[Stall] tool_dispatch_start tool=${tool.name} toolUseId=${toolUseID} permissionDecisionMs=${permissionDurationMs}`,
     { level: 'info' },
@@ -1531,17 +1528,11 @@ async function checkPermissionsAndCallTool(
       const contentAttributes: Record<string, string | number | boolean> = {}
 
       // Read tool: capture file_path and content
-      if (tool.name === FILE_READ_TOOL_NAME) {
-        const readResult = result.data
-        if (readResult.type === 'text') {
-          if (
-            isToolDetailsLoggingEnabled() &&
-            'file_path' in processedInput
-          ) {
-            contentAttributes.file_path = String(processedInput.file_path)
-          }
-          contentAttributes.content = readResult.file.content
+      if (tool.name === FILE_READ_TOOL_NAME && 'content' in result.data) {
+        if ('file_path' in processedInput) {
+          contentAttributes.file_path = String(processedInput.file_path)
         }
+        contentAttributes.content = String(result.data.content)
       }
 
       // Edit/Write tools: capture file_path and diff
@@ -1550,24 +1541,14 @@ async function checkPermissionsAndCallTool(
           tool.name === FILE_WRITE_TOOL_NAME) &&
         'file_path' in processedInput
       ) {
-        if (isToolDetailsLoggingEnabled()) {
-          contentAttributes.file_path = String(processedInput.file_path)
-        }
+        contentAttributes.file_path = String(processedInput.file_path)
 
         // For Edit, capture the actual changes made
-        if (
-          isToolDetailsLoggingEnabled() &&
-          tool.name === FILE_EDIT_TOOL_NAME &&
-          'structuredPatch' in result.data
-        ) {
-          contentAttributes.diff = jsonStringify(result.data.structuredPatch)
+        if (tool.name === FILE_EDIT_TOOL_NAME && 'diff' in result.data) {
+          contentAttributes.diff = String(result.data.diff)
         }
         // For Write, capture the written content
-        if (
-          isToolDetailsLoggingEnabled() &&
-          tool.name === FILE_WRITE_TOOL_NAME &&
-          'content' in processedInput
-        ) {
+        if (tool.name === FILE_WRITE_TOOL_NAME && 'content' in processedInput) {
           contentAttributes.content = String(processedInput.content)
         }
       }
@@ -1575,12 +1556,10 @@ async function checkPermissionsAndCallTool(
       // Bash tool: capture command
       if (tool.name === BASH_TOOL_NAME && 'command' in processedInput) {
         const bashInput = processedInput as BashToolInput
-        if (isToolDetailsLoggingEnabled()) {
-          contentAttributes.bash_command = bashInput.command
-        }
+        contentAttributes.bash_command = bashInput.command
         // Also capture output if available
-        if ('stdout' in result.data) {
-          contentAttributes.output = String(result.data.stdout)
+        if ('output' in result.data) {
+          contentAttributes.output = String(result.data.output)
         }
       }
 
@@ -1606,34 +1585,14 @@ async function checkPermissionsAndCallTool(
       result.data && typeof result.data === 'object'
         ? jsonStringify(result.data)
         : String(result.data ?? '')
-    endToolSpan(toolSpan, toolResultStr)
+    endToolSpan(toolResultStr)
 
     // Map the tool result to API format once and cache it. This block is reused
     // by addToolResult (skipping the remap) and measured here for analytics.
-    const rawMappedToolResultBlock = tool.mapToolResultToToolResultBlockParam(
+    const mappedToolResultBlock = tool.mapToolResultToToolResultBlockParam(
       result.data,
       toolUseID,
     )
-    const mappedToolResultBlock = isMcpTool(tool)
-      ? rawMappedToolResultBlock
-      : applyToolResultDedup(
-          rawMappedToolResultBlock,
-          tool.name,
-          toolUseContext.resultDedupState,
-          tool.maxResultSizeChars,
-        )
-    if (bashRerunAlias !== undefined) {
-      const footer = formatBashRerunFooter(bashRerunAlias)
-      if (typeof mappedToolResultBlock.content === 'string') {
-        mappedToolResultBlock.content +=
-          (mappedToolResultBlock.content ? '\n' : '') + footer
-      } else if (Array.isArray(mappedToolResultBlock.content)) {
-        mappedToolResultBlock.content = [
-          ...mappedToolResultBlock.content,
-          { type: 'text', text: footer },
-        ]
-      }
-    }
     const mappedContent = mappedToolResultBlock.content
     const toolResultSizeBytes = !mappedContent
       ? 0
@@ -1838,6 +1797,7 @@ async function checkPermissionsAndCallTool(
 
     const postToolHookInfos: StopHookInfo[] = []
     const postToolHookStart = Date.now()
+    let postToolUseHooksRan = false
     let toolOutputWasUpdated = false
     for await (const hookResult of runPostToolUseHooks(
       toolUseContext,
@@ -1851,6 +1811,7 @@ async function checkPermissionsAndCallTool(
       mcpServerBaseUrl,
       durationMs,
     )) {
+      postToolUseHooksRan = true
       if ('updatedToolOutput' in hookResult) {
         toolOutput = hookResult.updatedToolOutput
         toolOutputWasUpdated = true
@@ -1873,14 +1834,14 @@ async function checkPermissionsAndCallTool(
       }
     }
     const postToolHookDurationMs = Date.now() - postToolHookStart
-    if (hadPostToolUseHookResult) {
-      const resyncMessage = resyncReadFileStateAfterPostToolUse(
+    if (postToolUseHooksRan) {
+      const fileSyncMessage = resyncReadFileStateAfterPostToolUse(
         tool.name,
         toolUseID,
         processedInput,
         toolUseContext.readFileState,
       )
-      if (resyncMessage) resultingMessages.push({ message: resyncMessage })
+      if (fileSyncMessage) hookResults.push({ message: fileSyncMessage })
     }
     if (postToolHookDurationMs >= SLOW_PHASE_LOG_THRESHOLD_MS) {
       logForDebugging(
@@ -1977,13 +1938,6 @@ async function checkPermissionsAndCallTool(
         resultingMessages.push({ message })
       }
     }
-    if (result.newTools && result.newTools.length > 0) {
-      const names = new Set(toolUseContext.options.tools.map(item => item.name))
-      toolUseContext.options.tools = [
-        ...toolUseContext.options.tools,
-        ...result.newTools.filter(item => !names.has(item.name)),
-      ]
-    }
     // If hook indicated to prevent continuation after successful execution, yield a stop reason message
     if (shouldPreventContinuation) {
       resultingMessages.push({
@@ -2021,12 +1975,38 @@ async function checkPermissionsAndCallTool(
       success: false,
       error: errorMessage(error),
     })
-    endToolSpan(toolSpan)
+    endToolSpan()
 
     // Handle MCP auth errors by updating the client status to 'needs-auth'
     // This updates the /mcp display to show the server needs re-authorization
     if (error instanceof McpAuthError) {
-      markMcpServerNeedsAuth(error.serverName, toolUseContext.setAppState)
+      toolUseContext.setAppState(prevState => {
+        const serverName = error.serverName
+        const existingClientIndex = prevState.mcp.clients.findIndex(
+          c => c.name === serverName,
+        )
+        if (existingClientIndex === -1) {
+          return prevState
+        }
+        const existingClient = prevState.mcp.clients[existingClientIndex]
+        // Only update if client was connected (don't overwrite other states)
+        if (!existingClient || existingClient.type !== 'connected') {
+          return prevState
+        }
+        const updatedClients = [...prevState.mcp.clients]
+        updatedClients[existingClientIndex] = {
+          name: serverName,
+          type: 'needs-auth' as const,
+          config: existingClient.config,
+        }
+        return {
+          ...prevState,
+          mcp: {
+            ...prevState.mcp,
+            clients: updatedClients,
+          },
+        }
+      })
     }
 
     if (!(error instanceof AbortError)) {

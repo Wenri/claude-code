@@ -17,7 +17,6 @@
  */
 
 import type { ServerCapabilities } from '@modelcontextprotocol/sdk/types.js'
-import partition from 'lodash-es/partition.js'
 import { z } from 'zod/v4'
 import { type ChannelEntry, getAllowedChannels } from '../../bootstrap/state.js'
 import { CHANNEL_TAG } from '../../constants/xml.js'
@@ -110,17 +109,16 @@ export function wrapChannelMessage(
   content: string,
   meta?: Record<string, string>,
 ): string {
-  const [safeEntries, droppedEntries] = partition(
-    Object.entries(meta ?? {}),
-    ([key]) => SAFE_META_KEY.test(key),
-  )
-  if (droppedEntries.length > 0) {
+  const entries = Object.entries(meta ?? {})
+  const accepted = entries.filter(([key]) => SAFE_META_KEY.test(key))
+  const dropped = entries.filter(([key]) => !SAFE_META_KEY.test(key))
+  if (dropped.length > 0) {
     logForDebugging(
-      `[channel] ${serverName}: dropped ${droppedEntries.length} meta key(s) that don't match ${SAFE_META_KEY.source}: ${droppedEntries.map(([key]) => key).join(', ')}`,
+      `[channel] ${serverName}: dropped ${dropped.length} meta key(s) that don't match ${SAFE_META_KEY.source}: ${dropped.map(([key]) => key).join(', ')}`,
       { level: 'warn' },
     )
   }
-  const attrs = safeEntries
+  const attrs = accepted
     .map(([k, v]) => ` ${k}="${escapeXmlAttr(v)}"`)
     .join('')
   return `<${CHANNEL_TAG} source="${escapeXmlAttr(serverName)}"${attrs}>\n${content}\n</${CHANNEL_TAG}>`

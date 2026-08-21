@@ -6,6 +6,7 @@ import figures from 'figures';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { Box, Text } from '../../../ink.js';
+import { requireComputerUseSwift } from '../../../utils/computerUse/swiftLoader.js';
 import { execFileNoThrow } from '../../../utils/execFileNoThrow.js';
 import { plural } from '../../../utils/stringUtils.js';
 import type { OptionWithDescription } from '../../CustomSelect/select.js';
@@ -104,9 +105,11 @@ function ComputerUseTccPanel(t0) {
   let t1;
   if ($[6] !== onDone) {
     t1 = function onChange(value) {
+      const computerUse = requireComputerUseSwift();
       switch (value) {
         case "open_accessibility":
           {
+            computerUse.tcc.requestAccessibility();
             execFileNoThrow("open", ["x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"], {
               useCwd: false
             });
@@ -114,6 +117,7 @@ function ComputerUseTccPanel(t0) {
           }
         case "open_screen_recording":
           {
+            computerUse.tcc.requestScreenRecording();
             execFileNoThrow("open", ["x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"], {
               useCwd: false
             });

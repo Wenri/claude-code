@@ -34,18 +34,19 @@ import {
   getIsNonInteractiveSession,
   getSessionId,
 } from '../../bootstrap/state.js'
-import { getOauthConfig, isWIFActive } from '../../constants/oauth.js'
-import { isDebugToStdErr, logForDebugging } from '../../utils/debug.js'
+import { getOauthConfig } from '../../constants/oauth.js'
+import {
+  getMinDebugLogLevel,
+  isDebugToStdErr,
+  logForDebugging,
+} from '../../utils/debug.js'
+import { jsonStringify } from '../../utils/slowOperations.js'
 import {
   getAWSRegion,
   getVertexRegionForModel,
   isEnvDefinedFalsy,
   isEnvTruthy,
 } from '../../utils/envUtils.js'
-import {
-  getWIFCredentials,
-  getWIFTokenCache,
-} from '../../utils/workloadIdentity.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import {
   buildVertexGoogleAuth,
@@ -183,8 +184,16 @@ export async function getAnthropicClient({
     const skipAuth = isEnvTruthy(
       process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH,
     )
-    const { value: authorizationHeader, rest: headersWithoutAuthorization } =
+    const { value: authorizationHeader, rest } =
       extractAuthorizationHeader(ARGS.defaultHeaders)
+    const headersWithoutAuthorization = {
+      ...rest,
+      Authorization: null,
+      ...(process.env.ANTHROPIC_BEDROCK_SERVICE_TIER && {
+        'X-Amzn-Bedrock-Service-Tier':
+          process.env.ANTHROPIC_BEDROCK_SERVICE_TIER,
+      }),
+    }
     const bedrockApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK
       ? `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`
       : skipAuth
@@ -239,7 +248,10 @@ export async function getAnthropicClient({
         : null
     return new AnthropicBedrockMantle({
       ...ARGS,
-      defaultHeaders: headersWithoutAuthorization,
+      defaultHeaders: {
+        ...headersWithoutAuthorization,
+        Authorization: null,
+      },
       awsRegion: getAWSRegionForModel(model),
       ...(skipAuth &&
         !mantleApiKey && {
@@ -301,7 +313,10 @@ export async function getAnthropicClient({
     const anthropicAwsApiKey = skipAuth ? authorizationHeader : undefined
     const anthropicAwsArgs: ConstructorParameters<typeof AnthropicAws>[0] = {
       ...ARGS,
-      defaultHeaders: headersWithoutAuthorization,
+      defaultHeaders: {
+        ...headersWithoutAuthorization,
+        Authorization: null,
+      },
       ...(skipAuth &&
         !anthropicAwsApiKey && {
           skipAuth: true,
@@ -318,10 +333,7 @@ export async function getAnthropicClient({
       ...(isDebugToStdErr() && { logger: createStderrLogger() }),
     }
 
-    if (
-      !process.env.ANTHROPIC_AWS_API_KEY &&
-      !skipAuth
-    ) {
+    if (!process.env.ANTHROPIC_AWS_API_KEY && !skipAuth) {
       const cachedCredentials = await refreshAndGetAwsCredentials()
       if (cachedCredentials) {
         anthropicAwsArgs.awsAccessKey = cachedCredentials.accessKeyId
@@ -399,14 +411,16 @@ export async function getAnthropicClient({
       const credentials = await getWIFCredentials()
       const { rest: headersWithoutAuthorization } =
         extractAuthorizationHeader(ARGS.defaultHeaders)
+      const authToken = await tokenCache.getToken()
       return new Anthropic({
         apiKey: null,
-        authToken: await tokenCache.getToken(),
+        authToken,
         baseURL:
           process.env.ANTHROPIC_BASE_URL || credentials?.baseURL,
         ...ARGS,
         defaultHeaders: {
           ...headersWithoutAuthorization,
+          Authorization: `Bearer ${authToken}`,
           ...credentials?.extraHeaders,
         },
         ...(isDebugToStdErr() && { logger: createStderrLogger() }),
@@ -552,6 +566,30 @@ export class StreamIdleTimeoutError extends Error {
   }
 }
 
+export function getStreamIdleTimeoutMs(): number {
+  return Math.max(
+    Number(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS) || 0,
+    300_000,
+  )
+}
+
+function getVerboseRequestAuthDetails(headers: Headers): {
+  auth: string
+  headers: Record<string, string>
+} {
+  const authorization = headers.get('authorization')
+  const auth = authorization
+    ? `${authorization.includes(' ') ? authorization.slice(0, authorization.indexOf(' ')) : '<opaque>'} ***`
+    : 'none'
+  const selectedHeaders: Record<string, string> = {}
+  headers.forEach((value, name) => {
+    if (name === 'anthropic-beta' || name.startsWith('x-anthropic-')) {
+      selectedHeaders[name] = value
+    }
+  })
+  return { auth, headers: selectedHeaders }
+}
+
 function addStreamIdleTimeout(
   body: ReadableStream<Uint8Array>,
   idleMs: number,
@@ -593,6 +631,10 @@ function addStreamIdleTimeout(
       () => {
         partialIdleTimeout = null
         if (controller.desiredSize === null) return
+        if (performance.now() - lastChunk < partialIdleMs / 2) {
+          schedulePartialIdleWatchdog(controller)
+          return
+        }
         try {
           logForDebugging(
             `[Stall] stream_idle_partial lastChunkAgeMs=${Math.round(performance.now() - lastChunk)} bytesTotal=${bytesTotal} idleDeadlineMs=${idleMs}`,
@@ -618,6 +660,13 @@ function addStreamIdleTimeout(
       timeout = null
       const lateMs = Math.round(performance.now() - lastChunk - idleMs)
       const readableErrored = controller.desiredSize === null
+      if (lateMs < -idleMs / 2) {
+        logForDebugging(
+          `[byte-watchdog] suppressed: late=${lateMs}ms (sleep/suspend), re-arming`,
+        )
+        resetIdleTimeout(controller)
+        return
+      }
       try {
         logForDebugging(
           `[byte-watchdog] firing: idle=${idleMs}ms late=${lateMs}ms errored=${readableErrored}`,
@@ -702,6 +751,12 @@ function buildFetch(
       logForDebugging(
         `[API REQUEST] ${new URL(url).pathname}${id ? ` ${CLIENT_REQUEST_ID_HEADER}=${id}` : ''} source=${source ?? 'unknown'}`,
       )
+      if (getMinDebugLogLevel() === 'verbose') {
+        logForDebugging(
+          `[API REQUEST AUTH] ${jsonStringify(getVerboseRequestAuthDetails(headers))}`,
+          { level: 'verbose' },
+        )
+      }
     } catch {
       // never let logging crash the fetch
     }
@@ -712,12 +767,8 @@ function buildFetch(
       response.headers.get('content-type')?.includes('text/event-stream') &&
       isByteWatchdogEnabled()
     ) {
-      const idleMs = Math.max(
-        parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90000,
-        300000,
-      )
       const wrappedResponse = new Response(
-        addStreamIdleTimeout(response.body, idleMs),
+        addStreamIdleTimeout(response.body, getStreamIdleTimeoutMs()),
         response,
       )
       Object.defineProperty(wrappedResponse, 'url', { value: response.url })

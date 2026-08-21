@@ -224,9 +224,10 @@ Always include a "reason" field.`,
 
       if (response.isApiErrorMessage) {
         const apiError = extractTextContent(response.message.content).trim()
-        logForDebugging(`Hooks: prompt-hook evaluator API error: ${apiError}`, {
-          level: 'error',
-        })
+        logForDebugging(
+          `Hooks: prompt-hook evaluator API error: ${apiError}`,
+          { level: 'error' },
+        )
         return {
           hook,
           outcome: 'non_blocking_error',

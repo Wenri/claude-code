@@ -3,10 +3,6 @@
  * critique user-written rules. Dynamically imported when `claude auto-mode ...` runs.
  */
 
-import chalk from 'chalk'
-import React from 'react'
-import { Text, useApp, type Root } from '../../ink.js'
-import { cliError } from '../exit.js'
 import { errorMessage } from '../../utils/errors.js'
 import {
   getMainLoopModel,
@@ -23,32 +19,12 @@ import { getAutoModeConfig } from '../../utils/settings/settings.js'
 import { sideQuery } from '../../utils/sideQuery.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 
-function RenderOnceAndExit({ children }: { children: React.ReactNode }) {
-  const { exit } = useApp()
-  React.useLayoutEffect(() => {
-    const timer = setTimeout(exit, 0)
-    return () => clearTimeout(timer)
-  }, [exit])
-  return React.createElement(React.Fragment, null, children)
+function writeRules(rules: AutoModeRules): void {
+  process.stdout.write(jsonStringify(rules, null, 2) + '\n')
 }
 
-async function renderAndExit(root: Root, value: React.ReactNode): Promise<void> {
-  root.render(
-    React.createElement(
-      RenderOnceAndExit,
-      null,
-      React.createElement(Text, null, value),
-    ),
-  )
-  await root.waitUntilExit()
-}
-
-async function writeRules(root: Root, rules: AutoModeRules): Promise<void> {
-  await renderAndExit(root, jsonStringify(rules, null, 2))
-}
-
-export async function autoModeDefaultsHandler(root: Root): Promise<void> {
-  await writeRules(root, getDefaultExternalAutoModeRules())
+export function autoModeDefaultsHandler(): void {
+  writeRules(getDefaultExternalAutoModeRules())
 }
 
 /**
@@ -86,10 +62,9 @@ const CRITIQUE_SYSTEM_PROMPT =
   'Be concise and constructive. Only comment on rules that could be improved. ' +
   'If all rules look good, say so.'
 
-export async function autoModeCritiqueHandler(
-  root: Root,
-  options: { model?: string },
-): Promise<void> {
+export async function autoModeCritiqueHandler(options: {
+  model?: string
+}): Promise<void> {
   const config = getAutoModeConfig()
   const hasCustomRules = [
     ...(config?.allow ?? []),
@@ -98,11 +73,10 @@ export async function autoModeCritiqueHandler(
   ].some(rule => rule !== AUTO_MODE_DEFAULTS_MARKER)
 
   if (!hasCustomRules) {
-    await renderAndExit(
-      root,
+    process.stdout.write(
       'No custom auto mode rules found.\n\n' +
         'Add rules to your settings file under autoMode.{allow, soft_deny, environment}.\n' +
-        'Run `claude auto-mode defaults` to see the default rules for reference.',
+        'Run `claude auto-mode defaults` to see the default rules for reference.\n',
     )
     return
   }
@@ -127,9 +101,7 @@ export async function autoModeCritiqueHandler(
       defaults.environment,
     )
 
-  root.render(
-    React.createElement(Text, null, 'Analyzing your auto mode rules…', '\n\n'),
-  )
+  process.stdout.write('Analyzing your auto mode rules…\n\n')
 
   let response
   try {
@@ -154,16 +126,19 @@ export async function autoModeCritiqueHandler(
       ],
     })
   } catch (error) {
-    root.unmount()
-    return cliError(chalk.red('Failed to analyze rules: ' + errorMessage(error)))
+    process.stderr.write(
+      'Failed to analyze rules: ' + errorMessage(error) + '\n',
+    )
+    process.exitCode = 1
+    return
   }
 
   const textBlock = response.content.find(block => block.type === 'text')
-  const output =
-    textBlock?.type === 'text'
-      ? textBlock.text
-      : 'No critique was generated. Please try again.'
-  await renderAndExit(root, output)
+  if (textBlock?.type === 'text') {
+    process.stdout.write(textBlock.text + '\n')
+  } else {
+    process.stdout.write('No critique was generated. Please try again.\n')
+  }
 }
 
 function formatRulesForCritique(

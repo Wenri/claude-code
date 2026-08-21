@@ -32,7 +32,6 @@ const attachmentSchema = lazySchema(() =>
   z.object({
     file_uuid: z.string(),
     file_name: z.string(),
-    is_image: z.boolean().nullish(),
   }),
 )
 const attachmentsArraySchema = lazySchema(() => z.array(attachmentSchema()))

@@ -6,10 +6,10 @@ import { useTerminalSize } from 'src/hooks/useTerminalSize.js';
 import { getOriginalCwd, switchSession } from '../bootstrap/state.js';
 import type { Command } from '../commands.js';
 import { LogSelector } from '../components/LogSelector.js';
-import { LoadingState } from '../components/design-system/LoadingState.js';
+import { Spinner } from '../components/Spinner.js';
 import { restoreCostStateForSession } from '../cost-tracker.js';
 import { setClipboard } from '../ink/termio/osc.js';
-import { Box, Text } from '../ink.js';
+import { Box, Text, useTerminalTitle } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../services/analytics/index.js';
 import { mergeMainAgentMcpServers } from '../services/mcp/agentConfig.js';
@@ -26,6 +26,7 @@ import { renameRecordingForSession } from '../utils/asciicast.js';
 import { updateSessionName } from '../utils/concurrentSessions.js';
 import { loadConversationForResume } from '../utils/conversationRecovery.js';
 import { checkCrossProjectResume } from '../utils/crossProjectResume.js';
+import { isEnvTruthy } from '../utils/envUtils.js';
 import { toError } from '../utils/errors.js';
 import type { FileHistorySnapshot } from '../utils/fileHistory.js';
 import { logError } from '../utils/log.js';
@@ -35,7 +36,7 @@ import { adoptResumedSessionFile, enrichLogs, isCustomTitleEnabled, loadAllProje
 import type { ThinkingConfig } from '../utils/thinking.js';
 import type { ContentReplacementRecord } from '../utils/toolResultStorage.js';
 import { REPL } from './REPL.js';
-function parsePrIdentifier(value: string): number | null {
+export function parsePrIdentifier(value: string): number | null {
   const directNumber = parseInt(value, 10);
   if (!isNaN(directNumber) && directNumber > 0) {
     return directNumber;
@@ -108,11 +109,11 @@ export function ResumeConversation({
   } | null>(null);
   const [crossProjectCommand, setCrossProjectCommand] = React.useState<string | null>(null);
   const sessionLogResultRef = React.useRef<SessionLogResult | null>(null);
-  const reloadRequestRef = React.useRef(0);
   const [reloadGeneration, setReloadGeneration] = React.useState(0);
   // Mirror of logs.length so loadMoreLogs can compute value indices outside
   // the setLogs updater (keeping it pure per React's contract).
   const logCountRef = React.useRef(0);
+  const loadRequestGenerationRef = React.useRef(0);
   const filteredLogs = React.useMemo(() => {
     let result = logs.filter(l => !l.isSidechain);
     if (filterByPr !== undefined) {
@@ -130,6 +131,8 @@ export function ResumeConversation({
     return result;
   }, [logs, filterByPr]);
   const isResumeWithRenameEnabled = isCustomTitleEnabled();
+  const terminalTitleDisabled = React.useMemo(() => isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_TERMINAL_TITLE), []);
+  useTerminalTitle(resumeData || terminalTitleDisabled ? null : 'claude · resume');
   React.useEffect(() => {
     loadSameRepoMessageLogsProgressive(worktreePaths).then(result_0 => {
       sessionLogResultRef.current = result_0;
@@ -141,10 +144,15 @@ export function ResumeConversation({
       setLoading(false);
     });
   }, [worktreePaths]);
+  const loadMoreInFlightRef = React.useRef(false);
   const loadMoreLogs = React.useCallback((count: number) => {
+    if (loadMoreInFlightRef.current) return;
     const ref = sessionLogResultRef.current;
     if (!ref || ref.nextIndex >= ref.allStatLogs.length) return;
+    loadMoreInFlightRef.current = true;
+    let shouldLoadMore = false;
     void enrichLogs(ref.allStatLogs, ref.nextIndex, count).then(result_1 => {
+      if (sessionLogResultRef.current !== ref) return;
       ref.nextIndex = result_1.nextIndex;
       if (result_1.logs.length > 0) {
         // enrichLogs returns fresh unshared objects — safe to mutate in place.
@@ -156,31 +164,32 @@ export function ResumeConversation({
         setLogs(prev => prev.concat(result_1.logs));
         logCountRef.current += result_1.logs.length;
       } else if (ref.nextIndex < ref.allStatLogs.length) {
-        loadMoreLogs(count);
+        shouldLoadMore = true;
       }
+    }).finally(() => {
+      loadMoreInFlightRef.current = false;
+      if (shouldLoadMore) loadMoreLogs(count);
     });
   }, []);
   const loadLogs = React.useCallback((allProjects: boolean) => {
     setLoading(true);
-    const generation = ++reloadRequestRef.current;
+    const requestGeneration = ++loadRequestGenerationRef.current;
     const previousResult = sessionLogResultRef.current;
     sessionLogResultRef.current = null;
     setReloadGeneration(previous => previous + 1);
     const promise = allProjects ? loadAllProjectsMessageLogsProgressive() : loadSameRepoMessageLogsProgressive(worktreePaths);
     promise.then(result_2 => {
-      if (reloadRequestRef.current !== generation) return;
+      if (loadRequestGenerationRef.current !== requestGeneration) return;
       sessionLogResultRef.current = result_2;
       logCountRef.current = result_2.logs.length;
       setLogs(result_2.logs);
     }).catch(error_0 => {
-      if (reloadRequestRef.current !== generation) return;
-      if (previousResult !== null) {
-        sessionLogResultRef.current = previousResult;
-      }
+      if (loadRequestGenerationRef.current !== requestGeneration) return;
+      if (previousResult !== null) sessionLogResultRef.current = previousResult;
       setLogs(previous => previous.slice());
       logError(error_0);
     }).finally(() => {
-      if (reloadRequestRef.current !== generation) return;
+      if (loadRequestGenerationRef.current !== requestGeneration) return;
       setLoading(false);
     });
   }, [worktreePaths]);
@@ -270,18 +279,18 @@ export function ResumeConversation({
         /* eslint-enable @typescript-eslint/no-require-imports */
         saveMode(isCoordinatorMode() ? 'coordinator' : 'normal');
       }
-      const resumedStandaloneAgentContext = computeStandaloneAgentContext(result_3.agentName, result_3.agentColor);
+      const computedStandaloneAgentContext = computeStandaloneAgentContext(result_3.agentName, result_3.agentColor);
       const standaloneAgentContext = existingStandaloneAgentContext ? {
-        ...resumedStandaloneAgentContext,
+        ...computedStandaloneAgentContext,
         ...existingStandaloneAgentContext
-      } : resumedStandaloneAgentContext;
+      } : computedStandaloneAgentContext;
       if (standaloneAgentContext) {
         setAppState(prev_2 => ({
           ...prev_2,
           standaloneAgentContext
         }));
       }
-      void updateSessionName(standaloneAgentContext?.name);
+      void updateSessionName(result_3.agentName);
       restoreSessionMetadata(forkSession ? {
         ...result_3,
         worktreeSession: undefined
@@ -334,15 +343,21 @@ export function ResumeConversation({
     })} strictMcpConfig={strictMcpConfig} systemPrompt={systemPrompt} appendSystemPrompt={appendSystemPrompt} mainThreadAgentDefinition={resumeData.mainThreadAgentDefinition} autoConnectIdeFlag={autoConnectIdeFlag} disableSlashCommands={disableSlashCommands} taskListId={taskListId} thinkingConfig={thinkingConfig} onTurnComplete={onTurnComplete} />;
   }
   if (loading && (logs.length === 0 || filteredLogs.length === 0)) {
-    return <LoadingState message="Loading conversations…" />;
+    return <Box>
+        <Spinner />
+        <Text> Loading conversations…</Text>
+      </Box>;
   }
   if (resuming) {
-    return <LoadingState message="Resuming conversation…" />;
+    return <Box>
+        <Spinner />
+        <Text> Resuming conversation…</Text>
+      </Box>;
   }
-  if (filteredLogs.length === 0 && !loading) {
+  if (filteredLogs.length === 0) {
     return <NoConversationsMessage />;
   }
-  return <LogSelector logs={filteredLogs} maxHeight={rows} onCancel={onCancel} onSelect={onSelect} onLogsChanged={isResumeWithRenameEnabled ? () => loadLogs(showAllProjects) : undefined} onLoadMore={loadMoreLogs} initialSearchQuery={initialSearchQuery} showAllProjects={showAllProjects} onToggleAllProjects={handleToggleAllProjects} onAgenticSearch={agenticSessionSearch} isLoading={loading} reloadGeneration={reloadGeneration} />;
+  return <LogSelector logs={filteredLogs} maxHeight={rows} onCancel={onCancel} onSelect={onSelect} onLogsChanged={isResumeWithRenameEnabled ? () => loadLogs(showAllProjects) : undefined} onLoadMore={loadMoreLogs} initialSearchQuery={initialSearchQuery} isLoading={loading} reloadGeneration={reloadGeneration} showAllProjects={showAllProjects} onToggleAllProjects={handleToggleAllProjects} onAgenticSearch={agenticSessionSearch} />;
 }
 function NoConversationsMessage() {
   const $ = _c(2);

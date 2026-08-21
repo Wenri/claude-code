@@ -9,12 +9,11 @@ import { logEvent } from 'src/services/analytics/index.js'
 import {
   getOriginalCwd,
   getSessionId,
-  setCwdState,
 } from '../bootstrap/state.js'
 import { generateTaskId } from '../Task.js'
-import { pwd } from './cwd.js'
+import { pwd, setCwdForContext } from './cwd.js'
 import { logForDebugging } from './debug.js'
-import { errorMessage, isENOENT } from './errors.js'
+import { errorMessage, getErrnoCode, isENOENT } from './errors.js'
 import { getFsImplementation } from './fsOperations.js'
 import { logError } from './log.js'
 import {
@@ -36,19 +35,15 @@ import { onCwdChangedForHooks } from './hooks/fileChangedWatcher.js'
 import { getClaudeTempDirName } from './permissions/filesystem.js'
 import { getPlatform } from './platform.js'
 import { SandboxManager } from './sandbox/sandbox-adapter.js'
-import {
-  getEmbeddedSeccompFileDescriptor,
-  SECCOMP_CHILD_FD,
-} from './sandbox/seccomp.js'
-import { parseForSecurity } from './bash/ast.js'
 import { invalidateSessionEnvCache } from './sessionEnvironment.js'
 import { createBashShellProvider } from './shell/bashProvider.js'
 import { getCachedPowerShellPath } from './shell/powershellDetection.js'
 import { createPowerShellProvider } from './shell/powershellProvider.js'
 import type {
+  SessionEnvironmentVariables,
   ShellProvider,
   ShellType,
-  TmuxSocket,
+  TmuxSocketFacade,
 } from './shell/shellProvider.js'
 import {
   enforceScriptCaps,
@@ -58,24 +53,9 @@ import {
   subprocessEnv,
 } from './subprocessEnv.js'
 import { posixPathToWindowsPath } from './windowsPaths.js'
+import { parseForSecurity } from './bash/ast.js'
 
 const DEFAULT_TIMEOUT = 30 * 60 * 1000 // 30 minutes
-
-type SpawnStdio = Array<'pipe' | number | undefined>
-
-function getSpawnStdio(
-  usePipeMode: boolean,
-  outputFileDescriptor: number | undefined,
-  seccompFileDescriptor: number | undefined,
-): SpawnStdio {
-  const stdio: SpawnStdio = usePipeMode
-    ? ['pipe', 'pipe', 'pipe']
-    : ['pipe', outputFileDescriptor, outputFileDescriptor]
-  if (seccompFileDescriptor !== undefined) {
-    stdio[SECCOMP_CHILD_FD] = seccompFileDescriptor
-  }
-  return stdio
-}
 
 export type ShellConfig = {
   provider: ShellProvider
@@ -245,9 +225,8 @@ export type ExecOptions = {
   shouldAutoBackground?: boolean
   /** When provided, stdout is piped (not sent to file) and this callback fires on each data chunk. */
   onStdout?: (data: string) => void
-  /** Per-session environment overrides applied only to spawned commands. */
-  sessionEnvVars?: Map<string, string>
-  tmuxSocket?: TmuxSocket
+  sessionEnvVars?: SessionEnvironmentVariables
+  tmuxSocket?: TmuxSocketFacade
 }
 
 /**
@@ -354,66 +333,84 @@ export async function exec(
 
   if (isScrubEnabled()) {
     const parsed = await parseForSecurity(command)
-    enforceScriptCaps(
+    const commandForCaps =
       parsed.kind === 'simple'
-        ? parsed.commands.map(simple => simple.text).join('\n')
-        : command,
-    )
+        ? parsed.commands.map(item => item.text).join('\n')
+        : command
+    enforceScriptCaps(commandForCaps)
   }
 
   if (shouldUseSandbox) {
-    let customConfig
+    let scrubConfig
     if (isScrubEnabled() && isScrubSandboxAvailable()) {
-      const scrub = scrubSandboxConfig()
-      const scrubFs = scrub.filesystem!
-      const baseFs = SandboxManager.getConfig()?.filesystem
-      const writeRestrictions = SandboxManager.getFsWriteConfig()
-      const unique = <T>(values: T[]): T[] => [...new Set(values)]
-      const denyWrite = scrubFs.denyWrite ?? []
-      const allowWrite = unique([
-        ...(scrubFs.allowWrite ?? []),
-        ...(baseFs?.allowWrite ?? []).filter(path => path !== '/' && path),
-      ])
-      const inheritedDenyWithinAllow =
-        writeRestrictions.denyWithinAllow.filter(
-          path =>
-            allowWrite.some(
-              allowed => path === allowed || path.startsWith(`${allowed}/`),
-            ) &&
-            !denyWrite.some(
-              denied => path === denied || path.startsWith(`${denied}/`),
-            ),
-        )
-      customConfig = {
-        ...scrub,
+      const base = scrubSandboxConfig()
+      const scrubDenyWrite = base.filesystem.denyWrite
+      const configuredFilesystem = SandboxManager.getConfig()?.filesystem
+      const allowWrite = [
+        ...new Set([
+          ...base.filesystem.allowWrite,
+          ...(configuredFilesystem?.allowWrite ?? []).filter(
+            path => path !== '/' && path.length > 0,
+          ),
+        ]),
+      ]
+      const denyWithinAllow = SandboxManager.getFsWriteConfig().denyWithinAllow.filter(
+        deniedPath =>
+          allowWrite.some(
+            allowedPath =>
+              deniedPath === allowedPath ||
+              deniedPath.startsWith(`${allowedPath}/`),
+          ) &&
+          !scrubDenyWrite.some(
+            scrubbedPath =>
+              deniedPath === scrubbedPath ||
+              deniedPath.startsWith(`${scrubbedPath}/`),
+          ),
+      )
+      scrubConfig = {
+        ...base,
         filesystem: {
           allowWrite,
-          denyWrite: unique([...denyWrite, ...inheritedDenyWithinAllow]),
-          denyRead: unique([
-            ...(scrubFs.denyRead ?? []),
-            ...(baseFs?.denyRead ?? []),
-          ]),
+          denyWrite: [...new Set([...scrubDenyWrite, ...denyWithinAllow])],
+          denyRead: [
+            ...new Set([
+              ...base.filesystem.denyRead,
+              ...(configuredFilesystem?.denyRead ?? []),
+            ]),
+          ],
         },
       }
     }
-    commandString = await SandboxManager.wrapWithSandbox(
-      commandString,
-      sandboxBinShell,
-      customConfig,
-      abortSignal,
-    )
-    // Create sandbox temp directory for sandboxed processes with secure permissions
+
+    // The sandbox runtime reads CLAUDE_TMPDIR while it builds the wrapper, so
+    // make the directory available before wrapping the command.  A concurrent
+    // creator is equally usable; other failures stay fail-soft and leave the
+    // caller's environment unchanged.
+    let sandboxTmpDirUsable = false
     try {
       const fs = getFsImplementation()
       await fs.mkdir(sandboxTmpDir, { mode: 0o700 })
+      sandboxTmpDirUsable = true
     } catch (error) {
-      logForDebugging(`Failed to create ${sandboxTmpDir} directory: ${error}`)
+      if (getErrnoCode(error) === 'EEXIST') {
+        sandboxTmpDirUsable = true
+      } else {
+        logForDebugging(
+          `Failed to create ${sandboxTmpDir} directory: ${error}`,
+        )
+      }
     }
-  }
+    if (sandboxTmpDirUsable && !process.env.CLAUDE_TMPDIR) {
+      process.env.CLAUDE_TMPDIR = sandboxTmpDir
+    }
 
-  const seccompFileDescriptor = shouldUseSandbox
-    ? await getEmbeddedSeccompFileDescriptor()
-    : undefined
+    commandString = await SandboxManager.wrapWithSandbox(
+      commandString,
+      sandboxBinShell,
+      scrubConfig,
+      abortSignal,
+    )
+  }
 
   const spawnBinary = isSandboxedPowerShell ? '/bin/sh' : binShell
   const shellArgs = isSandboxedPowerShell
@@ -477,11 +474,9 @@ export async function exec(
           : {}),
       },
       cwd,
-      stdio: getSpawnStdio(
-        usePipeMode,
-        outputHandle?.fd,
-        seccompFileDescriptor,
-      ),
+      stdio: usePipeMode
+        ? ['pipe', 'pipe', 'pipe']
+        : ['pipe', outputHandle?.fd, outputHandle?.fd],
       // Don't pass the signal - we'll handle termination ourselves with tree-kill
       detached: provider.detached,
       // Prevent visible console window on Windows (no-op on other platforms)
@@ -613,7 +608,7 @@ export function setCwd(path: string, relativeTo?: string): void {
     throw e
   }
 
-  setCwdState(physicalPath)
+  setCwdForContext(physicalPath)
   if (process.env.NODE_ENV !== 'test') {
     try {
       logEvent('tengu_shell_set_cwd', {

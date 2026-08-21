@@ -1,9 +1,11 @@
 import axios from 'axios'
 import { readFile, stat } from 'fs/promises'
+import { isPolicyAllowed } from '../../services/policyLimits/index.js'
 import type { Message } from '../../types/message.js'
 import { checkAndRefreshOAuthTokenIfNeeded } from '../../utils/auth.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { errorMessage } from '../../utils/errors.js'
+import { buildFeedbackPayload } from '../../utils/feedbackPayload.js'
 import { getAuthHeaders, getUserAgent } from '../../utils/http.js'
 import { normalizeMessagesForAPI } from '../../utils/messages.js'
 import {
@@ -12,8 +14,8 @@ import {
   loadSubagentTranscripts,
   MAX_TRANSCRIPT_READ_BYTES,
 } from '../../utils/sessionStorage.js'
-import { serializeWrappedContent } from '../../utils/wrappedContentSerializer.js'
-import { redactSensitiveInfo } from '../Feedback.js'
+import { jsonParse, jsonStringify } from '../../utils/slowOperations.js'
+import { redactSensitiveInfo, redactSensitiveValue } from '../Feedback.js'
 
 type TranscriptShareResult = {
   success: boolean
@@ -26,32 +28,18 @@ export type TranscriptShareTrigger =
   | 'frustration'
   | 'memory_survey'
 
-function sanitizeFeedbackValue(value: unknown): unknown {
-  if (typeof value === 'string') return redactSensitiveInfo(value)
-  if (Array.isArray(value)) return value.map(sanitizeFeedbackValue)
-  if (value !== null && typeof value === 'object') {
-    const sanitized: Record<string, unknown> = {}
-    for (const [key, fieldValue] of Object.entries(value)) {
-      if (typeof fieldValue === 'string') {
-        const prefix = `${key}: `
-        const withPrefix = redactSensitiveInfo(prefix + fieldValue)
-        sanitized[key] = withPrefix.startsWith(prefix)
-          ? withPrefix.slice(prefix.length)
-          : redactSensitiveInfo(fieldValue)
-      } else {
-        sanitized[key] = sanitizeFeedbackValue(fieldValue)
-      }
-    }
-    return sanitized
-  }
-  return value
-}
+const TRANSCRIPT_ARRAY_FIELDS = new Set(['transcript'])
+const TRANSCRIPT_NESTED_ARRAY_FIELDS = new Set(['subagentTranscripts'])
 
 export async function submitTranscriptShare(
   messages: Message[],
   trigger: TranscriptShareTrigger,
   appearanceId: string,
 ): Promise<TranscriptShareResult> {
+  if (!isPolicyAllowed('allow_product_feedback')) {
+    return { success: false }
+  }
+
   try {
     logForDebugging('Collecting transcript for sharing', { level: 'info' })
 
@@ -78,19 +66,20 @@ export async function submitTranscriptShare(
       // File may not exist
     }
 
-    const sanitizedRawTranscript = rawTranscriptJsonl
+    const redactedRawTranscriptJsonl = rawTranscriptJsonl
       ?.split('\n')
       .map(line => {
         if (!line) return line
         try {
-          return JSON.stringify(sanitizeFeedbackValue(JSON.parse(line)))
+          return jsonStringify(redactSensitiveValue(jsonParse(line)))
         } catch {
           return redactSensitiveInfo(line)
         }
       })
       .join('\n')
+
     const data = {
-      ...(sanitizeFeedbackValue({
+      ...(redactSensitiveValue({
         trigger,
         version: MACRO.VERSION,
         platform: process.platform,
@@ -100,16 +89,14 @@ export async function submitTranscriptShare(
             ? subagentTranscripts
             : undefined,
       }) as Record<string, unknown>),
-      rawTranscriptJsonl: sanitizedRawTranscript,
+      rawTranscriptJsonl: redactedRawTranscriptJsonl,
     }
 
-    const body = serializeWrappedContent(
+    const payload = buildFeedbackPayload(
       data,
-      new Set(['transcript']),
-      new Set(['subagentTranscripts']),
-      {
-        extraOuterFields: { appearance_id: appearanceId },
-      },
+      TRANSCRIPT_ARRAY_FIELDS,
+      TRANSCRIPT_NESTED_ARRAY_FIELDS,
+      { extraOuterFields: { appearance_id: appearanceId } },
     )
 
     await checkAndRefreshOAuthTokenIfNeeded()
@@ -127,7 +114,7 @@ export async function submitTranscriptShare(
 
     const response = await axios.post(
       'https://api.anthropic.com/api/claude_code_shared_session_transcripts',
-      body,
+      payload,
       {
         headers,
         timeout: 30000,

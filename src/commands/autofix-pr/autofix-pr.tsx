@@ -131,7 +131,7 @@ function spawnLocalAutofixAgent(
     abortController,
     awaitingPlanApproval: false,
     permissionMode: normalizeAgentPermissionMode(
-      context.getAppState().toolPermissionContext.mode,
+      context.getToolPermissionContext().mode,
     ),
     isIdle: false,
     shutdownRequested: false,
@@ -176,7 +176,19 @@ function AutofixPr({
   const localAbortController = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    logEvent('tengu_autofix_pr_started', {})
+    // The public command currently supplies only a freeform prompt. Keep the
+    // target's structured launch fields in telemetry so future callers that
+    // provide explicit PR/repository inputs retain the same event shape.
+    const explicitPrNumber: number | undefined = undefined
+    const repoPath: string | undefined = undefined
+    const customInstructionCommands: string[] = []
+    const isStopRequest = args === 'stop' || args === 'off'
+    const customPrompt = args
+    logEvent('tengu_autofix_pr_started', {
+      action: 'start',
+      has_pr_number: String(explicitPrNumber !== undefined),
+      has_repo_path: String(repoPath !== undefined),
+    })
 
     const fail = (message: string, result: string): void => {
       if (cancelled.current) return
@@ -188,13 +200,6 @@ function AutofixPr({
     }
 
     void (async () => {
-      // These variables intentionally mirror the command's target-side
-      // parsing scaffolding. Arguments currently act as a custom instruction;
-      // explicit PR selection and stop mode are not enabled yet.
-      const explicitPrNumber: number | undefined = undefined
-      const customInstructionCommands: string[] = []
-      const isStopRequest = args === 'stop' || args === 'off'
-      const customPrompt = args
       void isStopRequest
 
       try {

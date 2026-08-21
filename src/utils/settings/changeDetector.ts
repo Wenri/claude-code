@@ -10,6 +10,7 @@ import {
   executeConfigChangeHooks,
   hasBlockingResult,
 } from '../hooks.js'
+import { createSignal } from '../signal.js'
 import { jsonStringify } from '../slowOperations.js'
 import { SETTING_SOURCES, type SettingSource } from './constants.js'
 import { clearInternalWrites, consumeInternalWrite } from './internalWrites.js'
@@ -24,7 +25,6 @@ import {
 } from './mdm/settings.js'
 import { getSettingsFilePathForSource } from './settings.js'
 import { resetSettingsCache } from './settingsCache.js'
-import { settingsChanged } from './settingsSignal.js'
 
 /**
  * Time in milliseconds to wait for file writes to stabilize before processing.
@@ -70,6 +70,8 @@ let lastMdmSnapshot: string | null = null
 let initialized = false
 let disposed = false
 const pendingDeletions = new Map<string, ReturnType<typeof setTimeout>>()
+const settingsChanged = createSignal<[source: SettingSource]>()
+
 // Test overrides for timing constants
 let testOverrides: {
   stabilityThreshold?: number

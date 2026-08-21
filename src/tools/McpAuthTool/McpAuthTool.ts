@@ -1,6 +1,10 @@
 import reject from 'lodash-es/reject.js'
 import { z } from 'zod/v4'
+import { getRuntimeCapabilities } from '../../bootstrap/state.js'
 import {
+  AuthenticationCancelledError,
+  getActiveMCPOAuthFlow,
+  getMcpOAuthCallbackSubmitter,
   performMCPOAuthFlow,
   trackMCPOAuthFlow,
 } from '../../services/mcp/auth.js'
@@ -18,71 +22,57 @@ import type {
   ScopedMcpServerConfig,
 } from '../../services/mcp/types.js'
 import type { Tool } from '../../Tool.js'
+import { env } from '../../utils/env.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage } from '../../utils/errors.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { logMCPDebug, logMCPError } from '../../utils/log.js'
 import type { PermissionDecision } from '../../utils/permissions/PermissionResult.js'
-import { getIsRemoteMode } from '../../bootstrap/state.js'
-import { env } from '../../utils/env.js'
-import { isEnvTruthy } from '../../utils/envUtils.js'
 
 const inputSchema = lazySchema(() => z.object({}))
 type InputSchema = ReturnType<typeof inputSchema>
-const completeAuthenticationInputSchema = lazySchema(() =>
+
+const completeAuthInputSchema = lazySchema(() =>
   z.object({
-    callback_url: z.string().describe(
-      'The full callback URL from the browser address bar after authorizing, e.g. http://localhost:<port>/callback?code=...&state=...',
-    ),
+    callback_url: z
+      .string()
+      .describe(
+        'The full callback URL from the browser address bar after authorizing, e.g. http://localhost:<port>/callback?code=...&state=...',
+      ),
   }),
 )
-type CompleteAuthenticationInputSchema = ReturnType<
-  typeof completeAuthenticationInputSchema
->
+type CompleteAuthInputSchema = ReturnType<typeof completeAuthInputSchema>
 
 export type McpAuthOutput = {
-  status: 'auth_url' | 'success' | 'unsupported' | 'error'
+  status: 'auth_url' | 'unsupported' | 'error'
   message: string
   authUrl?: string
 }
 
-const pendingCallbackSubmitters = new Map<
-  string,
-  (callbackUrl: string) => void
->()
-const pendingOAuthFlows = new Map<string, Promise<void>>()
+export type McpCompleteAuthOutput = {
+  status: 'success' | 'error'
+  message: string
+}
 
-function trackOAuthFlow(serverName: string, flow: Promise<void>): void {
-  pendingOAuthFlows.set(serverName, flow)
-  const clear = () => {
-    if (pendingOAuthFlows.get(serverName) === flow) {
-      pendingOAuthFlows.delete(serverName)
-    }
-  }
-  void flow.then(clear, clear)
+function getConfigUrl(config: ScopedMcpServerConfig): string | undefined {
+  if ('url' in config) return config.url
+  return undefined
 }
 
 function isRemoteOAuthSession(): boolean {
   return (
     env.isSSH() ||
     isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ||
-    getIsRemoteMode()
+    getRuntimeCapabilities().workspace === 'remote'
   )
 }
 
-function callbackRedirectUrl(authorizationUrl: string): string {
+function getOAuthRedirectUri(authUrl: string): string {
   try {
-    return (
-      new URL(authorizationUrl).searchParams.get('redirect_uri') ??
-      'http://localhost:<port>/callback'
-    )
-  } catch {
-    return 'http://localhost:<port>/callback'
-  }
-}
-
-function getConfigUrl(config: ScopedMcpServerConfig): string | undefined {
-  if ('url' in config) return config.url
-  return undefined
+    const redirectUri = new URL(authUrl).searchParams.get('redirect_uri')
+    if (redirectUri) return redirectUri
+  } catch {}
+  return 'http://localhost:<port>/callback'
 }
 
 /**
@@ -179,12 +169,7 @@ export function createMcpAuthTool(
         sseOrHttpConfig,
         u => resolveAuthUrl?.(u),
         controller.signal,
-        {
-          skipBrowserOpen: true,
-          onWaitingForCallback: submit => {
-            pendingCallbackSubmitters.set(serverName, submit)
-          },
-        },
+        { skipBrowserOpen: true },
       )
       trackMCPOAuthFlow(serverName, oauthPromise)
 
@@ -241,9 +226,9 @@ export function createMcpAuthTool(
             serverName,
             'complete_authentication',
           )
-          const redirectUrl = callbackRedirectUrl(authUrl)
+          const redirectUri = getOAuthRedirectUri(authUrl)
           const callbackInstructions = isRemoteOAuthSession()
-            ? `\n\nThis session is remote, so after authorizing the browser will try to load \`${redirectUrl}?code=...\` and show a connection error — that's expected. Ask the user to copy the full URL from the browser's address bar and paste it into chat, then call \`${completeToolName}\` with that URL as \`callback_url\`.`
+            ? `\n\nThis session is remote, so after authorizing the browser will try to load \`${redirectUri}?code=...\` and show a connection error — that's expected. Ask the user to copy the full URL from the browser's address bar and paste it into chat, then call \`${completeToolName}\` with that URL as \`callback_url\`.`
             : `\n\nIf the browser shows a connection error on the redirect page, ask the user to paste the full URL from the address bar and call \`${completeToolName}\` with it.`
           return {
             data: {
@@ -280,17 +265,15 @@ export function createMcpAuthTool(
 }
 
 /**
- * Completes the manual-callback half of an MCP OAuth flow. Remote sessions
- * cannot receive the localhost redirect in the user's browser, so the model
- * submits the copied address-bar URL through this companion pseudo-tool.
+ * Creates the companion pseudo-tool used to finish OAuth when a browser cannot
+ * reach the local callback listener (for example in SSH or remote sessions).
  */
-export function createMcpCompleteAuthenticationTool(
+export function createMcpCompleteAuthTool(
   serverName: string,
-): Tool<CompleteAuthenticationInputSchema, McpAuthOutput> {
+): Tool<CompleteAuthInputSchema, McpCompleteAuthOutput> {
   const authenticateToolName = buildMcpToolName(serverName, 'authenticate')
   const description =
-    `Complete an in-progress OAuth flow for the \`${serverName}\` MCP server by submitting the callback URL. ` +
-    `Call \`${authenticateToolName}\` first to start the flow and get the authorization URL. ` +
+    `Complete an in-progress OAuth flow for the \`${serverName}\` MCP server by submitting the callback URL. Call \`${authenticateToolName}\` first to start the flow and get the authorization URL. ` +
     'After the user authorizes in their browser, the browser is redirected to a `http://localhost:<port>/callback?code=...&state=...` URL — ' +
     'on remote sessions that page fails to load, but the URL in the address bar is still valid. Pass that full URL here as `callback_url`.'
 
@@ -312,14 +295,15 @@ export function createMcpCompleteAuthenticationTool(
     async prompt() {
       return description
     },
-    get inputSchema(): CompleteAuthenticationInputSchema {
-      return completeAuthenticationInputSchema()
+    get inputSchema(): CompleteAuthInputSchema {
+      return completeAuthInputSchema()
     },
     async checkPermissions(input): Promise<PermissionDecision> {
       return { behavior: 'allow', updatedInput: input }
     },
-    async call({ callback_url }) {
-      const submit = pendingCallbackSubmitters.get(serverName)
+    async call(input) {
+      const callbackUrl = input.callback_url
+      const submit = getMcpOAuthCallbackSubmitter(serverName)
       if (!submit) {
         return {
           data: {
@@ -329,16 +313,13 @@ export function createMcpCompleteAuthenticationTool(
         }
       }
 
-      let hasOAuthResult = false
+      let hasAuthorizationResult = false
       try {
-        const callback = new URL(callback_url)
-        hasOAuthResult =
-          callback.searchParams.has('code') ||
-          callback.searchParams.has('error')
-      } catch {
-        // The target reports one actionable validation error below.
-      }
-      if (!hasOAuthResult) {
+        const parsed = new URL(callbackUrl)
+        hasAuthorizationResult =
+          parsed.searchParams.has('code') || parsed.searchParams.has('error')
+      } catch {}
+      if (!hasAuthorizationResult) {
         return {
           data: {
             status: 'error' as const,
@@ -348,8 +329,8 @@ export function createMcpCompleteAuthenticationTool(
         }
       }
 
-      const flow = pendingOAuthFlows.get(serverName)
-      submit(callback_url)
+      const flow = getActiveMCPOAuthFlow(serverName)
+      submit(callbackUrl)
       try {
         await flow
         return {
@@ -382,5 +363,5 @@ export function createMcpCompleteAuthenticationTool(
         content: data.message,
       }
     },
-  } satisfies Tool<CompleteAuthenticationInputSchema, McpAuthOutput>
+  } satisfies Tool<CompleteAuthInputSchema, McpCompleteAuthOutput>
 }

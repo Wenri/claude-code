@@ -17,12 +17,12 @@ import {
  *
  * @param messages The current conversation messages
  * @param ignore When true, messages will not be recorded to the transcript
- * @param isLoading When true, hold an unfinished assistant behind the cursor
+ * @param deferIncompleteAssistant Hold streaming assistant messages until complete
  */
 export function useLogMessages(
   messages: Message[],
   ignore: boolean = false,
-  isLoading: boolean = false,
+  deferIncompleteAssistant: boolean = false,
 ) {
   const teamContext = useAppState(s => s.teamContext)
 
@@ -37,14 +37,14 @@ export function useLogMessages(
   // Guard against stale async .then() overwriting a fresher sync update when
   // an incremental render fires before the compaction .then() resolves.
   const callSeqRef = useRef(0)
-  // Tracks the furthest safe cursor independently of the current array shape.
-  // In particular, ignored resume history must not make a trailing unfinished
-  // assistant block later messages when recording begins.
-  const lastSeenLengthRef = useRef(0)
+  const deferredScanStartRef = useRef(0)
 
   useEffect(() => {
     if (getRuntimeCapabilities().remote?.kind === 'ccr') return
-    if (ignore) return
+    if (ignore) {
+      deferredScanStartRef.current = messages.length
+      return
+    }
 
     const currentFirstUuid = messages[0]?.uuid as UUID | undefined
     const prevLength = lastRecordedLengthRef.current
@@ -69,16 +69,16 @@ export function useLogMessages(
       prevLength > messages.length
 
     const startIndex = isIncremental ? prevLength : 0
-    const scanStart =
+    const deferredScanStart =
       isIncremental || wasFirstRender
-        ? lastSeenLengthRef.current
+        ? deferredScanStartRef.current
         : startIndex
     const endIndex = transcriptCursorEnd(
       messages,
-      Math.max(startIndex, scanStart),
-      isLoading,
+      Math.max(startIndex, deferredScanStart),
+      deferIncompleteAssistant,
     )
-    if (!isIncremental) lastSeenLengthRef.current = endIndex
+    if (!isIncremental) deferredScanStartRef.current = endIndex
     if (endIndex === startIndex) return
 
     // Full array on first call + after compaction: recordTranscript's own
@@ -143,7 +143,7 @@ export function useLogMessages(
   }, [
     messages,
     ignore,
-    isLoading,
+    deferIncompleteAssistant,
     teamContext?.teamName,
     teamContext?.selfAgentName,
   ])

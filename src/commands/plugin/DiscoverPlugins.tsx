@@ -8,9 +8,7 @@ import { SearchBox } from '../../components/SearchBox.js';
 import { useSearchInput } from '../../hooks/useSearchInput.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- useInput needed for raw search mode text input
-import { Box, Text, useTerminalFocus } from '../../ink.js';
-import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
-import type { PasteEvent } from '../../ink/events/paste-event.js';
+import { Box, Text, useInput, useTerminalFocus } from '../../ink.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
 import type { LoadedPlugin } from '../../types/plugin.js';
 import { count } from '../../utils/array.js';
@@ -77,9 +75,7 @@ export function DiscoverPlugins({
   const {
     query: searchQuery,
     setQuery: setSearchQuery,
-    cursorOffset: searchCursorOffset,
-    handleKeyDown: handleSearchKeyDown,
-    handlePaste: handleSearchPaste,
+    cursorOffset: searchCursorOffset
   } = useSearchInput({
     isActive: viewState === 'plugin-list' && isSearchMode && !loading,
     onExit: () => {
@@ -349,35 +345,24 @@ export function DiscoverPlugins({
     isActive: viewState === 'plugin-list' && !isSearchMode
   });
 
-  function handleKeyDown(event: KeyboardEvent): void {
-    if (isSearchMode) {
-      handleSearchKeyDown(event);
-      return;
+  // Handle entering search mode (non-escape keys)
+  useInput((input, _key) => {
+    const keyIsNotCtrlOrMeta = !_key.ctrl && !_key.meta;
+    if (!isSearchMode) {
+      // Enter search mode with '/' or any printable character
+      if (input === '/' && keyIsNotCtrlOrMeta) {
+        setIsSearchMode(true);
+        setSearchQuery('');
+      } else if (keyIsNotCtrlOrMeta && input.length > 0 && !/^\s+$/.test(input) &&
+      // Don't enter search mode for navigation keys
+      input !== 'j' && input !== 'k' && input !== 'i') {
+        setIsSearchMode(true);
+        setSearchQuery(input);
+      }
     }
-    if (event.ctrl || event.meta || loading) return;
-    if (event.key === '/') {
-      event.preventDefault();
-      setIsSearchMode(true);
-      setSearchQuery('');
-    } else if (event.key.length === 1 && event.key !== ' ') {
-      event.preventDefault();
-      setIsSearchMode(true);
-      setSearchQuery(event.key);
-    }
-  }
-
-  function handlePaste(event: PasteEvent): void {
-    if (isSearchMode) {
-      handleSearchPaste(event);
-      return;
-    }
-    if (loading) return;
-    const text = (event.text.split(/\r\n|\r|\n/, 2)[0] ?? '').trim();
-    if (!text) return;
-    event.preventDefault();
-    setIsSearchMode(true);
-    setSearchQuery(text);
-  }
+  }, {
+    isActive: viewState === 'plugin-list' && !loading
+  });
 
   // Plugin-list navigation (non-search mode)
   useKeybindings({
@@ -594,7 +579,7 @@ export function DiscoverPlugins({
 
   // Get visible plugins from pagination
   const visiblePlugins = pagination.getVisibleItems(filteredPlugins);
-  return <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={handleKeyDown} onPaste={handlePaste}>
+  return <Box flexDirection="column">
       <Box>
         <Text bold>Discover plugins</Text>
         {pagination.needsPagination && <Text dimColor>

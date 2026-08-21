@@ -14,7 +14,6 @@ import { useAppState } from '../../state/AppState.js';
 import type { ToolPermissionContext } from '../../Tool.js';
 import type { Message } from '../../types/message.js';
 import type { PromptInputMode, VimMode } from '../../types/textInputTypes.js';
-import { isBgSession } from '../../utils/concurrentSessions.js';
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
 import { isUndercover } from '../../utils/undercover.js';
 import { isForkSubagentEnabled } from '../../tools/AgentTool/forkSubagent.js';
@@ -30,6 +29,7 @@ type Props = {
   exitMessage: {
     show: boolean;
     key?: string;
+    action?: 'clear';
   };
   leftArrowPending: boolean;
   vimMode: VimMode | undefined;
@@ -111,10 +111,10 @@ function PromptInputFooter({
   const isFullscreen = isFullscreenEnvEnabled();
   const briefTranscript = useAppState(state => state.briefTranscript);
   const isShort = isFullscreen && rows < 24;
-  const footerStates = [
-    isBgSession() && 'background',
+  const modeLabels = [
+    "external" === 'ant' && isUndercover() && 'undercover',
     isFullscreen && briefTranscript && 'focus',
-  ].filter(Boolean);
+  ].filter(isTruthy);
 
   // Pill highlights when tasks is the active footer item AND no specific
   // agent row is selected. When coordinatorTaskIndex >= 0 the pointer has
@@ -145,22 +145,42 @@ function PromptInputFooter({
     return <PromptInputHelpMenu dimColor={true} fixedWidth={true} paddingX={2} />;
   }
   return <>
-      <Box width={columns} flexWrap="wrap" alignItems="flex-end" paddingLeft={2} paddingRight={isFullscreen ? 1 : 2} columnGap={1}>
+      <Box width={columns} flexWrap="wrap" alignItems="flex-start" paddingLeft={2} paddingRight={isFullscreen ? 1 : 2} columnGap={1}>
         <Box flexDirection="column" flexShrink={1}>
           {mode === 'prompt' && !isShort && !exitMessage.show && !isPasting && statusLineShouldDisplay(settings) && <StatusLine messagesRef={messagesRef} lastAssistantMessageId={lastAssistantMessageId} vimMode={vimMode} />}
           <PromptInputFooterLeftSide exitMessage={exitMessage} leftArrowPending={leftArrowPending} vimMode={vimMode} hideVimModeIndicator={!isShort && statusLineShouldDisplay(settings) && (settings?.statusLine?.hideVimModeIndicator ?? false)} mode={mode} toolPermissionContext={toolPermissionContext} suppressHint={suppressHint} isInputEmpty={!suppressHintFromProps} isLoading={isLoading} tasksSelected={pillSelected} teamsSelected={teamsSelected} teammateFooterIndex={teammateFooterIndex} tmuxSelected={tmuxSelected} isPasting={isPasting} showExpandPasteHint={showExpandPasteHint} isSearching={isSearching} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={onOpenTasksDialog} />
         </Box>
-        <Box flexShrink={0} marginLeft="auto" gap={1}>
-          {isFullscreen ? null : <Notifications apiKeyStatus={apiKeyStatus} debug={debug} isAutoUpdating={isAutoUpdating} verbose={verbose} messages={messages} onChangeIsUpdating={onChangeIsUpdating} ideSelection={ideSelection} mcpClients={mcpClients} isInputWrapped={isInputWrapped} />}
-          {"external" === 'ant' && isUndercover() && <Text dimColor>undercover</Text>}
-          <BridgeStatusIndicator bridgeSelected={bridgeSelected} />
-          {footerStates.length > 0 && <Text dimColor>{footerStates.join(' & ')}</Text>}
-        </Box>
+        <PromptInputFooterRightSide
+          notifications={isFullscreen ? null : <Notifications apiKeyStatus={apiKeyStatus} debug={debug} isAutoUpdating={isAutoUpdating} verbose={verbose} messages={messages} onChangeIsUpdating={onChangeIsUpdating} ideSelection={ideSelection} mcpClients={mcpClients} isInputWrapped={isInputWrapped} />}
+          bridgeSelected={bridgeSelected}
+          modeLabels={modeLabels}
+        />
       </Box>
       {isForkSubagentEnabled() && <CoordinatorTaskPanel />}
     </>;
 }
 export default memo(PromptInputFooter);
+function isTruthy(value: string | false): value is string {
+  return Boolean(value);
+}
+type PromptInputFooterRightSideProps = {
+  notifications: ReactNode;
+  bridgeSelected: boolean;
+  modeLabels: string[];
+};
+function PromptInputFooterRightSide({
+  notifications,
+  bridgeSelected,
+  modeLabels
+}: PromptInputFooterRightSideProps): ReactNode {
+  return <Box flexShrink={0} marginLeft="auto" flexDirection="column" alignItems="flex-end">
+      {notifications}
+      <Box gap={1}>
+        <BridgeStatusIndicator bridgeSelected={bridgeSelected} />
+        {modeLabels.length > 0 && <Text dimColor>{modeLabels.join(' & ')}</Text>}
+      </Box>
+    </Box>;
+}
 type BridgeStatusProps = {
   bridgeSelected: boolean;
 };
@@ -179,9 +199,11 @@ function BridgeStatusIndicator({
   const reconnecting = useAppState(s_2 => s_2.replBridgeReconnecting);
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   const explicit = useAppState(s_3 => s_3.replBridgeExplicit);
+  // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
+  const error = useAppState(s_4 => s_4.replBridgeError);
 
   // Failed state is surfaced via notification (useReplBridge), not a footer pill.
-  if (!isBridgeEnabled() || !enabled) return null;
+  if (!isBridgeEnabled() || !enabled || error) return null;
   const status = getBridgeStatus({
     error: undefined,
     connected,

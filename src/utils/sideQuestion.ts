@@ -6,14 +6,17 @@
  * while keeping the side question response separate from main conversation.
  */
 
+import { APIUserAbortError } from '@anthropic-ai/sdk'
 import { formatAPIError } from '../services/api/errorUtils.js'
 import {
   EMPTY_USAGE,
   type NonNullableUsage,
 } from '../services/api/logging.js'
 import type { Message, SystemAPIErrorMessage } from '../types/message.js'
-import { createChildAbortController } from './abortController.js'
-import { isAbortError } from './errors.js'
+import {
+  createChildAbortController,
+  createAbortController,
+} from './abortController.js'
 import { type CacheSafeParams, runForkedAgent } from './forkedAgent.js'
 import {
   createAssistantMessage,
@@ -30,20 +33,34 @@ export type SideQuestionHistoryEntry = {
   response: string
 }
 
-let sideQuestionHistory: SideQuestionHistoryEntry[] = []
+type SideQuestionState = {
+  history: SideQuestionHistoryEntry[]
+}
+
+let sideQuestionState: SideQuestionState = { history: [] }
 
 export function getSideQuestionHistory(): SideQuestionHistoryEntry[] {
-  return sideQuestionHistory
+  return sideQuestionState.history
 }
 
 export function clearSideQuestionHistory(): void {
-  sideQuestionHistory = []
+  sideQuestionState.history = []
 }
 
 export function setSideQuestionHistory(
   history: SideQuestionHistoryEntry[],
 ): void {
-  sideQuestionHistory = history
+  sideQuestionState.history = history
+}
+
+export function appendSideQuestionHistory(
+  question: string,
+  response: string,
+): void {
+  sideQuestionState.history = [
+    ...sideQuestionState.history,
+    { question, response },
+  ].slice(-MAX_SIDE_QUESTION_HISTORY)
 }
 
 /**
@@ -75,7 +92,7 @@ export type SideQuestionResult = {
   response: string | null
   synthetic: boolean
   usage: NonNullableUsage
-  aborted?: boolean
+  aborted?: true
 }
 
 export type SideQuestionRetry = {
@@ -125,9 +142,9 @@ ${question}`
 
   const abortController = parentController
     ? createChildAbortController(parentController)
-    : new AbortController()
+    : createAbortController()
   const historyMessages = threadHistory
-    ? sideQuestionHistory.flatMap(entry => [
+    ? sideQuestionState.history.flatMap(entry => [
         createUserMessage({ content: entry.question }),
         createAssistantMessage({ content: entry.response }),
       ])
@@ -139,6 +156,9 @@ ${question}`
         ...historyMessages,
         createUserMessage({ content: wrappedQuestion }),
       ],
+      // Do NOT override thinkingConfig — thinking is part of the API cache key,
+      // and diverging from the main thread's config busts the prompt cache.
+      // Adaptive thinking on a quick Q&A has negligible overhead.
       cacheSafeParams,
       canUseTool: async () => ({
         behavior: 'deny' as const,
@@ -147,17 +167,14 @@ ${question}`
       }),
       querySource: 'side_question',
       forkLabel: 'side_question',
-      maxTurns: 1,
+      maxTurns: 1, // Single turn only - no tool use loops
+      // No future request shares this suffix; skip writing cache entries.
       skipCacheWrite: true,
       skipTranscript: true,
       overrides: { abortController },
       onMessage: onRetry
         ? message => {
-            if (
-              message.type === 'system' &&
-              'subtype' in message &&
-              message.subtype === 'api_error'
-            ) {
+            if (isSystemAPIErrorMessage(message)) {
               onRetry({
                 retryAttempt: message.retryAttempt,
                 maxRetries: message.maxRetries,
@@ -168,22 +185,25 @@ ${question}`
           }
         : undefined,
     })
+
     const { response, synthetic } = extractSideQuestionResponse(
       agentResult.messages,
     )
     if (threadHistory && response && !synthetic) {
-      sideQuestionHistory = [
-        ...sideQuestionHistory,
-        { question, response },
-      ].slice(-MAX_SIDE_QUESTION_HISTORY)
+      appendSideQuestionHistory(question, response)
     }
-    return { response, synthetic, usage: agentResult.totalUsage }
+
+    return {
+      response,
+      synthetic,
+      usage: agentResult.totalUsage,
+    }
   } catch (error) {
-    if (isAbortError(error) || abortController.signal.aborted) {
+    if (error instanceof APIUserAbortError || abortController.signal.aborted) {
       return {
         response: null,
         synthetic: false,
-        usage: { ...EMPTY_USAGE },
+        usage: EMPTY_USAGE,
         aborted: true,
       }
     }
@@ -239,10 +259,7 @@ function extractSideQuestionResponse(messages: Message[]): {
 
   // No assistant content — likely API error exhausted retries. Surface the
   // first system api_error message so the user sees what happened.
-  const apiErr = messages.find(
-    (m): m is SystemAPIErrorMessage =>
-      m.type === 'system' && 'subtype' in m && m.subtype === 'api_error',
-  )
+  const apiErr = messages.find(isSystemAPIErrorMessage)
   if (apiErr) {
     return {
       response: `(API error: ${formatAPIError(apiErr.error)})`,
@@ -251,4 +268,14 @@ function extractSideQuestionResponse(messages: Message[]): {
   }
 
   return { response: null, synthetic: false }
+}
+
+function isSystemAPIErrorMessage(
+  message: Message,
+): message is SystemAPIErrorMessage {
+  return (
+    message.type === 'system' &&
+    'subtype' in message &&
+    message.subtype === 'api_error'
+  )
 }

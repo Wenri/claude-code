@@ -12,7 +12,6 @@ import {
   readTeamFile,
   unregisterTeamForSessionCleanup,
 } from '../../utils/swarm/teamHelpers.js'
-import { clearTeammateColors } from '../../utils/swarm/teammateLayoutManager.js'
 import { clearLeaderTeamName } from '../../utils/tasks.js'
 import { TEAM_DELETE_TOOL_NAME } from './constants.js'
 import { getPrompt } from './prompt.js'
@@ -103,7 +102,7 @@ export const TeamDeleteTool: Tool<InputSchema, Output> = buildTool({
       unregisterTeamForSessionCleanup(teamName)
 
       // Clear color assignments so new teams start fresh
-      clearTeammateColors()
+      context.teammateColors.clear()
 
       // Clear leader team name so getTaskListId() falls back to session ID
       clearLeaderTeamName()

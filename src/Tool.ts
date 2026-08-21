@@ -10,7 +10,6 @@ import type { UUID } from 'crypto'
 import type { z } from 'zod/v4'
 import type { Command } from './commands.js'
 import type { CanUseToolFn } from './hooks/useCanUseTool.js'
-import type { MemorySelectorState } from './memdir/findRelevantMemories.js'
 import type { ThinkingConfig } from './utils/thinking.js'
 
 export type ToolInputJSONSchema = {
@@ -20,6 +19,10 @@ export type ToolInputJSONSchema = {
     [x: string]: unknown
   }
 }
+
+export type ApiMetricsEvent =
+  | { type: 'start'; ttftMs: number; id?: string }
+  | { type: 'end'; outputTokens: number; id?: string }
 
 import type { Notification } from './context/notifications.js'
 import type {
@@ -60,13 +63,19 @@ import type {
   WebSearchProgress,
 } from './types/tools.js'
 import type { FileStateCache } from './utils/fileStateCache.js'
+import type { EffortValue } from './utils/effort.js'
+import type { MemorySelector } from './memdir/findRelevantMemories.js'
 import type { DenialTrackingState } from './utils/permissions/denialTracking.js'
 import type { ResultDedupState } from './services/tools/resultDedup.js'
 import type { ConnectionLifecycleTracker } from './services/api/connectionState.js'
 import type { SystemPrompt } from './utils/systemPromptType.js'
 import type { ContentReplacementState } from './utils/toolResultStorage.js'
-import type { ToolResultDedupState } from './utils/toolErrors.js'
-import type { ToolIsolationLatch } from './utils/toolIsolation.js'
+import type { SessionStateManager } from './utils/sessionState.js'
+import type { AgentLifecycle } from './utils/agentLifecycle.js'
+import type { SetClassifierApprovals } from './utils/classifierApprovals.js'
+import type { TaskRegistry } from './utils/task/framework.js'
+import type { TeammateColors } from './utils/swarm/teammateLayoutManager.js'
+import type { SessionHooksRegistry } from './utils/hooks/sessionHooks.js'
 
 // Re-export progress types for backwards compatibility
 export type {
@@ -80,13 +89,9 @@ export type {
 }
 
 import type { SpinnerMode } from './components/Spinner.js'
-import type { ToolProgressOverlayEvent } from './components/ToolProgressOverlay.js'
 import type { QuerySource } from './constants/querySource.js'
-import type { HookEvent, SDKStatus } from './entrypoints/agentSdkTypes.js'
+import type { SDKStatus } from './entrypoints/agentSdkTypes.js'
 import type { AppState } from './state/AppState.js'
-import type { SetClassifierApprovals } from './utils/classifierApprovals.js'
-import type { SessionStateManager } from './utils/sessionState.js'
-import type { TmuxSocket } from './utils/shell/shellProvider.js'
 import type {
   HookProgress,
   PromptRequest,
@@ -99,16 +104,18 @@ import type {
   ReplHydration,
   ReplIsolationLatch,
 } from './tools/REPLTool/types.js'
-import type { AttributionState } from './utils/commitAttribution.js'
-import type { FileHistoryState } from './utils/fileHistory.js'
+import type { AttributionOp } from './utils/commitAttribution.js'
+import type { FileHistoryOp, FileHistoryState } from './utils/fileHistory.js'
 import type { Theme, ThemeName } from './utils/theme.js'
-import type { TaskRegistry } from './utils/task/framework.js'
-import type { HookCommand } from './utils/settings/types.js'
-import type { BashRerunAliases } from './tools/BashTool/rerunAliases.js'
-import type {
-  ReplHydration,
-  ReplRuntimeContext,
-} from './tools/REPLTool/types.js'
+import type { SetWebBrowserSlice } from './utils/webBrowserState.js'
+
+export type SetSDKStatus = (
+  status: SDKStatus,
+  metadata?: {
+    compactResult?: 'success' | 'failed'
+    compactError?: string
+  },
+) => void
 
 export type QueryChainTracking = {
   chainId: string
@@ -158,8 +165,6 @@ export type ToolPermissionContext = DeepImmutable<{
   awaitAutomatedChecksBeforeDialog?: boolean
   /** Stores the permission mode before model-initiated plan mode entry, so it can be restored on exit */
   prePlanMode?: PermissionMode
-  /** Remote sessions may edit selected non-settings files under .claude. */
-  isRemoteMode?: boolean
 }>
 
 export const getEmptyToolPermissionContext: () => ToolPermissionContext =
@@ -231,6 +236,10 @@ export type ToolUseContext = {
     planModeInstructions?: string
     /** Override querySource for analytics tracking */
     querySource?: QuerySource
+    /** Skill that spawned this agent, retained for message attribution. */
+    spawnedBySkill?: string
+    /** Skill active for the current main-thread turn. */
+    activeSkill?: string
     messageClientPlatform?: string
     /** Optional callback to get the latest tools (e.g., after MCP servers connect mid-query) */
     refreshTools?: () => Tools
@@ -241,12 +250,39 @@ export type ToolUseContext = {
   readFileState: FileStateCache
   getAppState(): AppState
   getToolPermissionContext(): ToolPermissionContext
+  getEffortValue(): EffortValue | undefined
+  getAutoCompactWindow(): number | undefined
+  getFastMode(): boolean | undefined
+  getCacheBreakerPhrase(): string | undefined
+  /** Per-session environment overrides inherited by child shell processes. */
+  sessionEnvVars?: ReadonlyMap<string, string>
+  /** Injectable facade for the session's isolated tmux socket. */
+  tmuxSocket?: { getTmuxEnv(): string | null }
   setAppState(f: (prev: AppState) => AppState): void
+  setToolPermissionContext(
+    context:
+      | ToolPermissionContext
+      | ((previous: ToolPermissionContext) => ToolPermissionContext),
+  ): void
+  setClassifierApprovals: SetClassifierApprovals
   /** Per-session metadata transport used by SDK/CCR entrypoints. */
-  sessionState?: {
-    notifyMetadataChanged(metadata: Record<string, unknown>): void
-  }
+  sessionState?: SessionStateManager
+  /** Reports command delivery progress to the owning SDK/CCR transport. */
+  onCommandLifecycle?: (
+    uuid: string,
+    state: 'started' | 'completed',
+  ) => void
   setReplContext(agentId: string, context: ReplContext | undefined): void
+  agentLifecycle: AgentLifecycle
+  teammateColors: TeammateColors
+  taskRegistry: TaskRegistry
+  sessionHooksRegistry: SessionHooksRegistry
+  setWebBrowserSlice: SetWebBrowserSlice
+  setComputerUseMcpState?: (
+    updater: (
+      previous: AppState['computerUseMcpState'],
+    ) => AppState['computerUseMcpState'],
+  ) => void
   replHydration?: ReplHydration
   isolationLatch?: ReplIsolationLatch
   onPermissionDenial?: (
@@ -263,23 +299,6 @@ export type ToolUseContext = {
    * fall back to setAppState.
    */
   setAppStateForTasks?: (f: (prev: AppState) => AppState) => void
-  /** Update only the computer-use session slice without sharing arbitrary UI state. */
-  setComputerUseMcpState?: (
-    f: (
-      prev: AppState['computerUseMcpState'],
-    ) => AppState['computerUseMcpState'],
-  ) => void
-  /** Operation-oriented session hook mutations used by the bundled loop UI. */
-  sessionHooksRegistry?: {
-    add(
-      sessionId: string,
-      event: HookEvent,
-      matcher: string,
-      hook: HookCommand,
-      skillRoot?: string,
-    ): void
-    remove(sessionId: string, event: HookEvent, hook: HookCommand): void
-  }
   /**
    * Optional handler for URL elicitations triggered by tool call errors (-32042).
    * In print/SDK mode, this delegates to structuredIO.handleElicitation.
@@ -311,37 +330,26 @@ export type ToolUseContext = {
    * re-inject the same CLAUDE.md dozens of times.
    */
   loadedNestedMemoryPaths?: Set<string>
-  memorySelector?: MemorySelectorState
-  bashRerunAliases?: BashRerunAliases
-  isolationLatch?: ToolIsolationLatch
   dynamicSkillDirTriggers?: Set<string>
   /** Skill names surfaced via skill_discovery this session. Telemetry only (feeds was_discovered). */
   discoveredSkillNames?: Set<string>
+  /** Remote skills discovered for this conversation. */
+  discoveredRemoteSkills?: Map<string, unknown>
+  /** Per-conversation persistent-memory selector cache and usage state. */
+  memorySelector?: MemorySelector
   /** Session-local aliases for exact Bash command reruns. */
   bashRerunAliases?: BashRerunAliases
   userModified?: boolean
-  setInProgressToolUseIDs: (action: InProgressToolUseIDsAction) => void
+  setInProgressToolUseIDs: (f: (prev: Set<string>) => Set<string>) => void
   /** Only wired in interactive (REPL) contexts; SDK/QueryEngine don't set this. */
   setHasInterruptibleToolInProgress?: (v: boolean) => void
-  /** Increment/reset the spinner's response counter without exposing UI state. */
-  addResponseLength: (delta: number) => void
+  addResponseLength: (length: number) => void
   resetResponseLength: () => void
-  /** Compatibility adapter retained for older callers during source recovery. */
-  setResponseLength: (f: (prev: number) => number) => void
-  /** SDK-scoped environment overrides shared by shell providers for this session. */
-  sessionEnvVars?: Map<string, string>
-  tmuxSocket?: TmuxSocket
-  onCommandLifecycle?: (
-    uuid: string,
-    state: 'started' | 'completed',
-  ) => void
-  sessionState?: SessionStateManager
-  emitToolProgress?: (event: ToolProgressOverlayEvent) => void
-  /** Ant-only: record the start/end of an API request for TTFT/OTPS tracking. */
+  /** Ant-only: record an API request lifecycle event for OTPS tracking. */
   pushApiMetricsEntry?: (event: ApiMetricsEvent) => void
   setStreamMode?: (mode: SpinnerMode) => void
   onCompactProgress?: (event: CompactProgressEvent) => void
-  setSDKStatus?: (status: SDKStatus) => void
+  setSDKStatus?: SetSDKStatus
   openMessageSelector?: () => void
   getFileHistoryState: () => FileHistoryState | undefined
   applyFileHistoryOp: (operation: FileHistoryOp) => void
@@ -416,10 +424,6 @@ export type ToolUseContext = {
    */
   renderedSystemPrompt?: SystemPrompt
 }
-
-export type ApiMetricsEvent =
-  | { type: 'start'; ttftMs: number; id?: string }
-  | { type: 'end'; outputTokens: number; id?: string }
 
 // Re-export ToolProgressData from centralized location
 export type { ToolProgressData }
@@ -521,7 +525,7 @@ export type Tool<
   // Optional because TungstenTool doesn't define this. TODO: Make it required.
   // When we do that, we can also go through and make this a bit more type-safe.
   outputSchema?: z.ZodType<unknown>
-  /** Remove large render-only fields before older tool results are retained. */
+  /** Remove bulky fields from old transcript-only tool results. */
   stripForStorage?(output: Output): Output
   inputsEquivalent?(a: z.infer<Input>, b: z.infer<Input>): boolean
   isConcurrencySafe(input: z.infer<Input>): boolean
@@ -577,7 +581,12 @@ export type Tool<
    * Present on all MCP tools regardless of whether `name` is prefixed (mcp__server__tool)
    * or unprefixed (CLAUDE_AGENT_SDK_MCP_NO_PREFIX mode).
    */
-  mcpInfo?: { serverName: string; toolName: string }
+  mcpInfo?: {
+    serverName: string
+    toolName: string
+    serverInfoName?: string
+    execution?: unknown
+  }
   readonly name: string
   /**
    * Maximum size in characters for tool result before it gets persisted to disk.

@@ -38,8 +38,8 @@ export type SetAppState = (f: (prev: AppState) => AppState) => void
 
 export type TaskContext = {
   abortController: AbortController
-  taskRegistry: TaskRegistry
-  abortSpeculation?: () => void
+  getAppState: () => AppState
+  setAppState: SetAppState
 }
 
 // Base fields shared by all task states
@@ -55,7 +55,7 @@ export type TaskStateBase = {
   outputFile: string
   outputOffset: number
   notified: boolean
-  skipTranscript?: boolean
+  agentId?: string
 }
 
 export type LocalShellSpawnInput = {
@@ -69,8 +69,7 @@ export type LocalShellSpawnInput = {
 }
 
 // What getTaskByType dispatches for: kill. spawn/render were never
-// called polymorphically (removed in #22546). All six kill implementations
-// use only setAppState — getAppState/abortController were dead weight.
+// called polymorphically (removed in #22546).
 export type Task = {
   name: string
   type: TaskType

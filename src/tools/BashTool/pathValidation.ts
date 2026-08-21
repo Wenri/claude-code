@@ -340,60 +340,7 @@ export const PATH_EXTRACTORS: Record<
   file: filterOutFlags,
   stat: filterOutFlags,
   diff: filterOutFlags,
-  // awk has two kinds of value-taking flags: formatting/program flags whose
-  // values are not files, and source-file flags whose values must be checked.
-  awk: args => {
-    const argumentFlags = new Set([
-      '-F',
-      '--field-separator',
-      '-v',
-      '--assign',
-      '-e',
-      '--source',
-    ])
-    const sourceFlags = new Set(['-f', '--file', '-E', '--exec'])
-    const paths: string[] = []
-    let afterDoubleDash = false
-    let programFound = false
-
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i]
-      if (arg === undefined || arg === null) continue
-      if (!afterDoubleDash && arg === '--') {
-        afterDoubleDash = true
-        continue
-      }
-      if (!afterDoubleDash && arg.startsWith('-')) {
-        const equalsIndex = arg.indexOf('=')
-        const flag = equalsIndex >= 0 ? arg.slice(0, equalsIndex) : arg
-        if (argumentFlags.has(flag)) {
-          if (flag === '-e' || flag === '--source') programFound = true
-          if (equalsIndex < 0) i++
-          continue
-        }
-        if (sourceFlags.has(flag)) {
-          programFound = true
-          if (equalsIndex >= 0) {
-            paths.push(arg.slice(equalsIndex + 1))
-          } else {
-            const sourcePath = args[i + 1]
-            if (sourcePath !== undefined) {
-              paths.push(sourcePath)
-              i++
-            }
-          }
-          continue
-        }
-        continue
-      }
-      if (!programFound) {
-        programFound = true
-        continue
-      }
-      paths.push(arg)
-    }
-    return paths
-  },
+  awk: filterOutFlags,
   strings: filterOutFlags,
   hexdump: filterOutFlags,
   od: filterOutFlags,
@@ -1279,11 +1226,6 @@ function astRedirectsToOutputRedirections(redirects: Redirect[]): {
   dangerousRedirectionReason?: 'network_device'
 } {
   const redirections: Array<{ target: string; operator: '>' | '>>' }> = []
-  let hasDangerousRedirection = false
-  let dangerousRedirectionReason:
-    | 'network_device'
-    | 'shell_expansion'
-    | undefined
   for (const r of redirects) {
     if (/^\/dev\/(tcp|udp)\//.test(r.target)) {
       return {
@@ -1318,13 +1260,8 @@ function astRedirectsToOutputRedirections(redirects: Redirect[]): {
     }
   }
   // AST targets are fully resolved (no shell expansion) — checkSemantics
-  // already validated them. Network device redirects remain dangerous because
-  // opening /dev/tcp or /dev/udp creates a network connection.
-  return {
-    redirections,
-    hasDangerousRedirection,
-    dangerousRedirectionReason,
-  }
+  // already validated them. No dangerous redirections are possible.
+  return { redirections, hasDangerousRedirection: false }
 }
 
 // ───────────────────────────────────────────────────────────────────────────

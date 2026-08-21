@@ -31,8 +31,6 @@ const cronTools = feature('AGENT_TRIGGERS')
       require('./tools/ScheduleCronTool/CronCreateTool.js').CronCreateTool,
       require('./tools/ScheduleCronTool/CronDeleteTool.js').CronDeleteTool,
       require('./tools/ScheduleCronTool/CronListTool.js').CronListTool,
-      require('./tools/ScheduleWakeupTool/ScheduleWakeupTool.js')
-        .ScheduleWakeupTool,
     ]
   : []
 const ScheduleWakeupTool = feature('AGENT_TRIGGERS')
@@ -273,13 +271,16 @@ export function filterToolsByDenyRules<
   return tools.filter(tool => !getDenyRuleForTool(permissionContext, tool))
 }
 
-type ToolPoolOptions = {
+export type ToolPoolOptions = {
+  /** Keep primitive tools available when assembling a worker tool pool. */
   skipReplFilter?: boolean
+  /** Per-skill tools built by the experimental skills-as-tools adapter. */
+  skillTools?: Tools
 }
 
 export const getTools = (
   permissionContext: ToolPermissionContext,
-  options?: ToolPoolOptions,
+  options?: Pick<ToolPoolOptions, 'skipReplFilter'>,
 ): Tools => {
   // Simple mode: only Bash, Read, and Edit tools
   if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
@@ -386,8 +387,15 @@ export function assembleToolPool(
   // Avoid Array.toSorted (Node 20+) — we support Node 18. builtInTools is
   // readonly so copy-then-sort; allowedMcpTools is a fresh .filter() result.
   const byName = (a: Tool, b: Tool) => a.name.localeCompare(b.name)
+  const skillTools = options?.skillTools ?? []
+  const allowedDynamicTools =
+    skillTools.length > 0
+      ? allowedMcpTools
+          .concat(filterToolsByDenyRules(skillTools, permissionContext))
+          .sort(byName)
+      : allowedMcpTools.sort(byName)
   return uniqBy(
-    [...builtInTools].sort(byName).concat(allowedMcpTools.sort(byName)),
+    [...builtInTools].sort(byName).concat(allowedDynamicTools),
     'name',
   )
 }

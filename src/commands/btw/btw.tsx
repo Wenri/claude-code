@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { useInterval } from 'usehooks-ts'
-import type { CommandResultDisplay } from '../../commands.js'
+import { getRuntimeCapabilities } from '../../bootstrap/state.js'
 import { Markdown } from '../../components/Markdown.js'
+import { SpinnerGlyph } from '../../components/Spinner/SpinnerGlyph.js'
 import { Byline } from '../../components/design-system/Byline.js'
 import { KeyboardShortcutHint } from '../../components/design-system/KeyboardShortcutHint.js'
-import { SpinnerGlyph } from '../../components/Spinner/SpinnerGlyph.js'
+import { DOWN_ARROW, UP_ARROW } from '../../constants/figures.js'
 import { getSystemPrompt } from '../../constants/prompts.js'
 import { useModalOrTerminalSize } from '../../context/modalContext.js'
 import { getSystemContext, getUserContext } from '../../context.js'
@@ -24,6 +25,7 @@ import {
   type CacheSafeParams,
   getLastCacheSafeParams,
 } from '../../utils/forkedAgent.js'
+import { truncateToWidth } from '../../utils/format.js'
 import {
   createAssistantMessage,
   createUserMessage,
@@ -31,6 +33,7 @@ import {
 } from '../../utils/messages.js'
 import type { ProcessUserInputContext } from '../../utils/processUserInput/processUserInput.js'
 import {
+  appendSideQuestionHistory,
   clearSideQuestionHistory,
   getSideQuestionHistory,
   runSideQuestion,
@@ -38,69 +41,26 @@ import {
   type SideQuestionRetry,
 } from '../../utils/sideQuestion.js'
 import { asSystemPrompt } from '../../utils/systemPromptType.js'
-import { truncate } from '../../utils/truncate.js'
 
 type BtwComponentProps = {
   question: string
   context: ProcessUserInputContext
-  onDone: (
-    result?: string,
-    options?: { display?: CommandResultDisplay },
-  ) => void
+  onDone: LocalJSXCommandOnDone
 }
 
-type RetryState = SideQuestionRetry & { retryAt: number }
+type RetryState = SideQuestionRetry & {
+  retryAt: number
+}
+
+type RemoteSideQuestionResult = {
+  response: string | null
+  synthetic?: boolean
+}
 
 const CHROME_ROWS = 5
 const OUTER_CHROME_ROWS = 6
 const SCROLL_LINES = 3
-const VISIBLE_HISTORY_ROWS = 5
-
-function retryLabel(status: number | undefined): string {
-  switch (status) {
-    case 429:
-      return 'Rate limited'
-    case 529:
-      return 'API overloaded'
-    case 401:
-    case 403:
-      return 'Authentication failed'
-    default:
-      return 'API error'
-  }
-}
-
-function Answering({
-  frame,
-  retry,
-}: {
-  frame: number
-  retry: RetryState | null
-}): React.ReactNode {
-  if (!retry) {
-    return (
-      <Box>
-        <SpinnerGlyph frame={frame} messageColor="warning" />
-        <Text color="warning">Answering…</Text>
-      </Box>
-    )
-  }
-  const seconds = Math.max(0, Math.ceil((retry.retryAt - Date.now()) / 1000))
-  return (
-    <Box>
-      <SpinnerGlyph frame={frame} messageColor="warning" />
-      <Text color="warning">{retryLabel(retry.status)}</Text>
-      <Text dimColor>
-        {' · retrying in '}
-        {seconds}s · attempt {retry.retryAttempt}/{retry.maxRetries}
-      </Text>
-    </Box>
-  )
-}
-
-function singleLine(value: string, width: number): string {
-  return truncate(value.replace(/\s+/g, ' ').trim(), width)
-}
+const VISIBLE_HISTORY_ENTRIES = 5
 
 function BtwSideQuestion({
   question,
@@ -114,18 +74,23 @@ function BtwSideQuestion({
   const [frame, setFrame] = useState(0)
   const [history, setHistory] = useState(() => getSideQuestionHistory())
   const historyRef = useRef(history)
-  const branchingRef = useRef(false)
-  const [branching, setBranching] = useState(false)
-  const scrollRef = useRef<ScrollBoxHandle>(null)
+  const forkingRef = useRef(false)
+  const [isForking, setIsForking] = useState(false)
+  const scrollRef = useRef<ScrollBoxHandle | null>(null)
   const { rows, columns } = useModalOrTerminalSize(useTerminalSize())
+  const remote = getRuntimeCapabilities().remote
 
-  useInterval(() => setFrame(value => value + 1), response || error ? null : 80)
+  useInterval(
+    () => setFrame(current => current + 1),
+    response || error ? null : 80,
+  )
 
   function handleKeyDown(event: KeyboardEvent): void {
-    if (branchingRef.current) {
+    if (forkingRef.current) {
       event.preventDefault()
       return
     }
+
     if (
       event.key === 'escape' ||
       event.key === 'return' ||
@@ -136,6 +101,7 @@ function BtwSideQuestion({
       onDone(undefined, { display: 'skip' })
       return
     }
+
     if (event.key === 'x' && historyRef.current.length > 0) {
       event.preventDefault()
       setSideQuestionHistory(
@@ -145,10 +111,12 @@ function BtwSideQuestion({
       setHistory([])
       return
     }
-    if (event.key === 'f' && response && !synthetic) {
+
+    if (event.key === 'f' && response && !synthetic && !remote) {
       event.preventDefault()
-      branchingRef.current = true
-      setBranching(true)
+      forkingRef.current = true
+      setIsForking(true)
+
       const extraMessages = [
         ...historyRef.current.flatMap(entry => [
           createUserMessage({ content: entry.question }),
@@ -157,27 +125,29 @@ function BtwSideQuestion({
         createUserMessage({ content: question }),
         createAssistantMessage({ content: response }),
       ]
+
       void import('../branch/branch.js')
         .then(({ branchAndResume }) =>
           branchAndResume(context, onDone, {
-            customTitle: singleLine(`btw: ${question}`, 80),
+            customTitle: truncateSummary(`btw: ${question}`, 80),
             extraMessages,
+          }).then(success => {
+            if (success) {
+              clearSideQuestionHistory()
+            } else {
+              forkingRef.current = false
+              setIsForking(false)
+            }
           }),
         )
-        .then(success => {
-          if (success) clearSideQuestionHistory()
-          else {
-            branchingRef.current = false
-            setBranching(false)
-          }
-        })
-        .catch(cause => {
-          branchingRef.current = false
-          setBranching(false)
-          onDone(`Failed to branch conversation: ${errorMessage(cause)}`)
+        .catch(reason => {
+          forkingRef.current = false
+          setIsForking(false)
+          onDone(`Failed to branch conversation: ${errorMessage(reason)}`)
         })
       return
     }
+
     if (event.key === 'up' || (event.ctrl && event.key === 'p')) {
       event.preventDefault()
       scrollRef.current?.scrollBy(-SCROLL_LINES)
@@ -189,39 +159,53 @@ function BtwSideQuestion({
   }
 
   useEffect(() => {
-    const abortController = createAbortController()
+    const parentController = createAbortController()
+
     async function fetchResponse(): Promise<void> {
       try {
-        const cacheSafeParams = await buildCacheSafeParams(context)
-        const result = await runSideQuestion({
-          question,
-          cacheSafeParams,
-          parentController: abortController,
-          onRetry: next => {
-            if (!abortController.signal.aborted) {
-              setRetry({ ...next, retryAt: Date.now() + next.retryInMs })
-            }
-          },
-        })
-        if (!abortController.signal.aborted) {
-          if (result.response) {
-            setResponse(result.response)
-            setSynthetic(result.synthetic)
-          } else {
-            setError('No response received')
+        const activeRemote = getRuntimeCapabilities().remote
+        const result: RemoteSideQuestionResult = activeRemote
+          ? await activeRemote.sendControlRequest<RemoteSideQuestionResult>({
+              subtype: 'side_question',
+              question,
+            })
+          : await runSideQuestion({
+              question,
+              cacheSafeParams: await buildCacheSafeParams(context),
+              parentController,
+              onRetry: nextRetry => {
+                if (parentController.signal.aborted) return
+                setRetry({
+                  ...nextRetry,
+                  retryAt: Date.now() + nextRetry.retryInMs,
+                })
+              },
+            })
+
+        if (parentController.signal.aborted) return
+        if (result.response) {
+          setResponse(result.response)
+          setSynthetic(result.synthetic ?? false)
+          if (activeRemote && !result.synthetic) {
+            appendSideQuestionHistory(question, result.response)
           }
+        } else {
+          setError('No response received')
         }
-      } catch (cause) {
-        if (!abortController.signal.aborted) {
-          setError(errorMessage(cause) || 'Failed to get response')
+      } catch (reason) {
+        if (!parentController.signal.aborted) {
+          setError(errorMessage(reason) || 'Failed to get response')
         }
       }
     }
+
     void fetchResponse()
-    return () => abortController.abort()
+    return () => {
+      parentController.abort()
+    }
   }, [question, context])
 
-  const visibleHistory = history.slice(-VISIBLE_HISTORY_ROWS)
+  const visibleHistory = history.slice(-VISIBLE_HISTORY_ENTRIES)
   const earlierCount = history.length - visibleHistory.length
   const historyRows = visibleHistory.length + (earlierCount > 0 ? 1 : 0)
   const questionWidth = Math.max(20, columns - 7)
@@ -236,46 +220,57 @@ function BtwSideQuestion({
       paddingLeft={2}
       marginTop={1}
       tabIndex={0}
-      autoFocus
+      autoFocus={true}
       onKeyDown={handleKeyDown}
     >
-      {earlierCount > 0 && <Text dimColor>(+{earlierCount} earlier /btw)</Text>}
+      {earlierCount > 0 && (
+        <Text dimColor={true}>(+{earlierCount} earlier /btw)</Text>
+      )}
       {visibleHistory.map((entry, index) => (
-        <Text key={earlierCount + index} dimColor>
-          /btw {singleLine(entry.question, questionWidth)}
+        <Text key={earlierCount + index} dimColor={true}>
+          /btw {truncateSummary(entry.question, questionWidth)}
         </Text>
       ))}
       <Text>
-        <Text color="warning" bold>/btw{' '}</Text>
-        <Text dimColor>{singleLine(question, questionWidth)}</Text>
+        <Text color="warning" bold={true}>
+          /btw{' '}
+        </Text>
+        <Text dimColor={true}>{truncateSummary(question, questionWidth)}</Text>
       </Text>
       <Box marginTop={1} marginLeft={2} maxHeight={maxContentHeight}>
-        <ScrollBox ref={scrollRef} flexDirection="column" flexGrow={1}>
+        <ScrollBox
+          ref={scrollRef}
+          flexDirection="column"
+          flexGrow={1}
+        >
           {error ? (
-            <Text color="error">{error}</Text>
+            <Text color="error">{errorMessage(error)}</Text>
           ) : response ? (
             <Markdown>{response}</Markdown>
           ) : (
-            <Answering frame={frame} retry={retry} />
+            <LoadingState frame={frame} retry={retry} />
           )}
         </ScrollBox>
       </Box>
       <Box marginTop={1}>
-        {branching ? (
-          <Text dimColor>Forking into a new session…</Text>
+        {isForking ? (
+          <Text dimColor={true}>Forking into a new session…</Text>
         ) : (
-          <Text dimColor>
+          <Text dimColor={true}>
             <Byline>
               {(response || error) && (
-                <KeyboardShortcutHint chord={['up', 'down']} action="scroll" />
+                <KeyboardShortcutHint
+                  shortcut={`${UP_ARROW}/${DOWN_ARROW}`}
+                  action="scroll"
+                />
               )}
-              {response && !synthetic && (
-                <KeyboardShortcutHint chord="f" action="fork" />
+              {response && !synthetic && !remote && (
+                <KeyboardShortcutHint shortcut="f" action="fork" />
               )}
               {history.length > 0 && (
-                <KeyboardShortcutHint chord="x" action="clear history" />
+                <KeyboardShortcutHint shortcut="x" action="clear history" />
               )}
-              <KeyboardShortcutHint chord="escape" action="dismiss" />
+              <KeyboardShortcutHint shortcut="Esc" action="dismiss" />
             </Byline>
           </Text>
         )}
@@ -284,6 +279,66 @@ function BtwSideQuestion({
   )
 }
 
+function truncateSummary(text: string, width: number): string {
+  return truncateToWidth(text.replace(/\s+/g, ' ').trim(), width)
+}
+
+function LoadingState({
+  frame,
+  retry,
+}: {
+  frame: number
+  retry: RetryState | null
+}): React.ReactNode {
+  if (!retry) {
+    return (
+      <Box>
+        <SpinnerGlyph frame={frame} messageColor="warning" />
+        <Text color="warning">Answering…</Text>
+      </Box>
+    )
+  }
+
+  const seconds = Math.max(
+    0,
+    Math.ceil((retry.retryAt - Date.now()) / 1000),
+  )
+  return (
+    <Box>
+      <SpinnerGlyph frame={frame} messageColor="warning" />
+      <Text color="warning">{getRetryStatus(retry.status)}</Text>
+      <Text dimColor={true}>
+        {' · retrying in '}
+        {seconds}s · attempt {retry.retryAttempt}/{retry.maxRetries}
+      </Text>
+    </Box>
+  )
+}
+
+function getRetryStatus(status: number | undefined): string {
+  switch (status) {
+    case 429:
+      return 'Rate limited'
+    case 529:
+      return 'API overloaded'
+    case 401:
+    case 403:
+      return 'Authentication failed'
+    default:
+      return 'API error'
+  }
+}
+
+/**
+ * Build CacheSafeParams for the side question fork.
+ *
+ * The preferred source is getLastCacheSafeParams — the exact
+ * systemPrompt/userContext/systemContext bytes the main thread sent on its
+ * last request (captured in stopHooks). Reusing them guarantees a byte-
+ * identical prefix and thus a prompt cache hit. We pair these with the
+ * current toolUseContext (for thinkingConfig/tools) and current messages
+ * (for up-to-date context).
+ */
 function stripInProgressAssistantMessage(messages: Message[]): Message[] {
   const last = messages.at(-1)
   if (last?.type === 'assistant' && last.message.stop_reason === null) {
@@ -308,15 +363,15 @@ async function buildCacheSafeParams(
       forkContextMessages,
     }
   }
+
   const [rawSystemPrompt, userContext, systemContext] = await Promise.all([
     getSystemPrompt(
       context.options.tools,
       context.options.mainLoopModel,
       [],
-      context.options.mcpClients,
     ),
     getUserContext(),
-    getSystemContext(),
+    getSystemContext(context.getAppState().cacheBreakerPhrase),
   ])
   return {
     systemPrompt: asSystemPrompt(rawSystemPrompt),
@@ -337,11 +392,16 @@ export async function call(
     onDone('Usage: /btw <your question>', { display: 'system' })
     return null
   }
+
   saveGlobalConfig(current => ({
     ...current,
     btwUseCount: current.btwUseCount + 1,
   }))
   return (
-    <BtwSideQuestion question={question} context={context} onDone={onDone} />
+    <BtwSideQuestion
+      question={question}
+      context={context}
+      onDone={onDone}
+    />
   )
 }

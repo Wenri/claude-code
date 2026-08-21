@@ -727,7 +727,7 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
               queuePendingMessage(
                 agentId,
                 input.message,
-                context.taskRegistry,
+                context.setAppStateForTasks ?? context.setAppState,
               )
               return {
                 data: {

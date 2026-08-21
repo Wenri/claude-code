@@ -17,11 +17,10 @@ import {
 } from '../tools/FileReadTool/prompt.js'
 import { FILE_WRITE_TOOL_NAME } from '../tools/FileWriteTool/prompt.js'
 import type { Message } from '../types/message.js'
-import type { HookDeferredToolAttachment } from './attachments.js'
 import type { OrphanedPermission } from '../types/textInputTypes.js'
 import { logForDebugging } from './debug.js'
 import { isEnvTruthy } from './envUtils.js'
-import { getErrnoCode, isFsInaccessible } from './errors.js'
+import { isFsInaccessible } from './errors.js'
 import { getFileModificationTime, stripLineNumberPrefix } from './file.js'
 import { readFileSyncWithMetadata } from './fileRead.js'
 import {
@@ -50,71 +49,6 @@ export type PermissionPromptTool = Tool<
 // Small cache size for ask operations which typically access few files
 // during permission prompts or limited tool operations
 const ASK_READ_FILE_STATE_CACHE_SIZE = 10
-
-/**
- * Re-run a persisted deferred tool through the normal PreToolUse pipeline.
- * The original assistant tool_use remains in the transcript; only the newly
- * produced hook/tool messages are appended.
- */
-export async function* handleDeferredToolResume(
-  deferredToolUse: HookDeferredToolAttachment,
-  canUseTool: CanUseToolFn,
-  mutableMessages: Message[],
-  processUserInputContext: ProcessUserInputContext,
-): AsyncGenerator<SDKMessage, void, unknown> {
-  const persistSession = !isSessionPersistenceDisabled()
-  const currentPermissionMode =
-    processUserInputContext.getAppState().toolPermissionContext.mode
-  if (currentPermissionMode !== deferredToolUse.permissionMode) {
-    logForDebugging(
-      `Deferred tool resume: permissionMode mismatch (deferred under '${deferredToolUse.permissionMode}', resuming under '${currentPermissionMode}'). --resume does not restore permissionMode — pass --permission-mode ${deferredToolUse.permissionMode} to match.`,
-      { level: 'warn' },
-    )
-  }
-
-  const assistantMessage = mutableMessages.findLast(
-    message =>
-      message.type === 'assistant' &&
-      Array.isArray(message.message.content) &&
-      message.message.content.some(
-        block =>
-          block.type === 'tool_use' &&
-          block.id === deferredToolUse.toolUseID,
-      ),
-  )
-  if (!assistantMessage || assistantMessage.type !== 'assistant') {
-    logForDebugging(
-      `Deferred tool resume: tool_use ${deferredToolUse.toolUseID} not found in transcript`,
-      { level: 'warn' },
-    )
-    return
-  }
-
-  const toolUseBlock = assistantMessage.message.content.find(
-    block =>
-      block.type === 'tool_use' && block.id === deferredToolUse.toolUseID,
-  )
-  if (!toolUseBlock || toolUseBlock.type !== 'tool_use') return
-
-  logForDebugging(
-    `Deferred tool resume: re-emitting ${deferredToolUse.toolName} (${deferredToolUse.toolUseID}) through PreToolUse`,
-  )
-  for await (const update of runTools(
-    [toolUseBlock as ToolUseBlock],
-    [assistantMessage],
-    canUseTool,
-    processUserInputContext,
-  )) {
-    if (!update.message) continue
-    mutableMessages.push(update.message)
-    if (persistSession) await recordTranscript(mutableMessages)
-    yield {
-      ...update.message,
-      session_id: getSessionId(),
-      parent_tool_use_id: null,
-    } as SDKMessage
-  }
-}
 
 /**
  * Checks if the result should be considered successful based on the last message.
@@ -221,6 +155,7 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
                 tool_use_result: _.mcpMeta
                   ? { content: _.toolUseResult, ..._.mcpMeta }
                   : _.toolUseResult,
+                ...(_.origin && { origin: _.origin }),
               }
               break
           }
@@ -300,6 +235,7 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
           tool_use_result: _.mcpMeta
             ? { content: _.toolUseResult, ..._.mcpMeta }
             : _.toolUseResult,
+          ...(_.origin && { origin: _.origin }),
         }
       }
       return
@@ -359,13 +295,9 @@ export async function* handleOrphanedPermission(
     const updatedPermissions = permissionResult.updatedPermissions
     if (Array.isArray(updatedPermissions)) {
       try {
-        processUserInputContext.setAppState(prev => ({
-          ...prev,
-          toolPermissionContext: applyPermissionUpdates(
-            prev.toolPermissionContext,
-            updatedPermissions,
-          ),
-        }))
+        processUserInputContext.setToolPermissionContext(previous =>
+          applyPermissionUpdates(previous, updatedPermissions),
+        )
         persistPermissionUpdates(updatedPermissions)
       } catch (error) {
         logForDebugging(
@@ -529,50 +461,49 @@ export function extractReadFilesFromMessages(
       Array.isArray(message.message.content)
     ) {
       for (const content of message.message.content) {
-        if (content.type !== 'tool_use') continue
-        try {
-          if (content.name === FILE_READ_TOOL_NAME) {
-            // Extract file_path from the tool use input
-            const input = content.input as FileReadInput | undefined
-            // Ranged reads are not added to the cache.
-            if (
-              typeof input?.file_path === 'string' &&
-              input.offset === undefined &&
-              input.limit === undefined
-            ) {
-              // Normalize to absolute path for consistent cache lookups
-              const absolutePath = expandPath(input.file_path, cwd)
-              fileReadToolUseIds.set(content.id, absolutePath)
-            }
-          } else if (content.name === FILE_WRITE_TOOL_NAME) {
-            // Extract file_path and content from the Write tool use input
-            const input = content.input as
-              | { file_path?: string; content?: string }
-              | undefined
-            if (
-              typeof input?.file_path === 'string' &&
-              typeof input.content === 'string'
-            ) {
-              // Normalize to absolute path for consistent cache lookups
-              const absolutePath = expandPath(input.file_path, cwd)
-              fileWriteToolUseIds.set(content.id, {
-                filePath: absolutePath,
-                content: input.content,
-              })
-            }
-          } else if (content.name === FILE_EDIT_TOOL_NAME) {
-            // Edit's input has old_string/new_string, not the resulting content.
-            // Track the path so the second pass can read current disk state.
-            const input = content.input as { file_path?: string } | undefined
-            if (typeof input?.file_path === 'string') {
-              const absolutePath = expandPath(input.file_path, cwd)
-              fileEditToolUseIds.set(content.id, absolutePath)
-            }
+        if (
+          content.type === 'tool_use' &&
+          content.name === FILE_READ_TOOL_NAME
+        ) {
+          // Extract file_path from the tool use input
+          const input = content.input as FileReadInput | undefined
+          // Ranged reads are not added to the cache.
+          if (
+            input?.file_path &&
+            input?.offset === undefined &&
+            input?.limit === undefined
+          ) {
+            // Normalize to absolute path for consistent cache lookups
+            const absolutePath = expandPath(input.file_path, cwd)
+            fileReadToolUseIds.set(content.id, absolutePath)
           }
-        } catch (error) {
-          logForDebugging(
-            `extractReadFilesFromMessages: skipping malformed ${content.name} tool_use: ${error}`,
-          )
+        } else if (
+          content.type === 'tool_use' &&
+          content.name === FILE_WRITE_TOOL_NAME
+        ) {
+          // Extract file_path and content from the Write tool use input
+          const input = content.input as
+            | { file_path?: string; content?: string }
+            | undefined
+          if (input?.file_path && input?.content) {
+            // Normalize to absolute path for consistent cache lookups
+            const absolutePath = expandPath(input.file_path, cwd)
+            fileWriteToolUseIds.set(content.id, {
+              filePath: absolutePath,
+              content: input.content,
+            })
+          }
+        } else if (
+          content.type === 'tool_use' &&
+          content.name === FILE_EDIT_TOOL_NAME
+        ) {
+          // Edit's input has old_string/new_string, not the resulting content.
+          // Track the path so the second pass can read current disk state.
+          const input = content.input as { file_path?: string } | undefined
+          if (input?.file_path) {
+            const absolutePath = expandPath(input.file_path, cwd)
+            fileEditToolUseIds.set(content.id, absolutePath)
+          }
         }
       }
     }
@@ -587,7 +518,6 @@ export function extractReadFilesFromMessages(
           const readFilePath = fileReadToolUseIds.get(content.tool_use_id)
           if (
             readFilePath &&
-            content.is_error !== true &&
             typeof content.content === 'string' &&
             // Dedup stubs contain no file content — the earlier real Read
             // already cached it. Chronological last-wins would otherwise
@@ -614,7 +544,7 @@ export function extractReadFilesFromMessages(
               cache.set(readFilePath, {
                 content: fileContent,
                 timestamp,
-                offset: 1,
+                offset: undefined,
                 limit: undefined,
               })
             }
@@ -622,11 +552,7 @@ export function extractReadFilesFromMessages(
 
           // Handle Write tool results - use content from the tool input
           const writeToolData = fileWriteToolUseIds.get(content.tool_use_id)
-          if (
-            writeToolData &&
-            content.is_error !== true &&
-            message.timestamp
-          ) {
+          if (writeToolData && message.timestamp) {
             const timestamp = new Date(message.timestamp).getTime()
             cache.set(writeToolData.filePath, {
               content: writeToolData.content,
@@ -657,10 +583,7 @@ export function extractReadFilesFromMessages(
                 limit: undefined,
               })
             } catch (e: unknown) {
-              if (
-                !isFsInaccessible(e) &&
-                getErrnoCode(e) !== 'EISDIR'
-              ) {
+              if (!isFsInaccessible(e)) {
                 throw e
               }
               // File deleted or inaccessible since the Edit — skip

@@ -4,9 +4,6 @@
 export type AutoModeState = {
   active: boolean
   flagCli: boolean
-  // Set by the async verifyAutoModeGateAccess check when it
-  // reads a fresh tengu_auto_mode_config.enabled === 'disabled' from GrowthBook.
-  // Used by isAutoModeGateEnabled() to block SDK/explicit re-entry after kick-out.
   circuitBroken: boolean
 }
 

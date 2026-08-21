@@ -1,7 +1,7 @@
 import { feature } from 'bun:bundle'
 import { APIUserAbortError } from '@anthropic-ai/sdk'
-import { realpath } from 'node:fs/promises'
-import { isAbsolute, resolve } from 'node:path'
+import { realpath } from 'fs/promises'
+import { isAbsolute, resolve } from 'path'
 import type { z } from 'zod/v4'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import {
@@ -57,8 +57,6 @@ import {
   createPermissionRequestMessage,
   getRuleByContentsForTool,
 } from '../../utils/permissions/permissions.js'
-import { pathInAllowedWorkingPath } from '../../utils/permissions/filesystem.js'
-import { validatePath } from '../../utils/permissions/pathValidation.js'
 import {
   parsePermissionRule,
   type ShellPermissionRule,
@@ -81,6 +79,7 @@ import { checkPermissionMode } from './modeValidation.js'
 import {
   checkDangerousRemovalPaths,
   checkPathConstraints,
+  stripWrappersFromArgv as stripPathWrappersFromArgv,
 } from './pathValidation.js'
 import { checkSedConstraints } from './sedValidation.js'
 import { shouldUseSandbox } from './shouldUseSandbox.js'
@@ -115,6 +114,110 @@ export const MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50
 // is more likely noise than intent. Users chaining this many write commands
 // in one && list are rare; they can always approve once and add rules manually.
 export const MAX_SUGGESTED_RULES_FOR_COMPOUND = 5
+
+async function canonicalDirectory(path: string): Promise<string | null> {
+  const canonical = await realpath(path).catch(() => null)
+  if (canonical === null) return null
+  return getPlatform() === 'windows' ? canonical.toLowerCase() : canonical
+}
+
+function extractStaticCdTarget(command: string): string | null {
+  const trimmed = command.trim()
+  if (!trimmed.startsWith('cd ')) return null
+  const argument = trimmed.slice(3).trim()
+  if (argument.length === 0) return null
+
+  const quote = argument[0]
+  if (quote === '"' || quote === "'") {
+    if (argument.length < 2 || argument.at(-1) !== quote) return null
+    const target = argument.slice(1, -1)
+    if (target.includes(quote)) return null
+    return target
+  }
+  if (/\s/.test(argument)) return null
+  return argument
+}
+
+function isExplicitPath(path: string): boolean {
+  return (
+    isAbsolute(path) ||
+    path.startsWith('./') ||
+    path.startsWith('../') ||
+    path === '.' ||
+    path === '..'
+  )
+}
+
+async function cdTargetResolvesToCurrentDirectory(
+  target: string,
+  cwd: string,
+  canonicalCwd: string,
+): Promise<boolean> {
+  if (target.startsWith('-') || !isExplicitPath(target)) return false
+  if (
+    target.includes('$') ||
+    /[*?[]/.test(target) ||
+    (getPlatform() === 'windows' && target.includes('%'))
+  ) {
+    return false
+  }
+  const targetPath = isAbsolute(target) ? target : resolve(cwd, target)
+  return (await canonicalDirectory(targetPath)) === canonicalCwd
+}
+
+async function stringCdCommandsAreNoOps(
+  commands: string[],
+  cwd: string,
+): Promise<boolean> {
+  const canonicalCwd = await canonicalDirectory(cwd)
+  if (canonicalCwd === null) return false
+  let foundCd = false
+  for (const command of commands) {
+    const trimmed = command.trim()
+    if (!isNormalizedCdCommand(trimmed)) continue
+    foundCd = true
+    const target = extractStaticCdTarget(trimmed)
+    if (
+      target === null ||
+      !(await cdTargetResolvesToCurrentDirectory(target, cwd, canonicalCwd))
+    ) {
+      return false
+    }
+  }
+  return foundCd
+}
+
+async function parsedCdCommandsAreNoOps(
+  parsedCommands: SimpleCommand[],
+  commands: string[],
+  cwd: string,
+): Promise<boolean> {
+  const canonicalCwd = await canonicalDirectory(cwd)
+  if (canonicalCwd === null) return false
+  let foundCd = false
+  for (let index = 0; index < commands.length; index += 1) {
+    if (!isNormalizedCdCommand(commands[index]!)) continue
+    foundCd = true
+    const parsed = parsedCommands[index]
+    if (
+      !parsed ||
+      parsed.envVars.length > 0 ||
+      parsed.redirects.length > 0 ||
+      parsed.argv.length !== 2 ||
+      parsed.argv[0] !== 'cd'
+    ) {
+      return false
+    }
+    const target = extractStaticCdTarget(commands[index]!)
+    if (
+      target === null ||
+      !(await cdTargetResolvesToCurrentDirectory(target, cwd, canonicalCwd))
+    ) {
+      return false
+    }
+  }
+  return foundCd
+}
 
 /**
  * [ANT-ONLY] Log classifier evaluation results for analysis.
@@ -454,38 +557,6 @@ const SAFE_ENV_VARS = new Set([
   'GIT_TERMINAL_PROMPT',
 ])
 
-export function isSafeEnvironmentVariable(name: string): boolean {
-  return SAFE_ENV_VARS.has(name)
-}
-
-/**
- * Whether a nominally read-only command is prefixed by an environment
- * assignment that can change what gets executed. Prefer the parsed command
- * when available; the fallback deliberately accepts only the small literal
- * assignment grammar used by the published runtime.
- */
-function hasUnsafeEnvironmentVariables(
-  input: z.infer<typeof BashTool.inputSchema>,
-  astCommand?: SimpleCommand,
-): boolean {
-  if (astCommand) {
-    return astCommand.envVars.some(env => !isSafeEnvironmentVariable(env.name))
-  }
-
-  const assignmentStart = /^([A-Za-z_][A-Za-z0-9_]*)\+?=/
-  const safeAssignment =
-    /^[A-Za-z_][A-Za-z0-9_]*\+?=(?:"[^"$`\\]*"|'[^']*'|[A-Za-z0-9_./:+-]*)[ \t]+/
-  let command = input.command
-  while (true) {
-    const assignment = command.match(assignmentStart)
-    if (!assignment) return false
-    if (!isSafeEnvironmentVariable(assignment[1]!)) return true
-    const consumed = command.match(safeAssignment)
-    if (!consumed) return true
-    command = command.slice(consumed[0].length)
-  }
-}
-
 /**
  * ANT-ONLY environment variables that are safe to strip from commands.
  * These are only enabled when USER_TYPE === 'ant'.
@@ -724,7 +795,15 @@ function skipTimeoutFlags(a: readonly string[]): number {
   return i
 }
 
-function stripBasicWrappersFromArgv(argv: string[]): string[] {
+/**
+ * Argv-level counterpart to stripSafeWrappers. Strips the same wrapper
+ * commands (timeout, time, nice, nohup) from AST-derived argv. Env vars
+ * are already separated into SimpleCommand.envVars so no env-var stripping.
+ *
+ * KEEP IN SYNC with SAFE_WRAPPER_PATTERNS above — if you add a wrapper
+ * there, add it here too.
+ */
+export function stripWrappersFromArgv(argv: string[]): string[] {
   // SECURITY: Consume optional `--` after wrapper options, matching what the
   // wrapper does. Otherwise `['nohup','--','rm','--','-/../foo']` yields `--`
   // as baseCmd and skips path validation. See SAFE_WRAPPER_PATTERNS comment.
@@ -749,7 +828,9 @@ function stripBasicWrappersFromArgv(argv: string[]): string[] {
   }
 }
 
-const WRAPPER_VALUE_FLAGS: Record<string, ReadonlySet<string>> = {
+const COMMAND_WRAPPER_VALUE_OPTIONS: Readonly<
+  Record<string, ReadonlySet<string>>
+> = {
   env: new Set(['-u', '-C', '--unset', '--chdir']),
   sudo: new Set([
     '-u',
@@ -894,7 +975,7 @@ const WRAPPER_VALUE_FLAGS: Record<string, ReadonlySet<string>> = {
   command: new Set(),
 }
 
-const WRAPPER_COMMAND_FLAGS: Partial<
+const COMMAND_WRAPPER_COMMAND_OPTIONS: Readonly<
   Record<string, ReadonlySet<string>>
 > = {
   env: new Set(['-S', '--split-string']),
@@ -902,45 +983,47 @@ const WRAPPER_COMMAND_FLAGS: Partial<
   script: new Set(['-c', '--command']),
 }
 
-const WRAPPER_POSITIONAL_ARGUMENTS: Partial<
-  Record<string, (value: string) => boolean>
-> = {
-  chrt: value => /^\d+$/.test(value),
-  taskset: value => /^(0x[\da-f]+|\d+)$/i.test(value),
-  flock: () => true,
-  script: () => true,
-}
-
-const ENV_ASSIGNMENT_ARG = /^[A-Za-z_][A-Za-z0-9_]*\+?=/
+const ARGV_ENV_ASSIGNMENT_RE = /^[A-Za-z_][A-Za-z0-9_]*\+?=/
 
 /**
- * Returns the command executed by nested argv-style wrappers. This is used
- * only for deny/ask matching and AST-vetted sandbox checks; it never broadens
- * an allow rule.
+ * Peel command-launching wrappers from a parsed argv for deny/ask matching.
+ * Value-taking options are skipped without mistaking their values for the
+ * command; options such as `flock -c` that contain a command restart parsing
+ * from the embedded command string.
  */
-export function stripWrappersFromArgv(argv: string[]): string[] {
+function stripCommandWrappersFromArgv(argv: string[]): string[] {
   let args = argv.slice()
 
   for (;;) {
-    while (args[0] !== undefined && ENV_ASSIGNMENT_ARG.test(args[0])) {
+    while (args[0] !== undefined && ARGV_ENV_ASSIGNMENT_RE.test(args[0])) {
       args = args.slice(1)
     }
-    args = stripBasicWrappersFromArgv(args)
 
+    args = stripWrappersFromArgv(args)
     const wrapper = args[0]
     if (wrapper === undefined) return args
-    const valueFlags = WRAPPER_VALUE_FLAGS[wrapper]
-    if (valueFlags === undefined) return args
 
-    const commandFlags = WRAPPER_COMMAND_FLAGS[wrapper]
-    const positionalArgument = WRAPPER_POSITIONAL_ARGUMENTS[wrapper]
+    const valueOptions = COMMAND_WRAPPER_VALUE_OPTIONS[wrapper]
+    if (valueOptions === undefined) return args
+
+    const commandOptions = COMMAND_WRAPPER_COMMAND_OPTIONS[wrapper]
+    const positionalArgument =
+      wrapper === 'chrt'
+        ? (value: string) => /^\d+$/.test(value)
+        : wrapper === 'taskset'
+          ? (value: string) => /^(0x[\da-f]+|\d+)$/i.test(value)
+          : wrapper === 'flock' || wrapper === 'script'
+            ? () => true
+            : undefined
+
     let index = 1
     let embeddedCommand: string | undefined
     let consumedPositionalArgument = false
 
     while (index < args.length) {
-      const arg = args[index]!
-      if (arg === '--') {
+      const argument = args[index]!
+
+      if (argument === '--') {
         index++
         if (
           !consumedPositionalArgument &&
@@ -955,34 +1038,39 @@ export function stripWrappersFromArgv(argv: string[]): string[] {
         break
       }
 
-      if (commandFlags !== undefined) {
-        if (commandFlags.has(arg) && args[index + 1] !== undefined) {
-          const value = args[index + 1]!.trim()
-          if (value !== '') {
-            embeddedCommand = value
+      if (commandOptions !== undefined) {
+        if (commandOptions.has(argument) && args[index + 1] !== undefined) {
+          const command = args[index + 1]!.trim()
+          if (command !== '') {
+            embeddedCommand = command
             break
           }
           index += 2
           continue
         }
-        const equals = arg.indexOf('=')
-        if (equals > 0 && commandFlags.has(arg.slice(0, equals))) {
-          const value = arg.slice(equals + 1).trim()
-          if (value !== '') {
-            embeddedCommand = value
+
+        const equalsIndex = argument.indexOf('=')
+        if (
+          equalsIndex > 0 &&
+          commandOptions.has(argument.slice(0, equalsIndex))
+        ) {
+          const command = argument.slice(equalsIndex + 1).trim()
+          if (command !== '') {
+            embeddedCommand = command
             break
           }
           index++
           continue
         }
+
         if (
-          arg.length > 2 &&
-          arg[1] !== '-' &&
-          commandFlags.has(arg.slice(0, 2))
+          argument.length > 2 &&
+          argument[1] !== '-' &&
+          commandOptions.has(argument.slice(0, 2))
         ) {
-          const value = arg.slice(2).trim()
-          if (value !== '') {
-            embeddedCommand = value
+          const command = argument.slice(2).trim()
+          if (command !== '') {
+            embeddedCommand = command
             break
           }
           index++
@@ -990,27 +1078,33 @@ export function stripWrappersFromArgv(argv: string[]): string[] {
         }
       }
 
-      if (arg.startsWith('-') && (arg !== '-' || positionalArgument === undefined)) {
-        if (wrapper === 'command' && (arg === '-v' || arg === '-V')) {
+      if (
+        argument.startsWith('-') &&
+        (argument !== '-' || positionalArgument === undefined)
+      ) {
+        if (wrapper === 'command' && (argument === '-v' || argument === '-V')) {
           return args
         }
         index +=
-          valueFlags.has(arg) && index + 1 < args.length ? 2 : 1
+          valueOptions.has(argument) && args[index + 1] !== undefined ? 2 : 1
         continue
       }
-      if (wrapper === 'env' && ENV_ASSIGNMENT_ARG.test(arg)) {
+
+      if (wrapper === 'env' && ARGV_ENV_ASSIGNMENT_RE.test(argument)) {
         index++
         continue
       }
+
       if (
         !consumedPositionalArgument &&
-        positionalArgument?.(arg) &&
+        positionalArgument?.(argument) &&
         index + 1 < args.length
       ) {
         consumedPositionalArgument = true
         index++
         continue
       }
+
       break
     }
 
@@ -1019,9 +1113,21 @@ export function stripWrappersFromArgv(argv: string[]): string[] {
       if (args.length === 0 || args[0] === '') return argv.slice()
       continue
     }
+
     if (index >= args.length) return args
     args = args.slice(index)
   }
+}
+
+function parseLiteralCommandArgv(command: string): string[] {
+  const parsed = tryParseShellCommand(command)
+  if (
+    !parsed.success ||
+    !parsed.tokens.every((token) => typeof token === 'string')
+  ) {
+    return []
+  }
+  return parsed.tokens as string[]
 }
 
 /**
@@ -1153,22 +1259,15 @@ function filterRulesByContentsMatchingInput(
   //
   // Without iteration, single-pass compositions miss multi-layer interleaving.
   if (stripAllEnvVars) {
-    const parsed = astCommand
-      ? astCommand.argv
-      : (() => {
-          const result = tryParseShellCommand(commandWithoutRedirections)
-          return result.success
-            ? result.tokens.filter(
-                (token): token is string => typeof token === 'string',
-              )
-            : []
-        })()
-    const wrapperStrippedArgv = stripWrappersFromArgv(parsed)
+    const argv =
+      astCommand?.argv ?? parseLiteralCommandArgv(commandWithoutRedirections)
+    const unwrappedArgv = stripCommandWrappersFromArgv(argv)
     if (
-      wrapperStrippedArgv.length > 0 &&
-      wrapperStrippedArgv[0] !== parsed[0]
+      unwrappedArgv.length > 0 &&
+      unwrappedArgv[0] !== undefined &&
+      unwrappedArgv[0] !== argv[0]
     ) {
-      commandsToTry.push(wrapperStrippedArgv.join(' '))
+      commandsToTry.push(unwrappedArgv.join(' '))
     }
 
     const seen = new Set(commandsToTry)
@@ -1222,13 +1321,11 @@ function filterRulesByContentsMatchingInput(
         switch (bashRule.type) {
           case 'exact':
             return bashRule.command === cmdToMatch
-          case 'prefix': {
-            const normalizedPrefix = bashRule.prefix.replace(/[ \t]+/g, ' ')
-            const normalizedCommand = cmdToMatch.replace(/[ \t]+/g, ' ')
+          case 'prefix':
             switch (matchMode) {
               // In 'exact' mode, only return true if the command exactly matches the prefix rule
               case 'exact':
-                return normalizedPrefix === normalizedCommand
+                return bashRule.prefix === cmdToMatch
               case 'prefix': {
                 // SECURITY: Don't allow prefix rules to match compound commands.
                 // e.g., Bash(cd:*) must NOT match "cd /path && python3 evil.py".
@@ -1242,10 +1339,10 @@ function filterRulesByContentsMatchingInput(
                 }
                 // Ensure word boundary: prefix must be followed by space or end of string
                 // This prevents "ls:*" from matching "lsof" or "lsattr"
-                if (normalizedCommand === normalizedPrefix) {
+                if (cmdToMatch === bashRule.prefix) {
                   return true
                 }
-                if (normalizedCommand.startsWith(normalizedPrefix + ' ')) {
+                if (cmdToMatch.startsWith(bashRule.prefix + ' ')) {
                   return true
                 }
                 // Also match "xargs <prefix>" for bare xargs with no flags.
@@ -1253,15 +1350,14 @@ function filterRulesByContentsMatchingInput(
                 // and deny rules like Bash(rm:*) to block "xargs rm file".
                 // Natural word-boundary: "xargs -n1 grep" does NOT start with
                 // "xargs grep " so flagged xargs invocations are not matched.
-                const xargsPrefix = 'xargs ' + normalizedPrefix
-                if (normalizedCommand === xargsPrefix) {
+                const xargsPrefix = 'xargs ' + bashRule.prefix
+                if (cmdToMatch === xargsPrefix) {
                   return true
                 }
-                return normalizedCommand.startsWith(xargsPrefix + ' ')
+                return cmdToMatch.startsWith(xargsPrefix + ' ')
               }
             }
             break
-          }
           case 'wildcard':
             // SECURITY FIX: In exact match mode, wildcards must NOT match because we're
             // checking the full unparsed command. Wildcard matching on unparsed commands
@@ -1406,7 +1502,6 @@ export const bashToolCheckPermission = (
   toolPermissionContext: ToolPermissionContext,
   compoundCommandHasCd?: boolean,
   astCommand?: SimpleCommand,
-  cwd = getCwd(),
 ): PermissionResult => {
   const command = input.command.trim()
 
@@ -1467,7 +1562,7 @@ export const bashToolCheckPermission = (
   // parseCommandArguments to return [] and silently skip path validation).
   const pathResult = checkPathConstraints(
     input,
-    cwd,
+    getCwd(),
     toolPermissionContext,
     compoundCommandHasCd,
     astCommand?.redirects,
@@ -1507,7 +1602,7 @@ export const bashToolCheckPermission = (
   }
 
   // 7. Check read-only rules
-  if (BashTool.isReadOnly(input) && !hasUnsafeEnvironmentVariables(input, astCommand)) {
+  if (BashTool.isReadOnly(input)) {
     return {
       behavior: 'allow',
       updatedInput: input,
@@ -1543,7 +1638,6 @@ export async function checkCommandAndSuggestRules(
   commandPrefixResult: CommandPrefixResult | null | undefined,
   compoundCommandHasCd?: boolean,
   astCommand?: SimpleCommand,
-  cwd = getCwd(),
 ): Promise<PermissionResult> {
   // 1. Check exact match first
   const exactMatchResult = bashToolCheckExactMatchPermission(
@@ -1560,7 +1654,6 @@ export async function checkCommandAndSuggestRules(
     toolPermissionContext,
     compoundCommandHasCd,
     astCommand,
-    cwd,
   )
   // 2a. Deny/ask if command was explictly denied/asked
   if (
@@ -1575,7 +1668,7 @@ export async function checkCommandAndSuggestRules(
   // hidden substitutions or structural tricks, so the legacy regex-based
   // validators (backslash-escaped operators, etc.) would only add FPs.
   if (
-    !astCommand &&
+    astCommand === undefined &&
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_COMMAND_INJECTION_CHECK)
   ) {
     const safetyResult = await bashCommandIsSafeAsync(input.command)
@@ -1630,7 +1723,7 @@ export async function checkCommandAndSuggestRules(
 function checkSandboxAutoAllow(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
-  commands: SimpleCommand[],
+  parsedCommands: SimpleCommand[],
 ): PermissionResult {
   const command = input.command.trim()
 
@@ -1639,7 +1732,9 @@ function checkSandboxAutoAllow(
     input,
     toolPermissionContext,
     'prefix',
-    { astCommand: commands.length === 1 ? commands[0] : undefined },
+    {
+      astCommand: parsedCommands.length === 1 ? parsedCommands[0] : undefined,
+    },
   )
 
   // Return immediately if there's an explicit deny rule on the full command
@@ -1662,14 +1757,19 @@ function checkSandboxAutoAllow(
   // Otherwise a wildcard ask rule matching the full command (e.g., Bash(*echo*))
   // would return 'ask' before a prefix deny rule on a subcommand (e.g., Bash(rm:*))
   // gets checked, downgrading a deny to an ask.
-  if (commands.length > 1) {
+  const subcommands =
+    parsedCommands.length > 1
+      ? parsedCommands.map((parsedCommand) => parsedCommand.text)
+      : splitCommand(command)
+  if (subcommands.length > 1) {
     let firstAskRule: PermissionRule | undefined
-    for (const subcommand of commands) {
+    for (let index = 0; index < subcommands.length; index++) {
+      const sub = subcommands[index]!
       const subResult = matchingRulesForInput(
-        { command: subcommand.text },
+        { command: sub },
         toolPermissionContext,
         'prefix',
-        { astCommand: subcommand },
+        { astCommand: parsedCommands[index] },
       )
       // Deny takes priority — return immediately
       if (subResult.matchingDenyRules[0] !== undefined) {
@@ -1720,11 +1820,7 @@ function checkSandboxAutoAllow(
   }
 }
 
-/**
- * Applies sandbox auto-allow to an AST-vetted command while preserving the
- * security checks whose inputs are lost by the legacy string-based path.
- */
-function checkAstSandboxAutoAllow(
+function checkSandboxAutoAllowWithParsedCommands(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
   commands: SimpleCommand[],
@@ -1740,37 +1836,34 @@ function checkAstSandboxAutoAllow(
   const result = checkSandboxAutoAllow(input, toolPermissionContext, commands)
   if (result.behavior === 'passthrough') return null
 
-  const assignmentStart = /^([A-Za-z_][A-Za-z0-9_]*)\+?=/
+  const assignment = /^([A-Za-z_][A-Za-z0-9_]*)\+?=/
   const hasUnsafeEnvironment = commands.some(
     command =>
-      command.envVars.some(env => !isSafeEnvironmentVariable(env.name)) ||
+      command.envVars.some(variable => !SAFE_ENV_VARS.has(variable.name)) ||
       command.argv.some(argument => {
-        const assignment = argument.match(assignmentStart)
-        return (
-          assignment !== null &&
-          !isSafeEnvironmentVariable(assignment[1]!)
-        )
+        const match = argument.match(assignment)
+        return match !== null && !SAFE_ENV_VARS.has(match[1]!)
       }),
   )
-  const hasNetworkDeviceRedirect = commands.some(command =>
+  const hasNetworkRedirect = commands.some(command =>
     command.redirects.some(redirect =>
       /^\/dev\/(tcp|udp)\//.test(redirect.target),
     ),
   )
-  if (hasUnsafeEnvironment || hasNetworkDeviceRedirect) return null
+  if (hasUnsafeEnvironment || hasNetworkRedirect) return null
 
   let hasCd = false
   let hasRemoval = false
   for (const command of commands) {
-    const [name, ...args] = stripWrappersFromArgv(command.argv)
-    if (name === 'cd') {
+    const [baseCommand, ...args] = stripPathWrappersFromArgv(command.argv)
+    if (baseCommand === 'cd') {
       hasCd = true
       continue
     }
-    if (name !== 'rm' && name !== 'rmdir') continue
+    if (baseCommand !== 'rm' && baseCommand !== 'rmdir') continue
     hasRemoval = true
     if (
-      checkDangerousRemovalPaths(name, args, getCwd()).behavior !==
+      checkDangerousRemovalPaths(baseCommand, args, getCwd()).behavior !==
       'passthrough'
     ) {
       return null
@@ -1801,143 +1894,6 @@ function filterCdCwdSubcommands(
     astCommandsByIdx.push(astCommands?.[i])
   }
   return { subcommands, astCommandsByIdx }
-}
-
-/**
- * A leading `cd` can safely establish the base directory for the commands
- * that follow only when the compound syntax cannot redirect execution into a
- * different branch. `&&` is the sole accepted operator: `||`, `;`, newlines,
- * and a standalone `&` can all make the inferred working directory diverge
- * from the directory Bash actually uses.
- */
-function canUseLeadingCdAsWorkingDirectory(command: string): boolean {
-  if (command.includes('||') || command.includes(';')) return false
-  if (command.includes('\n')) return false
-  if (command.replaceAll('&&', '').includes('&')) return false
-  return true
-}
-
-function isExplicitCdPath(value: string): boolean {
-  return (
-    isAbsolute(value) ||
-    value.startsWith('./') ||
-    value.startsWith('../') ||
-    value === '.' ||
-    value === '..'
-  )
-}
-
-/**
- * Resolve an AST-vetted leading `cd` for use as the base directory of later
- * subcommands. Fail closed for shell expansions, redirects, globs, flags, or
- * paths outside the session's allowed working directories.
- */
-function resolveLeadingCdWorkingDirectory(
-  command: SimpleCommand | undefined,
-  cwd: string,
-  toolPermissionContext: ToolPermissionContext,
-): string | null {
-  if (!command) return null
-  if (command.envVars.length > 0 || command.redirects.length > 0) return null
-  if (command.argv.length !== 2 || command.argv[0] !== 'cd') return null
-
-  const target = command.argv[1]!
-  if (target.startsWith('-') || !isExplicitCdPath(target)) return null
-  if (/[*?[\]]/.test(target)) return null
-
-  const { allowed, resolvedPath } = validatePath(
-    target,
-    cwd,
-    toolPermissionContext,
-    'read',
-  )
-  if (!allowed) return null
-  if (
-    !pathInAllowedWorkingPath(resolvedPath, toolPermissionContext, [
-      resolvedPath,
-    ])
-  ) {
-    return null
-  }
-  return resolvedPath
-}
-
-function parseSimpleCdPath(command: string): string | null {
-  const trimmed = command.trim()
-  if (!trimmed.startsWith('cd ')) return null
-  const argument = trimmed.slice(3).trim()
-  if (!argument) return null
-  const quote = argument[0]
-  if (quote === '"' || quote === "'") {
-    if (argument.length < 2 || argument.at(-1) !== quote) return null
-    const unquoted = argument.slice(1, -1)
-    if (unquoted.includes(quote)) return null
-    return unquoted
-  }
-  return /\s/.test(argument) ? null : argument
-}
-
-async function normalizedRealpath(value: string): Promise<string | null> {
-  const result = await realpath(value).catch(() => null)
-  if (result === null) return null
-  return getPlatform() === 'windows' ? result.toLowerCase() : result
-}
-
-async function cdPathResolvesToCwd(
-  target: string,
-  cwd: string,
-  normalizedCwd: string,
-): Promise<boolean> {
-  if (target.startsWith('-') || !isExplicitCdPath(target)) return false
-  if (
-    target.includes('$') ||
-    /[*?[]/.test(target) ||
-    (getPlatform() === 'windows' && target.includes('%'))
-  ) {
-    return false
-  }
-  const absoluteTarget = isAbsolute(target) ? target : resolve(cwd, target)
-  const normalizedTarget = await normalizedRealpath(absoluteTarget)
-  return normalizedTarget !== null && normalizedTarget === normalizedCwd
-}
-
-async function astCdCommandsKeepCurrentDirectory(
-  astCommands: (SimpleCommand | undefined)[],
-  subcommands: string[],
-  cwd: string,
-): Promise<boolean> {
-  const normalizedCwd = await normalizedRealpath(cwd)
-  if (normalizedCwd === null) return false
-  let foundCd = false
-  for (let index = 0; index < subcommands.length; index++) {
-    if (!isNormalizedCdCommand(subcommands[index]!)) continue
-    foundCd = true
-    const command = astCommands[index]
-    if (!command) return false
-    if (command.envVars.length > 0 || command.redirects.length > 0) return false
-    if (command.argv.length !== 2 || command.argv[0] !== 'cd') return false
-    const target = parseSimpleCdPath(subcommands[index]!)
-    if (target === null) return false
-    if (!(await cdPathResolvesToCwd(target, cwd, normalizedCwd))) return false
-  }
-  return foundCd
-}
-
-async function textualCdCommandsKeepCurrentDirectory(
-  subcommands: string[],
-  cwd: string,
-): Promise<boolean> {
-  const normalizedCwd = await normalizedRealpath(cwd)
-  if (normalizedCwd === null) return false
-  let foundCd = false
-  for (const subcommand of subcommands) {
-    if (!isNormalizedCdCommand(subcommand.trim())) continue
-    foundCd = true
-    const target = parseSimpleCdPath(subcommand)
-    if (target === null) return false
-    if (!(await cdPathResolvesToCwd(target, cwd, normalizedCwd))) return false
-  }
-  return foundCd
 }
 
 /**
@@ -1990,7 +1946,7 @@ function checkEarlyExitDeny(
 function checkSemanticsDeny(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
-  commands: readonly { text: string }[],
+  commands: readonly SimpleCommand[],
 ): PermissionResult | null {
   const fullCmd = checkEarlyExitDeny(input, toolPermissionContext)
   if (fullCmd !== null) return fullCmd
@@ -1999,6 +1955,7 @@ function checkSemanticsDeny(
       { ...input, command: cmd.text },
       toolPermissionContext,
       'prefix',
+      { astCommand: cmd },
     ).matchingDenyRules[0]
     if (subDeny !== undefined) {
       return {
@@ -2342,12 +2299,12 @@ export async function bashToolHasPermission(
       )
       if (earlyExit !== null) return earlyExit
       if (sem.kind === 'newline-hash') {
-        const sandboxResult = checkAstSandboxAutoAllow(
+        const sandboxResult = checkSandboxAutoAllowWithParsedCommands(
           input,
           appState.toolPermissionContext,
           astResult.commands,
         )
-        if (sandboxResult) return sandboxResult
+        if (sandboxResult !== null) return sandboxResult
       }
       const decisionReason: PermissionDecisionReason = {
         type: 'other' as const,
@@ -2395,12 +2352,12 @@ export async function bashToolHasPermission(
     }
   }
 
-  const sandboxAutoAllowResult = checkAstSandboxAutoAllow(
+  const sandboxAutoAllowResult = checkSandboxAutoAllowWithParsedCommands(
     input,
     appState.toolPermissionContext,
     astCommands ?? [],
   )
-  if (sandboxAutoAllowResult) return sandboxAutoAllowResult
+  if (sandboxAutoAllowResult !== null) return sandboxAutoAllowResult
 
   // Check exact match first
   const exactMatchResult = bashToolCheckExactMatchPermission(
@@ -2540,7 +2497,7 @@ export async function bashToolHasPermission(
       bashToolHasPermission(i, context, getCommandSubcommandPrefixFn),
     { isNormalizedCdCommand, isNormalizedGitCommand },
     astRoot,
-    subcommands => textualCdCommandsKeepCurrentDirectory(subcommands, getCwd()),
+    commands => stringCdCommandsAreNoOps(commands, getCwd()),
   )
   if (commandOperatorResult.behavior !== 'passthrough') {
     // SECURITY FIX: When pipe segment processing returns 'allow', we must still validate
@@ -2761,32 +2718,6 @@ export async function bashToolHasPermission(
   // Track if compound command contains cd for security validation
   // This prevents bypassing path checks via: cd .claude/ && mv test.txt settings.json
   const compoundCommandHasCd = cdCommands.length > 0
-  let permissionCwd = cwd
-  let pathCommandHasCd = compoundCommandHasCd
-  let adjustedForLeadingCd = false
-
-  // When an AST-vetted `cd` is the first command in a straight `&&` chain,
-  // validate later paths relative to the directory Bash will actually use.
-  // This remains fail-closed for legacy parsing, branches, background jobs,
-  // redirects, expansions, globs, and paths outside allowed working roots.
-  if (
-    compoundCommandHasCd &&
-    subcommands.length > 1 &&
-    subcommands.length === rawSubcommands.length &&
-    isNormalizedCdCommand(subcommands[0]!) &&
-    canUseLeadingCdAsWorkingDirectory(input.command)
-  ) {
-    const resolvedCwd = resolveLeadingCdWorkingDirectory(
-      astCommandsByIdx[0],
-      cwd,
-      appState.toolPermissionContext,
-    )
-    if (resolvedCwd !== null) {
-      permissionCwd = resolvedCwd
-      pathCommandHasCd = false
-      adjustedForLeadingCd = true
-    }
-  }
 
   // SECURITY: Block compound commands that have both cd AND git
   // This prevents sandbox escape via: cd /malicious/dir && git status
@@ -2801,10 +2732,10 @@ export async function bashToolHasPermission(
     )
     if (
       hasGitCommand &&
-      !(await astCdCommandsKeepCurrentDirectory(
-        astCommandsByIdx,
+      !(await parsedCdCommandsAreNoOps(
+        astCommands ?? [],
         subcommands,
-        cwd,
+        getCwd(),
       ))
     ) {
       const decisionReason = {
@@ -2837,9 +2768,8 @@ export async function bashToolHasPermission(
     bashToolCheckPermission(
       { command },
       appState.toolPermissionContext,
-      pathCommandHasCd,
+      compoundCommandHasCd,
       astCommandsByIdx[i],
-      adjustedForLeadingCd && i === 0 ? cwd : permissionCwd,
     ),
   )
 
@@ -2873,13 +2803,11 @@ export async function bashToolHasPermission(
   // that can silently hide redirect operators).
   const pathResult = checkPathConstraints(
     input,
-    permissionCwd,
+    getCwd(),
     appState.toolPermissionContext,
-    pathCommandHasCd,
+    compoundCommandHasCd,
     astRedirects,
-    astCommandsByIdx
-      .slice(adjustedForLeadingCd ? 1 : 0)
-      .filter((command): command is SimpleCommand => command !== undefined),
+    astCommands,
   )
   if (pathResult.behavior === 'deny') {
     return pathResult
@@ -3008,9 +2936,8 @@ export async function bashToolHasPermission(
       { command: subcommands[0]! },
       appState.toolPermissionContext,
       commandSubcommandPrefix,
-      pathCommandHasCd,
+      compoundCommandHasCd,
       astCommandsByIdx[0],
-      permissionCwd,
     )
     // If command wasn't allowed, attach pending classifier check.
     // At this point, 'ask' can only come from bashCommandIsSafe (security check inside
@@ -3034,8 +2961,8 @@ export async function bashToolHasPermission(
 
   // Check subcommand permission results
   const subcommandResults: Map<string, PermissionResult> = new Map()
-  for (let subcommandIndex = 0; subcommandIndex < subcommands.length; subcommandIndex++) {
-    const subcommand = subcommands[subcommandIndex]!
+  for (let index = 0; index < subcommands.length; index++) {
+    const subcommand = subcommands[index]!
     subcommandResults.set(
       subcommand,
       await checkCommandAndSuggestRules(
@@ -3046,11 +2973,8 @@ export async function bashToolHasPermission(
         },
         appState.toolPermissionContext,
         commandSubcommandPrefix?.subcommandPrefixes.get(subcommand),
-        pathCommandHasCd,
-        astCommandsByIdx[subcommandIndex],
-        adjustedForLeadingCd && subcommandIndex === 0
-          ? cwd
-          : permissionCwd,
+        compoundCommandHasCd,
+        astCommandsByIdx[index],
       ),
     )
   }

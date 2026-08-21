@@ -2,20 +2,21 @@ import type { ToolUseBlock } from '@anthropic-ai/sdk/resources';
 import { getRemoteSessionUrl } from '../../constants/product.js';
 import { OUTPUT_FILE_TAG, REMOTE_REVIEW_PROGRESS_TAG, REMOTE_REVIEW_TAG, STATUS_TAG, SUMMARY_TAG, TASK_ID_TAG, TASK_NOTIFICATION_TAG, TASK_TYPE_TAG, TOOL_USE_ID_TAG, ULTRAPLAN_TAG } from '../../constants/xml.js';
 import type { SDKAssistantMessage, SDKMessage } from '../../entrypoints/agentSdkTypes.js';
-import type { Task, TaskContext, TaskStateBase } from '../../Task.js';
+import type { SetAppState, Task, TaskContext, TaskStateBase } from '../../Task.js';
 import { createTaskStateBase, generateTaskId } from '../../Task.js';
 import { TodoWriteTool } from '../../tools/TodoWriteTool/TodoWriteTool.js';
 import { type BackgroundRemoteSessionPrecondition, checkBackgroundRemoteSessionEligibility } from '../../utils/background/remote/remoteSession.js';
 import { getCwd } from '../../utils/cwd.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { logError } from '../../utils/log.js';
+import { logEvent } from '../../services/analytics/index.js';
 import { enqueuePendingNotification } from '../../utils/messageQueueManager.js';
 import { extractTag, extractTextContent } from '../../utils/messages.js';
 import { emitTaskTerminatedSdk } from '../../utils/sdkEventQueue.js';
 import { deleteRemoteAgentMetadata, listRemoteAgentMetadata, type RemoteAgentMetadata, writeRemoteAgentMetadata } from '../../utils/sessionStorage.js';
 import { jsonStringify } from '../../utils/slowOperations.js';
 import { appendTaskOutput, evictTaskOutput, getTaskOutputPath, initTaskOutput } from '../../utils/task/diskOutput.js';
-import type { TaskRegistry } from '../../utils/task/framework.js';
+import { registerTask, updateTaskState } from '../../utils/task/framework.js';
 import { fetchSession } from '../../utils/teleport/api.js';
 import { archiveRemoteSession, pollRemoteSessionEvents } from '../../utils/teleport.js';
 import type { TodoList } from '../../utils/todo/types.js';
@@ -162,9 +163,9 @@ export function formatPreconditionError(error: BackgroundRemoteSessionPreconditi
 /**
  * Enqueue a remote task notification to the message queue.
  */
-function enqueueRemoteNotification(taskId: string, title: string, status: 'completed' | 'failed' | 'killed', taskRegistry: TaskRegistry, toolUseId?: string): void {
+function enqueueRemoteNotification(taskId: string, title: string, status: 'completed' | 'failed' | 'killed', setAppState: SetAppState, toolUseId?: string): void {
   // Atomically check and set notified flag to prevent duplicate notifications.
-  if (!markTaskNotified(taskId, taskRegistry)) return;
+  if (!markTaskNotified(taskId, setAppState)) return;
   const statusText = status === 'completed' ? 'completed successfully' : status === 'failed' ? 'failed' : 'was stopped';
   const toolUseIdLine = toolUseId ? `\n<${TOOL_USE_ID_TAG}>${toolUseId}</${TOOL_USE_ID_TAG}>` : '';
   const outputPath = getTaskOutputPath(taskId);
@@ -185,9 +186,9 @@ function enqueueRemoteNotification(taskId: string, title: string, status: 'compl
  * Atomically mark a task as notified. Returns true if this call flipped the
  * flag (caller should enqueue), false if already notified (caller should skip).
  */
-function markTaskNotified(taskId: string, taskRegistry: TaskRegistry): boolean {
+function markTaskNotified(taskId: string, setAppState: SetAppState): boolean {
   let shouldEnqueue = false;
-  taskRegistry.update(taskId, task => {
+  updateTaskState(taskId, setAppState, task => {
     if (task.notified) {
       return task;
     }
@@ -221,8 +222,8 @@ export function extractPlanFromLog(log: SDKMessage[]): string | null {
  * this does NOT instruct the model to read the raw output file (a JSONL dump that is
  * useless for plan extraction).
  */
-export function enqueueUltraplanFailureNotification(taskId: string, sessionId: string, reason: string, taskRegistry: TaskRegistry): void {
-  if (!markTaskNotified(taskId, taskRegistry)) return;
+export function enqueueUltraplanFailureNotification(taskId: string, sessionId: string, reason: string, setAppState: SetAppState): void {
+  if (!markTaskNotified(taskId, setAppState)) return;
   const sessionUrl = getRemoteTaskSessionUrl(sessionId);
   const message = `<${TASK_NOTIFICATION_TAG}>
 <${TASK_ID_TAG}>${taskId}</${TASK_ID_TAG}>
@@ -323,8 +324,8 @@ export function extractReviewTagFromLog(log: SDKMessage[]): string | null {
  * turn — no file indirection, no mode change. Session is kept alive so the
  * claude.ai URL stays a durable record the user can revisit; TTL handles cleanup.
  */
-function enqueueRemoteReviewNotification(taskId: string, reviewContent: string, taskRegistry: TaskRegistry): void {
-  if (!markTaskNotified(taskId, taskRegistry)) return;
+function enqueueRemoteReviewNotification(taskId: string, reviewContent: string, setAppState: SetAppState): void {
+  if (!markTaskNotified(taskId, setAppState)) return;
   const message = `<${TASK_NOTIFICATION_TAG}>
 <${TASK_ID_TAG}>${taskId}</${TASK_ID_TAG}>
 <${TASK_TYPE_TAG}>remote_agent</${TASK_TYPE_TAG}>
@@ -343,8 +344,8 @@ ${reviewContent}`;
 /**
  * Enqueue a remote-review failure notification.
  */
-function enqueueRemoteReviewFailureNotification(taskId: string, reason: string, taskRegistry: TaskRegistry): void {
-  if (!markTaskNotified(taskId, taskRegistry)) return;
+function enqueueRemoteReviewFailureNotification(taskId: string, reason: string, setAppState: SetAppState): void {
+  if (!markTaskNotified(taskId, setAppState)) return;
   const message = `<${TASK_NOTIFICATION_TAG}>
 <${TASK_ID_TAG}>${taskId}</${TASK_ID_TAG}>
 <${TASK_TYPE_TAG}>remote_agent</${TASK_TYPE_TAG}>
@@ -433,7 +434,7 @@ export function registerRemoteAgentTask(options: {
     pollStartedAt: Date.now(),
     remoteTaskMetadata
   };
-  context.taskRegistry.register(taskState);
+  registerTask(taskState, context.setAppState);
 
   // Persist identity to the session sidecar so --resume can reconnect to
   // still-running remote sessions. Status is not stored — it's fetched
@@ -524,7 +525,7 @@ async function restoreRemoteAgentTasksImpl(context: TaskContext): Promise<void> 
       pollStartedAt: Date.now(),
       remoteTaskMetadata: meta.remoteTaskMetadata as RemoteTaskMetadata | undefined
     };
-    context.taskRegistry.register(taskState);
+    registerTask(taskState, context.setAppState);
     void initTaskOutput(meta.taskId);
     startRemoteSessionPolling(meta.taskId, context);
   }
@@ -551,7 +552,8 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
   const poll = async (): Promise<void> => {
     if (!isRunning) return;
     try {
-      const task = context.taskRegistry.get<RemoteAgentTaskState>(taskId);
+      const appState = context.getAppState();
+      const task = appState.tasks?.[taskId] as RemoteAgentTaskState | undefined;
       if (!task || task.status !== 'running') {
         // Task was killed externally (TaskStopTool) or already terminal.
         // Session left alive so the claude.ai URL stays valid — the run_hunt.sh
@@ -575,12 +577,12 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
         }
       }
       if (response.sessionStatus === 'archived') {
-        context.taskRegistry.update<RemoteAgentTaskState>(taskId, t => t.status === 'running' ? {
+        updateTaskState<RemoteAgentTaskState>(taskId, context.setAppState, t => t.status === 'running' ? {
           ...t,
           status: 'completed',
           endTime: Date.now()
         } : t);
-        enqueueRemoteNotification(taskId, task.title, 'completed', context.taskRegistry, task.toolUseId);
+        enqueueRemoteNotification(taskId, task.title, 'completed', context.setAppState, task.toolUseId);
         void evictTaskOutput(taskId);
         void removeRemoteAgentMetadata(taskId);
         return;
@@ -589,12 +591,12 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
       if (checker) {
         const completionResult = await checker(task.remoteTaskMetadata);
         if (completionResult !== null) {
-          context.taskRegistry.update<RemoteAgentTaskState>(taskId, t => t.status === 'running' ? {
+          updateTaskState<RemoteAgentTaskState>(taskId, context.setAppState, t => t.status === 'running' ? {
             ...t,
             status: 'completed',
             endTime: Date.now()
           } : t);
-          enqueueRemoteNotification(taskId, completionResult, 'completed', context.taskRegistry, task.toolUseId);
+          enqueueRemoteNotification(taskId, completionResult, 'completed', context.setAppState, task.toolUseId);
           void evictTaskOutput(taskId);
           void removeRemoteAgentMetadata(taskId);
           return;
@@ -689,7 +691,7 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
       // notified set to true), bail without overwriting status or proceeding to
       // side effects (notification, permission-mode flip).
       let raceTerminated = false;
-      context.taskRegistry.update<RemoteAgentTaskState>(taskId, prevTask => {
+      updateTaskState<RemoteAgentTaskState>(taskId, context.setAppState, prevTask => {
         if (prevTask.status !== 'running') {
           raceTerminated = true;
           return prevTask;
@@ -733,24 +735,24 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
           // tick but the delta scan wasn't wired yet (first poll after resume).
           const reviewContent = cachedReviewContent ?? extractReviewFromLog(accumulatedLog);
           if (reviewContent && finalStatus === 'completed') {
-            enqueueRemoteReviewNotification(taskId, reviewContent, context.taskRegistry);
+            enqueueRemoteReviewNotification(taskId, reviewContent, context.setAppState);
             void evictTaskOutput(taskId);
             void removeRemoteAgentMetadata(taskId);
             return; // Stop polling
           }
 
           // No output or remote error — mark failed with a review-specific message.
-          context.taskRegistry.update(taskId, t => ({
+          updateTaskState(taskId, context.setAppState, t => ({
             ...t,
             status: 'failed'
           }));
           const reason = result && result.subtype !== 'success' ? 'remote session returned an error' : reviewTimedOut && !sessionDone ? 'remote session exceeded 30 minutes' : 'no review output — orchestrator may have exited early';
-          enqueueRemoteReviewFailureNotification(taskId, reason, context.taskRegistry);
+          enqueueRemoteReviewFailureNotification(taskId, reason, context.setAppState);
           void evictTaskOutput(taskId);
           void removeRemoteAgentMetadata(taskId);
           return; // Stop polling
         }
-        enqueueRemoteNotification(taskId, task.title, finalStatus, context.taskRegistry, task.toolUseId);
+        enqueueRemoteNotification(taskId, task.title, finalStatus, context.setAppState, task.toolUseId);
         void evictTaskOutput(taskId);
         void removeRemoteAgentMetadata(taskId);
         return; // Stop polling
@@ -763,14 +765,15 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
       // Check review timeout even when the API call fails — without this,
       // persistent API errors skip the timeout check and poll forever.
       try {
-        const task = context.taskRegistry.get<RemoteAgentTaskState>(taskId);
+        const appState = context.getAppState();
+        const task = appState.tasks?.[taskId] as RemoteAgentTaskState | undefined;
         if (task?.isRemoteReview && task.status === 'running' && Date.now() - task.pollStartedAt > REMOTE_REVIEW_TIMEOUT_MS) {
-          context.taskRegistry.update(taskId, t => ({
+          updateTaskState(taskId, context.setAppState, t => ({
             ...t,
             status: 'failed',
             endTime: Date.now()
           }));
-          enqueueRemoteReviewFailureNotification(taskId, 'remote session exceeded 30 minutes', context.taskRegistry);
+          enqueueRemoteReviewFailureNotification(taskId, 'remote session exceeded 30 minutes', context.setAppState);
           void evictTaskOutput(taskId);
           void removeRemoteAgentMetadata(taskId);
           return; // Stop polling
@@ -805,18 +808,22 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
 export const RemoteAgentTask: Task = {
   name: 'RemoteAgentTask',
   type: 'remote_agent',
-  async kill(taskId, taskRegistry, _setAppState) {
+  async kill(taskId, _taskRegistry, setAppState) {
     let toolUseId: string | undefined;
     let description: string | undefined;
     let sessionId: string | undefined;
+    let isUltraplan = false;
+    let pollStartedAt = 0;
     let killed = false;
-    taskRegistry.update<RemoteAgentTaskState>(taskId, task => {
+    updateTaskState<RemoteAgentTaskState>(taskId, setAppState, task => {
       if (task.status !== 'running') {
         return task;
       }
       toolUseId = task.toolUseId;
       description = task.description;
       sessionId = task.sessionId;
+      isUltraplan = task.isUltraplan ?? false;
+      pollStartedAt = task.pollStartedAt;
       killed = true;
       return {
         ...task,
@@ -836,6 +843,16 @@ export const RemoteAgentTask: Task = {
       // Archive the remote session so it stops consuming cloud resources.
       if (sessionId) {
         void archiveRemoteSession(sessionId).catch(e => logForDebugging(`RemoteAgentTask archive failed: ${String(e)}`));
+      }
+      if (isUltraplan) {
+        logEvent('tengu_ultraplan_stopped', {
+          duration_ms: Date.now() - pollStartedAt
+        });
+        setAppState(state => state.ultraplanSessionUrl || state.ultraplanPendingChoice ? {
+          ...state,
+          ultraplanSessionUrl: undefined,
+          ultraplanPendingChoice: undefined
+        } : state);
       }
     }
     void evictTaskOutput(taskId);

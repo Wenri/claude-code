@@ -379,6 +379,10 @@ export class DiagnosticTrackingService {
     return result
   }
 
+  static formatDiagnosticsBlock(files: DiagnosticFile[]): string {
+    return `<new-diagnostics>The following new diagnostic issues were detected:\n\n${DiagnosticTrackingService.formatDiagnosticsSummary(files)}</new-diagnostics>`
+  }
+
   /**
    * Get the severity symbol for a diagnostic
    */

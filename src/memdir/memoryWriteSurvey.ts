@@ -1,18 +1,23 @@
-import { randomBytes, randomUUID } from 'crypto'
-import { copyFile, readFile, rename, unlink, writeFile } from 'fs/promises'
+import { randomUUID } from 'crypto'
+import { readFile, unlink } from 'fs/promises'
 import { basename, dirname, sep } from 'path'
 import type { StructuredPatchHunk } from 'diff'
 import { z } from 'zod/v4'
 import { getIsRemoteMode } from '../bootstrap/state.js'
+import { stringWidth } from '../ink/stringWidth.js'
+import { wrapAnsi } from '../ink/wrapAnsi.js'
 import { getDynamicConfig_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { isPolicyAllowed } from '../services/policyLimits/index.js'
 import { isENOENT, toError } from '../utils/errors.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { parseFrontmatter } from '../utils/frontmatterParser.js'
 import { logForDebugging } from '../utils/debug.js'
+import sliceAnsi from '../utils/sliceAnsi.js'
 import { getAutoMemEntrypoint, getAutoMemPath, isAutoMemoryEnabled } from './paths.js'
 
 const MEMORY_ENTRYPOINT = 'MEMORY.md'
 const CONFIG_NAME = 'tengu_slate_siskin'
+const DIFF_PREFIX_WIDTH = 6
 
 export type MemoryWriteSurveyConfig = {
   enabled: boolean
@@ -119,13 +124,143 @@ export function removeMemoryWriteRecord(
   return filtered.length === queue.length ? queue : filtered
 }
 
-export function countMemoryWriteLines(record: MemoryWriteSurveyRecord): number {
-  if (record.isEdit) {
-    let count = 0
-    for (const hunk of record.structuredPatch) count += hunk.lines.length
-    return count
+function countDisplayRows(text: string, width: number): number {
+  const unbounded = width <= 0 || !Number.isFinite(width)
+  let rows = 0
+  let offset = 0
+  while (offset <= text.length) {
+    const newline = text.indexOf('\n', offset)
+    const line =
+      newline === -1 ? text.substring(offset) : text.substring(offset, newline)
+    if (unbounded) {
+      rows++
+    } else {
+      const displayWidth = stringWidth(line)
+      rows += displayWidth === 0 ? 1 : Math.ceil(displayWidth / width)
+    }
+    if (newline === -1) break
+    offset = newline + 1
   }
-  return record.body === '' ? 0 : record.body.split('\n').length
+  return rows
+}
+
+function getDiffContentWidth(width: number): number {
+  return width > DIFF_PREFIX_WIDTH ? width - DIFF_PREFIX_WIDTH : width
+}
+
+function countHunkSeparators(hunks: readonly StructuredPatchHunk[]): number {
+  return Math.max(0, hunks.length - 1)
+}
+
+export function countMemoryWriteLines(
+  record: MemoryWriteSurveyRecord,
+  width: number,
+): number {
+  if (record.isEdit) {
+    const contentWidth = getDiffContentWidth(width)
+    let rows = countHunkSeparators(record.structuredPatch)
+    for (const hunk of record.structuredPatch) {
+      rows += countDisplayRows(hunk.lines.join('\n'), contentWidth)
+    }
+    return rows
+  }
+  if (record.body === '') return 0
+  return countDisplayRows(record.body, width)
+}
+
+export function truncateMemoryWriteContent(
+  text: string,
+  width: number,
+  maxRows: number,
+): { text: string; hiddenRows: number } {
+  if (text === '') return { text: '', hiddenRows: 0 }
+  if (maxRows <= 0) {
+    return { text: '', hiddenRows: countDisplayRows(text, width) }
+  }
+  if (width <= 0) {
+    const lines = text.split('\n')
+    const visible = lines.slice(0, maxRows)
+    return {
+      text: visible.join('\n'),
+      hiddenRows: lines.length - visible.length,
+    }
+  }
+  if (countDisplayRows(text, width) <= maxRows) {
+    return { text, hiddenRows: 0 }
+  }
+
+  const visibleRows: string[] = []
+  let totalRows = 0
+  for (const line of text.split('\n')) {
+    if (visibleRows.length < maxRows) {
+      const wrapped = wrapDisplayLine(line, width)
+      totalRows += wrapped.length
+      for (let i = 0; i < wrapped.length && visibleRows.length < maxRows; i++) {
+        visibleRows.push(wrapped[i]!)
+      }
+    } else {
+      totalRows += countDisplayRows(line, width)
+    }
+  }
+  return {
+    text: visibleRows.join('\n'),
+    hiddenRows: totalRows - visibleRows.length,
+  }
+}
+
+export function truncateMemoryWriteHunks(
+  hunks: StructuredPatchHunk[],
+  width: number,
+  maxRows: number,
+): { hunks: StructuredPatchHunk[]; hiddenRows: number } {
+  const contentWidth = getDiffContentWidth(width)
+  const separatorRows = countHunkSeparators(hunks)
+  const countRows = (values: readonly StructuredPatchHunk[]): number => {
+    let rows = 0
+    for (const hunk of values) {
+      rows += countDisplayRows(hunk.lines.join('\n'), contentWidth)
+    }
+    return rows
+  }
+
+  if (maxRows <= 0) {
+    return { hunks: [], hiddenRows: countRows(hunks) + separatorRows }
+  }
+  const totalRows = countRows(hunks) + separatorRows
+  if (totalRows <= maxRows) return { hunks, hiddenRows: 0 }
+
+  const visibleHunks: StructuredPatchHunk[] = []
+  let remainingRows = maxRows
+  for (const hunk of hunks) {
+    if (remainingRows <= 0) break
+    if (visibleHunks.length > 0) {
+      if (remainingRows <= 1) break
+      remainingRows--
+    }
+    const lines: string[] = []
+    for (const line of hunk.lines) {
+      if (remainingRows <= 0) break
+      const lineRows = countDisplayRows(line, contentWidth)
+      if (lineRows <= remainingRows) {
+        lines.push(line)
+        remainingRows -= lineRows
+        continue
+      }
+      lines.push(sliceAnsi(line, 0, remainingRows * contentWidth))
+      remainingRows = 0
+    }
+    if (lines.length > 0) visibleHunks.push({ ...hunk, lines })
+  }
+  return { hunks: visibleHunks, hiddenRows: totalRows - maxRows }
+}
+
+function wrapDisplayLine(line: string, width: number): string[] {
+  if (line === '') return ['']
+  return wrapAnsi(line, width, {
+    hard: true,
+    wordWrap: false,
+    trim: false,
+  }).split('\n')
 }
 
 export function describeMemoryWrite(record: MemoryWriteSurveyRecord): string {
@@ -158,7 +293,7 @@ export async function undoMemoryWrite(
       return
     }
     if (record.isEdit && record.beforeContent !== null) {
-      await atomicWriteUtf8(record.filePath, record.beforeContent)
+      await atomicWriteFile(record.filePath, record.beforeContent)
       return
     }
     await unlink(record.filePath)
@@ -198,31 +333,5 @@ async function removeMemoryEntrypointLink(filePath: string): Promise<void> {
   const lines = contents.split('\n')
   const filtered = lines.filter(line => !lineLinksToFile(line, filename))
   if (filtered.length === lines.length) return
-  await atomicWriteUtf8(entrypoint, filtered.join('\n'))
-}
-
-async function atomicWriteUtf8(path: string, contents: string): Promise<void> {
-  const temporary = `${path}.tmp.${randomBytes(4).toString('hex')}`
-  try {
-    await writeFile(temporary, contents, 'utf8')
-    try {
-      await rename(temporary, path)
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code
-      if (
-        code === 'EXDEV' ||
-        code === 'EPERM' ||
-        code === 'EEXIST' ||
-        code === 'EBUSY'
-      ) {
-        await copyFile(temporary, path)
-        await unlink(temporary).catch(() => {})
-      } else {
-        throw error
-      }
-    }
-  } catch (error) {
-    await unlink(temporary).catch(() => {})
-    throw error
-  }
+  await atomicWriteFile(entrypoint, filtered.join('\n'))
 }

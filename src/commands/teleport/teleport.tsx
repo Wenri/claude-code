@@ -1,26 +1,52 @@
-import React from 'react'
+import * as React from 'react'
 import { TeleportResumeWrapper } from '../../components/TeleportResumeWrapper.js'
-import type { LocalJSXCommandCall } from '../../types/command.js'
+import { useAppStateStore } from '../../state/AppState.js'
+import type {
+  LocalJSXCommandCall,
+  LocalJSXCommandContext,
+  LocalJSXCommandOnDone,
+} from '../../types/command.js'
+import type { TeleportRemoteResponse } from '../../utils/conversationRecovery.js'
 
-type TeleportProps = {
-  onExit: Parameters<LocalJSXCommandCall>[0]
-  context: Parameters<LocalJSXCommandCall>[1]
-}
+export const Teleport = ({
+  onExit,
+  context,
+}: {
+  onExit: LocalJSXCommandOnDone
+  context: LocalJSXCommandContext
+}) => {
+  const appStateStore = useAppStateStore()
+  const [_startedInBridgeSession] = React.useState(() =>
+    Boolean(appStateStore.getState().replBridgeSessionId),
+  )
+  const onComplete = React.useCallback(
+    (result: TeleportRemoteResponse) => {
+      context.applyMessageOp({
+        type: 'replace-all',
+        messages: result.log,
+      })
+      onExit('Session resumed successfully', { display: 'system' })
+    },
+    [context, onExit],
+  )
 
-export function Teleport({ onExit, context }: TeleportProps): React.ReactNode {
+  const onCancel = React.useCallback(() => {
+    onExit('Teleport cancelled', { display: 'system' })
+  }, [onExit])
+
+  const onError = React.useCallback(
+    (error: string) => {
+      onExit(error, { display: 'system' })
+    },
+    [onExit],
+  )
+
   return (
     <TeleportResumeWrapper
-      onComplete={result => {
-        context.applyMessageOp({ type: 'replace-all', messages: result.log })
-        onExit('Session resumed successfully', { display: 'system' })
-      }}
-      onCancel={() => {
-        onExit('Teleport cancelled', { display: 'system' })
-      }}
-      onError={error => {
-        onExit(error, { display: 'system' })
-      }}
-      isEmbedded={true}
+      onComplete={onComplete}
+      onCancel={onCancel}
+      onError={onError}
+      isEmbedded
       source="localCommand"
     />
   )

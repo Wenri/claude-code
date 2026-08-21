@@ -31,7 +31,6 @@ import {
   isAutoMemPath,
   isTinyMemoryEnabled,
 } from '../../memdir/paths.js'
-import { parseForSecurity } from '../../utils/bash/ast.js'
 import type { Tool } from '../../Tool.js'
 import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
 import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'

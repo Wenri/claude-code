@@ -45,7 +45,7 @@ export type HeadlessPluginInstallProgress =
   | { status: 'failed'; name: string; error: string }
 
 export async function installPluginsForHeadless(
-  onProgress?: (progress: HeadlessPluginInstallProgress) => void,
+  onProgress?: (event: HeadlessPluginInstallProgress) => void,
 ): Promise<boolean> {
   const zipCacheMode = isPluginZipCacheEnabled()
   logForDebugging(

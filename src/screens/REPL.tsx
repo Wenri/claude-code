@@ -72,6 +72,12 @@ import { getSystemPrompt } from '../constants/prompts.js';
 import { buildEffectiveSystemPrompt } from '../utils/systemPrompt.js';
 import { getSystemContext, getUserContext } from '../context.js';
 import { getMemoryFiles } from '../utils/claudemd.js';
+import { createMemorySelector } from '../memdir/findRelevantMemories.js';
+import { getSessionEnvVars } from '../utils/sessionEnvVars.js';
+import { DEFAULT_TMUX_SOCKET } from '../utils/tmuxSocket.js';
+import { createAgentLifecycle } from '../utils/agentLifecycle.js';
+import { makeSetClassifierApprovals } from '../utils/classifierApprovals.js';
+import { createTeammateColors } from '../utils/swarm/teammateLayoutManager.js';
 import { startBackgroundHousekeeping } from '../utils/backgroundHousekeeping.js';
 import { getTotalCost, saveCurrentSessionCosts, resetCostState, getStoredSessionCosts } from '../cost-tracker.js';
 import { useCostSummary } from '../costHook.js';
@@ -124,7 +130,7 @@ const getCoordinatorUserContext: (mcpClients: ReadonlyArray<{
 } = feature('COORDINATOR_MODE') ? require('../coordinator/coordinatorMode.js').getCoordinatorUserContext : () => ({});
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import useCanUseTool from '../hooks/useCanUseTool.js';
-import type { ToolPermissionContext, Tool, ToolProgressEvent } from '../Tool.js';
+import type { ApiMetricsEvent, ToolPermissionContext, Tool, ToolProgressEvent } from '../Tool.js';
 import { renderToolProgress } from '../components/ToolProgress.js';
 import { applyPermissionUpdate, applyPermissionUpdates, persistPermissionUpdate } from '../utils/permissions/PermissionUpdate.js';
 import { buildPermissionUpdates } from '../components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.js';
@@ -139,7 +145,9 @@ import { getConfigValue } from '../utils/settings/configSettings.js';
 import { hasConsoleBillingAccess } from '../utils/billing.js';
 import { logEvent, type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/index.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
-import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags } from '../utils/messages.js';
+import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, appendOrReplaceMessageByUuid, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags, stripOldToolResultsForStorage } from '../utils/messages.js';
+import { tokenCountWithEstimation } from '../utils/tokens.js';
+import { applyMessageOperation, type MessageOperation } from '../utils/messageOperations.js';
 import { generateSessionTitle } from '../utils/sessionTitle.js';
 import { BASH_INPUT_TAG, COMMAND_MESSAGE_TAG, COMMAND_NAME_TAG, LOCAL_COMMAND_STDERR_TAG, LOCAL_COMMAND_STDOUT_TAG } from '../constants/xml.js';
 import { escapeXml } from '../utils/xml.js';
@@ -150,6 +158,7 @@ import { useQueueProcessor } from '../hooks/useQueueProcessor.js';
 import { useWakeRouter } from '../hooks/useWakeRouter.js';
 import { useMailboxBridge } from '../hooks/useMailboxBridge.js';
 import { queryCheckpoint, logQueryProfileReport } from '../utils/queryProfiler.js';
+import { createTaskRegistry } from '../utils/task/framework.js';
 import type { Message as MessageType, UserMessage, ProgressMessage, HookResultMessage, PartialCompactDirection } from '../types/message.js';
 import { query } from '../query.js';
 import { mergeClients, useMergedClients } from '../hooks/useMergedClients.js';
@@ -158,6 +167,7 @@ import { useMergedTools } from '../hooks/useMergedTools.js';
 import { mergeAndFilterTools } from '../utils/toolPool.js';
 import { useMergedCommands } from '../hooks/useMergedCommands.js';
 import { useSkillsChange } from '../hooks/useSkillsChange.js';
+import { useSkillTools } from '../hooks/useSkillTools.js';
 import { useManagePlugins } from '../hooks/useManagePlugins.js';
 import { Messages } from '../components/Messages.js';
 import {
@@ -185,21 +195,23 @@ import type { ContentBlockParam, ImageBlockParam } from '@anthropic-ai/sdk/resou
 import type { ProcessUserInputContext } from '../utils/processUserInput/processUserInput.js';
 import type { PastedContent } from '../utils/config.js';
 import { copyPlanForFork, copyPlanForResume, getCachedPlanSlug, setPlanSlug } from '../utils/plans.js';
-import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionTitle, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript, savePermissionMode } from '../utils/sessionStorage.js';
+import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionAiTitle, getCurrentSessionAgentName, getCurrentSessionTitle, subscribeSessionAgentNameChanged, subscribeSessionTitleChanged, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript, savePermissionMode, getCurrentSessionIsolationLatch, saveIsolationLatch } from '../utils/sessionStorage.js';
 import { deserializeMessages } from '../utils/conversationRecovery.js';
 import { extractReadFilesFromMessages, extractBashToolsFromMessages } from '../utils/queryHelpers.js';
 import { applyToolResultClears, resetMicrocompactState } from '../services/compact/microCompact.js';
 import { getResumeReturnInfo } from '../utils/resumeReturn.js';
 import { runPostCompactCleanup } from '../services/compact/postCompactCleanup.js';
 import { reconstructResultDedupState, resetResultDedupState } from '../services/tools/resultDedup.js';
-import { getIsolationClassFromMessages } from '../services/tools/toolIsolation.js';
+import { createToolIsolationLatch, getIsolationClassFromMessages } from '../services/tools/toolIsolation.js';
 import { ConnectionLifecycleTracker } from '../services/api/connectionState.js';
 import { provisionContentReplacementState, reconstructContentReplacementState, type ContentReplacementRecord } from '../utils/toolResultStorage.js';
 import { partialCompactConversation } from '../services/compact/compact.js';
 import type { LogOption } from '../types/logs.js';
 import type { AgentColorName } from '../tools/AgentTool/agentColorManager.js';
-import { fileHistoryMakeSnapshot, type FileHistoryState, fileHistoryRewind, type FileHistorySnapshot, copyFileHistoryForResume, fileHistoryEnabled, fileHistoryHasAnyChanges } from '../utils/fileHistory.js';
-import { type AttributionState, incrementPromptCount } from '../utils/commitAttribution.js';
+import { applyFileHistoryOp as reduceFileHistoryOp, fileHistoryMakeSnapshot, fileHistoryRewind, type FileHistorySnapshot, copyFileHistoryForResume, fileHistoryEnabled, fileHistoryHasAnyChanges } from '../utils/fileHistory.js';
+import { applyAttributionOp as reduceAttributionOp, incrementPromptCount } from '../utils/commitAttribution.js';
+import { makeSessionHooksRegistry } from '../utils/hooks/sessionHooks.js';
+import { makeSetWebBrowserSlice } from '../utils/webBrowserState.js';
 import { recordAttributionSnapshot } from '../utils/sessionStorage.js';
 import { computeStandaloneAgentContext, restoreAgentFromSession, restoreSessionStateFromLog, restoreWorktreeForResume, exitRestoredWorktree } from '../utils/sessionRestore.js';
 import { restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
@@ -253,11 +265,9 @@ import { usePostCompactSurvey } from 'src/components/FeedbackSurvey/usePostCompa
 import { FeedbackSurvey } from 'src/components/FeedbackSurvey/FeedbackSurvey.js';
 import { MemoryWriteSurvey } from 'src/components/FeedbackSurvey/MemoryWriteSurvey.js';
 import { useMemoryWriteSurvey } from 'src/components/FeedbackSurvey/useMemoryWriteSurvey.js';
-import { useInstallMessages } from 'src/hooks/notifs/useInstallMessages.js';
+import { useStartupNotifications } from 'src/hooks/notifs/useStartupNotifications.js';
 import { useRemoteControlIdleUpsell } from '../hooks/useRemoteControlIdleUpsell.js';
 import { useAwaySummary } from 'src/hooks/useAwaySummary.js';
-import { useChromeExtensionNotification } from 'src/hooks/useChromeExtensionNotification.js';
-import { useOfficialMarketplaceNotification } from 'src/hooks/useOfficialMarketplaceNotification.js';
 import { usePromptsFromClaudeInChrome } from 'src/hooks/usePromptsFromClaudeInChrome.js';
 import { getTipToShowOnSpinner, recordShownTip } from 'src/services/tips/tipScheduler.js';
 import type { Theme } from 'src/utils/theme.js';
@@ -290,12 +300,10 @@ import { UserTextMessage } from 'src/components/messages/UserTextMessage.js';
 import { AwsAuthStatusBox } from '../components/AwsAuthStatusBox.js';
 import { useRateLimitWarningNotification } from 'src/hooks/notifs/useRateLimitWarningNotification.js';
 import { useDeprecationWarningNotification } from 'src/hooks/notifs/useDeprecationWarningNotification.js';
-import { useNpmDeprecationNotification } from 'src/hooks/notifs/useNpmDeprecationNotification.js';
 import { useIDEStatusIndicator } from 'src/hooks/notifs/useIDEStatusIndicator.js';
-import { useModelMigrationNotifications } from 'src/hooks/notifs/useModelMigrationNotifications.js';
-import { useCanSwitchToExistingSubscription } from 'src/hooks/notifs/useCanSwitchToExistingSubscription.js';
 import { useTeammateLifecycleNotification } from 'src/hooks/notifs/useTeammateShutdownNotification.js';
 import { useFastModeNotification } from 'src/hooks/notifs/useFastModeNotification.js';
+import { useSkillTruncationNotification } from 'src/hooks/notifs/useSkillTruncationNotification.js';
 import { useAdvisorNotification } from 'src/hooks/notifs/useAdvisorNotification.js';
 import { AutoRunIssueNotification, shouldAutoRunIssue, getAutoRunIssueReasonText, getAutoRunCommand, type AutoRunIssueReason } from '../utils/autoRunIssue.js';
 import type { HookProgress } from '../types/hooks.js';
@@ -739,6 +747,8 @@ export function REPL({
     });
   }, [viewingAgentTaskId, needsBootstrap, setAppState]);
   const store = useAppStateStore();
+  const teammateColors = useMemo(() => createTeammateColors(() => store.getState(), setAppState), [store, setAppState]);
+  const taskRegistry = useMemo(() => createTaskRegistry(() => store.getState(), setAppState), [store, setAppState]);
   const terminal = useTerminalNotification();
   const mainLoopModel = useMainLoopModel();
 
@@ -811,8 +821,7 @@ export function REPL({
   const showRemoteCallout = useAppState(s => s.showRemoteCallout);
   const [showDesktopUpsellStartup, setShowDesktopUpsellStartup] = useState(() => shouldShowDesktopUpsellStartup());
   // notifications
-  useModelMigrationNotifications();
-  useCanSwitchToExistingSubscription();
+  useStartupNotifications();
   useIDEStatusIndicator({
     ideSelection,
     mcpClients,
@@ -829,11 +838,9 @@ export function REPL({
   useFastModeNotification();
   useAdvisorNotification();
   useDeprecationWarningNotification(mainLoopModel);
-  useNpmDeprecationNotification();
+  useSkillTools();
+  useSkillTruncationNotification();
   useAntOrgWarningNotification();
-  useInstallMessages();
-  useChromeExtensionNotification();
-  useOfficialMarketplaceNotification();
   useLspInitializationNotification();
   useTeammateLifecycleNotification();
   const {
@@ -1244,14 +1251,29 @@ export function REPL({
   // the agent name, which wins over the Haiku-extracted topic;
   // all fall back to the product name.
   const terminalTitleFromRename = useAppState(s => s.settings.terminalTitleFromRename) !== false;
-  const sessionTitle = terminalTitleFromRename ? getCurrentSessionTitle(getSessionId()) : undefined;
+  const sessionTitle = React.useSyncExternalStore(subscribeSessionTitleChanged, () => terminalTitleFromRename ? getCurrentSessionTitle(getSessionId()) : undefined);
+  const aiTitle = React.useSyncExternalStore(subscribeSessionTitleChanged, () => getCurrentSessionAiTitle(getSessionId()));
+  useEffect(() => subscribeSessionAgentNameChanged(() => {
+    const agentName = getCurrentSessionAgentName();
+    if (!agentName) return;
+    setAppState(prev => {
+      if (prev.standaloneAgentContext?.name === agentName) return prev;
+      return {
+        ...prev,
+        standaloneAgentContext: {
+          ...prev.standaloneAgentContext,
+          name: agentName
+        }
+      };
+    });
+  }), [setAppState]);
   const [haikuTitle, setHaikuTitle] = useState<string>();
   // Gates the one-shot Haiku call that generates the tab title. Seeded true
   // on resume (initialMessages present) so we don't re-title a resumed
   // session from mid-conversation context.
   const haikuTitleAttemptedRef = useRef((initialMessages?.length ?? 0) > 0);
   const agentTitle = mainThreadAgentDefinition?.agentType;
-  const terminalTitle = sessionTitle ?? agentTitle ?? haikuTitle ?? 'Claude Code';
+  const terminalTitle = sessionTitle ?? aiTitle ?? agentTitle ?? haikuTitle ?? 'Claude Code';
   const isWaitingForApproval = toolUseConfirmQueue.length > 0 || promptQueue.length > 0 || pendingWorkerRequest || pendingSandboxRequest;
   // Local-jsx commands (like /plugin, /config) show user-facing dialogs that
   // wait for input. Require jsx != null — if the flag is stuck true but jsx
@@ -1309,11 +1331,7 @@ export function REPL({
   }, [setToolUseConfirmQueue]);
   const [messages, rawSetMessages] = useState<MessageType[]>(initialMessages ?? []);
   const messagesRef = useRef(messages);
-  // Stores the willowMode variant that was shown (or false if no hint shown).
-  // Captured at hint_shown time so hint_converted telemetry reports the same
-  // variant — the GrowthBook value shouldn't change mid-session, but reading
-  // it once guarantees consistency between the paired events.
-  const idleHintShownRef = useRef<string | false>(false);
+  const idleHintShownRef = useRef(false);
   // Wrap setMessages so messagesRef is always current the instant the
   // call returns — not when React later processes the batch.  Apply the
   // updater eagerly against the ref, then hand React the computed value
@@ -1348,6 +1366,9 @@ export function REPL({
     }
     rawSetMessages(next);
   }, []);
+  const applyMessageOp = useCallback((operation: MessageOperation) => {
+    setMessages(previous => applyMessageOperation(previous, operation));
+  }, [setMessages]);
   useEffect(() => {
     setToolProgress(current => {
       if (current.size === 0) return current;
@@ -1393,6 +1414,8 @@ export function REPL({
     shiftDivider
   } = useUnseenDivider(messages.length);
   const [cursor, setCursor] = useState<MessageActionsState | null>(null);
+  const cursorRef = useRef(cursor);
+  cursorRef.current = cursor;
   const cursorNavRef = useRef<MessageActionsNav | null>(null);
   // Memoized so Messages' React.memo holds.
   const unseenDivider = useMemo(() => computeUnseenDivider(messages, dividerIndex),
@@ -1401,13 +1424,17 @@ export function REPL({
   // Re-pin scroll to bottom and clear the unseen-messages baseline. Called
   // on any user-driven return-to-live action (submit, type-into-empty,
   // overlay appear/dismiss).
-  const repinScroll = useCallback((force = false) => {
+  const repinScroll = useCallback((force = false, reason = '?') => {
     if (!force && !getConfigValue('autoScrollEnabled', true).value) return;
-    scrollRef.current?.scrollToBottom();
+    const scrollHandle = scrollRef.current;
+    if (scrollHandle && !scrollHandle.isSticky()) {
+      logForDebugging(`repinScroll(${reason}, force=${force}): yanking from scrollTop=${scrollHandle.getScrollTop()} (max=${Math.max(0, scrollHandle.getScrollHeight() - scrollHandle.getViewportHeight())})`);
+    }
+    scrollHandle?.scrollToBottom();
     onRepin();
     hasScrolledAwayRef.current = false;
-    setCursor(null);
-  }, [onRepin, setCursor]);
+    if (cursorRef.current !== null) setCursor(null);
+  }, [onRepin]);
   // Backstop for the submit-handler repin at onSubmit. If a buffered stdin
   // event (wheel/drag) races between handler-fire and state-commit, the
   // handler's scrollToBottom can be undone. This effect fires on the render
@@ -1418,7 +1445,7 @@ export function REPL({
   const lastMsgIsHuman = lastMsg != null && isHumanTurn(lastMsg);
   useEffect(() => {
     if (lastMsgIsHuman) {
-      repinScroll();
+      repinScroll(false, 'lastMsgIsHuman');
     }
   }, [lastMsgIsHuman, lastMsg, repinScroll]);
   // Assistant-chat: lazy-load remote history on scroll-up. No-op unless
@@ -1504,7 +1531,7 @@ export function REPL({
     // Preserve a deliberate scroll-away until the user explicitly returns
     // to the live edge, regardless of how long they spend reading there.
     if (inputValueRef.current === '' && value !== '' && !hasScrolledAwayRef.current) {
-      repinScroll();
+      repinScroll(false, 'typedIntoEmpty');
     }
     // Sync ref immediately (like setMessages) so callers that read
     // inputValueRef before React commits — e.g. the auto-restore finally
@@ -1537,6 +1564,64 @@ export function REPL({
   const [inProgressToolUseIDs, setInProgressToolUseIDs] = useState<Set<string>>(new Set());
   const hasInterruptibleToolInProgressRef = useRef(false);
 
+  // Ref instead of state to avoid triggering React re-renders on every
+  // streaming text_delta. The spinner reads this via its animation timer.
+  const responseLengthRef = useRef(0);
+  // API performance metrics ref for ant-only spinner display (TTFT/OTPS).
+  // Accumulates metrics from all API requests in a turn for P50 aggregation.
+  const apiMetricsRef = useRef<Array<{
+    id?: string;
+    ttftMs: number;
+    firstTokenTime: number;
+    lastTokenTime: number;
+    responseLengthBaseline: number;
+    endResponseLength: number;
+    outputTokens?: number;
+  }>>([]);
+  const addResponseLength = useCallback((length: number) => {
+    responseLengthRef.current += length;
+    const entries = apiMetricsRef.current;
+    if (length > 0 && entries.length > 0) {
+      const lastEntry = entries.at(-1)!;
+      if (lastEntry.outputTokens == null) {
+        lastEntry.lastTokenTime = Date.now();
+        lastEntry.endResponseLength = responseLengthRef.current;
+      }
+    }
+  }, []);
+  const resetResponseLength = useCallback(() => {
+    responseLengthRef.current = 0;
+  }, []);
+  const recordApiMetricsEvent = useCallback((event: ApiMetricsEvent) => {
+    if (event.type === 'start') {
+      const now = Date.now();
+      const baseline = responseLengthRef.current;
+      apiMetricsRef.current.push({
+        id: event.id,
+        ttftMs: event.ttftMs,
+        firstTokenTime: now,
+        lastTokenTime: now,
+        responseLengthBaseline: baseline,
+        endResponseLength: baseline
+      });
+      return;
+    }
+
+    const entry = event.id != null
+      ? apiMetricsRef.current.find(candidate => candidate.id === event.id)
+      : apiMetricsRef.current.findLast(candidate => candidate.id == null);
+    if (entry) {
+      entry.outputTokens = event.outputTokens;
+      entry.lastTokenTime = Date.now();
+      if (event.id == null) {
+        responseLengthRef.current = Math.max(
+          responseLengthRef.current,
+          entry.responseLengthBaseline + event.outputTokens * 4
+        );
+      }
+    }
+  }, []);
+
   // Remote session hook - manages WebSocket connection and message handling for --remote mode
   const remoteSession = useRemoteSession({
     config: remoteSessionConfig,
@@ -1548,6 +1633,7 @@ export function REPL({
     setStreamingToolUses,
     setStreamMode,
     setInProgressToolUseIDs,
+    recordApiMetricsEvent,
     permissionMode: toolPermissionContext.mode
   });
 
@@ -1594,38 +1680,6 @@ export function REPL({
   }, [activeRemoteControlTransport]);
   const [pastedContents, setPastedContents] = useState<Record<number, PastedContent>>({});
   const [submitCount, setSubmitCount] = useState(0);
-  // Ref instead of state to avoid triggering React re-renders on every
-  // streaming text_delta. The spinner reads this via its animation timer.
-  const responseLengthRef = useRef(0);
-  // API performance metrics ref for ant-only spinner display (TTFT/OTPS).
-  // Accumulates metrics from all API requests in a turn for P50 aggregation.
-  const apiMetricsRef = useRef<Array<{
-    ttftMs: number;
-    firstTokenTime: number;
-    lastTokenTime: number;
-    responseLengthBaseline: number;
-    // Tracks responseLengthRef at the time of the last content addition.
-    // Updated by both streaming deltas and subagent message content.
-    // lastTokenTime is also updated at the same time, so the OTPS
-    // denominator correctly includes subagent processing time.
-    endResponseLength: number;
-  }>>([]);
-  const setResponseLength = useCallback((f: (prev: number) => number) => {
-    const prev = responseLengthRef.current;
-    responseLengthRef.current = f(prev);
-    // When content is added (not a compaction reset), update the latest
-    // metrics entry so OTPS reflects all content generation activity.
-    // Updating lastTokenTime here ensures the denominator includes both
-    // streaming time AND subagent execution time, preventing inflation.
-    if (responseLengthRef.current > prev) {
-      const entries = apiMetricsRef.current;
-      if (entries.length > 0) {
-        const lastEntry = entries.at(-1)!;
-        lastEntry.lastTokenTime = Date.now();
-        lastEntry.endResponseLength = responseLengthRef.current;
-      }
-    }
-  }, []);
 
   // Streaming text display: set state directly per delta (Ink's 16ms render
   // throttle batches rapid updates). Cleared on message arrival (messages.ts)
@@ -1686,10 +1740,12 @@ export function REPL({
   }));
   const connectionRef = useRef<ConnectionLifecycleTracker | null>(null);
   const [haveShownCostDialog, setHaveShownCostDialog] = useState(getGlobalConfig().hasAcknowledgedCostThreshold);
-  const [vimMode, setVimMode] = useState<VimMode>('INSERT');
   const [showBashesDialog, setShowBashesDialog] = useState<string | boolean>(false);
-  const [isSearchingHistory, setIsSearchingHistory] = useState(false);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isInputOverlayActive, setIsInputOverlayActive] = useState(false);
+  const vimModeRef = useRef<VimMode>('INSERT');
+  const handleVimModeChange = useCallback((mode: VimMode) => {
+    vimModeRef.current = mode;
+  }, []);
 
   // showBashesDialog is REPL-level so it survives PromptInput unmounting.
   // When ultraplan approval fires while the pill dialog is open, PromptInput
@@ -1900,9 +1956,8 @@ export function REPL({
     handleSelect: (selected: 'dismissed' | 'bad' | 'fine' | 'good') => {
       // Reset the ref when a new survey response comes in
       didAutoRunIssueRef.current = false;
-      const showedTranscriptPrompt = feedbackSurveyOriginal.handleSelect(selected);
-      // Auto-run /issue for "bad" if transcript prompt wasn't shown
-      if (selected === 'bad' && !showedTranscriptPrompt && shouldAutoRunIssue('feedback_survey_bad')) {
+      feedbackSurveyOriginal.handleSelect(selected);
+      if (selected === 'bad' && shouldAutoRunIssue('feedback_survey_bad')) {
         setAutoRunIssueReason('feedback_survey_bad');
         didAutoRunIssueRef.current = true;
       }
@@ -2016,10 +2071,6 @@ export function REPL({
 
       // Restore read file state from the message history
       restoreReadFileState(messages, log.projectPath ?? getOriginalCwd());
-      if (entrypoint !== 'fork') {
-        isolationLatchRef.current = getIsolationClassFromMessages(messages, tools);
-      }
-
       // Clear any active loading state (no queryId since we're not in a query)
       resetLoadingState();
       setAbortController(null);
@@ -2073,6 +2124,8 @@ export function REPL({
         exitRestoredWorktree();
         restoreWorktreeForResume(log.worktreeSession);
         adoptResumedSessionFile();
+        isolationLatchRef.current.onLatch = undefined;
+        isolationLatchRef.current = createToolIsolationLatch(log.isolationLatch ?? getIsolationClassFromMessages(messages, tools), saveIsolationLatch);
         void restoreRemoteAgentTasks({
           abortController: new AbortController(),
           getAppState: () => store.getState(),
@@ -2085,6 +2138,9 @@ export function REPL({
         // and the process is still in the same worktree.
         const ws = getCurrentWorktreeSession();
         if (ws) saveWorktreeState(ws);
+        if (isolationLatchRef.current.current) {
+          saveIsolationLatch(isolationLatchRef.current.current);
+        }
       }
 
       // Persist the current mode so future resumes know what mode this session was in
@@ -2160,12 +2216,16 @@ export function REPL({
   // before onQuery builds its own context, and discovery on turn N must
   // still attribute a SkillTool call on turn N+k. Cleared in clearConversation.
   const discoveredSkillNamesRef = useRef(new Set<string>());
+  const discoveredRemoteSkillsRef = useRef(new Map<string, unknown>());
   const bashRerunAliasesRef = useRef(createBashRerunAliases());
   // Session-level dedup for nested_memory CLAUDE.md attachments.
   // readFileState is a 100-entry LRU; once it evicts a CLAUDE.md path,
   // the next discovery cycle re-injects it. Cleared in clearConversation.
   const loadedNestedMemoryPathsRef = useRef(new Set<string>());
-  const isolationLatchRef = useRef<'web' | 'connectors' | null>(null);
+  const memorySelectorRef = useRef(createMemorySelector());
+  const sessionEnvVarsRef = useRef(getSessionEnvVars());
+  const tmuxSocketRef = useRef(DEFAULT_TMUX_SOCKET);
+  const isolationLatchRef = useRef(createToolIsolationLatch(null, saveIsolationLatch));
 
   // Helper to restore read file state from messages (used for resume flows)
   // This allows Claude to edit files that were read in previous sessions
@@ -2183,7 +2243,7 @@ export function REPL({
   useEffect(() => {
     if (initialMessages && initialMessages.length > 0) {
       restoreReadFileState(initialMessages, getOriginalCwd());
-      isolationLatchRef.current = getIsolationClassFromMessages(initialMessages, tools);
+      isolationLatchRef.current = createToolIsolationLatch(getCurrentSessionIsolationLatch() ?? getIsolationClassFromMessages(initialMessages, tools), saveIsolationLatch);
       setResumeReturnPending(getResumeReturnInfo(initialMessages));
       void restoreRemoteAgentTasks({
         abortController: new AbortController(),
@@ -2315,12 +2375,12 @@ export function REPL({
         scrollHandle && !scrollHandle.isSticky()
           ? scrollHandle.getScrollTop()
           : null;
-      repinScroll(true);
+      repinScroll(true, 'permissionDialogAppear');
     } else if (prePermissionScrollTopRef.current !== null) {
       scrollHandle?.scrollTo(prePermissionScrollTopRef.current);
       prePermissionScrollTopRef.current = null;
     } else {
-      repinScroll(true);
+      repinScroll(true, 'permissionDialogDismiss');
     }
   }, [focusedInputDialog, repinScroll]);
   const hasToolJsx = toolJSX?.jsx != null;
@@ -2330,7 +2390,7 @@ export function REPL({
       previousHasToolJsxRef.current !== hasToolJsx &&
       (scrollRef.current?.isSticky() ?? true)
     ) {
-      repinScroll(false);
+      repinScroll(false, `toolJsxDialog→${hasToolJsx}`);
     }
     previousHasToolJsxRef.current = hasToolJsx;
   }, [hasToolJsx, repinScroll]);
@@ -2425,12 +2485,10 @@ export function REPL({
     isExternalLoading,
     popCommandFromQueue: handleQueuedCommandOnCancel,
     getConnectionSummary: () => connectionRef.current?.summary(),
-    vimMode,
     isLocalJSXCommand: toolJSX?.isLocalJSXCommand,
-    isSearchingHistory,
-    isHelpOpen,
+    isInputOverlayActive,
     inputMode,
-    inputValue,
+    isInputEmpty: inputValue === '',
     streamMode
   };
   useEffect(() => {
@@ -2636,7 +2694,9 @@ export function REPL({
     // for mid-query tool list updates.
     const computeTools = () => {
       const state = store.getState();
-      const assembled = assembleToolPool(state.toolPermissionContext, state.mcp.tools);
+      const assembled = assembleToolPool(state.toolPermissionContext, state.mcp.tools, {
+        skillTools: state.skillTools
+      });
       const merged = mergeAndFilterTools(combinedInitialTools, assembled, state.toolPermissionContext.mode);
       if (!mainThreadAgentDefinition) return merged;
       return resolveAgentTools(mainThreadAgentDefinition, merged, false, true).resolvedTools;
@@ -2670,21 +2730,51 @@ export function REPL({
       },
       getAppState: () => store.getState(),
       getToolPermissionContext: () => store.getState().toolPermissionContext,
+      getEffortValue: () => store.getState().effortValue,
+      getAutoCompactWindow: () => store.getState().autoCompactWindow,
+      getFastMode: () => store.getState().fastMode,
+      getCacheBreakerPhrase: () => store.getState().cacheBreakerPhrase,
+      sessionEnvVars: sessionEnvVarsRef.current,
+      tmuxSocket: tmuxSocketRef.current,
       setAppState,
+      setToolPermissionContext: value =>
+        setAppState(previous => {
+          const next =
+            typeof value === 'function'
+              ? value(previous.toolPermissionContext)
+              : value
+          return next === previous.toolPermissionContext
+            ? previous
+            : { ...previous, toolPermissionContext: next }
+        }),
+      setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
+      setWebBrowserSlice: makeSetWebBrowserSlice(setAppState),
+      setComputerUseMcpState(updater) {
+        setAppState(prev => {
+          const computerUseMcpState = updater(prev.computerUseMcpState);
+          return computerUseMcpState === prev.computerUseMcpState ? prev : {
+            ...prev,
+            computerUseMcpState
+          };
+        });
+      },
+      agentLifecycle: createAgentLifecycle(setAppState),
+      teammateColors,
+      taskRegistry,
+      sessionHooksRegistry: makeSessionHooksRegistry(setAppState),
       replHydration: {
         kind: 'resume'
       },
-      isolationLatch: isolationLatchRef,
+      isolationLatch: isolationLatchRef.current,
       messages,
       turnStartIndex: 0,
       setMessages,
-      updateFileHistoryState(updater: (prev: FileHistoryState) => FileHistoryState) {
-        // Perf: skip the setState when the updater returns the same reference
-        // (e.g. fileHistoryTrackEdit returns `state` when the file is already
-        // tracked). Otherwise every no-op call would notify all store listeners.
+      applyMessageOp,
+      getFileHistoryState: () => store.getState().fileHistory,
+      applyFileHistoryOp(operation) {
         setAppState(prev => {
-          const updated = updater(prev.fileHistory);
+          const updated = reduceFileHistoryOp(prev.fileHistory, operation);
           if (updated === prev.fileHistory) return prev;
           return {
             ...prev,
@@ -2692,9 +2782,9 @@ export function REPL({
           };
         });
       },
-      updateAttributionState(updater: (prev: AttributionState) => AttributionState) {
+      applyAttributionOp(operation) {
         setAppState(prev => {
-          const updated = updater(prev.attribution);
+          const updated = reduceAttributionOp(prev.attribution, operation);
           if (updated === prev.attribution) return prev;
           return {
             ...prev,
@@ -2712,7 +2802,10 @@ export function REPL({
       setToolJSX,
       emitToolProgress,
       addNotification,
-      appendSystemMessage: msg => setMessages(prev => [...prev, msg]),
+      appendSystemMessage: msg => applyMessageOp({
+        type: 'append',
+        messages: [msg]
+      }),
       applyHintClears: (clearedIds, clearedContent) => {
         setMessages(prev => applyToolResultClears(prev, clearedIds, clearedContent));
       },
@@ -2723,21 +2816,14 @@ export function REPL({
       onInstallIDEExtension: setIDEToInstallExtension,
       nestedMemoryAttachmentTriggers: new Set<string>(),
       loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
+      memorySelector: memorySelectorRef.current,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: discoveredSkillNamesRef.current,
+      discoveredRemoteSkills: discoveredRemoteSkillsRef.current,
       bashRerunAliases: bashRerunAliasesRef.current,
-      setResponseLength,
-      pushApiMetricsEntry: "external" === 'ant' ? (ttftMs: number) => {
-        const now = Date.now();
-        const baseline = responseLengthRef.current;
-        apiMetricsRef.current.push({
-          ttftMs,
-          firstTokenTime: now,
-          lastTokenTime: now,
-          responseLengthBaseline: baseline,
-          endResponseLength: baseline
-        });
-      } : undefined,
+      addResponseLength,
+      resetResponseLength,
+      pushApiMetricsEntry: "external" === 'ant' ? recordApiMetricsEvent : undefined,
       setStreamMode,
       onCompactProgress: event => {
         switch (event.type) {
@@ -2770,7 +2856,7 @@ export function REPL({
       contentReplacementState: contentReplacementStateRef.current,
       resultDedupState: resultDedupStateRef.current
     };
-  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, reverify, addNotification, setMessages, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
+  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, teammateColors, taskRegistry, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId, addResponseLength, resetResponseLength, recordApiMetricsEvent]);
 
   // Session backgrounding (Ctrl+B to background/foreground)
   const handleBackgroundQuery = useCallback(() => {
@@ -2782,7 +2868,7 @@ export function REPL({
     const removedNotifications = removeByFilter(cmd => cmd.mode === 'task-notification');
     void (async () => {
       const toolUseContext = getToolUseContext(messagesRef.current, [], new AbortController(), mainLoopModel);
-      const [defaultSystemPrompt, userContext, systemContext] = await Promise.all([getSystemPrompt(toolUseContext.options.tools, mainLoopModel, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), toolUseContext.options.mcpClients), getUserContext(), getSystemContext()]);
+      const [defaultSystemPrompt, userContext, systemContext] = await Promise.all([getSystemPrompt(toolUseContext.options.tools, mainLoopModel, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), toolUseContext.options.mcpClients), getUserContext(), getSystemContext(toolUseContext.getCacheBreakerPhrase())]);
       const systemPrompt = buildEffectiveSystemPrompt({
         mainThreadAgentDefinition,
         toolUseContext,
@@ -2842,11 +2928,17 @@ export function REPL({
         // are O(n) per render, so drop everything before the previous
         // boundary to keep n bounded across multi-day sessions.
         if (isFullscreenEnvEnabled()) {
-          setMessages(old => [...getMessagesAfterCompactBoundary(old, {
-            includeSnipped: true
-          }), newMessage]);
+          applyMessageOp({
+            type: 'update',
+            updater: old => [...getMessagesAfterCompactBoundary(old, {
+              includeSnipped: true
+            }), newMessage]
+          });
         } else {
-          setMessages(() => [newMessage]);
+          applyMessageOp({
+            type: 'replace-all',
+            messages: [newMessage]
+          });
         }
         // Bump conversationId so Messages.tsx row keys change and
         // stale memoized rows remount with post-compact content.
@@ -2866,17 +2958,28 @@ export function REPL({
         // — each carries distinct state the UI needs (e.g. subagent tool
         // history). Replacing those leaves the AgentTool UI stuck at
         // "Initializing…" because it renders the full progress trail.
-        setMessages(oldMessages => {
-          const last = oldMessages.at(-1);
-          if (last?.type === 'progress' && last.parentToolUseID === newMessage.parentToolUseID && last.data.type === newMessage.data.type) {
-            const copy = oldMessages.slice();
-            copy[copy.length - 1] = newMessage;
-            return copy;
+        applyMessageOp({
+          type: 'update',
+          updater: oldMessages => {
+            const last = oldMessages.at(-1);
+            if (last?.type === 'progress' && last.parentToolUseID === newMessage.parentToolUseID && last.data.type === newMessage.data.type) {
+              const copy = oldMessages.slice();
+              copy[copy.length - 1] = newMessage;
+              return copy;
+            }
+            return [...oldMessages, newMessage];
           }
-          return [...oldMessages, newMessage];
+        });
+      } else if (isFullscreenEnvEnabled()) {
+        applyMessageOp({
+          type: 'update',
+          updater: oldMessages => appendOrReplaceMessageByUuid(oldMessages, newMessage)
         });
       } else {
-        setMessages(oldMessages => [...oldMessages, newMessage]);
+        applyMessageOp({
+          type: 'append',
+          messages: [newMessage]
+        });
       }
       // Block ticks on API errors to prevent tick → error → tick
       // runaway loops (e.g., auth failure, rate limit, blocking limit).
@@ -2888,27 +2991,15 @@ export function REPL({
           proactiveModule?.setContextBlocked(false);
         }
       }
-    }, newContent => {
-      // setResponseLength handles updating both responseLengthRef (for
-      // spinner animation) and apiMetricsRef (endResponseLength/lastTokenTime
-      // for OTPS). No separate metrics update needed here.
-      setResponseLength(length => length + newContent.length);
-    }, setStreamMode, setStreamingToolUses, tombstonedMessage => {
-      setMessages(oldMessages => oldMessages.filter(m => m !== tombstonedMessage));
-      void removeTranscriptMessage(tombstonedMessage.uuid);
-    }, setStreamingThinking, metrics => {
-      const now = Date.now();
-      const baseline = responseLengthRef.current;
-      apiMetricsRef.current.push({
-        ...metrics,
-        firstTokenTime: now,
-        lastTokenTime: now,
-        responseLengthBaseline: baseline,
-        endResponseLength: baseline
+    }, addResponseLength, setStreamMode, setStreamingToolUses, tombstonedMessage => {
+      applyMessageOp({
+        type: 'remove-by-uuid',
+        uuid: tombstonedMessage.uuid
       });
-    }, onStreamingText);
-  }, [setMessages, setResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, onStreamingText]);
-  const onQueryImpl = useCallback(async (messagesIncludingNewMessages: MessageType[], newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, effort?: EffortValue, clientPlatform?: string) => {
+      void removeTranscriptMessage(tombstonedMessage.uuid);
+    }, setStreamingThinking, recordApiMetricsEvent, onStreamingText);
+  }, [applyMessageOp, addResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, recordApiMetricsEvent, onStreamingText]);
+  const onQueryImpl = useCallback(async (messagesIncludingNewMessages: MessageType[], newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, effort?: EffortValue, clientPlatform?: string, activeSkill?: string) => {
     // Prepare IDE integration for new prompt. Read mcpClients fresh from
     // store — useManageMCPConnections may have populated it since the
     // render that captured this closure (same pattern as computeTools).
@@ -3005,6 +3096,7 @@ export function REPL({
     const toolUseContext = getToolUseContext(messagesIncludingNewMessages, newMessages, abortController, mainLoopModelParam);
     toolUseContext.options.connection = connectionRef.current;
     if (clientPlatform) toolUseContext.options.messageClientPlatform = clientPlatform;
+    if (activeSkill) toolUseContext.options.activeSkill = activeSkill;
     // getToolUseContext reads tools/mcpClients fresh from store.getState()
     // (via computeTools/mergeClients). Use those rather than the closure-
     // captured `tools`/`mcpClients` — useManageMCPConnections may have
@@ -3016,21 +3108,17 @@ export function REPL({
     } = toolUseContext.options;
 
     // Scope the skill's effort override to this turn's context only —
-    // wrapping getAppState keeps the override out of the global store so
+    // Overriding getEffortValue keeps the override out of the global store so
     // background agents and UI subscribers (Spinner, LogoV2) never see it.
     if (effort !== undefined) {
-      const previousGetAppState = toolUseContext.getAppState;
-      toolUseContext.getAppState = () => ({
-        ...previousGetAppState(),
-        effortValue: effort
-      });
+      toolUseContext.getEffortValue = () => effort;
     }
     queryCheckpoint('query_context_loading_start');
     const [,, defaultSystemPrompt, baseUserContext, systemContext] = await Promise.all([
     // IMPORTANT: do this after setMessages() above, to avoid UI jank
-    checkAndDisableBypassPermissionsIfNeeded(toolPermissionContext, setAppState),
+    checkAndDisableBypassPermissionsIfNeeded(toolPermissionContext, toolUseContext.setToolPermissionContext),
     // Gated on TRANSCRIPT_CLASSIFIER so GrowthBook kill switch runs wherever auto mode is built in
-    feature('TRANSCRIPT_CLASSIFIER') ? checkAndDisableAutoModeIfNeeded(toolPermissionContext, setAppState, store.getState().fastMode) : undefined, getSystemPrompt(freshTools, mainLoopModelParam, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), freshMcpClients), getUserContext(), getSystemContext()]);
+    feature('TRANSCRIPT_CLASSIFIER') ? checkAndDisableAutoModeIfNeeded(toolPermissionContext, setAppState, toolUseContext.getFastMode()) : undefined, getSystemPrompt(freshTools, mainLoopModelParam, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), freshMcpClients), getUserContext(), getSystemContext(toolUseContext.getCacheBreakerPhrase())]);
     const userContext = {
       ...baseUserContext,
       ...getCoordinatorUserContext(freshMcpClients, isScratchpadEnabled() ? getScratchpadDir() : undefined),
@@ -3062,6 +3150,7 @@ export function REPL({
     })) {
       onQueryEvent(event);
     }
+    setMessages(previous => stripOldToolResultsForStorage(previous, freshTools));
     if (feature('BUDDY')) {
       void fireCompanionObserver(messagesRef.current, reaction => setAppState(prev => prev.companionReaction === reaction ? prev : {
         ...prev,
@@ -3079,7 +3168,7 @@ export function REPL({
       // streaming-only content. endResponseLength tracks content added by
       // streaming deltas only, excluding subagent/compaction inflation.
       const otpsValues = entries.map(e => {
-        const delta = Math.round((e.endResponseLength - e.responseLengthBaseline) / 4);
+        const delta = e.outputTokens ?? Math.round((e.endResponseLength - e.responseLengthBaseline) / 4);
         const samplingMs = e.lastTokenTime - e.firstTokenTime;
         return samplingMs > 0 ? Math.round(delta / (samplingMs / 1000)) : 0;
       });
@@ -3113,7 +3202,7 @@ export function REPL({
     // Signal that a query turn has completed successfully
     await onTurnComplete?.(messagesRef.current);
   }, [initialMcpClients, resetLoadingState, getToolUseContext, toolPermissionContext, setAppState, customSystemPrompt, onTurnComplete, appendSystemPrompt, canUseTool, mainThreadAgentDefinition, onQueryEvent, sessionTitle, titleDisabled]);
-  const onQuery = useCallback(async (newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, onBeforeQueryCallback?: (input: string, newMessages: MessageType[]) => Promise<boolean>, input?: string, effort?: EffortValue, clientPlatform?: string): Promise<void> => {
+  const onQuery = useCallback(async (newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, onBeforeQueryCallback?: (input: string, newMessages: MessageType[]) => Promise<boolean>, input?: string, effort?: EffortValue, clientPlatform?: string, activeSkill?: string): Promise<void> => {
     // If this is a teammate, mark them as active when starting a turn
     if (isAgentSwarmsEnabled()) {
       const teamName = getTeamName();
@@ -3177,7 +3266,7 @@ export function REPL({
           return;
         }
       }
-      await onQueryImpl(latestMessages, newMessages, abortController, shouldQuery, additionalAllowedTools, mainLoopModelParam, effort, clientPlatform);
+      await onQueryImpl(latestMessages, newMessages, abortController, shouldQuery, additionalAllowedTools, mainLoopModelParam, effort, clientPlatform, activeSkill);
     } finally {
       // queryGuard.end() atomically checks generation and transitions
       // running→idle. Returns false if a newer query owns the guard
@@ -3307,11 +3396,14 @@ export function REPL({
           setMessages,
           readFileState: readFileState.current,
           discoveredSkillNames: discoveredSkillNamesRef.current,
+          discoveredRemoteSkills: discoveredRemoteSkillsRef.current,
           loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
+          memorySelector: memorySelectorRef.current,
           getAppState: () => store.getState(),
           setAppState,
           setConversationId,
-          resultDedupState: resultDedupStateRef.current
+          resultDedupState: resultDedupStateRef.current,
+          isolationLatch: isolationLatchRef.current
         });
         haikuTitleAttemptedRef.current = false;
         setHaikuTitle(undefined);
@@ -3354,12 +3446,19 @@ export function REPL({
 
       // Create file history snapshot for code rewind
       if (fileHistoryEnabled()) {
-        void fileHistoryMakeSnapshot((updater: (prev: FileHistoryState) => FileHistoryState) => {
-          setAppState(prev => ({
-            ...prev,
-            fileHistory: updater(prev.fileHistory)
-          }));
-        }, initialMsg.message.uuid);
+        void fileHistoryMakeSnapshot(
+          () => store.getState().fileHistory,
+          operation => {
+            setAppState(prev => {
+              const fileHistory = reduceFileHistoryOp(prev.fileHistory, operation);
+              return fileHistory === prev.fileHistory ? prev : {
+                ...prev,
+                fileHistory
+              };
+            });
+          },
+          initialMsg.message.uuid
+        );
       }
 
       // Ensure SessionStart hook context is available before the first API
@@ -3411,7 +3510,7 @@ export function REPL({
   }) => {
     // Re-pin scroll to bottom on submit so the user always sees the new
     // exchange (matches OpenCode's auto-scroll behavior).
-    repinScroll();
+    repinScroll(false, 'onSubmit');
 
     // Resume loop mode if paused
     if (feature('PROACTIVE') || feature('KAIROS')) {
@@ -3437,10 +3536,9 @@ export function REPL({
       if (matchingCommand?.name === 'clear' && idleHintShownRef.current) {
         logEvent('tengu_idle_return_action', {
           action: 'hint_converted' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          variant: idleHintShownRef.current as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
           idleMinutes: Math.round((Date.now() - lastQueryCompletionTimeRef.current) / 60_000),
           messageCount: messagesRef.current.length,
-          totalInputTokens: getTotalInputTokens()
+          contextTokens: tokenCountWithEstimation(getMessagesAfterCompactBoundary(messagesRef.current))
         });
         idleHintShownRef.current = false;
       }
@@ -4129,7 +4227,7 @@ export function REPL({
   // Don't record conversation if we only have initial messages; optimizes
   // the case where user resumes a conversation then quites before doing
   // anything else
-  useLogMessages(messages, messages.length === initialMessages?.length);
+  useLogMessages(messages, messages.length === initialMessages?.length, isLoading);
 
   // REPL Bridge: replicate user/assistant messages to the bridge session
   // for remote access via claude.ai. No-op in external builds or when not enabled.
@@ -4309,13 +4407,13 @@ export function REPL({
     if (willowMode !== 'hint' && willowMode !== 'hint_v2') return;
     if (getGlobalConfig().idleReturnDismissed) return;
     const tokenThreshold = Number(process.env.CLAUDE_CODE_IDLE_TOKEN_THRESHOLD ?? 100_000);
-    if (getTotalInputTokens() < tokenThreshold) return;
+    if (tokenCountWithEstimation(getMessagesAfterCompactBoundary(messagesRef.current)) < tokenThreshold) return;
     const idleThresholdMs = Number(process.env.CLAUDE_CODE_IDLE_THRESHOLD_MINUTES ?? 75) * 60_000;
     const elapsed = Date.now() - lastQueryCompletionTime;
     const remaining = idleThresholdMs - elapsed;
     const timer = setTimeout((lqct, addNotif, msgsRef, mode, hintRef) => {
       if (msgsRef.current.length === 0) return;
-      const totalTokens = getTotalInputTokens();
+      const totalTokens = tokenCountWithEstimation(getMessagesAfterCompactBoundary(msgsRef.current));
       const formattedTokens = formatTokens(totalTokens);
       const idleMinutes = (Date.now() - lqct) / 60_000;
       addNotif({
@@ -4334,13 +4432,12 @@ export function REPL({
         // handles dismissal. 0x7FFFFFFF = setTimeout max (~24.8 days).
         timeoutMs: 0x7fffffff
       });
-      hintRef.current = mode;
+      hintRef.current = true;
       logEvent('tengu_idle_return_action', {
         action: 'hint_shown' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        variant: mode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         idleMinutes: Math.round(idleMinutes),
         messageCount: msgsRef.current.length,
-        totalInputTokens: totalTokens
+        contextTokens: totalTokens
       });
     }, Math.max(0, remaining), lastQueryCompletionTime, addNotification, messagesRef, willowMode, idleHintShownRef);
     return () => {
@@ -5183,11 +5280,14 @@ export function REPL({
                 setMessages,
                 readFileState: readFileState.current,
                 discoveredSkillNames: discoveredSkillNamesRef.current,
+                discoveredRemoteSkills: discoveredRemoteSkillsRef.current,
                 loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
+                memorySelector: memorySelectorRef.current,
                 getAppState: () => store.getState(),
                 setAppState,
                 setConversationId,
-                resultDedupState: resultDedupStateRef.current
+                resultDedupState: resultDedupStateRef.current,
+                isolationLatch: isolationLatchRef.current
               });
               haikuTitleAttemptedRef.current = false;
               setHaikuTitle(undefined);
@@ -5245,7 +5345,7 @@ export function REPL({
 
                 {focusedInputDialog === 'desktop-upsell' && <DesktopUpsellStartup onDone={() => setShowDesktopUpsellStartup(false)} />}
 
-                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} discoveredSkillNames={discoveredSkillNamesRef.current} loadedNestedMemoryPaths={loadedNestedMemoryPathsRef.current} getAppState={() => store.getState()} setConversationId={setConversationId} resultDedupState={resultDedupStateRef.current} isolationLatch={isolationLatchRef} /> : null}
+                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} discoveredSkillNames={discoveredSkillNamesRef.current} loadedNestedMemoryPaths={loadedNestedMemoryPathsRef.current} memorySelector={memorySelectorRef.current} getAppState={() => store.getState()} setConversationId={setConversationId} resultDedupState={resultDedupStateRef.current} isolationLatch={isolationLatchRef.current} /> : null}
 
                 {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-launch' && ultraplanLaunchPending && <UltraplanLaunchDialog sourcePromise={ultraplanLaunchPending.sourcePromise} onChoice={(choice, opts) => {
             const {
@@ -5307,7 +5407,7 @@ export function REPL({
 
                 {!toolJSX?.shouldHidePromptInput && !focusedInputDialog && !isExiting && !disabled && !cursor && <>
                       {autoRunIssueReason && <AutoRunIssueNotification onRun={handleAutoRunIssue} onCancel={handleCancelAutoRunIssue} reason={getAutoRunIssueReasonText(autoRunIssueReason)} />}
-                      {memoryWriteSurvey.state !== 'closed' && memoryWriteSurvey.record ? <MemoryWriteSurvey record={memoryWriteSurvey.record} summary={memoryWriteSurvey.summary} lineCount={memoryWriteSurvey.lineCount} summaryLineThreshold={memoryWriteSurvey.summaryLineThreshold} countdownSec={memoryWriteSurvey.countdownSec} onOutcome={memoryWriteSurvey.handleOutcome} inputValue={inputValue} setInputValue={setInputValue} /> : postCompactSurvey.state !== 'closed' ? <FeedbackSurvey state={postCompactSurvey.state} lastResponse={postCompactSurvey.lastResponse} handleSelect={postCompactSurvey.handleSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} /> : memorySurvey.state !== 'closed' ? <FeedbackSurvey state={memorySurvey.state} lastResponse={memorySurvey.lastResponse} handleSelect={memorySurvey.handleSelect} handleTranscriptSelect={memorySurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} message="How well did Claude use its memory? (optional)" /> : <FeedbackSurvey state={feedbackSurvey.state} lastResponse={feedbackSurvey.lastResponse} handleSelect={feedbackSurvey.handleSelect} handleTranscriptSelect={feedbackSurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={didAutoRunIssueRef.current ? undefined : handleSurveyRequestFeedback} />}
+                      {memoryWriteSurvey.state !== 'closed' && memoryWriteSurvey.record ? <MemoryWriteSurvey record={memoryWriteSurvey.record} summary={memoryWriteSurvey.summary} summaryLineThreshold={memoryWriteSurvey.summaryLineThreshold} countdownSec={memoryWriteSurvey.countdownSec} onOutcome={memoryWriteSurvey.handleOutcome} inputValue={inputValue} setInputValue={setInputValue} /> : postCompactSurvey.state !== 'closed' ? <FeedbackSurvey state={postCompactSurvey.state} lastResponse={postCompactSurvey.lastResponse} handleSelect={postCompactSurvey.handleSelect} handleUndo={postCompactSurvey.handleUndo} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} /> : memorySurvey.state !== 'closed' ? <FeedbackSurvey state={memorySurvey.state} lastResponse={memorySurvey.lastResponse} handleSelect={memorySurvey.handleSelect} handleUndo={memorySurvey.handleUndo} handleTranscriptSelect={memorySurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} message="How well did Claude use its memory? (optional)" memoryEvaluation={memorySurvey.evaluation ?? undefined} showNotSure={true} /> : <FeedbackSurvey state={feedbackSurvey.state} lastResponse={feedbackSurvey.lastResponse} handleSelect={feedbackSurvey.handleSelect} handleUndo={feedbackSurvey.handleUndo} handleTranscriptSelect={feedbackSurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={didAutoRunIssueRef.current ? undefined : handleSurveyRequestFeedback} />}
                       {/* Frustration-triggered transcript sharing prompt */}
                       {memoryWriteSurvey.state === 'closed' && postCompactSurvey.state === 'closed' && memorySurvey.state === 'closed' && feedbackSurvey.state === 'closed' && frustrationDetection.state !== 'closed' && <FeedbackSurvey state={frustrationDetection.state} lastResponse={null} handleSelect={() => {}} handleTranscriptSelect={frustrationDetection.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} />}
                       {/* Skill improvement survey - appears when improvements detected (ant-only) */}
@@ -5316,19 +5416,17 @@ export function REPL({
                       {}
                       <PromptInput debug={debug} ideSelection={ideSelection} hasSuppressedDialogs={!!hasSuppressedDialogs} isLocalJSXCommandActive={isShowingLocalJSXCommand} getToolUseContext={getToolUseContext} toolPermissionContext={toolPermissionContext} setToolPermissionContext={setToolPermissionContext} apiKeyStatus={apiKeyStatus} commands={commands} agents={agentDefinitions.activeAgents} isLoading={isLoading} onExit={handleExit} onLeftArrowOnEmpty={isBgSession() ? () => void handleExit() : !isLoading && isFgLeftArrowAgentsAvailable() && getGlobalConfig().leftArrowOpensAgents !== false ? handleOpenAgents : undefined} verbose={verbose} messages={messages} input={inputValue} onInputChange={setInputValue} mode={inputMode} onModeChange={setInputMode} stashedPrompt={stashedPrompt} setStashedPrompt={setStashedPrompt} submitCount={submitCount} onShowMessageSelector={handleShowMessageSelector} onMessageActionsEnter={
             // Works during isLoading — edit cancels first; uuid selection survives appends.
-            feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} vimMode={vimMode} setVimMode={setVimMode} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} isSearchingHistory={isSearchingHistory} setIsSearchingHistory={setIsSearchingHistory} helpOpen={isHelpOpen} setHelpOpen={setIsHelpOpen} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} />
+            feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} onInputOverlayActiveChange={setIsInputOverlayActive} initialVimMode={vimModeRef.current} onVimModeChange={handleVimModeChange} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} sessionEnvVars={sessionEnvVarsRef.current} />
                       <SessionBackgroundHint onBackgroundSession={handleBackgroundSession} isLoading={isLoading} />
                     </>}
                 {cursor &&
           // inputValue is REPL state; typed text survives the round-trip.
           <MessageActionsBar cursor={cursor} />}
                 {focusedInputDialog === 'message-selector' && <MessageSelector messages={messages} preselectedMessage={messageSelectorPreselect} onPreRestore={onCancel} onRestoreCode={async (message: UserMessage) => {
-            await fileHistoryRewind((updater: (prev: FileHistoryState) => FileHistoryState) => {
-              setAppState(prev => ({
-                ...prev,
-                fileHistory: updater(prev.fileHistory)
-              }));
-            }, message.uuid);
+            await fileHistoryRewind(
+              () => store.getState().fileHistory,
+              message.uuid
+            );
           }} onSummarize={async (message: UserMessage, feedback?: string, direction: PartialCompactDirection = 'from') => {
             // Project snipped messages so the compact model
             // doesn't summarize content that was intentionally removed.
@@ -5353,7 +5451,7 @@ export function REPL({
               defaultSystemPrompt: defaultSysPrompt,
               appendSystemPrompt: context.options.appendSystemPrompt
             });
-            const [userContext, systemContext] = await Promise.all([getUserContext(), getSystemContext()]);
+            const [userContext, systemContext] = await Promise.all([getUserContext(), getSystemContext(appState.cacheBreakerPhrase)]);
             const result = await partialCompactConversation(compactMessages, messageIndex, context, {
               systemPrompt,
               userContext,
@@ -5383,7 +5481,7 @@ export function REPL({
               proactiveModule?.setContextBlocked(false);
             }
             setConversationId(randomUUID());
-            runPostCompactCleanup(context.options.querySource, context.resultDedupState);
+            runPostCompactCleanup(context.options.querySource, context.setAppState, context.resultDedupState);
             if (direction === 'from') {
               const r = textForResubmit(message);
               if (r) {

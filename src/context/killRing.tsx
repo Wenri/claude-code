@@ -24,7 +24,7 @@ export type KillRingStore = {
   dispatch: (action: KillRingAction) => void
 }
 
-export const INITIAL_KILL_RING_STATE: KillRingState = {
+const INITIAL_KILL_RING_STATE: KillRingState = {
   ring: [],
   mode: { type: 'idle' },
 }
@@ -36,18 +36,16 @@ export function reduceKillRing(
   switch (action.type) {
     case 'kill': {
       if (action.text.length === 0) return state
-      return {
-        ring:
-          state.mode.type === 'killing' && state.ring.length > 0
-            ? [
-                action.direction === 'prepend'
-                  ? action.text + state.ring[0]
-                  : state.ring[0] + action.text,
-                ...state.ring.slice(1),
-              ]
-            : [action.text, ...state.ring].slice(0, KILL_RING_MAX_SIZE),
-        mode: { type: 'killing' },
-      }
+      const ring =
+        state.mode.type === 'killing' && state.ring.length > 0
+          ? [
+              action.direction === 'prepend'
+                ? action.text + state.ring[0]
+                : state.ring[0] + action.text,
+              ...state.ring.slice(1),
+            ]
+          : [action.text, ...state.ring].slice(0, KILL_RING_MAX_SIZE)
+      return { ring, mode: { type: 'killing' } }
     }
     case 'yank':
       return {
@@ -81,11 +79,11 @@ export function reduceKillRing(
   }
 }
 
-export function getLastKill(state: KillRingState): string {
+export function getLatestKill(state: KillRingState): string {
   return state.ring[0] ?? ''
 }
 
-export function peekYankPop(
+export function getNextYank(
   state: KillRingState,
 ): { text: string; start: number; length: number } | null {
   if (state.mode.type !== 'yanked' || state.ring.length <= 1) return null
@@ -97,10 +95,8 @@ export function peekYankPop(
   }
 }
 
-export function createKillRingStore(
-  initialState: KillRingState = INITIAL_KILL_RING_STATE,
-): KillRingStore {
-  let state = initialState
+export function createKillRingStore(): KillRingStore {
+  let state = INITIAL_KILL_RING_STATE
   return {
     get state() {
       return state

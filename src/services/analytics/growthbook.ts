@@ -13,6 +13,7 @@ import {
 import { logForDebugging } from '../../utils/debug.js'
 import { toError } from '../../utils/errors.js'
 import { getAuthHeaders } from '../../utils/http.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { logError } from '../../utils/log.js'
 import { createSignal } from '../../utils/signal.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
@@ -231,6 +232,16 @@ export function getAllGrowthBookFeatures(): Record<string, unknown> {
   return getGlobalConfig().cachedGrowthBookFeatures ?? {}
 }
 
+export function hasGrowthBookCachedValue(feature: string): boolean {
+  return getGlobalConfig().cachedGrowthBookFeatures?.[feature] !== undefined
+}
+
+export function isFeatureFromExperiment(feature: string): boolean {
+  if (experimentDataByFeature.has(feature)) return true
+  if (!isGrowthBookEnabled()) return false
+  return (getGlobalConfig().cachedExperimentFeatures ?? []).includes(feature)
+}
+
 export function getGrowthBookConfigOverrides(): Record<string, unknown> {
   return getConfigOverrides() ?? {}
 }
@@ -406,22 +417,32 @@ async function processRemoteEvalPayload(
  */
 function syncRemoteEvalToDisk(): void {
   const fresh = Object.fromEntries(remoteEvalFeatureValues)
+  const freshExperimentFeatures = Array.from(
+    experimentDataByFeature.keys(),
+  ).sort()
   const config = getGlobalConfig()
-  if (isEqual(config.cachedGrowthBookFeatures, fresh)) {
+  if (
+    isEqual(config.cachedGrowthBookFeatures, fresh) &&
+    isEqual(config.cachedExperimentFeatures ?? [], freshExperimentFeatures)
+  ) {
     return
   }
   saveGlobalConfig(current => ({
     ...current,
     cachedGrowthBookFeatures: fresh,
+    cachedExperimentFeatures: freshExperimentFeatures,
   }))
 }
 
 /**
  * Check if GrowthBook operations should be enabled
  */
-function isGrowthBookEnabled(): boolean {
+export function isGrowthBookEnabled(): boolean {
   // GrowthBook depends on 1P event logging.
-  return is1PEventLoggingEnabled()
+  return (
+    !isEnvTruthy(process.env.DISABLE_GROWTHBOOK) &&
+    is1PEventLoggingEnabled()
+  )
 }
 
 /**
@@ -451,7 +472,7 @@ export function getApiBaseUrlHost(): string | undefined {
 /**
  * Get user attributes for GrowthBook from CoreUserData
  */
-function getUserAttributes(): GrowthBookUserAttributes {
+export function getUserAttributes(): GrowthBookUserAttributes {
   const user = getUserForGrowthBook()
 
   // For ants, always try to include email from OAuth config even if ANTHROPIC_API_KEY is set.
@@ -1035,7 +1056,7 @@ export async function refreshGrowthBookFeatures(): Promise<void> {
       return
     }
 
-    await growthBookClient.refreshFeatures({ skipCache: true })
+    await growthBookClient.refreshFeatures()
 
     // Guard: if this client was replaced during the in-flight refresh
     // (e.g. refreshGrowthBookAfterAuthChange ran), skip processing the

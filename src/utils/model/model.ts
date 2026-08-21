@@ -24,7 +24,7 @@ import { formatModelPricing, getOpus46CostTier } from '../modelCost.js'
 import {
   getRelativeSettingsFilePathForSource,
   getSettings_DEPRECATED,
-  getSettingsSourceForKey,
+  getEffectiveSettingSource,
 } from '../settings/settings.js'
 import type { PermissionMode } from '../permissions/PermissionMode.js'
 import { getAPIProvider, isDirectAnthropicAPIProvider } from './providers.js'
@@ -32,14 +32,16 @@ import { LIGHTNING_BOLT } from '../../constants/figures.js'
 import { isModelAllowed } from './modelAllowlist.js'
 import { type ModelAlias, isModelAlias } from './aliases.js'
 import { capitalize } from '../stringUtils.js'
+import { getInferenceProfileBackingModelCached } from '../../bootstrap/state.js'
+import { extractModelIdFromArn } from './bedrock.js'
 
 export type ModelShortName = string
 export type ModelName = string
 export type ModelSetting = ModelName | ModelAlias | null
 
-export const DEFAULT_3P_OPUS_KEY = 'opus46'
-export const DEFAULT_3P_SONNET_KEY = 'sonnet45'
-export const DEFAULT_3P_HAIKU_KEY = 'haiku45'
+export const DEFAULT_3P_OPUS_KEY = 'opus46' as const
+export const DEFAULT_3P_SONNET_KEY = 'sonnet45' as const
+export const DEFAULT_3P_HAIKU_KEY = 'haiku45' as const
 
 export function getSmallFastModel(): ModelName {
   return process.env.ANTHROPIC_SMALL_FAST_MODEL || getDefaultHaikuModel()
@@ -115,6 +117,9 @@ export function getDefaultOpusModel(): ModelName {
   if (process.env.ANTHROPIC_DEFAULT_OPUS_MODEL) {
     return process.env.ANTHROPIC_DEFAULT_OPUS_MODEL
   }
+  if (getAPIProvider() === 'mantle') {
+    return getModelStrings().opus47
+  }
   // 3P providers (Bedrock, Vertex, Foundry) — kept as a separate branch
   // even when values match, since 3P availability lags firstParty and
   // these will diverge again at the next model launch.
@@ -130,7 +135,7 @@ export function getDefaultSonnetModel(): ModelName {
     return process.env.ANTHROPIC_DEFAULT_SONNET_MODEL
   }
   // Default to Sonnet 4.5 for 3P since they may not have 4.6 yet
-  if (!isDirectAnthropicAPIProvider()) {
+  if (getAPIProvider() !== 'firstParty') {
     return getModelStrings()[DEFAULT_3P_SONNET_KEY]
   }
   return getModelStrings().sonnet46
@@ -287,7 +292,15 @@ export function firstPartyNameToCanonical(name: ModelName): ModelShortName {
 export function getCanonicalName(fullModelName: ModelName): ModelShortName {
   // Resolve overridden model IDs (e.g. Bedrock ARNs) back to canonical names.
   // resolved is always a 1P-format ID, so firstPartyNameToCanonical can handle it.
-  return firstPartyNameToCanonical(resolveOverriddenModel(fullModelName))
+  const resolved = resolveOverriddenModel(fullModelName)
+  if (resolved !== fullModelName) return firstPartyNameToCanonical(resolved)
+  if (fullModelName.includes('application-inference-profile')) {
+    const backingModel = getInferenceProfileBackingModelCached(
+      extractModelIdFromArn(fullModelName),
+    )
+    if (backingModel) return firstPartyNameToCanonical(backingModel)
+  }
+  return firstPartyNameToCanonical(resolved)
 }
 
 // @[MODEL LAUNCH]: Update the default model description strings shown to users.
@@ -349,10 +362,10 @@ export function renderModelSetting(setting: ModelName | ModelAlias): string {
   return renderModelName(setting)
 }
 
-export function getModelSourceSuffix(): string {
+export function getModelSourceAnnotation(): string {
   if (getMainLoopModelOverride() !== undefined) return ''
   if (process.env.ANTHROPIC_MODEL) return ''
-  switch (getSettingsSourceForKey('model')) {
+  switch (getEffectiveSettingSource('model')) {
     case 'projectSettings':
       return ` (from ${getRelativeSettingsFilePathForSource('projectSettings')})`
     case 'policySettings':
@@ -360,6 +373,10 @@ export function getModelSourceSuffix(): string {
     default:
       return ''
   }
+}
+
+export function getModelSourceSuffix(): string {
+  return getModelSourceAnnotation()
 }
 
 // @[MODEL LAUNCH]: Add display name cases for the new model (base + [1m] variant if applicable).
@@ -567,7 +584,7 @@ const LEGACY_OPUS_FIRSTPARTY = [
   'claude-opus-4-1',
 ]
 
-function isLegacyOpusFirstParty(model: string): boolean {
+export function isLegacyOpusFirstParty(model: string): boolean {
   return LEGACY_OPUS_FIRSTPARTY.includes(model)
 }
 

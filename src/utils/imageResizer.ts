@@ -3,11 +3,15 @@ import type {
   ImageBlockParam,
 } from '@anthropic-ai/sdk/resources/messages.mjs'
 import {
+  API_IMAGE_MAX_BASE64_SIZE,
+  IMAGE_MAX_HEIGHT,
+  IMAGE_MAX_WIDTH,
   IMAGE_TARGET_RAW_SIZE,
 } from '../constants/apiLimits.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { logEvent } from '../services/analytics/index.js'
 import {
+  getImageDimensionsFromBuffer,
   getImageProcessor,
   type SharpFunction,
   type SharpInstance,
@@ -15,7 +19,6 @@ import {
 import { logForDebugging } from './debug.js'
 import { errorMessage } from './errors.js'
 import { formatFileSize } from './format.js'
-import type { ImageLimits } from './imageLimits.js'
 import { logError } from './log.js'
 import { getCanonicalName } from './model/model.js'
 import {
@@ -43,7 +46,7 @@ const MODEL_IMAGE_LIMIT_OVERRIDES: Record<
   string,
   Partial<ImageLimits>
 > = {
-  'claude-opus-4-7': { maxWidth: 2576, maxHeight: 2576 },
+  'claude-opus-4-7': { maxWidth: 2000, maxHeight: 2000 },
 }
 
 /** Resolve the image envelope for the request model and current API endpoint. */
@@ -242,6 +245,11 @@ export async function maybeResizeAndDownsampleImageBuffer(
     // If dimensions aren't available from metadata
     if (!metadata.width || !metadata.height) {
       if (originalSize > limits.targetRawSize) {
+        logEvent('tengu_image_resize', {
+          over_byte_limit: true,
+          over_dimension_limit: false,
+          original_size_bytes: originalSize,
+        })
         // Create fresh sharp instance for compression
         const compressedBuffer = await sharp(imageBuffer)
           .jpeg({ quality: 80 })
@@ -281,7 +289,6 @@ export async function maybeResizeAndDownsampleImageBuffer(
     const needsDimensionResize =
       width > limits.maxWidth || height > limits.maxHeight
     const isPng = normalizedMediaType === 'png'
-
     logEvent('tengu_image_resize', {
       over_byte_limit: originalSize > limits.targetRawSize,
       over_dimension_limit: needsDimensionResize,
@@ -458,17 +465,14 @@ export async function maybeResizeAndDownsampleImageBuffer(
     // Calculate the base64 size (API limit is on base64-encoded length)
     const base64Size = Math.ceil((originalSize * 4) / 3)
 
-    // Size-under-5MB does not imply dimensions-under-cap. Don't return the
-    // raw buffer if the PNG header says it's oversized — fall through to
-    // ImageResizeError instead. PNG sig is 8 bytes, IHDR dims at 16-24.
+    // Size-under-limit does not imply dimensions-under-cap. When native
+    // processing fails, inspect common container headers before returning the
+    // raw image.
+    const fallbackDimensions = getImageDimensionsFromBuffer(imageBuffer)
     const overDim =
-      imageBuffer.length >= 24 &&
-      imageBuffer[0] === 0x89 &&
-      imageBuffer[1] === 0x50 &&
-      imageBuffer[2] === 0x4e &&
-      imageBuffer[3] === 0x47 &&
-      (imageBuffer.readUInt32BE(16) > limits.maxWidth ||
-        imageBuffer.readUInt32BE(20) > limits.maxHeight)
+      fallbackDimensions !== null &&
+      (fallbackDimensions.width > limits.maxWidth ||
+        fallbackDimensions.height > limits.maxHeight)
 
     // If original image's base64 encoding is within API limit, allow it through uncompressed
     if (base64Size <= limits.maxBase64Size && !overDim) {
@@ -486,7 +490,7 @@ export async function maybeResizeAndDownsampleImageBuffer(
         ? `Unable to resize image — dimensions exceed the ${limits.maxWidth}x${limits.maxHeight}px limit and image processing failed. ` +
             `Please resize the image to reduce its pixel dimensions.`
         : `Unable to resize image (${formatFileSize(originalSize)} raw, ${formatFileSize(base64Size)} base64). ` +
-            `The image exceeds the ${formatFileSize(limits.maxBase64Size)} API limit and compression failed. ` +
+            `The image exceeds the 5MB API limit and compression failed. ` +
             `Please resize the image manually or use a smaller image.`,
     )
   }
@@ -495,87 +499,6 @@ export async function maybeResizeAndDownsampleImageBuffer(
 export interface ImageBlockWithDimensions {
   block: ImageBlockParam
   dimensions?: ImageDimensions
-}
-
-export async function maybeResizeAndDownsampleImage({
-  data,
-  mediaType,
-  limits,
-}: {
-  data: Buffer | string
-  mediaType?: string
-  limits: ImageLimits
-}): Promise<ImageBlockWithDimensions> {
-  const imageBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data, 'base64')
-  const extension = mediaType?.includes('/')
-    ? mediaType.split('/')[1] || 'png'
-    : mediaType || 'png'
-  const resized = await maybeResizeAndDownsampleImageBuffer(
-    imageBuffer,
-    imageBuffer.length,
-    extension,
-    limits,
-  )
-
-  let outputBuffer = resized.buffer
-  if (outputBuffer.length > MAX_IMAGE_BLOCK_BYTES) {
-    try {
-      outputBuffer = await compressImageBlockBuffer(
-        outputBuffer,
-        MAX_IMAGE_BLOCK_BYTES,
-        resized.mediaType,
-      )
-    } catch (error) {
-      logError(error as Error)
-    }
-  }
-
-  return {
-    block: {
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: detectImageFormatFromBuffer(outputBuffer),
-        data: outputBuffer.toString('base64'),
-      },
-    },
-    dimensions: resized.dimensions,
-  }
-}
-
-async function compressImageBlockBuffer(
-  imageBuffer: Buffer,
-  maxBytes: number,
-  format: string,
-): Promise<Buffer> {
-  const sharp = await getImageProcessor()
-  const encodeJpeg = (quality: number) =>
-    sharp(imageBuffer).jpeg({ quality }).toBuffer()
-  let smallestBuffer = imageBuffer
-  let maximumQuality = 90
-
-  if (!/jpe?g/i.test(format)) {
-    const converted = await encodeJpeg(90)
-    if (converted.length < smallestBuffer.length) smallestBuffer = converted
-    if (converted.length <= maxBytes) return converted
-    maximumQuality = 89
-  }
-
-  let minimumQuality = 1
-  let matchingBuffer: Buffer | undefined
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const quality = Math.floor((minimumQuality + maximumQuality) / 2)
-    const candidate = await encodeJpeg(quality)
-    if (candidate.length < smallestBuffer.length) smallestBuffer = candidate
-    if (candidate.length <= maxBytes) {
-      matchingBuffer = candidate
-      minimumQuality = quality + 1
-    } else {
-      maximumQuality = quality - 1
-    }
-    if (minimumQuality > maximumQuality) break
-  }
-  return matchingBuffer ?? smallestBuffer
 }
 
 /**

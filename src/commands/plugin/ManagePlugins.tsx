@@ -17,8 +17,6 @@ import { useSearchInput } from '../../hooks/useSearchInput.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- useInput needed for raw search mode text input
 import { Box, Text, useInput, useTerminalFocus } from '../../ink.js';
-import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
-import type { PasteEvent } from '../../ink/events/paste-event.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
 import { getBuiltinPluginDefinition } from '../../plugins/builtinPlugins.js';
 import { useMcpToggleEnabled } from '../../services/mcp/MCPConnectionManager.js';
@@ -583,9 +581,7 @@ export function ManagePlugins({
   const {
     query: searchQuery,
     setQuery: setSearchQuery,
-    cursorOffset: searchCursorOffset,
-    handleKeyDown: handleSearchKeyDown,
-    handlePaste: handleSearchPaste,
+    cursorOffset: searchCursorOffset
   } = useSearchInput({
     isActive: viewState === 'plugin-list' && isSearchMode,
     onExit: () => {
@@ -1318,9 +1314,10 @@ export function ManagePlugins({
             if (!result.success) {
               throw new Error(result.message);
             }
-            // If already up to date, show message and exit
-            if (result.alreadyUpToDate) {
-              setResult(`${selectedPlugin.plugin.name} is already at the latest version (${result.newVersion}).`);
+            // Updates that are already current or intentionally skipped return
+            // their authoritative operation message and exit without telemetry.
+            if (result.alreadyUpToDate || result.skipped) {
+              setResult(result.message);
               if (onManageComplete) {
                 await onManageComplete();
               }
@@ -1346,7 +1343,7 @@ export function ManagePlugins({
       const pluginIdNow = `${selectedPlugin.plugin.name}@${selectedPlugin.marketplace}`;
       const settingsAfter = getSettings_DEPRECATED();
       const enabledAfter = settingsAfter?.enabledPlugins?.[pluginIdNow] !== false;
-      if (enabledAfter) {
+      if (operation !== 'uninstall' && operation !== 'update' && enabledAfter) {
         setIsProcessing(false);
         setViewState({
           type: 'plugin-options'
@@ -1845,37 +1842,28 @@ export function ManagePlugins({
     setSelectedIndex(0);
   }, [searchQuery]);
 
-  function handleKeyDown(event: KeyboardEvent): void {
+  // Handle input for entering search mode (text input handled by useSearchInput hook)
+  // eslint-disable-next-line custom-rules/prefer-use-keybindings -- useInput needed for raw search mode text input
+  useInput((input_0, key_0) => {
+    const keyIsNotCtrlOrMeta = !key_0.ctrl && !key_0.meta;
     if (isSearchMode) {
-      handleSearchKeyDown(event);
+      // Text input is handled by useSearchInput hook
       return;
     }
-    if (event.ctrl || event.meta) return;
-    if (event.key === '/') {
-      event.preventDefault();
+
+    // Enter search mode with '/' or any printable character (except navigation keys)
+    if (input_0 === '/' && keyIsNotCtrlOrMeta) {
       setIsSearchMode(true);
       setSearchQuery('');
       setSelectedIndex(0);
-    } else if (event.key.length === 1 && event.key !== ' ') {
-      event.preventDefault();
+    } else if (keyIsNotCtrlOrMeta && input_0.length > 0 && !/^\s+$/.test(input_0) && input_0 !== 'j' && input_0 !== 'k' && input_0 !== ' ') {
       setIsSearchMode(true);
-      setSearchQuery(event.key);
+      setSearchQuery(input_0);
       setSelectedIndex(0);
     }
-  }
-
-  function handlePaste(event: PasteEvent): void {
-    if (isSearchMode) {
-      handleSearchPaste(event);
-      return;
-    }
-    const text = (event.text.split(/\r\n|\r|\n/, 2)[0] ?? '').trim();
-    if (!text) return;
-    event.preventDefault();
-    setIsSearchMode(true);
-    setSearchQuery(text);
-    setSelectedIndex(0);
-  }
+  }, {
+    isActive: viewState === 'plugin-list'
+  });
 
   // Loading state
   if (loading) {
@@ -2400,7 +2388,7 @@ export function ManagePlugins({
 
   // Plugin list view (main management interface)
   const visibleItems = pagination.getVisibleItems(filteredItems);
-  return <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={handleKeyDown} onPaste={handlePaste}>
+  return <Box flexDirection="column">
       {/* Search box */}
       <Box marginBottom={1}>
         <SearchBox query={searchQuery} isFocused={isSearchMode} isTerminalFocused={isTerminalFocused} width={terminalWidth - 4} cursorOffset={searchCursorOffset} />

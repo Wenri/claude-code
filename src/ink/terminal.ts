@@ -76,13 +76,9 @@ export function isProgressReportingAvailable(): boolean {
  * Checks if the terminal supports DEC mode 2026 (synchronized output).
  * When supported, BSU/ESU sequences prevent visible flicker during redraws.
  */
-let synchronizedOutputProbeSucceeded: boolean | undefined
-
-export function setSynchronizedOutputProbeSucceeded(supported: boolean): void {
-  synchronizedOutputProbeSucceeded = supported
-}
-
 export function isSynchronizedOutputSupported(): boolean {
+  if (process.env.CLAUDE_BG_BACKEND === 'daemon') return true
+
   // tmux parses and proxies every byte but doesn't implement DEC 2026.
   // BSU/ESU pass through to the outer terminal but tmux has already
   // broken atomicity by chunking. Skip to save 16 bytes/frame + parser work.
@@ -253,13 +249,6 @@ export type Terminal = {
   stderr: Writable
 }
 
-let terminalOutputFailed = false
-let daemonBackend: boolean | undefined
-
-function isDaemonBackend(): boolean {
-  return (daemonBackend ??= process.env.CLAUDE_BG_BACKEND === 'daemon')
-}
-
 export function writeDiffToTerminal(
   terminal: Terminal,
   diff: Diff,
@@ -319,16 +308,5 @@ export function writeDiffToTerminal(
 
   // Add synchronized update end and flush buffer
   if (useSync) buffer += ESU
-  if (terminalOutputFailed) return
-
-  try {
-    terminal.stdout.write(buffer)
-  } catch (error) {
-    const code = getErrnoCode(error)
-    if (isDaemonBackend() && (code === 'EIO' || code === 'EPIPE')) {
-      terminalOutputFailed = true
-      return
-    }
-    throw error
-  }
+  terminal.stdout.write(buffer)
 }

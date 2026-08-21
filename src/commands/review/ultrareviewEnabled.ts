@@ -1,4 +1,5 @@
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
+import { isBridgeEnabled } from '../../bridge/bridgeEnabled.js'
 
 export type UltrareviewConfig = Record<string, unknown> & {
   enabled?: boolean
@@ -32,5 +33,5 @@ export function getUltrareviewModel(): string | undefined {
 }
 
 export function isUltrareviewEnabled(): boolean {
-  return getUltrareviewConfig()?.enabled === true
+  return getUltrareviewConfig()?.enabled === true && isBridgeEnabled()
 }

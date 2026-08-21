@@ -1,22 +1,29 @@
 import * as fs from 'fs/promises'
 import { homedir } from 'os'
 import { join } from 'path'
+import { isSettledJob, readJobState } from '../daemon/jobs.js'
 import { logEvent } from '../services/analytics/index.js'
 import { CACHE_PATHS } from './cachePaths.js'
 import { logForDebugging } from './debug.js'
 import { getClaudeConfigHomeDir } from './envUtils.js'
-import { isENOENT } from './errors.js'
 import { type FsOperations, getFsImplementation } from './fsOperations.js'
+import {
+  isProcessRunning,
+  processStartTokenMatches,
+} from './genericProcessUtils.js'
 import { cleanupOldImageCaches } from './imageStore.js'
+import { safeParseJSON } from './json.js'
 import * as lockfile from './lockfile.js'
 import { logError } from './log.js'
 import { cleanupOldVersions } from './nativeInstaller/index.js'
 import { cleanupOldPastes } from './pasteStore.js'
+import { cleanupFleetDrafts } from './fleetDraft.js'
 import { getProjectsDir } from './sessionStorage.js'
 import { getSettingsWithAllErrors } from './settings/allErrors.js'
 import { isSettingSourceEnabled } from './settings/constants.js'
 import {
   getSettings_DEPRECATED,
+  getSettingsForSource,
   rawSettingsContainsKey,
 } from './settings/settings.js'
 import { TOOL_RESULTS_SUBDIR } from './toolResultStorage.js'
@@ -322,25 +329,6 @@ async function cleanupSingleDirectory(
   return result
 }
 
-async function cleanupOldHfiAuthFile(): Promise<CleanupResult> {
-  const result: CleanupResult = { messages: 0, errors: 0 }
-  const cutoffDate = getCutoffDate()
-  if (cutoffDate === null) return result
-
-  const authFile = join(getClaudeConfigHomeDir(), 'hfi-auth.json')
-  try {
-    if (await unlinkIfOld(authFile, cutoffDate, getFsImplementation())) {
-      result.messages++
-    }
-  } catch (error) {
-    if (!isENOENT(error)) {
-      logError(error as Error)
-      result.errors++
-    }
-  }
-  return result
-}
-
 export function cleanupOldPlanFiles(): Promise<CleanupResult> {
   const plansDir = join(getClaudeConfigHomeDir(), 'plans')
   return cleanupSingleDirectory(plansDir, '.md')
@@ -356,6 +344,8 @@ export async function cleanupOldSessionEnvDirs(): Promise<CleanupResult> {
 
 async function cleanupOldDirectories(
   directoryName: string,
+  preservedNames?: Set<string>,
+  shouldPreserve?: (path: string) => Promise<boolean>,
 ): Promise<CleanupResult> {
   const cutoffDate = getCutoffDate()
   const result: CleanupResult = { messages: 0, errors: 0 }
@@ -373,14 +363,18 @@ async function cleanupOldDirectories(
     }
 
     const childDirs = dirents
-      .filter(dirent => dirent.isDirectory())
+      .filter(
+        dirent =>
+          dirent.isDirectory() && !preservedNames?.has(dirent.name),
+      )
       .map(dirent => join(baseDir, dirent.name))
 
     for (const childDir of childDirs) {
       try {
         const stats = await fsImpl.stat(childDir)
         if (stats.mtime < cutoffDate) {
-          await fsImpl.rm(childDir, { recursive: true, force: false })
+          if (await shouldPreserve?.(childDir)) continue
+          await fsImpl.rm(childDir, { recursive: true, force: true })
           result.messages++
         }
       } catch {
@@ -412,6 +406,161 @@ export function cleanupOldShellSnapshots(): Promise<CleanupResult> {
     join(getClaudeConfigHomeDir(), 'shell-snapshots'),
     '.sh',
   )
+}
+
+function isENOENTError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    (error as NodeJS.ErrnoException).code === 'ENOENT'
+  )
+}
+
+/**
+ * Clean up background-job and daemon artifacts without deleting work that is
+ * pinned, still running, or not yet settled. A managed cleanup policy is
+ * authoritative and intentionally ignores user pins/non-settled state, while
+ * live daemon roster entries are always preserved.
+ */
+export async function cleanupOldJobAndDaemonFiles(): Promise<CleanupResult> {
+  const configDir = getClaudeConfigHomeDir()
+  let result = await cleanupSingleDirectory(
+    join(configDir, 'jobs', 'settled'),
+    '.json',
+  )
+  result = addCleanupResults(
+    result,
+    await cleanupSingleDirectory(
+      join(configDir, 'daemon', 'dispatch', 'rejected'),
+      '.json',
+    ),
+  )
+  result = addCleanupResults(
+    result,
+    await cleanupSingleDirectory(
+      join(configDir, 'daemon', 'dispatch'),
+      '.json',
+      false,
+    ),
+  )
+
+  const policyCleanupConfigured =
+    getSettingsForSource('policySettings')?.cleanupPeriodDays !== undefined
+  const preservedJobs = new Set<string>()
+  const fsImpl = getFsImplementation()
+
+  if (!policyCleanupConfigured) {
+    try {
+      const parsed = safeParseJSON(
+        await fsImpl.readFile(join(configDir, 'jobs', 'pins.json'), {
+          encoding: 'utf-8',
+        }),
+      )
+      if (Array.isArray(parsed)) {
+        for (const value of parsed) {
+          if (typeof value === 'string') preservedJobs.add(value)
+        }
+      }
+    } catch {}
+  }
+
+  let rosterHasWorkersObject = false
+  let rosterHasLiveWorker = false
+  try {
+    const parsed = safeParseJSON(
+      await fsImpl.readFile(join(configDir, 'daemon', 'roster.json'), {
+        encoding: 'utf-8',
+      }),
+    )
+    if (
+      parsed !== null &&
+      typeof parsed === 'object' &&
+      'workers' in parsed
+    ) {
+      const workers = (parsed as { workers?: unknown }).workers
+      if (workers !== null && typeof workers === 'object') {
+        rosterHasWorkersObject = true
+        for (const [short, record] of Object.entries(workers)) {
+          if (
+            record !== null &&
+            typeof record === 'object' &&
+            'pid' in record &&
+            typeof record.pid === 'number' &&
+            isProcessRunning(record.pid) &&
+            (await processStartTokenMatches(
+              record.pid,
+              'procStart' in record && typeof record.procStart === 'string'
+                ? record.procStart
+                : undefined,
+            ))
+          ) {
+            preservedJobs.add(short)
+            rosterHasLiveWorker = true
+          }
+        }
+      }
+    }
+  } catch {}
+
+  result = addCleanupResults(
+    result,
+    await cleanupOldDirectories(
+      'jobs',
+      preservedJobs,
+      policyCleanupConfigured
+        ? undefined
+        : async jobDir => {
+            const state = await readJobState(jobDir)
+            if (state === null) return true
+            return !isSettledJob(state)
+          },
+    ),
+  )
+
+  const cutoffDate = getCutoffDate()
+  if (cutoffDate !== null) {
+    for (const path of [
+      join(configDir, 'daemon.log'),
+      join(configDir, 'daemon.log.1'),
+    ]) {
+      try {
+        if (await unlinkIfOld(path, cutoffDate, fsImpl)) result.messages++
+      } catch (error) {
+        if (!isENOENTError(error)) result.errors++
+      }
+    }
+
+    const rosterPath = join(configDir, 'daemon', 'roster.json')
+    try {
+      if (
+        (await fsImpl.stat(rosterPath)).mtime < cutoffDate &&
+        !rosterHasLiveWorker &&
+        (rosterHasWorkersObject || policyCleanupConfigured)
+      ) {
+        await fsImpl.unlink(rosterPath)
+        result.messages++
+      }
+    } catch (error) {
+      if (!isENOENTError(error)) result.errors++
+    }
+
+    const daemonDir = join(configDir, 'daemon')
+    for (const entry of await fsImpl.readdir(daemonDir).catch(() => [])) {
+      if (!entry.isFile() || !entry.name.startsWith('roster.json.corrupt.')) {
+        continue
+      }
+      try {
+        if (await unlinkIfOld(join(daemonDir, entry.name), cutoffDate, fsImpl)) {
+          result.messages++
+        }
+      } catch {
+        result.errors++
+      }
+    }
+  }
+
+  await cleanupFleetDrafts()
+  return result
 }
 
 export function cleanupOldBackups(): Promise<CleanupResult> {
@@ -629,6 +778,8 @@ export async function cleanupOldVersionsThrottled(): Promise<void> {
 export async function cleanupOldMessageFilesInBackground(): Promise<void> {
   await cleanupOldImageCaches()
 
+  const policyCleanupConfigured =
+    getSettingsForSource('policySettings')?.cleanupPeriodDays !== undefined
   if (
     !isSettingSourceEnabled('userSettings') &&
     getSettings_DEPRECATED()?.cleanupPeriodDays === undefined
@@ -643,7 +794,11 @@ export async function cleanupOldMessageFilesInBackground(): Promise<void> {
   // skip cleanup entirely rather than falling back to the default (30 days).
   // This prevents accidentally deleting files when the user intended a different retention period.
   const { errors } = getSettingsWithAllErrors()
-  if (errors.length > 0 && rawSettingsContainsKey('cleanupPeriodDays')) {
+  if (
+    !policyCleanupConfigured &&
+    errors.length > 0 &&
+    rawSettingsContainsKey('cleanupPeriodDays')
+  ) {
     logForDebugging(
       'Skipping cleanup: settings have validation errors but cleanupPeriodDays was explicitly set. Fix settings errors to enable cleanup.',
     )
@@ -659,6 +814,7 @@ export async function cleanupOldMessageFilesInBackground(): Promise<void> {
   await cleanupOldDebugLogs()
   await cleanupOldDumpPrompts()
   await cleanupOldShellSnapshots()
+  await cleanupOldJobAndDaemonFiles()
   await cleanupOldBackups()
   await cleanupOldHfiAuth()
   const cutoffDate = getCutoffDate()

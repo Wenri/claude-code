@@ -147,7 +147,7 @@ export async function setClipboard(text: string): Promise<string> {
   // Gated on SSH_CONNECTION (not SSH_TTY) since tmux panes inherit SSH_TTY
   // forever but SSH_CONNECTION is in tmux's default update-environment and
   // clears on local attach. Fire-and-forget.
-  if (!process.env['SSH_CONNECTION']) copyNative(text, b64)
+  if (!process.env['SSH_CONNECTION']) copyNative(text)
 
   const tmuxBufferLoaded = await tmuxLoadBuffer(text)
 
@@ -161,7 +161,9 @@ export async function setClipboard(text: string): Promise<string> {
 // Probe order: wl-copy (Wayland) → xclip (X11) → xsel (X11 fallback).
 // Cached after first attempt so repeated mouse-ups skip the probe chain.
 let linuxCopy: 'wl-copy' | 'xclip' | 'xsel' | null | undefined
-const WINDOWS_CLIPBOARD_BASE64_LIMIT = 30_000
+
+const POWERSHELL_CLIPBOARD_COMMAND =
+  '[Console]::InputEncoding = [Text.Encoding]::UTF8; Set-Clipboard -Value ([Console]::In.ReadToEnd())'
 
 /**
  * Shell out to a native clipboard utility as a safety net for OSC 52.
@@ -169,7 +171,7 @@ const WINDOWS_CLIPBOARD_BASE64_LIMIT = 30_000
  * the remote machine's clipboard — OSC 52 is the right path there).
  * Fire-and-forget: failures are silent since OSC 52 may have succeeded.
  */
-function copyNative(text: string, base64: string): void {
+function copyNative(text: string): void {
   const opts = { input: text, useCwd: false, timeout: 2000 }
   switch (process.platform) {
     case 'darwin':
@@ -212,19 +214,10 @@ function copyNative(text: string, base64: string): void {
       return
     }
     case 'win32':
-      // PowerShell decodes UTF-8 from base64, preserving non-ASCII text that
-      // clip.exe would otherwise interpret using the active system code page.
-      // Keep the command bounded: Windows' process command line is limited to
-      // roughly 32 KiB, and OSC 52 remains the fallback for larger payloads.
-      if (base64.length > WINDOWS_CLIPBOARD_BASE64_LIMIT) return
       void execFileNoThrow(
         'powershell',
-        [
-          '-NoProfile',
-          '-Command',
-          `Set-Clipboard -Value ([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${base64}')))`,
-        ],
-        { useCwd: false, timeout: 2000 },
+        ['-NoProfile', '-NonInteractive', '-Command', POWERSHELL_CLIPBOARD_COMMAND],
+        opts,
       )
       return
   }

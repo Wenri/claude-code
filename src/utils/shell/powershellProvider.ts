@@ -100,8 +100,8 @@ export function createPowerShellProvider(shellPath: string): ShellProvider {
     },
 
     async getEnvironmentOverrides(
-      _command: string,
-      sessionEnvVars?: Map<string, string>,
+      _command,
+      sessionEnvVars,
     ): Promise<Record<string, string>> {
       const env: Record<string, string> = {}
       // Apply session env vars set via /env (child processes only, not
@@ -111,10 +111,8 @@ export function createPowerShellProvider(shellPath: string): ShellProvider {
       // Ordering: session vars FIRST so the sandbox TMPDIR below can't be
       // overridden by `/env TMPDIR=...`. bashProvider.ts has these in the
       // opposite order (pre-existing), but sandbox isolation should win.
-      if (sessionEnvVars) {
-        for (const [key, value] of sessionEnvVars) {
-          env[key] = value
-        }
+      for (const [key, value] of sessionEnvVars ?? []) {
+        env[key] = value
       }
       if (currentSandboxTmpDir) {
         // PowerShell on Linux/macOS honors TMPDIR for [System.IO.Path]::GetTempPath()

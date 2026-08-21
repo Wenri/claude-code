@@ -28,9 +28,9 @@ export class ClickEvent extends Event {
    * clicks on empty terminal space don't toggle state.
    */
   readonly cellIsBlank: boolean
-  /** OSC 8 hyperlink under the clicked cell, when present. */
+  /** OSC 8/plain-text URL under the pointer when the click was dispatched. */
   readonly hyperlinkUrl: string | undefined
-  /** Whether terminal-native hyperlink handling may proceed. */
+  /** Whether the current handler yielded to the terminal's link action. */
   defaultAllowed = false
 
   allowDefault(): void {

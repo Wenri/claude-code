@@ -16,8 +16,12 @@ import { logForDebugging } from '../debug.js'
 import { isEnvTruthy } from '../envUtils.js'
 import { getPlatform } from '../platform.js'
 import { getSessionEnvironmentScript } from '../sessionEnvironment.js'
+import {
+  ensureSocketInitialized,
+  hasTmuxToolBeenUsed,
+} from '../tmuxSocket.js'
 import { windowsPathToPosixPath } from '../windowsPaths.js'
-import type { ShellProvider, TmuxSocket } from './shellProvider.js'
+import type { ShellProvider } from './shellProvider.js'
 
 /**
  * Returns a shell command to disable extended glob patterns for security.
@@ -167,12 +171,6 @@ export async function createBashShellProvider(
         commandParts.push(`${sessionEnvScript}\n:`)
       }
 
-      if (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)) {
-        commandParts.push(
-          'export BUN_OPTIONS="--smol${BUN_OPTIONS:+ $BUN_OPTIONS}"',
-        )
-      }
-
       // Disable extended glob patterns for security (after sourcing user config to override)
       const disableExtglobCmd = getDisableExtglobCommand(shellPath)
       if (disableExtglobCmd) {
@@ -214,22 +212,37 @@ export async function createBashShellProvider(
 
     async getEnvironmentOverrides(
       command: string,
-      sessionEnvVars?: Map<string, string>,
-      tmuxSocket?: TmuxSocket,
+      sessionEnvVars,
+      tmuxSocket,
     ): Promise<Record<string, string>> {
+      // TMUX SOCKET ISOLATION (DEFERRED):
+      // We initialize Claude's tmux socket ONLY AFTER the Tmux tool has been used
+      // at least once, OR if the current command appears to use tmux.
+      // This defers the startup cost until tmux is actually needed.
+      //
+      // Once the Tmux tool is used (or a tmux command runs), all subsequent Bash
+      // commands will use Claude's isolated socket via the TMUX env var override.
+      //
+      // See tmuxSocket.ts for the full isolation architecture documentation.
       const commandUsesTmux = command.includes('tmux')
-      void commandUsesTmux
-      const claudeTmuxEnv = tmuxSocket?.getTmuxEnv() ?? null
-      const env: Record<string, string> = {
-        CLAUDE_CODE_EXECPATH: process.execPath,
+      if (
+        tmuxSocket &&
+        process.env.USER_TYPE === 'ant' &&
+        (hasTmuxToolBeenUsed() || commandUsesTmux)
+      ) {
+        await ensureSocketInitialized()
       }
+      const claudeTmuxEnv = tmuxSocket?.getTmuxEnv() ?? null
+      const env: Record<string, string> = {}
+      // CRITICAL: Override TMUX to isolate ALL tmux commands to Claude's socket.
+      // This is NOT the user's TMUX value - it points to Claude's isolated socket.
+      // When null (before socket initializes), user's TMUX is preserved.
       if (claudeTmuxEnv) {
         env.TMUX = claudeTmuxEnv
       }
-      if (sessionEnvVars) {
-        for (const [key, value] of sessionEnvVars) {
-          env[key] = value
-        }
+      // Apply session env vars set via /env (child processes only, not the REPL).
+      for (const [key, value] of sessionEnvVars ?? []) {
+        env[key] = value
       }
       if (currentSandboxTmpDir) {
         let posixTmpDir = currentSandboxTmpDir

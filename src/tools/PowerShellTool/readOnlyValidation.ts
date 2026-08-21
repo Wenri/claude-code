@@ -18,6 +18,7 @@ import {
   getPipelineSegments,
   isNullRedirectionTarget,
   isPowerShellParameter,
+  PS_TOKENIZER_DASH_CHARS,
 } from '../../utils/powershell/parser.js'
 import type { ExternalCommandConfig } from '../../utils/shell/readOnlyCommandValidation.js'
 import {
@@ -27,11 +28,58 @@ import {
   GIT_READ_ONLY_COMMANDS,
   validateFlags,
 } from '../../utils/shell/readOnlyCommandValidation.js'
-import {
-  COMMON_PARAMETERS,
-  SAFE_ACTION_PREFERENCE_VALUES,
-  isActionPreferenceParameter,
-} from './commonParameters.js'
+import { COMMON_PARAMETERS } from './commonParameters.js'
+
+const ACTION_PREFERENCE_PARAMETERS = [
+  '-erroraction',
+  '-warningaction',
+  '-informationaction',
+  '-progressaction',
+]
+const ACTION_PREFERENCE_ALIASES = ['-ea', '-wa', '-infa', '-proga']
+const SAFE_ACTION_PREFERENCE_VALUES = new Set([
+  'silentlycontinue',
+  '0',
+  'stop',
+  '1',
+  'continue',
+  '2',
+  'ignore',
+  '4',
+])
+
+function matchesActionPreferenceParameter(parameter: string): boolean {
+  if (parameter.length < 2) return false
+  return (
+    ACTION_PREFERENCE_ALIASES.includes(parameter) ||
+    ACTION_PREFERENCE_PARAMETERS.some(full => full.startsWith(parameter))
+  )
+}
+
+function hasDangerousActionPreferenceValue(args: string[]): boolean {
+  for (let index = 0; index < args.length; index++) {
+    const raw = args[index]!
+    if (!PS_TOKENIZER_DASH_CHARS.has(raw[0] ?? '')) continue
+    const normalized = raw[0] === '-' ? raw : `-${raw.slice(1)}`
+    const colonIndex = normalized.indexOf(':')
+    const parameter = (
+      colonIndex > 0 ? normalized.slice(0, colonIndex) : normalized
+    ).toLowerCase()
+    if (!matchesActionPreferenceParameter(parameter)) continue
+    const value = (
+      colonIndex > 0
+        ? normalized.slice(colonIndex + 1)
+        : (args[index + 1] ?? '')
+    )
+      .toLowerCase()
+      .replace(/^['"]|['"]$/g, '')
+      .trim()
+    if (value.length > 0 && !SAFE_ACTION_PREFERENCE_VALUES.has(value)) {
+      return true
+    }
+  }
+  return false
+}
 
 const DOTNET_READ_ONLY_FLAGS = new Set([
   '--version',
@@ -1425,7 +1473,7 @@ export function isAllowlistedCommand(
   // Verb-Noun canonical name (either directly or via alias).
   const isCmdlet = canonical.includes('-')
 
-  if (isCmdlet && hasUnsafeActionPreference(cmd.args, cmd.elementTypes)) {
+  if (isCmdlet && hasDangerousActionPreferenceValue(cmd.args)) {
     return false
   }
 
@@ -1764,26 +1812,6 @@ function isDockerSafe(args: string[]): boolean {
     }
   }
 
-  // Docker CLI global connection flags can redirect an otherwise read-only
-  // command to an attacker-controlled daemon or configuration/TLS context.
-  for (const arg of args) {
-    if (arg[0] === '-' && arg[1] !== '-') {
-      for (let i = 1; i < arg.length; i++) {
-        if (arg[i] === 'H') return false
-        if (arg[i]?.toLowerCase() === 'c') return false
-      }
-    }
-    const lower = arg.toLowerCase()
-    if (
-      lower.startsWith('--host') ||
-      lower.startsWith('--context') ||
-      lower.startsWith('--config') ||
-      lower.startsWith('--tls')
-    ) {
-      return false
-    }
-  }
-
   const oneWordKey = `docker ${args[0]?.toLowerCase()}`
 
   // Fast path: EXTERNAL_READONLY_COMMANDS entries ('docker ps', 'docker images')
@@ -1809,34 +1837,6 @@ function isDockerSafe(args: string[]): boolean {
     return false
   }
   return validateFlags(flagArgs, 0, config)
-}
-
-function hasUnsafeActionPreference(
-  args: string[],
-  elementTypes?: ParsedCommandElement['elementTypes'],
-): boolean {
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]!
-    if (!isPowerShellParameter(arg, elementTypes?.[i + 1])) continue
-    const normalized = (arg[0] === '-' ? arg : '-' + arg.slice(1))
-    const colonIndex = normalized.indexOf(':')
-    const parameter = (colonIndex > 0
-      ? normalized.slice(0, colonIndex)
-      : normalized
-    ).toLowerCase()
-    if (!isActionPreferenceParameter(parameter)) continue
-    const value = (colonIndex > 0
-      ? normalized.slice(colonIndex + 1)
-      : (args[i + 1] ?? '')
-    )
-      .toLowerCase()
-      .replace(/^['"]|['"]$/g, '')
-      .trim()
-    if (value.length > 0 && !SAFE_ACTION_PREFERENCE_VALUES.has(value)) {
-      return true
-    }
-  }
-  return false
 }
 
 function isDotnetSafe(args: string[]): boolean {

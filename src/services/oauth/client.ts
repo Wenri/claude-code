@@ -20,6 +20,7 @@ import {
 import type { AccountInfo } from '../../utils/config.js'
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
 import { logForDebugging } from '../../utils/debug.js'
+import { errorMessage } from '../../utils/errors.js'
 import { getOauthProfileFromOauthToken } from './getOauthProfile.js'
 import type {
   BillingType,
@@ -129,7 +130,7 @@ export async function exchangeCodeForTokens(
 
   const response = await axios.post(getOauthConfig().TOKEN_URL, requestBody, {
     headers: { 'Content-Type': 'application/json' },
-    timeout: 15000,
+    timeout: 30000,
   })
 
   if (response.status !== 200) {
@@ -172,7 +173,7 @@ export async function refreshOAuthToken(
   try {
     const response = await axios.post(getOauthConfig().TOKEN_URL, requestBody, {
       headers: { 'Content-Type': 'application/json' },
-      timeout: 15000,
+      timeout: 30000,
     })
 
     if (response.status !== 200) {
@@ -272,19 +273,61 @@ export async function refreshOAuthToken(
         : undefined,
     }
   } catch (error) {
-    const responseBody =
-      axios.isAxiosError(error) && error.response?.data
-        ? JSON.stringify(error.response.data)
-        : undefined
     logEvent('tengu_oauth_token_refresh_failure', {
-      error: (error as Error)
-        .message as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...(responseBody && {
-        responseBody:
-          responseBody as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      }),
+      error: errorMessage(error) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      ...extractOAuthErrorFields(error),
     })
     throw error
+  }
+}
+
+export function isInvalidGrantError(error: unknown): boolean {
+  if (!axios.isAxiosError(error) || !error.response) return false
+  const status = error.response.status
+  if (status !== 400 && status !== 401) return false
+  const data = error.response.data
+  if (!data || typeof data !== 'object') return false
+  const oauthError = (data as { error?: unknown }).error
+  const type =
+    typeof oauthError === 'string'
+      ? oauthError
+      : oauthError && typeof oauthError === 'object'
+        ? (oauthError as { type?: unknown }).type
+        : undefined
+  return type === 'invalid_grant'
+}
+
+const OAUTH_ERROR_TYPE_PATTERN = /^[a-z][a-z_]{0,39}$/
+
+/**
+ * Extract bounded OAuth error telemetry without serializing the response body.
+ */
+export function extractOAuthErrorFields(error: unknown): {
+  oauth_error_status?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+  oauth_error_type?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+} {
+  if (!axios.isAxiosError(error) || !error.response) return {}
+
+  const status = error.response.status
+  const data = error.response.data
+  let sanitizedType = 'unparseable'
+  if (data && typeof data === 'object') {
+    const oauthError = (data as { error?: unknown }).error
+    const type =
+      typeof oauthError === 'string'
+        ? oauthError
+        : oauthError && typeof oauthError === 'object'
+          ? (oauthError as { type?: unknown }).type
+          : undefined
+    if (typeof type === 'string' && OAUTH_ERROR_TYPE_PATTERN.test(type)) {
+      sanitizedType = type
+    }
+  }
+
+  return {
+    oauth_error_status: String(status) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    oauth_error_type:
+      sanitizedType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   }
 }
 

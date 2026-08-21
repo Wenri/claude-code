@@ -14,7 +14,6 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
   logEvent,
 } from '../../services/analytics/index.js'
-import { isToolDetailsLoggingEnabled } from '../../services/analytics/metadata.js'
 import { getCwd } from '../cwd.js'
 import { logForDebugging } from '../debug.js'
 import { toError } from '../errors.js'
@@ -33,10 +32,10 @@ import {
   formatNoMatchingTagError,
   getEnabledPluginIdsForScope,
   intersectConstraints,
+  isPluginVersionSatisfied,
   qualifyDependency,
   type ResolutionResult,
   resolveDependencyClosure,
-  satisfiesVersionConstraint,
 } from './dependencyResolver.js'
 import { installPluginDependencies } from './pluginDependencyInstaller.js'
 import {
@@ -646,35 +645,43 @@ export async function installResolvedPlugin({
       alreadyEnabled.add(id)
     }
   }
-
   const loaded = await loadAllPlugins()
-  const allLoadedPlugins = [...loaded.enabled, ...loaded.disabled]
+  const allLoaded = [...loaded.enabled, ...loaded.disabled]
   const installedVersions = new Map<string, string | undefined>()
-  for (const plugin of allLoadedPlugins) {
+  for (const loadedPlugin of allLoaded) {
     installedVersions.set(
-      plugin.source,
-      plugin.resolvedVersion ?? plugin.manifest.version,
+      loadedPlugin.source,
+      loadedPlugin.resolvedVersion ?? loadedPlugin.manifest.version,
     )
   }
-
-  const enabledPlugins = getSettingsForSource(settingSource)?.enabledPlugins
+  const enabledPluginSettings =
+    getSettingsForSource(settingSource)?.enabledPlugins
   const forceInclude = new Set<string>()
-  for (const plugin of allLoadedPlugins) {
-    if (!plugin.depConstraints) continue
-    for (const [rawDependency, constraint] of plugin.depConstraints) {
+  for (const loadedPlugin of allLoaded) {
+    if (!loadedPlugin.depConstraints) continue
+    for (const [rawDependency, constraint] of loadedPlugin.depConstraints) {
       if (constraint.version === undefined) continue
-      const dependency = qualifyDependency(rawDependency, plugin.source)
-      // A path-array setting is an explicit local override. Keep it pinned
-      // instead of replacing it with a marketplace install.
-      if (Array.isArray(enabledPlugins?.[dependency])) continue
-      if (isPluginBlockedByPolicy(dependency)) {
+      const dependency = qualifyDependency(rawDependency, loadedPlugin.source)
+      if (Array.isArray(enabledPluginSettings?.[dependency])) continue
+
+      const dependencyMarketplace =
+        parsePluginIdentifier(dependency).marketplace
+      const dependencyMarketplaceConfig = dependencyMarketplace
+        ? knownMarketplaces[dependencyMarketplace]
+        : undefined
+      if (
+        isPluginBlockedByPolicy(dependency) ||
+        (dependencyMarketplace &&
+          dependencyMarketplaceConfig &&
+          !isSourceAllowedByPolicy(dependencyMarketplaceConfig.source))
+      ) {
         logForDebugging(
           `installResolvedPlugin: ${dependency} version-unsatisfied but policy-blocked; not force-including`,
         )
         continue
       }
       if (
-        !satisfiesVersionConstraint(
+        !isPluginVersionSatisfied(
           installedVersions.get(dependency),
           constraint.version,
         )
@@ -683,7 +690,6 @@ export async function installResolvedPlugin({
       }
     }
   }
-
   const resolution = await resolveDependencyClosure(
     pluginId,
     async id => {
@@ -706,7 +712,8 @@ export async function installResolvedPlugin({
   // closure could also be policy-blocked. Check before writing to settings
   // so a non-blocked plugin can't pull in a blocked dependency.
   for (const id of resolution.closure) {
-    if (id !== pluginId && isPluginBlockedByPolicy(id)) {
+    if (id === pluginId || alreadyEnabled.has(id)) continue
+    if (isPluginBlockedByPolicy(id)) {
       return {
         ok: false,
         reason: 'dependency-blocked-by-policy',
@@ -714,29 +721,27 @@ export async function installResolvedPlugin({
         blockedDependency: id,
       }
     }
-    if (id !== pluginId) {
-      const dependencyMarketplace = parsePluginIdentifier(id).marketplace
-      const dependencyMarketplaceConfig = dependencyMarketplace
-        ? knownMarketplaces[dependencyMarketplace]
-        : undefined
-      if (
-        dependencyMarketplace &&
-        dependencyMarketplaceConfig &&
-        !isSourceAllowedByPolicy(dependencyMarketplaceConfig.source)
-      ) {
-        return {
-          ok: false,
-          reason: 'dependency-marketplace-blocked-by-policy',
-          pluginName: entry.name,
-          blockedDependency: id,
-          marketplaceName: dependencyMarketplace,
-        }
+    const dependencyMarketplace = parsePluginIdentifier(id).marketplace
+    const dependencyMarketplaceConfig = dependencyMarketplace
+      ? knownMarketplaces[dependencyMarketplace]
+      : undefined
+    if (
+      dependencyMarketplace &&
+      dependencyMarketplaceConfig &&
+      !isSourceAllowedByPolicy(dependencyMarketplaceConfig.source)
+    ) {
+      return {
+        ok: false,
+        reason: 'dependency-marketplace-blocked-by-policy',
+        pluginName: entry.name,
+        blockedDependency: id,
+        marketplaceName: dependencyMarketplace,
       }
     }
   }
 
   const previousEnabled = {
-    ...(enabledPlugins ?? {}),
+    ...(getSettingsForSource(settingSource)?.enabledPlugins ?? {}),
   }
 
   // ── ACTION: write entire closure to settings in one call ──
@@ -775,7 +780,9 @@ export async function installResolvedPlugin({
     const restore: Record<string, boolean | string[] | undefined> = {}
     for (const id of closure) {
       restore[id] =
-        id === pluginId && materialized.has(id)
+        id === pluginId &&
+        materialized.has(id) &&
+        !Array.isArray(previousEnabled[id])
           ? true
           : previousEnabled[id]
     }
@@ -804,7 +811,7 @@ export async function installResolvedPlugin({
 
     const closureSet = new Set(closure)
     const existingConstraints = new Map<string, string[]>()
-    for (const loadedPlugin of allLoadedPlugins) {
+    for (const loadedPlugin of allLoaded) {
       if (!loadedPlugin.depConstraints) continue
       if (closureSet.has(loadedPlugin.source)) continue
       for (const [rawDependency, constraint] of loadedPlugin.depConstraints) {
@@ -898,22 +905,21 @@ export async function installResolvedPlugin({
     for (let index = closure.length - 1; index >= 0; index--) {
       const id = closure[index]
       if (id === undefined) continue
-      const isForceIncludedInstalledDependency =
-        id !== pluginId && alreadyEnabled.has(id)
+      const wasAlreadyEnabled = id !== pluginId && alreadyEnabled.has(id)
       let result: Awaited<ReturnType<typeof materialize>>
       try {
         result = await materialize(id)
-      } catch (error) {
-        if (isForceIncludedInstalledDependency) {
+      } catch (materializeError) {
+        if (wasAlreadyEnabled) {
           logForDebugging(
-            `installResolvedPlugin: force-included ${id} fetch threw (${error instanceof Error ? error.message : String(error)}); skipping (pinner stays demoted)`,
+            `installResolvedPlugin: force-included ${id} fetch threw (${materializeError instanceof Error ? materializeError.message : String(materializeError)}); skipping (pinner stays demoted)`,
           )
           continue
         }
-        throw error
+        throw materializeError
       }
       if (!result.ok) {
-        if (isForceIncludedInstalledDependency) {
+        if (wasAlreadyEnabled) {
           logForDebugging(
             result.reason === 'range-conflict'
               ? `installResolvedPlugin: force-included ${id} has disjoint pinner ranges ${result.ranges.join(', ')}; skipping (pinner stays demoted)`
@@ -927,7 +933,7 @@ export async function installResolvedPlugin({
       if (id === pluginId) rootManifestDependencies = result.dependencies
     }
 
-    const rootDependencies = new Set(
+    const rootManifestDependencyIds = new Set(
       (rootManifestDependencies ?? []).map(dependency =>
         qualifyDependency(dependency, pluginId),
       ),
@@ -935,15 +941,15 @@ export async function installResolvedPlugin({
     for (const [dependency, pendingRanges] of pendingConstraints) {
       if (
         closureSet.has(dependency) ||
-        (forceInclude.has(dependency) && rootDependencies.has(dependency)) ||
+        (forceInclude.has(dependency) &&
+          rootManifestDependencyIds.has(dependency)) ||
         !alreadyEnabled.has(dependency)
       ) {
         continue
       }
-      const ranges = [
-        ...pendingRanges,
-        ...(existingConstraints.get(dependency) ?? []),
-      ]
+      const ranges = pendingRanges.concat(
+        existingConstraints.get(dependency) ?? [],
+      )
       const intersection = intersectConstraints(ranges)
       if (!intersection.ok) {
         rollbackEnabledPlugins()
@@ -958,7 +964,7 @@ export async function installResolvedPlugin({
       const installed = installedVersions.get(dependency)
       if (
         intersection.range !== '*' &&
-        !satisfiesVersionConstraint(installed, intersection.range)
+        !isPluginVersionSatisfied(installed, intersection.range)
       ) {
         rollbackEnabledPlugins()
         return {
@@ -1028,21 +1034,21 @@ export async function installResolvedPlugin({
       }
 
       for (const id of pluginJsonDependencies.ids) {
-        const isForceIncludedInstalledDependency = alreadyEnabled.has(id)
+        const wasAlreadyEnabled = alreadyEnabled.has(id)
         let result: Awaited<ReturnType<typeof materialize>>
         try {
           result = await materialize(id)
-        } catch (error) {
-          if (isForceIncludedInstalledDependency) {
+        } catch (materializeError) {
+          if (wasAlreadyEnabled) {
             logForDebugging(
-              `installResolvedPlugin: force-included ${id} fetch threw (${error instanceof Error ? error.message : String(error)}); skipping (pinner stays demoted)`,
+              `installResolvedPlugin: force-included ${id} fetch threw (${materializeError instanceof Error ? materializeError.message : String(materializeError)}); skipping (pinner stays demoted)`,
             )
             continue
           }
-          throw error
+          throw materializeError
         }
         if (!result.ok) {
-          if (isForceIncludedInstalledDependency) {
+          if (wasAlreadyEnabled) {
             logForDebugging(
               `installResolvedPlugin: force-included ${id} ${result.reason}; skipping (pinner stays demoted)`,
             )
@@ -1077,20 +1083,18 @@ export async function installResolvedPlugin({
   clearAllCaches()
 
   const marketplace = parsePluginIdentifier(pluginId).marketplace
-  const isOfficialMarketplace = isOfficialMarketplaceName(marketplace)
-  const logPluginDetails =
-    isOfficialMarketplace || isToolDetailsLoggingEnabled()
   void logOTelEvent('plugin_installed', {
-    ...(logPluginDetails && { 'plugin.name': entry.name }),
-    ...(logPluginDetails &&
-      entry.version && { 'plugin.version': entry.version }),
-    ...(logPluginDetails && marketplace && { 'marketplace.name': marketplace }),
-    'marketplace.is_official': String(isOfficialMarketplace),
+    'plugin.name': entry.name,
+    ...(entry.version && { 'plugin.version': entry.version }),
+    ...(marketplace && { 'marketplace.name': marketplace }),
+    'marketplace.is_official': String(
+      marketplace ? isOfficialMarketplaceName(marketplace) : false,
+    ),
     ...(trigger && { 'install.trigger': trigger }),
   })
 
   const depNote = formatDependencyCountSuffix(
-    closure.filter(id => id !== pluginId),
+    [...materialized].filter(id => id !== pluginId),
   )
   return { ok: true, closure, depNote }
 }
@@ -1175,7 +1179,7 @@ export async function installPluginFromMarketplace({
         case 'dependency-marketplace-blocked-by-policy':
           return {
             success: false,
-            error: `Cannot install "${result.pluginName}": dependency "${result.blockedDependency}" comes from marketplace "${result.marketplaceName}", which is blocked by your organization's policy`,
+            error: `Cannot install "${result.pluginName}": dependency "${result.blockedDependency}" is from marketplace "${result.marketplaceName}", which is blocked by your organization's policy`,
           }
         case 'range-conflict':
           return {

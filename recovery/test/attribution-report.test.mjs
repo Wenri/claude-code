@@ -15,6 +15,8 @@ test('checked-in attribution report exhaustively covers the target', () => {
     reportDirectory: REPORT,
     expectedBaselineSha256:
       '75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f',
+    expectedSourceMapSha256:
+      '7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657',
     expectedSummarySha256:
       'b378e9e54669a4e9188d3f5e32ee81d9e6140b98f49c615843d05eb474c13897',
     expectedTargetSha256:
@@ -32,4 +34,15 @@ test('checked-in attribution report exhaustively covers the target', () => {
     targetUtf16: 13017066,
     unaccountedTargetUtf16: 0,
   })
+})
+
+test('rejects a repinned source map that differs from attribution', () => {
+  assert.throws(
+    () => verifyAttributionReport({
+      reportDirectory: REPORT,
+      expectedSourceMapSha256:
+        '0965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657',
+    }),
+    /baseline source-map SHA-256/,
+  )
 })

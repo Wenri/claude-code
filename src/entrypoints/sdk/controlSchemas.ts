@@ -23,6 +23,7 @@ import {
   PermissionUpdateSchema,
   SDKMessageSchema,
   SDKPostTurnSummaryMessageSchema,
+  SDKBashCommandSchema,
   SDKTranscriptMirrorMessageSchema,
   SDKStreamlinedTextMessageSchema,
   SDKStreamlinedToolUseSummaryMessageSchema,
@@ -30,7 +31,7 @@ import {
   SlashCommandSchema,
 } from './coreSchemas.js'
 
-const PERMISSION_DECISION_REASON_TYPES = [
+export const PERMISSION_DECISION_REASON_TYPES = [
   'rule',
   'mode',
   'subcommandResults',
@@ -110,6 +111,12 @@ export const SDKControlInitializeRequestSchema = lazySchema(() =>
         .optional()
         .describe(
           'When provided, only skills whose names match an entry are loaded into the main session system prompt, using the same rules as AgentDefinition.skills: exact name, plugin-qualified name, or ":name" suffix. Omit to load every discovered skill. Applies to the main session only; subagents use AgentDefinition.skills.',
+        ),
+      webSearchIsolationExemptMcpServers: z
+        .array(z.string())
+        .optional()
+        .describe(
+          '@internal Additional MCP server names exempt from the web search / connector isolation latch. Unioned with the built-in infra-server list.',
         ),
       promptSuggestions: z.boolean().optional(),
       agentProgressSummaries: z.boolean().optional(),
@@ -560,7 +567,7 @@ export const SDKControlSeedReadStateRequestSchema = lazySchema(() =>
       mtime: z.number(),
     })
     .describe(
-      'Seeds the readFileState cache with a path+mtime entry. Use when a prior Read was removed from context (e.g. by snip) so Edit validation would fail despite the client having observed the Read. The mtime lets the CLI detect if the file changed since the seeded Read — same staleness check as the normal path.',
+      'Seeds the readFileState cache with a path+mtime entry. Use when a prior Read was removed from context so Edit validation would fail despite the client having observed the Read. The mtime lets the CLI detect if the file changed since the seeded Read — same staleness check as the normal path.',
     ),
 )
 
@@ -909,6 +916,12 @@ export const SDKControlSubmitFeedbackResponseSchema = lazySchema(() =>
   z
     .object({
       feedback_id: z.string().nullable(),
+      ccshare_url: z
+        .string()
+        .optional()
+        .describe(
+          'Internal share URL for the conversation. Only set in internal builds when the upload succeeded; absent otherwise.',
+        ),
       unavailable_reason: z
         .string()
         .optional()
@@ -1074,6 +1087,7 @@ export const StdoutMessageSchema = lazySchema(() =>
 export const StdinMessageSchema = lazySchema(() =>
   z.union([
     SDKUserMessageSchema(),
+    SDKBashCommandSchema(),
     SDKControlRequestSchema(),
     SDKControlResponseSchema(),
     SDKKeepAliveMessageSchema(),

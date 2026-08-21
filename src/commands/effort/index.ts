@@ -1,7 +1,7 @@
 import type { Command } from '../../commands.js'
 import { shouldInferenceConfigCommandBeImmediate } from '../../utils/immediateCommand.js'
 
-export const effort = {
+const effort = {
   type: 'local-jsx',
   name: 'effort',
   description: 'Set effort level for model usage',
@@ -9,6 +9,8 @@ export const effort = {
   get immediate() {
     return shouldInferenceConfigCommandBeImmediate()
   },
+  requires: { ink: true },
+  thinClientDispatch: 'control-request',
   load: () => import('./effort.js'),
 } satisfies Command
 

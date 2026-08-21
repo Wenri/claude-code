@@ -27,7 +27,6 @@ import {
   setCostStateForRestore,
   setHasUnknownModelCost,
 } from './bootstrap/state.js'
-import type { QuerySource } from './constants/querySource.js'
 import type { ModelUsage } from './entrypoints/agentSdkTypes.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -289,53 +288,6 @@ ${modelUsageDisplay}`,
   )
 }
 
-function getModelFamily(model: string): string {
-  if (model.includes('opus')) return 'opus'
-  if (model.includes('sonnet')) return 'sonnet'
-  if (model.includes('haiku')) return 'haiku'
-  return model
-}
-
-/** Compact model-cost and cache-hit summary used by /cost for subscribers. */
-export function formatCostBreakdown(): string | null {
-  const entries = Object.entries(getModelUsage())
-  if (entries.length === 0) return null
-
-  const costByFamily: Record<string, number> = {}
-  let totalCost = 0
-  let inputTokens = 0
-  let cacheReadTokens = 0
-  let cacheCreationTokens = 0
-
-  for (const [model, usage] of entries) {
-    const family = getModelFamily(getCanonicalName(model))
-    costByFamily[family] = (costByFamily[family] ?? 0) + usage.costUSD
-    totalCost += usage.costUSD
-    inputTokens += usage.inputTokens
-    cacheReadTokens += usage.cacheReadInputTokens
-    cacheCreationTokens += usage.cacheCreationInputTokens
-  }
-
-  const parts: string[] = []
-  if (totalCost > 0) {
-    for (const [family, cost] of Object.entries(costByFamily).sort(
-      (left, right) => right[1] - left[1],
-    )) {
-      parts.push(`${family}: ${Math.round((cost / totalCost) * 100)}%`)
-    }
-  }
-
-  const cacheDenominator =
-    inputTokens + cacheReadTokens + cacheCreationTokens
-  if (cacheDenominator > 0) {
-    parts.push(
-      `cache hit: ${Math.round((cacheReadTokens / cacheDenominator) * 100)}%`,
-    )
-  }
-
-  return parts.length > 0 ? `breakdown · ${parts.join(' · ')}` : null
-}
-
 function round(number: number, precision: number): number {
   return Math.round(number * precision) / precision
 }
@@ -421,7 +373,7 @@ export function addToTotalSessionCost(
   return totalCost
 }
 
-function classifyQuerySource(
+export function classifyQuerySource(
   querySource: string | undefined,
 ): 'main' | 'subagent' | 'auxiliary' | undefined {
   if (querySource === undefined) return undefined
@@ -436,4 +388,11 @@ function classifyQuerySource(
     return 'subagent'
   }
   return 'auxiliary'
+}
+
+export function getPluginNameFromSkillName(
+  skillName: string,
+): string | undefined {
+  const separator = skillName.indexOf(':')
+  return separator > 0 ? skillName.slice(0, separator) : undefined
 }

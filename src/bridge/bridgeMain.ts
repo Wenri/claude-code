@@ -7,7 +7,6 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../services/analytics/index.js'
-import { getCooMetadataForAnalytics } from '../services/analytics/metadata.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
@@ -358,6 +357,7 @@ export async function runBridgeLoop(
   let generalErrorStart: number | null = null
   let lastPollErrorTime: number | null = null
   let statusUpdateTimer: ReturnType<typeof setInterval> | null = null
+  let idleStatusRendered = false
   // Set by BridgeFatalError and give-up paths so the shutdown block can
   // skip the resume message (resume is impossible after env expiry/auth
   // failure/sustained connection errors).
@@ -420,9 +420,14 @@ export async function runBridgeLoop(
     }
 
     if (activeSessions.size === 0) {
-      logger.updateIdleStatus()
+      if (!idleStatusRendered) {
+        idleStatusRendered = true
+        logger.updateIdleStatus()
+      }
       return
     }
+
+    idleStatusRendered = false
 
     // Show the most recently started session that is still actively working.
     // Sessions whose current activity is 'result' or 'error' are between
@@ -595,17 +600,15 @@ export async function runBridgeLoop(
           // tag). archiveSession hits /v1/sessions/{id}/archive which is the
           // compat surface and validates TagSession (session_*). Re-tag — same
           // UUID underneath.
-          if (status === 'completed') {
-            trackCleanup(
-              api
-                .archiveSession(compatId)
-                .catch((err: unknown) =>
-                  logger.logVerbose(
-                    `Failed to archive session ${sessionId}: ${errorMessage(err)}`,
-                  ),
+          trackCleanup(
+            api
+              .archiveSession(compatId)
+              .catch((err: unknown) =>
+                logger.logVerbose(
+                  `Failed to archive session ${sessionId}: ${errorMessage(err)}`,
                 ),
-            )
-          }
+              ),
+          )
           logForDebugging(
             `[bridge:session] Session ${status}, returning to idle (multi-session mode)`,
           )
@@ -659,6 +662,7 @@ export async function runBridgeLoop(
         logEvent('tengu_bridge_reconnected', {
           disconnected_ms: disconnectedMs,
         })
+        idleStatusRendered = false
       }
 
       connBackoff = 0
@@ -1022,7 +1026,6 @@ export async function runBridgeLoop(
               sessionWorktrees.set(sessionId, {
                 worktreePath: wt.worktreePath,
                 worktreeBranch: wt.worktreeBranch,
-                headCommit: wt.headCommit,
                 gitRoot: wt.gitRoot,
                 hookBased: wt.hookBased,
                 headCommit: wt.headCommit,
@@ -1122,7 +1125,6 @@ export async function runBridgeLoop(
 
           const spawnDurationMs = Date.now() - spawnStartTime
           logEvent('tengu_bridge_session_started', {
-            ...getCooMetadataForAnalytics(),
             active_sessions: activeSessions.size,
             spawn_mode:
               spawnModeAtDecision as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -2206,8 +2208,12 @@ export async function bridgeMain(args: string[]): Promise<void> {
       ? process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
       : baseUrl
 
-  const { getBranch, getRemoteUrl, findGitRoot, redactGitRemoteCredentials } =
-    await import('../utils/git.js')
+  const {
+    getBranch,
+    getRemoteUrl,
+    findGitRoot,
+    redactGitRemoteCredentials,
+  } = await import('../utils/git.js')
 
   // Precheck worktree availability for the first-run dialog and the `w`
   // toggle. Unconditional so we know upfront whether worktree is an option.

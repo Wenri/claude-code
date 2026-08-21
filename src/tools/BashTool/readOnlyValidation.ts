@@ -1,11 +1,10 @@
 import type { z } from 'zod/v4'
 import { getOriginalCwd } from '../../bootstrap/state.js'
-import { parseForSecurityFromAst } from '../../utils/bash/ast.js'
-import { getParserModule } from '../../utils/bash/bashParser.js'
 import {
   extractOutputRedirections,
   splitCommand_DEPRECATED,
 } from '../../utils/bash/commands.js'
+import { containsAnyPlaceholder } from '../../utils/bash/ast.js'
 import { tryParseShellCommand } from '../../utils/bash/shellQuote.js'
 import { getCwd } from '../../utils/cwd.js'
 import { isCurrentDirectoryBareGitRepo } from '../../utils/git.js'
@@ -24,10 +23,8 @@ import {
   validateFlags,
 } from '../../utils/shell/readOnlyCommandValidation.js'
 import type { BashTool } from './BashTool.js'
-import {
-  isNormalizedGitCommand,
-  isSafeEnvironmentVariable,
-} from './bashPermissions.js'
+import { isNormalizedGitCommand } from './bashPermissions.js'
+import { bashCommandIsSafe_DEPRECATED } from './bashSecurity.js'
 import {
   COMMAND_OPERATION_TYPE,
   PATH_EXTRACTORS,
@@ -1582,6 +1579,8 @@ const FIND_ARGUMENT_PREDICATES = new Set([
   '-regextype',
   '-printf',
   '-D',
+  '-files0-from',
+  '-xattrname',
 ])
 
 const TEST_ARITHMETIC_COMPARISON_OPERATORS = new Set([
@@ -1593,55 +1592,48 @@ const TEST_ARITHMETIC_COMPARISON_OPERATORS = new Set([
   '-ge',
 ])
 
-const READ_ONLY_COMMAND_NAMES = new Set(READONLY_COMMANDS)
-const READ_ONLY_COMMAND_PREFIXES = READONLY_COMMANDS.filter(command =>
-  command.includes(' '),
-)
-const NO_ARGUMENT_READ_ONLY_COMMANDS = new Set(['pwd', 'whoami', 'alias'])
-const EXACT_READ_ONLY_ARGV = [
-  ['claude', '-h'],
-  ['claude', '--help'],
-  ['node', '-v'],
-  ['node', '--version'],
-  ['python', '--version'],
-  ['python3', '--version'],
-  ['ip', 'addr'],
-]
-
 /**
  * Classify the commands whose read-only status depends on argv position.
  * Returns null for commands handled by the normal flag/regex validators.
  */
 function classifySpecialReadOnlyArgv(argv: string[]): boolean | null {
-  if (argv.length === 0) return false
   const command = argv[0]
 
-  if (NO_ARGUMENT_READ_ONLY_COMMANDS.has(command)) return argv.length === 1
-  for (const exact of EXACT_READ_ONLY_ARGV) {
-    if (
-      argv.length === exact.length &&
-      argv.every((argument, index) => argument === exact[index])
-    ) {
-      return true
-    }
-  }
-  if (READ_ONLY_COMMAND_NAMES.has(command)) return true
-  for (const prefix of READ_ONLY_COMMAND_PREFIXES) {
-    const parts = prefix.split(' ')
-    if (
-      argv.length >= parts.length &&
-      parts.every((part, index) => argv[index] === part)
-    ) {
-      return true
-    }
-  }
-
-  if (command === 'echo') return true
-
   if (command === 'printf') {
-    // Bash's printf -v writes to a shell variable. All other printf forms
-    // only write their formatted result to stdout.
-    return !argv[1]?.startsWith('-v')
+    if (argv[1]?.startsWith('-') && argv[1] !== '--') return false
+    const formatIndex = argv[1] === '--' ? 2 : 1
+    const format = argv[formatIndex] ?? ''
+    if (containsAnyPlaceholder(format)) return false
+    if (format.includes('$')) return false
+    const withoutEscapedPercents = format.replace(/%%/g, '')
+    if (
+      /%[^%a-zA-Z]*(?:hh|ll|[lLhqjzZt])?\\[0-7xX]/.test(
+        withoutEscapedPercents,
+      ) || /\\[uU]/.test(withoutEscapedPercents)
+    ) {
+      return false
+    }
+    if (
+      /%[-+ 0#']*[0-9.*]*(?:hh|ll|[lLhqjzZt])?[diouxXeEfFgGaAn]/.test(
+        withoutEscapedPercents,
+      ) || /%[^%a-zA-Z]*\*/.test(withoutEscapedPercents)
+    ) {
+      const numericArgument =
+        /^[-+]?(0[xX][0-9a-fA-F]+|[0-9]+#[0-9a-zA-Z]+|[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?)$/
+      for (let index = formatIndex + 1; index < argv.length; index++) {
+        const argument = argv[index]!
+        if (
+          argument.includes('[') ||
+          argument.includes('`') ||
+          argument.includes('$(') ||
+          containsAnyPlaceholder(argument) ||
+          !numericArgument.test(argument)
+        ) {
+          return false
+        }
+      }
+    }
+    return true
   }
 
   if (command === '[[') {
@@ -1664,9 +1656,6 @@ function classifySpecialReadOnlyArgv(argv: string[]): boolean | null {
     return true
   }
 
-  if (command === 'ls') return true
-  if (command === 'cd') return argv.length <= 2
-
   if (command === 'find') {
     for (let i = 1; i < argv.length; i++) {
       const arg = argv[i]
@@ -1682,26 +1671,6 @@ function classifySpecialReadOnlyArgv(argv: string[]): boolean | null {
       }
     }
     return true
-  }
-
-
-  if (command === 'history') {
-    return (
-      argv.length === 1 ||
-      (argv.length === 2 && /^\d+$/.test(argv[1] ?? ''))
-    )
-  }
-  if (command === 'arch') {
-    return (
-      argv.length === 1 ||
-      (argv.length === 2 && (argv[1] === '-h' || argv[1] === '--help'))
-    )
-  }
-  if (command === 'ifconfig') {
-    return (
-      argv.length === 1 ||
-      (argv.length === 2 && /^[a-zA-Z]/.test(argv[1] ?? ''))
-    )
   }
 
   return null
@@ -1811,8 +1780,6 @@ const READ_ONLY_GLOB_COMMANDS = new Set([
   'md5sum',
   'cd',
 ])
-
-const READ_ONLY_REDIRECT_OPERATORS = new Set(['<', '<<', '<&', '<<<'])
 
 /**
  * Checks if a command contains glob characters (?, *, [, ]) or expandable `$`
@@ -2165,17 +2132,26 @@ export function checkReadOnlyConstraints(
   compoundCommandHasCd: boolean,
 ): PermissionResult {
   const { command } = input
-  const root = getParserModule()?.parse(command)
-  const astResult = root
-    ? parseForSecurityFromAst(command, root)
-    : { kind: 'simple' as const, commands: [] }
-  if (astResult.kind === 'too-complex') {
+  const expansion = containsUnquotedExpansion(command)
+
+  // Detect if the command is not parseable and return early
+  const result = tryParseShellCommand(command, env => `$${env}`)
+  if (!result.success) {
     return {
       behavior: 'passthrough',
-      message: `Not a simple read-only command: ${astResult.reason}`,
+      message: 'Command cannot be parsed, requires further permission checks',
     }
   }
-  const expansion = containsUnquotedExpansion(command)
+
+  // Check the original command for safety before splitting
+  // This is important because splitCommand_DEPRECATED may transform the command
+  // (e.g., ${VAR} becomes $VAR)
+  if (bashCommandIsSafe_DEPRECATED(command).behavior !== 'passthrough') {
+    return {
+      behavior: 'passthrough',
+      message: 'Command is not read-only, requires further permission checks',
+    }
+  }
 
   if (expansion === 'variable') {
     return {
@@ -2251,50 +2227,30 @@ export function checkReadOnlyConstraints(
     }
   }
 
-  if (
-    astResult.commands.length > 0 &&
-    astResult.commands.every(parsedCommand => {
-      if (
-        parsedCommand.redirects.some(
-          redirect =>
-            !READ_ONLY_REDIRECT_OPERATORS.has(redirect.op) &&
-            redirect.target !== '/dev/null' &&
-            !(
-              redirect.op === '>&' && /^\d+$/.test(redirect.target)
-            ),
+  // Check if all subcommands are read-only
+  const allSubcommandsReadOnly = splitCommand_DEPRECATED(command).every(
+    subcmd => {
+      if (bashCommandIsSafe_DEPRECATED(subcmd).behavior !== 'passthrough') {
+        return false
+      }
+      if (expansion === 'glob' && containsUnquotedExpansion(subcmd) === 'glob') {
+        const parsedSubcommand = tryParseShellCommand(subcmd, env => `$${env}`)
+        if (!parsedSubcommand.success) return false
+        const commandName = parsedSubcommand.tokens.find(
+          token => typeof token === 'string',
         )
-      ) {
-        return false
+        if (
+          typeof commandName !== 'string' ||
+          !READ_ONLY_GLOB_COMMANDS.has(commandName)
+        ) {
+          return false
+        }
       }
-      if (
-        parsedCommand.redirects.some(redirect =>
-          /^\/dev\/(tcp|udp)\//.test(redirect.target),
-        )
-      ) {
-        return false
-      }
-      if (
-        parsedCommand.envVars.some(
-          variable => !isSafeEnvironmentVariable(variable.name),
-        )
-      ) {
-        return false
-      }
-      if (parsedCommand.argv.some(argument => containsVulnerableUncPath(argument))) {
-        return false
-      }
-      if (
-        expansion === 'glob' &&
-        (containsUnquotedExpansion(parsedCommand.text) === 'glob' ||
-          parsedCommand.argv.some(argument => /[*?]|\[.*\]/.test(argument)))
-      ) {
-        return READ_ONLY_GLOB_COMMANDS.has(parsedCommand.argv[0] ?? '')
-      }
-      const specialResult = classifySpecialReadOnlyArgv(parsedCommand.argv)
-      if (specialResult !== null) return specialResult
-      return isCommandReadOnly(parsedCommand.text)
-    })
-  ) {
+      return isCommandReadOnly(subcmd)
+    },
+  )
+
+  if (allSubcommandsReadOnly) {
     return {
       behavior: 'allow',
       updatedInput: input,

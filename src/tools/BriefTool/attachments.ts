@@ -30,22 +30,21 @@ export type PreResolvedAttachment = {
   is_image: boolean
 }
 
-export type BriefAttachmentInput = string | PreResolvedAttachment
+export type AttachmentInput = string | PreResolvedAttachment
 
-export function isPreResolvedAttachment(
-  attachment: BriefAttachmentInput,
+function isPreResolvedAttachment(
+  attachment: AttachmentInput,
 ): attachment is PreResolvedAttachment {
-  // The BriefTool input schema validates the object shape before either
-  // validation or resolution reaches this helper.
   return typeof attachment !== 'string'
 }
 
 export async function validateAttachmentPaths(
-  attachments: BriefAttachmentInput[],
+  attachments: AttachmentInput[],
 ): Promise<ValidationResult> {
   const cwd = getCwd()
-  for (const rawPath of attachments) {
-    if (isPreResolvedAttachment(rawPath)) continue
+  for (const attachment of attachments) {
+    if (isPreResolvedAttachment(attachment)) continue
+    const rawPath = attachment
     const fullPath = expandPath(rawPath)
     try {
       const stats = await stat(fullPath)
@@ -79,37 +78,38 @@ export async function validateAttachmentPaths(
 }
 
 export async function resolveAttachments(
-  attachments: BriefAttachmentInput[],
+  attachments: AttachmentInput[],
   uploadCtx: { replBridgeEnabled: boolean; signal?: AbortSignal },
 ): Promise<ResolvedAttachment[]> {
   // Stat serially (local, fast) to keep ordering deterministic, then upload
   // in parallel (network, slow). Upload failures resolve undefined — the
   // attachment still carries {path, size, isImage} for local renderers.
   const stated: ResolvedAttachment[] = []
-  const localAttachmentIndices: number[] = []
-  for (const rawPath of attachments) {
-    if (isPreResolvedAttachment(rawPath)) {
+  const uploadIndices: number[] = []
+  for (const attachment of attachments) {
+    if (isPreResolvedAttachment(attachment)) {
       stated.push({
-        path: rawPath.file_name,
-        size: rawPath.size,
-        isImage: rawPath.is_image,
-        file_uuid: rawPath.file_uuid,
+        path: attachment.file_name,
+        size: attachment.size,
+        isImage: attachment.is_image,
+        file_uuid: attachment.file_uuid,
       })
       continue
     }
+    const rawPath = attachment
     const fullPath = expandPath(rawPath)
     // Single stat — we need size, so this is the operation, not a guard.
     // validateInput ran before us, but the file could have moved since
     // (TOCTOU); if it did, let the error propagate so the model sees it.
     const stats = await stat(fullPath)
-    localAttachmentIndices.push(stated.length)
+    uploadIndices.push(stated.length)
     stated.push({
       path: fullPath,
       size: stats.size,
       isImage: IMAGE_EXTENSION_REGEX.test(fullPath),
     })
   }
-  if (localAttachmentIndices.length === 0) return stated
+  if (uploadIndices.length === 0) return stated
   // Dynamic import inside the feature() guard so upload.ts (axios, crypto,
   // zod, auth utils, MIME map) is fully eliminated from non-BRIDGE_MODE
   // builds. A static import would force module-scope evaluation regardless
@@ -126,18 +126,17 @@ export async function resolveAttachments(
       Boolean(process.env.CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE)
     const { uploadBriefAttachment } = await import('./upload.js')
     const uuids = await Promise.all(
-      localAttachmentIndices.map(index => {
-        const attachment = stated[index]!
-        return uploadBriefAttachment(attachment.path, attachment.size, {
+      uploadIndices.map(index =>
+        uploadBriefAttachment(stated[index]!.path, stated[index]!.size, {
           replBridgeEnabled: shouldUpload,
           signal: uploadCtx.signal,
-        })
-      }),
+        }),
+      ),
     )
-    localAttachmentIndices.forEach((index, uploadIndex) => {
-      const fileUUID = uuids[uploadIndex]
-      if (fileUUID !== undefined) {
-        stated[index] = { ...stated[index]!, file_uuid: fileUUID }
+    uploadIndices.forEach((index, uuidIndex) => {
+      const uuid = uuids[uuidIndex]
+      if (uuid !== undefined) {
+        stated[index] = { ...stated[index]!, file_uuid: uuid }
       }
     })
   }

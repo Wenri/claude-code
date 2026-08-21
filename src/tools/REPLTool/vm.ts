@@ -220,6 +220,16 @@ function installHelperShorthands(
   sealers: ReplSealers,
   helperState: ReplContext['helperState'],
 ): void {
+  vm.runInContext(
+    `Promise.prototype.toString = function () {
+      throw new TypeError(
+        "REPL: unawaited Promise coerced to string. Shorthand results used " +
+        "inline need 'await' — e.g. const c = await cat(f); put(f, c + s). " +
+        "Auto-await applies only to o.* keys at return time.",
+      )
+    }`,
+    vmContext,
+  )
   const absolute = (value: unknown) => {
     const path = String(value)
     return isAbsolute(path) ? path : resolve(helperState.cwd, path)

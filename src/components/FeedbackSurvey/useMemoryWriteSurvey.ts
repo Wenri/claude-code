@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTerminalSize } from '../../hooks/useTerminalSize.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -38,7 +39,6 @@ export type MemoryWriteSurveyState = {
   state: 'closed' | 'open'
   record: MemoryWriteSurveyRecord | null
   summary: string | null
-  lineCount: number
   summaryLineThreshold: number
   countdownSec: number | null
   handleOutcome: (outcome: MemoryWriteSurveyOutcome) => void
@@ -48,7 +48,6 @@ const CLOSED_STATE: MemoryWriteSurveyState = {
   state: 'closed',
   record: null,
   summary: null,
-  lineCount: 0,
   summaryLineThreshold: 0,
   countdownSec: null,
   handleOutcome: () => {},
@@ -64,6 +63,8 @@ export function useMemoryWriteSurvey({
   const nextRecord = useAppState(state => state.memoryWriteQueue?.[0] ?? null)
   const queueDepth = useAppState(state => state.memoryWriteQueue?.length ?? 0)
   const setAppState = useSetAppState()
+  const { columns } = useTerminalSize()
+  const contentWidth = getMemoryWriteContentWidth(columns)
   const [active, setActive] = useState<{
     record: MemoryWriteSurveyRecord
     lineCount: number
@@ -168,7 +169,7 @@ export function useMemoryWriteSurvey({
       return () => clearTimeout(timeout)
     }
 
-    const lineCount = countMemoryWriteLines(nextRecord)
+    const lineCount = countMemoryWriteLines(nextRecord, contentWidth)
     setActive({ record: nextRecord, lineCount })
     logOutcome('appeared', nextRecord, {
       lineCount,
@@ -203,6 +204,7 @@ export function useMemoryWriteSurvey({
     queueDepth,
     forced,
     config,
+    contentWidth,
     logOutcome,
     removeRecord,
   ])
@@ -220,11 +222,14 @@ export function useMemoryWriteSurvey({
     state: 'open',
     record: active.record,
     summary,
-    lineCount: active.lineCount,
     summaryLineThreshold: config.summaryLineThreshold,
     countdownSec,
     handleOutcome,
   }
+}
+
+export function getMemoryWriteContentWidth(columns: number): number {
+  return Math.max(20, columns - 6)
 }
 
 async function summarizeMemoryWrite(

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Fail-closed incremental attribution from the authenticated adjacent bundles and zero-residue known-delta proof: exact-generated before and after one changed region owned by ../src/utils/betas.ts.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13949544,
+      "sha256": "b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c"
+    },
+    "targetBundle": {
+      "bytes": 13949576,
+      "sha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd"
+    }
+  },
+  "options": {
+    "strategy": "authenticated-known-delta-contiguous-partition",
+    "changedTargetOffsetStart": 2858499,
+    "changedTargetOffsetEnd": 2860318
+  },
+  "baselineOwnership": {
+    "sourceCount": 1,
+    "sourceKinds": {
+      "application": 1,
+      "nodeModules": 0,
+      "vendor": 0
+    },
+    "mappedSegmentCount": 1,
+    "contiguousRunCount": 1,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2858499
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 0,
+    "monotoneAnchorCount": 0,
+    "nonMonotoneAnchorCount": 0,
+    "monotoneFraction": 1,
+    "partitionCount": 3,
+    "tokenCountDelta": 10,
+    "utf16LengthDelta": 32,
+    "locatedSourceCount": 1,
+    "locatedApplicationSourceCount": 1,
+    "splitTargetClusterSourceCount": 0
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "count": 1
+    },
+    "target": {
+      "count": 1,
+      "statuses": {
+        "anchored-single-baseline-unit": 1
+      }
+    },
+    "targetNetCountDelta": 0
+  },
+  "coverage": {
+    "partitionCount": 3,
+    "targetPartitionUtf16": 13949576,
+    "exactAnchorCount": 0,
+    "exactAnchorTargetUtf16": 0,
+    "exactGeneratedPartitionCount": 2,
+    "exactGeneratedTargetUtf16": 13947757,
+    "changedHighConfidencePartitionCount": 1,
+    "changedHighConfidenceTargetUtf16": 1819,
+    "changedCandidatePartitionCount": 0,
+    "changedCandidateTargetUtf16": 0,
+    "unresolvedPartitionCount": 0,
+    "unresolvedTargetUtf16": 0,
+    "accountedTargetUtf16": 13949576,
+    "targetUtf16": 13949576,
+    "unaccountedTargetUtf16": 0,
+    "targetRangeCount": 3,
+    "targetRangeUtf16": 13949576
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 293,
+      "sha256": "6d440658bf1873d0a3acbcd758f2d5ecfccb0e18abb0b961675a9e9ad79c955f"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 245,
+      "sha256": "88faeb040018383a0b13f4facde21b979aa0e16a95c00bcf1e5c11300a312b46"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 790,
+      "sha256": "3e15db83e1ecbe6a1cb37b39b18030c2b85e5f31c458772e175a128fb8ca4f0d"
+    },
+    "targetRanges": {
+      "path": "target-ranges.jsonl.gz",
+      "bytes": 425,
+      "sha256": "da4d2e9a93b78ca78095dc1e91ff37881331b9ff6280d091099b8095dc2c1719"
+    }
+  },
+  "limitations": [
+    "This is release-incremental attribution, not a baseline source-map inventory.",
+    "Exact-generated means scope-normalized token identity after the authenticated metadata normalization and known-delta synthesis.",
+    "Comments and whitespace are outside the semantic ownership claim."
+  ]
+}

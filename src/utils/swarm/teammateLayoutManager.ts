@@ -1,11 +1,82 @@
+import type { AppState } from '../../state/AppState.js'
 import type { AgentColorName } from '../../tools/AgentTool/agentColorManager.js'
 import { AGENT_COLORS } from '../../tools/AgentTool/agentColorManager.js'
 import { detectAndGetBackend } from './backends/registry.js'
 import type { PaneBackend } from './backends/types.js'
 
-// Track color assignments for teammates (persisted per session)
-const teammateColorAssignments = new Map<string, AgentColorName>()
-let colorIndex = 0
+export type TeammateColorsState = {
+  assignments: Map<string, AgentColorName>
+  index: number
+}
+
+export type TeammateColors = {
+  assign(teammateId: string): AgentColorName
+  get(teammateId: string): AgentColorName | undefined
+  clear(): void
+}
+
+type GetAppState = () => AppState
+type SetAppState = (updater: (previous: AppState) => AppState) => void
+
+/**
+ * Creates the session-scoped color allocator carried by ToolUseContext.
+ *
+ * Color state lives in AppState so independently injected stores cannot leak
+ * assignments into one another. Updates preserve the previous AppState when
+ * another caller already assigned the same teammate or the allocator is
+ * already empty.
+ */
+export function createTeammateColors(
+  getAppState: GetAppState,
+  setAppState: SetAppState,
+): TeammateColors {
+  return {
+    assign(teammateId) {
+      const state = getAppState().teammateColors
+      const existing = state.assignments.get(teammateId)
+      if (existing) return existing
+
+      const color = AGENT_COLORS[state.index % AGENT_COLORS.length]!
+      setAppState(previous => {
+        if (previous.teammateColors.assignments.has(teammateId)) {
+          return previous
+        }
+        const assignments = new Map(previous.teammateColors.assignments)
+        assignments.set(teammateId, color)
+        return {
+          ...previous,
+          teammateColors: {
+            assignments,
+            index: previous.teammateColors.index + 1,
+          },
+        }
+      })
+      return color
+    },
+
+    get(teammateId) {
+      return getAppState().teammateColors.assignments.get(teammateId)
+    },
+
+    clear() {
+      setAppState(previous =>
+        previous.teammateColors.assignments.size === 0 &&
+        previous.teammateColors.index === 0
+          ? previous
+          : {
+              ...previous,
+              teammateColors: { assignments: new Map(), index: 0 },
+            },
+      )
+    },
+  }
+}
+
+export const NOOP_TEAMMATE_COLORS: TeammateColors = {
+  assign: () => AGENT_COLORS[0]!,
+  get: () => undefined,
+  clear() {},
+}
 
 /**
  * Gets the appropriate backend for the current environment.
@@ -13,41 +84,6 @@ let colorIndex = 0
  */
 async function getBackend(): Promise<PaneBackend> {
   return (await detectAndGetBackend()).backend
-}
-
-/**
- * Assigns a unique color to a teammate from the available palette.
- * Colors are assigned in round-robin order.
- */
-export function assignTeammateColor(teammateId: string): AgentColorName {
-  const existing = teammateColorAssignments.get(teammateId)
-  if (existing) {
-    return existing
-  }
-
-  const color = AGENT_COLORS[colorIndex % AGENT_COLORS.length]!
-  teammateColorAssignments.set(teammateId, color)
-  colorIndex++
-
-  return color
-}
-
-/**
- * Gets the assigned color for a teammate, if any.
- */
-export function getTeammateColor(
-  teammateId: string,
-): AgentColorName | undefined {
-  return teammateColorAssignments.get(teammateId)
-}
-
-/**
- * Clears all teammate color assignments.
- * Called during team cleanup to reset state for potential new teams.
- */
-export function clearTeammateColors(): void {
-  teammateColorAssignments.clear()
-  colorIndex = 0
 }
 
 /**

@@ -107,16 +107,9 @@ export function isModelAllowed(model: string): boolean {
     return false // Empty allowlist blocks all user-specified models
   }
 
-  const normalizedAllowlist = availableModels.map(m => m.trim().toLowerCase())
-  const normalizedInputModel = model.trim().toLowerCase()
-  if (
-    normalizedInputModel.startsWith('anthropic.') &&
-    normalizedAllowlist.includes(normalizedInputModel)
-  ) {
-    return true
-  }
   const resolvedModel = resolveOverriddenModel(model)
   const normalizedModel = resolvedModel.trim().toLowerCase()
+  const normalizedAllowlist = availableModels.map(m => m.trim().toLowerCase())
 
   // Direct match (alias-to-alias or full-name-to-full-name)
   // Skip family aliases that have been narrowed by specific entries —

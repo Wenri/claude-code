@@ -1,9 +1,10 @@
 import React from 'react'
+import { Box, Text } from '../ink.js'
+import type { Color } from '../ink/styles.js'
 import { stringWidth } from '../ink/stringWidth.js'
-import { Box, type ClickEvent, Text } from '../ink.js'
 import { Cursor } from '../utils/Cursor.js'
 
-type Highlight = readonly [start: number, end: number]
+export type SearchHighlight = readonly [start: number, end: number]
 
 type Props = {
   query: string
@@ -14,49 +15,20 @@ type Props = {
   width?: number | string
   cursorOffset?: number
   borderless?: boolean
-  highlights?: readonly Highlight[]
+  highlights?: readonly SearchHighlight[]
+  dimRange?: SearchHighlight
+  cursorChar?: React.ReactNode
   prefixDim?: boolean
+  prefixColor?: Color
   onCursorOffsetChange?: (offset: number) => void
 }
 
-/** Render search-result ranges and the terminal cursor as disjoint text runs. */
-export function renderSearchBoxQuery(
-  query: string,
-  highlights: readonly Highlight[],
-  cursorOffset: number,
-): React.ReactNode[] {
-  const isHighlighted = (offset: number) =>
-    highlights.some(([start, end]) => offset >= start && offset < end)
-  const boundaries = new Set([0, query.length])
-  for (const [start, end] of highlights) {
-    boundaries.add(start)
-    boundaries.add(end)
-  }
-  if (cursorOffset >= 0) {
-    boundaries.add(cursorOffset)
-    boundaries.add(cursorOffset + 1)
-  }
-
-  const offsets = [...boundaries].sort((left, right) => left - right)
-  const rendered: React.ReactNode[] = []
-  for (let index = 0; index < offsets.length - 1; index += 1) {
-    const start = offsets[index]!
-    const end = offsets[index + 1]!
-    const text = start < query.length ? query.slice(start, end) : ' '
-    if (!text) continue
-    rendered.push(
-      <Text
-        key={start}
-        color={isHighlighted(start) ? 'suggestion' : undefined}
-        inverse={start === cursorOffset}
-      >
-        {text}
-      </Text>,
-    )
-  }
-  return rendered
-}
-
+/**
+ * Compact text input renderer shared by fullscreen pickers.
+ *
+ * Input ownership intentionally stays with the parent: this component only
+ * renders the current value and maps mouse clicks back to a cursor offset.
+ */
 export function SearchBox({
   query,
   placeholder = 'Search…',
@@ -67,43 +39,44 @@ export function SearchBox({
   cursorOffset,
   borderless = false,
   highlights = [],
+  dimRange,
+  cursorChar,
   prefixDim = false,
+  prefixColor,
   onCursorOffsetChange,
 }: Props): React.ReactNode {
   const offset = cursorOffset ?? query.length
   const handleClick = onCursorOffsetChange
-    ? (event: ClickEvent) => {
+    ? (event: { localRow: number; localCol: number }) => {
         if (!isFocused || !query) return
-        const borderColumnOffset = borderless ? 0 : 2
+        const borderOffset = borderless ? 0 : 2
         const row = event.localRow - (borderless ? 0 : 1)
         if (row < 0) return
         const prefixWidth = row === 0 ? stringWidth(prefix) + 1 : 0
         const column = Math.max(
           0,
-          event.localCol - borderColumnOffset - prefixWidth,
+          event.localCol - borderOffset - prefixWidth,
         )
-        const cursor = Cursor.fromText(
-          query,
-          Number.MAX_SAFE_INTEGER,
-          0,
-        )
+        const cursor = Cursor.fromText(query, Number.MAX_SAFE_INTEGER, 0)
         onCursorOffsetChange(
           cursor.measuredText.getOffsetFromPosition({ line: row, column }),
         )
       }
     : undefined
 
-  const content = isFocused ? (
+  const renderedValue = isFocused ? (
     query ? (
-      renderSearchBoxQuery(
+      renderTextWithHighlights(
         query,
         highlights,
+        dimRange,
         isTerminalFocused ? offset : -1,
+        cursorChar,
       )
     ) : isTerminalFocused ? (
       <>
-        <Text inverse>{placeholder.charAt(0)}</Text>
-        <Text dimColor>{placeholder.slice(1)}</Text>
+        {cursorChar ?? <Text inverse>{placeholder.charAt(0)}</Text>}
+        <Text dimColor>{cursorChar ? placeholder : placeholder.slice(1)}</Text>
       </>
     ) : (
       <Text dimColor>{placeholder}</Text>
@@ -125,8 +98,69 @@ export function SearchBox({
       onClick={handleClick}
     >
       <Text dimColor={!isFocused}>
-        <Text dimColor={prefixDim}>{prefix}</Text> {content}
+        <Text dimColor={prefixDim} color={prefixColor}>
+          {prefix}
+        </Text>{' '}
+        {renderedValue}
       </Text>
     </Box>
   )
+}
+
+export function renderTextWithHighlights(
+  text: string,
+  highlights: readonly SearchHighlight[],
+  dimRange: SearchHighlight | undefined,
+  cursorOffset: number,
+  cursorChar?: React.ReactNode,
+): React.ReactNode[] {
+  const isHighlighted = (offset: number): boolean =>
+    highlights.some(([start, end]) => offset >= start && offset < end)
+  const isDimmed = (offset: number): boolean =>
+    Boolean(
+      dimRange && offset >= dimRange[0] && offset < dimRange[1],
+    )
+
+  const boundaries = new Set([0, text.length])
+  for (const [start, end] of highlights) {
+    boundaries.add(start)
+    boundaries.add(end)
+  }
+  if (dimRange) {
+    boundaries.add(dimRange[0])
+    boundaries.add(dimRange[1])
+  }
+  if (cursorOffset >= 0) {
+    boundaries.add(cursorOffset)
+    boundaries.add(cursorOffset + 1)
+  }
+
+  const sorted = [...boundaries].sort((left, right) => left - right)
+  const result: React.ReactNode[] = []
+  for (let index = 0; index < sorted.length - 1; index++) {
+    const start = sorted[index]!
+    const end = sorted[index + 1]!
+    const segment = start < text.length ? text.slice(start, end) : ' '
+    if (!segment) continue
+    const atCursor = start === cursorOffset
+    const cursorAtNewline = atCursor && segment === '\n'
+    result.push(
+      atCursor && cursorChar ? (
+        <Text key={start}>
+          {cursorChar}
+          {cursorAtNewline ? '\n' : null}
+        </Text>
+      ) : (
+        <Text
+          key={start}
+          color={isHighlighted(start) ? 'suggestion' : undefined}
+          dimColor={isDimmed(start)}
+          inverse={atCursor}
+        >
+          {cursorAtNewline ? ' \n' : segment}
+        </Text>
+      ),
+    )
+  }
+  return result
 }

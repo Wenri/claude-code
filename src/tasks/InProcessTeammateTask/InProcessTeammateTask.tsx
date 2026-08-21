@@ -9,12 +9,12 @@
  * 4. Can be idle (waiting for work) or active (processing)
  */
 
-import { isTerminalTaskStatus, type Task, type TaskStateBase } from '../../Task.js';
+import { isTerminalTaskStatus, type SetAppState, type Task, type TaskStateBase } from '../../Task.js';
 import type { Message } from '../../types/message.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { createUserMessage } from '../../utils/messages.js';
 import { killInProcessTeammate } from '../../utils/swarm/spawnInProcess.js';
-import type { TaskRegistry } from '../../utils/task/framework.js';
+import { updateTaskState } from '../../utils/task/framework.js';
 import type { InProcessTeammateTaskState } from './types.js';
 import { appendCappedMessage, isInProcessTeammateTask } from './types.js';
 
@@ -24,16 +24,16 @@ import { appendCappedMessage, isInProcessTeammateTask } from './types.js';
 export const InProcessTeammateTask: Task = {
   name: 'InProcessTeammateTask',
   type: 'in_process_teammate',
-  async kill(taskId, taskRegistry, setAppState) {
-    killInProcessTeammate(taskId, taskRegistry, setAppState);
+  async kill(taskId, _taskRegistry, setAppState) {
+    killInProcessTeammate(taskId, setAppState);
   }
 };
 
 /**
  * Request shutdown for a teammate.
  */
-export function requestTeammateShutdown(taskId: string, taskRegistry: TaskRegistry): void {
-  taskRegistry.update<InProcessTeammateTaskState>(taskId, task => {
+export function requestTeammateShutdown(taskId: string, setAppState: SetAppState): void {
+  updateTaskState<InProcessTeammateTaskState>(taskId, setAppState, task => {
     if (task.status !== 'running' || task.shutdownRequested) {
       return task;
     }
@@ -48,8 +48,8 @@ export function requestTeammateShutdown(taskId: string, taskRegistry: TaskRegist
  * Append a message to a teammate's conversation history.
  * Used for zoomed view to show the teammate's conversation.
  */
-export function appendTeammateMessage(taskId: string, message: Message, taskRegistry: TaskRegistry): void {
-  taskRegistry.update<InProcessTeammateTaskState>(taskId, task => {
+export function appendTeammateMessage(taskId: string, message: Message, setAppState: SetAppState): void {
+  updateTaskState<InProcessTeammateTaskState>(taskId, setAppState, task => {
     if (task.status !== 'running') {
       return task;
     }
@@ -65,8 +65,8 @@ export function appendTeammateMessage(taskId: string, message: Message, taskRegi
  * Used when viewing a teammate's transcript to send typed messages to them.
  * Also adds the message to task.messages so it appears immediately in the transcript.
  */
-export function injectUserMessageToTeammate(taskId: string, message: string, taskRegistry: TaskRegistry): void {
-  taskRegistry.update<InProcessTeammateTaskState>(taskId, task => {
+export function injectUserMessageToTeammate(taskId: string, message: string, setAppState: SetAppState): void {
+  updateTaskState<InProcessTeammateTaskState>(taskId, setAppState, task => {
     // Allow message injection when teammate is running or idle (waiting for input)
     // Only reject if teammate is in a terminal state
     if (isTerminalTaskStatus(task.status)) {

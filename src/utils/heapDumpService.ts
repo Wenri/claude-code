@@ -30,10 +30,7 @@ export type HeapDumpResult =
       diagPath: string
       diagnostics: MemoryDiagnostics
     }
-  | {
-      success: false
-      error: string
-    }
+  | { success: false; error: string }
 
 /**
  * Memory diagnostics captured alongside heap dump.
@@ -140,13 +137,13 @@ export async function captureMemoryDiagnostics(
   let mimalloc: unknown
   if (typeof Bun !== 'undefined') {
     try {
-      const { heapStats } = await import('bun:jsc')
-      const stats = heapStats(true)
-      objectTypeCounts = stats.objectTypeCounts
-      protectedObjectTypeCounts = stats.protectedObjectTypeCounts
-      mimalloc = stats.mimalloc || undefined
+      const { heapStats: getBunHeapStats } = await import('bun:jsc')
+      const bunHeapStats = getBunHeapStats(true)
+      objectTypeCounts = bunHeapStats.objectTypeCounts
+      protectedObjectTypeCounts = bunHeapStats.protectedObjectTypeCounts
+      mimalloc = bunHeapStats.mimalloc || undefined
     } catch {
-      // Not available in every Bun runtime.
+      // Not available in every Bun build.
     }
   }
 
@@ -214,7 +211,6 @@ export async function captureMemoryDiagnostics(
       available: space.space_available_size,
     })),
     resourceUsage: {
-      // macOS reports bytes; Linux and Windows report kilobytes.
       maxRSS: resourceUsage.maxRSS * (getPlatform() === 'macos' ? 1 : 1024),
       userCPUTime: resourceUsage.userCPUTime,
       systemCPUTime: resourceUsage.systemCPUTime,

@@ -174,35 +174,3 @@ export function usePreDispatch(
     { isActive },
   )
 }
-
-/**
- * Run a handler before ordinary single-key keybinding dispatch.
- *
- * The direct input subscription preserves behavior outside the DOM-event
- * route, while the provider registration gives the focus-aware dispatcher the
- * same chance to consume the event before action resolution.
- */
-export function useKeybindingPreDispatch(
-  handler: (input: string, key: Key) => boolean | void,
-  { isActive = true }: Pick<Options, 'isActive'> = {},
-): void {
-  const keybindingContext = useOptionalKeybindingContext()
-  const handlerRef = useRef(handler)
-  handlerRef.current = handler
-
-  useEffect(() => {
-    if (!isActive || !keybindingContext) return
-    return keybindingContext.registerPreDispatch((input, key) =>
-      handlerRef.current(input, key),
-    )
-  }, [isActive, keybindingContext])
-
-  useInput(
-    (input, key, event) => {
-      if (handlerRef.current(input, key) === true) {
-        event.stopImmediatePropagation()
-      }
-    },
-    { isActive },
-  )
-}

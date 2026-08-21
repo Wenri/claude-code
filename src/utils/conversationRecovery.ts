@@ -17,7 +17,10 @@ import type {
   NormalizedMessage,
   NormalizedUserMessage,
 } from '../types/message.js'
-import { PERMISSION_MODES } from '../types/permissions.js'
+import {
+  PERMISSION_MODES,
+  type PermissionMode,
+} from '../types/permissions.js'
 import {
   type HookDeferredToolAttachment,
   suppressNextSkillListing,
@@ -37,16 +40,14 @@ import {
   NO_RESPONSE_REQUESTED,
   normalizeMessages,
 } from './messages.js'
-import type { HookDeferredToolAttachment } from './attachments.js'
 import { copyPlanForResume } from './plans.js'
 import { processSessionStartHooks } from './sessionStart.js'
 import {
   buildConversationChain,
   checkResumeConsistency,
-  findDeferredToolUse,
   getLastSessionLog,
   getSessionIdFromLog,
-  findLastDeferredToolUse,
+  findDeferredToolMarkerInTranscript,
   isLiteLog,
   loadFullLog,
   loadMessageLogs,
@@ -494,9 +495,11 @@ export async function loadConversationForResume(
   agentColor?: string
   agentSetting?: string
   customTitle?: string
+  aiTitle?: string
   tag?: string
   mode?: 'coordinator' | 'normal'
   permissionMode?: PermissionMode
+  isolationLatch?: 'web' | 'connectors'
   worktreeSession?: PersistedWorktreeSession | null
   prNumber?: number
   prUrl?: string
@@ -585,7 +588,8 @@ export async function loadConversationForResume(
 
     const transcriptPath = log?.fullPath ?? sourceJsonlFile
     const deferredToolUse = transcriptPath
-      ? ((await findLastDeferredToolUse(transcriptPath)) ?? undefined)
+      ? ((await findDeferredToolMarkerInTranscript(transcriptPath)) ??
+        undefined)
       : undefined
 
     // Deserialize messages to handle unresolved tool uses and ensure proper format
@@ -615,9 +619,11 @@ export async function loadConversationForResume(
       agentColor: log?.agentColor,
       agentSetting: log?.agentSetting,
       customTitle: log?.customTitle,
+      aiTitle: log?.aiTitle,
       tag: log?.tag,
       mode: log?.mode,
       permissionMode: log?.permissionMode,
+      isolationLatch: log?.isolationLatch,
       worktreeSession: log?.worktreeSession,
       prNumber: log?.prNumber,
       prUrl: log?.prUrl,
@@ -630,4 +636,22 @@ export async function loadConversationForResume(
     logError(error as Error)
     throw error
   }
+}
+
+export async function findLiveNonInteractiveSession(
+  sessionId: string,
+): Promise<{ kind: string } | null> {
+  const sessions = await import('./udsClient.js')
+    .then(module => module.listAllLiveSessions())
+    .catch(() => [])
+  for (const session of sessions) {
+    if (
+      session.sessionId === sessionId &&
+      session.kind &&
+      session.kind !== 'interactive'
+    ) {
+      return { kind: session.kind }
+    }
+  }
+  return null
 }

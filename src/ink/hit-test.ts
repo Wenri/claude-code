@@ -22,39 +22,37 @@ export function hitTest(
 ): DOMElement | null {
   const rect = nodeCache.get(node)
   if (!rect) return null
-  const isInside = !(
-    col < rect.x ||
-    col >= rect.x + rect.width ||
-    row < rect.y ||
-    row >= rect.y + rect.height
-  )
-  if (!isInside && !node.hasAbsoluteDescendant) return null
+  const containsPoint =
+    col >= rect.x &&
+    col < rect.x + rect.width &&
+    row >= rect.y &&
+    row < rect.y + rect.height
+  if (!containsPoint && !node.hasAbsoluteDescendant) return null
 
-  // Later siblings paint on top; reversed traversal returns topmost hit.
-  let hit: DOMElement | null = null
-  let hitOutsideChild = false
+  let result: DOMElement | null = null
+  let resultIsOutsideChild = false
   for (let i = node.childNodes.length - 1; i >= 0; i--) {
     const child = node.childNodes[i]!
     if (child.nodeName === '#text') continue
     const childRect = nodeCache.get(child)
     if (!childRect) continue
-    const isInsideChild =
+    const pointInsideChild =
       col >= childRect.x &&
       col < childRect.x + childRect.width &&
       row >= childRect.y &&
       row < childRect.y + childRect.height
-    if (!isInsideChild && !child.hasAbsoluteDescendant) continue
-    if (hit !== null && isInsideChild) continue
-    const childHit = hitTest(child, col, row)
-    if (!childHit) continue
-    const childHitOutside = !isInsideChild
-    if (hit === null || (childHitOutside && !hitOutsideChild)) {
-      hit = childHit
-      hitOutsideChild = childHitOutside
+    if (!pointInsideChild && !child.hasAbsoluteDescendant) continue
+    if (result !== null && pointInsideChild) continue
+    const hit = hitTest(child, col, row)
+    if (!hit) continue
+    const hitOutsideChild = !pointInsideChild
+    if (result === null || (hitOutsideChild && !resultIsOutsideChild)) {
+      result = hit
+      resultIsOutsideChild = hitOutsideChild
     }
-    if (hitOutsideChild) break
+    if (resultIsOutsideChild) break
   }
-  return hit ?? (isInside ? node : null)
+  return result ?? (containsPoint ? node : null)
 }
 
 /**
@@ -123,12 +121,18 @@ export function dispatchHover(
   col: number,
   row: number,
   hovered: Set<DOMElement>,
+  cellIsBlank = false,
 ): void {
   const next = new Set<DOMElement>()
   let node: DOMElement | undefined = hitTest(root, col, row) ?? undefined
   while (node) {
     const h = node._eventHandlers as EventHandlerProps | undefined
-    if (h?.onMouseEnter || h?.onMouseLeave) next.add(node)
+    if (
+      (h?.onMouseEnter || h?.onMouseLeave) &&
+      !(cellIsBlank && node.attributes['hoverIgnoresBlankCells'])
+    ) {
+      next.add(node)
+    }
     node = node.parentNode
   }
   for (const old of hovered) {

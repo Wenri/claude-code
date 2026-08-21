@@ -22,10 +22,7 @@ import {
   type TextNode,
 } from './dom.js'
 import { Dispatcher } from './events/dispatcher.js'
-import {
-  EVENT_HANDLER_PROPS,
-  INPUT_EVENT_HANDLER_PROPS,
-} from './events/event-handlers.js'
+import { EVENT_HANDLER_PROPS } from './events/event-handlers.js'
 import { getFocusManager, getRootNode } from './focus.js'
 import { LayoutDisplay } from './layout/node.js'
 import applyStyles, { type Styles, type TextStyles } from './styles.js'
@@ -119,43 +116,6 @@ function setEventHandler(node: DOMElement, key: string, value: unknown): void {
     node._eventHandlers = {}
   }
   node._eventHandlers[key] = value
-}
-
-function hasInputEventHandler(node: DOMElement): boolean {
-  const handlers = node._eventHandlers
-  if (!handlers) return false
-
-  for (const key of INPUT_EVENT_HANDLER_PROPS) {
-    if (handlers[key] != null) return true
-  }
-  return false
-}
-
-function updateRootRawModeRef(root: DOMElement, delta: 1 | -1): void {
-  if (root.setRawMode) {
-    root.setRawMode(delta > 0)
-  } else {
-    root._pendingRawModeDelta = (root._pendingRawModeDelta ?? 0) + delta
-  }
-}
-
-function syncRawModeRef(node: DOMElement, root: DOMElement): void {
-  const shouldHold = hasInputEventHandler(node)
-  if (shouldHold === Boolean(node._holdsRawModeRef)) return
-
-  node._holdsRawModeRef = shouldHold
-  updateRootRawModeRef(root, shouldHold ? 1 : -1)
-}
-
-function releaseRawModeRefs(node: DOMElement, root: DOMElement): void {
-  if (node._holdsRawModeRef) {
-    node._holdsRawModeRef = false
-    updateRootRawModeRef(root, -1)
-  }
-
-  for (const child of node.childNodes) {
-    if (child.nodeName !== '#text') releaseRawModeRefs(child, root)
-  }
 }
 
 function applyProp(node: DOMElement, key: string, value: unknown): void {
@@ -371,7 +331,7 @@ const reconciler = createReconciler<
   createInstance(
     originalType: ElementNames,
     newProps: Props,
-    root: DOMElement,
+    _root: DOMElement,
     hostContext: HostContext,
     internalHandle?: unknown,
   ): DOMElement {
@@ -390,8 +350,6 @@ const reconciler = createReconciler<
     for (const [key, value] of Object.entries(newProps)) {
       applyProp(node, key, value)
     }
-
-    syncRawModeRef(node, root)
 
     if (isDebugRepaintsEnabled()) {
       node.debugOwnerChain = getOwnerChain(internalHandle)
@@ -463,7 +421,6 @@ const reconciler = createReconciler<
     removeChildNode(node, removeNode)
     cleanupYogaNode(removeNode)
     getFocusManager(node).handleNodeRemoved(removeNode, node)
-    releaseRawModeRefs(removeNode, node)
   },
   // React 19 commitUpdate receives old and new props directly instead of an updatePayload
   commitUpdate(
@@ -474,7 +431,6 @@ const reconciler = createReconciler<
   ): void {
     const props = diff(oldProps, newProps)
     const style = diff(oldProps['style'] as Styles, newProps['style'] as Styles)
-    let inputEventHandlerChanged = false
 
     if (props) {
       for (const [key, value] of Object.entries(props)) {
@@ -490,18 +446,11 @@ const reconciler = createReconciler<
 
         if (EVENT_HANDLER_PROPS.has(key)) {
           setEventHandler(node, key, value)
-          if (INPUT_EVENT_HANDLER_PROPS.has(key)) {
-            inputEventHandlerChanged = true
-          }
           continue
         }
 
         setAttribute(node, key, value as DOMNodeAttribute)
       }
-    }
-
-    if (inputEventHandlerChanged) {
-      syncRawModeRef(node, getRootNode(node))
     }
 
     if (newProps['autoFocus'] === true) {
@@ -521,7 +470,6 @@ const reconciler = createReconciler<
     if (removeNode.nodeName !== '#text') {
       const root = getRootNode(node)
       root.focusManager!.handleNodeRemoved(removeNode, root)
-      releaseRawModeRefs(removeNode, root)
     }
   },
   // React 19 required methods

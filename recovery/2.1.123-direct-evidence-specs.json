@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.122-to-2.1.123",
+  "release": "2.1.123",
+  "complete": true,
+  "coverageDeclarations": {
+    "officialRowsEnumerated": true,
+    "hiddenInventoryComplete": true,
+    "daemonInventoryComplete": true,
+    "residualAuditComplete": true,
+    "changedSourcePathsFullyBound": true,
+    "focusedTestsFullyBound": true
+  },
+  "rows": [
+    {
+      "id": "B01",
+      "category": "official",
+      "releaseBullet": 1,
+      "title": "Fixed OAuth authentication failing with a 401 retry loop when `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` is set",
+      "status": "verified",
+      "targetFragments": [
+        "function an8(){let H=qK();return H===\"firstParty\"||H===\"anthropicAws\"||H===\"foundry\"}",
+        "function bp(){return an8()&&!IH(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)}",
+        "if(Iq()||an8()&&!eL()&&oI())$.push(Lw);",
+        "function eqK(H){if(an8())return H;return H.filter(($)=>tqK.has($))}",
+        "function Tb(){let H=qK();return(H===\"firstParty\"||H===\"anthropicAws\"||H===\"foundry\")&&!IH(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)}"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "function isFirstPartyBetaProvider(): boolean {"
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "provider === 'firstParty' ||\n    provider === 'anthropicAws' ||\n    provider === 'foundry'"
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "isFirstPartyBetaProvider() &&\n    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)"
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "isClaudeAISubscriber() ||\n    (isFirstPartyBetaProvider() &&\n      !getAnthropicApiKey() &&\n      shouldUseWIFAuth())"
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "if (isFirstPartyBetaProvider()) return betas"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [
+        "oauth-beta-disable-experimental",
+        "semantic-delta"
+      ],
+      "rationale": "The authenticated target splits first-party beta-provider compatibility from the experimental-beta kill switch: OAuth/WIF selection and provider filtering use the provider-only predicate, while experimental beta inclusion remains kill-switch gated."
+    }
+  ]
+}

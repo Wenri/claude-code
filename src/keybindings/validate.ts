@@ -78,9 +78,10 @@ const VALID_CONTEXTS: KeybindingContextName[] = [
   'Plugin',
   'Scroll',
   'MessageActions',
+  'Doctor',
 ]
 
-const MESSAGE_ACTION_PATTERN = /^messageActions:[a-zA-Z0-9:\-_]+$/
+const MESSAGE_ACTION_BINDING_PATTERN = /^messageActions:[a-zA-Z0-9:\-_]+$/
 
 /**
  * Type guard to check if a string is a valid context name.
@@ -225,7 +226,7 @@ function validateBlock(
       typeof action === 'string' &&
       action.startsWith('messageActions:')
     ) {
-      if (!MESSAGE_ACTION_PATTERN.test(action)) {
+      if (!MESSAGE_ACTION_BINDING_PATTERN.test(action)) {
         warnings.push({
           type: 'invalid_action',
           severity: 'warning',

@@ -2,13 +2,12 @@ import { feature } from 'bun:bundle'
 import type { QuerySource } from '../../constants/querySource.js'
 import { clearSystemPromptSections } from '../../constants/systemPromptSections.js'
 import { getUserContext } from '../../context.js'
-import type { AppState } from '../../state/AppStateStore.js'
 import { clearSpeculativeChecks } from '../../tools/BashTool/bashPermissions.js'
 import {
   clearClassifierApprovals,
-  createClassifierApprovalsSetter,
+  makeSetClassifierApprovals,
 } from '../../utils/classifierApprovals.js'
-import { resetAutonomousLoopDelivered } from '../../utils/loopSentinels.js'
+import type { AppState } from '../../state/AppStateStore.js'
 import { resetGetMemoryFilesCache } from '../../utils/claudemd.js'
 import { clearSessionMessagesCache } from '../../utils/sessionStorage.js'
 import { clearBetaTracingState } from '../../utils/telemetry/betaSessionTracing.js'
@@ -45,6 +44,7 @@ const loopDefaultModule = feature('AGENT_TRIGGERS')
  */
 export function runPostCompactCleanup(
   querySource?: QuerySource,
+  setAppState?: (updater: (prev: AppState) => AppState) => void,
   resultDedupState?: ResultDedupState,
 ): void {
   if (resultDedupState) resetResultDedupState(resultDedupState)
@@ -77,11 +77,10 @@ export function runPostCompactCleanup(
     // clear so all compaction paths behave consistently.
     getUserContext.cache.clear?.()
     resetGetMemoryFilesCache('compact')
-    resetAutonomousLoopDelivered()
   }
   clearSystemPromptSections()
   clearClassifierApprovals(
-    setAppState ? createClassifierApprovalsSetter(setAppState) : undefined,
+    setAppState ? makeSetClassifierApprovals(setAppState) : undefined,
   )
   clearSpeculativeChecks()
   // Intentionally NOT calling resetSentSkillNames(): re-injecting the full

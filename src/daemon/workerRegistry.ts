@@ -1,15 +1,19 @@
-import { randomUUID } from 'crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'fs/promises'
+import { mkdir, readFile } from 'fs/promises'
 import { dirname } from 'path'
 import { setTimeout as delay } from 'timers/promises'
 import { z } from 'zod/v4'
 import { parseCronExpression } from '../utils/cron.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { isDaemonWorkerRegistryEnabled } from '../utils/agentsFleet.js'
 import {
   DEFAULT_CRON_JITTER_CONFIG,
   jitteredNextCronRunMs,
 } from '../utils/cronTasks.js'
 import { lazySchema } from '../utils/lazySchema.js'
+import {
+  getCurrentProcessStartToken,
+  processStartTokenMatches,
+} from '../utils/genericProcessUtils.js'
 import { WORKLOAD_CRON } from '../utils/workloadContext.js'
 import { getScheduledStatusPath } from './paths.js'
 import {
@@ -106,6 +110,7 @@ type ScheduledTask = z.infer<ReturnType<typeof scheduledTaskSchema>>
 
 export interface ScheduledWorkerStatus {
   workerPid: number
+  workerProcStart?: string
   writtenAt: number
   tasks: Record<string, { running: boolean; lastFiredAt?: number }>
 }
@@ -114,19 +119,16 @@ async function writeScheduledStatus(
   tasks: ScheduledWorkerStatus['tasks'],
 ): Promise<void> {
   const path = getScheduledStatusPath()
-  const temporary = `${path}.tmp.${process.pid}.${randomUUID()}`
   const status: ScheduledWorkerStatus = {
     workerPid: process.pid,
+    workerProcStart: getCurrentProcessStartToken(),
     writtenAt: Date.now(),
     tasks,
   }
   try {
     await mkdir(dirname(path), { recursive: true })
-    await writeFile(temporary, JSON.stringify(status))
-    await rename(temporary, path)
-  } catch {
-    await rm(temporary, { force: true }).catch(() => {})
-  }
+    await atomicWriteFile(path, JSON.stringify(status))
+  } catch {}
 }
 
 export async function readScheduledStatus(): Promise<ScheduledWorkerStatus | null> {
@@ -148,6 +150,14 @@ export async function readScheduledStatus(): Promise<ScheduledWorkerStatus | nul
   try {
     process.kill((parsed as ScheduledWorkerStatus).workerPid, 0)
   } catch {
+    return null
+  }
+  if (
+    !(await processStartTokenMatches(
+      (parsed as ScheduledWorkerStatus).workerPid,
+      (parsed as ScheduledWorkerStatus).workerProcStart,
+    ))
+  ) {
     return null
   }
   return parsed as ScheduledWorkerStatus

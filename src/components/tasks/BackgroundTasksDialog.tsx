@@ -320,7 +320,7 @@ export function BackgroundTasksDialog({
     await DreamTask.kill(taskId_2, setAppState);
   }
   async function killRemoteAgentTask(taskId_3: string): Promise<void> {
-    await RemoteAgentTask.kill(taskId_3, toolUseContext.taskRegistry, setAppState);
+    await RemoteAgentTask.kill(taskId_3, setAppState);
   }
 
   // Wrap onDone in useEffectEvent to get a stable reference that always calls
@@ -367,6 +367,7 @@ export function BackgroundTasksDialog({
       });
     }
   };
+  const hasMultipleRunningAgents = count(agentTasks, task => task.status === 'running') > 1;
 
   // If an item is selected, show the appropriate view
   if (viewState.mode !== 'list' && typedTasks) {
@@ -380,7 +381,7 @@ export function BackgroundTasksDialog({
       case 'local_bash':
         return <ShellDetailDialog shell={task_0} onDone={onDone} onKillShell={() => void killShellTask(task_0.id)} onBack={goBackToList} key={`shell-${task_0.id}`} />;
       case 'local_agent':
-        return <AsyncAgentDetailDialog agent={task_0} onDone={onDone} onKillAgent={() => void killAgentTask(task_0.id)} onBack={goBackToList} key={`agent-${task_0.id}`} />;
+        return <AsyncAgentDetailDialog agent={task_0} onDone={onDone} onKillAgent={() => void killAgentTask(task_0.id)} onBack={goBackToList} killAllAgentsShortcut={hasMultipleRunningAgents ? killAgentsShortcut : undefined} key={`agent-${task_0.id}`} />;
       case 'remote_agent':
         return <RemoteSessionDetailDialog session={task_0} onDone={onDone} toolUseContext={toolUseContext} onBack={goBackToList} onKill={task_0.status !== 'running' ? undefined : task_0.isUltraplan ? () => void stopUltraplan(task_0.id, task_0.sessionId, setAppState) : task_0.isRemoteReview ? () => void stopUltrareview(task_0.id, task_0.sessionId, setAppState) : () => void killRemoteAgentTask(task_0.id)} key={`session-${task_0.id}`} />;
       case 'in_process_teammate':
@@ -415,7 +416,7 @@ export function BackgroundTasksDialog({
               {runningAgentCount}{' '}
               {runningAgentCount !== 1 ? 'active agents' : 'active agent'}
             </Text>] : [])], index => <Text key={`separator-${index}`}> · </Text>);
-  const actions = [<KeyboardShortcutHint key="upDown" shortcut="↑/↓" action="select" />, <KeyboardShortcutHint key="enter" shortcut="Enter" action="view" />, ...(currentSelection?.type === 'in_process_teammate' && currentSelection.status === 'running' ? [<KeyboardShortcutHint key="foreground" shortcut="f" action="foreground" />] : []), ...((currentSelection?.type === 'local_bash' || currentSelection?.type === 'local_agent' || currentSelection?.type === 'in_process_teammate' || currentSelection?.type === 'local_workflow' || currentSelection?.type === 'monitor_mcp' || currentSelection?.type === 'dream' || currentSelection?.type === 'remote_agent') && currentSelection.status === 'running' ? [<KeyboardShortcutHint key="kill" shortcut="x" action="stop" />] : []), ...(agentTasks.some(t => t.status === 'running') ? [<KeyboardShortcutHint key="kill-all" shortcut={killAgentsShortcut} action="stop all agents" />] : []), <KeyboardShortcutHint key="esc" shortcut="←/Esc" action="close" />];
+  const actions = [<KeyboardShortcutHint key="upDown" shortcut="↑/↓" action="select" />, ...((currentSelection as { type: string } | null)?.type !== 'mcp_task' ? [<KeyboardShortcutHint key="enter" shortcut="Enter" action="view" />] : []), ...(currentSelection?.type === 'in_process_teammate' && currentSelection.status === 'running' ? [<KeyboardShortcutHint key="foreground" shortcut="f" action="foreground" />] : []), ...((currentSelection?.type === 'local_bash' || currentSelection?.type === 'local_agent' || currentSelection?.type === 'in_process_teammate' || currentSelection?.type === 'local_workflow' || currentSelection?.type === 'monitor_mcp' || currentSelection?.type === 'dream' || currentSelection?.type === 'remote_agent') && currentSelection.status === 'running' ? [<KeyboardShortcutHint key="kill" shortcut="x" action="stop" />, ...(currentSelection.type === 'local_agent' && hasMultipleRunningAgents ? [<KeyboardShortcutHint key="kill-all" shortcut={killAgentsShortcut.toLowerCase()} action="stop all agents" />] : [])] : []), <KeyboardShortcutHint key="esc" shortcut="←/Esc" action="close" />];
   return <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={handleKeyDown}>
       <Dialog title="Background tasks" subtitle={<>{subtitle}</>} onCancel={() => onDone('Background tasks dialog dismissed', {
       display: 'system'

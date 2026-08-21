@@ -1,4 +1,4 @@
-import { execa } from '../execa.js'
+import { execa } from 'execa'
 import { which } from '../which.js'
 
 export type GhAuthStatus =

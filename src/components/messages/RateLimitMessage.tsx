@@ -44,9 +44,9 @@ export function getUpsellMessage({
   if (isTeamOrEnterprise) {
     if (!canOfferExtraUsage) return null;
     if (hasBillingAccess) {
-      return '/extra-usage to finish what you\u2019re working on.'
+      return '/extra-usage to finish what you\u2019re working on.';
     }
-    return '/extra-usage to request more usage from your admin.'
+    return '/extra-usage to request more usage from your admin.';
   }
   if (serverHidesUpgrade) {
     return canOfferExtraUsage
@@ -58,7 +58,6 @@ export function getUpsellMessage({
   }
   return '/upgrade or /extra-usage to finish what you\u2019re working on.';
 }
-
 type RateLimitMessageProps = {
   text: string;
   onOpenRateLimitOptions?: () => void;

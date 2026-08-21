@@ -1,5 +1,5 @@
-import { feature } from 'bun:bundle'
 import type Anthropic from '@anthropic-ai/sdk'
+import { feature } from 'bun:bundle'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
 import { getDefaultSonnetModel } from '../utils/model/model.js'
@@ -11,37 +11,44 @@ import {
   scanMemoryFiles,
 } from './memoryScan.js'
 
+type MessageParam = Anthropic.MessageParam
+
 export type RelevantMemory = {
   path: string
   mtimeMs: number
 }
 
-type MemorySelectorConversation = {
+export type MemorySelectorUsage = {
+  cacheReadInputTokens: number
+  cacheCreationInputTokens: number
+  turnCount: number
+}
+
+type MemorySelectorDirectoryState = {
   memories: MemoryHeader[]
   byFilename: Map<string, MemoryHeader>
-  messages: Anthropic.MessageParam[]
+  messages: MessageParam[]
 }
 
-export type MemorySelectorState = {
-  stateByDir: Map<string, MemorySelectorConversation>
-  lastUsage: {
-    cacheReadInputTokens: number
-    cacheCreationInputTokens: number
-    turnCount: number
-  } | null
+/** Per-conversation selector state. Its message history keeps the manifest
+ * cacheable and lets the selector avoid returning the same memory repeatedly. */
+export type MemorySelector = {
+  stateByDir: Map<string, MemorySelectorDirectoryState>
+  lastUsage: MemorySelectorUsage | null
 }
 
-export function createMemorySelectorState(): MemorySelectorState {
+export function createMemorySelector(): MemorySelector {
   return { stateByDir: new Map(), lastUsage: null }
 }
 
-export function clearMemorySelectorState(
-  state: MemorySelectorState | undefined,
-): void {
-  if (!state) return
-  state.stateByDir.clear()
-  state.lastUsage = null
+export function resetMemorySelector(selector?: MemorySelector): void {
+  if (!selector) return
+  selector.stateByDir.clear()
+  selector.lastUsage = null
 }
+
+const QUERY_SOURCE = 'memdir_relevance'
+const CACHE_CONTROL = { type: 'ephemeral' as const }
 
 const SELECT_MEMORIES_SYSTEM_PROMPT = `You are selecting memories that will be useful to Claude Code as it processes a user's query. The first message lists the available memory files with their filenames and descriptions; subsequent messages each contain one user query.
 
@@ -74,111 +81,140 @@ Style and length:
 - If a prior turn in this conversation already returned the relevant facts for this query, return relevant_facts: [] and cited_memories: [] rather than restating.
 `
 
-/**
- * Find memory files relevant to a query by scanning memory file headers
- * and asking Sonnet to select the most relevant ones.
- *
- * Returns absolute file paths + mtime of the most relevant memories
- * (up to 5). Excludes MEMORY.md (already loaded in system prompt).
- * mtime is threaded through so callers can surface freshness to the
- * main model without a second stat.
- *
- * `alreadySurfaced` filters paths shown in prior turns before the
- * Sonnet call, so the selector spends its 5-slot budget on fresh
- * candidates instead of re-picking files the caller will discard.
- */
+async function getOrCreateDirectoryState(
+  selector: MemorySelector,
+  memoryDir: string,
+  signal: AbortSignal,
+): Promise<MemorySelectorDirectoryState | undefined> {
+  const existing = selector.stateByDir.get(memoryDir)
+  if (existing) return existing
+
+  const memories = await scanMemoryFiles(memoryDir, signal)
+  if (memories.length === 0 || signal.aborted) return undefined
+
+  const state: MemorySelectorDirectoryState = {
+    memories,
+    byFilename: new Map(memories.map(memory => [memory.filename, memory])),
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `Available memories:\n${formatMemoryManifest(memories)}`,
+            cache_control: CACHE_CONTROL,
+          },
+        ],
+      },
+    ],
+  }
+  selector.stateByDir.set(memoryDir, state)
+  return state
+}
+
+function appendSelectorTurn(
+  selector: MemorySelector,
+  memoryDir: string,
+  userText: string,
+  assistantText: string,
+): void {
+  const state = selector.stateByDir.get(memoryDir)
+  if (!state) return
+  selector.stateByDir.set(memoryDir, {
+    ...state,
+    messages: [
+      ...state.messages,
+      { role: 'user', content: [{ type: 'text', text: userText }] },
+      { role: 'assistant', content: [{ type: 'text', text: assistantText }] },
+    ],
+  })
+}
+
+function recordUsage(
+  selector: MemorySelector,
+  response: Anthropic.Beta.Messages.BetaMessage,
+  priorMessages: MessageParam[],
+): void {
+  selector.lastUsage = {
+    cacheReadInputTokens: response.usage.cache_read_input_tokens ?? 0,
+    cacheCreationInputTokens: response.usage.cache_creation_input_tokens ?? 0,
+    turnCount: (priorMessages.length + 1) / 2,
+  }
+}
+
+/** Select memory filenames while retaining a cacheable manifest and selector
+ * conversation for the lifetime of the owning ToolUseContext. */
 export async function findRelevantMemories(
   query: string,
   memoryDir: string,
-  state: MemorySelectorState,
+  selector: MemorySelector,
   signal: AbortSignal,
   alreadySurfaced: ReadonlySet<string> = new Set(),
 ): Promise<RelevantMemory[]> {
-  state.lastUsage = null
-  const cacheControl = { type: 'ephemeral' as const }
-  let conversation = state.stateByDir.get(memoryDir)
-  if (!conversation) {
-    const memories = await scanMemoryFiles(memoryDir, signal)
-    if (memories.length === 0 || signal.aborted) return []
-    conversation = {
-      memories,
-      byFilename: new Map(memories.map(m => [m.filename, m])),
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: `Available memories:\n${formatMemoryManifest(memories)}`,
-              cache_control: cacheControl,
-            },
-          ],
-        },
-      ],
-    }
-    state.stateByDir.set(memoryDir, conversation)
-  }
-  if (conversation.memories.every(m => alreadySurfaced.has(m.filePath))) {
+  selector.lastUsage = null
+  const state = await getOrCreateDirectoryState(selector, memoryDir, signal)
+  if (
+    !state ||
+    state.memories.every(memory => alreadySurfaced.has(memory.filePath))
+  ) {
     return []
   }
 
   const selectedFilenames = await selectRelevantMemories(
     query,
     memoryDir,
-    state,
-    conversation.messages,
-    conversation.byFilename,
-    cacheControl,
+    selector,
+    state.messages,
+    state.byFilename,
     signal,
   )
   const selected = selectedFilenames
-    .map(filename => conversation.byFilename.get(filename))
+    .map(filename => state.byFilename.get(filename))
     .filter(
-      (m): m is MemoryHeader =>
-        m !== undefined && !alreadySurfaced.has(m.filePath),
+      (memory): memory is MemoryHeader =>
+        memory !== undefined && !alreadySurfaced.has(memory.filePath),
     )
 
-  // Fires even on empty selection: selection-rate needs the denominator,
-  // and -1 ages distinguish "ran, picked nothing" from "never ran".
   if (feature('MEMORY_SHAPE_TELEMETRY')) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { logMemoryRecallShape } =
       require('./memoryShapeTelemetry.js') as typeof import('./memoryShapeTelemetry.js')
     /* eslint-enable @typescript-eslint/no-require-imports */
-    logMemoryRecallShape(conversation.memories, selected)
+    logMemoryRecallShape(state.memories, selected)
   }
 
-  return selected.map(m => ({ path: m.filePath, mtimeMs: m.mtimeMs }))
+  return selected.map(memory => ({
+    path: memory.filePath,
+    mtimeMs: memory.mtimeMs,
+  }))
 }
 
 async function selectRelevantMemories(
   query: string,
   memoryDir: string,
-  state: MemorySelectorState,
-  messages: Anthropic.MessageParam[],
+  selector: MemorySelector,
+  priorMessages: MessageParam[],
   byFilename: Map<string, MemoryHeader>,
-  cacheControl: { type: 'ephemeral' },
   signal: AbortSignal,
 ): Promise<string[]> {
   const prompt = `Select memories relevant to:\n${query}`
-
   try {
-    const result = await sideQuery({
+    const response = await sideQuery({
       model: getDefaultSonnetModel(),
       system: [
         {
           type: 'text',
           text: SELECT_MEMORIES_SYSTEM_PROMPT,
-          cache_control: cacheControl,
+          cache_control: CACHE_CONTROL,
         },
       ],
       skipSystemPromptPrefix: true,
       messages: [
-        ...messages,
+        ...priorMessages,
         {
           role: 'user',
           content: [
-            { type: 'text', text: prompt, cache_control: cacheControl },
+            { type: 'text', text: prompt, cache_control: CACHE_CONTROL },
           ],
         },
       ],
@@ -195,103 +231,60 @@ async function selectRelevantMemories(
         },
       },
       signal,
-      querySource: 'memdir_relevance',
+      querySource: QUERY_SOURCE,
     })
-
-    const textBlock = result.content.find(block => block.type === 'text')
-    if (!textBlock || textBlock.type !== 'text') {
-      return []
-    }
-
+    const textBlock = response.content.find(block => block.type === 'text')
+    if (!textBlock || textBlock.type !== 'text') return []
     const parsed: { selected_memories: string[] } = jsonParse(textBlock.text)
-    const conversation = state.stateByDir.get(memoryDir)
-    if (conversation) {
-      state.stateByDir.set(memoryDir, {
-        ...conversation,
-        messages: [
-          ...conversation.messages,
-          { role: 'user', content: [{ type: 'text', text: prompt }] },
-          {
-            role: 'assistant',
-            content: [{ type: 'text', text: textBlock.text }],
-          },
-        ],
-      })
-    }
-    state.lastUsage = {
-      cacheReadInputTokens: result.usage.cache_read_input_tokens ?? 0,
-      cacheCreationInputTokens:
-        result.usage.cache_creation_input_tokens ?? 0,
-      turnCount: (messages.length + 1) / 2,
-    }
-    return parsed.selected_memories.filter(f => byFilename.has(f))
-  } catch (e) {
-    state.lastUsage = null
-    if (signal.aborted) {
-      return []
-    }
+    appendSelectorTurn(selector, memoryDir, prompt, textBlock.text)
+    recordUsage(selector, response, priorMessages)
+    return parsed.selected_memories.filter(filename => byFilename.has(filename))
+  } catch (error) {
+    selector.lastUsage = null
+    if (signal.aborted) return []
     logForDebugging(
-      `[memdir] selectRelevantMemories failed: ${errorMessage(e)}`,
+      `[memdir] selectRelevantMemories failed: ${errorMessage(error)}`,
       { level: 'warn' },
     )
     return []
   }
 }
 
-export type SynthesizedMemories = {
+export type RelevantMemorySynthesis = {
   synthesis: string
   citedMemories: string[]
 }
 
+/** Tiny-memory mode sends full memory bodies once and returns a short factual
+ * synthesis rather than injecting the selected files verbatim. */
 export async function synthesizeRelevantMemories(
   query: string,
   memoryDir: string,
-  state: MemorySelectorState,
+  selector: MemorySelector,
   signal: AbortSignal,
-): Promise<SynthesizedMemories | null> {
-  state.lastUsage = null
-  const cacheControl = { type: 'ephemeral' as const }
-  let conversation = state.stateByDir.get(memoryDir)
-  if (!conversation) {
-    const memories = await scanMemoryFiles(memoryDir, signal)
-    if (memories.length === 0 || signal.aborted) return null
-    conversation = {
-      memories,
-      byFilename: new Map(memories.map(m => [m.filename, m])),
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: `Available memories:\n${formatMemoryManifest(memories)}`,
-              cache_control: cacheControl,
-            },
-          ],
-        },
-      ],
-    }
-    state.stateByDir.set(memoryDir, conversation)
-  }
+): Promise<RelevantMemorySynthesis | null> {
+  selector.lastUsage = null
+  const state = await getOrCreateDirectoryState(selector, memoryDir, signal)
+  if (!state) return null
 
   const prompt = `Extract facts relevant to:\n${query}`
   try {
-    const result = await sideQuery({
+    const response = await sideQuery({
       model: getDefaultSonnetModel(),
       system: [
         {
           type: 'text',
           text: SYNTHESIZE_MEMORIES_SYSTEM_PROMPT,
-          cache_control: cacheControl,
+          cache_control: CACHE_CONTROL,
         },
       ],
       skipSystemPromptPrefix: true,
       messages: [
-        ...conversation.messages,
+        ...state.messages,
         {
           role: 'user',
           content: [
-            { type: 'text', text: prompt, cache_control: cacheControl },
+            { type: 'text', text: prompt, cache_control: CACHE_CONTROL },
           ],
         },
       ],
@@ -309,29 +302,16 @@ export async function synthesizeRelevantMemories(
         },
       },
       signal,
-      querySource: 'memdir_relevance',
+      querySource: QUERY_SOURCE,
     })
-    const textBlock = result.content.find(block => block.type === 'text')
+    const textBlock = response.content.find(block => block.type === 'text')
     if (!textBlock || textBlock.type !== 'text') return null
-    const parsed: { relevant_facts: string[]; cited_memories: string[] } =
-      jsonParse(textBlock.text)
-    state.stateByDir.set(memoryDir, {
-      ...conversation,
-      messages: [
-        ...conversation.messages,
-        { role: 'user', content: [{ type: 'text', text: prompt }] },
-        {
-          role: 'assistant',
-          content: [{ type: 'text', text: textBlock.text }],
-        },
-      ],
-    })
-    state.lastUsage = {
-      cacheReadInputTokens: result.usage.cache_read_input_tokens ?? 0,
-      cacheCreationInputTokens:
-        result.usage.cache_creation_input_tokens ?? 0,
-      turnCount: (conversation.messages.length + 1) / 2,
-    }
+    const parsed: {
+      relevant_facts: string[]
+      cited_memories: string[]
+    } = jsonParse(textBlock.text)
+    appendSelectorTurn(selector, memoryDir, prompt, textBlock.text)
+    recordUsage(selector, response, state.messages)
     const facts = parsed.relevant_facts
       .map(fact => fact.trim())
       .filter(fact => fact.length > 0)
@@ -340,11 +320,11 @@ export async function synthesizeRelevantMemories(
     return {
       synthesis: facts.map(fact => `- ${fact}`).join('\n'),
       citedMemories: parsed.cited_memories.filter(filename =>
-        conversation.byFilename.has(filename),
+        state.byFilename.has(filename),
       ),
     }
   } catch (error) {
-    state.lastUsage = null
+    selector.lastUsage = null
     if (signal.aborted) return null
     logForDebugging(
       `[memdir] synthesizeRelevantMemories failed: ${errorMessage(error)}`,

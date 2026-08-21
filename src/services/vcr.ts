@@ -1,5 +1,4 @@
 import type { BetaContentBlock } from '@anthropic-ai/sdk/resources/beta/messages/messages.mjs'
-import type { ImageBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs'
 import { createHash, randomUUID, type UUID } from 'crypto'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import isPlainObject from 'lodash-es/isPlainObject.js'
@@ -211,23 +210,12 @@ function mapMessages(
             input: mapValuesDeep(_.input as Record<string, unknown>, f),
           }
         case 'image':
-          return dehydrateImage(_)
+          return _
         default:
           return undefined
       }
     })
   }) as (UserMessage | AssistantMessage)['message']['content'][]
-}
-
-function dehydrateImage(image: ImageBlockParam): ImageBlockParam {
-  if (image.source.type !== 'base64') return image
-  return {
-    ...image,
-    source: {
-      ...image.source,
-      data: '[IMAGE_DATA]',
-    },
-  }
 }
 
 function mapValuesDeep(

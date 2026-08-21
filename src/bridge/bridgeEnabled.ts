@@ -29,6 +29,23 @@ import { getSessionSettingsCache } from '../utils/settings/settingsCache.js'
  * is only referenced when bridge mode is enabled at build time.
  */
 export function isBridgeEnabled(): boolean {
+  return !isRunningInRemoteEnvironment() && hasBridgeEntitlement()
+}
+
+/** Whether this process is already running inside a remote workspace. */
+export function isRunningInRemoteEnvironment(): boolean {
+  return (
+    isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ||
+    getRuntimeCapabilities().workspace === 'remote'
+  )
+}
+
+/**
+ * Whether the current account is entitled to Remote Control, independent of
+ * the current workspace. Callers that need the complete runtime gate should
+ * use isBridgeEnabled().
+ */
+export function hasBridgeEntitlement(): boolean {
   // Positive ternary pattern — see docs/feature-gating.md.
   // Negative pattern (if (!feature(...)) return) does not eliminate
   // inline string literals from external builds.
@@ -38,15 +55,9 @@ export function isBridgeEnabled(): boolean {
     : false
 }
 
-/**
- * Whether the signed-in account is entitled to Remote Control, independent of
- * whether this particular process may start another Remote Control session.
- */
-export function hasBridgeEntitlement(): boolean {
-  return (
-    isClaudeAISubscriber() &&
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_ccr_bridge', false)
-  )
+/** Persistent remote sessions are disabled in this build. */
+export function isPersistentRemoteSessionEnabled(): boolean {
+  return false
 }
 
 /**
@@ -63,7 +74,8 @@ export function hasBridgeEntitlement(): boolean {
  */
 export async function isBridgeEnabledBlocking(): Promise<boolean> {
   return feature('BRIDGE_MODE')
-    ? hasClaudeAIInferenceScope() &&
+    ? !isRunningInRemoteEnvironment() &&
+        hasClaudeAIInferenceScope() &&
         (await checkGate_CACHED_OR_BLOCKING('tengu_ccr_bridge'))
     : false
 }
@@ -83,10 +95,7 @@ export async function isBridgeEnabledBlocking(): Promise<boolean> {
  */
 export async function getBridgeDisabledReason(): Promise<string | null> {
   if (feature('BRIDGE_MODE')) {
-    if (
-      isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ||
-      getRuntimeCapabilities().workspace === 'remote'
-    ) {
+    if (isRunningInRemoteEnvironment()) {
       return 'Remote Control is not available inside a remote session.'
     }
     if (!hasClaudeAIInferenceScope()) {
@@ -245,14 +254,6 @@ export function getCcrAutoConnectDefault(): boolean {
   return feature('CCR_AUTO_CONNECT')
     ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_harbor', false)
     : false
-}
-
-/**
- * Compatibility name shipped with the original persistent Remote Control
- * rollout. External builds fold this to false.
- */
-export function isPersistentRemoteSessionEnabled(): boolean {
-  return feature('CCR_AUTO_CONNECT') ? true : false
 }
 
 /**

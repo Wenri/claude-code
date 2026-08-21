@@ -54,7 +54,10 @@ import {
 } from '../../Tool.js'
 import { ListMcpResourcesTool } from '../../tools/ListMcpResourcesTool/ListMcpResourcesTool.js'
 import { type MCPProgress, MCPTool } from '../../tools/MCPTool/MCPTool.js'
-import { createMcpAuthTool } from '../../tools/McpAuthTool/McpAuthTool.js'
+import {
+  createMcpAuthTool,
+  createMcpCompleteAuthTool,
+} from '../../tools/McpAuthTool/McpAuthTool.js'
 import { ReadMcpResourceTool } from '../../tools/ReadMcpResourceTool/ReadMcpResourceTool.js'
 import { createAbortController } from '../../utils/abortController.js'
 import { count } from '../../utils/array.js'
@@ -108,7 +111,7 @@ import {
 } from '../../utils/proxy.js'
 import { recursivelySanitizeUnicode } from '../../utils/sanitization.js'
 import { getSessionIngressAuthToken } from '../../utils/sessionIngressAuth.js'
-import { subprocessEnv } from '../../utils/subprocessEnv.js'
+import { mcpSubprocessEnv } from '../../utils/subprocessEnv.js'
 import {
   isPersistError,
   persistToolResult,
@@ -117,7 +120,11 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
-import { isAnalyticsToolDetailsLoggingEnabled } from '../analytics/metadata.js'
+import {
+  isAnalyticsToolDetailsLoggingEnabled,
+  isToolDetailsLoggingEnabled,
+} from '../analytics/metadata.js'
+import { logOTelEvent } from '../../utils/telemetry/events.js'
 import {
   type ElicitationWaitingState,
   runElicitationHooks,
@@ -146,7 +153,11 @@ import {
   wrapFetchWithStepUpDetection,
 } from './auth.js'
 import { markClaudeAiMcpConnected } from './claudeai.js'
-import { getAllMcpConfigs, isMcpServerDisabled } from './config.js'
+import {
+  getAllMcpConfigs,
+  isCcrProxyUrl,
+  isMcpServerDisabled,
+} from './config.js'
 import { getMcpServerHeaders } from './headersHelper.js'
 import { SdkControlClientTransport } from './SdkControlTransport.js'
 import type {
@@ -157,6 +168,29 @@ import type {
   ServerResource,
   ServerResourceTemplate,
 } from './types.js'
+
+function logMcpServerConnection(
+  serverName: string,
+  serverRef: ScopedMcpServerConfig,
+  result: {
+    status: 'connected' | 'failed' | 'disconnected'
+    durationMs: number
+    errorCode?: string
+    error?: string
+  },
+): void {
+  void logOTelEvent('mcp_server_connection', {
+    status: result.status,
+    transport_type: serverRef.type ?? 'stdio',
+    server_scope: serverRef.scope,
+    duration_ms: String(Math.round(result.durationMs)),
+    ...(result.errorCode && { error_code: result.errorCode }),
+    ...(isToolDetailsLoggingEnabled() && {
+      server_name: serverName,
+      ...(result.error && { error: result.error }),
+    }),
+  })
+}
 
 /**
  * Custom error class to indicate that an MCP tool call failed due to
@@ -665,9 +699,12 @@ export const connectToServer = memoize(
     try {
       let transport
 
-      // If we have the session ingress JWT, we will connect via the session ingress rather than
-      // to remote MCP's directly.
-      const sessionIngressToken = getSessionIngressAuthToken()
+      // Only attach the session ingress JWT to a URL on this process's
+      // configured CCR/session-ingress origin. Never send it to a vendor MCP.
+      const sessionIngressToken =
+        'url' in serverRef && isCcrProxyUrl(serverRef.url)
+          ? getSessionIngressAuthToken()
+          : null
 
       if (serverRef.type === 'sse') {
         // Create an auth provider for this server
@@ -1012,7 +1049,7 @@ export const connectToServer = memoize(
           command: finalCommand,
           args: finalArgs,
           env: {
-            ...subprocessEnv(),
+            ...mcpSubprocessEnv(),
             ...serverRef.env,
           } as Record<string, string>,
           stderr: 'pipe', // prevents error output from the MCP server from printing to the UI
@@ -1497,6 +1534,10 @@ export const connectToServer = memoize(
           name,
           `${transportType.toUpperCase()} connection closed after ${Math.floor(uptime / 1000)}s (${hasErrorOccurred ? 'with errors' : 'cleanly'})`,
         )
+        logMcpServerConnection(name, serverRef, {
+          status: 'disconnected',
+          durationMs: uptime,
+        })
 
         // Clear the memoization cache so next operation reconnects
         const key = getServerCacheKey(name, serverRef)
@@ -1698,6 +1739,10 @@ export const connectToServer = memoize(
       }
 
       const connectionDurationMs = Date.now() - connectStartTime
+      logMcpServerConnection(name, serverRef, {
+        status: 'connected',
+        durationMs: connectionDurationMs,
+      })
       logEvent('tengu_mcp_server_connection_succeeded', {
         connectionDurationMs,
         transportType: (serverRef.type ??
@@ -1730,6 +1775,12 @@ export const connectToServer = memoize(
         error.code !== undefined
           ? String(error.code)
           : undefined
+      logMcpServerConnection(name, serverRef, {
+        status: 'failed',
+        durationMs: connectionDurationMs,
+        errorCode,
+        error: errorMessage(error),
+      })
       logEvent('tengu_mcp_server_connection_failed', {
         connectionDurationMs,
         errorCode,
@@ -1915,7 +1966,12 @@ export const fetchToolsForClient = memoizeWithLRU(
             // In skip-prefix mode, use the original name for model invocation so MCP tools
             // can override builtins by name. mcpInfo is used for permission checking.
             name: skipPrefix ? tool.name : fullyQualifiedName,
-            mcpInfo: { serverName: client.name, toolName: tool.name },
+            mcpInfo: {
+              serverName: client.name,
+              toolName: tool.name,
+              serverInfoName: client.serverInfo?.name,
+              execution: tool.execution,
+            },
             isMcp: true,
             // Collapse whitespace: _meta is open to external MCP servers, and
             // a newline here would inject orphan lines into the deferred-tool
@@ -2033,6 +2089,8 @@ export const fetchToolsForClient = memoizeWithLRU(
                           }
                         : undefined,
                     handleElicitation: context.handleElicitation,
+                    hasResultSizeAnnotation:
+                      hasRequestedMaxResultSizeChars,
                     imageLimits: getImageLimits(context.options.mainLoopModel),
                   })
 
@@ -2411,7 +2469,17 @@ export async function reconnectMcpServerImpl(
     clearKeychainCache()
 
     await clearServerCache(name, config)
-    const client = await connectToServer(name, config)
+    let client = await connectToServer(name, config)
+
+    if (client.type === 'needs-auth') {
+      logMCPDebug(
+        name,
+        "Reconnect returned 'needs-auth'; retrying once after cache clear",
+      )
+      const key = getServerCacheKey(name, config)
+      connectToServer.cache?.delete?.(key)
+      client = await connectToServer(name, config)
+    }
 
     if (client.type !== 'connected') {
       return {
@@ -2579,7 +2647,10 @@ export async function getMcpToolsCommandsAndResources(
         logMCPDebug(name, `Skipping connection (cached needs-auth)`)
         onConnectionAttempt({
           client: { name, type: 'needs-auth' as const, config },
-          tools: [createMcpAuthTool(name, config)],
+          tools: [
+            createMcpAuthTool(name, config),
+            createMcpCompleteAuthTool(name),
+          ],
           commands: [],
         })
         return
@@ -2592,7 +2663,10 @@ export async function getMcpToolsCommandsAndResources(
           client,
           tools:
             client.type === 'needs-auth'
-              ? [createMcpAuthTool(name, config)]
+              ? [
+                  createMcpAuthTool(name, config),
+                  createMcpCompleteAuthTool(name),
+                ]
               : [],
           commands: [],
         })
@@ -2994,6 +3068,7 @@ export async function processMCPResult(
   tool: string, // Tool name for validation (e.g., "search")
   name: string, // Server name for IDE check and transformation (e.g., "slack")
   imageLimits: ImageLimits = getImageLimits(),
+  hasResultSizeAnnotation = false,
 ): Promise<MCPToolResult> {
   const { content, type, schema } = await transformMCPResult(
     result,
@@ -3005,6 +3080,10 @@ export async function processMCPResult(
   // IDE tools are not going to the model directly, so we don't need to
   // handle large output.
   if (name === 'ide') {
+    return content
+  }
+
+  if (hasResultSizeAnnotation && !contentContainsImages(content)) {
     return content
   }
 
@@ -3136,6 +3215,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal,
   setAppState,
   onProgress,
+  hasResultSizeAnnotation = false,
   imageLimits,
   callToolFn = callMCPTool,
   handleElicitation,
@@ -3148,6 +3228,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal: AbortSignal
   setAppState: (f: (prev: AppState) => AppState) => void
   onProgress?: (data: MCPProgress) => void
+  hasResultSizeAnnotation?: boolean
   imageLimits?: ImageLimits
   /** Injectable for testing. Defaults to callMCPTool. */
   callToolFn?: (opts: {
@@ -3157,6 +3238,7 @@ export async function callMCPToolWithUrlElicitationRetry({
     meta?: Record<string, unknown>
     signal: AbortSignal
     onProgress?: (data: MCPProgress) => void
+    hasResultSizeAnnotation?: boolean
     imageLimits?: ImageLimits
   }) => Promise<MCPToolCallResult>
   /** Handler for URL elicitations when no hook handles them.
@@ -3177,6 +3259,7 @@ export async function callMCPToolWithUrlElicitationRetry({
         meta,
         signal,
         onProgress,
+        hasResultSizeAnnotation,
         imageLimits,
       })
     } catch (error) {
@@ -3356,6 +3439,7 @@ async function callMCPTool({
   meta,
   signal,
   onProgress,
+  hasResultSizeAnnotation = false,
   imageLimits,
 }: {
   client: ConnectedMCPServer
@@ -3364,6 +3448,7 @@ async function callMCPTool({
   meta?: Record<string, unknown>
   signal: AbortSignal
   onProgress?: (data: MCPProgress) => void
+  hasResultSizeAnnotation?: boolean
   imageLimits?: ImageLimits
 }): Promise<{
   content: MCPToolResult
@@ -3472,21 +3557,18 @@ async function callMCPTool({
       transportErrorState?.activeCallWatchdogs.delete(transportErrorWatchdog)
     })
 
-    if ('isError' in result && result.isError) {
+    if (result.isError) {
       let errorDetails = 'Unknown error'
-      if (
-        'content' in result &&
-        Array.isArray(result.content) &&
-        result.content.length > 0
-      ) {
-        const firstContent = result.content[0]
-        if (
-          firstContent &&
-          typeof firstContent === 'object' &&
-          'text' in firstContent
-        ) {
-          errorDetails = firstContent.text
-        }
+      if (Array.isArray(result.content) && result.content.length > 0) {
+        const textBlocks = result.content
+          .filter(
+            block =>
+              block !== null &&
+              typeof block === 'object' &&
+              'text' in block,
+          )
+          .map(block => block.text)
+        if (textBlocks.length > 0) errorDetails = textBlocks.join('\n')
       } else if ('error' in result) {
         // Fallback for legacy error format
         errorDetails = String(result.error)
@@ -3495,7 +3577,7 @@ async function callMCPTool({
       throw new McpToolCallError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
         errorDetails,
         'MCP tool returned error',
-        '_meta' in result && result._meta ? { _meta: result._meta } : undefined,
+        result._meta ? { _meta: result._meta } : undefined,
       )
     }
     const elapsed = Date.now() - toolStartTime
@@ -3519,7 +3601,13 @@ async function callMCPTool({
       })
     }
 
-    const content = await processMCPResult(result, tool, name, imageLimits)
+    const content = await processMCPResult(
+      result,
+      tool,
+      name,
+      imageLimits,
+      hasResultSizeAnnotation,
+    )
     return {
       content,
       _meta: result._meta as Record<string, unknown> | undefined,

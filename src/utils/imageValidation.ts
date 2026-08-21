@@ -48,30 +48,6 @@ function isBase64ImageBlock(
   return source.type === 'base64' && typeof source.data === 'string'
 }
 
-function isToolResultBlock(
-  block: unknown,
-): block is { type: 'tool_result'; content: unknown[] } {
-  if (typeof block !== 'object' || block === null) return false
-  const value = block as Record<string, unknown>
-  return value.type === 'tool_result' && Array.isArray(value.content)
-}
-
-function collectOversizedImage(
-  block: { type: 'image'; source: { type: 'base64'; data: string } },
-  index: number,
-  maxSize: number,
-  oversizedImages: OversizedImage[],
-): void {
-  const base64Size = block.source.data.length
-  if (base64Size > maxSize) {
-    logEvent('tengu_image_api_validation_failed', {
-      base64_size_bytes: base64Size,
-      max_bytes: maxSize,
-    })
-    oversizedImages.push({ index, size: base64Size })
-  }
-}
-
 /**
  * Validates that all images in messages are within the API size limit.
  * This is a safety net at the API boundary to catch any oversized images

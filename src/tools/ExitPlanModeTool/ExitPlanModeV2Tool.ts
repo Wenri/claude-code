@@ -3,6 +3,7 @@ import { writeFile } from 'fs/promises'
 import { z } from 'zod/v4'
 import {
   getAllowedChannels,
+  getIsNonInteractiveSession,
   hasExitedPlanModeInSession,
   setHasExitedPlanMode,
   setNeedsAutoModeExitAttachment,
@@ -31,7 +32,6 @@ import {
   persistFileSnapshotIfRemote,
 } from '../../utils/plans.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
-import { enqueueSdkEvent } from '../../utils/sdkEventQueue.js'
 import { logPermissionModeChanged } from '../../utils/telemetry/events.js'
 import {
   getAgentName,
@@ -172,7 +172,8 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
     // same gate on EnterPlanMode so plan mode isn't a trap.
     if (
       (feature('KAIROS') || feature('KAIROS_CHANNELS')) &&
-      getAllowedChannels().length > 0
+      getAllowedChannels().length > 0 &&
+      getIsNonInteractiveSession()
     ) {
       return false
     }
@@ -194,7 +195,7 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
     // For non-teammates, require user confirmation to exit plan mode
     return true
   },
-  async validateInput(_input, { getAppState, options }) {
+  async validateInput(_input, { getToolPermissionContext, options }) {
     // Teammate AppState may show leader's mode (runAgent.ts skips override in
     // acceptEdits/bypassPermissions/auto); isPlanModeRequired() is the real source
     if (isTeammate()) {
@@ -203,7 +204,7 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
     // The deferred-tool list announces this tool regardless of mode, so the
     // model can call it after plan approval (fresh delta on compact/clear).
     // Reject before checkPermissions to avoid showing the approval dialog.
-    const mode = getAppState().toolPermissionContext.mode
+    const mode = getToolPermissionContext().mode
     if (mode !== 'plan') {
       logEvent('tengu_exit_plan_mode_called_outside_plan', {
         model:
@@ -300,7 +301,7 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
       const appState = context.getAppState()
       const agentTaskId = findInProcessTeammateTaskId(agentName, appState)
       if (agentTaskId) {
-        setAwaitingPlanApproval(agentTaskId, context.taskRegistry, true)
+        setAwaitingPlanApproval(agentTaskId, context.setAppState, true)
       }
 
       return {
@@ -347,30 +348,20 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
       }
     }
     if (gateFallbackNotification) {
-      const text = `plan exit → default · ${gateFallbackNotification}`
       context.addNotification?.({
         key: 'auto-mode-gate-plan-exit-fallback',
-        text,
+        text: `plan exit → default · ${gateFallbackNotification}`,
         priority: 'immediate',
         color: 'warning',
         timeoutMs: 10000,
       })
-      enqueueSdkEvent({
-        type: 'system',
-        subtype: 'notification',
-        key: 'auto-mode-gate-plan-exit-fallback',
-        text,
-        priority: 'immediate',
-        color: 'warning',
-        timeout_ms: 10000,
-      })
     }
 
-    context.setAppState(prev => {
-      if (prev.toolPermissionContext.mode !== 'plan') return prev
+    const currentPermissionContext = context.getToolPermissionContext()
+    if (currentPermissionContext.mode === 'plan') {
       setHasExitedPlanMode(true)
       setNeedsPlanModeExitAttachment(true)
-      let restoreMode = prev.toolPermissionContext.prePlanMode ?? 'default'
+      let restoreMode = currentPermissionContext.prePlanMode ?? 'default'
       if (feature('TRANSCRIPT_CLASSIFIER')) {
         if (
           restoreMode === 'auto' &&
@@ -389,35 +380,36 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
           setNeedsAutoModeExitAttachment(true)
         }
       }
+      // If restoring to a non-auto mode and permissions were stripped (either
+      // from entering plan from auto, or from shouldPlanUseAutoMode),
+      // restore them. If restoring to auto, keep them stripped.
+      const restoringToAuto = restoreMode === 'auto'
+      const hadStrippedDangerousRules =
+        currentPermissionContext.strippedDangerousRules
       logPermissionModeChanged({
         from: 'plan',
         to: restoreMode,
         trigger: 'exit_plan_mode',
       })
-      // If restoring to a non-auto mode and permissions were stripped (either
-      // from entering plan from auto, or from shouldPlanUseAutoMode),
-      // restore them. If restoring to auto, keep them stripped.
-      const restoringToAuto = restoreMode === 'auto'
-      let baseContext = prev.toolPermissionContext
-      if (restoringToAuto) {
-        baseContext =
-          permissionSetupModule?.stripDangerousPermissionsForAutoMode(
-            baseContext,
-          ) ?? baseContext
-      } else if (prev.toolPermissionContext.strippedDangerousRules) {
-        baseContext =
-          permissionSetupModule?.restoreDangerousPermissions(baseContext) ??
-          baseContext
-      }
-      return {
-        ...prev,
-        toolPermissionContext: {
+      context.setToolPermissionContext(previous => {
+        let baseContext = previous
+        if (restoringToAuto) {
+          baseContext =
+            permissionSetupModule?.stripDangerousPermissionsForAutoMode(
+              baseContext,
+            ) ?? baseContext
+        } else if (hadStrippedDangerousRules) {
+          baseContext =
+            permissionSetupModule?.restoreDangerousPermissions(baseContext) ??
+            baseContext
+        }
+        return {
           ...baseContext,
           mode: restoreMode,
           prePlanMode: undefined,
-        },
-      }
-    })
+        }
+      })
+    }
 
     const hasTaskTool =
       isAgentSwarmsEnabled() &&

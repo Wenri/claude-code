@@ -16,6 +16,14 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function gitBlobSha1(value) {
+  return crypto
+    .createHash('sha1')
+    .update(`blob ${value.length}\0`)
+    .update(value)
+    .digest('hex')
+}
+
 function writeJson(filename, value) {
   fs.mkdirSync(path.dirname(filename), { recursive: true })
   fs.writeFileSync(filename, `${JSON.stringify(value, null, 2)}\n`)
@@ -269,6 +277,25 @@ function fixture() {
             count: 1,
           },
         ],
+        semanticClusterIds: [1, 2],
+        semanticClusterBindings: [
+          {
+            clusterId: 1,
+            targetWitness: { kind: 'fixture', sha256: sha256('cluster-1') },
+            sourceWitnesses: [
+              { path: 'src/answer.ts', fragment: sourceFragment, count: 1 },
+            ],
+            testIds: ['answer-change'],
+          },
+          {
+            clusterId: 2,
+            targetWitness: { kind: 'fixture', sha256: sha256('cluster-2') },
+            sourceWitnesses: [
+              { path: 'src/answer.ts', fragment: sourceFragment, count: 1 },
+            ],
+            testIds: ['answer-change'],
+          },
+        ],
         testIds: ['answer-change'],
       },
     ],
@@ -284,6 +311,74 @@ function fixture() {
     structuralPath,
     target,
   }
+}
+
+function useObligationReleaseEvidence(files) {
+  const release = '1.0.0'
+  const bullet = 'Changed the answer from one to two'
+  const evidenceRoot = path.join(files.root, 'recovery/cases/example/evidence')
+  const provenancePath = path.join(evidenceRoot, 'provenance.json')
+  const fullPath = path.join(evidenceRoot, 'official-CHANGELOG.md')
+  const sectionPath = path.join(evidenceRoot, 'CHANGELOG-1.0.0.md')
+  const section = `## ${release}\n\n- ${bullet}\n`
+  fs.mkdirSync(evidenceRoot, { recursive: true })
+  fs.writeFileSync(sectionPath, section)
+  fs.writeFileSync(fullPath, `# Changelog\n\n${section}`)
+  const record = filename => {
+    const value = fs.readFileSync(filename)
+    return {
+      path: path.relative(files.root, filename).replaceAll('\\', '/'),
+      bytes: value.length,
+      sha256: sha256(value),
+    }
+  }
+  writeJson(provenancePath, {
+    schemaVersion: 1,
+    release,
+    git: { tag: `v${release}`, commit: '1'.repeat(40) },
+    changelog: {
+      fullPath: 'evidence/official-CHANGELOG.md',
+      fullBytes: record(fullPath).bytes,
+      fullSha256: record(fullPath).sha256,
+      fullGitBlobSha1: gitBlobSha1(fs.readFileSync(fullPath)),
+      sectionPath: 'evidence/CHANGELOG-1.0.0.md',
+      sectionBytes: record(sectionPath).bytes,
+      sectionSha256: record(sectionPath).sha256,
+      bulletCount: 1,
+    },
+  })
+  const attributionPath = path.join(files.attribution, 'summary.json')
+  const attribution = JSON.parse(fs.readFileSync(attributionPath))
+  delete attribution.releaseEvidence
+  writeJson(attributionPath, attribution)
+  const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+  obligations.officialReleaseEvidence = {
+    provenance: record(provenancePath),
+    fullChangelog: record(fullPath),
+    sectionArtifact: record(sectionPath),
+    section: release,
+    bulletCount: 1,
+    bullets: [bullet],
+  }
+  writeJson(files.obligationsPath, obligations)
+  files.changelogPath = sectionPath
+  return { fullPath, provenancePath, record, section, sectionPath }
+}
+
+function repinFullChangelog(files, release) {
+  const provenance = JSON.parse(fs.readFileSync(release.provenancePath))
+  provenance.changelog.fullBytes = release.record(release.fullPath).bytes
+  provenance.changelog.fullSha256 = release.record(release.fullPath).sha256
+  provenance.changelog.fullGitBlobSha1 = gitBlobSha1(
+    fs.readFileSync(release.fullPath),
+  )
+  writeJson(release.provenancePath, provenance)
+  const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+  obligations.officialReleaseEvidence.fullChangelog =
+    release.record(release.fullPath)
+  obligations.officialReleaseEvidence.provenance =
+    release.record(release.provenancePath)
+  writeJson(files.obligationsPath, obligations)
 }
 
 function generate(files) {
@@ -334,6 +429,197 @@ test('builds and verifies exhaustive bundle-to-source semantic correspondence', 
     })
     assert.equal(result.status, 'whole-bundle-source-correspondence-verified')
     assert.equal(result.obligations.releaseBulletsCovered, 1)
+    assert.deepEqual(
+      generated.report.obligationWitnesses[0].semanticClusterIds,
+      [1, 2],
+    )
+    assert.deepEqual(
+      generated.report.obligationWitnesses[0].semanticClusterBindings,
+      JSON.parse(fs.readFileSync(files.obligationsPath))
+        .obligations[0].semanticClusterBindings,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects non-canonical semantic cluster IDs', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    obligations.obligations[0].semanticClusterIds = [2, 1]
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid semantic cluster IDs/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects semantic cluster bindings that do not cover every cluster ID', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    obligations.obligations[0].semanticClusterBindings.pop()
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid semantic cluster bindings/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('preserves explicit source-change support without adding cluster ownership', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    const obligation = obligations.obligations[0]
+    delete obligation.semanticClusterIds
+    delete obligation.semanticClusterBindings
+    obligation.sourceChangeSupport = {
+      id: 'answer-support',
+      classification: 'owning-direct-prerequisite',
+      reason: 'Reviewed prerequisite for the related direct answer cluster.',
+      sourceWitness: {
+        path: 'src/answer.ts',
+        fragment: 'answer = 2',
+        count: 1,
+        reviewed: true,
+        matchedSemanticTerms: ['answer'],
+      },
+      testIds: ['answer-change'],
+      relatedDirectClusterIds: [1],
+    }
+    obligation.relatedDirectClusterIds = [1]
+    writeJson(files.obligationsPath, obligations)
+    const generated = generate(files)
+    const witness = generated.report.obligationWitnesses[0]
+    assert.deepEqual(witness.sourceChangeSupport, obligation.sourceChangeSupport)
+    assert.deepEqual(witness.relatedDirectClusterIds, [1])
+    assert.equal(witness.semanticClusterIds, undefined)
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects source-change support without a direct-cluster relation', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    const obligation = obligations.obligations[0]
+    delete obligation.semanticClusterIds
+    delete obligation.semanticClusterBindings
+    obligation.sourceChangeSupport = { id: 'answer-support' }
+    obligation.relatedDirectClusterIds = []
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid source-change support binding/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects source-change support path traversal', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    const obligation = obligations.obligations[0]
+    delete obligation.semanticClusterIds
+    delete obligation.semanticClusterBindings
+    obligation.sourceChangeSupport = {
+      id: 'answer-support',
+      classification: 'owning-direct-prerequisite',
+      reason: 'Reviewed prerequisite for the related direct answer cluster.',
+      sourceWitness: {
+        path: 'src/../answer.ts',
+        fragment: 'answer = 2',
+        count: 1,
+        reviewed: true,
+        matchedSemanticTerms: ['answer'],
+      },
+      testIds: ['answer-change'],
+      relatedDirectClusterIds: [1],
+    }
+    obligation.relatedDirectClusterIds = [1]
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: invalid source-change support binding/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('uses independently pinned obligation release evidence when attribution is incremental', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    const generated = generate(files)
+    const { path: _path, ...fullEvidence } = release.record(release.fullPath)
+    assert.deepEqual(generated.report.inputs.officialChangelog, fullEvidence)
+    assert.equal(generated.report.coverage.obligations.releaseBulletsCovered, 1)
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects a fully repinned release section that occurs twice in the official changelog', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    fs.writeFileSync(
+      release.fullPath,
+      `# Changelog\n\n${release.section}${release.section}`,
+    )
+    repinFullChangelog(files, release)
+    assert.throws(
+      () => generate(files),
+      /official section containment in full changelog: expected 1, got 2/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects extra text inside a fully repinned heading-delimited release block', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    fs.writeFileSync(
+      release.fullPath,
+      `# Changelog\n\n${release.section}unexpected extra line\n\n` +
+        '## 0.9.0\n\n- Older behavior\n',
+    )
+    repinFullChangelog(files, release)
+    assert.throws(
+      () => generate(files),
+      /official heading-delimited section bytes/,
+    )
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects a fully repinned duplicate release bullet outside its section', () => {
+  const files = fixture()
+  try {
+    const release = useObligationReleaseEvidence(files)
+    fs.appendFileSync(
+      release.fullPath,
+      '## 0.9.0\n\n- Changed the answer from one to two\n',
+    )
+    repinFullChangelog(files, release)
+    assert.throws(
+      () => generate(files),
+      /official release bullet 1 full changelog count: expected 1, got 2/,
+    )
   } finally {
     fs.rmSync(files.root, { recursive: true, force: true })
   }
@@ -358,6 +644,22 @@ test('rejects an uncovered release bullet', () => {
     writeJson(attributionSummaryPath, attributionSummary)
     writeJson(files.obligationsPath, obligations)
     assert.throws(() => generate(files), /release bullet 2 is not covered/)
+  } finally {
+    fs.rmSync(files.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects a non-release obligation not marked hidden', () => {
+  const files = fixture()
+  try {
+    const obligations = JSON.parse(fs.readFileSync(files.obligationsPath))
+    obligations.obligations[0].releaseBullets = []
+    delete obligations.obligations[0].hidden
+    writeJson(files.obligationsPath, obligations)
+    assert.throws(
+      () => generate(files),
+      /answer-change: non-release obligation must be marked hidden/,
+    )
   } finally {
     fs.rmSync(files.root, { recursive: true, force: true })
   }

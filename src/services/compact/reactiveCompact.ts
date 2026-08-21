@@ -1,4 +1,5 @@
 import { markPostCompaction } from '../../bootstrap/state.js'
+import { resetMemorySelector } from '../../memdir/findRelevantMemories.js'
 import type { QuerySource } from '../../constants/querySource.js'
 import type { ToolUseContext } from '../../Tool.js'
 import type {
@@ -556,6 +557,7 @@ export async function reactiveCompactOnPromptTooLong(
   const preCompactReadFileState = cacheToObject(toolUseContext.readFileState)
   toolUseContext.readFileState.clear()
   toolUseContext.loadedNestedMemoryPaths?.clear()
+  resetMemorySelector(toolUseContext.memorySelector)
 
   if (shouldTrackPromptCacheBreaks()) {
     notifyCompaction(
@@ -746,7 +748,10 @@ export async function tryReactiveCompact({
       preTokens,
       error: detail,
     })
-    toolUseContext.setSDKStatus?.(null)
+    toolUseContext.setSDKStatus?.(null, {
+      compactResult: 'failed',
+      compactError: detail,
+    })
     return null
   }
 
@@ -761,10 +766,11 @@ export async function tryReactiveCompact({
     preTokens,
     postTokens,
   })
-  toolUseContext.setSDKStatus?.(null)
+  toolUseContext.setSDKStatus?.(null, { compactResult: 'success' })
   setLastSummarizedMessageId(undefined)
   runPostCompactCleanup(
     querySource,
+    toolUseContext.setAppState,
     toolUseContext.resultDedupState,
   )
   suppressCompactWarning()

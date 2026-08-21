@@ -8,9 +8,7 @@ import { type Command, getCommandName } from '../commands.js';
 import { getModeFromInput, getValueFromInput } from '../components/PromptInput/inputModes.js';
 import type { SuggestionItem, SuggestionType } from '../components/PromptInput/PromptInputFooterSuggestions.js';
 import { useIsModalOverlayActive, useRegisterOverlay } from '../context/overlayContext.js';
-import { KeyboardEvent } from '../ink/events/keyboard-event.js';
-// eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
-import { useInput } from '../ink.js';
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js';
 import { useOptionalKeybindingContext, useRegisterKeybindingContext } from '../keybindings/KeybindingContext.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
@@ -31,7 +29,7 @@ import { getDirectoryCompletions, getPathCompletions, isPathLikeToken } from '..
 import { getShellHistoryCompletion } from '../utils/suggestions/shellHistoryCompletion.js';
 import { getSlackChannelSuggestions, hasSlackMcpServer } from '../utils/suggestions/slackChannelSuggestions.js';
 import { TEAM_LEAD_NAME } from '../utils/swarm/constants.js';
-import { applyFileSuggestion, findLongestCommonPrefix, onIndexBuildComplete, startBackgroundCacheRefresh } from './fileSuggestions.js';
+import { applyFileSuggestion, findLongestCommonPrefix, globalFileIndexCache, startBackgroundCacheRefresh } from './fileSuggestions.js';
 import { generateMcpResourceTemplateCompletions, generateUnifiedSuggestions } from './unifiedSuggestions.js';
 
 // Unicode-aware character class for file path tokens:
@@ -42,7 +40,7 @@ const AT_TOKEN_HEAD_RE = /^@[\p{L}\p{N}\p{M}_\-./\\()[\]~:]*/u;
 const PATH_CHAR_HEAD_RE = /^[\p{L}\p{N}\p{M}_\-./\\()[\]~:]+/u;
 const TOKEN_WITH_AT_RE = /(@[\p{L}\p{N}\p{M}_\-./\\()[\]~:]*|[\p{L}\p{N}\p{M}_\-./\\()[\]~:]+)$/u;
 const TOKEN_WITHOUT_AT_RE = /[\p{L}\p{N}\p{M}_\-./\\()[\]~:]+$/u;
-const HAS_AT_SYMBOL_RE = /(^|[\s。、？！])@([\p{L}\p{N}\p{M}_\-./\\()[\]~:]*|"[^"]*"?)$/u;
+const HAS_AT_SYMBOL_RE = /(^|\s)@([\p{L}\p{N}\p{M}_\-./\\()[\]~:]*|"[^"]*"?)$/u;
 const HASH_CHANNEL_RE = /(^|\s)#([a-z0-9][a-z0-9_-]*)$/;
 
 // Type guard for path completion metadata
@@ -130,7 +128,7 @@ type Props = {
   suppressSuggestions?: boolean;
   markAccepted: () => void;
   onModeChange?: (mode: PromptInputMode) => void;
-  sessionEnvVars?: Map<string, string>;
+  sessionEnvVars?: ReadonlyMap<string, string>;
 };
 type UseTypeaheadResult = {
   suggestions: SuggestionItem[];
@@ -221,7 +219,7 @@ export function applyShellSuggestion(suggestion: SuggestionItem, input: string, 
   onInputChange(newInput);
   setCursorOffset(wordStart + replacementText.length);
 }
-const DM_MEMBER_RE = /(^|[\s。、？！])@[\w-]*$/;
+const DM_MEMBER_RE = /(^|\s)@[\w-]*$/;
 function applyTriggerSuggestion(suggestion: SuggestionItem, input: string, cursorOffset: number, triggerRe: RegExp, onInputChange: (value: string) => void, setCursorOffset: (offset: number) => void): void {
   const m = input.slice(0, cursorOffset).match(triggerRe);
   if (!m || m.index === undefined) return;
@@ -236,13 +234,22 @@ let currentShellCompletionAbortController: AbortController | null = null;
 /**
  * Generate bash shell completion suggestions
  */
-async function generateBashSuggestions(input: string, cursorOffset: number, sessionEnvVars?: Map<string, string>): Promise<SuggestionItem[]> {
+async function generateBashSuggestions(
+  input: string,
+  cursorOffset: number,
+  sessionEnvVars?: ReadonlyMap<string, string>,
+): Promise<SuggestionItem[]> {
   try {
     if (currentShellCompletionAbortController) {
       currentShellCompletionAbortController.abort();
     }
     currentShellCompletionAbortController = new AbortController();
-    const suggestions = await getShellCompletions(input, cursorOffset, currentShellCompletionAbortController.signal, sessionEnvVars);
+    const suggestions = await getShellCompletions(
+      input,
+      cursorOffset,
+      currentShellCompletionAbortController.signal,
+      sessionEnvVars,
+    );
     return suggestions;
   } catch {
     // Silent failure - don't break UX
@@ -317,7 +324,7 @@ export function extractCompletionToken(text: string, cursorPos: number, includeA
   // Fast path for @ tokens: use lastIndexOf to avoid expensive $ anchor scan
   if (includeAtSymbol) {
     const atIdx = textBeforeCursor.lastIndexOf('@');
-    if (atIdx >= 0 && (atIdx === 0 || /[\s。、？！]/.test(textBeforeCursor[atIdx - 1]!))) {
+    if (atIdx >= 0 && (atIdx === 0 || /\s/.test(textBeforeCursor[atIdx - 1]!))) {
       const fromAt = textBeforeCursor.substring(atIdx);
       const atHeadMatch = fromAt.match(AT_TOKEN_HEAD_RE);
       if (atHeadMatch && atHeadMatch[0].length === fromAt.length) {
@@ -511,7 +518,7 @@ export function useTypeahead({
     latestSearchKindRef.current = isAtSymbol ? 'at' : 'file';
     const state = store.getState();
     const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, state.mcp.resourceTemplates, state.mcp.clients, '@') : null;
-    const combinedItems = templateItems ?? await generateUnifiedSuggestions(searchToken, state.mcp.resources, state.mcp.resourceTemplates, agents, isAtSymbol);
+    const combinedItems = templateItems ?? await generateUnifiedSuggestions(globalFileIndexCache, searchToken, state.mcp.resources, state.mcp.resourceTemplates, agents, isAtSymbol);
     // Discard stale results if a newer query was initiated while waiting
     if (latestSearchTokenRef.current !== searchToken) {
       return;
@@ -552,9 +559,9 @@ export function useTypeahead({
   // fileSuggestions tests that trigger a refresh directly work correctly.
   useEffect(() => {
     if ("production" !== 'test') {
-      startBackgroundCacheRefresh();
+      startBackgroundCacheRefresh(globalFileIndexCache);
     }
-    return onIndexBuildComplete(() => {
+    return globalFileIndexCache.indexBuildComplete.subscribe(() => {
       const token = latestSearchTokenRef.current;
       if (token !== null) {
         const searchKind = latestSearchKindRef.current;
@@ -683,7 +690,7 @@ export function useTypeahead({
     // Check for @ to trigger team member / named subagent suggestions
     // Must check before @ file symbol to prevent conflict
     // Skip in bash mode - @ has no special meaning in shell commands
-    const atMatch = mode !== 'bash' ? value.substring(0, effectiveCursorOffset).match(DM_MEMBER_RE) : null;
+    const atMatch = mode !== 'bash' ? value.substring(0, effectiveCursorOffset).match(/(^|\s)@([\w-]*)$/) : null;
     if (atMatch) {
       const partialName = (atMatch[2] ?? '').toLowerCase();
       // Imperative read — reading at call-time fixes staleness for
@@ -797,7 +804,7 @@ export function useTypeahead({
           const sessionId = getSessionIdFromLog(log);
           return {
             id: `resume-title-${sessionId}`,
-            displayText: log.customTitle!,
+            displayText: (log.customTitle ?? log.aiTitle)!,
             description: formatLogMetadata(log),
             metadata: {
               sessionId
@@ -1210,7 +1217,11 @@ export function useTypeahead({
       if (mode === 'bash') {
         suggestionType = 'shell';
         // This should be very fast, taking <10ms
-        const bashSuggestions = await generateBashSuggestions(input, cursorOffset, sessionEnvVars);
+        const bashSuggestions = await generateBashSuggestions(
+          input,
+          cursorOffset,
+          sessionEnvVars,
+        );
         if (bashSuggestions.length === 1) {
           // If single suggestion, apply it immediately
           const suggestion = bashSuggestions[0];
@@ -1234,7 +1245,7 @@ export function useTypeahead({
           const searchToken = isAtSymbol ? completionInfo.token.substring(1) : completionInfo.token;
           const currentMcp = store.getState().mcp;
           const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, currentMcp.resourceTemplates, store.getState().mcp.clients, '@') : null;
-          suggestionItems = templateItems ?? await generateUnifiedSuggestions(searchToken, currentMcp.resources, currentMcp.resourceTemplates, agents, isAtSymbol);
+          suggestionItems = templateItems ?? await generateUnifiedSuggestions(globalFileIndexCache, searchToken, currentMcp.resources, currentMcp.resourceTemplates, agents, isAtSymbol);
         } else {
           suggestionItems = [];
         }
@@ -1250,7 +1261,7 @@ export function useTypeahead({
         setMaxColumnWidth(undefined);
       }
     }
-  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, mcpResourceTemplates, store, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels, effectiveGhostText]);
+  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, mcpResourceTemplates, store, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels, effectiveGhostText, sessionEnvVars]);
 
   // Handle enter key press - apply and execute suggestions
   const handleEnter = useCallback(() => {
@@ -1337,6 +1348,7 @@ export function useTypeahead({
           debouncedFetchFileSuggestions.cancel();
           debouncedFetchSlashTemplateSuggestions.cancel();
           clearSuggestions();
+          onSubmit(input, true);
           return;
         }
 
@@ -1497,17 +1509,6 @@ export function useTypeahead({
     }
   };
 
-  // Backward-compat bridge: PromptInput doesn't yet wire handleKeyDown to
-  // <Box onKeyDown>. Subscribe via useInput and adapt InputEvent →
-  // KeyboardEvent until the consumer is migrated (separate PR).
-  // TODO(onKeyDown-migration): remove once PromptInput passes handleKeyDown.
-  useInput((_input, _key, event) => {
-    const kbEvent = new KeyboardEvent(event.keypress);
-    handleKeyDown(kbEvent);
-    if (kbEvent.didStopImmediatePropagation()) {
-      event.stopImmediatePropagation();
-    }
-  });
   return {
     suggestions,
     selectedSuggestion,

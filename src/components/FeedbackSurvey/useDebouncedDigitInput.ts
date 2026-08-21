@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+
 // Delay before accepting a digit as a response, to prevent accidental
 // submissions when users start messages with numbers (e.g., numbered lists).
 // Short enough to feel instant for intentional presses, long enough to
@@ -36,10 +37,12 @@ export function useDebouncedDigitInput<T extends string = string>({
   const initialInputValue = useRef(inputValue)
   const hasTriggeredRef = useRef(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const enabledAtRef = useRef<number | null>(enabled ? Date.now() : null)
+  const mountedAtRef = useRef<number | null>(enabled ? Date.now() : null)
   const wasEnabledRef = useRef(enabled)
 
-  if (enabled && !wasEnabledRef.current) enabledAtRef.current = Date.now()
+  if (enabled && !wasEnabledRef.current) {
+    mountedAtRef.current = Date.now()
+  }
   wasEnabledRef.current = enabled
 
   // Latest-ref pattern so callers can pass inline callbacks without causing
@@ -58,27 +61,32 @@ export function useDebouncedDigitInput<T extends string = string>({
     }
 
     if (
-      enabledAtRef.current !== null &&
-      Date.now() - enabledAtRef.current < mountDelayMs
+      mountedAtRef.current !== null &&
+      Date.now() - mountedAtRef.current < mountDelayMs
     ) {
       return
     }
 
     if (inputValue !== initialInputValue.current && inputValue.length === 1) {
-      const digit = inputValue.normalize('NFKC')
-      if (callbacksRef.current.isValidDigit(digit)) {
+      const normalizedInput = inputValue.normalize('NFKC')
+      if (callbacksRef.current.isValidDigit(normalizedInput)) {
         debounceRef.current = setTimeout(
-          (debounceRef, hasTriggeredRef, callbacksRef, digit) => {
+          (
+            debounceRef,
+            hasTriggeredRef,
+            callbacksRef,
+            normalizedInput,
+          ) => {
             debounceRef.current = null
             hasTriggeredRef.current = true
             callbacksRef.current.setInputValue('')
-            callbacksRef.current.onDigit(digit)
+            callbacksRef.current.onDigit(normalizedInput)
           },
           debounceMs,
           debounceRef,
           hasTriggeredRef,
           callbacksRef,
-          digit,
+          normalizedInput,
         )
       }
     }

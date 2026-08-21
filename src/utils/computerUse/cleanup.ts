@@ -48,10 +48,10 @@ export async function cleanupComputerUseAfterTurn(
     await Promise.race([unhide, timeout.promise]).finally(() =>
       clearTimeout(timer),
     )
-    ctx.setComputerUseMcpState?.(prev =>
-      prev?.hiddenDuringTurn === undefined
-        ? prev
-        : { ...prev, hiddenDuringTurn: undefined },
+    ctx.setComputerUseMcpState?.(previous =>
+      previous?.hiddenDuringTurn === undefined
+        ? previous
+        : { ...previous, hiddenDuringTurn: undefined },
     )
   }
 

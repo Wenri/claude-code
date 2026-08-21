@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "authenticated-public-release-presence",
+  "release": "2.1.126",
+  "tag": {
+    "name": "v2.1.126",
+    "present": true,
+    "commit": "a243cad11945e791b886091548fd057f3b34f690",
+    "tree": "167ac1f385a391d28d1697fb8423c8fa1b6a5d19",
+    "refs": {
+      "path": "evidence/official-tag-refs.txt",
+      "bytes": 120,
+      "sha256": "3d372fc2dfa1b78cba071795f18b55360ac887850a139d11dfb66a3a57db95b2"
+    }
+  },
+  "changelog": {
+    "heading": "## 2.1.126",
+    "present": true,
+    "bulletCount": 33,
+    "section": {
+      "path": "evidence/CHANGELOG-2.1.126.md",
+      "bytes": 4218,
+      "sha256": "fe059e6e6e8b301550c6ffe594a3f4dcc79c4529446e7e2909f32c771bea2d05"
+    },
+    "fullSnapshot": {
+      "path": "evidence/claude-code-CHANGELOG-a243cad1.md",
+      "bytes": 268769,
+      "sha256": "efeda64b42e26075ebdc26bc3e7ee71416aa9d02f08e908c0e4f1b78bef4a67e",
+      "gitBlobSha1": "be4b8b3c09e4295fde604f1bf6a24134aefbf359"
+    }
+  },
+  "nearestPublicTagBefore": {
+    "tag": "v2.1.123",
+    "commit": "e512ec99188d191b07662fc9f69c5764f750a302"
+  },
+  "absentIntermediateTags": [
+    "v2.1.124",
+    "v2.1.125"
+  ],
+  "publicCommitGap": {
+    "basis": "v2.1.123..v2.1.126",
+    "adjacentCommits": true,
+    "filesChanged": 1,
+    "insertions": 36,
+    "deletions": 0,
+    "paths": [
+      "CHANGELOG.md"
+    ]
+  }
+}

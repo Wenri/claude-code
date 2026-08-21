@@ -640,7 +640,7 @@ export async function powershellToolHasPermission(
   input: PowerShellInput,
   context: ToolUseContext,
 ): Promise<PermissionResult> {
-  const toolPermissionContext = context.getAppState().toolPermissionContext
+  const toolPermissionContext = context.getToolPermissionContext()
   const command = input.command.trim()
 
   // Empty command check
@@ -782,7 +782,6 @@ export async function powershellToolHasPermission(
     // `Invoke-Ex`<nl>pression` rejoins, strip remaining backticks (escape
     // chars — ``x → x), then split on actual statement/grouping separators.
     const backtickStripped = command
-      .replace(/<#[\s\S]*?#>/g, ' ')
       .replace(/`[\r\n]+\s*/g, '')
       .replace(/`/g, '')
     for (const fragment of backtickStripped.split(/[;|\n\r{}()&]+/)) {
@@ -1235,14 +1234,10 @@ export async function powershellToolHasPermission(
     }
   }
 
-  // Archive contents are opaque. In any compound command, an extractor can
-  // plant symlinks or configuration that redirects the path operations which
-  // follow it. The git-specific message calls out the stronger hook/bare-repo
-  // execution risk.
   const hasArchiveExtractor = allSubCommands.some(({ element }) => {
-    const lower = element.name.toLowerCase()
-    const basename = lower.slice(
-      Math.max(lower.lastIndexOf('\\'), lower.lastIndexOf('/')) + 1,
+    const lowerName = element.name.toLowerCase()
+    const basename = lowerName.slice(
+      Math.max(lowerName.lastIndexOf('\\'), lowerName.lastIndexOf('/')) + 1,
     )
     return GIT_SAFETY_ARCHIVE_EXTRACTORS.has(basename)
   })

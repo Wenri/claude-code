@@ -109,5 +109,6 @@ function pathsOverlap(a: string, b: string): boolean {
 }
 
 function normalizeForCompare(p: string): string {
-  return normalize(p)
+  const n = normalize(p)
+  return process.platform === 'win32' ? n.toLowerCase() : n
 }

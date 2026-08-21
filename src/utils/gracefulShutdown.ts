@@ -47,91 +47,6 @@ import { isEnvTruthy } from './envUtils.js'
 import { getCurrentSessionTitle, sessionIdExists } from './sessionStorage.js'
 import { sleep } from './sleep.js'
 import { profileReport } from './startupProfiler.js'
-import { getResumeWorktreeName } from './worktree.js'
-
-function hashErrorDetail(value: string): string {
-  return createHash('sha256').update(value).digest('hex').slice(0, 12)
-}
-
-function sanitizeErrorMessage(value: string): string {
-  return value
-    .slice(0, 500)
-    .replace(/https?:\/\/\S+/gi, '<url>')
-    .replace(/[A-Za-z]:\\[^\s"']*/g, '<path>')
-    .replace(/\\\\[^\s"']+/g, '<path>')
-    .replace(/(?:[^\s"'\\]+\\){2,}[^\s"']+/g, '<path>')
-    .replace(/(?:\/[^\s"':]+){2,}/g, '<path>')
-    .replace(
-      /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
-      '<id>',
-    )
-    .replace(/\b[0-9a-fA-F]{16,}\b/g, '<id>')
-    .replace(/\b\d{4,}\b/g, '<num>')
-}
-
-function extractErrorStackFrames(stack: string, limit = 5): string[] {
-  const frames: string[] = []
-  for (const line of stack.slice(0, 4000).split('\n')) {
-    const trimmed = line.trim()
-    if (!trimmed.startsWith('at ')) continue
-    let frame = trimmed.slice(3)
-    const locationStart = frame.indexOf(' (')
-    if (locationStart !== -1) frame = frame.slice(0, locationStart)
-    frame = frame.replace(/^async\s+/, '').replace(/^new\s+/, '')
-    if (frame.includes('/') || frame.includes('\\') || /:\d/.test(frame)) {
-      continue
-    }
-    if (frame) frames.push(frame)
-    if (frames.length >= limit) break
-  }
-  return frames
-}
-
-function safeErrorString(value: unknown): string {
-  try {
-    return String(value)
-  } catch {
-    return '[unstringifiable]'
-  }
-}
-
-function errorAnalyticsMetadata(
-  value: unknown,
-): Record<
-  string,
-  AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-> {
-  try {
-    const message = safeErrorString(
-      value instanceof Error ? value.message : value,
-    )
-    const metadata: Record<string, string> = {
-      error_message_hash: hashErrorDetail(sanitizeErrorMessage(message)),
-    }
-    const code = (value as { code?: unknown } | null | undefined)?.code
-    if (typeof code === 'string' && /^[A-Z][A-Z0-9_]*$/.test(code)) {
-      metadata.error_code = code
-    }
-    if (value instanceof Error) {
-      const constructorName = value.constructor?.name
-      if (typeof constructorName === 'string') {
-        metadata.error_constructor = constructorName
-      }
-      if (typeof value.stack === 'string') {
-        const frames = extractErrorStackFrames(value.stack)
-        if (frames.length > 0) {
-          metadata.error_stack_hash = hashErrorDetail(frames.join('|'))
-        }
-      }
-    }
-    return metadata as Record<
-      string,
-      AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    >
-  } catch {
-    return {}
-  }
-}
 
 function shortErrorHash(value: string): string {
   return createHash('sha256').update(value).digest('hex').slice(0, 12)
@@ -377,21 +292,16 @@ function printResumeHint(): void {
       let resumeArg: string
       if (customTitle) {
         // Wrap in double quotes, escape backslashes first then quotes
-        const escaped = customTitle
-          .replaceAll('\\', '\\\\')
-          .replaceAll('"', '\\"')
+        const escaped = customTitle.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
         resumeArg = `"${escaped}"`
       } else {
         resumeArg = sessionId
       }
 
-      const worktreeName = getResumeWorktreeName()
-      const worktreeArg = worktreeName ? `--worktree ${worktreeName} ` : ''
-
       writeSync(
         1,
         chalk.dim(
-          `\nResume this session with:\nclaude ${worktreeArg}--resume ${resumeArg}\n`,
+          `\nResume this session with:\nclaude --resume ${resumeArg}\n`,
         ),
       )
       resumeHintPrinted = true
@@ -487,36 +397,40 @@ export const setupGracefulShutdown = memoize(() => {
     logForDiagnosticsNoPII('info', 'shutdown_signal', { signal: 'SIGTERM' })
     void gracefulShutdown(143) // Exit code 143 (128 + 15) for SIGTERM
   })
-  if (process.env.CLAUDE_BG_BACKEND === 'daemon') {
-    process.on('SIGHUP', () => {
-      logForDiagnosticsNoPII('info', 'shutdown_signal', {
-        signal: 'SIGHUP_ignored_bg',
+  if (process.platform !== 'win32') {
+    if (process.env.CLAUDE_BG_BACKEND === 'daemon') {
+      process.on('SIGHUP', () => {
+        logForDiagnosticsNoPII('info', 'shutdown_signal', {
+          signal: 'SIGHUP_ignored_bg',
+        })
       })
-    })
-  } else {
-    process.on('SIGHUP', () => {
-      logForDiagnosticsNoPII('info', 'shutdown_signal', { signal: 'SIGHUP' })
-      void gracefulShutdown(129) // Exit code 129 (128 + 1) for SIGHUP
-    })
+    } else {
+      process.on('SIGHUP', () => {
+        logForDiagnosticsNoPII('info', 'shutdown_signal', {
+          signal: 'SIGHUP',
+        })
+        void gracefulShutdown(129) // Exit code 129 (128 + 1) for SIGHUP
+      })
 
-    // Detect orphaned process when terminal closes without delivering SIGHUP.
-    // macOS revokes TTY file descriptors instead of signaling, leaving the
-    // process alive but unable to read/write. Periodically check stdin validity.
-    if (process.stdin.isTTY) {
-      orphanCheckInterval = setInterval(() => {
-        // Skip during scroll drain — even a cheap check consumes an event
-        // loop tick that scroll frames need. 30s interval → missing one is fine.
-        if (getIsScrollDraining()) return
-        // process.stdout.writable becomes false when the TTY is revoked
-        if (!process.stdout.writable || !process.stdin.readable) {
-          clearInterval(orphanCheckInterval)
-          logForDiagnosticsNoPII('info', 'shutdown_signal', {
-            signal: 'orphan_detected',
-          })
-          void gracefulShutdown(129)
-        }
-      }, 30_000) // Check every 30 seconds
-      orphanCheckInterval.unref() // Don't keep process alive just for this check
+      // Detect orphaned process when terminal closes without delivering SIGHUP.
+      // macOS revokes TTY file descriptors instead of signaling, leaving the
+      // process alive but unable to read/write. Periodically check stdin validity.
+      if (process.stdin.isTTY) {
+        orphanCheckInterval = setInterval(() => {
+          // Skip during scroll drain — even a cheap check consumes an event
+          // loop tick that scroll frames need. 30s interval → missing one is fine.
+          if (getIsScrollDraining()) return
+          // process.stdout.writable becomes false when the TTY is revoked
+          if (!process.stdout.writable || !process.stdin.readable) {
+            clearInterval(orphanCheckInterval)
+            logForDiagnosticsNoPII('info', 'shutdown_signal', {
+              signal: 'orphan_detected',
+            })
+            void gracefulShutdown(129)
+          }
+        }, 30_000) // Check every 30 seconds
+        orphanCheckInterval.unref() // Don't keep process alive just for this check
+      }
     }
   }
 
@@ -530,7 +444,6 @@ export const setupGracefulShutdown = memoize(() => {
     logEvent('tengu_uncaught_exception', {
       error_name:
         error.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...errorAnalyticsMetadata(error),
     })
   })
 
@@ -554,7 +467,6 @@ export const setupGracefulShutdown = memoize(() => {
     logEvent('tengu_unhandled_rejection', {
       error_name:
         errorName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...errorAnalyticsMetadata(reason),
     })
   })
 })
@@ -565,7 +477,6 @@ export function gracefulShutdownSync(
   options?: {
     getAppState?: () => AppState
     setAppState?: (f: (prev: AppState) => AppState) => void
-    suppressResumeHint?: boolean
   },
 ): void {
   // Set the exit code that will be used when process naturally exits. Note that we do it

@@ -9,13 +9,25 @@ import { errorMessage, getErrnoCode } from '../errors.js'
 import { execFileNoThrowWithCwd } from '../execFileNoThrow.js'
 import { gitExe } from '../git.js'
 import { lazySchema } from '../lazySchema.js'
+import * as lockfile from '../lockfile.js'
 import type { PermissionMode } from '../permissions/PermissionMode.js'
 import { jsonParse, jsonStringify } from '../slowOperations.js'
-import { lock } from '../lockfile.js'
 import { getTasksDir, notifyTasksUpdated } from '../tasks.js'
 import { getAgentName, getTeamName, isTeammate } from '../teammate.js'
 import { type BackendType, isPaneBackend } from './backends/types.js'
 import { TEAM_LEAD_NAME } from './constants.js'
+
+const TEAM_FILE_LOCK_OPTIONS = {
+  realpath: false,
+  retries: {
+    retries: 10,
+    minTimeout: 5,
+    maxTimeout: 100,
+  },
+  // proper-lockfile's default handler throws asynchronously. Team-file callers
+  // handle failures at the operation boundary instead.
+  onCompromised: () => {},
+}
 
 export const inputSchema = lazySchema(() =>
   z.strictObject({
@@ -94,11 +106,6 @@ export type Input = z.infer<ReturnType<typeof inputSchema>>
 // Export SpawnTeamOutput as Output for backward compatibility
 export type Output = SpawnTeamOutput
 
-const TEAM_FILE_LOCK_OPTIONS = {
-  realpath: false,
-  retries: { retries: 10, minTimeout: 5, maxTimeout: 100 },
-}
-
 /**
  * Sanitizes a name for use in tmux window names, worktree paths, and file paths.
  * Replaces all non-alphanumeric characters with hyphens and lowercases.
@@ -175,67 +182,6 @@ function writeTeamFile(teamName: string, teamFile: TeamFile): void {
   writeFileSync(getTeamFilePath(teamName), jsonStringify(teamFile, null, 2))
 }
 
-function teamDoesNotExistError(teamName: string): Error {
-  return new Error(
-    `Team "${teamName}" does not exist. Call spawnTeam first to create the team.`,
-  )
-}
-
-export async function updateTeamFile<T>(
-  teamName: string,
-  updater: (teamFile: TeamFile) => T | false,
-): Promise<T | undefined> {
-  const teamFilePath = getTeamFilePath(teamName)
-  let release: (() => Promise<void>) | undefined
-  try {
-    release = await lock(teamFilePath, {
-      lockfilePath: `${teamFilePath}.lock`,
-      ...TEAM_FILE_LOCK_OPTIONS,
-    })
-  } catch (error) {
-    if (getErrnoCode(error) === 'ENOENT') {
-      throw teamDoesNotExistError(teamName)
-    }
-    throw error
-  }
-
-  try {
-    const teamFile = await readTeamFileAsync(teamName)
-    if (!teamFile) throw teamDoesNotExistError(teamName)
-    const result = updater(teamFile)
-    if (result === false) return
-    await writeTeamFileAsync(teamName, teamFile)
-    return result
-  } finally {
-    try {
-      await release()
-    } catch (error) {
-      logForDebugging(
-        `[TeammateTool] updateTeamFile lock release failed: ${errorMessage(error)}`,
-      )
-    }
-  }
-}
-
-export async function removeTeamMember(
-  teamName: string,
-  agentId: string,
-): Promise<void> {
-  try {
-    await updateTeamFile(teamName, teamFile => {
-      const memberIndex = teamFile.members.findIndex(
-        member => member.agentId === agentId,
-      )
-      if (memberIndex === -1) return false
-      teamFile.members.splice(memberIndex, 1)
-    })
-  } catch (error) {
-    logForDebugging(
-      `[TeammateTool] removeTeamMember(${agentId}) failed: ${errorMessage(error)}`,
-    )
-  }
-}
-
 /**
  * Writes a team file (async — for tool handlers)
  */
@@ -251,6 +197,81 @@ export async function writeTeamFileAsync(
     jsonStringify(teamFile, null, 2),
     options?.exclusive ? { flag: 'wx' } : undefined,
   )
+}
+
+function teamDoesNotExistError(teamName: string): Error {
+  return new Error(
+    `Team "${teamName}" does not exist. Call spawnTeam first to create the team.`,
+  )
+}
+
+/**
+ * Updates a team file while holding its per-file lock.
+ * Returning false from the updater skips the write.
+ */
+export async function updateTeamFile<Result>(
+  teamName: string,
+  updater: (teamFile: TeamFile) => Result | false,
+): Promise<Result | undefined> {
+  const teamFilePath = getTeamFilePath(teamName)
+  let release: () => Promise<void>
+
+  try {
+    release = await lockfile.lock(teamFilePath, {
+      lockfilePath: `${teamFilePath}.lock`,
+      ...TEAM_FILE_LOCK_OPTIONS,
+    })
+  } catch (error) {
+    if (getErrnoCode(error) === 'ENOENT') {
+      throw teamDoesNotExistError(teamName)
+    }
+    throw error
+  }
+
+  try {
+    const teamFile = await readTeamFileAsync(teamName)
+    if (!teamFile) {
+      throw teamDoesNotExistError(teamName)
+    }
+
+    const result = updater(teamFile)
+    if (result === false) {
+      return undefined
+    }
+
+    await writeTeamFileAsync(teamName, teamFile)
+    return result
+  } finally {
+    try {
+      await release()
+    } catch (error) {
+      logForDebugging(
+        `[TeammateTool] updateTeamFile lock release failed: ${errorMessage(error)}`,
+      )
+    }
+  }
+}
+
+/** Remove a reserved team member, swallowing cleanup failures. */
+export async function removeTeamMember(
+  teamName: string,
+  agentId: string,
+): Promise<void> {
+  try {
+    await updateTeamFile(teamName, teamFile => {
+      const memberIndex = teamFile.members.findIndex(
+        member => member.agentId === agentId,
+      )
+      if (memberIndex === -1) {
+        return false
+      }
+      teamFile.members.splice(memberIndex, 1)
+    })
+  } catch (error) {
+    logForDebugging(
+      `[TeammateTool] removeTeamMember(${agentId}) failed: ${errorMessage(error)}`,
+    )
+  }
 }
 
 /**
@@ -537,7 +558,11 @@ export async function setMemberActive(
         )
         return false
       }
-      if (member.isActive === isActive) return false
+
+      if (member.isActive === isActive) {
+        return false
+      }
+
       member.isActive = isActive
       logForDebugging(
         `[TeammateTool] Set member ${memberName} in team ${teamName} to ${isActive ? 'active' : 'idle'}`,

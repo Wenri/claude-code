@@ -1057,7 +1057,7 @@ function getPluginVersionFromManifest(
     const manifest = jsonParse(manifestContent)
     return manifest.version || 'unknown'
   } catch {
-    logForDebugging(`Could not read version from manifest for ${pluginId}`)
+    logForDebugging(`Could not extract version from manifest for ${pluginId}`)
     return 'unknown'
   }
 }

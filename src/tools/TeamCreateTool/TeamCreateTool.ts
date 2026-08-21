@@ -7,13 +7,13 @@ import { buildTool, type ToolDef } from '../../Tool.js'
 import { formatAgentId } from '../../utils/agentId.js'
 import { isAgentSwarmsEnabled } from '../../utils/agentSwarmsEnabled.js'
 import { getCwd } from '../../utils/cwd.js'
+import { getErrnoCode, getErrnoPath } from '../../utils/errors.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import {
   getDefaultMainLoopModel,
   parseUserSpecifiedModel,
 } from '../../utils/model/model.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
-import { getErrnoCode, getErrnoPath } from '../../utils/errors.js'
 import { getResolvedTeammateMode } from '../../utils/swarm/backends/registry.js'
 import { TEAM_LEAD_NAME } from '../../utils/swarm/constants.js'
 import type { TeamFile } from '../../utils/swarm/teamHelpers.js'
@@ -28,6 +28,7 @@ import {
   resetTaskList,
   setLeaderTeamName,
 } from '../../utils/tasks.js'
+import { TEAM_DELETE_TOOL_NAME } from '../TeamDeleteTool/constants.js'
 import { TEAM_CREATE_TOOL_NAME } from './constants.js'
 import { getPrompt } from './prompt.js'
 import { renderToolUseMessage } from './UI.js'
@@ -119,7 +120,7 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
 
     if (existingTeam) {
       throw new Error(
-        `Already leading team "${existingTeam}". A leader can only manage one team at a time. Use TeamDelete to end the current team before creating a new one.`,
+        `Already leading team "${existingTeam}". A leader can only manage one team at a time. Use ${TEAM_DELETE_TOOL_NAME} to end the current team before creating a new one.`,
       )
     }
 
@@ -165,7 +166,7 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
         getErrnoPath(error) === teamFilePath
       ) {
         throw new Error(
-          `Team "${finalTeamName}" already exists at ${teamFilePath}. Choose a different team_name, or run TeamDelete on the existing team first.`,
+          `Team "${finalTeamName}" already exists at ${teamFilePath}. Choose a different team_name, or run ${TEAM_DELETE_TOOL_NAME} on the existing team first.`,
         )
       }
       throw error

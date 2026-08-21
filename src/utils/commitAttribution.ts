@@ -153,7 +153,6 @@ export function sanitizeSurfaceKey(surfaceKey: string): string {
  */
 export function sanitizeModelName(shortName: string): string {
   // Map internal variants to public equivalents based on model family
-  if (shortName.includes('opus-4-7')) return 'claude-opus-4-7'
   if (shortName.includes('opus-4-6')) return 'claude-opus-4-6'
   if (shortName.includes('opus-4-5')) return 'claude-opus-4-5'
   if (shortName.includes('opus-4-1')) return 'claude-opus-4-1'
@@ -192,6 +191,14 @@ export type AttributionState = {
   escapeCountAtLastCommit: number
 }
 
+export type AttributionFileChange = {
+  path: string
+  type: 'modified' | 'created' | 'deleted'
+  oldContent: string
+  newContent: string
+  mtime?: number
+}
+
 export type AttributionOp =
   | {
       kind: 'trackEdit'
@@ -205,13 +212,7 @@ export type AttributionOp =
   | {
       kind: 'trackBulk'
       surface: string
-      changes: ReadonlyArray<{
-        path: string
-        type: 'modified' | 'created' | 'deleted'
-        oldContent: string
-        newContent: string
-        mtime?: number
-      }>
+      changes: ReadonlyArray<AttributionFileChange>
     }
   | {
       kind: 'commitBoundary'
@@ -517,13 +518,7 @@ export function trackFileDeletion(
  */
 export function trackBulkFileChanges(
   state: AttributionState,
-  changes: ReadonlyArray<{
-    path: string
-    type: 'modified' | 'created' | 'deleted'
-    oldContent: string
-    newContent: string
-    mtime?: number
-  }>,
+  changes: ReadonlyArray<AttributionFileChange>,
 ): AttributionState {
   // Create ONE copy of the Map, then mutate it for each file
   const newFileStates = new Map(state.fileStates)
@@ -570,6 +565,7 @@ export function trackBulkFileChanges(
   }
 }
 
+/** Apply an attribution operation carried by ToolUseContext. */
 export function applyAttributionOp(
   state: AttributionState,
   operation: AttributionOp,

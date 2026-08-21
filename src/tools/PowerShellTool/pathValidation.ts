@@ -22,7 +22,6 @@ import {
   checkPathSafetyForAutoEdit,
   checkReadableInternalPath,
   matchingRuleForInput,
-  normalizeCaseForComparison,
   pathInAllowedWorkingPath,
 } from '../../utils/permissions/filesystem.js'
 import type { PermissionResult } from '../../utils/permissions/PermissionResult.js'
@@ -1766,26 +1765,32 @@ function checkPathConstraintsForStatement(
     // on a dangerous path → deny (not ask). User cannot approve system32 deletion.
     const isRemoval = resolveToCanonical(cmd.name) === 'remove-item'
 
+    // `Remove-Item -Recurse ..` can erase the working directory itself (and
+    // therefore its .git/.claude state) without naming one of the globally
+    // protected system paths below. PowerShell accepts every unambiguous
+    // prefix of -Recurse, as well as colon-bound switch syntax, so recognize
+    // those forms exactly before validating each extracted path.
     if (
       isRemoval &&
       cmd.args.some(arg => {
-        const normalized = (arg.length > 0 ? '-' + arg.slice(1) : arg).toLowerCase()
-        const colonIndex = normalized.indexOf(':')
-        const parameter =
-          colonIndex > 0 ? normalized.slice(0, colonIndex) : normalized
-        return parameter.length >= 2 && '-recurse'.startsWith(parameter)
+        const normalized = (
+          arg.length > 0 ? `-${arg.slice(1)}` : arg
+        ).toLowerCase()
+        const colon = normalized.indexOf(':')
+        const flag = colon > 0 ? normalized.slice(0, colon) : normalized
+        return flag.length >= 2 && '-recurse'.startsWith(flag)
       })
     ) {
-      const normalizedCwd = normalizeCaseForComparison(cwd)
+      const normalizedCwd = cwd.toLowerCase()
       for (const filePath of paths) {
-        const resolved = isAbsolute(filePath)
+        const absolutePath = isAbsolute(filePath)
           ? resolve(filePath)
           : resolve(cwd, filePath)
-        const normalizedTarget = normalizeCaseForComparison(resolved)
+        const normalizedPath = absolutePath.toLowerCase()
         if (
-          normalizedTarget === normalizedCwd ||
-          normalizedCwd.startsWith(normalizedTarget + '/') ||
-          normalizedCwd.startsWith(normalizedTarget + '\\')
+          normalizedPath === normalizedCwd ||
+          normalizedCwd.startsWith(`${normalizedPath}/`) ||
+          normalizedCwd.startsWith(`${normalizedPath}\\`)
         ) {
           firstAsk ??= {
             behavior: 'ask',

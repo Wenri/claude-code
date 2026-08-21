@@ -4,8 +4,9 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { getBridgeAccessToken } from '../../bridge/bridgeConfig.js';
 import { getBridgeDisabledReason } from '../../bridge/bridgeEnabled.js';
-import { checkEnvLessBridgeMinVersion } from '../../bridge/envLessBridgeConfig.js';
+import { checkReplBridgeMinVersion } from '../../bridge/envLessBridgeConfig.js';
 import { BRIDGE_LOGIN_INSTRUCTION, REMOTE_CONTROL_DISCONNECTED_MSG } from '../../bridge/types.js';
+import { getTrustedDeviceUnenrolledReason } from '../../bridge/trustedDevice.js';
 import { Dialog } from '../../components/design-system/Dialog.js';
 import { ListItem } from '../../components/design-system/ListItem.js';
 import { shouldShowRemoteCallout } from '../../components/RemoteCallout.js';
@@ -17,7 +18,6 @@ import { useAppState, useSetAppState } from '../../state/AppState.js';
 import type { ToolUseContext } from '../../Tool.js';
 import type { LocalJSXCommandContext, LocalJSXCommandOnDone } from '../../types/command.js';
 import { logForDebugging } from '../../utils/debug.js';
-import { markRemoteControlUsed } from '../../utils/remoteControlUpsell.js';
 type Props = {
   onDone: LocalJSXCommandOnDone;
   name?: string;
@@ -68,7 +68,6 @@ function BridgeToggle(t0) {
           });
           return;
         }
-        markRemoteControlUsed();
         if (shouldShowRemoteCallout()) {
           setAppState(prev => {
             if (prev.showRemoteCallout) {
@@ -480,12 +479,16 @@ async function checkBridgePrerequisites(): Promise<string | null> {
     return disabledReason;
   }
 
-  const versionError = await checkEnvLessBridgeMinVersion();
+  const versionError = await checkReplBridgeMinVersion();
   if (versionError) {
     return versionError;
   }
   if (!getBridgeAccessToken()) {
     return BRIDGE_LOGIN_INSTRUCTION;
+  }
+  const trustedDeviceReason = getTrustedDeviceUnenrolledReason();
+  if (trustedDeviceReason) {
+    return trustedDeviceReason;
   }
   logForDebugging('[bridge] Prerequisites passed, enabling bridge');
   return null;

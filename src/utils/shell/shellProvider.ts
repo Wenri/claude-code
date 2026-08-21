@@ -2,7 +2,9 @@ export const SHELL_TYPES = ['bash', 'powershell'] as const
 export type ShellType = (typeof SHELL_TYPES)[number]
 export const DEFAULT_HOOK_SHELL: ShellType = 'bash'
 
-export type TmuxSocket = {
+export type SessionEnvironmentVariables = ReadonlyMap<string, string>
+
+export type TmuxSocketFacade = {
   getTmuxEnv(): string | null
 }
 
@@ -35,7 +37,7 @@ export type ShellProvider = {
    */
   getEnvironmentOverrides(
     command: string,
-    sessionEnvVars?: Map<string, string>,
-    tmuxSocket?: TmuxSocket,
+    sessionEnvVars?: SessionEnvironmentVariables,
+    tmuxSocket?: TmuxSocketFacade,
   ): Promise<Record<string, string>>
 }

@@ -17,6 +17,11 @@ import { McpParsingWarnings } from './McpParsingWarnings.js';
 import type { AgentMcpServerInfo, ServerInfo } from './types.js';
 type Props = {
   servers: ServerInfo[];
+  suppressedClaudeAiConnectors?: Array<{
+    name: string;
+    duplicateOf: string;
+    duplicateOfScope: ConfigScope;
+  }>;
   agentServers?: AgentMcpServerInfo[];
   onSelectServer: (server: ServerInfo) => void;
   onSelectAgentServer?: (agentServer: AgentMcpServerInfo) => void;
@@ -25,6 +30,27 @@ type Props = {
   }) => void;
   defaultTab?: string;
 };
+function SuppressedConnectorHint({ suppressed }: { suppressed: NonNullable<Props['suppressedClaudeAiConnectors']>[number] }) {
+  if (suppressed.duplicateOf.startsWith('plugin:')) {
+    return <Text dimColor>To use this connector instead, disable the plugin server in /plugins</Text>;
+  }
+  switch (suppressed.duplicateOfScope) {
+    case 'local':
+    case 'user':
+    case 'project':
+      return <Text dimColor>To use this connector instead: <Text bold>claude mcp remove {suppressed.duplicateOf}</Text></Text>;
+    case 'dynamic':
+      return <Text dimColor>To use this connector instead, drop it from your --mcp-config flag</Text>;
+    case 'enterprise':
+    case 'managed':
+      return <Text dimColor>An admin-managed server takes precedence here</Text>;
+    default:
+      return <Text dimColor>To use this connector instead, remove the duplicate server from your configuration</Text>;
+  }
+}
+function SuppressedConnectorItem({ suppressed }: { suppressed: NonNullable<Props['suppressedClaudeAiConnectors']>[number] }) {
+  return <Box key={suppressed.name} flexDirection="column"><Box><Text>  </Text><Text>{suppressed.name}</Text><Text dimColor> · {figures.radioOff} hidden — same URL as your server '{suppressed.duplicateOf}'</Text></Box><Box paddingLeft={4}><SuppressedConnectorHint suppressed={suppressed} /></Box></Box>;
+}
 type SelectableItem = {
   type: 'server';
   server: ServerInfo;
@@ -98,7 +124,7 @@ function groupServersByScope(serverList: ServerInfo[]): Map<ConfigScope, ServerI
   return groups;
 }
 export function MCPListPanel(t0) {
-  const $ = _c(78);
+  const $ = _c(79);
   const {
     servers,
     agentServers: t1,
@@ -106,6 +132,7 @@ export function MCPListPanel(t0) {
     onSelectAgentServer,
     onComplete
   } = t0;
+  const suppressedClaudeAiConnectors = t0.suppressedClaudeAiConnectors ?? [];
   let t2;
   if ($[0] !== t1) {
     t2 = t1 === undefined ? [] : t1;
@@ -303,7 +330,7 @@ export function MCPListPanel(t0) {
     t16 = $[36];
   }
   const hasFailedClients = t16;
-  if (servers.length === 0 && agentServers.length === 0) {
+  if (servers.length === 0 && agentServers.length === 0 && suppressedClaudeAiConnectors.length === 0) {
     return null;
   }
   let t17;
@@ -404,11 +431,12 @@ export function MCPListPanel(t0) {
     t22 = $[50];
   }
   let t23;
-  if ($[51] !== claudeAiServers || $[52] !== renderServerItem) {
-    t23 = claudeAiServers.length > 0 && <Box flexDirection="column" marginBottom={1}><Box paddingLeft={2}><Text bold={true}>claude.ai</Text></Box>{claudeAiServers.map(server_5 => renderServerItem(server_5))}</Box>;
+  if ($[51] !== claudeAiServers || $[52] !== renderServerItem || $[78] !== suppressedClaudeAiConnectors) {
+    t23 = (claudeAiServers.length > 0 || suppressedClaudeAiConnectors.length > 0) && <Box flexDirection="column" marginBottom={1}><Box paddingLeft={2}><Text bold={true}>claude.ai</Text></Box>{claudeAiServers.map(server_5 => renderServerItem(server_5))}{suppressedClaudeAiConnectors.map(suppressed => <SuppressedConnectorItem key={suppressed.name} suppressed={suppressed} />)}</Box>;
     $[51] = claudeAiServers;
     $[52] = renderServerItem;
     $[53] = t23;
+    $[78] = suppressedClaudeAiConnectors;
   } else {
     t23 = $[53];
   }

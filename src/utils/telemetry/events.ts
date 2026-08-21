@@ -2,7 +2,6 @@ import type { Attributes } from '@opentelemetry/api'
 import { getEventLogger, getPromptId } from 'src/bootstrap/state.js'
 import { logForDebugging } from '../debug.js'
 import { isEnvTruthy } from '../envUtils.js'
-import { getErrnoCode } from '../errors.js'
 import { getTelemetryAttributes } from '../telemetryAttributes.js'
 
 // Monotonically increasing counter for ordering events within a session
@@ -10,10 +9,6 @@ let eventSequence = 0
 
 // Track whether we've already warned about a null event logger to avoid spamming
 let hasWarnedNoEventLogger = false
-
-// Prevent telemetry failures from recursively reporting themselves through
-// the global error logger.
-let isLoggingInternalError = false
 
 function isUserPromptLoggingEnabled() {
   return isEnvTruthy(process.env.OTEL_LOG_USER_PROMPTS)
@@ -25,7 +20,7 @@ export function redactIfDisabled(content: string): string {
 
 export async function logOTelEvent(
   eventName: string,
-  metadata: { [key: string]: string | undefined } = {},
+  metadata: Attributes = {},
 ): Promise<void> {
   const eventLogger = getEventLogger()
   if (!eventLogger) {
@@ -79,58 +74,33 @@ export async function logOTelEvent(
   })
 }
 
-export function logPermissionModeChanged(values: {
+export function logPermissionModeChanged({
+  from,
+  to,
+  trigger,
+}: {
   from: string
   to: string
   trigger?: string
 }): void {
-  if (values.from === values.to) return
+  if (from === to) return
+
   void logOTelEvent('permission_mode_changed', {
-    from_mode: values.from,
-    to_mode: values.to,
-    ...(values.trigger && { trigger: values.trigger }),
+    from_mode: from,
+    to_mode: to,
+    ...(trigger && { trigger }),
   })
 }
 
-export function logCompactionEvent(values: {
-  trigger: 'auto' | 'manual'
+export function logAtMention({
+  mentionType,
+  success,
+}: {
+  mentionType: 'file' | 'directory' | 'agent' | 'mcp_resource'
   success: boolean
-  durationMs: number
-  preTokens?: number
-  postTokens?: number
-  error?: string
 }): void {
-  void logOTelEvent('compaction', {
-    trigger: values.trigger,
-    success: String(values.success),
-    duration_ms: String(Math.round(values.durationMs)),
-    ...(values.preTokens !== undefined && {
-      pre_tokens: String(values.preTokens),
-    }),
-    ...(values.postTokens !== undefined && {
-      post_tokens: String(values.postTokens),
-    }),
-    ...(values.error && { error: values.error }),
+  void logOTelEvent('at_mention', {
+    mention_type: mentionType,
+    success: String(success),
   })
-}
-
-export function logInternalErrorEvent(error: Error): void {
-  if (isLoggingInternalError) return
-  isLoggingInternalError = true
-  try {
-    const errorName =
-      error.name !== 'Error'
-        ? error.name
-        : error.constructor?.name || 'Error'
-    const errorCode = getErrnoCode(error)
-    void logOTelEvent('internal_error', {
-      error_name: errorName,
-      error_code:
-        errorCode && /^[A-Z][A-Z0-9_]*$/.test(errorCode)
-          ? errorCode
-          : undefined,
-    })
-  } finally {
-    isLoggingInternalError = false
-  }
 }

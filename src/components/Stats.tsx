@@ -8,11 +8,10 @@ import stripAnsi from 'strip-ansi';
 import type { CommandResultDisplay } from '../commands.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { applyColor } from '../ink/colorize.js';
-import { KeyboardEvent } from '../ink/events/keyboard-event.js';
 import { stringWidth as getStringWidth } from '../ink/stringWidth.js';
 import type { Color } from '../ink/styles.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- raw j/k/arrow stats navigation
-import { Ansi, Box, Text } from '../ink.js';
+import { Ansi, Box, Text, useInput } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { getConfigValue } from '../utils/settings/configSettings.js';
 import { formatDuration, formatNumber } from '../utils/format.js';
@@ -22,6 +21,7 @@ import { copyAnsiToClipboard } from '../utils/screenshotClipboard.js';
 import { aggregateClaudeCodeStatsForRange, type ClaudeCodeStats, type DailyModelTokens, type StatsDateRange } from '../utils/stats.js';
 import { resolveThemeSetting } from '../utils/systemTheme.js';
 import { getTheme, themeColorToAnsi } from '../utils/theme.js';
+import { Pane } from './design-system/Pane.js';
 import { Tab, Tabs, useTabHeaderFocus } from './design-system/Tabs.js';
 import { Spinner } from './Spinner.js';
 function formatPeakDay(dateStr: string): string {
@@ -201,44 +201,63 @@ function StatsContent(t0) {
     t5 = $[7];
   }
   useKeybinding("confirm:no", handleClose, t5);
-  const {
-    headerFocused,
-    focusHeader
-  } = useTabHeaderFocus();
   let t6;
-  if ($[8] !== activeTab || $[9] !== dateRange || $[10] !== displayStats || $[11] !== focusHeader) {
-    t6 = event => {
-      if (event.key === "up") {
-        event.preventDefault();
-        focusHeader();
-        return;
+  if ($[8] !== activeTab || $[9] !== dateRange || $[10] !== displayStats || $[11] !== onClose) {
+    t6 = (input, key) => {
+      if (key.ctrl && (input === "c" || input === "d")) {
+        onClose("Stats dialog dismissed", {
+          display: "system"
+        });
       }
-      if (event.key === "r" && !event.ctrl && !event.meta) {
-        event.preventDefault();
+      if (key.tab) {
+        setActiveTab(_temp);
+      }
+      if (input === "r" && !key.ctrl && !key.meta) {
         setDateRange(getNextDateRange(dateRange));
-        return;
       }
-      if (event.ctrl && event.key === "s" && displayStats) {
-        event.preventDefault();
+      if (key.ctrl && input === "s" && displayStats) {
         handleScreenshot(displayStats, activeTab, setCopyStatus);
       }
     };
     $[8] = activeTab;
     $[9] = dateRange;
     $[10] = displayStats;
-    $[11] = focusHeader;
+    $[11] = onClose;
     $[12] = t6;
   } else {
     t6 = $[12];
   }
+  useInput(t6);
   if (allTimeResult.type === "error") {
-    return <Box marginTop={1} tabIndex={0} autoFocus onKeyDown={t6}><Text color="error">Failed to load stats: {allTimeResult.message}</Text></Box>;
+    let t7;
+    if ($[13] !== allTimeResult.message) {
+      t7 = <Box marginTop={1}><Text color="error">Failed to load stats: {allTimeResult.message}</Text></Box>;
+      $[13] = allTimeResult.message;
+      $[14] = t7;
+    } else {
+      t7 = $[14];
+    }
+    return t7;
   }
   if (allTimeResult.type === "empty") {
-    return <Box marginTop={1} tabIndex={0} autoFocus onKeyDown={t6}><Text color="warning">No stats available yet. Start using Claude Code!</Text></Box>;
+    let t7;
+    if ($[15] === Symbol.for("react.memo_cache_sentinel")) {
+      t7 = <Box marginTop={1}><Text color="warning">No stats available yet. Start using Claude Code!</Text></Box>;
+      $[15] = t7;
+    } else {
+      t7 = $[15];
+    }
+    return t7;
   }
   if (!displayStats || !allTimeStats) {
-    return <Box marginTop={1} tabIndex={0} autoFocus onKeyDown={t6}><Spinner /><Text> Loading stats…</Text></Box>;
+    let t7;
+    if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
+      t7 = <Box marginTop={1}><Spinner /><Text> Loading stats…</Text></Box>;
+      $[16] = t7;
+    } else {
+      t7 = $[16];
+    }
+    return t7;
   }
   let t7;
   if ($[17] !== allTimeStats || $[18] !== dateRange || $[19] !== displayStats || $[20] !== isLoadingFiltered) {
@@ -261,14 +280,34 @@ function StatsContent(t0) {
   } else {
     t8 = $[25];
   }
-  const focusHint = headerFocused ? "↓ stats" : "↑ tabs";
+  let t9;
+  if ($[26] !== t7 || $[27] !== t8) {
+    t9 = <Box flexDirection="row" gap={1} marginBottom={1}><Tabs title="" color="claude" defaultTab="Overview">{t7}{t8}</Tabs></Box>;
+    $[26] = t7;
+    $[27] = t8;
+    $[28] = t9;
+  } else {
+    t9 = $[28];
+  }
   const t10 = copyStatus ? ` · ${copyStatus}` : "";
-  return <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={t6}>
-    <Box flexDirection="row" gap={1} marginBottom={1}>
-      <Tabs initialHeaderFocused={true} title="" color="claude" selectedTab={activeTab} onTabChange={setActiveTab} disableNavigation={headerFocused}>{t7}{t8}</Tabs>
-    </Box>
-    <Box paddingLeft={2}><Text dimColor={true}>{focusHint} · r to cycle dates · ctrl+s to copy{t10}</Text></Box>
-  </Box>;
+  let t11;
+  if ($[29] !== t10) {
+    t11 = <Box paddingLeft={2}><Text dimColor={true}>Esc to cancel · r to cycle dates · ctrl+s to copy{t10}</Text></Box>;
+    $[29] = t10;
+    $[30] = t11;
+  } else {
+    t11 = $[30];
+  }
+  let t12;
+  if ($[31] !== t11 || $[32] !== t9) {
+    t12 = <Pane color="claude">{t9}{t11}</Pane>;
+    $[31] = t11;
+    $[32] = t9;
+    $[33] = t12;
+  } else {
+    t12 = $[33];
+  }
+  return t12;
 }
 function _temp(prev_0) {
   return prev_0 === "Overview" ? "Models" : "Overview";
@@ -701,22 +740,18 @@ function ModelsTab(t0) {
   } else {
     t2 = $[1];
   }
-  const handleModelKeyDown = (event: KeyboardEvent): void => {
-    if (headerFocused) return;
-    if (event.key === 'down' && scrollOffset < modelEntries.length - 4) {
-      event.preventDefault();
+  useInput((_input, key) => {
+    if (key.downArrow && scrollOffset < modelEntries.length - 4) {
       setScrollOffset(prev => Math.min(prev + 2, modelEntries.length - 4));
-      return;
     }
-    if (event.key === 'up') {
-      event.preventDefault();
+    if (key.upArrow) {
       if (scrollOffset > 0) {
         setScrollOffset(_temp8);
       } else {
         focusHeader();
       }
     }
-  };
+  }, t2);
   if (modelEntries.length === 0) {
     let t3;
     if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
@@ -773,7 +808,7 @@ function ModelsTab(t0) {
   } else {
     t10 = $[14];
   }
-  return <Box flexDirection="column" marginTop={1} tabIndex={0} autoFocus onKeyDown={handleModelKeyDown}>{chartOutput && <Box flexDirection="column" marginBottom={1}><Text bold={true}>Tokens per Day</Text><Ansi>{chartOutput.chart}</Ansi><Text color="subtle">{chartOutput.xAxisLabels}</Text><Box>{chartOutput.legend.map(_temp1)}</Box></Box>}{t3}<Box flexDirection="row" gap={4}><Box flexDirection="column" width={36}>{leftModels.map(t4 => {
+  return <Box flexDirection="column" marginTop={1}>{chartOutput && <Box flexDirection="column" marginBottom={1}><Text bold={true}>Tokens per Day</Text><Ansi>{chartOutput.chart}</Ansi><Text color="subtle">{chartOutput.xAxisLabels}</Text><Box>{chartOutput.legend.map(_temp1)}</Box></Box>}{t3}<Box flexDirection="row" gap={4}><Box flexDirection="column" width={36}>{leftModels.map(t4 => {
           const [model_0, usage_0] = t4;
           return <ModelEntry key={model_0} model={model_0} usage={usage_0} totalTokens={totalTokens} />;
         })}</Box>{t9}</Box>{t10}</Box>;

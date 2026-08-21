@@ -4,10 +4,6 @@ import { getGlobalConfig } from './config.js'
 import { isEnvTruthy } from './envUtils.js'
 import { getCanonicalName } from './model/model.js'
 import { getModelCapability } from './model/modelCapabilities.js'
-import {
-  getAPIProviderForModel,
-  isFirstPartyCompatibleAPIProvider,
-} from './model/providers.js'
 
 // Model context window size (200k tokens for all models right now)
 export const MODEL_CONTEXT_WINDOW_DEFAULT = 200_000
@@ -17,7 +13,7 @@ export const COMPACT_MAX_OUTPUT_TOKENS = 20_000
 
 // Default max output tokens
 const MAX_OUTPUT_TOKENS_DEFAULT = 32_000
-const MAX_OUTPUT_TOKENS_UPPER_LIMIT = 128_000
+const MAX_OUTPUT_TOKENS_UPPER_LIMIT = 64_000
 
 // Capped default for slot-reservation optimization. BQ p99 output = 4,911
 // tokens, so 32k/64k defaults over-reserve 8-16× slot capacity. With the cap
@@ -49,25 +45,11 @@ export function modelSupports1M(model: string): boolean {
     return false
   }
   const canonical = getCanonicalName(model)
-  if (
-    canonical.includes('claude-3-') ||
-    canonical === 'claude-opus-4-0' ||
-    canonical === 'claude-opus-4-1' ||
-    canonical === 'claude-opus-4-5' ||
-    canonical === 'claude-haiku-4-5'
-  ) {
-    return false
-  }
-  if (
-    canonical === 'claude-opus-4-7' ||
-    canonical === 'claude-opus-4-6' ||
-    canonical === 'claude-sonnet-4-6' ||
-    canonical === 'claude-sonnet-4-5' ||
-    canonical === 'claude-sonnet-4-0'
-  ) {
-    return true
-  }
-  return isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model))
+  return (
+    canonical.includes('claude-sonnet-4') ||
+    canonical.includes('opus-4-6') ||
+    canonical.includes('opus-4-7')
+  )
 }
 
 function modelHasNative1MContext(model: string): boolean {
@@ -187,39 +169,35 @@ export function getModelMaxOutputTokens(model: string): {
 
   const m = getCanonicalName(model)
 
-  if (m === 'claude-opus-4-7') {
+  if (m.includes('opus-4-7') || m.includes('opus-4-6')) {
     defaultTokens = 64_000
     upperLimit = 128_000
-  } else if (m === 'claude-sonnet-4-6') {
+  } else if (m.includes('sonnet-4-6')) {
     defaultTokens = 32_000
     upperLimit = 128_000
-  } else if (m === 'claude-opus-4-6') {
-    defaultTokens = 64_000
-    upperLimit = 128_000
   } else if (
-    m === 'claude-opus-4-5' ||
-    m === 'claude-sonnet-4-0' ||
-    m === 'claude-sonnet-4-5' ||
-    m === 'claude-haiku-4-5'
+    m.includes('opus-4-5') ||
+    m.includes('sonnet-4') ||
+    m.includes('haiku-4')
   ) {
     defaultTokens = 32_000
     upperLimit = 64_000
-  } else if (m === 'claude-opus-4-1' || m === 'claude-opus-4-0') {
+  } else if (m.includes('opus-4-1') || m.includes('opus-4')) {
     defaultTokens = 32_000
     upperLimit = 32_000
-  } else if (m === 'claude-3-opus') {
+  } else if (m.includes('claude-3-opus')) {
     defaultTokens = 4_096
     upperLimit = 4_096
-  } else if (m === 'claude-3-sonnet') {
+  } else if (m.includes('claude-3-sonnet')) {
     defaultTokens = 8_192
     upperLimit = 8_192
-  } else if (m === 'claude-3-haiku') {
+  } else if (m.includes('claude-3-haiku')) {
     defaultTokens = 4_096
     upperLimit = 4_096
-  } else if (m === 'claude-3-5-sonnet' || m === 'claude-3-5-haiku') {
+  } else if (m.includes('3-5-sonnet') || m.includes('3-5-haiku')) {
     defaultTokens = 8_192
     upperLimit = 8_192
-  } else if (m === 'claude-3-7-sonnet') {
+  } else if (m.includes('3-7-sonnet')) {
     defaultTokens = 32_000
     upperLimit = 64_000
   } else {

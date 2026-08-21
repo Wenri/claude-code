@@ -1,6 +1,6 @@
 import {
-  performHeapDump,
   type MemoryDiagnostics,
+  performHeapDump,
 } from '../../utils/heapDumpService.js'
 
 export async function call(): Promise<{ type: 'text'; value: string }> {
@@ -13,44 +13,48 @@ export async function call(): Promise<{ type: 'text'; value: string }> {
     }
   }
 
+  const lines = [
+    result.heapPath,
+    result.diagPath,
+    '',
+    formatDiagnostics(result.diagnostics),
+  ]
+  lines.push(
+    '',
+    'Open the .heapsnapshot in Chrome DevTools → Memory → Load to inspect retainers.',
+  )
+
   return {
     type: 'text',
-    value: [
-      result.heapPath,
-      result.diagPath,
-      '',
-      formatMemoryDiagnostics(result.diagnostics),
-      '',
-      'Open the .heapsnapshot in Chrome DevTools → Memory → Load to inspect retainers.',
-    ].join('\n'),
+    value: lines.join('\n'),
   }
 }
 
-function formatMemoryDiagnostics(diagnostics: MemoryDiagnostics): string {
+function formatDiagnostics(diagnostics: MemoryDiagnostics): string {
   const { memoryUsage, resourceUsage, analysis } = diagnostics
   const otherExternal = memoryUsage.external - memoryUsage.arrayBuffers
   const unaccounted = Math.max(
     0,
     memoryUsage.rss - memoryUsage.heapTotal - memoryUsage.external,
   )
-  const memoryKind =
+  const classification =
     memoryUsage.heapTotal > memoryUsage.external + unaccounted
       ? '— most memory is JS heap (inspect the .heapsnapshot)'
       : '— most memory is native (NOT in the .heapsnapshot)'
-  const potentialLeaks = analysis.potentialLeaks.length
+  const leakIndicators = analysis.potentialLeaks.length
     ? analysis.potentialLeaks.map(leak => `  ⚠ ${leak}`).join('\n')
     : '  (no obvious leak indicators)'
 
   return [
-    `RSS ${formatGB(memoryUsage.rss)} (peak ${formatGB(resourceUsage.maxRSS)}) ${memoryKind}`,
+    `RSS ${formatGB(memoryUsage.rss)} (peak ${formatGB(resourceUsage.maxRSS)}) ${classification}`,
     `  JS heap        ${formatGB(memoryUsage.heapTotal).padStart(8)}  in snapshot`,
     `  array buffers  ${formatGB(memoryUsage.arrayBuffers).padStart(8)}  not in snapshot`,
     `  other external ${formatGB(otherExternal).padStart(8)}  not in snapshot`,
     `  unaccounted    ${formatGB(unaccounted).padStart(8)}  not in snapshot (code/JIT/stacks/allocator)`,
-    potentialLeaks,
+    leakIndicators,
   ].join('\n')
 }
 
 function formatGB(bytes: number): string {
-  return `${(bytes / 1073741824).toFixed(2)} GB`
+  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
 }

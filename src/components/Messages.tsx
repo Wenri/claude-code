@@ -15,7 +15,7 @@ import { useTerminalNotification } from '../ink/useTerminalNotification.js';
 import { Box, Text } from '../ink.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import type { Screen } from '../screens/REPL.js';
-import { useAppState, useAppStateStore } from '../state/AppState.js';
+import { useAppState } from '../state/AppState.js';
 import type { Tools } from '../Tool.js';
 import { findToolByName } from '../Tool.js';
 import type { AgentDefinitionsResult } from '../tools/AgentTool/loadAgentsDir.js';
@@ -29,7 +29,6 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growt
 import { getConfigValue } from '../utils/settings/configSettings.js';
 import { isEnvTruthy } from '../utils/envUtils.js';
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
-import { isTinyMemoryEnabled } from '../memdir/paths.js';
 import { applyGrouping } from '../utils/groupToolUses.js';
 import { buildMessageLookups, createAssistantMessage, deriveUUID, getMessagesAfterCompactBoundary, getToolUseID, getToolUseIDs, hasUnresolvedHooksFromLookup, isNotEmptyMessage, normalizeMessages, reorderMessagesInUI, type StreamingThinking, type StreamingToolUse, shouldShowUserMessage } from '../utils/messages.js';
 import { plural } from '../utils/stringUtils.js';
@@ -39,7 +38,6 @@ import type { UnseenDivider } from './FullscreenLayout.js';
 import { LogoV2 } from './LogoV2/LogoV2.js';
 import { StreamingMarkdown } from './Markdown.js';
 import { hasContentAfterIndex, MessageRow } from './MessageRow.js';
-import { MessageRatingProvider } from './messageRating.js';
 import { InVirtualListContext, type MessageActionsNav, MessageActionsSelectedContext, type MessageActionsState } from './messageActions.js';
 import { AssistantThinkingMessage } from './messages/AssistantThinkingMessage.js';
 import { isNullRenderingAttachment } from './messages/nullRenderingAttachments.js';
@@ -91,14 +89,15 @@ import { VirtualMessageList } from './VirtualMessageList.js';
 
 /**
  * In brief-only mode, filter messages to show ONLY Brief tool_use blocks,
- * their tool_results, and real user input. All assistant text is dropped —
- * if the model forgets to call Brief, the user sees nothing for that turn.
- * That's on the model to get right; the filter does not second-guess it.
+ * their tool_results, and real user input. Assistant text is dropped only in
+ * turns where a replacement-text tool was called; if the model forgets to
+ * call Brief, its text remains visible instead of leaving a blank turn.
  */
 export function filterForBriefTool<T extends {
   type: string;
   subtype?: string;
   isMeta?: boolean;
+  origin?: unknown;
   isApiErrorMessage?: boolean;
   message?: {
     content: Array<{
@@ -113,12 +112,48 @@ export function filterForBriefTool<T extends {
     origin?: unknown;
     commandMode?: string;
   };
-}>(messages: T[], briefToolNames: string[]): T[] {
+}>(
+  messages: T[],
+  briefToolNames: string[],
+  textSuppressingToolNames: string[],
+): T[] {
   const nameSet = new Set(briefToolNames);
+  const textSuppressingNameSet = new Set(textSuppressingToolNames);
+  const turnsWithReplacementText = new Set<number>();
+  const messageTurns: number[] = [];
+  let turn = 0;
+  for (let index = 0; index < messages.length; index++) {
+    const message = messages[index]!;
+    const block = message.message?.content[0];
+    if (
+      message.type === 'user' &&
+      block?.type !== 'tool_result' &&
+      (!message.isMeta || isChannelOrigin(message.origin))
+    ) {
+      turn++;
+    } else if (
+      message.type === 'attachment' &&
+      message.attachment?.type === 'queued_command' &&
+      message.attachment.commandMode === 'prompt' &&
+      (isChannelOrigin(message.attachment.origin) ||
+        (!message.attachment.isMeta &&
+          message.attachment.origin === undefined))
+    ) {
+      turn++;
+    } else if (
+      message.type === 'assistant' &&
+      block?.type === 'tool_use' &&
+      block.name &&
+      textSuppressingNameSet.has(block.name)
+    ) {
+      turnsWithReplacementText.add(turn);
+    }
+    messageTurns[index] = turn;
+  }
   // tool_use always precedes its tool_result in the array, so we can collect
   // IDs and match against them in a single pass.
   const briefToolUseIDs = new Set<string>();
-  return messages.filter(msg => {
+  return messages.filter((msg, index) => {
     // System messages (attach confirmation, remote errors, compact boundaries)
     // must stay visible — dropping them leaves the viewer with no feedback.
     // Exception: api_metrics is per-turn debug noise (TTFT, config writes,
@@ -139,6 +174,12 @@ export function filterForBriefTool<T extends {
         }
         return true;
       }
+      if (
+        block?.type === 'text' &&
+        !turnsWithReplacementText.has(messageTurns[index]!)
+      ) {
+        return true;
+      }
       return false;
     }
     if (msg.type === 'user') {
@@ -146,7 +187,7 @@ export function filterForBriefTool<T extends {
         return block.tool_use_id !== undefined && briefToolUseIDs.has(block.tool_use_id);
       }
       // Real user input only — drop meta/tick messages.
-      return !msg.isMeta;
+      return !msg.isMeta || isChannelOrigin(msg.origin);
     }
     if (msg.type === 'attachment') {
       // Human input drained mid-turn arrives as a queued_command attachment
@@ -156,10 +197,19 @@ export function filterForBriefTool<T extends {
       // mode: 'task-notification' but not origin/isMeta, so the positive
       // commandMode check is required to exclude them.
       const att = msg.attachment;
-      return att?.type === 'queued_command' && att.commandMode === 'prompt' && !att.isMeta && att.origin === undefined;
+      return att?.type === 'queued_command' && att.commandMode === 'prompt' && (isChannelOrigin(att.origin) || !att.isMeta && att.origin === undefined);
     }
     return false;
   });
+}
+
+function isChannelOrigin(origin: unknown): boolean {
+  return (
+    typeof origin === 'object' &&
+    origin !== null &&
+    'kind' in origin &&
+    origin.kind === 'channel'
+  );
 }
 
 /**
@@ -210,7 +260,10 @@ export function dropTextInBriefTurns<T extends {
   });
 }
 
-function isFocusQueuedPrompt(message: any): boolean {
+function isFocusTurnStart(message: any): boolean {
+  if (message.type === 'user') {
+    return message.message?.content?.[0]?.type !== 'tool_result';
+  }
   if (message.type !== 'attachment') return false;
   const attachment = message.attachment;
   if (attachment?.type !== 'queued_command' || attachment.commandMode !== 'prompt') {
@@ -218,45 +271,6 @@ function isFocusQueuedPrompt(message: any): boolean {
   }
   if (!attachment.isMeta && attachment.origin === undefined) return true;
   return attachment.origin?.kind === 'channel';
-}
-
-function isFocusTurnStart(message: any): boolean {
-  if (message.type === 'user') {
-    return message.message?.content?.[0]?.type !== 'tool_result';
-  }
-  return isFocusQueuedPrompt(message);
-}
-
-function isFocusTextMessage(message: any): boolean {
-  if (message.type !== 'assistant') return false;
-  const block = message.message?.content?.[0];
-  return block?.type === 'text' && block.text.trim().length > 0;
-}
-
-function isFocusTrailingStatus(message: any): boolean {
-  if (message.type === 'assistant') {
-    const block = message.message?.content?.[0];
-    return block?.type === 'thinking' || block?.type === 'redacted_thinking';
-  }
-  return message.type === 'attachment' || message.type === 'system';
-}
-
-function countFocusLines(value: unknown): number {
-  return typeof value === 'string' && value.length > 0 ? value.split('\n').length : 0;
-}
-
-function getFocusEditStats(toolName: string, input: unknown): { added: number; removed: number } {
-  if (typeof input !== 'object' || input === null) return { added: 0, removed: 0 };
-  const value = input as Record<string, unknown>;
-  if (toolName === 'Edit') {
-    return {
-      added: countFocusLines(value.new_string),
-      removed: countFocusLines(value.old_string)
-    };
-  }
-  if (toolName === 'Write') return { added: countFocusLines(value.content), removed: 0 };
-  if (toolName === 'NotebookEdit') return { added: countFocusLines(value.new_source), removed: 0 };
-  return { added: 0, removed: 0 };
 }
 
 function createFocusToolSummary(message: any, tools: Tools): any {
@@ -284,22 +298,11 @@ function createFocusToolSummary(message: any, tools: Tools): any {
     uuid: message.uuid,
     timestamp: message.timestamp
   };
-  if (toolName === 'Agent' || toolName === 'Task') return summary;
   if (tool?.isMcp) {
     summary.mcpCallCount = count;
     if (tool.mcpInfo?.serverName) summary.mcpServerNames = [tool.mcpInfo.serverName];
   } else if (new Set(['Edit', 'Write', 'NotebookEdit']).has(toolName)) {
     summary.editFileCount = count;
-    let linesAdded = 0;
-    let linesRemoved = 0;
-    const inputs = message.type === 'grouped_tool_use' ? message.messages.map((item: any) => item.message?.content?.[0]?.input) : [message.message?.content?.[0]?.input];
-    for (const input of inputs) {
-      const stats = getFocusEditStats(toolName, input);
-      linesAdded += stats.added;
-      linesRemoved += stats.removed;
-    }
-    if (linesAdded > 0) summary.linesAdded = linesAdded;
-    if (linesRemoved > 0) summary.linesRemoved = linesRemoved;
   } else {
     summary.otherToolCount = count;
   }
@@ -325,14 +328,6 @@ function mergeFocusToolSummary(target: any, incoming: any): void {
   ]) {
     if (incoming[key]) target[key] = (target[key] ?? 0) + incoming[key];
   }
-  for (const key of ['commits', 'pushes', 'branches', 'prs', 'readFilePaths', 'searchArgs']) {
-    if (incoming[key]?.length) target[key] = [...(target[key] ?? []), ...incoming[key]];
-  }
-  if (incoming.hookCount) {
-    target.hookCount = (target.hookCount ?? 0) + incoming.hookCount;
-    target.hookTotalMs = (target.hookTotalMs ?? 0) + (incoming.hookTotalMs ?? 0);
-    target.hookInfos = [...(target.hookInfos ?? []), ...(incoming.hookInfos ?? [])];
-  }
   target.messages.push(...incoming.messages);
   target.mcpServerNames = [...new Set([...(target.mcpServerNames ?? []), ...(incoming.mcpServerNames ?? [])])];
   target.latestDisplayHint = incoming.latestDisplayHint ?? target.latestDisplayHint;
@@ -345,7 +340,6 @@ function mergeFocusToolSummary(target: any, incoming: any): void {
 export function filterForFocusView(
   messages: RenderableMessage[],
   tools: Tools,
-  getAgentToolStats?: (agentId: string) => any,
   isLoading = false
 ): RenderableMessage[] {
   const filtered: RenderableMessage[] = [];
@@ -365,21 +359,13 @@ export function filterForFocusView(
       turnEnd++;
     }
 
-    let pendingTurn = isLoading && turnEnd === messages.length;
-    if (pendingTurn) {
-      let candidate = turnEnd - 1;
-      while (candidate >= index && isFocusTrailingStatus(messages[candidate])) candidate--;
-      const lastMeaningful = candidate >= index ? messages[candidate] as any : undefined;
-      if (lastMeaningful?.type === 'assistant' && lastMeaningful.message?.stop_reason !== null && isFocusTextMessage(lastMeaningful)) {
-        pendingTurn = false;
-      }
-    }
+    const pendingTurn = isLoading && turnEnd === messages.length;
     let finalTextIndex = -1;
     if (!pendingTurn) {
       for (let candidate = turnEnd - 1; candidate >= index; candidate--) {
         const message = messages[candidate] as any;
         const block = message.message?.content?.[0];
-        if (isFocusTextMessage(message)) {
+        if (message.type === 'assistant' && block?.type === 'text' && block.text.trim()) {
           finalTextIndex = candidate;
           break;
         }
@@ -438,19 +424,6 @@ export function filterForFocusView(
         }
       } else if (message.type === 'user' && summary) {
         summary.messages.push(message);
-        const result = message.toolUseResult;
-        const stats = result?.toolStats ?? (result?.status === 'async_launched' && result.agentId ? getAgentToolStats?.(result.agentId) : undefined);
-        if (stats) {
-          summary.readCount += stats.readCount;
-          summary.searchCount += stats.searchCount;
-          for (const key of ['bashCount', 'editFileCount', 'linesAdded', 'linesRemoved', 'otherToolCount', 'frameCount']) {
-            if (stats[key]) summary[key] = (summary[key] ?? 0) + stats[key];
-          }
-        }
-      }
-
-      if (message.type === 'attachment' && message.attachment?.type === 'relevant_memories' && isTinyMemoryEnabled() && message.attachment.memories?.length > 0 && message.attachment.memories.every((memory: any) => memory.path.startsWith('<synthesis:'))) {
-        preserved.add(candidate);
       }
 
       if (toolSummary) {
@@ -505,7 +478,7 @@ type Props = {
   streamingToolUses: StreamingToolUse[];
   showAllInTranscript?: boolean;
   agentDefinitions?: AgentDefinitionsResult;
-  onOpenRateLimitOptions?: () => boolean;
+  onOpenRateLimitOptions?: () => void;
   /** Hide the logo/header - used for subagent zoom view */
   hideLogo?: boolean;
   isLoading: boolean;
@@ -555,12 +528,6 @@ type Props = {
    *  (start === 0); later chunks are mid-stream continuations.
    *  Measured Mar 2026: 538-msg session, 20 slices → −55% plateau RSS. */
   renderRange?: readonly [start: number, end: number];
-};
-
-type MessagesProps = Props & {
-  deferMessages?: boolean;
-  placeholderBaseline?: number;
-  placeholderElement?: React.ReactNode;
 };
 const MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE = 30;
 
@@ -802,17 +769,14 @@ const MessagesImpl = ({
     // SendUserFile delivers a file without replacement text, so dropping
     // assistant text for file-only turns would leave the user with no context.
     const dropTextToolNames = [BRIEF_TOOL_NAME].filter((n_0): n_0 is string => n_0 !== null);
-    const briefFiltered = briefToolNames.length > 0 && !isTranscriptMode ? isBriefOnly ? filterForBriefTool(messagesToShowNotTruncated, briefToolNames) : dropTextToolNames.length > 0 ? dropTextInBriefTurns(messagesToShowNotTruncated, dropTextToolNames) : messagesToShowNotTruncated : messagesToShowNotTruncated;
+    const briefFiltered = briefToolNames.length > 0 && !isTranscriptMode ? isBriefOnly ? filterForBriefTool(messagesToShowNotTruncated, briefToolNames, dropTextToolNames) : dropTextToolNames.length > 0 ? dropTextInBriefTurns(messagesToShowNotTruncated, dropTextToolNames) : messagesToShowNotTruncated : messagesToShowNotTruncated;
     const messagesToShow = shouldTruncate ? briefFiltered.slice(-MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE) : briefFiltered;
     const hasTruncatedMessages = shouldTruncate && briefFiltered.length > MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE;
     const {
       messages: groupedMessages
     } = applyGrouping(messagesToShow, tools, verbose);
     const normallyCollapsed = collapseBackgroundBashNotifications(collapseHookSummaries(collapseTeammateShutdowns(collapseReadSearchGroups(groupedMessages, tools))), verbose);
-    const collapsed = isFullscreenEnvEnabled() && briefTranscript && !isTranscriptMode ? filterForFocusView(normallyCollapsed, tools, agentId => {
-      const task = appStateStore.getState().tasks[agentId];
-      return task?.type === 'local_agent' ? task.result?.toolStats : undefined;
-    }, isLoading) : normallyCollapsed;
+    const collapsed = isFullscreenEnvEnabled() && briefTranscript && !isTranscriptMode ? filterForFocusView(normallyCollapsed, tools, isLoading) : normallyCollapsed;
     const lookups = buildMessageLookups(normalizedMessages, messagesToShow);
     const hiddenMessageCount = messagesToShowNotTruncated.length - MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE;
     return {
@@ -821,7 +785,7 @@ const MessagesImpl = ({
       hasTruncatedMessages,
       hiddenMessageCount
     };
-  }, [verbose, normalizedMessages, isTranscriptMode, syntheticStreamingToolUseMessages, shouldTruncate, tools, isBriefOnly, briefTranscript, appStateStore, isLoading]);
+  }, [verbose, normalizedMessages, isTranscriptMode, syntheticStreamingToolUseMessages, shouldTruncate, tools, isBriefOnly, briefTranscript, isLoading]);
 
   // Cheap slice — only runs when scroll range or slice config changes.
   const renderableMessages = useMemo(() => {
@@ -1038,7 +1002,7 @@ function setsEqual<T>(a: Set<T>, b: Set<T>): boolean {
   }
   return true;
 }
-const MemoizedMessages = React.memo(MessagesImpl, (prev, next) => {
+export const Messages = React.memo(MessagesImpl, (prev, next) => {
   const keys = Object.keys(prev) as (keyof typeof prev)[];
   for (const key of keys) {
     if (key === 'onOpenRateLimitOptions' || key === 'scrollRef' || key === 'trackStickyPrompt' || key === 'setCursor' || key === 'cursorNavRef' || key === 'jumpRef' || key === 'onSearchMatchesChange' || key === 'scanElement' || key === 'setPositions') continue;
@@ -1076,21 +1040,6 @@ const MemoizedMessages = React.memo(MessagesImpl, (prev, next) => {
   }
   return true;
 });
-function selectMessagesForRender(deferredMessages: MessageType[], messages: MessageType[], deferMessages: boolean | undefined): MessageType[] {
-  return deferMessages && deferredMessages[0] === messages[0] ? deferredMessages : messages;
-}
-
-export function Messages({
-  deferMessages,
-  placeholderBaseline,
-  placeholderElement,
-  ...props
-}: MessagesProps) {
-  const deferredMessages = React.useDeferredValue(props.messages);
-  const messages = selectMessagesForRender(deferredMessages, props.messages, deferMessages);
-  const placeholder = placeholderElement && placeholderBaseline !== undefined && messages.length <= placeholderBaseline ? placeholderElement : null;
-  return <MessageRatingProvider><MemoizedMessages {...props} messages={messages} />{placeholder}</MessageRatingProvider>;
-}
 export function shouldRenderStatically(message: RenderableMessage, streamingToolUseIDs: Set<string>, inProgressToolUseIDs: Set<string>, siblingToolUseIDs: ReadonlySet<string>, screen: Screen, lookups: ReturnType<typeof buildMessageLookups>): boolean {
   if (screen === 'transcript') {
     return true;

@@ -1,4 +1,4 @@
-import { execa } from '../execa.js'
+import { execa } from 'execa'
 import { logForDebugging } from '../debug.js'
 import { memoizeWithLRU } from '../memoize.js'
 import { getCachedPowerShellPath } from '../shell/powershellDetection.js'
@@ -194,7 +194,7 @@ export type ParsedPowerShellCommand = {
    * `#Requires -Modules <name>` triggers module loading from PSModulePath.
    */
   hasScriptRequirements?: boolean
-  /** Whether any pipeline in the script uses PowerShell's background-job operator. */
+  /** Whether a pipeline uses PowerShell's background job operator (`&`). */
   hasBackgroundJob?: boolean
 }
 
@@ -404,7 +404,6 @@ foreach ($t in $ast.FindAll({ param($n)
 $hasStopParsing = $false
 $tk = [System.Management.Automation.Language.TokenKind]
 foreach ($tok in $tokens) {
-    if ($tok.Kind -eq $tk::MinusMinus) { $hasStopParsing = $true; break }
     if ($tok.Kind -eq $tk::Generic -and ($tok.Text -replace '[\u2013\u2014\u2015]','-') -eq '--%') {
         $hasStopParsing = $true; break
     }
@@ -1201,10 +1200,7 @@ async function parsePowerShellCommandImpl(
   let stderr = ''
   let code: number | null = null
   let timedOut = false
-  let spawnError: string | null = null
   for (let attempt = 0; attempt < 2; attempt++) {
-    spawnError = null
-    timedOut = false
     try {
       const result = await execa(pwshPath, args, {
         timeout: parseTimeoutMs,
@@ -1215,26 +1211,18 @@ async function parsePowerShellCommandImpl(
       timedOut = result.timedOut
       code = result.failed ? (result.exitCode ?? 1) : 0
     } catch (e: unknown) {
-      spawnError = e instanceof Error ? e.message : String(e)
-      code = null
+      logForDebugging(
+        `PowerShell parser: failed to spawn pwsh: ${e instanceof Error ? e.message : e}`,
+      )
+      return makeInvalidResult(
+        command,
+        `Failed to spawn PowerShell: ${e instanceof Error ? e.message : e}`,
+        'PwshSpawnError',
+      )
     }
-    if (code === 0) break
+    if (!timedOut) break
     logForDebugging(
-      `PowerShell parser: ${
-        spawnError
-          ? `failed to spawn pwsh: ${spawnError}`
-          : timedOut
-            ? `pwsh timed out after ${parseTimeoutMs}ms`
-            : `pwsh exited ${code}: ${stderr}`
-      } (attempt ${attempt + 1})`,
-    )
-  }
-
-  if (spawnError) {
-    return makeInvalidResult(
-      command,
-      `Failed to spawn PowerShell: ${spawnError}`,
-      'PwshSpawnError',
+      `PowerShell parser: pwsh timed out after ${parseTimeoutMs}ms (attempt ${attempt + 1})`,
     )
   }
 

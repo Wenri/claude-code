@@ -22,12 +22,12 @@ import {
 } from '../utils/inProcessTeammateHelpers.js'
 import { createAssistantMessage } from '../utils/messages.js'
 import {
-  getSandboxPermissionModeDecision,
+  getSandboxPermissionBehavior,
   permissionModeFromString,
   toExternalPermissionMode,
 } from '../utils/permissions/PermissionMode.js'
-import { applyPermissionUpdate } from '../utils/permissions/PermissionUpdate.js'
 import { classifySandboxNetworkAccess } from '../utils/permissions/yoloClassifier.js'
+import { applyPermissionUpdate } from '../utils/permissions/PermissionUpdate.js'
 import { jsonStringify } from '../utils/slowOperations.js'
 import { isInsideTmux } from '../utils/swarm/backends/detection.js'
 import {
@@ -75,7 +75,6 @@ import {
   processMailboxPermissionResponse,
   processSandboxPermissionResponse,
 } from './useSwarmPermissionPoller.js'
-import { useTaskRegistry } from './useTaskRegistry.js'
 
 /**
  * Get the agent name to poll for messages.
@@ -139,7 +138,6 @@ export function useInboxPoller({
   const onSubmitTeammateMessage = onSubmitMessage
   const store = useAppStateStore()
   const setAppState = useSetAppState()
-  const taskRegistry = useTaskRegistry()
   const inboxMessageCount = useAppState(s => s.inbox.messages.length)
   const terminal = useTerminalNotification()
 
@@ -414,14 +412,16 @@ export function useInboxPoller({
 
       const { mode, isBypassPermissionsModeAvailable } =
         currentAppState.toolPermissionContext
-      const modeDecision = getSandboxPermissionModeDecision(
+      const sandboxPermissionBehavior = getSandboxPermissionBehavior(
         mode,
         isBypassPermissionsModeAvailable,
       )
       const teamName = currentAppState.teamContext?.teamName
 
-      async function resolveSandboxRequest(host: string): Promise<boolean | null> {
-        switch (modeDecision) {
+      async function resolveSandboxRequest(
+        host: string,
+      ): Promise<boolean | null> {
+        switch (sandboxPermissionBehavior) {
           case 'allow':
             return true
           case 'deny':
@@ -461,18 +461,16 @@ export function useInboxPoller({
           continue
         }
 
-        const autoDecision = await resolveSandboxRequest(
-          parsed.hostPattern.host,
-        )
-        if (autoDecision !== null) {
+        const allow = await resolveSandboxRequest(parsed.hostPattern.host)
+        if (allow !== null) {
           logForDebugging(
-            `[InboxPoller] Auto-resolving sandbox request ${parsed.requestId} (mode=${mode}, allow=${autoDecision})`,
+            `[InboxPoller] Auto-resolving sandbox request ${parsed.requestId} (mode=${mode}, allow=${allow})`,
           )
           void sendSandboxPermissionResponseViaMailbox(
             parsed.workerName,
             parsed.requestId,
             parsed.hostPattern.host,
-            autoDecision,
+            allow,
             teamName,
           )
           continue
@@ -699,7 +697,7 @@ export function useInboxPoller({
               timestamp: new Date().toISOString(),
               permissionMode: modeToInherit,
             },
-            taskRegistry,
+            setAppState,
           )
         }
 
@@ -920,7 +918,6 @@ export function useInboxPoller({
     focusedInputDialog,
     onSubmitTeammateMessage,
     setAppState,
-    taskRegistry,
     terminal,
     store,
   ])

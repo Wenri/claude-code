@@ -7,7 +7,6 @@ import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js'
 import { Box, Text } from '../../ink.js'
 import { StatusIcon } from '../design-system/StatusIcon.js'
-import { AnimatedAsterisk } from './AnimatedAsterisk.js'
 
 const MAX_FULLSCREEN_UPSELL_VIEWS = 3
 
@@ -45,9 +44,9 @@ export function incrementFullscreenUpsellSeenCount(): void {
 export function FullscreenUpsell(): React.ReactNode {
   return (
     <Box flexDirection="row">
-      <AnimatedAsterisk />
+      <Text color="claude">✻ </Text>
       <Text>
-        <Text color="autoAccept"> Try flicker-free rendering</Text>
+        <Text color="autoAccept">Try flicker-free rendering</Text>
         <Text dimColor={true}> · /tui fullscreen</Text>
       </Text>
     </Box>

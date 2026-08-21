@@ -9,13 +9,6 @@ import {
 } from '../permissions/PermissionMode.js'
 import { MarketplaceSourceSchema } from '../plugins/schemas.js'
 import { CLAUDE_CODE_SETTINGS_SCHEMA_URL } from './constants.js'
-import {
-  getEnabledSettingFeatures,
-  getSettingFeaturePermissionModes,
-  getSettingFeaturePermissionsShape,
-  getSettingFeatureShape,
-  type SettingFeatureKey,
-} from './featureRegistry.js'
 import { PermissionRuleSchema } from './permissionValidation.js'
 
 // Re-export hook schemas and types from centralized location for backward compatibility
@@ -53,8 +46,7 @@ export const EnvironmentVariablesSchema = lazySchema(() =>
 /**
  * Schema for permissions section
  */
-function buildPermissionsSchema(features: readonly SettingFeatureKey[]) {
-  return (
+export const PermissionsSchema = lazySchema(() =>
   z
     .object({
       allow: z
@@ -72,10 +64,11 @@ function buildPermissionsSchema(features: readonly SettingFeatureKey[]) {
           'List of permission rules that should always prompt for confirmation',
         ),
       defaultMode: z
-        .enum([
-          ...EXTERNAL_PERMISSION_MODES,
-          ...getSettingFeaturePermissionModes(features),
-        ])
+        .enum(
+          feature('TRANSCRIPT_CLASSIFIER')
+            ? PERMISSION_MODES
+            : EXTERNAL_PERMISSION_MODES,
+        )
         .optional()
         .describe('Default permission mode when Claude Code needs access'),
       disableBypassPermissionsMode: z
@@ -90,18 +83,12 @@ function buildPermissionsSchema(features: readonly SettingFeatureKey[]) {
               .describe('Disable auto mode'),
           }
         : {}),
-      ...getSettingFeaturePermissionsShape(features),
       additionalDirectories: z
         .array(z.string())
         .optional()
         .describe('Additional directories to include in the permission scope'),
     })
-    .passthrough()
-  )
-}
-
-export const PermissionsSchema = lazySchema(() =>
-  buildPermissionsSchema(getEnabledSettingFeatures()),
+    .passthrough(),
 )
 
 /**
@@ -272,8 +259,7 @@ export const CUSTOMIZATION_SURFACES = [
   'mcp',
 ] as const
 
-function buildSettingsSchema(features: readonly SettingFeatureKey[]) {
-  return (
+export const SettingsSchema = lazySchema(() =>
   z
     .object({
       $schema: z
@@ -1084,6 +1070,12 @@ function buildSettingsSchema(features: readonly SettingFeatureKey[]) {
         .describe(
           'Reduce or disable animations for accessibility (spinner shimmer, flash effects, etc.)',
         ),
+      doneMeansMerged: z
+        .boolean()
+        .optional()
+        .describe(
+          '@internal When true, Claude keeps working until the PR is ready for you to merge, a cron/Monitor is armed to resume later, or it hands you a self-contained next step.',
+        ),
       autoMemoryEnabled: z
         .boolean()
         .optional()
@@ -1284,6 +1276,12 @@ function buildSettingsSchema(features: readonly SettingFeatureKey[]) {
         .boolean()
         .optional()
         .describe('Start Remote Control bridge automatically each session'),
+      isolatePeerMachines: z
+        .boolean()
+        .optional()
+        .describe(
+          'Require explicit approval before SendMessage can reach a peer session on another machine via Remote Control',
+        ),
       daemonColdStart: z
         .enum(['transient', 'ask'])
         .optional()
@@ -1307,12 +1305,7 @@ function buildSettingsSchema(features: readonly SettingFeatureKey[]) {
         .optional()
         .describe('Allow Claude to push proactive mobile notifications'),
     })
-    .passthrough()
-  )
-}
-
-export const SettingsSchema = lazySchema(() =>
-  buildSettingsSchema(getEnabledSettingFeatures()),
+    .passthrough(),
 )
 
 /**

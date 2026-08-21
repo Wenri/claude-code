@@ -7,7 +7,7 @@ import { decodeJwtExpiry } from '../../bridge/jwtUtils.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../../utils/diagLogs.js'
 import { errorMessage, getErrnoCode } from '../../utils/errors.js'
-import { getProxyFetchOptions } from '../../utils/proxy.js'
+import { createAxiosInstance } from '../../utils/proxy.js'
 import {
   registerSessionActivityCallback,
   unregisterSessionActivityCallback,
@@ -43,6 +43,11 @@ const DEFAULT_HEARTBEAT_INTERVAL_MS = 20_000
  * connecting mid-stream sees complete text, not a fragment.
  */
 const STREAM_EVENT_FLUSH_INTERVAL_MS = 100
+
+/** Hoisted axios validateStatus callback to avoid per-request closure allocation. */
+function alwaysValidStatus(): boolean {
+  return true
+}
 
 export type CCRInitFailReason =
   | 'no_auth_headers'
@@ -269,6 +274,8 @@ export class CCRClient {
   private currentState: SessionState | null = null
   private readonly sessionBaseUrl: string
   private readonly sessionId: string
+  private readonly http = createAxiosInstance({ keepAlive: true })
+
   // stream_event delay buffer — accumulates content deltas for up to
   // STREAM_EVENT_FLUSH_INTERVAL_MS before enqueueing (reduces POST count
   // and enables text_delta coalescing). Mirrors HybridTransport's pattern.
@@ -470,22 +477,37 @@ export class CCRClient {
     // Concurrent with the init PUT — neither depends on the other.
     const restoredPromise = this.getWorkerState()
 
-    const result = await this.request(
-      'put',
-      '/worker',
-      {
-        worker_status: 'idle',
-        worker_epoch: this.workerEpoch,
-        // Clear stale pending_action/task_summary left by a prior
-        // worker crash — the in-session clears don't survive process restart.
-        external_metadata: {
-          pending_action: null,
-          task_summary: null,
+    let result: RequestResult = { ok: false }
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      result = await this.request(
+        'put',
+        '/worker',
+        {
+          worker_status: 'idle',
+          worker_epoch: this.workerEpoch,
+          // Clear stale pending_action/task_summary left by a prior
+          // worker crash — the in-session clears don't survive process restart.
+          external_metadata: {
+            pending_action: null,
+            task_summary: null,
+          },
         },
-      },
-      'PUT worker (init)',
-    )
+        'PUT worker (init)',
+      )
+      if (result.ok || this.closed) break
+      if (attempt < 3) {
+        const delay =
+          Math.min(500 * 2 ** (attempt - 1), 30_000) + Math.random() * 500
+        await sleep(delay)
+      }
+    }
     if (!result.ok) {
+      if (!this.closed) {
+        logForDiagnosticsNoPII(
+          'error',
+          'cli_worker_init_put_retries_exhausted',
+        )
+      }
       // 409 → onEpochMismatch may throw, but request() catches it and returns
       // false. Without this check we'd continue to startHeartbeat(), leaking a
       // 20s timer against a dead epoch. Throw so connect()'s rejection handler
@@ -567,21 +589,22 @@ export class CCRClient {
     if (Object.keys(authHeaders).length === 0) return { ok: false }
 
     try {
-      const response = await fetch(`${this.sessionBaseUrl}${path}`, {
-        method: method.toUpperCase(),
-        headers: {
-          ...authHeaders,
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01',
-          'User-Agent': getClaudeCodeUserAgent(),
+      const response = await this.http[method](
+        `${this.sessionBaseUrl}${path}`,
+        body,
+        {
+          headers: {
+            ...authHeaders,
+            'Content-Type': 'application/json',
+            'anthropic-version': '2023-06-01',
+            'User-Agent': getClaudeCodeUserAgent(),
+          },
+          validateStatus: alwaysValidStatus,
+          timeout,
         },
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(timeout),
-        ...getProxyFetchOptions(),
-      })
-      void response.body?.cancel()
+      )
 
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         this.consecutiveAuthFailures = 0
         return { ok: true }
       }
@@ -623,8 +646,8 @@ export class CCRClient {
         status: response.status,
       })
       if (response.status === 429) {
-        const raw = response.headers.get('retry-after')
-        const seconds = raw ? parseInt(raw, 10) : NaN
+        const raw = response.headers?.['retry-after']
+        const seconds = typeof raw === 'string' ? parseInt(raw, 10) : NaN
         if (!isNaN(seconds) && seconds >= 0) {
           return { ok: false, retryAfterMs: seconds * 1000 }
         }
@@ -939,14 +962,14 @@ export class CCRClient {
     for (let attempt = 1; attempt <= 10; attempt++) {
       let response
       try {
-        response = await fetch(url, {
+        response = await this.http.get<T>(url, {
           headers: {
             ...authHeaders,
             'anthropic-version': '2023-06-01',
             'User-Agent': getClaudeCodeUserAgent(),
           },
-          signal: AbortSignal.timeout(30_000),
-          ...getProxyFetchOptions(),
+          validateStatus: alwaysValidStatus,
+          timeout: 30_000,
         })
       } catch (error) {
         logForDebugging(
@@ -961,10 +984,9 @@ export class CCRClient {
         continue
       }
 
-      if (response.ok) {
-        return (await response.json()) as T
+      if (response.status >= 200 && response.status < 300) {
+        return response.data
       }
-      void response.body?.cancel()
       if (response.status === 409) {
         this.handleEpochMismatch()
       }

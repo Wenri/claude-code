@@ -1,8 +1,4 @@
 import { useCallback, useEffect } from 'react'
-import {
-  getIsNonInteractiveSession,
-  getSessionTrustAccepted,
-} from '../bootstrap/state.js'
 import type { Command } from '../commands.js'
 import { useNotifications } from '../context/notifications.js'
 import {
@@ -10,22 +6,8 @@ import {
   logEvent,
 } from '../services/analytics/index.js'
 import { reinitializeLspServerManager } from '../services/lsp/manager.js'
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
-import { expandEnvVarsInString } from '../services/mcp/envExpansion.js'
-import {
-  useAppState,
-  useAppStateStore,
-  useSetAppState,
-} from '../state/AppState.js'
-import { spawnShellTask } from '../tasks/LocalShellTask/LocalShellTask.js'
-import type { TaskContext } from '../Task.js'
+import { useAppState, useSetAppState } from '../state/AppState.js'
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js'
-import {
-  createStdoutBatcher,
-  createTokenBucket,
-  enqueueMonitorEvent,
-} from '../tools/MonitorTool/MonitorTool.js'
-import type { LoadedPlugin, PluginMonitor } from '../types/plugin.js'
 import { count } from '../utils/array.js'
 import { logForDebugging } from '../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
@@ -36,207 +18,10 @@ import { getPluginCommands } from '../utils/plugins/loadPluginCommands.js'
 import { loadPluginHooks } from '../utils/plugins/loadPluginHooks.js'
 import { loadPluginLspServers } from '../utils/plugins/lspPluginIntegration.js'
 import { loadPluginMcpServers } from '../utils/plugins/mcpPluginIntegration.js'
+import { loadPluginThemes } from '../utils/plugins/loadPluginThemes.js'
 import { detectAndUninstallDelistedPlugins } from '../utils/plugins/pluginBlocklist.js'
 import { getFlaggedPlugins } from '../utils/plugins/pluginFlagging.js'
 import { loadAllPlugins } from '../utils/plugins/pluginLoader.js'
-import {
-  getPluginStorageId,
-  loadPluginOptions,
-  substitutePluginVariables,
-  substituteUserConfigVariables,
-} from '../utils/plugins/pluginOptionsStorage.js'
-import { shouldDisableAllHooksIncludingManaged } from '../utils/hooks/hooksConfigSnapshot.js'
-import { onSkillInvoked } from '../utils/suggestions/skillUsageTracking.js'
-import { exec } from '../utils/Shell.js'
-import { useTaskRegistry } from './useTaskRegistry.js'
-
-export type ResolvedPluginMonitor = PluginMonitor & {
-  pluginName: string
-  pluginRoot: string
-}
-
-const armedPluginMonitors = new Set<string>()
-
-export function resolvePluginMonitor(
-  monitor: PluginMonitor,
-  plugin: LoadedPlugin,
-): ResolvedPluginMonitor {
-  const userConfig = plugin.manifest.userConfig
-    ? loadPluginOptions(getPluginStorageId(plugin))
-    : undefined
-  const expand = (value: string): string => {
-    let expanded = substitutePluginVariables(value, plugin)
-    if (userConfig) {
-      expanded = substituteUserConfigVariables(expanded, userConfig)
-    }
-    return expandEnvVarsInString(expanded).expanded
-  }
-
-  return {
-    name: monitor.name,
-    command: expand(monitor.command),
-    description: monitor.description,
-    when: monitor.when,
-    pluginName: plugin.name,
-    pluginRoot: plugin.path,
-  }
-}
-
-export function collectPluginMonitors(
-  plugins: readonly LoadedPlugin[],
-): ResolvedPluginMonitor[] {
-  const monitors: ResolvedPluginMonitor[] = []
-  for (const plugin of plugins) {
-    if (!plugin.monitors) continue
-    for (const monitor of plugin.monitors) {
-      try {
-        monitors.push(resolvePluginMonitor(monitor, plugin))
-      } catch (error) {
-        logForDebugging(
-          `plugin ${plugin.name}: failed to resolve monitor "${monitor.name}": ${error}`,
-          { level: 'error' },
-        )
-      }
-    }
-  }
-  return monitors
-}
-
-export function createPluginMonitorEmitter(
-  monitor: ResolvedPluginMonitor,
-  taskIdRef: { id?: string },
-  emit: typeof enqueueMonitorEvent = enqueueMonitorEvent,
-  bucket = createTokenBucket(10, 2_000),
-) {
-  let suppressed = 0
-
-  function flushSuppressed(): void {
-    if (suppressed === 0) return
-    emit(
-      monitor.description,
-      `[plugin monitor "${monitor.name}" suppressed ${suppressed} events — output rate exceeded]`,
-      taskIdRef.id,
-    )
-    suppressed = 0
-  }
-
-  return {
-    onBatch(batch: string): void {
-      if (!bucket.tryConsume()) {
-        suppressed++
-        return
-      }
-      flushSuppressed()
-      emit(monitor.description, batch, taskIdRef.id)
-    },
-    onExit: flushSuppressed,
-  }
-}
-
-export async function startPluginMonitor(
-  monitor: ResolvedPluginMonitor,
-  context: TaskContext,
-): Promise<string | undefined> {
-  if (shouldDisableAllHooksIncludingManaged()) return undefined
-  if (!getSessionTrustAccepted()) {
-    logForDebugging(
-      `Skipping plugin monitor ${monitor.pluginName}:${monitor.name} - workspace trust not accepted`,
-    )
-    return undefined
-  }
-
-  const taskIdRef: { id?: string } = {}
-  const emitter = createPluginMonitorEmitter(monitor, taskIdRef)
-  const batcher = createStdoutBatcher(emitter.onBatch)
-  const shellCommand = await exec(
-    monitor.command,
-    context.abortController.signal,
-    'bash',
-    {
-      preventCwdChanges: true,
-      shouldUseSandbox: false,
-      onStdout: batcher.onData,
-    },
-  )
-  taskIdRef.id = shellCommand.taskOutput.taskId
-  await spawnShellTask(
-    {
-      command: monitor.command,
-      description: monitor.description,
-      shellCommand,
-      toolUseId: undefined,
-      agentId: undefined,
-      kind: 'monitor',
-    },
-    context,
-  )
-  void shellCommand.result.then(() => {
-    batcher.flush(true)
-    emitter.onExit()
-  })
-  return taskIdRef.id
-}
-
-export async function armPluginMonitors(
-  plugins: readonly LoadedPlugin[],
-  predicate: (monitor: ResolvedPluginMonitor) => boolean,
-  context: TaskContext,
-  start: (
-    monitor: ResolvedPluginMonitor,
-    context: TaskContext,
-  ) => Promise<string | undefined> = startPluginMonitor,
-  armed: Set<string> = armedPluginMonitors,
-): Promise<void> {
-  if (
-    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_sentinel', false) ||
-    getIsNonInteractiveSession()
-  ) {
-    return
-  }
-
-  for (const monitor of collectPluginMonitors(plugins)) {
-    if (!predicate(monitor)) continue
-    const key = `${monitor.pluginName}:${monitor.name}`
-    if (armed.has(key)) continue
-    armed.add(key)
-    try {
-      if ((await start(monitor, context)) === undefined) armed.delete(key)
-    } catch (error) {
-      armed.delete(key)
-      logForDebugging(`plugin monitor ${key}: failed to arm: ${error}`, {
-        level: 'error',
-      })
-    }
-  }
-}
-
-export function usePluginMonitors({ enabled }: { enabled: boolean }): void {
-  const store = useAppStateStore()
-  const setAppState = useSetAppState()
-  const taskRegistry = useTaskRegistry()
-  const plugins = useAppState(state => state.plugins.enabled)
-
-  useEffect(() => {
-    if (!enabled) return undefined
-    const createContext = (): TaskContext => ({
-      abortController: new AbortController(),
-      taskRegistry,
-    })
-
-    void armPluginMonitors(
-      plugins,
-      monitor => monitor.when === 'always',
-      createContext(),
-    )
-    return onSkillInvoked(skillName => {
-      void armPluginMonitors(
-        store.getState().plugins.enabled,
-        monitor => monitor.when === `on-skill-invoke:${skillName}`,
-        createContext(),
-      )
-    })
-  }, [enabled, plugins, setAppState, store, taskRegistry])
-}
 
 /**
  * Hook to manage plugin state and synchronize with AppState.
@@ -359,6 +144,7 @@ export function useManagePlugins({
       )
       const lsp_count = lspServerCounts.reduce((sum, n) => sum + n, 0)
       reinitializeLspServerManager()
+      const theme_count = (await loadPluginThemes(enabled)).length
 
       // Update AppState - merge errors to preserve LSP errors
       setAppState(prevState => {
@@ -423,6 +209,7 @@ export function useManagePlugins({
         hook_count,
         mcp_count,
         lsp_count,
+        theme_count,
         // Ant-only: which plugins are enabled, to correlate with RSS/FPS.
         // Kept separate from base metrics so it doesn't flow into
         // logForDiagnosticsNoPII.
@@ -475,6 +262,7 @@ export function useManagePlugins({
         hook_count: 0,
         mcp_count: 0,
         lsp_count: 0,
+        theme_count: 0,
         load_failed: true,
         ant_enabled_names: undefined,
       }

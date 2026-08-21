@@ -1,10 +1,12 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import { getInitialMainLoopModel } from '../../bootstrap/state.js'
 import {
+  getSubscriptionType,
   isClaudeAISubscriber,
   isMaxSubscriber,
   isTeamPremiumSubscriber,
 } from '../auth.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { getModelStrings } from './modelStrings.js'
 import {
   COST_TIER_3_15,
@@ -37,6 +39,7 @@ import {
 } from './model.js'
 import { has1mContext } from '../context.js'
 import { getGlobalConfig } from '../config.js'
+import { getGatewayModelOptions } from './gatewayModelDiscovery.js'
 
 // @[MODEL LAUNCH]: Update all the available and default model option strings below.
 
@@ -153,7 +156,7 @@ function getOpus47Option(): ModelOption {
   const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: is3P ? getModelStrings().opus47 : 'opus',
-    label: 'Opus 4.7',
+    label: 'Opus',
     description: `Opus 4.7 · Most capable for complex work${is3P ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
     descriptionForModel: 'Opus 4.7 - most capable for complex work',
   }
@@ -187,7 +190,7 @@ export function getOpus47_1MOption(): ModelOption {
   const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: is3P ? getModelStrings().opus47 + '[1m]' : 'opus[1m]',
-    label: 'Opus 4.7 (1M context)',
+    label: 'Opus (1M context)',
     description: `Opus 4.7 for long sessions${is3P ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
     descriptionForModel:
       'Opus 4.7 with 1M context window - for long sessions with large codebases',
@@ -240,11 +243,22 @@ function getHaikuOption(): ModelOption {
     : getHaiku35Option()
 }
 
+function getOpusUsageSuffix(): string {
+  if (
+    getSubscriptionType() === 'pro' &&
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_gypsum_kite', false)
+  ) {
+    return ' · ~2× usage vs Sonnet'
+  }
+  return ''
+}
+
 function getMaxOpusOption(fastMode = false): ModelOption {
+  const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: 'opus',
     label: 'Opus',
-    description: 'Opus 4.7 · Most capable for complex work',
+    description: `Opus 4.7 · Most capable for complex work${getOpusUsageSuffix()}${is3P || !fastMode ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
   }
 }
 
@@ -259,11 +273,13 @@ export function getMaxSonnet46_1MOption(): ModelOption {
 }
 
 export function getMaxOpus47_1MOption(): ModelOption {
+  const is3P = !isDirectAnthropicAPIProvider()
   const billingInfo = isClaudeAISubscriber() ? ' · Billed as extra usage' : ''
+  const shouldShowPricing = billingInfo !== '' && !is3P
   return {
     value: 'opus[1m]',
     label: 'Opus 4.7 (1M context)',
-    description: `Opus 4.7 with 1M context${billingInfo}`,
+    description: `Opus 4.7 with 1M context${getOpusUsageSuffix()}${billingInfo}${shouldShowPricing ? ` · ${formatModelPricing(COST_TIER_5_25)}` : ''}`,
   }
 }
 
@@ -272,7 +288,7 @@ function getMergedOpus1MOption(fastMode = false): ModelOption {
   return {
     value: is3P ? getModelStrings().opus47 + '[1m]' : 'opus[1m]',
     label: 'Opus 4.7 (1M context)',
-    description: 'Opus 4.7 with 1M context · Most capable for complex work',
+    description: `Opus 4.7 with 1M context · Most capable for complex work${getOpusUsageSuffix()}${is3P || !fastMode ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
     descriptionForModel:
       'Opus 4.7 with 1M context - most capable for complex work',
   }
@@ -519,17 +535,10 @@ export function getModelOptions(fastMode = false): ModelOption[] {
     }
   }
 
-  const { availableModels } = getSettings_DEPRECATED() ?? {}
-  if (availableModels) {
-    for (const configuredModel of availableModels) {
-      const model = configuredModel.trim()
-      if (
-        !model.startsWith('anthropic.') ||
-        options.some(existing => existing.value === model)
-      ) {
-        continue
-      }
-      options.push({ value: model, label: model, description: 'Custom model' })
+  // Append models discovered from a configured Anthropic-compatible gateway.
+  for (const opt of getGatewayModelOptions()) {
+    if (!options.some(existing => existing.value === opt.value)) {
+      options.push(opt)
     }
   }
 

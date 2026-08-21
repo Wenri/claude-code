@@ -66,11 +66,7 @@ export function AgentEditor({
       if (!isCustomAgent(agent) && !isPluginAgent(agent)) {
         return false;
       }
-      await updateAgentFile(agent, {
-        ...(hasToolsChanged && { tools: newTools }),
-        ...(hasColorChanged && { color: finalColor }),
-        ...(hasModelChanged && { model: newModel })
-      });
+      await updateAgentFile(agent, agent.whenToUse, newTools ?? agent.tools, agent.getSystemPrompt(), finalColor, newModel ?? agent.model);
       if (hasColorChanged && finalColor) {
         setAgentColor(agent.agentType, finalColor);
       }

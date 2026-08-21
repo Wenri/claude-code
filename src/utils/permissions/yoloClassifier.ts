@@ -23,7 +23,6 @@ import {
   should1hCacheTTL,
 } from '../../services/api/claude.js'
 import { parsePromptTooLongTokenCounts } from '../../services/api/errors.js'
-import { getDefaultMaxRetries } from '../../services/api/withRetry.js'
 import type { Tool, ToolPermissionContext, Tools } from '../../Tool.js'
 import type { Message } from '../../types/message.js'
 import type {
@@ -41,6 +40,7 @@ import { getAutoModeConfig } from '../settings/settings.js'
 import { sideQuery } from '../sideQuery.js'
 import { jsonStringify } from '../slowOperations.js'
 import { tokenCountWithEstimation } from '../tokens.js'
+import { createCombinedAbortSignal } from '../combinedAbortSignal.js'
 import {
   getBashPromptAllowDescriptions,
   getBashPromptDenyDescriptions,
@@ -57,10 +57,7 @@ import { permissionRuleValueFromString } from './permissionRuleParser.js'
 // time, require() returns {default: string} — txtRequire normalizes both.
 /* eslint-disable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 function txtRequire(mod: string | { default: string }): string {
-  const text = typeof mod === 'string' ? mod : mod.default
-  // Source assets are patch-managed text files and therefore carry one
-  // trailing newline that is not part of the bundled prompt literal.
-  return text.endsWith('\n') ? text.slice(0, -1) : text
+  return typeof mod === 'string' ? mod : mod.default
 }
 
 const BASE_PROMPT: string = feature('TRANSCRIPT_CLASSIFIER')
@@ -382,7 +379,7 @@ export function buildTranscriptEntries(messages: Message[]): TranscriptEntry[] {
           content: [{ type: 'text', text }],
         })
       }
-    } else if (msg.type === 'user') {
+    } else if (msg.type === 'user' && !msg.isMeta) {
       const content = msg.message.content
       const textBlocks: TranscriptBlock[] = []
       if (typeof content === 'string') {
@@ -633,14 +630,6 @@ export function formatSettingsDenyRules(rules: string[]): string {
  * sandbox/johnh/control/bpc_classifier/classifier.py.
  */
 const XML_S1_SUFFIX = '\nErr on the side of blocking. <block> immediately.'
-
-/**
- * Two-stage Stage 1 intentionally over-selects possible blocks. User intent
- * and ALLOW exceptions are applied by Stage 2, so the fast pass must not use
- * them to short-circuit the review.
- */
-const XML_S1_TWO_STAGE_SUFFIX =
-  '\nErr on the side of blocking. Stage 1 does NOT apply user intent or ALLOW exceptions — stage 2 will handle those. Block if ANY rule could apply. <block> immediately.'
 /**
  * Stage 2 suffix (xml_s2_t2): appended after the transcript to elicit
  * reasoning. Matches XML_S2_SUFFIXES["t2"] in
@@ -817,6 +806,23 @@ async function withClassifierRequestWatchdog<T>(
   }
 }
 
+const CLASSIFIER_TIMEOUT_MS = 30_000
+const CLASSIFIER_MAX_RETRIES = 2
+
+async function runClassifierRequest(
+  options: Parameters<typeof sideQuery>[0],
+  userSignal: AbortSignal,
+): ReturnType<typeof sideQuery> {
+  const { signal, cleanup } = createCombinedAbortSignal(userSignal, {
+    timeoutMs: CLASSIFIER_TIMEOUT_MS,
+  })
+  try {
+    return await sideQuery({ ...options, signal })
+  } finally {
+    cleanup()
+  }
+}
+
 function getActionToolName(action: TranscriptEntry): string {
   const toolUse = action.content.find(block => block.type === 'tool_use')
   return toolUse?.type === 'tool_use' ? toolUse.name : 'unknown'
@@ -955,10 +961,7 @@ async function classifyYoloActionXml(
       const stage1Start = Date.now()
       const stage1Content = [
         ...wrappedContent,
-        {
-          type: 'text' as const,
-          text: mode === 'both' ? XML_S1_TWO_STAGE_SUFFIX : XML_S1_SUFFIX,
-        },
+        { type: 'text' as const, text: XML_S1_SUFFIX },
       ]
       // In fast-only mode, relax max_tokens and drop stop_sequences so the
       // response can carry a <reason> tag (system prompt already asks for it).
@@ -973,14 +976,13 @@ async function classifyYoloActionXml(
           ...prefixMessages,
           { role: 'user' as const, content: stage1Content },
         ],
-        maxRetries: getDefaultMaxRetries(),
-        signal,
+        maxRetries: CLASSIFIER_MAX_RETRIES,
         ...(mode !== 'fast' && { stop_sequences: ['</block>'] }),
         querySource: 'auto_mode',
         extraBodyParams: getExtraBodyParams(),
       }
       const stage1Raw = await withClassifierRequestWatchdog(
-        sideQuery(stage1Opts),
+        runClassifierRequest(stage1Opts, signal),
         {
           toolName,
           classifierModel: model,
@@ -1081,13 +1083,12 @@ async function classifyYoloActionXml(
         ...prefixMessages,
         { role: 'user' as const, content: stage2Content },
       ],
-      maxRetries: getDefaultMaxRetries(),
-      signal,
+      maxRetries: CLASSIFIER_MAX_RETRIES,
       querySource: 'auto_mode' as const,
       extraBodyParams: getExtraBodyParams(),
     }
     const stage2Raw = await withClassifierRequestWatchdog(
-      sideQuery(stage2Opts),
+      runClassifierRequest(stage2Opts, signal),
       {
         toolName,
         classifierModel: model,
@@ -1382,13 +1383,12 @@ export async function classifyYoloAction(
         type: 'tool' as const,
         name: YOLO_CLASSIFIER_TOOL_NAME,
       },
-      maxRetries: getDefaultMaxRetries(),
-      signal,
+      maxRetries: CLASSIFIER_MAX_RETRIES,
       querySource: 'auto_mode' as const,
       extraBodyParams: getExtraBodyParams(),
     }
     const result = await withClassifierRequestWatchdog(
-      sideQuery(sideQueryOpts),
+      runClassifierRequest(sideQueryOpts, signal),
       {
         toolName: getActionToolName(action),
         classifierModel: model,
@@ -1752,11 +1752,12 @@ export function formatActionForClassifier(
 }
 
 const SANDBOX_NETWORK_ACCESS_TOOL_NAME = 'SandboxNetworkAccess'
-const SANDBOX_CLASSIFIER_FAIL_CLOSED_REFRESH_MS = 1_800_000
+const CLASSIFIER_FAIL_CLOSED_REFRESH_MS = 30 * 60 * 1000
 
 /**
- * Classify a worker's sandbox-network request using the same auto-mode
- * transcript classifier as tool permissions.
+ * Classify an out-of-band sandbox network prompt raised by a teammate.
+ * The synthetic tool keeps the host/port payload visible to the auto-mode
+ * classifier even though no regular Tool instance produced this action.
  */
 export async function classifySandboxNetworkAccess(
   host: string,
@@ -1766,40 +1767,40 @@ export async function classifySandboxNetworkAccess(
   context: ToolPermissionContext,
   signal: AbortSignal,
 ): Promise<boolean> {
-  const action = formatActionForClassifier(
-    SANDBOX_NETWORK_ACCESS_TOOL_NAME,
-    { host, port },
-  )
-  const classifierTool = {
+  const action = formatActionForClassifier(SANDBOX_NETWORK_ACCESS_TOOL_NAME, {
+    host,
+    port,
+  })
+  const sandboxNetworkTool = {
     name: SANDBOX_NETWORK_ACCESS_TOOL_NAME,
     toAutoClassifierInput: (input: unknown) => input,
   } as Tool
   const result = await classifyYoloAction(
     messages,
     action,
-    [...tools, classifierTool],
+    [...tools, sandboxNetworkTool],
     context,
     signal,
   )
-  const allow = result.unavailable
+  const allowed = result.unavailable
     ? !getFeatureValue_CACHED_WITH_REFRESH(
         'tengu_iron_gate_closed',
         true,
-        SANDBOX_CLASSIFIER_FAIL_CLOSED_REFRESH_MS,
+        CLASSIFIER_FAIL_CLOSED_REFRESH_MS,
       )
     : !result.shouldBlock
 
   if (result.unavailable) {
     logForDebugging(
-      `Sandbox network classifier unavailable for ${host}; iron_gate → ${allow ? 'allow' : 'deny'}`,
+      `Sandbox network classifier unavailable for ${host}; iron_gate → ${allowed ? 'allow' : 'deny'}`,
       { level: 'warn' },
     )
   }
-  if (!allow) {
+  if (!allowed) {
     logForDebugging(
       `Auto mode classifier blocked sandbox network access to ${host}: ${result.reason}`,
       { level: 'warn' },
     )
   }
-  return allow
+  return allowed
 }

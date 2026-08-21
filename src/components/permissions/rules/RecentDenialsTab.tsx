@@ -1,9 +1,9 @@
 import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { type AutoModeDenial, useRecentDenials } from '../../../context/recentDenials.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- 'r' is a view-specific key, not a global keybinding
 import { Box, Text, useInput } from '../../../ink.js';
-import { type AutoModeDenial, useAutoModeDenials } from '../../../utils/autoModeDenials.js';
 import { Select } from '../../CustomSelect/select.js';
 import { StatusIcon } from '../../design-system/StatusIcon.js';
 import { useTabHeaderFocus } from '../../design-system/Tabs.js';
@@ -42,7 +42,9 @@ export function RecentDenialsTab(t0) {
     t2 = $[3];
   }
   useEffect(t1, t2);
-  const { getDenials } = useAutoModeDenials();
+  const {
+    getDenials
+  } = useRecentDenials();
   const [denials] = useState(getDenials);
   const [approved, setApproved] = useState(_temp2);
   const [retry, setRetry] = useState(_temp3);

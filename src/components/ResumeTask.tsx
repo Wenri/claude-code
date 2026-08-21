@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useTerminalSize } from 'src/hooks/useTerminalSize.js';
 import { type CodeSession, fetchCodeSessionsFromSessionsAPI } from 'src/utils/teleport/api.js';
-import { KeyboardEvent } from '../ink/events/keyboard-event.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- raw j/k/arrow list navigation
-import { Box, Text } from '../ink.js';
+import { Box, Text, useInput } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import { logForDebugging } from '../utils/debug.js';
@@ -88,28 +87,25 @@ export function ResumeTask({
   useKeybinding('confirm:no', onCancel, {
     context: 'Confirmation'
   });
-  const handleKeyDown = (event: KeyboardEvent): void => {
+  useInput((input, key) => {
     // We need to handle ctrl+c in case we don't render a <Select>
-    if (event.ctrl && event.key === 'c') {
-      event.preventDefault();
+    if (key.ctrl && input === 'c') {
       onCancel();
       return;
     }
 
     // Handle retry in error state with 'ctrl+r'
-    if (event.ctrl && event.key === 'r' && loadErrorType) {
-      event.preventDefault();
+    if (key.ctrl && input === 'r' && loadErrorType) {
       handleRetry();
       return;
     }
 
     // Handle enter key for error states to allow continuation with regular teleport
-    if (loadErrorType !== null && event.key === 'return') {
-      event.preventDefault();
+    if (loadErrorType !== null && key.return) {
       onCancel(); // This will continue with regular teleport flow
       return;
     }
-  };
+  });
   const handleErrorComplete = useCallback(() => {
     setHasCompletedTeleportErrorFlow(true);
     void loadSessions();
@@ -120,7 +116,7 @@ export function ResumeTask({
     return <TeleportError onComplete={handleErrorComplete} />;
   }
   if (loading) {
-    return <Box flexDirection="column" padding={1} tabIndex={0} autoFocus onKeyDown={handleKeyDown}>
+    return <Box flexDirection="column" padding={1}>
         <Box flexDirection="row">
           <Spinner />
           <Text bold>Loading Claude Code sessions…</Text>
@@ -131,7 +127,7 @@ export function ResumeTask({
       </Box>;
   }
   if (loadErrorType) {
-    return <Box flexDirection="column" padding={1} tabIndex={0} autoFocus onKeyDown={handleKeyDown}>
+    return <Box flexDirection="column" padding={1}>
         <Text bold color="error">
           Error loading Claude Code sessions
         </Text>
@@ -145,7 +141,7 @@ export function ResumeTask({
       </Box>;
   }
   if (sessions.length === 0) {
-    return <Box flexDirection="column" padding={1} tabIndex={0} autoFocus onKeyDown={handleKeyDown}>
+    return <Box flexDirection="column" padding={1}>
         <Text bold>
           No Claude Code sessions found
           {currentRepo && <Text> for {currentRepo}</Text>}
@@ -184,7 +180,7 @@ export function ResumeTask({
 
   // Show scroll position in title when list needs scrolling
   const showScrollPosition = sessions.length > maxVisibleOptions;
-  return <Box flexDirection="column" padding={1} height={maxHeight} tabIndex={0} autoFocus onKeyDown={handleKeyDown}>
+  return <Box flexDirection="column" padding={1} height={maxHeight}>
       <Text bold>
         Select a session to resume
         {showScrollPosition && <Text dimColor>

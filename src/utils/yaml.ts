@@ -13,11 +13,3 @@ export function parseYaml(input: string): unknown {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return (require('yaml') as typeof import('yaml')).parse(input)
 }
-
-export function stringifyYaml(value: unknown): string {
-  if (typeof Bun !== 'undefined') {
-    return `${Bun.YAML.stringify(value, null, 2)}\n`
-  }
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return (require('yaml') as typeof import('yaml')).stringify(value)
-}

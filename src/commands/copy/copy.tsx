@@ -42,46 +42,22 @@ function extractCodeBlocks(markdown: string): CodeBlock[] {
   return blocks;
 }
 
-type MarkdownTableCell = {
-  tokens: Array<{ raw: string }>;
-};
-
-function tableCellToMarkdown(cell: MarkdownTableCell): string {
+function tableCellToMarkdown(cell: Tokens.TableCell): string {
   return cell.tokens.map(token => token.raw).join('');
 }
 
-/**
- * Rebuild a parsed table with display-width-aware padding. This keeps copied
- * tables aligned even when cells contain wide Unicode or literal pipe text.
- */
-export function tableTokenToMarkdown(table: Tokens.Table): string {
-  const rawRows = [
-    table.header.map(cell => tableCellToMarkdown(cell as MarkdownTableCell)),
-    ...table.rows.map(row =>
-      row.map(cell => tableCellToMarkdown(cell as MarkdownTableCell)),
-    ),
-  ].map(row =>
-    row.map(cell => cell.replace(/\|/g, '\\|').replace(/[\r\n]/g, ' ')),
-  );
+function tableRows(table: Tokens.Table): string[][] {
+  return [
+    table.header.map(tableCellToMarkdown),
+    ...table.rows.map(row => row.map(tableCellToMarkdown))
+  ];
+}
 
-  const widths = rawRows[0]!.map((_cell, column) =>
-    Math.max(
-      3,
-      ...rawRows.map(row => stringWidth(row[column] ?? '')),
-    ),
-  );
-  const renderRow = (row: string[]) =>
-    `| ${row
-      .map(
-        (cell, column) =>
-          cell +
-          ' '.repeat(Math.max(0, widths[column]! - stringWidth(cell))),
-      )
-      .join(' | ')} |`;
-  const renderAlignment = (
-    width: number,
-    alignment: 'center' | 'left' | 'right' | null,
-  ) => {
+export function tableTokenToMarkdown(table: Tokens.Table): string {
+  const rows = tableRows(table).map(row => row.map(cell => cell.replace(/\|/g, '\\|').replace(/[\r\n]/g, ' ')));
+  const widths = rows[0]!.map((_, column) => Math.max(3, ...rows.map(row => stringWidth(row[column] ?? ''))));
+  const renderRow = (row: string[]): string => `| ${row.map((cell, column) => cell + ' '.repeat(Math.max(0, widths[column]! - stringWidth(cell)))).join(' | ')} |`;
+  const renderAlignment = (width: number, alignment: 'center' | 'left' | 'right' | null): string => {
     switch (alignment) {
       case 'center':
         return `:${'-'.repeat(width - 2)}:`;
@@ -93,19 +69,14 @@ export function tableTokenToMarkdown(table: Tokens.Table): string {
         return '-'.repeat(width);
     }
   };
-  const separator = `| ${widths
-    .map((width, column) =>
-      renderAlignment(width, table.align[column] ?? null),
-    )
-    .join(' | ')} |`;
-  const [header, ...rows] = rawRows;
-  return [renderRow(header!), separator, ...rows.map(renderRow)].join('\n');
+  const separator = `| ${widths.map((width, column) => renderAlignment(width, table.align[column] ?? null)).join(' | ')} |`;
+  const [header, ...body] = rows;
+  return [renderRow(header!), separator, ...body.map(renderRow)].join('\n');
 }
 
-/** Replace only Marked table spans, preserving every non-table byte. */
 export function normalizeTablesInMarkdown(markdown: string): string {
   const tokens = marked.lexer(markdown);
-  let normalized = markdown;
+  let result = markdown;
   let searchFrom = 0;
   let offset = 0;
   for (const token of tokens) {
@@ -114,15 +85,11 @@ export function normalizeTablesInMarkdown(markdown: string): string {
     searchFrom = start + token.raw.length;
     if (token.type !== 'table') continue;
     const trailingNewlines = token.raw.match(/\n*$/)?.[0] ?? '';
-    const replacement =
-      tableTokenToMarkdown(token as Tokens.Table) + trailingNewlines;
-    normalized =
-      normalized.slice(0, start + offset) +
-      replacement +
-      normalized.slice(start + token.raw.length + offset);
+    const replacement = tableTokenToMarkdown(token as Tokens.Table) + trailingNewlines;
+    result = result.slice(0, start + offset) + replacement + result.slice(start + token.raw.length + offset);
     offset += replacement.length - token.raw.length;
   }
-  return normalized;
+  return result;
 }
 
 /**

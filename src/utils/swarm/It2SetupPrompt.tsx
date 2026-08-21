@@ -2,7 +2,6 @@ import { c as _c } from "react/compiler-runtime";
 import React, { useCallback, useEffect, useState } from 'react';
 import { type OptionWithDescription, Select } from '../../components/CustomSelect/index.js';
 import { Pane } from '../../components/design-system/Pane.js';
-import { StatusIcon } from '../../components/design-system/StatusIcon.js';
 import { Spinner } from '../../components/Spinner.js';
 import { useExitOnCtrlCDWithKeybindings } from '../../hooks/useExitOnCtrlCDWithKeybindings.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- enter to proceed through setup steps
@@ -247,13 +246,13 @@ export function It2SetupPrompt(t0) {
     }
     function renderApiInstructions() {
       const instructions = getPythonApiInstructions();
-      return <Box flexDirection="column" gap={1}><Text color="success"><StatusIcon status="success" withSpace={true} />it2 installed successfully</Text><Box flexDirection="column" marginTop={1}>{instructions.map(_temp)}</Box><Box marginTop={1}><Text dimColor={true}>Press Enter when ready to verify…</Text></Box></Box>;
+      return <Box flexDirection="column" gap={1}><Text color="success">✓ it2 installed successfully</Text><Box flexDirection="column" marginTop={1}>{instructions.map(_temp)}</Box><Box marginTop={1}><Text dimColor={true}>Press Enter when ready to verify…</Text></Box></Box>;
     }
     function renderVerifying() {
       return <Box><Spinner /><Text> Verifying it2 can communicate with iTerm2…</Text></Box>;
     }
     function renderSuccess() {
-      return <Box flexDirection="column"><Text color="success"><StatusIcon status="success" withSpace={true} />iTerm2 split pane support is ready</Text><Text dimColor={true}>Teammates will now appear as split panes.</Text></Box>;
+      return <Box flexDirection="column"><Text color="success">✓ iTerm2 split pane support is ready</Text><Text dimColor={true}>Teammates will now appear as split panes.</Text></Box>;
     }
     function renderFailed() {
       const options_1 = [{

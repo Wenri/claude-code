@@ -1,4 +1,4 @@
-import { execaSync } from '../execa.js'
+import { execaSync } from 'execa'
 import { logForDebugging } from '../debug.js'
 import { execFileNoThrow } from '../execFileNoThrow.js'
 import { execSyncWithDefaults_DEPRECATED } from '../execFileNoThrowPortable.js'

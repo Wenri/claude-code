@@ -1,4 +1,4 @@
-import { execa } from '../../utils/execa.js';
+import { execa } from 'execa';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Select } from '../../components/CustomSelect/index.js';

@@ -2,16 +2,23 @@
 // Extracted so runAgent.ts can kill agent-scoped bash tasks without pulling
 // React/Ink into its module graph (same rationale as guards.ts).
 
+import type { AppState } from '../../state/AppState.js'
 import type { AgentId } from '../../types/ids.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { logError } from '../../utils/log.js'
 import { dequeueAllMatching } from '../../utils/messageQueueManager.js'
+import { emitTaskTerminatedSdk } from '../../utils/sdkEventQueue.js'
 import { evictTaskOutput } from '../../utils/task/diskOutput.js'
-import type { TaskRegistry } from '../../utils/task/framework.js'
+import { updateTaskState } from '../../utils/task/framework.js'
 import { isLocalShellTask } from './guards.js'
 
-export function killTask(taskId: string, taskRegistry: TaskRegistry): void {
-  taskRegistry.update(taskId, task => {
+type SetAppStateFn = (updater: (prev: AppState) => AppState) => void
+
+export function killTask(taskId: string, setAppState: SetAppStateFn): void {
+  let stoppedTask:
+    | { toolUseId: string | undefined; description: string }
+    | undefined
+  updateTaskState(taskId, setAppState, task => {
     if (task.status !== 'running' || !isLocalShellTask(task)) {
       return task
     }
@@ -29,6 +36,10 @@ export function killTask(taskId: string, taskRegistry: TaskRegistry): void {
       clearTimeout(task.cleanupTimeoutId)
     }
 
+    stoppedTask = {
+      toolUseId: task.toolUseId,
+      description: task.description,
+    }
     return {
       ...task,
       status: 'killed',
@@ -39,6 +50,12 @@ export function killTask(taskId: string, taskRegistry: TaskRegistry): void {
       endTime: Date.now(),
     }
   })
+  if (stoppedTask) {
+    emitTaskTerminatedSdk(taskId, 'stopped', {
+      toolUseId: stoppedTask.toolUseId,
+      summary: stoppedTask.description,
+    })
+  }
   void evictTaskOutput(taskId)
 }
 
@@ -53,7 +70,7 @@ export function killShellTasksForAgent(
   setAppState: SetAppStateFn,
   options?: { skipMonitors?: boolean },
 ): void {
-  const tasks = taskRegistry.all()
+  const tasks = getAppState().tasks ?? {}
   for (const [taskId, task] of Object.entries(tasks)) {
     if (
       isLocalShellTask(task) &&
@@ -64,7 +81,7 @@ export function killShellTasksForAgent(
       logForDebugging(
         `killShellTasksForAgent: killing orphaned shell task ${taskId} (agent ${agentId} exiting)`,
       )
-      killTask(taskId, taskRegistry)
+      killTask(taskId, setAppState)
     }
   }
   // Purge any queued notifications addressed to this agent — its query loop

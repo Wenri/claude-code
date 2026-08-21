@@ -18,18 +18,18 @@ type ReleaseNotes = Array<[string, string[]]>
 
 const SHOW_ALL_VALUE = '__show_all__'
 
-function formatReleaseNotes(version: string, notes: string[]): string {
+export function formatVersion(version: string, notes: string[]): string {
   const header = `Version ${version}:`
   const bulletPoints = notes.map(note => `· ${note}`).join('\n')
   return `${header}\n${bulletPoints}`
 }
 
-function formatAllReleaseNotes(notes: ReleaseNotes): string {
+export function formatAll(notes: ReleaseNotes): string {
   return notes
     .slice()
     .sort(([versionA], [versionB]) => (gt(versionA, versionB) ? 1 : -1))
     .map(([version, versionNotes]) =>
-      formatReleaseNotes(version, versionNotes),
+      formatVersion(version, versionNotes),
     )
     .join('\n\n')
 }
@@ -60,7 +60,7 @@ export async function call(onDone: LocalJSXCommandOnDone) {
   return <ReleaseNotesPicker notes={notes} onDone={onDone} />
 }
 
-function ReleaseNotesPicker({
+export function ReleaseNotesPicker({
   notes,
   onDone,
 }: {
@@ -78,7 +78,7 @@ function ReleaseNotesPicker({
 
   function handleChange(value: string) {
     if (value === SHOW_ALL_VALUE) {
-      onDone(formatAllReleaseNotes(notes), { display: 'system' })
+      onDone(formatAll(notes), { display: 'system' })
       return
     }
 
@@ -88,7 +88,7 @@ function ReleaseNotesPicker({
       return
     }
 
-    onDone(formatReleaseNotes(selected[0], selected[1]), {
+    onDone(formatVersion(selected[0], selected[1]), {
       display: 'system',
     })
   }

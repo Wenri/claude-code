@@ -35,7 +35,6 @@ import type { ExecResult } from '../../utils/ShellCommand.js';
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js';
 import { semanticBoolean } from '../../utils/semanticBoolean.js';
 import { semanticNumber } from '../../utils/semanticNumber.js';
-import { isBashRerunEnabled } from './rerunAliases.js';
 import { EndTruncatingAccumulator, plural } from '../../utils/stringUtils.js';
 import { getTaskOutputPath } from '../../utils/task/diskOutput.js';
 import { TaskOutput } from '../../utils/task/TaskOutput.js';
@@ -54,7 +53,6 @@ import { shouldUseSandbox } from './shouldUseSandbox.js';
 import { BASH_TOOL_NAME } from './toolName.js';
 import { BackgroundHint, renderToolResultMessage, renderToolUseErrorMessage, renderToolUseMessage, renderToolUseProgressMessage, renderToolUseQueuedMessage } from './UI.js';
 import { buildImageToolResult, isImageOutput, resetCwdIfOutsideProject, resizeShellImageOutput, stdErrAppendShellResetMessage, stripEmptyLines } from './utils.js';
-import { getImageLimits } from '../../utils/imageLimits.js';
 const EOL = '\n';
 
 // Progress display constants
@@ -384,25 +382,10 @@ export function detectBlockedSleepPattern(command: string): string | null {
  * - Prefix patterns: "npm run test:*"
  */
 
-function isRuleBasedPermissionDecision(
-  reason: PermissionDecisionReason | undefined,
-): boolean {
-  if (reason?.type === 'rule') return true;
-  if (reason?.type === 'subcommandResults') {
-    return [...reason.reasons.values()].every(result =>
-      isRuleBasedPermissionDecision(result.decisionReason)
-    );
-  }
-  return false;
-}
-
 type SimulatedSedEditResult = {
   data: Out;
 };
-type SimulatedSedEditContext = Pick<
-  ToolUseContext,
-  'readFileState' | 'getFileHistoryState' | 'applyFileHistoryOp'
->;
+type SimulatedSedEditContext = Pick<ToolUseContext, 'readFileState' | 'getFileHistoryState' | 'applyFileHistoryOp'>;
 
 function isRuleBasedPermissionDecision(
   reason: PermissionDecisionReason | undefined,
@@ -454,12 +437,7 @@ async function applySedEdit(simulatedEdit: {
 
   // Track file history before making changes (for undo support)
   if (fileHistoryEnabled() && parentMessage) {
-    await fileHistoryTrackEdit(
-      toolUseContext.getFileHistoryState,
-      toolUseContext.applyFileHistoryOp,
-      absoluteFilePath,
-      parentMessage.uuid,
-    );
+    await fileHistoryTrackEdit(toolUseContext.getFileHistoryState, toolUseContext.applyFileHistoryOp, absoluteFilePath, parentMessage.uuid);
   }
 
   // Detect line endings and write new content
@@ -755,8 +733,6 @@ export const BashTool = buildTool({
         // Use the always-shared task channel so async agents' background
         // bash tasks are actually registered (and killable on agent exit).
         setAppState: toolUseContext.setAppStateForTasks ?? setAppState,
-        taskRegistry: toolUseContext.taskRegistry,
-        abortSpeculation: toolUseContext.abortSpeculation,
         setToolJSX,
         emitToolProgress,
         preventCwdChanges,
@@ -793,6 +769,7 @@ export const BashTool = buildTool({
       result = generatorResult.value;
       trackGitOperations(input.command, result.code, result.stdout);
       const isInterrupt = result.interrupted && abortController.signal.reason === 'interrupt';
+      const isUserCancel = result.interrupted && (abortController.signal.reason === 'interrupt' || abortController.signal.reason === 'user-cancel');
 
       // stderr is interleaved in stdout (merged fd) — result.stdout has both
       stdoutAccumulator.append((result.stdout || '').trimEnd() + EOL);
@@ -818,7 +795,8 @@ export const BashTool = buildTool({
       }
 
       // Annotate output with sandbox violations if any (stderr is in stdout)
-      const outputWithSbFailures = SandboxManager.annotateStderrWithSandboxFailures(input.command, result.stdout || '');
+      const rawOutput = result.stdout || '';
+      const outputWithSbFailures = SandboxManager.annotateStderrWithSandboxFailures(input.command, rawOutput);
       if (result.preSpawnError) {
         throw new Error(result.preSpawnError);
       }
@@ -826,13 +804,7 @@ export const BashTool = buildTool({
         // stderr is merged into stdout (merged fd); outputWithSbFailures
         // already has the full output. Pass '' for stdout to avoid
         // duplication in getErrorParts() and processBashCommand.
-        throw new ShellError(
-          '',
-          outputWithSbFailures,
-          result.code,
-          result.interrupted,
-          outputWithSbFailures !== (result.stdout || ''),
-        );
+        throw new ShellError('', outputWithSbFailures, result.code, isUserCancel, outputWithSbFailures !== rawOutput);
       }
       wasInterrupted = result.interrupted;
     } finally {
@@ -974,8 +946,6 @@ async function* runShellCommand({
   input,
   abortController,
   setAppState,
-  taskRegistry,
-  abortSpeculation,
   setToolJSX,
   emitToolProgress,
   preventCwdChanges,
@@ -988,15 +958,13 @@ async function* runShellCommand({
   input: BashToolInput;
   abortController: AbortController;
   setAppState: (f: (prev: AppState) => AppState) => void;
-  taskRegistry: ToolUseContext['taskRegistry'];
-  abortSpeculation?: ToolUseContext['abortSpeculation'];
   setToolJSX?: SetToolJSXFn;
   emitToolProgress?: ToolUseContext['emitToolProgress'];
   preventCwdChanges?: boolean;
   isMainThread?: boolean;
   toolUseId?: string;
   agentId?: AgentId;
-  sessionEnvVars?: Map<string, string>;
+  sessionEnvVars?: ToolUseContext['sessionEnvVars'];
   tmuxSocket?: ToolUseContext['tmuxSocket'];
 }): AsyncGenerator<{
   type: 'progress';
@@ -1074,9 +1042,7 @@ async function* runShellCommand({
         // actually use it during the spawn process
         throw new Error('getAppState not available in runShellCommand context');
       },
-      setAppState,
-      taskRegistry,
-      abortSpeculation
+      setAppState
     });
     return handle.taskId;
   }
@@ -1088,7 +1054,7 @@ async function* runShellCommand({
     // would overwrite tasks[taskId], emit a duplicate task_started SDK event,
     // and leak the first cleanup callback.
     if (foregroundTaskId) {
-      if (!backgroundExistingForegroundTask(foregroundTaskId, shellCommand, description || command, taskRegistry, abortSpeculation, toolUseId)) {
+      if (!backgroundExistingForegroundTask(foregroundTaskId, shellCommand, description || command, setAppState, toolUseId)) {
         return;
       }
       backgroundShellId = foregroundTaskId;
@@ -1206,7 +1172,7 @@ async function* runShellCommand({
         // Check result.backgroundTaskId (not the closure var) to also cover
         // Ctrl+B, which calls shellCommand.background() directly.
         if (result.backgroundTaskId !== undefined) {
-          markTaskNotified(result.backgroundTaskId, taskRegistry);
+          markTaskNotified(result.backgroundTaskId, setAppState);
           const fixedResult: ExecResult = {
             ...result,
             backgroundTaskId: undefined
@@ -1227,7 +1193,7 @@ async function* runShellCommand({
         // Command has completed - return the actual result
         // If we registered as a foreground task, unregister it
         if (foregroundTaskId) {
-          unregisterForeground(foregroundTaskId, taskRegistry);
+          unregisterForeground(foregroundTaskId, setAppState);
         }
         // Clean up stream resources for foreground commands
         // (backgrounded commands are cleaned up by LocalShellTask)
@@ -1276,7 +1242,7 @@ async function* runShellCommand({
             description: description || command,
             shellCommand,
             agentId
-          }, taskRegistry, toolUseId);
+          }, setAppState, toolUseId);
         }
         setToolJSX({
           jsx: <BackgroundHint />,

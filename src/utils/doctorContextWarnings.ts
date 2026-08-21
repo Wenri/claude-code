@@ -15,9 +15,11 @@ import {
 } from './statusNoticeHelpers.js'
 import { plural } from './stringUtils.js'
 
-// Thresholds (matching status notices and existing patterns)
 export type ContextWarning = {
-  type: 'claudemd_files' | 'agent_descriptions' | 'unreachable_rules'
+  type:
+    | 'claudemd_files'
+    | 'agent_descriptions'
+    | 'unreachable_rules'
   severity: 'warning' | 'error'
   message: string
   details: string[]

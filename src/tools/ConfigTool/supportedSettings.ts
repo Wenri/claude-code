@@ -1,6 +1,5 @@
 import { feature } from 'bun:bundle'
 import { getRemoteControlAtStartup } from '../../utils/config.js'
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import {
   EDITOR_MODES,
   NOTIFICATION_CHANNELS,
@@ -11,11 +10,7 @@ import { validateModel } from '../../utils/model/validateModel.js'
 import { THEME_SETTINGS } from '../../utils/theme.js'
 
 /** AppState keys that can be synced for immediate UI effect */
-type SyncableAppStateKey =
-  | 'verbose'
-  | 'showMessageTimestamps'
-  | 'mainLoopModel'
-  | 'thinkingEnabled'
+type SyncableAppStateKey = 'verbose' | 'mainLoopModel' | 'thinkingEnabled'
 
 type SettingConfig = {
   source: 'global' | 'settings'
@@ -92,16 +87,6 @@ export const SUPPORTED_SETTINGS: Record<string, SettingConfig> = {
     description:
       'Show turn duration message after responses (e.g., "Cooked for 1m 6s")',
   },
-  ...(getFeatureValue_CACHED_MAY_BE_STALE('tengu_silk_hinge', false)
-    ? {
-        showMessageTimestamps: {
-          source: 'global' as const,
-          type: 'boolean' as const,
-          description: 'Show a timestamp above each assistant message',
-          appStateKey: 'showMessageTimestamps' as const,
-        },
-      }
-    : {}),
   terminalProgressBarEnabled: {
     source: 'global',
     type: 'boolean',
@@ -155,13 +140,6 @@ export const SUPPORTED_SETTINGS: Record<string, SettingConfig> = {
     description:
       'How to spawn teammates: "tmux" for traditional tmux, "in-process" for same process, "auto" to choose automatically',
     options: TEAMMATE_MODES,
-  },
-  tui: {
-    source: 'settings',
-    type: 'string',
-    description:
-      'Terminal UI renderer: "fullscreen" for flicker-free alt-screen rendering, "default" for the classic renderer',
-    options: ['default', 'fullscreen'],
   },
   ...(process.env.USER_TYPE === 'ant'
     ? {

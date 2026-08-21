@@ -19,7 +19,7 @@ import {
 } from '../remote/sdkMessageAdapter.js'
 import { useSetAppState } from '../state/AppState.js'
 import type { AppState } from '../state/AppStateStore.js'
-import type { Tool } from '../Tool.js'
+import type { ApiMetricsEvent, Tool } from '../Tool.js'
 import type { SDKControlRequestInner } from '../entrypoints/sdk/controlTypes.js'
 import { findToolByName } from '../Tool.js'
 import type { Message as MessageType } from '../types/message.js'
@@ -60,6 +60,7 @@ type UseRemoteSessionProps = {
   >
   setStreamMode?: React.Dispatch<React.SetStateAction<SpinnerMode>>
   setInProgressToolUseIDs?: (f: (prev: Set<string>) => Set<string>) => void
+  recordApiMetricsEvent?: (event: ApiMetricsEvent) => void
   permissionMode: AppState['toolPermissionContext']['mode']
 }
 
@@ -95,6 +96,7 @@ export function useRemoteSession({
   setStreamingToolUses,
   setStreamMode,
   setInProgressToolUseIDs,
+  recordApiMetricsEvent,
   permissionMode,
 }: UseRemoteSessionProps): UseRemoteSessionResult {
   const isRemoteMode = !!config
@@ -305,7 +307,11 @@ export function useRemoteSession({
               }
             }
             if (resultIds.length > 0) {
-              setInProgressToolUseIDs({ action: 'remove', ids: resultIds })
+              setInProgressToolUseIDs(prev => {
+                const next = new Set(prev)
+                for (const id of resultIds) next.delete(id)
+                return next.size === prev.size ? prev : next
+              })
             }
           }
         }
@@ -338,7 +344,13 @@ export function useRemoteSession({
               .filter(block => block.type === 'tool_use')
               .map(block => block.id)
             if (toolUseIds.length > 0) {
-              setInProgressToolUseIDs({ action: 'add', ids: toolUseIds })
+              setInProgressToolUseIDs(prev => {
+                const next = new Set(prev)
+                for (const id of toolUseIds) {
+                  next.add(id)
+                }
+                return next
+              })
             }
           }
 
@@ -468,7 +480,7 @@ export function useRemoteSession({
         writeTaskCount()
         // Same for tool_use IDs: missed tool_result during the gap would
         // leave stale spinner state forever.
-        setInProgressToolUseIDs?.({ action: 'clear' })
+        setInProgressToolUseIDs?.(prev => (prev.size > 0 ? new Set() : prev))
       },
       onDisconnected: () => {
         logForDebugging('[useRemoteSession] Disconnected')
@@ -476,7 +488,7 @@ export function useRemoteSession({
         setIsLoading(false)
         runningTaskIdsRef.current.clear()
         writeTaskCount()
-        setInProgressToolUseIDs?.({ action: 'clear' })
+        setInProgressToolUseIDs?.(prev => (prev.size > 0 ? new Set() : prev))
       },
       onError: error => {
         logForDebugging(`[useRemoteSession] Error: ${error.message}`)
@@ -549,9 +561,9 @@ export function useRemoteSession({
     setStreamingToolUses,
     setStreamMode,
     setInProgressToolUseIDs,
+    recordApiMetricsEvent,
     setConnStatus,
     writeTaskCount,
-    recordApiMetricsEvent,
   ])
 
   // Send a user message to the remote session

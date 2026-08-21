@@ -13,7 +13,6 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../services/analytics/index.js'
-import { getCooMetadataForAnalytics } from '../services/analytics/metadata.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
 import {
   handleIngressMessage,
@@ -38,10 +37,6 @@ import {
   createV1ReplTransport,
   createV2ReplTransport,
 } from './replBridgeTransport.js'
-import type {
-  InternalEventReaders,
-  InternalEventWriter,
-} from './persistenceSync.js'
 import { updateSessionIngressAuthToken } from '../utils/sessionIngressAuth.js'
 import { isEnvTruthy, isInProtectedNamespace } from '../utils/envUtils.js'
 import { validateBridgeId } from './bridgeApi.js'
@@ -201,7 +196,6 @@ export type BridgeCoreParams = {
   initialMessages?: Message[]
   previouslyFlushedUUIDs?: Set<string>
   onInboundMessage?: (msg: SDKMessage) => void
-  onSessionEstablished?: (sessionId: string) => void
   onPermissionResponse?: (response: SDKControlResponse) => void
   onInterrupt?: () => void
   onSetModel?: (model: string | undefined) => void
@@ -275,11 +269,6 @@ export type BridgeCoreParams = {
    * history. REPL callers omit (fresh session each run → 0 is correct).
    */
   initialSSESequenceNum?: number
-  onTransportPersistenceReady?: (
-    writer: InternalEventWriter,
-    readers: InternalEventReaders,
-  ) => void
-  onTransportPersistenceTeardown?: () => void
 }
 
 /**
@@ -346,7 +335,6 @@ export async function initBridgeCore(
     initialMessages,
     previouslyFlushedUUIDs,
     onInboundMessage,
-    onSessionEstablished,
     onPermissionResponse,
     onInterrupt,
     onSetModel,
@@ -364,8 +352,6 @@ export async function initBridgeCore(
     onUserMessage,
     perpetual,
     initialSSESequenceNum = 0,
-    onTransportPersistenceReady,
-    onTransportPersistenceTeardown,
   } = params
 
   const seq = ++initSequence
@@ -549,8 +535,6 @@ export async function initBridgeCore(
     logForDebugging(`[bridge:repl] Session created: ${currentSessionId}`)
   }
 
-  onSessionEstablished?.(currentSessionId)
-
   // Crash-recovery pointer: written now so a kill -9 at any point after
   // this leaves a recoverable trail. Cleared in teardown (non-perpetual)
   // or left alone (perpetual mode — pointer survives clean exit too).
@@ -563,7 +547,6 @@ export async function initBridgeCore(
   })
   logForDiagnosticsNoPII('info', 'bridge_repl_session_created')
   logEvent('tengu_bridge_repl_started', {
-    ...getCooMetadataForAnalytics(),
     has_initial_messages: !!(initialMessages && initialMessages.length > 0),
     inProtectedNamespace: isInProtectedNamespace(),
   })
@@ -716,7 +699,6 @@ export async function initBridgeCore(
       if (seq > lastTransportSequenceNum) {
         lastTransportSequenceNum = seq
       }
-      onTransportPersistenceTeardown?.()
       transport.close()
       transport = null
     }
@@ -863,7 +845,6 @@ export async function initBridgeCore(
     }
 
     currentSessionId = newSessionId
-    onSessionEstablished?.(currentSessionId)
     // Re-publish to the PID file so peer dedup (peerRegistry.ts) picks up the
     // new ID — setReplBridgeHandle only fires at init/teardown, not reconnect.
     void updateSessionBridgeId(toCompatSessionId(newSessionId)).catch(() => {})
@@ -977,7 +958,6 @@ export async function initBridgeCore(
       if (closedSeq > lastTransportSequenceNum) {
         lastTransportSequenceNum = closedSeq
       }
-      onTransportPersistenceTeardown?.()
       transport = null
     }
     // Transport is gone — wake the poll loop out of its at-capacity
@@ -1123,7 +1103,6 @@ export async function initBridgeCore(
         if (seq > lastTransportSequenceNum) {
           lastTransportSequenceNum = seq
         }
-        onTransportPersistenceTeardown?.()
         transport.close()
         transport = null
       }
@@ -1251,7 +1230,6 @@ export async function initBridgeCore(
       if (transport) {
         const oldTransport = transport
         transport = null
-        onTransportPersistenceTeardown?.()
         // Capture the SSE sequence high-water mark so the next transport
         // resumes the stream instead of replaying from seq 0. Use max() —
         // a transport that died early (never received any frames) would
@@ -1502,11 +1480,6 @@ export async function initBridgeCore(
               return
             }
             wireTransport(t)
-            const writer = t.getInternalEventWriter?.()
-            const readers = t.getInternalEventReaders?.()
-            if (writer && readers) {
-              onTransportPersistenceReady?.(writer, readers)
-            }
           },
           (err: unknown) => {
             logForDebugging(
@@ -1652,7 +1625,6 @@ export async function initBridgeCore(
       return
     }
     teardownStarted = true
-    onTransportPersistenceTeardown?.()
     const teardownStart = Date.now()
     logForDebugging(
       `[bridge:repl] Teardown starting: env=${environmentId} session=${currentSessionId} workId=${currentWorkId ?? 'none'} transportState=${transport?.getStateLabel() ?? 'null'}`,

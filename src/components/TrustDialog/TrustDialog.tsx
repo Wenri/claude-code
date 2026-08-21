@@ -14,8 +14,6 @@ import { getCwd } from '../../utils/cwd.js';
 import { getFsImplementation } from '../../utils/fsOperations.js';
 import { gracefulShutdownSync } from '../../utils/gracefulShutdown.js';
 import { Select } from '../CustomSelect/index.js';
-import { Byline } from '../design-system/Byline.js';
-import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
 import { PermissionDialog } from '../permissions/PermissionDialog.js';
 import { getApiKeyHelperSources, getAwsCommandsSources, getBashPermissionSources, getDangerousEnvVarsSources, getGcpCommandsSources, getHooksSources, getOtelHeadersHelperSources } from './utils.js';
 type Props = {
@@ -247,7 +245,7 @@ export function TrustDialog(t0) {
   }
   let t22;
   if ($[27] !== exitState.keyName || $[28] !== exitState.pending) {
-    t22 = <Text dimColor={true}>{exitState.pending ? <>Press {exitState.keyName} again to exit</> : <Byline><KeyboardShortcutHint chord="enter" action="confirm" /><KeyboardShortcutHint chord="escape" action="cancel" /></Byline>}</Text>;
+    t22 = <Text dimColor={true}>{exitState.pending ? <>Press {exitState.keyName} again to exit</> : <>Enter to confirm · Esc to cancel</>}</Text>;
     $[27] = exitState.keyName;
     $[28] = exitState.pending;
     $[29] = t22;

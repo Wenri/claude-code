@@ -271,15 +271,6 @@ export function formatAPIError(error: APIError): string {
     )
   }
 
-  // Some providers put a serialized error body in the top-level message while
-  // preserving the useful message in the nested response object.
-  if (error.message.includes('{"')) {
-    const nestedMessage = extractNestedErrorMessage(error)
-    if (nestedMessage) {
-      return error.status ? `${error.status} ${nestedMessage}` : nestedMessage
-    }
-  }
-
   const sanitizedMessage = sanitizeAPIError(error)
   // Use sanitized message if it's different from the original (i.e., HTML was sanitized)
   return sanitizedMessage !== error.message && sanitizedMessage.length > 0

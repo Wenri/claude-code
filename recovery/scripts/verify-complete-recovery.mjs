@@ -4,7 +4,6 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { fileURLToPath } from 'node:url'
 
 function usage() {
   console.error(
@@ -109,11 +108,7 @@ function main() {
     ? path.resolve(args.repo)
     : path.resolve(caseRoot, '../../..')
   const artifactsRoot = path.resolve(args.artifacts)
-  const toolingRoot = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    '../..',
-  )
-  const scripts = path.join(toolingRoot, 'recovery/scripts')
+  const scripts = path.resolve(repositoryRoot, 'recovery/scripts')
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
   const baseline = artifactPath(manifest, artifactsRoot, 'baselineBundle')
   const target = artifactPath(manifest, artifactsRoot, 'targetBundle')
@@ -170,35 +165,9 @@ function main() {
       )
     : runJson(
         path.join(scripts, 'verify-recovered-patches.mjs'),
-        [
-          '--case',
-          manifestPath,
-          '--artifacts',
-          artifactsRoot,
-          '--repo',
-          repositoryRoot,
-        ],
+        ['--case', manifestPath, '--artifacts', artifactsRoot],
         repositoryRoot,
       )
-  const hasLegacySourceReproduction =
-    manifest.semanticSourceLineage !== undefined
-  const sourceReproductionAudit = hasLegacySourceReproduction
-    ? runJson(
-        path.join(scripts, 'audit-source-reproduction.mjs'),
-        [
-          '--artifacts',
-          artifactsRoot,
-          '--case',
-          manifestPath,
-          '--repo',
-          toolingRoot,
-          '--ledger',
-          path.join(toolingRoot, 'recovery/source-reproduction-gaps.json'),
-        ],
-        repositoryRoot,
-      )
-    : null
-  const sourceReproduction = sourceReproductionAudit?.results[0] ?? null
   const exactBundleDelta = runJson(
     path.join(scripts, 'build-exact-delta.mjs'),
     [
@@ -233,22 +202,32 @@ function main() {
   const attributionTargetEvidence = evidenceFor(
     generated.attribution.targetArtifact ?? 'targetBundle',
   )
+  const attributionSourceMapEvidence = generated.attribution.sourceMapArtifact
+    ? evidenceFor(generated.attribution.sourceMapArtifact)
+    : null
+  const attributionArguments = [
+    '--report',
+    safeRelative(
+      caseRoot,
+      generated.attribution.directory,
+      'attribution report',
+    ),
+    '--expected-summary-sha256',
+    attributionSummary.sha256,
+    '--expected-baseline-sha256',
+    attributionBaselineEvidence.sha256,
+    '--expected-target-sha256',
+    attributionTargetEvidence.sha256,
+  ]
+  if (attributionSourceMapEvidence !== null) {
+    attributionArguments.push(
+      '--expected-source-map-sha256',
+      attributionSourceMapEvidence.sha256,
+    )
+  }
   const attribution = runJson(
     path.join(scripts, 'verify-attribution-report.mjs'),
-    [
-      '--report',
-      safeRelative(
-        caseRoot,
-        generated.attribution.directory,
-        'attribution report',
-      ),
-      '--expected-summary-sha256',
-      attributionSummary.sha256,
-      '--expected-baseline-sha256',
-      attributionBaselineEvidence.sha256,
-      '--expected-target-sha256',
-      attributionTargetEvidence.sha256,
-    ],
+    attributionArguments,
     repositoryRoot,
   )
 
@@ -355,8 +334,35 @@ function main() {
         manifest.sourceLineage?.tests?.files ??
         [],
     )
+    let executedCurrentTestFiles = 0
+    let authenticatedInheritedTestFiles = 0
     for (const testEntry of semanticCorrespondence.testCatalog) {
-      if (!lineageTestFiles.has(testEntry.path)) {
+      if (lineageTestFiles.has(testEntry.path)) {
+        if (testEntry.inheritedFrom !== undefined) {
+          throw new Error(
+            `Current source-lineage test is falsely marked inherited: ${testEntry.path}`,
+          )
+        }
+        executedCurrentTestFiles += 1
+      } else if (testEntry.inheritedFrom !== undefined) {
+        const inherited = testEntry.inheritedFrom
+        if (
+          typeof inherited.release !== 'string' ||
+          inherited.release !== manifest.releaseAdjacency?.baseline ||
+          typeof inherited.priorTestId !== 'string' ||
+          !/^[a-z0-9][a-z0-9-]*$/.test(inherited.priorTestId) ||
+          typeof inherited.priorObligations?.path !== 'string' ||
+          !inherited.priorObligations.path.startsWith('recovery/cases/') ||
+          !inherited.priorObligations.path.endsWith(
+            `-to-${inherited.release}/semantic/obligations.json`,
+          )
+        ) {
+          throw new Error(
+            `Semantic inherited-test provenance is invalid: ${testEntry.path}`,
+          )
+        }
+        authenticatedInheritedTestFiles += 1
+      } else {
         throw new Error(
           `Semantic test is not executed by source lineage: ${testEntry.path}`,
         )
@@ -399,7 +405,8 @@ function main() {
     semanticReproduction = {
       status: 'whole-bundle-source-semantics-verified',
       correspondence: semanticCorrespondence.status,
-      executedTestFiles: semanticCorrespondence.testCatalog.length,
+      executedTestFiles: executedCurrentTestFiles,
+      authenticatedInheritedTestFiles,
       targetTokens: semanticCorrespondence.targetTokens,
       unclassifiedTokens: semanticCorrespondence.unclassifiedTokens,
       manualLocalizationCount:
@@ -484,7 +491,6 @@ function main() {
           evidence: evidence.status,
           bunExtraction: bunExtraction?.status ?? null,
           sourcePatches: sourcePatches.status,
-          sourceReproduction: sourceReproductionAudit?.status ?? null,
           exactBundleDelta: exactBundleDelta.status,
           attribution: attribution.status,
           structural: structural.status,
@@ -509,44 +515,6 @@ function main() {
             sourcePatches.appliedSourceTree?.files.length ??
             sourcePatches.target?.files ??
             0,
-          ...(sourceReproductionAudit === null
-            ? {}
-            : {
-                semanticCriterion:
-                  sourceReproduction.sourceReproduction.criterion,
-                semanticAncestryCasesVerified:
-                  sourceReproductionAudit.ancestryCasesVerified,
-                firstPartySemanticEquivalentFromSrc:
-                  sourceReproduction.sourceReproduction
-                    .firstPartySemanticEquivalentFromSrc,
-                wholeBundleSemanticEquivalentFromSrc:
-                  sourceReproduction.sourceReproduction
-                    .wholeBundleSemanticEquivalentFromSrc,
-                semanticBuildInputs:
-                  sourceReproduction.sourceReproduction.buildInputs,
-                semanticTargetCommit:
-                  sourceReproduction.sourceReproduction.targetCommit,
-                semanticSupplements:
-                  sourceReproduction.sourceReproduction
-                    .cumulativeSupplements,
-                semanticCoverage:
-                  sourceReproduction.sourceReproduction.coverage,
-                semanticEvidenceTests:
-                  sourceReproduction.sourceReproduction
-                    .semanticEvidenceTests,
-                semanticLiteralResidueAudit:
-                  sourceReproduction.sourceReproduction
-                    .semanticLiteralResidueAudit,
-                semanticAncestryEvidenceTests:
-                  sourceReproductionAudit.semanticEvidenceTests,
-                currentSourceSemanticEvidenceTests:
-                  sourceReproductionAudit.currentSourceSemanticEvidenceTests,
-                currentSourceSemanticOwnerSyntax:
-                  sourceReproductionAudit.currentSourceSemanticOwnerSyntax,
-                byteExactSourceBuildClaimed:
-                  sourceReproduction.sourceReproduction
-                    .byteExactSourceBuildClaimed,
-              }),
         },
         bundle: {
           bytes: exactBundleDelta.target.bytes,

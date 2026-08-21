@@ -1,0 +1,142 @@
+{
+  "root": "src",
+  "baseCommit": "c30cece4b85c84cd9e92ca708c96d1cd3f8f6b87",
+  "baseGitTree": "7f90733689e33325807f659ad642c50fe0d411b5",
+  "baseSrcGitTree": "75b1edeeb4f6fd33e59f672d9e38c641b4fdd3e6",
+  "targetCommit": "a7cd7eb2e6e6fce6c5ea5bb6b2062ded1b3ddc97",
+  "targetGitTree": "498d230f903707a5ccf83ad8be4d43cdc10db763",
+  "targetSrcGitTree": "c18f92c06db8f9e5cc5f4fbc0b60d1f7437171b5",
+  "patchSet": "2.1.122-to-2.1.123-incremental",
+  "patchOrder": [
+    "recovered/source-facing-overlay.patch"
+  ],
+  "patchStats": {
+    "files": 1,
+    "modified": 1,
+    "added": 0,
+    "deleted": 0,
+    "insertions": 12,
+    "deletions": 6
+  },
+  "patch": {
+    "path": "recovered/source-facing-overlay.patch",
+    "bytes": 1553,
+    "sha256": "76f593faa00381698af726b9229545608e1658a3551b01395e186c46dca902db"
+  },
+  "base": {
+    "files": 2161,
+    "bytes": 32745530,
+    "manifestSha256": "fc746ed64867bba321825eadc690f608c56729c73ea7199308ede18a591c05fb"
+  },
+  "target": {
+    "files": 2161,
+    "bytes": 32745613,
+    "manifestSha256": "33463eb1c71e68a97dbcbce67b5c19713471f983108a63f860f22f6ce1615bfc"
+  },
+  "changedFiles": [
+    {
+      "status": "M",
+      "path": "src/utils/betas.ts",
+      "base": {
+        "bytes": 17251,
+        "sha256": "a4572e3a4953f1dd8de1767d26bbba1e94a44e728c14a77b5145a9227dba6e4d"
+      },
+      "target": {
+        "bytes": 17334,
+        "sha256": "7a0f2f25196277063b8bb60c2b866ec677aa6015c1559a375cb698445a3b066e"
+      }
+    }
+  ],
+  "syntaxCheck": [
+    "src/utils/betas.ts"
+  ],
+  "testFiles": [
+    "recovery/test/recovery-2.1.123-direct-evidence.test.mjs",
+    "recovery/test/recovery-2.1.123-oauth-beta-disable-experimental.test.mjs",
+    "recovery/test/recovery-2.1.123-semantic-delta.test.mjs"
+  ],
+  "targetCommitFileAssertions": [
+    {
+      "path": "recovery/2.1.123-direct-evidence-specs.json",
+      "bytes": 2444,
+      "sha256": "8ab0ee6da202a720671548d26f0e1d70d52baf05916b75c56e271b36be6b8a12"
+    },
+    {
+      "path": "recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json",
+      "bytes": 5366,
+      "sha256": "621070c2d8b306a563b018bc58b931b88f15eb2fecefcf7ff0614fa79f70e628"
+    },
+    {
+      "path": "recovery/lib/structural-delta.mjs",
+      "bytes": 23183,
+      "sha256": "f33538acfddc0ecfa7651b3ae8012df874d78e65b452d3c69d67e0c81de00639"
+    },
+    {
+      "path": "recovery/readable-diff/generator.mjs",
+      "bytes": 31840,
+      "sha256": "038b455abf2ede7af990743860ab6bb1c127df3ba224fa82bbad320d073b78b1"
+    },
+    {
+      "path": "recovery/scripts/build-2.1.123-semantic-delta.mjs",
+      "bytes": 44296,
+      "sha256": "4ee0ed56b831dc1268b51d2b0912f724cfd8590fc525ef4aa63aa662d3c7829b"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.123-direct-evidence.test.mjs",
+      "bytes": 8835,
+      "sha256": "9d203d9d9f846fea81b5a16f87404cf08c4628861bd64e7023e0f4b8cce1fdfd"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.123-oauth-beta-disable-experimental.test.mjs",
+      "bytes": 6466,
+      "sha256": "19468d795800435fd1fa0e5f0c55accf766043b41c84534d134edd31f409a495"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.123-semantic-delta.test.mjs",
+      "bytes": 4400,
+      "sha256": "a93a16a709f8bde780fc1c3fa339be45c7c6ae7f38ff35b1891b4c210dd1c126"
+    }
+  ],
+  "testArtifactEnvironment": {
+    "CLAUDE_CODE_2_1_122_BUNDLE": "baselineAnalyzableBundle",
+    "CLAUDE_CODE_2_1_123_BUNDLE": "targetAnalyzableBundle",
+    "CLAUDE_21122_INNER": "baselineAnalyzableBundle",
+    "CLAUDE_21123_INNER": "targetAnalyzableBundle",
+    "CLAUDE_2_1_122_CLI_INNER": "baselineAnalyzableBundle",
+    "CLAUDE_2_1_123_CLI_INNER": "targetAnalyzableBundle",
+    "CLAUDE_CODE_2_1_122_WRAPPER": "baselineBundle",
+    "CLAUDE_CODE_2_1_123_WRAPPER": "targetBundle"
+  },
+  "testFileAssertions": [
+    {
+      "path": "recovery/lib/structural-delta.mjs",
+      "bytes": 23183,
+      "sha256": "f33538acfddc0ecfa7651b3ae8012df874d78e65b452d3c69d67e0c81de00639"
+    },
+    {
+      "path": "recovery/readable-diff/generator.mjs",
+      "bytes": 31840,
+      "sha256": "038b455abf2ede7af990743860ab6bb1c127df3ba224fa82bbad320d073b78b1"
+    },
+    {
+      "path": "recovery/scripts/build-2.1.123-semantic-delta.mjs",
+      "bytes": 44296,
+      "sha256": "4ee0ed56b831dc1268b51d2b0912f724cfd8590fc525ef4aa63aa662d3c7829b"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.123-direct-evidence.test.mjs",
+      "bytes": 8835,
+      "sha256": "9d203d9d9f846fea81b5a16f87404cf08c4628861bd64e7023e0f4b8cce1fdfd"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.123-oauth-beta-disable-experimental.test.mjs",
+      "bytes": 6466,
+      "sha256": "19468d795800435fd1fa0e5f0c55accf766043b41c84534d134edd31f409a495"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.123-semantic-delta.test.mjs",
+      "bytes": 4400,
+      "sha256": "a93a16a709f8bde780fc1c3fa339be45c7c6ae7f38ff35b1891b4c210dd1c126"
+    }
+  ]
+}

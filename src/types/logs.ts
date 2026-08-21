@@ -41,6 +41,7 @@ export type LogOption = {
   leafUuid?: UUID // If given, this uuid must appear in the DB
   summary?: string // Optional conversation summary
   customTitle?: string // Optional user-set custom title
+  aiTitle?: string // Optional AI-generated title (user custom title takes precedence)
   tag?: string // Optional tag for the session (searchable in /resume)
   fileHistorySnapshots?: FileHistorySnapshot[] // Optional file history snapshots
   attributionSnapshots?: AttributionSnapshotMessage[] // Optional attribution snapshots
@@ -53,6 +54,7 @@ export type LogOption = {
   prRepository?: string // Repository in "owner/repo" format
   mode?: 'coordinator' | 'normal' // Session mode for coordinator/normal detection
   permissionMode?: PermissionMode // Permission mode active at the end of the session
+  isolationLatch?: 'web' | 'connectors'
   worktreeSession?: PersistedWorktreeSession | null // Worktree state at session end (null = exited, undefined = never entered)
   contentReplacements?: ContentReplacementRecord[] // Replacement decisions for resume reconstruction
 }
@@ -160,6 +162,12 @@ export type PermissionModeEntry = {
   type: 'permission-mode'
   sessionId: UUID
   permissionMode: PermissionMode
+}
+
+export type IsolationLatchEntry = {
+  type: 'isolation-latch'
+  sessionId: UUID
+  side: 'web' | 'connectors'
 }
 
 /**
@@ -348,6 +356,7 @@ export type Entry =
   | SpeculationAcceptMessage
   | ModeEntry
   | PermissionModeEntry
+  | IsolationLatchEntry
   | WorktreeStateEntry
   | ContentReplacementEntry
   | ForkContextRefEntry

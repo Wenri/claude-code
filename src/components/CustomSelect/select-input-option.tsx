@@ -5,9 +5,7 @@ import { Box, Text, useInput } from '../../ink.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
 import type { PastedContent } from '../../utils/config.js';
 import { getImageFromClipboard } from '../../utils/imagePaste.js';
-import { getImageLimits } from '../../utils/imageLimits.js';
 import type { ImageDimensions } from '../../utils/imageResizer.js';
-import { getMainLoopModel } from '../../utils/model/model.js';
 import { ClickableImageRef } from '../ClickableImageRef.js';
 import { ConfigurableShortcutHint } from '../ConfigurableShortcutHint.js';
 import { Byline } from '../design-system/Byline.js';
@@ -179,7 +177,7 @@ export function SelectInputOption(t0) {
       if (!onImagePaste) {
         return;
       }
-      getImageFromClipboard(getImageLimits(getMainLoopModel())).then(imageData => {
+      getImageFromClipboard().then(imageData => {
         if (imageData) {
           onImagePaste(imageData.base64, imageData.mediaType, undefined, imageData.dimensions);
         }

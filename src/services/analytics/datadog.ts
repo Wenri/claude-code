@@ -11,7 +11,7 @@ import { getEventMetadata } from './metadata.js'
 
 const DATADOG_LOGS_ENDPOINT =
   'https://http-intake.logs.us5.datadoghq.com/api/v2/logs'
-const DATADOG_CLIENT_TOKEN = 'pubea5604404508cdd34afb69e6f42a05bc'
+const DATADOG_CLIENT_TOKEN = 'pubbbf48e6d78dae54bceaa4acf463299bf'
 const DEFAULT_FLUSH_INTERVAL_MS = 15000
 const MAX_BATCH_SIZE = 100
 const NETWORK_TIMEOUT_MS = 5000
@@ -26,11 +26,22 @@ const DATADOG_ALLOWED_EVENTS = new Set([
   'chrome_bridge_tool_call_timeout',
   'tengu_api_error',
   'tengu_api_success',
+  'tengu_auto_mode_decision',
+  'tengu_auto_mode_denial_limit_exceeded',
+  'tengu_auto_mode_malformed_tool_input',
+  'tengu_auto_mode_opt_in_dialog_accept',
+  'tengu_auto_mode_opt_in_dialog_accept_default',
+  'tengu_auto_mode_opt_in_dialog_decline',
+  'tengu_auto_mode_opt_in_dialog_decline_dont_ask',
+  'tengu_auto_mode_opt_in_dialog_shown',
+  'tengu_auto_mode_outcome',
+  'tengu_auto_mode_subsequent_approval',
   'tengu_brief_mode_enabled',
   'tengu_brief_mode_toggled',
   'tengu_brief_send',
   'tengu_cancel',
   'tengu_compact_failed',
+  'tengu_copper_lantern',
   'tengu_exit',
   'tengu_flicker',
   'tengu_headless_mcp_prewait',
@@ -72,21 +83,70 @@ const DATADOG_ALLOWED_EVENTS = new Set([
   'tengu_team_mem_sync_started',
   'tengu_team_mem_entries_capped',
   'tengu_timer',
+  'tengu_bg_adopt',
+  'tengu_bg_agent_action',
+  'tengu_bg_agent_dispatch',
+  'tengu_bg_agent_terminal',
+  'tengu_bg_attach',
+  'tengu_bg_attach_first_frame',
+  'tengu_bg_attach_legacy_autorespawn',
+  'tengu_bg_classify',
+  'tengu_bg_daemon_cold_start_ask',
+  'tengu_bg_daemon_cold_start_ask_answer',
+  'tengu_bg_daemon_install',
+  'tengu_bg_daemon_spawn_failed',
+  'tengu_bg_daemon_zombie_restart',
+  'tengu_bg_dispatch',
+  'tengu_bg_dispatch_fallback',
+  'tengu_bg_dispatch_sigkill_escalate',
+  'tengu_bg_killjob_ctrl_fallback',
+  'tengu_bg_orphan_reap',
+  'tengu_bg_proto_mismatch',
+  'tengu_bg_pty_unavailable',
+  'tengu_bg_respawn_exhausted',
+  'tengu_bg_respawn_stale',
+  'tengu_bg_respawn_unconfirmed_bail',
+  'tengu_bg_retired',
+  'tengu_bg_roster_parse_failed',
+  'tengu_bg_skew_nudge',
+  'tengu_bg_spare_claim',
+  'tengu_bg_spare_claim_fail',
+  'tengu_bg_spare_spawn',
+  'tengu_bg_worker_exit',
+  'tengu_bg_worker_spawn',
+  'tengu_daemon_cold_start_prompt',
+  'tengu_daemon_config_reload',
+  'tengu_daemon_idle_exit',
+  'tengu_daemon_install_prompt_answer',
+  'tengu_daemon_lease',
+  'tengu_daemon_peer_uid_reject',
+  'tengu_daemon_self_restart_on_upgrade',
+  'tengu_daemon_start',
+  'tengu_daemon_startup_crash',
+  'tengu_daemon_worker_crash',
+  'tengu_daemon_worker_permanent_exit',
+  'tengu_daemon_yield',
+  'tengu_daemon_yield_takeover',
 ])
 
 const TAG_FIELDS = [
   'arch',
   'clientType',
+  'decision',
   'entrypoint',
   'errorType',
+  'sessionKind',
   'http_status_range',
   'http_status',
   'kairosActive',
   'model',
+  'op',
+  'outcome',
   'platform',
   'provider',
   'skillMode',
   'coachMode',
+  'source',
   'subscriptionType',
   'toolName',
   'userBucket',
@@ -155,6 +215,11 @@ export const initializeDatadog = memoize(async (): Promise<boolean> => {
     return false
   }
 })
+
+export function resetDatadogInit(): void {
+  initializeDatadog.cache?.clear?.()
+  datadogInitialized = null
+}
 
 /**
  * Flush remaining Datadog logs and shut down.

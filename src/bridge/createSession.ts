@@ -2,8 +2,18 @@ import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
 import { extractErrorDetail } from './debugUtils.js'
-import { buildGitSessionContext } from './gitSessionContext.js'
 import { toCompatSessionId } from './sessionIdCompat.js'
+
+type GitSource = {
+  type: 'git_repository'
+  url: string
+  revision?: string
+}
+
+type GitOutcome = {
+  type: 'git_repository'
+  git_info: { type: 'github'; repo: string; branches: string[] }
+}
 
 // Events must be wrapped in { type: 'event', data: <sdk_message> } for the
 // POST /v1/sessions endpoint (discriminated union format).
@@ -46,8 +56,9 @@ export async function createBridgeSession({
   const { getOrganizationUUID } = await import('../services/oauth/client.js')
   const { getOauthConfig } = await import('../constants/oauth.js')
   const { getOAuthHeaders } = await import('../utils/teleport/api.js')
+  const { parseGitHubRepository } = await import('../utils/detectRepository.js')
+  const { getDefaultBranch } = await import('../utils/git.js')
   const { getMainLoopModel } = await import('../utils/model/model.js')
-  const { getOriginalCwd } = await import('../bootstrap/state.js')
   const { default: axios } = await import('axios')
 
   const accessToken =
@@ -63,20 +74,61 @@ export async function createBridgeSession({
     return null
   }
 
-  const { sources, outcomes } = await buildGitSessionContext(
-    gitRepoUrl,
-    branch,
-  )
+  // Build git source and outcome context
+  let gitSource: GitSource | null = null
+  let gitOutcome: GitOutcome | null = null
+
+  if (gitRepoUrl) {
+    const { parseGitRemote } = await import('../utils/detectRepository.js')
+    const parsed = parseGitRemote(gitRepoUrl)
+    if (parsed) {
+      const { host, owner, name } = parsed
+      const revision = branch || (await getDefaultBranch()) || undefined
+      gitSource = {
+        type: 'git_repository',
+        url: `https://${host}/${owner}/${name}`,
+        revision,
+      }
+      gitOutcome = {
+        type: 'git_repository',
+        git_info: {
+          type: 'github',
+          repo: `${owner}/${name}`,
+          branches: [`claude/${branch || 'task'}`],
+        },
+      }
+    } else {
+      // Fallback: try parseGitHubRepository for owner/repo format
+      const ownerRepo = parseGitHubRepository(gitRepoUrl)
+      if (ownerRepo) {
+        const [owner, name] = ownerRepo.split('/')
+        if (owner && name) {
+          const revision = branch || (await getDefaultBranch()) || undefined
+          gitSource = {
+            type: 'git_repository',
+            url: `https://github.com/${owner}/${name}`,
+            revision,
+          }
+          gitOutcome = {
+            type: 'git_repository',
+            git_info: {
+              type: 'github',
+              repo: `${owner}/${name}`,
+              branches: [`claude/${branch || 'task'}`],
+            },
+          }
+        }
+      }
+    }
+  }
 
   const requestBody = {
     ...(title !== undefined && { title }),
     events,
     session_context: {
-      sources,
-      outcomes,
+      sources: gitSource ? [gitSource] : [],
+      outcomes: gitOutcome ? [gitOutcome] : [],
       model: getMainLoopModel(),
-      cwd: getOriginalCwd(),
-      reuse_outcome_branches: true,
     },
     environment_id: environmentId,
     source: 'remote-control',

@@ -56,8 +56,8 @@ function guessMimeType(filename: string): string {
 export function escapeContentDispositionFilename(filename: string): string {
   return filename
     .replace(/[\r\n]/g, '')
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
+    .replaceAll('\\', '\\\\')
+    .replaceAll('"', '\\"')
 }
 
 function debug(msg: string): void {

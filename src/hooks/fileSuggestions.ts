@@ -31,73 +31,46 @@ import { ripGrep } from '../utils/ripgrep.js'
 import { getInitialSettings } from '../utils/settings/settings.js'
 import { createSignal } from '../utils/signal.js'
 
-type FileSuggestionState = {
-  fileIndex: FileIndex | null
-  fileListRefreshPromise: Promise<FileIndex> | null
-  cacheGeneration: number
-  untrackedFetchPromise: Promise<void> | null
-  cachedTrackedFiles: string[]
-  cachedConfigFiles: string[]
-  cachedTrackedDirs: string[]
-  ignorePatternsCache: ReturnType<typeof ignore> | null
-  ignorePatternsCacheKey: string | null
-  lastRefreshMs: number
-  lastGitIndexMtime: number | null
-  loadedTrackedSignature: string | null
-  loadedMergedSignature: string | null
-  indexBuildComplete: ReturnType<typeof createSignal>
-}
-
-function createFileSuggestionState(): FileSuggestionState {
+export function createFileIndexCache() {
   return {
-    fileIndex: null,
-    fileListRefreshPromise: null,
+    fileIndex: null as FileIndex | null,
+    fileListRefreshPromise: null as Promise<FileIndex> | null,
     cacheGeneration: 0,
-    untrackedFetchPromise: null,
-    cachedTrackedFiles: [],
-    cachedConfigFiles: [],
-    cachedTrackedDirs: [],
-    ignorePatternsCache: null,
-    ignorePatternsCacheKey: null,
+    untrackedFetchPromise: null as Promise<void> | null,
+    cachedTrackedFiles: [] as string[],
+    cachedConfigFiles: [] as string[],
+    cachedTrackedDirs: [] as string[],
+    ignorePatternsCache: null as ReturnType<typeof ignore> | null,
+    ignorePatternsCacheKey: null as string | null,
     lastRefreshMs: 0,
-    lastGitIndexMtime: null,
-    loadedTrackedSignature: null,
-    loadedMergedSignature: null,
+    lastGitIndexMtime: null as number | null,
+    loadedTrackedSignature: null as string | null,
+    loadedMergedSignature: null as string | null,
     indexBuildComplete: createSignal(),
   }
 }
 
-const fileSuggestionState = createFileSuggestionState()
-
-function getFileIndex(state: FileSuggestionState): FileIndex {
-  if (!state.fileIndex) state.fileIndex = new FileIndex()
-  return state.fileIndex
-}
-
-// Signal fired when an in-progress index build completes. Lets the
-// typeahead UI re-run its last search so partial results upgrade to full.
-export const onIndexBuildComplete =
-  fileSuggestionState.indexBuildComplete.subscribe
+export type FileIndexCache = ReturnType<typeof createFileIndexCache>
+export const globalFileIndexCache = createFileIndexCache()
 
 /**
  * Clear all file suggestion caches.
  * Call this when resuming a session to ensure fresh file discovery.
  */
-export function clearFileSuggestionCaches(): void {
-  const state = fileSuggestionState
-  state.fileIndex = null
-  state.fileListRefreshPromise = null
-  state.cacheGeneration++
-  state.untrackedFetchPromise = null
-  state.cachedTrackedFiles = []
-  state.cachedConfigFiles = []
-  state.cachedTrackedDirs = []
-  state.ignorePatternsCache = null
-  state.ignorePatternsCacheKey = null
-  state.lastRefreshMs = 0
-  state.lastGitIndexMtime = null
-  state.loadedTrackedSignature = null
-  state.loadedMergedSignature = null
+export function resetFileIndexCache(cache: FileIndexCache): void {
+  cache.fileIndex = null
+  cache.fileListRefreshPromise = null
+  cache.cacheGeneration++
+  cache.untrackedFetchPromise = null
+  cache.cachedTrackedFiles = []
+  cache.cachedConfigFiles = []
+  cache.cachedTrackedDirs = []
+  cache.ignorePatternsCache = null
+  cache.ignorePatternsCacheKey = null
+  cache.lastRefreshMs = 0
+  cache.lastGitIndexMtime = null
+  cache.loadedTrackedSignature = null
+  cache.loadedMergedSignature = null
 }
 
 /**
@@ -169,31 +142,31 @@ function normalizeGitPaths(
  * Merge already-normalized untracked files into the cache
  */
 async function mergeUntrackedIntoNormalizedCache(
-  state: FileSuggestionState,
+  cache: FileIndexCache,
   normalizedUntracked: string[],
 ): Promise<void> {
   if (normalizedUntracked.length === 0) return
-  if (!state.fileIndex) return
+  if (!cache.fileIndex) return
 
   const untrackedDirs = await getDirectoryNamesAsync(normalizedUntracked)
   const allPaths = [
-    ...state.cachedTrackedFiles,
-    ...state.cachedConfigFiles,
-    ...state.cachedTrackedDirs,
+    ...cache.cachedTrackedFiles,
+    ...cache.cachedConfigFiles,
+    ...cache.cachedTrackedDirs,
     ...normalizedUntracked,
     ...untrackedDirs,
   ]
   const sig = pathListSignature(allPaths)
-  if (sig === state.loadedMergedSignature) {
+  if (sig === cache.loadedMergedSignature) {
     logForDebugging(
       `[FileIndex] skipped index rebuild — merged paths unchanged`,
     )
     return
   }
-  await state.fileIndex.loadFromFileListAsync(allPaths).done
-  state.loadedMergedSignature = sig
+  await cache.fileIndex.loadFromFileListAsync(allPaths).done
+  cache.loadedMergedSignature = sig
   logForDebugging(
-    `[FileIndex] rebuilt index with ${state.cachedTrackedFiles.length} tracked + ${normalizedUntracked.length} untracked files`,
+    `[FileIndex] rebuilt index with ${cache.cachedTrackedFiles.length} tracked + ${normalizedUntracked.length} untracked files`,
   )
 }
 
@@ -203,15 +176,15 @@ async function mergeUntrackedIntoNormalizedCache(
  * Results are cached per repoRoot:cwd combination
  */
 async function loadRipgrepIgnorePatterns(
-  state: FileSuggestionState,
+  cache: FileIndexCache,
   repoRoot: string,
   cwd: string,
 ): Promise<ReturnType<typeof ignore> | null> {
   const cacheKey = `${repoRoot}:${cwd}`
 
   // Return cached result if available
-  if (state.ignorePatternsCacheKey === cacheKey) {
-    return state.ignorePatternsCache
+  if (cache.ignorePatternsCacheKey === cacheKey) {
+    return cache.ignorePatternsCache
   }
 
   const fs = getFsImplementation()
@@ -235,8 +208,8 @@ async function loadRipgrepIgnorePatterns(
   }
 
   const result = hasPatterns ? ig : null
-  state.ignorePatternsCache = result
-  state.ignorePatternsCacheKey = cacheKey
+  cache.ignorePatternsCache = result
+  cache.ignorePatternsCacheKey = cacheKey
 
   return result
 }
@@ -250,7 +223,7 @@ async function loadRipgrepIgnorePatterns(
  * This is intentional as git tracks symlinks as symlinks.
  */
 async function getFilesUsingGit(
-  state: FileSuggestionState,
+  cache: FileIndexCache,
   abortSignal: AbortSignal,
   respectGitignore: boolean,
 ): Promise<string[] | null> {
@@ -292,11 +265,7 @@ async function getFilesUsingGit(
     let normalizedTracked = normalizeGitPaths(trackedFiles, repoRoot, cwd)
 
     // Apply .ignore/.rgignore patterns if present (faster than falling back to ripgrep)
-    const ignorePatterns = await loadRipgrepIgnorePatterns(
-      state,
-      repoRoot,
-      cwd,
-    )
+    const ignorePatterns = await loadRipgrepIgnorePatterns(cache, repoRoot, cwd)
     if (ignorePatterns) {
       const beforeCount = normalizedTracked.length
       normalizedTracked = ignorePatterns.filter(normalizedTracked)
@@ -306,7 +275,7 @@ async function getFilesUsingGit(
     }
 
     // Cache tracked files for later merge with untracked
-    state.cachedTrackedFiles = normalizedTracked
+    cache.cachedTrackedFiles = normalizedTracked
 
     const duration = Date.now() - startTime
     logForDebugging(
@@ -321,7 +290,7 @@ async function getFilesUsingGit(
     })
 
     // Start background fetch for untracked files (don't await)
-    if (!state.untrackedFetchPromise) {
+    if (!cache.untrackedFetchPromise) {
       const untrackedArgs = respectGitignore
         ? [
             '-c',
@@ -332,17 +301,13 @@ async function getFilesUsingGit(
           ]
         : ['-c', 'core.quotepath=false', 'ls-files', '--others']
 
-      const generation = state.cacheGeneration
-      state.untrackedFetchPromise = execFileNoThrowWithCwd(
-        gitExe(),
-        untrackedArgs,
-        {
-          timeout: 10000,
-          cwd: repoRoot,
-        },
-      )
+      const generation = cache.cacheGeneration
+      cache.untrackedFetchPromise = execFileNoThrowWithCwd(gitExe(), untrackedArgs, {
+        timeout: 10000,
+        cwd: repoRoot,
+      })
         .then(async untrackedResult => {
-          if (generation !== state.cacheGeneration) {
+          if (generation !== cache.cacheGeneration) {
             return // Cache was cleared; don't merge stale untracked files
           }
           if (untrackedResult.code === 0) {
@@ -360,7 +325,7 @@ async function getFilesUsingGit(
 
             // Apply .ignore/.rgignore patterns to normalized untracked files
             const ignorePatterns = await loadRipgrepIgnorePatterns(
-              state,
+              cache,
               repoRoot,
               cwd,
             )
@@ -376,10 +341,7 @@ async function getFilesUsingGit(
               `[FileIndex] background untracked fetch: ${normalizedUntracked.length} files`,
             )
             // Pass already-normalized files directly to merge function
-            await mergeUntrackedIntoNormalizedCache(
-              state,
-              normalizedUntracked,
-            )
+            await mergeUntrackedIntoNormalizedCache(cache, normalizedUntracked)
           }
         })
         .catch(error => {
@@ -388,7 +350,7 @@ async function getFilesUsingGit(
           )
         })
         .finally(() => {
-          state.untrackedFetchPromise = null
+          cache.untrackedFetchPromise = null
         })
     }
 
@@ -474,7 +436,7 @@ async function getClaudeConfigFiles(cwd: string): Promise<string[]> {
  * Gets project files using git ls-files (fast) or ripgrep (fallback)
  */
 async function getProjectFiles(
-  state: FileSuggestionState,
+  cache: FileIndexCache,
   abortSignal: AbortSignal,
   respectGitignore: boolean,
 ): Promise<string[]> {
@@ -483,11 +445,7 @@ async function getProjectFiles(
   )
 
   // Try git ls-files first (much faster for git repos)
-  const gitFiles = await getFilesUsingGit(
-    state,
-    abortSignal,
-    respectGitignore,
-  )
+  const gitFiles = await getFilesUsingGit(cache, abortSignal, respectGitignore)
   if (gitFiles !== null) {
     logForDebugging(
       `[FileIndex] using git ls-files result (${gitFiles.length} files)`,
@@ -542,11 +500,11 @@ async function getProjectFiles(
  * Uses git ls-files for git repos (fast) or ripgrep as fallback
  * Returns a FileIndex populated for fast fuzzy search
  */
-async function getPathsForSuggestions(
-  state: FileSuggestionState,
+export async function getPathsForSuggestions(
+  cache: FileIndexCache,
 ): Promise<FileIndex> {
   const signal = AbortSignal.timeout(10_000)
-  const index = getFileIndex(state)
+  const index = (cache.fileIndex ??= new FileIndex())
 
   try {
     // Check project settings first, then fall back to global config
@@ -557,30 +515,30 @@ async function getPathsForSuggestions(
 
     const cwd = getCwd()
     const [projectFiles, configFiles] = await Promise.all([
-      getProjectFiles(state, signal, respectGitignore),
+      getProjectFiles(cache, signal, respectGitignore),
       getClaudeConfigFiles(cwd),
     ])
 
     // Cache for mergeUntrackedIntoNormalizedCache
-    state.cachedConfigFiles = configFiles
+    cache.cachedConfigFiles = configFiles
 
     const allFiles = [...projectFiles, ...configFiles]
     const directories = await getDirectoryNamesAsync(allFiles)
-    state.cachedTrackedDirs = directories
+    cache.cachedTrackedDirs = directories
     const allPathsList = [...directories, ...allFiles]
 
     // Skip rebuild when the list is unchanged. This is the common case
     // during a typing session — git ls-files returns the same output.
     const sig = pathListSignature(allPathsList)
-    if (sig !== state.loadedTrackedSignature) {
+    if (sig !== cache.loadedTrackedSignature) {
       // Await the full build so cold-start returns complete results. The
       // build yields every ~4ms so the UI stays responsive — user can keep
       // typing during the ~120ms wait without input lag.
       await index.loadFromFileListAsync(allPathsList).done
-      state.loadedTrackedSignature = sig
+      cache.loadedTrackedSignature = sig
       // We just replaced the merged index with tracked-only data. Force
       // the next untracked merge to rebuild even if its own sig matches.
-      state.loadedMergedSignature = null
+      cache.loadedMergedSignature = null
     } else {
       logForDebugging(
         `[FileIndex] skipped index rebuild — tracked paths unchanged`,
@@ -681,10 +639,8 @@ function findMatchingFiles(
  * and rebuilding the nucleo index.
  */
 const REFRESH_THROTTLE_MS = 5_000
-function startBackgroundCacheRefreshForState(
-  state: FileSuggestionState,
-): void {
-  if (state.fileListRefreshPromise) return
+export function startBackgroundCacheRefresh(cache: FileIndexCache): void {
+  if (cache.fileListRefreshPromise) return
 
   // Throttle only when a cache exists — cold start must always populate.
   // Refresh immediately when .git/index mtime changed (tracked files).
@@ -692,39 +648,39 @@ function startBackgroundCacheRefreshForState(
   // files, which don't bump .git/index. The signature checks downstream skip
   // the rebuild when the 5s refresh finds nothing actually changed.
   const indexMtime = getGitIndexMtime()
-  if (state.fileIndex) {
+  if (cache.fileIndex) {
     // A null mtime means this is a non-git directory (or a repository without
     // a normal index). Once populated, keep that index for the session instead
     // of re-scanning the full project every time suggestions are requested.
-    if (indexMtime === null && state.lastRefreshMs > 0) return
+    if (indexMtime === null && cache.lastRefreshMs > 0) return
     const gitStateChanged =
-      indexMtime !== null && indexMtime !== state.lastGitIndexMtime
+      indexMtime !== null && indexMtime !== cache.lastGitIndexMtime
     if (
       !gitStateChanged &&
-      Date.now() - state.lastRefreshMs < REFRESH_THROTTLE_MS
+      Date.now() - cache.lastRefreshMs < REFRESH_THROTTLE_MS
     ) {
       return
     }
   }
 
-  const generation = state.cacheGeneration
+  const generation = cache.cacheGeneration
   const refreshStart = Date.now()
   // Ensure the FileIndex singleton exists — it's progressively queryable
   // via readyCount while the build runs. Callers searching early get partial
   // results; indexBuildComplete fires after .done so they can re-search.
-  getFileIndex(state)
-  state.fileListRefreshPromise = getPathsForSuggestions(state)
+  cache.fileIndex ??= new FileIndex()
+  cache.fileListRefreshPromise = getPathsForSuggestions(cache)
     .then(result => {
-      if (generation !== state.cacheGeneration) {
+      if (generation !== cache.cacheGeneration) {
         return result // Cache was cleared; don't overwrite with stale data
       }
-      state.fileListRefreshPromise = null
-      state.indexBuildComplete.emit()
+      cache.fileListRefreshPromise = null
+      cache.indexBuildComplete.emit()
       // Commit the start-time mtime observation on success. If git state
       // changed mid-refresh, the next call will see the newer mtime and
       // correctly refresh again.
-      state.lastGitIndexMtime = indexMtime
-      state.lastRefreshMs = Date.now()
+      cache.lastGitIndexMtime = indexMtime
+      cache.lastRefreshMs = Date.now()
       logForDebugging(
         `[FileIndex] cache refresh completed in ${Date.now() - refreshStart}ms`,
       )
@@ -735,15 +691,11 @@ function startBackgroundCacheRefreshForState(
         `[FileIndex] Cache refresh failed: ${errorMessage(error)}`,
       )
       logError(error)
-      if (generation === state.cacheGeneration) {
-        state.fileListRefreshPromise = null // Allow retry on next call
+      if (generation === cache.cacheGeneration) {
+        cache.fileListRefreshPromise = null // Allow retry on next call
       }
-      return getFileIndex(state)
+      return (cache.fileIndex ??= new FileIndex())
     })
-}
-
-export function startBackgroundCacheRefresh(): void {
-  startBackgroundCacheRefreshForState(fileSuggestionState)
 }
 
 /**
@@ -774,6 +726,7 @@ async function getTopLevelPaths(): Promise<string[]> {
  * @param showOnEmpty Whether to show suggestions even if partialPath is empty (used for @ symbol)
  */
 export async function generateFileSuggestions(
+  cache: FileIndexCache,
   partialPath: string,
   showOnEmpty = false,
 ): Promise<SuggestionItem[]> {
@@ -801,7 +754,7 @@ export async function generateFileSuggestions(
   // If the partial path is empty or just a dot, return current directory suggestions
   if (partialPath === '' || partialPath === '.' || partialPath === './') {
     const topLevelPaths = await getTopLevelPaths()
-    startBackgroundCacheRefreshForState(state)
+    startBackgroundCacheRefresh(cache)
     return topLevelPaths.slice(0, MAX_SUGGESTIONS).map(createFileSuggestionItem)
   }
 
@@ -812,8 +765,8 @@ export async function generateFileSuggestions(
     // searches during build return partial results from ready chunks, and
     // the typeahead callback (setOnIndexBuildComplete) re-fires the search
     // when the build finishes to upgrade partial → full.
-    const wasBuilding = state.fileListRefreshPromise !== null
-    startBackgroundCacheRefreshForState(state)
+    const wasBuilding = cache.fileListRefreshPromise !== null
+    startBackgroundCacheRefresh(cache)
 
     // Handle both './' and '.\'
     let normalizedPath = partialPath
@@ -827,8 +780,8 @@ export async function generateFileSuggestions(
       normalizedPath = expandPath(normalizedPath)
     }
 
-    const matches = state.fileIndex
-      ? findMatchingFiles(state.fileIndex, normalizedPath)
+    const matches = cache.fileIndex
+      ? findMatchingFiles(cache.fileIndex, normalizedPath)
       : []
 
     const duration = Date.now() - startTime

@@ -5,6 +5,11 @@ import uniqBy from 'lodash-es/uniqBy.js'
 import { logForDebugging } from 'src/utils/debug.js'
 import { getProjectRoot, getSessionId } from '../../bootstrap/state.js'
 import { getCommand, getSkillToolCommands, hasCommand } from '../../commands.js'
+import { TASK_CREATE_TOOL_NAME } from '../TaskCreateTool/constants.js'
+import { TASK_GET_TOOL_NAME } from '../TaskGetTool/constants.js'
+import { TASK_LIST_TOOL_NAME } from '../TaskListTool/constants.js'
+import { TASK_UPDATE_TOOL_NAME } from '../TaskUpdateTool/constants.js'
+import { TODO_WRITE_TOOL_NAME } from '../TodoWriteTool/constants.js'
 import {
   DEFAULT_AGENT_PROMPT,
   enhanceSystemPromptWithEnvDetails,
@@ -28,7 +33,12 @@ import type {
   MCPServerConnection,
   ScopedMcpServerConfig,
 } from '../../services/mcp/types.js'
-import type { Tool, Tools, ToolUseContext } from '../../Tool.js'
+import type {
+  Tool,
+  Tools,
+  ToolPermissionContext,
+  ToolUseContext,
+} from '../../Tool.js'
 import { hasAgentKeepalive } from '../../tasks/LocalAgentTask/LocalAgentTask.js'
 import { killShellTasksForAgent } from '../../tasks/LocalShellTask/killShellTasks.js'
 import type { Command } from '../../types/command.js'
@@ -44,7 +54,10 @@ import type {
   ToolUseSummaryMessage,
   UserMessage,
 } from '../../types/message.js'
-import { createAttachmentMessage } from '../../utils/attachments.js'
+import {
+  createAttachmentMessage,
+  getDeferredToolsDeltaAttachment,
+} from '../../utils/attachments.js'
 import { AbortError } from '../../utils/errors.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { getDisplayPath } from '../../utils/file.js'
@@ -58,8 +71,10 @@ import {
   createSubagentContext,
 } from '../../utils/forkedAgent.js'
 import { registerFrontmatterHooks } from '../../utils/hooks/registerFrontmatterHooks.js'
-import { clearSessionHooks } from '../../utils/hooks/sessionHooks.js'
-import { executeSubagentStartHooks } from '../../utils/hooks.js'
+import {
+  executeStopHooks,
+  executeSubagentStartHooks,
+} from '../../utils/hooks.js'
 import { createUserMessage } from '../../utils/messages.js'
 import { getAgentModel } from '../../utils/model/agent.js'
 import type { ModelAlias } from '../../utils/model/aliases.js'
@@ -87,6 +102,19 @@ import type { ContentReplacementState } from '../../utils/toolResultStorage.js'
 import { createAgentId } from '../../utils/uuid.js'
 import { resolveAgentTools } from './agentToolUtils.js'
 import { type AgentDefinition, isBuiltInAgent } from './loadAgentsDir.js'
+
+const SUBAGENT_TASK_TOOL_NAMES = new Set([
+  TODO_WRITE_TOOL_NAME,
+  TASK_CREATE_TOOL_NAME,
+  TASK_UPDATE_TOOL_NAME,
+  TASK_GET_TOOL_NAME,
+  TASK_LIST_TOOL_NAME,
+])
+
+function shouldFilterSubagentTaskTools(isTeammate: boolean): boolean {
+  if (isTeammate) return false
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_shale_finch', false)
+}
 
 /**
  * Initialize agent-specific MCP servers
@@ -267,6 +295,7 @@ export async function* runAgent({
   canShowPermissionPrompts,
   forkContextMessages,
   querySource,
+  spawnedBySkill,
   override,
   model,
   maxTurns,
@@ -283,6 +312,7 @@ export async function* runAgent({
   resumePersistedCount,
   transcriptSubdir,
   onQueryProgress,
+  isTeammate = false,
 }: {
   agentDefinition: AgentDefinition
   promptMessages: Message[]
@@ -294,6 +324,7 @@ export async function* runAgent({
   canShowPermissionPrompts?: boolean
   forkContextMessages?: Message[]
   querySource: QuerySource
+  spawnedBySkill?: string
   override?: {
     userContext?: { [k: string]: string }
     systemContext?: { [k: string]: string }
@@ -349,6 +380,8 @@ export async function* runAgent({
    * during long single-block streams (e.g. thinking) where no assistant
    * message is yielded for >60s. */
   onQueryProgress?: () => void
+  /** In-process teammates retain task-management tools when shale-finch is enabled. */
+  isTeammate?: boolean
 }): AsyncGenerator<Message, void> {
   // Track subagent usage for feature discovery
 
@@ -402,7 +435,8 @@ export async function* runAgent({
 
   const [baseUserContext, baseSystemContext] = await Promise.all([
     override?.userContext ?? getUserContext(),
-    override?.systemContext ?? getSystemContext(),
+    override?.systemContext ??
+      getSystemContext(toolUseContext.getAppState().cacheBreakerPhrase),
   ])
 
   // Read-only agents (Explore, Plan) don't act on commit/PR/lint rules from
@@ -436,19 +470,26 @@ export async function* runAgent({
   // However, don't override if parent is in bypassPermissions or acceptEdits mode - those should always take precedence
   // For async agents, also set shouldAvoidPermissionPrompts since they can't show UI
   const agentPermissionMode = agentDefinition.permissionMode
-  const agentGetAppState = () => {
-    const state = toolUseContext.getAppState()
-    let toolPermissionContext = state.toolPermissionContext
+  let lastParentPermissionContext: ToolPermissionContext | undefined
+  let lastAgentPermissionContext: ToolPermissionContext | undefined
+  const resolveAgentPermissionContext = (
+    parentContext: ToolPermissionContext,
+  ): ToolPermissionContext => {
+    if (
+      parentContext === lastParentPermissionContext &&
+      lastAgentPermissionContext
+    ) {
+      return lastAgentPermissionContext
+    }
+    lastParentPermissionContext = parentContext
+    let toolPermissionContext = parentContext
 
     // Override permission mode if agent defines one (unless parent is bypassPermissions, acceptEdits, or auto)
     if (
       agentPermissionMode &&
-      state.toolPermissionContext.mode !== 'bypassPermissions' &&
-      state.toolPermissionContext.mode !== 'acceptEdits' &&
-      !(
-        feature('TRANSCRIPT_CLASSIFIER') &&
-        state.toolPermissionContext.mode === 'auto'
-      )
+      parentContext.mode !== 'bypassPermissions' &&
+      parentContext.mode !== 'acceptEdits' &&
+      parentContext.mode !== 'auto'
     ) {
       toolPermissionContext = {
         ...toolPermissionContext,
@@ -494,35 +535,43 @@ export async function* runAgent({
         ...toolPermissionContext,
         alwaysAllowRules: {
           // Preserve SDK-level permissions from --allowedTools
-          cliArg: state.toolPermissionContext.alwaysAllowRules.cliArg,
+          cliArg: parentContext.alwaysAllowRules.cliArg,
           // Use the provided allowedTools as session-level permissions
           session: [...allowedTools],
         },
       }
     }
 
-    // Override effort level if agent defines one
-    const effortValue =
-      agentDefinition.effort !== undefined
-        ? agentDefinition.effort
-        : state.effortValue
-
-    if (
-      toolPermissionContext === state.toolPermissionContext &&
-      effortValue === state.effortValue
-    ) {
-      return state
-    }
+    lastAgentPermissionContext = toolPermissionContext
+    return toolPermissionContext
+  }
+  const agentGetToolPermissionContext = () =>
+    resolveAgentPermissionContext(toolUseContext.getToolPermissionContext())
+  const agentGetAppState = () => {
+    const state = toolUseContext.getAppState()
+    const toolPermissionContext = resolveAgentPermissionContext(
+      state.toolPermissionContext,
+    )
+    if (toolPermissionContext === state.toolPermissionContext) return state
     return {
       ...state,
       toolPermissionContext,
-      effortValue,
     }
   }
+  const agentGetEffortValue =
+    agentDefinition.effort !== undefined
+      ? () => agentDefinition.effort
+      : toolUseContext.getEffortValue
 
-  const resolvedTools = useExactTools
+  const baseResolvedTools = useExactTools
     ? availableTools
     : resolveAgentTools(agentDefinition, availableTools, isAsync).resolvedTools
+  const resolvedTools =
+    !useExactTools && shouldFilterSubagentTaskTools(isTeammate)
+      ? baseResolvedTools.filter(
+          tool => !SUBAGENT_TASK_TOOL_NAMES.has(tool.name),
+        )
+      : baseResolvedTools
 
   const additionalWorkingDirectories = Array.from(
     appState.toolPermissionContext.additionalWorkingDirectories.keys(),
@@ -598,7 +647,7 @@ export async function* runAgent({
     isSourceAdminTrusted(agentDefinition.source)
   if (agentDefinition.hooks && hooksAllowedForThisAgent) {
     registerFrontmatterHooks(
-      rootSetAppState,
+      toolUseContext.sessionHooksRegistry,
       agentId,
       agentDefinition.hooks,
       `agent '${agentDefinition.agentType}'`,
@@ -695,6 +744,17 @@ export async function* runAgent({
       ? uniqBy([...resolvedTools, ...agentMcpTools], 'name')
       : resolvedTools
 
+  if (!useExactTools) {
+    for (const attachment of getDeferredToolsDeltaAttachment(
+      allTools,
+      resolvedAgentModel,
+      initialMessages,
+      { callSite: 'attachments_subagent', querySource },
+    )) {
+      initialMessages.push(createAttachmentMessage(attachment))
+    }
+  }
+
   // Build agent-specific options
   const agentOptions: ToolUseContext['options'] = {
     isNonInteractiveSession: useExactTools
@@ -720,6 +780,7 @@ export async function* runAgent({
     mcpResources: toolUseContext.options.mcpResources,
     agentDefinitions: toolUseContext.options.agentDefinitions,
     messageClientPlatform: toolUseContext.options.messageClientPlatform,
+    spawnedBySkill,
     // Fork children (useExactTools path) need querySource on context.options
     // for the recursive-fork guard at AgentTool.tsx call() — it checks
     // options.querySource === 'agent:builtin:fork'. This survives autocompact
@@ -730,7 +791,7 @@ export async function* runAgent({
   }
 
   // Create subagent context using shared helper
-  // - Sync agents share setAppState, setResponseLength, abortController with parent
+  // - Sync agents share setAppState, response-length callbacks, abortController with parent
   // - Async agents are fully isolated (but with explicit unlinked abortController)
   const agentToolUseContext = createSubagentContext(toolUseContext, {
     options: agentOptions,
@@ -740,6 +801,8 @@ export async function* runAgent({
     readFileState: agentReadFileState,
     abortController: agentAbortController,
     getAppState: agentGetAppState,
+    getToolPermissionContext: agentGetToolPermissionContext,
+    getEffortValue: agentGetEffortValue,
     // Sync agents share these callbacks with parent
     shareSetAppState: !isAsync,
     shareSetResponseLength: true, // Both sync and async contribute to response metrics
@@ -816,6 +879,7 @@ export async function* runAgent({
   let lastRecordedUuid: UUID | null =
     messagesToPersist.at(-1)?.uuid ?? startingParentUuid
   let completedNormally = false
+  let currentApiMetricsId: UUID | undefined
 
   try {
     for await (const message of query({
@@ -826,6 +890,7 @@ export async function* runAgent({
       canUseTool,
       toolUseContext: agentToolUseContext,
       querySource,
+      spawnedBySkill,
       maxTurns: maxTurns ?? agentDefinition.maxTurns,
     })) {
       onQueryProgress?.()
@@ -836,8 +901,27 @@ export async function* runAgent({
         message.event.type === 'message_start' &&
         message.ttftMs != null
       ) {
-        toolUseContext.pushApiMetricsEntry?.(message.ttftMs)
+        currentApiMetricsId = randomUUID()
+        toolUseContext.pushApiMetricsEntry?.({
+          type: 'start',
+          ttftMs: message.ttftMs,
+          id: currentApiMetricsId,
+        })
         continue
+      }
+
+      if (
+        message.type === 'stream_event' &&
+        message.event.type === 'message_delta' &&
+        message.event.usage.output_tokens != null &&
+        currentApiMetricsId != null
+      ) {
+        toolUseContext.pushApiMetricsEntry?.({
+          type: 'end',
+          outputTokens: message.event.usage.output_tokens,
+          id: currentApiMetricsId,
+        })
+        currentApiMetricsId = undefined
       }
 
       // Yield attachment messages (e.g., structured_output) without recording them
@@ -894,11 +978,34 @@ export async function* runAgent({
       completedNormally &&
       !agentAbortController.signal.aborted &&
       hasAgentKeepalive(agentId, toolUseContext.getAppState)
+    // An interrupted/erroring query never reaches query()'s normal
+    // SubagentStop path. Give those hooks one final, un-aborted 5s window
+    // before tearing down the agent-scoped hook registry.
+    if (!completedNormally) {
+      try {
+        for await (const _hookResult of executeStopHooks(
+          undefined,
+          undefined,
+          5_000,
+          false,
+          agentId,
+          agentToolUseContext,
+          undefined,
+          agentDefinition.agentType,
+        )) {
+          // Cleanup hooks are drained for their side effects only.
+        }
+      } catch (error) {
+        logForDebugging(
+          `[runAgent] SubagentStop on interrupted query failed: ${error}`,
+        )
+      }
+    }
     // Clean up agent-specific MCP servers (runs on normal completion, abort, or error)
     await mcpCleanup()
     // Clean up agent's session hooks
     if (agentDefinition.hooks) {
-      clearSessionHooks(rootSetAppState, agentId)
+      toolUseContext.sessionHooksRegistry.clear(agentId)
     }
     // Clean up prompt cache tracking state for this agent
     if (shouldTrackPromptCacheBreaks()) {
@@ -918,11 +1025,7 @@ export async function* runAgent({
     // called TodoWrite leaves a key in AppState.todos forever (even after all
     // items complete, the value is [] but the key stays). Whale sessions
     // spawn hundreds of agents; each orphaned key is a small leak that adds up.
-    rootSetAppState(prev => {
-      if (!(agentId in prev.todos)) return prev
-      const { [agentId]: _removed, ...todos } = prev.todos
-      return { ...prev, todos }
-    })
+    toolUseContext.agentLifecycle.clearTodos(agentId)
     const replContext = toolUseContext.getAppState().replContexts[agentId]
     if (replContext) {
       replContext.clearAllTimers()

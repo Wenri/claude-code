@@ -21,6 +21,7 @@ import {
 import { execFileNoThrowWithCwd } from '../execFileNoThrow.js'
 import { getPlatform } from '../platform.js'
 import { jsonStringify } from '../slowOperations.js'
+import { logError } from '../log.js'
 import {
   CLAUDE_IN_CHROME_MCP_SERVER_NAME,
   getAllBrowserDataPaths,
@@ -256,7 +257,7 @@ export async function installChromeNativeHostManifest(
           logForDebugging(
             `[Claude in Chrome] First-time install detected, opening reconnect page in browser`,
           )
-          void openInChrome(CHROME_EXTENSION_RECONNECT_URL)
+          void openInChrome(CHROME_EXTENSION_RECONNECT_URL).catch(logError)
         } else {
           logForDebugging(
             `[Claude in Chrome] First-time install detected, but extension not installed, skipping reconnect`,

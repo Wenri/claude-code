@@ -1,23 +1,31 @@
-import { setMainLoopModelOverride } from '../bootstrap/state.js'
+import {
+  getRuntimeCapabilities,
+  setMainLoopModelOverride,
+} from '../bootstrap/state.js'
+import { setCurrentJobRespawnFlag } from '../daemon/jobs.js'
 import {
   clearApiKeyHelperCache,
   clearAwsCredentialsCache,
   clearGcpCredentialsCache,
+  resetAwsAuthRefreshCooldown,
 } from '../utils/auth.js'
-import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js'
+import {
+  checkHasTrustDialogAccepted,
+  getGlobalConfig,
+  saveGlobalConfig,
+} from '../utils/config.js'
 import { toError } from '../utils/errors.js'
 import { logError } from '../utils/log.js'
 import { applyConfigEnvironmentVariables } from '../utils/managedEnv.js'
+import { getDefaultMainLoopModel } from '../utils/model/model.js'
 import {
   permissionModeFromString,
   toExternalPermissionMode,
 } from '../utils/permissions/PermissionMode.js'
 import {
-  notifyPermissionModeChanged,
-  notifySessionInternalMetadataChanged,
-  notifySessionMetadataChanged,
   type SessionExternalMetadata,
   type SessionInternalMetadata,
+  type SessionStateManager,
 } from '../utils/sessionState.js'
 import { isBackgroundTask, type TaskState } from '../tasks/types.js'
 import {
@@ -80,40 +88,16 @@ function runningBackgroundTasks(state: AppState): Array<{
     )
     .map(task => ({ task_id: task.id, description: task.description }))
 }
-export function onChangeAppState({
-  newState,
-  oldState,
-}: {
-  newState: AppState
-  oldState: AppState
-}) {
-  if (newState.tasks !== oldState.tasks) {
-    const previousTasks = runningBackgroundTasks(oldState)
-    const nextTasks = runningBackgroundTasks(newState)
-    if (
-      previousTasks.length !== nextTasks.length ||
-      nextTasks.some(
-        (task, index) => task.task_id !== previousTasks[index]?.task_id,
-      )
-    ) {
-      notifySessionInternalMetadataChanged({
-        running_background_tasks: nextTasks,
-      })
-    }
-  }
-
-  const previousSessionRules =
-    oldState.toolPermissionContext.alwaysAllowRules.session
-  const nextSessionRules = newState.toolPermissionContext.alwaysAllowRules.session
-  if (previousSessionRules !== nextSessionRules) {
-    const safeRules = nextSessionRules?.filter(
-      rule => !rule.startsWith('mcp__'),
-    )
-    notifySessionInternalMetadataChanged({
-      session_allow_rules: safeRules?.length ? [...safeRules] : null,
-    })
-  }
-
+export function onChangeAppState(
+  {
+    newState,
+    oldState,
+  }: {
+    newState: AppState
+    oldState: AppState
+  },
+  sessionState?: SessionStateManager,
+) {
   // toolPermissionContext.mode — single choke point for CCR/SDK mode sync.
   //
   // Prior to this block, mode changes were relayed to CCR by only 2 of 8+
@@ -126,9 +110,8 @@ export function onChangeAppState({
   // of sync with the CLI's actual mode.
   //
   // Hooking the diff here means ANY setAppState call that changes the mode
-  // notifies CCR (via notifySessionMetadataChanged → ccrClient.reportMetadata)
-  // and the SDK status stream (via notifyPermissionModeChanged → registered
-  // in print.ts). The scattered callsites above need zero changes.
+  // notifies the manager owned by this headless session. Interactive stores
+  // intentionally omit a manager.
   const prevMode = oldState.toolPermissionContext.mode
   const newMode = newState.toolPermissionContext.mode
   if (prevMode !== newMode) {
@@ -136,7 +119,7 @@ export function onChangeAppState({
     // (bubble, ungated auto). Externalize first — and skip
     // the CCR notify if the EXTERNAL mode didn't change (e.g.,
     // default→bubble→default is noise from CCR's POV since both
-    // externalize to 'default'). The SDK channel (notifyPermissionModeChanged)
+    // externalize to 'default'). The SDK channel
     // passes raw mode; its listener in print.ts applies its own filter.
     const prevExternal = toExternalPermissionMode(prevMode)
     const newExternal = toExternalPermissionMode(newMode)
@@ -156,52 +139,80 @@ export function onChangeAppState({
       })
     }
     sessionState?.notifyPermissionModeChanged(newMode)
+    void setCurrentJobRespawnFlag('--permission-mode', [], newMode)
   }
 
-  const prevSessionAllowRules =
+  if (sessionState && newState.tasks !== oldState.tasks) {
+    const previousTasks = runningBackgroundTasks(oldState)
+    const nextTasks = runningBackgroundTasks(newState)
+    if (
+      previousTasks.length !== nextTasks.length ||
+      nextTasks.some(
+        (task, index) => task.task_id !== previousTasks[index]?.task_id,
+      )
+    ) {
+      sessionState.notifyInternalMetadataChanged({
+        running_background_tasks: nextTasks,
+      })
+    }
+  }
+
+  const previousSessionRules =
     oldState.toolPermissionContext.alwaysAllowRules.session
-  const newSessionAllowRules =
+  const nextSessionRules =
     newState.toolPermissionContext.alwaysAllowRules.session
-  if (prevSessionAllowRules !== newSessionAllowRules) {
-    const builtInRules = newSessionAllowRules?.filter(
+  if (previousSessionRules !== nextSessionRules) {
+    const builtInRules = nextSessionRules?.filter(
       rule => !rule.startsWith('mcp__'),
     )
-    notifySessionInternalMetadataChanged({
+    sessionState?.notifyInternalMetadataChanged({
       session_allow_rules: builtInRules?.length ? builtInRules : null,
     })
   }
 
   if (newState.mainLoopModel !== oldState.mainLoopModel) {
     const selected = newState.mainLoopModel
-    updateSettingsForSource('userSettings', { model: selected ?? undefined })
-    const projectModel = getSettingsForSource('projectSettings')?.model
-    const localModel = getSettingsForSource('localSettings')?.model
-    if (
-      selected !== null &&
-      (projectModel !== undefined || localModel !== undefined) &&
-      selected !== projectModel
-    ) {
-      updateSettingsForSource('localSettings', { model: selected })
-    } else if (localModel !== undefined) {
-      updateSettingsForSource('localSettings', { model: undefined })
+    if (getRuntimeCapabilities().workspace !== 'remote') {
+      updateSettingsForSource('userSettings', { model: selected ?? undefined })
+      const projectModel = getSettingsForSource('projectSettings')?.model
+      const localModel = getSettingsForSource('localSettings')?.model
+      if (
+        selected !== null &&
+        (projectModel !== undefined || localModel !== undefined) &&
+        selected !== projectModel
+      ) {
+        updateSettingsForSource('localSettings', { model: selected })
+      } else if (localModel !== undefined) {
+        updateSettingsForSource('localSettings', { model: undefined })
+      }
     }
     setMainLoopModelOverride(selected)
+    sessionState?.notifyMetadataChanged({
+      model: selected ?? getDefaultMainLoopModel(),
+    })
+    void setCurrentJobRespawnFlag('--model', ['-m'], selected)
+  }
+
+  if (newState.effortValue !== oldState.effortValue) {
+    sessionState?.notifyMetadataChanged({
+      effort_level:
+        newState.effortValue == null ? null : String(newState.effortValue),
+    })
   }
 
   // expandedView → persist as showExpandedTodos + showSpinnerTree for backwards compat
   if (newState.expandedView !== oldState.expandedView) {
     const showExpandedTodos = newState.expandedView === 'tasks'
     const showSpinnerTree = newState.expandedView === 'teammates'
-    if (
-      getGlobalConfig().showExpandedTodos !== showExpandedTodos ||
-      getGlobalConfig().showSpinnerTree !== showSpinnerTree
-    ) {
-      saveGlobalConfig(current => ({
-        ...current,
-        showExpandedTodos,
-        showSpinnerTree,
-      }))
-    }
+    saveGlobalConfig(current => {
+      if (
+        current.showExpandedTodos === showExpandedTodos &&
+        current.showSpinnerTree === showSpinnerTree
+      ) {
+        return current
+      }
+      return { ...current, showExpandedTodos, showSpinnerTree }
+    })
   }
 
   // verbose
@@ -227,11 +238,15 @@ export function onChangeAppState({
     try {
       clearApiKeyHelperCache()
       clearAwsCredentialsCache()
+      resetAwsAuthRefreshCooldown()
       clearGcpCredentialsCache()
 
       // Re-apply environment variables when settings.env changes
       // This is additive-only: new vars are added, existing may be overwritten, nothing is deleted
-      if (newState.settings.env !== oldState.settings.env) {
+      if (
+        newState.settings.env !== oldState.settings.env &&
+        checkHasTrustDialogAccepted()
+      ) {
         applyConfigEnvironmentVariables()
       }
     } catch (error) {

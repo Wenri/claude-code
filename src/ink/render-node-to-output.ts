@@ -7,13 +7,13 @@ import { LayoutDisplay, LayoutEdge, type LayoutNode } from './layout/node.js'
 import { nodeCache, pendingClears } from './node-cache.js'
 import type Output from './output.js'
 import renderBorder from './render-border.js'
-import { getScrollConfig } from './scroll-config.js'
 import type { Screen } from './screen.js'
 import {
   type StyledSegment,
   squashTextNodesToSegments,
 } from './squash-text-nodes.js'
 import type { Color } from './styles.js'
+import { getScrollConfig } from './scroll-config.js'
 import { widestLine } from './widest-line.js'
 import wrapText from './wrap-text.js'
 
@@ -1464,7 +1464,7 @@ function renderScrolledChildren(
   }
 }
 
-function dropSubtreeCache(node: DOMElement): void {
+export function dropSubtreeCache(node: DOMElement): void {
   nodeCache.delete(node)
   for (const child of node.childNodes) {
     if (child.nodeName !== '#text') {

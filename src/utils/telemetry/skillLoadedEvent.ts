@@ -5,7 +5,35 @@ import {
   logEvent,
 } from '../../services/analytics/index.js'
 import { getCharBudget } from '../../tools/SkillTool/prompt.js'
-import { buildSkillTelemetryFields } from './pluginTelemetry.js'
+
+export function buildSkillTelemetryFields(
+  source?: string,
+  loadedFrom?: string,
+  kind?: string,
+  createdBy?: string,
+): Record<
+  string,
+  AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+> {
+  return {
+    ...(source && {
+      skill_source:
+        source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(loadedFrom && {
+      skill_loaded_from:
+        loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(kind && {
+      skill_kind:
+        kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(createdBy && {
+      skill_created_by:
+        createdBy as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+  }
+}
 
 /**
  * Logs a tengu_skill_loaded event for each skill available at session startup.
@@ -20,7 +48,6 @@ export async function logSkillsLoaded(
 
   for (const skill of skills) {
     if (skill.type !== 'prompt') continue
-    if (skill.source === 'builtin') continue
 
     logEvent('tengu_skill_loaded', {
       // _PROTO_skill_name routes to the privileged skill_name BQ column.
@@ -35,10 +62,6 @@ export async function logSkillsLoaded(
       ),
       skill_budget: skillBudget,
       skill_content_chars: skill.contentLength,
-      ...(skill.kind && {
-        skill_kind:
-          skill.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      }),
     })
   }
 }

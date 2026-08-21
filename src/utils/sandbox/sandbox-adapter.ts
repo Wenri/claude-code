@@ -37,6 +37,7 @@ import { SETTING_SOURCES, type SettingSource } from '../settings/constants.js'
 import { getManagedSettingsDropInDir } from '../settings/managedPath.js'
 import { WSL_WINDOWS_MANAGED_SETTINGS_PATH } from '../settings/mdm/constants.js'
 import {
+  getAllPolicyTierSettings,
   getInitialSettings,
   getSettings_DEPRECATED,
   getSettingsFilePathForSource,
@@ -58,7 +59,10 @@ import { errorMessage } from '../errors.js'
 import { getClaudeTempDir } from '../permissions/filesystem.js'
 import type { PermissionRuleValue } from '../permissions/PermissionRule.js'
 import { ripgrepCommand } from '../ripgrep.js'
-import { getEmbeddedSeccompConfig } from './seccomp.js'
+import {
+  isScrubSandboxAvailable,
+  isScrubEnabled,
+} from '../subprocessEnv.js'
 
 // Local copies to avoid circular dependency
 // (permissions.ts imports SandboxManager, bashPermissions.ts imports permissions.ts)
@@ -152,16 +156,9 @@ export function resolveSandboxFilesystemPath(
  * This is true when policySettings has sandbox.network.allowManagedDomainsOnly: true
  */
 export function shouldAllowManagedSandboxDomainsOnly(): boolean {
-  return (
-    getSettingsForSource('policySettings')?.sandbox?.network
-      ?.allowManagedDomainsOnly === true
-  )
-}
-
-function shouldAllowManagedReadPathsOnly(): boolean {
-  return (
-    getSettingsForSource('policySettings')?.sandbox?.filesystem
-      ?.allowManagedReadPathsOnly === true
+  return getAllPolicyTierSettings().some(
+    settings =>
+      settings.sandbox?.network?.allowManagedDomainsOnly === true,
   )
 }
 
@@ -175,25 +172,33 @@ export function convertToSandboxRuntimeConfig(
   settings: SettingsJson,
 ): SandboxRuntimeConfig {
   const permissions = settings.permissions || {}
+  const policyTiers = getAllPolicyTierSettings()
+  const allowManagedDomainsOnly = policyTiers.some(
+    tier => tier.sandbox?.network?.allowManagedDomainsOnly === true,
+  )
+  const allowManagedReadPathsOnly = policyTiers.some(
+    tier => tier.sandbox?.filesystem?.allowManagedReadPathsOnly === true,
+  )
 
   // Extract network domains from WebFetch rules
   const allowedDomains: string[] = []
   const deniedDomains: string[] = []
 
   // When allowManagedSandboxDomainsOnly is enabled, only use domains from policy settings
-  if (shouldAllowManagedSandboxDomainsOnly()) {
-    const policySettings = getSettingsForSource('policySettings')
-    for (const domain of policySettings?.sandbox?.network?.allowedDomains ||
-      []) {
-      allowedDomains.push(domain)
-    }
-    for (const ruleString of policySettings?.permissions?.allow || []) {
-      const rule = permissionRuleValueFromString(ruleString)
-      if (
-        rule.toolName === WEB_FETCH_TOOL_NAME &&
-        rule.ruleContent?.startsWith('domain:')
-      ) {
-        allowedDomains.push(rule.ruleContent.substring('domain:'.length))
+  if (allowManagedDomainsOnly) {
+    for (const policySettings of policyTiers) {
+      for (const domain of policySettings.sandbox?.network?.allowedDomains ||
+        []) {
+        allowedDomains.push(domain)
+      }
+      for (const ruleString of policySettings.permissions?.allow || []) {
+        const rule = permissionRuleValueFromString(ruleString)
+        if (
+          rule.toolName === WEB_FETCH_TOOL_NAME &&
+          rule.ruleContent?.startsWith('domain:')
+        ) {
+          allowedDomains.push(rule.ruleContent.substring('domain:'.length))
+        }
       }
     }
   } else {
@@ -352,10 +357,17 @@ export function convertToSandboxRuntimeConfig(
       for (const p of fs.denyRead || []) {
         denyRead.push(resolveSandboxFilesystemPath(p, source))
       }
-      if (!shouldAllowManagedReadPathsOnly() || source === 'policySettings') {
+      if (!allowManagedReadPathsOnly) {
         for (const p of fs.allowRead || []) {
           allowRead.push(resolveSandboxFilesystemPath(p, source))
         }
+      }
+    }
+  }
+  if (allowManagedReadPathsOnly) {
+    for (const policySettings of policyTiers) {
+      for (const p of policySettings.sandbox?.filesystem?.allowRead || []) {
+        allowRead.push(resolveSandboxFilesystemPath(p, 'policySettings'))
       }
     }
   }
@@ -368,17 +380,28 @@ export function convertToSandboxRuntimeConfig(
     argv0,
   }
 
+  const scrubSandboxActive =
+    isScrubEnabled() &&
+    isScrubSandboxAvailable() &&
+    !getSandboxEnabledSetting()
+
   return {
-    network: {
-      allowedDomains,
-      deniedDomains,
-      allowUnixSockets: settings.sandbox?.network?.allowUnixSockets,
-      allowAllUnixSockets: settings.sandbox?.network?.allowAllUnixSockets,
-      allowLocalBinding: settings.sandbox?.network?.allowLocalBinding,
-      allowMachLookup: settings.sandbox?.network?.allowMachLookup,
-      httpProxyPort: settings.sandbox?.network?.httpProxyPort,
-      socksProxyPort: settings.sandbox?.network?.socksProxyPort,
-    },
+    network: scrubSandboxActive
+      ? {
+          allowedDomains: undefined,
+          deniedDomains: [],
+          allowAllUnixSockets: true,
+        }
+      : {
+          allowedDomains,
+          deniedDomains,
+          allowUnixSockets: settings.sandbox?.network?.allowUnixSockets,
+          allowAllUnixSockets: settings.sandbox?.network?.allowAllUnixSockets,
+          allowLocalBinding: settings.sandbox?.network?.allowLocalBinding,
+          allowMachLookup: settings.sandbox?.network?.allowMachLookup,
+          httpProxyPort: settings.sandbox?.network?.httpProxyPort,
+          socksProxyPort: settings.sandbox?.network?.socksProxyPort,
+        },
     filesystem: {
       denyRead,
       allowRead,
@@ -386,11 +409,13 @@ export function convertToSandboxRuntimeConfig(
       denyWrite,
     },
     ignoreViolations: settings.sandbox?.ignoreViolations,
-    enableWeakerNestedSandbox: settings.sandbox?.enableWeakerNestedSandbox,
+    enableWeakerNestedSandbox:
+      isScrubEnabled() && isScrubSandboxAvailable()
+        ? false
+        : settings.sandbox?.enableWeakerNestedSandbox,
     enableWeakerNetworkIsolation:
       settings.sandbox?.enableWeakerNetworkIsolation,
     ripgrep: ripgrepConfig,
-    seccomp: getEmbeddedSeccompConfig(),
   }
 }
 
@@ -481,6 +506,7 @@ function getSandboxEnabledSetting(): boolean {
 }
 
 function isAutoAllowBashIfSandboxedEnabled(): boolean {
+  if (isScrubEnabled()) return false
   const settings = getSettings_DEPRECATED()
   return settings?.sandbox?.autoAllowBashIfSandboxed ?? true
 }
@@ -544,6 +570,13 @@ function isPlatformInEnabledList(): boolean {
  * This checks the user's enabled setting, platform support, and enabledPlatforms restriction
  */
 function isSandboxingEnabled(): boolean {
+  if (
+    isScrubEnabled() &&
+    !getSandboxEnabledSetting()
+  ) {
+    return isScrubSandboxAvailable()
+  }
+
   if (!isSupportedPlatform()) {
     return false
   }
@@ -910,7 +943,6 @@ export interface ISandboxManager {
   }): Promise<void>
   getFsReadConfig(): FsReadRestrictionConfig
   getFsWriteConfig(): FsWriteRestrictionConfig
-  getConfig(): SandboxRuntimeConfig | undefined
   getNetworkRestrictionConfig(): NetworkRestrictionConfig
   getAllowUnixSockets(): string[] | undefined
   getAllowLocalBinding(): boolean | undefined
@@ -933,6 +965,7 @@ export interface ISandboxManager {
   getSandboxViolationStore(): SandboxViolationStore
   annotateStderrWithSandboxFailures(command: string, stderr: string): string
   getLinuxGlobPatternWarnings(): string[]
+  getConfig(): SandboxRuntimeConfig | undefined
   refreshConfig(): void
   reset(): Promise<void>
 }
@@ -961,10 +994,15 @@ export const SandboxManager: ISandboxManager = {
   // Forward to base sandbox manager
   getFsReadConfig: BaseSandboxManager.getFsReadConfig,
   getFsWriteConfig: BaseSandboxManager.getFsWriteConfig,
-  getConfig: BaseSandboxManager.getConfig,
   getNetworkRestrictionConfig: BaseSandboxManager.getNetworkRestrictionConfig,
   getIgnoreViolations: BaseSandboxManager.getIgnoreViolations,
   getLinuxGlobPatternWarnings,
+  getConfig: (): SandboxRuntimeConfig | undefined =>
+    (
+      BaseSandboxManager as typeof BaseSandboxManager & {
+        getConfig(): SandboxRuntimeConfig | undefined
+      }
+    ).getConfig(),
   isSupportedPlatform,
   getAllowUnixSockets: BaseSandboxManager.getAllowUnixSockets,
   getAllowLocalBinding: BaseSandboxManager.getAllowLocalBinding,

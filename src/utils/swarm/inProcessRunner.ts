@@ -24,7 +24,6 @@ import {
   logEvent,
 } from '../../services/analytics/index.js'
 import { getAutoCompactThreshold } from '../../services/compact/autoCompact.js'
-import { createMemorySelectorState } from '../../memdir/findRelevantMemories.js'
 import {
   buildPostCompactMessages,
   compactConversation,
@@ -34,6 +33,7 @@ import {
 import { resetMicrocompactState } from '../../services/compact/microCompact.js'
 import type { AppState } from '../../state/AppState.js'
 import type { Tool, ToolUseContext } from '../../Tool.js'
+import { createMemorySelector } from '../../memdir/findRelevantMemories.js'
 import { appendTeammateMessage } from '../../tasks/InProcessTeammateTask/InProcessTeammateTask.js'
 import type {
   InProcessTeammateTaskState,
@@ -64,6 +64,7 @@ import {
   createUserMessage,
 } from '../../utils/messages.js'
 import { evictTaskOutput } from '../../utils/task/diskOutput.js'
+import { evictTerminalTask } from '../../utils/task/framework.js'
 import { tokenCountWithEstimation } from '../../utils/tokens.js'
 import { createAbortController } from '../abortController.js'
 import { type AgentContext, runWithAgentContext } from '../agentContext.js'
@@ -900,7 +901,7 @@ export async function runInProcessTeammate(
     allowPermissionPrompts,
     invokingRequestId,
   } = config
-  const { setAppState, taskRegistry } = toolUseContext
+  const { setAppState } = toolUseContext
 
   logForDebugging(
     `[inProcessRunner] Starting agent loop for ${identity.agentId}`,
@@ -1085,7 +1086,7 @@ export async function runInProcessTeammate(
         const isolatedContext: ToolUseContext = {
           ...toolUseContext,
           readFileState: cloneFileStateCache(toolUseContext.readFileState),
-          memorySelector: createMemorySelectorState(),
+          memorySelector: createMemorySelector(),
           onCompactProgress: undefined,
           setStreamMode: undefined,
         }
@@ -1395,7 +1396,7 @@ export async function runInProcessTeammate(
           appendTeammateMessage(
             taskId,
             createUserMessage({ content: currentPrompt }),
-            toolUseContext.taskRegistry,
+            setAppState,
           )
           break
 
@@ -1421,7 +1422,7 @@ export async function runInProcessTeammate(
             appendTeammateMessage(
               taskId,
               createUserMessage({ content: currentPrompt }),
-              toolUseContext.taskRegistry,
+              setAppState,
             )
           }
           break
@@ -1469,7 +1470,7 @@ export async function runInProcessTeammate(
     )
     void evictTaskOutput(taskId)
     // Eagerly evict task from AppState since it's been consumed
-    taskRegistry.evictTerminal(taskId)
+    evictTerminalTask(taskId, setAppState)
     // notified:true pre-set → no XML notification → print.ts won't emit
     // the SDK task_notification. Close the task_started bookend directly.
     if (!alreadyTerminal) {
@@ -1522,7 +1523,7 @@ export async function runInProcessTeammate(
     )
     void evictTaskOutput(taskId)
     // Eagerly evict task from AppState since it's been consumed
-    taskRegistry.evictTerminal(taskId)
+    evictTerminalTask(taskId, setAppState)
     // notified:true pre-set → no XML notification → close SDK bookend directly.
     if (!alreadyTerminal) {
       emitTaskTerminatedSdk(taskId, 'failed', {

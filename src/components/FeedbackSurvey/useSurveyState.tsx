@@ -3,12 +3,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TranscriptShareResponse } from './TranscriptSharePrompt.js';
 import type { FeedbackSurveyResponse } from './utils.js';
 type SurveyState = 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
-const SUBMIT_DELAY_MS = 3000;
+const RESPONSE_COMMIT_DELAY_MS = 3000;
 type UseSurveyStateOptions = {
   hideThanksAfterMs: number;
   otherSurveyActive?: boolean;
+  autoDismissAfterMs?: number;
   onOpen: (appearanceId: string) => void | Promise<void>;
   onSelect: (appearanceId: string, selected: FeedbackSurveyResponse) => void | Promise<void>;
+  onAutoDismiss?: (appearanceId: string) => void;
   shouldShowTranscriptPrompt?: (selected: FeedbackSurveyResponse) => boolean;
   onTranscriptPromptShown?: (appearanceId: string, surveyResponse: FeedbackSurveyResponse) => void;
   onTranscriptSelect?: (appearanceId: string, selected: TranscriptShareResponse, surveyResponse: FeedbackSurveyResponse | null) => boolean | Promise<boolean>;
@@ -16,8 +18,10 @@ type UseSurveyStateOptions = {
 export function useSurveyState({
   hideThanksAfterMs,
   otherSurveyActive = false,
+  autoDismissAfterMs,
   onOpen,
   onSelect,
+  onAutoDismiss,
   shouldShowTranscriptPrompt,
   onTranscriptPromptShown,
   onTranscriptSelect
@@ -33,10 +37,10 @@ export function useSurveyState({
   const [lastResponse, setLastResponse] = useState<FeedbackSurveyResponse | null>(null);
   const appearanceId = useRef(randomUUID());
   const lastResponseRef = useRef<FeedbackSurveyResponse | null>(null);
-  const pendingSubmitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const responseCommitTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => {
-    if (pendingSubmitTimer.current) {
-      clearTimeout(pendingSubmitTimer.current);
+    if (responseCommitTimeout.current) {
+      clearTimeout(responseCommitTimeout.current);
     }
   }, []);
   const showThanksThenClose = useCallback(() => {
@@ -63,8 +67,21 @@ export function useSurveyState({
       setState('closed');
     }
   }, [otherSurveyActive, state]);
-  const processSelection = useCallback((selected: FeedbackSurveyResponse) => {
-    pendingSubmitTimer.current = null;
+  const onAutoDismissRef = useRef(onAutoDismiss);
+  onAutoDismissRef.current = onAutoDismiss;
+  useEffect(() => {
+    if (state !== 'open' || !autoDismissAfterMs) {
+      return;
+    }
+    const timeout = setTimeout((currentAppearanceId, callbackRef, setState_0, setLastResponse_0) => {
+      setState_0('closed');
+      setLastResponse_0(null);
+      callbackRef.current?.(currentAppearanceId);
+    }, autoDismissAfterMs, appearanceId.current, onAutoDismissRef, setState, setLastResponse);
+    return () => clearTimeout(timeout);
+  }, [state, autoDismissAfterMs]);
+  const commitResponse = useCallback((selected: FeedbackSurveyResponse) => {
+    responseCommitTimeout.current = null;
     void onSelect(appearanceId.current, selected);
     if (selected === 'dismissed') {
       setState('closed');
@@ -80,17 +97,17 @@ export function useSurveyState({
     setLastResponse(selected);
     lastResponseRef.current = selected;
     if (selected === 'dismissed') {
-      processSelection(selected);
+      commitResponse(selected);
       return;
     }
     setState('pending');
-    pendingSubmitTimer.current = setTimeout(processSelection, SUBMIT_DELAY_MS, selected);
-  }, [processSelection]);
+    responseCommitTimeout.current = setTimeout(commitResponse, RESPONSE_COMMIT_DELAY_MS, selected);
+  }, [commitResponse]);
   const handleUndo = useCallback(() => {
-    if (pendingSubmitTimer.current) {
-      clearTimeout(pendingSubmitTimer.current);
+    if (responseCommitTimeout.current) {
+      clearTimeout(responseCommitTimeout.current);
+      responseCommitTimeout.current = null;
     }
-    pendingSubmitTimer.current = null;
     setLastResponse(null);
     lastResponseRef.current = null;
     setState('open');

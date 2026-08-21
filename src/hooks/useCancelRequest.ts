@@ -13,14 +13,12 @@ import {
   useAppStateStore,
   useSetAppState,
 } from 'src/state/AppState.js'
-import { isVimModeEnabled } from '../components/PromptInput/utils.js'
 import type { ToolUseConfirm } from '../components/permissions/PermissionRequest.js'
 import type { SpinnerMode } from '../components/Spinner/types.js'
 import type { ConnectionSummary } from '../services/api/connectionState.js'
 import { useNotifications } from '../context/notifications.js'
 import { useIsOverlayActive } from '../context/overlayContext.js'
 import { useCommandQueue } from '../hooks/useCommandQueue.js'
-import { useTaskRegistry } from '../hooks/useTaskRegistry.js'
 import { getShortcutDisplay } from '../keybindings/shortcutFormat.js'
 import { useKeybinding } from '../keybindings/useKeybinding.js'
 import type { Screen } from '../screens/REPL.js'
@@ -29,14 +27,13 @@ import {
   killAllRunningAgentTasks,
   markAgentsNotified,
 } from '../tasks/LocalAgentTask/LocalAgentTask.js'
-import type { PromptInputMode, VimMode } from '../types/textInputTypes.js'
+import type { PromptInputMode } from '../types/textInputTypes.js'
 import {
   clearCommandQueue,
   enqueuePendingNotification,
   hasCommandsInQueue,
 } from '../utils/messageQueueManager.js'
 import { emitTaskTerminatedSdk } from '../utils/sdkEventQueue.js'
-import { cancelAllPendingLoopSessionCrons } from '../utils/loopWakeup.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const loopDynamicModule = feature('AGENT_TRIGGERS')
@@ -58,12 +55,10 @@ type CancelRequestHandlerProps = {
   abortSignal?: AbortSignal
   isExternalLoading?: boolean
   popCommandFromQueue?: () => void
-  vimMode?: VimMode
   isLocalJSXCommand?: boolean
-  isSearchingHistory?: boolean
-  isHelpOpen?: boolean
+  isInputOverlayActive: boolean
   inputMode?: PromptInputMode
-  isInputEmpty?: boolean
+  isInputEmpty: boolean
   streamMode?: SpinnerMode
   getConnectionSummary?: () => ConnectionSummary | undefined
 }
@@ -82,10 +77,8 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     abortSignal,
     isExternalLoading = false,
     popCommandFromQueue,
-    vimMode,
     isLocalJSXCommand,
-    isSearchingHistory,
-    isHelpOpen,
+    isInputOverlayActive,
     inputMode,
     isInputEmpty,
     streamMode,
@@ -93,7 +86,6 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
   } = props
   const store = useAppStateStore()
   const setAppState = useSetAppState()
-  const taskRegistry = useTaskRegistry()
   const queuedCommandsLength = useCommandQueue().length
   const { addNotification, removeNotification } = useNotifications()
   const lastKillAgentsPressRef = useRef<number>(0)
@@ -161,12 +153,10 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
   // Context guards: other screens/overlays handle their own cancel
   const isContextActive =
     screen !== 'transcript' &&
-    !isSearchingHistory &&
     !isMessageSelectorVisible &&
     !isLocalJSXCommand &&
-    !isHelpOpen &&
     !isOverlayActive &&
-    !(isVimModeEnabled() && vimMode === 'INSERT')
+    !isInputOverlayActive
 
   // Escape (chat:cancel) defers to mode-exit when in special mode with empty
   // input, and to useBackgroundTaskNavigation when viewing a teammate
@@ -198,10 +188,10 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
       ([, t]) => t.type === 'local_agent' && t.status === 'running',
     )
     if (running.length === 0) return false
-    killAllRunningAgentTasks(tasks, taskRegistry)
+    killAllRunningAgentTasks(tasks, setAppState)
     const descriptions: string[] = []
     for (const [taskId, task] of running) {
-      markAgentsNotified(taskId, taskRegistry)
+      markAgentsNotified(taskId, setAppState)
       descriptions.push(task.description)
       emitTaskTerminatedSdk(taskId, 'stopped', {
         toolUseId: task.toolUseId,
@@ -215,7 +205,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     enqueuePendingNotification({ value: summary, mode: 'task-notification' })
     onAgentsKilled()
     return true
-  }, [store, taskRegistry, onAgentsKilled])
+  }, [store, setAppState, onAgentsKilled])
 
   // Ctrl+C (app:interrupt). Scoped to teammate-view: killing agents from the
   // main prompt stays a deliberate gesture (chat:killAgents), not a

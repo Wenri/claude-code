@@ -2,6 +2,8 @@ import { c as _c } from "react/compiler-runtime";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { installOAuthTokens } from '../cli/handlers/auth.js';
+import { LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS } from '../constants/oauth.js';
+import { useIsInsideModal } from '../context/modalContext.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { setClipboard } from '../ink/termio/osc.js';
 import { useTerminalNotification } from '../ink/useTerminalNotification.js';
@@ -10,7 +12,6 @@ import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { getSSLErrorHint } from '../services/api/errorUtils.js';
 import { sendNotification } from '../services/notifier.js';
 import { OAuthService } from '../services/oauth/index.js';
-import { openBrowser } from '../utils/browser.js';
 import { getOauthAccountInfo, validateForceLoginOrg } from '../utils/auth.js';
 import { openBrowser } from '../utils/browser.js';
 import { saveGlobalConfig } from '../utils/config.js';
@@ -33,19 +34,7 @@ type OAuthStatus = {
 } // Initial state, waiting to select login method
 | {
   state: 'platform_setup';
-} // Choose Bedrock interactive setup or open another provider's docs
-| {
-  state: 'bedrock_wizard';
-} | {
-  state: 'bedrock_done';
-  message: string;
-}
-| {
-  state: 'vertex_wizard';
-} | {
-  state: 'vertex_done';
-  message: string;
-}
+} // Show platform setup info (Bedrock/Vertex/Foundry)
 | {
   state: 'bedrock_wizard';
 } | {
@@ -86,6 +75,7 @@ export function ConsoleOAuthFlow({
   forceLoginMethod: forceLoginMethodProp,
   urlOutdent = 0
 }: Props): React.ReactNode {
+  const totalUrlOutdent = (useIsInsideModal() ? 2 : 0) + urlOutdent;
   const { exit } = useApp();
   const settings = getSettings_DEPRECATED() || {};
   const forceLoginMethod = forceLoginMethodProp ?? settings.forceLoginMethod;
@@ -235,7 +225,7 @@ export function ConsoleOAuthFlow({
       }, {
         loginWithClaudeAi,
         inferenceOnly: mode === 'setup-token',
-        expiresIn: mode === 'setup-token' ? 365 * 24 * 60 * 60 : undefined,
+        expiresIn: mode === 'setup-token' ? LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS : undefined,
         // 1 year for setup-token
         orgUUID
       }).catch(err_1 => {
@@ -338,7 +328,7 @@ export function ConsoleOAuthFlow({
                 <KeyboardShortcutHint shortcut="c" action="copy" parens />
               </Text>}
           </Box>
-          <Box marginX={effectiveUrlOutdent ? -effectiveUrlOutdent : undefined}>
+          <Box marginX={totalUrlOutdent ? -totalUrlOutdent : undefined}>
             <Link url={oauthStatus.url}>
               <Text dimColor>{oauthStatus.url}</Text>
             </Link>
@@ -545,22 +535,6 @@ function OAuthStatusMessage(t0) {
             message
           })} onCancel={() => setOAuthStatus({ state: 'platform_setup' })} />;
       }
-    case "bedrock_wizard":
-      return <BedrockSetupWizard onComplete={message => setOAuthStatus({
-        state: "bedrock_done",
-        message
-      })} onCancel={() => setOAuthStatus({ state: "platform_setup" })} />;
-    case "vertex_wizard":
-      return <VertexSetupWizard onComplete={message => setOAuthStatus({
-        state: "vertex_done",
-        message
-      })} onCancel={() => setOAuthStatus({ state: "platform_setup" })} />;
-    case "bedrock_done":
-    case "vertex_done":
-      return <Box flexDirection="column" gap={1} marginTop={1}>
-          <Text color="success">{oauthStatus.message}</Text>
-          <Text dimColor={true}>Press <Text bold={true}>Enter</Text> to restart Claude Code.</Text>
-        </Box>;
     case "waiting_for_login":
       {
         let t1;

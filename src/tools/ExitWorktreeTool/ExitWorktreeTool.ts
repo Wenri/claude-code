@@ -162,8 +162,10 @@ export const ExitWorktreeTool: Tool<InputSchema, Output> = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
-  userFacingName() {
-    return 'Exiting worktree'
+  userFacingName(input) {
+    return input?.action === 'remove'
+      ? 'Cleaning up worktree'
+      : 'Exiting worktree'
   },
   shouldDefer: true,
   isDestructive(input) {

@@ -30,8 +30,9 @@ import { logForDebugging } from '../debug.js'
 import { emitTaskTerminatedSdk } from '../sdkEventQueue.js'
 import { evictTaskOutput } from '../task/diskOutput.js'
 import {
+  evictTerminalTask,
+  registerTask,
   STOPPED_DISPLAY_MS,
-  type TaskRegistry,
 } from '../task/framework.js'
 import { createTeammateContext } from '../teammateContext.js'
 import {
@@ -49,7 +50,6 @@ type SetAppStateFn = (updater: (prev: AppState) => AppState) => void
  */
 export type SpawnContext = {
   setAppState: SetAppStateFn
-  taskRegistry: TaskRegistry
   toolUseId?: string
 }
 
@@ -106,7 +106,7 @@ export async function spawnInProcessTeammate(
   context: SpawnContext,
 ): Promise<InProcessSpawnOutput> {
   const { name, teamName, prompt, color, planModeRequired, model } = config
-  const { taskRegistry } = context
+  const { setAppState } = context
 
   // Generate deterministic agent ID
   const agentId = formatAgentId(name, teamName)
@@ -188,7 +188,7 @@ export async function spawnInProcessTeammate(
     taskState.unregisterCleanup = unregisterCleanup
 
     // Register task in AppState
-    taskRegistry.register(taskState)
+    registerTask(taskState, setAppState)
 
     logForDebugging(
       `[spawnInProcessTeammate] Registered ${agentId} in AppState`,
@@ -226,7 +226,6 @@ export async function spawnInProcessTeammate(
  */
 export function killInProcessTeammate(
   taskId: string,
-  taskRegistry: TaskRegistry,
   setAppState: SetAppStateFn,
 ): boolean {
   let killed = false
@@ -235,9 +234,16 @@ export function killInProcessTeammate(
   let toolUseId: string | undefined
   let description: string | undefined
 
-  taskRegistry.update<InProcessTeammateTaskState>(taskId, teammateTask => {
+  setAppState((prev: AppState) => {
+    const task = prev.tasks[taskId]
+    if (!task || task.type !== 'in_process_teammate') {
+      return prev
+    }
+
+    const teammateTask = task as InProcessTeammateTaskState
+
     if (teammateTask.status !== 'running') {
-      return teammateTask
+      return prev
     }
 
     // Capture identity for cleanup after state update
@@ -252,39 +258,45 @@ export function killInProcessTeammate(
     // Call cleanup handler
     teammateTask.unregisterCleanup?.()
 
+    // Update task state and remove from teamContext.teammates
     killed = true
 
     // Call pending idle callbacks to unblock any waiters (e.g., engine.waitForIdle)
     teammateTask.onIdleCallbacks?.forEach(cb => cb())
 
+    // Remove from teamContext.teammates using the agentId
+    let updatedTeamContext = prev.teamContext
+    if (prev.teamContext && prev.teamContext.teammates && agentId) {
+      const { [agentId]: _, ...remainingTeammates } = prev.teamContext.teammates
+      updatedTeamContext = {
+        ...prev.teamContext,
+        teammates: remainingTeammates,
+      }
+    }
+
     return {
-      ...teammateTask,
-      status: 'killed' as const,
-      notified: true,
-      endTime: Date.now(),
-      onIdleCallbacks: [],
-      messages: teammateTask.messages?.length
-        ? [teammateTask.messages.at(-1)!]
-        : undefined,
-      pendingUserMessages: [],
-      inProgressToolUseIDs: undefined,
-      abortController: undefined,
-      unregisterCleanup: undefined,
-      currentWorkAbortController: undefined,
+      ...prev,
+      teamContext: updatedTeamContext,
+      tasks: {
+        ...prev.tasks,
+        [taskId]: {
+          ...teammateTask,
+          status: 'killed' as const,
+          notified: true,
+          endTime: Date.now(),
+          onIdleCallbacks: [], // Clear callbacks to prevent stale references
+          messages: teammateTask.messages?.length
+            ? [teammateTask.messages[teammateTask.messages.length - 1]!]
+            : undefined,
+          pendingUserMessages: [],
+          inProgressToolUseIDs: undefined,
+          abortController: undefined,
+          unregisterCleanup: undefined,
+          currentWorkAbortController: undefined,
+        },
+      },
     }
   })
-
-  if (killed && agentId) {
-    setAppState(prev => {
-      if (!prev.teamContext?.teammates?.[agentId!]) return prev
-      const { [agentId!]: _removed, ...teammates } =
-        prev.teamContext.teammates
-      return {
-        ...prev,
-        teamContext: { ...prev.teamContext, teammates },
-      }
-    })
-  }
 
   // Remove from team file (outside state updater to avoid file I/O in callback)
   if (teamName && agentId) {
@@ -302,10 +314,8 @@ export function killInProcessTeammate(
       summary: description,
     })
     setTimeout(
-      (registry: TaskRegistry, id: string) => registry.evictTerminal(id),
+      evictTerminalTask.bind(null, taskId, setAppState),
       STOPPED_DISPLAY_MS,
-      taskRegistry,
-      taskId,
     )
   }
 

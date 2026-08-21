@@ -40,7 +40,7 @@ export async function call(): Promise<{ type: 'text'; value: string }> {
   if (result.error) {
     return {
       type: 'text',
-      value: `${fileExists ? 'Opened' : 'Created'} ${keybindingsPath}. Could not open in editor: ${result.error}`,
+      value: `${fileExists ? 'Opened' : 'Created'} ${keybindingsPath}. ${result.error}`,
     }
   }
   return {

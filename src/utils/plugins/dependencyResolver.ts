@@ -222,17 +222,15 @@ export function formatNoMatchingTagError(
 }
 
 /**
- * Check an installed plugin version against a dependency range. Installed
- * versions may be loose semver strings, so normalize them the same way as the
- * load-time dependency verifier before evaluating the range.
+ * Check a stored or manifest-derived plugin version against a semver range.
+ * Non-semver versions are coerced when possible; missing/unparseable versions
+ * do not satisfy the range.
  */
-export function satisfiesVersionConstraint(
+export function isPluginVersionSatisfied(
   version: string | undefined,
   range: string,
 ): boolean {
-  const normalized = version
-    ? (semver.valid(version) ?? semver.coerce(version)?.version)
-    : undefined
+  const normalized = semver.valid(version) ?? semver.coerce(version)?.version
   return normalized !== undefined && semver.satisfies(normalized, range)
 }
 
@@ -285,9 +283,10 @@ export type ResolutionResult =
  *
  * The returned `closure` ALWAYS contains `rootId`, plus every transitive
  * dependency that is NOT in `alreadyEnabled`. Already-enabled deps are
- * skipped (not recursed into) — this avoids surprise settings writes when a
- * dep is already installed at a different scope. The root is never skipped,
- * even if already enabled, so re-installing a plugin always re-caches it.
+ * skipped unless explicitly present in `forceInclude` — this avoids surprise
+ * settings writes while allowing an unpinned, version-unsatisfied dependency
+ * to be repaired. The root is never skipped, even if already enabled, so
+ * re-installing a plugin always re-caches it.
  *
  * Cross-marketplace dependencies are BLOCKED by default: a plugin in
  * marketplace A cannot auto-install a plugin from marketplace B. This is
@@ -304,6 +303,8 @@ export type ResolutionResult =
  * @param alreadyEnabled Plugin IDs to skip (deps only, root is never skipped)
  * @param allowedCrossMarketplaces Marketplace names the root trusts for
  *   auto-install (from the root marketplace's manifest)
+ * @param forceInclude Already-enabled dependencies that need their version
+ *   constraint repaired
  * @returns Closure to install, or a cycle/not-found/cross-marketplace error
  */
 export async function resolveDependencyClosure(
@@ -462,7 +463,7 @@ export function verifyAndDemote(plugins: readonly LoadedPlugin[]): {
           const installed =
             installedPlugin?.resolvedVersion ??
             installedPlugin?.manifest.version
-          if (!satisfiesVersionConstraint(installed, required)) {
+          if (!isPluginVersionSatisfied(installed, required)) {
             enabled.delete(p.source)
             const count = enabledByName.get(p.name) ?? 0
             if (count <= 1) enabledByName.delete(p.name)

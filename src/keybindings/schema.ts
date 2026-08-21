@@ -60,9 +60,12 @@ export const KEYBINDING_CONTEXT_DESCRIPTIONS: Record<
   Select: 'When a select/list component is focused',
   Plugin: 'When the plugin dialog is open',
   Scroll: 'When a scrollable view is focused (fullscreen layout)',
-  MessageActions: 'When the message actions menu is open (fullscreen layout)',
+  MessageActions:
+    'When the message actions menu is open (fullscreen layout)',
   Doctor: 'When the /doctor diagnostics screen is open',
 }
+
+const MESSAGE_ACTION_BINDING_PATTERN = /^messageActions:[a-zA-Z0-9:\-_]+$/
 
 /**
  * All valid keybinding action identifiers.
@@ -99,6 +102,7 @@ export const KEYBINDING_ACTIONS = [
   'chat:imagePaste',
   'chat:messageActions',
   'chat:clearInput',
+  'chat:clearScreen',
   // Autocomplete menu actions
   'autocomplete:accept',
   'autocomplete:dismiss',
@@ -125,6 +129,7 @@ export const KEYBINDING_ACTIONS = [
   'historySearch:accept',
   'historySearch:cancel',
   'historySearch:execute',
+  'historySearch:cycleScope',
   // Task/agent actions
   'task:background',
   // Theme picker actions
@@ -173,8 +178,8 @@ export const KEYBINDING_ACTIONS = [
   'select:cancel',
   // Plugin dialog actions
   'plugin:toggle',
-  'plugin:favorite',
   'plugin:install',
+  'plugin:favorite',
   // Doctor diagnostics actions
   'doctor:fix',
   // Permission dialog actions
@@ -182,12 +187,13 @@ export const KEYBINDING_ACTIONS = [
   // Settings config panel actions
   'settings:search',
   'settings:retry',
+  'settings:close',
   'settings:periodDay',
   'settings:periodWeek',
-  'settings:close',
   'settings:sortByTokens',
   // Voice actions
   'voice:pushToTalk',
+  // Scroll actions
   'scroll:pageUp',
   'scroll:pageDown',
   'scroll:lineUp',
@@ -198,6 +204,7 @@ export const KEYBINDING_ACTIONS = [
   'scroll:halfPageDown',
   'scroll:fullPageUp',
   'scroll:fullPageDown',
+  // Text selection actions
   'selection:copy',
   'selection:clear',
   'selection:extendLeft',
@@ -207,8 +214,6 @@ export const KEYBINDING_ACTIONS = [
   'selection:extendLineStart',
   'selection:extendLineEnd',
 ] as const
-
-const MESSAGE_ACTION_PATTERN = /^messageActions:[a-zA-Z0-9:\-_]+$/
 
 /**
  * Schema for a single keybinding block.
@@ -237,7 +242,7 @@ export const KeybindingBlockSchema = lazySchema(() =>
                 ),
               z
                 .string()
-                .regex(MESSAGE_ACTION_PATTERN)
+                .regex(MESSAGE_ACTION_BINDING_PATTERN)
                 .describe(
                   'Message action binding (e.g., "messageActions:copy"). Triggers a registered message action.',
                 ),

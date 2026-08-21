@@ -4,7 +4,7 @@
 // surfacing via the existing task registry.
 
 import { rollbackConsolidationLock } from '../../services/autoDream/consolidationLock.js'
-import type { Task, TaskStateBase } from '../../Task.js'
+import type { SetAppState, Task, TaskStateBase } from '../../Task.js'
 import { createTaskStateBase, generateTaskId } from '../../Task.js'
 import { emitTaskTerminatedSdk } from '../../utils/sdkEventQueue.js'
 import { registerTask, updateTaskState } from '../../utils/task/framework.js'
@@ -52,7 +52,7 @@ export function isDreamTask(task: unknown): task is DreamTaskState {
 }
 
 export function registerDreamTask(
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
   opts: {
     sessionsReviewing: number
     priorMtime: number
@@ -72,7 +72,7 @@ export function registerDreamTask(
     abortController: opts.abortController,
     priorMtime: opts.priorMtime,
   }
-  taskRegistry.register(task)
+  registerTask(task, setAppState)
   return id
 }
 
@@ -80,9 +80,9 @@ export function addDreamTurn(
   taskId: string,
   turn: DreamTurn,
   touchedPaths: string[],
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
 ): void {
-  taskRegistry.update<DreamTaskState>(taskId, task => {
+  updateTaskState<DreamTaskState>(taskId, setAppState, task => {
     const seen = new Set(task.filesTouched)
     const newTouched = touchedPaths.filter(p => !seen.has(p) && seen.add(p))
     // Skip the update entirely if the turn is empty AND nothing new was
@@ -108,12 +108,12 @@ export function addDreamTurn(
 
 export function completeDreamTask(
   taskId: string,
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
 ): void {
   // notified: true immediately — dream has no model-facing notification path
   // (it's UI-only), and eviction requires terminal + notified. The inline
   // appendSystemMessage completion note IS the user surface.
-  taskRegistry.update<DreamTaskState>(taskId, task => ({
+  updateTaskState<DreamTaskState>(taskId, setAppState, task => ({
     ...task,
     status: 'completed',
     endTime: Date.now(),
@@ -123,8 +123,8 @@ export function completeDreamTask(
   emitTaskTerminatedSdk(taskId, 'completed', { skipTranscript: true })
 }
 
-export function failDreamTask(taskId: string, taskRegistry: TaskRegistry): void {
-  taskRegistry.update<DreamTaskState>(taskId, task => ({
+export function failDreamTask(taskId: string, setAppState: SetAppState): void {
+  updateTaskState<DreamTaskState>(taskId, setAppState, task => ({
     ...task,
     status: 'failed',
     endTime: Date.now(),
@@ -138,9 +138,9 @@ export const DreamTask: Task = {
   name: 'DreamTask',
   type: 'dream',
 
-  async kill(taskId, taskRegistry) {
+  async kill(taskId, _taskRegistry, setAppState) {
     let priorMtime: number | undefined
-    taskRegistry.update<DreamTaskState>(taskId, task => {
+    updateTaskState<DreamTaskState>(taskId, setAppState, task => {
       if (task.status !== 'running') return task
       task.abortController?.abort()
       priorMtime = task.priorMtime

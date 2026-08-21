@@ -264,20 +264,6 @@ export type PermissionResult<
 /**
  * Explanation of why a permission decision was made
  */
-export const PERMISSION_DECISION_REASON_TYPES = [
-  'rule',
-  'mode',
-  'subcommandResults',
-  'permissionPromptTool',
-  'hook',
-  'asyncAgent',
-  'sandboxOverride',
-  'workingDir',
-  'safetyCheck',
-  'classifier',
-  'other',
-] as const
-
 export type PermissionDecisionReason =
   | {
       type: 'rule'

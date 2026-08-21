@@ -1,5 +1,4 @@
 import { feature } from 'bun:bundle'
-import { randomUUID } from 'crypto'
 import { extname, isAbsolute, resolve } from 'path'
 import {
   fileHistoryEnabled,
@@ -408,7 +407,7 @@ export const NotebookEditTool = buildTool({
         (notebook.nbformat === 4 && notebook.nbformat_minor >= 5)
       ) {
         if (edit_mode === 'insert') {
-          new_cell_id = randomUUID().slice(0, 8)
+          new_cell_id = Math.random().toString(36).substring(2, 15)
         } else if (cell_id !== null) {
           new_cell_id = cell_id
         }

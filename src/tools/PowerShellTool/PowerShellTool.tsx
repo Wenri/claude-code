@@ -36,9 +36,8 @@ import { buildLargeToolResultMessage, ensureToolResultsDir, generatePreview, get
 import { shouldUseSandbox } from '../BashTool/shouldUseSandbox.js';
 import { BackgroundHint } from '../BashTool/UI.js';
 import { buildImageToolResult, isImageOutput, resetCwdIfOutsideProject, resizeShellImageOutput, stdErrAppendShellResetMessage, stripEmptyLines } from '../BashTool/utils.js';
-import { getImageLimits } from '../../utils/imageLimits.js';
 import { trackGitOperations } from '../shared/gitOperationTracking.js';
-import { interpretCommandResult } from './commandSemantics.js';
+import { classifyPowerShellFailure, interpretCommandResult } from './commandSemantics.js';
 import { powershellToolHasPermission } from './powershellPermissions.js';
 import { getDefaultTimeoutMs, getMaxTimeoutMs, getPrompt } from './prompt.js';
 import { hasSyncSecurityConcerns, isReadOnlyCommand, resolveToCanonical } from './readOnlyValidation.js';
@@ -196,9 +195,9 @@ export function detectBlockedSleepPattern(command: string): string | null {
   const first = command.trim().split(/[;|&\r\n]/)[0]?.trim() ?? '';
   // Match: Start-Sleep N, Start-Sleep -Seconds N, Start-Sleep -s N, sleep N
   // (case-insensitive; -Seconds can be abbreviated to -s per PS convention)
-  const m = /^(?:start-sleep|sleep)(?:\s+-s(?:econds)?)?\s+(\d+(?:\.\d*)?)\s*$/i.exec(first);
+  const m = /^(?:start-sleep|sleep)(?:\s+-s(?:econds)?)?\s+(\d+)\s*$/i.exec(first);
   if (!m) return null;
-  const secs = parseFloat(m[1]!);
+  const secs = parseInt(m[1]!, 10);
   if (secs < 2) return null; // sub-2s sleeps are fine (rate limiting, pacing)
 
   const rest = command.trim().slice(first.length).replace(/^[\s;|&]+/, '');
@@ -364,7 +363,7 @@ export const PowerShellTool = buildTool({
       if (sleepPattern !== null) {
         return {
           result: false,
-          message: `Blocked: ${sleepPattern}. To wait for a condition, use Monitor with an until-loop (e.g. \`until <check>; do sleep 2; done\` — Monitor runs bash). To wait for a command you started, use run_in_background: true. Do not chain shorter sleeps to work around this block.`,
+          message: `Blocked: ${sleepPattern}. Run blocking commands in the background with run_in_background: true — you'll get a completion notification when done. For streaming events (watching logs, polling APIs), use the Monitor tool. If you genuinely need a delay (rate limiting, deliberate pacing), keep it under 2 seconds.`,
           errorCode: 10
         };
       }
@@ -460,8 +459,6 @@ export const PowerShellTool = buildTool({
         // Use the always-shared task channel so async agents' background
         // shell tasks are actually registered (and killable on agent exit).
         setAppState: toolUseContext.setAppStateForTasks ?? setAppState,
-        taskRegistry: toolUseContext.taskRegistry,
-        abortSpeculation: toolUseContext.abortSpeculation,
         setToolJSX,
         emitToolProgress,
         preventCwdChanges: !isMainThread,
@@ -587,6 +584,14 @@ export const PowerShellTool = buildTool({
         throw new Error(result.preSpawnError);
       }
       if (interpretation.isError && !isInterrupt) {
+        const classificationOutput = processedStdout.length <= 8192 ? processedStdout : processedStdout.slice(0, 4096) + processedStdout.slice(-4096);
+        logEvent('tengu_powershell_tool_command_failed', {
+          command_type: getCommandTypeForLogging(input.command),
+          exit_code: result.code,
+          stdout_length: processedStdout.length,
+          error_class: classifyPowerShellFailure(classificationOutput),
+          powershell_edition: (await getPowerShellEdition()) ?? 'unknown'
+        });
         throw new ShellError(stdout, result.stderr || '', result.code, result.interrupted);
       }
 
@@ -650,8 +655,7 @@ export const PowerShellTool = buildTool({
         stdout_length: compressedStdout.length,
         stderr_length: finalStderr.length,
         exit_code: result.code,
-        interrupted: result.interrupted,
-        powershell_edition: (await getPowerShellEdition()) ?? 'unknown'
+        interrupted: result.interrupted
       });
       return {
         data: {
@@ -682,8 +686,6 @@ async function* runPowerShellCommand({
   input,
   abortController,
   setAppState,
-  taskRegistry,
-  abortSpeculation,
   setToolJSX,
   emitToolProgress,
   preventCwdChanges,
@@ -695,15 +697,13 @@ async function* runPowerShellCommand({
   input: PowerShellToolInput;
   abortController: AbortController;
   setAppState: (f: (prev: AppState) => AppState) => void;
-  taskRegistry: ToolUseContext['taskRegistry'];
-  abortSpeculation?: ToolUseContext['abortSpeculation'];
   setToolJSX?: SetToolJSXFn;
   emitToolProgress?: ToolUseContext['emitToolProgress'];
   preventCwdChanges?: boolean;
   isMainThread?: boolean;
   toolUseId?: string;
   agentId?: AgentId;
-  sessionEnvVars?: Map<string, string>;
+  sessionEnvVars?: ToolUseContext['sessionEnvVars'];
 }): AsyncGenerator<{
   type: 'progress';
   output: string;
@@ -802,9 +802,7 @@ async function* runPowerShellCommand({
       getAppState: () => {
         throw new Error('getAppState not available in runPowerShellCommand context');
       },
-      setAppState,
-      taskRegistry,
-      abortSpeculation
+      setAppState
     });
     return handle.taskId;
   }
@@ -816,7 +814,7 @@ async function* runPowerShellCommand({
     // would overwrite tasks[taskId], emit a duplicate task_started SDK event,
     // and leak the first cleanup callback.
     if (foregroundTaskId) {
-      if (!backgroundExistingForegroundTask(foregroundTaskId, shellCommand, description || command, taskRegistry, abortSpeculation, toolUseId)) {
+      if (!backgroundExistingForegroundTask(foregroundTaskId, shellCommand, description || command, setAppState, toolUseId)) {
         return;
       }
       backgroundShellId = foregroundTaskId;
@@ -913,7 +911,7 @@ async function* runPowerShellCommand({
         // Check result.backgroundTaskId (not the closure var) to also cover
         // Ctrl+B, which calls shellCommand.background() directly.
         if (result.backgroundTaskId !== undefined) {
-          markTaskNotified(result.backgroundTaskId, taskRegistry);
+          markTaskNotified(result.backgroundTaskId, setAppState);
           const fixedResult: ExecResult = {
             ...result,
             backgroundTaskId: undefined
@@ -991,7 +989,7 @@ async function* runPowerShellCommand({
             description: description || command,
             shellCommand,
             agentId
-          }, taskRegistry, toolUseId);
+          }, setAppState, toolUseId);
         }
         setToolJSX({
           jsx: <BackgroundHint />,
@@ -1024,7 +1022,7 @@ async function* runPowerShellCommand({
     // Matches main #21105.
     if (!backgroundShellId && shellCommand.status !== 'backgrounded') {
       if (foregroundTaskId) {
-        unregisterForeground(foregroundTaskId, taskRegistry);
+        unregisterForeground(foregroundTaskId, setAppState);
       }
       shellCommand.cleanup();
     }

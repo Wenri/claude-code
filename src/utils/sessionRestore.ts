@@ -29,7 +29,6 @@ import type {
   PersistedWorktreeSession,
 } from '../types/logs.js'
 import type { Message } from '../types/message.js'
-import type { PermissionMode } from '../types/permissions.js'
 import { renameRecordingForSession } from './asciicast.js'
 import { clearMemoryFileCaches } from './claudemd.js'
 import {
@@ -45,10 +44,13 @@ import type { FileHistorySnapshot } from './fileHistory.js'
 import { fileHistoryRestoreStateFromLog } from './fileHistory.js'
 import { createSystemMessage } from './messages.js'
 import { parseUserSpecifiedModel } from './model/model.js'
-import { getPlansDirectory } from './plans.js'
 import { setAutoModeActive } from './permissions/autoModeState.js'
-import { permissionModeFromString } from './permissions/PermissionMode.js'
+import {
+  permissionModeFromString,
+  type PermissionMode,
+} from './permissions/PermissionMode.js'
 import { isAutoModeGateEnabled } from './permissions/permissionSetup.js'
+import { getPlansDirectory } from './plans.js'
 import { setCwd } from './Shell.js'
 import {
   isRestrictedToPluginOnly,
@@ -339,9 +341,10 @@ type ResumeLoadResult = {
   agentColor?: string
   agentSetting?: string
   customTitle?: string
+  aiTitle?: string
   tag?: string
   mode?: 'coordinator' | 'normal'
-  permissionMode?: PermissionMode
+  permissionMode?: string
   worktreeSession?: PersistedWorktreeSession | null
   prNumber?: number
   prUrl?: string
@@ -433,27 +436,23 @@ export function exitRestoredWorktree(): void {
   setOriginalCwd(getCwd())
 }
 
-/**
- * Restore the transcript's permission mode unless the current invocation
- * explicitly selected one. Modes that should never be inherited across
- * sessions are ignored, and auto mode is restored only while its live gate
- * remains available.
- */
-export function getRestoredPermissionMode(
-  value: string | undefined,
+function getResumePermissionMode(
+  permissionMode: string | undefined,
   permissionModeCliSet: boolean,
 ): PermissionMode | undefined {
-  if (permissionModeCliSet || !value) return undefined
+  if (permissionModeCliSet || !permissionMode) return undefined
 
-  const mode = permissionModeFromString(value)
-  if (mode === 'default' && value !== 'default') return undefined
-  if (mode === 'plan' || mode === 'bypassPermissions') return undefined
-  if (mode === 'default') return undefined
-  if (mode === 'auto') {
+  const parsedMode = permissionModeFromString(permissionMode)
+  if (parsedMode === 'default' && permissionMode !== 'default') return undefined
+  if (parsedMode === 'plan' || parsedMode === 'bypassPermissions') {
+    return undefined
+  }
+  if (parsedMode === 'default') return undefined
+  if (parsedMode === 'auto') {
     if (!isAutoModeGateEnabled()) return undefined
     setAutoModeActive(true)
   }
-  return mode
+  return parsedMode
 }
 
 /**
@@ -567,6 +566,10 @@ export async function processResumedConversation(
       context.mainThreadAgentDefinition,
       context.agentDefinitions,
     )
+  const resumedPermissionMode = getResumePermissionMode(
+    result.permissionMode,
+    context.permissionModeCliSet,
+  )
 
   // Persist the current mode so future resumes know what mode this session was in
   if (feature('COORDINATOR_MODE')) {
@@ -587,10 +590,6 @@ export async function processResumedConversation(
     context.currentCwd,
     context.cliAgents,
     context.agentDefinitions,
-  )
-  const restoredPermissionMode = getRestoredPermissionMode(
-    result.permissionMode,
-    context.permissionModeCliSet,
   )
 
   let initialMessage = context.initialState.initialMessage
@@ -621,14 +620,14 @@ export async function processResumedConversation(
       ...context.initialState,
       initialMessage,
       ...(resumedAgentType && { agent: resumedAgentType }),
-      ...(restoredPermissionMode && {
-        toolPermissionContext: {
-          ...context.initialState.toolPermissionContext,
-          mode: restoredPermissionMode,
-        },
-      }),
       ...(restoredAttribution && { attribution: restoredAttribution }),
       ...(standaloneAgentContext && { standaloneAgentContext }),
+      ...(resumedPermissionMode && {
+        toolPermissionContext: {
+          ...context.initialState.toolPermissionContext,
+          mode: resumedPermissionMode,
+        },
+      }),
       agentDefinitions: refreshedAgentDefs,
     },
   }

@@ -487,34 +487,19 @@ export async function validateMarketplaceManifest(
         let manifestVersion: string | undefined
         try {
           const raw = await readFile(pluginJsonPath, { encoding: 'utf-8' })
-          try {
-            const parsed = jsonParse(raw) as { version?: unknown }
-            if (typeof parsed.version === 'string') {
-              manifestVersion = parsed.version
-            }
-          } catch (e) {
-            warnings.push({
-              path: `plugins[${i}].source`,
-              message: `Could not parse ${path.relative(marketplaceRoot, pluginJsonPath)} for version cross-check: ${errorMessage(e)}`,
-            })
+          const parsed = jsonParse(raw) as { version?: unknown }
+          if (typeof parsed.version === 'string') {
+            manifestVersion = parsed.version
           }
-        } catch (e) {
-          if (!isENOENT(e) && getErrnoCode(e) !== 'ENOTDIR') {
-            warnings.push({
-              path: `plugins[${i}].source`,
-              message: `Could not read ${path.relative(marketplaceRoot, pluginJsonPath)} for version cross-check: ${errorMessage(e)}`,
-            })
-          }
+        } catch {
+          // Missing/unreadable plugin.json is someone else's error to report
+          continue
         }
         if (manifestVersion && manifestVersion !== entry.version) {
-          const relativeManifestPath = path.relative(
-            marketplaceRoot,
-            pluginJsonPath,
-          )
           warnings.push({
             path: `plugins[${i}].version`,
             message:
-              `Entry declares version "${entry.version}" but ${relativeManifestPath} says "${manifestVersion}". ` +
+              `Entry declares version "${entry.version}" but ${entry.source}/.claude-plugin/plugin.json says "${manifestVersion}". ` +
               `At install time, plugin.json wins (calculatePluginVersion precedence) — the entry version is silently ignored. ` +
               `Update this entry to "${manifestVersion}" to match.`,
           })

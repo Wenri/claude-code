@@ -123,7 +123,7 @@ export async function initialize(): Promise<void> {
     ignored: (path, stats) => {
       if (stats && !stats.isFile() && !stats.isDirectory()) return true
       // Ignore .git directories
-      return path.split(/[/\\]/).some(dir => dir === '.git')
+      return path.split(platformPath.sep).some(dir => dir === '.git')
     },
     ignorePermissionErrors: true,
     usePolling: USE_POLLING,
@@ -139,15 +139,6 @@ export async function initialize(): Promise<void> {
       level: 'warn',
     }),
   )
-
-  // Do not report initialization complete until chokidar has finished its
-  // initial directory scan. Callers may immediately install or reload a
-  // skill after awaiting initialize(); without this barrier that change can
-  // race the watcher's startup and be missed.
-  const initializedWatcher = watcher
-  await new Promise<void>(resolve => {
-    initializedWatcher.once('ready', resolve)
-  })
 
   // Register cleanup to properly dispose of the file watcher during graceful shutdown
   unregisterCleanup = registerCleanup(async () => {

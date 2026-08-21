@@ -134,10 +134,11 @@ export async function sideQuery(opts: SideQueryOptions): Promise<BetaMessage> {
     source: 'side_query',
   })
   const betas = [...getModelBetas(model)]
+  const supportsOutputFormat =
+    Boolean(output_format) && modelSupportsStructuredOutputs(model)
   // Add structured-outputs beta if using output_format and provider supports it
   if (
-    output_format &&
-    modelSupportsStructuredOutputs(model) &&
+    supportsOutputFormat &&
     !betas.includes(STRUCTURED_OUTPUTS_BETA_HEADER)
   ) {
     betas.push(STRUCTURED_OUTPUTS_BETA_HEADER)
@@ -194,7 +195,9 @@ export async function sideQuery(opts: SideQueryOptions): Promise<BetaMessage> {
       messages,
       ...(tools && { tools }),
       ...(tool_choice && { tool_choice }),
-      ...(output_format && { output_config: { format: output_format } }),
+      ...(supportsOutputFormat && {
+        output_config: { format: output_format },
+      }),
       ...(temperature !== undefined &&
         modelSupportsTemperature(normalizedModel) && { temperature }),
       ...(stop_sequences && { stop_sequences }),
@@ -202,7 +205,6 @@ export async function sideQuery(opts: SideQueryOptions): Promise<BetaMessage> {
       ...(betas.length > 0 && { betas }),
       ...extraBodyParams,
       metadata: getAPIMetadata(),
-      ...extraBodyParams,
     },
     { signal },
   )

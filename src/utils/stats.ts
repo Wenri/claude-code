@@ -846,13 +846,7 @@ function processedStatsToClaudeCodeStats(
  */
 function getNextDay(dateStr: string): string {
   const date = new Date(dateStr)
-  date.setUTCDate(date.getUTCDate() + 1)
-  return toDateString(date)
-}
-
-function getPreviousDay(dateStr: string): string {
-  const date = new Date(dateStr)
-  date.setUTCDate(date.getUTCDate() - 1)
+  date.setDate(date.getDate() + 1)
   return toDateString(date)
 }
 
@@ -867,18 +861,25 @@ function calculateStreaks(dailyActivity: DailyActivity[]): StreakInfo {
     }
   }
 
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
   // Calculate current streak (working backwards from today)
   let currentStreak = 0
   let currentStreakStart: string | null = null
-  let checkDate = getTodayDateString()
+  const checkDate = new Date(today)
 
   // Build a set of active dates for quick lookup
   const activeDates = new Set(dailyActivity.map(d => d.date))
 
-  while (activeDates.has(checkDate)) {
+  while (true) {
+    const dateStr = toDateString(checkDate)
+    if (!activeDates.has(dateStr)) {
+      break
+    }
     currentStreak++
-    currentStreakStart = checkDate
-    checkDate = getPreviousDay(checkDate)
+    currentStreakStart = dateStr
+    checkDate.setDate(checkDate.getDate() - 1)
   }
 
   // Calculate longest streak

@@ -10,9 +10,7 @@ import { getFsImplementation } from './fsOperations.js'
 const IMAGE_STORE_DIR = 'image-cache'
 const MAX_STORED_IMAGE_PATHS = 200
 
-type SetAppState = (
-  updater: (previous: AppState) => AppState,
-) => void
+type SetAppState = (updater: (prev: AppState) => AppState) => void
 
 /**
  * Get the image store directory for the current session.
@@ -48,7 +46,7 @@ export function cacheImagePath(
     return null
   }
   const imagePath = getImagePath(content.id, content.mediaType || 'image/png')
-  registerStoredImagePath(setAppState, content.id, imagePath)
+  updateStoredImagePath(setAppState, content.id, imagePath)
   return imagePath
 }
 
@@ -60,41 +58,8 @@ export async function storeImage(
   setAppState: SetAppState,
 ): Promise<string | null> {
   const imagePath = await writeImage(content)
-  if (imagePath) {
-    registerStoredImagePath(setAppState, content.id, imagePath)
-  }
+  if (imagePath) updateStoredImagePath(setAppState, content.id, imagePath)
   return imagePath
-}
-
-/** Store all images from pastedContents to disk and publish their paths atomically. */
-export async function storeImages(
-  pastedContents: Record<number, PastedContent>,
-  setAppState: SetAppState,
-): Promise<Map<number, string>> {
-  const pathMap = new Map<number, string>()
-
-  for (const [id, content] of Object.entries(pastedContents)) {
-    if (content.type === 'image') {
-      const path = await writeImage(content)
-      if (path) {
-        pathMap.set(Number(id), path)
-      }
-    }
-  }
-
-  if (pathMap.size > 0) {
-    setAppState(previous => {
-      let storedImagePaths = previous.storedImagePaths
-      for (const [id, path] of pathMap) {
-        storedImagePaths = updateStoredImagePaths(storedImagePaths, id, path)
-      }
-      return storedImagePaths === previous.storedImagePaths
-        ? previous
-        : { ...previous, storedImagePaths }
-    })
-  }
-
-  return pathMap
 }
 
 async function writeImage(content: PastedContent): Promise<string | null> {
@@ -120,40 +85,72 @@ async function writeImage(content: PastedContent): Promise<string | null> {
   }
 }
 
-export function registerStoredImagePath(
+/**
+ * Store all images from pastedContents to disk.
+ */
+export async function storeImages(
+  pastedContents: Record<number, PastedContent>,
+  setAppState: SetAppState,
+): Promise<Map<number, string>> {
+  const pathMap = new Map<number, string>()
+
+  for (const [id, content] of Object.entries(pastedContents)) {
+    if (content.type === 'image') {
+      const imagePath = await writeImage(content)
+      if (imagePath) {
+        pathMap.set(Number(id), imagePath)
+      }
+    }
+  }
+
+  if (pathMap.size > 0) {
+    setAppState(prev => {
+      let storedImagePaths = prev.storedImagePaths
+      for (const [id, imagePath] of pathMap) {
+        storedImagePaths = withStoredImagePath(storedImagePaths, id, imagePath)
+      }
+      return storedImagePaths === prev.storedImagePaths
+        ? prev
+        : { ...prev, storedImagePaths }
+    })
+  }
+
+  return pathMap
+}
+
+function updateStoredImagePath(
   setAppState: SetAppState,
   imageId: number,
   imagePath: string,
 ): void {
-  setAppState(previous => {
-    const storedImagePaths = updateStoredImagePaths(
-      previous.storedImagePaths,
+  setAppState(prev => {
+    const storedImagePaths = withStoredImagePath(
+      prev.storedImagePaths,
       imageId,
       imagePath,
     )
-    return storedImagePaths === previous.storedImagePaths
-      ? previous
-      : { ...previous, storedImagePaths }
+    return storedImagePaths === prev.storedImagePaths
+      ? prev
+      : { ...prev, storedImagePaths }
   })
 }
 
-function updateStoredImagePaths(
-  paths: Map<number, string>,
+function withStoredImagePath(
+  current: Map<number, string>,
   imageId: number,
   imagePath: string,
 ): Map<number, string> {
-  if (paths.get(imageId) === imagePath) return paths
-
-  const next = new Map(paths)
-  if (!next.has(imageId)) {
-    while (next.size >= MAX_STORED_IMAGE_PATHS) {
-      const oldest = next.keys().next().value
+  if (current.get(imageId) === imagePath) return current
+  const storedImagePaths = new Map(current)
+  if (!storedImagePaths.has(imageId)) {
+    while (storedImagePaths.size >= MAX_STORED_IMAGE_PATHS) {
+      const oldest = storedImagePaths.keys().next().value
       if (oldest === undefined) break
-      next.delete(oldest)
+      storedImagePaths.delete(oldest)
     }
   }
-  next.set(imageId, imagePath)
-  return next
+  storedImagePaths.set(imageId, imagePath)
+  return storedImagePaths
 }
 
 /**

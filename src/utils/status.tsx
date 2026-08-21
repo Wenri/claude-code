@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import figures from 'figures';
 import * as React from 'react';
-import { getWIFStatusLine, isWIFActive } from '../constants/oauth.js';
 import { color, Text } from '../ink.js';
 import type { MCPServerConnection } from '../services/mcp/types.js';
 import { getAccountInformation, isClaudeAISubscriber, shouldUseWIFAuth } from './auth.js';
@@ -228,7 +227,7 @@ export function buildAccountProperties(): Property[] {
   if (accountInfo.subscription) {
     properties.push({
       label: 'Login method',
-      value: `${accountInfo.subscription} account`
+      value: `${accountInfo.subscription} Account`
     });
   }
   if (accountInfo.tokenSource) {
@@ -291,7 +290,7 @@ export function buildAPIProviderProperties(): Property[] {
       });
     }
   } else if (apiProvider === 'bedrock') {
-    const bedrockBaseUrl = process.env.BEDROCK_BASE_URL;
+    const bedrockBaseUrl = process.env.ANTHROPIC_BEDROCK_BASE_URL;
     if (bedrockBaseUrl) {
       properties.push({
         label: 'Bedrock base URL',
@@ -302,13 +301,20 @@ export function buildAPIProviderProperties(): Property[] {
       label: 'AWS region',
       value: getAWSRegion()
     });
+    const bedrockServiceTier = process.env.ANTHROPIC_BEDROCK_SERVICE_TIER;
+    if (bedrockServiceTier) {
+      properties.push({
+        label: 'Bedrock service tier',
+        value: bedrockServiceTier
+      });
+    }
     if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH)) {
       properties.push({
         value: 'AWS auth skipped'
       });
     }
   } else if (apiProvider === 'vertex') {
-    const vertexBaseUrl = process.env.VERTEX_BASE_URL;
+    const vertexBaseUrl = process.env.ANTHROPIC_VERTEX_BASE_URL;
     if (vertexBaseUrl) {
       properties.push({
         label: 'Vertex base URL',

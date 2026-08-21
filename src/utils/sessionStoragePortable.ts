@@ -345,38 +345,43 @@ export async function canonicalizePath(dir: string): Promise<string> {
 }
 
 /**
- * Finds the project directory for a given path, tolerating hash mismatches
+ * Finds every on-disk project directory for a path, tolerating hash mismatches
  * for long paths (>200 chars). The CLI uses Bun.hash while the SDK under
- * Node.js uses simpleHash — for paths that exceed MAX_SANITIZED_LENGTH,
- * these produce different directory suffixes. This function falls back to
- * prefix-based scanning when the exact match doesn't exist.
+ * Node.js uses simpleHash, so both variants can exist for the same path.
  */
+export async function findProjectDirs(projectPath: string): Promise<string[]> {
+  const exact = getProjectDir(projectPath)
+  const projectDirs: string[] = []
+  try {
+    await readdir(exact)
+    projectDirs.push(exact)
+  } catch {}
+
+  const sanitized = sanitizePath(projectPath)
+  if (sanitized.length <= MAX_SANITIZED_LENGTH) {
+    return projectDirs
+  }
+  const prefix = sanitized.slice(0, MAX_SANITIZED_LENGTH) + '-'
+  const projectsDir = getProjectsDir()
+  try {
+    for (const dirent of await readdir(projectsDir, { withFileTypes: true })) {
+      if (!dirent.isDirectory() || !dirent.name.startsWith(prefix)) {
+        continue
+      }
+      const candidate = join(projectsDir, dirent.name)
+      if (candidate !== exact) {
+        projectDirs.push(candidate)
+      }
+    }
+  } catch {}
+  return projectDirs
+}
+
+/** Return the preferred on-disk project directory for a path. */
 export async function findProjectDir(
   projectPath: string,
 ): Promise<string | undefined> {
-  const exact = getProjectDir(projectPath)
-  try {
-    await readdir(exact)
-    return exact
-  } catch {
-    // Exact match failed — for short paths this means no sessions exist.
-    // For long paths, try prefix matching to handle hash mismatches.
-    const sanitized = sanitizePath(projectPath)
-    if (sanitized.length <= MAX_SANITIZED_LENGTH) {
-      return undefined
-    }
-    const prefix = sanitized.slice(0, MAX_SANITIZED_LENGTH)
-    const projectsDir = getProjectsDir()
-    try {
-      const dirents = await readdir(projectsDir, { withFileTypes: true })
-      const match = dirents.find(
-        d => d.isDirectory() && d.name.startsWith(prefix + '-'),
-      )
-      return match ? join(projectsDir, match.name) : undefined
-    } catch {
-      return undefined
-    }
-  }
+  return (await findProjectDirs(projectPath))[0]
 }
 
 /**

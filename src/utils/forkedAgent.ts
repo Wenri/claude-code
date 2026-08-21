@@ -44,8 +44,7 @@ import {
   cloneContentReplacementState,
 } from './toolResultStorage.js'
 import { createAgentId } from './uuid.js'
-import { createBashRerunAliases } from '../tools/BashTool/rerunAliases.js'
-import { createToolResultDedupState } from './toolErrors.js'
+import { createMemorySelector } from '../memdir/findRelevantMemories.js'
 
 const DEFAULT_FORKED_AGENT_MAX_TURNS = 50
 
@@ -146,26 +145,6 @@ export function createCacheSafeParams(
   }
 }
 
-/** Adds allowed tools to a permission context without mutating the parent. */
-export function addAllowedToolsToPermissionContext(
-  permissionContext: ToolPermissionContext,
-  allowedTools: string[],
-): ToolPermissionContext {
-  if (allowedTools.length === 0) return permissionContext
-  return {
-    ...permissionContext,
-    alwaysAllowRules: {
-      ...permissionContext.alwaysAllowRules,
-      command: [
-        ...new Set([
-          ...(permissionContext.alwaysAllowRules.command || []),
-          ...allowedTools,
-        ]),
-      ],
-    },
-  }
-}
-
 /**
  * Creates a modified getAppState that adds allowed tools to the permission context.
  * This is used by forked skill/command execution to grant tool permissions.
@@ -187,6 +166,25 @@ export function createGetAppStateWithAllowedTools(
   }
 }
 
+function addAllowedToolsToPermissionContext(
+  permissionContext: ToolPermissionContext,
+  allowedTools: string[],
+): ToolPermissionContext {
+  if (allowedTools.length === 0) return permissionContext
+  return {
+    ...permissionContext,
+    alwaysAllowRules: {
+      ...permissionContext.alwaysAllowRules,
+      command: [
+        ...new Set([
+          ...(permissionContext.alwaysAllowRules.command || []),
+          ...allowedTools,
+        ]),
+      ],
+    },
+  }
+}
+
 /**
  * Result from preparing a forked command context.
  */
@@ -195,7 +193,7 @@ export type PreparedForkedContext = {
   skillContent: string
   /** Modified getAppState with allowed tools */
   modifiedGetAppState: ToolUseContext['getAppState']
-  /** Modified permission-context accessor with allowed tools */
+  /** Modified direct permission getter with allowed tools */
   modifiedGetToolPermissionContext: ToolUseContext['getToolPermissionContext']
   /** The general-purpose agent to use */
   baseAgent: AgentDefinition
@@ -231,7 +229,7 @@ export async function prepareForkedCommandContext(
       ? context.getToolPermissionContext
       : () =>
           addAllowedToolsToPermissionContext(
-            context.getToolPermissionContext!(),
+            context.getToolPermissionContext(),
             allowedTools,
           )
 
@@ -300,6 +298,10 @@ export type SubagentContextOverrides = {
   abortController?: AbortController
   /** Override the getAppState function */
   getAppState?: ToolUseContext['getAppState']
+  /** Override the direct permission-context getter. */
+  getToolPermissionContext?: ToolUseContext['getToolPermissionContext']
+  /** Override the effective effort for this subagent. */
+  getEffortValue?: ToolUseContext['getEffortValue']
   /** Share or override the session-scoped REPL isolation latch. */
   isolationLatch?: ToolUseContext['isolationLatch']
 
@@ -310,7 +312,7 @@ export type SubagentContextOverrides = {
    */
   shareSetAppState?: boolean
   /**
-   * Explicit opt-in to share parent's setResponseLength callback.
+   * Explicit opt-in to share parent's response-length callbacks.
    * Use for subagents that contribute to parent's response metrics.
    * @default false (isolated no-op)
    */
@@ -331,10 +333,6 @@ export type SubagentContextOverrides = {
    * state reconstructed from the resumed sidechain so the same results
    * are re-replaced (prompt cache stability). */
   contentReplacementState?: ContentReplacementState
-  /** Replay state used to hydrate a fork/resumed REPL VM. */
-  replHydration?: ToolUseContext['replHydration']
-  /** Override the session web-search/connector isolation latch. */
-  isolationLatch?: ToolUseContext['isolationLatch']
 }
 
 /**
@@ -407,6 +405,17 @@ export function createSubagentContext(
           }
         }
 
+  const getToolPermissionContext: ToolUseContext['getToolPermissionContext'] =
+    overrides?.getToolPermissionContext
+      ? overrides.getToolPermissionContext
+      : overrides?.shareAbortController
+        ? parentContext.getToolPermissionContext
+        : () => {
+            const context = parentContext.getToolPermissionContext()
+            if (context.shouldAvoidPermissionPrompts) return context
+            return { ...context, shouldAvoidPermissionPrompts: true }
+          }
+
   return {
     // Mutable state - cloned by default to maintain isolation
     // Clone overrides.readFileState if provided, otherwise clone from parent
@@ -415,14 +424,12 @@ export function createSubagentContext(
     ),
     nestedMemoryAttachmentTriggers: new Set<string>(),
     loadedNestedMemoryPaths: new Set<string>(),
-    sessionEnvVars: parentContext.sessionEnvVars,
-    tmuxSocket: parentContext.tmuxSocket,
-    bashRerunAliases: createBashRerunAliases(),
-    isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,
-    resultDedupState: createToolResultDedupState(),
     dynamicSkillDirTriggers: new Set<string>(),
     // Per-subagent: tracks skills surfaced by discovery for was_discovered telemetry (SkillTool.ts:116)
     discoveredSkillNames: new Set<string>(),
+    discoveredRemoteSkills:
+      parentContext.discoveredRemoteSkills ?? new Map<string, unknown>(),
+    memorySelector: createMemorySelector(),
     bashRerunAliases: createBashRerunAliases(),
     toolDecisions: undefined,
     // Budget decisions: override > clone of parent > undefined (feature off).
@@ -448,20 +455,35 @@ export function createSubagentContext(
 
     // AppState access
     getAppState,
-    getToolPermissionContext: () => getAppState().toolPermissionContext,
+    getToolPermissionContext,
+    getEffortValue:
+      overrides?.getEffortValue ?? parentContext.getEffortValue,
+    getAutoCompactWindow: parentContext.getAutoCompactWindow,
+    getFastMode: parentContext.getFastMode,
+    getCacheBreakerPhrase: parentContext.getCacheBreakerPhrase,
+    sessionEnvVars: parentContext.sessionEnvVars,
+    tmuxSocket: parentContext.tmuxSocket,
     setAppState: overrides?.shareSetAppState
       ? parentContext.setAppState
       : () => {},
-    taskRegistry: parentContext.taskRegistry,
-    setClassifierApprovals: parentContext.setClassifierApprovals,
-    setReplContext: parentContext.setReplContext,
-    replHydration: overrides?.replHydration,
+    setToolPermissionContext: overrides?.shareSetAppState
+      ? parentContext.setToolPermissionContext
+      : () => {},
     // Task registration/kill must always reach the root store, even when
     // setAppState is a no-op — otherwise async agents' background bash tasks
     // are never registered and never killed (PPID=1 zombie).
     setAppStateForTasks:
       parentContext.setAppStateForTasks ?? parentContext.setAppState,
+    setClassifierApprovals: parentContext.setClassifierApprovals,
     setReplContext: parentContext.setReplContext,
+    setWebBrowserSlice: parentContext.setWebBrowserSlice,
+    setComputerUseMcpState: overrides?.shareSetAppState
+      ? parentContext.setComputerUseMcpState
+      : undefined,
+    agentLifecycle: parentContext.agentLifecycle,
+    teammateColors: parentContext.teammateColors,
+    taskRegistry: parentContext.taskRegistry,
+    sessionHooksRegistry: parentContext.sessionHooksRegistry,
     isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,
     // Async subagents whose setAppState is a no-op need local denial tracking
     // so the denial counter actually accumulates across retries.
@@ -477,14 +499,13 @@ export function createSubagentContext(
     resetResponseLength: overrides?.shareSetResponseLength
       ? parentContext.resetResponseLength
       : () => {},
-    setResponseLength: overrides?.shareSetResponseLength
-      ? parentContext.setResponseLength
-      : () => {},
     pushApiMetricsEntry: overrides?.shareSetResponseLength
       ? parentContext.pushApiMetricsEntry
       : undefined,
     getFileHistoryState: () => undefined,
     applyFileHistoryOp: () => {},
+    // Attribution operations are safe to share even when this context's
+    // setAppState is stubbed; the parent facade dispatches into the root store.
     applyAttributionOp: parentContext.applyAttributionOp,
 
     // UI callbacks - undefined for subagents (can't control parent UI)
@@ -497,6 +518,7 @@ export function createSubagentContext(
     // Fields that can be overridden or copied from parent
     options: overrides?.options ?? parentContext.options,
     messages: overrides?.messages ?? parentContext.messages,
+    turnStartIndex: 0,
     // Generate new agentId for subagents (each subagent should have its own ID)
     agentId: overrides?.agentId ?? createAgentId(),
     agentType: overrides?.agentType,
@@ -567,10 +589,13 @@ export async function runForkedAgent({
   } = cacheSafeParams
 
   // Create isolated context to prevent mutation of parent state
-  const isolatedToolUseContext = createSubagentContext(
-    toolUseContext,
-    overrides,
-  )
+  const isolatedToolUseContext = createSubagentContext(toolUseContext, {
+    ...overrides,
+    isolationLatch: overrides?.isolationLatch ?? {
+      current: toolUseContext.isolationLatch?.current ?? null,
+      exemptServers: toolUseContext.isolationLatch?.exemptServers,
+    },
+  })
 
   // Do NOT filterIncompleteToolCalls here — it drops the whole assistant on
   // partial tool batches, orphaning the paired results (API 400). Dangling
@@ -624,8 +649,6 @@ export async function runForkedAgent({
       if (message.type === 'assistant') {
         assistantTurns++
       }
-
-      if (message.type === 'assistant') assistantTurnCount++
 
       logForDebugging(
         `Forked agent [${forkLabel}] received message: type=${message.type}`,

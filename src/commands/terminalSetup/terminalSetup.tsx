@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { randomBytes } from 'crypto';
 import { copyFile, mkdir, readFile, writeFile } from 'fs/promises';
-import { homedir, platform, release } from 'os';
+import { homedir, platform } from 'os';
 import { dirname, join } from 'path';
 import type { ThemeName } from 'src/utils/theme.js';
 import { pathToFileURL } from 'url';
@@ -336,6 +336,12 @@ async function installBindingsForVSCodeTerminal(editor: 'VSCode' | 'Cursor' | 'W
       }
     }
 
+    // Check if keybinding already exists
+    const existingBinding = keybindings.find(binding => binding.key === 'shift+enter' && binding.command === 'workbench.action.terminal.sendSequence' && binding.when === 'terminalFocus');
+    if (existingBinding) {
+      return `${color('warning', theme)(`Found existing ${editor} terminal Shift+Enter key binding. Remove it to continue.`)}${EOL}${chalk.dim(`See ${formatPathLink(keybindingsPath)}`)}${EOL}`;
+    }
+
     // Create the new keybinding
     const newKeybinding: VSCodeKeybinding = {
       key: 'shift+enter',
@@ -345,17 +351,6 @@ async function installBindingsForVSCodeTerminal(editor: 'VSCode' | 'Cursor' | 'W
       },
       when: 'terminalFocus'
     };
-
-    // Leave an existing binding alone. An exact match is already configured;
-    // a conflicting payload requires the user to choose which behavior wins.
-    const existingBinding = keybindings.find(binding => binding.key === newKeybinding.key && binding.command === newKeybinding.command && binding.when === newKeybinding.when);
-    if (existingBinding) {
-      const location = chalk.dim(`See ${formatPathLink(keybindingsPath)}`);
-      if (existingBinding.args?.text === newKeybinding.args.text) {
-        return `${color('success', theme)(`${editor} terminal Shift+Enter key binding already configured`)}${EOL}${location}${EOL}`;
-      }
-      return `${color('warning', theme)(`${editor} already has a Shift+Enter terminal binding with different args; leaving it as-is.`)}${EOL}${location}${EOL}`;
-    }
 
     // Modify the content by adding the new keybinding while preserving comments and formatting
     const updatedContent = addItemToJSONCArray(content, newKeybinding);
@@ -411,9 +406,6 @@ async function disableAudioBellForProfile(profileName: string): Promise<boolean>
 
 // Enable Option as Meta key for Terminal.app
 async function enableOptionAsMetaForTerminal(theme: ThemeName): Promise<string> {
-  const darwinMajor = platform() === 'darwin' ? release().match(/^(\d+)\./) : null;
-  const macOSMajorVersion = darwinMajor?.[1] ? Number.parseInt(darwinMajor[1], 10) - 9 : undefined;
-  const usesShiftReturn = (macOSMajorVersion ?? 0) >= 27;
   try {
     // Create a backup of the current plist file
     const backupPath = await backupTerminalPreferences();
@@ -438,7 +430,7 @@ async function enableOptionAsMetaForTerminal(theme: ThemeName): Promise<string> 
     }
     let wasAnyProfileUpdated = false;
     const defaultProfileName = defaultProfile.trim();
-    const optionAsMetaEnabled = usesShiftReturn ? false : await enableOptionAsMetaForProfile(defaultProfileName);
+    const optionAsMetaEnabled = await enableOptionAsMetaForProfile(defaultProfileName);
     const audioBellDisabled = await disableAudioBellForProfile(defaultProfileName);
     if (optionAsMetaEnabled || audioBellDisabled) {
       wasAnyProfileUpdated = true;
@@ -447,7 +439,7 @@ async function enableOptionAsMetaForTerminal(theme: ThemeName): Promise<string> 
 
     // Only proceed if the startup profile is different from the default profile
     if (startupProfileName !== defaultProfileName) {
-      const startupOptionAsMetaEnabled = usesShiftReturn ? false : await enableOptionAsMetaForProfile(startupProfileName);
+      const startupOptionAsMetaEnabled = await enableOptionAsMetaForProfile(startupProfileName);
       const startupAudioBellDisabled = await disableAudioBellForProfile(startupProfileName);
       if (startupOptionAsMetaEnabled || startupAudioBellDisabled) {
         wasAnyProfileUpdated = true;
@@ -460,13 +452,7 @@ async function enableOptionAsMetaForTerminal(theme: ThemeName): Promise<string> 
     // Flush the preferences cache
     await execFileNoThrow('killall', ['cfprefsd']);
     markTerminalSetupComplete();
-    const lines = [color('success', theme)('Configured Terminal.app settings:')];
-    if (!usesShiftReturn) {
-      lines.push(color('success', theme)('- Enabled "Use Option as Meta key"'));
-    }
-    lines.push(color('success', theme)('- Switched to visual bell'));
-    const newlineHint = usesShiftReturn ? chalk.dim('Shift+Return will now enter a newline.') : chalk.dim('Option+Enter will now enter a newline.');
-    return `${lines.join(EOL)}${EOL}${newlineHint}${EOL}${chalk.dim('You must restart Terminal.app for changes to take effect.', theme)}${EOL}`;
+    return `${color('success', theme)(`Configured Terminal.app settings:`)}${EOL}${color('success', theme)('- Enabled "Use Option as Meta key"')}${EOL}${color('success', theme)('- Switched to visual bell')}${EOL}${chalk.dim('Option+Enter will now enter a newline.')}${EOL}${chalk.dim('You must restart Terminal.app for changes to take effect.', theme)}${EOL}`;
   } catch (error) {
     logError(error);
 
@@ -536,7 +522,7 @@ chars = "\\u001B\\r"`;
     if (configExists) {
       // Check if keybinding already exists (look for Shift+Return binding)
       if (configContent.includes('mods = "Shift"') && configContent.includes('key = "Return"')) {
-        return `${color('success', theme)('Alacritty Shift+Enter key binding already configured')}${EOL}${chalk.dim(`See ${formatPathLink(configPath)}`)}${EOL}`;
+        return `${color('warning', theme)('Found existing Alacritty Shift+Enter key binding. Remove it to continue.')}${EOL}${chalk.dim(`See ${formatPathLink(configPath)}`)}${EOL}`;
       }
 
       // Create backup
@@ -595,7 +581,7 @@ async function installBindingsForZed(theme: ThemeName): Promise<string> {
     if (fileExists) {
       // Check if keybinding already exists
       if (keymapContent.includes('shift-enter')) {
-        return `${color('success', theme)('Zed Shift+Enter key binding already configured')}${EOL}${chalk.dim(`See ${formatPathLink(keymapPath)}`)}${EOL}`;
+        return `${color('warning', theme)('Found existing Zed Shift+Enter key binding. Remove it to continue.')}${EOL}${chalk.dim(`See ${formatPathLink(keymapPath)}`)}${EOL}`;
       }
 
       // Create backup

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { getIsRemoteMode } from '../bootstrap/state.js'
 import { useAppStateStore, useSetAppState } from '../state/AppState.js'
-import { useTaskRegistry } from './useTaskRegistry.js'
 import { isTerminalTaskStatus } from '../Task.js'
 import {
   findTeammateTaskByAgentId,
@@ -16,7 +15,6 @@ import { logForDebugging } from '../utils/debug.js'
 import { resolveLoopDefaultFire } from '../utils/loopDefault.js'
 import { enqueuePendingNotification } from '../utils/messageQueueManager.js'
 import { createScheduledTaskFireMessage } from '../utils/messages.js'
-import { resolveLoopDefaultFire } from '../utils/loopSentinels.js'
 import { WORKLOAD_CRON } from '../utils/workloadContext.js'
 
 type Props = {
@@ -53,7 +51,6 @@ export function useScheduledTasks({
 
   const store = useAppStateStore()
   const setAppState = useSetAppState()
-  const taskRegistry = useTaskRegistry()
 
   useEffect(() => {
     // Runtime gate checked here (not at the hook call site) so the hook
@@ -100,11 +97,7 @@ export function useScheduledTasks({
             store.getState().tasks,
           )
           if (teammate && !isTerminalTaskStatus(teammate.status)) {
-            injectUserMessageToTeammate(
-              teammate.id,
-              task.prompt,
-              taskRegistry,
-            )
+            injectUserMessageToTeammate(teammate.id, task.prompt, setAppState)
             return
           }
           // Teammate is gone — clean up the orphaned cron so it doesn't keep

@@ -6,7 +6,7 @@ import type { ThemeName } from 'src/utils/theme.js';
 import type { Command } from '../../commands.js';
 import { BLACK_CIRCLE } from '../../constants/figures.js';
 import { stringWidth } from '../../ink/stringWidth.js';
-import { Box, NoSelect, Text, useTheme } from '../../ink.js';
+import { Box, Text, useTheme } from '../../ink.js';
 import { useAppStateMaybeOutsideOfProvider } from '../../state/AppState.js';
 import { findToolByName, type Tool, type ToolProgressData, type Tools } from '../../Tool.js';
 import type { ProgressMessage } from '../../types/message.js';
@@ -15,7 +15,6 @@ import { logError } from '../../utils/log.js';
 import type { buildMessageLookups } from '../../utils/messages.js';
 import { MessageResponse } from '../MessageResponse.js';
 import { useSelectedMessageBg } from '../messageActions.js';
-import { useHoveredToolUseId, useMessageRating, useRateMessage, useSetHoveredToolUseId } from '../messageRating.js';
 import { SentryErrorBoundary } from '../SentryErrorBoundary.js';
 import { ToolUseLoader } from '../ToolUseLoader.js';
 import { HookProgressMessage } from './HookProgressMessage.js';
@@ -32,9 +31,8 @@ type Props = {
   inProgressToolCallCount?: number;
   lookups: ReturnType<typeof buildMessageLookups>;
   isTranscriptMode?: boolean;
-  messageUuid?: string;
 };
-function AssistantToolUseMessageImpl(t0) {
+export function AssistantToolUseMessage(t0) {
   const $ = _c(81);
   const {
     param,
@@ -293,18 +291,6 @@ function AssistantToolUseMessageImpl(t0) {
     t16 = $[80];
   }
   return t16;
-}
-export function AssistantToolUseMessage(props: Props) {
-  const rateMessage = useRateMessage();
-  const hoveredToolUseId = useHoveredToolUseId();
-  const setHoveredToolUseId = useSetHoveredToolUseId();
-  const rating = useMessageRating(props.messageUuid);
-  const ratingEnabled = process.env.USER_TYPE === 'ant' && props.messageUuid !== undefined;
-  const content = <AssistantToolUseMessageImpl {...props} />;
-  if (!ratingEnabled) return content;
-  const messageUuid = props.messageUuid!;
-  const showControls = hoveredToolUseId === props.param.id || rating !== undefined;
-  return <Box flexDirection="row" width="100%" onMouseEnter={() => setHoveredToolUseId?.(props.param.id)} onMouseLeave={() => setHoveredToolUseId?.(null)}><Box flexGrow={1}>{content}</Box>{showControls && <Box flexDirection="row"><NoSelect onClick={() => rateMessage?.(messageUuid, 'positive')}><Text color={rating === 'positive' ? 'success' : undefined} dimColor={rating !== 'positive'}>↑</Text></NoSelect><NoSelect onClick={() => rateMessage?.(messageUuid, 'negative')}><Text color={rating === 'negative' ? 'error' : undefined} dimColor={rating !== 'negative'}>↓</Text></NoSelect></Box>}</Box>;
 }
 function _temp3(state_1) {
   return !!state_1.toolPermissionContext.strippedDangerousRules;

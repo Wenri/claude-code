@@ -15,7 +15,7 @@ export function PermissionRuleDescription(t0) {
     case BashTool.name:
       {
         if (ruleValue.ruleContent) {
-          if (ruleValue.ruleContent.endsWith(":*") || ruleValue.ruleContent.endsWith(" *")) {
+          if (ruleValue.ruleContent.endsWith(":*")) {
             let t1;
             if ($[0] !== ruleValue.ruleContent) {
               t1 = ruleValue.ruleContent.slice(0, -2);

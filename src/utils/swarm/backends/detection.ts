@@ -38,28 +38,25 @@ export function isInsideTmuxSync(): boolean {
 }
 
 /**
- * Lists the sessions on the tmux server the user originally launched Claude
- * from. Returns undefined when Claude was not launched inside tmux or the
- * original server is no longer reachable.
+ * Lists sessions from the tmux server that owns the user's original pane.
+ *
+ * Claude may later point TMUX at its own swarm socket, so this deliberately
+ * uses the value captured at module initialization rather than process.env.
  */
 export async function listUserTmuxSessions(): Promise<string[] | undefined> {
   if (!ORIGINAL_USER_TMUX) return undefined
 
-  const separatorIndex = ORIGINAL_USER_TMUX.indexOf(',')
-  const socketPath =
-    separatorIndex === -1
-      ? ORIGINAL_USER_TMUX
-      : ORIGINAL_USER_TMUX.slice(0, separatorIndex)
+  const socketPath = ORIGINAL_USER_TMUX.split(',')[0]
   if (!socketPath) return undefined
 
-  const { code, stdout } = await execFileNoThrow(
+  const result = await execFileNoThrow(
     TMUX_COMMAND,
     ['-S', socketPath, 'list-sessions', '-F', '#{session_name}'],
     { useCwd: false, timeout: 2000 },
   )
-  if (code !== 0) return undefined
+  if (result.code !== 0) return undefined
 
-  return stdout.split('\n').filter(Boolean)
+  return result.stdout.split('\n').filter(Boolean)
 }
 
 /**

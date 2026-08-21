@@ -186,7 +186,7 @@ async function getCompletionsForShell(
   prefix: string,
   completionType: ShellCompletionType,
   abortSignal: AbortSignal,
-  sessionEnvVars?: Map<string, string>,
+  sessionEnvVars?: ReadonlyMap<string, string>,
 ): Promise<SuggestionItem[]> {
   let command: string
 
@@ -224,7 +224,7 @@ export async function getShellCompletions(
   input: string,
   cursorOffset: number,
   abortSignal: AbortSignal,
-  sessionEnvVars?: Map<string, string>,
+  sessionEnvVars?: ReadonlyMap<string, string>,
 ): Promise<SuggestionItem[]> {
   const shellType = getShellType()
 

@@ -15,7 +15,6 @@ import type {
   SerializedMessage,
   TranscriptMessage,
 } from '../../types/logs.js'
-import type { Message } from '../../types/message.js'
 import {
   getProjectDir,
   getTranscriptPath,
@@ -35,6 +34,8 @@ type TranscriptEntry = TranscriptMessage & {
     messageUuid: UUID
   }
 }
+
+type ForkMessage = LocalJSXCommandContext['messages'][number]
 
 /**
  * Derive a single-line title base from the first user message.
@@ -65,8 +66,9 @@ export function deriveFirstPrompt(
  * sessionId and adding forkedFrom traceability.
  */
 export async function createFork(
+  messages: ForkMessage[],
   customTitle?: string,
-  extraMessages?: Message[],
+  extraMessages?: ForkMessage[],
 ): Promise<{
   sessionId: UUID
   title: string | undefined
@@ -106,6 +108,8 @@ export async function createFork(
     outputError = toError(error)
   })
   const lines = createInterface({ input, crlfDelay: Infinity })
+  const activeMessageUuids = new Set(messages.map(message => message.uuid))
+  const activeTranscriptEntries = new Map<UUID, TranscriptEntry>()
   const cleanupOutput = async (): Promise<void> => {
     output.destroy()
     await unlink(forkSessionPath).catch(() => {})
@@ -127,22 +131,12 @@ export async function createFork(
       } catch {
         continue
       }
-      if (isTranscriptMessage(entry) && !entry.isSidechain) {
-        const forkedEntry: TranscriptEntry = {
-          ...entry,
-          sessionId: forkSessionId,
-          parentUuid,
-          isSidechain: false,
-          forkedFrom: {
-            sessionId: originalSessionId,
-            messageUuid: entry.uuid,
-          },
-        }
-        const serializedMessage = { ...entry, sessionId: forkSessionId }
-        serializedMessages.push(serializedMessage)
-        lastMessage = entry
-        await writeLine(`${jsonStringify(forkedEntry)}\n`)
-        if (entry.type !== 'progress') parentUuid = entry.uuid
+      if (
+        isTranscriptMessage(entry) &&
+        !entry.isSidechain &&
+        activeMessageUuids.has(entry.uuid)
+      ) {
+        activeTranscriptEntries.set(entry.uuid, entry)
       } else if (
         entry.type === 'content-replacement' &&
         entry.sessionId === originalSessionId
@@ -156,6 +150,26 @@ export async function createFork(
   } finally {
     lines.close()
     input.destroy()
+  }
+
+  for (const message of messages) {
+    const entry = activeTranscriptEntries.get(message.uuid)
+    if (!entry) continue
+    const forkedEntry: TranscriptEntry = {
+      ...entry,
+      sessionId: forkSessionId,
+      parentUuid,
+      isSidechain: false,
+      forkedFrom: {
+        sessionId: originalSessionId,
+        messageUuid: entry.uuid,
+      },
+    }
+    const serializedMessage = { ...entry, sessionId: forkSessionId }
+    serializedMessages.push(serializedMessage)
+    lastMessage = entry
+    await writeLine(`${jsonStringify(forkedEntry)}\n`)
+    if (entry.type !== 'progress') parentUuid = entry.uuid
   }
 
   if (lastMessage === null) {
@@ -259,7 +273,10 @@ async function getUniqueForkName(baseName: string): Promise<string> {
 export async function branchAndResume(
   context: LocalJSXCommandContext,
   onDone: LocalJSXCommandOnDone,
-  options: { customTitle?: string; extraMessages?: Message[] } = {},
+  options: {
+    customTitle?: string
+    extraMessages?: ForkMessage[]
+  } = {},
 ): Promise<boolean> {
   const originalSessionId = getSessionId()
 
@@ -270,7 +287,11 @@ export async function branchAndResume(
       forkPath,
       serializedMessages,
       contentReplacementRecords,
-    } = await createFork(options.customTitle, options.extraMessages)
+    } = await createFork(
+      context.messages,
+      options.customTitle,
+      options.extraMessages,
+    )
 
     // Build LogOption for resume
     const now = new Date()
@@ -278,12 +299,9 @@ export async function branchAndResume(
       serializedMessages.find(m => m.type === 'user'),
     )
 
-    // Save custom title - use provided title or firstPrompt as default
-    // This ensures /status and /resume show the same session name
-    // Always add " (Branch)" suffix to make it clear this is a branched session
-    // Handle collisions by adding a number suffix (e.g., " (Branch 2)", " (Branch 3)")
-    const baseName = title ?? firstPrompt
-    const effectiveTitle = await getUniqueForkName(baseName)
+    // Explicit titles are already selected by the caller. Generated titles
+    // use the standard branch suffix and collision handling.
+    const effectiveTitle = title ?? (await getUniqueForkName(firstPrompt))
     await saveCustomTitle(sessionId, effectiveTitle, forkPath)
 
     logEvent('tengu_conversation_forked', {
@@ -307,7 +325,7 @@ export async function branchAndResume(
     }
 
     // Resume into the fork
-    const titleInfo = title ? ` "${title}"` : ''
+    const titleInfo = title ? ` "${effectiveTitle}"` : ''
     const successMessage = `Branched conversation${titleInfo}. You are now in the branch. Use /resume ${originalSessionId} to return to the original.`
 
     if (context.resume) {

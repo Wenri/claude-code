@@ -123,24 +123,21 @@ export function modelSupportsAdaptiveThinking(model: string): boolean {
     return supported3P
   }
   const canonical = getCanonicalName(model)
+  // Supported by a subset of Claude 4 models
   if (
-    canonical.includes('claude-3-') ||
-    canonical === 'claude-opus-4-0' ||
-    canonical === 'claude-opus-4-1' ||
-    canonical === 'claude-opus-4-5' ||
-    canonical === 'claude-sonnet-4-0' ||
-    canonical === 'claude-sonnet-4-5' ||
-    canonical === 'claude-haiku-4-5'
-  ) {
-    return false
-  }
-  if (
-    (canonical.includes('opus-4-7') &&
-      canonical === 'claude-opus-4-7') ||
-    canonical === 'claude-opus-4-6' ||
-    canonical === 'claude-sonnet-4-6'
+    canonical.includes('opus-4-7') ||
+    canonical.includes('opus-4-6') ||
+    canonical.includes('sonnet-4-6')
   ) {
     return true
+  }
+  // Exclude any other known legacy models (allowlist above catches 4-6 variants first)
+  if (
+    canonical.includes('opus') ||
+    canonical.includes('sonnet') ||
+    canonical.includes('haiku')
+  ) {
+    return false
   }
   // IMPORTANT: Do not change adaptive thinking support without notifying the
   // model launch DRI and research. This can greatly affect model quality and

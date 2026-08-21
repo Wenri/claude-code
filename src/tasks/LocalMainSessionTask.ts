@@ -27,7 +27,6 @@ import type {
   AgentDefinition,
   CustomAgentDefinition,
 } from '../tools/AgentTool/loadAgentsDir.js'
-import { REPL_TOOL_NAME } from '../tools/REPLTool/constants.js'
 import { asAgentId } from '../types/ids.js'
 import type { Message } from '../types/message.js'
 import { createAbortController } from '../utils/abortController.js'
@@ -49,7 +48,7 @@ import {
   getTaskOutputPath,
   initTaskOutputAsSymlink,
 } from '../utils/task/diskOutput.js'
-import type { TaskRegistry } from '../utils/task/framework.js'
+import { registerTask, updateTaskState } from '../utils/task/framework.js'
 import type { LocalAgentTaskState } from './LocalAgentTask/LocalAgentTask.js'
 
 // Main session tasks use LocalAgentTaskState with agentType='main-session'
@@ -94,7 +93,7 @@ function generateMainSessionTaskId(): string {
  */
 export function registerMainSessionTask(
   description: string,
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
   mainThreadAgentDefinition?: AgentDefinition,
   existingAbortController?: AbortController,
 ): { taskId: string; abortSignal: AbortSignal } {
@@ -116,7 +115,10 @@ export function registerMainSessionTask(
 
   const unregisterCleanup = registerCleanup(async () => {
     // Clean up on process exit
-    taskRegistry.remove(taskId)
+    setAppState(prev => {
+      const { [taskId]: removed, ...rest } = prev.tasks
+      return { ...prev, tasks: rest }
+    })
   })
 
   // Use provided agent definition or default
@@ -145,12 +147,16 @@ export function registerMainSessionTask(
   logForDebugging(
     `[LocalMainSessionTask] Registering task ${taskId} with description: ${description}`,
   )
-  taskRegistry.register(taskState)
+  registerTask(taskState, setAppState)
 
   // Verify task was registered by checking state
-  logForDebugging(
-    `[LocalMainSessionTask] After registration, task ${taskId} exists in state: ${taskRegistry.get(taskId) !== undefined}`,
-  )
+  setAppState(prev => {
+    const hasTask = taskId in prev.tasks
+    logForDebugging(
+      `[LocalMainSessionTask] After registration, task ${taskId} exists in state: ${hasTask}`,
+    )
+    return prev
+  })
 
   return { taskId, abortSignal: abortController.signal }
 }
@@ -162,12 +168,12 @@ export function registerMainSessionTask(
 export function completeMainSessionTask(
   taskId: string,
   success: boolean,
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
 ): void {
   let wasBackgrounded = true
   let toolUseId: string | undefined
 
-  taskRegistry.update<LocalMainSessionTaskState>(taskId, task => {
+  updateTaskState<LocalMainSessionTaskState>(taskId, setAppState, task => {
     if (task.status !== 'running') {
       return task
     }
@@ -195,7 +201,7 @@ export function completeMainSessionTask(
       taskId,
       'Background session',
       success ? 'completed' : 'failed',
-      taskRegistry,
+      setAppState,
       toolUseId,
     )
   } else {
@@ -204,7 +210,7 @@ export function completeMainSessionTask(
     // Set notified so evictTerminalTask/generateTaskAttachments eviction
     // guards pass; the backgrounded path sets this inside
     // enqueueMainSessionNotification's check-and-set.
-    taskRegistry.update(taskId, task => ({ ...task, notified: true }))
+    updateTaskState(taskId, setAppState, task => ({ ...task, notified: true }))
     emitTaskTerminatedSdk(taskId, success ? 'completed' : 'failed', {
       toolUseId,
       summary: 'Background session',
@@ -219,12 +225,12 @@ function enqueueMainSessionNotification(
   taskId: string,
   description: string,
   status: 'completed' | 'failed',
-  taskRegistry: TaskRegistry,
+  setAppState: SetAppState,
   toolUseId?: string,
 ): void {
   // Atomically check and set notified flag to prevent duplicate notifications.
   let shouldEnqueue = false
-  taskRegistry.update(taskId, task => {
+  updateTaskState(taskId, setAppState, task => {
     if (task.notified) {
       return task
     }
@@ -333,18 +339,18 @@ export function startBackgroundSession({
   messages,
   queryParams,
   description,
-  taskRegistry,
+  setAppState,
   agentDefinition,
 }: {
   messages: Message[]
   queryParams: Omit<QueryParams, 'messages'>
   description: string
-  taskRegistry: TaskRegistry
+  setAppState: SetAppState
   agentDefinition?: AgentDefinition
 }): string {
   const { taskId, abortSignal } = registerMainSessionTask(
     description,
-    taskRegistry,
+    setAppState,
     agentDefinition,
   )
 
@@ -382,7 +388,7 @@ export function startBackgroundSession({
           // Aborted mid-stream — completeMainSessionTask won't be reached.
           // chat:killAgents path already marked notified + emitted; stopTask path did not.
           let alreadyNotified = false
-          taskRegistry.update(taskId, task => {
+          updateTaskState(taskId, setAppState, task => {
             alreadyNotified = task.notified === true
             return alreadyNotified ? task : { ...task, notified: true }
           })
@@ -392,36 +398,6 @@ export function startBackgroundSession({
             })
           }
           return
-        }
-
-        if (
-          event.type === 'progress' &&
-          event.data.type === 'repl_tool_call' &&
-          event.data.phase === 'start'
-        ) {
-          const activity: ToolActivity = {
-            toolName: event.data.toolName,
-            input: event.data.toolInput,
-          }
-          recentActivities.push(activity)
-          if (recentActivities.length > MAX_RECENT_ACTIVITIES) {
-            recentActivities.shift()
-          }
-          const latestActivity = recentActivities.at(-1)
-          taskRegistry.update<LocalMainSessionTaskState>(taskId, task => {
-            if (task.progress?.recentActivities?.at(-1) === latestActivity) {
-              return task
-            }
-            return {
-              ...task,
-              progress: {
-                tokenCount,
-                toolUseCount: toolCount,
-                recentActivities: [...recentActivities],
-              },
-            }
-          })
-          continue
         }
 
         if (
@@ -448,7 +424,6 @@ export function startBackgroundSession({
               tokenCount += roughTokenCountEstimation(block.text)
             } else if (block.type === 'tool_use') {
               toolCount++
-              if (block.name === REPL_TOOL_NAME) continue
               const activity: ToolActivity = {
                 toolName: block.name,
                 input: block.input as Record<string, unknown>,
@@ -461,34 +436,42 @@ export function startBackgroundSession({
           }
         }
 
-        taskRegistry.update<LocalMainSessionTaskState>(taskId, task => {
+        setAppState(prev => {
+          const task = prev.tasks[taskId]
+          if (!task || task.type !== 'local_agent') return prev
           const prevProgress = task.progress
           if (
             prevProgress?.tokenCount === tokenCount &&
             prevProgress.toolUseCount === toolCount &&
             task.messages === bgMessages
           ) {
-            return task
+            return prev
           }
           return {
-            ...task,
-            progress: {
-              tokenCount,
-              toolUseCount: toolCount,
-              recentActivities:
-                prevProgress?.toolUseCount === toolCount
-                  ? prevProgress.recentActivities
-                  : [...recentActivities],
+            ...prev,
+            tasks: {
+              ...prev.tasks,
+              [taskId]: {
+                ...task,
+                progress: {
+                  tokenCount,
+                  toolUseCount: toolCount,
+                  recentActivities:
+                    prevProgress?.toolUseCount === toolCount
+                      ? prevProgress.recentActivities
+                      : [...recentActivities],
+                },
+                messages: bgMessages,
+              },
             },
-            messages: bgMessages,
           }
         })
       }
 
-      completeMainSessionTask(taskId, true, taskRegistry)
+      completeMainSessionTask(taskId, true, setAppState)
     } catch (error) {
       logError(error)
-      completeMainSessionTask(taskId, false, taskRegistry)
+      completeMainSessionTask(taskId, false, setAppState)
     }
   })
 

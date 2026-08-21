@@ -9,6 +9,7 @@ export function useDoublePress(
   setPending: (pending: boolean) => void,
   onDoublePress: () => void,
   onFirstPress?: () => void,
+  timeoutMs = DOUBLE_PRESS_TIMEOUT_MS,
 ): () => void {
   const lastPressRef = useRef<number>(0)
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -31,7 +32,7 @@ export function useDoublePress(
     const now = Date.now()
     const timeSinceLastPress = now - lastPressRef.current
     const isDoublePress =
-      timeSinceLastPress <= DOUBLE_PRESS_TIMEOUT_MS &&
+      timeSinceLastPress <= timeoutMs &&
       timeoutRef.current !== undefined
 
     if (isDoublePress) {
@@ -51,12 +52,12 @@ export function useDoublePress(
           setPending(false)
           timeoutRef.current = undefined
         },
-        DOUBLE_PRESS_TIMEOUT_MS,
+        timeoutMs,
         setPending,
         timeoutRef,
       )
     }
 
     lastPressRef.current = now
-  }, [setPending, onDoublePress, onFirstPress, clearTimeoutSafe])
+  }, [setPending, onDoublePress, onFirstPress, clearTimeoutSafe, timeoutMs])
 }

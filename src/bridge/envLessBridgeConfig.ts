@@ -40,7 +40,7 @@ export type EnvLessBridgeConfig = {
   should_show_app_upgrade_message: boolean
 }
 
-export const DEFAULT_ENV_LESS_BRIDGE_CONFIG: EnvLessBridgeConfig = {
+export const DEFAULT_REPL_BRIDGE_CONFIG: EnvLessBridgeConfig = {
   init_retry_max_attempts: 3,
   init_retry_base_delay_ms: 500,
   init_retry_jitter_fraction: 0.25,
@@ -126,13 +126,13 @@ const envLessBridgeConfigSchema = lazySchema(() =>
  * value instead of the stale-on-first-read disk cache. The _DEPRECATED suffix
  * warns against startup-path usage, which this isn't.
  */
-export async function getEnvLessBridgeConfig(): Promise<EnvLessBridgeConfig> {
+export async function getReplBridgeConfig(): Promise<EnvLessBridgeConfig> {
   const raw = await getFeatureValue_DEPRECATED<unknown>(
     'tengu_bridge_repl_v2_config',
-    DEFAULT_ENV_LESS_BRIDGE_CONFIG,
+    DEFAULT_REPL_BRIDGE_CONFIG,
   )
   const parsed = envLessBridgeConfigSchema().safeParse(raw)
-  return parsed.success ? parsed.data : DEFAULT_ENV_LESS_BRIDGE_CONFIG
+  return parsed.success ? parsed.data : DEFAULT_REPL_BRIDGE_CONFIG
 }
 
 /**
@@ -143,8 +143,8 @@ export async function getEnvLessBridgeConfig(): Promise<EnvLessBridgeConfig> {
  * instead of tengu_bridge_min_version so the two implementations can enforce
  * independent floors.
  */
-export async function checkEnvLessBridgeMinVersion(): Promise<string | null> {
-  const cfg = await getEnvLessBridgeConfig()
+export async function checkReplBridgeMinVersion(): Promise<string | null> {
+  const cfg = await getReplBridgeConfig()
   if (cfg.min_version && lt(MACRO.VERSION, cfg.min_version)) {
     return `Your version of Claude Code (${MACRO.VERSION}) is too old for Remote Control.\nVersion ${cfg.min_version} or higher is required. Run \`claude update\` to update.`
   }
@@ -158,14 +158,10 @@ export async function checkEnvLessBridgeMinVersion(): Promise<string | null> {
  * roll the v2 bridge before the app ships the new session-list query.
  */
 export async function shouldShowAppUpgradeMessage(): Promise<boolean> {
-  const cfg = await getEnvLessBridgeConfig()
+  const cfg = await getReplBridgeConfig()
   return cfg.should_show_app_upgrade_message
 }
 
-// Stable names exposed by the Remote Control config module. Keep the
-// env-less names above for descriptive internal call sites.
-export {
-  DEFAULT_ENV_LESS_BRIDGE_CONFIG as DEFAULT_REPL_BRIDGE_CONFIG,
-  checkEnvLessBridgeMinVersion as checkReplBridgeMinVersion,
-  getEnvLessBridgeConfig as getReplBridgeConfig,
-}
+export const DEFAULT_ENV_LESS_BRIDGE_CONFIG = DEFAULT_REPL_BRIDGE_CONFIG
+export const getEnvLessBridgeConfig = getReplBridgeConfig
+export const checkEnvLessBridgeMinVersion = checkReplBridgeMinVersion

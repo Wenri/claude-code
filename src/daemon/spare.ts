@@ -8,6 +8,7 @@ import {
   setOriginalCwd,
   setProjectRoot,
   switchSession,
+  resetStartTime,
 } from '../bootstrap/state.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
@@ -16,13 +17,18 @@ import { canonicalizePath } from '../utils/sessionStoragePortable.js'
 import { resetSettingsCache } from '../utils/settings/settingsCache.js'
 import { sleep } from '../utils/sleep.js'
 import { encodeControlFrame } from './framing.js'
+import type { Dispatch } from './protocol.js'
 import {
   getPtyErrorPath,
   getSpareClaimSocketPath,
   getSpareDir,
   getSparePtySocketPath,
 } from './paths.js'
-import type { BackgroundHandle } from './supervisor.js'
+import {
+  BackgroundHandle,
+  type AuthSnapshot,
+  type SpawnPty,
+} from './supervisor.js'
 
 const STRIPPED_SPARE_ENV = [
   'CLAUDE_CODE_QUESTION_PREVIEW_FORMAT',
@@ -52,7 +58,7 @@ export interface SpareProcess {
   dispose(): void
 }
 
-interface ClaimFrame {
+export interface ClaimFrame {
   cwd: string
   env: NodeJS.ProcessEnv
   argv: string[]
@@ -167,8 +173,55 @@ export async function sendSpareClaim(
   }
 }
 
-function receiveClaim(path: string): Promise<ClaimFrame> {
+export function claimSpare(
+  dispatch: Dispatch,
+  spare: SpareProcess,
+  spawnPty: SpawnPty | undefined,
+  getAuthSnapshot?: () => AuthSnapshot | undefined,
+): BackgroundHandle {
+  const handle = BackgroundHandle.claim(dispatch, {
+    pid: spare.hostPid,
+    ptySockPath: spare.ptySock,
+    spawnPty,
+    getAuthSnapshot,
+  })
+  void sendSpareClaim(
+    spare.claimSock,
+    buildSpareClaimFrame(dispatch, getAuthSnapshot),
+  ).catch(error => {
+    logForDebugging(`[bg-spare] send-claim failed: ${String(error)}`, {
+      level: 'warn',
+    })
+    killSparePty(spare.ptySock)
+  })
+  return handle
+}
+
+function buildSpareClaimFrame(
+  dispatch: Dispatch,
+  getAuthSnapshot?: () => AuthSnapshot | undefined,
+): ClaimFrame {
+  const frame = BackgroundHandle.buildClaimFrame(
+    dispatch,
+    getAuthSnapshot?.(),
+  )
+  return {
+    cwd: dispatch.cwd,
+    env: frame.env,
+    argv: frame.argv,
+    sessionId: dispatch.sessionId,
+  }
+}
+
+export function receiveClaim(
+  path: string,
+  onListening?: () => void,
+): Promise<ClaimFrame> {
   return new Promise((resolve, reject) => {
+    const fail = (error: unknown) => {
+      server.close()
+      reject(error)
+    }
     const server = createServer((socket) => {
       let buffered = ''
       socket.setEncoding('utf8')
@@ -176,19 +229,46 @@ function receiveClaim(path: string): Promise<ClaimFrame> {
         buffered += data
         const newline = buffered.indexOf('\n')
         if (newline < 0) return
+        server.close()
         try {
           const frame = JSON.parse(buffered.slice(0, newline)) as ClaimFrame
-          server.close()
           resolve(frame)
         } catch (error) {
           reject(error)
         }
       })
-      socket.on('error', reject)
+      socket.on('error', fail)
     })
-    server.on('error', reject)
+    server.on('error', fail)
+    if (onListening) {
+      server.once('listening', () => {
+        try {
+          onListening()
+        } catch (error) {
+          fail(error)
+        }
+      })
+    }
     server.listen(path)
   })
+}
+
+export async function runClaimedSpare(
+  frame: ClaimFrame,
+  mainModule: Promise<typeof import('../main.js')>,
+): Promise<void> {
+  const cwd = await canonicalizePath(frame.cwd)
+  process.chdir(cwd)
+  setOriginalCwd(cwd)
+  setProjectRoot(cwd)
+  setCwdState(cwd)
+  if (frame.sessionId) switchSession(frame.sessionId as never)
+  resetStartTime()
+  resetSettingsCache()
+  Object.assign(process.env, frame.env)
+  process.argv = [process.argv[0]!, process.argv[1]!, ...frame.argv]
+  const { main } = await mainModule
+  await main()
 }
 
 export async function runBgSpare(args: string[]): Promise<void> {
@@ -240,17 +320,8 @@ export async function runBgSpare(args: string[]): Promise<void> {
   }
   process.off('uncaughtException', fail)
 
-  const cwd = await canonicalizePath(frame.cwd)
-  process.chdir(cwd)
-  setOriginalCwd(cwd)
-  setProjectRoot(cwd)
-  setCwdState(cwd)
-  switchSession(frame.sessionId as never)
-  resetSettingsCache()
-  Object.assign(process.env, frame.env)
-  process.argv = [process.argv[0]!, process.argv[1]!, ...frame.argv]
-  const { main } = await mainModule
-  await main()
+  await mainModule
+  await runClaimedSpare(frame, mainModule)
 }
 
 export async function reapOrphanSpares(

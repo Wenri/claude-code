@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { Select } from '../../components/CustomSelect/select.js'
 import { Dialog } from '../../components/design-system/Dialog.js'
+import { useRegisterOverlay } from '../../context/overlayContext.js'
 import { Box, Link, Text } from '../../ink.js'
 import { checkGate_CACHED_OR_BLOCKING } from '../../services/analytics/growthbook.js'
 import { checkGithubAppInstalled } from '../../utils/background/remote/preconditions.js'
@@ -44,7 +45,7 @@ async function getReviewSourceViability(): Promise<ReviewSourceViability> {
 }
 
 function formatReviewSourceViability(
-  source: RemoteSourceViability,
+  source: ReviewSourceViability,
 ): string | null {
   if (!source.bundleSeedEnabled) return null
   return source.cloneViable
@@ -62,36 +63,9 @@ type Props = {
 
 type ContentProps = Pick<Props, 'body' | 'scope' | 'onCancel'> & {
   showTerms: boolean
-  sourcePromise: Promise<RemoteSourceViability | null> | null
+  sourcePromise: Promise<ReviewSourceViability | null> | null
   isLaunching: boolean
   onSelect: (value: string) => void
-}
-
-function UltrareviewLaunchIndicator(): React.ReactNode {
-  const reducedMotion = useSettings().prefersReducedMotion ?? false
-  const [ref, time] = useAnimationFrame(reducedMotion ? null : 50)
-  const glimmerIndex =
-    reducedMotion ? -100 : 19 - (Math.floor(time / 200) % 29)
-  const frame = Math.floor(time / 120)
-
-  return (
-    <Box ref={ref} flexDirection="row" columnGap={1}>
-      <SpinnerGlyph
-        frame={frame}
-        messageColor="inactive"
-        reducedMotion={reducedMotion}
-        time={time}
-      />
-      <GlimmerMessage
-        message="Launching"
-        mode="responding"
-        messageColor="inactive"
-        glimmerIndex={glimmerIndex}
-        flashOpacity={0}
-        shimmerColor="subtle"
-      />
-    </Box>
-  )
 }
 
 function UltrareviewDialogContent({
@@ -153,7 +127,7 @@ function UltrareviewDialogContent({
     <Box flexDirection="column" gap={1}>
       {details}
       {isLaunching ? (
-        <UltrareviewLaunchIndicator />
+        <Text color="background">Launching…</Text>
       ) : (
         <Select
           options={[
@@ -179,11 +153,12 @@ export function UltrareviewOverageDialog({
   onProceed,
   onCancel,
 }: Props): React.ReactNode {
+  useRegisterOverlay('ultrareview-launch')
   const [showTerms] = useState(
     () => !getGlobalConfig().hasSeenUltrareviewTerms,
   )
   const [sourcePromise] = useState(() =>
-    showTerms ? getRemoteSourceViability().catch(() => null) : null,
+    showTerms ? getReviewSourceViability().catch(() => null) : null,
   )
   const [isLaunching, setIsLaunching] = useState(false)
   const abortControllerRef = useRef(new AbortController())

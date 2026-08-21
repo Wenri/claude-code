@@ -167,26 +167,51 @@ export function FallbackPermissionRequest(t0) {
   } else {
     t7 = $[15];
   }
-  const decisionReason = toolUseConfirm.permissionResult.decisionReason;
-  const classifierDisallowsPersistence =
-    decisionReason?.type === "safetyCheck" &&
-    !decisionReason.classifierApprovable;
-  const options = [t7];
-  if (showAlwaysAllowOptions && !classifierDisallowsPersistence) {
-    const commandName = <Text bold={true}>{userFacingName}</Text>;
-    const cwd = <Text bold={true}>{originalCwd}</Text>;
-    options.push({
-      label: <Text>Yes, and don't ask again for {commandName}{" "}commands in {cwd}</Text>,
-      value: "yes-dont-ask-again"
-    });
-  }
-  options.push({
-    label: "No",
-    value: "no",
-    feedbackConfig: {
-      type: "reject"
+  let result;
+  if ($[16] !== userFacingName) {
+    result = [t7];
+    if (showAlwaysAllowOptions) {
+      const t8 = <Text bold={true}>{userFacingName}</Text>;
+      let t9;
+      if ($[18] === Symbol.for("react.memo_cache_sentinel")) {
+        t9 = <Text bold={true}>{originalCwd}</Text>;
+        $[18] = t9;
+      } else {
+        t9 = $[18];
+      }
+      let t10;
+      if ($[19] !== t8) {
+        t10 = {
+          label: <Text>Yes, and don't ask again for {t8}{" "}commands in {t9}</Text>,
+          value: "yes-dont-ask-again"
+        };
+        $[19] = t8;
+        $[20] = t10;
+      } else {
+        t10 = $[20];
+      }
+      result.push(t10);
     }
-  });
+    let t8;
+    if ($[21] === Symbol.for("react.memo_cache_sentinel")) {
+      t8 = {
+        label: "No",
+        value: "no",
+        feedbackConfig: {
+          type: "reject"
+        }
+      };
+      $[21] = t8;
+    } else {
+      t8 = $[21];
+    }
+    result.push(t8);
+    $[16] = userFacingName;
+    $[17] = result;
+  } else {
+    result = $[17];
+  }
+  const options = result;
   let t8;
   if ($[22] !== toolUseConfirm.tool.name) {
     t8 = sanitizeToolNameForAnalytics(toolUseConfirm.tool.name);

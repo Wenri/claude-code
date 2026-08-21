@@ -1,25 +1,9 @@
-import type { SandboxRuntimeConfig } from '@anthropic-ai/sandbox-runtime'
 import { appendFile, mkdir, open } from 'fs/promises'
 import { homedir, tmpdir } from 'os'
-import { dirname, join, posix as path } from 'path'
+import { dirname, join, posix, resolve } from 'path'
 import { getOriginalCwd } from '../bootstrap/state.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
 import { whichSync } from './which.js'
-
-const ENV_FILES = [
-  '.env',
-  '.env.local',
-  '.env.development',
-  '.env.development.local',
-  '.env.test',
-  '.env.test.local',
-  '.env.production',
-  '.env.production.local',
-] as const
-
-const ALLOW_WRITE_ROOTS = ['home', 'root', 'tmp', 'var', 'opt', 'run', 'mnt'].map(
-  root => `/${root}`,
-)
 
 /**
  * Env vars to strip from subprocess environments when running inside GitHub
@@ -75,36 +59,212 @@ const GHA_SUBPROCESS_SCRUB = [
   'SSH_SIGNING_KEY',
 ] as const
 
+/**
+ * Returns a copy of process.env with sensitive secrets stripped, for use when
+ * spawning subprocesses (Bash tool, shell snapshot, MCP stdio servers, LSP
+ * servers, shell hooks).
+ *
+ * Gated on CLAUDE_CODE_SUBPROCESS_ENV_SCRUB. claude-code-action sets this
+ * automatically when `allowed_non_write_users` is configured — the flag that
+ * exposes a workflow to untrusted content (prompt injection surface).
+ */
+// Registered by init.ts after the upstreamproxy module is dynamically imported
+// in CCR sessions. Stays undefined in non-CCR startups so we never pull in the
+// upstreamproxy module graph (upstreamproxy.ts + relay.ts) via a static import.
+let _getEgressGatewayEnv: (() => Record<string, string>) | undefined
+let scrubEnabled: boolean | undefined
+let scrubSandboxAvailable: boolean | undefined
+let scriptCaps: Record<string, number> | null | undefined
+const scriptCallCounts = new Map<string, number>()
+
+const DOT_ENV_FILES = [
+  '.env',
+  '.env.local',
+  '.env.development',
+  '.env.development.local',
+  '.env.test',
+  '.env.test.local',
+  '.env.production',
+  '.env.production.local',
+] as const
+const SCRUB_WRITABLE_ROOTS = [
+  'home',
+  'root',
+  'tmp',
+  'var',
+  'opt',
+  'run',
+  'mnt',
+].map(path => `/${path}`)
+
 type ScrubPaths = {
   home: string
   originalCwd: string
   claudeConfigDir?: string
   runnerFileCommandsDir?: string
   workspace?: string
-  pathDirs?: string[]
   GITHUB_ACTION_PATH?: string
   GITHUB_EVENT_PATH?: string
+  pathDirs?: string[]
 }
 
-let scrubEnabled: boolean | undefined
-let scrubSandboxAvailable: boolean | undefined
 let scrubPaths: ScrubPaths | undefined
-let parsedScriptCaps: Record<string, number> | null | undefined
-const scriptCapCounts = new Map<string, number>()
+
+const MCP_ALLOWED_ENV_VARS =
+  process.platform === 'win32'
+    ? [
+        'APPDATA',
+        'HOMEDRIVE',
+        'HOMEPATH',
+        'LOCALAPPDATA',
+        'PATH',
+        'PROCESSOR_ARCHITECTURE',
+        'SYSTEMDRIVE',
+        'SYSTEMROOT',
+        'TEMP',
+        'USERNAME',
+        'USERPROFILE',
+        'PROGRAMFILES',
+      ]
+    : ['HOME', 'LOGNAME', 'PATH', 'SHELL', 'TERM', 'USER']
+
+const JAVA_OPTION_UNSAFE_CHARS = /[ \t\n\v\f\r'"]/u
 
 /**
- * Whether the caller explicitly requested subprocess secret scrubbing.
- * The value is latched because changing the isolation boundary during a run
- * would let later commands observe a different environment than earlier ones.
+ * Called from init.ts to wire up the proxy env function after the upstreamproxy
+ * module has been lazily loaded. Must be called before any subprocess is spawned.
  */
+export function registerEgressGatewayEnvFn(
+  fn: () => Record<string, string>,
+): void {
+  _getEgressGatewayEnv = fn
+}
+
+export function egressGatewayEnv(): Record<string, string> {
+  return _getEgressGatewayEnv?.() ?? {}
+}
+
+type ParsedProxy = {
+  host: string
+  port: string
+  user: string
+  pass: string
+}
+
+function parseProxyUrl(value: string | undefined): ParsedProxy {
+  if (!value) return { host: '', port: '', user: '', pass: '' }
+  try {
+    const parsed = new URL(value)
+    if (!parsed.hostname) return { host: '', port: '', user: '', pass: '' }
+    return {
+      host:
+        parsed.hostname.startsWith('[') && parsed.hostname.endsWith(']')
+          ? parsed.hostname.slice(1, -1)
+          : parsed.hostname,
+      port: parsed.port || (parsed.protocol === 'https:' ? '443' : '80'),
+      user: decodeURIComponent(parsed.username),
+      pass: decodeURIComponent(parsed.password),
+    }
+  } catch {
+    return { host: '', port: '', user: '', pass: '' }
+  }
+}
+
+function toJavaNonProxyHosts(value: string): string {
+  return value
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean)
+    .map(item => (item.startsWith('.') ? `*${item}` : item))
+    .join('|')
+}
+
+function buildJavaProxyOptions(
+  http: ParsedProxy,
+  https: ParsedProxy,
+  noProxy: string | undefined,
+): string {
+  const options: string[] = []
+  const append = (name: string, value: string | undefined) => {
+    if (value && !JAVA_OPTION_UNSAFE_CHARS.test(value)) {
+      options.push(`-D${name}=${value}`)
+    }
+  }
+  append('http.proxyHost', http.host)
+  append('http.proxyPort', http.port)
+  append('https.proxyHost', https.host)
+  append('https.proxyPort', https.port)
+  append('http.proxyUser', http.user)
+  append('http.proxyPassword', http.pass)
+  append('https.proxyUser', https.user)
+  append('https.proxyPassword', https.pass)
+  if (noProxy) append('http.nonProxyHosts', toJavaNonProxyHosts(noProxy))
+  options.push('-Djdk.http.auth.tunneling.disabledSchemes=')
+  options.push('-Djdk.http.auth.proxying.disabledSchemes=')
+  return options.join(' ')
+}
+
+function getRemoteProxyEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const httpProxy =
+    env.HTTP_PROXY || env.http_proxy || env.CLAUDE_CODE_HTTP_PROXY
+  const httpsProxy =
+    env.HTTPS_PROXY || env.https_proxy || env.CLAUDE_CODE_HTTPS_PROXY
+  const noProxy = env.NO_PROXY || env.no_proxy
+  if (!httpProxy && !httpsProxy) return {}
+
+  const http = parseProxyUrl(httpProxy)
+  let https = parseProxyUrl(httpsProxy)
+  if (!https.host) https = http
+  const result: NodeJS.ProcessEnv = {}
+  const setIfAbsent = (name: string, value: string | undefined) => {
+    if (value && env[name] === undefined) result[name] = value
+  }
+
+  setIfAbsent('YARN_HTTP_PROXY', httpProxy)
+  setIfAbsent('YARN_HTTPS_PROXY', httpsProxy)
+  setIfAbsent('npm_config_proxy', httpProxy)
+  setIfAbsent('npm_config_https_proxy', httpsProxy)
+  setIfAbsent('npm_config_noproxy', noProxy)
+  setIfAbsent('GLOBAL_AGENT_HTTP_PROXY', httpProxy)
+  setIfAbsent('GLOBAL_AGENT_HTTPS_PROXY', httpsProxy)
+  setIfAbsent('GLOBAL_AGENT_NO_PROXY', noProxy)
+  setIfAbsent('ELECTRON_GET_USE_PROXY', '1')
+  setIfAbsent('DOCKER_HTTP_PROXY', httpProxy)
+  setIfAbsent('DOCKER_HTTPS_PROXY', httpsProxy)
+  if (https.host) {
+    setIfAbsent('CLOUDSDK_PROXY_TYPE', 'http')
+    setIfAbsent('CLOUDSDK_PROXY_ADDRESS', https.host)
+    setIfAbsent('CLOUDSDK_PROXY_PORT', https.port)
+    setIfAbsent('CLOUDSDK_PROXY_USERNAME', https.user)
+    setIfAbsent('CLOUDSDK_PROXY_PASSWORD', https.pass)
+  }
+  setIfAbsent('FSSPEC_GCS', '{"session_kwargs": {"trust_env": true}}')
+  if (https.host && !env.JAVA_TOOL_OPTIONS?.includes('-Dhttps.proxyHost=')) {
+    const javaOptions = buildJavaProxyOptions(http, https, noProxy)
+    result.JAVA_TOOL_OPTIONS = env.JAVA_TOOL_OPTIONS
+      ? `${env.JAVA_TOOL_OPTIONS} ${javaOptions}`
+      : javaOptions
+  }
+  return result
+}
+
 export function isScrubEnabled(): boolean {
-  scrubEnabled ??= isEnvTruthy(
-    process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB,
-  )
+  if (scrubEnabled === undefined) {
+    scrubEnabled = isEnvTruthy(process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB)
+  }
   return scrubEnabled
 }
 
-function shouldScrubSubprocessEnvironment(): boolean {
+export function isSubprocessEnvScrubEnabled(): boolean {
+  return isScrubEnabled()
+}
+
+export function isScrubSandboxAvailable(): boolean {
+  if (scrubSandboxAvailable !== undefined) return scrubSandboxAvailable
+  return Boolean(whichSync('bwrap'))
+}
+
+function shouldScrubSubprocessEnv(): boolean {
   if (isScrubEnabled()) return true
   if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB)) {
     return false
@@ -112,59 +272,65 @@ function shouldScrubSubprocessEnvironment(): boolean {
   return process.env.CLAUDE_CODE_ENTRYPOINT === 'local-agent'
 }
 
-export function isScrubSandboxAvailable(): boolean {
-  scrubSandboxAvailable ??= whichSync('bwrap') !== null
-  return scrubSandboxAvailable
+export function shouldUseMcpAllowlistEnv(): boolean {
+  const setting = process.env.CLAUDE_CODE_MCP_ALLOWLIST_ENV
+  if (isEnvTruthy(setting)) return true
+  if (isEnvDefinedFalsy(setting)) return false
+  return process.env.CLAUDE_CODE_ENTRYPOINT === 'local-agent'
 }
 
-function loadScriptCaps(): void {
-  if (parsedScriptCaps !== undefined) return
+function getMcpAllowedProcessEnv(): NodeJS.ProcessEnv {
+  const result: NodeJS.ProcessEnv = {}
+  for (const name of MCP_ALLOWED_ENV_VARS) {
+    const value = process.env[name]
+    if (value === undefined || value.startsWith('()')) continue
+    result[name] = value
+  }
+  return result
+}
+
+export function mcpSubprocessEnv(): NodeJS.ProcessEnv {
+  if (!shouldUseMcpAllowlistEnv()) return subprocessEnv()
+  return { ...getMcpAllowedProcessEnv(), ...egressGatewayEnv() }
+}
+
+function getScriptCaps(): Record<string, number> | null {
+  if (scriptCaps !== undefined) return scriptCaps
   const raw = process.env.CLAUDE_CODE_SCRIPT_CAPS
   if (!raw) {
-    parsedScriptCaps = null
-    return
+    scriptCaps = null
+    return scriptCaps
   }
   try {
-    const value: unknown = JSON.parse(raw)
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-      parsedScriptCaps = null
-      return
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      scriptCaps = null
+      return scriptCaps
     }
-    const valid = Object.fromEntries(
-      Object.entries(value).filter(
-        (entry): entry is [string, number] =>
-          entry[0].trim().length > 0 &&
-          typeof entry[1] === 'number' &&
-          Number.isFinite(entry[1]),
-      ),
-    )
-    parsedScriptCaps = Object.keys(valid).length > 0 ? valid : null
+    const valid: Record<string, number> = {}
+    for (const [script, cap] of Object.entries(parsed)) {
+      if (
+        typeof cap === 'number' &&
+        Number.isFinite(cap) &&
+        script.trim().length > 0
+      ) {
+        valid[script] = cap
+      }
+    }
+    scriptCaps = Object.keys(valid).length > 0 ? valid : null
   } catch {
-    parsedScriptCaps = null
+    scriptCaps = null
   }
-}
-
-/** Enforce cumulative textual call caps for isolated, untrusted workflows. */
-export function enforceScriptCaps(commandText: string): void {
-  if (!isScrubEnabled()) return
-  loadScriptCaps()
-  if (!parsedScriptCaps) return
-  for (const [pattern, cap] of Object.entries(parsedScriptCaps)) {
-    const occurrences = commandText.split(pattern).length - 1
-    if (occurrences === 0) continue
-    const count = (scriptCapCounts.get(pattern) ?? 0) + occurrences
-    scriptCapCounts.set(pattern, count)
-    if (count > cap) {
-      throw new Error(
-        `Script call limit exceeded: ${pattern} has been called ${count} times (cap: ${cap}). This limit prevents data exfiltration via repeated write operations in untrusted-input workflows.`,
-      )
-    }
-  }
+  return scriptCaps
 }
 
 export function _resetScriptCapsForTesting(): void {
-  scriptCapCounts.clear()
-  parsedScriptCaps = undefined
+  scriptCallCounts.clear()
+  scriptCaps = undefined
+}
+
+export function resetScriptCapsForTesting(): void {
+  return _resetScriptCapsForTesting()
 }
 
 export function _resetScrubLatchForTesting(): void {
@@ -174,14 +340,18 @@ export function _resetScrubLatchForTesting(): void {
   _resetScriptCapsForTesting()
 }
 
+export function resetSubprocessEnvScrubForTesting(): void {
+  return _resetScrubLatchForTesting()
+}
+
 export function _setScrubPathsLatchedForTesting(paths: ScrubPaths): void {
   scrubPaths = paths
 }
 
-/**
- * Validate bubblewrap and create safe mount points before an isolated local
- * agent can execute any user-controlled command.
- */
+export function setScrubPathsForTesting(paths: ScrubPaths): void {
+  return _setScrubPathsLatchedForTesting(paths)
+}
+
 export async function assertScrubSandboxAvailable(): Promise<void> {
   if (!isScrubEnabled()) return
 
@@ -191,7 +361,8 @@ export async function assertScrubSandboxAvailable(): Promise<void> {
     ? dirname(process.env.GITHUB_ENV)
     : undefined
   const workspace = process.env.GITHUB_WORKSPACE
-  scrubSandboxAvailable = whichSync('bwrap') !== null
+
+  scrubSandboxAvailable = Boolean(whichSync('bwrap'))
   scrubPaths = {
     home,
     originalCwd,
@@ -200,18 +371,16 @@ export async function assertScrubSandboxAvailable(): Promise<void> {
     workspace,
     GITHUB_ACTION_PATH: process.env.GITHUB_ACTION_PATH,
     GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
+    pathDirs: (process.env.PATH ?? '')
+      .split(':')
+      .map(path => (path ? posix.normalize(path).replace(/\/+$/, '') : path))
+      .filter(
+        path =>
+          Boolean(path) &&
+          SCRUB_WRITABLE_ROOTS.some(root => path.startsWith(`${root}/`)),
+      ),
   }
-  scrubPaths.pathDirs = (process.env.PATH ?? '')
-    .split(':')
-    .map(directory =>
-      directory ? path.normalize(directory).replace(/\/+$/, '') : directory,
-    )
-    .filter(
-      (directory): directory is string =>
-        Boolean(directory) &&
-        ALLOW_WRITE_ROOTS.some(root => directory.startsWith(`${root}/`)),
-    )
-  loadScriptCaps()
+  getScriptCaps()
 
   if (!whichSync('bwrap')) {
     throw new Error(
@@ -219,12 +388,15 @@ export async function assertScrubSandboxAvailable(): Promise<void> {
     )
   }
 
-  await mkdir(
-    join(process.env.CLAUDE_CODE_TMPDIR || tmpdir(), `claude-${process.getuid?.() ?? 0}`),
-    { recursive: true },
-  ).catch(() => {})
+  const claudeTempDir = join(
+    process.env.CLAUDE_CODE_TMPDIR || tmpdir(),
+    process.platform === 'win32'
+      ? 'claude'
+      : `claude-${process.getuid?.() ?? 0}`,
+  )
+  await mkdir(claudeTempDir, { recursive: true, mode: 0o700 }).catch(() => {})
 
-  const mountPointFiles = [
+  const filesToStub = [
     `${home}/.gitconfig`,
     `${home}/.bash_profile`,
     `${home}/.bashrc`,
@@ -246,19 +418,18 @@ export async function assertScrubSandboxAvailable(): Promise<void> {
     `${originalCwd}/yarn.lock`,
     `${originalCwd}/pnpm-lock.yaml`,
     '/tmp/inline-comments-buffer.jsonl',
-    ...ENV_FILES.map(name => `${originalCwd}/${name}`),
+    ...DOT_ENV_FILES.map(filename => `${originalCwd}/${filename}`),
   ]
-  for (const filename of mountPointFiles) {
+  for (const filename of filesToStub) {
     try {
       await mkdir(dirname(filename), { recursive: true })
       await (await open(filename, 'a')).close()
     } catch {
-      // The sandbox can still deny existing paths when a read-only mount point
-      // cannot be prepared (for example, on a read-only checkout).
+      // Best effort: the sandbox config still denies writes to every path.
     }
   }
 
-  for (const directory of [
+  const directoriesToStub = [
     `${home}/.config/gh`,
     `${home}/.config/git`,
     `${home}/.config/pip`,
@@ -268,11 +439,16 @@ export async function assertScrubSandboxAvailable(): Promise<void> {
     `${originalCwd}/node_modules/.bin`,
     ...(runnerFileCommandsDir ? [runnerFileCommandsDir] : []),
     ...(scrubPaths.pathDirs ?? []),
-  ]) {
-    await mkdir(directory, { recursive: true }).catch(() => {})
+  ]
+  for (const directory of directoriesToStub) {
+    try {
+      await mkdir(directory, { recursive: true })
+    } catch {
+      // Best effort: the sandbox config still denies writes to every path.
+    }
   }
 
-  if (workspace && path.resolve(workspace) !== path.resolve(originalCwd)) {
+  if (workspace && resolve(workspace) !== resolve(originalCwd)) {
     await mkdir(`${workspace}/.git/hooks`).catch(() => {})
     await mkdir(`${workspace}/.git/modules`).catch(() => {})
     await mkdir(`${workspace}/.git/info`).catch(() => {})
@@ -285,12 +461,12 @@ export async function assertScrubSandboxAvailable(): Promise<void> {
       try {
         await (await open(filename, 'a')).close()
       } catch {
-        // A read-only or non-git workspace does not need a writable stub.
+        // Best effort: the sandbox config still denies writes to every path.
       }
     }
   }
 
-  const projectFiles = [
+  const excludedStubNames = [
     'bunfig.toml',
     'package.json',
     '.npmrc',
@@ -300,41 +476,43 @@ export async function assertScrubSandboxAvailable(): Promise<void> {
     'package-lock.json',
     'yarn.lock',
     'pnpm-lock.yaml',
-    ...ENV_FILES,
+    ...DOT_ENV_FILES,
   ]
   await mkdir(`${originalCwd}/.git/info`).catch(() => {})
   await mkdir(`${originalCwd}/.git/modules`).catch(() => {})
   try {
     await appendFile(
       `${originalCwd}/.git/info/exclude`,
-      `\n# claude-code scrub-mode stubs\n${projectFiles
+      `\n# claude-code scrub-mode stubs\n${excludedStubNames
         .map(filename => `/${filename}`)
         .join('\n')}\n`,
     )
   } catch {
-    // Non-git and read-only directories do not need an exclude update.
+    // The working directory does not have to be a git repository.
   }
 }
 
-export function shouldUseMcpAllowlistEnv(): boolean {
-  const value = process.env.CLAUDE_CODE_MCP_ALLOWLIST_ENV
-  if (isEnvTruthy(value)) return true
-  if (isEnvDefinedFalsy(value)) return false
-  return process.env.CLAUDE_CODE_ENTRYPOINT === 'local-agent'
+export async function initializeSubprocessEnvScrub(): Promise<void> {
+  return assertScrubSandboxAvailable()
 }
 
-/** Extra filesystem restrictions applied to scrubbed subprocesses. */
-export function scrubSandboxConfig(): Partial<SandboxRuntimeConfig> {
+export function scrubSandboxConfig(): {
+  filesystem: {
+    allowWrite: string[]
+    denyRead: string[]
+    denyWrite: string[]
+  }
+} {
   const home = scrubPaths?.home ?? homedir()
-  const cwd = scrubPaths?.originalCwd ?? getOriginalCwd()
+  const originalCwd = scrubPaths?.originalCwd ?? getOriginalCwd()
   const actionPath =
     scrubPaths?.GITHUB_ACTION_PATH ?? process.env.GITHUB_ACTION_PATH
   const runnerFileCommandsDir =
     scrubPaths?.runnerFileCommandsDir ??
     (process.env.GITHUB_ENV ? dirname(process.env.GITHUB_ENV) : undefined)
   const workspace = scrubPaths?.workspace ?? process.env.GITHUB_WORKSPACE
-  const workspaceDenyPaths =
-    workspace && path.resolve(workspace) !== path.resolve(cwd)
+  const workspaceDeny =
+    workspace && resolve(workspace) !== resolve(originalCwd)
       ? [
           `${workspace}/.git/hooks`,
           `${workspace}/.git/config`,
@@ -344,9 +522,14 @@ export function scrubSandboxConfig(): Partial<SandboxRuntimeConfig> {
           `${workspace}/.github`,
         ]
       : []
+  const actionRoot =
+    actionPath && actionPath.includes('/_actions/')
+      ? actionPath.slice(0, actionPath.indexOf('/_actions/') + 9)
+      : undefined
+
   return {
     filesystem: {
-      allowWrite: ALLOW_WRITE_ROOTS,
+      allowWrite: SCRUB_WRITABLE_ROOTS,
       denyRead: [
         '/run/docker.sock',
         '/run/containerd/containerd.sock',
@@ -373,25 +556,25 @@ export function scrubSandboxConfig(): Partial<SandboxRuntimeConfig> {
         `${home}/.gitconfig`,
         `${home}/.config/git`,
         `${home}/.bunfig.toml`,
-        `${cwd}/bunfig.toml`,
-        `${cwd}/package.json`,
-        ...ENV_FILES.map(name => `${cwd}/${name}`),
+        `${originalCwd}/bunfig.toml`,
+        `${originalCwd}/package.json`,
+        ...DOT_ENV_FILES.map(filename => `${originalCwd}/${filename}`),
         `${home}/.npmrc`,
-        `${cwd}/.npmrc`,
+        `${originalCwd}/.npmrc`,
         `${home}/.yarnrc`,
         `${home}/.yarnrc.yml`,
-        `${cwd}/.yarnrc`,
-        `${cwd}/.yarnrc.yml`,
+        `${originalCwd}/.yarnrc`,
+        `${originalCwd}/.yarnrc.yml`,
         `${home}/.config/pip`,
         `${home}/.pip`,
-        `${cwd}/package-lock.json`,
-        `${cwd}/yarn.lock`,
-        `${cwd}/pnpm-lock.yaml`,
-        `${cwd}/node_modules/.bin`,
-        `${cwd}/.git/modules`,
-        `${cwd}/scripts`,
-        `${cwd}/.claude`,
-        `${cwd}/.github`,
+        `${originalCwd}/package-lock.json`,
+        `${originalCwd}/yarn.lock`,
+        `${originalCwd}/pnpm-lock.yaml`,
+        `${originalCwd}/node_modules/.bin`,
+        `${originalCwd}/.git/modules`,
+        `${originalCwd}/scripts`,
+        `${originalCwd}/.claude`,
+        `${originalCwd}/.github`,
         `${home}/.local/bin`,
         `${home}/runners`,
         `${home}/actions-runner`,
@@ -399,49 +582,42 @@ export function scrubSandboxConfig(): Partial<SandboxRuntimeConfig> {
         ...(scrubPaths?.pathDirs ?? []),
         runnerFileCommandsDir,
         actionPath,
-        actionPath?.includes('/_actions/')
-          ? actionPath.slice(0, actionPath.indexOf('/_actions/') + 9)
-          : undefined,
+        actionRoot,
         scrubPaths?.GITHUB_EVENT_PATH ?? process.env.GITHUB_EVENT_PATH,
         `${home}/.config/gh`,
         `${home}/.netrc`,
         `${home}/.ssh`,
-        `${cwd}/.git/hooks`,
-        `${cwd}/.git/config`,
-        `${cwd}/.gitmodules`,
-        `${cwd}/.git/info/exclude`,
-        ...workspaceDenyPaths,
-      ].filter((path): path is string => !!path),
+        `${originalCwd}/.git/hooks`,
+        `${originalCwd}/.git/config`,
+        `${originalCwd}/.gitmodules`,
+        `${originalCwd}/.git/info/exclude`,
+        ...workspaceDeny,
+      ].filter((path): path is string => Boolean(path)),
     },
   }
 }
 
-/**
- * Returns a copy of process.env with sensitive secrets stripped, for use when
- * spawning subprocesses (Bash tool, shell snapshot, MCP stdio servers, LSP
- * servers, shell hooks).
- *
- * Gated on CLAUDE_CODE_SUBPROCESS_ENV_SCRUB. claude-code-action sets this
- * automatically when `allowed_non_write_users` is configured — the flag that
- * exposes a workflow to untrusted content (prompt injection surface).
- */
-// Registered by init.ts after the upstreamproxy module is dynamically imported
-// in CCR sessions. Stays undefined in non-CCR startups so we never pull in the
-// upstreamproxy module graph (upstreamproxy.ts + relay.ts) via a static import.
-let _getUpstreamProxyEnv: (() => Record<string, string>) | undefined
-
-/**
- * Called from init.ts to wire up the proxy env function after the upstreamproxy
- * module has been lazily loaded. Must be called before any subprocess is spawned.
- */
-export function registerUpstreamProxyEnvFn(
-  fn: () => Record<string, string>,
-): void {
-  _getUpstreamProxyEnv = fn
+export function getScrubSandboxConfig(): ReturnType<
+  typeof scrubSandboxConfig
+> {
+  return scrubSandboxConfig()
 }
 
-export function upstreamProxyEnv(): Record<string, string> {
-  return _getUpstreamProxyEnv?.() ?? {}
+export function enforceScriptCaps(command: string): void {
+  if (!isScrubEnabled()) return
+  const caps = getScriptCaps()
+  if (!caps) return
+  for (const [script, cap] of Object.entries(caps)) {
+    const occurrences = command.split(script).length - 1
+    if (occurrences <= 0) continue
+    const total = (scriptCallCounts.get(script) ?? 0) + occurrences
+    scriptCallCounts.set(script, total)
+    if (total > cap) {
+      throw new Error(
+        `Script call limit exceeded: ${script} has been called ${total} times (cap: ${cap}). This limit prevents data exfiltration via repeated write operations in untrusted-input workflows.`,
+      )
+    }
+  }
 }
 
 export function subprocessEnv(): NodeJS.ProcessEnv {
@@ -449,14 +625,48 @@ export function subprocessEnv(): NodeJS.ProcessEnv {
   // in agent subprocesses route through the local relay. Returns {} when the
   // proxy is disabled or not registered (non-CCR), so this is a no-op outside
   // CCR containers.
-  const proxyEnv = upstreamProxyEnv()
+  const proxyEnv = egressGatewayEnv()
+  const hasProxyEnv = Object.keys(proxyEnv).length > 0
+  const remoteProxyEnv = isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)
+    ? getRemoteProxyEnv(
+        hasProxyEnv ? { ...process.env, ...proxyEnv } : process.env,
+      )
+    : {}
+  const hasRemoteProxyEnv = Object.keys(remoteProxyEnv).length > 0
+  const shouldScrub = shouldScrubSubprocessEnv()
+  const hasAuthMetadata =
+    process.env.CLAUDE_CODE_OAUTH_TOKEN !== undefined ||
+    process.env.CLAUDE_CODE_SUBSCRIPTION_TYPE !== undefined ||
+    process.env.CLAUDE_CODE_RATE_LIMIT_TIER !== undefined
+  const hasSessionMetadata =
+    process.env.CLAUDE_CODE_SESSION_KIND !== undefined ||
+    process.env.CLAUDE_BG_SOURCE !== undefined ||
+    process.env.CLAUDE_BG_ISOLATION !== undefined ||
+    process.env.CLAUDE_BG_BACKEND !== undefined ||
+    process.env.CLAUDE_CODE_SESSION_NAME !== undefined
 
-  if (!shouldScrubSubprocessEnvironment()) {
-    return Object.keys(proxyEnv).length > 0
-      ? { ...process.env, ...proxyEnv }
-      : process.env
+  if (
+    !hasProxyEnv &&
+    !hasRemoteProxyEnv &&
+    !shouldScrub &&
+    !hasSessionMetadata &&
+    !hasAuthMetadata
+  ) {
+    return process.env
   }
-  const env = { ...process.env, ...proxyEnv }
+
+  const env = { ...process.env, ...proxyEnv, ...remoteProxyEnv }
+  delete env.CLAUDE_CODE_OAUTH_TOKEN
+  delete env.CLAUDE_CODE_SUBSCRIPTION_TYPE
+  delete env.CLAUDE_CODE_RATE_LIMIT_TIER
+  delete env.CLAUDE_CODE_SESSION_KIND
+  delete env.CLAUDE_BG_SOURCE
+  delete env.CLAUDE_BG_ISOLATION
+  delete env.CLAUDE_BG_BACKEND
+  delete env.CLAUDE_CODE_SESSION_NAME
+  delete env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN
+
+  if (!shouldScrub) return env
   for (const k of GHA_SUBPROCESS_SCRUB) {
     delete env[k]
     // GitHub Actions auto-creates INPUT_<NAME> for `with:` inputs, duplicating

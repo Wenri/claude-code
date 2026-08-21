@@ -1,5 +1,9 @@
-import { open, stat } from 'fs/promises'
+import { getJobsDir } from 'src/daemon/jobs.js'
+import { getDaemonLockPath } from 'src/daemon/lock.js'
+import { getDaemonStatusPath, getRosterPath } from 'src/daemon/paths.js'
+import { getDefaultDaemonLogPath } from 'src/daemon/service.js'
 import { CLAUDE_CODE_GUIDE_AGENT_TYPE } from 'src/tools/AgentTool/built-in/claudeCodeGuideAgent.js'
+import { tailFile } from 'src/utils/fsOperations.js'
 import { getSettingsFilePathForSource } from 'src/utils/settings/settings.js'
 import { enableDebugLogging, getDebugLogPath } from '../../utils/debug.js'
 import { errorMessage, isENOENT } from '../../utils/errors.js'
@@ -8,6 +12,64 @@ import { registerBundledSkill } from '../bundledSkills.js'
 
 const DEFAULT_DEBUG_LINES_READ = 20
 const TAIL_READ_BYTES = 64 * 1024
+const STATE_READ_BYTES = 8 * 1024
+
+async function readLogTail(logPath: string): Promise<string> {
+  try {
+    const { content, bytesTotal } = await tailFile(logPath, TAIL_READ_BYTES)
+    const tail = content
+      .split('\n')
+      .slice(-DEFAULT_DEBUG_LINES_READ)
+      .join('\n')
+    return `Log size: ${formatFileSize(bytesTotal)}\n\n### Last ${DEFAULT_DEBUG_LINES_READ} lines\n\n\`\`\`\n${tail}\n\`\`\``
+  } catch (error) {
+    return isENOENT(error)
+      ? 'No log file exists yet.'
+      : `Failed to read last ${DEFAULT_DEBUG_LINES_READ} lines: ${errorMessage(error)}`
+  }
+}
+
+async function readDaemonState(path: string): Promise<string | null> {
+  try {
+    return (await tailFile(path, STATE_READ_BYTES)).content
+  } catch (error) {
+    return isENOENT(error) ? null : `(read error: ${errorMessage(error)})`
+  }
+}
+
+async function getDaemonDebugContext(): Promise<string> {
+  const logPath = getDefaultDaemonLogPath()
+  const [lock, status, logTail] = await Promise.all([
+    readDaemonState(getDaemonLockPath()),
+    readDaemonState(getDaemonStatusPath()),
+    readLogTail(logPath),
+  ])
+
+  if (lock === null && status === null) {
+    return `## Daemon\n\nNo daemon lock or status file found — the background daemon does not appear to be running. If the issue involves background sessions or \`claude agents\`, the daemon log (if any) is at \`${logPath}\`.`
+  }
+
+  return `## Daemon
+
+The background daemon manages \`& <prompt>\` jobs and \`claude agents\`. If the issue involves background sessions, look here.
+
+### daemon.lock
+\`\`\`json
+${lock ?? '(missing)'}
+\`\`\`
+
+### daemon.status.json
+\`\`\`json
+${status ?? '(missing)'}
+\`\`\`
+
+### Daemon log (\`${logPath}\`)
+${logTail}
+
+Other daemon state on disk (Read if relevant — roster contains user prompts and env vars):
+- \`${getRosterPath()}\` — live worker roster
+- \`${getJobsDir()}/<short>/state.json\` — per-job state`
+}
 
 export function registerDebugSkill(): void {
   registerBundledSkill({
@@ -27,34 +89,10 @@ export function registerDebugSkill(): void {
       // subsequent activity in this session is captured.
       const wasAlreadyLogging = enableDebugLogging()
       const debugLogPath = getDebugLogPath()
-
-      let logInfo: string
-      try {
-        // Tail the log without reading the whole thing - debug logs grow
-        // unbounded in long sessions and reading them in full spikes RSS.
-        const stats = await stat(debugLogPath)
-        const readSize = Math.min(stats.size, TAIL_READ_BYTES)
-        const startOffset = stats.size - readSize
-        const fd = await open(debugLogPath, 'r')
-        try {
-          const { buffer, bytesRead } = await fd.read({
-            buffer: Buffer.alloc(readSize),
-            position: startOffset,
-          })
-          const tail = buffer
-            .toString('utf-8', 0, bytesRead)
-            .split('\n')
-            .slice(-DEFAULT_DEBUG_LINES_READ)
-            .join('\n')
-          logInfo = `Log size: ${formatFileSize(stats.size)}\n\n### Last ${DEFAULT_DEBUG_LINES_READ} lines\n\n\`\`\`\n${tail}\n\`\`\``
-        } finally {
-          await fd.close()
-        }
-      } catch (e) {
-        logInfo = isENOENT(e)
-          ? 'No debug log exists yet — logging was just enabled.'
-          : `Failed to read last ${DEFAULT_DEBUG_LINES_READ} lines of debug log: ${errorMessage(e)}`
-      }
+      const [logInfo, daemonContext] = await Promise.all([
+        readLogTail(debugLogPath),
+        getDaemonDebugContext(),
+      ])
 
       const justEnabledSection = wasAlreadyLogging
         ? ''
@@ -77,6 +115,8 @@ The debug log for the current session is at: \`${debugLogPath}\`
 ${logInfo}
 
 For additional context, grep for [ERROR] and [WARN] lines across the full file.
+
+${daemonContext}
 
 ## Issue Description
 

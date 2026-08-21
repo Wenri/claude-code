@@ -23,7 +23,7 @@ import { jsonStringify, writeFileSync_DEPRECATED } from '../slowOperations.js'
 import { getBinaryName, getPlatform } from './installer.js'
 
 const GCS_BUCKET_URL =
-  'https://downloads.claude.ai/claude-code-releases'
+  'https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases'
 export const ARTIFACTORY_REGISTRY_URL =
   'https://artifactory.infra.ant.dev/artifactory/api/npm/npm-all/'
 
@@ -131,12 +131,7 @@ export async function getLatestVersion(
 
   // ReleaseChannel validation
   const channel = channelOrVersion as ReleaseChannel
-  if (channel !== 'stable' && channel !== 'latest' && channel !== 'rc') {
-    throw new Error(
-      `Invalid channel: ${channelOrVersion}. Use 'latest' or 'stable'`,
-    )
-  }
-  if (channel === 'rc') {
+  if (channel !== 'stable' && channel !== 'latest') {
     throw new Error(
       `Invalid channel: ${channelOrVersion}. Use 'stable' or 'latest'`,
     )

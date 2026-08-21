@@ -83,24 +83,24 @@ export function buildSessionContext(): ComputerUseSessionContext {
     // `runPermissionDialog` wires that from the per-call ref's abortController.
     onPermissionRequest: (req, _dialogSignal) => runPermissionDialog(req),
     // Package does the merge (dedupe + truthy-only flags). We just persist.
-    onAllowedAppsChanged: (apps, flags) => tuc().setComputerUseMcpState?.(prev => {
-      const prevApps = prev?.allowedApps;
-      const prevFlags = prev?.grantFlags;
+    onAllowedAppsChanged: (apps, flags) => tuc().setComputerUseMcpState?.(cu => {
+      const prevApps = cu?.allowedApps;
+      const prevFlags = cu?.grantFlags;
       const sameApps = prevApps?.length === apps.length && apps.every((a, i) => prevApps[i]?.bundleId === a.bundleId);
       const sameFlags = prevFlags?.clipboardRead === flags.clipboardRead && prevFlags?.clipboardWrite === flags.clipboardWrite && prevFlags?.systemKeyCombos === flags.systemKeyCombos;
-      return sameApps && sameFlags ? prev : {
-        ...prev,
+      return sameApps && sameFlags ? cu : {
+        ...cu,
         allowedApps: [...apps],
         grantFlags: flags
       };
     }),
     onAppsHidden: ids => {
       if (ids.length === 0) return;
-      tuc().setComputerUseMcpState?.(prev => {
-        const existing = prev?.hiddenDuringTurn;
-        if (existing && ids.every(id => existing.has(id))) return prev;
+      tuc().setComputerUseMcpState?.(cu => {
+        const existing = cu?.hiddenDuringTurn;
+        if (existing && ids.every(id => existing.has(id))) return cu;
         return {
-          ...prev,
+          ...cu,
           hiddenDuringTurn: new Set([...(existing ?? []), ...ids])
         };
       });
@@ -109,12 +109,12 @@ export function buildSessionContext(): ComputerUseSessionContext {
     // (pinned display unplugged) — the pin is semantically dead, so clear it
     // and the app-set key so the chase chain runs next time. When autoResolve
     // was true, onDisplayResolvedForApps re-sets the key in the same tick.
-    onResolvedDisplayUpdated: id => tuc().setComputerUseMcpState?.(prev => {
-      if (prev?.selectedDisplayId === id && !prev.displayPinnedByModel && prev.displayResolvedForApps === undefined) {
-        return prev;
+    onResolvedDisplayUpdated: id => tuc().setComputerUseMcpState?.(cu => {
+      if (cu?.selectedDisplayId === id && !cu.displayPinnedByModel && cu.displayResolvedForApps === undefined) {
+        return cu;
       }
       return {
-        ...prev,
+        ...cu,
         selectedDisplayId: id,
         displayPinnedByModel: false,
         displayResolvedForApps: undefined
@@ -122,30 +122,30 @@ export function buildSessionContext(): ComputerUseSessionContext {
     }),
     // switch_display(name) pins; switch_display("auto") unpins and clears the
     // app-set key so the next screenshot auto-resolves fresh.
-    onDisplayPinned: id => tuc().setComputerUseMcpState?.(prev => {
+    onDisplayPinned: id => tuc().setComputerUseMcpState?.(cu => {
       const pinned = id !== undefined;
-      const nextResolvedFor = pinned ? prev?.displayResolvedForApps : undefined;
-      if (prev?.selectedDisplayId === id && prev?.displayPinnedByModel === pinned && prev?.displayResolvedForApps === nextResolvedFor) {
-        return prev;
+      const nextResolvedFor = pinned ? cu?.displayResolvedForApps : undefined;
+      if (cu?.selectedDisplayId === id && cu?.displayPinnedByModel === pinned && cu?.displayResolvedForApps === nextResolvedFor) {
+        return cu;
       }
       return {
-        ...prev,
+        ...cu,
         selectedDisplayId: id,
         displayPinnedByModel: pinned,
         displayResolvedForApps: nextResolvedFor
       };
     }),
-    onDisplayResolvedForApps: key => tuc().setComputerUseMcpState?.(prev => {
-      if (prev?.displayResolvedForApps === key) return prev;
+    onDisplayResolvedForApps: key => tuc().setComputerUseMcpState?.(cu => {
+      if (cu?.displayResolvedForApps === key) return cu;
       return {
-        ...prev,
+        ...cu,
         displayResolvedForApps: key
       };
     }),
-    onScreenshotCaptured: dims => tuc().setComputerUseMcpState?.(prev => {
-      const p = prev?.lastScreenshotDims;
-      return p?.width === dims.width && p?.height === dims.height && p?.displayWidth === dims.displayWidth && p?.displayHeight === dims.displayHeight && p?.displayId === dims.displayId && p?.originX === dims.originX && p?.originY === dims.originY ? prev : {
-        ...prev,
+    onScreenshotCaptured: dims => tuc().setComputerUseMcpState?.(cu => {
+      const p = cu?.lastScreenshotDims;
+      return p?.width === dims.width && p?.height === dims.height && p?.displayWidth === dims.displayWidth && p?.displayHeight === dims.displayHeight && p?.displayId === dims.displayId && p?.originX === dims.originX && p?.originY === dims.originY ? cu : {
+        ...cu,
         lastScreenshotDims: dims
       };
     }),

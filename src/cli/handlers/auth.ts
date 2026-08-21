@@ -1,5 +1,7 @@
 /* eslint-disable custom-rules/no-process-exit -- CLI subcommand handler intentionally exits */
 
+import { createInterface } from 'readline'
+
 import {
   getOauthTokenFromFd,
   setOauthTokenFromFd,
@@ -8,8 +10,7 @@ import {
   clearAuthRelatedCaches,
   performLogout,
 } from '../../commands/logout/logout.js'
-import React from 'react'
-import { Text, type Root } from '../../ink.js'
+import { LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS } from '../../constants/oauth.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -183,7 +184,7 @@ export async function authLogin({
 
       const tokens = await refreshOAuthToken(envRefreshToken, {
         scopes,
-        expiresIn: 365 * 24 * 60 * 60,
+        expiresIn: LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS,
         clientId: process.env.CLAUDE_CODE_OAUTH_CLIENT_ID || undefined,
       })
       await installOAuthTokens(tokens)
@@ -219,6 +220,18 @@ export async function authLogin({
   const resolvedLoginMethod = sso ? 'sso' : undefined
 
   const oauthService = new OAuthService()
+  const reader = createInterface({ input: process.stdin })
+  reader.on('line', line => {
+    const [authorizationCode, state] = line.trim().split('#')
+    if (!authorizationCode || !state) {
+      process.stderr.write(
+        'Invalid code. Please make sure the full code was copied.\n',
+      )
+      return
+    }
+    logEvent('tengu_oauth_manual_entry', {})
+    oauthService.handleManualAuthCodeInput({ authorizationCode, state })
+  })
 
   try {
     logEvent('tengu_oauth_flow_start', { loginWithClaudeAi })
@@ -227,6 +240,7 @@ export async function authLogin({
       async url => {
         process.stdout.write('Opening browser to sign in…\n')
         process.stdout.write(`If the browser didn't open, visit: ${url}\n`)
+        process.stdout.write('Paste code here if prompted > ')
       },
       {
         loginWithClaudeAi,
@@ -256,17 +270,15 @@ export async function authLogin({
     )
     process.exit(1)
   } finally {
+    reader.close()
     oauthService.cleanup()
   }
 }
 
-export async function authStatus(
-  root: Root,
-  opts: {
-    json?: boolean
-    text?: boolean
-  },
-): Promise<void> {
+export async function authStatus(opts: {
+  json?: boolean
+  text?: boolean
+}): Promise<void> {
   const { source: authTokenSource, hasToken } = getAuthTokenSource()
   const { source: apiKeySource } = getAnthropicApiKeyWithSource()
   const hasApiKeyEnvVar =
@@ -293,13 +305,12 @@ export async function authStatus(
     authMethod = 'claude.ai'
   }
 
-  let renderedOutput: React.ReactNode
   if (opts.text) {
     const properties = [
       ...buildAccountProperties(),
       ...buildAPIProviderProperties(),
     ]
-    const lines: string[] = []
+    let hasAuthProperty = false
     for (const prop of properties) {
       const value =
         typeof prop.value === 'string'
@@ -310,15 +321,21 @@ export async function authStatus(
       if (value === null || value === 'none') {
         continue
       }
-      lines.push(prop.label ? `${prop.label}: ${value}` : value)
+      hasAuthProperty = true
+      if (prop.label) {
+        process.stdout.write(`${prop.label}: ${value}\n`)
+      } else {
+        process.stdout.write(`${value}\n`)
+      }
     }
-    if (lines.length === 0 && hasApiKeyEnvVar) {
-      lines.push('API key: ANTHROPIC_API_KEY')
+    if (!hasAuthProperty && hasApiKeyEnvVar) {
+      process.stdout.write('API key: ANTHROPIC_API_KEY\n')
     }
     if (!loggedIn) {
-      lines.push('Not logged in. Run claude auth login to authenticate.')
+      process.stdout.write(
+        'Not logged in. Run claude auth login to authenticate.\n',
+      )
     }
-    renderedOutput = React.createElement(Text, null, lines.join('\n'))
   } else {
     const apiProvider = getAPIProvider()
     const resolvedApiKeySource =
@@ -342,19 +359,12 @@ export async function authStatus(
       output.subscriptionType = subscriptionType ?? null
     }
 
-    renderedOutput = React.createElement(
-      Text,
-      null,
-      jsonStringify(output, null, 2),
-    )
+    process.stdout.write(jsonStringify(output, null, 2) + '\n')
   }
-
-  root.render(React.createElement(React.Fragment, null, renderedOutput))
-  await root.waitUntilExit()
   process.exit(loggedIn ? 0 : 1)
 }
 
-export async function authLogout(root: Root): Promise<void> {
+export async function authLogout(): Promise<void> {
   try {
     await performLogout({ clearOnboarding: false })
   } catch (err) {
@@ -362,16 +372,6 @@ export async function authLogout(root: Root): Promise<void> {
     process.stderr.write(`Logout failed: ${errorMessage(err)}\n`)
     process.exit(1)
   }
-  root.render(
-    React.createElement(
-      React.Fragment,
-      null,
-      React.createElement(
-        Text,
-        null,
-        'Successfully logged out from your Anthropic account.',
-      ),
-    ),
-  )
-  await root.waitUntilExit()
+  process.stdout.write('Successfully logged out from your Anthropic account.\n')
+  process.exit(0)
 }

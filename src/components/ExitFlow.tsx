@@ -40,9 +40,6 @@ export function ExitFlow({
       />
     );
   }
-  if (backgroundItems && backgroundItems.length > 0) {
-    return <BackgroundWorkExitDialog items={backgroundItems} onExit={() => void onExit()} onCancel={onCancel ?? (() => {})} />;
-  }
   return null;
 }
 

@@ -84,23 +84,18 @@ export function getPatchFromContents({
   newContent,
   ignoreWhitespace = false,
   singleHunk = false,
-  convertTabs = false,
 }: {
   filePath: string
   oldContent: string
   newContent: string
   ignoreWhitespace?: boolean
   singleHunk?: boolean
-  convertTabs?: boolean
 }): StructuredPatchHunk[] {
-  const prepareContent = convertTabs
-    ? (content: string) => escapeForDiff(convertLeadingTabsToSpaces(content))
-    : escapeForDiff
   const result = structuredPatch(
     filePath,
     filePath,
-    prepareContent(oldContent),
-    prepareContent(newContent),
+    escapeForDiff(oldContent),
+    escapeForDiff(newContent),
     undefined,
     undefined,
     {

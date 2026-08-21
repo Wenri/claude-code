@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import figures from 'figures';
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type AutoModeDenial, useRecentDenials } from '../../../context/recentDenials.js';
 import { useAppState, useSetAppState } from 'src/state/AppState.js';
 import { applyPermissionUpdate, persistPermissionUpdate } from 'src/utils/permissions/PermissionUpdate.js';
 import type { PermissionUpdateDestination } from 'src/utils/permissions/PermissionUpdateSchema.js';
@@ -13,7 +14,6 @@ import { useSearchInput } from '../../../hooks/useSearchInput.js';
 import type { KeyboardEvent } from '../../../ink/events/keyboard-event.js';
 import { Box, Text, useTerminalFocus } from '../../../ink.js';
 import { useKeybinding } from '../../../keybindings/useKeybinding.js';
-import { type AutoModeDenial, useAutoModeDenials } from '../../../utils/autoModeDenials.js';
 import type { PermissionBehavior, PermissionRule, PermissionRuleValue } from '../../../utils/permissions/PermissionRule.js';
 import { permissionRuleValueToString } from '../../../utils/permissions/permissionRuleParser.js';
 import { deletePermissionRule, getAllowRules, getAskRules, getDenyRules, permissionRuleSourceDisplayString } from '../../../utils/permissions/permissions.js';
@@ -477,7 +477,9 @@ export function PermissionRuleList(t0) {
     initialTab,
     onRetryDenials
   } = t0;
-  const { getDenials } = useAutoModeDenials();
+  const {
+    getDenials
+  } = useRecentDenials();
   const t1 = useMemo(getDenials, [getDenials]);
   const hasDenials = t1.length > 0;
   const defaultTab = initialTab ?? (hasDenials ? "recent" : "allow");

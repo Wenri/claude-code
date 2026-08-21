@@ -27,6 +27,7 @@ import {
   isDaemonWorkerRegistryEnabled,
 } from '../utils/agentsFleet.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage, getErrnoCode, isENOENT } from '../utils/errors.js'
 import { logError } from '../utils/log.js'
@@ -35,7 +36,10 @@ import {
   type RelaunchLauncher,
 } from '../utils/relaunch.js'
 import { sleep } from '../utils/sleep.js'
-import { getProcessStartTokenAsync } from '../utils/genericProcessUtils.js'
+import {
+  getCurrentProcessStartToken,
+  getProcessStartTokenAsync,
+} from '../utils/genericProcessUtils.js'
 import { getXDGDataHome } from '../utils/xdg.js'
 import {
   createDaemonLock,
@@ -632,6 +636,7 @@ class ManagedWorker {
       this.log(this.id, `exited permanently code=${code} uptime=${uptime}ms — will not respawn`)
       logEvent('tengu_daemon_worker_permanent_exit', {
         exit_code: code ?? undefined,
+        uptime_ms: uptime,
         worker_kind: this.kind,
       })
       return
@@ -649,6 +654,7 @@ class ManagedWorker {
       logEvent('tengu_daemon_worker_crash', {
         consecutive: this.crashes,
         exit_code: code ?? undefined,
+        uptime_ms: uptime,
         worker_kind: this.kind,
       })
       this.scheduleRespawn(wait)
@@ -689,25 +695,15 @@ async function writeDaemonStatus(
   workers: Record<string, { pid: number; startedAt: number }>,
 ): Promise<void> {
   const path = getDaemonStatusPath()
-  const temporary = `${path}.tmp.${process.pid}`
   const status = {
     supervisorPid: process.pid,
+    supervisorProcStart: getCurrentProcessStartToken(),
     writtenAt: Date.now(),
     workers,
   }
   try {
-    await writeFile(temporary, JSON.stringify(status, null, 2), 'utf8')
-    try {
-      await rename(temporary, path)
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code
-      if (code !== 'EEXIST' && code !== 'EPERM' && code !== 'EXDEV') throw error
-      await unlink(path).catch(() => {})
-      await rename(temporary, path)
-    }
-  } catch {
-    await unlink(temporary).catch(() => {})
-  }
+    await atomicWriteFile(path, JSON.stringify(status, null, 2))
+  } catch {}
 }
 
 async function removeDaemonStatus(): Promise<void> {
@@ -946,7 +942,10 @@ async function runDaemon(options: {
     .then(() =>
       runBackgroundSupervisor({
         log: (message) => log('bg', message),
-        getAuthSnapshot: () => auth.getAuthSnapshot(),
+        getAuthSnapshot:
+          options.origin === 'service'
+            ? () => auth.getAuthSnapshot()
+            : undefined,
         onNudge: checkForExecutableUpgrade,
         onShutdown: () => {
           shutdownRequested = true
@@ -1242,7 +1241,7 @@ async function showStatus(): Promise<void> {
   }
 }
 
-async function tailLog(path: string): Promise<void> {
+export async function tailLog(path: string): Promise<void> {
   if (process.platform !== 'win32') {
     const child = spawn('tail', ['-f', path], { stdio: 'inherit' })
     await new Promise<void>(resolve => {

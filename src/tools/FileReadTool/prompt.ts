@@ -5,12 +5,6 @@ import { isLeanPromptEnabled } from '../../utils/leanPrompt.js'
 // Use a string constant for tool names to avoid circular dependencies
 export const FILE_READ_TOOL_NAME = 'Read'
 
-export const NO_REREAD_INSTRUCTION = `
-- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.`
-
-export const EDIT_SUCCESS_SUFFIX =
-  ' (file state is current in your context — no need to Read it back)'
-
 export const FILE_UNCHANGED_STUB =
   'File unchanged since last read. The content from the earlier Read tool_result in this conversation is still current — refer to that instead of re-reading.'
 

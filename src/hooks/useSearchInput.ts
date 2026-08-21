@@ -1,22 +1,19 @@
-import { useCallback, useState } from 'react'
-import { KeyboardEvent } from '../ink/events/keyboard-event.js'
-import type { PasteEvent } from '../ink/events/paste-event.js'
-// eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
-import { useInput } from '../ink.js'
 import {
-  type MutableRefObject,
   useCallback,
   useRef,
   useState,
+  type MutableRefObject,
 } from 'react'
 import {
-  getLastKill,
+  getLatestKill,
+  getNextYank,
   type KillRingStore,
-  peekYankPop,
   useKillRing,
 } from '../context/killRing.js'
 import { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type { PasteEvent } from '../ink/events/paste-event.js'
+// eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
+import { useInput } from '../ink.js'
 import { Cursor } from '../utils/Cursor.js'
 import { useTerminalSize } from './useTerminalSize.js'
 
@@ -38,8 +35,11 @@ type UseSearchInputOptions = {
   backspaceExitsOnEmpty?: boolean
   /** Accept embedded newlines when handling bracketed paste. */
   multiline?: boolean
+  /** Space on an empty query can be owned by the surrounding view. */
+  onSpaceOnEmpty?: () => void
   /** Transitional bridge for call sites that have not mounted DOM handlers yet. */
   useLegacyInput?: boolean
+  killRing?: KillRingStore
 }
 
 type UseSearchInputReturn = {
@@ -80,6 +80,8 @@ const UNHANDLED_SPECIAL_KEYS = new Set([
   'wheelup',
   'wheeldown',
   'mouse',
+  'clear',
+  'enter',
   'f1',
   'f2',
   'f3',
@@ -104,10 +106,12 @@ export function useSearchInput({
   initialQuery = '',
   backspaceExitsOnEmpty = true,
   multiline = false,
+  onSpaceOnEmpty,
   useLegacyInput = true,
+  killRing: killRingOverride,
 }: UseSearchInputOptions): UseSearchInputReturn {
-  const contextKillRing = useKillRing()
-  const killRing = providedKillRing ?? contextKillRing
+  const defaultKillRing = useKillRing()
+  const killRing = killRingOverride ?? defaultKillRing
   const { columns: terminalColumns } = useTerminalSize()
   const effectiveColumns = columns ?? terminalColumns
   const [query, setQueryState] = useState(initialQuery)
@@ -115,9 +119,9 @@ export function useSearchInput({
   const queryRef = useRef(query)
   const cursorOffsetRef = useRef(cursorOffset)
 
-  const updateQuery = useCallback((q: string) => {
-    queryRef.current = q
-    setQueryState(q)
+  const updateQuery = useCallback((value: string) => {
+    queryRef.current = value
+    setQueryState(value)
   }, [])
 
   const updateCursorOffset = useCallback((offset: number) => {
@@ -128,7 +132,7 @@ export function useSearchInput({
   const setQuery = useCallback((q: string) => {
     updateQuery(q)
     updateCursorOffset(q.length)
-  }, [updateQuery, updateCursorOffset])
+  }, [updateCursorOffset, updateQuery])
 
   const handleKeyDown = (e: KeyboardEvent): void => {
     if (!isActive) return
@@ -146,7 +150,6 @@ export function useSearchInput({
       return
     }
 
-    // Reset kill accumulation for non-kill keys
     if (!isKillKey(e) && !isYankKey(e)) {
       killRing.dispatch({ type: 'interrupt' })
     }
@@ -176,6 +179,7 @@ export function useSearchInput({
       onExit()
       return
     }
+
     if (multiline && e.name === 'enter') {
       e.preventDefault()
       const next = cursor.insert('\n')
@@ -183,13 +187,26 @@ export function useSearchInput({
       updateCursorOffset(next.offset)
       return
     }
+
     if (e.name === 'down') {
       e.preventDefault()
-      if (!multiline) onExit()
+      if (multiline) {
+        const next = cursor.down()
+        if (!next.equals(cursor)) updateCursorOffset(next.offset)
+      } else {
+        onExit()
+      }
       return
     }
     if (e.name === 'up') {
       e.preventDefault()
+      if (multiline) {
+        const next = cursor.up()
+        if (!next.equals(cursor)) {
+          updateCursorOffset(next.offset)
+          return
+        }
+      }
       if (onExitUp) {
         onExitUp()
       }
@@ -270,12 +287,12 @@ export function useSearchInput({
     // Home/End
     if (e.name === 'home') {
       e.preventDefault()
-      updateCursorOffset(0)
+      updateCursorOffset(cursor.startOfLine().offset)
       return
     }
     if (e.name === 'end') {
       e.preventDefault()
-      updateCursorOffset(currentQuery.length)
+      updateCursorOffset(cursor.endOfLine().offset)
       return
     }
 
@@ -284,10 +301,10 @@ export function useSearchInput({
       e.preventDefault()
       switch (e.key.toLowerCase()) {
         case 'a':
-          updateCursorOffset(0)
+          updateCursorOffset(cursor.startOfLogicalLine().offset)
           return
         case 'e':
-          updateCursorOffset(currentQuery.length)
+          updateCursorOffset(cursor.endOfLogicalLine().offset)
           return
         case 'b':
           updateCursorOffset(cursor.left().offset)
@@ -337,7 +354,7 @@ export function useSearchInput({
           return
         }
         case 'y': {
-          const text = getLastKill(killRing.state)
+          const text = getLatestKill(killRing.state)
           if (text.length > 0) {
             const startOffset = cursor.offset
             const newCursor = cursor.insert(text)
@@ -381,7 +398,7 @@ export function useSearchInput({
           return
         }
         case 'y': {
-          const popResult = peekYankPop(killRing.state)
+          const popResult = getNextYank(killRing.state)
           if (popResult) {
             const { text, start, length } = popResult
             killRing.dispatch({ type: 'yankPop' })
@@ -431,10 +448,14 @@ export function useSearchInput({
     const text = multiline
       ? e.text.replace(/\r\n|\r/g, '\n')
       : e.text.split(/\r\n|\r|\n/, 1)[0] ?? ''
-    const before = query.slice(0, cursorOffset)
-    const after = query.slice(cursorOffset)
-    setQueryState(before + text + after)
-    setCursorOffset(before.length + text.length)
+    if (text.length === 0) return
+    const next = Cursor.fromText(
+      queryRef.current,
+      effectiveColumns,
+      cursorOffsetRef.current,
+    ).insert(text)
+    updateQuery(next.text)
+    updateCursorOffset(next.offset)
   }
 
   // Backward-compat bridge: existing consumers don't yet wire handleKeyDown
@@ -448,5 +469,13 @@ export function useSearchInput({
     { isActive: isActive && useLegacyInput },
   )
 
-  return { query, setQuery, cursorOffset, handleKeyDown, handlePaste }
+  return {
+    query,
+    queryRef,
+    setQuery,
+    cursorOffset,
+    setCursorOffset: updateCursorOffset,
+    handleKeyDown,
+    handlePaste,
+  }
 }

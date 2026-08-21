@@ -1,5 +1,6 @@
 import { feature } from 'bun:bundle';
 import type { UUID } from 'crypto';
+import figures from 'figures';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNotifications } from 'src/context/notifications.js';
 import { useMainLoopModel } from '../../../hooks/useMainLoopModel.js';
@@ -30,11 +31,12 @@ import { type PermissionMode, toExternalPermissionMode } from '../../../utils/pe
 import { isAutoModeOptInDismissed } from '../../../utils/permissions/getNextPermissionMode.js';
 import type { PermissionUpdate } from '../../../utils/permissions/PermissionUpdateSchema.js';
 import { isAutoModeGateEnabled, restoreDangerousPermissions, stripDangerousPermissionsForAutoMode } from '../../../utils/permissions/permissionSetup.js';
-import { getPewterLedgerVariant, isPlanModeInterviewPhaseEnabled } from '../../../utils/planModeV2.js';
+import { isPlanModeInterviewPhaseEnabled } from '../../../utils/planModeV2.js';
 import { getPlan, getPlanFilePath } from '../../../utils/plans.js';
 import { editFileInEditor, editPromptInEditor } from '../../../utils/promptEditor.js';
 import { getCurrentSessionTitle, getTranscriptPath, saveAgentName, saveCustomTitle } from '../../../utils/sessionStorage.js';
 import { getSettings_DEPRECATED } from '../../../utils/settings/settings.js';
+import { logPermissionModeChanged } from '../../../utils/telemetry/events.js';
 import { isUltraplanEnabled } from '../../../utils/ultraplan/config.js';
 import { type OptionWithDescription, Select } from '../../CustomSelect/index.js';
 import { Markdown } from '../../Markdown.js';
@@ -49,7 +51,6 @@ import type { Base64ImageSource, ImageBlockParam } from '@anthropic-ai/sdk/resou
 import type { PastedContent } from '../../../utils/config.js';
 import { getImageLimits, type ImageDimensions, maybeResizeAndDownsampleImageBlock } from '../../../utils/imageResizer.js';
 import { cacheImagePath, storeImage } from '../../../utils/imageStore.js';
-import { StatusIcon } from '../../design-system/StatusIcon.js';
 type ResponseValue = 'yes-bypass-permissions' | 'yes-accept-edits' | 'yes-accept-edits-keep-context' | 'yes-default-keep-context' | 'yes-resume-auto-mode' | 'yes-auto-clear-context' | 'ultraplan' | 'no';
 
 /**
@@ -206,11 +207,6 @@ export function ExitPlanModePermissionRequest({
   const rawPlan = inputPlan ?? getPlan();
   const isEmpty = !rawPlan || rawPlan.trim() === '';
 
-  // Capture the variant once on mount. GrowthBook reads from a disk cache
-  // so the value is stable across a single planning session. undefined =
-  // control arm. The variant is a fixed 3-value enum of short literals,
-  // not user input.
-  const [planStructureVariant] = useState(() => (getPewterLedgerVariant() ?? undefined) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS);
   const [currentPlan, setCurrentPlan] = useState(() => {
     if (inputPlan) return inputPlan;
     const plan = getPlan();
@@ -288,8 +284,7 @@ export function ExitPlanModePermissionRequest({
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: 'ultraplan' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant
+        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
       });
       onDone();
       onReject();
@@ -367,10 +362,13 @@ export function ExitPlanModePermissionRequest({
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         clearContext: true,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
-      logPermissionModeChanged({ from: 'plan', to: mode, trigger: 'exit_plan_mode' });
+      logPermissionModeChanged({
+        from: 'plan',
+        to: mode,
+        trigger: 'exit_plan_mode'
+      });
 
       // Set initial message - REPL will handle context clear and fresh query
       // Add verification instruction if the feature is enabled
@@ -414,13 +412,16 @@ export function ExitPlanModePermissionRequest({
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         clearContext: false,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
-      logPermissionModeChanged({ from: 'plan', to: 'auto', trigger: 'exit_plan_mode' });
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       autoModeStateModule?.setAutoModeActive(true);
+      logPermissionModeChanged({
+        from: 'plan',
+        to: 'auto',
+        trigger: 'exit_plan_mode'
+      });
       setAppState(prev => ({
         ...prev,
         toolPermissionContext: stripDangerousPermissionsForAutoMode({
@@ -448,15 +449,18 @@ export function ExitPlanModePermissionRequest({
     };
     const keepContextMode = keepContextModes[value];
     if (keepContextMode) {
+      logPermissionModeChanged({
+        from: 'plan',
+        to: keepContextMode,
+        trigger: 'exit_plan_mode'
+      });
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         clearContext: false,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
-      logPermissionModeChanged({ from: 'plan', to: keepContextMode, trigger: 'exit_plan_mode' });
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       onDone();
@@ -471,14 +475,17 @@ export function ExitPlanModePermissionRequest({
     };
     const standardMode = standardModes[value];
     if (standardMode) {
+      logPermissionModeChanged({
+        from: 'plan',
+        to: standardMode,
+        trigger: 'exit_plan_mode'
+      });
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
-      logPermissionModeChanged({ from: 'plan', to: standardMode, trigger: 'exit_plan_mode' });
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       onDone();
@@ -495,14 +502,12 @@ export function ExitPlanModePermissionRequest({
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant
+        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
       });
 
       // Convert pasted images to ImageBlockParam[] with resizing
       let imageBlocks: ImageBlockParam[] | undefined;
       if (hasImages) {
-        const imageLimits = getImageLimits(getMainLoopModel());
         imageBlocks = await Promise.all(imageAttachments.map(async img => {
           const block: ImageBlockParam = {
             type: 'image',
@@ -540,8 +545,7 @@ export function ExitPlanModePermissionRequest({
     logEvent('tengu_plan_exit', {
       planLengthChars: currentPlan.length,
       outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-      planStructureVariant
+      interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
     });
     onDone();
     onReject();
@@ -563,7 +567,7 @@ export function ExitPlanModePermissionRequest({
             {isV2 && planFilePath && <Text dimColor> · {getDisplayPath(planFilePath)}</Text>}
             {showSaveMessage && <>
                 <Text dimColor>{' · '}</Text>
-                <Text color="success"><StatusIcon status="success" withSpace />Plan saved!</Text>
+                <Text color="success">{figures.tick}Plan saved!</Text>
               </>}
           </Box>}
       </Box>);
@@ -579,8 +583,7 @@ export function ExitPlanModePermissionRequest({
         logEvent('tengu_plan_exit', {
           planLengthChars: 0,
           outcome: 'yes-default' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-          planStructureVariant
+          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
         });
         if (feature('TRANSCRIPT_CLASSIFIER')) {
           const autoWasUsedDuringPlan = autoModeStateModule?.isAutoModeActive() ?? false;
@@ -608,8 +611,7 @@ export function ExitPlanModePermissionRequest({
         logEvent('tengu_plan_exit', {
           planLengthChars: 0,
           outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-          planStructureVariant
+          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
         });
         onDone();
         onReject();
@@ -630,8 +632,7 @@ export function ExitPlanModePermissionRequest({
             logEvent('tengu_plan_exit', {
               planLengthChars: 0,
               outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-              planStructureVariant
+              interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
             });
             onDone();
             onReject();
@@ -682,7 +683,7 @@ export function ExitPlanModePermissionRequest({
           </Box>
           {showSaveMessage && <Box>
               <Text dimColor>{' · '}</Text>
-              <Text color="success"><StatusIcon status="success" withSpace />Plan saved!</Text>
+              <Text color="success">{figures.tick}Plan saved!</Text>
             </Box>}
         </Box>}
     </Box>;

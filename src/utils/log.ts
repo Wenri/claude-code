@@ -45,6 +45,7 @@ export function getLogDisplayTitle(
   const title =
     log.agentName ||
     log.customTitle ||
+    log.aiTitle ||
     log.summary ||
     (useFirstPrompt ? strippedFirstPrompt : undefined) ||
     defaultTitle ||
@@ -171,7 +172,6 @@ export function logError(error: unknown): void {
       isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
       isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
       isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
-      isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS) ||
       process.env.DISABLE_ERROR_REPORTING ||
       isEssentialTrafficOnly()
     ) {

@@ -72,7 +72,7 @@ export async function generateToolUseSummary({
       signal,
       options: {
         querySource: 'tool_use_summary_generation',
-        enablePromptCaching: true,
+        enablePromptCaching: false,
         agents: [],
         isNonInteractiveSession,
         hasAppendSystemPrompt: false,

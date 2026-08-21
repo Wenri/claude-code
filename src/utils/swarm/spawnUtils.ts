@@ -101,6 +101,7 @@ const TEAMMATE_ENV_VARS = [
   'CLAUDE_CODE_USE_FOUNDRY',
   'CLAUDE_CODE_USE_ANTHROPIC_AWS',
   'CLAUDE_CODE_USE_MANTLE',
+  // Custom API endpoint
   'ANTHROPIC_AWS_WORKSPACE_ID',
   'ANTHROPIC_AWS_BASE_URL',
   'ANTHROPIC_AWS_API_KEY',
@@ -109,7 +110,7 @@ const TEAMMATE_ENV_VARS = [
   'ANTHROPIC_BEDROCK_MANTLE_BASE_URL',
   'CLAUDE_CODE_SKIP_MANTLE_AUTH',
   'AWS_REGION',
-  // Custom API endpoint
+  'ANTHROPIC_BEDROCK_SERVICE_TIER',
   'ANTHROPIC_BASE_URL',
   // Config directory override
   'CLAUDE_CONFIG_DIR',
@@ -121,6 +122,12 @@ const TEAMMATE_ENV_VARS = [
   // disable memory on ephemeral CCR filesystems. Forwarding REMOTE alone
   // would flip teammates to memory-off when the parent has it on.
   'CLAUDE_CODE_REMOTE_MEMORY_DIR',
+  'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC',
+  'CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST',
+  'DISABLE_ERROR_REPORTING',
+  'DISABLE_GROWTHBOOK',
+  'DISABLE_TELEMETRY',
+  'DO_NOT_TRACK',
   // Upstream proxy — the parent's MITM relay is reachable from teammates
   // (same container network). Forward the proxy vars so teammates route
   // customer-configured upstream traffic through the relay for credential

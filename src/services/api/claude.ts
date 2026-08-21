@@ -58,6 +58,7 @@ import {
 } from '../../utils/api.js'
 import { getOauthAccountInfo } from '../../utils/auth.js'
 import {
+  filterBetasForProvider,
   getBedrockExtraBodyParamsBetas,
   getMergedBetas,
   getModelBetas,
@@ -76,8 +77,6 @@ import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage, toError } from '../../utils/errors.js'
 import { computeFingerprintFromMessages } from '../../utils/fingerprint.js'
 import { captureAPIRequest, logError } from '../../utils/log.js'
-import { getImageLimits } from '../../utils/imageLimits.js'
-import { validateImagesForAPI } from '../../utils/imageValidation.js'
 import {
   createAssistantAPIErrorMessage,
   createUserMessage,
@@ -122,30 +121,30 @@ import {
   APIUserAbortError,
 } from '@anthropic-ai/sdk/error'
 import {
-  getAfkModeHeaderLatched,
-  getCacheDiagnosisHeaderLatched,
-  getCacheEditingHeaderLatched,
-  getFastModeHeaderLatched,
+  getStickyBetas,
   getLastApiCompletionTimestamp,
   getPromptCache1hAllowlist,
   getSessionId,
   getThinkingClearLatched,
   getThinkingTypeOverride,
-  setAfkModeHeaderLatched,
-  setCacheDiagnosisHeaderLatched,
-  setCacheEditingHeaderLatched,
-  setFastModeHeaderLatched,
+  isStickyBetaLatched,
+  latchStickyBeta,
+  rejectStickyBeta,
   setLastMainRequestId,
   setPromptCache1hAllowlist,
   setThinkingClearLatched,
   setThinkingTypeOverride,
 } from 'src/bootstrap/state.js'
 import {
+  AFK_MODE_BETA,
   AFK_MODE_BETA_HEADER,
+  CACHE_DIAGNOSIS_BETA,
   CACHE_DIAGNOSIS_BETA_HEADER,
+  CACHE_EDITING_BETA,
   CONTEXT_1M_BETA_HEADER,
   CONTEXT_MANAGEMENT_BETA_HEADER,
   EFFORT_BETA_HEADER,
+  FAST_MODE_BETA,
   FAST_MODE_BETA_HEADER,
   PROMPT_CACHING_SCOPE_BETA_HEADER,
   REDACT_THINKING_BETA_HEADER,
@@ -155,13 +154,19 @@ import {
 import type { QuerySource } from 'src/constants/querySource.js'
 import { logRawAPIRequestBody } from 'src/utils/telemetry/apiBodyLogging.js'
 import type { Notification } from 'src/context/notifications.js'
-import { addToTotalSessionCost } from 'src/cost-tracker.js'
+import {
+  addToTotalSessionCost,
+  classifyQuerySource,
+  getPluginNameFromSkillName,
+} from 'src/cost-tracker.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import type { AgentId } from 'src/types/ids.js'
 import {
   ADVISOR_TOOL_INSTRUCTIONS,
+  getExperimentAdvisorModels,
   isAdvisorEnabled,
-  resolveAdvisorModel,
+  isValidAdvisorModel,
+  modelSupportsAdvisor,
 } from 'src/utils/advisor.js'
 import { getAgentContext } from 'src/utils/agentContext.js'
 import { isClaudeAISubscriber } from 'src/utils/auth.js'
@@ -175,7 +180,7 @@ import {
 import { CLAUDE_IN_CHROME_MCP_SERVER_NAME } from 'src/utils/claudeInChrome/common.js'
 import { CHROME_TOOL_SEARCH_INSTRUCTIONS } from 'src/utils/claudeInChrome/prompt.js'
 import { getMaxThinkingTokensForModel } from 'src/utils/context.js'
-import { logForDebugging } from 'src/utils/debug.js'
+import { getMinDebugLogLevel, logForDebugging } from 'src/utils/debug.js'
 import { logForDiagnosticsNoPII } from 'src/utils/diagLogs.js'
 import { type EffortValue, modelSupportsEffort } from 'src/utils/effort.js'
 import {
@@ -225,7 +230,6 @@ import {
   isBetaTracingEnabled,
   recordLLMRequestAttempt,
   type LLMRequestNewContext,
-  recordLLMRequestAttempt,
   startLLMRequestSpan,
 } from '../../utils/telemetry/sessionTracing.js'
 /* eslint-enable @typescript-eslint/no-require-imports */
@@ -245,6 +249,7 @@ import { withStreamingVCR, withVCR } from '../vcr.js'
 import {
   CLIENT_REQUEST_ID_HEADER,
   getAnthropicClient,
+  getStreamIdleTimeoutMs,
   StreamIdleTimeoutError,
 } from './client.js'
 import {
@@ -252,6 +257,7 @@ import {
   CUSTOM_OFF_SWITCH_MESSAGE,
   getAssistantMessageFromError,
   getErrorMessageIfRefusal,
+  parseImageDimensionApiError,
 } from './errors.js'
 import {
   EMPTY_USAGE,
@@ -517,6 +523,25 @@ export function configureTaskBudgetParams(
   }
 }
 
+function configureOutputFormatParams(
+  outputFormat: BetaJSONOutputFormat | undefined,
+  outputConfig: BetaOutputConfig,
+  betas: string[],
+  model: string,
+): void {
+  if (
+    !outputFormat ||
+    'format' in outputConfig ||
+    !modelSupportsStructuredOutputs(model)
+  ) {
+    return
+  }
+  outputConfig.format = outputFormat
+  if (!betas.includes(STRUCTURED_OUTPUTS_BETA_HEADER)) {
+    betas.push(STRUCTURED_OUTPUTS_BETA_HEADER)
+  }
+}
+
 export function getAPIMetadata() {
   // https://docs.google.com/document/d/1dURO9ycXXQCBS0V4Vhl4poDBRgkelFc5t2BNPoEgH5Q/edit?tab=t.0#heading=h.5g7nec5b09w5
   let extra: JsonObject = {}
@@ -704,6 +729,8 @@ export type Options = {
     clearedContent: Map<string, string>,
   ) => void
   querySource: QuerySource
+  spawnedBySkill?: string
+  activeSkill?: string
   agents: AgentDefinition[]
   allowedAgentTypes?: string[]
   hasAppendSystemPrompt: boolean
@@ -729,6 +756,45 @@ export type Options = {
   // so the model can pace itself. `remaining` is computed by the caller
   // (query.ts decrements across the agentic loop).
   taskBudget?: { total: number; remaining?: number }
+}
+
+function getMessageAttribution(
+  querySource: QuerySource | undefined,
+  spawnedBySkill: string | undefined,
+  activeSkill: string | undefined,
+): {
+  attributionAgent?: string
+  attributionSkill?: string
+  attributionPlugin?: string
+} {
+  if (!querySource) return {}
+  if (querySource.startsWith('agent:builtin:')) {
+    return {
+      attributionAgent: querySource.slice(14),
+      attributionSkill: spawnedBySkill,
+      attributionPlugin: spawnedBySkill
+        ? getPluginNameFromSkillName(spawnedBySkill)
+        : undefined,
+    }
+  }
+  if (querySource.startsWith('agent:custom:')) {
+    const agent = querySource.slice(13)
+    return {
+      attributionAgent: agent,
+      attributionSkill: spawnedBySkill,
+      attributionPlugin:
+        (spawnedBySkill
+          ? getPluginNameFromSkillName(spawnedBySkill)
+          : undefined) ?? getPluginNameFromSkillName(agent),
+    }
+  }
+  if (classifyQuerySource(querySource) === 'main' && activeSkill) {
+    return {
+      attributionSkill: activeSkill,
+      attributionPlugin: getPluginNameFromSkillName(activeSkill),
+    }
+  }
+  return {}
 }
 
 export async function queryModelWithoutStreaming({
@@ -835,6 +901,23 @@ function getNonstreamingFallbackTimeoutMs(): number {
   return isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ? 120_000 : 300_000
 }
 
+function logAPIRequestDetail(
+  params: BetaMessageStreamParams & { anthropic_beta?: unknown },
+): void {
+  if (getMinDebugLogLevel() !== 'verbose') return
+  logForDebugging(
+    `[API REQUEST DETAIL] ${jsonStringify({
+      model: params.model,
+      thinking: params.thinking,
+      output_config: params.output_config,
+      temperature: params.temperature,
+      betas: params.betas ?? [],
+      anthropic_beta: params.anthropic_beta,
+    })}`,
+    { level: 'verbose' },
+  )
+}
+
 function isValidNonStreamingMessage(value: unknown): value is BetaMessage {
   return (
     typeof value === 'object' &&
@@ -892,13 +975,14 @@ export async function* executeNonStreamingRequest(
     async (anthropic, attempt, context) => {
       const start = Date.now()
       const retryParams = paramsFromContext(context)
-      captureRequest(retryParams)
       onAttempt(attempt, start, retryParams.max_tokens)
 
       const adjustedParams = adjustParamsForNonStreaming(
         retryParams,
         MAX_NON_STREAMING_TOKENS,
       )
+      logAPIRequestDetail(adjustedParams)
+      captureRequest(adjustedParams)
 
       try {
         // biome-ignore lint/plugin: non-streaming API call
@@ -1122,13 +1206,33 @@ export function stripExcessMediaItems(
   }) as (UserMessage | AssistantMessage)[]
 }
 
-function isAfkModeBetaRejection(error: unknown): boolean {
-  return Boolean(
-    AFK_MODE_BETA_HEADER &&
-      error instanceof APIError &&
-      error.status === 400 &&
-      error.message.includes(AFK_MODE_BETA_HEADER) &&
-      error.message.includes('anthropic-beta'),
+function replaceOversizedImageWithPlaceholder(
+  messages: (UserMessage | AssistantMessage)[],
+  location: { messageIdx: number; contentIdx: number },
+): (UserMessage | AssistantMessage)[] {
+  const message = messages[location.messageIdx]
+  if (message?.type !== 'user' || !Array.isArray(message.message.content)) {
+    return messages
+  }
+  if (message.message.content[location.contentIdx]?.type !== 'image') {
+    return messages
+  }
+  const replacement: UserMessage = {
+    ...message,
+    message: {
+      ...message.message,
+      content: message.message.content.map((block, index) =>
+        index === location.contentIdx
+          ? {
+              type: 'text',
+              text: '[Image removed: dimensions exceeded the 2000px limit for requests with many images]',
+            }
+          : block,
+      ),
+    },
+  }
+  return messages.map((candidate, index) =>
+    index === location.messageIdx ? replacement : candidate,
   )
 }
 
@@ -1196,9 +1300,43 @@ async function* queryModel(
     betas.push(ADVISOR_BETA_HEADER)
   }
 
-  const advisorModel = isAgenticQuery
-    ? resolveAdvisorModel(options.advisorModel, options.model)
-    : undefined
+  let advisorModel: string | undefined
+  if (isAgenticQuery && isAdvisorEnabled()) {
+    let advisorOption = options.advisorModel
+
+    const advisorExperiment = getExperimentAdvisorModels()
+    if (advisorExperiment !== undefined) {
+      if (
+        normalizeModelStringForAPI(advisorExperiment.baseModel) ===
+        normalizeModelStringForAPI(options.model)
+      ) {
+        // Override the advisor model if the base model matches. We
+        // should only have experiment models if the user cannot
+        // configure it themselves.
+        advisorOption = advisorExperiment.advisorModel
+      }
+    }
+
+    if (advisorOption) {
+      const normalizedAdvisorModel = normalizeModelStringForAPI(
+        parseUserSpecifiedModel(advisorOption),
+      )
+      if (!modelSupportsAdvisor(options.model)) {
+        logForDebugging(
+          `[AdvisorTool] Skipping advisor - base model ${options.model} does not support advisor`,
+        )
+      } else if (!isValidAdvisorModel(normalizedAdvisorModel)) {
+        logForDebugging(
+          `[AdvisorTool] Skipping advisor - ${normalizedAdvisorModel} is not a valid advisor model`,
+        )
+      } else {
+        advisorModel = normalizedAdvisorModel
+        logForDebugging(
+          `[AdvisorTool] Server-side tool enabled with ${advisorModel} as the advisor model`,
+        )
+      }
+    }
+  }
 
   // Check if tool search is enabled (checks mode, model support, and threshold for auto mode)
   // This is async because it may need to calculate MCP tool description sizes for TstAuto mode
@@ -1271,15 +1409,12 @@ async function* queryModel(
   // The beta header is also captured here to avoid a top-level import of the
   // ant-only CACHE_EDITING_BETA_HEADER constant.
   let cachedMCEnabled = false
-  let cacheEditingBetaHeader = ''
   if (feature('CACHED_MICROCOMPACT')) {
     const {
       isCachedMicrocompactEnabled,
       isModelSupportedForCacheEditing,
       getCachedMCConfig,
     } = await import('../compact/cachedMicrocompact.js')
-    const betas = await import('src/constants/betas.js')
-    cacheEditingBetaHeader = betas.CACHE_EDITING_BETA_HEADER
     const featureEnabled = isCachedMicrocompactEnabled()
     const modelSupported = isModelSupportedForCacheEditing(options.model)
     cachedMCEnabled = featureEnabled && modelSupported
@@ -1502,46 +1637,49 @@ async function* queryModel(
   // Per-call gates (isAgenticQuery, querySource===repl_main_thread) stay
   // per-call so non-agentic queries keep their own stable header set.
 
-  let afkHeaderLatched = getAfkModeHeaderLatched() === true
+  const stickyBetas = getStickyBetas()
+  let afkHeaderLatched = false
   if (feature('TRANSCRIPT_CLASSIFIER')) {
     if (
-      !afkHeaderLatched &&
+      AFK_MODE_BETA &&
       isAgenticQuery &&
       shouldIncludeFirstPartyOnlyBetas() &&
       (autoModeStateModule?.isAutoModeActive() ?? false)
     ) {
-      afkHeaderLatched = true
-      setAfkModeHeaderLatched(true)
+      latchStickyBeta(stickyBetas, AFK_MODE_BETA)
     }
+    afkHeaderLatched = AFK_MODE_BETA
+      ? isStickyBetaLatched(stickyBetas, AFK_MODE_BETA)
+      : false
   }
 
-  let fastModeHeaderLatched = getFastModeHeaderLatched() === true
-  if (!fastModeHeaderLatched && isFastMode) {
-    fastModeHeaderLatched = true
-    setFastModeHeaderLatched(true)
-  }
+  if (isFastMode) latchStickyBeta(stickyBetas, FAST_MODE_BETA)
+  const fastModeHeaderLatched = isStickyBetaLatched(
+    stickyBetas,
+    FAST_MODE_BETA,
+  )
 
-  let cacheEditingHeaderLatched = getCacheEditingHeaderLatched() === true
   if (feature('CACHED_MICROCOMPACT')) {
     if (
-      !cacheEditingHeaderLatched &&
+      CACHE_EDITING_BETA &&
       cachedMCEnabled &&
       getAPIProvider() === 'firstParty' &&
       options.querySource === 'repl_main_thread'
     ) {
-      cacheEditingHeaderLatched = true
-      setCacheEditingHeaderLatched(true)
+      latchStickyBeta(stickyBetas, CACHE_EDITING_BETA)
     }
   }
+  const cacheEditingHeaderLatched = CACHE_EDITING_BETA
+    ? isStickyBetaLatched(stickyBetas, CACHE_EDITING_BETA)
+    : false
 
-  let cacheDiagnosis = getCacheDiagnosisHeaderLatched() === true
-  if (
-    getCacheDiagnosisHeaderLatched() === null &&
-    shouldEnableCacheDiagnosis()
-  ) {
-    cacheDiagnosis = true
-    setCacheDiagnosisHeaderLatched(true)
+  if (shouldEnableCacheDiagnosis()) {
+    latchStickyBeta(stickyBetas, CACHE_DIAGNOSIS_BETA)
   }
+  let cacheDiagnosis = isStickyBetaLatched(
+    stickyBetas,
+    CACHE_DIAGNOSIS_BETA,
+  )
 
   const contextHintController = createContextHintController({
     querySource: options.querySource,
@@ -1550,20 +1688,16 @@ async function* queryModel(
   })
 
   // Only latch from agentic queries so a classifier call doesn't flip the
-  // main thread's context_management mid-turn. While the context-hint beta is
-  // active, its rejection path owns the latch; otherwise retain the TTL path.
+  // main thread's context_management mid-turn.
   let thinkingClearLatched = getThinkingClearLatched() === true
   if (!thinkingClearLatched && isAgenticQuery) {
-    if (!contextHintController?.active) {
-      const lastCompletion = getLastApiCompletionTimestamp()
-      if (
-        lastCompletion !== null &&
-        Date.now() - lastCompletion > CACHE_TTL_1HOUR_MS
-      ) {
-        thinkingClearLatched = true
-        setThinkingClearLatched(true)
-        contextHintController?.logThinkingClearLatched('ttl', 0)
-      }
+    const lastCompletion = getLastApiCompletionTimestamp()
+    if (
+      lastCompletion !== null &&
+      Date.now() - lastCompletion > CACHE_TTL_1HOUR_MS
+    ) {
+      thinkingClearLatched = true
+      setThinkingClearLatched(true)
     }
   }
 
@@ -1697,7 +1831,7 @@ async function* queryModel(
       outputConfig,
       extraBodyParams,
       betasParams,
-      options.model,
+      resolvedModel,
     )
 
     configureTaskBudgetParams(
@@ -1708,16 +1842,12 @@ async function* queryModel(
 
     // Merge outputFormat into extraBodyParams.output_config alongside effort
     // Requires structured-outputs beta header per SDK (see parse() in messages.mjs)
-    if (options.outputFormat && !('format' in outputConfig)) {
-      outputConfig.format = options.outputFormat as BetaJSONOutputFormat
-      // Add beta header if not already present and provider supports it
-      if (
-        modelSupportsStructuredOutputs(options.model) &&
-        !betasParams.includes(STRUCTURED_OUTPUTS_BETA_HEADER)
-      ) {
-        betasParams.push(STRUCTURED_OUTPUTS_BETA_HEADER)
-      }
-    }
+    configureOutputFormatParams(
+      options.outputFormat as BetaJSONOutputFormat | undefined,
+      outputConfig,
+      betasParams,
+      options.model,
+    )
 
     // Retry context gets preference because it tries to course correct if we exceed the context window limit
     const maxOutputTokens =
@@ -1728,7 +1858,6 @@ async function* queryModel(
     const hasThinking =
       thinkingConfig.type !== 'disabled' &&
       !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_THINKING)
-    const thinkingDisplay = hasThinking ? thinkingConfig.display : undefined
     let thinking: BetaMessageStreamParams['thinking'] | undefined = undefined
 
     // IMPORTANT: Do not change the adaptive-vs-budget thinking selection below
@@ -1772,17 +1901,12 @@ async function* queryModel(
       }
     }
 
-    if (thinking && thinkingDisplay) {
-      const redactThinkingIndex = betasParams.indexOf(
-        REDACT_THINKING_BETA_HEADER,
-      )
-      if (redactThinkingIndex !== -1) {
-        betasParams.splice(redactThinkingIndex, 1)
-      }
-    }
-
     // Get API context management strategies if enabled
-    const contextManagement = getAPIContextManagement({ hasThinking })
+    const contextManagement = getAPIContextManagement({
+      hasThinking,
+      isRedactThinkingActive: betasParams.includes(REDACT_THINKING_BETA_HEADER),
+      clearAllThinking: thinkingClearLatched,
+    })
 
     const enablePromptCaching =
       options.enablePromptCaching ?? getPromptCachingEnabled(retryContext.model)
@@ -1828,9 +1952,10 @@ async function* queryModel(
       cacheEditingHeaderLatched &&
       getAPIProvider() === 'firstParty' &&
       options.querySource === 'repl_main_thread' &&
-      !betasParams.includes(cacheEditingBetaHeader)
+      CACHE_EDITING_BETA &&
+      !betasParams.includes(CACHE_EDITING_BETA.header)
     ) {
-      betasParams.push(cacheEditingBetaHeader)
+      betasParams.push(CACHE_EDITING_BETA.header)
       logForDebugging(
         'Cache editing beta header enabled for cached microcompact',
       )
@@ -1886,7 +2011,10 @@ async function* queryModel(
       system,
       tools: allTools,
       tool_choice: options.toolChoice,
-      ...(useBetas && !simulateProxyUsage && { betas: betasParams }),
+      ...(useBetas &&
+        !simulateProxyUsage && {
+          betas: filterBetasForProvider(betasParams),
+        }),
       metadata: getAPIMetadata(),
       max_tokens: maxOutputTokens,
       thinking,
@@ -1980,6 +2108,7 @@ async function* queryModel(
         queryCheckpoint('query_client_creation_end')
 
         const params = paramsFromContext(context)
+        logAPIRequestDetail(params)
         captureAPIRequest(params, options.querySource) // Capture for bug reports
         logRawAPIRequestBody(params, options.querySource)
 
@@ -2064,7 +2193,7 @@ async function* queryModel(
         onError: async error => {
           if (afkHeaderLatched && isAfkModeBetaRejected(error)) {
             afkHeaderLatched = false
-            setAfkModeHeaderLatched(false)
+            if (AFK_MODE_BETA) rejectStickyBeta(stickyBetas, AFK_MODE_BETA)
             autoModeStateModule?.setAutoModeActive(false)
             autoModeStateModule?.setAutoModeCircuitBroken(true)
             logForDebugging(
@@ -2088,9 +2217,29 @@ async function* queryModel(
             })
             return 'retry:advisor-strip'
           }
+          const oversizedImage = parseImageDimensionApiError(error)
+          if (oversizedImage) {
+            const stripped = replaceOversizedImageWithPlaceholder(
+              messagesForAPI,
+              oversizedImage,
+            )
+            if (stripped !== messagesForAPI) {
+              messagesForAPI = stripped
+              consumedCacheEdits = null
+              logForDebugging(
+                `Removed oversized image at messages.${oversizedImage.messageIdx}.content.${oversizedImage.contentIdx} (exceeded 2000px many-image limit); retrying.`,
+                { level: 'warn' },
+              )
+              logEvent('tengu_image_dimension_strip_retry', {
+                message_idx: oversizedImage.messageIdx,
+                content_idx: oversizedImage.contentIdx,
+              })
+              return `retry:image-dimension:${oversizedImage.messageIdx}.${oversizedImage.contentIdx}`
+            }
+          }
           if (cacheDiagnosis && isCacheDiagnosisBetaRejected(error)) {
             cacheDiagnosis = false
-            setCacheDiagnosisHeaderLatched(false)
+            rejectStickyBeta(stickyBetas, CACHE_DIAGNOSIS_BETA)
             logForDebugging(
               '[cache-diagnosis] server rejected beta — dropping header latch',
               { level: 'warn' },
@@ -2160,8 +2309,7 @@ async function* queryModel(
     const streamWatchdogEnabled = isEnvTruthy(
       process.env.CLAUDE_ENABLE_STREAM_WATCHDOG,
     )
-    const STREAM_IDLE_TIMEOUT_MS =
-      parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90_000
+    const STREAM_IDLE_TIMEOUT_MS = getStreamIdleTimeoutMs()
     const STREAM_IDLE_WARNING_MS = STREAM_IDLE_TIMEOUT_MS / 2
     let streamIdleAborted = false
     // performance.now() snapshot when watchdog fires, for measuring abort propagation delay
@@ -2500,6 +2648,11 @@ async function* queryModel(
                 ),
               },
               requestId: streamRequestId ?? undefined,
+              ...getMessageAttribution(
+                options.querySource,
+                options.spawnedBySkill,
+                options.activeSkill,
+              ),
               type: 'assistant',
               uuid: randomUUID(),
               timestamp: new Date().toISOString(),
@@ -2790,6 +2943,11 @@ async function* queryModel(
                   ),
                 },
                 requestId: streamRequestId ?? undefined,
+                ...getMessageAttribution(
+                  options.querySource,
+                  options.spawnedBySkill,
+                  options.activeSkill,
+                ),
                 type: 'assistant',
                 uuid: randomUUID(),
                 timestamp: new Date().toISOString(),
@@ -2994,6 +3152,11 @@ async function* queryModel(
           ),
         },
         requestId: streamRequestId ?? undefined,
+        ...getMessageAttribution(
+          options.querySource,
+          options.spawnedBySkill,
+          options.activeSkill,
+        ),
         type: 'assistant',
         uuid: randomUUID(),
         timestamp: new Date().toISOString(),
@@ -3063,9 +3226,6 @@ async function* queryModel(
       })
 
       try {
-        firstAttemptRequestId =
-          streamRequestId ??
-          (failedRequestId !== 'unknown' ? failedRequestId : null)
         // Fall back to non-streaming mode
         firstAttemptRequestId =
           streamRequestId ?? (failedRequestId !== 'unknown' ? failedRequestId : null)
@@ -3107,6 +3267,11 @@ async function* queryModel(
             ),
           },
           requestId: streamRequestId ?? undefined,
+          ...getMessageAttribution(
+            options.querySource,
+            options.spawnedBySkill,
+            options.activeSkill,
+          ),
           type: 'assistant',
           uuid: randomUUID(),
           timestamp: new Date().toISOString(),

@@ -104,46 +104,9 @@ function getSkillSourceLabel(source: SkillCommand['source']): string {
 }
 
 function clamp(value: number, minimum?: number, maximum?: number): number {
-  return Math.min(
-    Math.max(value, minimum ?? -Infinity),
-    maximum ?? Infinity,
-  )
-}
-
-type SkillRowProps = {
-  skill: SkillCommand
-  lock: LockedOverride | undefined
-  state: SkillOverride
-}
-
-function SkillRow({ skill, lock, state }: SkillRowProps): React.ReactNode {
-  const isFocused = useSelectItemFocus()
-  const style = SKILL_OVERRIDE_STYLES[state]
-  const tokenDisplay = `~${formatTokens(
-    estimateSkillFrontmatterTokens(skill),
-  )} tok`
-  const status = lock ? (
-    <Text dimColor>{`🔒 ${style.label.padEnd(9)}`}</Text>
-  ) : (
-    <Text color={'color' in style ? style.color : undefined}>
-      {style.glyph} {style.label.padEnd(9)}
-    </Text>
-  )
-  const source = getSkillSourceLabel(skill.source)
-  const lockedBy = lock ? ` · locked by ${lock.source}` : ''
-
-  return (
-    <Box>
-      {status}
-      <Text>{'  '}</Text>
-      <Text color={isFocused ? 'suggestion' : undefined}>{skill.name}</Text>
-      <Text dimColor>
-        {' '}
-        · {source} · {tokenDisplay}
-        {lockedBy}
-      </Text>
-    </Box>
-  )
+  if (minimum !== undefined && value < minimum) return minimum
+  if (maximum !== undefined && value > maximum) return maximum
+  return value
 }
 
 export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
@@ -173,10 +136,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
         getCommandName(a).localeCompare(getCommandName(b)),
     )
   }, [commands, sortByTokens])
-  const localOverrides = useMemo(
-    () => getSkillOverrides('localSettings') ?? {},
-    [],
-  )
+  const localOverrides = getSkillOverrides('localSettings') ?? {}
   const inheritedOverrides = useMemo(() => {
     const result = new Map<string, SkillOverride>()
     for (const skill of skills) {
@@ -428,10 +388,34 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
           const value = locked
             ? locked.value
             : (overrides[skill.name] ?? 'on')
+          const style = SKILL_OVERRIDE_STYLES[value]
+          const tokenDisplay = `~${formatTokens(
+            estimateSkillFrontmatterTokens(skill),
+          )} tok`
+          const isSelected = actualIndex === selectedIndex
           return (
-            <Select.Item key={`${skill.name}-${skill.source}`}>
-              <SkillRow skill={skill} lock={locked} state={value} />
-            </Select.Item>
+            <Box key={`${skill.name}-${skill.source}`}>
+              <Text color={isSelected ? 'suggestion' : undefined}>
+                {isSelected ? figures.pointer : ' '}
+                {' '}
+              </Text>
+              {locked ? (
+                <Text dimColor>{`🔒 ${style.label.padEnd(9)}`}</Text>
+              ) : (
+                <Text color={'color' in style ? style.color : undefined}>
+                  {style.glyph} {style.label.padEnd(9)}
+                </Text>
+              )}
+              <Text>{'  '}</Text>
+              <Text color={isSelected ? 'suggestion' : undefined}>
+                {skill.name}
+              </Text>
+              <Text dimColor>
+                {' '}
+                · {getSkillSourceLabel(skill.source)} · {tokenDisplay}
+                {locked ? ` · locked by ${locked.source}` : ''}
+              </Text>
+            </Box>
           )
         })}
         {hiddenBelow > 0 && (

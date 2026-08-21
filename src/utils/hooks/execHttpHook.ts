@@ -7,6 +7,7 @@ import { getProxyUrl, shouldBypassProxy } from '../proxy.js'
 // Import as namespace so spyOn works in tests (direct imports bypass spies)
 import * as settingsModule from '../settings/settings.js'
 import type { HttpHook } from '../settings/types.js'
+import { urlMatchesPattern } from '../urlPattern.js'
 import { ssrfGuardedLookup } from './ssrfGuard.js'
 
 const DEFAULT_HTTP_HOOK_TIMEOUT_MS = 10 * 60 * 1000 // 10 minutes (matches TOOL_HOOK_EXECUTION_TIMEOUT_MS)
@@ -55,16 +56,6 @@ function getHttpHookPolicy(): {
     allowedUrls: settings.allowedHttpHookUrls,
     allowedEnvVars: settings.httpHookAllowedEnvVars,
   }
-}
-
-/**
- * Match a URL against a pattern with * as a wildcard (any characters).
- * Same semantics as the MCP server allowlist patterns.
- */
-function urlMatchesPattern(url: string, pattern: string): boolean {
-  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-  const regexStr = escaped.replace(/\*/g, '.*')
-  return new RegExp(`^${regexStr}$`).test(url)
 }
 
 /**

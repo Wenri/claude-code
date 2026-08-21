@@ -1,8 +1,9 @@
-import { mkdir, readFile, rename, writeFile } from 'fs/promises'
-import { dirname, join } from 'path'
+import { readFile } from 'fs/promises'
+import { join } from 'path'
 import { getClaudeConfigHomeDir } from './envUtils.js'
 import { execFileNoThrow } from './execFileNoThrow.js'
 import { logForDebugging } from './debug.js'
+import { atomicWriteFile } from './atomicWrite.js'
 
 export type PrState = 'OPEN' | 'CLOSED' | 'MERGED' | 'DRAFT'
 export type PrReview =
@@ -280,24 +281,60 @@ function groupBy<T>(values: T[], key: (value: T) => string) {
   return groups
 }
 
+function createConcurrencyLimiter<Args extends unknown[], Result>(
+  concurrency: number,
+  fn: (...args: Args) => Promise<Result>,
+) {
+  let active = 0
+  const queue: Array<() => void> = []
+
+  async function acquire() {
+    if (active < concurrency) {
+      active++
+      return
+    }
+    await new Promise<void>(resolve => queue.push(resolve))
+  }
+
+  function release() {
+    const next = queue.shift()
+    if (next) next()
+    else active--
+  }
+
+  return async (...args: Args): Promise<Result> => {
+    await acquire()
+    try {
+      return await fn(...args)
+    } finally {
+      release()
+    }
+  }
+}
+
 let rateLimitedUntil = 0
 let lastCacheJson = ''
+
+const PR_BATCH_SIZE = 20
+const PR_BATCH_CONCURRENCY = 6
+const PR_BATCH_TIMEOUT_MS = 15_000
+const PR_BATCH_CACHE_TTL = '30s'
+const RATE_LIMIT_BACKOFF_MS = 60_000
+const RATE_LIMIT_RE = /rate limit/i
 
 function cachePath(): string {
   return join(getClaudeConfigHomeDir(), 'gh-pr-status-cache.json')
 }
 
-async function persistCache(statuses: Map<string, PrStatus | null>) {
+export function persistPrStatusCache(
+  statuses: Map<string, PrStatus | null>,
+): Promise<void> {
   const value: Record<string, PrStatus> = {}
   for (const [url, status] of statuses) if (status) value[url] = status
   const json = JSON.stringify(value)
-  if (json === '{}' || json === lastCacheJson) return
+  if (json === '{}' || json === lastCacheJson) return Promise.resolve()
   lastCacheJson = json
-  const path = cachePath()
-  await mkdir(dirname(path), { recursive: true })
-  const temporary = `${path}.tmp.${process.pid}`
-  await writeFile(temporary, json, 'utf8')
-  await rename(temporary, path)
+  return atomicWriteFile(cachePath(), json).catch(() => {})
 }
 
 export async function readPrStatusCache(): Promise<Map<string, PrStatus>> {
@@ -328,9 +365,23 @@ export async function fetchPrStatuses(urls: string[]): Promise<{
     else if (/\/pull\/\d+/.test(url)) unbatched.push(url)
   }
   parsed.sort((left, right) => left.url.localeCompare(right.url))
-  for (const [host, hostPrs] of groupBy(parsed, (pr) => pr.host)) {
-    for (let offset = 0; offset < hostPrs.length; offset += 40) {
-      const chunk = hostPrs.slice(offset, offset + 40)
+  const jobs: Array<{ host: string; chunk: ParsedPrUrl[] }> = []
+  for (const [host, hostPrs] of groupBy(parsed, pr => pr.host)) {
+    for (let offset = 0; offset < hostPrs.length; offset += PR_BATCH_SIZE) {
+      jobs.push({
+        host,
+        chunk: hostPrs.slice(offset, offset + PR_BATCH_SIZE),
+      })
+    }
+  }
+
+  const runBatch = createConcurrencyLimiter(
+    PR_BATCH_CONCURRENCY,
+    async ({ host, chunk }: (typeof jobs)[number]) => {
+      if (Date.now() < rateLimitedUntil) {
+        for (const pr of chunk) statuses.set(pr.url, null)
+        return
+      }
       const aliases = new Map<string, string>()
       const repositories = [...groupBy(chunk, (pr) => `${pr.owner}/${pr.repo}`)].map(
         ([repository, prs], repoIndex) => {
@@ -354,14 +405,13 @@ export async function fetchPrStatuses(urls: string[]): Promise<{
           '--hostname',
           host,
           '--cache',
-          '30s',
+          PR_BATCH_CACHE_TTL,
           '-F',
           'query=@-',
         ],
         {
-          timeout: 10_000,
+          timeout: PR_BATCH_TIMEOUT_MS,
           input: query,
-          stdin: 'pipe',
           preserveOutputOnError: true,
         },
       )
@@ -372,26 +422,30 @@ export async function fetchPrStatuses(urls: string[]): Promise<{
         } catch {}
       }
       if (!response?.data) {
-        if (/rate limit/i.test(result.stderr) || /rate limit/i.test(result.stdout)) {
-          rateLimitedUntil = Date.now() + 60_000
+        if (RATE_LIMIT_RE.test(result.stderr) || RATE_LIMIT_RE.test(result.stdout)) {
+          rateLimitedUntil = Date.now() + RATE_LIMIT_BACKOFF_MS
           logForDebugging(
             `[ghPrStatus] GitHub rate-limited on ${host}; backing off 60s`,
             { level: 'warn' },
           )
-          for (const pr of chunk) statuses.set(pr.url, null)
         } else {
           logForDebugging(
-            `[ghPrStatus] batch query failed on ${host} (exit ${result.code}); falling back per-URL`,
+            `[ghPrStatus] batch query failed on ${host} (exit ${result.code}); keeping last-known`,
           )
-          for (const pr of chunk) unbatched.push(pr.url)
         }
-        continue
+        for (const pr of chunk) statuses.set(pr.url, null)
+        return
       }
       if (response.data.rateLimit) {
-        rateLimit = response.data.rateLimit
+        if (
+          !rateLimit ||
+          response.data.rateLimit.remaining < rateLimit.remaining
+        ) {
+          rateLimit = response.data.rateLimit
+        }
         if (rateLimit && rateLimit.remaining < 50) {
           rateLimitedUntil =
-            Date.parse(rateLimit.resetAt) || Date.now() + 60_000
+            Date.parse(rateLimit.resetAt) || Date.now() + RATE_LIMIT_BACKOFF_MS
         }
       }
       for (const [repoAlias, repository] of Object.entries(response.data)) {
@@ -415,8 +469,8 @@ export async function fetchPrStatuses(urls: string[]): Promise<{
       for (const url of aliases.values()) {
         if (!statuses.has(url)) statuses.set(url, null)
       }
-    }
-  }
-  await persistCache(statuses).catch(() => {})
+    },
+  )
+  await Promise.all(jobs.map(runBatch))
   return { statuses, rateLimit, unbatched }
 }

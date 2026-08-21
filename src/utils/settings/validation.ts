@@ -61,7 +61,8 @@ export type ValidationError = {
   suggestion?: string
   /** Link to relevant documentation */
   docLink?: string
-  severity?: 'fatal' | 'warning'
+  /** Whether callers may continue after this validation issue. */
+  severity?: 'warning' | 'error'
   /** MCP-specific metadata - only present for MCP configuration errors */
   mcpErrorMetadata?: {
     /** Which configuration scope this error came from */
@@ -243,6 +244,7 @@ export function filterInvalidPermissionRules(
           file: filePath,
           path: `permissions.${key}`,
           message: `Non-string value in ${key} array was removed`,
+          severity: 'warning',
           invalidValue: rule,
         })
         return false
@@ -256,6 +258,7 @@ export function filterInvalidPermissionRules(
           file: filePath,
           path: `permissions.${key}`,
           message,
+          severity: 'warning',
           invalidValue: rule,
         })
         return false
@@ -266,41 +269,76 @@ export function filterInvalidPermissionRules(
   return warnings
 }
 
+function describeReceivedType(value: unknown): string {
+  if (value === null) return 'null'
+  if (value === undefined) return 'undefined'
+  if (Array.isArray(value)) return 'array'
+  return typeof value
+}
+
 const VALID_HOOK_EVENTS = new Set<string>(HOOK_EVENTS)
 
 /**
- * Remove unknown hook event keys before schema validation. A misspelled hook
- * must not invalidate otherwise usable settings, but it must remain visible
- * to the caller as an actionable warning.
+ * Remove malformed hook entries before validating the rest of a settings file.
+ * A single bad hook must not invalidate unrelated settings.
  */
-export function filterInvalidHookEvents(
+export function filterInvalidHooks(
   data: unknown,
   filePath: string,
 ): ValidationError[] {
   if (!data || typeof data !== 'object') return []
   const obj = data as Record<string, unknown>
+  if (!('hooks' in obj)) return []
+
   if (
-    !obj.hooks ||
+    obj.hooks === null ||
     typeof obj.hooks !== 'object' ||
     Array.isArray(obj.hooks)
   ) {
-    return []
+    const received = describeReceivedType(obj.hooks)
+    delete obj.hooks
+    return [
+      {
+        file: filePath,
+        path: 'hooks',
+        message: `"hooks" must be an object mapping event names to matcher arrays; received ${received}. This field was ignored.`,
+        severity: 'warning',
+        invalidValue: received,
+        docLink: 'https://code.claude.com/docs/en/hooks',
+      },
+    ]
   }
 
   const hooks = obj.hooks as Record<string, unknown>
   const warnings: ValidationError[] = []
   for (const event of Object.keys(hooks)) {
-    if (VALID_HOOK_EVENTS.has(event)) continue
-    delete hooks[event]
-    warnings.push({
-      file: filePath,
-      path: `hooks.${event}`,
-      message: `Unknown hook event "${event}" was ignored. Valid events: ${HOOK_EVENTS.join(', ')}`,
-      severity: 'warning',
-      invalidValue: event,
-      docLink: 'https://code.claude.com/docs/en/hooks',
-    })
+    if (!VALID_HOOK_EVENTS.has(event)) {
+      delete hooks[event]
+      warnings.push({
+        file: filePath,
+        path: `hooks.${event}`,
+        message: `Unknown hook event "${event}" was ignored. Valid events: ${HOOK_EVENTS.join(', ')}`,
+        severity: 'warning',
+        invalidValue: event,
+        docLink: 'https://code.claude.com/docs/en/hooks',
+      })
+      continue
+    }
+
+    if (!Array.isArray(hooks[event])) {
+      const received = describeReceivedType(hooks[event])
+      delete hooks[event]
+      warnings.push({
+        file: filePath,
+        path: `hooks.${event}`,
+        message: `Hook event "${event}" must be an array of matchers; received ${received}. This entry was ignored.`,
+        severity: 'warning',
+        invalidValue: received,
+        docLink: 'https://code.claude.com/docs/en/hooks',
+      })
+    }
   }
+
   if (warnings.length > 0 && Object.keys(hooks).length === 0) {
     delete obj.hooks
   }
@@ -313,6 +351,6 @@ export function filterInvalidSettingsEntries(
 ): ValidationError[] {
   return [
     ...filterInvalidPermissionRules(data, filePath),
-    ...filterInvalidHookEvents(data, filePath),
+    ...filterInvalidHooks(data, filePath),
   ]
 }

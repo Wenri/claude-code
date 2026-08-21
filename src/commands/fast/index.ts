@@ -5,13 +5,12 @@ import {
 } from '../../utils/fastMode.js'
 import { shouldInferenceConfigCommandBeImmediate } from '../../utils/immediateCommand.js'
 
-export const fast = {
+const fast = {
   type: 'local-jsx',
   name: 'fast',
   get description() {
     return `Toggle fast mode (${FAST_MODE_MODEL_DISPLAY} only)`
   },
-  availability: ['claude-ai', 'console'],
   isEnabled: () => isFastModeEnabled(),
   get isHidden() {
     return !isFastModeEnabled()
@@ -20,6 +19,8 @@ export const fast = {
   get immediate() {
     return shouldInferenceConfigCommandBeImmediate()
   },
+  requires: { ink: true },
+  thinClientDispatch: 'control-request',
   load: () => import('./fast.js'),
 } satisfies Command
 

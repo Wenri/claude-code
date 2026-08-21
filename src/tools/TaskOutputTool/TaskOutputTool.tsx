@@ -21,6 +21,7 @@ import { sleep } from '../../utils/sleep.js';
 import { jsonParse } from '../../utils/slowOperations.js';
 import { countCharInString } from '../../utils/stringUtils.js';
 import { getTaskOutput } from '../../utils/task/diskOutput.js';
+import { updateTaskState } from '../../utils/task/framework.js';
 import { formatTaskOutput } from '../../utils/task/outputFormatting.js';
 import type { ThemeName } from '../../utils/theme.js';
 import { AgentPromptDisplay, AgentResponseDisplay } from '../AgentTool/UI.js';
@@ -222,7 +223,7 @@ export const TaskOutputTool: Tool<InputSchema, TaskOutputToolOutput> = buildTool
       // Non-blocking: return current state
       if (task.status !== 'running' && task.status !== 'pending') {
         // Mark as notified
-        toolUseContext.taskRegistry.update(task_id, t => ({
+        updateTaskState(task_id, toolUseContext.setAppState, t => ({
           ...t,
           notified: true
         }));
@@ -271,7 +272,7 @@ export const TaskOutputTool: Tool<InputSchema, TaskOutputToolOutput> = buildTool
     }
 
     // Mark as notified
-    toolUseContext.taskRegistry.update(task_id, t => ({
+    updateTaskState(task_id, toolUseContext.setAppState, t => ({
       ...t,
       notified: true
     }));

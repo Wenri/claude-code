@@ -254,7 +254,7 @@ export const useSelectInput = <T>({
 
         if (
           disableSelection !== 'numeric' &&
-          /^[0-9]$/.test(normalizedInput)
+          /^[0-9]+$/.test(normalizedInput)
         ) {
           const index = parseInt(normalizedInput) - 1
           if (index >= 0 && index < state.options.length) {

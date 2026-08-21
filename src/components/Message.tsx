@@ -48,7 +48,7 @@ export type Props = {
   width?: number | string;
   isTranscriptMode: boolean;
   isStatic: boolean;
-  onOpenRateLimitOptions?: () => boolean;
+  onOpenRateLimitOptions?: () => void;
   isActiveCollapsedGroup?: boolean;
   isUserContinuation?: boolean;
   /** ID of the last thinking block (uuid:index) to show, used for hiding past thinking in transcript mode */
@@ -57,7 +57,7 @@ export type Props = {
   latestBashOutputUUID?: string | null;
 };
 function MessageImpl(t0) {
-  const $ = _c(95);
+  const $ = _c(94);
   const {
     message,
     lookups,
@@ -89,58 +89,58 @@ function MessageImpl(t0) {
       {
         const t2 = containerWidth ?? "100%";
         let t3;
-        if ($[6] !== addMargin || $[7] !== commands || $[8] !== inProgressToolUseIDs || $[9] !== isTranscriptMode || $[10] !== lastThinkingBlockId || $[11] !== lookups || $[12] !== message.advisorModel || $[13] !== message.message.content || $[14] !== message.uuid || $[15] !== onOpenRateLimitOptions || $[16] !== progressMessagesForMessage || $[17] !== shouldAnimate || $[18] !== shouldShowDot || $[19] !== tools || $[20] !== verbose || $[21] !== width) {
+        if ($[5] !== addMargin || $[6] !== commands || $[7] !== inProgressToolUseIDs || $[8] !== isTranscriptMode || $[9] !== lastThinkingBlockId || $[10] !== lookups || $[11] !== message.advisorModel || $[12] !== message.message.content || $[13] !== message.uuid || $[14] !== onOpenRateLimitOptions || $[15] !== progressMessagesForMessage || $[16] !== shouldAnimate || $[17] !== shouldShowDot || $[18] !== tools || $[19] !== verbose || $[20] !== width) {
           let t4;
-          if ($[23] !== addMargin || $[24] !== commands || $[25] !== inProgressToolUseIDs || $[26] !== isTranscriptMode || $[27] !== lastThinkingBlockId || $[28] !== lookups || $[29] !== message.advisorModel || $[30] !== message.uuid || $[31] !== onOpenRateLimitOptions || $[32] !== progressMessagesForMessage || $[33] !== shouldAnimate || $[34] !== shouldShowDot || $[35] !== tools || $[36] !== verbose || $[37] !== width) {
-            t4 = (_, index_0) => <AssistantMessageBlock key={index_0} param={_} addMargin={addMargin} tools={tools} commands={commands} verbose={verbose} inProgressToolUseIDs={inProgressToolUseIDs} progressMessagesForMessage={progressMessagesForMessage} shouldAnimate={shouldAnimate} shouldShowDot={shouldShowDot} width={width} inProgressToolCallCount={inProgressToolUseIDs.size} isTranscriptMode={isTranscriptMode} lookups={lookups} onOpenRateLimitOptions={onOpenRateLimitOptions} thinkingBlockId={`${message.uuid}:${index_0}`} lastThinkingBlockId={lastThinkingBlockId} advisorModel={message.advisorModel} messageUuid={message.uuid} />;
-            $[23] = addMargin;
-            $[24] = commands;
-            $[25] = inProgressToolUseIDs;
-            $[26] = isTranscriptMode;
-            $[27] = lastThinkingBlockId;
-            $[28] = lookups;
-            $[29] = message.advisorModel;
-            $[30] = message.uuid;
-            $[31] = onOpenRateLimitOptions;
-            $[32] = progressMessagesForMessage;
-            $[33] = shouldAnimate;
-            $[34] = shouldShowDot;
-            $[35] = tools;
-            $[36] = verbose;
-            $[37] = width;
-            $[38] = t4;
+          if ($[22] !== addMargin || $[23] !== commands || $[24] !== inProgressToolUseIDs || $[25] !== isTranscriptMode || $[26] !== lastThinkingBlockId || $[27] !== lookups || $[28] !== message.advisorModel || $[29] !== message.uuid || $[30] !== onOpenRateLimitOptions || $[31] !== progressMessagesForMessage || $[32] !== shouldAnimate || $[33] !== shouldShowDot || $[34] !== tools || $[35] !== verbose || $[36] !== width) {
+            t4 = (_, index_0) => <AssistantMessageBlock key={index_0} param={_} addMargin={addMargin} tools={tools} commands={commands} verbose={verbose} inProgressToolUseIDs={inProgressToolUseIDs} progressMessagesForMessage={progressMessagesForMessage} shouldAnimate={shouldAnimate} shouldShowDot={shouldShowDot} width={width} inProgressToolCallCount={inProgressToolUseIDs.size} isTranscriptMode={isTranscriptMode} lookups={lookups} onOpenRateLimitOptions={onOpenRateLimitOptions} thinkingBlockId={`${message.uuid}:${index_0}`} lastThinkingBlockId={lastThinkingBlockId} advisorModel={message.advisorModel} />;
+            $[22] = addMargin;
+            $[23] = commands;
+            $[24] = inProgressToolUseIDs;
+            $[25] = isTranscriptMode;
+            $[26] = lastThinkingBlockId;
+            $[27] = lookups;
+            $[28] = message.advisorModel;
+            $[29] = message.uuid;
+            $[30] = onOpenRateLimitOptions;
+            $[31] = progressMessagesForMessage;
+            $[32] = shouldAnimate;
+            $[33] = shouldShowDot;
+            $[34] = tools;
+            $[35] = verbose;
+            $[36] = width;
+            $[37] = t4;
           } else {
-            t4 = $[38];
+            t4 = $[37];
           }
           t3 = message.message.content.map(t4);
-          $[6] = addMargin;
-          $[7] = commands;
-          $[8] = inProgressToolUseIDs;
-          $[9] = isTranscriptMode;
-          $[10] = lastThinkingBlockId;
-          $[11] = lookups;
-          $[12] = message.advisorModel;
-          $[13] = message.message.content;
-          $[14] = message.uuid;
-          $[15] = onOpenRateLimitOptions;
-          $[16] = progressMessagesForMessage;
-          $[17] = shouldAnimate;
-          $[18] = shouldShowDot;
-          $[19] = tools;
-          $[20] = verbose;
-          $[21] = width;
-          $[22] = t3;
+          $[5] = addMargin;
+          $[6] = commands;
+          $[7] = inProgressToolUseIDs;
+          $[8] = isTranscriptMode;
+          $[9] = lastThinkingBlockId;
+          $[10] = lookups;
+          $[11] = message.advisorModel;
+          $[12] = message.message.content;
+          $[13] = message.uuid;
+          $[14] = onOpenRateLimitOptions;
+          $[15] = progressMessagesForMessage;
+          $[16] = shouldAnimate;
+          $[17] = shouldShowDot;
+          $[18] = tools;
+          $[19] = verbose;
+          $[20] = width;
+          $[21] = t3;
         } else {
-          t3 = $[22];
+          t3 = $[21];
         }
         let t4;
-        if ($[39] !== t2 || $[40] !== t3) {
+        if ($[38] !== t2 || $[39] !== t3) {
           t4 = <Box flexDirection="column" width={t2}>{t3}</Box>;
-          $[39] = t2;
-          $[40] = t3;
-          $[41] = t4;
+          $[38] = t2;
+          $[39] = t3;
+          $[40] = t4;
         } else {
-          t4 = $[41];
+          t4 = $[40];
         }
         return t4;
       }
@@ -149,18 +149,18 @@ function MessageImpl(t0) {
         if (message.isCompactSummary) {
           const t2 = isTranscriptMode ? "transcript" : "prompt";
           let t3;
-          if ($[42] !== message || $[43] !== t2) {
+          if ($[41] !== message || $[42] !== t2) {
             t3 = <CompactSummary message={message} screen={t2} />;
-            $[42] = message;
-            $[43] = t2;
-            $[44] = t3;
+            $[41] = message;
+            $[42] = t2;
+            $[43] = t3;
           } else {
-            t3 = $[44];
+            t3 = $[43];
           }
           return t3;
         }
         let imageIndices;
-        if ($[45] !== message.imagePasteIds || $[46] !== message.message.content) {
+        if ($[44] !== message.imagePasteIds || $[45] !== message.message.content) {
           imageIndices = [];
           let imagePosition = 0;
           for (const param of message.message.content) {
@@ -172,49 +172,49 @@ function MessageImpl(t0) {
               imageIndices.push(imagePosition);
             }
           }
-          $[45] = message.imagePasteIds;
-          $[46] = message.message.content;
-          $[47] = imageIndices;
+          $[44] = message.imagePasteIds;
+          $[45] = message.message.content;
+          $[46] = imageIndices;
         } else {
-          imageIndices = $[47];
+          imageIndices = $[46];
         }
         const isLatestBashOutput = latestBashOutputUUID === message.uuid;
         const t2 = containerWidth ?? "100%";
         let t3;
-        if ($[48] !== addMargin || $[49] !== imageIndices || $[50] !== isTranscriptMode || $[51] !== isUserContinuation || $[52] !== lookups || $[53] !== message || $[54] !== progressMessagesForMessage || $[55] !== style || $[56] !== tools || $[57] !== verbose) {
+        if ($[47] !== addMargin || $[48] !== imageIndices || $[49] !== isTranscriptMode || $[50] !== isUserContinuation || $[51] !== lookups || $[52] !== message || $[53] !== progressMessagesForMessage || $[54] !== style || $[55] !== tools || $[56] !== verbose) {
           t3 = message.message.content.map((param_0, index) => <UserMessage key={index} message={message} addMargin={addMargin} tools={tools} progressMessagesForMessage={progressMessagesForMessage} param={param_0} style={style} verbose={verbose} imageIndex={imageIndices[index]} isUserContinuation={isUserContinuation} lookups={lookups} isTranscriptMode={isTranscriptMode} />);
-          $[48] = addMargin;
-          $[49] = imageIndices;
-          $[50] = isTranscriptMode;
-          $[51] = isUserContinuation;
-          $[52] = lookups;
-          $[53] = message;
-          $[54] = progressMessagesForMessage;
-          $[55] = style;
-          $[56] = tools;
-          $[57] = verbose;
-          $[58] = t3;
+          $[47] = addMargin;
+          $[48] = imageIndices;
+          $[49] = isTranscriptMode;
+          $[50] = isUserContinuation;
+          $[51] = lookups;
+          $[52] = message;
+          $[53] = progressMessagesForMessage;
+          $[54] = style;
+          $[55] = tools;
+          $[56] = verbose;
+          $[57] = t3;
         } else {
-          t3 = $[58];
+          t3 = $[57];
         }
         let t4;
-        if ($[59] !== t2 || $[60] !== t3) {
+        if ($[58] !== t2 || $[59] !== t3) {
           t4 = <Box flexDirection="column" width={t2}>{t3}</Box>;
-          $[59] = t2;
-          $[60] = t3;
-          $[61] = t4;
+          $[58] = t2;
+          $[59] = t3;
+          $[60] = t4;
         } else {
-          t4 = $[61];
+          t4 = $[60];
         }
         const content = t4;
         let t5;
-        if ($[62] !== content || $[63] !== isLatestBashOutput) {
+        if ($[61] !== content || $[62] !== isLatestBashOutput) {
           t5 = isLatestBashOutput ? <ExpandShellOutputProvider>{content}</ExpandShellOutputProvider> : content;
-          $[62] = content;
-          $[63] = isLatestBashOutput;
-          $[64] = t5;
+          $[61] = content;
+          $[62] = isLatestBashOutput;
+          $[63] = t5;
         } else {
-          t5 = $[64];
+          t5 = $[63];
         }
         return t5;
       }
@@ -225,11 +225,11 @@ function MessageImpl(t0) {
             return null;
           }
           let t2;
-          if ($[65] === Symbol.for("react.memo_cache_sentinel")) {
+          if ($[64] === Symbol.for("react.memo_cache_sentinel")) {
             t2 = <CompactBoundaryMessage />;
-            $[65] = t2;
+            $[64] = t2;
           } else {
-            t2 = $[65];
+            t2 = $[64];
           }
           return t2;
         }
@@ -250,22 +250,22 @@ function MessageImpl(t0) {
           } = require("../services/compact/snipCompact.js") as typeof import('../services/compact/snipCompact.js');
           if (isSnipBoundaryMessage(message)) {
             let t2;
-            if ($[66] === Symbol.for("react.memo_cache_sentinel")) {
+            if ($[65] === Symbol.for("react.memo_cache_sentinel")) {
               t2 = require("./messages/SnipBoundaryMessage.js");
-              $[66] = t2;
+              $[65] = t2;
             } else {
-              t2 = $[66];
+              t2 = $[65];
             }
             const {
               SnipBoundaryMessage
             } = t2 as typeof import('./messages/SnipBoundaryMessage.js');
             let t3;
-            if ($[67] !== message) {
+            if ($[66] !== message) {
               t3 = <SnipBoundaryMessage message={message} />;
-              $[67] = message;
-              $[68] = t3;
+              $[66] = message;
+              $[67] = t3;
             } else {
-              t3 = $[68];
+              t3 = $[67];
             }
             return t3;
           }
@@ -275,55 +275,55 @@ function MessageImpl(t0) {
         }
         if (message.subtype === "local_command") {
           let t2;
-          if ($[69] !== message.content) {
+          if ($[68] !== message.content) {
             t2 = {
               type: "text",
               text: message.content
             };
-            $[69] = message.content;
-            $[70] = t2;
+            $[68] = message.content;
+            $[69] = t2;
           } else {
-            t2 = $[70];
+            t2 = $[69];
           }
           let t3;
-          if ($[71] !== addMargin || $[72] !== isTranscriptMode || $[73] !== t2 || $[74] !== verbose) {
+          if ($[70] !== addMargin || $[71] !== isTranscriptMode || $[72] !== t2 || $[73] !== verbose) {
             t3 = <UserTextMessage addMargin={addMargin} param={t2} verbose={verbose} isTranscriptMode={isTranscriptMode} />;
-            $[71] = addMargin;
-            $[72] = isTranscriptMode;
-            $[73] = t2;
-            $[74] = verbose;
-            $[75] = t3;
+            $[70] = addMargin;
+            $[71] = isTranscriptMode;
+            $[72] = t2;
+            $[73] = verbose;
+            $[74] = t3;
           } else {
-            t3 = $[75];
+            t3 = $[74];
           }
           return t3;
         }
         let t2;
-        if ($[76] !== addMargin || $[77] !== isTranscriptMode || $[78] !== message || $[79] !== verbose) {
+        if ($[75] !== addMargin || $[76] !== isTranscriptMode || $[77] !== message || $[78] !== verbose) {
           t2 = <SystemTextMessage message={message} addMargin={addMargin} verbose={verbose} isTranscriptMode={isTranscriptMode} />;
-          $[76] = addMargin;
-          $[77] = isTranscriptMode;
-          $[78] = message;
-          $[79] = verbose;
-          $[80] = t2;
+          $[75] = addMargin;
+          $[76] = isTranscriptMode;
+          $[77] = message;
+          $[78] = verbose;
+          $[79] = t2;
         } else {
-          t2 = $[80];
+          t2 = $[79];
         }
         return t2;
       }
     case "grouped_tool_use":
       {
         let t2;
-        if ($[81] !== inProgressToolUseIDs || $[82] !== lookups || $[83] !== message || $[84] !== shouldAnimate || $[85] !== tools) {
+        if ($[80] !== inProgressToolUseIDs || $[81] !== lookups || $[82] !== message || $[83] !== shouldAnimate || $[84] !== tools) {
           t2 = <GroupedToolUseContent message={message} tools={tools} lookups={lookups} inProgressToolUseIDs={inProgressToolUseIDs} shouldAnimate={shouldAnimate} />;
-          $[81] = inProgressToolUseIDs;
-          $[82] = lookups;
-          $[83] = message;
-          $[84] = shouldAnimate;
-          $[85] = tools;
-          $[86] = t2;
+          $[80] = inProgressToolUseIDs;
+          $[81] = lookups;
+          $[82] = message;
+          $[83] = shouldAnimate;
+          $[84] = tools;
+          $[85] = t2;
         } else {
-          t2 = $[86];
+          t2 = $[85];
         }
         return t2;
       }
@@ -331,18 +331,18 @@ function MessageImpl(t0) {
       {
         const t2 = verbose || isTranscriptMode;
         let t3;
-        if ($[87] !== inProgressToolUseIDs || $[88] !== isActiveCollapsedGroup || $[89] !== lookups || $[90] !== message || $[91] !== shouldAnimate || $[92] !== t2 || $[93] !== tools) {
+        if ($[86] !== inProgressToolUseIDs || $[87] !== isActiveCollapsedGroup || $[88] !== lookups || $[89] !== message || $[90] !== shouldAnimate || $[91] !== t2 || $[92] !== tools) {
           t3 = <OffscreenFreeze><CollapsedReadSearchContent message={message} inProgressToolUseIDs={inProgressToolUseIDs} shouldAnimate={shouldAnimate} verbose={t2} tools={tools} lookups={lookups} isActiveGroup={isActiveCollapsedGroup} /></OffscreenFreeze>;
-          $[87] = inProgressToolUseIDs;
-          $[88] = isActiveCollapsedGroup;
-          $[89] = lookups;
-          $[90] = message;
-          $[91] = shouldAnimate;
-          $[92] = t2;
-          $[93] = tools;
-          $[94] = t3;
+          $[86] = inProgressToolUseIDs;
+          $[87] = isActiveCollapsedGroup;
+          $[88] = lookups;
+          $[89] = message;
+          $[90] = shouldAnimate;
+          $[91] = t2;
+          $[92] = tools;
+          $[93] = t3;
         } else {
-          t3 = $[94];
+          t3 = $[93];
         }
         return t3;
       }
@@ -426,7 +426,7 @@ function UserMessage(t0) {
   }
 }
 function AssistantMessageBlock(t0) {
-  const $ = _c(46);
+  const $ = _c(45);
   const {
     param,
     addMargin,
@@ -444,8 +444,7 @@ function AssistantMessageBlock(t0) {
     onOpenRateLimitOptions,
     thinkingBlockId,
     lastThinkingBlockId,
-    advisorModel,
-    messageUuid
+    advisorModel
   } = t0;
   if (feature("CONNECTOR_TEXT")) {
     if (isConnectorTextBlock(param)) {
@@ -461,15 +460,14 @@ function AssistantMessageBlock(t0) {
         t1 = $[1];
       }
       let t2;
-      if ($[2] !== addMargin || $[3] !== onOpenRateLimitOptions || $[4] !== shouldShowDot || $[5] !== t1 || $[6] !== verbose || $[7] !== width || $[45] !== messageUuid) {
-        t2 = <AssistantTextMessage param={t1} addMargin={addMargin} shouldShowDot={shouldShowDot} verbose={verbose} width={width} onOpenRateLimitOptions={onOpenRateLimitOptions} messageUuid={messageUuid} />;
+      if ($[2] !== addMargin || $[3] !== onOpenRateLimitOptions || $[4] !== shouldShowDot || $[5] !== t1 || $[6] !== verbose || $[7] !== width) {
+        t2 = <AssistantTextMessage param={t1} addMargin={addMargin} shouldShowDot={shouldShowDot} verbose={verbose} width={width} onOpenRateLimitOptions={onOpenRateLimitOptions} />;
         $[2] = addMargin;
         $[3] = onOpenRateLimitOptions;
         $[4] = shouldShowDot;
         $[5] = t1;
         $[6] = verbose;
         $[7] = width;
-        $[45] = messageUuid;
         $[8] = t2;
       } else {
         t2 = $[8];
@@ -481,8 +479,8 @@ function AssistantMessageBlock(t0) {
     case "tool_use":
       {
         let t1;
-        if ($[9] !== addMargin || $[10] !== commands || $[11] !== inProgressToolCallCount || $[12] !== inProgressToolUseIDs || $[13] !== isTranscriptMode || $[14] !== lookups || $[15] !== param || $[16] !== progressMessagesForMessage || $[17] !== shouldAnimate || $[18] !== shouldShowDot || $[19] !== tools || $[20] !== verbose || $[45] !== messageUuid) {
-          t1 = <AssistantToolUseMessage param={param} addMargin={addMargin} tools={tools} commands={commands} verbose={verbose} inProgressToolUseIDs={inProgressToolUseIDs} progressMessagesForMessage={progressMessagesForMessage} shouldAnimate={shouldAnimate} shouldShowDot={shouldShowDot} inProgressToolCallCount={inProgressToolCallCount} lookups={lookups} isTranscriptMode={isTranscriptMode} messageUuid={messageUuid} />;
+        if ($[9] !== addMargin || $[10] !== commands || $[11] !== inProgressToolCallCount || $[12] !== inProgressToolUseIDs || $[13] !== isTranscriptMode || $[14] !== lookups || $[15] !== param || $[16] !== progressMessagesForMessage || $[17] !== shouldAnimate || $[18] !== shouldShowDot || $[19] !== tools || $[20] !== verbose) {
+          t1 = <AssistantToolUseMessage param={param} addMargin={addMargin} tools={tools} commands={commands} verbose={verbose} inProgressToolUseIDs={inProgressToolUseIDs} progressMessagesForMessage={progressMessagesForMessage} shouldAnimate={shouldAnimate} shouldShowDot={shouldShowDot} inProgressToolCallCount={inProgressToolCallCount} lookups={lookups} isTranscriptMode={isTranscriptMode} />;
           $[9] = addMargin;
           $[10] = commands;
           $[11] = inProgressToolCallCount;
@@ -495,7 +493,6 @@ function AssistantMessageBlock(t0) {
           $[18] = shouldShowDot;
           $[19] = tools;
           $[20] = verbose;
-          $[45] = messageUuid;
           $[21] = t1;
         } else {
           t1 = $[21];
@@ -505,15 +502,14 @@ function AssistantMessageBlock(t0) {
     case "text":
       {
         let t1;
-        if ($[22] !== addMargin || $[23] !== onOpenRateLimitOptions || $[24] !== param || $[25] !== shouldShowDot || $[26] !== verbose || $[27] !== width || $[45] !== messageUuid) {
-          t1 = <AssistantTextMessage param={param} addMargin={addMargin} shouldShowDot={shouldShowDot} verbose={verbose} width={width} onOpenRateLimitOptions={onOpenRateLimitOptions} messageUuid={messageUuid} />;
+        if ($[22] !== addMargin || $[23] !== onOpenRateLimitOptions || $[24] !== param || $[25] !== shouldShowDot || $[26] !== verbose || $[27] !== width) {
+          t1 = <AssistantTextMessage param={param} addMargin={addMargin} shouldShowDot={shouldShowDot} verbose={verbose} width={width} onOpenRateLimitOptions={onOpenRateLimitOptions} />;
           $[22] = addMargin;
           $[23] = onOpenRateLimitOptions;
           $[24] = param;
           $[25] = shouldShowDot;
           $[26] = verbose;
           $[27] = width;
-          $[45] = messageUuid;
           $[28] = t1;
         } else {
           t1 = $[28];

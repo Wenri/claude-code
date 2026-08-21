@@ -418,129 +418,6 @@ export function getWebSocketProxyUrl(url: string): string | undefined {
   return proxyUrl
 }
 
-export function _setProxyAuthHelperConfig(config: ProxyAuthHelperConfig): void {
-  proxyAuthHelperConfig = config
-}
-
-export function getConfiguredProxyAuthHelper(): string | undefined {
-  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_PROXY_AUTH_HELPER)) {
-    return undefined
-  }
-  return proxyAuthHelperConfig.helper
-}
-
-function isProxyAuthHelperFromProjectOrLocalSettings(): boolean {
-  return (
-    getConfiguredProxyAuthHelper() !== undefined &&
-    proxyAuthHelperConfig.fromProjectOrLocal
-  )
-}
-
-function getProxyAuthHelperTtlMs(): number {
-  const configured = process.env.CLAUDE_CODE_PROXY_AUTH_HELPER_TTL_MS
-  if (configured) {
-    const parsed = parseInt(configured, 10)
-    if (!Number.isNaN(parsed) && parsed >= 0) return parsed
-  }
-  return DEFAULT_PROXY_AUTH_HELPER_TTL_MS
-}
-
-export async function getProxyAuthFromHelper(): Promise<string | null> {
-  const helper = getConfiguredProxyAuthHelper()
-  if (!helper) return null
-
-  if (
-    isProxyAuthHelperFromProjectOrLocalSettings() &&
-    !getIsNonInteractiveSession() &&
-    !proxyAuthHelperConfig.trustAccepted()
-  ) {
-    logForDebugging(
-      'proxyAuthHelper configured in project/local settings but workspace trust not yet accepted — skipping',
-      { level: 'warn' },
-    )
-    return null
-  }
-
-  const authenticate = proxyAuthenticateChallenge
-  if (
-    !authenticate &&
-    proxyAuthHelperCache &&
-    Date.now() - proxyAuthHelperCache.timestamp < getProxyAuthHelperTtlMs()
-  ) {
-    return proxyAuthHelperCache.value
-  }
-  proxyAuthenticateChallenge = undefined
-
-  const proxyUrl = getProxyUrl()
-  let proxyHost: string | undefined
-  try {
-    proxyHost = proxyUrl ? new URL(proxyUrl).hostname : undefined
-  } catch {
-    proxyHost = undefined
-  }
-
-  const result = await execa(helper, {
-    timeout: 30_000,
-    reject: false,
-    env: {
-      ...process.env,
-      ...(proxyUrl && { CLAUDE_CODE_PROXY_URL: proxyUrl }),
-      ...(proxyHost && { CLAUDE_CODE_PROXY_HOST: proxyHost }),
-      ...(authenticate && {
-        CLAUDE_CODE_PROXY_AUTHENTICATE: authenticate,
-      }),
-    },
-  })
-
-  if (result.failed || !result.stdout?.trim()) {
-    const reason = result.timedOut
-      ? 'timed out'
-      : result.failed
-        ? `exited ${result.exitCode}`
-        : 'did not return a value'
-    const stderr = result.stderr?.trim()
-    // biome-ignore lint/suspicious/noConsole:: user-configured helper failure
-    console.error(
-      `proxyAuthHelper failed: ${stderr ? `${reason}: ${stderr}` : reason}`,
-    )
-    return proxyAuthHelperCache?.value ?? null
-  }
-
-  const value = result.stdout.trim()
-  proxyAuthHelperCache = { value, timestamp: Date.now() }
-  return value
-}
-
-export function getProxyAuthFromHelperCached(): string | null {
-  return proxyAuthHelperCache?.value ?? null
-}
-
-export function clearProxyAuthHelperCache(authenticate?: string): void {
-  proxyAuthHelperCache = null
-  proxyAuthenticateChallenge = authenticate
-}
-
-export function prefetchProxyAuthFromHelperIfSafe(): void {
-  if (!getConfiguredProxyAuthHelper()) return
-  if (
-    isProxyAuthHelperFromProjectOrLocalSettings() &&
-    !proxyAuthHelperConfig.trustAccepted()
-  ) {
-    return
-  }
-  void getProxyAuthFromHelper()
-}
-
-export function _resetProxyAuthHelperForTesting(): void {
-  proxyAuthHelperCache = null
-  proxyAuthenticateChallenge = undefined
-  proxyAuthHelperConfig = {
-    helper: undefined,
-    fromProjectOrLocal: false,
-    trustAccepted: () => false,
-  }
-}
-
 /**
  * Get fetch options for the Anthropic SDK with proxy and mTLS configuration
  * Returns fetch options with appropriate dispatcher for proxy and/or mTLS
@@ -566,7 +443,10 @@ export function getProxyFetchOptions(opts?: {
   const base = {
     ...(keepAliveDisabled && { keepalive: false as const }),
     ...(opts?.forAnthropicAPI &&
-      typeof Bun !== 'undefined' && { timeout: false as const }),
+      typeof Bun !== 'undefined' &&
+      !isEnvTruthy(process.env.API_FORCE_IDLE_TIMEOUT) && {
+        timeout: false as const,
+      }),
   }
 
   // ANTHROPIC_UNIX_SOCKET tunnels through the `claude ssh` auth proxy, which

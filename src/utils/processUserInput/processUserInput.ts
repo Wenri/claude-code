@@ -54,7 +54,6 @@ import {
   ImageResizeError,
   maybeResizeAndDownsampleImageBlock,
 } from '../imageResizer.js'
-import { getImageLimits } from '../imageLimits.js'
 import { storeImages } from '../imageStore.js'
 import {
   createCommandInputMessage,
@@ -110,6 +109,7 @@ export async function processUserInput({
   bridgeOrigin,
   isMeta,
   skipAttachments,
+  shouldQuery,
 }: {
   input: string | Array<ContentBlockParam>
   /**
@@ -147,6 +147,7 @@ export async function processUserInput({
    */
   isMeta?: boolean
   skipAttachments?: boolean
+  shouldQuery?: boolean
 }): Promise<ProcessUserInputBaseResult> {
   const inputString = typeof input === 'string' ? input : null
   // Immediately show the user input prompt while we are still processing the input.
@@ -180,6 +181,10 @@ export async function processUserInput({
     preExpansionInput,
   )
   queryCheckpoint('query_process_user_input_base_end')
+
+  if (shouldQuery === false) {
+    result.shouldQuery = false
+  }
 
   if (!result.shouldQuery) {
     return result
@@ -315,7 +320,6 @@ async function processUserInputBase(
   skipAttachments?: boolean,
   preExpansionInput?: string,
 ): Promise<ProcessUserInputBaseResult> {
-  const imageLimits = getImageLimits(context.options.mainLoopModel)
   let inputString: string | null = null
   let precedingInputBlocks: ContentBlockParam[] = []
 

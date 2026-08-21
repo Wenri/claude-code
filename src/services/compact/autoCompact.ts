@@ -20,6 +20,7 @@ import { logError } from '../../utils/log.js'
 import { getCanonicalName } from '../../utils/model/model.js'
 import { tokenCountWithEstimation } from '../../utils/tokens.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
+import { logEvent } from '../analytics/index.js'
 import { getMaxOutputTokensForModel } from '../api/claude.js'
 import {
   notifyCompaction,
@@ -52,6 +53,14 @@ export type AutoCompactWindowResolution = {
 
 export function isColdCompact(): boolean {
   return Date.now() - getLastInteractionTime() >= COLD_COMPACT_IDLE_MS
+}
+
+export function shouldUseColdCompact(): boolean {
+  if (process.env.CLAUDE_CODE_COLD_COMPACT !== undefined) {
+    return isEnvTruthy(process.env.CLAUDE_CODE_COLD_COMPACT)
+  }
+  if (!isColdCompact()) return false
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_cold_compact', false)
 }
 
 const MIN_AUTO_COMPACT_WINDOW = 100_000
@@ -210,7 +219,6 @@ export type AutoCompactTrackingState = {
 
 export const AUTOCOMPACT_BUFFER_TOKENS = 13_000
 export const WARNING_THRESHOLD_BUFFER_TOKENS = 20_000
-export const ERROR_THRESHOLD_BUFFER_TOKENS = 20_000
 export const MANUAL_COMPACT_BUFFER_TOKENS = 3_000
 
 // Stop trying autocompact after this many consecutive failures.
@@ -241,19 +249,40 @@ export function getAutoCompactThreshold(
     autoCompactWindow,
   )
 
+  return getAutoCompactThresholdForWindow(
+    effectiveContextWindow,
+    getAutoCompactPressureConfig(),
+  )
+}
+
+type AutoCompactPressureConfig = {
+  enabled: boolean
+  testPctOverride?: number
+  testBlockingOverride?: number
+}
+
+export type TokenPressure =
+  | { level: 'ok' }
+  | { level: 'warn' | 'compact' | 'blocked'; pctLeft: number }
+
+function getAutoCompactThresholdForWindow(
+  effectiveContextWindow: number,
+  config: AutoCompactPressureConfig,
+): number {
   const autocompactThreshold =
     effectiveContextWindow - AUTOCOMPACT_BUFFER_TOKENS
+  const envPercent = config.testPctOverride
 
-  // Override for easier testing of autocompact
-  const envPercent = process.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
-  if (envPercent) {
-    const parsed = parseFloat(envPercent)
-    if (!isNaN(parsed) && parsed > 0 && parsed <= 100) {
-      const percentageThreshold = Math.floor(
-        effectiveContextWindow * (parsed / 100),
-      )
-      return Math.min(percentageThreshold, autocompactThreshold)
-    }
+  if (
+    envPercent !== undefined &&
+    !isNaN(envPercent) &&
+    envPercent > 0 &&
+    envPercent <= 100
+  ) {
+    const percentageThreshold = Math.floor(
+      effectiveContextWindow * (envPercent / 100),
+    )
+    return Math.min(percentageThreshold, autocompactThreshold)
   }
 
   return autocompactThreshold
@@ -263,57 +292,57 @@ export function calculateTokenWarningState(
   tokenUsage: number,
   model: string,
   autoCompactWindow?: number,
-): {
-  percentLeft: number
-  isAboveWarningThreshold: boolean
-  isAboveErrorThreshold: boolean
-  isAboveAutoCompactThreshold: boolean
-  isAtBlockingLimit: boolean
-} {
-  const autoCompactThreshold = getAutoCompactThreshold(model, autoCompactWindow)
-  const threshold = isAutoCompactEnabled()
+): TokenPressure {
+  const config = getAutoCompactPressureConfig()
+  const configuredWindow = config.enabled ? autoCompactWindow : undefined
+  return calculateTokenPressure(
+    tokenUsage,
+    getEffectiveContextWindowSize(model, configuredWindow),
+    config,
+  )
+}
+
+function calculateTokenPressure(
+  tokenUsage: number,
+  effectiveContextWindow: number,
+  config: AutoCompactPressureConfig,
+): TokenPressure {
+  const autoCompactThreshold = getAutoCompactThresholdForWindow(
+    effectiveContextWindow,
+    config,
+  )
+  const warningBase = config.enabled
     ? autoCompactThreshold
-    : getEffectiveContextWindowSize(model, autoCompactWindow)
-
-  const percentLeft = Math.max(
-    0,
-    Math.round(((threshold - tokenUsage) / threshold) * 100),
-  )
-
-  const warningThreshold = threshold - WARNING_THRESHOLD_BUFFER_TOKENS
-  const errorThreshold = threshold - ERROR_THRESHOLD_BUFFER_TOKENS
-
-  const isAboveWarningThreshold = tokenUsage >= warningThreshold
-  const isAboveErrorThreshold = tokenUsage >= errorThreshold
-
-  const isAboveAutoCompactThreshold =
-    isAutoCompactEnabled() && tokenUsage >= autoCompactThreshold
-
-  const actualContextWindow = getEffectiveContextWindowSize(
-    model,
-    autoCompactWindow,
-  )
-  const defaultBlockingLimit =
-    actualContextWindow - MANUAL_COMPACT_BUFFER_TOKENS
-
-  // Allow override for testing
-  const blockingLimitOverride = process.env.CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE
-  const parsedOverride = blockingLimitOverride
-    ? parseInt(blockingLimitOverride, 10)
-    : NaN
+    : effectiveContextWindow
+  const warningThreshold = warningBase - WARNING_THRESHOLD_BUFFER_TOKENS
   const blockingLimit =
-    !isNaN(parsedOverride) && parsedOverride > 0
-      ? parsedOverride
-      : defaultBlockingLimit
+    config.testBlockingOverride !== undefined &&
+    !isNaN(config.testBlockingOverride) &&
+    config.testBlockingOverride > 0
+      ? config.testBlockingOverride
+      : effectiveContextWindow - MANUAL_COMPACT_BUFFER_TOKENS
+  const pctLeft = Math.max(
+    0,
+    Math.round(((warningBase - tokenUsage) / warningBase) * 100),
+  )
 
-  const isAtBlockingLimit = tokenUsage >= blockingLimit
+  if (tokenUsage >= blockingLimit) return { level: 'blocked', pctLeft }
+  if (config.enabled && tokenUsage >= autoCompactThreshold) {
+    return { level: 'compact', pctLeft }
+  }
+  if (tokenUsage >= warningThreshold) return { level: 'warn', pctLeft }
+  return { level: 'ok' }
+}
 
+function getAutoCompactPressureConfig(): AutoCompactPressureConfig {
+  const pctOverride = process.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
+  const blockingOverride = process.env.CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE
   return {
-    percentLeft,
-    isAboveWarningThreshold,
-    isAboveErrorThreshold,
-    isAboveAutoCompactThreshold,
-    isAtBlockingLimit,
+    enabled: isAutoCompactEnabled(),
+    testPctOverride: pctOverride ? parseFloat(pctOverride) : undefined,
+    testBlockingOverride: blockingOverride
+      ? parseInt(blockingOverride, 10)
+      : undefined,
   }
 }
 
@@ -394,23 +423,21 @@ export async function shouldAutoCompact(
   }
 
   const tokenCount = tokenCountWithEstimation(messages) - snipTokensFreed
-  const threshold = getAutoCompactThreshold(model, autoCompactWindow)
+  const pressure = calculateTokenWarningState(
+    tokenCount,
+    model,
+    autoCompactWindow,
+  )
   const effectiveWindow = getEffectiveContextWindowSize(
     model,
     autoCompactWindow,
   )
 
   logForDebugging(
-    `autocompact: tokens=${tokenCount} threshold=${threshold} effectiveWindow=${effectiveWindow}${snipTokensFreed > 0 ? ` snipFreed=${snipTokensFreed}` : ''}`,
+    `autocompact: tokens=${tokenCount} level=${pressure.level} effectiveWindow=${effectiveWindow}`,
   )
 
-  const { isAboveAutoCompactThreshold } = calculateTokenWarningState(
-    tokenCount,
-    model,
-    autoCompactWindow,
-  )
-
-  return isAboveAutoCompactThreshold
+  return pressure.level === 'compact' || pressure.level === 'blocked'
 }
 
 export async function autoCompactIfNeeded(
@@ -472,9 +499,7 @@ export async function autoCompactIfNeeded(
     querySource,
   }
 
-  const stripNonEssential =
-    isColdCompact() &&
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_cold_compact', false)
+  const stripNonEssential = shouldUseColdCompact()
 
   const compactingHintText = getAutoCompactWindowHint(
     model,
@@ -491,7 +516,11 @@ export async function autoCompactIfNeeded(
     // Reset lastSummarizedMessageId since session memory compaction prunes messages
     // and the old message UUID will no longer exist after the REPL replaces messages
     setLastSummarizedMessageId(undefined)
-    runPostCompactCleanup(querySource, toolUseContext.resultDedupState)
+    runPostCompactCleanup(
+      querySource,
+      toolUseContext.setAppState,
+      toolUseContext.resultDedupState,
+    )
     // Reset cache read baseline so the post-compact drop isn't flagged as a
     // break. compactConversation does this internally; SM-compact doesn't.
     // BQ 2026-03-01: missing this made 20% of tengu_prompt_cache_break events
@@ -523,7 +552,11 @@ export async function autoCompactIfNeeded(
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages
     // and the old message UUID will no longer exist in the new messages array
     setLastSummarizedMessageId(undefined)
-    runPostCompactCleanup(querySource, toolUseContext.resultDedupState)
+    runPostCompactCleanup(
+      querySource,
+      toolUseContext.setAppState,
+      toolUseContext.resultDedupState,
+    )
 
     return {
       wasCompacted: true,
@@ -552,6 +585,9 @@ export async function autoCompactIfNeeded(
         `autocompact: circuit breaker tripped after ${nextFailures} consecutive failures — skipping future attempts this session`,
         { level: 'warn' },
       )
+      logEvent('tengu_auto_compact_circuit_breaker', {
+        consecutiveFailures: nextFailures,
+      })
     }
     return { wasCompacted: false, consecutiveFailures: nextFailures }
   }

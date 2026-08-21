@@ -10,7 +10,7 @@
  * key matching but denied via canUseTool callback.
  */
 
-import type { TaskRegistry } from '../../utils/task/framework.js'
+import type { TaskContext } from '../../Task.js'
 import { updateAgentSummary } from '../../tasks/LocalAgentTask/LocalAgentTask.js'
 import { filterIncompleteToolCalls } from '../../tools/AgentTool/runAgent.js'
 import type { AgentId } from '../../types/ids.js'
@@ -47,7 +47,7 @@ export function startAgentSummarization(
   taskId: string,
   agentId: AgentId,
   cacheSafeParams: CacheSafeParams,
-  taskRegistry: TaskRegistry,
+  setAppState: TaskContext['setAppState'],
 ): { stop: () => void } {
   // Drop forkContextMessages from the closure — runSummary rebuilds it each
   // tick from getAgentTranscript(). Without this, the original fork messages
@@ -137,7 +137,7 @@ export function startAgentSummarization(
             `[AgentSummary] Summary result for ${taskId}: ${summaryText}`,
           )
           previousSummary = summaryText
-          updateAgentSummary(taskId, summaryText, taskRegistry)
+          updateAgentSummary(taskId, summaryText, setAppState)
           break
         }
       }

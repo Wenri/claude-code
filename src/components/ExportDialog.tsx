@@ -1,12 +1,11 @@
-import { mkdir } from 'fs/promises';
-import { dirname, extname } from 'path';
+import { join } from 'path';
 import React, { useCallback, useState } from 'react';
 import type { ExitState } from '../hooks/useExitOnCtrlCDWithKeybindings.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { setClipboard } from '../ink/termio/osc.js';
 import { Box, Text } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
-import { expandPath } from '../utils/path.js';
+import { getCwd } from '../utils/cwd.js';
 import { writeFileSync_DEPRECATED } from '../utils/slowOperations.js';
 import { ConfigurableShortcutHint } from './ConfigurableShortcutHint.js';
 import { Select } from './CustomSelect/select.js';
@@ -23,22 +22,6 @@ type ExportDialogProps = {
   }) => void;
 };
 type ExportOption = 'clipboard' | 'file';
-
-export function normalizeExportPath(filename: string): string {
-  const withExtension = extname(filename) === '' ? `${filename}.txt` : filename;
-  return expandPath(withExtension);
-}
-
-export async function writeExportFile(filename: string, content: string): Promise<string> {
-  const filepath = normalizeExportPath(filename);
-  await mkdir(dirname(filepath), { recursive: true });
-  writeFileSync_DEPRECATED(filepath, content, {
-    encoding: 'utf-8',
-    flush: true
-  });
-  return filepath;
-}
-
 export function ExportDialog({
   content,
   defaultFilename,
@@ -71,9 +54,14 @@ export function ExportDialog({
       setShowFilenameInput(true);
     }
   };
-  const handleFilenameSubmit = async () => {
+  const handleFilenameSubmit = () => {
+    const finalFilename = filename.endsWith('.txt') ? filename : filename.replace(/\.[^.]+$/, '') + '.txt';
+    const filepath = join(getCwd(), finalFilename);
     try {
-      const filepath = await writeExportFile(filename, content);
+      writeFileSync_DEPRECATED(filepath, content, {
+        encoding: 'utf-8',
+        flush: true
+      });
       onDone({
         success: true,
         message: `Conversation exported to: ${filepath}`

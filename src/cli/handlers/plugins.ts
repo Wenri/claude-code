@@ -17,6 +17,7 @@ import {
   disableAllPlugins,
   disablePlugin,
   enablePlugin,
+  handlePluginCommandError,
   installPlugin,
   prunePlugins,
   uninstallPlugin,
@@ -29,6 +30,7 @@ import { logForDebugging } from '../../utils/debug.js'
 import { errorMessage } from '../../utils/errors.js'
 import { gracefulShutdown } from '../../utils/gracefulShutdown.js'
 import { logError } from '../../utils/log.js'
+import { getManagedPluginNames } from '../../utils/plugins/managedPlugins.js'
 import { clearAllCaches } from '../../utils/plugins/cacheUtils.js'
 import { formatDependencyCountSuffix } from '../../utils/plugins/dependencyResolver.js'
 import { getInstallCounts } from '../../utils/plugins/installCounts.js'
@@ -56,7 +58,7 @@ import {
 } from '../../utils/plugins/pluginIdentifier.js'
 import { loadAllPlugins } from '../../utils/plugins/pluginLoader.js'
 import { resolveMissingDependencies } from '../../utils/plugins/missingDependencyResolver.js'
-import type { PluginSource } from '../../utils/plugins/schemas.js'
+import type { MarketplaceSource, PluginSource } from '../../utils/plugins/schemas.js'
 import {
   type ValidationResult,
   executePluginTag,
@@ -67,11 +69,19 @@ import {
 } from '../../utils/plugins/validatePlugin.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { plural } from '../../utils/stringUtils.js'
-import { RenderOnceAndExit } from '../../utils/staticRender.js'
-import { cliError, cliOk } from '../exit.js'
+import { buildPluginTelemetryFields } from '../../utils/telemetry/pluginTelemetry.js'
+import { cliError } from '../exit.js'
 
 // Re-export for main.tsx to reference in option definitions
 export { VALID_INSTALLABLE_SCOPES, VALID_UPDATE_SCOPES }
+
+function textFragment(...children: React.ReactNode[]): React.ReactElement {
+  return React.createElement(
+    React.Fragment,
+    null,
+    React.createElement(Text, null, ...children),
+  )
+}
 
 /**
  * Helper function to handle marketplace command errors consistently.
@@ -106,35 +116,6 @@ function formatValidationResult(result: ValidationResult): string[] {
   return lines
 }
 
-function PromiseLines({ promise }: { promise: Promise<string[]> }): React.ReactNode {
-  return React.createElement(
-    Box,
-    null,
-    React.createElement(Text, null, React.use(promise).join('\n')),
-  )
-}
-
-function MarketplaceUpdateResult({
-  promise,
-}: {
-  promise: Promise<{ messages: string[]; success: string }>
-}): React.ReactNode {
-  const { messages, success } = React.use(promise)
-  return React.createElement(
-    Box,
-    null,
-    React.createElement(Text, null, [...messages, success].join('\n')),
-  )
-}
-
-function PluginInstallResult({ promise }: { promise: Promise<string> }): React.ReactNode {
-  return React.createElement(
-    Box,
-    null,
-    React.createElement(Text, null, figures.tick, ' ', React.use(promise)),
-  )
-}
-
 // plugin validate
 export async function pluginValidateHandler(
   root: Root,
@@ -142,54 +123,21 @@ export async function pluginValidateHandler(
   options: { cowork?: boolean },
 ): Promise<void> {
   if (options.cowork) setUseCoworkPlugins(true)
+  let result!: ValidationResult
+  let contentResults: ValidationResult[] = []
   try {
-    const result = await validateManifest(manifestPath)
+    result = await validateManifest(manifestPath)
 
     // If this is a plugin manifest located inside a .claude-plugin directory,
     // also validate the plugin's content files (skills, agents, commands,
     // hooks). Works whether the user passed a directory or the plugin.json
     // path directly.
-    let contentResults: ValidationResult[] = []
     if (result.fileType === 'plugin') {
       const manifestDir = dirname(result.filePath)
       if (basename(manifestDir) === '.claude-plugin') {
         contentResults = await validatePluginContents(dirname(manifestDir))
       }
     }
-
-    const allSuccess = result.success && contentResults.every(r => r.success)
-    const hasWarnings =
-      result.warnings.length > 0 ||
-      contentResults.some(r => r.warnings.length > 0)
-
-    const lines = [
-      `Validating ${result.fileType} manifest: ${result.filePath}`,
-      '',
-      ...formatValidationResult(result),
-    ]
-    for (const contentResult of contentResults) {
-      lines.push(
-        `Validating ${contentResult.fileType}: ${contentResult.filePath}`,
-        '',
-        ...formatValidationResult(contentResult),
-      )
-    }
-    lines.push(
-      allSuccess
-        ? hasWarnings
-          ? `${figures.tick} Validation passed with warnings`
-          : `${figures.tick} Validation passed`
-        : `${figures.cross} Validation failed`,
-    )
-    root.render(
-      React.createElement(
-        Box,
-        null,
-        React.createElement(Text, null, lines.join('\n')),
-      ),
-    )
-    await root.waitUntilExit()
-    process.exit(allSuccess ? 0 : 1)
   } catch (error) {
     logError(error)
     // biome-ignore lint/suspicious/noConsole:: intentional console output
@@ -197,7 +145,35 @@ export async function pluginValidateHandler(
       `${figures.cross} Unexpected error during validation: ${errorMessage(error)}`,
     )
     process.exit(2)
+    return
   }
+
+  const allSuccess = result.success && contentResults.every(r => r.success)
+  const hasWarnings =
+    result.warnings.length > 0 ||
+    contentResults.some(r => r.warnings.length > 0)
+  const lines = [
+    `Validating ${result.fileType} manifest: ${result.filePath}`,
+    '',
+    ...formatValidationResult(result),
+  ]
+  for (const contentResult of contentResults) {
+    lines.push(
+      `Validating ${contentResult.fileType}: ${contentResult.filePath}`,
+      '',
+      ...formatValidationResult(contentResult),
+    )
+  }
+  lines.push(
+    allSuccess
+      ? hasWarnings
+        ? `${figures.tick} Validation passed with warnings`
+        : `${figures.tick} Validation passed`
+      : `${figures.cross} Validation failed`,
+  )
+  root.render(textFragment(lines.join('\n')))
+  await root.waitUntilExit()
+  process.exit(allSuccess ? 0 : 1)
 }
 
 export async function pluginTagHandler(
@@ -277,11 +253,7 @@ function renderPluginTagResult(
   exitCode: number,
 ): void {
   root.render(
-    React.createElement(
-      RenderOnceAndExit,
-      null,
-      React.createElement(Text, null, lines.join('\n')),
-    ),
+    textFragment(lines.join('\n')),
   )
   void root.waitUntilExit().then(() => process.exit(exitCode))
 }
@@ -428,6 +400,7 @@ export async function pluginListHandler(root: Root, options: {
     }
 
     // If --available is set, also load available plugins from marketplaces
+    let output: string
     if (options.available) {
       const available: Array<{
         pluginId: string
@@ -473,31 +446,17 @@ export async function pluginListHandler(root: Root, options: {
         // Silently ignore marketplace loading errors
       }
 
-      root.render(
-        React.createElement(
-          Box,
-          null,
-          React.createElement(
-            Text,
-            null,
-            jsonStringify({ installed: plugins, available }, null, 2),
-          ),
-        ),
-      )
+      output = jsonStringify({ installed: plugins, available }, null, 2)
     } else {
-      root.render(
-        React.createElement(
-          Box,
-          null,
-          React.createElement(Text, null, jsonStringify(plugins, null, 2)),
-        ),
-      )
+      output = jsonStringify(plugins, null, 2)
     }
+    root.render(textFragment(output))
     await root.waitUntilExit()
     return
   }
 
   const lines: string[] = []
+
   if (pluginIds.length === 0 && inlinePlugins.length === 0) {
     // inlineLoadErrors can exist with zero inline plugins (e.g. --plugin-dir
     // points at a nonexistent path). Don't early-exit over them — fall
@@ -578,43 +537,42 @@ export async function pluginListHandler(root: Root, options: {
     }
   }
 
-  root.render(
-    React.createElement(
-      Box,
-      null,
-      React.createElement(Text, null, lines.join('\n')),
-    ),
-  )
+  root.render(textFragment(lines.join('\n')))
   await root.waitUntilExit()
 }
 
 // marketplace add (lines 5433–5487)
+function MarketplaceMessages({ promise }: { promise: Promise<string[]> }) {
+  const messages = React.use(promise)
+  return textFragment(messages.join('\n'))
+}
+
 export async function marketplaceAddHandler(
   root: Root,
   source: string,
   options: { cowork?: boolean; sparse?: string[]; scope?: string },
 ): Promise<void> {
   if (options.cowork) setUseCoworkPlugins(true)
-  let marketplaceSource: MarketplaceSource
-  let settingSource: ReturnType<typeof scopeToSettingSource>
-  let scope: string
+  let marketplaceSource!: MarketplaceSource
+  let settingSource!: ReturnType<typeof scopeToSettingSource>
+  let scope!: string
   try {
     const parsed = await parseMarketplaceInput(source)
 
     if (!parsed) {
-      cliError(
+      return cliError(
         `${figures.cross} Invalid marketplace source format. Try: owner/repo, https://..., or ./path`,
       )
     }
 
     if ('error' in parsed) {
-      cliError(`${figures.cross} ${parsed.error}`)
+      return cliError(`${figures.cross} ${parsed.error}`)
     }
 
     // Validate scope
     scope = options.scope ?? 'user'
     if (scope !== 'user' && scope !== 'project' && scope !== 'local') {
-      cliError(
+      return cliError(
         `${figures.cross} Invalid scope '${scope}'. Use: user, project, or local`,
       )
     }
@@ -632,59 +590,16 @@ export async function marketplaceAddHandler(
           sparsePaths: options.sparse,
         }
       } else {
-        cliError(
+        return cliError(
           `${figures.cross} --sparse is only supported for github and git marketplace sources (got: ${marketplaceSource.source})`,
         )
       }
     }
-
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log('Adding marketplace...')
-
-    const { name, alreadyMaterialized, resolvedSource } =
-      await addMarketplaceSource(marketplaceSource, message => {
-        // biome-ignore lint/suspicious/noConsole:: intentional console output
-        console.log(message)
-      })
-
-    // Write intent to settings at the requested scope
-    saveMarketplaceToSettings(name, { source: resolvedSource }, settingSource)
-
-    clearAllCaches()
-
-    let sourceType = marketplaceSource.source
-    if (marketplaceSource.source === 'github') {
-      sourceType =
-        marketplaceSource.repo as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    }
-    logEvent('tengu_marketplace_added', {
-      source_type:
-        sourceType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
-
-    let resolvedDependencies: string[] = []
-    try {
-      resolvedDependencies = (
-        await resolveMissingDependencies((await loadAllPlugins()).errors)
-      ).installed
-    } catch (error) {
-      logForDebugging(
-        `marketplace add: dep auto-resolve skipped: ${errorMessage(error)}`,
-        { level: 'warn' },
-      )
-    }
-    const dependencySuffix = formatDependencyCountSuffix(resolvedDependencies)
-
-    cliOk(
-      alreadyMaterialized
-        ? `${figures.tick} Marketplace '${name}' already on disk — declared in ${scope} settings${dependencySuffix}`
-        : `${figures.tick} Successfully added marketplace: ${name} (declared in ${scope} settings)${dependencySuffix}`,
-    )
   } catch (error) {
     return handleMarketplaceError(error, 'add marketplace')
   }
 
-  const resultPromise = (async (): Promise<string[]> => {
+  const promise = (async (): Promise<string[]> => {
     try {
       const messages: string[] = []
       const { name, alreadyMaterialized, resolvedSource } =
@@ -704,10 +619,23 @@ export async function marketplaceAddHandler(
         source_type:
           sourceType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       })
+
+      let resolvedDependencies: string[] = []
+      try {
+        resolvedDependencies = (
+          await resolveMissingDependencies((await loadAllPlugins()).errors)
+        ).installed
+      } catch (error) {
+        logForDebugging(
+          `marketplace add: dep auto-resolve skipped: ${errorMessage(error)}`,
+          { level: 'warn' },
+        )
+      }
+      const dependencySuffix = formatDependencyCountSuffix(resolvedDependencies)
       messages.push(
         alreadyMaterialized
-          ? `${figures.tick} Marketplace '${name}' already on disk — declared in ${scope} settings`
-          : `${figures.tick} Successfully added marketplace: ${name} (declared in ${scope} settings)`,
+          ? `${figures.tick} Marketplace '${name}' already on disk — declared in ${scope} settings${dependencySuffix}`
+          : `${figures.tick} Successfully added marketplace: ${name} (declared in ${scope} settings)${dependencySuffix}`,
       )
       return messages
     } catch (error) {
@@ -719,7 +647,7 @@ export async function marketplaceAddHandler(
     React.createElement(
       React.Suspense,
       { fallback: React.createElement(Text, null, 'Adding marketplace…') },
-      React.createElement(PromiseLines, { promise: resultPromise }),
+      React.createElement(MarketplaceMessages, { promise }),
     ),
   )
   await root.waitUntilExit()
@@ -730,65 +658,60 @@ export async function marketplaceAddHandler(
 export async function marketplaceListHandler(root: Root, options: {
   json?: boolean
   cowork?: boolean
-}): Promise<void> {
+},
+): Promise<void> {
   if (options.cowork) setUseCoworkPlugins(true)
+  let config!: Awaited<ReturnType<typeof loadKnownMarketplacesConfig>>
   try {
-    const config = await loadKnownMarketplacesConfig()
-    const names = Object.keys(config)
-
-    let output: React.ReactNode
-    if (options.json) {
-      const marketplaces = names.sort().map(name => {
-        const marketplace = config[name]
-        const source = marketplace?.source
-        return {
-          name,
-          source: source?.source,
-          ...(source?.source === 'github' && { repo: source.repo }),
-          ...(source?.source === 'git' && { url: source.url }),
-          ...(source?.source === 'url' && { url: source.url }),
-          ...(source?.source === 'directory' && { path: source.path }),
-          ...(source?.source === 'file' && { path: source.path }),
-          installLocation: marketplace?.installLocation,
-        }
-      })
-      output = React.createElement(
-        Text,
-        null,
-        jsonStringify(marketplaces, null, 2),
-      )
-    } else if (names.length === 0) {
-      output = React.createElement(Text, null, 'No marketplaces configured')
-    } else {
-      const lines = ['Configured marketplaces:', '']
-      names.forEach(name => {
-        const marketplace = config[name]
-        lines.push(`  ${figures.pointer} ${name}`)
-
-        if (marketplace?.source) {
-          const src = marketplace.source
-          if (src.source === 'github') {
-            lines.push(`    Source: GitHub (${src.repo})`)
-          } else if (src.source === 'git') {
-            lines.push(`    Source: Git (${src.url})`)
-          } else if (src.source === 'url') {
-            lines.push(`    Source: URL (${src.url})`)
-          } else if (src.source === 'directory') {
-            lines.push(`    Source: Directory (${src.path})`)
-          } else if (src.source === 'file') {
-            lines.push(`    Source: File (${src.path})`)
-          }
-        }
-        lines.push('')
-      })
-      output = React.createElement(Text, null, lines.join('\n'))
-    }
-
-    root.render(React.createElement(Box, null, output))
-    await root.waitUntilExit()
+    config = await loadKnownMarketplacesConfig()
   } catch (error) {
-    handleMarketplaceError(error, 'list marketplaces')
+    return handleMarketplaceError(error, 'list marketplaces')
   }
+  const names = Object.keys(config)
+  let content: React.ReactNode
+  if (options.json) {
+    const marketplaces = names.sort().map(name => {
+      const marketplace = config[name]
+      const source = marketplace?.source
+      return {
+        name,
+        source: source?.source,
+        ...(source?.source === 'github' && { repo: source.repo }),
+        ...(source?.source === 'git' && { url: source.url }),
+        ...(source?.source === 'url' && { url: source.url }),
+        ...(source?.source === 'directory' && { path: source.path }),
+        ...(source?.source === 'file' && { path: source.path }),
+        installLocation: marketplace?.installLocation,
+      }
+    })
+    content = React.createElement(Text, null, jsonStringify(marketplaces, null, 2))
+  } else if (names.length === 0) {
+    content = React.createElement(Text, null, 'No marketplaces configured')
+  } else {
+    const lines = ['Configured marketplaces:', '']
+    names.forEach(name => {
+      const marketplace = config[name]
+      lines.push(`  ${figures.pointer} ${name}`)
+      if (marketplace?.source) {
+        const source = marketplace.source
+        if (source.source === 'github') {
+          lines.push(`    Source: GitHub (${source.repo})`)
+        } else if (source.source === 'git') {
+          lines.push(`    Source: Git (${source.url})`)
+        } else if (source.source === 'url') {
+          lines.push(`    Source: URL (${source.url})`)
+        } else if (source.source === 'directory') {
+          lines.push(`    Source: Directory (${source.path})`)
+        } else if (source.source === 'file') {
+          lines.push(`    Source: File (${source.path})`)
+        }
+      }
+      lines.push('')
+    })
+    content = React.createElement(Text, null, lines.join('\n'))
+  }
+  root.render(React.createElement(React.Fragment, null, content))
+  await root.waitUntilExit()
 }
 
 // marketplace remove (lines 5576–5598)
@@ -807,26 +730,25 @@ export async function marketplaceRemoveHandler(
         name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
 
-    root.render(
-      React.createElement(
-        Box,
-        null,
-        React.createElement(
-          Text,
-          null,
-          figures.tick,
-          ' Successfully removed marketplace: ',
-          name,
-        ),
-      ),
-    )
-    await root.waitUntilExit()
   } catch (error) {
-    handleMarketplaceError(error, 'remove marketplace')
+    return handleMarketplaceError(error, 'remove marketplace')
   }
+  root.render(textFragment(figures.tick, ' Successfully removed marketplace: ', name))
+  await root.waitUntilExit()
 }
 
 // marketplace update (lines 5609–5672)
+type MarketplaceUpdateResult = { messages: string[]; success: string }
+
+function MarketplaceUpdateMessages({
+  promise,
+}: {
+  promise: Promise<MarketplaceUpdateResult>
+}) {
+  const { messages, success } = React.use(promise)
+  return textFragment([...messages, success].join('\n'))
+}
+
 export async function marketplaceUpdateHandler(
   root: Root,
   name: string | undefined,
@@ -834,11 +756,11 @@ export async function marketplaceUpdateHandler(
 ): Promise<void> {
   if (options.cowork) setUseCoworkPlugins(true)
   let fallback: string
-  let resultPromise: Promise<{ messages: string[]; success: string }>
+  let promise: Promise<MarketplaceUpdateResult>
   if (name) {
     fallback = `Updating marketplace: ${name}...`
     const messages: string[] = []
-    resultPromise = refreshMarketplace(name, message => {
+    promise = refreshMarketplace(name, message => {
       messages.push(message)
     })
       .then(() => {
@@ -854,7 +776,7 @@ export async function marketplaceUpdateHandler(
       })
       .catch(error => handleMarketplaceError(error, 'update marketplace(s)'))
   } else {
-    let config: Awaited<ReturnType<typeof loadKnownMarketplacesConfig>>
+    let config!: Awaited<ReturnType<typeof loadKnownMarketplacesConfig>>
     try {
       config = await loadKnownMarketplacesConfig()
     } catch (error) {
@@ -862,19 +784,13 @@ export async function marketplaceUpdateHandler(
     }
     const marketplaceNames = Object.keys(config)
     if (marketplaceNames.length === 0) {
-      root.render(
-        React.createElement(
-          Box,
-          null,
-          React.createElement(Text, null, 'No marketplaces configured'),
-        ),
-      )
+      root.render(textFragment('No marketplaces configured'))
       await root.waitUntilExit()
       process.exit(0)
       return
     }
     fallback = `Updating ${marketplaceNames.length} marketplace(s)...`
-    resultPromise = refreshAllMarketplaces()
+    promise = refreshAllMarketplaces()
       .then(() => {
         clearAllCaches()
         logEvent('tengu_marketplace_updated_all', {
@@ -888,13 +804,12 @@ export async function marketplaceUpdateHandler(
       })
       .catch(error => handleMarketplaceError(error, 'update marketplace(s)'))
   }
+
   root.render(
     React.createElement(
       React.Suspense,
       { fallback: React.createElement(Text, null, fallback) },
-      React.createElement(MarketplaceUpdateResult, {
-        promise: resultPromise,
-      }),
+      React.createElement(MarketplaceUpdateMessages, { promise }),
     ),
   )
   await root.waitUntilExit()
@@ -902,6 +817,11 @@ export async function marketplaceUpdateHandler(
 }
 
 // plugin install (lines 5690–5721)
+function PluginInstallResult({ promise }: { promise: Promise<string> }) {
+  const result = React.use(promise)
+  return textFragment(figures.tick, ' ', result)
+}
+
 export async function pluginInstallHandler(
   root: Root,
   plugin: string,
@@ -935,10 +855,7 @@ export async function pluginInstallHandler(
     scope: scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
 
-  const resultPromise = installPlugin(
-    plugin,
-    scope as 'user' | 'project' | 'local',
-  )
+  const promise = installPlugin(plugin, scope as 'user' | 'project' | 'local')
   root.render(
     React.createElement(
       React.Suspense,
@@ -949,7 +866,7 @@ export async function pluginInstallHandler(
           `Installing plugin "${plugin}"...`,
         ),
       },
-      React.createElement(PluginInstallResult, { promise: resultPromise }),
+      React.createElement(PluginInstallResult, { promise }),
     ),
   )
   await root.waitUntilExit()
@@ -992,25 +909,19 @@ export async function pluginUninstallHandler(
     scope: scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
 
-  const message = await uninstallPlugin(
+  const result = await uninstallPlugin(
     plugin,
     scope as 'user' | 'project' | 'local',
     options.keepData,
     options.prune,
     options.yes,
   )
-  root.render(
-    React.createElement(
-      Box,
-      null,
-      React.createElement(Text, null, figures.tick, ' ', message),
-    ),
-  )
+  root.render(textFragment(options.prune ? result : `${figures.tick} ${result}`))
   await root.waitUntilExit()
   process.exit(0)
 }
 
-export async function pluginPruneHandler(options: {
+export async function pluginPruneHandler(root: Root, options: {
   scope?: string
   cowork?: boolean
   dryRun?: boolean
@@ -1034,10 +945,13 @@ export async function pluginPruneHandler(options: {
     scope: scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     dry_run: options.dryRun ?? false,
   })
-  await prunePlugins(scope as 'user' | 'project' | 'local', {
+  const result = await prunePlugins(scope as 'user' | 'project' | 'local', {
     dryRun: options.dryRun,
     yes: options.yes,
   })
+  root.render(textFragment(result))
+  await root.waitUntilExit()
+  process.exit(0)
 }
 
 // plugin enable (lines 5783–5818)
@@ -1080,14 +994,31 @@ export async function pluginEnableHandler(
       'auto') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
 
-  const message = await enablePlugin(plugin, scope)
-  root.render(
-    React.createElement(
-      Box,
-      null,
-      React.createElement(Text, null, figures.tick, ' ', message),
-    ),
-  )
+  let result!: Awaited<ReturnType<typeof enablePlugin>>
+  try {
+    result = await enablePlugin(plugin, scope)
+    if (!result.success) throw new Error(result.message)
+    const { name: resultName, marketplace: resultMarketplace } =
+      parsePluginIdentifier(result.pluginId || plugin)
+    logEvent('tengu_plugin_enabled_cli', {
+      _PROTO_plugin_name:
+        resultName as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      ...(resultMarketplace && {
+        _PROTO_marketplace_name:
+          resultMarketplace as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      }),
+      scope:
+        result.scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      ...buildPluginTelemetryFields(
+        resultName,
+        resultMarketplace,
+        getManagedPluginNames(),
+      ),
+    })
+  } catch (error) {
+    return handlePluginCommandError(error, 'enable', plugin)
+  }
+  root.render(textFragment(figures.tick, ' ', result.message))
   await root.waitUntilExit()
 }
 
@@ -1107,6 +1038,7 @@ export async function pluginDisableHandler(
 
   if (options.cowork) setUseCoworkPlugins(true)
 
+  let result: string
   if (options.all) {
     if (options.scope) {
       cliError('Cannot use --scope with --all')
@@ -1116,60 +1048,44 @@ export async function pluginDisableHandler(
     // Distinguishable from the specific-plugin branch by plugin_name IS NULL.
     logEvent('tengu_plugin_disable_command', {})
 
-    const message = await disableAllPlugins()
-    root.render(
-      React.createElement(
-        Box,
-        null,
-        React.createElement(Text, null, message),
-      ),
-    )
-    await root.waitUntilExit()
-    process.exit(0)
-    return
-  }
-
-  let scope: (typeof VALID_INSTALLABLE_SCOPES)[number] | undefined
-  if (options.scope) {
-    if (
-      !VALID_INSTALLABLE_SCOPES.includes(
-        options.scope as (typeof VALID_INSTALLABLE_SCOPES)[number],
-      )
-    ) {
-      cliError(
-        `Invalid scope "${options.scope}". Valid scopes: ${VALID_INSTALLABLE_SCOPES.join(', ')}`,
-      )
+    result = await disableAllPlugins()
+  } else {
+    let scope: (typeof VALID_INSTALLABLE_SCOPES)[number] | undefined
+    if (options.scope) {
+      if (
+        !VALID_INSTALLABLE_SCOPES.includes(
+          options.scope as (typeof VALID_INSTALLABLE_SCOPES)[number],
+        )
+      ) {
+        cliError(
+          `Invalid scope "${options.scope}". Valid scopes: ${VALID_INSTALLABLE_SCOPES.join(', ')}`,
+        )
+      }
+      scope = options.scope as (typeof VALID_INSTALLABLE_SCOPES)[number]
     }
-    scope = options.scope as (typeof VALID_INSTALLABLE_SCOPES)[number]
-  }
-  if (options.cowork && scope !== undefined && scope !== 'user') {
-    cliError('--cowork can only be used with user scope')
-  }
+    if (options.cowork && scope !== undefined && scope !== 'user') {
+      cliError('--cowork can only be used with user scope')
+    }
 
-  // --cowork always operates at user scope
-  if (options.cowork && scope === undefined) {
-    scope = 'user'
+    // --cowork always operates at user scope
+    if (options.cowork && scope === undefined) {
+      scope = 'user'
+    }
+
+    const { name, marketplace } = parsePluginIdentifier(plugin!)
+    logEvent('tengu_plugin_disable_command', {
+      _PROTO_plugin_name: name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      ...(marketplace && {
+        _PROTO_marketplace_name:
+          marketplace as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      }),
+      scope: (scope ??
+        'auto') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    })
+
+    result = await disablePlugin(plugin!, scope)
   }
-
-  const { name, marketplace } = parsePluginIdentifier(plugin!)
-  logEvent('tengu_plugin_disable_command', {
-    _PROTO_plugin_name: name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-    ...(marketplace && {
-      _PROTO_marketplace_name:
-        marketplace as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-    }),
-    scope: (scope ??
-      'auto') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
-
-  const message = await disablePlugin(plugin!, scope)
-  root.render(
-    React.createElement(
-      Box,
-      null,
-      React.createElement(Text, null, message),
-    ),
-  )
+  root.render(textFragment(result))
   await root.waitUntilExit()
   process.exit(0)
 }

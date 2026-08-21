@@ -10,7 +10,7 @@ import {
 } from '../../constants/apiLimits.js'
 import { hasBinaryExtension } from '../../constants/files.js'
 import { memoryFreshnessNote } from '../../memdir/memoryAge.js'
-import { stampTinyMemoryRead } from '../../memdir/tinyMemoryStamps.js'
+import { markTinyMemoryRead } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { logEvent } from '../../services/analytics/index.js'
 import {
@@ -51,15 +51,11 @@ import {
   ImageResizeError,
   maybeResizeAndDownsampleImageBuffer,
 } from '../../utils/imageResizer.js'
-import {
-  getImageLimits,
-  type ImageLimits,
-} from '../../utils/imageLimits.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { logError } from '../../utils/log.js'
 import { isAutoMemFile } from '../../utils/memoryFileDetection.js'
 import { createUserMessage } from '../../utils/messages.js'
-import { getCanonicalName, getMainLoopModel } from '../../utils/model/model.js'
+import { getMainLoopModel } from '../../utils/model/model.js'
 import {
   mapNotebookCellsToToolResult,
   readNotebook,
@@ -84,7 +80,6 @@ import { BASH_TOOL_NAME } from '../BashTool/toolName.js'
 import { getDefaultFileReadingLimits } from './limits.js'
 import {
   DESCRIPTION,
-  getFileUnchangedStub,
   FILE_READ_TOOL_NAME,
   getFileUnchangedStub,
   LINE_FORMAT_INSTRUCTION,
@@ -236,14 +231,10 @@ const inputSchema = lazySchema(() =>
   z.strictObject({
     file_path: z.string().describe('The absolute path to the file to read'),
     offset: semanticNumber(z.number().int().nonnegative().optional()).describe(
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
-        ? 'The line number to start reading from. Provide with `limit` to read a specific line range, or alone when the file is too large to read at once.'
-        : 'The line number to start reading from. Only provide if the file is too large to read at once',
+      'The line number to start reading from. Only provide if the file is too large to read at once',
     ),
     limit: semanticNumber(z.number().int().positive().optional()).describe(
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
-        ? 'ONLY include with offset to read a specific slice. OMIT to read the whole file (harness truncates oversized files automatically).'
-        : 'The number of lines to read. Only provide if the file is too large to read at once.',
+      'The number of lines to read. Only provide if the file is too large to read at once.',
     ),
     pages: z
       .string()
@@ -421,8 +412,8 @@ export const FileReadTool = buildTool({
   renderToolResultMessage,
   // UI.tsx:140 — ALL types render summary chrome only: "Read N lines",
   // "Read image (42KB)". Never the content itself. The model-facing
-  // serialization (below) sends content + CYBER_RISK_MITIGATION_REMINDER
-  // + line prefixes; UI shows none of it. Nothing to index. Caught by
+  // serialization (below) sends the freshness prefix and line-prefixed
+  // content; UI shows none of it. Nothing to index. Caught by
   // the render-fidelity test when this initially claimed file.content.
   extractSearchText() {
     return ''
@@ -442,7 +433,10 @@ export const FileReadTool = buildTool({
       case 'notebook': {
         const { cells } = output.file
         if (cells.length === 0 || cells[0] == null) return output
-        return { ...output, file: { ...output.file, cells: Array(cells.length) } }
+        return {
+          ...output,
+          file: { ...output.file, cells: Array(cells.length) },
+        }
       }
       default:
         return output
@@ -735,13 +729,8 @@ export const FileReadTool = buildTool({
         let content: string
 
         if (data.file.content) {
-          const model = fileReadModels.get(data) ?? getMainLoopModel()
           content =
-            memoryFileFreshnessPrefix(data) +
-            formatFileLines(data.file) +
-            (shouldIncludeFileReadMitigation(model)
-              ? CYBER_RISK_MITIGATION_REMINDER
-              : '')
+            memoryFileFreshnessPrefix(data) + formatFileLines(data.file)
         } else {
           // Determine the appropriate warning message
           content =
@@ -768,32 +757,6 @@ function pickLineFormatInstruction(): string {
 function formatFileLines(file: { content: string; startLine: number }): string {
   return addLineNumbers(file)
 }
-
-export const CYBER_RISK_MITIGATION_REMINDER =
-  '\n\n<system-reminder>\nWhenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.\n</system-reminder>\n'
-
-const CYBER_RISK_MITIGATION_MODELS = new Set([
-  'claude-3-opus',
-  'claude-3-sonnet',
-  'claude-3-haiku',
-  'claude-3-5-sonnet',
-  'claude-3-5-haiku',
-  'claude-3-7-sonnet',
-  'claude-sonnet-4-0',
-  'claude-sonnet-4-5',
-  'claude-opus-4-0',
-  'claude-opus-4-1',
-  'claude-opus-4-5',
-  'claude-haiku-4-5',
-])
-
-function shouldIncludeFileReadMitigation(model: string): boolean {
-  const shortName = getCanonicalName(model)
-  return !MITIGATION_EXEMPT_MODELS.has(shortName)
-}
-
-/** Actual model used by the agent that produced a file read result. */
-const fileReadModels = new WeakMap<object, string>()
 
 /**
  * Side-channel from call() to mapToolResultToToolResultBlockParam: mtime
@@ -955,7 +918,6 @@ async function callInner(
 
   // --- PDF ---
   if (isPDFExtension(ext)) {
-    const imageLimits = getImageLimits(context.options.mainLoopModel)
     if (pages) {
       const parsedRange = parsePDFPageRange(pages)
       const extractResult = await extractPDFPages(
@@ -1101,7 +1063,7 @@ async function callInner(
     limit,
   })
   context.nestedMemoryAttachmentTriggers?.add(fullFilePath)
-  await stampTinyMemoryRead(fullFilePath)
+  void markTinyMemoryRead(fullFilePath)
 
   // Snapshot before iterating — a listener that unsubscribes mid-callback
   // would splice the live array and skip the next listener.
@@ -1119,7 +1081,6 @@ async function callInner(
       totalLines,
     },
   }
-  fileReadModels.set(data, context.options.mainLoopModel)
   if (isAutoMemFile(fullFilePath)) {
     memoryFileMtimes.set(data, mtimeMs)
   }

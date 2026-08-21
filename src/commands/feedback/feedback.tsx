@@ -5,8 +5,8 @@ import { isPolicyAllowed } from '../../services/policyLimits/index.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import type { Message } from '../../types/message.js';
 import { isEnvTruthy } from '../../utils/envUtils.js';
-import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js';
 import { getAuthHeaders } from '../../utils/http.js';
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js';
 
 const ISSUES_URL = 'https://github.com/anthropics/claude-code/issues';
 

@@ -5,7 +5,6 @@ import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import ScrollBox from '../../ink/components/ScrollBox.js';
 import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 import { useDeclaredCursor } from '../../ink/hooks/use-declared-cursor.js';
-import useFocus from '../../ink/hooks/use-focus.js';
 import { stringWidth } from '../../ink/stringWidth.js';
 import { Box, type DOMElement, measureElement, Text } from '../../ink.js';
 import { useKeybindings } from '../../keybindings/useKeybinding.js';

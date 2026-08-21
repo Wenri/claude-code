@@ -35,7 +35,6 @@ import {
 } from 'src/utils/model/providers.js'
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import {
-  API_MAX_REQUEST_SIZE,
   API_PDF_MAX_PAGES,
   PDF_TARGET_RAW_SIZE,
 } from '../../constants/apiLimits.js'
@@ -138,10 +137,33 @@ export function isMediaSizeError(raw: string): boolean {
   return (
     (raw.includes('image exceeds') && raw.includes('maximum')) ||
     (raw.includes('image dimensions exceed') && raw.includes('many-image')) ||
-    /maximum of \d+ PDF pages/.test(raw) ||
-    raw.includes('request_too_large')
+    /maximum of \d+ PDF pages/.test(raw)
   )
 }
+
+export type OversizedImageLocation = {
+  messageIdx: number
+  contentIdx: number
+}
+
+export function parseImageDimensionApiError(
+  error: unknown,
+): OversizedImageLocation | undefined {
+  if (!(error instanceof APIError) || error.status !== 400) return undefined
+  if (!/dimensions exceed max allowed size.*\d+ pixels/.test(error.message)) {
+    return undefined
+  }
+  const match = error.message.match(
+    /messages\.(\d+)\.content\.(\d+)\.image/,
+  )
+  if (!match) return undefined
+  return {
+    messageIdx: Number(match[1]),
+    contentIdx: Number(match[2]),
+  }
+}
+
+export const parseOversizedImageDimensionError = parseImageDimensionApiError
 
 /**
  * Message-level predicate: is this assistant message a media-size rejection?
@@ -195,13 +217,13 @@ export function getImageTooLargeErrorMessage(): string {
     : 'Image was too large. Double press esc to go back and try again with a smaller image.'
 }
 export function getRequestTooLargeErrorMessage(): string {
-  const limits = `max ${formatFileSize(API_MAX_REQUEST_SIZE)}`
+  const limits = `max ${formatFileSize(PDF_TARGET_RAW_SIZE)}`
   return getIsNonInteractiveSession()
     ? `Request too large (${limits}). Try with a smaller file.`
     : `Request too large (${limits}). Double press esc to go back and try with a smaller file.`
 }
 export const OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE =
-  'Your account does not have access to Claude Code. Please run /login.'
+  'Your organization has disabled Claude subscription access for Claude Code · Use an Anthropic API key instead, or ask your admin to enable access'
 
 export function getTokenRevokedErrorMessage(): string {
   return getIsNonInteractiveSession()
@@ -210,9 +232,7 @@ export function getTokenRevokedErrorMessage(): string {
 }
 
 export function getOauthOrgNotAllowedErrorMessage(): string {
-  return getIsNonInteractiveSession()
-    ? 'Your organization does not have access to Claude. Please login again or contact your administrator.'
-    : OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE
+  return OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE
 }
 
 /**
@@ -907,7 +927,7 @@ function getAssistantMessageFromErrorInternal(
     )
   ) {
     return createAssistantAPIErrorMessage({
-      error: 'authentication_failed',
+      error: 'oauth_org_not_allowed',
       content: getOauthOrgNotAllowedErrorMessage(),
     })
   }
@@ -983,7 +1003,7 @@ function getAssistantMessageFromErrorInternal(
     typeof error.status === 'number' &&
     error.status >= 500
   ) {
-    const detail = formatAPIError(error).replace(/[.!?\u2026]+$/, '')
+    const detail = formatAPIError(error).replace(/[.!?…]+$/, '')
     return createAssistantAPIErrorMessage({
       content: `${API_ERROR_MESSAGE_PREFIX}: ${detail}. This is a server-side issue, usually temporary — try again in a moment.${statusHint}`,
       error: 'server_error',
@@ -1020,15 +1040,8 @@ function get3PModelFallbackSuggestion(model: string): string | undefined {
   }
   // @[MODEL LAUNCH]: Add a fallback suggestion chain for the new model → previous version for 3P
   const m = model.toLowerCase()
-  // If the failing model looks like a recent Opus variant, suggest the default Opus (4.1 for 3P)
-  if (
-    m.includes('opus-4-7') ||
-    m.includes('opus_4_7') ||
-    m.includes('opus-4-6') ||
-    m.includes('opus_4_6') ||
-    m.includes('opus-4-5') ||
-    m.includes('opus_4_5')
-  ) {
+  // If the failing model looks like an Opus 4.6 variant, suggest the default Opus (4.1 for 3P)
+  if (m.includes('opus-4-6') || m.includes('opus_4_6')) {
     return getModelStrings().opus41
   }
   // If the failing model looks like a Sonnet 4.6 variant, suggest Sonnet 4.5
@@ -1134,12 +1147,6 @@ export function classifyAPIError(error: unknown): string {
     error.message.includes('many-image')
   ) {
     return 'image_too_large'
-  }
-
-  if (error instanceof APIError && error.status === 413) {
-    return error.message.toLowerCase().includes('context window')
-      ? 'prompt_too_long'
-      : 'request_too_large'
   }
 
   // Tool use errors (400)

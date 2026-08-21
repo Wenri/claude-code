@@ -1,51 +1,41 @@
-import figures from 'figures'
-import React, {
-  Children,
-  createContext,
-  isValidElement,
-  useContext,
-  type ReactNode,
-} from 'react'
-import { NoSelect } from '../../ink/components/NoSelect.js'
-import type { Color } from '../../ink/styles.js'
+import React, { createContext, useContext } from 'react'
 import { Box, Text } from '../../ink.js'
+import type { Theme } from '../../utils/theme.js'
 
-export type ConnectorKind = 'branch' | 'last' | 'pipe' | 'space'
+type Variant = 'outline' | 'tree'
+type Connector = 'branch' | 'last' | 'pipe' | 'space'
 
-const connectorGlyphs: Record<ConnectorKind, string> = {
-  branch: figures.branch,
-  last: figures.last,
-  pipe: figures.pipe,
+const CONNECTOR_CHAR: Record<Connector, string> = {
+  branch: '├',
+  last: '└',
+  pipe: '│',
   space: '',
 }
 
-type ConnectorProps = {
-  connectors: ConnectorKind[]
-  children: ReactNode
-}
+const TreeContext = createContext<{
+  variant: Variant
+  ancestors: Connector[]
+}>({ variant: 'outline', ancestors: [] })
+const IsLastContext = createContext(true)
 
-export function Connector({
+function ConnectorRow({
   connectors,
   children,
-}: ConnectorProps): ReactNode {
-  const gutter =
-    connectors.length > 0 && (
-      <NoSelect
-        fromLeftEdge
-        flexShrink={0}
-        flexDirection="row"
-      >
-        {connectors.map((connector, index) => (
-          <Box key={index} width={2}>
-            <Text dimColor>{connectorGlyphs[connector]}</Text>
-          </Box>
-        ))}
-      </NoSelect>
-    )
-
+}: {
+  connectors: Connector[]
+  children: React.ReactNode
+}): React.ReactNode {
   return (
     <Box flexDirection="row">
-      {gutter}
+      {connectors.length > 0 && (
+        <Box fromLeftEdge flexShrink={0} flexDirection="row">
+          {connectors.map((connector, index) => (
+            <Box key={index} width={2}>
+              <Text dimColor>{CONNECTOR_CHAR[connector]}</Text>
+            </Box>
+          ))}
+        </Box>
+      )}
       <Box flexGrow={1} flexShrink={1}>
         {children}
       </Box>
@@ -53,40 +43,30 @@ export function Connector({
   )
 }
 
-type TreeVariant = 'outline' | 'tree'
-
-type TreeContextValue = {
-  variant: TreeVariant
-  ancestors: ConnectorKind[]
-}
-
-const TreeContext = createContext<TreeContextValue>({
-  variant: 'outline',
-  ancestors: [],
-})
-const IsLastChildContext = createContext(true)
-
-function wrapChildren(children: ReactNode, respectLast = true): ReactNode[] {
-  const items = Children.toArray(children)
-  return items.map((child, index) => (
-    <IsLastChildContext.Provider
+function wrapChildren(
+  children: React.ReactNode,
+  parentIsLast = true,
+): React.ReactNode[] {
+  const childArray = React.Children.toArray(children)
+  return childArray.map((child, index) => (
+    <IsLastContext.Provider
       key={index}
-      value={respectLast && index === items.length - 1}
+      value={parentIsLast && index === childArray.length - 1}
     >
       {child}
-    </IsLastChildContext.Provider>
+    </IsLastContext.Provider>
   ))
 }
 
 type TreeProps = {
-  children: ReactNode
-  variant?: TreeVariant
+  children: React.ReactNode
+  variant?: Variant
 }
 
 function TreeRoot({
   children,
   variant = 'outline',
-}: TreeProps): ReactNode {
+}: TreeProps): React.ReactNode {
   return (
     <TreeContext.Provider value={{ variant, ancestors: [] }}>
       <Box flexDirection="column">{wrapChildren(children)}</Box>
@@ -95,10 +75,10 @@ function TreeRoot({
 }
 
 type TreeNodeProps = {
-  label?: ReactNode
-  children: ReactNode
+  children?: React.ReactNode
+  label?: React.ReactNode | false
   dimColor?: boolean
-  color?: Color
+  color?: keyof Theme
 }
 
 function TreeNode({
@@ -106,16 +86,15 @@ function TreeNode({
   children,
   dimColor,
   color,
-}: TreeNodeProps): ReactNode {
+}: TreeNodeProps): React.ReactNode {
   const { variant, ancestors } = useContext(TreeContext)
-  const isLast = useContext(IsLastChildContext)
-  const connector: ConnectorKind =
-    variant === 'outline' ? 'last' : isLast ? 'last' : 'branch'
-  const childConnector: ConnectorKind =
+  const isLast = useContext(IsLastContext)
+  const connector = variant === 'outline' ? 'last' : isLast ? 'last' : 'branch'
+  const childConnector =
     variant === 'outline' ? 'space' : isLast ? 'space' : 'pipe'
   const hasLabel = label != null && label !== false
   const content = hasLabel ? label : children
-  const renderedContent = isValidElement(content) ? (
+  const renderedContent = React.isValidElement(content) ? (
     content
   ) : (
     <Text dimColor={dimColor} color={color}>
@@ -125,9 +104,9 @@ function TreeNode({
 
   return (
     <Box flexDirection="column">
-      <Connector connectors={[...ancestors, connector]}>
+      <ConnectorRow connectors={[...ancestors, connector]}>
         {renderedContent}
-      </Connector>
+      </ConnectorRow>
       {hasLabel && (
         <TreeContext.Provider
           value={{
@@ -142,12 +121,8 @@ function TreeNode({
   )
 }
 
-type TreeGroupProps = {
-  children: ReactNode
-}
-
-function TreeGroup({ children }: TreeGroupProps): ReactNode {
-  const isLast = useContext(IsLastChildContext)
+function TreeGroup({ children }: { children: React.ReactNode }): React.ReactNode {
+  const isLast = useContext(IsLastContext)
   return wrapChildren(children, isLast)
 }
 

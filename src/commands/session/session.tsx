@@ -2,7 +2,6 @@ import { c as _c } from "react/compiler-runtime";
 import { toString as qrToString } from 'qrcode';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { KeyboardShortcutHint } from '../../components/design-system/KeyboardShortcutHint.js';
 import { Pane } from '../../components/design-system/Pane.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
@@ -30,8 +29,7 @@ function SessionInfo(t0) {
       const generateQRCode = async function generateQRCode() {
         const qr = await qrToString(url, {
           type: "utf8",
-          errorCorrectionLevel: "L",
-          margin: 0
+          errorCorrectionLevel: "L"
         });
         setQrCode(qr);
       };
@@ -59,7 +57,7 @@ function SessionInfo(t0) {
   if (!remoteSessionUrl) {
     let t4;
     if ($[4] === Symbol.for("react.memo_cache_sentinel")) {
-      t4 = <Pane><Text color="warning">Not in remote mode. Start with `claude --remote` to use this command.</Text><Text dimColor={true}><KeyboardShortcutHint chord="escape" action="close" parens={true} /></Text></Pane>;
+      t4 = <Pane><Text color="warning">Not in remote mode. Start with `claude --remote` to use this command.</Text><Text dimColor={true}>(press esc to close)</Text></Pane>;
       $[4] = t4;
     } else {
       t4 = $[4];
@@ -98,7 +96,7 @@ function SessionInfo(t0) {
   }
   let t7;
   if ($[11] !== remoteSessionUrl) {
-    t7 = <Box>{t6}<Text color="ide">{remoteSessionUrl}</Text></Box>;
+    t7 = <Box marginTop={1}>{t6}<Text color="ide">{remoteSessionUrl}</Text></Box>;
     $[11] = remoteSessionUrl;
     $[12] = t7;
   } else {
@@ -106,14 +104,14 @@ function SessionInfo(t0) {
   }
   let t8;
   if ($[13] === Symbol.for("react.memo_cache_sentinel")) {
-    t8 = <Box marginBottom={1}><Text dimColor={true}><KeyboardShortcutHint chord="escape" action="close" parens={true} /></Text></Box>;
+    t8 = <Box marginTop={1}><Text dimColor={true}>(press esc to close)</Text></Box>;
     $[13] = t8;
   } else {
     t8 = $[13];
   }
   let t9;
   if ($[14] !== T0 || $[15] !== t4 || $[16] !== t5 || $[17] !== t7) {
-    t9 = <T0>{t4}{t7}{t8}{t5}</T0>;
+    t9 = <T0>{t4}{t5}{t7}{t8}</T0>;
     $[14] = T0;
     $[15] = t4;
     $[16] = t5;

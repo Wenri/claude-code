@@ -34,16 +34,28 @@ export type Notification = TextNotification | JSXNotification;
 const DEFAULT_TIMEOUT_MS = 8000;
 
 type NotificationLifecycle = {
-  currentTimeoutId: { current: NodeJS.Timeout | null };
-  mountCount: { current: number };
+  currentTimeoutId: {
+    current: NodeJS.Timeout | null;
+  };
+  mountCount: {
+    current: number;
+  };
 };
 
 const NotificationLifecycleContext = createContext<NotificationLifecycle | null>(null);
 
-export function NotificationProvider({ children }: { children: React.ReactNode }): React.ReactNode {
+export function NotificationLifecycleProvider({
+  children
+}: {
+  children: React.ReactNode;
+}): React.ReactNode {
   const lifecycle = useRef<NotificationLifecycle>({
-    currentTimeoutId: { current: null },
-    mountCount: { current: 0 }
+    currentTimeoutId: {
+      current: null
+    },
+    mountCount: {
+      current: 0
+    }
   }).current;
   return <NotificationLifecycleContext.Provider value={lifecycle}>{children}</NotificationLifecycleContext.Provider>;
 }
@@ -54,12 +66,19 @@ export function useNotifications(): {
 } {
   const store = useAppStateStore();
   const setAppState = useSetAppState();
-  const providerLifecycle = useContext(NotificationLifecycleContext);
+  const contextLifecycle = useContext(NotificationLifecycleContext);
   const fallbackLifecycle = useRef<NotificationLifecycle>({
-    currentTimeoutId: { current: null },
-    mountCount: { current: 0 }
+    currentTimeoutId: {
+      current: null
+    },
+    mountCount: {
+      current: 0
+    }
   }).current;
-  const { currentTimeoutId, mountCount } = providerLifecycle ?? fallbackLifecycle;
+  const {
+    currentTimeoutId,
+    mountCount
+  } = contextLifecycle ?? fallbackLifecycle;
 
   // Process queue when current notification finishes or queue changes
   const processQueue = useCallback(() => {

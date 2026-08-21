@@ -37,8 +37,7 @@ export function preconnectAnthropicApi(): void {
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS)
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
   ) {
     return
   }

@@ -1,5 +1,4 @@
 import { logForDebugging } from './debug.js'
-import { getPlatform } from './platform.js'
 import { which } from './which.js'
 
 // Session cache to avoid repeated checks
@@ -26,13 +25,6 @@ export async function isBinaryInstalled(command: string): Promise<boolean> {
   // Trim the command to handle whitespace
   const trimmedCommand = command.trim()
   if (!SAFE_COMMAND_NAME.test(trimmedCommand)) {
-    logForDebugging(
-      `[binaryCheck] Rejected command with unsafe characters: '${trimmedCommand}'`,
-    )
-    return false
-  }
-
-  if (!SAFE_BINARY_NAME_PATTERN.test(trimmedCommand)) {
     logForDebugging(
       `[binaryCheck] Rejected command with unsafe characters: '${trimmedCommand}'`,
     )

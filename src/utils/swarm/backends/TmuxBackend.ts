@@ -19,6 +19,9 @@ import {
 import { registerTmuxBackend } from './registry.js'
 import type { CreatePaneResult, PaneBackend, PaneId } from './types.js'
 
+// Track whether the first pane has been used for external swarm session
+let firstPaneUsedForExternal = false
+
 // Lock mechanism to prevent race conditions when spawning teammates in parallel
 let paneCreationLock: Promise<void> = Promise.resolve()
 
@@ -101,7 +104,6 @@ export class TmuxBackend implements PaneBackend {
   readonly supportsHideShow = true
   // A tmux window ID is stable even when other windows are killed or renumbered.
   private cachedLeaderWindowTarget: string | null = null
-  private firstPaneUsedForExternal = false
 
   /**
    * Checks if tmux is installed and available.
@@ -640,13 +642,13 @@ export class TmuxBackend implements PaneBackend {
     if (paneCount === null) {
       throw new Error('Could not determine pane count for swarm window')
     }
-    const isFirstTeammate = !this.firstPaneUsedForExternal && paneCount === 1
+    const isFirstTeammate = !firstPaneUsedForExternal && paneCount === 1
 
     let paneId: string
 
     if (isFirstTeammate) {
       paneId = firstPaneId
-      this.firstPaneUsedForExternal = true
+      firstPaneUsedForExternal = true
       logForDebugging(
         `[TmuxBackend] Using initial pane for first teammate ${teammateName}: ${paneId}`,
       )

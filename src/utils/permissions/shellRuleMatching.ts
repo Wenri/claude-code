@@ -91,27 +91,20 @@ export function matchWildcardPattern(
   pattern: string,
   command: string,
   caseInsensitive = false,
-  normalizeWhitespace = false,
 ): boolean {
   // Trim leading/trailing whitespace from pattern
   const trimmedPattern = pattern.trim()
-  const patternToMatch = normalizeWhitespace
-    ? trimmedPattern.replace(/[ \t]+/g, ' ')
-    : trimmedPattern
-  const commandToMatch = normalizeWhitespace
-    ? command.replace(/[ \t]+/g, ' ')
-    : command
 
   // Process the pattern to handle escape sequences: \* and \\
   let processed = ''
   let i = 0
 
-  while (i < patternToMatch.length) {
-    const char = patternToMatch[i]
+  while (i < trimmedPattern.length) {
+    const char = trimmedPattern[i]
 
     // Handle escape sequences
-    if (char === '\\' && i + 1 < patternToMatch.length) {
-      const nextChar = patternToMatch[i + 1]
+    if (char === '\\' && i + 1 < trimmedPattern.length) {
+      const nextChar = trimmedPattern[i + 1]
       if (nextChar === '*') {
         // \* -> literal asterisk placeholder
         processed += ESCAPED_STAR_PLACEHOLDER
@@ -157,7 +150,7 @@ export function matchWildcardPattern(
   const flags = 's' + (caseInsensitive ? 'i' : '')
   const regex = new RegExp(`^${regexPattern}$`, flags)
 
-  return regex.test(commandToMatch)
+  return regex.test(command)
 }
 
 /**

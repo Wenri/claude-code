@@ -10,6 +10,7 @@ const sessionTranscriptModule = feature('KAIROS')
 import { APIUserAbortError } from '@anthropic-ai/sdk'
 import { markPostCompaction } from 'src/bootstrap/state.js'
 import { getInvokedSkillsForAgent } from '../../bootstrap/state.js'
+import { resetMemorySelector } from '../../memdir/findRelevantMemories.js'
 import type { QuerySource } from '../../constants/querySource.js'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import type { Tool, ToolUseContext } from '../../Tool.js'
@@ -518,6 +519,7 @@ export async function compactConversation(
   stripNonEssential: boolean = false,
   compactingHintText?: string | null,
 ): Promise<CompactionResult> {
+  let compactError: string | undefined
   try {
     if (messages.length === 0) {
       throw new Error(ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)
@@ -553,7 +555,7 @@ export async function compactConversation(
 
     // Show requesting mode with up arrow and custom message
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({
       type: 'compact_start',
       hintText: compactingHintText,
@@ -651,6 +653,7 @@ export async function compactConversation(
     // Clear the cache
     context.readFileState.clear()
     context.loadedNestedMemoryPaths?.clear()
+    resetMemorySelector(context.memorySelector)
 
     // Intentionally NOT resetting sentSkillNames: re-injecting the full
     // skill_listing (~4K tokens) post-compact is pure cache_creation with
@@ -879,6 +882,8 @@ export async function compactConversation(
       compactionUsage,
     }
   } catch (error) {
+    compactError =
+      error instanceof Error ? error.message : 'compaction failed'
     // Only show the error notification for manual /compact.
     // Auto-compact failures are retried on the next turn and the
     // notification is confusing when compaction eventually succeeds.
@@ -888,9 +893,12 @@ export async function compactConversation(
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_end' })
-    context.setSDKStatus?.(null)
+    context.setSDKStatus?.(null, {
+      compactResult: compactError ? 'failed' : 'success',
+      ...(compactError && { compactError }),
+    })
   }
 }
 
@@ -909,6 +917,7 @@ export async function partialCompactConversation(
   userFeedback?: string,
   direction: PartialCompactDirection = 'from',
 ): Promise<CompactionResult> {
+  let compactError: string | undefined
   try {
     const messagesToSummarize =
       direction === 'up_to'
@@ -967,7 +976,7 @@ export async function partialCompactConversation(
     }
 
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_start' })
 
     const compactPrompt = getPartialCompactPrompt(customInstructions, direction)
@@ -1052,6 +1061,7 @@ export async function partialCompactConversation(
     const preCompactReadFileState = cacheToObject(context.readFileState)
     context.readFileState.clear()
     context.loadedNestedMemoryPaths?.clear()
+    resetMemorySelector(context.memorySelector)
     // Intentionally NOT resetting sentSkillNames — see compactConversation()
     // for rationale (~4K tokens saved per compact event).
 
@@ -1228,13 +1238,18 @@ export async function partialCompactConversation(
       compactionUsage,
     }
   } catch (error) {
+    compactError =
+      error instanceof Error ? error.message : 'partial compaction failed'
     addErrorNotificationIfNeeded(error, context)
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_end' })
-    context.setSDKStatus?.(null)
+    context.setSDKStatus?.(null, {
+      compactResult: compactError ? 'failed' : 'success',
+      ...(compactError && { compactError }),
+    })
   }
 }
 
@@ -1396,7 +1411,7 @@ async function streamCompactSummary({
       // Reset state for retry
       let hasStartedStreaming = false
       let response: AssistantMessage | undefined
-      context.setResponseLength?.(() => 0)
+      context.resetResponseLength?.()
 
       // Check if tool search is enabled using the main loop's tools list.
       // context.options.tools includes MCP tools merged via useMergedTools.
@@ -1472,7 +1487,7 @@ async function streamCompactSummary({
           querySource: 'compact',
           agents: context.options.agentDefinitions.activeAgents,
           mcpTools: [],
-          effortValue: appState.effortValue,
+          effortValue: context.getEffortValue(),
         },
       })
       const streamIter = streamingGen[Symbol.asyncIterator]()
@@ -1497,7 +1512,7 @@ async function streamCompactSummary({
           event.event.delta.type === 'text_delta'
         ) {
           const charactersStreamed = event.event.delta.text.length
-          context.setResponseLength?.(length => length + charactersStreamed)
+          context.addResponseLength?.(charactersStreamed)
         }
 
         if (event.type === 'assistant') {

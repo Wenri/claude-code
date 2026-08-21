@@ -8,8 +8,6 @@ import type { Styles } from '../styles.js';
 import '../global.d.ts';
 import Box from './Box.js';
 export type ScrollBoxHandle = {
-  /** Internal host node used by the synchronized main-screen renderer. */
-  getDomElement: () => DOMElement | null;
   scrollTo: (y: number) => void;
   scrollBy: (dy: number) => void;
   /**
@@ -61,6 +59,8 @@ export type ScrollBoxHandle = {
    * cold start).
    */
   setClampBounds: (min: number | undefined, max: number | undefined) => void;
+  /** Return the backing Ink DOM node for renderer-level integrations. */
+  getDomElement: () => DOMElement | null;
 };
 export type ScrollBoxProps = Except<Styles, 'textWrap' | 'overflow' | 'overflowX' | 'overflowY'> & {
   ref?: Ref<ScrollBoxHandle>;
@@ -118,9 +118,6 @@ function ScrollBox({
     });
   }
   useImperativeHandle(ref, (): ScrollBoxHandle => ({
-    getDomElement() {
-      return domRef.current;
-    },
     scrollTo(y: number) {
       const el = domRef.current;
       if (!el) return;
@@ -159,6 +156,12 @@ function ScrollBox({
       const el = domRef.current;
       if (!el) return;
       el.pendingScrollDelta = undefined;
+      if (stickyScroll === false) {
+        el.scrollAnchor = undefined;
+        el.scrollTop = Math.max(0, (el.scrollHeight ?? 0) - (el.scrollViewportHeight ?? 0));
+        scrollMutated(el);
+        return;
+      }
       el.stickyScroll = true;
       markDirty(el);
       notify();
@@ -200,13 +203,12 @@ function ScrollBox({
       if (!el) return;
       el.scrollClampMin = min;
       el.scrollClampMax = max;
+    },
+    getDomElement() {
+      return domRef.current;
     }
   }),
-  // notify/scrollMutated are inline (no useCallback) but only close over
-  // refs + imports — stable. Empty deps avoids rebuilding the handle on
-  // every render (which re-registers the ref = churn).
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  []);
+  [stickyScroll]);
 
   // Structure: outer viewport (overflow:scroll, constrained height) >
   // inner content (flexGrow:1, flexShrink:0 — fills at least the viewport
@@ -230,8 +232,8 @@ function ScrollBox({
     ...style,
     overflowX: 'scroll',
     overflowY: 'scroll'
-  }} {...stickyScroll ? {
-    stickyScroll: true
+  }} {...stickyScroll !== undefined ? {
+    stickyScroll
   } : {}}>
       <Box flexDirection="column" flexGrow={1} flexShrink={0} width="100%">
         {children}

@@ -132,7 +132,6 @@ export type ClaudeAILimits = {
   overageStatus?: QuotaStatus
   overageResetsAt?: number
   overageDisabledReason?: OverageDisabledReason
-  upgradePaths?: string[]
   isUsingOverage?: boolean
   surpassedThreshold?: number
   upgradePaths?: string[]

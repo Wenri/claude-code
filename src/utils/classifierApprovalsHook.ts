@@ -4,12 +4,8 @@
  * toolExecution.ts, postCompactCleanup.ts) do not pull React into print.ts.
  */
 
-import { useAppStateMaybeOutsideOfProvider } from '../state/AppState.js'
+import { useAppState } from '../state/AppState.js'
 
 export function useIsClassifierChecking(toolUseID: string): boolean {
-  return (
-    useAppStateMaybeOutsideOfProvider(state =>
-      state.classifierApprovals.checking.has(toolUseID),
-    ) ?? false
-  )
+  return useAppState(state => state.classifierApprovals.checking.has(toolUseID))
 }

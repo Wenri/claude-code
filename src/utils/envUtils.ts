@@ -123,26 +123,6 @@ export function isRunningOnHomespace(): boolean {
 }
 
 /**
- * Return the internal COO placement used to enrich startup telemetry.
- *
- * USER_TYPE is replaced at bundle time. Keeping the internal branch behind
- * that constant means external builds fold this helper to the same pair of
- * undefined values as the published bundle and do not expose COO details.
- */
-export function getCooEnvironment(): {
-  namespace: string | undefined
-  cluster: string | undefined
-} {
-  if (process.env.USER_TYPE === 'ant') {
-    return {
-      namespace: process.env.COO_NAMESPACE,
-      cluster: process.env.COO_CLUSTER ?? process.env.COO_CLUSTER_NAME,
-    }
-  }
-  return { namespace: undefined, cluster: undefined }
-}
-
-/**
  * Conservative check for whether Claude Code is running inside a protected
  * (privileged or ASL3+) COO namespace or cluster.
  *

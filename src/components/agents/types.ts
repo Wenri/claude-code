@@ -14,9 +14,11 @@ type WithAgent = { agent: AgentDefinition }
 export type ModeState =
   | { mode: 'main-menu' }
   | { mode: 'list-agents'; source: SettingSource | 'all' | 'built-in' }
+  | { mode: 'task-detail'; taskId: string }
   | ({ mode: 'agent-menu' } & WithAgent & WithPreviousMode)
   | ({ mode: 'view-agent' } & WithAgent & WithPreviousMode)
   | { mode: 'create-agent' }
+  | ({ mode: 'run-agent' } & WithAgent & WithPreviousMode)
   | ({ mode: 'edit-agent' } & WithAgent & WithPreviousMode)
   | ({ mode: 'delete-confirm' } & WithAgent & WithPreviousMode)
 

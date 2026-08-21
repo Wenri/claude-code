@@ -1,0 +1,250 @@
+{
+  "root": "src",
+  "baseCommit": "ae866640a6d67891fe14aeff5bc41da10784b979",
+  "baseGitTree": "3ad726cbb5960e18ca78b40d46be27db27474ef0",
+  "baseSrcGitTree": "43090c8672f1ab7ba4b9a9673bff0a762b7aaf92",
+  "targetCommit": "11865927d6656cbc299b8cc6f4696a71c29f55bc",
+  "targetGitTree": "dcf1f9eebae7a36ab50ddcb839b9ebf58b526b1b",
+  "targetSrcGitTree": "9c7c4f699cd0cc740dcb5e5341aeb026d4bc2263",
+  "recoveredSourceCommit": "67116ce3153fe7dfd0e18068da822f08d02b9fd9",
+  "recoveredSourceCommitTree": "715d3f9458e7cbad8160ebd9438d96167d178cbc",
+  "focusedTestCommit": "a65f83b9d80d8f9ee1e8bf6e496c6c484dd8524c",
+  "retainedTestCommit": "67116ce3153fe7dfd0e18068da822f08d02b9fd9",
+  "patchSet": "2.1.124-to-2.1.126-incremental",
+  "patchOrder": [
+    "recovered/source-facing-overlay.patch"
+  ],
+  "patchStats": {
+    "files": 5,
+    "modified": 5,
+    "added": 0,
+    "deleted": 0,
+    "insertions": 32,
+    "deletions": 38
+  },
+  "patch": {
+    "path": "recovered/source-facing-overlay.patch",
+    "bytes": 8076,
+    "sha256": "457010b448b9075aacc42f2b1f76407cb08ac8dfedd914ae05084dbfda43f8b6"
+  },
+  "base": {
+    "files": 2166,
+    "bytes": 32824273,
+    "manifestSha256": "c02a43b6e86419c40daa30c3077957e7b9bab6ac34186a494ac1b697ac5807d2"
+  },
+  "target": {
+    "files": 2166,
+    "bytes": 32823496,
+    "manifestSha256": "0f8129ef0f03852c5943f0c627d7dd0f52312c29d9f666b32c2db2e364848986"
+  },
+  "changedFiles": [
+    {
+      "status": "M",
+      "path": "src/commands/effort/effort.tsx",
+      "base": {
+        "bytes": 10519,
+        "sha256": "b10283a77e63531f34be3441980a4ca41ef7bddb32f571b15a8f2e0bad325def"
+      },
+      "target": {
+        "bytes": 11054,
+        "sha256": "273d1cf1176fdb283db596004f3056ba3302e3bba63612a4d9d9214541bae651"
+      }
+    },
+    {
+      "status": "M",
+      "path": "src/components/PromptInput/PromptInput.tsx",
+      "base": {
+        "bytes": 368938,
+        "sha256": "fa042ab2d64c2dd477b708dbd2908ef142eb2396ef8aa4b31c35721808311d02"
+      },
+      "target": {
+        "bytes": 368716,
+        "sha256": "4643b4e7607f9888eb29655dd5ef3e33421d205fe7e810b64f87ee03f9786505"
+      }
+    },
+    {
+      "status": "M",
+      "path": "src/services/api/claude.ts",
+      "base": {
+        "bytes": 146876,
+        "sha256": "12a44f69beb1eb1cb2719f210fee815d26e4a156ac737ef3634b64977d897f1e"
+      },
+      "target": {
+        "bytes": 146849,
+        "sha256": "1fce63786609d3aaa429e8117f536b2d6765d11f96e6bb3f362de4747c9a6dd6"
+      }
+    },
+    {
+      "status": "M",
+      "path": "src/services/api/client.ts",
+      "base": {
+        "bytes": 27615,
+        "sha256": "d55903991c551728eaa1c8f6723df16f3e547094d11e9813a808223df1ab6cef"
+      },
+      "target": {
+        "bytes": 27648,
+        "sha256": "a131e6815fdc137b19ff34c41248c7ec0f244988e704b9f2b65c55a8ab2b9b83"
+      }
+    },
+    {
+      "status": "M",
+      "path": "src/tools/FileReadTool/FileReadTool.ts",
+      "base": {
+        "bytes": 40884,
+        "sha256": "b24bc08c974a958d8800330ab958f988e55b9c363046a5b1b8bfaf9689f0c40e"
+      },
+      "target": {
+        "bytes": 39788,
+        "sha256": "ee192ad225037a89f79acedd206da012fe63407e26722612c0b9fd7e6299e982"
+      }
+    }
+  ],
+  "syntaxCheck": [
+    "src/commands/effort/effort.tsx",
+    "src/components/PromptInput/PromptInput.tsx",
+    "src/services/api/claude.ts",
+    "src/services/api/client.ts",
+    "src/tools/FileReadTool/FileReadTool.ts"
+  ],
+  "testFiles": [
+    "recovery/test/recovery-2.1.126-active-semantics.test.mjs",
+    "recovery/test/recovery-2.1.126-direct-evidence.test.mjs",
+    "recovery/test/recovery-2.1.126-retained-redraw.test.mjs",
+    "recovery/test/recovery-2.1.126-semantic-delta.test.mjs"
+  ],
+  "targetCommitFileAssertions": [
+    {
+      "path": "recovery/2.1.126-direct-evidence-specs.json",
+      "bytes": 70097,
+      "sha256": "e633da59bf25ada78b0073db2f88f86e7ffe3b6854b8ed3fd719ecc62bced8bd"
+    },
+    {
+      "path": "recovery/2.1.126-reviewed-official-evidence.json",
+      "bytes": 29667,
+      "sha256": "52ec63ae95ae68cd61319f68156da971d2bf9df93412c9064b908d31446422ce"
+    },
+    {
+      "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+      "bytes": 360116,
+      "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/CHANGELOG-2.1.126.md",
+      "bytes": 4218,
+      "sha256": "fe059e6e6e8b301550c6ffe594a3f4dcc79c4529446e7e2909f32c771bea2d05"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/REGISTRY-2.1.125-ABSENCE.json",
+      "bytes": 2531,
+      "sha256": "b16a2f4b5040eb1d6b3036e3611df953b44a0e10363516c74d830ce945405d14"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/RELEASE-2.1.126.json",
+      "bytes": 1355,
+      "sha256": "54ceff9a4e1a3c276b751c5ca61ade0781b78cba7657cb01c6350c8a641973d4"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/claude-code-CHANGELOG-a243cad1.md",
+      "bytes": 268769,
+      "sha256": "efeda64b42e26075ebdc26bc3e7ee71416aa9d02f08e908c0e4f1b78bef4a67e"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/official-tag-refs.txt",
+      "bytes": 120,
+      "sha256": "3d372fc2dfa1b78cba071795f18b55360ac887850a139d11dfb66a3a57db95b2"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/provenance.json",
+      "bytes": 9299,
+      "sha256": "c4ce59152f098296d956608bc427e3f8885e3cdf254cbec3650118f4511acf61"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/semantic/direct-evidence.json",
+      "bytes": 90365,
+      "sha256": "63f127a2790d6f8eefebab380ab6c0391a640552ca2e48aaf236759ade649c0c"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/structural/known-delta-proof.json",
+      "bytes": 29247,
+      "sha256": "4783b90aa281abc386f968ccdba1022a2f08a547a05c7aa7c09a9f517f76308f"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/structural/semantic-cluster-ledger.json.gz",
+      "bytes": 5818,
+      "sha256": "a4dd3dfcca8a075b20aa24d8c6dad3cfde8b4fa54bce0a3979469531bb2fa622"
+    },
+    {
+      "path": "recovery/lib/release-2.1.126-input-contract.mjs",
+      "bytes": 17018,
+      "sha256": "7a3b09e3670f9292bb2afc12b2482fed70bdb5e61bba66bdf40b4686f5146983"
+    },
+    {
+      "path": "recovery/scripts/build-2.1.126-reviewed-official-evidence.mjs",
+      "bytes": 19182,
+      "sha256": "1f77fa3265f1ecbfd445c8d49c3f87ab2d6992165d1372031ddc800a5bde4799"
+    },
+    {
+      "path": "recovery/scripts/build-2.1.126-semantic-delta.mjs",
+      "bytes": 33951,
+      "sha256": "d1bc994479a970dc678de77067993937803425936343f5c9cb341c00ee712f36"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-active-semantics.test.mjs",
+      "bytes": 8421,
+      "sha256": "756911483abf965af4055c585dac5382db0578c492fdce2895a455bfb382a05a"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-direct-evidence.test.mjs",
+      "bytes": 43369,
+      "sha256": "ae886c8a452c45a6f4d4bc5cfff536695aded6ef664fb9f3eafec279ea11df2a"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-retained-redraw.test.mjs",
+      "bytes": 3832,
+      "sha256": "4dff64069da990c2d1a1f9a71b9f17a38c0d09389286b1e4d4bccc94fbd197cb"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-semantic-delta.test.mjs",
+      "bytes": 16065,
+      "sha256": "9a62ddae184424a2dc19f692b13fdf5e7d6f96ba7189744e11bf025b7399bac6"
+    }
+  ],
+  "testArtifactEnvironment": {
+    "CLAUDE_CODE_2_1_124_BUNDLE": "baselineAnalyzableBundle",
+    "CLAUDE_CODE_2_1_126_BUNDLE": "targetAnalyzableBundle",
+    "CLAUDE_CODE_2_1_124_WRAPPER": "baselineBundle",
+    "CLAUDE_CODE_2_1_126_WRAPPER": "targetBundle"
+  },
+  "testFileAssertions": [
+    {
+      "path": "recovery/lib/release-2.1.126-input-contract.mjs",
+      "bytes": 17018,
+      "sha256": "7a3b09e3670f9292bb2afc12b2482fed70bdb5e61bba66bdf40b4686f5146983"
+    },
+    {
+      "path": "recovery/scripts/build-2.1.126-semantic-delta.mjs",
+      "bytes": 33951,
+      "sha256": "d1bc994479a970dc678de77067993937803425936343f5c9cb341c00ee712f36"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-active-semantics.test.mjs",
+      "bytes": 8421,
+      "sha256": "756911483abf965af4055c585dac5382db0578c492fdce2895a455bfb382a05a"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-direct-evidence.test.mjs",
+      "bytes": 43369,
+      "sha256": "ae886c8a452c45a6f4d4bc5cfff536695aded6ef664fb9f3eafec279ea11df2a"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-retained-redraw.test.mjs",
+      "bytes": 3832,
+      "sha256": "4dff64069da990c2d1a1f9a71b9f17a38c0d09389286b1e4d4bccc94fbd197cb"
+    },
+    {
+      "path": "recovery/test/recovery-2.1.126-semantic-delta.test.mjs",
+      "bytes": 16065,
+      "sha256": "9a62ddae184424a2dc19f692b13fdf5e7d6f96ba7189744e11bf025b7399bac6"
+    }
+  ]
+}

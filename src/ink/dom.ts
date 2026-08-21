@@ -43,17 +43,16 @@ export type DOMElement = {
 
   // When true, this node needs re-rendering
   dirty: boolean
+  // Sticky ancestor marker used by pointer hit testing. Absolute-positioned
+  // descendants can paint outside an ancestor's own layout rectangle, so a
+  // miss on that rectangle cannot prune the subtree when this is set.
+  hasAbsoluteDescendant?: boolean
   // Set by the reconciler's hideInstance/unhideInstance; survives style updates.
   isHidden?: boolean
   // Event handlers set by the reconciler for the capture/bubble dispatcher.
   // Stored separately from attributes so handler identity changes don't
   // mark dirty and defeat the blit optimization.
   _eventHandlers?: Record<string, unknown>
-  // Whether this node currently owns one raw-mode reference because it has
-  // at least one keyboard, paste, or wheel handler.
-  _holdsRawModeRef?: boolean
-  // Absolute descendants may render outside an ancestor's own rectangle.
-  hasAbsoluteDescendant?: boolean
 
   // Scroll state for overflow: 'scroll' boxes. scrollTop is the number of
   // rows the content is scrolled down by. scrollHeight/scrollViewportHeight
@@ -140,6 +139,14 @@ export const createNode = (nodeName: ElementNames): DOMElement => {
   return node
 }
 
+function markHasAbsoluteDescendant(node: DOMElement): void {
+  let current: DOMElement | undefined = node
+  while (current && !current.hasAbsoluteDescendant) {
+    current.hasAbsoluteDescendant = true
+    current = current.parentNode
+  }
+}
+
 export const appendChildNode = (
   node: DOMElement,
   childNode: DOMElement,
@@ -162,7 +169,7 @@ export const appendChildNode = (
     childNode.style.position === 'absolute' ||
     childNode.hasAbsoluteDescendant
   ) {
-    markAbsoluteDescendant(node)
+    markHasAbsoluteDescendant(node)
   }
 
   markDirty(node)
@@ -181,9 +188,10 @@ export const insertBeforeNode = (
 
   if (
     newChildNode.style.position === 'absolute' ||
-    (newChildNode.nodeName !== '#text' && newChildNode.hasAbsoluteDescendant)
+    (newChildNode.nodeName !== '#text' &&
+      newChildNode.hasAbsoluteDescendant)
   ) {
-    markAbsoluteDescendant(node)
+    markHasAbsoluteDescendant(node)
   }
 
   const index = node.childNodes.indexOf(beforeChildNode)
@@ -296,17 +304,9 @@ export const setStyle = (node: DOMNode, style: Styles): void => {
     style.position === 'absolute' && node.style.position !== 'absolute'
   node.style = style
   if (becameAbsolute && node.parentNode) {
-    markAbsoluteDescendant(node.parentNode)
+    markHasAbsoluteDescendant(node.parentNode)
   }
   markDirty(node)
-}
-
-function markAbsoluteDescendant(node: DOMElement): void {
-  let current: DOMElement | undefined = node
-  while (current && !current.hasAbsoluteDescendant) {
-    current.hasAbsoluteDescendant = true
-    current = current.parentNode
-  }
 }
 
 export const setTextStyles = (

@@ -39,7 +39,6 @@ import { AGENT_COLORS, type AgentColorName } from '../tools/AgentTool/agentColor
 import { getCwd } from '../utils/cwd.js';
 import { isBgSession } from '../utils/concurrentSessions.js';
 import { logForDebugging } from '../utils/debug.js';
-import { cancelAllPendingLoopSessionCrons } from '../utils/loopWakeup.js';
 import { errorMessage } from '../utils/errors.js';
 import { enqueue } from '../utils/messageQueueManager.js';
 import { buildSystemInitMessage } from '../utils/messages/systemInit.js';
@@ -268,7 +267,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                 Remote Control {wasConnected ? 'disconnected' : 'failed'}
               </Text>
               <Text dimColor>
-                {' '}· {wasConnected && detail ? detail : '/remote-control'}
+                {' '}· {detail || '/remote-control'}
               </Text>
             </>,
           priority: 'immediate'
@@ -874,7 +873,6 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                   request: {
                     subtype: 'can_use_tool',
                     tool_name: toolName,
-                    display_name: bridgeToolDisplayName(toolName),
                     input,
                     tool_use_id: toolUseId,
                     description,

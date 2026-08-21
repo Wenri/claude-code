@@ -1,9 +1,10 @@
 import { z } from 'zod/v4'
 import type { TaskStateBase } from '../../Task.js'
-import { buildTool, type ToolDef, type ToolUseContext } from '../../Tool.js'
-import { stopTask } from '../../tasks/stopTask.js'
-import { asAgentId } from '../../types/ids.js'
-import { getAgentContext } from '../../utils/agentContext.js'
+import { buildTool, type ToolDef } from '../../Tool.js'
+import {
+  getTaskStopCallerAgentId,
+  stopTask,
+} from '../../tasks/stopTask.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { DESCRIPTION, TASK_STOP_TOOL_NAME } from './prompt.js'
@@ -38,12 +39,6 @@ type OutputSchema = ReturnType<typeof outputSchema>
 
 export type Output = z.infer<OutputSchema>
 
-function getCallerAgentId(context: ToolUseContext) {
-  if (context.agentId) return context.agentId
-  const agentContext = getAgentContext()
-  return agentContext ? asAgentId(agentContext.agentId) : undefined
-}
-
 export const TaskStopTool = buildTool({
   name: TASK_STOP_TOOL_NAME,
   searchHint: 'kill a running background task',
@@ -76,8 +71,7 @@ export const TaskStopTool = buildTool({
       }
     }
 
-    const appState = getAppState()
-    const task = appState.tasks?.[id] as TaskStateBase | undefined
+    const task = getAppState().tasks?.[id] as TaskStateBase | undefined
 
     if (!task) {
       return {
@@ -112,8 +106,10 @@ export const TaskStopTool = buildTool({
   },
   renderToolUseMessage,
   renderToolResultMessage,
-  async call({ task_id, shell_id }, context) {
-    const { taskRegistry, setAppState } = context
+  async call(
+    { task_id, shell_id },
+    toolUseContext,
+  ) {
     // Support both task_id and shell_id (deprecated KillShell compat)
     const id = task_id ?? shell_id
     if (!id) {
@@ -121,9 +117,9 @@ export const TaskStopTool = buildTool({
     }
 
     const result = await stopTask(id, {
-      taskRegistry,
-      setAppState,
-      callerAgentId: getCallerAgentId(context),
+      taskRegistry: toolUseContext.taskRegistry,
+      setAppState: toolUseContext.setAppState,
+      callerAgentId: getTaskStopCallerAgentId(toolUseContext),
     })
 
     return {

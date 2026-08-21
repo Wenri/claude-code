@@ -130,7 +130,6 @@ function getEventPriority(eventType: string): number {
       return DiscreteEventPriority as number
     case 'resize':
     case 'scroll':
-    case 'wheel':
     case 'mousemove':
     case 'wheel':
       return ContinuousEventPriority as number

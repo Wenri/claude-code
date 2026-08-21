@@ -1,6 +1,7 @@
 import { dirname, isAbsolute, sep } from 'path'
 import { logEvent } from 'src/services/analytics/index.js'
 import { captureMemoryWrite } from '../../memdir/memoryWriteSurvey.js'
+import { prepareAutoMemoryContent } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { diagnosticTracker } from '../../services/diagnosticTracking.js'
 import {
@@ -22,7 +23,6 @@ import { logForDebugging } from '../../utils/debug.js'
 import { countLinesChanged, getPatchForDisplay } from '../../utils/diff.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isENOENT } from '../../utils/errors.js'
-import { fileStateMatchesContent } from '../../utils/fileStateCache.js'
 import {
   FILE_NOT_FOUND_CWD_NOTE,
   findSimilarFile,
@@ -43,6 +43,7 @@ import {
 } from '../../utils/fileRead.js'
 import { formatFileSize } from '../../utils/format.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
+import { fileStateMatchesContent } from '../../utils/fileStateCache.js'
 import {
   fetchSingleFileGitDiff,
   type ToolUseDiff,
@@ -57,10 +58,6 @@ import type { PermissionDecision } from '../../utils/permissions/PermissionResul
 import { matchWildcardPattern } from '../../utils/permissions/shellRuleMatching.js'
 import { validateInputForSettingsFileEdit } from '../../utils/settings/validateEditTool.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../NotebookEditTool/constants.js'
-import {
-  EDIT_SUCCESS_SUFFIX,
-  isNoRereadEnabled,
-} from '../FileReadTool/prompt.js'
 import {
   FILE_EDIT_TOOL_NAME,
   FILE_UNEXPECTEDLY_MODIFIED_ERROR,
@@ -324,7 +321,7 @@ export const FileEditTool = buildTool({
         // without content changes (cloud sync, antivirus, etc.). For full reads,
         // compare content as a fallback to avoid false positives.
         const isFullRead =
-          readTimestamp.offset === undefined &&
+          (readTimestamp.offset ?? 1) <= 1 &&
           readTimestamp.limit === undefined
         if (isFullRead && fileStateMatchesContent(readTimestamp, fileContent)) {
           // Content unchanged, safe to proceed
@@ -488,16 +485,17 @@ export const FileEditTool = buildTool({
     if (fileExists) {
       const lastWriteTime = getFileModificationTime(absoluteFilePath)
       const lastRead = readFileState.get(absoluteFilePath)
-      if (!lastRead || lastWriteTime > lastRead.timestamp) {
+      if (!lastRead) throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
+      if (lastWriteTime > lastRead.timestamp) {
         // Timestamp indicates modification, but on Windows timestamps can change
         // without content changes (cloud sync, antivirus, etc.). For full reads,
         // compare content as a fallback to avoid false positives.
         const isFullRead =
-          lastRead &&
-          lastRead.offset === undefined &&
+          (lastRead.offset ?? 1) <= 1 &&
           lastRead.limit === undefined
         const contentUnchanged =
-          isFullRead && fileStateMatchesContent(lastRead, originalFileContents)
+          isFullRead &&
+          fileStateMatchesContent(lastRead, originalFileContents)
         if (!contentUnchanged) {
           throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
         }
@@ -523,7 +521,7 @@ export const FileEditTool = buildTool({
       newString: actualNewString,
       replaceAll: replace_all,
     })
-    const updatedFile = stampTinyMemoryWrite(
+    const updatedFile = prepareAutoMemoryContent(
       absoluteFilePath,
       editResult.updatedFile,
     )

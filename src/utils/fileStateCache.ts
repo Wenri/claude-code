@@ -7,18 +7,18 @@ export type FileState = {
   timestamp: number
   offset: number | undefined
   limit: number | undefined
+  /** Hash of the complete normalized contents, retained when content is elided. */
+  contentHash?: string
+  /** Character length of the complete normalized contents. */
+  contentLength?: number
+  /** Keep complete contents even when they exceed the normal cache threshold. */
+  keepContent?: boolean
   // True when this entry was populated by auto-injection (e.g. CLAUDE.md) and
   // the injected content did not match disk (stripped HTML comments, stripped
   // frontmatter, truncated MEMORY.md). The model has only seen a partial view;
   // Edit/Write must require an explicit Read first. `content` here holds the
   // RAW disk bytes (for getChangedFiles diffing), not what the model saw.
   isPartialView?: boolean
-  // Large file bodies may be dropped from the cache while retaining a stable
-  // content fingerprint. Memory files opt out because changed-file rendering
-  // needs their complete prior body.
-  keepContent?: boolean
-  contentHash?: string
-  contentLength?: number
 }
 
 // Default max entries for read file state caches
@@ -27,13 +27,14 @@ export const READ_FILE_STATE_CACHE_SIZE = 100
 // Default size limit for file state caches (25MB)
 // This prevents unbounded memory growth from large file contents
 const DEFAULT_MAX_CACHE_SIZE_BYTES = 25 * 1024 * 1024
-const MAX_INLINE_FILE_STATE_CONTENT_BYTES = 4096
+const MAX_RETAINED_CONTENT_BYTES = 4096
 
 function hashFileStateContent(content: string): string {
   if (typeof Bun !== 'undefined') return Bun.hash(content).toString(36)
   return createHash('sha1').update(content).digest('base64url')
 }
 
+/** Compare complete contents even when a cache entry retains only its hash. */
 export function fileStateMatchesContent(
   state: FileState,
   content: string,
@@ -67,23 +68,24 @@ export class FileStateCache {
 
   set(key: string, value: FileState): this {
     const normalizedKey = normalize(key)
-    const previous = this.cache.get(normalizedKey)
-    const keepContent = value.keepContent ?? previous?.keepContent
-    const contentHash = value.contentHash ?? hashFileStateContent(value.content)
+    const existing = this.cache.get(normalizedKey)
+    const keepContent = value.keepContent ?? existing?.keepContent
+    const contentHash =
+      value.contentHash ?? hashFileStateContent(value.content)
     const contentLength = value.contentLength ?? value.content.length
-    const contentBeforeLimit =
+    const candidateContent =
       keepContent &&
       value.content === '' &&
-      contentHash === previous?.contentHash &&
-      previous.content
-        ? previous.content
+      contentHash === existing?.contentHash &&
+      existing.content
+        ? existing.content
         : value.content
     const content =
       keepContent ||
-      Buffer.byteLength(contentBeforeLimit) <=
-        MAX_INLINE_FILE_STATE_CONTENT_BYTES
-        ? contentBeforeLimit
+      Buffer.byteLength(candidateContent) <= MAX_RETAINED_CONTENT_BYTES
+        ? candidateContent
         : ''
+
     this.cache.set(normalizedKey, {
       ...value,
       keepContent,

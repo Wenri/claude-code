@@ -87,25 +87,6 @@ export type SystemPromptBlock = {
   cacheScope: CacheScope | null
 }
 
-async function getToolDescription(
-  tool: Tool,
-  options: Parameters<Tool['prompt']>[0],
-): Promise<string> {
-  const useSimpleDescription =
-    isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT)
-
-  if (!useSimpleDescription) {
-    return tool.prompt(options)
-  }
-  if (tool.searchHint) {
-    return tool.searchHint
-  }
-
-  const description = await tool.prompt(options)
-  return description.split('\n\n', 1)[0].trim() || description
-}
-
 // Fields to filter from tool schemas when swarms are not enabled
 const SWARM_FIELDS_BY_TOOL: Record<string, string[]> = {
   [EXIT_PLAN_MODE_V2_TOOL_NAME]: ['launchSwarm', 'teammateCount'],
@@ -593,7 +574,6 @@ export async function logContextMetrics(
   logEvent('tengu_context_size', {
     git_status_size: gitStatusSize,
     claude_md_size: claudeMdSize,
-    has_user_email: Boolean(userContext.userEmail),
     total_context_size: totalContextSize,
     project_file_count_rounded: fileCount,
     mcp_tools_count: mcpToolsCount,
@@ -662,23 +642,8 @@ export function normalizeToolInput<T extends Tool>(
       } as z.infer<T['inputSchema']>
     }
     case FileEditTool.name: {
-      const legacyCompatibleInput = {
-        ...(input as Record<string, unknown>),
-      }
-      if ('old_str' in legacyCompatibleInput) {
-        if (!('old_string' in legacyCompatibleInput)) {
-          legacyCompatibleInput.old_string = legacyCompatibleInput.old_str
-        }
-        delete legacyCompatibleInput.old_str
-      }
-      if ('new_str' in legacyCompatibleInput) {
-        if (!('new_string' in legacyCompatibleInput)) {
-          legacyCompatibleInput.new_string = legacyCompatibleInput.new_str
-        }
-        delete legacyCompatibleInput.new_str
-      }
       // Validated upstream, won't throw
-      const parsedInput = FileEditTool.inputSchema.parse(legacyCompatibleInput)
+      const parsedInput = FileEditTool.inputSchema.parse(input)
 
       // This is a workaround for tokens claude can't see
       const { file_path, edits } = normalizeFileEditInput({
@@ -735,42 +700,6 @@ export function normalizeToolInput<T extends Tool>(
     default:
       return input
   }
-}
-
-/**
- * Decode model-emitted JavaScript Unicode escapes throughout a tool input.
- * Escaped escapes (an odd run of backslashes), malformed surrogate halves,
- * and all non-string values are preserved.
- */
-export function decodeUnicodeEscapesInToolInput(value: unknown): unknown {
-  if (typeof value === 'string') {
-    if (!value.includes('\\u')) return value
-    return value.replace(
-      /\\u([dD][89aAbB][0-9a-fA-F]{2})\\u([dD][c-fC-F][0-9a-fA-F]{2})|\\u([0-9a-fA-F]{4})/g,
-      (match, high: string | undefined, low: string | undefined, single: string | undefined, offset: number) => {
-        let backslashStart = offset
-        while (backslashStart > 0 && value[backslashStart - 1] === '\\') {
-          backslashStart--
-        }
-        if ((offset - backslashStart) & 1) return match
-        if (high !== undefined) {
-          return String.fromCharCode(parseInt(high, 16), parseInt(low!, 16))
-        }
-        const codeUnit = parseInt(single!, 16)
-        if (codeUnit >= 0xd800 && codeUnit <= 0xdfff) return match
-        return String.fromCharCode(codeUnit)
-      },
-    )
-  }
-  if (Array.isArray(value)) return value.map(decodeUnicodeEscapesInToolInput)
-  if (value !== null && typeof value === 'object') {
-    const decoded: Record<string, unknown> = {}
-    for (const [key, child] of Object.entries(value)) {
-      decoded[key] = decodeUnicodeEscapesInToolInput(child)
-    }
-    return decoded
-  }
-  return value
 }
 
 // Strips fields that were added by normalizeToolInput before sending to API

@@ -215,7 +215,7 @@ async function getOtlpReaders() {
   })
 }
 
-export async function getOtlpLogExporters() {
+async function getOtlpLogExporters() {
   const exporterTypes = parseExporterTypes(process.env.OTEL_LOGS_EXPORTER)
 
   const protocol =
@@ -749,7 +749,7 @@ export async function flushTelemetry(): Promise<void> {
   }
 }
 
-export function parseOtelHeadersEnvVar(): Record<string, string> {
+function parseOtelHeadersEnvVar(): Record<string, string> {
   const headers: Record<string, string> = {}
   const envHeaders = process.env.OTEL_EXPORTER_OTLP_HEADERS
   if (envHeaders) {

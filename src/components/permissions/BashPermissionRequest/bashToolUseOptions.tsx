@@ -53,7 +53,7 @@ export function bashToolUseOptions({
   existingAllowDescriptions?: string[];
   yesInputMode?: boolean;
   noInputMode?: boolean;
-  /** Editable prefix rule content (e.g., "npm run *"). When set, replaces Haiku-based suggestions. */
+  /** Editable prefix rule content (e.g., "npm run:*"). When set, replaces Haiku-based suggestions. */
   editablePrefix?: string;
   /** Callback when the user edits the prefix value. */
   onEditablePrefixChange?: (value: string) => void;

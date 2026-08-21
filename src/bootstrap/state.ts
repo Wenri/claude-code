@@ -10,6 +10,7 @@ import { cwd } from 'process'
 import type { HookEvent, ModelUsage } from 'src/entrypoints/agentSdkTypes.js'
 import type { AgentColorName } from 'src/tools/AgentTool/agentColorManager.js'
 import type { HookCallbackMatcher } from 'src/types/hooks.js'
+import type { MCPServerConnection } from 'src/services/mcp/types.js'
 // Indirection for browser-sdk build (package.json "browser" field swaps
 // crypto.ts for crypto.browser.ts). Pure leaf re-export of node:crypto —
 // zero circular-dep risk. Path-alias import bypasses bootstrap-isolation
@@ -39,7 +40,55 @@ export type ActiveRemoteControlTransport = {
   ) => Promise<Response>
 }
 
+export type RuntimeCapabilities = {
+  renderTarget: 'ink'
+  workspace: 'local' | 'remote'
+  canDrive: boolean
+  transcriptSource: 'local-jsonl' | 'ccr-api'
+  remote: ActiveRemoteControlTransport | null
+}
+
+const DEFAULT_RUNTIME_CAPABILITIES: RuntimeCapabilities = {
+  renderTarget: 'ink',
+  workspace: 'local',
+  canDrive: true,
+  transcriptSource: 'local-jsonl',
+  remote: null,
+}
+
 import type { SessionId } from 'src/types/ids.js'
+import type { BetaDescriptor } from 'src/constants/betas.js'
+
+export type StickyBetas = {
+  sent: Set<BetaDescriptor>
+  rejected: Set<BetaDescriptor>
+}
+
+export function createStickyBetas(): StickyBetas {
+  return { sent: new Set(), rejected: new Set() }
+}
+
+export function latchStickyBeta(
+  stickyBetas: StickyBetas,
+  beta: BetaDescriptor,
+): void {
+  if (!stickyBetas.rejected.has(beta)) stickyBetas.sent.add(beta)
+}
+
+export function isStickyBetaLatched(
+  stickyBetas: StickyBetas,
+  beta: BetaDescriptor,
+): boolean {
+  return stickyBetas.sent.has(beta) && !stickyBetas.rejected.has(beta)
+}
+
+export function rejectStickyBeta(
+  stickyBetas: StickyBetas,
+  beta: BetaDescriptor,
+): void {
+  stickyBetas.sent.delete(beta)
+  stickyBetas.rejected.add(beta)
+}
 
 // DO NOT ADD MORE STATE HERE - BE JUDICIOUS WITH GLOBAL STATE
 
@@ -89,6 +138,7 @@ type State = {
   modelStrings: ModelStrings | null
   isInteractive: boolean
   hasStreamingInput: boolean
+  fridayFundayDisabledForSession: boolean
   kairosActive: boolean
   // When true, ensureToolResultPairing throws on mismatch instead of
   // repairing with synthetic placeholders. HFI opts in at startup so
@@ -96,12 +146,6 @@ type State = {
   // tool_results.
   strictToolResultPairing: boolean
   sdkAgentProgressSummariesEnabled: boolean
-  memoryToggledOff: boolean
-  teamMemoryServerStatus:
-    | 'has-content'
-    | 'empty'
-    | 'not-available'
-    | undefined
   userMsgOptIn: boolean
   memoryToggledOff: boolean
   teamMemoryServerStatus: TeamMemoryServerStatus
@@ -118,7 +162,7 @@ type State = {
   oauthTokenFromFd: string | null | undefined
   apiKeyFromFd: string | null | undefined
   sdkOAuthTokenRefreshCallback: (() => Promise<string | null>) | null
-  activeRemoteControlTransport: ActiveRemoteControlTransport | null
+  caps: RuntimeCapabilities
   // Telemetry state
   meter: Meter | null
   sessionCounter: AttributedCounter | null
@@ -168,6 +212,7 @@ type State = {
   // (useScheduledTasks). Set by cronScheduler.start() when the JSON has
   // entries, or by CronCreateTool. Not persisted.
   scheduledTasksEnabled: boolean
+  sessionPrResolved: boolean
   // Session-only cron tasks created via CronCreate with durable: false.
   // Fire on schedule like file-backed tasks but are never written to
   // .claude/scheduled_tasks.json — they die with the process. Typed via
@@ -230,22 +275,16 @@ type State = {
   }>
   // SDK-provided betas (e.g., context-1m-2025-08-07)
   sdkBetas: string[] | undefined
-  // SDK host callback used to obtain a fresh access token after a 401 when
-  // the CLI only has an externally supplied access token (no refresh token).
-  sdkOAuthTokenRefreshCallback: (() => Promise<string | null>) | null
   // Main thread agent type (from --agent flag or settings)
   mainThreadAgentType: string | undefined
   // Frontmatter hooks from the main thread agent.
   mainThreadAgentHooks: HooksSettings | undefined
-  // SDK-provided allowlist for skills available to the main session.
-  sessionSkillAllowlist: string[] | undefined
-  // Remote mode (--remote flag)
-  isRemoteMode: boolean
   // Whether the interactive Remote Control bridge is connected. Outbound-only
   // mirrors do not count as active because they cannot deliver tool pushes.
   replBridgeActive: boolean
   // Direct connect server URL (for display in header)
   directConnectServerUrl: string | undefined
+  activeRoutine: unknown
   // System prompt section cache state
   systemPromptSectionCache: Map<string, string | null>
   // Last date emitted to the model (for detecting midnight date changes)
@@ -258,7 +297,6 @@ type State = {
   // allowlist, 'server' → allowlist always fails (schema is plugin-only).
   // Either kind needs entry.dev to bypass allowlist.
   allowedChannels: ChannelEntry[]
-  // Active channel inputs grouped by MCP server name.
   activeInputs: Map<string, Set<string>>
   // True if any entry in allowedChannels came from
   // --dangerously-load-development-channels (so ChannelsNotice can name the
@@ -272,26 +310,15 @@ type State = {
   // evaluation so mid-session overage flips don't change the cache_control
   // TTL, which would bust the server-side prompt cache.
   promptCache1hEligible: boolean | null
-  // Sticky-on latch for AFK_MODE_BETA_HEADER. Once auto mode is first
-  // activated, keep sending the header for the rest of the session so
-  // Shift+Tab toggles don't bust the ~50-70K token prompt cache.
-  afkModeHeaderLatched: boolean | null
-  // Sticky-on latch for FAST_MODE_BETA_HEADER. Once fast mode is first
-  // enabled, keep sending the header so cooldown enter/exit doesn't
-  // double-bust the prompt cache. The `speed` body param stays dynamic.
-  fastModeHeaderLatched: boolean | null
-  // Sticky-on latch for the cache-editing beta header. Once cached
-  // microcompact is first enabled, keep sending the header so mid-session
-  // GrowthBook/settings toggles don't bust the prompt cache.
-  cacheEditingHeaderLatched: boolean | null
-  // Session latch for prompt-cache diagnostics. Null means the eligibility
-  // gate has not been evaluated for this conversation yet.
-  cacheDiagnosisHeaderLatched: boolean | null
+  // Session-stable beta headers. Rejected descriptors can never be latched
+  // again during the same conversation.
+  stickyBetas: StickyBetas
   // Per-model fallback selected after the provider rejects one of the two
   // supported thinking modes. Application inference profile ARNs can hide
   // the backing model capability, so remember the successful mode for the
   // remainder of the process and avoid repeating the failed round trip.
   thinkingTypeOverrides: Map<string, 'adaptive' | 'enabled'>
+  inferenceProfileBackingModels: Map<string, string | null>
   // Sticky-on latch for clearing thinking from prior tool loops. Triggered
   // when >1h since last API call (confirmed cache miss — no cache-hit
   // benefit to keeping thinking). Once latched, stays on so the newly-warmed
@@ -357,11 +384,10 @@ function getInitialState(): State {
     modelStrings: null,
     isInteractive: false,
     hasStreamingInput: false,
+    fridayFundayDisabledForSession: false,
     kairosActive: false,
     strictToolResultPairing: false,
     sdkAgentProgressSummariesEnabled: false,
-    memoryToggledOff: false,
-    teamMemoryServerStatus: undefined,
     userMsgOptIn: false,
     memoryToggledOff: false,
     teamMemoryServerStatus: undefined,
@@ -374,7 +400,7 @@ function getInitialState(): State {
     oauthTokenFromFd: undefined,
     apiKeyFromFd: undefined,
     sdkOAuthTokenRefreshCallback: null,
-    activeRemoteControlTransport: null,
+    caps: DEFAULT_RUNTIME_CAPABILITIES,
     flagSettingsPath: undefined,
     flagSettingsInline: null,
     parentManagedSettings: null,
@@ -425,6 +451,7 @@ function getInitialState(): State {
     sessionBypassPermissionsMode: false,
     // Scheduled tasks disabled until flag or dialog enables them
     scheduledTasksEnabled: false,
+    sessionPrResolved: false,
     sessionCronTasks: [],
     loopChainStartedAt: Object.create(null) as Record<string, LoopChainState>,
     sessionCreatedTeams: new Set(),
@@ -453,16 +480,13 @@ function getInitialState(): State {
     slowOperations: [],
     // SDK-provided betas
     sdkBetas: undefined,
-    sdkOAuthTokenRefreshCallback: null,
     // Main thread agent type
     mainThreadAgentType: undefined,
     mainThreadAgentHooks: undefined,
-    sessionSkillAllowlist: undefined,
-    // Remote mode
-    isRemoteMode: false,
     replBridgeActive: false,
     // Direct connect server URL
     directConnectServerUrl: undefined,
+    activeRoutine: undefined,
     // System prompt section cache state
     systemPromptSectionCache: new Map(),
     // Last date emitted to the model
@@ -479,12 +503,9 @@ function getInitialState(): State {
     promptCache1hAllowlist: null,
     // Prompt cache 1h eligibility (null = not yet evaluated)
     promptCache1hEligible: null,
-    // Beta header latches (null = not yet triggered)
-    afkModeHeaderLatched: null,
-    fastModeHeaderLatched: null,
-    cacheEditingHeaderLatched: null,
-    cacheDiagnosisHeaderLatched: null,
+    stickyBetas: createStickyBetas(),
     thinkingTypeOverrides: new Map(),
+    inferenceProfileBackingModels: new Map(),
     thinkingClearLatched: null,
     // Current prompt ID
     promptId: null,
@@ -518,6 +539,7 @@ export function regenerateSessionId(
   // null so getTranscriptPath() derives from originalCwd.
   STATE.sessionId = randomUUID() as SessionId
   STATE.sessionProjectDir = null
+  STATE.promptIndex = 0
   return STATE.sessionId
 }
 
@@ -610,12 +632,24 @@ export function setCwdState(cwd: string): void {
   STATE.cwd = cwd.normalize('NFC')
 }
 
+export function resetStartTime(): void {
+  STATE.startTime = Date.now()
+}
+
 export function getDirectConnectServerUrl(): string | undefined {
   return STATE.directConnectServerUrl
 }
 
 export function setDirectConnectServerUrl(url: string): void {
   STATE.directConnectServerUrl = url
+}
+
+export function getActiveRoutine(): unknown {
+  return STATE.activeRoutine
+}
+
+export function setActiveRoutine(routine: unknown): void {
+  STATE.activeRoutine = routine
 }
 
 export function addToTotalDurationState(
@@ -741,10 +775,6 @@ export function setStatsStore(
  * come if the user is idle (e.g. permission dialog waiting for input).
  */
 let interactionTimeDirty = false
-const userInteraction = createSignal()
-
-/** Subscribe to batched user-interaction pulses. */
-export const onUserInteraction = userInteraction.subscribe
 
 export function updateLastInteractionTime(immediate?: boolean): void {
   if (immediate) {
@@ -972,18 +1002,6 @@ export function setSdkBetas(betas: string[] | undefined): void {
   STATE.sdkBetas = betas
 }
 
-export function getSdkOAuthTokenRefreshCallback(): (() => Promise<
-  string | null
->) | null {
-  return STATE.sdkOAuthTokenRefreshCallback
-}
-
-export function setSdkOAuthTokenRefreshCallback(
-  callback: (() => Promise<string | null>) | null,
-): void {
-  STATE.sdkOAuthTokenRefreshCallback = callback
-}
-
 export function resetCostState(): void {
   STATE.totalCostUSD = 0
   STATE.totalAPIDuration = 0
@@ -1062,10 +1080,14 @@ export function setModelStrings(modelStrings: ModelStrings): void {
   STATE.modelStrings = modelStrings
 }
 
+export function resetModelStrings(): void {
+  STATE.modelStrings = null
+}
+
 // Test utility function to reset model strings for re-initialization.
 // Separate from setModelStrings because we only want to accept 'null' in tests.
-export function resetModelStringsForTestingOnly() {
-  STATE.modelStrings = null
+export function resetModelStringsForTestingOnly(): void {
+  resetModelStrings()
 }
 
 export function setMeter(
@@ -1189,14 +1211,12 @@ export function setIsInteractive(value: boolean): void {
   STATE.isInteractive = value
 }
 
-export function getSessionStartType(): 'fresh' | 'resume' | 'continue' {
-  return STATE.sessionStartType
+export function getFridayFundayDisabledForSession(): boolean {
+  return STATE.fridayFundayDisabledForSession
 }
 
-export function setSessionStartType(
-  value: 'fresh' | 'resume' | 'continue',
-): void {
-  STATE.sessionStartType = value
+export function setFridayFundayDisabledForSession(): void {
+  STATE.fridayFundayDisabledForSession = true
 }
 
 export function getHasStreamingInput(): boolean {
@@ -1215,34 +1235,22 @@ export function setClientType(type: string): void {
   STATE.clientType = type
 }
 
+export function getSessionStartType(): 'fresh' | 'resume' | 'continue' {
+  return STATE.sessionStartType
+}
+
+export function setSessionStartType(
+  type: 'fresh' | 'resume' | 'continue',
+): void {
+  STATE.sessionStartType = type
+}
+
 export function getSdkAgentProgressSummariesEnabled(): boolean {
   return STATE.sdkAgentProgressSummariesEnabled
 }
 
 export function setSdkAgentProgressSummariesEnabled(value: boolean): void {
   STATE.sdkAgentProgressSummariesEnabled = value
-}
-
-export function getMemoryToggledOff(): boolean {
-  return STATE.memoryToggledOff
-}
-
-export function setMemoryToggledOff(value: boolean): void {
-  STATE.memoryToggledOff = value
-}
-
-export function getTeamMemoryServerStatus():
-  | 'has-content'
-  | 'empty'
-  | 'not-available'
-  | undefined {
-  return STATE.teamMemoryServerStatus
-}
-
-export function setTeamMemoryServerStatus(
-  status: 'has-content' | 'empty' | 'not-available',
-): void {
-  STATE.teamMemoryServerStatus = status
 }
 
 export function getKairosActive(): boolean {
@@ -1377,20 +1385,27 @@ export function setSdkOAuthTokenRefreshCallback(
  * The generated bundle owns the concrete transport module; authored callers
  * use this bootstrap leaf to reach the active remote without importing REPL.
  */
-export function getRuntimeCapabilities(): {
-  workspace: 'local' | 'remote'
-  remote: ActiveRemoteControlTransport | null
-} {
-  return {
-    workspace: STATE.activeRemoteControlTransport ? 'remote' : 'local',
-    remote: STATE.activeRemoteControlTransport,
-  }
+export function getCaps(): RuntimeCapabilities {
+  return STATE.caps
+}
+
+export function setCaps(caps: RuntimeCapabilities): void {
+  STATE.caps = caps
+}
+
+export function getRuntimeCapabilities(): RuntimeCapabilities {
+  return getCaps()
 }
 
 export function setActiveRemoteControlTransport(
   transport: ActiveRemoteControlTransport | null,
 ): void {
-  STATE.activeRemoteControlTransport = transport
+  setCaps({
+    ...getCaps(),
+    workspace: transport ? 'remote' : 'local',
+    transcriptSource: transport?.kind === 'ccr' ? 'ccr-api' : 'local-jsonl',
+    remote: transport,
+  })
 }
 
 export function getApiKeyFromFd(): string | null | undefined {
@@ -1505,6 +1520,14 @@ export function setScheduledTasksEnabled(enabled: boolean): void {
 
 export function getScheduledTasksEnabled(): boolean {
   return STATE.scheduledTasksEnabled
+}
+
+export function getSessionPrResolved(): boolean {
+  return STATE.sessionPrResolved
+}
+
+export function setSessionPrResolved(resolved: boolean): void {
+  STATE.sessionPrResolved = resolved
 }
 
 export type SessionCronTask = {
@@ -1668,6 +1691,22 @@ export function setInitJsonSchema(schema: Record<string, unknown>): void {
 
 export function getInitJsonSchema(): Record<string, unknown> | null {
   return STATE.initJsonSchema
+}
+
+let mcpClientsAccessor:
+  | (() => MCPServerConnection[])
+  | undefined
+
+export function setMcpClientsAccessor(
+  accessor: (() => MCPServerConnection[]) | undefined,
+): void {
+  mcpClientsAccessor = accessor
+}
+
+export function getMcpClientsFromAccessor():
+  | MCPServerConnection[]
+  | undefined {
+  return mcpClientsAccessor?.()
 }
 
 export function registerHookCallbacks(
@@ -1890,20 +1929,15 @@ export function setMainThreadAgentHooks(hooks: HooksSettings | undefined): void 
   STATE.mainThreadAgentHooks = hooks
 }
 
-export function getSessionSkillAllowlist(): string[] | undefined {
-  return STATE.sessionSkillAllowlist
-}
-
-export function setSessionSkillAllowlist(skills: string[] | undefined): void {
-  STATE.sessionSkillAllowlist = skills
-}
-
 export function getIsRemoteMode(): boolean {
-  return STATE.isRemoteMode
+  return STATE.caps.workspace === 'remote'
 }
 
 export function setIsRemoteMode(value: boolean): void {
-  STATE.isRemoteMode = value
+  STATE.caps = {
+    ...STATE.caps,
+    workspace: value ? 'remote' : 'local',
+  }
 }
 
 export function isReplBridgeActive(): boolean {
@@ -1961,12 +1995,12 @@ export function setAllowedChannels(entries: ChannelEntry[]): void {
 }
 
 export function activateInput(serverName: string, inputId: string): void {
-  let inputs = STATE.activeInputs.get(serverName)
-  if (!inputs) {
-    inputs = new Set()
-    STATE.activeInputs.set(serverName, inputs)
+  let active = STATE.activeInputs.get(serverName)
+  if (!active) {
+    active = new Set()
+    STATE.activeInputs.set(serverName, active)
   }
-  inputs.add(inputId)
+  active.add(inputId)
 }
 
 export function deactivateInput(serverName: string, inputId: string): void {
@@ -2009,36 +2043,8 @@ export function setPromptCache1hEligible(eligible: boolean | null): void {
   STATE.promptCache1hEligible = eligible
 }
 
-export function getAfkModeHeaderLatched(): boolean | null {
-  return STATE.afkModeHeaderLatched
-}
-
-export function setAfkModeHeaderLatched(v: boolean): void {
-  STATE.afkModeHeaderLatched = v
-}
-
-export function getFastModeHeaderLatched(): boolean | null {
-  return STATE.fastModeHeaderLatched
-}
-
-export function setFastModeHeaderLatched(v: boolean): void {
-  STATE.fastModeHeaderLatched = v
-}
-
-export function getCacheEditingHeaderLatched(): boolean | null {
-  return STATE.cacheEditingHeaderLatched
-}
-
-export function setCacheEditingHeaderLatched(v: boolean): void {
-  STATE.cacheEditingHeaderLatched = v
-}
-
-export function getCacheDiagnosisHeaderLatched(): boolean | null {
-  return STATE.cacheDiagnosisHeaderLatched
-}
-
-export function setCacheDiagnosisHeaderLatched(v: boolean): void {
-  STATE.cacheDiagnosisHeaderLatched = v
+export function getStickyBetas(): StickyBetas {
+  return STATE.stickyBetas
 }
 
 export function getThinkingTypeOverride(
@@ -2054,6 +2060,19 @@ export function setThinkingTypeOverride(
   STATE.thinkingTypeOverrides.set(model, type)
 }
 
+export function getInferenceProfileBackingModelCached(
+  profileId: string,
+): string | null | undefined {
+  return STATE.inferenceProfileBackingModels.get(profileId)
+}
+
+export function setInferenceProfileBackingModel(
+  profileId: string,
+  model: string | null,
+): void {
+  STATE.inferenceProfileBackingModels.set(profileId, model)
+}
+
 export function getThinkingClearLatched(): boolean | null {
   return STATE.thinkingClearLatched
 }
@@ -2067,10 +2086,7 @@ export function setThinkingClearLatched(v: boolean): void {
  * fresh conversation gets fresh header evaluation.
  */
 export function clearBetaHeaderLatches(): void {
-  STATE.afkModeHeaderLatched = null
-  STATE.fastModeHeaderLatched = null
-  STATE.cacheEditingHeaderLatched = null
-  STATE.cacheDiagnosisHeaderLatched = null
+  STATE.stickyBetas = createStickyBetas()
   STATE.thinkingClearLatched = null
 }
 
@@ -2082,7 +2098,9 @@ export function setPromptId(id: string | null): void {
   STATE.promptId = id
 }
 
-export function getNextPromptIndex(): number {
+export function incrementPromptIndex(): number {
   STATE.promptIndex++
   return STATE.promptIndex
 }
+
+export const getNextPromptIndex = incrementPromptIndex

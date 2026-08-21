@@ -26,6 +26,13 @@ export type InlineGhostText = {
  */
 export type BaseTextInputProps = {
   /**
+   * Optional handler invoked before the text input processes a key event.
+   * Calling preventDefault() or stopImmediatePropagation() skips the input's
+   * default editing behavior.
+   */
+  readonly onKeyDownBefore?: (event: KeyboardEvent) => void
+
+  /**
    * Optional callback for handling history navigation on up arrow at start of input
    */
   readonly onHistoryUp?: () => void
@@ -91,12 +98,6 @@ export type BaseTextInputProps = {
    */
   readonly onExitMessage?: (show: boolean, key?: string) => void
 
-  /** Called when left is pressed while the input is empty. */
-  readonly onLeftArrowOnEmpty?: () => void
-
-  /** Controls the first-press message for the empty-input left action. */
-  readonly onLeftArrowOnEmptyMessage?: (show: boolean) => void
-
   /**
    * Optional callback when left is pressed with an empty input.
    */
@@ -148,9 +149,6 @@ export type BaseTextInputProps = {
    * Optional callback when a large text (over 800 chars) is pasted
    */
   readonly onPaste?: (text: string) => void
-
-  /** Runs before the input's own DOM keyboard handler. */
-  readonly onKeyDownBefore?: (event: KeyboardEvent) => void
 
   /**
    * Callback when the pasting state changes
@@ -257,12 +255,6 @@ export type BaseInputState = {
   /** Character offset in the full text where the viewport ends (text.length when no windowing). */
   viewportCharEnd: number
 
-  // For paste handling
-  isPasting?: boolean
-  pasteState?: {
-    chunks: string[]
-    timeoutId: ReturnType<typeof setTimeout> | null
-  }
 }
 
 /**
@@ -318,11 +310,15 @@ export type QueuePriority = 'now' | 'next' | 'later'
 export type QueuedCommand = {
   value: string | Array<ContentBlockParam>
   mode: PromptInputMode
-  /** Raw file metadata forwarded by SDK/headless transports for replay. */
-  fileAttachments?: unknown[]
   /** Defaults to the priority implied by `mode` when enqueued. */
   priority?: QueuePriority
   clientPlatform?: string
+  /** Append this message without starting a model turn. */
+  shouldQuery?: boolean
+  /** Inbound remote attachments echoed with SDK replay messages. */
+  fileAttachments?: unknown[]
+  /** Preserve the stop-hook latch when an async stop-hook response is queued. */
+  stopHookActive?: boolean
   uuid?: UUID
   orphanedPermission?: OrphanedPermission
   /** Raw pasted contents including images. Images are resized at execution time. */

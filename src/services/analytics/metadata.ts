@@ -19,7 +19,7 @@ import {
   getClientType,
   getParentSessionId as getParentSessionIdFromState,
 } from '../../bootstrap/state.js'
-import { getCooEnvironment, isEnvTruthy } from '../../utils/envUtils.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isOfficialMcpUrl } from '../mcp/officialRegistry.js'
 import { isClaudeAISubscriber, getSubscriptionType } from '../../utils/auth.js'
 import { getRepoRemoteHash } from '../../utils/git.js'
@@ -55,24 +55,6 @@ import { feature } from 'bun:bundle'
  * intentional as it's only used for type-casting to document developer intent.
  */
 export type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS = never
-
-/** Build the optional COO fields shared by startup/bridge events. */
-export function getCooMetadataForAnalytics(): {
-  cooNamespace?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-  cooCluster?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-} {
-  const { namespace, cluster } = getCooEnvironment()
-  return {
-    ...(namespace && {
-      cooNamespace:
-        namespace as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-    ...(cluster && {
-      cooCluster:
-        cluster as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-  }
-}
 
 /**
  * Sanitizes tool names for analytics logging to avoid PII exposure.
@@ -248,27 +230,6 @@ export function extractSkillName(
       .skill as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
   }
 
-  return undefined
-}
-
-/**
- * Extract the selected subagent type from Agent/Task tool input.
- * This value is only consumed by callers after the tool-details privacy gate.
- */
-export function extractSubagentType(
-  toolName: string,
-  input: unknown,
-): AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS | undefined {
-  if (toolName !== 'Agent' && toolName !== 'Task') return undefined
-  if (
-    typeof input === 'object' &&
-    input !== null &&
-    'subagent_type' in input &&
-    typeof (input as { subagent_type: unknown }).subagent_type === 'string'
-  ) {
-    return (input as { subagent_type: string })
-      .subagent_type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-  }
   return undefined
 }
 
@@ -533,6 +494,7 @@ export type EventMetadata = {
   skillMode?: 'discovery' | 'coach' | 'discovery_and_coach' // Which skill surfacing mechanism(s) are gated on (ant-only; for BQ session segmentation)
   coachMode?: string
   observerMode?: 'backseat' | 'skillcoach' | 'both' // Which observer classifiers are gated on (ant-only; for BQ cohort splits on tengu_backseat_* events)
+  sessionKind?: 'bg' | 'daemon' | 'daemon-worker'
 }
 
 /**
@@ -721,6 +683,16 @@ function buildProcessMetrics(): ProcessMetrics | undefined {
   }
 }
 
+function getSessionKind(): EventMetadata['sessionKind'] {
+  if (feature('BG_SESSIONS')) {
+    const kind = process.env.CLAUDE_CODE_SESSION_KIND
+    if (kind === 'bg' || kind === 'daemon' || kind === 'daemon-worker') {
+      return kind
+    }
+  }
+  return undefined
+}
+
 /**
  * Get core event metadata shared across all analytics systems.
  *
@@ -743,6 +715,7 @@ export async function getEventMetadata(
     getRepoRemoteHash(),
   ])
   const processMetrics = buildProcessMetrics()
+  const sessionKind = getSessionKind()
 
   const metadata: EventMetadata = {
     model,
@@ -753,6 +726,7 @@ export async function getEventMetadata(
     ...(process.env.CLAUDE_CODE_ENTRYPOINT && {
       entrypoint: process.env.CLAUDE_CODE_ENTRYPOINT,
     }),
+    ...(sessionKind && { sessionKind }),
     ...(process.env.CLAUDE_AGENT_SDK_VERSION && {
       agentSdkVersion: process.env.CLAUDE_AGENT_SDK_VERSION,
     }),
@@ -846,6 +820,7 @@ export function to1PEventFormat(
     skillMode,
     coachMode,
     observerMode,
+    sessionKind,
     ...coreFields
   } = metadata
 
@@ -1009,6 +984,7 @@ export function to1PEventFormat(
       ...(skillMode && { skill_mode: skillMode }),
       ...(coachMode && { coach_mode: coachMode }),
       ...(observerMode && { observer_mode: observerMode }),
+      ...(sessionKind && { session_kind: sessionKind }),
       ...additionalMetadata,
     },
   }

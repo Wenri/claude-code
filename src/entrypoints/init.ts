@@ -15,6 +15,7 @@ import { populateOAuthAccountInfoIfNeeded } from '../services/oauth/client.js'
 import {
   initializePolicyLimitsLoadingPromise,
   isPolicyLimitsEligible,
+  maybeLoadPolicyLimitsAfterGrowthBookInit,
 } from '../services/policyLimits/index.js'
 import {
   initializeRemoteManagedSettingsLoadingPromise,
@@ -55,6 +56,7 @@ import {
   isBashToolEnabled,
   isPowerShellToolEnabled,
 } from '../utils/shell/shellToolUtils.js'
+import { assertScrubSandboxAvailable } from '../utils/subprocessEnv.js'
 import { isBetaTracingEnabled } from '../utils/telemetry/betaSessionTracing.js'
 import { getTelemetryAttributes } from '../utils/telemetryAttributes.js'
 import { setShellIfWindows } from '../utils/windowsPaths.js'
@@ -112,6 +114,7 @@ export const init = memoize(async (): Promise<void> => {
       // unchanged refreshes are no-ops.
       gb.onGrowthBookRefresh(() => {
         void fp.reinitialize1PEventLoggingIfConfigChanged()
+        maybeLoadPolicyLimitsAfterGrowthBookInit()
       })
     })
     profileCheckpoint('init_after_1p_event_logging')
@@ -177,17 +180,17 @@ export const init = memoize(async (): Promise<void> => {
     // inject proxy vars without a static import of the upstreamproxy module.
     if (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)) {
       try {
-        const { initUpstreamProxy, getUpstreamProxyEnv } = await import(
+        const { initEgressGateway, getEgressGatewayEnv } = await import(
           '../upstreamproxy/upstreamproxy.js'
         )
-        const { registerUpstreamProxyEnvFn } = await import(
+        const { registerEgressGatewayEnvFn } = await import(
           '../utils/subprocessEnv.js'
         )
-        registerUpstreamProxyEnvFn(getUpstreamProxyEnv)
-        await initUpstreamProxy()
+        registerEgressGatewayEnvFn(getEgressGatewayEnv)
+        await initEgressGateway()
       } catch (err) {
         logForDebugging(
-          `[init] upstreamproxy init failed: ${err instanceof Error ? err.message : String(err)}; continuing without proxy`,
+          `[init] egress gateway init failed: ${err instanceof Error ? err.message : String(err)}; continuing without proxy`,
           { level: 'warn' },
         )
       }

@@ -87,7 +87,7 @@ function parseKey(keypress: ParsedKey): [Key, string] {
   // clear below (name is falsy). The fragment then leaks into the prompt as
   // literal `[<64;74;16M`. This is the same defensive sink as the F13 guard
   // above; the underlying tokenizer-flush race is upstream of this layer.
-  if (!keypress.name && /^(\x1b?\[<\d[\d;]*[Mm]?)+$/.test(input)) {
+  if (!keypress.name && /^\[<\d+;\d+;\d+[Mm]/.test(input)) {
     input = ''
   }
 

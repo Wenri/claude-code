@@ -287,14 +287,6 @@ export const PermissionBehaviorSchema = lazySchema(() =>
   z.enum(['allow', 'deny', 'ask']),
 )
 
-// PreToolUse hooks may suspend a headless turn for an external actor to
-// approve or modify the pending action. This is deliberately distinct from
-// permission-rule behavior: `defer` is a hook protocol result, not a rule a
-// user can persist in settings.
-export const HookPermissionBehaviorSchema = lazySchema(() =>
-  z.enum(['allow', 'deny', 'ask', 'defer']),
-)
-
 export const PermissionRuleValueSchema = lazySchema(() =>
   z.object({
     toolName: z.string(),
@@ -1401,6 +1393,7 @@ export const NonNullableUsagePlaceholder = lazySchema(() => z.unknown())
 export const SDKAssistantMessageErrorSchema = lazySchema(() =>
   z.enum([
     'authentication_failed',
+    'oauth_org_not_allowed',
     'billing_error',
     'rate_limit',
     'invalid_request',
@@ -1441,11 +1434,18 @@ const SDKUserMessageContentSchema = lazySchema(() =>
     isSynthetic: z.boolean().optional(),
     tool_use_result: z.unknown().optional(),
     priority: z.enum(['now', 'next', 'later']).optional(),
+    origin: SDKMessageOriginSchema().optional(),
     client_platform: z
       .string()
       .optional()
       .describe(
         '@internal The `anthropic-client-platform` value of the client that sent this message (e.g. `ios`, `android`, `web_claude_ai`, `desktop_app`). Injected server-side by CCR ingress from the request header.',
+      ),
+    shouldQuery: z
+      .boolean()
+      .optional()
+      .describe(
+        'When false, the message is appended to the transcript without triggering an assistant turn. It will be merged into the next user message that does query.',
       ),
     timestamp: z
       .string()
@@ -1470,6 +1470,29 @@ export const SDKUserMessageReplaySchema = lazySchema(() =>
     isReplay: z.literal(true),
     file_attachments: z.array(z.unknown()).optional(),
   }),
+)
+
+export const SDKBashCommandSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('bash_command'),
+      command: z
+        .string()
+        .describe(
+          'Shell command to execute verbatim via a one-shot `/bin/sh -c` (or `pwsh`) subprocess, bypassing the model. Trust model matches the local TUI `!cmd` path (no sandbox, no per-command prompt); unlike `!cmd`, output is not appended to the conversation transcript and there is no persistent shell state across calls.',
+        ),
+      cwd: z
+        .string()
+        .optional()
+        .describe(
+          'Working directory for the command. Falls back to the session cwd when omitted.',
+        ),
+      uuid: UUIDPlaceholder().optional(),
+      session_id: z.string().optional(),
+    })
+    .describe(
+      '@internal A user-initiated shell command dispatched to a one-shot shell subprocess with no model turn. Input-only — sent by CCR clients that surface a dedicated terminal UI; never emitted on stdout.',
+    ),
 )
 
 export const SDKRateLimitInfoSchema = lazySchema(() =>
@@ -1503,8 +1526,8 @@ export const SDKRateLimitInfoSchema = lazySchema(() =>
           'group_zero_credit_limit',
           'member_zero_credit_limit',
           'org_service_level_disabled',
-          'org_service_zero_credit_limit',
           'no_limits_configured',
+          'fetch_error',
           'unknown',
         ])
         .optional(),
@@ -1607,6 +1630,7 @@ export const SDKResultSuccessSchema = lazySchema(() =>
     deferred_tool_use: SDKDeferredToolUseSchema().optional(),
     terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
+    origin: SDKMessageOriginSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -1633,6 +1657,7 @@ export const SDKResultErrorSchema = lazySchema(() =>
     errors: z.array(z.string()),
     terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
+    origin: SDKMessageOriginSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -1751,6 +1776,8 @@ export const SDKStatusMessageSchema = lazySchema(() =>
     subtype: z.literal('status'),
     status: SDKStatusSchema(),
     permissionMode: PermissionModeSchema().optional(),
+    compact_result: z.enum(['success', 'failed']).optional(),
+    compact_error: z.string().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -2225,7 +2252,6 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKTaskUpdatedMessageSchema(),
     SDKTaskProgressMessageSchema(),
     SDKSessionStateChangedMessageSchema(),
-    SDKNotificationMessageSchema(),
     SDKFilesPersistedEventSchema(),
     SDKToolUseSummaryMessageSchema(),
     SDKMemoryRecallMessageSchema(),

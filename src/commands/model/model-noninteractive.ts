@@ -1,42 +1,37 @@
-import {
-  COMMON_HELP_ARGS,
-  COMMON_INFO_ARGS,
-} from '../../constants/xml.js'
+import type {
+  LocalCommandResult,
+  LocalJSXCommandContext,
+} from '../../commands.js'
+import { COMMON_HELP_ARGS, COMMON_INFO_ARGS } from '../../constants/xml.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../../services/analytics/index.js'
-import type { LocalCommandCall } from '../../types/command.js'
 import { MODEL_ALIASES } from '../../utils/model/aliases.js'
-import {
-  executeModelChange,
-  renderCurrentModel,
-} from './modelCommand.js'
+import { changeModel, renderCurrentModel } from './model.js'
 
 const USAGE = `Usage: /model <name>. Available: ${MODEL_ALIASES.join(', ')}, default, or a full model ID.`
 
-export const call: LocalCommandCall = async (args, context) => {
-  const argument = args.trim()
-  if (!argument || COMMON_INFO_ARGS.includes(argument)) {
+export async function call(
+  args: string,
+  context: LocalJSXCommandContext,
+): Promise<LocalCommandResult> {
+  const input = args.trim()
+  if (!input || COMMON_INFO_ARGS.includes(input)) {
     return {
       type: 'text',
       value: `${renderCurrentModel(context.getAppState())}\n${USAGE}`,
     }
   }
-  if (COMMON_HELP_ARGS.includes(argument)) {
+  if (COMMON_HELP_ARGS.includes(input)) {
     return { type: 'text', value: USAGE }
   }
   logEvent('tengu_model_command_inline', {
-    args: argument as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    args: input as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
   return {
     type: 'text',
-    value: (
-      await executeModelChange(
-        argument,
-        context.getAppState,
-        context.setAppState,
-      )
-    ).message,
+    value: (await changeModel(input, context.getAppState, context.setAppState))
+      .message,
   }
 }

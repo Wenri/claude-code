@@ -1,11 +1,10 @@
 import { feature } from 'bun:bundle'
 import { shouldAutoEnableClaudeInChrome } from 'src/utils/claudeInChrome/setup.js'
-import { isEnvTruthy } from '../../utils/envUtils.js'
+import { isEnvTruthy } from 'src/utils/envUtils.js'
 import { registerBatchSkill } from './batch.js'
 import { registerClaudeInChromeSkill } from './claudeInChrome.js'
 import { registerDebugSkill } from './debug.js'
 import { registerKeybindingsSkill } from './keybindings.js'
-import { registerLegacyVerifySkill } from './legacyVerify.js'
 import { registerLoremIpsumSkill } from './loremIpsum.js'
 import { registerMemoryTypesSkill } from './memoryTypes.js'
 import { registerLessPermissionPromptsSkill } from './lessPermissionPrompts.js'
@@ -29,7 +28,6 @@ export function initBundledSkills(): void {
   registerUpdateConfigSkill()
   registerKeybindingsSkill()
   registerVerifySkill()
-  registerLegacyVerifySkill()
   registerDebugSkill()
   registerLoremIpsumSkill()
   registerMemoryTypesSkill()
@@ -68,7 +66,10 @@ export function initBundledSkills(): void {
     /* eslint-enable @typescript-eslint/no-require-imports */
     registerScheduleRemoteAgentsSkill()
   }
-  if (!isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_CLAUDE_API_SKILL)) {
+  if (
+    feature('BUILDING_CLAUDE_APPS') &&
+    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_CLAUDE_API_SKILL)
+  ) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { registerClaudeApiSkill } = require('./claudeApi.js')
     /* eslint-enable @typescript-eslint/no-require-imports */

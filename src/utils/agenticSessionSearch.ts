@@ -7,12 +7,12 @@ import type { ToolUseContext } from '../Tool.js'
 import { FileReadTool } from '../tools/FileReadTool/FileReadTool.js'
 import { GrepTool } from '../tools/GrepTool/GrepTool.js'
 import { createAbortController } from './abortController.js'
+import { NOOP_AGENT_LIFECYCLE } from './agentLifecycle.js'
+import { NOOP_SET_CLASSIFIER_APPROVALS } from './classifierApprovals.js'
+import { NOOP_TEAMMATE_COLORS } from './swarm/teammateLayoutManager.js'
+import { NOOP_SESSION_HOOKS_REGISTRY } from './hooks/sessionHooks.js'
 import { createFileStateCacheWithSizeLimit } from './fileStateCache.js'
 import { logForDebugging } from './debug.js'
-import {
-  createFileStateCacheWithSizeLimit,
-  READ_FILE_STATE_CACHE_SIZE,
-} from './fileStateCache.js'
 import { getLogDisplayTitle, logError } from './log.js'
 import { createUserMessage } from './messages.js'
 import { getSmallFastModel } from './model/model.js'
@@ -21,6 +21,7 @@ import { expandPath } from './path.js'
 import { getSessionIdFromLog } from './sessionStorage.js'
 import { jsonParse } from './slowOperations.js'
 import { asSystemPrompt } from './systemPromptType.js'
+import { createTaskRegistry } from './task/framework.js'
 import type { CanUseToolFn } from '../hooks/useCanUseTool.js'
 
 const MAX_TURNS = 20
@@ -87,15 +88,28 @@ function createSearchContext(
     abortController,
     readFileState: createFileStateCacheWithSizeLimit(100),
     getAppState: () => appState,
-    setAppState: () => {},
     getToolPermissionContext: () => appState.toolPermissionContext,
+    getEffortValue: () => appState.effortValue,
+    getAutoCompactWindow: () => appState.autoCompactWindow,
+    getFastMode: () => appState.fastMode,
+    getCacheBreakerPhrase: () => appState.cacheBreakerPhrase,
+    setAppState: () => {},
+    setToolPermissionContext: () => {},
+    setClassifierApprovals: NOOP_SET_CLASSIFIER_APPROVALS,
     setReplContext: () => {},
+    setWebBrowserSlice: () => {},
+    agentLifecycle: NOOP_AGENT_LIFECYCLE,
+    teammateColors: NOOP_TEAMMATE_COLORS,
+    taskRegistry: createTaskRegistry(() => appState, () => {}),
+    sessionHooksRegistry: NOOP_SESSION_HOOKS_REGISTRY,
     messages: initialMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},
-    setResponseLength: () => {},
-    updateFileHistoryState: () => {},
-    updateAttributionState: () => {},
+    addResponseLength: () => {},
+    resetResponseLength: () => {},
+    getFileHistoryState: () => undefined,
+    applyFileHistoryOp: () => {},
+    applyAttributionOp: () => {},
   }
 }
 
@@ -180,13 +194,6 @@ Find sessions whose transcript content matches the query by grepping the .jsonl 
   logForDebugging(
     `Agentic search: querying ${logs.length} logs for "${searchQuery}" across ${transcriptDirectories.length} dirs`,
   )
-  const appState = {
-    ...defaultState,
-    toolPermissionContext: {
-      ...defaultState.toolPermissionContext,
-      additionalWorkingDirectories,
-    },
-  }
 
   try {
     for await (const message of runQuery({
@@ -255,114 +262,4 @@ Find sessions whose transcript content matches the query by grepping the .jsonl 
     `Agentic search found ${matchingLogs.length}/${sessionIds.length} resumable sessions`,
   )
   return matchingLogs
-}
-
-function getLastAssistantText(messages: Message[]): string {
-  const message = messages.findLast(candidate => candidate.type === 'assistant')
-  if (!message || message.type !== 'assistant') return ''
-  return message.message.content
-    .filter(block => block.type === 'text')
-    .map(block => (block.type === 'text' ? block.text : ''))
-    .join('\n')
-}
-
-export async function agenticSessionSearch(
-  searchQuery: string,
-  logs: LogOption[],
-  signal?: AbortSignal,
-): Promise<LogOption[]> {
-  if (!searchQuery.trim() || logs.length === 0) return []
-
-  const transcriptDirectories = unique(
-    logs
-      .map(log => log.fullPath && dirname(log.fullPath))
-      .filter((path): path is string => path != null),
-  )
-  if (transcriptDirectories.length === 0) return []
-
-  const recentSessions = formatRecentSessions(logs)
-  const prompt = `Search query: "${searchQuery}"
-
-Search ONLY these transcript directories (other paths are out of scope):
-${transcriptDirectories.join('\n')}
-
-Recent sessions (id title metadata) — partial list, the match may not be here:
-${recentSessions}
-
-Find sessions whose transcript content matches the query by grepping the .jsonl files under the directories above.`
-  const initialMessages = [createUserMessage({ content: prompt })]
-
-  if (signal?.aborted) return []
-  const abortController = new AbortController()
-  const abort = () => abortController.abort()
-  signal?.addEventListener('abort', abort)
-
-  const toolUseContext = createSessionSearchContext(
-    SESSION_SEARCH_TOOLS,
-    initialMessages,
-    abortController,
-    transcriptDirectories,
-  )
-  logForDebugging(
-    `Agentic search: querying ${logs.length} logs for "${searchQuery}" across ${transcriptDirectories.length} dirs`,
-  )
-
-  const messages: Message[] = [...initialMessages]
-  try {
-    for await (const event of runQuery({
-      messages: initialMessages,
-      systemPrompt: asSystemPrompt([SESSION_SEARCH_SYSTEM_PROMPT]),
-      userContext: {},
-      systemContext: {},
-      canUseTool: createSessionSearchCanUseTool(transcriptDirectories),
-      toolUseContext,
-      querySource: 'session_search',
-      maxTurns: MAX_TURNS,
-    })) {
-      if (event.type === 'stream_event' || event.type === 'stream_request_start') {
-        continue
-      }
-      if (event.type === 'assistant' || event.type === 'user') {
-        messages.push(event)
-      }
-    }
-  } catch (error) {
-    if (abortController.signal.aborted) return []
-    logError(error as Error)
-    return []
-  } finally {
-    signal?.removeEventListener('abort', abort)
-  }
-
-  const response = getLastAssistantText(messages)
-  logForDebugging(`Agentic search response: ${response}`)
-  const sessionIdsJson = Array.from(
-    response.matchAll(/"session_ids"\s*:\s*(\[[^\]]*\])/g),
-  ).at(-1)?.[1]
-  if (!sessionIdsJson) {
-    logForDebugging('Agentic search: no session_ids array in final response')
-    return []
-  }
-
-  let sessionIds: string[]
-  try {
-    sessionIds = unique(jsonParse(sessionIdsJson))
-  } catch (error) {
-    logError(error as Error)
-    return []
-  }
-
-  const logsBySessionId = new Map<string, LogOption>()
-  for (const log of logs) {
-    const sessionId = getSessionIdFromLog(log)
-    if (sessionId) logsBySessionId.set(sessionId, log)
-  }
-  const matches = sessionIds
-    .map(sessionId => logsBySessionId.get(sessionId))
-    .filter((log): log is LogOption => log !== undefined)
-
-  logForDebugging(
-    `Agentic search found ${matches.length}/${sessionIds.length} resumable sessions`,
-  )
-  return matches
 }

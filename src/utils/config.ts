@@ -95,6 +95,7 @@ export type ProjectConfig = {
   lastTotalWebSearchRequests?: number
   lastFpsAverage?: number
   lastFpsLow1Pct?: number
+  lastGracefulShutdown?: boolean
   lastSessionId?: string
   lastModelUsage?: Record<
     string,
@@ -396,6 +397,7 @@ export type GlobalConfig = {
 
   // Subscription notice tracking
   subscriptionNoticeCount?: number // Number of times the subscription notice has been shown
+  seenNotifications?: Record<string, number>
   hasAvailableSubscription?: boolean // Cached result of whether user has a subscription available
   subscriptionUpsellShownCount?: number // Number of times the subscription upsell has been shown (deprecated)
   recommendedSubscription?: string // Cached config value from Statsig (deprecated)
@@ -483,6 +485,9 @@ export type GlobalConfig = {
 
   // Cached GrowthBook feature values
   cachedGrowthBookFeatures?: { [featureName: string]: unknown }
+
+  // Feature names whose cached GrowthBook values came from experiments
+  cachedExperimentFeatures?: string[]
 
   // Local GrowthBook overrides (ant-only, set via /config Gates tab).
   // Checked after env-var overrides but before the real resolved value.
@@ -590,6 +595,7 @@ export type GlobalConfig = {
   remoteControlAtStartup?: boolean
   daemonInstallPromptDismissed?: boolean
   autoUploadSessions?: boolean
+  autoAddRemoteControlDaemonWorker?: boolean
   hasUsedRemoteControl?: boolean
   remoteControlUpsellSeenCount?: number
   pushNotifUpsellSeenCount?: number
@@ -692,15 +698,15 @@ export const GLOBAL_CONFIG_KEYS = [
   'hasUsedBackslashReturn',
   'autoCompactEnabled',
   'autoScrollEnabled',
-  'externalEditorContext',
-  'briefTranscript',
   'showTurnDuration',
+  'externalEditorContext',
   'showMessageTimestamps',
   'diffTool',
   'env',
   'tipsHistory',
   'todoFeatureEnabled',
   'showExpandedTodos',
+  'briefTranscript',
   'messageIdleNotifThresholdMs',
   'autoConnectIde',
   'autoInstallIdeExtension',
@@ -723,6 +729,7 @@ export const GLOBAL_CONFIG_KEYS = [
   'prStatusFooterEnabled',
   'remoteControlAtStartup',
   'autoUploadSessions',
+  'autoAddRemoteControlDaemonWorker',
   'remoteDialogSeen',
 ] as const
 
@@ -751,8 +758,13 @@ export type ProjectConfigKey = (typeof PROJECT_CONFIG_KEYS)[number]
  */
 let _trustAccepted = false
 
-export function resetTrustDialogAcceptedCacheForTesting(): void {
+export function resetTrustDialogAcceptedCache(): void {
   _trustAccepted = false
+}
+
+/** @deprecated Use resetTrustDialogAcceptedCache. */
+export function resetTrustDialogAcceptedCacheForTesting(): void {
+  resetTrustDialogAcceptedCache()
 }
 
 export function checkHasTrustDialogAccepted(): boolean {
@@ -764,6 +776,10 @@ export function checkHasTrustDialogAccepted(): boolean {
 }
 
 function computeTrustDialogAccepted(): boolean {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_SANDBOXED)) {
+    return true
+  }
+
   // Check session-level trust (for home directory case where trust is not persisted)
   // When running from home dir, trust dialog is shown but acceptance is stored
   // in memory only. This allows hooks and other features to work during the session.
@@ -1781,6 +1797,54 @@ export function saveCurrentProjectConfig(
         [absolutePath]: newProjectConfig,
       },
     }
+    saveConfig(getGlobalClaudeFile(), written, DEFAULT_GLOBAL_CONFIG)
+    writeThroughGlobalConfigCache(written)
+  }
+}
+
+export function deleteProjectConfig(projectPath: string): void {
+  let written: GlobalConfig | null = null
+  try {
+    const didWrite = saveConfigWithLock(
+      getGlobalClaudeFile(),
+      createDefaultGlobalConfig,
+      current => {
+        if (!current.projects?.[projectPath]) {
+          return current
+        }
+        const { [projectPath]: _, ...remainingProjects } = current.projects
+        written = migrateConfigFields({
+          ...current,
+          projects: remainingProjects,
+        })
+        return written
+      },
+    )
+    if (didWrite && written) {
+      writeThroughGlobalConfigCache(written)
+    }
+  } catch (error) {
+    logForDebugging(`Failed to save config with lock: ${error}`, {
+      level: 'error',
+    })
+
+    const config = getConfig(getGlobalClaudeFile(), createDefaultGlobalConfig)
+    if (wouldLoseAuthState(config)) {
+      logForDebugging(
+        'deleteProjectConfig fallback: re-read config is missing auth that cache has; refusing to write. See GH #3117.',
+        { level: 'error' },
+      )
+      logEvent('tengu_config_auth_loss_prevented', {})
+      return
+    }
+    if (!config.projects?.[projectPath]) {
+      return
+    }
+    const { [projectPath]: _, ...remainingProjects } = config.projects
+    written = migrateConfigFields({
+      ...config,
+      projects: remainingProjects,
+    })
     saveConfig(getGlobalClaudeFile(), written, DEFAULT_GLOBAL_CONFIG)
     writeThroughGlobalConfigCache(written)
   }

@@ -341,7 +341,6 @@ export function createLSPServerManager(): LSPServerManager {
 
     const version = nextDocumentVersion(fileUri)
     try {
-      const version = nextDocumentVersion(fileUri)
       await server.sendNotification('textDocument/didChange', {
         textDocument: {
           uri: fileUri,

@@ -26,6 +26,7 @@ export type EffortValue = EffortLevel | number
 
 // @[MODEL LAUNCH]: Add the new model to the allowlist if it supports the effort parameter.
 export function modelSupportsEffort(model: string): boolean {
+  const m = model.toLowerCase()
   if (isEnvTruthy(process.env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT)) {
     return true
   }
@@ -33,24 +34,17 @@ export function modelSupportsEffort(model: string): boolean {
   if (supported3P !== undefined) {
     return supported3P
   }
-  const canonical = getCanonicalName(model)
+  // Supported by a subset of Claude 4 models
   if (
-    canonical.includes('claude-3-') ||
-    canonical === 'claude-opus-4-0' ||
-    canonical === 'claude-opus-4-1' ||
-    canonical === 'claude-sonnet-4-0' ||
-    canonical === 'claude-sonnet-4-5' ||
-    canonical === 'claude-haiku-4-5'
-  ) {
-    return false
-  }
-  if (
-    canonical === 'claude-opus-4-7' ||
-    canonical === 'claude-opus-4-6' ||
-    canonical === 'claude-opus-4-5' ||
-    canonical === 'claude-sonnet-4-6'
+    m.includes('opus-4-7') ||
+    m.includes('opus-4-6') ||
+    m.includes('sonnet-4-6')
   ) {
     return true
+  }
+  // Exclude any other known legacy models (haiku, older opus/sonnet variants)
+  if (m.includes('haiku') || m.includes('sonnet') || m.includes('opus')) {
+    return false
   }
 
   // IMPORTANT: Do not change the default effort support without notifying
@@ -88,52 +82,16 @@ export function modelSupportsMaxEffort(model: string): boolean {
   if (supported3P !== undefined) {
     return supported3P
   }
-  const canonical = getCanonicalName(model)
-  if (
-    canonical.includes('claude-3-') ||
-    canonical === 'claude-opus-4-0' ||
-    canonical === 'claude-opus-4-1' ||
-    canonical === 'claude-opus-4-5' ||
-    canonical === 'claude-sonnet-4-0' ||
-    canonical === 'claude-sonnet-4-5' ||
-    canonical === 'claude-haiku-4-5'
-  ) {
-    return false
-  }
-  if (
-    canonical === 'claude-opus-4-7' ||
-    canonical === 'claude-opus-4-6' ||
-    canonical === 'claude-sonnet-4-6'
-  ) {
-    return true
-  }
-  return isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model))
+  if (model.toLowerCase().includes('haiku')) return false
+  return !MODELS_WITHOUT_MAX_EFFORT.has(
+    normalizeModelForEffortCapability(model),
+  )
 }
 
 export function modelSupportsXHighEffort(model: string): boolean {
   const supported3P = get3PModelCapabilityOverride(model, 'xhigh_effort')
   if (supported3P !== undefined) return supported3P
-  const canonical = getCanonicalName(model)
-  if (
-    canonical.includes('claude-3-') ||
-    canonical === 'claude-opus-4-0' ||
-    canonical === 'claude-opus-4-1' ||
-    canonical === 'claude-opus-4-5' ||
-    canonical === 'claude-opus-4-6' ||
-    canonical === 'claude-sonnet-4-0' ||
-    canonical === 'claude-sonnet-4-5' ||
-    canonical === 'claude-sonnet-4-6' ||
-    canonical === 'claude-haiku-4-5'
-  ) {
-    return false
-  }
-  if (
-    getCanonicalName(model).includes('opus-4-7') &&
-    canonical === 'claude-opus-4-7'
-  ) {
-    return true
-  }
-  return isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model))
+  return getCanonicalName(model).includes('opus-4-7')
 }
 
 export function isEffortLevel(value: string): value is EffortLevel {

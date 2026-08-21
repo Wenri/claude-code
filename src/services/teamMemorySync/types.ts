@@ -97,7 +97,7 @@ export type SkippedSecretFile = {
 /**
  * Result from fetching team memory
  */
-export type TeamMemorySyncFetchResult = TeamMemoryServerErrorMetadata & {
+export type TeamMemorySyncFetchResult = {
   success: boolean
   data?: TeamMemoryData
   isEmpty?: boolean // true if 404 (no data exists)
@@ -123,7 +123,7 @@ export type TeamMemorySyncFetchResult = TeamMemoryServerErrorMetadata & {
  * Contains per-key checksums without entry bodies. Used to refresh
  * serverChecksums cheaply during 412 conflict resolution.
  */
-export type TeamMemoryHashesResult = TeamMemoryServerErrorMetadata & {
+export type TeamMemoryHashesResult = {
   success: boolean
   version?: number
   checksum?: string
@@ -146,7 +146,7 @@ export type TeamMemoryHashesResult = TeamMemoryServerErrorMetadata & {
 /**
  * Result from uploading team memory with conflict info
  */
-export type TeamMemorySyncPushResult = TeamMemoryServerErrorMetadata & {
+export type TeamMemorySyncPushResult = {
   success: boolean
   filesUploaded: number
   filesSoftDeleted?: number
@@ -172,7 +172,7 @@ export type TeamMemorySyncPushResult = TeamMemoryServerErrorMetadata & {
 /**
  * Result from uploading team memory
  */
-export type TeamMemorySyncUploadResult = TeamMemoryServerErrorMetadata & {
+export type TeamMemorySyncUploadResult = {
   success: boolean
   checksum?: string
   lastModified?: string

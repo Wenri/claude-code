@@ -1,34 +1,46 @@
-import { COMMON_HELP_ARGS } from '../../constants/xml.js'
-import type { LocalCommandCall } from '../../types/command.js'
+import type {
+  LocalCommandResult,
+  LocalJSXCommandContext,
+} from '../../commands.js'
 import {
-  getCanonicalName,
   getDefaultMainLoopModelSetting,
+  parseUserSpecifiedModel,
 } from '../../utils/model/model.js'
-import { executeEffort, HELP, showCurrentEffort } from './effort.js'
+import {
+  EFFORT_HELP_TEXT,
+  executeEffort,
+  showCurrentEffort,
+} from './effort.js'
 
-export const call: LocalCommandCall = async (args, context) => {
-  const argument = args.trim()
-  if (COMMON_HELP_ARGS.includes(argument)) {
-    return { type: 'text', value: HELP }
+const COMMON_HELP_ARGS = ['help', '-h', '--help']
+export async function call(
+  args: string,
+  context: LocalJSXCommandContext,
+): Promise<LocalCommandResult> {
+  const arg = args.trim()
+  if (COMMON_HELP_ARGS.includes(arg)) {
+    return { type: 'text', value: EFFORT_HELP_TEXT }
   }
-  if (argument === 'current' || argument === 'status') {
+  if (arg === 'current' || arg === 'status') {
     const state = context.getAppState()
-    const model = getCanonicalName(
+    const model = parseUserSpecifiedModel(
       state.mainLoopModelForSession ??
         state.mainLoopModel ??
         getDefaultMainLoopModelSetting(),
     )
-    const { message } = showCurrentEffort(state.effortValue, model)
-    return { type: 'text', value: message }
+    return {
+      type: 'text',
+      value: showCurrentEffort(state.effortValue, model).message,
+    }
   }
-  if (!argument) {
+  if (!arg) {
     return {
       type: 'text',
       value: 'Usage: /effort <low|medium|high|xhigh|max|auto>',
     }
   }
 
-  const result = executeEffort(argument)
+  const result = executeEffort(arg)
   if (result.effortUpdate) {
     const value = result.effortUpdate.value
     context.setAppState(previous =>

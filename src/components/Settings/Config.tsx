@@ -2,7 +2,6 @@ import { c as _c } from "react/compiler-runtime";
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import { feature } from 'bun:bundle';
 import { Box, Text, useTheme, useThemeSetting, useTerminalFocus } from '../../ink.js';
-import Link from '../../ink/components/Link.js';
 import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 import * as React from 'react';
 import { useState, useCallback } from 'react';
@@ -10,7 +9,6 @@ import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.j
 import figures from 'figures';
 import { type GlobalConfig, saveGlobalConfig, getCurrentProjectConfig, type OutputStyle } from '../../utils/config.js';
 import { normalizeApiKeyForConfig } from '../../utils/authPortable.js';
-import { getClaudeAIOAuthTokens } from '../../utils/auth.js';
 import { getGlobalConfig, getAutoUpdaterDisabledReason, formatAutoUpdaterDisabledReason, getRemoteControlAtStartup } from '../../utils/config.js';
 import chalk from 'chalk';
 import { permissionModeTitle, permissionModeFromString, toExternalPermissionMode, isExternalPermissionMode, EXTERNAL_PERMISSION_MODES, PERMISSION_MODES, type ExternalPermissionMode, type PermissionMode } from '../../utils/permissions/PermissionMode.js';
@@ -242,9 +240,7 @@ export function Config({
   const {
     query: searchQuery,
     setQuery: setSearchQuery,
-    cursorOffset: searchCursorOffset,
-    handleKeyDown: handleSearchKeyDown,
-    handlePaste: handleSearchPaste,
+    cursorOffset: searchCursorOffset
   } = useSearchInput({
     isActive: isSearchMode && showSubmenu === null && !headerFocused,
     onExit: () => setIsSearchMode(false),
@@ -694,7 +690,7 @@ export function Config({
     }
   }, {
     id: 'copyFullResponse',
-    label: 'Always copy full response (skip /copy picker)',
+    label: 'Skip the /copy picker',
     value: globalConfig.copyFullResponse,
     type: 'boolean' as const,
     onChange(copyFullResponse: boolean) {
@@ -803,11 +799,6 @@ export function Config({
         key: 'inputNeededNotifEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         value: String(inputNeededNotifEnabled) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
-      syncNotificationPreferences();
-      logEvent('tengu_push_notif_pref_changed', {
-        key: 'inputNeededNotifEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        value: String(inputNeededNotifEnabled) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
     }
   }] : []), {
     id: 'agentPushNotifEnabled',
@@ -823,11 +814,6 @@ export function Config({
         ...current_12,
         agentPushNotifEnabled
       }));
-      syncNotificationPreferences();
-      logEvent('tengu_push_notif_pref_changed', {
-        key: 'agentPushNotifEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        value: String(agentPushNotifEnabled) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
       syncNotificationPreferences();
       logEvent('tengu_push_notif_pref_changed', {
         key: 'agentPushNotifEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1561,7 +1547,6 @@ export function Config({
     if (headerFocused) return;
     // Search mode: Esc clears then exits, Enter/↓ moves to the list.
     if (isSearchMode) {
-      handleSearchKeyDown(e);
       if (e.key === 'escape') {
         e.preventDefault();
         if (searchQuery.length > 0) {
@@ -1598,8 +1583,8 @@ export function Config({
       setIsSearchMode(true);
       setSearchQuery(e.key);
     }
-  }, [showSubmenu, headerFocused, isSearchMode, searchQuery, setSearchQuery, handleSearchKeyDown, toggleSetting]);
-  return <Box flexDirection="column" width="100%" tabIndex={0} autoFocus onKeyDown={handleKeyDown} onPaste={handleSearchPaste}>
+  }, [showSubmenu, headerFocused, isSearchMode, searchQuery, setSearchQuery, toggleSetting]);
+  return <Box flexDirection="column" width="100%" tabIndex={0} autoFocus onKeyDown={handleKeyDown}>
       {showSubmenu === 'Theme' ? <>
           <ThemePicker onThemeSelect={setting_1 => {
         isDirty.current = true;
@@ -1854,7 +1839,6 @@ export function Config({
                                 {setting_2.value.toString()}
                               </Text>}
                           </Box>
-                          {(setting_2.id === 'inputNeededNotifEnabled' || setting_2.id === 'agentPushNotifEnabled') && <PushReachabilityWarning />}
                         </Box>
                         {(setting_2.id === 'inputNeededNotifEnabled' || setting_2.id === 'agentPushNotifEnabled') && <PushReachabilityWarning />}
                       </React.Fragment>;
@@ -1889,19 +1873,6 @@ export function Config({
             </Text>}
         </Box>}
     </Box>;
-}
-function PushReachabilityWarning(): React.ReactNode {
-  const reachability = React.useSyncExternalStore(
-    subscribePushReachability,
-    getPushReachability,
-    () => undefined,
-  );
-  if (reachability?.has_active_channel !== false) return null;
-  return <Text color="warning" wrap="truncate-end">
-      {'  '}{figures.warning} No mobile registered ·{' '}
-      <Link url="https://claude.com/download#mobile">get the app</Link>{' '}
-      and turn on notif
-    </Text>;
 }
 function teammateModelDisplayString(value: string | null | undefined): string {
   if (value === undefined) {

@@ -1,21 +1,20 @@
-import { randomBytes } from 'crypto'
 import { watch } from 'fs'
 import {
-  copyFile,
   mkdir,
   readFile,
   readdir,
-  rename,
-  rm,
   writeFile,
 } from 'fs/promises'
 import { basename, dirname, join } from 'path'
 import { z } from 'zod/v4'
+import { getSessionId } from '../bootstrap/state.js'
 import { logForDebugging } from '../utils/debug.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { getClaudeConfigHomeDir } from '../utils/envUtils.js'
 import { isENOENT } from '../utils/errors.js'
 import { safeParseJSON } from '../utils/json.js'
 import { lazySchema } from '../utils/lazySchema.js'
+import { logError } from '../utils/log.js'
 
 export const STATE_FILE = 'state.json'
 
@@ -55,6 +54,7 @@ export const JobStateSchema = lazySchema(() =>
       name: z.string().optional(),
       nameSource: z.enum(['user', 'auto']).optional(),
       sessionId: z.string(),
+      resumeSessionId: z.string().optional(),
       cliVersion: z.string().optional(),
       cwd: z.string(),
       createdAt: z.string(),
@@ -109,6 +109,12 @@ export function getJobsDir(): string {
 
 export function getJobDir(id: string): string {
   return join(getJobsDir(), id)
+}
+
+export function getCurrentJobShort(): string {
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (jobDir) return basename(jobDir)
+  return getSessionId().slice(0, 8)
 }
 
 const jobStateCache = new Map<string, JobState | null>()
@@ -183,30 +189,6 @@ export function watchJobState(id: string, callback: () => void): () => void {
   }
 }
 
-async function atomicWrite(path: string, contents: string): Promise<void> {
-  const temporary = join(
-    dirname(path),
-    `.${basename(path)}.tmp.${randomBytes(4).toString('hex')}`,
-  )
-  try {
-    await writeFile(temporary, contents, { encoding: 'utf-8' })
-    try {
-      await rename(temporary, path)
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code
-      if (code === 'EPERM' || code === 'EEXIST' || code === 'EXDEV') {
-        await copyFile(temporary, path)
-        await rm(temporary, { force: true }).catch(() => {})
-      } else {
-        throw error
-      }
-    }
-  } catch (error) {
-    await rm(temporary, { force: true }).catch(() => {})
-    throw error
-  }
-}
-
 export async function writeJobState(
   jobDir: string,
   state: JobState,
@@ -217,7 +199,10 @@ export async function writeJobState(
     stateSortOrder: _stateSortOrder,
     ...persisted
   } = state
-  await atomicWrite(join(jobDir, STATE_FILE), JSON.stringify(persisted, null, 2))
+  await atomicWriteFile(
+    join(jobDir, STATE_FILE),
+    JSON.stringify(persisted, null, 2),
+  )
   invalidateJobState(jobDir)
 }
 
@@ -312,7 +297,7 @@ export async function readPins(): Promise<Set<string>> {
 export async function writePins(pins: Set<string>): Promise<void> {
   const path = getPinsPath()
   await mkdir(dirname(path), { recursive: true })
-  await atomicWrite(path, JSON.stringify([...pins], null, 2))
+  await atomicWriteFile(path, JSON.stringify([...pins], null, 2))
 }
 
 let pinWriteChain = Promise.resolve()
@@ -333,20 +318,99 @@ export async function renameJob(
   sessionId: string,
   name: string,
   source: 'user' | 'auto' = 'user',
-): Promise<void> {
-  const jobDir = getJobDir(sessionId.slice(0, 8))
+): Promise<boolean> {
+  const isCurrentSession = sessionId === getSessionId()
+  const jobDir = getJobDir(
+    isCurrentSession ? getCurrentJobShort() : sessionId.slice(0, 8),
+  )
   const first = await readJobState(jobDir)
-  if (!first || first.sessionId !== sessionId || first.name === name) return
+  if (!first || (!isCurrentSession && first.sessionId !== sessionId)) {
+    return false
+  }
+  if (first.name === name) return true
   invalidateJobState(jobDir)
   const latest = (await readJobState(jobDir)) ?? first
-  if (latest.sessionId !== sessionId || latest.name === name) return
-  if (source === 'auto' && latest.name) return
-  await writeJobState(jobDir, {
+  if (!isCurrentSession && latest.sessionId !== sessionId) return false
+  if (latest.name === name || (source === 'auto' && latest.name)) return true
+  return writeJobState(jobDir, {
     ...latest,
     name,
     nameSource: source,
     updatedAt: new Date().toISOString(),
-  }).catch(() => {})
+  }).then(() => true, error => {
+    if (!isENOENT(error)) logError(error)
+    return false
+  })
+}
+
+export async function setCurrentJobRespawnFlag(
+  flag: string,
+  aliases: readonly string[],
+  value: string | null,
+): Promise<void> {
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (!jobDir) return
+  invalidateJobState(jobDir)
+  const state = await readJobState(jobDir)
+  if (!state?.respawnFlags) return
+
+  const names = [flag, ...aliases]
+  const filtered: string[] = []
+  for (let index = 0; index < state.respawnFlags.length; index++) {
+    const argument = state.respawnFlags[index]!
+    if (
+      names.some(
+        name => argument === name || argument.startsWith(`${name}=`),
+      )
+    ) {
+      if (!argument.includes('=') && state.respawnFlags[index + 1] !== undefined) {
+        index++
+      }
+      continue
+    }
+    filtered.push(argument)
+  }
+
+  const next = value === null ? filtered : [...filtered, flag, value]
+  if (
+    next.length === state.respawnFlags.length &&
+    next.every((argument, index) => argument === state.respawnFlags[index])
+  ) {
+    return
+  }
+  await writeJobState(jobDir, {
+    ...state,
+    respawnFlags: next,
+    updatedAt: new Date().toISOString(),
+  }).catch(error => {
+    if (!isENOENT(error)) logError(error)
+  })
+}
+
+export async function appendCurrentJobRespawnFlag(
+  flag: string,
+  value: string,
+): Promise<void> {
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (!jobDir) return
+  invalidateJobState(jobDir)
+  const state = await readJobState(jobDir)
+  if (!state?.respawnFlags) return
+  for (let index = 0; index < state.respawnFlags.length - 1; index++) {
+    if (
+      state.respawnFlags[index] === flag &&
+      state.respawnFlags[index + 1] === value
+    ) {
+      return
+    }
+  }
+  await writeJobState(jobDir, {
+    ...state,
+    respawnFlags: [...state.respawnFlags, flag, value],
+    updatedAt: new Date().toISOString(),
+  }).catch(error => {
+    if (!isENOENT(error)) logError(error)
+  })
 }
 
 export async function writeJobOrder(
@@ -461,6 +525,7 @@ export function createInitialJobState(
     nameSource: options.nameSource,
     initialPrompt: options.template.initialPrompt,
     sessionId: options.sessionId,
+    resumeSessionId: options.sessionId,
     cwd: options.cwd,
     createdAt: now,
     updatedAt: now,

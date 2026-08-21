@@ -1,5 +1,3 @@
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
 import chalk from 'chalk'
 import { logEvent } from 'src/services/analytics/index.js'
 import {
@@ -8,7 +6,6 @@ import {
   shouldSkipVersion,
   type InstallStatus,
   installGlobalPackage,
-  shouldSkipVersion,
 } from 'src/utils/autoUpdater.js'
 import { regenerateCompletionCache } from 'src/utils/completionCache.js'
 import {
@@ -18,10 +15,7 @@ import {
 } from 'src/utils/config.js'
 import { logForDebugging } from 'src/utils/debug.js'
 import { getDoctorDiagnostic } from 'src/utils/doctorDiagnostic.js'
-import { getClaudeConfigHomeDir } from 'src/utils/envUtils.js'
-import { isENOENT } from 'src/utils/errors.js'
 import { gracefulShutdown } from 'src/utils/gracefulShutdown.js'
-import { safeParseJSON } from 'src/utils/json.js'
 import {
   installOrUpdateClaudePackage,
   localInstallationExists,
@@ -51,70 +45,6 @@ async function printDaemonUpgradeNotice(version: string): Promise<void> {
       ) + '\n',
     )
   }
-}
-
-type DaemonLock = {
-  pid: number
-  version: string
-}
-
-const DAEMON_LOCK_FILENAME = 'daemon.lock'
-
-function getDaemonLockPath(): string {
-  return join(getClaudeConfigHomeDir(), DAEMON_LOCK_FILENAME)
-}
-
-async function readDaemonLock(): Promise<DaemonLock | null> {
-  let contents: string
-  try {
-    contents = await readFile(getDaemonLockPath(), 'utf8')
-  } catch (error) {
-    if (isENOENT(error)) return null
-    throw error
-  }
-  const parsed = safeParseJSON(contents, false)
-  if (parsed && typeof parsed === 'object') {
-    const lock = parsed as Partial<DaemonLock>
-    if (typeof lock.pid === 'number' && typeof lock.version === 'string') {
-      return lock as DaemonLock
-    }
-  }
-  return null
-}
-
-async function isClaudeDaemonProcess(pid: number): Promise<boolean> {
-  let commandLine: string
-  try {
-    commandLine = await readFile(`/proc/${pid}/cmdline`, 'utf8')
-  } catch {
-    // /proc is Linux-specific. A live PID plus a valid lock remains the best
-    // available identity check on other platforms.
-    return true
-  }
-  const args = commandLine.split('\0')
-  return Boolean(
-    args[0]?.includes('claude') &&
-      (args[0] === 'claude daemon' || args[1] === 'daemon'),
-  )
-}
-
-async function getRunningDaemonLock(): Promise<DaemonLock | null> {
-  const lock = await readDaemonLock()
-  if (!lock) return null
-  try {
-    process.kill(lock.pid, 0)
-  } catch {
-    return null
-  }
-  if (!(await isClaudeDaemonProcess(lock.pid))) return null
-  return lock
-}
-
-async function willDaemonRestartForVersion(
-  version: string,
-): Promise<boolean> {
-  const lock = await getRunningDaemonLock().catch(() => null)
-  return Boolean(lock && lock.version !== version)
 }
 
 export async function update() {

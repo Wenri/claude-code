@@ -170,7 +170,7 @@ export const WebSearchTool = buildTool({
     const model = getMainLoopModel()
 
     // Enable for firstParty
-    if (provider === 'firstParty' || provider === 'anthropicAws') {
+    if (provider === 'firstParty') {
       return true
     }
 
@@ -283,10 +283,11 @@ export const WebSearchTool = buildTool({
         hasAppendSystemPrompt: !!context.options.appendSystemPrompt,
         extraToolSchemas: [toolSchema],
         querySource: 'web_search_tool',
+        enablePromptCaching: false,
         agents: context.options.agentDefinitions.activeAgents,
         mcpTools: [],
         agentId: context.agentId,
-        effortValue: appState.effortValue,
+        effortValue: context.getEffortValue(),
       },
     })
 

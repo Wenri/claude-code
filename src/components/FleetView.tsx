@@ -1,9 +1,11 @@
 import { createReadStream } from 'fs'
 import { randomUUID } from 'crypto'
 import chalk from 'chalk'
+import figures from 'figures'
 import { readdir, stat } from 'fs/promises'
 import { createInterface } from 'readline'
 import { basename, isAbsolute, join } from 'path'
+import { fileURLToPath, pathToFileURL } from 'url'
 import React, {
   useCallback,
   useEffect,
@@ -13,8 +15,23 @@ import React, {
   useState,
 } from 'react'
 import stripAnsi from 'strip-ansi'
-import { Box, Text, createRoot, useInput, type Root } from '../ink.js'
+import { useInterval } from 'usehooks-ts'
+import {
+  Box,
+  Link,
+  Text,
+  createRoot,
+  useAnimationFrame,
+  type Root,
+} from '../ink.js'
 import { AlternateScreen } from '../ink/components/AlternateScreen.js'
+import ScrollBox, {
+  type ScrollBoxHandle,
+} from '../ink/components/ScrollBox.js'
+import type { DOMElement } from '../ink/dom.js'
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js'
+import type { PasteEvent } from '../ink/events/paste-event.js'
+import instances from '../ink/instances.js'
 import {
   DISABLE_KITTY_KEYBOARD,
   DISABLE_MODIFY_OTHER_KEYS,
@@ -27,8 +44,13 @@ import { supportsExtendedKeys } from '../ink/terminal.js'
 import { clearTerminal } from '../ink/clearTerminal.js'
 import { stringWidth } from '../ink/stringWidth.js'
 import { useTerminalFocus } from '../ink/hooks/use-terminal-focus.js'
-import TextInput from './TextInput.js'
 import { AutoUpdaterWrapper } from './AutoUpdaterWrapper.js'
+import { SearchBox } from './SearchBox.js'
+import { Clawd } from './LogoV2/Clawd.js'
+import { Byline } from './design-system/Byline.js'
+import { KeyboardShortcutHint } from './design-system/KeyboardShortcutHint.js'
+import { PromptInputFooterSuggestions } from './PromptInput/PromptInputFooterSuggestions.js'
+import { getDefaultCharacters } from './Spinner/utils.js'
 import { ThemeProvider } from './design-system/ThemeProvider.js'
 import {
   getJobDir,
@@ -51,6 +73,7 @@ import {
 } from '../cli/bg.js'
 import {
   claimPrewarmedJob,
+  DEFAULT_TEMPLATE,
   dispatchTemplateJob,
   getPrewarmedJob,
   markPrewarmedJobReady,
@@ -67,7 +90,10 @@ import {
   getAgentDefinitionsWithOverrides,
   isCustomAgent,
 } from '../tools/AgentTool/loadAgentsDir.js'
-import { getProjectDir } from '../utils/sessionStoragePortable.js'
+import {
+  canonicalizePath,
+  getProjectDir,
+} from '../utils/sessionStoragePortable.js'
 import {
   expandPastedTextRefs,
   formatPastedTextRef,
@@ -76,6 +102,7 @@ import {
 import {
   findCanonicalGitRoot,
   findRepoRemoteSlug,
+  getBranch,
 } from '../utils/git.js'
 import { getCwd } from '../utils/cwd.js'
 import {
@@ -99,8 +126,17 @@ import {
   type PastedContent,
 } from '../utils/config.js'
 import { PASTE_THRESHOLD } from '../utils/imagePaste.js'
+import { openBrowser, openPath } from '../utils/browser.js'
 import { editPromptInEditor } from '../utils/promptEditor.js'
+import { tailFile } from '../utils/fsOperations.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
+import {
+  cleanupFleetDrafts,
+  deleteFleetDraft,
+  loadFleetDraft,
+  saveFleetDraft,
+  saveFleetDraftSync,
+} from '../utils/fleetDraft.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from '../utils/envUtils.js'
 import { isMouseTrackingEnabled, isTmuxControlMode } from '../utils/fullscreen.js'
 import {
@@ -109,9 +145,18 @@ import {
   useAppState,
 } from '../state/AppState.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
+import { useSearchInput } from '../hooks/useSearchInput.js'
+import { useTerminalSize } from '../hooks/useTerminalSize.js'
+import {
+  getLogoDisplayData,
+  truncatePath,
+} from '../utils/logoV2Utils.js'
+import { truncateStartToWidth } from '../utils/truncate.js'
+import { formatDuration, formatRelativeTime } from '../utils/format.js'
 import {
   fetchPrStatus,
   fetchPrStatuses,
+  persistPrStatusCache,
   prStatusColor,
   readPrStatusCache,
   type PrStatus,
@@ -122,9 +167,17 @@ const CONTROL_RE = /[\x00-\x08\x0E-\x1F\x7F-\x9F]/g
 export const AUTO_RELAUNCH_UNFOCUSED_MS = 3_600_000
 export const AUTO_RELAUNCH_MIN_INTERVAL_MS = 21_600_000
 export const AUTO_RELAUNCH_ENV_KEY = 'CLAUDE_AGENTS_AUTO_RELAUNCHED_AT'
-const DEFAULT_TEMPLATE: FleetTemplate = {
-  name: 'general-purpose',
-  description: 'General-purpose background agent',
+
+function getPrPollInterval(focused: boolean, idleMs: number): number {
+  if (focused) {
+    if (idleMs < 30_000) return 15_000
+    if (idleMs < 5 * 60_000) return 60_000
+    return 180_000
+  }
+  if (idleMs < 30_000) return 60_000
+  if (idleMs < 10 * 60_000) return 300_000
+  if (idleMs < 60 * 60_000) return 900_000
+  return 1_800_000
 }
 
 function shouldUseFleetAlternateScreen(): boolean {
@@ -170,6 +223,13 @@ type FleetListRow =
   | { kind: 'header'; group: string; jobs: FleetJob[] }
   | { kind: 'job'; group: string; job: FleetJob }
 
+const STATE_GROUP_LABELS: Record<StateBucket, string> = {
+  review: 'Ready for review',
+  blocked: 'Blocked',
+  working: 'Working',
+  done: 'Done',
+}
+
 export interface FleetTemplate {
   name: string
   description?: string
@@ -183,6 +243,7 @@ function recordFleetAgentAction(
 ): void {
   logEvent('tengu_bg_agent_action', {
     action,
+    source: 'fleet',
     jobSessionId: state.sessionId,
     agent: state.template,
     jobState: state.state,
@@ -223,6 +284,17 @@ export interface ActionableSegment {
   color?: PrStatusColor
 }
 
+type FleetChild = NonNullable<JobState['children']>[number]
+
+type FleetChildRow = {
+  row: FleetChild
+  label: string
+  status: ActionableSegment[]
+  diffStat?: { additions: number; deletions: number }
+  color?: PrStatusColor | 'claude'
+  sortRank: number
+}
+
 export type FleetAction =
   | { type: 'done' }
   | {
@@ -234,6 +306,7 @@ export type FleetAction =
       loopKicks: Map<string, { mtimeMs: number; count: number; nextAt: number | null }>
       statuses: Map<string, SessionStatus>
       statusesTs: number
+      prStatuses: Map<string, PrStatus | null>
       freshDispatch?: boolean
       respawnResult?: Awaited<ReturnType<typeof respawnTemplateJob>>
     }
@@ -299,8 +372,10 @@ export function deriveActivity(
     statuses &&
     state.tempo !== 'active' &&
     state.template === DEFAULT_TEMPLATE.name &&
-    state.children?.length &&
-    state.children.every((child) => statuses.get(child.href)?.state === 'MERGED')
+    state.children?.filter(child => child.kind !== 'frame').length &&
+    state.children
+      .filter(child => child.kind !== 'frame')
+      .every(child => statuses.get(child.href)?.state === 'MERGED')
   ) {
     return 'success'
   }
@@ -323,22 +398,28 @@ export function stateBucket(
   sessionStatus?: SessionStatus,
 ): StateBucket {
   if (sessionStatus === 'busy') return 'working'
+  if (job.activity === 'failure') return 'blocked'
+  if (job.activity === 'stopped') return 'done'
+  if (sessionStatus === 'waiting') return 'blocked'
   if (
     job.state.children?.some((child) => {
       const status = statuses?.get(child.href)
-      return status?.state === 'OPEN' && prStatusColor(status) !== 'success'
+      if (status?.state !== 'OPEN') return false
+      const color = prStatusColor(status)
+      return (
+        color === 'error' ||
+        (color === 'warning' && status.review !== 'APPROVED')
+      )
     })
   ) {
     return 'review'
   }
   if (
-    job.state.tempo === 'blocked' ||
-    job.activity === 'failure' ||
-    sessionStatus === 'waiting'
+    job.state.tempo === 'blocked'
   ) {
     return 'blocked'
   }
-  if (job.activity === 'success' || job.activity === 'stopped') return 'done'
+  if (job.activity === 'success') return 'done'
   return 'working'
 }
 
@@ -518,8 +599,12 @@ export function fleetSuggestions(
   dispatch: ParsedDispatch | null,
   showAll: boolean,
 ): {
+  firstWord: string
+  isSlashQuery: boolean
   atMatch: boolean
   slashMatch: boolean
+  templateNames: Set<string>
+  repoNames: string[]
   suggestions: FleetSuggestion[]
 } {
   const firstWord = value.trimStart().split(/\s/, 1)[0].toLowerCase()
@@ -603,8 +688,12 @@ export function fleetSuggestions(
           .sort(byName),
       ]
   return {
+    firstWord,
+    isSlashQuery: slashQuery,
     atMatch: at !== null,
     slashMatch: slash !== null,
+    templateNames,
+    repoNames,
     suggestions: !dispatch
       ? []
       : at
@@ -722,33 +811,36 @@ export function isLoopJob(state: Pick<JobState, 'intent' | 'initialPrompt'>): bo
 }
 
 export function glyphColor(
-  state: Pick<JobState, 'tempo'>,
+  state: Pick<JobState, 'state' | 'tempo'>,
   activity: JobActivity,
   sessionStatus?: SessionStatus,
-): { color?: 'success' | 'inactive' | 'error'; dim: boolean } {
-  if (activity === 'success') return { color: 'success', dim: false }
-  if (activity === 'failure' || activity === 'stopped') {
-    return { color: 'inactive', dim: false }
+): { color?: 'success' | 'inactive' | 'error' | 'warning'; dim: boolean } {
+  if (terminalStateActivity(state.state)) {
+    if (activity === 'success') return { color: 'success', dim: false }
+    if (activity === 'failure') return { color: 'error', dim: false }
+    if (activity === 'stopped') return { color: 'inactive', dim: false }
   }
   if (sessionStatus === 'busy') return { color: undefined, dim: false }
   if (state.tempo === 'blocked' || sessionStatus === 'waiting') {
-    return { color: 'error', dim: false }
+    return { color: 'warning', dim: false }
   }
   return { color: undefined, dim: true }
 }
 
 export function pickIcon(
-  state: Pick<JobState, 'tempo' | 'intent' | 'initialPrompt'>,
+  state: Pick<JobState, 'state' | 'tempo' | 'intent' | 'initialPrompt'>,
   activity?: JobActivity,
   sessionStatus?: SessionStatus,
 ): string | null {
-  if (activity && state.tempo !== 'active') {
-    if (activity === 'success') return '✻'
-    if (activity === 'failure' || activity === 'stopped') return '∙'
-  }
+  if (
+    terminalStateActivity(state.state) &&
+    state.tempo !== 'active' &&
+    sessionStatus === undefined
+  ) return '∙'
   if (sessionStatus === 'busy') return null
-  if (isLoopJob(state)) return '✢'
-  return '✻'
+  const characters = getDefaultCharacters()
+  if (isLoopJob(state)) return characters[1] ?? '✢'
+  return characters[4] ?? '✻'
 }
 
 export function rollupJobColor(
@@ -826,6 +918,48 @@ export function actionableStatus(status: PrStatus): ActionableSegment[] {
   return result
 }
 
+function isFrameChild(row: FleetChildRow): boolean {
+  return row.row.kind === 'frame'
+}
+
+function fleetChildRows(
+  children: FleetChild[],
+  statuses: ReadonlyMap<string, PrStatus | null>,
+): FleetChildRow[] {
+  const rank: Partial<Record<PrStatusColor, number>> = {
+    error: 3,
+    warning: 2,
+    success: 1,
+  }
+  return children
+    .map(row => {
+      if (row.kind === 'frame') {
+        return {
+          row,
+          label: row.id,
+          status: [],
+          color: 'claude' as const,
+          sortRank: 0,
+        }
+      }
+      const status = statuses.get(row.href)
+      const rawColor = status ? prStatusColor(status) : undefined
+      return {
+        row,
+        label: status ? `#${status.number} ${status.title}` : `#${row.id}`,
+        status: status ? actionableStatus(status) : [],
+        diffStat:
+          status && status.state !== 'MERGED' && status.state !== 'CLOSED'
+            ? { additions: status.additions, deletions: status.deletions }
+            : undefined,
+        color: status ? childStatusColor(status) : undefined,
+        sortRank:
+          status?.state === 'OPEN' && rawColor ? (rank[rawColor] ?? 0) : 0,
+      }
+    })
+    .sort((left, right) => right.sortRank - left.sortRank)
+}
+
 export function summarizeEvent(line: string): string | null {
   try {
     const event = JSON.parse(line) as {
@@ -864,6 +998,24 @@ export function summarizeEvent(line: string): string | null {
     }
   } catch {}
   return null
+}
+
+async function readJobLogTail(job: FleetJob): Promise<string> {
+  try {
+    const transcript = join(
+      getProjectDir(job.state.cwd),
+      `${job.state.sessionId}.jsonl`,
+    )
+    const { content } = await tailFile(transcript, 16_384)
+    const summaries = content
+      .split('\n')
+      .map(summarizeEvent)
+      .filter((value): value is string => value !== null)
+      .filter((value, index, values) => value !== values[index - 1])
+    return summaries.at(-1)?.trim() ?? ''
+  } catch {
+    return ''
+  }
 }
 
 async function scanLoopTimeline(
@@ -921,6 +1073,7 @@ function matchesQuery(job: FleetJob, query: ParsedQuery): boolean {
     const haystack = [
       job.state.name,
       job.state.intent,
+      job.state.detail,
       ...Object.values(job.state.output ?? {}),
     ]
       .join(' ')
@@ -935,6 +1088,7 @@ function groupedJobs(
   statuses: ReadonlyMap<string, PrStatus | null>,
   sessions: ReadonlyMap<string, SessionStatus>,
   mode: 'directory' | 'state',
+  preferredGroup?: string,
 ): Array<{ group: string; jobs: FleetJob[] }> {
   const groups = new Map<string, FleetJob[]>()
   for (const job of jobs) {
@@ -954,6 +1108,8 @@ function groupedJobs(
         return Number(right === 'pinned') - Number(left === 'pinned')
       }
       if (mode === 'state') return stateRank.indexOf(left) - stateRank.indexOf(right)
+      if (left === preferredGroup && right !== preferredGroup) return -1
+      if (right === preferredGroup && left !== preferredGroup) return 1
       return left.localeCompare(right)
     })
     .map(([group, values]) => ({
@@ -970,13 +1126,9 @@ function groupedJobs(
 }
 
 function eventAge(timestamp: string): string {
-  const seconds = Math.max(0, Math.floor((Date.now() - Date.parse(timestamp)) / 1000))
-  if (seconds < 60) return `${seconds}s`
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h`
-  return `${Math.floor(hours / 24)}d`
+  return formatDuration(Math.max(0, Date.now() - Date.parse(timestamp)), {
+    mostSignificantOnly: true,
+  })
 }
 
 export function optimisticReplyState(state: JobState, text: string): JobState {
@@ -1013,6 +1165,723 @@ async function stopFleetJob(short: string, knownState: JobState): Promise<void> 
   })
 }
 
+type FleetColumnWidths = {
+  label: number
+  age: number
+}
+
+export function flattenDetail(value: string): string {
+  return stripAnsi(value)
+    .replace(/<(system-reminder|task-notification)>[\s\S]*?(<\/\1>|$)/g, ' ')
+    .replace(/<\/?[\w-]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function durationUntil(timestamp: number): string {
+  return formatDuration(Math.max(0, timestamp - Date.now()), {
+    mostSignificantOnly: true,
+  })
+}
+
+function fleetJobAge(job: FleetJob, loopNextFireMs?: number | null): string {
+  if (loopNextFireMs != null && loopNextFireMs > Date.now()) {
+    return `in ${durationUntil(loopNextFireMs)}`
+  }
+  return eventAge(job.state.createdAt)
+}
+
+function fleetResultLink(value: string): string | null {
+  const trimmed = value.trim()
+  if (/\s/.test(trimmed)) return null
+  if (/^https?:\/\//.test(trimmed)) return trimmed
+  return isAbsolute(trimmed) ? pathToFileURL(trimmed).href : null
+}
+
+const FLEET_SPINNER_FRAMES = [
+  ...getDefaultCharacters(),
+  ...[...getDefaultCharacters()].reverse(),
+]
+
+function FleetSpinner(): React.ReactNode {
+  const [, time] = useAnimationFrame(120)
+  return FLEET_SPINNER_FRAMES[
+    Math.floor(time / 120) % FLEET_SPINNER_FRAMES.length
+  ]
+}
+
+function renderRenameDraft(
+  draft: string,
+  cursor: number,
+  width: number,
+): React.ReactNode {
+  const cursorCharacter = draft.slice(cursor, cursor + 1) || ' '
+  const suffix = draft.slice(cursor + 1)
+  const prefix = truncateStartToWidth(
+    draft.slice(0, cursor),
+    width - stringWidth(cursorCharacter) - (suffix ? 1 : 0),
+  )
+  return (
+    <>
+      <Text>{prefix}</Text>
+      <Text inverse>{cursorCharacter}</Text>
+      <Text>{suffix}</Text>
+    </>
+  )
+}
+
+function useFleetLabelTransition(
+  label: string,
+  hasName: boolean,
+): { display: string; newLength: number } | null {
+  const previous = useRef({ label, hasName })
+  const [transition, setTransition] = useState<{
+    oldLabel: string
+    position: number
+  } | null>(null)
+
+  useLayoutEffect(() => {
+    if (previous.current.hasName || !hasName) {
+      previous.current = { label, hasName }
+      return
+    }
+    const oldLabel = previous.current.label
+    previous.current = { label, hasName: true }
+    const length = Math.max([...oldLabel].length, [...label].length)
+    if (length === 0) return
+    let position = 1
+    setTransition({ oldLabel, position })
+    const interval = setInterval(() => {
+      position++
+      if (position >= length) {
+        setTransition(null)
+        clearInterval(interval)
+      } else {
+        setTransition({ oldLabel, position })
+      }
+    }, Math.max(16, Math.floor(360 / length)))
+    return () => {
+      clearInterval(interval)
+      setTransition(null)
+    }
+  }, [hasName, label])
+
+  if (!transition) return null
+  const oldCharacters = [...transition.oldLabel]
+  const newCharacters = [...label]
+  const length = Math.max(oldCharacters.length, newCharacters.length)
+  const prefix = newCharacters
+    .slice(0, Math.min(transition.position, newCharacters.length))
+    .join('')
+  const oldRemainder = Array.from(
+    { length: Math.max(0, length - transition.position) },
+    (_, index) => oldCharacters[transition.position + index] ?? ' ',
+  ).join('')
+  const gap =
+    transition.position > newCharacters.length
+      ? ' '.repeat(transition.position - newCharacters.length)
+      : ''
+  return {
+    display: prefix + gap + oldRemainder,
+    newLength: prefix.length,
+  }
+}
+
+function FleetRichText({ value }: { value: string }): React.ReactNode {
+  const parts = value.split(/(\*\*.+?\*\*|\+\+.+?\+\+|`[^`]+`)/g)
+  return (
+    <Text dimColor>
+      {parts.map((part, index) => {
+        const match = part.match(/^(?:\*\*|\+\+|`)(.+?)(?:\*\*|\+\+|`)$/)
+        return match ? <Text key={index} bold>{match[1]}</Text> : part
+      })}
+    </Text>
+  )
+}
+
+function FleetDiffStat({
+  additions,
+  deletions,
+}: {
+  additions: number
+  deletions: number
+}): React.ReactNode {
+  return (
+    <Text dimColor>
+      {additions > 0 ? <Text color="diffAddedWord">+{additions}</Text> : null}
+      {additions > 0 && deletions > 0 ? ' ' : null}
+      {deletions > 0 ? <Text color="diffRemovedWord">-{deletions}</Text> : null}
+    </Text>
+  )
+}
+
+function FleetChildDetailRow({ child }: { child: FleetChildRow }): React.ReactNode {
+  return (
+    <Box key={child.row.href}>
+      <Box width={2} flexShrink={0}>
+        {child.color ? (
+          <Text color={child.color}>
+            {isFrameChild(child) ? '⧉' : figures.circleFilled}
+          </Text>
+        ) : null}
+      </Box>
+      <Box flexGrow={1} width={0}>
+        <Text wrap="truncate">
+          <Link url={child.row.href}>{child.label}</Link>
+        </Text>
+      </Box>
+      {child.diffStat &&
+      child.diffStat.additions + child.diffStat.deletions > 0 ? (
+        <Box flexShrink={0} paddingLeft={1}>
+          <Link url={`${child.row.href}/files`}>
+            <FleetDiffStat
+              additions={child.diffStat.additions}
+              deletions={child.diffStat.deletions}
+            />
+          </Link>
+        </Box>
+      ) : null}
+      <Box flexShrink={0} paddingLeft={1}>
+        {child.status.map((segment, index) => (
+          <React.Fragment key={index}>
+            {index > 0 ? <Text> </Text> : null}
+            <Text color={segment.color} dimColor={!segment.color}>
+              {segment.text}
+            </Text>
+          </React.Fragment>
+        ))}
+      </Box>
+    </Box>
+  )
+}
+
+function fleetColumnWidths(
+  jobs: FleetJob[],
+  initialJobId?: string,
+): FleetColumnWidths {
+  const age = Math.max(
+    3,
+    ...jobs.map(job => stringWidth(fleetJobAge(job))),
+  )
+  const label = Math.min(
+    40,
+    Math.max(
+      12,
+      ...jobs.map(job => stringWidth(jobLabel(job.state, job.id === initialJobId))),
+    ),
+  )
+  return { age, label }
+}
+
+function FleetShortcuts({
+  focusedPinned,
+  canReorder,
+  canRename,
+  canPin,
+}: {
+  focusedPinned: boolean
+  canReorder: boolean
+  canRename: boolean
+  canPin: boolean
+}): React.ReactNode {
+  const shortcuts: string[] = []
+  if (canReorder) shortcuts.push('shift+↑↓ to reorder')
+  if (canRename) shortcuts.push('ctrl+r to rename')
+  shortcuts.push('ctrl+s to switch views')
+  if (canPin) {
+    shortcuts.push(`ctrl+t to ${focusedPinned ? 'unpin' : 'pin to top'}`)
+  }
+  shortcuts.push('? to close')
+  const columns: string[][] = []
+  for (let index = 0; index < shortcuts.length; index += 2) {
+    columns.push(shortcuts.slice(index, index + 2))
+  }
+  return (
+    <Box flexShrink={0} paddingX={2} flexDirection="row" gap={4}>
+      {columns.map((column, index) => (
+        <Box key={index} flexDirection="column">
+          {column.map(shortcut => (
+            <Text key={shortcut} dimColor>
+              {shortcut}
+            </Text>
+          ))}
+        </Box>
+      ))}
+    </Box>
+  )
+}
+
+function FleetJobInfo({ job }: { job?: FleetJob }): React.ReactNode {
+  if (!job) {
+    return (
+      <Box flexShrink={0} paddingX={2}>
+        <Text dimColor>no job focused</Text>
+      </Box>
+    )
+  }
+  const state = job.state
+  return (
+    <Box flexShrink={0} paddingX={2} flexDirection="row" gap={4}>
+      <Box flexDirection="column">
+        <Text><Text dimColor>backend </Text>{state.backend}</Text>
+        <Text><Text dimColor>dir </Text>{getJobDir(job.id)}</Text>
+        <Text><Text dimColor>cwd </Text>{state.worktreePath ?? state.cwd}</Text>
+      </Box>
+      <Box flexDirection="column">
+        {state.backend === 'daemon' ? (
+          <Text><Text dimColor>shell </Text>claude attach {job.id}</Text>
+        ) : null}
+        <Text><Text dimColor>session </Text>{state.sessionId}</Text>
+        <Text>
+          <Text dimColor>version </Text>
+          {state.cliVersion === undefined ? (
+            <Text dimColor>—</Text>
+          ) : state.cliVersion === MACRO.VERSION ? (
+            state.cliVersion
+          ) : (
+            <>
+              <Text color="warning">{state.cliVersion}</Text>
+              <Text dimColor> · current {MACRO.VERSION}</Text>
+            </>
+          )}
+        </Text>
+        <Text>
+          <Text dimColor>updated </Text>
+          {formatRelativeTime(new Date(state.updatedAt))}
+        </Text>
+      </Box>
+    </Box>
+  )
+}
+
+function FleetJobRow({
+  job,
+  isFocused,
+  isOrigin,
+  logTail,
+  status,
+  columns,
+  loopKickCount,
+  loopNextFireMs,
+  childRows,
+  rename,
+  deleteArmed,
+  attaching,
+}: {
+  job: FleetJob
+  isFocused: boolean
+  isOrigin: boolean
+  logTail?: string
+  status?: SessionStatus
+  columns: FleetColumnWidths
+  loopKickCount?: number
+  loopNextFireMs?: number | null
+  childRows: FleetChildRow[]
+  rename?: { draft: string; cursor: number }
+  deleteArmed?: { justKilled: boolean }
+  attaching: boolean
+}): React.ReactNode {
+  const terminal = terminalStateActivity(job.state.state)
+  const baseStyle = glyphColor(job.state, job.activity, status)
+  const color =
+    status === 'busy'
+      ? baseStyle.color
+      : rollupJobColor(
+          baseStyle.color,
+          childRows
+            .filter(child => !isFrameChild(child))
+            .map(child => ({ color: child.color as JobColor | undefined })),
+        )
+  const dimIcon =
+    (color === baseStyle.color && baseStyle.dim) ||
+    (color === undefined && !isFocused)
+  const icon = attaching
+    ? undefined
+    : deleteArmed?.justKilled
+      ? '∙'
+      : pickIcon(job.state, terminal ?? job.activity, status)
+  const age = fleetJobAge(job, loopNextFireMs)
+  const result = job.state.output?.result
+  const resultLink = result ? fleetResultLink(result) : null
+  const unlinkedResult = resultLink ? undefined : result
+  const label = jobLabel(job.state, isOrigin)
+  const labelTransition = useFleetLabelTransition(label, Boolean(job.state.name))
+  const detail = isOrigin && isFocused
+    ? '→ to return'
+    : terminal === 'success'
+      ? flattenDetail(unlinkedResult || job.state.detail)
+      : (job.state.tempo === 'active' && flattenDetail(logTail ?? '')) ||
+        flattenDetail(
+          (job.state.tempo === 'blocked' && job.state.needs) ||
+            job.state.detail,
+        )
+  const actionableChildren = childRows.filter(
+    child => child.color !== undefined && !isFrameChild(child),
+  )
+  const prColor = rollupChildColor(
+    childRows
+      .filter(child => !isFrameChild(child))
+      .map(child => ({ color: child.color as PrStatusColor | undefined })),
+  )
+  const frames = childRows.filter(isFrameChild)
+  const frame = childRows.some(child => !isFrameChild(child))
+    ? undefined
+    : frames.at(-1)
+
+  return (
+    <Box>
+      <Box width={columns.label + 2} flexShrink={0}>
+        <Text dimColor={!isFocused} wrap="truncate">
+          <Text color={color} dimColor={dimIcon}>
+            {icon ?? <FleetSpinner />}
+          </Text>{' '}
+          {rename ? (
+            renderRenameDraft(rename.draft, rename.cursor, columns.label)
+          ) : labelTransition ? (
+            <>
+              <Text dimColor={!isFocused}>
+                {labelTransition.display.slice(0, labelTransition.newLength)}
+              </Text>
+              <Text dimColor>
+                {labelTransition.display.slice(labelTransition.newLength)}
+              </Text>
+            </>
+          ) : resultLink ? (
+            <Link url={resultLink}>{label}</Link>
+          ) : (
+            label
+          )}
+        </Text>
+      </Box>
+      <Box flexGrow={1} width={0} paddingLeft={2}>
+        {deleteArmed ? (
+          <Text color="error" wrap="truncate">
+            {deleteArmed.justKilled
+              ? 'stopped. ctrl+x again to delete.'
+              : 'ctrl+x again to delete'}
+          </Text>
+        ) : (
+          <Text dimColor wrap="truncate">
+            {detail}
+            {loopKickCount !== undefined && loopKickCount > 0
+              ? ` ×${loopKickCount}`
+              : ''}
+          </Text>
+        )}
+      </Box>
+      <Box flexShrink={0} paddingLeft={1} justifyContent="flex-end">
+        {prColor !== undefined && actionableChildren[0] ? (
+          <Link url={actionableChildren[0].row.href}>
+            <Text color={prColor}>
+              {actionableChildren.length > 1
+                ? `${actionableChildren.length} `
+                : null}
+              {figures.circleFilled}
+            </Text>
+            <Text> </Text>
+          </Link>
+        ) : frame ? (
+          <Link url={frame.row.href}>
+            <Text color="claude">
+              {frames.length > 1 ? `${frames.length} ` : null}
+              ⧉
+            </Text>
+            <Text> </Text>
+          </Link>
+        ) : null}
+        <Box width={columns.age} justifyContent="flex-end">
+          <Text dimColor>{age}</Text>
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
+function FleetDetail({
+  job,
+  childRows,
+  status,
+  isPending,
+  deleteArmed,
+  onBack,
+  onAttach,
+  onReply,
+  isTerminalFocused,
+  replyDrafts,
+  replyError,
+  onReplyError,
+  renaming,
+}: {
+  job: FleetJob
+  childRows: FleetChildRow[]
+  status?: SessionStatus
+  isPending: boolean
+  deleteArmed?: { justKilled: boolean }
+  onBack: () => void
+  onAttach: () => void
+  onReply: (reply: string) => Promise<string | null>
+  isTerminalFocused: boolean
+  replyDrafts: Map<string, string>
+  replyError: string | null
+  onReplyError: (error: string | null) => void
+  renaming: boolean
+}): React.ReactNode {
+  useEffect(() => recordFleetAgentAction('peek', job.state), [])
+  const [, forceTick] = useState(0)
+  useInterval(
+    () => forceTick(value => value + 1),
+    Date.now() - Date.parse(job.state.updatedAt) < 60_000 ? 1_000 : null,
+  )
+  const inFlight = useRef(false)
+  const savedDraft = replyDrafts.get(job.id) ?? ''
+  const [mode, setModeState] = useState<'prompt' | 'bash'>(
+    savedDraft.startsWith('!') ? 'bash' : 'prompt',
+  )
+  const modeRef = useRef(mode)
+  const setMode = (next: 'prompt' | 'bash'): void => {
+    modeRef.current = next
+    setModeState(next)
+  }
+  const {
+    query,
+    queryRef,
+    setQuery,
+    cursorOffset,
+    setCursorOffset,
+    handleKeyDown: handleReplyKeyDown,
+    handlePaste,
+  } = useSearchInput({
+    isActive: true,
+    multiline: true,
+    backspaceExitsOnEmpty: false,
+    initialQuery: savedDraft.startsWith('!') ? savedDraft.slice(1) : savedDraft,
+    onExit: () => submitReply(),
+    onCancel: onBack,
+    onSpaceOnEmpty: mode === 'bash' ? undefined : onBack,
+    useLegacyInput: false,
+  })
+
+  function submitReply(): void {
+    if (inFlight.current) return
+    const body = queryRef.current.trim()
+    if (!body && modeRef.current === 'prompt') {
+      inFlight.current = true
+      onAttach()
+      return
+    }
+    if (!body) return
+    const outgoing = modeRef.current === 'bash' ? `!${body}` : body
+    const previousMode = modeRef.current
+    inFlight.current = true
+    setQuery('')
+    setMode('prompt')
+    onReplyError(null)
+    replyDrafts.delete(job.id)
+    const restore = (): void => {
+      if (queryRef.current === '') {
+        replyDrafts.set(job.id, outgoing)
+        setQuery(body)
+      }
+      if (modeRef.current === 'prompt') setMode(previousMode)
+    }
+    void onReply(outgoing)
+      .then(result => {
+        if (result) {
+          restore()
+          onReplyError(result)
+        }
+      })
+      .catch(caught => {
+        restore()
+        onReplyError(errorMessage(caught))
+      })
+      .finally(() => {
+        inFlight.current = false
+      })
+  }
+
+  useEffect(() => {
+    const value = mode === 'bash' ? `!${query}` : query
+    if (value) replyDrafts.set(job.id, value)
+    else replyDrafts.delete(job.id)
+  }, [job.id, mode, query, replyDrafts])
+
+  const handleKeyDown = (event: KeyboardEvent): void => {
+    if (renaming) return
+    if (modeRef.current === 'prompt') {
+      if (event.name === 'right' && !event.shift && !queryRef.current) {
+        event.preventDefault()
+        if (!inFlight.current) {
+          inFlight.current = true
+          onAttach()
+        }
+        return
+      }
+      if (event.key === '!' && !queryRef.current) {
+        event.preventDefault()
+        setMode('bash')
+        return
+      }
+    } else if (event.name === 'backspace' && !queryRef.current) {
+      event.preventDefault()
+      setMode('prompt')
+      return
+    }
+    handleReplyKeyDown(event)
+  }
+
+  const childHrefs = childRows.map(child => child.row.href)
+  const isChildReference = (value: string): boolean =>
+    childHrefs.some(href => {
+      const index = value.indexOf(href)
+      return (
+        index >= 0 &&
+        !/\w/.test(value[index + href.length] ?? '') &&
+        value.length - href.length < 16
+      )
+    })
+  const outputEntries = job.state.needs
+    ? []
+    : Object.entries(job.state.output ?? {}).filter(([, value]) =>
+        !isChildReference(value),
+      )
+  const { rows } = useTerminalSize()
+  const queryLineBreaks = query ? query.split('\n').length - 1 : 0
+  const reservedRows =
+    outputEntries.length +
+    (job.state.needs ? 1 : 0) +
+    queryLineBreaks +
+    (replyError ? 1 : 0) +
+    1
+  const maxChildren = Math.max(
+    8,
+    rows - 8 - reservedRows,
+  )
+  const visibleChildren = childRows.slice(0, maxChildren)
+  const hiddenChildCount = childRows.length - visibleChildren.length
+  const outputNameWidth = Math.max(
+    0,
+    ...outputEntries.map(([name]) => stringWidth(name)),
+  )
+  const style = glyphColor(job.state, job.activity, status)
+  const hasStructuredContent =
+    childRows.length > 0 || outputEntries.length > 0 || Boolean(job.state.needs)
+
+  return (
+    <>
+      <Box
+        flexDirection="column"
+        borderStyle="round"
+        borderColor={mode === 'bash' ? 'bashBorder' : undefined}
+        borderDimColor={mode !== 'bash'}
+        paddingX={1}
+        minHeight={5}
+        width="100%"
+        tabIndex={0}
+        autoFocus
+        onKeyDown={handleKeyDown}
+        onPaste={renaming ? undefined : handlePaste}
+      >
+        {!hasStructuredContent ? (
+          <Text wrap="truncate">
+            <Text color={style.color}>{eventAge(job.state.updatedAt)}</Text>{' '}
+            {flattenDetail(job.state.detail)}
+          </Text>
+        ) : null}
+        {visibleChildren.length > 0 ? (
+          <Box flexDirection="column">
+            {visibleChildren.map(child => (
+              <FleetChildDetailRow key={child.row.href} child={child} />
+            ))}
+            {hiddenChildCount > 0 ? (
+              <Box paddingLeft={2}>
+                <Text dimColor>… {hiddenChildCount} more</Text>
+              </Box>
+            ) : null}
+          </Box>
+        ) : null}
+        {outputEntries.length > 0 ? (
+          <Box
+            flexDirection="column"
+            marginTop={visibleChildren.length > 0 ? 1 : 0}
+          >
+            {outputEntries.map(([name, value]) => (
+              <Box key={name}>
+                {outputEntries.length > 1 ? (
+                  <Box width={outputNameWidth + 2} flexShrink={0}>
+                    <Text dimColor>{name}</Text>
+                  </Box>
+                ) : null}
+                <Box flexGrow={1} width={0}>
+                  <Text wrap="truncate">
+                    <Text color={style.color}>{eventAge(job.state.updatedAt)}</Text>{' '}
+                    <FleetRichText value={flattenDetail(value)} />
+                  </Text>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        ) : null}
+        {job.state.needs ? (
+          <Box marginTop={childRows.length > 0 ? 1 : 0}>
+            <Text wrap="truncate">
+              <Text color={style.color}>{eventAge(job.state.updatedAt)}</Text>{' '}
+              <FleetRichText value={flattenDetail(job.state.needs)} />
+            </Text>
+          </Box>
+        ) : null}
+        {/* The remaining space belongs to the reply editor, which stays pinned. */}
+        <Box flexGrow={1} />
+        <Box marginTop={1}>
+          <SearchBox
+            query={query}
+            cursorOffset={cursorOffset}
+            onCursorOffsetChange={setCursorOffset}
+            placeholder="reply"
+            prefix={mode === 'bash' ? '!' : '❯'}
+            prefixColor={mode === 'bash' ? 'bashBorder' : undefined}
+            isFocused={!renaming}
+            isTerminalFocused={isTerminalFocused}
+            width="100%"
+            borderless
+          />
+        </Box>
+        {replyError ? (
+          <Text color="error" dimColor wrap="truncate">{replyError}</Text>
+        ) : null}
+      </Box>
+      <Box paddingLeft={2}>
+        <Text dimColor>
+          {renaming ? (
+            <Byline>
+              <KeyboardShortcutHint shortcut="enter" action="save" />
+              <KeyboardShortcutHint shortcut="escape" action="cancel" />
+            </Byline>
+          ) : (
+            <Byline>
+              {mode === 'bash' ? <Text color="bashBorder">! for shell mode</Text> : null}
+              {(query.trim() || (mode !== 'bash' && !isPending)) ? (
+                <KeyboardShortcutHint
+                  shortcut="enter"
+                  action={query.trim() ? 'send' : needsRespawn(job.state) ? 'resume' : 'open'}
+                />
+              ) : null}
+              <KeyboardShortcutHint
+                shortcut={query.trim() || mode === 'bash' ? 'escape' : ' '}
+                action="close"
+              />
+              <KeyboardShortcutHint
+                shortcut="ctrl+x"
+                action={deleteArmed ? 'confirm' : 'delete'}
+              />
+            </Byline>
+          )}
+        </Text>
+      </Box>
+    </>
+  )
+}
+
 export function FleetView({
   onAction,
   initialJobId,
@@ -1027,18 +1896,114 @@ export function FleetView({
   initialGroupMode?: 'directory' | 'state'
 }): React.ReactNode {
   const rootCwd = getCwd()
+  useLayoutEffect(() => {
+    const ink = instances.get(process.stdout)
+    if (!ink) return
+    ink.onHyperlinkClick = url => {
+      if (url.startsWith('file:')) {
+        try {
+          void openPath(fileURLToPath(url))
+        } catch {}
+      } else {
+        void openBrowser(url)
+      }
+    }
+    return () => {
+      ink.onHyperlinkClick = undefined
+    }
+  }, [])
+  const [draftCwd, setDraftCwd] = useState(rootCwd)
+  useEffect(() => {
+    let cancelled = false
+    void canonicalizePath(rootCwd).then(canonical => {
+      if (!cancelled && canonical !== rootCwd) setDraftCwd(canonical)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [rootCwd])
   const [jobs, setJobs] = useState<FleetJob[] | null>(lastJobs)
   const jobsRef = useRef(jobs)
   jobsRef.current = jobs
   const [pendingJobs, setPendingJobs] = useState<FleetJob[]>([])
+  const [logTails, setLogTails] = useState<Record<string, string>>({})
   const [statuses, setStatuses] = useState(lastPrStatuses)
+  const statusesRef = useRef(statuses)
+  statusesRef.current = statuses
+  const lastPrFetchAt = useRef(0)
+  useEffect(() => {
+    if (lastPrStatuses.size) return
+    void readPrStatusCache().then(cached => {
+      if (!cached.size) return
+      statusesRef.current = cached
+      setStatuses(current =>
+        current.size ? new Map([...cached, ...current]) : cached,
+      )
+    })
+  }, [])
+  useEffect(() => {
+    void persistPrStatusCache(statuses)
+  }, [statuses])
   const [sessionStatuses, setSessionStatuses] = useState(lastSessionStatuses)
   const sessionStatusesRef = useRef(sessionStatuses)
   sessionStatusesRef.current = sessionStatuses
-  const [query, setQuery] = useState(initialQuery)
-  const queryRef = useRef(query)
-  queryRef.current = query
-  const [queryCursor, setQueryCursor] = useState(initialQuery.length)
+  const [renameId, setRenameId] = useState<string | null>(null)
+  const [attachingJobId, setAttachingJobId] = useState<string | null>(null)
+  const renameSessionIdRef = useRef<string | null>(null)
+  const renamePeerSockRef = useRef<string | null>(null)
+  const [detail, setDetail] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
+  const {
+    query,
+    queryRef,
+    setQuery,
+    cursorOffset: queryCursor,
+    setCursorOffset: setQueryCursor,
+    handleKeyDown: handleQueryKeyDown,
+    handlePaste: handleQueryPasteEvent,
+  } = useSearchInput({
+    initialQuery,
+    isActive: !detail && renameId === null && attachingJobId === null,
+    multiline: true,
+    onExit: () => {},
+    onCancel: jobs === null ? () => onAction({ type: 'done' }) : undefined,
+    onSpaceOnEmpty: () => {
+      setShowAllSuggestions(false)
+      setDetail(current => {
+        if (!current && selected) {
+          followedJobId.current = selected.id
+          followedHeaderGroup.current = null
+        }
+        return !current
+      })
+    },
+    useLegacyInput: false,
+  })
+  useEffect(() => {
+    const timeout = setTimeout(
+      (currentQuery: typeof queryRef, cwd: string) => {
+        const value = currentQuery.current
+        if (value) void saveFleetDraft(cwd, value)
+        else void deleteFleetDraft(cwd)
+      },
+      300,
+      queryRef,
+      draftCwd,
+    )
+    return () => clearTimeout(timeout)
+  }, [query, draftCwd, queryRef])
+  useEffect(() => {
+    setNotice(null)
+  }, [query])
+  useEffect(
+    () =>
+      registerCleanup(() => {
+        const value = queryRef.current
+        if (value) saveFleetDraftSync(draftCwd, value)
+      }),
+    [draftCwd, queryRef],
+  )
   const [pastedContents, setPastedContents] = useState<
     Record<number, PastedContent>
   >({})
@@ -1054,7 +2019,23 @@ export function FleetView({
   groupModeRef.current = groupMode
   const [collapsedGroups, setCollapsedGroups] = useState(new Set<string>())
   const [error, setError] = useState<string | null>(initialError ?? null)
+  const [notice, setNotice] = useState<string | null>(null)
   const isTerminalFocused = useTerminalFocus()
+  const { columns: terminalColumns } = useTerminalSize()
+  const scrollBoxRef = useRef<ScrollBoxHandle>(null)
+  const focusedElementRef = useRef<DOMElement>(null)
+  const [gitBranch, setGitBranch] = useState<string | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    void getBranch()
+      .then(branch => {
+        if (!cancelled) setGitBranch(branch)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
   const updateAvailable = useAppState(
     state => state.autoUpdaterResult?.status === 'success',
   )
@@ -1121,17 +2102,9 @@ export function FleetView({
   } | null>(null)
   const [deleteAllArmed, setDeleteAllArmed] = useState<string | null>(null)
   const [exitArmed, setExitArmed] = useState(false)
-  const [renameId, setRenameId] = useState<string | null>(null)
-  const [renameDraft, setRenameDraft] = useState('')
   const [busy, setBusy] = useState(new Set<string>())
-  const [attachingJobId, setAttachingJobId] = useState<string | null>(null)
   const focusedJobId = useRef<string | null>(null)
-  const [detail, setDetail] = useState(false)
-  const [reply, setReply] = useState('')
-  const [replyCursor, setReplyCursor] = useState(0)
-  const [replyMode, setReplyMode] = useState<'prompt' | 'bash'>('prompt')
   const [replyError, setReplyError] = useState<string | null>(null)
-  const [showHelp, setShowHelp] = useState(false)
   const replyDrafts = useRef(new Map<string, string>())
   const [repositories, setRepositories] = useState(
     () => repositoryCache.get(rootCwd) ?? {},
@@ -1184,14 +2157,27 @@ export function FleetView({
     const records = await readAllJobs(live)
     const urls = [
       ...new Set(
-        records.flatMap((job) => job.state.children?.map((child) => child.href) ?? []),
+        records.flatMap(
+          job =>
+            job.state.children
+              ?.filter(child => child.kind !== 'frame')
+              .map(child => child.href) ?? [],
+        ),
       ),
     ]
     const activeUrls = urls.filter((url) => {
-      const state = lastPrStatuses.get(url)?.state
+      const state = statusesRef.current.get(url)?.state
       return state !== 'MERGED' && state !== 'CLOSED'
     })
-    if (activeUrls.length) void (async () => {
+    const now = Date.now()
+    const shouldFetchPrs =
+      now - lastPrFetchAt.current >=
+      getPrPollInterval(
+        isTerminalFocused,
+        now - getLastInteractionTime(),
+      )
+    if (activeUrls.length && shouldFetchPrs) void (async () => {
+      lastPrFetchAt.current = now
       let fetched: Map<string, PrStatus | null>
       if (
         getFeatureValue_CACHED_MAY_BE_STALE(
@@ -1201,9 +2187,11 @@ export function FleetView({
       ) {
         const batch = await fetchPrStatuses(activeUrls)
         fetched = batch.statuses
-        for (const url of batch.unbatched) {
-          fetched.set(url, await fetchPrStatus(url))
-        }
+        await Promise.all(
+          batch.unbatched.map(async url =>
+            fetched.set(url, await fetchPrStatus(url)),
+          ),
+        )
       } else {
         fetched = new Map(
           await Promise.all(
@@ -1211,37 +2199,70 @@ export function FleetView({
           ),
         )
       }
-      const next = new Map(lastPrStatuses)
-      let changed = false
-      for (const [url, status] of fetched) {
-        const previous = next.get(url)
-        if (
-          previous?.state !== status?.state ||
-          previous?.title !== status?.title ||
-          previous?.review !== status?.review ||
-          previous?.mergeable !== status?.mergeable ||
-          previous?.mergeStateStatus !== status?.mergeStateStatus ||
-          previous?.checks.passed !== status?.checks.passed ||
-          previous?.checks.failed !== status?.checks.failed ||
-          previous?.checks.pending !== status?.checks.pending ||
-          previous?.additions !== status?.additions ||
-          previous?.deletions !== status?.deletions
-        ) {
-          next.set(url, status)
-          changed = true
+      setStatuses(previousStatuses => {
+        let changed = false
+        for (const [url, status] of fetched) {
+          const previous = previousStatuses.get(url)
+          if (
+            previous?.state !== status?.state ||
+            previous?.title !== status?.title ||
+            previous?.review !== status?.review ||
+            previous?.mergeable !== status?.mergeable ||
+            previous?.mergeStateStatus !== status?.mergeStateStatus ||
+            previous?.checks.passed !== status?.checks.passed ||
+            previous?.checks.failed !== status?.checks.failed ||
+            previous?.checks.pending !== status?.checks.pending ||
+            previous?.additions !== status?.additions ||
+            previous?.deletions !== status?.deletions
+          ) {
+            changed = true
+            break
+          }
         }
-      }
-      lastPrStatuses = pruneMap(next, new Set(urls))
-      if (changed) setStatuses(lastPrStatuses)
+        if (!changed) return previousStatuses
+        const next = new Map(previousStatuses)
+        for (const [url, status] of fetched) {
+          if (status !== null || !previousStatuses.has(url)) {
+            next.set(url, status)
+          }
+        }
+        lastPrStatuses = next
+        return next
+      })
     })()
+    setStatuses(previousStatuses => {
+      const next = pruneMap(previousStatuses, new Set(urls))
+      if (next !== previousStatuses) lastPrStatuses = next
+      return next
+    })
     const nextJobs = sortJobs(
       records.map((job) => ({
         ...job,
-        activity: deriveActivity(job.state, lastPrStatuses),
+        activity: deriveActivity(job.state, statusesRef.current),
       })),
     )
     lastJobs = nextJobs
     setJobs(nextJobs)
+
+    const activeJobs = nextJobs.filter(
+      job => deriveBand(job.state) !== 'completed',
+    )
+    const tails = Object.fromEntries(
+      await Promise.all(
+        activeJobs.map(async job => [job.id, await readJobLogTail(job)] as const),
+      ),
+    )
+    setLogTails(current => {
+      const currentKeys = Object.keys(current)
+      const nextKeys = Object.keys(tails)
+      if (
+        currentKeys.length === nextKeys.length &&
+        currentKeys.every(key => current[key] === tails[key])
+      ) {
+        return current
+      }
+      return tails
+    })
 
     const loops = nextJobs.filter((job) => isLoopJob(job.state))
     await Promise.all(
@@ -1270,12 +2291,6 @@ export function FleetView({
   }, [])
 
   useEffect(() => {
-    void readPrStatusCache().then((cached) => {
-      if (!lastPrStatuses.size) {
-        lastPrStatuses = new Map(cached)
-        setStatuses(lastPrStatuses)
-      }
-    })
     void poll()
     const timer = setInterval(() => void poll(), 2_000)
     return () => clearInterval(timer)
@@ -1447,8 +2462,15 @@ export function FleetView({
     setPendingJobs(current => current.filter(job => !persisted.has(job.id)))
   }, [jobs, pendingJobs.length])
   const groups = useMemo(
-    () => groupedJobs(filtered, statuses, sessionStatuses, groupMode),
-    [filtered, statuses, sessionStatuses, groupMode],
+    () =>
+      groupedJobs(
+        filtered,
+        statuses,
+        sessionStatuses,
+        groupMode,
+        repoGroup({ cwd: rootCwd }),
+      ),
+    [filtered, statuses, sessionStatuses, groupMode, rootCwd],
   )
   const visible = useMemo(() => groups.flatMap((group) => group.jobs), [groups])
   const rows = useMemo<FleetListRow[]>(
@@ -1495,6 +2517,12 @@ export function FleetView({
     }
   })
 
+  useLayoutEffect(() => {
+    if (!focusedElementRef.current) return
+    const offset = rows[focus]?.kind === 'header' && focus > 0 ? -1 : 0
+    scrollBoxRef.current?.scrollToElement(focusedElementRef.current, offset)
+  }, [focus, rows])
+
   useEffect(() => {
     const tagged = extractRepoCwd(query, repositories, templates)
     const next =
@@ -1513,20 +2541,8 @@ export function FleetView({
   }, [activeCwd, query])
 
   useEffect(() => {
-    if (!detail || !selected) return
-    const draft = replyDrafts.current.get(selected.id) ?? ''
-    setReply(draft.startsWith('!') ? draft.slice(1) : draft)
-    setReplyCursor(draft.startsWith('!') ? draft.length - 1 : draft.length)
-    setReplyMode(draft.startsWith('!') ? 'bash' : 'prompt')
-    setReplyError(null)
+    if (detail) setReplyError(null)
   }, [detail, selected?.id])
-
-  useEffect(() => {
-    if (!detail || !selected) return
-    const value = replyMode === 'bash' ? `!${reply}` : reply
-    if (value) replyDrafts.current.set(selected.id, value)
-    else replyDrafts.current.delete(selected.id)
-  }, [detail, reply, replyMode, selected?.id])
 
   useEffect(() => {
     if (initialFocusAttempts.current >= 2 || !jobs) return
@@ -1659,6 +2675,7 @@ export function FleetView({
           loopKicks: lastLoopTimelines,
           statuses: sessionStatusesRef.current,
           statusesTs: lastSessionStatusesTs,
+          prStatuses: statusesRef.current,
           respawnResult,
         })
       } else {
@@ -1754,19 +2771,115 @@ export function FleetView({
       )
   }
 
+  const clearRename = (): void => {
+    setRenameId(null)
+    setRenameDraft('')
+    renameSessionIdRef.current = null
+    renamePeerSockRef.current = null
+  }
+  const {
+    query: renameDraft,
+    queryRef: renameDraftRef,
+    setQuery: setRenameDraft,
+    cursorOffset: renameCursor,
+    handleKeyDown: handleRenameKeyDown,
+    handlePaste: handleRenamePaste,
+  } = useSearchInput({
+    isActive: renameId !== null,
+    backspaceExitsOnEmpty: false,
+    onExit: () => {
+      const sessionId = renameSessionIdRef.current
+      const peerSock = renamePeerSockRef.current
+      const name = renameDraftRef.current.trim()
+      clearRename()
+      if (!sessionId || !name) return
+      if (peerSock) {
+        setPendingJobs(current =>
+          current.map(candidate =>
+            candidate.state.sessionId !== sessionId
+              ? candidate
+              : {
+                  ...candidate,
+                  state: {
+                    ...candidate.state,
+                    name,
+                    intent: name,
+                    updatedAt: new Date().toISOString(),
+                  },
+                },
+          ),
+        )
+        void sendControlToUdsSocket(peerSock, {
+          action: 'rename',
+          name,
+        }).catch(caught => {
+          logForDebugging(`[fleetview] peer rename failed: ${caught}`)
+          setPendingJobs(current =>
+            current.map(candidate =>
+              candidate.state.sessionId === sessionId &&
+              candidate.state.name === name
+                ? {
+                    ...candidate,
+                    state: {
+                      ...candidate.state,
+                      updatedAt: new Date(0).toISOString(),
+                    },
+                  }
+                : candidate,
+            ),
+          )
+        })
+        return
+      }
+      setJobs(current =>
+        current?.map(candidate =>
+          candidate.state.sessionId === sessionId
+            ? { ...candidate, state: { ...candidate.state, name } }
+            : candidate,
+        ) ?? current,
+      )
+      void renameJob(sessionId, name, 'user').then(renamed => {
+        if (renamed) return
+        setError(
+          "Couldn't rename — the job may have been removed or its state file is unwritable.",
+        )
+        setJobs(current =>
+          current?.map(candidate =>
+            candidate.state.sessionId === sessionId &&
+            candidate.state.name === name
+              ? {
+                  ...candidate,
+                  state: { ...candidate.state, name: undefined },
+                }
+              : candidate,
+          ) ?? current,
+        )
+      })
+    },
+    onCancel: clearRename,
+    useLegacyInput: false,
+  })
+
   const insertQueryText = (text: string): void => {
-    setQuery(value =>
-      value.slice(0, queryCursor) + text + value.slice(queryCursor),
-    )
+    const current = queryRef.current
+    const next =
+      current.slice(0, queryCursor) + text + current.slice(queryCursor)
+    setQuery(next)
     setQueryCursor(queryCursor + text.length)
   }
 
-  const handleQueryPaste = (rawText: string): void => {
-    const text = stripAnsi(rawText)
+  const handleFleetPaste = (event: PasteEvent): void => {
+    if (renameId !== null) {
+      handleRenamePaste(event)
+      return
+    }
+    if (showHelp) setShowHelp(false)
+    const text = stripAnsi(event.text)
       .replace(/\r\n|\r/g, '\n')
       .replaceAll('\t', '    ')
     const lineCount = getPastedTextRefNumLines(text)
     if (text.length > PASTE_THRESHOLD || lineCount > 2) {
+      event.preventDefault()
       const id = nextPasteId.current++
       setPastedContents(current => ({
         ...current,
@@ -1775,122 +2888,114 @@ export function FleetView({
       insertQueryText(formatPastedTextRef(id, lineCount))
       return
     }
-    insertQueryText(text)
+    handleQueryPasteEvent(event)
   }
 
-  const submitReply = (value: string): void => {
-    if (!selected) return
-    const text = value.trim()
-    if (!text && replyMode === 'prompt') {
-      openJob(selected)
-      return
-    }
-    if (!text) return
-    const mode = replyMode
-    const outgoing = mode === 'bash' ? `!${text}` : text
-    replyDrafts.current.delete(selected.id)
-    setReply('')
-    setReplyCursor(0)
-    setReplyMode('prompt')
-    setReplyError(null)
-    setBusy(current => new Set(current).add(selected.id))
+  const sendSelectedReply = async (
+    job: FleetJob,
+    outgoing: string,
+  ): Promise<string | null> => {
+    setBusy(current => new Set(current).add(job.id))
     setJobs(current =>
-      current?.map(job => {
-        if (job.id !== selected.id) return job
-        const state = optimisticReplyState(job.state, outgoing)
-        return { ...job, state, activity: deriveActivity(state) }
+      current?.map(candidate => {
+        if (candidate.id !== job.id) return candidate
+        const state = optimisticReplyState(candidate.state, outgoing)
+        return { ...candidate, state, activity: deriveActivity(state) }
       }) ?? current,
     )
-    void sendJobReply(selected.id, outgoing, selected.state)
-      .then(async result => {
-        if (
-          result === "That session isn't running — respawn it first" &&
-          mode === 'prompt'
-        ) {
-          const respawned = await respawnTemplateJob(selected.id, {
-            knownState: selected.state,
-            initialPrompt: outgoing,
-          })
-          return respawned.ok ? null : respawned.error
-        }
-        return result
+    try {
+      let result = await sendJobReply(job.id, outgoing, job.state)
+      if (
+        result === "That session isn't running — respawn it first" &&
+        !outgoing.startsWith('!')
+      ) {
+        const respawned = await respawnTemplateJob(job.id, {
+          knownState: job.state,
+          initialPrompt: outgoing,
+        })
+        result = respawned.ok ? null : respawned.error
+      }
+      return result
+    } finally {
+      setBusy(current => {
+        const next = new Set(current)
+        next.delete(job.id)
+        return next
       })
-      .then(result => {
-        if (result) {
-          replyDrafts.current.set(selected.id, outgoing)
-          setReply(outgoing.startsWith('!') ? outgoing.slice(1) : outgoing)
-          setReplyCursor(outgoing.startsWith('!') ? outgoing.length - 1 : outgoing.length)
-          setReplyMode(outgoing.startsWith('!') ? 'bash' : 'prompt')
-          setReplyError(result)
-        }
-        return poll()
-      })
-      .catch(caught => setReplyError(String(caught)))
-      .finally(() =>
-        setBusy(current => {
-          const next = new Set(current)
-          next.delete(selected.id)
-          return next
-        }),
-      )
+      void poll()
+    }
   }
 
-  useInput((input, key) => {
-    if (renameId) {
-      if (key.escape || (key.ctrl && input === 'c')) {
-        setRenameId(null)
-        setRenameDraft('')
-        return
-      }
-      if (key.return) {
-        const job = (jobs ?? []).find(candidate => candidate.id === renameId)
-        const name = renameDraft.trim()
-        setRenameId(null)
-        setRenameDraft('')
-        if (!job || !name) return
-        const now = new Date().toISOString()
-        setJobs(current =>
-          current?.map(candidate =>
-            candidate.state.sessionId === job.state.sessionId
-              ? {
-                  ...candidate,
-                  state: {
-                    ...candidate.state,
-                    name,
-                    ...(candidate.state.backend === 'peer' ? { intent: name } : {}),
-                    updatedAt: now,
-                  },
-                }
-              : candidate,
-          ) ?? current,
-        )
-        if (job.state.backend === 'peer') {
-          if (job.state.sock) {
-            void sendControlToUdsSocket(job.state.sock, {
-              action: 'rename',
-              name,
-            }).catch(caught => {
-              logForDebugging(`[fleetview] peer rename failed: ${String(caught)}`)
-              void poll()
-            })
-          }
-        } else {
-          void renameJob(job.state.sessionId, name).catch(caught =>
-            setError(String(caught)),
-          )
+  const handleFleetKeyDown = (event: KeyboardEvent): void => {
+    const input = event.key
+    const claim = (): void => {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+    }
+    const key = {
+      escape: event.name === 'escape',
+      return: event.name === 'return',
+      backspace: event.name === 'backspace',
+      delete: event.name === 'delete',
+      upArrow: event.name === 'up',
+      downArrow: event.name === 'down',
+      rightArrow: event.name === 'right',
+      tab: event.name === 'tab',
+      ctrl: event.ctrl,
+      meta: event.meta,
+      super: event.superKey,
+      shift: event.shift,
+    }
+    const moveFocus = (direction: -1 | 1): void => {
+      setDeleteArmed(null)
+      setDeleteAllArmed(null)
+      setFocus(current => {
+        if (rows.length === 0) return 0
+        if (
+          dispatchOwnsFocus &&
+          (groupMode === 'state' || dispatch?.cwd !== undefined)
+        ) {
+          return current
         }
+        const shouldSkip = dispatchOwnsFocus
+          ? (row: FleetListRow | undefined) =>
+              row?.kind === 'job' ||
+              (row?.kind === 'header' && row.group === 'pinned')
+          : detail
+            ? (row: FleetListRow | undefined) => row?.kind === 'header'
+            : null
+        let next = (current + direction + rows.length) % rows.length
+        if (shouldSkip) {
+          while (next !== current && shouldSkip(rows[next])) {
+            next = (next + direction + rows.length) % rows.length
+          }
+        }
+        const row = rows[next]
+        if (row?.kind === 'job') {
+          followedJobId.current = row.job.id
+          followedHeaderGroup.current = null
+        } else if (row?.kind === 'header') {
+          followedJobId.current = null
+          followedHeaderGroup.current = row.group
+        } else {
+          followedJobId.current = null
+          followedHeaderGroup.current = null
+        }
+        return next
+      })
+    }
+    if (renameId) {
+      claim()
+      if (key.ctrl && input === 'c') {
+        clearRename()
         return
       }
-      if (key.backspace || key.delete) {
-        setRenameDraft(value => value.slice(0, -1))
-        return
-      }
-      if (!key.ctrl && !key.meta && !key.super && input) {
-        setRenameDraft(value => value + input)
-      }
+      if (key.upArrow || key.downArrow) return
+      handleRenameKeyDown(event)
       return
     }
     if (attachingJobId !== null) {
+      claim()
       if (key.ctrl && input === 'c') {
         focusedJobId.current = null
         setAttachingJobId(null)
@@ -1898,69 +3003,84 @@ export function FleetView({
       return
     }
     if (key.ctrl && input === 'c') {
+      claim()
+      if (showHelp || showInfo) {
+        setShowHelp(false)
+        setShowInfo(false)
+        return
+      }
+      if (queryRef.current) setQuery('')
       if (exitArmed) {
         onAction({ type: 'done' })
         return
       }
       setExitArmed(true)
-      if (query) setQuery('')
       setTimeout(() => setExitArmed(false), 2_000)
       return
     }
-    if (detail) {
-      if (key.ctrl && input === 'x' && selected) {
-        stopOrDelete(selected)
-        return
-      }
-      if (key.escape || (input === ' ' && !reply && replyMode === 'prompt')) {
-        setDetail(false)
-        setReplyError(null)
-        return
-      }
-      if (key.rightArrow && !reply && replyMode === 'prompt') {
-        if (selected) openJob(selected)
-        return
-      }
-      // The focused shared TextInput owns editing, paste, cursor movement,
-      // multiline insertion, and submission in detail mode.
-      return
-    }
     if (key.escape) {
-      if (showAllSuggestions) setShowAllSuggestions(false)
-      else if (query) setQuery('')
+      claim()
+      if (detail) setDetail(false)
+      else if (showHelp) setShowHelp(false)
+      else if (showInfo) setShowInfo(false)
+      else if (showAllSuggestions) setShowAllSuggestions(false)
+      else if (queryRef.current) setQuery('')
+      else if (deleteArmed || deleteAllArmed) {
+        setDeleteArmed(null)
+        setDeleteAllArmed(null)
+      }
       else onAction({ type: 'done' })
       return
     }
-    if (input === '?' && !query) {
-      setShowHelp(value => !value)
-      logEvent('tengu_bg_agent_action', { action: 'help_toggled' })
+    if (
+      showHelp &&
+      input !== '?' &&
+      !key.upArrow &&
+      !key.downArrow &&
+      !(key.ctrl && (input === 'p' || input === 'n'))
+    ) {
+      setShowHelp(false)
+    }
+    if (
+      key.shift &&
+      (key.upArrow || key.downArrow) &&
+      autocomplete.suggestions.length === 0 &&
+      !detail
+    ) {
+      claim()
+      reorder(key.upArrow ? -1 : 1)
       return
     }
-    if (key.shift && key.upArrow) return reorder(-1)
-    if (key.shift && key.downArrow) return reorder(1)
     if (key.upArrow || (key.ctrl && input === 'p')) {
+      claim()
       if (autocomplete.suggestions.length) {
         setSuggestionFocus(value => Math.max(0, value - 1))
         return
       }
-      followedHeaderGroup.current = null
-      followedJobId.current = null
-      setFocus((value) => Math.max(0, value - 1))
+      if (key.upArrow && !detail && queryRef.current.includes('\n')) {
+        handleQueryKeyDown(event)
+        return
+      }
+      moveFocus(-1)
       return
     }
     if (key.downArrow || (key.ctrl && input === 'n')) {
+      claim()
       if (autocomplete.suggestions.length) {
         setSuggestionFocus(value =>
           Math.min(autocomplete.suggestions.length - 1, value + 1),
         )
         return
       }
-      followedHeaderGroup.current = null
-      followedJobId.current = null
-      setFocus((value) => Math.min(Math.max(0, rows.length - 1), value + 1))
+      if (key.downArrow && !detail && queryRef.current.includes('\n')) {
+        handleQueryKeyDown(event)
+        return
+      }
+      moveFocus(1)
       return
     }
     if (key.ctrl && input === 's') {
+      claim()
       followedJobId.current = selected?.id ?? null
       followedHeaderGroup.current = null
       setGroupMode((mode) => {
@@ -1973,13 +3093,20 @@ export function FleetView({
       })
       return
     }
-    if (key.ctrl && input === 'r' && selected) {
+    if (key.ctrl && input === 'r') {
+      claim()
+      if (!selected) return
+      if (pendingJobs.some(job => job.id === selected.id)) return
       if (selected.state.backend === 'peer' && !selected.state.sock) return
-      setRenameId(selected.id)
+      renameSessionIdRef.current = selected.state.sessionId
+      renamePeerSockRef.current =
+        selected.state.backend === 'peer' ? selected.state.sock ?? null : null
       setRenameDraft(selected.state.name ?? '')
+      setRenameId(selected.id)
       return
     }
-    if (key.ctrl && input === 'g') {
+    if (key.ctrl && input === 'g' && !detail) {
+      claim()
       const edited = editPromptInEditor(query, pastedContents)
       if (edited.content !== null && edited.content !== query) {
         setQuery(edited.content)
@@ -1988,19 +3115,9 @@ export function FleetView({
       if (edited.error) setError(edited.error)
       return
     }
-    if (key.ctrl && input === 'x' && selectedHeader?.jobs.length) {
-      if (deleteAllArmed !== selectedHeader.group) {
-        setDeleteAllArmed(selectedHeader.group)
-        setTimeout(() => setDeleteAllArmed(null), 2_000)
-        return
-      }
-      setDeleteAllArmed(null)
-      for (const job of selectedHeader.jobs) {
-        if (job.state.backend !== 'peer') stopOrDelete(job, true)
-      }
-      return
-    }
-    if (key.ctrl && input === 't' && selected) {
+    if (key.ctrl && input === 't') {
+      claim()
+      if (!selected) return
       if (pendingJobs.some(job => job.id === selected.id)) return
       if (selected.state.backend === 'peer') {
         setError("Can't pin a session that's running in another terminal")
@@ -2029,55 +3146,59 @@ export function FleetView({
       )
       return
     }
-    if (input === 'l' && !query && selected) {
-      onAction({ type: 'logs', job: selected })
+    if (detail && key.ctrl && input === 'x') {
+      claim()
+      if (selected && !pendingJobs.some(job => job.id === selected.id)) {
+        stopOrDelete(selected)
+      }
       return
     }
-    if (input === 'r' && !query && selected && needsRespawn(selected.state)) {
-      setBusy((current) => new Set(current).add(selected.id))
-      void respawnTemplateJob(selected.id, { knownState: selected.state })
-        .then((result) => {
-          if (!result.ok) setError(result.error)
-          return poll()
-        })
-        .finally(() =>
-          setBusy((current) => {
-            const next = new Set(current)
-            next.delete(selected.id)
-            return next
-          }),
-        )
+    if (detail) return
+    if (key.ctrl && input === 'x' && selectedHeader?.jobs.length) {
+      claim()
+      if (autocomplete.suggestions.length > 0) return
+      if (deleteAllArmed !== selectedHeader.group) {
+        setDeleteAllArmed(selectedHeader.group)
+        setTimeout(() => setDeleteAllArmed(null), 2_000)
+        return
+      }
+      setDeleteAllArmed(null)
+      for (const job of selectedHeader.jobs) {
+        if (job.state.backend !== 'peer') stopOrDelete(job, true)
+      }
       return
     }
-    if (key.ctrl && input === 'x' && !query && selected) {
-      stopOrDelete(selected)
-      return
-    }
-    if (input === ' ' && !query && selected) {
-      recordFleetAgentAction('peek', selected.state)
-      followedJobId.current = selected.id
-      followedHeaderGroup.current = null
-      setDetail(true)
+    if (key.ctrl && input === 'x') {
+      claim()
+      if (autocomplete.suggestions.length > 0) return
+      if (selected && !pendingJobs.some(job => job.id === selected.id)) {
+        stopOrDelete(selected)
+      }
       return
     }
     if (key.tab) {
+      claim()
+      if (!queryRef.current && templates.length) {
+        setShowAllSuggestions(value => !value)
+        return
+      }
       const suggestion =
         autocomplete.suggestions[
           Math.min(suggestionFocus, autocomplete.suggestions.length - 1)
         ]
       if (suggestion) chooseSuggestion(suggestion)
-      else if (!query && templates.length) setShowAllSuggestions(value => !value)
       return
     }
-    if (key.rightArrow && !query && selected) {
+    if (key.rightArrow && !key.shift && !queryRef.current) {
+      claim()
       openJob(selected)
       return
     }
     if (
       (key.meta || key.super) &&
-      /^[1-9]$/.test(input) &&
-      !query
+      /^[1-9]$/.test(input)
     ) {
+      claim()
       let ordinal = Number(input)
       const origin = selected
         ? spawnOrigin(selected.state)
@@ -2093,7 +3214,25 @@ export function FleetView({
       return
     }
     if (key.return) {
-      if (key.meta || query[queryCursor - 1] === '\\') return
+      if (
+        !key.shift &&
+        (key.meta || queryRef.current[queryCursor - 1] === '\\')
+      ) {
+        handleQueryKeyDown(event)
+        return
+      }
+      claim()
+      const normalizedQuery = queryRef.current.trim().toLowerCase()
+      if (
+        normalizedQuery === '/exit' ||
+        normalizedQuery === '/quit' ||
+        ['exit', 'quit', ':q', ':q!', ':wq', ':wq!'].includes(
+          normalizedQuery,
+        )
+      ) {
+        onAction({ type: 'done' })
+        return
+      }
       const suggestion =
         autocomplete.suggestions[
           Math.min(suggestionFocus, autocomplete.suggestions.length - 1)
@@ -2106,7 +3245,22 @@ export function FleetView({
         openJob(prTargetJob)
         return
       }
-      if (!query.trim()) {
+      const currentQuery = queryRef.current
+      const currentDispatch =
+        currentQuery === query
+          ? dispatch
+          : parsePrRef(currentQuery)
+            ? null
+            : parseDispatch(
+                currentQuery,
+                templates,
+                repositories,
+                routines,
+              )
+      if (!currentDispatch?.intent && !currentDispatch?.routine) {
+        if (currentDispatch?.matched || currentDispatch?.cwd !== undefined) {
+          return
+        }
         if (selectedHeader) {
           followedHeaderGroup.current = selectedHeader.group
           followedJobId.current = null
@@ -2119,20 +3273,24 @@ export function FleetView({
         } else if (selected) openJob(selected)
         return
       }
-      if (!dispatch || (!dispatch.intent && !dispatch.routine)) return
-      const intent = expandPastedTextRefs(dispatch.intent, pastedContents)
-      if (!dispatch.routine && intent.trim().length < 4) {
-        setError('Too short — describe the task')
+      const intent = expandPastedTextRefs(
+        currentDispatch.intent,
+        pastedContents,
+      )
+      if (!currentDispatch.routine && intent.trim().length < 4) {
+        setError(null)
+        setNotice('Too short — describe the task')
         return
       }
       setError(null)
-      const template: TemplateJob = dispatch.template
-      const cwd = dispatch.cwd ?? activeCwd
+      setNotice(null)
+      const template: TemplateJob = currentDispatch.template
+      const cwd = currentDispatch.cwd ?? activeCwd
       const spare = getPrewarmedJob()
       const canClaim =
         Boolean(spare?.ready) &&
-        !dispatch.matched &&
-        !dispatch.routine &&
+        !currentDispatch.matched &&
+        !currentDispatch.routine &&
         spare?.cwd === cwd &&
         intent.length <= 800 &&
         !intent.includes('\n')
@@ -2146,8 +3304,8 @@ export function FleetView({
           output: null,
           children: null,
           linkScanOffset: 0,
-          template: dispatch.routine ?? template.name,
-          routine: dispatch.routine,
+          template: currentDispatch.routine ?? template.name,
+          routine: currentDispatch.routine,
           intent,
           initialPrompt: template.initialPrompt,
           sessionId,
@@ -2160,11 +3318,12 @@ export function FleetView({
         },
         activity: 'flowing',
       }
-      const originalQuery = query
+      const originalQuery = currentQuery
       const originalPastedContents = pastedContents
       setPendingJobs(current => [...current, optimistic])
       queryRef.current = ''
       setQuery('')
+      void deleteFleetDraft(draftCwd)
       setQueryCursor(0)
       setPastedContents({})
       void (canClaim
@@ -2174,7 +3333,7 @@ export function FleetView({
             intent,
             sessionId,
             cwd,
-            dispatch.routine,
+            currentDispatch.routine,
           )
       ).then((result) => {
         if (canClaim) void prewarmTemplateJob(rootCwd)
@@ -2187,7 +3346,7 @@ export function FleetView({
             setPastedContents(originalPastedContents)
           }
         } else {
-          if (dispatch.matched) {
+          if (currentDispatch.matched) {
             saveGlobalConfig(current => {
               const now = Date.now()
               const previous = current.agentLastUsed?.[template.name]
@@ -2218,6 +3377,7 @@ export function FleetView({
               loopKicks: lastLoopTimelines,
               statuses: sessionStatusesRef.current,
               statusesTs: lastSessionStatusesTs,
+              prStatuses: statusesRef.current,
               freshDispatch: true,
             })
           }
@@ -2226,243 +3386,409 @@ export function FleetView({
       })
       return
     }
-    // The shared TextInput below owns ordinary task-query editing and paste.
-  })
+    if (input === '?' && queryRef.current === '') {
+      claim()
+      setShowHelp(value => !value)
+      logEvent('tengu_bg_agent_action', { action: 'help_toggled' })
+      return
+    }
+    handleQueryKeyDown(event)
+  }
+
+  if (jobs === null) {
+    return (
+      <Box
+        tabIndex={0}
+        autoFocus
+        onKeyDown={handleQueryKeyDown}
+        onPaste={handleFleetPaste}
+      />
+    )
+  }
+
+  const suggestionKindLabel: Record<FleetSuggestion['kind'], string> = {
+    agent: 'background',
+    repo: 'repo',
+    skill: 'skill',
+    routine: 'routine',
+  }
+  const suggestionItems = autocomplete.suggestions.map(suggestion => ({
+    id: `${suggestion.kind}:${suggestion.name}`,
+    displayText: `${suggestion.kind === 'skill' ? '/' : '@'}${suggestion.name}`,
+    description: `${suggestionKindLabel[suggestion.kind]} · ${suggestion.description}`,
+  }))
+  const recognizedMentions = new Set([
+    ...autocomplete.templateNames,
+    ...autocomplete.repoNames.map(name => name.toLowerCase()),
+    ...skills.map(skill => skill.name.toLowerCase()),
+    ...routines.map(routine => routine.name.toLowerCase()),
+  ])
+  const queryHighlights: Array<readonly [number, number]> =
+    (dispatch?.matched &&
+      autocomplete.firstWord === dispatch.template.name.toLowerCase()) ||
+    autocomplete.isSlashQuery
+      ? [[0, autocomplete.firstWord.length]]
+      : []
+  for (const match of query.matchAll(/(?:^|\s)[aso]:/gi)) {
+    const end = match.index + match[0].length
+    queryHighlights.push([end - 2, end])
+  }
+  for (const match of query.matchAll(/(?:^|\s)@(\S+)/g)) {
+    if (!recognizedMentions.has(match[1]!.toLowerCase())) continue
+    const end = match.index + match[0].length
+    queryHighlights.push([end - match[1]!.length - 1, end])
+  }
+
+  const { version, cwd } = getLogoDisplayData()
+  const branchWidth = gitBranch ? stringWidth(gitBranch) + 3 : 0
+  const displayedCwd = truncatePath(
+    cwd,
+    Math.max(terminalColumns - 11 - branchWidth, 10),
+  )
+  const columnWidths = fleetColumnWidths(visible, initialJobId)
+  const hasDispatch = Boolean(dispatch?.intent || dispatch?.routine)
+  const dispatchOwnsFocus = Boolean(
+    dispatch &&
+      (dispatch.intent || dispatch.routine || dispatch.matched || dispatch.cwd !== undefined),
+  )
+  const dispatchBlocksEnter = Boolean(
+    !hasDispatch && (dispatch?.matched || dispatch?.cwd !== undefined),
+  )
+  const selectedIsPending = Boolean(
+    selected && pendingJobs.some(job => job.id === selected.id),
+  )
+  const activeCount = (jobs ?? []).filter(job => {
+    const bucket = stateBucket(
+      job,
+      statuses,
+      sessionStatuses.get(job.state.sessionId),
+    )
+    return bucket === 'blocked' || bucket === 'working'
+  }).length
+  const enterAction = hasDispatch
+    ? 'dispatch'
+    : selected && needsRespawn(selected.state)
+      ? 'resume'
+      : 'open'
+  const canRename = Boolean(
+    selected &&
+      !selectedIsPending &&
+      !(selected.state.backend === 'peer' && !selected.state.sock),
+  )
+  const canReorder = Boolean(
+    selected && (groupMode !== 'state' || selected.state.pinned),
+  )
+  const selectedChildRows = selected?.state.children
+    ? fleetChildRows(selected.state.children, statuses)
+    : []
 
   let rowIndex = 0
   return (
-    <Box flexDirection="column" paddingX={1}>
-      <Box justifyContent="space-between">
-        <Text bold>Claude agents</Text>
-        <Text dimColor>
-          {groupMode === 'directory' ? 'by directory' : 'by state'} · ctrl+s switch
-        </Text>
-      </Box>
-      {renameId ? (
-        <Text dimColor>rename› {renameDraft}</Text>
-      ) : (
-        <Box>
-          <Text dimColor>task› </Text>
-          <TextInput
-            value={query}
-            onChange={value => {
-              queryRef.current = value
-              setQuery(value)
-            }}
-            cursorOffset={queryCursor}
-            onChangeCursorOffset={setQueryCursor}
-            columns={Math.max(20, (process.stdout.columns ?? 80) - 8)}
-            placeholder="describe a task for a new session"
-            focus={!detail}
-            showCursor={!detail}
-            multiline
-            disableEscapeDoublePress
-            onPaste={handleQueryPaste}
-            inputFilter={(value, key) =>
-              key.ctrl || key.escape ? '' : value
-            }
-          />
-        </Box>
-      )}
-      {showHelp && !detail ? (
-        <Text dimColor>
-          enter attach · space peek · l logs · r respawn · x stop/rm{canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · ctrl+s group
-        </Text>
-      ) : null}
-      {autocomplete.suggestions.length > 0 ? (
-        <Box flexDirection="column" paddingLeft={2}>
-          {autocomplete.suggestions.slice(0, 8).map((suggestion, index) => (
-            <Text key={`${suggestion.kind}:${suggestion.name}`}>
-              {index === suggestionFocus ? '❯' : ' '}{' '}
-              {suggestion.kind === 'skill' ? '/' : '@'}{suggestion.name}{' '}
-              <Text dimColor>
-                {suggestion.kind} · {suggestion.description}
-              </Text>
-            </Text>
-          ))}
-        </Box>
-      ) : null}
-      {error ? <Text color="warning">{error}</Text> : null}
-      {jobs === null ? <Text dimColor>loading…</Text> : null}
-      {jobs !== null && visible.length === 0 ? (
-        query ? (
-          <Text dimColor>no matching agents</Text>
-        ) : (
-          <Box flexDirection="column" paddingLeft={2}>
-            <Text dimColor>
-              Agents here keep running even if you close this terminal — hand off a task and check back later.
+    <Box
+      flexDirection="column"
+      flexGrow={1}
+      tabIndex={0}
+      autoFocus
+      onKeyDown={handleFleetKeyDown}
+      onPaste={handleFleetPaste}
+      onWheel={event => {
+        if (detail) return
+        event.preventDefault()
+        scrollBoxRef.current?.scrollBy(event.deltaY > 0 ? 3 : -3)
+      }}
+    >
+      <ScrollBox
+        ref={scrollBoxRef}
+        flexGrow={1}
+        flexDirection="column"
+        stickyScroll
+      >
+        <Box gap={2} marginBottom={1}>
+          <Clawd />
+          <Box flexDirection="column">
+            <Text>
+              <Text bold>Claude Code</Text>{' '}
+              <Text color="claude" bold>Agents</Text>{' '}
+              <Text dimColor>v{version}</Text>
             </Text>
             <Text dimColor>
-              {'Try: paste a link, or "review PR #123 for bugs" · "fix the failing test" · "babysit my PR until CI passes"'}
+              {[gitBranch, displayedCwd].filter(Boolean).join(' · ')}
+            </Text>
+            <Text dimColor>
+              <Byline>
+                {`${jobs.filter(job => deriveBand(job.state) === 'blocked').length} blocked`}
+                {`${jobs.filter(job => deriveBand(job.state) === 'active').length} working`}
+                {`${jobs.filter(job => deriveBand(job.state) === 'completed').length} done`}
+              </Byline>
             </Text>
           </Box>
-        )
-      ) : null}
-      {groups.map(({ group, jobs: groupJobs }) => {
-        const headerIndex = rowIndex++
-        const headerSelected = headerIndex === focus
-        const collapsed = collapsedGroups.has(group)
-        return (
-          <Box key={group} flexDirection="column">
-            <Text bold={headerSelected} dimColor={!headerSelected}>
-              {headerSelected ? '❯ ' : '  '}
-              {group === 'pinned'
-                ? 'Pinned'
-                : groupMode === 'state'
-                  ? group[0].toUpperCase() + group.slice(1)
-                  : repoGroupLabel(group)}
-              {collapsed ? ` ${groupJobs.length}` : ''}
-            </Text>
-          {!collapsed ? groupJobs.map((job) => {
-            const index = rowIndex++
-            const selectedRow = index === focus
-            const sessionStatus = sessionStatuses.get(job.state.sessionId)
-            const icon = pickIcon(job.state, job.activity, sessionStatus)
-            const style = glyphColor(job.state, job.activity, sessionStatus)
-            const timeline = lastLoopTimelines.get(job.state.sessionId)
-            const next =
-              timeline?.nextAt && timeline.nextAt > Date.now()
-                ? ` · next ${eventAge(new Date(timeline.nextAt).toISOString())}`
-                : ''
-            const childRows = (job.state.children ?? []).map((child) => {
-              const status = statuses.get(child.href)
-              return status
-                ? `#${status.number} ${actionableStatus(status)
-                    .map((segment) => segment.text)
-                    .join(' ')}`
-                : `#${child.id}`
-            })
-            return (
-              <Box key={job.id} flexDirection="column">
-                <Text
-                  color={style.color}
-                  dimColor={style.dim}
-                  bold={selectedRow}
-                >
-                  {selectedRow ? '❯' : ' '} {job.state.pinned ? '★' : icon ?? '◉'}{' '}
-                  {jobLabel(job.state)} · {job.id} · {job.activity} ·{' '}
-                  {eventAge(job.state.updatedAt)}{next}
-                  {busy.has(job.id) ? ' · updating…' : ''}
+        </Box>
+        {groups.map(({ group, jobs: groupJobs }, groupIndex) => {
+          const headerIndex = rowIndex++
+          const headerFocused = headerIndex === focus
+          const collapsed = collapsedGroups.has(group)
+          const focusHeader = (): void => {
+            if (headerIndex === focus || detail) return
+            followedJobId.current = null
+            followedHeaderGroup.current = group
+            setFocus(headerIndex)
+          }
+          const jobRows = collapsed
+            ? null
+            : groupJobs.map(job => {
+                const index = rowIndex++
+                const isFocused = index === focus
+                const focusJob = (): void => {
+                  if (index === focus || detail) return
+                  followedHeaderGroup.current = null
+                  followedJobId.current = job.id
+                  setFocus(index)
+                }
+                const timeline = lastLoopTimelines.get(job.state.sessionId)
+                const childRows = job.state.children
+                  ? fleetChildRows(job.state.children, statuses)
+                  : []
+                return (
+                  <Box
+                    key={job.id}
+                    ref={isFocused ? focusedElementRef : undefined}
+                    width="100%"
+                    paddingLeft={terminalColumns >= 120 ? 1 : 0}
+                    backgroundColor={
+                      !dispatchOwnsFocus && isFocused
+                        ? 'userMessageBackground'
+                        : undefined
+                    }
+                    onMouseEnter={query || detail ? undefined : focusJob}
+                    onClick={event => {
+                      if (event.hyperlinkUrl) {
+                        event.allowDefault()
+                        return
+                      }
+                      focusJob()
+                      openJob(job)
+                    }}
+                  >
+                    <FleetJobRow
+                      job={job}
+                      isFocused={isFocused}
+                      isOrigin={job.id === initialJobId}
+                      logTail={logTails[job.id]}
+                      status={sessionStatuses.get(job.state.sessionId)}
+                      columns={columnWidths}
+                      loopKickCount={timeline?.count}
+                      loopNextFireMs={timeline?.nextAt}
+                      childRows={childRows}
+                      rename={
+                        renameId === job.id
+                          ? { draft: renameDraft, cursor: renameCursor }
+                          : undefined
+                      }
+                      deleteArmed={
+                        deleteArmed?.id === job.id || deleteAllArmed === group
+                          ? { justKilled: deleteArmed?.justKilled ?? false }
+                          : undefined
+                      }
+                      attaching={attachingJobId === job.id || busy.has(job.id)}
+                    />
+                  </Box>
+                )
+              })
+          return (
+            <React.Fragment key={group}>
+              <Box
+                ref={headerFocused ? focusedElementRef : undefined}
+                marginTop={groupIndex > 0 ? 1 : 0}
+                backgroundColor={
+                  !dispatchOwnsFocus && headerFocused
+                    ? 'userMessageBackground'
+                    : undefined
+                }
+                onMouseEnter={query || detail ? undefined : focusHeader}
+                onClick={() => {
+                  focusHeader()
+                  followedJobId.current = null
+                  followedHeaderGroup.current = group
+                  setCollapsedGroups(current => {
+                    const next = new Set(current)
+                    if (next.has(group)) next.delete(group)
+                    else next.add(group)
+                    return next
+                  })
+                }}
+              >
+                <Text bold={headerFocused} dimColor={!headerFocused}>
+                  {group === 'pinned'
+                    ? 'Pinned'
+                    : groupMode === 'state'
+                      ? STATE_GROUP_LABELS[group as StateBucket]
+                      : repoGroupLabel(group)}
+                  {collapsed ? <Text dimColor> {groupJobs.length}</Text> : null}
                 </Text>
-                {deleteArmed?.id === job.id ? (
-                  <Text color="error">
-                    {'    '}
-                    {deleteArmed.justKilled
-                      ? 'stopped. ctrl+x again to delete.'
-                      : 'ctrl+x again to delete'}
-                  </Text>
-                ) : selectedRow && job.state.detail ? (
-                  <Text dimColor>    {job.state.detail}</Text>
-                ) : null}
-                {selectedRow
-                  ? childRows.slice(0, 8).map((row) => (
-                      <Text key={row} dimColor>
-                        {'    '}{row}
-                      </Text>
-                    ))
-                  : null}
-                {selectedRow && childRows.length > 8 ? (
-                  <Text dimColor>    … {childRows.length - 8} more</Text>
-                ) : null}
               </Box>
-            )
-          }) : null}
+              {jobRows}
+            </React.Fragment>
+          )
+        })}
+        {visible.length === 0 && !query ? (
+          <Box paddingLeft={2}>
+            <Box flexDirection="column">
+              <Text dimColor>
+                Agents here keep running even if you close this terminal — hand off a task and check back later.
+              </Text>
+              <Text dimColor>
+                {'Try: paste a link, or "review PR #123 for bugs" · "fix the failing test" · "babysit my PR until CI passes"'}
+              </Text>
+            </Box>
           </Box>
-        )
-      })}
-      {detail && selected ? (
+        ) : null}
+      </ScrollBox>
+      <Box flexShrink={0} flexDirection="column" marginTop={1}>
+        {suggestionItems.length > 0 ? (
+          <Box paddingLeft={2} marginBottom={1}>
+            <PromptInputFooterSuggestions
+              suggestions={suggestionItems}
+              selectedSuggestion={Math.min(
+                suggestionFocus,
+                suggestionItems.length - 1,
+              )}
+              maxColumnWidth={35}
+              noPad
+            />
+          </Box>
+        ) : null}
         <Box
           flexDirection="column"
           borderStyle="round"
-          borderColor={replyMode === 'bash' ? 'warning' : undefined}
-          paddingX={1}
+          borderLeft={false}
+          borderRight={false}
+          borderDimColor
         >
-          <Text bold>{jobLabel(selected.state)} · {selected.id}</Text>
-          {selected.state.needs ? (
-            <Text color="warning">needs: {selected.state.needs}</Text>
-          ) : null}
-          {(selected.state.children ?? []).slice(0, 8).map(child => {
-            const status = statuses.get(child.href)
-            return (
-              <Text key={child.href} dimColor>
-                #{status?.number ?? child.id}{status?.title ? ` ${status.title}` : ''}
-                {status ? ` · ${actionableStatus(status).map(part => part.text).join(' ')}` : ''}
-              </Text>
-            )
-          })}
-          {!selected.state.needs
-            ? Object.entries(selected.state.output ?? {}).map(([name, value]) => (
-                <Text key={name} dimColor>
-                  {Object.keys(selected.state.output ?? {}).length > 1 ? `${name} ` : ''}
-                  {eventAge(selected.state.updatedAt)} {String(value)}
-                </Text>
-              ))
-            : null}
-          {!selected.state.needs &&
-          !(selected.state.children?.length || Object.keys(selected.state.output ?? {}).length) ? (
+          <SearchBox
+            query={query}
+            cursorOffset={queryCursor}
+            onCursorOffsetChange={setQueryCursor}
+            placeholder="describe a task for a new session"
+            prefix={dispatch ? '❯' : undefined}
+            prefixDim={!hasDispatch}
+            highlights={queryHighlights}
+            isFocused={!detail && renameId === null}
+            isTerminalFocused={isTerminalFocused}
+            width="100%"
+            borderless
+          />
+        </Box>
+      </Box>
+
+      {showHelp && !detail ? (
+        <FleetShortcuts
+          focusedPinned={selected?.state.pinned ?? false}
+          canReorder={canReorder}
+          canRename={canRename}
+          canPin={canPin && !selectedIsPending}
+        />
+      ) : showInfo && !detail ? (
+        <FleetJobInfo job={selected} />
+      ) : (
+        <Box flexShrink={0} paddingLeft={2} height={1}>
+          {exitArmed ? (
             <Text dimColor>
-              {eventAge(selected.state.updatedAt)} {selected.state.detail}
+              Press Ctrl-C again to exit
+              {activeCount > 0
+                ? ` · ${activeCount} ${activeCount === 1 ? 'agent' : 'agents'} will keep running`
+                : ''}
+            </Text>
+          ) : renameId !== null ? (
+            <Text dimColor>
+              <Byline>
+                <KeyboardShortcutHint shortcut="enter" action="save" />
+                <KeyboardShortcutHint shortcut="escape" action="cancel" />
+              </Byline>
+            </Text>
+          ) : deleteArmed || deleteAllArmed ? (
+            <Text dimColor>
+              <KeyboardShortcutHint shortcut="ctrl+x" action="confirm" />
+            </Text>
+          ) : error ? (
+            <Text color="error" wrap="truncate-end">{error}</Text>
+          ) : notice ? (
+            <Text dimColor>{notice}</Text>
+          ) : !detail && suggestionItems.length === 0 ? (
+            <Text dimColor>
+              <Byline>
+                {((selected && !selectedIsPending) || hasDispatch) &&
+                !dispatchBlocksEnter ? (
+                  <KeyboardShortcutHint shortcut="enter" action={enterAction} />
+                ) : null}
+                {selectedHeader && !query ? (
+                  <KeyboardShortcutHint
+                    shortcut="enter"
+                    action={
+                      collapsedGroups.has(selectedHeader.group)
+                        ? 'expand'
+                        : 'collapse'
+                    }
+                  />
+                ) : null}
+                {selected && !query ? (
+                  <KeyboardShortcutHint shortcut=" " action="reply" />
+                ) : null}
+                {selected && !selectedIsPending && !query ? (
+                  <KeyboardShortcutHint shortcut="ctrl+x" action="delete" />
+                ) : selectedHeader?.jobs.length && !dispatchOwnsFocus ? (
+                  <KeyboardShortcutHint shortcut="ctrl+x" action="delete all" />
+                ) : null}
+                {query ? (
+                  <KeyboardShortcutHint shortcut="escape" action="clear" />
+                ) : (
+                  <Text>? for shortcuts</Text>
+                )}
+              </Byline>
             </Text>
           ) : null}
-          <Box>
-            <Text>{replyMode === 'bash' ? 'bash› ' : 'reply› '}</Text>
-            <TextInput
-              value={reply}
-              onChange={setReply}
-              onSubmit={submitReply}
-              cursorOffset={replyCursor}
-              onChangeCursorOffset={setReplyCursor}
-              columns={Math.max(20, (process.stdout.columns ?? 80) - 8)}
-              placeholder="type a reply · blank enter attaches"
-              focus
-              showCursor
-              multiline
-              disableEscapeDoublePress
-              onPaste={rawText => {
-                const text = stripAnsi(rawText)
-                  .replace(/\r\n|\r/g, '\n')
-                  .replaceAll('\t', '    ')
-                setReply(value =>
-                  value.slice(0, replyCursor) +
-                  text +
-                  value.slice(replyCursor),
-                )
-                setReplyCursor(replyCursor + text.length)
-              }}
-              inputFilter={(value, key) => {
-                if (key.ctrl || key.escape) return ''
-                if (replyMode === 'prompt' && value === '!' && !reply) {
-                  setReplyMode('bash')
-                  return ''
-                }
-                if (replyMode === 'bash' && key.backspace && !reply) {
-                  setReplyMode('prompt')
-                  return ''
-                }
-                return value
-              }}
-            />
-          </Box>
-          {replyError ? <Text color="error">{replyError}</Text> : null}
         </Box>
-      ) : null}
-      <Text dimColor>
-        {exitArmed
-          ? `Press Ctrl-C again to exit${visible.filter(job => !isSettledJob(job.state)).length ? ` · ${visible.filter(job => !isSettledJob(job.state)).length} ${visible.filter(job => !isSettledJob(job.state)).length === 1 ? 'agent' : 'agents'} will keep running` : ''}`
-          : renameId
-            ? 'enter save · escape cancel'
-            : deleteAllArmed
-              ? 'ctrl+x confirm delete all'
-              : detail
-                ? 'enter send/attach · ! bash · ctrl+x delete · esc/space back'
-                : `↑↓ move · enter attach/dispatch · space peek · tab complete · l logs · r respawn · ctrl+x stop/delete · ctrl+r rename${canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · esc exit`}
-      </Text>
+      )}
       <AutoUpdaterWrapper
         isUpdating={isUpdating}
         onChangeIsUpdating={setIsUpdating}
         showSuccessMessage={true}
         verbose={false}
       />
+
+      {detail && selected ? (
+        <Box
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          flexDirection="column"
+          opaque
+        >
+          <FleetDetail
+            key={selected.id}
+            job={selected}
+            childRows={selectedChildRows}
+            status={sessionStatuses.get(selected.state.sessionId)}
+            isPending={selectedIsPending}
+            deleteArmed={
+              deleteArmed?.id === selected.id
+                ? { justKilled: deleteArmed.justKilled }
+                : undefined
+            }
+            onBack={() => setDetail(false)}
+            onAttach={() => {
+              setDetail(false)
+              openJob(selected)
+            }}
+            onReply={reply => sendSelectedReply(selected, reply)}
+            isTerminalFocused={isTerminalFocused}
+            replyDrafts={replyDrafts.current}
+            replyError={replyError}
+            onReplyError={setReplyError}
+            renaming={renameId !== null}
+          />
+        </Box>
+      ) : null}
     </Box>
   )
 }
@@ -2474,7 +3800,8 @@ export async function mountFleetView(root: Root): Promise<void> {
   const alternateScreen = shouldUseFleetAlternateScreen()
   let initialJobId = process.env.CLAUDE_AGENTS_SELECT
   delete process.env.CLAUDE_AGENTS_SELECT
-  let initialQuery: string | undefined
+  let initialQuery = await loadFleetDraft(await canonicalizePath(getCwd()))
+  void cleanupFleetDrafts()
   let initialError: string | undefined
   try {
     for (;;) {
@@ -2541,6 +3868,7 @@ export async function mountFleetView(root: Root): Promise<void> {
       lastLoopTimelines = action.loopKicks
       lastSessionStatuses = action.statuses
       lastSessionStatusesTs = action.statusesTs
+      lastPrStatuses = action.prStatuses
 
       const openingAt = Date.now()
       const respawn =

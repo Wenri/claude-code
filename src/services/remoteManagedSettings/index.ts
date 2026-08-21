@@ -30,9 +30,9 @@ import {
   type SettingsJson,
   SettingsSchema,
 } from '../../utils/settings/types.js'
-import { filterInvalidSettingsEntries } from '../../utils/settings/validation.js'
 import { sleep } from '../../utils/sleep.js'
-import { jsonStringify } from '../../utils/slowOperations.js'
+import { clone, jsonStringify } from '../../utils/slowOperations.js'
+import { filterInvalidSettingsEntries } from '../../utils/settings/validation.js'
 import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
 import { getRetryDelay } from '../api/withRetry.js'
 import {
@@ -65,20 +65,6 @@ interface RemoteManagedSettingsLoadResult {
 type RemoteManagedSettingsValidationResult =
   | { valid: true }
   | { valid: false; message: string }
-
-/**
- * Settings validation removes individually invalid permission rules and hook
- * entries. Keep that mutation away from the cached/fetched objects used by
- * the security comparison and eventual persistence.
- */
-function cloneForRemoteSettingsValidation<T extends SettingsJson | null>(
-  settings: T,
-): T {
-  if (!settings) return settings
-  const cloned = structuredClone(settings)
-  filterInvalidSettingsEntries(cloned, 'remote managed settings')
-  return cloned
-}
 
 // Background polling state
 let pollingIntervalId: ReturnType<typeof setInterval> | null = null
@@ -342,15 +328,14 @@ async function fetchRemoteManagedSettings(
       return {
         success: false,
         error: 'Invalid remote settings format',
-        skipRetry: true,
       }
     }
 
-    // Full validation of settings structure
-    const settingsForValidation = cloneForRemoteSettingsValidation(
-      parsed.data.settings,
-    )
-    const settingsValidation = SettingsSchema().safeParse(settingsForValidation)
+    // Full validation of settings structure. Malformed hook entries are
+    // ignored without invalidating unrelated remote settings.
+    const sanitizedSettings = clone(parsed.data.settings)
+    filterInvalidSettingsEntries(sanitizedSettings, 'remote managed settings')
+    const settingsValidation = SettingsSchema().safeParse(sanitizedSettings)
     if (!settingsValidation.success) {
       logForDebugging(
         `Remote settings: Settings validation failed - ${settingsValidation.error.message}`,
@@ -358,7 +343,6 @@ async function fetchRemoteManagedSettings(
       return {
         success: false,
         error: 'Invalid settings structure',
-        skipRetry: true,
       }
     }
 
@@ -488,9 +472,23 @@ async function fetchAndLoadRemoteManagedSettings(): Promise<RemoteManagedSetting
 
     if (hasContent) {
       // Check for dangerous settings changes before applying
+      const sanitizedCachedSettings = cachedSettings
+        ? clone(cachedSettings)
+        : cachedSettings
+      if (sanitizedCachedSettings) {
+        filterInvalidSettingsEntries(
+          sanitizedCachedSettings,
+          'remote managed settings',
+        )
+      }
+      const sanitizedNewSettings = clone(newSettings)
+      filterInvalidSettingsEntries(
+        sanitizedNewSettings,
+        'remote managed settings',
+      )
       const securityResult = await checkManagedSettingsSecurity(
-        cloneForRemoteSettingsValidation(cachedSettings),
-        cloneForRemoteSettingsValidation(newSettings),
+        sanitizedCachedSettings,
+        sanitizedNewSettings,
       )
       if (!handleSecurityCheckResult(securityResult)) {
         // User rejected - don't apply settings, return cached or null
