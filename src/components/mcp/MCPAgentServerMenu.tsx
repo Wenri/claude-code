@@ -10,6 +10,7 @@ import { Select } from '../CustomSelect/index.js';
 import { Byline } from '../design-system/Byline.js';
 import { Dialog } from '../design-system/Dialog.js';
 import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
+import { Table } from '../design-system/Table.js';
 import { Spinner } from '../Spinner.js';
 import type { AgentMcpServerInfo } from './types.js';
 type Props = {
@@ -120,42 +121,52 @@ export function MCPAgentServerMenu({
             <KeyboardShortcutHint shortcut="Enter" action="confirm" />
             <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="go back" />
           </Byline>}>
-      <Box flexDirection="column" gap={0}>
-        <Box>
-          <Text bold>Type: </Text>
+      <Table box="plain" columns={[{
+      bold: true,
+      width: 8
+    }, {}]}>
+        <Table.Row>
+          <>Type:</>
           <Text dimColor>{agentServer.transport}</Text>
-        </Box>
+        </Table.Row>
 
-        {agentServer.url && <Box>
-            <Text bold>URL: </Text>
+        {agentServer.url && <Table.Row>
+            <>URL:</>
             <Text dimColor>{agentServer.url}</Text>
-          </Box>}
+          </Table.Row>}
 
-        {agentServer.command && <Box>
-            <Text bold>Command: </Text>
+        {agentServer.command && <Table.Row>
+            <>Command:</>
             <Text dimColor>{agentServer.command}</Text>
-          </Box>}
+          </Table.Row>}
 
-        <Box>
-          <Text bold>Used by: </Text>
+        <Table.Row>
+          <>Used by:</>
           <Text dimColor>{agentServer.sourceAgents.join(', ')}</Text>
-        </Box>
+        </Table.Row>
+      </Table>
 
-        <Box marginTop={1}>
-          <Text bold>Status: </Text>
-          <Text>
-            {color('inactive', theme)(figures.radioOff)} not connected
-            (agent-only)
-          </Text>
-        </Box>
+      <Box>
+        <Table box="plain" columns={[{
+        bold: true,
+        width: 8
+      }, {}]}>
+          <Table.Row>
+            <>Status:</>
+            <Text>
+              {color('inactive', theme)(figures.radioOff)} not connected
+              (agent-only)
+            </Text>
+          </Table.Row>
 
-        {agentServer.needsAuth && <Box>
-            <Text bold>Auth: </Text>
-            {agentServer.isAuthenticated ? <Text>{color('success', theme)(figures.tick)} authenticated</Text> : <Text>
-                {color('warning', theme)(figures.triangleUpOutline)} may need
-                authentication
-              </Text>}
-          </Box>}
+          {agentServer.needsAuth && <Table.Row>
+              <>Auth:</>
+              {agentServer.isAuthenticated ? <Text>{color('success', theme)(figures.tick)} authenticated</Text> : <Text>
+                  {color('warning', theme)(figures.triangleUpOutline)} may need
+                  authentication
+                </Text>}
+            </Table.Row>}
+        </Table>
       </Box>
 
       <Box>

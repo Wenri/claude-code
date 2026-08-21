@@ -75,7 +75,7 @@ import { getFastModeUnavailableReason, isFastModeAvailable, isFastModeCooldown, 
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
 import type { PromptInputHelpers } from '../../utils/handlePromptSubmit.js';
 import { getImageFromClipboard, PASTE_THRESHOLD } from '../../utils/imagePaste.js';
-import type { ImageDimensions } from '../../utils/imageResizer.js';
+import { getImageLimits, type ImageDimensions } from '../../utils/imageResizer.js';
 import { cacheImagePath, storeImage } from '../../utils/imageStore.js';
 import { isMacosOptionChar, MACOS_OPTION_SPECIAL_CHARS } from '../../utils/keyboardShortcuts.js';
 import { logError } from '../../utils/log.js';
@@ -1817,7 +1817,7 @@ function PromptInput({
 
   // Handler for chat:imagePaste - paste image from clipboard
   const handleImagePaste = useCallback(() => {
-    void getImageFromClipboard().then(imageData => {
+    void getImageFromClipboard(getImageLimits(mainLoopModel)).then(imageData => {
       if (imageData) {
         onImagePaste(imageData.base64, imageData.mediaType);
       } else {
@@ -1831,7 +1831,7 @@ function PromptInput({
         });
       }
     });
-  }, [addNotification, onImagePaste]);
+  }, [addNotification, onImagePaste, mainLoopModel]);
 
   // Register chat:submit handler directly in the handler registry (not via
   // useKeybindings) so that only the ChordInterceptor can invoke it for chord

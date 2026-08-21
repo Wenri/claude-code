@@ -3,19 +3,21 @@ import { feature } from 'bun:bundle';
 import React, { useEffect } from 'react';
 import { useNotifications } from '../context/notifications.js';
 import { Text } from '../ink.js';
+import { isUsing3PServices } from '../utils/auth.js';
 import { getGlobalConfig } from '../utils/config.js';
+import { getAPIProvider } from '../utils/model/providers.js';
 import { getRainbowColor } from '../utils/thinking.js';
 
 // Local date, not UTC — 24h rolling wave across timezones. Sustained Twitter
 // buzz instead of a single UTC-midnight spike, gentler on soul-gen load.
 // Teaser window: April 1-7, 2026 only. Command stays live forever after.
 export function isBuddyTeaserWindow(): boolean {
-  if ("external" === 'ant') return true;
-  const d = new Date();
-  return d.getFullYear() === 2026 && d.getMonth() === 3 && d.getDate() <= 7;
+  return isBuddyLive();
 }
 export function isBuddyLive(): boolean {
   if ("external" === 'ant') return true;
+  if (getAPIProvider() !== 'firstParty') return false;
+  if (isUsing3PServices()) return false;
   const d = new Date();
   return d.getFullYear() > 2026 || d.getFullYear() === 2026 && d.getMonth() >= 3;
 }
@@ -54,7 +56,7 @@ export function useBuddyNotification() {
         return;
       }
       const config = getGlobalConfig();
-      if (config.companion || !isBuddyTeaserWindow()) {
+      if (config.companion || !isBuddyLive()) {
         return;
       }
       addNotification({

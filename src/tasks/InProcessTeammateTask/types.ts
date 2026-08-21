@@ -28,6 +28,7 @@ export type InProcessTeammateTaskState = TaskStateBase & {
 
   // Execution
   prompt: string
+  cwd?: string
   // Optional model override for this teammate
   model?: string
   // Optional: Only set if teammate uses a specific agent definition

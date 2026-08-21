@@ -1,8 +1,15 @@
 import axios from 'axios'
 import { constants as fsConstants } from 'fs'
-import { access, writeFile } from 'fs/promises'
+import {
+  access,
+  readdir,
+  rename,
+  rm,
+  stat,
+  writeFile,
+} from 'fs/promises'
 import { homedir } from 'os'
-import { join } from 'path'
+import { dirname, join } from 'path'
 import { getDynamicConfig_BLOCKS_ON_INIT } from 'src/services/analytics/growthbook.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -17,6 +24,7 @@ import { execFileNoThrowWithCwd } from './execFileNoThrow.js'
 import { getFsImplementation } from './fsOperations.js'
 import { gracefulShutdownSync } from './gracefulShutdown.js'
 import { logError } from './log.js'
+import { getPlatform } from './platform.js'
 import { isEssentialTrafficOnly } from './privacyLevel.js'
 import { gte, lt } from './semver.js'
 import { getInitialSettings } from './settings/settings.js'
@@ -542,11 +550,6 @@ To fix this issue:
       return 'install_failed'
     }
 
-    const { hasPermissions } = await checkGlobalInstallPermissions()
-    if (!hasPermissions) {
-      return 'no_permissions'
-    }
-
     // Use specific version if provided, otherwise use latest
     const packageSpec = specificVersion
       ? `${MACRO.PACKAGE_URL}@${specificVersion}`
@@ -554,14 +557,89 @@ To fix this issue:
 
     // Run from home directory to avoid reading project-level .npmrc/.bunfig.toml
     // which could be maliciously crafted to redirect to an attacker's registry
+    const retiredWindowsBinaries: Array<[original: string, retired: string]> = []
+    if (
+      getPlatform() === 'windows' &&
+      env.isRunningWithBun() &&
+      process.execPath
+        .replace(/\\/g, '/')
+        .includes('/node_modules/@anthropic-ai/')
+    ) {
+      const packageDir = join(dirname(process.execPath), '..', '..')
+      const installDir = join(packageDir, '..')
+      for (const candidateDir of [installDir, packageDir]) {
+        for (const entry of await readdir(candidateDir, {
+          withFileTypes: true,
+        }).catch(() => [])) {
+          if (!entry.isDirectory() || !entry.name.startsWith('.')) continue
+          const retiredDir = join(candidateDir, entry.name)
+          const containsOldExecutable = await Promise.all([
+            readdir(retiredDir).catch(() => []),
+            readdir(join(retiredDir, 'bin')).catch(() => []),
+          ]).then(entries =>
+            entries.flat().some(name => /\.exe\.old\.\d+$/.test(name)),
+          )
+          if (containsOldExecutable) {
+            await rm(retiredDir, { recursive: true, force: false }).catch(
+              error =>
+                logForDebugging(`retired-dir cleanup failed: ${error}`),
+            )
+          }
+        }
+      }
+
+      const timestamp = Date.now()
+      const currentInode = await stat(process.execPath, { bigint: true })
+        .then(info => info.ino)
+        .catch(() => 0n)
+      const binaries = [process.execPath]
+      for (const entry of await readdir(packageDir).catch(() => [])) {
+        for (const basename of ['claude.exe', 'cli.exe']) {
+          const candidate = join(packageDir, entry, basename)
+          if (candidate === process.execPath) continue
+          const inode = await stat(candidate, { bigint: true })
+            .then(info => info.ino)
+            .catch(() => -1n)
+          if (currentInode && inode === currentInode) binaries.push(candidate)
+        }
+      }
+      for (const binary of binaries) {
+        const retired = `${binary}.old.${timestamp}`
+        await rename(binary, retired).then(
+          () => retiredWindowsBinaries.push([binary, retired]),
+          () => {},
+        )
+      }
+    }
+
     const installResult = await execFileNoThrowWithCwd(
       packageManager,
       ['install', '-g', packageSpec],
       { cwd: homedir() },
     )
+    if (retiredWindowsBinaries.length > 0 && installResult.code !== 0) {
+      for (const [original, retired] of retiredWindowsBinaries) {
+        await rename(retired, original).catch(error =>
+          logError(
+            new AutoUpdaterError(
+              `Failed to restore ${original} after install failure: ${error}`,
+            ),
+          ),
+        )
+      }
+    }
     if (installResult.code !== 0) {
+      const combinedOutput = `${installResult.stdout} ${installResult.stderr}`
+      if (/\b(EACCES|EPERM|permission denied)\b/i.test(combinedOutput)) {
+        logError(
+          new AutoUpdaterError(
+            'Insufficient permissions for global npm install.',
+          ),
+        )
+        return 'no_permissions'
+      }
       const error = new AutoUpdaterError(
-        `Failed to install new version of claude: ${installResult.stdout} ${installResult.stderr}`,
+        `Failed to install new version of claude: ${combinedOutput}`,
       )
       logError(error)
       return 'install_failed'

@@ -675,6 +675,7 @@ export function checkSedConstraints(
           type: 'other',
           reason:
             'sed command contains operations that require explicit approval (e.g., write commands, execute commands)',
+          bashMissKind: 'sed-dangerous',
         },
       }
     }

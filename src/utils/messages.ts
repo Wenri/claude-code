@@ -144,7 +144,11 @@ import { TASK_OUTPUT_TOOL_NAME } from '../tools/TaskOutputTool/constants.js'
 import { TASK_UPDATE_TOOL_NAME } from '../tools/TaskUpdateTool/constants.js'
 import { TOOL_SEARCH_TOOL_NAME } from '../tools/ToolSearchTool/prompt.js'
 import type { PermissionMode } from '../types/permissions.js'
-import { normalizeToolInput, normalizeToolInputForAPI } from './api.js'
+import {
+  decodeUnicodeEscapesInToolInput,
+  normalizeToolInput,
+  normalizeToolInputForAPI,
+} from './api.js'
 import { getCurrentProjectConfig } from './config.js'
 import { logAntError, logForDebugging } from './debug.js'
 import { stripIdeContextTags } from './displayTags.js'
@@ -2607,9 +2611,11 @@ export function normalizeContentFromAPI(
         if (typeof normalizedInput === 'object' && normalizedInput !== null) {
           const tool = findToolByName(tools, contentBlock.name)
           if (tool) {
-            const correctedInput = normalizeJsonEncodedToolInputFields(
-              normalizedInput,
-              tool.inputSchema,
+            const correctedInput = decodeUnicodeEscapesInToolInput(
+              normalizeJsonEncodedToolInputFields(
+                normalizedInput,
+                tool.inputSchema,
+              ),
             )
             try {
               normalizedInput = normalizeToolInput(
@@ -2731,7 +2737,7 @@ const STRIPPED_TAGS_RE =
   /<(commit_analysis|context|function_analysis|pr_analysis)>.*?<\/\1>\n?/gs
 
 export function stripPromptXMLTags(content: string): string {
-  return content.replace(STRIPPED_TAGS_RE, '').trim()
+  return content.replace(STRIPPED_TAGS_RE, '').replace(/^\n+/, '')
 }
 
 export function getToolUseID(message: NormalizedMessage): string | null {

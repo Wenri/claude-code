@@ -147,6 +147,7 @@ import focus from './commands/focus.js'
 import passes from './commands/passes/index.js'
 import privacySettings from './commands/privacy-settings/index.js'
 import hooks from './commands/hooks/index.js'
+import loops from './commands/loops/index.js'
 import branch from './commands/branch/index.js'
 import agents from './commands/agents/index.js'
 import plugin from './commands/plugin/index.js'
@@ -358,6 +359,7 @@ const COMMANDS = memoize((): Command[] => [
   powerup,
   privacySettings,
   hooks,
+  loops,
   exportCommand,
   sandboxToggle,
   ...(!isUsing3PServices() ? [logout, login()] : []),

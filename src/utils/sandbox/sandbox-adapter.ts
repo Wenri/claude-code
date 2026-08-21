@@ -59,6 +59,7 @@ import { errorMessage } from '../errors.js'
 import { getClaudeTempDir } from '../permissions/filesystem.js'
 import type { PermissionRuleValue } from '../permissions/PermissionRule.js'
 import { ripgrepCommand } from '../ripgrep.js'
+import { getEmbeddedSeccompConfig } from './seccomp.js'
 import {
   isScrubSandboxAvailable,
   isScrubEnabled,
@@ -416,6 +417,7 @@ export function convertToSandboxRuntimeConfig(
     enableWeakerNetworkIsolation:
       settings.sandbox?.enableWeakerNetworkIsolation,
     ripgrep: ripgrepConfig,
+    seccomp: getEmbeddedSeccompConfig(),
   }
 }
 

@@ -11,7 +11,7 @@ import {
   type InstallMethod,
 } from './config.js'
 import { getCwd } from './cwd.js'
-import { isEnvTruthy } from './envUtils.js'
+import { getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.js'
 import { execFileNoThrow } from './execFileNoThrow.js'
 import { getFsImplementation } from './fsOperations.js'
 import {
@@ -91,10 +91,21 @@ export async function getCurrentInstallationType(): Promise<InstallationType> {
     return 'development'
   }
 
-  const [invokedPath] = getNormalizedPaths()
+  const [invokedPath, execPath] = getNormalizedPaths()
 
   // Check if running in bundled mode first
   if (isInBundledMode()) {
+    const localNodeModulesPath =
+      getClaudeConfigHomeDir()
+        .replace(/\\/g, '/')
+        .replace(/\/+$/, '') + '/local/node_modules/'
+    if (execPath.startsWith(localNodeModulesPath)) {
+      return 'npm-local'
+    }
+    if (execPath.includes('/node_modules/@anthropic-ai/')) {
+      return 'npm-global'
+    }
+
     // Check if this bundled instance was installed by a package manager
     if (
       detectHomebrew() ||

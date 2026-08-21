@@ -39,7 +39,7 @@ function containsControlChars(
 ): boolean {
   for (let i = 0; i < s.length; i++) {
     const code = s.charCodeAt(i)
-    if (code <= 0x1f || code === 0x7f) {
+    if (code <= 0x1f || (code >= 0x7f && code <= 0x9f)) {
       if (allowNewlineAndTab && (code === 0x0a || code === 0x09)) {
         continue
       }

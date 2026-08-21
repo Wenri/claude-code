@@ -13,6 +13,7 @@ import { getTaskOutputPath } from '../../utils/task/diskOutput.js';
 import { Byline } from '../design-system/Byline.js';
 import { Dialog } from '../design-system/Dialog.js';
 import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
+import { Table } from '../design-system/Table.js';
 type Props = {
   shell: DeepImmutable<LocalShellTaskState>;
   onDone: (result?: string, options?: {
@@ -47,7 +48,7 @@ async function getTaskOutput(shell: DeepImmutable<LocalShellTaskState>): Promise
   }
 }
 export function ShellDetailDialog(t0) {
-  const $ = _c(57);
+  const $ = _c(59);
   const {
     shell,
     onDone,
@@ -174,125 +175,140 @@ export function ShellDetailDialog(t0) {
   }
   let t11;
   if ($[23] === Symbol.for("react.memo_cache_sentinel")) {
-    t11 = <Text bold={true}>Status:</Text>;
+    t11 = [{
+      bold: true
+    }, {
+      width: {
+        ratio: 1
+      }
+    }];
     $[23] = t11;
   } else {
     t11 = $[23];
   }
-  let t12;
-  if ($[24] !== shell.result || $[25] !== shell.status) {
-    t12 = <Text>{t11}{" "}{shell.status === "running" ? <Text color="background">{shell.status}{shell.result?.code !== undefined && ` (exit code: ${shell.result.code})`}</Text> : shell.status === "completed" ? <Text color="success">{shell.status}{shell.result?.code !== undefined && ` (exit code: ${shell.result.code})`}</Text> : <Text color="error">{shell.status}{shell.result?.code !== undefined && ` (exit code: ${shell.result.code})`}</Text>}</Text>;
-    $[24] = shell.result;
-    $[25] = shell.status;
-    $[26] = t12;
-  } else {
-    t12 = $[26];
-  }
+  const t12 = columns - 6;
   let t13;
-  if ($[27] === Symbol.for("react.memo_cache_sentinel")) {
-    t13 = <Text bold={true}>Runtime:</Text>;
-    $[27] = t13;
+  if ($[24] === Symbol.for("react.memo_cache_sentinel")) {
+    t13 = <>Status:</>;
+    $[24] = t13;
   } else {
-    t13 = $[27];
+    t13 = $[24];
   }
   let t14;
-  if ($[28] !== shell.endTime) {
-    t14 = shell.endTime ?? Date.now();
-    $[28] = shell.endTime;
-    $[29] = t14;
+  if ($[25] !== shell.result || $[26] !== shell.status) {
+    t14 = <Table.Row>{t13}{shell.status === "running" ? <Text color="background">{shell.status}{shell.result?.code !== undefined && ` (exit code: ${shell.result.code})`}</Text> : shell.status === "completed" ? <Text color="success">{shell.status}{shell.result?.code !== undefined && ` (exit code: ${shell.result.code})`}</Text> : <Text color="error">{shell.status}{shell.result?.code !== undefined && ` (exit code: ${shell.result.code})`}</Text>}</Table.Row>;
+    $[25] = shell.result;
+    $[26] = shell.status;
+    $[27] = t14;
   } else {
-    t14 = $[29];
+    t14 = $[27];
   }
-  const t15 = t14 - shell.startTime;
+  let t15;
+  if ($[28] === Symbol.for("react.memo_cache_sentinel")) {
+    t15 = <>Runtime:</>;
+    $[28] = t15;
+  } else {
+    t15 = $[28];
+  }
   let t16;
-  if ($[30] !== t15) {
-    t16 = formatDuration(t15);
-    $[30] = t15;
-    $[31] = t16;
+  if ($[29] !== shell.endTime) {
+    t16 = shell.endTime ?? Date.now();
+    $[29] = shell.endTime;
+    $[30] = t16;
   } else {
-    t16 = $[31];
+    t16 = $[30];
   }
-  let t17;
-  if ($[32] !== t16) {
-    t17 = <Text>{t13}{" "}{t16}</Text>;
-    $[32] = t16;
-    $[33] = t17;
+  const t17 = t16 - shell.startTime;
+  let t18;
+  if ($[31] !== t17) {
+    t18 = formatDuration(t17);
+    $[31] = t17;
+    $[32] = t18;
   } else {
-    t17 = $[33];
+    t18 = $[32];
   }
-  const t18 = isMonitor ? "Script:" : "Command:";
   let t19;
-  if ($[34] !== t18) {
-    t19 = <Text bold={true}>{t18}</Text>;
-    $[34] = t18;
-    $[35] = t19;
+  if ($[33] !== t18) {
+    t19 = <Table.Row>{t15}{t18}</Table.Row>;
+    $[33] = t18;
+    $[34] = t19;
   } else {
-    t19 = $[35];
+    t19 = $[34];
   }
-  let t20;
-  if ($[36] !== displayCommand || $[37] !== t19) {
-    t20 = <Text wrap="wrap">{t19}{" "}{displayCommand}</Text>;
-    $[36] = displayCommand;
-    $[37] = t19;
-    $[38] = t20;
-  } else {
-    t20 = $[38];
-  }
+  const t20 = isMonitor ? "Script:" : "Command:";
   let t21;
-  if ($[39] !== t12 || $[40] !== t17 || $[41] !== t20) {
-    t21 = <Box flexDirection="column">{t12}{t17}{t20}</Box>;
-    $[39] = t12;
-    $[40] = t17;
-    $[41] = t20;
-    $[42] = t21;
+  if ($[35] !== t20) {
+    t21 = <>{t20}</>;
+    $[35] = t20;
+    $[36] = t21;
   } else {
-    t21 = $[42];
+    t21 = $[36];
   }
   let t22;
-  if ($[43] === Symbol.for("react.memo_cache_sentinel")) {
-    t22 = <Text bold={true}>Output:</Text>;
-    $[43] = t22;
+  if ($[37] !== displayCommand || $[38] !== t21) {
+    t22 = <Table.Row>{t21}{displayCommand}</Table.Row>;
+    $[37] = displayCommand;
+    $[38] = t21;
+    $[39] = t22;
   } else {
-    t22 = $[43];
+    t22 = $[39];
   }
   let t23;
-  if ($[44] === Symbol.for("react.memo_cache_sentinel")) {
-    t23 = <Text dimColor={true}>Loading output…</Text>;
+  if ($[40] !== t12 || $[41] !== t14 || $[42] !== t19 || $[43] !== t22) {
+    t23 = <Table box="plain" columns={t11} forceWidth={t12}>{t14}{t19}{t22}</Table>;
+    $[40] = t12;
+    $[41] = t14;
+    $[42] = t19;
+    $[43] = t22;
     $[44] = t23;
   } else {
     t23 = $[44];
   }
   let t24;
-  if ($[45] !== columns || $[46] !== deferredOutputPromise) {
-    t24 = <Box flexDirection="column">{t22}<Suspense fallback={t23}><ShellOutputContent outputPromise={deferredOutputPromise} columns={columns} /></Suspense></Box>;
-    $[45] = columns;
-    $[46] = deferredOutputPromise;
-    $[47] = t24;
+  if ($[45] === Symbol.for("react.memo_cache_sentinel")) {
+    t24 = <Text bold={true}>Output:</Text>;
+    $[45] = t24;
   } else {
-    t24 = $[47];
+    t24 = $[45];
   }
   let t25;
-  if ($[48] !== handleClose || $[49] !== t10 || $[50] !== t21 || $[51] !== t24 || $[52] !== t9) {
-    t25 = <Dialog title={t9} onCancel={handleClose} color="background" inputGuide={t10}>{t21}{t24}</Dialog>;
-    $[48] = handleClose;
-    $[49] = t10;
-    $[50] = t21;
-    $[51] = t24;
-    $[52] = t9;
-    $[53] = t25;
+  if ($[46] === Symbol.for("react.memo_cache_sentinel")) {
+    t25 = <Text dimColor={true}>Loading output…</Text>;
+    $[46] = t25;
   } else {
-    t25 = $[53];
+    t25 = $[46];
   }
   let t26;
-  if ($[54] !== handleKeyDown || $[55] !== t25) {
-    t26 = <Box flexDirection="column" tabIndex={0} autoFocus={true} onKeyDown={handleKeyDown}>{t25}</Box>;
-    $[54] = handleKeyDown;
-    $[55] = t25;
-    $[56] = t26;
+  if ($[47] !== columns || $[48] !== deferredOutputPromise) {
+    t26 = <Box flexDirection="column">{t24}<Suspense fallback={t25}><ShellOutputContent outputPromise={deferredOutputPromise} columns={columns} /></Suspense></Box>;
+    $[47] = columns;
+    $[48] = deferredOutputPromise;
+    $[49] = t26;
   } else {
-    t26 = $[56];
+    t26 = $[49];
   }
-  return t26;
+  let t27;
+  if ($[50] !== handleClose || $[51] !== t10 || $[52] !== t23 || $[53] !== t26 || $[54] !== t9) {
+    t27 = <Dialog title={t9} onCancel={handleClose} color="background" inputGuide={t10}>{t23}{t26}</Dialog>;
+    $[50] = handleClose;
+    $[51] = t10;
+    $[52] = t23;
+    $[53] = t26;
+    $[54] = t9;
+    $[55] = t27;
+  } else {
+    t27 = $[55];
+  }
+  let t28;
+  if ($[56] !== handleKeyDown || $[57] !== t27) {
+    t28 = <Box flexDirection="column" tabIndex={0} autoFocus={true} onKeyDown={handleKeyDown}>{t27}</Box>;
+    $[56] = handleKeyDown;
+    $[57] = t27;
+    $[58] = t28;
+  } else {
+    t28 = $[58];
+  }
+  return t28;
 }
 function _temp(setOutputPromise_0, shell_0) {
   return setOutputPromise_0(getTaskOutput(shell_0));

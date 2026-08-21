@@ -1,12 +1,13 @@
 import { c as _c } from "react/compiler-runtime";
 import type { ElicitRequestFormParams, ElicitRequestURLParams, ElicitResult, PrimitiveSchemaDefinition } from '@modelcontextprotocol/sdk/types.js';
 import figures from 'figures';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRegisterOverlay } from '../../context/overlayContext.js';
 import { useNotifyAfterTimeout } from '../../hooks/useNotifyAfterTimeout.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
+import { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- raw text input for elicitation form
-import { Box, Text, useInput } from '../../ink.js';
+import { Box, Text, useInput, useStdin } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
 import type { ElicitationRequestEvent } from '../../services/mcp/elicitationHandler.js';
 import { openBrowser } from '../../utils/browser.js';
@@ -197,6 +198,11 @@ function ElicitationFormDialog({
       signal.removeEventListener('abort', handleAbort);
     };
   }, [signal, onResponse]);
+  const { setRawMode } = useStdin();
+  useLayoutEffect(() => {
+    setRawMode(true);
+    return () => setRawMode(false);
+  }, [setRawMode]);
   const schemaFields = useMemo(() => {
     const requiredFields = requestedSchema.required ?? [];
     return Object.entries(requestedSchema.properties).map(([name, schema]) => ({
@@ -480,24 +486,35 @@ function ElicitationFormDialog({
     context: 'Settings',
     isActive: !!currentField && !focusedButton && !expandedAccordion
   });
-  useInput((_input, key) => {
+  const handleFormKeyDown = (event: KeyboardEvent): void => {
+    const _input = event.key.length === 1 && event.key !== ' ' && !event.ctrl && !event.meta ? event.key : '';
+    const key = {
+      upArrow: event.key === 'up',
+      downArrow: event.key === 'down',
+      leftArrow: event.key === 'left',
+      rightArrow: event.key === 'right',
+      return: event.key === 'return',
+      backspace: event.key === 'backspace',
+      escape: event.key === 'escape'
+    };
     // Text fields handle their own character input; we only intercept
     // navigation keys and backspace-on-empty here.
     if (isEditingTextField && !key.upArrow && !key.downArrow && !key.return && !key.backspace) {
       return;
     }
-
     // Expanded multi-select accordion
     if (expandedAccordion && currentField && isMultiSelectEnumSchema(currentField.schema)) {
       const msSchema = currentField.schema;
       const msValues = getMultiSelectValues(msSchema);
       const selected_0 = formValues[currentField.name] as string[] ?? [];
       if (key.leftArrow || key.escape) {
+        event.preventDefault();
         setExpandedAccordion(undefined);
         validateMultiSelect(currentField.name, msSchema);
         return;
       }
       if (key.upArrow) {
+        event.preventDefault();
         if (accordionOptionIndex === 0) {
           setExpandedAccordion(undefined);
           validateMultiSelect(currentField.name, msSchema);
@@ -507,6 +524,7 @@ function ElicitationFormDialog({
         return;
       }
       if (key.downArrow) {
+        event.preventDefault();
         if (accordionOptionIndex >= msValues.length - 1) {
           setExpandedAccordion(undefined);
           handleNavigation('down');
@@ -515,7 +533,8 @@ function ElicitationFormDialog({
         }
         return;
       }
-      if (_input === ' ') {
+      if (event.key === ' ') {
+        event.preventDefault();
         const optionValue = msValues[accordionOptionIndex];
         if (optionValue !== undefined) {
           const newSelected = selected_0.includes(optionValue) ? selected_0.filter(v => v !== optionValue) : [...selected_0, optionValue];
@@ -534,6 +553,7 @@ function ElicitationFormDialog({
         return;
       }
       if (key.return) {
+        event.preventDefault();
         // Check (not toggle) the focused item, then collapse and advance
         const optionValue_0 = msValues[accordionOptionIndex];
         if (optionValue_0 !== undefined && !selected_0.includes(optionValue_0)) {
@@ -544,6 +564,7 @@ function ElicitationFormDialog({
         return;
       }
       if (_input) {
+        event.preventDefault();
         const labels_0 = msValues.map(v_0 => getMultiSelectLabel(msSchema, v_0).toLowerCase());
         runTypeahead(_input, labels_0, setAccordionOptionIndex);
         return;
@@ -556,10 +577,12 @@ function ElicitationFormDialog({
       const enumSchema = currentField.schema;
       const enumValues = getEnumValues(enumSchema);
       if (key.leftArrow || key.escape) {
+        event.preventDefault();
         setExpandedAccordion(undefined);
         return;
       }
       if (key.upArrow) {
+        event.preventDefault();
         if (accordionOptionIndex === 0) {
           setExpandedAccordion(undefined);
         } else {
@@ -568,6 +591,7 @@ function ElicitationFormDialog({
         return;
       }
       if (key.downArrow) {
+        event.preventDefault();
         if (accordionOptionIndex >= enumValues.length - 1) {
           setExpandedAccordion(undefined);
           handleNavigation('down');
@@ -577,7 +601,8 @@ function ElicitationFormDialog({
         return;
       }
       // Space: select and collapse
-      if (_input === ' ') {
+      if (event.key === ' ') {
+        event.preventDefault();
         const optionValue_1 = enumValues[accordionOptionIndex];
         if (optionValue_1 !== undefined) {
           setField(currentField.name, optionValue_1);
@@ -587,6 +612,7 @@ function ElicitationFormDialog({
       }
       // Enter: select, collapse, and move to next field
       if (key.return) {
+        event.preventDefault();
         const optionValue_2 = enumValues[accordionOptionIndex];
         if (optionValue_2 !== undefined) {
           setField(currentField.name, optionValue_2);
@@ -596,6 +622,7 @@ function ElicitationFormDialog({
         return;
       }
       if (_input) {
+        event.preventDefault();
         const labels_1 = enumValues.map(v_1 => getEnumLabel(enumSchema, v_1).toLowerCase());
         runTypeahead(_input, labels_1, setAccordionOptionIndex);
         return;
@@ -605,6 +632,7 @@ function ElicitationFormDialog({
 
     // Accept / Decline buttons
     if (key.return && focusedButton === 'accept') {
+      event.preventDefault();
       if (validateRequired() && Object.keys(validationErrors).length === 0) {
         onResponse('accept', formValues);
       } else {
@@ -625,12 +653,14 @@ function ElicitationFormDialog({
       return;
     }
     if (key.return && focusedButton === 'decline') {
+      event.preventDefault();
       onResponse('decline');
       return;
     }
 
     // Up/Down navigation
     if (key.upArrow || key.downArrow) {
+      event.preventDefault();
       // Reset enum typeahead when leaving a field
       const ta_1 = enumTypeaheadRef.current;
       ta_1.buffer = '';
@@ -644,6 +674,7 @@ function ElicitationFormDialog({
 
     // Left/Right to switch between Accept and Decline buttons
     if (focusedButton && (key.leftArrow || key.rightArrow)) {
+      event.preventDefault();
       setFocusedButton(focusedButton === 'accept' ? 'decline' : 'accept');
       return;
     }
@@ -656,20 +687,24 @@ function ElicitationFormDialog({
 
     // Boolean: Space to toggle, Enter to move on
     if (schema_5.type === 'boolean') {
-      if (_input === ' ') {
+      if (event.key === ' ') {
+        event.preventDefault();
         setField(name_0, value_1 === undefined ? true : !value_1);
         return;
       }
       if (key.return) {
+        event.preventDefault();
         handleNavigation('down');
         return;
       }
       if (key.backspace && value_1 !== undefined) {
+        event.preventDefault();
         unsetField(name_0);
         return;
       }
       // y/n typeahead
       if (_input && !key.return) {
+        event.preventDefault();
         runTypeahead(_input, ['yes', 'no'], i => setField(name_0, i === 0));
         return;
       }
@@ -679,10 +714,12 @@ function ElicitationFormDialog({
     // Enum or multi-select (collapsed) — accordion style
     if (isEnumSchema(schema_5) || isMultiSelectEnumSchema(schema_5)) {
       if (key.return) {
+        event.preventDefault();
         handleNavigation('down');
         return;
       }
       if (key.backspace && value_1 !== undefined) {
+        event.preventDefault();
         unsetField(name_0);
         return;
       }
@@ -701,12 +738,14 @@ function ElicitationFormDialog({
         labels_2 = vals_0.map(v_3 => getMultiSelectLabel(schema_5, v_3).toLowerCase());
       }
       if (key.rightArrow) {
+        event.preventDefault();
         setExpandedAccordion(name_0);
         setAccordionOptionIndex(startIdx);
         return;
       }
       // Typeahead: expand and jump to matching option
       if (_input && !key.leftArrow) {
+        event.preventDefault();
         runTypeahead(_input, labels_2, i_0 => {
           setExpandedAccordion(name_0);
           setAccordionOptionIndex(i_0);
@@ -719,15 +758,14 @@ function ElicitationFormDialog({
     // Backspace: text fields when empty
     if (key.backspace) {
       if (isEditingTextField && textInputValue === '') {
+        event.preventDefault();
         unsetField(name_0);
         return;
       }
     }
 
     // Text field Enter is handled by TextInput's onSubmit
-  }, {
-    isActive: true
-  });
+  };
   function validateRequired(): boolean {
     const requiredFields_1 = requestedSchema.required || [];
     for (const fieldName_8 of requiredFields_1) {
@@ -962,7 +1000,7 @@ function ElicitationFormDialog({
             {currentField && isEnumSchema(currentField.schema) && (expandedAccordion ? <KeyboardShortcutHint shortcut="Space" action="select" /> : <KeyboardShortcutHint shortcut="→" action="expand" />)}
             {currentField && isMultiSelectEnumSchema(currentField.schema) && (expandedAccordion ? <KeyboardShortcutHint shortcut="Space" action="toggle" /> : <KeyboardShortcutHint shortcut="→" action="expand" />)}
           </Byline>}>
-      <Box flexDirection="column">
+      <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={handleFormKeyDown}>
         {renderFormFields()}
         <Box>
           <Text color="success">
@@ -990,6 +1028,11 @@ function ElicitationURLDialog({
   onResponse: Props['onResponse'];
   onWaitingDismiss: Props['onWaitingDismiss'];
 }): React.ReactNode {
+  const { setRawMode } = useStdin();
+  useLayoutEffect(() => {
+    setRawMode(true);
+    return () => setRawMode(false);
+  }, [setRawMode]);
   const {
     serverName,
     signal,

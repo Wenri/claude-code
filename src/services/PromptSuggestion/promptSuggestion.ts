@@ -341,7 +341,17 @@ export async function generateSuggestion(
     if (msg.type !== 'assistant') continue
     const textBlock = msg.message.content.find(b => b.type === 'text')
     if (textBlock?.type === 'text') {
-      const suggestion = textBlock.text.trim()
+      const suggestion = textBlock.text
+        .trim()
+        .replace(
+          /^<(suggestion|response|output|answer|result)>([\s\S]*)<\/\1>$/i,
+          (match, tag: string, content: string) =>
+            content.includes(`</${tag.toLowerCase()}>`) ||
+            content.includes(`</${tag.toUpperCase()}>`)
+              ? match
+              : content,
+        )
+        .trim()
       if (suggestion) {
         return { suggestion, generationRequestId }
       }

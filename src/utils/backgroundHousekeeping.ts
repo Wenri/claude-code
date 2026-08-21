@@ -1,4 +1,5 @@
 import { feature } from 'bun:bundle'
+import { initTinyMemoryStamps } from '../memdir/tinyMemoryStamps.js'
 import { initAutoDream } from '../services/autoDream/autoDream.js'
 import { initMagicDocs } from '../services/MagicDocs/magicDocs.js'
 import { initSkillImprovement } from './hooks/skillImprovement.js'
@@ -34,6 +35,7 @@ export function startBackgroundHousekeeping(): void {
   if (feature('EXTRACT_MEMORIES')) {
     extractMemoriesModule!.initExtractMemories()
   }
+  initTinyMemoryStamps()
   initAutoDream()
   void autoUpdateMarketplacesAndPluginsInBackground()
   if (feature('LODESTONE') && getIsInteractive()) {

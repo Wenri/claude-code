@@ -133,15 +133,16 @@ test('source recovers embedded seccomp descriptor setup and sandbox config', sou
   const seccomp = assertFragments('src/utils/sandbox/seccomp.ts', [
     'export const SECCOMP_CHILD_FD = 3',
     "process.platform === 'linux' && isInBundledMode()",
-    "return await open('/proc/self/exe', 'r')",
+    "import { openSync } from 'fs'",
+    "return openSync('/proc/self/exe', 'r')",
     'seccomp: failed to open /proc/self/exe:',
-    'return (await openExecutableForSeccomp())?.fd',
+    'logError(new Error(`seccomp: failed to open /proc/self/exe: ${error}`))',
     'applyPath: `/proc/self/fd/${SECCOMP_CHILD_FD}`',
     "argv0: 'apply-seccomp'",
   ])
   assert.ok(
     seccomp.indexOf('if (!canUseEmbeddedSeccomp()) return undefined') <
-      seccomp.indexOf("return await open('/proc/self/exe', 'r')"),
+      seccomp.indexOf("return openSync('/proc/self/exe', 'r')"),
     'the executable is opened only on bundled Linux',
   )
 
@@ -151,8 +152,9 @@ test('source recovers embedded seccomp descriptor setup and sandbox config', sou
   ])
 })
 
-test('source passes the memoized executable descriptor as child fd 3 only for sandboxed commands', sourceOptions, () => {
+test('source passes and closes a per-spawn executable descriptor as child fd 3 only for sandboxed commands', sourceOptions, () => {
   const shell = assertFragments('src/utils/Shell.ts', [
+    'closeSync,',
     'getEmbeddedSeccompFileDescriptor,',
     'SECCOMP_CHILD_FD,',
     "type SpawnStdio = Array<'pipe' | number | undefined>",
@@ -162,6 +164,7 @@ test('source passes the memoized executable descriptor as child fd 3 only for sa
     'stdio: getSpawnStdio(',
     'outputHandle?.fd,',
     'seccompFileDescriptor,',
+    'closeSync(seccompFileDescriptor)',
   ])
   assert.ok(
     shell.indexOf('const seccompFileDescriptor = shouldUseSandbox') <
@@ -172,5 +175,10 @@ test('source passes the memoized executable descriptor as child fd 3 only for sa
     shell.indexOf('stdio[SECCOMP_CHILD_FD] = seccompFileDescriptor') <
       shell.indexOf('const childProcess = spawn('),
     'stdio construction owns the inherited fd slot',
+  )
+  assert.ok(
+    shell.indexOf('const childProcess = spawn(') <
+      shell.indexOf('closeSync(seccompFileDescriptor)'),
+    'the parent closes its descriptor only after spawning the child',
   )
 })

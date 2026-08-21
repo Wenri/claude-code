@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { getIsRemoteMode } from '../bootstrap/state.js'
 import { useAppStateStore, useSetAppState } from '../state/AppState.js'
+import { useTaskRegistry } from './useTaskRegistry.js'
 import { isTerminalTaskStatus } from '../Task.js'
 import {
   findTeammateTaskByAgentId,
@@ -51,6 +52,7 @@ export function useScheduledTasks({
 
   const store = useAppStateStore()
   const setAppState = useSetAppState()
+  const taskRegistry = useTaskRegistry()
 
   useEffect(() => {
     // Runtime gate checked here (not at the hook call site) so the hook
@@ -97,7 +99,11 @@ export function useScheduledTasks({
             store.getState().tasks,
           )
           if (teammate && !isTerminalTaskStatus(teammate.status)) {
-            injectUserMessageToTeammate(teammate.id, task.prompt, setAppState)
+            injectUserMessageToTeammate(
+              teammate.id,
+              task.prompt,
+              taskRegistry,
+            )
             return
           }
           // Teammate is gone — clean up the orphaned cron so it doesn't keep

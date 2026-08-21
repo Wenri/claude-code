@@ -2,7 +2,7 @@ import { c as _c } from "react/compiler-runtime";
 import React from 'react';
 import { logEvent } from 'src/services/analytics/index.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- enter to continue
-import { Box, Link, Newline, Text, useInput } from '../ink.js';
+import { Box, Link, Newline, Text } from '../ink.js';
 import { isChromeExtensionInstalled } from '../utils/claudeInChrome/setup.js';
 import { saveGlobalConfig } from '../utils/config.js';
 import { Dialog } from './design-system/Dialog.js';
@@ -12,7 +12,7 @@ type Props = {
   onDone(): void;
 };
 export function ClaudeInChromeOnboarding(t0) {
-  const $ = _c(20);
+  const $ = _c(21);
   const {
     onDone
   } = t0;
@@ -35,8 +35,9 @@ export function ClaudeInChromeOnboarding(t0) {
   React.useEffect(t1, t2);
   let t3;
   if ($[2] !== onDone) {
-    t3 = (_input, key) => {
-      if (key.return) {
+    t3 = key => {
+      if (key.key === 'return' && !key.ctrl && !key.meta) {
+        key.preventDefault();
         onDone();
       }
     };
@@ -45,7 +46,6 @@ export function ClaudeInChromeOnboarding(t0) {
   } else {
     t3 = $[3];
   }
-  useInput(t3);
   let t4;
   if ($[4] !== isExtensionInstalled) {
     t4 = !isExtensionInstalled && <><Newline /><Newline />Requires the Chrome extension. Get started at{" "}<Link url={CHROME_EXTENSION_URL} /></>;
@@ -93,22 +93,23 @@ export function ClaudeInChromeOnboarding(t0) {
     t9 = $[13];
   }
   let t10;
-  if ($[14] !== t5 || $[15] !== t7) {
-    t10 = <Box flexDirection="column" gap={1}>{t5}{t7}{t9}</Box>;
-    $[14] = t5;
-    $[15] = t7;
-    $[16] = t10;
+  if ($[14] !== t3 || $[15] !== t5 || $[16] !== t7) {
+    t10 = <Box flexDirection="column" gap={1} tabIndex={0} autoFocus={true} onKeyDown={t3}>{t5}{t7}{t9}</Box>;
+    $[14] = t3;
+    $[15] = t5;
+    $[16] = t7;
+    $[17] = t10;
   } else {
-    t10 = $[16];
+    t10 = $[17];
   }
   let t11;
-  if ($[17] !== onDone || $[18] !== t10) {
+  if ($[18] !== onDone || $[19] !== t10) {
     t11 = <Dialog title="Claude in Chrome (Beta)" onCancel={onDone} color="chromeYellow">{t10}</Dialog>;
-    $[17] = onDone;
-    $[18] = t10;
-    $[19] = t11;
+    $[18] = onDone;
+    $[19] = t10;
+    $[20] = t11;
   } else {
-    t11 = $[19];
+    t11 = $[20];
   }
   return t11;
 }

@@ -10,6 +10,34 @@ const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url))
 const semanticCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
 const semanticSourceRoot = process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT
 
+const cumulativeOwnerSuccessors = new Map([
+  ['src/bridge/gitSessionContext.ts', 'src/utils/gitSessionContext.ts'],
+  ['src/commands/provider-setup/bedrock.tsx', 'src/commands/setup-bedrock/setup-bedrock.tsx'],
+  ['src/commands/provider-setup/index.ts', 'src/components/ConsoleOAuthWizards.tsx'],
+  ['src/commands/provider-setup/relaunch.ts', 'src/components/ConsoleOAuthWizards.tsx'],
+  ['src/commands/provider-setup/vertex.tsx', 'src/commands/setup-vertex/setup-vertex.tsx'],
+  ['src/commands/stop-hook/StopHookDialog.tsx', 'src/commands/loops/loops.tsx'],
+  ['src/components/VertexSetupWizard.tsx', 'src/components/ConsoleOAuthWizards.tsx'],
+  ['src/components/agents/AgentsRuntimeMenu.tsx', 'src/components/agents/AgentsMenu.tsx'],
+  ['src/components/agents/RunningAgents.tsx', 'src/components/agents/AgentsMenu.tsx'],
+  ['src/components/ultraplan/UltraplanChoiceDialog.tsx', 'src/components/UltraplanChoiceDialog.tsx'],
+  ['src/components/ultraplan/UltraplanLaunchDialog.tsx', 'src/components/UltraplanLaunchDialog.tsx'],
+  ['src/tools/MonitorTool/MonitorTool.ts', 'src/tools/MonitorTool/MonitorTool.tsx'],
+  ['src/utils/imageLimits.ts', 'src/utils/imageResizer.ts'],
+  ['src/utils/model/bedrockModelUpgrade.tsx', 'src/utils/model/bedrockUpgrade.ts'],
+  ['src/utils/model/vertexModelUpgrade.ts', 'src/utils/model/vertexUpgrade.ts'],
+  ['src/utils/wrappedContentSerializer.ts', 'src/utils/feedbackPayload.ts'],
+  ['src/components/ToolProgressOverlay.tsx', 'src/components/ToolProgress.tsx'],
+  ['src/components/messageRating.tsx', 'src/context/messageRating.tsx'],
+  ['src/utils/loopSentinels.ts', 'src/tools/ScheduleWakeupTool/prompt.ts'],
+  ['src/utils/loopWakeup.ts', 'src/utils/loopDynamic.ts'],
+  ['src/commands/recap.ts', 'src/commands/recap/recap.ts'],
+  ['src/components/BackgroundWorkExitDialog.tsx', 'src/components/BackgroundExitDialog.tsx'],
+  ['src/components/messages/RecalledMemory.tsx', 'src/components/messages/AttachmentMessage.tsx'],
+  ['src/hooks/notifs/useSkillTruncationNotification.tsx', 'src/hooks/notifs/useSkillTruncationNotification.ts'],
+])
+const cumulativeOwnerTombstones = new Set(['src/utils/autoModeDenials.ts'])
+
 function source(relative) {
   const filename =
     semanticSourceRoot && relative.startsWith('src/')
@@ -50,7 +78,7 @@ const middleCases = [
   ['2.1.105-to-2.1.107', 83],
 ]
 
-test('middle semantic ledgers classify every structural nonmatch and retain every source owner', () => {
+test('middle semantic ledgers classify every structural nonmatch and account for every cumulative source owner', () => {
   const selectedCases = semanticCase
     ? middleCases.filter(([caseName]) => caseName === semanticCase)
     : middleCases
@@ -89,10 +117,17 @@ test('middle semantic ledgers classify every structural nonmatch and retain ever
         )
         continue
       }
+      if (!semanticSourceRoot && cumulativeOwnerTombstones.has(owner.path)) {
+        assert.equal(fs.existsSync(ownerFilename(owner.path)), false, owner.path)
+        continue
+      }
+      const currentOwner = semanticSourceRoot
+        ? owner.path
+        : (cumulativeOwnerSuccessors.get(owner.path) ?? owner.path)
       assert.equal(
-        fs.statSync(ownerFilename(owner.path)).isFile(),
+        fs.statSync(ownerFilename(currentOwner)).isFile(),
         true,
-        `${caseName}: ${owner.path}`,
+        `${caseName}: ${owner.path} -> ${currentOwner}`,
       )
     }
   }
@@ -175,7 +210,7 @@ test('2.1.97 source owns the expanded Claude API managed-agent routing guide', c
     "'ANTHROPIC_CUSTOM_MODEL_OPTION_SUPPORTED_CAPABILITIES'",
     "'VERTEX_REGION_CLAUDE_4_6_OPUS'",
   ])
-  if (semanticCase === '2.1.96-to-2.1.97') {
+  if (semanticSourceRoot && semanticCase === '2.1.96-to-2.1.97') {
     assertFragments('src/utils/authPortable.ts', [
       'result.stderr',
       'Failed to delete keychain entry: ${result.stderr}',
@@ -197,7 +232,18 @@ test('2.1.97 source owns the expanded Claude API managed-agent routing guide', c
       ? 'Default transcript view mode on startup'
       : 'Default transcript view: chat (SendUserMessage checkpoints only) or transcript (full)',
   ])
-  if (semanticCase === '2.1.96-to-2.1.97') {
+  if (!semanticSourceRoot) {
+    assertFragments('src/utils/effort.ts', [
+      'export function resolveAppliedEffort(',
+      'export function modelSupportsMaxEffort(',
+      "return 'Maximum capability with deepest reasoning'",
+    ])
+    assertFragments('src/tools/AgentTool/runAgent.ts', [
+      'const agentGetEffortValue =',
+      'agentDefinition.effort !== undefined',
+      'getEffortValue: agentGetEffortValue',
+    ])
+  } else if (semanticCase === '2.1.96-to-2.1.97') {
     assertFragments('src/utils/effort.ts', [
       'export function clampEffortValue(',
       "getFeatureValue_CACHED_MAY_BE_STALE('tengu_pyrite_wren', false)",
@@ -241,9 +287,13 @@ test('2.1.97 source owns the expanded Claude API managed-agent routing guide', c
     "dangerousRedirectionReason = 'network_device'",
     "dangerousRedirectionReason = 'shell_expansion'",
   ])
-  assertFragments('src/tools/BashTool/readOnlyValidation.ts', [
+  assertFragments(
+    semanticSourceRoot
+      ? 'src/tools/BashTool/readOnlyValidation.ts'
+      : 'src/tools/BashTool/pathValidation.ts', [
     '/^\\/dev\\/(tcp|udp)\\//',
-  ])
+    ],
+  )
   assertFragments('src/tools/shared/gitOperationTracking.ts', [
     'const GH_PR_CHECKOUT_RE =',
     '/\\bgh\\s+pr\\s+checkout\\b[^&|;]*\\s(\\d+)(?=\\s|$|[&|;])/',
@@ -262,12 +312,26 @@ test('2.1.98 source owners preserve subprocess, monitor, Vertex, and dynamic-pro
     'isScrubEnabled',
     'isScrubSandboxAvailable',
   ])
-  assertFragments('src/tools/MonitorTool/MonitorTool.ts', [
-    'FLOOD_DURATION_MS',
-    'TOKEN_REFILL_MS',
-    'emitTaskTerminatedSdk',
-    'killTask(',
-  ])
+  if (semanticSourceRoot) {
+    assertFragments('src/tools/MonitorTool/MonitorTool.ts', [
+      'FLOOD_DURATION_MS',
+      'TOKEN_REFILL_MS',
+      'emitTaskTerminatedSdk',
+      'killTask(',
+    ])
+  } else {
+    assertFragments('src/tools/MonitorTool/MonitorTool.tsx', [
+      'TOKEN_REFILL_INTERVAL_MS',
+      'killTask(',
+    ])
+    assertFragments('src/tools/MonitorTool/stream.ts', [
+      'TOKEN_REFILL_INTERVAL_MS',
+    ])
+    assertFragments('src/tasks/LocalShellTask/killShellTasks.ts', [
+      'emitTaskTerminatedSdk',
+      'killTask(',
+    ])
+  }
   assertFragments(
     'src/components/permissions/MonitorPermissionRequest/MonitorPermissionRequest.tsx',
     ['shouldShowAlwaysAllowOptions', 'suggestions.length > 0'],
@@ -278,17 +342,31 @@ test('2.1.98 source owners preserve subprocess, monitor, Vertex, and dynamic-pro
     'automatically stopped',
     'persistent: true',
   ])
-  assertFragments('src/components/VertexSetupWizard.tsx', [
-    'verifyVertexSetup',
-    'probeVertexModel',
-    'getVertexModelCandidates',
-    'buildVertexEnvironment',
-    'Calling Google Cloud',
-  ])
+  assertFragments(
+    semanticSourceRoot
+      ? 'src/components/VertexSetupWizard.tsx'
+      : 'src/components/ConsoleOAuthWizards.tsx',
+    semanticSourceRoot
+      ? [
+          'verifyVertexSetup',
+          'probeVertexModel',
+          'getVertexModelCandidates',
+          'buildVertexEnvironment',
+          'Calling Google Cloud',
+        ]
+      : [
+          'verifyVertex',
+          'probeVertexModel',
+          'buildVertexEnvironment',
+          'Calling Google Cloud',
+        ],
+  )
   assertFragments('src/constants/prompts.ts', [
     'excludeDynamicSections',
     'getExcludedDynamicSectionsContent',
-    "systemPromptSection('anti_verbosity'",
+    semanticSourceRoot
+      ? "systemPromptSection('anti_verbosity'"
+      : 'systemPromptSection(`anti_verbosity',
   ])
   assertFragments('src/QueryEngine.ts', ['excludeDynamicSections'])
   assertFragments('src/cli/print.ts', [
@@ -299,8 +377,15 @@ test('2.1.98 source owners preserve subprocess, monitor, Vertex, and dynamic-pro
 
 test('2.1.100 prompt owners preserve the gated concise communication style', caseTestOptions('2.1.98-to-2.1.100'), () => {
   assertFragments('src/constants/prompts.ts', [
-    "getCanonicalName(model).includes('opus-4-6')",
-    "clientDataCache?.quiet_salted_ember === 'true'",
+    ...(semanticSourceRoot
+      ? [
+          "getCanonicalName(model).includes('opus-4-6')",
+          "clientDataCache?.quiet_salted_ember === 'true'",
+        ]
+      : [
+          'function getAntiVerbositySection(model: string)',
+          'systemPromptSection(`anti_verbosity',
+        ]),
     "End-of-turn summary: one or two sentences. What changed and what's next. Nothing else.",
     'respond in 2-3 sentences with a recommendation and the main tradeoff',
     'Length limits: keep text between tool calls to \\u226425 words',
@@ -326,14 +411,22 @@ test('2.1.101 source owners preserve unavailable-tool, brief, and settings notif
     'Complete the task with the tools provided and return findings to the orchestrator',
   ])
   assertFragments('src/services/tools/StreamingToolExecutor.ts', [
-    'getUnavailableToolHint',
-    'unavailableHint',
+    ...(semanticSourceRoot ? ['getUnavailableToolHint', 'unavailableHint'] : []),
   ])
-  assertFragments('src/query/stopHooks.ts', [
-    'briefEnforcementMessage',
-    'BRIEF_ENFORCE_SENTINEL',
-    "command: 'brief-mode-enforce'",
-  ])
+  assertFragments(
+    'src/query/stopHooks.ts',
+    semanticSourceRoot
+      ? [
+          'briefEnforcementMessage',
+          'BRIEF_ENFORCE_SENTINEL',
+          "command: 'brief-mode-enforce'",
+        ]
+      : [
+          'briefEnforcementError',
+          'BRIEF_ENFORCE_SENTINEL',
+          'getBriefEnforceText()',
+        ],
+  )
   assertFragments('src/utils/settings/settings.ts', [
     'settingsChanged.emit(source)',
     'resetSettingsCache()',
@@ -348,16 +441,24 @@ test('2.1.105 MCP large-output owner and caller preserve format-aware recovery b
   assertFragments('src/utils/mcpOutputStorage.ts', [
     "override !== 'legacy'",
     'lineStats.count > 1',
-    'lineStats.maxLen <= readCharacterBudget',
+    semanticSourceRoot
+      ? 'lineStats.maxLen <= readCharacterBudget'
+      : 'lineStats.maxLen <= safeReadChars',
     "jq 'type, length, keys?'",
     "the file's lines are too long for Read's offset/limit",
-    'Math.floor(readCharacterBudget / (lineStats.maxLen + lineOverhead))',
+    semanticSourceRoot
+      ? 'Math.floor(readCharacterBudget / (lineStats.maxLen + lineOverhead))'
+      : 'Math.floor(safeReadChars / (lineStats.maxLen + 8))',
     'Give it the instruction above verbatim',
   ])
   assertFragments('src/services/mcp/client.ts', [
-    'singlePlainTextBlock',
-    "!('annotations' in content[0])",
-    "!('_meta' in content[0])",
+    semanticSourceRoot ? 'singlePlainTextBlock' : 'const singlePlainText =',
+    semanticSourceRoot
+      ? "!('annotations' in content[0])"
+      : "!('annotations' in persistedContent[0])",
+    semanticSourceRoot
+      ? "!('_meta' in content[0])"
+      : "!('_meta' in persistedContent[0])",
     'persistedAs',
     'blockCount',
     'lineStats = { count: lines.length, maxLen }',

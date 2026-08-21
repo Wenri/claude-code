@@ -20,7 +20,8 @@ import { logForDebugging } from './debug.js'
 import { errorMessage } from './errors.js'
 import { formatFileSize } from './format.js'
 import { logError } from './log.js'
-import { getCanonicalName } from './model/model.js'
+import { resolveAntModel } from './model/antModels.js'
+import { getCanonicalName, getMainLoopModel } from './model/model.js'
 import {
   getAPIProvider,
   isFirstPartyAnthropicBaseUrl,
@@ -35,7 +36,9 @@ export type ImageLimits = {
   targetRawSize: number
 }
 
-const DEFAULT_IMAGE_LIMITS: ImageLimits = {
+export type ImageLimitOverrides = Partial<ImageLimits>
+
+export const DEFAULT_IMAGE_LIMITS: ImageLimits = {
   maxWidth: IMAGE_MAX_WIDTH,
   maxHeight: IMAGE_MAX_HEIGHT,
   maxBase64Size: API_IMAGE_MAX_BASE64_SIZE,
@@ -44,7 +47,7 @@ const DEFAULT_IMAGE_LIMITS: ImageLimits = {
 
 const MODEL_IMAGE_LIMIT_OVERRIDES: Record<
   string,
-  Partial<ImageLimits>
+  ImageLimitOverrides
 > = {
   'claude-opus-4-7': { maxWidth: 2000, maxHeight: 2000 },
 }
@@ -57,9 +60,9 @@ export function getImageLimits(model?: string): ImageLimits {
     getFeatureValue_CACHED_MAY_BE_STALE('tengu_crimson_vector', false)
       ? 10 * 1024 * 1024
       : API_IMAGE_MAX_BASE64_SIZE
-  const override = model
-    ? MODEL_IMAGE_LIMIT_OVERRIDES[getCanonicalName(model)]
-    : undefined
+  const override =
+    resolveAntModel(model)?.imageLimits ??
+    (model ? MODEL_IMAGE_LIMIT_OVERRIDES[getCanonicalName(model)] : undefined)
 
   if (!override && maxBase64Size === API_IMAGE_MAX_BASE64_SIZE) {
     return DEFAULT_IMAGE_LIMITS
@@ -71,8 +74,12 @@ export function getImageLimits(model?: string): ImageLimits {
     maxHeight: override?.maxHeight ?? DEFAULT_IMAGE_LIMITS.maxHeight,
     maxBase64Size: effectiveBase64Size,
     targetRawSize:
-      override?.targetRawSize ?? Math.floor((effectiveBase64Size * 3) / 4),
+      override?.targetRawSize ?? (effectiveBase64Size * 3) / 4,
   }
+}
+
+export function getCurrentImageLimits(): ImageLimits {
+  return getImageLimits(getMainLoopModel())
 }
 
 // Error type constants for analytics (numeric to comply with logEvent restrictions)

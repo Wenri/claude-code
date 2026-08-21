@@ -1321,11 +1321,13 @@ function filterRulesByContentsMatchingInput(
         switch (bashRule.type) {
           case 'exact':
             return bashRule.command === cmdToMatch
-          case 'prefix':
+          case 'prefix': {
+            const normalizedPrefix = bashRule.prefix.replace(/[ \t]+/g, ' ')
+            const normalizedCommand = cmdToMatch.replace(/[ \t]+/g, ' ')
             switch (matchMode) {
               // In 'exact' mode, only return true if the command exactly matches the prefix rule
               case 'exact':
-                return bashRule.prefix === cmdToMatch
+                return normalizedPrefix === normalizedCommand
               case 'prefix': {
                 // SECURITY: Don't allow prefix rules to match compound commands.
                 // e.g., Bash(cd:*) must NOT match "cd /path && python3 evil.py".
@@ -1339,10 +1341,10 @@ function filterRulesByContentsMatchingInput(
                 }
                 // Ensure word boundary: prefix must be followed by space or end of string
                 // This prevents "ls:*" from matching "lsof" or "lsattr"
-                if (cmdToMatch === bashRule.prefix) {
+                if (normalizedCommand === normalizedPrefix) {
                   return true
                 }
-                if (cmdToMatch.startsWith(bashRule.prefix + ' ')) {
+                if (normalizedCommand.startsWith(normalizedPrefix + ' ')) {
                   return true
                 }
                 // Also match "xargs <prefix>" for bare xargs with no flags.
@@ -1350,14 +1352,15 @@ function filterRulesByContentsMatchingInput(
                 // and deny rules like Bash(rm:*) to block "xargs rm file".
                 // Natural word-boundary: "xargs -n1 grep" does NOT start with
                 // "xargs grep " so flagged xargs invocations are not matched.
-                const xargsPrefix = 'xargs ' + bashRule.prefix
-                if (cmdToMatch === xargsPrefix) {
+                const xargsPrefix = 'xargs ' + normalizedPrefix
+                if (normalizedCommand === xargsPrefix) {
                   return true
                 }
-                return cmdToMatch.startsWith(xargsPrefix + ' ')
+                return normalizedCommand.startsWith(xargsPrefix + ' ')
               }
             }
             break
+          }
           case 'wildcard':
             // SECURITY FIX: In exact match mode, wildcards must NOT match because we're
             // checking the full unparsed command. Wildcard matching on unparsed commands

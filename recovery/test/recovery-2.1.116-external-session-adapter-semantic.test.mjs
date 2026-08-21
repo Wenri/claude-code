@@ -156,7 +156,7 @@ test('target116 pins the shared external-session hook and both adapters', bundle
   assert.match(sshAdapter, /permissionMode:/)
 })
 
-test('source owns one shared adapter hook and routes permission mode only to SSH', sourceOptions, () => {
+test('source owns one shared adapter hook and routes permission mode to both adapters', sourceOptions, () => {
   const shared = source('hooks/useExternalSession.ts')
   const direct = source('hooks/useDirectConnect.ts')
   const ssh = source('hooks/useSSHSession.ts')
@@ -174,7 +174,8 @@ test('source owns one shared adapter hook and routes permission mode only to SSH
   assert.doesNotMatch(shared, /SSH connection dropped/)
   assert.match(direct, /label: 'directConnect'/)
   assert.match(direct, /new DirectConnectSessionManager\(config, callbacks\)/)
-  assert.doesNotMatch(direct, /permissionMode/)
+  assert.match(direct, /permissionMode: PermissionMode/)
+  assert.match(direct, /permissionMode,/)
   assert.match(ssh, /label: 'ssh'/)
   assert.match(ssh, /permissionMode,/)
   assert.match(ssh, /cleanup: \(\) => session\.proxy\.stop\(\)/)
@@ -187,7 +188,7 @@ test('source owns one shared adapter hook and routes permission mode only to SSH
     repl.indexOf('const sshRemote = useSSHSession({'),
     repl.indexOf('// Use whichever remote mode'),
   )
-  assert.doesNotMatch(directCall, /permissionMode/)
+  assert.match(directCall, /permissionMode: toolPermissionContext\.mode/)
   assert.match(sshCall, /permissionMode: toolPermissionContext\.mode/)
 })
 

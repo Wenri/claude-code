@@ -4,7 +4,11 @@ import { useSelectionDelete } from '../context/selectionDelete.js';
 import { useCopyOnSelect, useSelectionBgColor } from '../hooks/useCopyOnSelect.js';
 import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js';
 import { useSelection } from '../ink/hooks/use-selection.js';
-import type { FocusMove, SelectionState } from '../ink/selection.js';
+import {
+  isSelectionWhollyOffscreen,
+  type FocusMove,
+  type SelectionState,
+} from '../ink/selection.js';
 import { getScrollConfig } from '../ink/scroll-config.js';
 import { getClipboardPath } from '../ink/termio/osc.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- Esc needs conditional propagation based on selection state
@@ -602,6 +606,49 @@ export function ScrollKeybindingHandler({
       const sticky_4 = jumpBy(s_9, d_4);
       onScroll?.(sticky_4, s_9);
     }
+  }, {
+    context: 'Scroll',
+    isActive
+  });
+
+  function extendSelection(move: FocusMove): boolean | void {
+    if (!selection.hasSelection()) return false;
+    const state = selection.getState();
+    if (state && isSelectionWhollyOffscreen(state)) return;
+    if (move === 'up' || move === 'down') {
+      const s = scrollRef.current;
+      if (s && state?.anchor && state.focus) {
+        const top = s.getViewportTop();
+        const bottom = top + s.getViewportHeight() - 1;
+        const anchorInViewport = state.anchor.row >= top && state.anchor.row <= bottom;
+        const extendingAbove = anchorInViewport && move === 'up' && state.focus.row <= top;
+        const extendingBelow = anchorInViewport && move === 'down' && state.focus.row >= bottom;
+        if (extendingAbove || extendingBelow) {
+          const max = Math.max(0, s.getScrollHeight() - s.getViewportHeight());
+          const canScroll = extendingAbove ? s.getScrollTop() > 0 : s.getScrollTop() < max;
+          if (s.getPendingDelta() === 0 && canScroll) {
+            state.focus = {
+              col: state.focus.col,
+              row: extendingAbove ? top : bottom
+            };
+            state.virtualFocusRow = extendingAbove ? top - 1 : bottom + 1;
+            state.virtualFocusCol = undefined;
+            s.scrollBy(extendingAbove ? -1 : 1);
+            onScroll?.(false, s);
+          }
+          return;
+        }
+      }
+    }
+    selection.moveFocus(move);
+  }
+  useKeybindings({
+    'selection:extendLeft': () => extendSelection('left'),
+    'selection:extendRight': () => extendSelection('right'),
+    'selection:extendUp': () => extendSelection('up'),
+    'selection:extendDown': () => extendSelection('down'),
+    'selection:extendLineStart': () => extendSelection('lineStart'),
+    'selection:extendLineEnd': () => extendSelection('lineEnd')
   }, {
     context: 'Scroll',
     isActive
