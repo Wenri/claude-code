@@ -279,11 +279,9 @@ const reviews = new Map([
     inheritedRowIds: ['tool-execution-classifier'],
     selectors: [
       ['tool-execution-classifier', 'src/services/tools/StreamingToolExecutor.ts', 'hasCompletedResults = false'],
-      ['tool-execution-classifier', 'src/services/tools/toolOrchestration.ts', 'for await (const update of runToolUse'],
-      ['tool-execution-classifier', 'src/services/tools/toolExecution.ts', 'setInProgressToolUseIDs'],
     ],
     rationale:
-      'The sealed tool-execution row retains one-pass completed-result tracking, validated orchestration, and post-validation in-progress registration so malformed parallel tool names cannot leave an orphan pending ID.',
+      'The sealed streaming-tool row retains one-pass tracking of results actually yielded before a blocked item, preventing an already completed malformed parallel tool from causing a busy loop.',
   }],
 ])
 
