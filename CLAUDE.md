@@ -10,12 +10,15 @@ March 2026. It is **study material, not a buildable project**: there is no
 standalone `package.json`, `tsconfig.json`, lockfile, or full test suite for
 `src/`, and it will not compile or run as-is. Recovery tooling has its own
 locked dependencies and focused tests. The current tree is the exact 2.1.88
-outer source-map baseline for every untouched file plus cumulative verified
-source-facing overlays for 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96,
+outer source-map baseline for every untouched file plus a selective cumulative
+merge of verified source-facing recovery content for 2.1.89, 2.1.90, 2.1.91,
+2.1.92, 2.1.94, 2.1.96,
 2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108,
-2.1.109, 2.1.110, 2.1.111, 2.1.112, 2.1.113, 2.1.114, and 2.1.116 (upstream
-did not publish 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, 2.1.106, or
-2.1.115). The first
+2.1.109, 2.1.110, 2.1.111, 2.1.112, 2.1.113, 2.1.114, 2.1.116, 2.1.117,
+2.1.118, 2.1.119, 2.1.120, 2.1.121, 2.1.122, 2.1.123, 2.1.124, and
+2.1.126 (upstream did not publish 2.1.93, 2.1.95, 2.1.99, 2.1.102,
+2.1.103, 2.1.106, 2.1.115, or 2.1.125). The following numbered prose is a
+historical summary of the earlier overlay series, not the current case index. The first
 changes four Bash/parser files; the second changes nine session, transport,
 query, safety/cache, rate-limit, and help files; the third changes 21 existing
 MCP, policy, input, plugin, transcript, feedback, installer, and prompt files
@@ -64,25 +67,28 @@ recoverable. Treat `src/` as read-only reference unless explicitly asked to
 change it; all of it is Anthropic's proprietary property (see the README
 disclaimer).
 
-The 2026-08-10 semantic recovery audit supersedes the older “generated-only”
+The historical 2026-08-10 semantic recovery audit supersedes the older “generated-only”
 behavioral omissions in that historical overlay summary. Case-local semantic
 supplements now recover observable first-party compiled AST/function behavior
-through 2.1.116 while ignoring erased identifier spelling, independent
+for the 21 audited cases through 2.1.116 while ignoring erased identifier spelling, independent
 declaration/function order, comments, formatting, and types. This is not a
 whole-bundle source-build claim: the historical trees still lack the root
 application manifest, dependency lock and source archive, and hermetic build
 configuration, and original authored text remains unobservable.
 
 A few things layered on top of the mirror ARE maintained here:
+
 - `loader/` — `rtld-dispatch`, a **custom glibc `ld.so`** that loads Claude Code (and other WSL1-hostile CLIs) *in place*, preserving `/proc/self/exe`; the main thing built here.
 - `recovery/` — hash-pinned tooling for comparing later published bundles
   with authenticated adjacent releases and a matching source-map oracle. The
   2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98,
   2.1.100, 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, 2.1.110,
-  2.1.111, 2.1.112, 2.1.113, 2.1.114, and 2.1.116 cases
+  2.1.111, 2.1.112, 2.1.113, 2.1.114, 2.1.116, 2.1.117, 2.1.118,
+  2.1.119, 2.1.120, 2.1.121, 2.1.122, 2.1.123, 2.1.124, and 2.1.126 cases
   have exact generated bundle/package recoveries, exhaustive accounting ledgers, readable bundle
   diffs, and separately labeled partial source-like TypeScript patches. Their
-  cumulative patch sets are applied to `src/`. Each case manifest and its
+  release-local overlays are frozen by the manifests; shared `src/` is the
+  separately guarded selective cumulative merge. Each case manifest and its
   verifiers are the evidence contract; each case runbook records the complete
   reproducible procedure.
 - [`wsl1-exec`](https://github.com/Wenri/wsl1-exec) — **moved out entirely** (2026-07, full history preserved; Apache-2.0): the standalone repo for `wsl1-exec.so`, conventionally a sibling checkout at `../wsl1-exec`. A generic `LD_PRELOAD` `exec*` shim that retries an `ENOEXEC`-failed exec via the target's `PT_INTERP`. All sources live in its `src/`: the WSL1 `execve` **and `posix_spawn`/`posix_spawnp`** (`wsl1-exec.c`) and the `readlink`/`realpath` `/proc/self/exe` hooks (`wsl1-selfexe.c`, via `getauxval(AT_EXECFN)` — no env marker, per-process, so nothing to inherit/clean up) are ours; the `exec*` family (`src/exec-variants.c`) is **[termux-exec](https://github.com/termux-play-store/termux-exec)/bionic-derived** (Apache-2.0 — SPDX tag + attribution + local changes in its header; adapted, no longer synced) — `posix_spawn` retries at the parent (glibc returns the child's exec errno) — plus unrelated **`mmap`/`mmap64` fixes** (`wsl1-mmap.c`): the empty-file-map bogus `ENOEXEC` (rattler/pixi-build) and the `MAP_FIXED_NOREPLACE`-rejected-with-`EOPNOTSUPP` case (retry without the flag) — both libc-`mmap` only, so neither reaches agy's tcmalloc (still `patch_agy_wsl1.py`). Complements `loader/`: universal and one-line to enable, and the hooks keep `/proc/self/exe` correct **for libc readers** (Node/libuv) — but raw-syscall readers (Go `os.Executable()`), `readlinkat`, and static binaries still see the interpreter, so `loader/` remains the fix for those. Supersedes its own old `claude-preload.so`/`claude-dispatch`.
@@ -101,10 +107,14 @@ is the pixi workspace:
 - `pixi run <cmd>` — run a tool in the default env (e.g. `pixi run bun`, `pixi run node`, `pixi run tsc`).
   bun + nodejs share the default env, but only because they share **icu 75**: bun pins it,
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
-- `pixi run node recovery/scripts/verify-complete-recovery.mjs …` — run the
-  aggregate evidence, source-lineage, exact-bundle, and package-tree gate for
-  a recovery case; use the 2.1.114 → 2.1.116 manifest for the current tree and
-  see that case's runbook for its artifact arguments.
+- Run the version-specific top-level verifier named by each case runbook in a
+  disposable release-local carrier. For 2.1.121–2.1.126, that wrapper pins the
+  proof-carrier commit and manifest, creates a private clone, and materializes
+  the exact manifest target `src` before invoking nested gates. It invokes
+  `verify-complete-recovery.mjs` as a nested gate; the generic gate alone is
+  not the complete later-release proof. Shared main uses
+  `recovery/test/cumulative-2.1.126-merged-source-retention.test.mjs` instead of
+  pretending to be the frozen 2.1.126 source tree.
 
 The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —
 diffable/greppable/auditable against upstream), **rtld-minimal** (~1 MB): only what the loader

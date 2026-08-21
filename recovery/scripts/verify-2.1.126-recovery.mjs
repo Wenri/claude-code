@@ -2,10 +2,10 @@
 
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { fileURLToPath } from 'node:url'
-import { parse } from 'acorn'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
   RELEASE_2_1_126,
   RELEASE_2_1_126_GENERATED_INPUTS,
@@ -15,8 +15,20 @@ import {
   assertRelease21126SourceOracleDeclaration,
   assertRelease21126TopologyFrozen,
 } from '../lib/release-2.1.126-input-contract.mjs'
+import {
+  assertCompleteRecoveryResult,
+  cleanupPrivateVerifierCarrier,
+  createPrivateVerifierCarrier,
+} from '../lib/private-verifier-carrier.mjs'
 
 const defaultRepo = fileURLToPath(new URL('../..', import.meta.url))
+const PINNED_ACORN_PARSER = Object.freeze({
+  path: 'recovery/node_modules/acorn/dist/acorn.mjs',
+  bytes: 229_792,
+  sha256: 'b4c8c70200e72bae33cf1085e0ecb1e792c1b6924ed50cab817caf14f51bb249',
+  mode: 0o644,
+})
+let authenticatedParse = null
 const semanticTopology = RELEASE_2_1_126_GENERATED_INPUTS.semanticTopology
 const structuralContract = RELEASE_2_1_126_GENERATED_INPUTS.structural
 const expectedStructuralArtifacts = {
@@ -62,8 +74,7 @@ const expectedRetainedSourceRepairPathCount =
   semanticTopology.retainedSourceRepairPathCount
 const expectedChangedSourcePathCount = semanticTopology.changedSourcePathCount
 function expectedTestsForRepo(repo) {
-  return fs
-    .readdirSync(path.join(repo, 'recovery/test'))
+  return listConfinedRepositoryFiles(repo, 'recovery/test', 'recovery tests')
     .filter(name => /^recovery-2\.1\.126-.*\.test\.mjs$/.test(name))
     .map(name => `recovery/test/${name}`)
     .sort()
@@ -81,8 +92,12 @@ function localModuleDependencies(repo, entryPaths) {
   while (pending.length > 0) {
     const relative = pending.pop()
     const filename = path.resolve(repo, relative)
-    const source = fs.readFileSync(filename, 'utf8')
-    const ast = parse(source, {
+    const source = readConfinedRepositoryFile(
+      repo,
+      relative,
+      `${relative}: local dependency scan`,
+    ).toString('utf8')
+    const ast = authenticatedParse(source, {
       allowHashBang: true,
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -115,10 +130,10 @@ function localModuleDependencies(repo, entryPaths) {
         const dependencyRelative = path
           .relative(repo, dependency)
           .replaceAll('\\', '/')
-        const status = fs.lstatSync(dependency)
-        assert(
-          status.isFile() && !status.isSymbolicLink(),
-          `${dependencyRelative}: local import must be a regular file`,
+        inspectConfinedCaseFile(
+          repo,
+          dependencyRelative,
+          `${dependencyRelative}: local import`,
         )
         if (!seen.has(dependencyRelative)) {
           seen.add(dependencyRelative)
@@ -193,6 +208,253 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function confinedRelativeParts(relative, label) {
+  if (typeof relative !== 'string') {
+    throw new Error(`${label}: path must be a string`)
+  }
+  const parts = relative.split('/')
+  if (
+    relative.length === 0 ||
+    relative.includes('\0') ||
+    path.isAbsolute(relative) ||
+    relative.includes('\\') ||
+    path.posix.normalize(relative) !== relative ||
+    parts.includes('') ||
+    parts.includes('.') ||
+    parts.includes('..')
+  ) {
+    throw new Error(`${label}: unsafe relative path ${relative}`)
+  }
+  return parts
+}
+
+function inspectConfinedPath(caseRoot, relative, label, expectedType) {
+  const parts = confinedRelativeParts(relative, label)
+  const unresolvedRoot = path.resolve(caseRoot)
+  let rootStatus
+  try {
+    rootStatus = fs.lstatSync(unresolvedRoot)
+  } catch (error) {
+    throw new Error(`${label}: case root is not accessible`, { cause: error })
+  }
+  if (rootStatus.isSymbolicLink() || !rootStatus.isDirectory()) {
+    throw new Error(`${label}: case root must be a real directory`)
+  }
+  const root = fs.realpathSync(unresolvedRoot)
+  const resolvedRootStatus = fs.lstatSync(root)
+  const rootAfterResolution = fs.lstatSync(unresolvedRoot)
+  if (
+    resolvedRootStatus.isSymbolicLink() ||
+    !resolvedRootStatus.isDirectory() ||
+    rootAfterResolution.isSymbolicLink() ||
+    !rootAfterResolution.isDirectory() ||
+    resolvedRootStatus.dev !== rootStatus.dev ||
+    resolvedRootStatus.ino !== rootStatus.ino ||
+    rootAfterResolution.dev !== rootStatus.dev ||
+    rootAfterResolution.ino !== rootStatus.ino
+  ) {
+    throw new Error(`${label}: case root changed while resolving`)
+  }
+  let filename = root
+  let finalStatus
+  for (let index = 0; index < parts.length; index += 1) {
+    filename = path.join(filename, parts[index])
+    let status
+    try {
+      status = fs.lstatSync(filename)
+    } catch (error) {
+      throw new Error(`${label}: path is not accessible: ${relative}`, {
+        cause: error,
+      })
+    }
+    if (status.isSymbolicLink()) {
+      throw new Error(`${label}: symbolic-link path component: ${relative}`)
+    }
+    const final = index === parts.length - 1
+    if (!final && !status.isDirectory()) {
+      throw new Error(`${label}: non-directory path component: ${relative}`)
+    }
+    if (
+      final &&
+      (expectedType === 'file' ? !status.isFile() : !status.isDirectory())
+    ) {
+      throw new Error(
+        `${label}: expected a ${
+          expectedType === 'file' ? 'regular file' : 'directory'
+        }: ${relative}`,
+      )
+    }
+    if (final) finalStatus = status
+  }
+  const realFilename = fs.realpathSync(filename)
+  const realRelative = path.relative(root, realFilename)
+  if (
+    realRelative.length === 0 ||
+    path.isAbsolute(realRelative) ||
+    realRelative === '..' ||
+    realRelative.startsWith(`..${path.sep}`)
+  ) {
+    throw new Error(`${label}: path escaped case root: ${relative}`)
+  }
+  const rootAfterTraversal = fs.lstatSync(unresolvedRoot)
+  if (
+    rootAfterTraversal.isSymbolicLink() ||
+    !rootAfterTraversal.isDirectory() ||
+    rootAfterTraversal.dev !== rootStatus.dev ||
+    rootAfterTraversal.ino !== rootStatus.ino ||
+    fs.realpathSync(unresolvedRoot) !== root
+  ) {
+    throw new Error(`${label}: case root changed while reading`)
+  }
+  return {
+    device: finalStatus.dev,
+    filename,
+    inode: finalStatus.ino,
+    realFilename,
+    root,
+    rootDevice: rootStatus.dev,
+    rootInode: rootStatus.ino,
+    unresolvedRoot,
+  }
+}
+
+function inspectConfinedCaseFile(caseRoot, relative, label) {
+  return inspectConfinedPath(caseRoot, relative, label, 'file')
+}
+
+function inspectConfinedDirectory(root, relative, label) {
+  return inspectConfinedPath(root, relative, label, 'directory')
+}
+
+function readConfinedCaseFileRecord(caseRoot, relative, label) {
+  const before = inspectConfinedCaseFile(caseRoot, relative, label)
+  let descriptor
+  try {
+    const noFollow = fs.constants.O_NOFOLLOW
+    const flags = Number.isInteger(noFollow)
+      ? fs.constants.O_RDONLY | noFollow
+      : fs.constants.O_RDONLY
+    descriptor = fs.openSync(before.filename, flags)
+    const opened = fs.fstatSync(descriptor)
+    assert(opened.isFile(), `${label}: opened target must be a regular file`)
+    assert(
+      opened.dev === before.device && opened.ino === before.inode,
+      `${label}: target changed before open`,
+    )
+    const value = fs.readFileSync(descriptor)
+    const openedAfterRead = fs.fstatSync(descriptor)
+    assert(
+      openedAfterRead.dev === opened.dev && openedAfterRead.ino === opened.ino,
+      `${label}: opened target changed while reading`,
+    )
+    const after = inspectConfinedCaseFile(
+      before.unresolvedRoot,
+      relative,
+      label,
+    )
+    assert(
+      after.realFilename === before.realFilename &&
+        after.device === opened.dev &&
+        after.inode === opened.ino &&
+        after.root === before.root &&
+        after.rootDevice === before.rootDevice &&
+        after.rootInode === before.rootInode,
+      `${label}: target changed after read`,
+    )
+    return { ...after, mode: opened.mode & 0o777, value }
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor)
+  }
+}
+
+export function readConfinedCaseFile(
+  caseRoot,
+  relative,
+  label = 'case file',
+) {
+  return readConfinedCaseFileRecord(caseRoot, relative, label).value
+}
+
+export function readConfinedRepositoryFile(
+  repo,
+  relative,
+  label = 'repository file',
+) {
+  return readConfinedCaseFileRecord(repo, relative, label).value
+}
+
+export function listConfinedRepositoryFiles(
+  repo,
+  relative,
+  label = 'repository directory',
+) {
+  const before = inspectConfinedDirectory(repo, relative, label)
+  const readNames = () =>
+    fs
+      .readdirSync(before.filename, { withFileTypes: true })
+      .map(entry => {
+        assert(
+          entry.isFile() && !entry.isSymbolicLink(),
+          `${label}: directory entry must be a regular file: ${entry.name}`,
+        )
+        confinedRelativeParts(entry.name, `${label} entry`)
+        inspectConfinedCaseFile(
+          repo,
+          `${relative}/${entry.name}`,
+          `${label} entry ${entry.name}`,
+        )
+        return entry.name
+      })
+      .sort()
+  const names = readNames()
+  const after = inspectConfinedDirectory(repo, relative, label)
+  assert(
+    after.realFilename === before.realFilename &&
+      after.device === before.device &&
+      after.inode === before.inode &&
+      after.root === before.root &&
+      after.rootDevice === before.rootDevice &&
+      after.rootInode === before.rootInode,
+    `${label}: directory changed while enumerating`,
+  )
+  assert(
+    JSON.stringify(readNames()) === JSON.stringify(names),
+    `${label}: directory entries changed while enumerating`,
+  )
+  return names
+}
+
+async function loadAuthenticatedParser(repo) {
+  if (authenticatedParse !== null) return authenticatedParse
+  const record = readConfinedCaseFileRecord(
+    repo,
+    PINNED_ACORN_PARSER.path,
+    'pinned Acorn parser',
+  )
+  assert(
+    record.value.length === PINNED_ACORN_PARSER.bytes,
+    'pinned Acorn parser byte length',
+  )
+  assert(
+    sha256(record.value) === PINNED_ACORN_PARSER.sha256,
+    'pinned Acorn parser SHA-256',
+  )
+  assert(
+    record.mode === PINNED_ACORN_PARSER.mode,
+    'pinned Acorn parser mode',
+  )
+  const moduleUrl =
+    `data:text/javascript;base64,${record.value.toString('base64')}` +
+    `#sha256=${PINNED_ACORN_PARSER.sha256}`
+  const namespace = await import(moduleUrl)
+  assert(
+    typeof namespace.parse === 'function',
+    'authenticated Acorn module has no parse export',
+  )
+  authenticatedParse = namespace.parse
+  return authenticatedParse
+}
+
 function occurrences(contents, fragment) {
   assert(fragment.length > 0, 'cannot count an empty fragment')
   let count = 0
@@ -234,7 +496,11 @@ function reviewedSourceWitness(repo, witness, requireReviewed = false) {
     (witness.reviewed !== true && witness.matchedSemanticTerms.length === 0) ||
     (requireReviewed && witness.reviewed !== true)
   ) return false
-  const source = fs.readFileSync(path.join(repo, witness.path), 'utf8')
+  const source = readConfinedRepositoryFile(
+    repo,
+    witness.path,
+    `${witness.path}: source witness`,
+  ).toString('utf8')
   return occurrences(source, witness.fragment) === witness.count
 }
 
@@ -283,14 +549,11 @@ function clusterTargetWitnessesShape(binding) {
 
 function readPinned(root, metadata, label) {
   assert(
-    typeof metadata.path === 'string' &&
-      metadata.path.startsWith('semantic/') &&
-      !metadata.path.split('/').some(
-        part => part === '' || part === '.' || part === '..',
-      ),
+    typeof metadata?.path === 'string' &&
+      metadata.path.split('/')[0] === 'semantic',
     `${label}: unsafe path`,
   )
-  const value = fs.readFileSync(path.join(root, metadata.path))
+  const value = readConfinedCaseFile(root, metadata.path, label)
   assert(value.length === metadata.bytes, `${label}: byte length`)
   assert(sha256(value) === metadata.sha256, `${label}: SHA-256`)
   return JSON.parse(value)
@@ -298,10 +561,11 @@ function readPinned(root, metadata, label) {
 
 function readPinnedStructural(root, metadata, label) {
   assert(
-    metadata.path.startsWith('structural/') && !metadata.path.includes('..'),
+    typeof metadata?.path === 'string' &&
+      metadata.path.split('/')[0] === 'structural',
     `${label}: unsafe path`,
   )
-  const value = fs.readFileSync(path.join(root, metadata.path))
+  const value = readConfinedCaseFile(root, metadata.path, label)
   assert(value.length === metadata.bytes, `${label}: byte length`)
   assert(sha256(value) === metadata.sha256, `${label}: SHA-256`)
   return value
@@ -359,38 +623,107 @@ function gitIsAncestor(repo, ancestor, descendant) {
   )
 }
 
-function authenticateArtifact(root, artifact, label) {
+function authenticateArtifactRecord(root, artifact, label) {
   assert(artifact && typeof artifact.localPath === 'string',
     `${label}: missing artifact`)
-  const parts = artifact.localPath.split('/')
-  assert(
-    !path.isAbsolute(artifact.localPath) &&
-      !artifact.localPath.includes('\\') &&
-      parts.length > 0 &&
-      !parts.some(part => part === '' || part === '.' || part === '..'),
-    `${label}: unsafe artifact path`,
+  const record = readConfinedCaseFileRecord(
+    root,
+    artifact.localPath,
+    `${label} artifact`,
   )
-  const resolvedRoot = path.resolve(root)
-  const rootStatus = fs.lstatSync(resolvedRoot)
-  assert(rootStatus.isDirectory() && !rootStatus.isSymbolicLink(),
-    `${label}: artifact root must be a real directory`)
-  let filename = resolvedRoot
-  for (const [index, part] of parts.entries()) {
-    filename = path.join(filename, part)
-    const status = fs.lstatSync(filename)
-    assert(!status.isSymbolicLink(), `${label}: artifact path traverses a symlink`)
-    assert(
-      index === parts.length - 1 ? status.isFile() : status.isDirectory(),
-      `${label}: artifact path component has the wrong type`,
-    )
-  }
-  const value = fs.readFileSync(filename)
+  const value = record.value
   assert(value.length === artifact.bytes, `${label}: byte length`)
   assert(sha256(value) === artifact.sha256, `${label}: SHA-256`)
+  return record
+}
+
+export function authenticateArtifact(root, artifact, label) {
+  return authenticateArtifactRecord(root, artifact, label).realFilename
+}
+
+function materializeSnapshotFile(root, relative, value, label) {
+  confinedRelativeParts(relative, label)
+  const filename = path.join(root, relative)
+  fs.mkdirSync(path.dirname(filename), { mode: 0o700, recursive: true })
+  fs.writeFileSync(filename, value, { flag: 'wx', mode: 0o600 })
+  const written = readConfinedCaseFile(root, relative, `${label} snapshot`)
+  assert(
+    written.length === value.length && sha256(written) === sha256(value),
+    `${label}: snapshot identity`,
+  )
   return filename
 }
 
-function main() {
+function materializePinnedCaseFile(caseRoot, snapshotCaseRoot, metadata, label) {
+  assert(
+    metadata &&
+      typeof metadata.path === 'string' &&
+      Number.isSafeInteger(metadata.bytes) &&
+      metadata.bytes >= 0 &&
+      /^[a-f0-9]{64}$/.test(metadata.sha256),
+    `${label}: invalid pinned identity`,
+  )
+  const value = readConfinedCaseFile(caseRoot, metadata.path, label)
+  assert(value.length === metadata.bytes, `${label}: byte length`)
+  assert(sha256(value) === metadata.sha256, `${label}: SHA-256`)
+  materializeSnapshotFile(snapshotCaseRoot, metadata.path, value, label)
+}
+
+function createPrivateSnapshotRoot() {
+  const root = fs.mkdtempSync(
+    path.join(fs.realpathSync(os.tmpdir()), 'verify-2.1.126-semantic-'),
+  )
+  fs.chmodSync(root, 0o700)
+  return root
+}
+
+function runSnapshotGit(cwd, arguments_, label) {
+  const result = spawnSync('git', arguments_, {
+    cwd,
+    encoding: 'utf8',
+    maxBuffer: 128 * 1024 * 1024,
+  })
+  if (result.error) throw result.error
+  if (result.status !== 0) {
+    throw new Error(
+      `${label} failed (${result.status})\n` +
+        `${result.stdout ?? ''}${result.stderr ?? ''}`,
+    )
+  }
+  return result.stdout.trim()
+}
+
+function materializeSourceSnapshot(repo, snapshotRoot, targetCommit) {
+  const sourceRoot = path.join(snapshotRoot, 'source-root')
+  runSnapshotGit(
+    snapshotRoot,
+    ['clone', '--shared', '--no-checkout', '--quiet', '--', repo, sourceRoot],
+    'private source clone',
+  )
+  runSnapshotGit(
+    sourceRoot,
+    ['sparse-checkout', 'init', '--cone'],
+    'private source sparse-checkout initialization',
+  )
+  runSnapshotGit(
+    sourceRoot,
+    ['sparse-checkout', 'set', 'src'],
+    'private source sparse-checkout selection',
+  )
+  runSnapshotGit(
+    sourceRoot,
+    ['checkout', '--detach', '--quiet', targetCommit],
+    'private source checkout',
+  )
+  assert(
+    runSnapshotGit(sourceRoot, ['rev-parse', 'HEAD'], 'private source identity') ===
+      targetCommit,
+    'private source commit identity',
+  )
+  return sourceRoot
+}
+
+async function main() {
   assertRelease21126TopologyFrozen()
   const args = parseArguments(process.argv.slice(2))
   if (!args.artifacts || !args['baseline-tarball']) {
@@ -400,6 +733,7 @@ function main() {
     )
   }
   const repo = path.resolve(args.repo ?? defaultRepo)
+  await loadAuthenticatedParser(repo)
   const actualTests = expectedTestsForRepo(repo)
   const expectedTestAssertions = expectedTestAssertionsForRepo(repo)
   const manifestPath = path.resolve(
@@ -410,7 +744,12 @@ function main() {
       ),
   )
   const caseRoot = path.dirname(manifestPath)
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+  const manifestBytes = readConfinedCaseFile(
+    caseRoot,
+    path.basename(manifestPath),
+    'manifest',
+  )
+  const manifest = JSON.parse(manifestBytes.toString('utf8'))
   assert(manifest.schemaVersion === 4, 'manifest schema')
   assert(manifest.case === '2.1.124-to-2.1.126', 'case identity')
   assert(
@@ -434,8 +773,10 @@ function main() {
     manifest.recoveryScope?.semanticClosurePending === false,
     'semantic closure',
   )
-  const releasePresenceBytes = fs.readFileSync(
-    path.join(caseRoot, RELEASE_2_1_126.officialReleasePresence),
+  const releasePresenceBytes = readConfinedCaseFile(
+    caseRoot,
+    RELEASE_2_1_126.officialReleasePresence,
+    'authenticated public release presence evidence',
   )
   const releasePresence = JSON.parse(releasePresenceBytes)
   assert(
@@ -452,8 +793,10 @@ function main() {
         RELEASE_2_1_126.officialSection,
     'authenticated public release presence evidence',
   )
-  const skippedAbsenceBytes = fs.readFileSync(
-    path.join(caseRoot, RELEASE_2_1_126.skippedRegistryAbsence),
+  const skippedAbsenceBytes = readConfinedCaseFile(
+    caseRoot,
+    RELEASE_2_1_126.skippedRegistryAbsence,
+    'skipped registry absence evidence',
   )
   const skippedAbsence = JSON.parse(skippedAbsenceBytes)
   assert(
@@ -479,11 +822,15 @@ function main() {
     'authoritative 2.1.125 registry absence evidence',
   )
 
-  const attributionSummaryBytes = fs.readFileSync(
-    path.join(caseRoot, 'attribution/summary.json'),
+  const attributionSummaryBytes = readConfinedCaseFile(
+    caseRoot,
+    'attribution/summary.json',
+    'attribution summary',
   )
-  const readableMetadataBytes = fs.readFileSync(
-    path.join(caseRoot, 'readable-diff/metadata.json'),
+  const readableMetadataBytes = readConfinedCaseFile(
+    caseRoot,
+    'readable-diff/metadata.json',
+    'readable-diff metadata',
   )
   const structuralValues = Object.fromEntries(
     Object.entries(expectedStructuralArtifacts).map(([key, record]) => [
@@ -820,13 +1167,11 @@ function main() {
         !entry.path.split('/').some(part => part === '' || part === '.' || part === '..'),
       `unsafe target-commit recovery file path: ${entry.path}`,
     )
-    const filename = path.join(repo, entry.path)
-    const status = fs.lstatSync(filename)
-    assert(
-      status.isFile() && !status.isSymbolicLink(),
-      `${entry.path}: recovery input must be a regular file`,
+    const working = readConfinedRepositoryFile(
+      repo,
+      entry.path,
+      `${entry.path}: frozen recovery input`,
     )
-    const working = fs.readFileSync(filename)
     assert(working.length === entry.bytes, `${entry.path}: frozen byte length`)
     assert(sha256(working) === entry.sha256, `${entry.path}: frozen SHA-256`)
     assert(
@@ -843,13 +1188,14 @@ function main() {
         .CLAUDE_CODE_2_1_126_WRAPPER === 'targetBundle',
     'adjacent wrapper artifact environment',
   )
-  const sourceIdentity = JSON.parse(
-    fs.readFileSync(path.join(caseRoot, manifest.sourceFreeze.identity), 'utf8'),
+  const sourceIdentityValue = readConfinedCaseFile(
+    caseRoot,
+    manifest.sourceFreeze.identity,
+    'source-freeze identity',
   )
+  const sourceIdentity = JSON.parse(sourceIdentityValue)
   assert(
-    sha256(
-      fs.readFileSync(path.join(caseRoot, manifest.sourceFreeze.identity)),
-    ) === manifest.sourceFreeze.identitySha256,
+    sha256(sourceIdentityValue) === manifest.sourceFreeze.identitySha256,
     'source-freeze identity SHA-256',
   )
   assert(
@@ -940,8 +1286,10 @@ function main() {
       }),
     'manifest full-tree diff-check allowlist',
   )
-  const frozenDiffCheck = fs.readFileSync(
-    path.join(caseRoot, manifest.sourceFreeze.diffCheck.rawOutput),
+  const frozenDiffCheck = readConfinedCaseFile(
+    caseRoot,
+    manifest.sourceFreeze.diffCheck.rawOutput,
+    'frozen full-tree diff-check output',
   )
   assert(
     sha256(frozenDiffCheck) === expectedDiffCheck.sha256 &&
@@ -1210,7 +1558,11 @@ function main() {
           witness.count <= 0
         ) return false
         return occurrences(
-          fs.readFileSync(path.join(repo, witness.path), 'utf8'),
+          readConfinedRepositoryFile(
+            repo,
+            witness.path,
+            `${witness.path}: retained repair source witness`,
+          ).toString('utf8'),
           witness.fragment,
         ) === witness.count
       }),
@@ -1367,7 +1719,11 @@ function main() {
               typeof witness.fragment === 'string' &&
               witness.fragment.length > 0 &&
               occurrences(
-                fs.readFileSync(path.join(repo, witness.path), 'utf8'),
+                readConfinedRepositoryFile(
+                  repo,
+                  witness.path,
+                  `${witness.path}: source absence witness`,
+                ).toString('utf8'),
                 witness.fragment,
               ) === 0))
       const sourcePaths = [...new Set([
@@ -1530,80 +1886,128 @@ function main() {
     'adjacent analyzable artifact paths',
   )
   const artifactRoot = path.resolve(args.artifacts)
-  const authenticatedGeneratedArtifacts = new Map(
-    [
-      'sourceOracleBundle',
-      'sourceOracleMap',
-      'baselineAnalyzableBundle',
-      'targetAnalyzableBundle',
-      'targetPackageJson',
-      'targetDeclarations',
-    ].map(id => [
-      id,
-      authenticateArtifact(artifactRoot, artifactById.get(id), id),
-    ]),
-  )
-  const semanticDelta = spawnSync(
-    process.execPath,
-    [
-      path.join(repo, 'recovery/scripts/verify-2.1.126-semantic-delta.mjs'),
-      '--baseline',
-      authenticatedGeneratedArtifacts.get('baselineAnalyzableBundle'),
-      '--target',
-      authenticatedGeneratedArtifacts.get('targetAnalyzableBundle'),
-      '--case-root',
-      caseRoot,
-      '--source-root',
-      repo,
-    ],
-    { cwd: repo, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 },
-  )
-  if (semanticDelta.error) throw semanticDelta.error
-  if (semanticDelta.status !== 0) {
-    throw new Error(
-      `semantic-delta verifier failed (${semanticDelta.status})\n` +
-        `${semanticDelta.stdout ?? ''}${semanticDelta.stderr ?? ''}`,
-    )
+  for (const id of [
+    'sourceOracleBundle',
+    'sourceOracleMap',
+    'baselineAnalyzableBundle',
+    'targetAnalyzableBundle',
+    'targetPackageJson',
+    'targetDeclarations',
+  ]) {
+    authenticateArtifactRecord(artifactRoot, artifactById.get(id), id)
   }
-  const semanticDeltaResult = JSON.parse(semanticDelta.stdout)
+  const snapshotCaseRecords = [
+    expectedStructuralArtifacts.rawLedger,
+    expectedStructuralArtifacts.metadataNormalizedLedger,
+    expectedStructuralArtifacts.knownDeltaExactLedger,
+    expectedStructuralArtifacts.knownDeltaProof,
+    knownDeltaProof.artifacts.clusterLedger,
+  ]
   assert(
-    semanticDeltaResult.status === '2.1.126-semantic-delta-verified' &&
-      JSON.stringify(semanticDeltaResult.proof) ===
-        JSON.stringify(expectedStructuralArtifacts.knownDeltaProof) &&
-      semanticDeltaResult.exact.units.changed === 0 &&
-      semanticDeltaResult.exact.units.moved === 0 &&
-      semanticDeltaResult.exact.units.unresolved === 0 &&
-      semanticDeltaResult.exact.units.matched === structuralContract.targetUnits &&
-      semanticDeltaResult.exact.tokens.changed === 0 &&
-      semanticDeltaResult.exact.tokens.moved === 0 &&
-      semanticDeltaResult.exact.tokens.unresolved === 0 &&
-      semanticDeltaResult.exact.tokens.matched === structuralContract.targetTokens,
-    'standalone semantic-delta verification result',
+    JSON.stringify(snapshotCaseRecords.map(record => record.path).sort()) ===
+      JSON.stringify([
+        'structural/generated-delta.json.gz',
+        'structural/known-delta-ledger.json.gz',
+        'structural/known-delta-proof.json',
+        'structural/metadata-normalized-delta.json.gz',
+        'structural/semantic-cluster-ledger.json.gz',
+      ]),
+    'semantic-delta snapshot input topology',
   )
-
-  const complete = spawnSync(
-    process.execPath,
-    [
-      path.join(repo, 'recovery/scripts/verify-complete-recovery.mjs'),
-      '--case',
-      manifestPath,
-      '--artifacts',
-      path.resolve(args.artifacts),
-      '--baseline-tarball',
-      path.resolve(args['baseline-tarball']),
-      '--repo',
-      repo,
-    ],
-    { cwd: repo, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 },
-  )
-  if (complete.error) throw complete.error
-  if (complete.status !== 0) {
-    throw new Error(
-      `complete verifier failed (${complete.status})\n` +
-        `${complete.stdout ?? ''}${complete.stderr ?? ''}`,
+  const carrier = await createPrivateVerifierCarrier({
+    artifactsRoot: artifactRoot,
+    baselineTarball: path.resolve(args['baseline-tarball']),
+    caseRoot,
+    manifest,
+    manifestBytes,
+    repositoryRoot: repo,
+  })
+  let result
+  try {
+    const semanticDelta = spawnSync(
+      process.execPath,
+      [
+        path.join(
+          carrier.repositoryRoot,
+          'recovery/scripts/verify-2.1.126-semantic-delta.mjs',
+        ),
+        '--baseline',
+        path.join(carrier.artifactsRoot, baselineAnalyzable.localPath),
+        '--target',
+        path.join(carrier.artifactsRoot, targetAnalyzable.localPath),
+        '--case-root',
+        carrier.caseRoot,
+        '--source-root',
+        carrier.repositoryRoot,
+      ],
+      {
+        cwd: carrier.repositoryRoot,
+        encoding: 'utf8',
+        env: carrier.environment,
+        maxBuffer: 128 * 1024 * 1024,
+      },
     )
+    if (semanticDelta.error) throw semanticDelta.error
+    if (semanticDelta.status !== 0) {
+      throw new Error(
+        `semantic-delta verifier failed (${semanticDelta.status})\n` +
+          `${semanticDelta.stdout ?? ''}${semanticDelta.stderr ?? ''}`,
+      )
+    }
+    const semanticDeltaResult = JSON.parse(semanticDelta.stdout)
+    assert(
+      semanticDeltaResult.status === '2.1.126-semantic-delta-verified' &&
+        JSON.stringify(semanticDeltaResult.proof) ===
+          JSON.stringify(expectedStructuralArtifacts.knownDeltaProof) &&
+        semanticDeltaResult.exact.units.changed === 0 &&
+        semanticDeltaResult.exact.units.moved === 0 &&
+        semanticDeltaResult.exact.units.unresolved === 0 &&
+        semanticDeltaResult.exact.units.matched === structuralContract.targetUnits &&
+        semanticDeltaResult.exact.tokens.changed === 0 &&
+        semanticDeltaResult.exact.tokens.moved === 0 &&
+        semanticDeltaResult.exact.tokens.unresolved === 0 &&
+        semanticDeltaResult.exact.tokens.matched === structuralContract.targetTokens,
+      'standalone semantic-delta verification result',
+    )
+
+    const complete = spawnSync(
+      process.execPath,
+      [
+        path.join(
+          carrier.repositoryRoot,
+          'recovery/scripts/verify-complete-recovery.mjs',
+        ),
+        '--case',
+        carrier.manifestPath,
+        '--artifacts',
+        carrier.artifactsRoot,
+        '--baseline-tarball',
+        carrier.baselineTarball,
+        '--repo',
+        carrier.repositoryRoot,
+      ],
+      {
+        cwd: carrier.repositoryRoot,
+        encoding: 'utf8',
+        env: carrier.environment,
+        maxBuffer: 128 * 1024 * 1024,
+      },
+    )
+    if (complete.error) throw complete.error
+    if (complete.status !== 0) {
+      throw new Error(
+        `complete verifier failed (${complete.status})\n` +
+          `${complete.stdout ?? ''}${complete.stderr ?? ''}`,
+      )
+    }
+    result = assertCompleteRecoveryResult({
+      manifest,
+      result: JSON.parse(complete.stdout),
+      sourceIdentity,
+    })
+  } finally {
+    cleanupPrivateVerifierCarrier(carrier)
   }
-  const result = JSON.parse(complete.stdout)
   assert(result.status === 'complete-recovery-verified', 'complete status')
   assert(
     result.checks.sourceSemanticReproduction ===
@@ -1636,9 +2040,14 @@ function main() {
   )
 }
 
-try {
-  main()
-} catch (error) {
-  console.error(error instanceof Error ? error.stack : String(error))
-  process.exitCode = 1
+const invokedAsScript =
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href
+if (invokedAsScript) {
+  try {
+    await main()
+  } catch (error) {
+    console.error(error instanceof Error ? error.stack : String(error))
+    process.exitCode = 1
+  }
 }

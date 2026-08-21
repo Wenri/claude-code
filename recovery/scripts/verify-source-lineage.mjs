@@ -7,8 +7,8 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { gunzipSync } from 'node:zlib'
-import { parse } from '../node_modules/acorn/dist/acorn.mjs'
 
+const VERIFIER_REPOSITORY_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const SHA256_PATTERN = /^[a-f0-9]{64}$/
 const GIT_OBJECT_PATTERN = /^[a-f0-9]{40}$/
 const ENVIRONMENT_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/
@@ -42,6 +42,60 @@ const REPOSITORY_SOURCE_ROOT_CASES = new Set([
   '2.1.123-to-2.1.124',
   '2.1.124-to-2.1.126',
 ])
+const AUTHENTICATED_SYNTAX_CASES = new Set([
+  '2.1.121-to-2.1.122',
+  '2.1.122-to-2.1.123',
+  '2.1.123-to-2.1.124',
+  '2.1.124-to-2.1.126',
+])
+const PINNED_SYNTAX_TOOLCHAIN = Object.freeze(
+  [
+    ['.pixi/envs/default/bin/bun', '.pixi/envs/default/bin/bun', 59446272, '6b4c3ee486bf5866a4d3830c5c5786b92717c2205619c2f144c17fa77017c425', 0o755],
+    ['.pixi/envs/default/lib/libarchive.so.13.8.8', '.pixi/envs/default/lib/libarchive.so.13', 981496, '3155c374bef7babb4c6c8ffa2fc10d47fef89385c4f000d263551ec8b7f5d367', 0o755],
+    ['.pixi/envs/default/lib/libbrotlicommon.so.1.2.0', '.pixi/envs/default/lib/libbrotlicommon.so.1', 143408, 'd5bba266a5752ababb4a56a79aec3071f9eac8984a3c818493ad006b4b74beb4', 0o755],
+    ['.pixi/envs/default/lib/libbrotlidec.so.1.2.0', '.pixi/envs/default/lib/libbrotlidec.so.1', 59768, 'ad80d23baef2449aa9163b77217eca29e8370f0f6c62caa06dfcaf51d15c34d4', 0o755],
+    ['.pixi/envs/default/lib/libbrotlienc.so.1.2.0', '.pixi/envs/default/lib/libbrotlienc.so.1', 776496, '486fafa6ed14344798e408763f5a716aca427bcb71fe0febc916afd33dce8f91', 0o755],
+    ['.pixi/envs/default/lib/libbz2.so.1.0.8', '.pixi/envs/default/lib/libbz2.so.1.0', 241888, 'cc570bce44ed3ab1b0f480bdb95c04e8224432811bfb5a55b533135a6001a03b', 0o755],
+    ['.pixi/envs/default/lib/libcares.so.2.19.5', '.pixi/envs/default/lib/libcares.so.2', 323632, '0ab5892532c3befe905456ead7bebe2e36699b2a7307177be666ed0602514772', 0o755],
+    ['.pixi/envs/default/lib/libcrypto.so.3', '.pixi/envs/default/lib/libcrypto.so.3', 7207344, 'a81fb38c65e3fab72af5e31179fc8d76090b921a149c71c727e2fbe5e83a62df', 0o755],
+    ['.pixi/envs/default/lib/libdeflate.so.0', '.pixi/envs/default/lib/libdeflate.so.0', 101872, '9f915c3467f59a215e969f24fa341425fe7bd6972a340079529d2cf21f818a28', 0o755],
+    ['.pixi/envs/default/lib/libgcc_s.so.1', '.pixi/envs/default/lib/libgcc_s.so.1', 902640, 'e1e904051f77f9569c2ea53c83bb4083c26575e0fbd4010e46f1cb8b21037ad1', 0o644],
+    ['.pixi/envs/default/lib/libhdr_histogram.so.6.2.3', '.pixi/envs/default/lib/libhdr_histogram.so.6', 54264, '4ec2dedb2a09391ee0304549a6fc4fa2c228d94a315764e1689428fc7409efc0', 0o755],
+    ['.pixi/envs/default/lib/libhwy.so.1.4.0', '.pixi/envs/default/lib/libhwy.so.1', 80216, 'e25dfbe9e006cc6a1d7f2b01814a0668dafa807cfad6b6bd7478d7d7affb6326', 0o755],
+    ['.pixi/envs/default/lib/libiconv.so.2.7.0', '.pixi/envs/default/lib/libiconv.so.2', 1178544, 'ec9f94edf6d531397d6a53e5fd0a93747d683d64eafcb12e7a75546824152a3d', 0o755],
+    ['.pixi/envs/default/lib/libicudata.so.75.1', '.pixi/envs/default/lib/libicudata.so.75', 30741448, 'e065d9cbce8450291e1e8f9125f9a115a07b0181728217b7bf4e3db65c60a322', 0o755],
+    ['.pixi/envs/default/lib/libicui18n.so.75.1', '.pixi/envs/default/lib/libicui18n.so.75', 4817400, '8332a1c6b589195ceac95fa127a256258f26e636616cf3d4f64fb9e5d182336d', 0o755],
+    ['.pixi/envs/default/lib/libicuuc.so.75.1', '.pixi/envs/default/lib/libicuuc.so.75', 2585632, 'c9a25b3248c0b20fe3e2bf10042fba72009eed6d72422dca53c8ac169ca65d1b', 0o755],
+    ['.pixi/envs/default/lib/liblolhtml.so.1.4.0', '.pixi/envs/default/lib/liblolhtml.so.1', 882416, 'c1dfb8c77a818b1c4ab7783b9e7b2b0a1c7b72af5abed065eb1e23640fb57c25', 0o755],
+    ['.pixi/envs/default/lib/libls-hpack.so', '.pixi/envs/default/lib/libls-hpack.so', 836272, '6e4ec871aeb52ecfda01242dc904f07232d5f6c6c89af3ade278eb216288f861', 0o644],
+    ['.pixi/envs/default/lib/liblz4.so.1.10.0', '.pixi/envs/default/lib/liblz4.so.1', 190600, '34f4953d4e73474636347458db1f1048ba4b1ba967f36ef3da53051d0d1bc4da', 0o755],
+    ['.pixi/envs/default/lib/liblzma.so.5', '.pixi/envs/default/lib/liblzma.so.5', 222712, '07dceced575343c83860aedde6e7e2ac5deb7a0fa31b0f195c44388544817abc', 0o755],
+    ['.pixi/envs/default/lib/liblzo2.so.2.0.0', '.pixi/envs/default/lib/liblzo2.so.2', 229264, '7fb098ccaf6ce5c1c925dff401bfcd9d70e46ca878cc63051da80489b7392038', 0o755],
+    ['.pixi/envs/default/lib/libstdc++.so.6.0.34', '.pixi/envs/default/lib/libstdc++.so.6', 21295144, '9581ad615b7c073423f57b69a3b148a89f8ea76fc909124211f9007909b807a6', 0o755],
+    ['.pixi/envs/default/lib/libxml2.so.16.1.1', '.pixi/envs/default/lib/libxml2.so.16', 1444464, 'f43ab2fc9a6a52de1a580b34db5b24470d58050c262452a8db12423ccb6c247d', 0o755],
+    ['.pixi/envs/default/lib/libz.so.1.3.2', '.pixi/envs/default/lib/libz.so.1', 117128, '22f1601237b86f0f48ed5b83071d1505167ae2e16365b33b4eed6e96dbf71ab0', 0o755],
+    ['.pixi/envs/default/lib/libzstd.so.1.5.7', '.pixi/envs/default/lib/libzstd.so.1', 1198840, 'e32f1e98942e91193d137ae9d460adf8e8cfbf504c8a8aedfb5825576d53a801', 0o755],
+    ['.pixi/envs/default/lib/node_modules/typescript/lib/typescript.js', '.pixi/envs/default/lib/node_modules/typescript/lib/typescript.js', 9143423, '630f808ac32d968a49a392c42cc06fd72abd939aaa7edfe3302810c067934653', 0o644],
+  ].map(([source, destination, bytes, digest, mode]) =>
+    Object.freeze({ source, destination, bytes, sha256: digest, mode }),
+  ),
+)
+const PINNED_RECOVERY_DEPENDENCY_TREE = Object.freeze({
+  files: 46,
+  bytes: 813028,
+  manifestSha256:
+    'ac33a95c7726e57176315c61852feaeffdd5f479ca27d324a468781fe5267675',
+  symlinks: Object.freeze([
+    Object.freeze({ path: '.bin/acorn', target: '../acorn/bin/acorn' }),
+  ]),
+})
+const PINNED_ACORN_PARSER = Object.freeze({
+  source: 'recovery/node_modules/acorn/dist/acorn.mjs',
+  bytes: 229792,
+  sha256: 'b4c8c70200e72bae33cf1085e0ecb1e792c1b6924ed50cab817caf14f51bb249',
+  mode: 0o644,
+})
+let authenticatedParse = null
 
 function usage() {
   console.error(
@@ -336,12 +390,11 @@ function normalizePatchEntries(manifest, lineage, caseRoot) {
       throw new Error(`Duplicate sourceLineage patch: ${specified.path}`)
     }
     seen.add(specified.path)
-    const filename = safeExistingFile(
+    const value = readStableAuthenticatedFile(
       caseRoot,
-      specified.path,
+      { source: specified.path },
       `sourceLineage patch ${index + 1}`,
     )
-    const value = fs.readFileSync(filename)
     const evidence = recoveredAssertions.get(specified.path)
     const expectedBytes = specified.bytes ?? evidence?.bytes
     const expectedSha256 = specified.sha256 ?? evidence?.sha256
@@ -374,9 +427,9 @@ function normalizePatchEntries(manifest, lineage, caseRoot) {
     }
     return {
       path: specified.path,
-      filename,
       bytes: value.length,
       sha256: digest,
+      value,
     }
   })
 }
@@ -1032,6 +1085,24 @@ function syntaxPaths(lineage) {
   )
 }
 
+function authenticatedSyntaxPaths(lineage, caseName, base, target) {
+  const configured = syntaxPaths(lineage)
+  if (!AUTHENTICATED_SYNTAX_CASES.has(caseName)) return configured
+  const baseByPath = new Map(
+    base.records.map(record => [record.path, record.sha256]),
+  )
+  const expected = target.records
+    .filter(record => baseByPath.get(record.path) !== record.sha256)
+    .map(record => record.path)
+    .sort(compareText)
+  assertEqual(
+    [...configured].sort(compareText).join('\n'),
+    expected.join('\n'),
+    `${caseName} syntax scope versus changed non-deleted source paths`,
+  )
+  return expected
+}
+
 function normalizeTestConfiguration(lineage) {
   const nested = lineage.tests
   if (
@@ -1091,6 +1162,14 @@ function normalizeByteDescriptor(value, label, fields) {
 
 function normalizeTestSandbox(lineage, caseName) {
   const configured = lineage.testSandbox
+  if (
+    configured !== undefined &&
+    AUTHENTICATED_SYNTAX_CASES.has(caseName)
+  ) {
+    throw new Error(
+      `${caseName} must use the verifier-pinned syntax toolchain`,
+    )
+  }
   if (configured === undefined) {
     if (caseName === '2.1.120-to-2.1.121') {
       throw new Error('2.1.120-to-2.1.121 sourceLineage requires testSandbox')
@@ -1324,7 +1403,7 @@ function relativeModuleSpecifiers(source) {
   }
 
   visit(
-    parse(source, {
+    authenticatedParse(source, {
       allowHashBang: true,
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -1381,7 +1460,7 @@ function relativeRuntimeFileSpecifiers(source) {
   }
 
   visit(
-    parse(source, {
+    authenticatedParse(source, {
       allowHashBang: true,
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -1425,7 +1504,7 @@ function repositoryRuntimeFilePaths(source, repositoryRoot) {
     }
   }
   visit(
-    parse(source, {
+    authenticatedParse(source, {
       allowHashBang: true,
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -1879,7 +1958,51 @@ function createTestSandbox({
   temporaryRoot,
 }) {
   if (sandboxConfiguration === null) {
-    return { repositoryRoot, report: null }
+    if (!AUTHENTICATED_SYNTAX_CASES.has(caseName)) {
+      return { repositoryRoot, report: null }
+    }
+    if (repositoryRoots === null) {
+      throw new Error(
+        `${caseName} requires an authenticated Git test carrier`,
+      )
+    }
+    const sandboxRoot = repositoryRoots.target
+    const dependencies =
+      testFileAssertions.length === 0
+        ? null
+        : stagePinnedRecoveryDependencies(repositoryRoot, sandboxRoot)
+    const files = testFileAssertions.map((assertion, index) => {
+      const label = `authenticated Git test file ${index + 1}`
+      const value = readStableAuthenticatedFile(
+        sandboxRoot,
+        {
+          source: assertion.path,
+          bytes: assertion.bytes,
+          sha256: assertion.sha256,
+        },
+        label,
+      )
+      return {
+        path: assertion.path,
+        bytes: value.length,
+        sha256: assertion.sha256,
+        verified: true,
+      }
+    })
+    return {
+      repositoryRoot: sandboxRoot,
+      report: {
+        schemaVersion: 1,
+        kind: 'authenticated-git-test-carrier',
+        commit: repositoryRoots.verification[
+          repositoryEnvironmentName(semanticVersionPair(caseName)[1])
+        ].commit,
+        files,
+        bytes: files.reduce((sum, item) => sum + item.bytes, 0),
+        dependencies,
+        symlinks: 0,
+      },
+    }
   }
   if (repositoryRoots === null) {
     throw new Error('testSandbox requires authenticated test Git repositories')
@@ -2142,7 +2265,14 @@ function testEnvironment(
     }
     const filename = verifiedArtifact(manifest, artifactsRoot, artifactId)
     environment[name] = filename
-    resolved[name] = { artifact: artifactId, path: filename }
+    const artifact = (manifest.artifacts ?? []).find(
+      item => item.id === artifactId,
+    )
+    resolved[name] = {
+      artifact: artifactId,
+      path: artifact.localPath,
+      materialization: 'private-authenticated-copy',
+    }
   }
   const [baselineVersion, targetVersion] = semanticVersionPair(manifest.case)
   // These sealed cases were published by the pre-sandbox verifier. Their
@@ -2260,8 +2390,520 @@ function frozenTestExecution(manifest, caseRoot) {
   }
 }
 
-function authenticatedSyntaxRuntime(testSandbox, sandboxConfiguration) {
-  if (sandboxConfiguration === null) return 'bun'
+function readStableAuthenticatedFile(root, descriptor, label) {
+  const unresolvedRoot = path.resolve(root)
+  const rootBefore = fs.lstatSync(unresolvedRoot)
+  if (rootBefore.isSymbolicLink() || !rootBefore.isDirectory()) {
+    throw new Error(`${label}: source root must be a real directory`)
+  }
+  const realRoot = fs.realpathSync(unresolvedRoot)
+  const resolvedRoot = fs.lstatSync(realRoot)
+  const rootAfterResolution = fs.lstatSync(unresolvedRoot)
+  if (
+    resolvedRoot.isSymbolicLink() ||
+    !resolvedRoot.isDirectory() ||
+    rootAfterResolution.isSymbolicLink() ||
+    !rootAfterResolution.isDirectory() ||
+    resolvedRoot.dev !== rootBefore.dev ||
+    resolvedRoot.ino !== rootBefore.ino ||
+    rootAfterResolution.dev !== rootBefore.dev ||
+    rootAfterResolution.ino !== rootBefore.ino
+  ) {
+    throw new Error(`${label}: source root changed while resolving`)
+  }
+  const filename = safeExistingFile(realRoot, descriptor.source, label)
+  const before = fs.lstatSync(filename)
+  let fileDescriptor
+  try {
+    const noFollow = fs.constants.O_NOFOLLOW
+    const flags = Number.isInteger(noFollow)
+      ? fs.constants.O_RDONLY | noFollow
+      : fs.constants.O_RDONLY
+    fileDescriptor = fs.openSync(filename, flags)
+    const opened = fs.fstatSync(fileDescriptor)
+    if (
+      !opened.isFile() ||
+      opened.dev !== before.dev ||
+      opened.ino !== before.ino
+    ) {
+      throw new Error(`${label}: source changed before open`)
+    }
+    const value = fs.readFileSync(fileDescriptor)
+    const openedAfterRead = fs.fstatSync(fileDescriptor)
+    if (
+      openedAfterRead.dev !== opened.dev ||
+      openedAfterRead.ino !== opened.ino
+    ) {
+      throw new Error(`${label}: source changed while reading`)
+    }
+    const afterFilename = safeExistingFile(realRoot, descriptor.source, label)
+    const after = fs.lstatSync(afterFilename)
+    const rootAfterRead = fs.lstatSync(unresolvedRoot)
+    if (
+      after.dev !== opened.dev ||
+      after.ino !== opened.ino ||
+      rootAfterRead.isSymbolicLink() ||
+      !rootAfterRead.isDirectory() ||
+      rootAfterRead.dev !== rootBefore.dev ||
+      rootAfterRead.ino !== rootBefore.ino ||
+      fs.realpathSync(unresolvedRoot) !== realRoot
+    ) {
+      throw new Error(`${label}: source changed after read`)
+    }
+    if (descriptor.bytes !== undefined) {
+      assertEqual(value.length, descriptor.bytes, `${label} byte length`)
+    }
+    if (descriptor.sha256 !== undefined) {
+      assertEqual(sha256(value), descriptor.sha256, `${label} SHA-256`)
+    }
+    if (descriptor.mode !== undefined) {
+      assertEqual(opened.mode & 0o777, descriptor.mode, `${label} mode`)
+    }
+    return value
+  } finally {
+    if (fileDescriptor !== undefined) fs.closeSync(fileDescriptor)
+  }
+}
+
+async function loadAuthenticatedParser() {
+  if (authenticatedParse !== null) return authenticatedParse
+  const value = readStableAuthenticatedFile(
+    VERIFIER_REPOSITORY_ROOT,
+    PINNED_ACORN_PARSER,
+    'pinned Acorn parser',
+  )
+  const moduleUrl =
+    `data:text/javascript;base64,${value.toString('base64')}` +
+    `#sha256=${PINNED_ACORN_PARSER.sha256}`
+  const namespace = await import(moduleUrl)
+  if (typeof namespace.parse !== 'function') {
+    throw new Error('authenticated Acorn module has no parse export')
+  }
+  authenticatedParse = namespace.parse
+  return authenticatedParse
+}
+
+function materializeTestArtifacts(
+  manifest,
+  artifactsRoot,
+  testConfiguration,
+  sandboxConfiguration,
+  temporaryRoot,
+) {
+  const artifactIds = new Set(
+    Object.values(testConfiguration.artifactEnvironment),
+  )
+  for (const descriptor of sandboxConfiguration?.legacyArtifacts ?? []) {
+    artifactIds.add(descriptor.artifact)
+  }
+  if (artifactIds.size === 0) {
+    return { root: artifactsRoot, report: [] }
+  }
+  if (artifactsRoot === undefined) {
+    throw new Error('authenticated semantic tests require --artifacts')
+  }
+  const byId = new Map()
+  for (const artifact of manifest.artifacts ?? []) {
+    if (byId.has(artifact.id)) {
+      throw new Error(`Duplicate artifact id: ${artifact.id}`)
+    }
+    byId.set(artifact.id, artifact)
+  }
+  const stagedRoot = path.join(temporaryRoot, 'authenticated-test-artifacts')
+  fs.mkdirSync(stagedRoot)
+  const stagedPaths = new Map()
+  const report = []
+  for (const [index, id] of [...artifactIds].sort(compareText).entries()) {
+    const artifact = byId.get(id)
+    if (artifact === undefined) throw new Error(`Unknown artifact: ${id}`)
+    if (
+      !Number.isSafeInteger(artifact.bytes) ||
+      artifact.bytes < 0 ||
+      typeof artifact.sha256 !== 'string' ||
+      !SHA256_PATTERN.test(artifact.sha256)
+    ) {
+      throw new Error(`${id}: invalid artifact evidence`)
+    }
+    const value = readStableAuthenticatedFile(
+      artifactsRoot,
+      {
+        source: artifact.localPath,
+        bytes: artifact.bytes,
+        sha256: artifact.sha256,
+      },
+      `semantic test artifact ${index + 1}`,
+    )
+    const destination = path.join(
+      stagedRoot,
+      ...relativeParts(
+        artifact.localPath,
+        `semantic test artifact ${index + 1} destination`,
+      ),
+    )
+    const prior = stagedPaths.get(artifact.localPath)
+    if (prior !== undefined) {
+      assertEqual(
+        prior.bytes,
+        value.length,
+        `${id} shared artifact byte length`,
+      )
+      assertEqual(
+        prior.sha256,
+        artifact.sha256,
+        `${id} shared artifact SHA-256`,
+      )
+    } else {
+      fs.mkdirSync(path.dirname(destination), { recursive: true })
+      fs.writeFileSync(destination, value, { flag: 'wx', mode: 0o600 })
+      assertRealFile(destination, `${id} staged semantic test artifact`)
+      const staged = fs.readFileSync(destination)
+      assertEqual(staged.length, artifact.bytes, `${id} staged byte length`)
+      assertEqual(sha256(staged), artifact.sha256, `${id} staged SHA-256`)
+      stagedPaths.set(artifact.localPath, {
+        bytes: artifact.bytes,
+        sha256: artifact.sha256,
+      })
+    }
+    report.push({
+      id,
+      path: artifact.localPath,
+      bytes: artifact.bytes,
+      sha256: artifact.sha256,
+      verified: true,
+    })
+  }
+  return { root: stagedRoot, report }
+}
+
+function snapshotPinnedRecoveryDependencies(repositoryRoot) {
+  const dependencyRootParts = ['recovery', 'node_modules']
+  let dependencyRoot = path.resolve(repositoryRoot)
+  for (const part of dependencyRootParts) {
+    dependencyRoot = path.join(dependencyRoot, part)
+    const status = fs.lstatSync(dependencyRoot)
+    if (status.isSymbolicLink() || !status.isDirectory()) {
+      throw new Error(
+        'pinned recovery dependency root must contain only real directories',
+      )
+    }
+  }
+  const pending = [{ directory: dependencyRoot, relative: '' }]
+  const records = []
+  const symlinks = []
+  while (pending.length > 0) {
+    const { directory, relative } = pending.pop()
+    for (const name of fs.readdirSync(directory).sort(compareText)) {
+      const childRelative = relative === '' ? name : `${relative}/${name}`
+      const filename = path.join(directory, name)
+      const status = fs.lstatSync(filename)
+      if (status.isSymbolicLink()) {
+        symlinks.push({
+          path: childRelative,
+          target: fs.readlinkSync(filename),
+        })
+      } else if (status.isDirectory()) {
+        pending.push({ directory: filename, relative: childRelative })
+      } else if (status.isFile()) {
+        const mode = status.mode & 0o777
+        if (mode !== 0o644 && mode !== 0o755) {
+          throw new Error(
+            `pinned recovery dependency has unsupported mode: ${childRelative}`,
+          )
+        }
+        const value = readStableAuthenticatedFile(
+          repositoryRoot,
+          {
+            source: `recovery/node_modules/${childRelative}`,
+            mode,
+          },
+          `pinned recovery dependency ${childRelative}`,
+        )
+        records.push({
+          path: childRelative,
+          mode,
+          bytes: value.length,
+          sha256: sha256(value),
+          value,
+        })
+      } else {
+        throw new Error(
+          `pinned recovery dependency has a non-regular entry: ${childRelative}`,
+        )
+      }
+    }
+  }
+  records.sort((left, right) => compareText(left.path, right.path))
+  symlinks.sort((left, right) => compareText(left.path, right.path))
+  const manifestHash = crypto.createHash('sha256')
+  let bytes = 0
+  for (const record of records) {
+    bytes += record.bytes
+    manifestHash
+      .update(record.path)
+      .update('\0')
+      .update(String(record.mode))
+      .update('\0')
+      .update(String(record.bytes))
+      .update('\0')
+      .update(record.sha256)
+      .update('\n')
+  }
+  assertEqual(
+    records.length,
+    PINNED_RECOVERY_DEPENDENCY_TREE.files,
+    'pinned recovery dependency file count',
+  )
+  assertEqual(
+    bytes,
+    PINNED_RECOVERY_DEPENDENCY_TREE.bytes,
+    'pinned recovery dependency bytes',
+  )
+  assertEqual(
+    manifestHash.digest('hex'),
+    PINNED_RECOVERY_DEPENDENCY_TREE.manifestSha256,
+    'pinned recovery dependency manifest SHA-256',
+  )
+  assertEqual(
+    JSON.stringify(symlinks),
+    JSON.stringify(PINNED_RECOVERY_DEPENDENCY_TREE.symlinks),
+    'pinned recovery dependency symlinks',
+  )
+  return { records, symlinks }
+}
+
+export function stagePinnedRecoveryDependencies(
+  repositoryRoot,
+  sandboxRoot,
+  options = {},
+) {
+  const optionNames = Object.keys(options)
+  if (
+    optionNames.some(name => name !== 'stageSymlinks') ||
+    (options.stageSymlinks !== undefined &&
+      typeof options.stageSymlinks !== 'boolean')
+  ) {
+    throw new Error('invalid pinned recovery dependency staging options')
+  }
+  const stageSymlinks = options.stageSymlinks === true
+  const snapshot = snapshotPinnedRecoveryDependencies(repositoryRoot)
+  const unresolvedSandboxRoot = path.resolve(sandboxRoot)
+  const sandboxStatus = fs.lstatSync(unresolvedSandboxRoot)
+  if (sandboxStatus.isSymbolicLink() || !sandboxStatus.isDirectory()) {
+    throw new Error('authenticated Git test carrier must be a real directory')
+  }
+  const realSandboxRoot = fs.realpathSync(unresolvedSandboxRoot)
+  const recoveryRoot = path.join(realSandboxRoot, 'recovery')
+  const recoveryStatus = fs.lstatSync(recoveryRoot)
+  if (recoveryStatus.isSymbolicLink() || !recoveryStatus.isDirectory()) {
+    throw new Error(
+      'authenticated Git test carrier recovery root must be a real directory',
+    )
+  }
+  const realRecoveryRoot = fs.realpathSync(recoveryRoot)
+  const recoveryRelative = path.relative(realSandboxRoot, realRecoveryRoot)
+  if (
+    recoveryRelative !== 'recovery' ||
+    fs.realpathSync(unresolvedSandboxRoot) !== realSandboxRoot
+  ) {
+    throw new Error(
+      'authenticated Git test carrier recovery root escaped its carrier',
+    )
+  }
+  const destinationRoot = path.join(realRecoveryRoot, 'node_modules')
+  if (fs.existsSync(destinationRoot)) {
+    throw new Error('authenticated Git test carrier already has node_modules')
+  }
+  fs.mkdirSync(destinationRoot)
+  const sandboxAfterCreate = fs.lstatSync(unresolvedSandboxRoot)
+  const recoveryAfterCreate = fs.lstatSync(recoveryRoot)
+  if (
+    sandboxAfterCreate.isSymbolicLink() ||
+    !sandboxAfterCreate.isDirectory() ||
+    sandboxAfterCreate.dev !== sandboxStatus.dev ||
+    sandboxAfterCreate.ino !== sandboxStatus.ino ||
+    recoveryAfterCreate.isSymbolicLink() ||
+    !recoveryAfterCreate.isDirectory() ||
+    recoveryAfterCreate.dev !== recoveryStatus.dev ||
+    recoveryAfterCreate.ino !== recoveryStatus.ino ||
+    fs.realpathSync(unresolvedSandboxRoot) !== realSandboxRoot ||
+    fs.realpathSync(recoveryRoot) !== realRecoveryRoot
+  ) {
+    throw new Error(
+      'authenticated Git test carrier changed while staging dependencies',
+    )
+  }
+  for (const [index, record] of snapshot.records.entries()) {
+    const destination = path.join(
+      destinationRoot,
+      ...relativeParts(
+        record.path,
+        `pinned recovery dependency destination ${index + 1}`,
+      ),
+    )
+    fs.mkdirSync(path.dirname(destination), { recursive: true })
+    fs.writeFileSync(destination, record.value, {
+      flag: 'wx',
+      mode: record.mode,
+    })
+    fs.chmodSync(destination, record.mode)
+    assertRealFile(destination, `staged recovery dependency ${record.path}`)
+    const staged = fs.readFileSync(destination)
+    assertEqual(
+      staged.length,
+      record.bytes,
+      `staged recovery dependency ${record.path} byte length`,
+    )
+    assertEqual(
+      sha256(staged),
+      record.sha256,
+      `staged recovery dependency ${record.path} SHA-256`,
+    )
+  }
+  if (stageSymlinks) {
+    for (const [index, entry] of snapshot.symlinks.entries()) {
+      const destination = path.join(
+        destinationRoot,
+        ...relativeParts(
+          entry.path,
+          `pinned recovery dependency symlink ${index + 1}`,
+        ),
+      )
+      fs.mkdirSync(path.dirname(destination), { recursive: true })
+      fs.symlinkSync(entry.target, destination)
+      const status = fs.lstatSync(destination)
+      if (
+        !status.isSymbolicLink() ||
+        fs.readlinkSync(destination) !== entry.target
+      ) {
+        throw new Error(
+          `staged recovery dependency symlink ${entry.path} changed`,
+        )
+      }
+    }
+  }
+  return {
+    files: PINNED_RECOVERY_DEPENDENCY_TREE.files,
+    bytes: PINNED_RECOVERY_DEPENDENCY_TREE.bytes,
+    manifestSha256: PINNED_RECOVERY_DEPENDENCY_TREE.manifestSha256,
+    symlinks: snapshot.symlinks.map(item => ({
+      ...item,
+      staged: stageSymlinks,
+    })),
+    verified: true,
+  }
+}
+
+function materializePinnedSyntaxToolchain(
+  repositoryRoot,
+  stagingRoot,
+  destinationField = 'destination',
+) {
+  if (destinationField !== 'destination' && destinationField !== 'source') {
+    throw new Error('invalid pinned syntax destination field')
+  }
+  const unresolvedStagingRoot = path.resolve(stagingRoot)
+  const stagingStatus = fs.lstatSync(unresolvedStagingRoot)
+  if (stagingStatus.isSymbolicLink() || !stagingStatus.isDirectory()) {
+    throw new Error('pinned syntax staging root must be a real directory')
+  }
+  const realStagingRoot = fs.realpathSync(unresolvedStagingRoot)
+  const pixiRoot = path.join(realStagingRoot, '.pixi')
+  if (fs.existsSync(pixiRoot)) {
+    throw new Error('pinned syntax staging root already has .pixi')
+  }
+  const files = []
+  for (const [index, descriptor] of PINNED_SYNTAX_TOOLCHAIN.entries()) {
+    const label = `pinned syntax toolchain file ${index + 1}`
+    const value = readStableAuthenticatedFile(
+      repositoryRoot,
+      descriptor,
+      label,
+    )
+    const destination = path.join(
+      realStagingRoot,
+      ...relativeParts(descriptor[destinationField], `${label} destination`),
+    )
+    fs.mkdirSync(path.dirname(destination), { recursive: true })
+    fs.writeFileSync(destination, value, {
+      flag: 'wx',
+      mode: descriptor.mode,
+    })
+    fs.chmodSync(destination, descriptor.mode)
+    assertRealFile(destination, `${label} staged destination`)
+    const staged = fs.readFileSync(destination)
+    assertEqual(staged.length, descriptor.bytes, `${label} staged byte length`)
+    assertEqual(
+      sha256(staged),
+      descriptor.sha256,
+      `${label} staged SHA-256`,
+    )
+    assertEqual(
+      fs.statSync(destination).mode & 0o777,
+      descriptor.mode,
+      `${label} staged mode`,
+    )
+    files.push({ ...descriptor, verified: true })
+  }
+  const stagingAfter = fs.lstatSync(unresolvedStagingRoot)
+  if (
+    stagingAfter.isSymbolicLink() ||
+    !stagingAfter.isDirectory() ||
+    stagingAfter.dev !== stagingStatus.dev ||
+    stagingAfter.ino !== stagingStatus.ino ||
+    fs.realpathSync(unresolvedStagingRoot) !== realStagingRoot
+  ) {
+    throw new Error('pinned syntax staging root changed while materializing')
+  }
+  const runtime = safeExistingFile(
+    realStagingRoot,
+    '.pixi/envs/default/bin/bun',
+    'pinned syntax runtime',
+  )
+  return {
+    runtime,
+    report: {
+      environment: 'minimal-hermetic',
+      kind: 'authenticated-pinned-toolchain',
+      files,
+      runtime: '.pixi/envs/default/bin/bun',
+    },
+  }
+}
+
+export function stagePinnedSyntaxToolchainIntoRepository(
+  repositoryRoot,
+  destinationRepositoryRoot,
+) {
+  return materializePinnedSyntaxToolchain(
+    repositoryRoot,
+    destinationRepositoryRoot,
+    'source',
+  )
+}
+
+function stagePinnedSyntaxToolchain(repositoryRoot, temporaryRoot) {
+  const stagingRoot = path.join(temporaryRoot, 'authenticated-syntax-toolchain')
+  fs.mkdirSync(stagingRoot)
+  return materializePinnedSyntaxToolchain(repositoryRoot, stagingRoot)
+}
+
+function authenticatedSyntaxRuntime(
+  testSandbox,
+  sandboxConfiguration,
+  caseName,
+  repositoryRoot,
+  temporaryRoot,
+) {
+  if (AUTHENTICATED_SYNTAX_CASES.has(caseName)) {
+    if (sandboxConfiguration !== null) {
+      throw new Error(`${caseName} cannot override its pinned syntax toolchain`)
+    }
+    const staged = stagePinnedSyntaxToolchain(repositoryRoot, temporaryRoot)
+    return { hermetic: true, ...staged }
+  }
+  if (sandboxConfiguration === null) {
+    return { hermetic: false, report: null, runtime: 'bun' }
+  }
   if (testSandbox.report === null) {
     throw new Error('authenticated syntax runtime requires a test sandbox')
   }
@@ -2275,7 +2917,16 @@ function authenticatedSyntaxRuntime(testSandbox, sandboxConfiguration) {
     0o755,
     'authenticated syntax runtime mode',
   )
-  return runtime
+  return {
+    hermetic: true,
+    report: {
+      environment: 'minimal-hermetic',
+      kind: 'authenticated-test-sandbox-toolchain',
+      files: testSandbox.report.toolchainFiles,
+      runtime: sandboxConfiguration.syntaxRuntime,
+    },
+    runtime,
+  }
 }
 
 function hermeticSyntaxEnvironment(temporaryRoot, syntaxRuntime) {
@@ -2353,7 +3004,11 @@ function runTests(
     artifactsRoot,
     configuration.artifactEnvironment,
   )
-  if (sandboxReport !== null) {
+  if (
+    sandboxReport?.toolchainFiles?.some(
+      item => item.destination === '.pixi/envs/default/bin/bun',
+    )
+  ) {
     const sandboxBun = safeExistingFile(
       executionRepositoryRoot,
       '.pixi/envs/default/bin/bun',
@@ -2422,7 +3077,7 @@ function runTests(
   }
 }
 
-export function verifySourceLineage({
+export async function verifySourceLineage({
   artifactsRoot,
   manifestPath,
   repositoryRoot,
@@ -2431,9 +3086,15 @@ export function verifySourceLineage({
   const resolvedRepository = path.resolve(repositoryRoot)
   const resolvedArtifacts =
     artifactsRoot === undefined ? undefined : path.resolve(artifactsRoot)
-  assertRealFile(resolvedManifest, 'case manifest')
   assertRealDirectory(resolvedRepository, 'repository root')
-  const manifest = JSON.parse(fs.readFileSync(resolvedManifest, 'utf8'))
+  await loadAuthenticatedParser()
+  const manifest = JSON.parse(
+    readStableAuthenticatedFile(
+      path.dirname(resolvedManifest),
+      { source: path.basename(resolvedManifest) },
+      'case manifest',
+    ).toString('utf8'),
+  )
   const lineage = manifest.sourceLineage
   if (!lineage || typeof lineage !== 'object' || Array.isArray(lineage)) {
     throw new Error('Manifest has no sourceLineage object')
@@ -2456,7 +3117,14 @@ export function verifySourceLineage({
     'sourceLineage.target',
   )
   const caseRoot = path.dirname(resolvedManifest)
-  const caseName = manifest.case ?? path.basename(caseRoot)
+  const caseDirectory = path.basename(caseRoot)
+  if (manifest.case !== undefined && manifest.case !== caseDirectory) {
+    throw new Error(
+      `Manifest case ${manifest.case} does not match case directory ` +
+        caseDirectory,
+    )
+  }
+  const caseName = manifest.case ?? caseDirectory
   const gitHistory = normalizeGitHistory(lineage, caseName)
   const testGitRepositories = normalizeTestGitRepositories(
     lineage,
@@ -2495,8 +3163,32 @@ export function verifySourceLineage({
   let gitBase
   let gitTarget
   let verifiedRepositoryRoots
+  let syntaxToolchainReport
   let tests
   try {
+    const patchRoot = path.join(temporaryRoot, 'authenticated-patches')
+    fs.mkdirSync(patchRoot, { mode: 0o700 })
+    const authenticatedPatches = patches.map((patch, index) => {
+      const relative = `${String(index + 1).padStart(3, '0')}.patch`
+      const filename = path.join(patchRoot, relative)
+      fs.writeFileSync(filename, patch.value, { flag: 'wx', mode: 0o600 })
+      const copied = readStableAuthenticatedFile(
+        patchRoot,
+        {
+          source: relative,
+          bytes: patch.bytes,
+          sha256: patch.sha256,
+          mode: 0o600,
+        },
+        `authenticated patch ${index + 1}`,
+      )
+      assertEqual(
+        sha256(copied),
+        patch.sha256,
+        `authenticated patch ${index + 1} private identity`,
+      )
+      return { ...patch, filename }
+    })
     const workspace = path.join(temporaryRoot, 'workspace')
     fs.mkdirSync(workspace)
     fs.cpSync(sourceRoot, path.join(workspace, 'src'), {
@@ -2506,7 +3198,7 @@ export function verifySourceLineage({
     })
     assertWorkspaceScope(workspace)
 
-    for (const patch of [...patches].reverse()) {
+    for (const patch of [...authenticatedPatches].reverse()) {
       applyPatch(patch, workspace, true)
       assertWorkspaceScope(workspace)
     }
@@ -2535,7 +3227,7 @@ export function verifySourceLineage({
       'base',
     )
 
-    for (const patch of patches) {
+    for (const patch of authenticatedPatches) {
       applyPatch(patch, workspace, false)
       assertWorkspaceScope(workspace)
     }
@@ -2576,6 +3268,13 @@ export function verifySourceLineage({
       copiedBaselineSource,
       reconstructed,
     )
+    const testArtifacts = materializeTestArtifacts(
+      manifest,
+      resolvedArtifacts,
+      testConfiguration,
+      testSandboxConfiguration,
+      temporaryRoot,
+    )
     const baselineSourceRoot =
       verifiedRepositoryRoots === null
         ? copiedBaselineSourceRoot
@@ -2585,7 +3284,7 @@ export function verifySourceLineage({
         ? sourceRoot
         : path.join(verifiedRepositoryRoots.target, 'src')
     const testSandbox = createTestSandbox({
-      artifactsRoot: resolvedArtifacts,
+      artifactsRoot: testArtifacts.root,
       caseName,
       caseRoot,
       manifest,
@@ -2596,19 +3295,25 @@ export function verifySourceLineage({
       testFileAssertions,
       temporaryRoot,
     })
-    const syntaxRuntime = authenticatedSyntaxRuntime(
+    if (testSandbox.report !== null) {
+      testSandbox.report.authenticatedArtifacts = testArtifacts.report
+    }
+    const syntaxToolchain = authenticatedSyntaxRuntime(
       testSandbox,
       testSandboxConfiguration,
+      caseName,
+      resolvedRepository,
+      temporaryRoot,
     )
-    const syntaxEnvironment =
-      testSandboxConfiguration === null
-        ? undefined
-        : hermeticSyntaxEnvironment(temporaryRoot, syntaxRuntime)
+    syntaxToolchainReport = syntaxToolchain.report
+    const syntaxEnvironment = syntaxToolchain.hermetic
+      ? hermeticSyntaxEnvironment(temporaryRoot, syntaxToolchain.runtime)
+      : undefined
     checkedSyntax = runSyntaxChecks(
       workspace,
       temporaryRoot,
-      syntaxPaths(lineage),
-      syntaxRuntime,
+      authenticatedSyntaxPaths(lineage, caseName, base, reconstructed),
+      syntaxToolchain.runtime,
       syntaxEnvironment,
     )
     tests = runTests(
@@ -2618,7 +3323,7 @@ export function verifySourceLineage({
       baselineSourceRoot,
       targetSourceRoot,
       verifiedRepositoryRoots,
-      resolvedArtifacts,
+      testArtifacts.root,
       testConfiguration,
       testSandbox.report,
     )
@@ -2658,6 +3363,7 @@ export function verifySourceLineage({
             explicit: verifiedRepositoryRoots.explicit,
             environments: verifiedRepositoryRoots.verification,
           },
+    syntaxToolchain: syntaxToolchainReport,
     patches: patches.map(({ path: patchPath, bytes, sha256: digest }) => ({
       path: patchPath,
       bytes,
@@ -2670,7 +3376,7 @@ export function verifySourceLineage({
   }
 }
 
-function main() {
+async function main() {
   const args = parseArguments(process.argv.slice(2))
   if (!args.case || !args.repo) {
     usage()
@@ -2679,7 +3385,7 @@ function main() {
   }
   console.log(
     JSON.stringify(
-      verifySourceLineage({
+      await verifySourceLineage({
         artifactsRoot: args.artifacts,
         manifestPath: args.case,
         repositoryRoot: args.repo,
@@ -2692,10 +3398,10 @@ function main() {
 
 const invokedAsScript =
   process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+  import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href
 if (invokedAsScript) {
   try {
-    main()
+    await main()
   } catch (error) {
     console.error(error instanceof Error ? error.stack : String(error))
     process.exitCode = 1

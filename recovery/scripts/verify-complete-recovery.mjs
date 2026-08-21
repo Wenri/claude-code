@@ -41,6 +41,19 @@ function parseArguments(argv) {
   return result
 }
 
+function assert(condition, message) {
+  if (!condition) throw new Error(message)
+}
+
+function assertChildResult(result, expectedStatus, label) {
+  assert(
+    result && typeof result === 'object' && !Array.isArray(result),
+    `${label} returned no result object`,
+  )
+  assert(result.status === expectedStatus, `${label} returned the wrong status`)
+  return result
+}
+
 function safeRelative(root, relative, label) {
   const parts = relative.split('/')
   if (
@@ -143,6 +156,8 @@ function main() {
     ],
     repositoryRoot,
   )
+  assertChildResult(evidence, 'evidence-verified', 'case evidence verifier')
+  assert(evidence.case === manifest.case, 'case evidence identity mismatch')
   const bunExtraction = generated.bunExtraction
     ? runJson(
         path.join(scripts, 'verify-bun-container.mjs'),
@@ -155,6 +170,13 @@ function main() {
         repositoryRoot,
       )
     : null
+  if (bunExtraction !== null) {
+    assertChildResult(
+      bunExtraction,
+      'bun-container-verified',
+      'Bun container verifier',
+    )
+  }
   const sourcePatches = manifest.sourceLineage
     ? runJson(
         path.join(scripts, 'verify-source-lineage.mjs'),
@@ -180,6 +202,16 @@ function main() {
         ],
         repositoryRoot,
       )
+  assertChildResult(
+    sourcePatches,
+    manifest.sourceLineage
+      ? 'source-lineage-verified'
+      : 'recovered-patches-verified',
+    'source verifier',
+  )
+  if (manifest.sourceLineage) {
+    assert(sourcePatches.case === manifest.case, 'source-lineage case mismatch')
+  }
   const hasLegacySourceReproduction =
     manifest.semanticSourceLineage !== undefined
   const sourceReproductionAudit = hasLegacySourceReproduction
@@ -214,6 +246,11 @@ function main() {
       targetEvidence.sha256,
     ],
     repositoryRoot,
+  )
+  assertChildResult(
+    exactBundleDelta,
+    'exact-delta-verified',
+    'exact bundle-delta verifier',
   )
 
   const attributionSummary = assertion(
@@ -261,6 +298,11 @@ function main() {
     attributionArguments,
     repositoryRoot,
   )
+  assertChildResult(
+    attribution,
+    'attribution-report-verified',
+    'attribution verifier',
+  )
 
   const structuralAssertion = assertion(
     manifest,
@@ -291,6 +333,11 @@ function main() {
       String(generated.structural.targetUnits),
     ],
     repositoryRoot,
+  )
+  assertChildResult(
+    structural,
+    'structural-ledger-verified',
+    'structural verifier',
   )
 
   const semanticContract = generated.semanticCorrespondence
@@ -353,6 +400,13 @@ function main() {
         repositoryRoot,
       )
     : null
+  if (semanticCorrespondence !== null) {
+    assertChildResult(
+      semanticCorrespondence,
+      'whole-bundle-source-correspondence-verified',
+      'semantic correspondence verifier',
+    )
+  }
   let semanticReproduction = null
   if (semanticCorrespondence) {
     if (semanticCorrespondence.obligations.unverifiedObligationCount !== 0) {
@@ -473,6 +527,11 @@ function main() {
     ],
     repositoryRoot,
   )
+  assertChildResult(
+    readableDiff,
+    'readable-diff-verified',
+    'readable-diff verifier',
+  )
 
   const temporary = fs.mkdtempSync(
     path.join(os.tmpdir(), 'claude-code-complete-recovery-'),
@@ -507,6 +566,18 @@ function main() {
         path.join(temporary, 'package'),
       ],
       repositoryRoot,
+    )
+    if (embeddedCode !== null) {
+      assertChildResult(
+        embeddedCode,
+        'embedded-code-reconstructed',
+        'embedded-code reconstruction',
+      )
+    }
+    assertChildResult(
+      packageTree,
+      'exact-package-tree-reconstructed',
+      'package-tree reconstruction',
     )
   } finally {
     fs.rmSync(temporary, { recursive: true, force: true })
@@ -547,6 +618,7 @@ function main() {
             sourcePatches.appliedSourceTree?.files.length ??
             sourcePatches.target?.files ??
             0,
+          gitTarget: sourcePatches.gitTarget ?? null,
           ...(sourceReproductionAudit === null
             ? {}
             : {
@@ -616,7 +688,8 @@ function main() {
           unclassifiedSourceSemanticTokens:
             semanticCorrespondence?.unclassifiedTokens ?? null,
         },
-        tests: sourcePatches.semanticTests ?? sourcePatches.tests ?? null,
+        semanticTests: sourcePatches.semanticTests ?? null,
+        tests: sourcePatches.tests ?? null,
         semanticReproduction,
       },
       null,

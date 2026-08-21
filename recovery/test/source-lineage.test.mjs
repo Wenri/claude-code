@@ -11,6 +11,7 @@ import { gzipSync } from 'node:zlib'
 const SCRIPT = fileURLToPath(
   new URL('../scripts/verify-source-lineage.mjs', import.meta.url),
 )
+const REPOSITORY_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const T120_FREEZE_BUILDER = fileURLToPath(
   new URL('../scripts/build-2.1.120-source-freeze.mjs', import.meta.url),
 )
@@ -561,6 +562,13 @@ function rewriteManifest(fixture, update) {
   )
 }
 
+function relocateFixtureCase(fixture, caseName) {
+  const currentRoot = path.dirname(fixture.manifestPath)
+  const nextRoot = path.join(path.dirname(currentRoot), caseName)
+  fs.renameSync(currentRoot, nextRoot)
+  fixture.manifestPath = path.join(nextRoot, 'manifest.json')
+}
+
 function configuredGitLineage(fixture) {
   return {
     baseCommit: fixture.gitBase.baseCommit,
@@ -580,6 +588,39 @@ function configuredGitLineage(fixture) {
       },
     },
   }
+}
+
+function copyPinnedSyntaxToolchain(repository) {
+  const manifest = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        REPOSITORY_ROOT,
+        'recovery/cases/2.1.120-to-2.1.121/manifest.json',
+      ),
+      'utf8',
+    ),
+  )
+  const descriptors = manifest.sourceLineage.testSandbox.toolchainFiles
+  for (const descriptor of descriptors) {
+    const source = path.join(REPOSITORY_ROOT, ...descriptor.source.split('/'))
+    const destination = path.join(repository, ...descriptor.source.split('/'))
+    fs.mkdirSync(path.dirname(destination), { recursive: true })
+    fs.copyFileSync(source, destination)
+    fs.chmodSync(destination, descriptor.mode)
+  }
+  return descriptors
+}
+
+function copyPinnedRecoveryDependencies(repository) {
+  fs.cpSync(
+    path.join(REPOSITORY_ROOT, 'recovery/node_modules'),
+    path.join(repository, 'recovery/node_modules'),
+    {
+      recursive: true,
+      dereference: false,
+      verbatimSymlinks: true,
+    },
+  )
 }
 
 test('verifies an incremental source lineage in both directions', () => {
@@ -826,6 +867,263 @@ test('runs semantic tests in an authenticated materialized sandbox', () => {
     result = invoke(fixture)
     assert.notEqual(result.status, 0)
     assert.match(result.stderr, /expanded SHA-256/)
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('uses a pinned hermetic syntax toolchain for sealed post-121 cases', () => {
+  const fixture = createFixture()
+  try {
+    const toolchain = copyPinnedSyntaxToolchain(fixture.repository)
+    copyPinnedRecoveryDependencies(fixture.repository)
+    relocateFixtureCase(fixture, '2.1.122-to-2.1.123')
+    rewriteManifest(fixture, manifest => {
+      manifest.case = '2.1.122-to-2.1.123'
+      Object.assign(manifest.sourceLineage, {
+        baseCommit: fixture.gitBase.baseCommit,
+        baseGitTree: fixture.gitBase.baseGitTree,
+        baseSrcGitTree: fixture.gitBase.baseSourceGitTree,
+        ...fixture.gitTarget,
+      })
+      delete manifest.sourceFreeze
+      delete manifest.sourceLineage.testArtifactEnvironment
+      delete manifest.sourceLineage.testFileAssertions
+      manifest.sourceLineage.testFiles = []
+    })
+    const ambientBin = path.join(fixture.root, 'ambient-bin')
+    const ambientBunMarker = path.join(fixture.root, 'ambient-bun-ran')
+    const ambientBun = path.join(ambientBin, 'bun')
+    write(
+      ambientBun,
+      [
+        '#!/bin/sh',
+        'printf ambient > "$AMBIENT_BUN_MARKER"',
+        'exit 97',
+        '',
+      ].join('\n'),
+    )
+    fs.chmodSync(ambientBun, 0o755)
+    let result = invoke(fixture, {
+      AMBIENT_BUN_MARKER: ambientBunMarker,
+      BUN_OPTIONS: '--help',
+      DYLD_INSERT_LIBRARIES: '/nonexistent/injected.dylib',
+      LD_LIBRARY_PATH: '/nonexistent',
+      LD_PRELOAD: '/nonexistent/injected.so',
+      PATH: `${ambientBin}${path.delimiter}${process.env.PATH}`,
+    })
+    assert.equal(result.status, 0, result.stderr)
+    assert.equal(fs.existsSync(ambientBunMarker), false)
+    const report = JSON.parse(result.stdout)
+    assert.equal(
+      report.syntaxToolchain.kind,
+      'authenticated-pinned-toolchain',
+    )
+    assert.equal(report.syntaxToolchain.environment, 'minimal-hermetic')
+    assert.equal(report.syntaxToolchain.files.length, toolchain.length)
+    assert.equal(report.syntaxChecks.length, 2)
+
+    rewriteManifest(fixture, manifest => {
+      manifest.case = '2.1.123-to-2.1.124'
+    })
+    result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /does not match case directory/)
+    rewriteManifest(fixture, manifest => {
+      manifest.case = '2.1.122-to-2.1.123'
+    })
+
+    rewriteManifest(fixture, manifest => {
+      manifest.sourceLineage.syntaxCheck = []
+    })
+    result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(
+      result.stderr,
+      /syntax scope versus changed non-deleted source paths/,
+    )
+    rewriteManifest(fixture, manifest => {
+      manifest.sourceLineage.syntaxCheck = ['src/example.ts', 'src/new.ts']
+      manifest.sourceLineage.testSandbox = {}
+    })
+    result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /must use the verifier-pinned syntax toolchain/)
+    rewriteManifest(fixture, manifest => {
+      delete manifest.sourceLineage.testSandbox
+    })
+
+    const bun = path.join(
+      fixture.repository,
+      '.pixi/envs/default/bin/bun',
+    )
+    fs.writeFileSync(bun, 'tampered syntax runtime\n')
+    fs.chmodSync(bun, 0o755)
+    result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /pinned syntax toolchain file 1 byte length/)
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('authenticates Acorn before evaluating parser bytes', () => {
+  const fixture = createFixture()
+  try {
+    const verifierRoot = path.join(fixture.root, 'tampered-verifier')
+    const verifierScript = path.join(
+      verifierRoot,
+      'recovery/scripts/verify-source-lineage.mjs',
+    )
+    const parserPath = path.join(
+      verifierRoot,
+      'recovery/node_modules/acorn/dist/acorn.mjs',
+    )
+    const marker = path.join(fixture.root, 'tampered-parser-executed')
+    write(verifierScript, fs.readFileSync(SCRIPT))
+    const attack = Buffer.from(
+      [
+        "import fs from 'node:fs'",
+        `fs.writeFileSync(${JSON.stringify(marker)}, 'executed')`,
+        'export function parse() { return {} }',
+        '',
+      ].join('\n'),
+    )
+    const padded = Buffer.alloc(229792, 0x20)
+    attack.copy(padded)
+    write(parserPath, padded)
+    fs.chmodSync(parserPath, 0o644)
+    const result = spawnSync(
+      process.execPath,
+      [
+        verifierScript,
+        '--case',
+        fixture.manifestPath,
+        '--repo',
+        fixture.repository,
+        '--artifacts',
+        fixture.artifacts,
+      ],
+      { encoding: 'utf8' },
+    )
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /pinned Acorn parser SHA-256/)
+    assert.equal(fs.existsSync(marker), false)
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('executes sealed post-121 tests and artifacts from private authenticated carriers', () => {
+  const fixture = createFixture()
+  try {
+    const testRelative = 'recovery/test/private-carrier.test.mjs'
+    const source = [
+      "import assert from 'node:assert/strict'",
+      "import fs from 'node:fs'",
+      "import path from 'node:path'",
+      "import test from 'node:test'",
+      "import { fileURLToPath } from 'node:url'",
+      '',
+      `const originalRepository = ${JSON.stringify(fixture.repository)}`,
+      `const originalArtifacts = ${JSON.stringify(fixture.artifacts)}`,
+      'const currentFile = fileURLToPath(import.meta.url)',
+      '',
+      "test('uses private authenticated inputs', () => {",
+      '  assert.equal(',
+      '    currentFile.startsWith(`${originalRepository}${path.sep}`),',
+      '    false,',
+      '  )',
+      '  assert.equal(',
+      '    process.env.LINEAGE_TEST_ARTIFACT.startsWith(',
+      '      `${originalArtifacts}${path.sep}`,',
+      '    ),',
+      '    false,',
+      '  )',
+      '  assert.equal(',
+      "    fs.readFileSync(process.env.LINEAGE_TEST_ARTIFACT, 'utf8'),",
+      "    'verified target artifact\\n',",
+      '  )',
+      '})',
+      '',
+    ].join('\n')
+    write(path.join(fixture.repository, testRelative), source)
+    git(fixture.repository, 'add', testRelative)
+    git(fixture.repository, 'commit', '-qm', 'fixture authenticated test carrier')
+    const targetCommit = git(fixture.repository, 'rev-parse', 'HEAD')
+    const targetGitTree = git(fixture.repository, 'rev-parse', 'HEAD^{tree}')
+    const targetSrcGitTree = git(fixture.repository, 'rev-parse', 'HEAD:src')
+    copyPinnedSyntaxToolchain(fixture.repository)
+    copyPinnedRecoveryDependencies(fixture.repository)
+    relocateFixtureCase(fixture, '2.1.122-to-2.1.123')
+
+    const identityPath = path.join(
+      path.dirname(fixture.manifestPath),
+      fixture.sourceFreezeIdentityRelative,
+    )
+    const identity = JSON.parse(fs.readFileSync(identityPath, 'utf8'))
+    identity.verification.targetTests = {
+      tests: 1,
+      passed: 1,
+      failed: 0,
+      skipped: 0,
+      files: 1,
+    }
+    const identityValue = `${JSON.stringify(identity, null, 2)}\n`
+    fs.writeFileSync(identityPath, identityValue)
+
+    rewriteManifest(fixture, manifest => {
+      manifest.case = '2.1.122-to-2.1.123'
+      manifest.sourceFreeze.identitySha256 = sha256(identityValue)
+      Object.assign(manifest.sourceLineage, {
+        baseCommit: fixture.gitBase.baseCommit,
+        baseGitTree: fixture.gitBase.baseGitTree,
+        baseSrcGitTree: fixture.gitBase.baseSourceGitTree,
+        targetCommit,
+        targetGitTree,
+        targetSrcGitTree,
+        testFiles: [testRelative],
+        testFileAssertions: [
+          {
+            path: testRelative,
+            bytes: Buffer.byteLength(source),
+            sha256: sha256(source),
+          },
+        ],
+      })
+    })
+    let result = invoke(fixture)
+    assert.equal(result.status, 0, result.stderr)
+    const report = JSON.parse(result.stdout)
+    assert.equal(report.tests.status, 'passed')
+    assert.equal(report.tests.sandbox.kind, 'authenticated-git-test-carrier')
+    assert.equal(report.tests.sandbox.files.length, 1)
+    assert.equal(report.tests.sandbox.dependencies.files, 46)
+    assert.equal(report.tests.sandbox.dependencies.verified, true)
+    assert.equal(report.tests.sandbox.authenticatedArtifacts.length, 1)
+    assert.equal(
+      report.tests.artifactEnvironment.LINEAGE_TEST_ARTIFACT.path,
+      '1.0.1/cli.js',
+    )
+
+    const dependency = path.join(
+      fixture.repository,
+      'recovery/node_modules/acorn/dist/acorn.mjs',
+    )
+    const dependencyValue = fs.readFileSync(dependency)
+    fs.writeFileSync(dependency, 'tampered recovery dependency\n')
+    result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /pinned recovery dependency (?:bytes|manifest SHA-256)/)
+    fs.writeFileSync(dependency, dependencyValue)
+    fs.chmodSync(dependency, 0o755)
+    result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(
+      result.stderr,
+      /pinned recovery dependency manifest SHA-256/,
+    )
+    fs.chmodSync(dependency, 0o644)
   } finally {
     fs.rmSync(fixture.root, { recursive: true, force: true })
   }

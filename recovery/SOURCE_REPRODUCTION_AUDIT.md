@@ -4,7 +4,8 @@ Audit date: 2026-08-10.
 
 ## Verdict
 
-The 21 checked-in recovery cases have three independent results:
+The 21 recovery cases through 2.1.116 covered by this 2026-08-10 audit have
+three independent results:
 
 1. **Generated artifact recovery:** every adjacent delta reconstructs the
    authenticated target `cli.js` byte-for-byte.
@@ -69,12 +70,12 @@ units rather than inferred from source-file existence.
 
 ## Per-case results
 
-<!-- FINAL_CASE_TABLE -->
-
-`First-party` is the compiled-semantic result. `Whole bundle` remains `Gap`
-when even one embedded dependency unit or required build input is unpinned.
-The exact generated replay is `Pass` for every row and is omitted from the
-table only to keep it readable.
+The 21 historical per-case results are recorded in
+[`source-reproduction-gaps.json`](./source-reproduction-gaps.json) and the
+corresponding case manifests. `First-party` is the compiled-semantic result;
+whole-bundle reproduction remains a gap when even one embedded dependency unit
+or required build input is unpinned. Exact generated replay passes for every
+case covered by this audit.
 
 ## Material gaps found and fixed
 

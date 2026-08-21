@@ -6,6 +6,12 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
+import {
+  assertCompleteRecoveryResult,
+  cleanupPrivateVerifierCarrier,
+  createPrivateVerifierCarrier,
+} from '../lib/private-verifier-carrier.mjs'
+
 const defaultRepo = fileURLToPath(new URL('../..', import.meta.url))
 const fullDiffCheckDiagnostic =
   'recovery/cases/2.1.120-to-2.1.121/evidence/CHANGELOG-2.1.121.md:42: new blank line at EOF.'
@@ -219,7 +225,7 @@ function readPinned(root, metadata, label) {
   return JSON.parse(value)
 }
 
-function main() {
+async function main() {
   const args = parseArguments(process.argv.slice(2))
   if (!args.artifacts || !args['baseline-tarball']) {
     throw new Error(
@@ -237,7 +243,12 @@ function main() {
       ),
   )
   const caseRoot = path.dirname(manifestPath)
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+  const manifestBytes = readConfinedCaseFile(
+    caseRoot,
+    path.basename(manifestPath),
+    'manifest',
+  )
+  const manifest = JSON.parse(manifestBytes.toString('utf8'))
   assert(manifest.schemaVersion === 4, 'manifest schema')
   assert(manifest.case === '2.1.120-to-2.1.121', 'case identity')
   assert(manifest.finalization?.status === 'complete', 'finalization status')
@@ -461,29 +472,54 @@ function main() {
     'source-only git diff --check must be clean',
   )
 
-  const complete = spawnSync(
-    process.execPath,
-    [
-      path.join(repo, 'recovery/scripts/verify-complete-recovery.mjs'),
-      '--case',
-      manifestPath,
-      '--artifacts',
-      path.resolve(args.artifacts),
-      '--baseline-tarball',
-      path.resolve(args['baseline-tarball']),
-      '--repo',
-      repo,
-    ],
-    { cwd: repo, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 },
-  )
-  if (complete.error) throw complete.error
-  if (complete.status !== 0) {
-    throw new Error(
-      `complete verifier failed (${complete.status})\n` +
-        `${complete.stdout ?? ''}${complete.stderr ?? ''}`,
+  const carrier = await createPrivateVerifierCarrier({
+    artifactsRoot: path.resolve(args.artifacts),
+    baselineTarball: path.resolve(args['baseline-tarball']),
+    caseRoot,
+    manifest,
+    manifestBytes,
+    repositoryRoot: repo,
+  })
+  let result
+  try {
+    const complete = spawnSync(
+      process.execPath,
+      [
+        path.join(
+          carrier.repositoryRoot,
+          'recovery/scripts/verify-complete-recovery.mjs',
+        ),
+        '--case',
+        carrier.manifestPath,
+        '--artifacts',
+        carrier.artifactsRoot,
+        '--baseline-tarball',
+        carrier.baselineTarball,
+        '--repo',
+        carrier.repositoryRoot,
+      ],
+      {
+        cwd: carrier.repositoryRoot,
+        encoding: 'utf8',
+        env: carrier.environment,
+        maxBuffer: 128 * 1024 * 1024,
+      },
     )
+    if (complete.error) throw complete.error
+    if (complete.status !== 0) {
+      throw new Error(
+        `complete verifier failed (${complete.status})\n` +
+          `${complete.stdout ?? ''}${complete.stderr ?? ''}`,
+      )
+    }
+    result = assertCompleteRecoveryResult({
+      manifest,
+      result: JSON.parse(complete.stdout),
+      sourceIdentity,
+    })
+  } finally {
+    cleanupPrivateVerifierCarrier(carrier)
   }
-  const result = JSON.parse(complete.stdout)
   assert(result.status === 'complete-recovery-verified', 'complete status')
   assert(
     result.checks.sourceSemanticReproduction ===
@@ -518,10 +554,10 @@ function main() {
 
 const invokedAsScript =
   process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+  import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href
 if (invokedAsScript) {
   try {
-    main()
+    await main()
   } catch (error) {
     console.error(error instanceof Error ? error.stack : String(error))
     process.exitCode = 1
