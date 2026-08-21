@@ -1,0 +1,186 @@
+diff --git a/src/commands/effort/effort.tsx b/src/commands/effort/effort.tsx
+index a62793c0855169fb512b7eea53177ac912ec065e..17445e2eb3b1359a357fc77ccfdb4f6f513170fa 100644
+--- a/src/commands/effort/effort.tsx
++++ b/src/commands/effort/effort.tsx
+@@ -19,6 +19,7 @@ import {
+   isEffortLevel,
+   toPersistableEffort,
+ } from '../../utils/effort.js'
++import { updateSettingsForSource } from '../../utils/settings/settings.js'
+ import { getRainbowColor } from '../../utils/thinking.js'
+ import { logError } from '../../utils/log.js'
+ 
+@@ -69,6 +70,16 @@ function setEffortValue(effortValue: EffortValue): EffortCommandResult {
+     }
+   }
+   const remoteSuffix = applyRemoteEffort(persistable)
++  if (persistable !== undefined) {
++    const result = updateSettingsForSource('userSettings', {
++      effortLevel: persistable,
++    })
++    if (result.error) {
++      return {
++        message: `Failed to set effort level: ${result.error.message}`,
++      }
++    }
++  }
+   logEvent('tengu_effort_command', {
+     effort:
+       effortValue as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+@@ -118,6 +129,12 @@ export function showCurrentEffort(
+ 
+ function unsetEffortLevel(): EffortCommandResult {
+   const remoteSuffix = applyRemoteEffort(undefined)
++  const result = updateSettingsForSource('userSettings', {
++    effortLevel: undefined,
++  })
++  if (result.error) {
++    return { message: `Failed to set effort level: ${result.error.message}` }
++  }
+   logEvent('tengu_effort_command', {
+     effort:
+       'auto' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+diff --git a/src/components/PromptInput/PromptInput.tsx b/src/components/PromptInput/PromptInput.tsx
+index 63a3493488f8e0739fbba5973f260eb554ca61d3..95d86fcfcaa14fbb1c7a504028903b3220481b84 100644
+--- a/src/components/PromptInput/PromptInput.tsx
++++ b/src/components/PromptInput/PromptInput.tsx
+@@ -1506,16 +1506,10 @@ function PromptInput({
+   }, [clearScreenShortcut, clearDoublePress]);
+   useExternalClearDetection(handleClearScreen);
+   const handleClearInput = useCallback(() => {
+-    trackAndSetInput('');
+-    setCursorOffset(0);
+-    clearBuffer();
+-    resetHistory();
+-    onModeChange('prompt');
+-    setPastedContents({});
+     setRedrawVersion(version => version + 1);
+     clearActionShortcutRef.current = clearInputShortcut;
+     clearDoublePress();
+-  }, [trackAndSetInput, clearBuffer, resetHistory, onModeChange, setPastedContents, clearInputShortcut, clearDoublePress]);
++  }, [clearInputShortcut, clearDoublePress]);
+ 
+   // Handler for chat:modelPicker - toggle model picker
+   const showRemoteFastModeUnavailable = useCallback(() => {
+diff --git a/src/services/api/claude.ts b/src/services/api/claude.ts
+index 630f35d4fdbaa6b13956e68562d49c54919c7655..74c9eeba5935ea635898d9c96b86899d4bc34600 100644
+--- a/src/services/api/claude.ts
++++ b/src/services/api/claude.ts
+@@ -249,6 +249,7 @@ import { withStreamingVCR, withVCR } from '../vcr.js'
+ import {
+   CLIENT_REQUEST_ID_HEADER,
+   getAnthropicClient,
++  getStreamIdleTimeoutMs,
+   StreamIdleTimeoutError,
+ } from './client.js'
+ import {
+@@ -2308,8 +2309,7 @@ async function* queryModel(
+     const streamWatchdogEnabled = isEnvTruthy(
+       process.env.CLAUDE_ENABLE_STREAM_WATCHDOG,
+     )
+-    const STREAM_IDLE_TIMEOUT_MS =
+-      parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90_000
++    const STREAM_IDLE_TIMEOUT_MS = getStreamIdleTimeoutMs()
+     const STREAM_IDLE_WARNING_MS = STREAM_IDLE_TIMEOUT_MS / 2
+     let streamIdleAborted = false
+     // performance.now() snapshot when watchdog fires, for measuring abort propagation delay
+diff --git a/src/services/api/client.ts b/src/services/api/client.ts
+index 515985677177c36eaa6beb870b4359a6e48cfe77..b7a46dd3489cef11ab0c23d915bdc853021fbe05 100644
+--- a/src/services/api/client.ts
++++ b/src/services/api/client.ts
+@@ -566,6 +566,13 @@ export class StreamIdleTimeoutError extends Error {
+   }
+ }
+ 
++export function getStreamIdleTimeoutMs(): number {
++  return Math.max(
++    Number(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS) || 0,
++    300_000,
++  )
++}
++
+ function getVerboseRequestAuthDetails(headers: Headers): {
+   auth: string
+   headers: Record<string, string>
+@@ -760,12 +767,8 @@ function buildFetch(
+       response.headers.get('content-type')?.includes('text/event-stream') &&
+       isByteWatchdogEnabled()
+     ) {
+-      const idleMs = Math.max(
+-        parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90000,
+-        300000,
+-      )
+       const wrappedResponse = new Response(
+-        addStreamIdleTimeout(response.body, idleMs),
++        addStreamIdleTimeout(response.body, getStreamIdleTimeoutMs()),
+         response,
+       )
+       Object.defineProperty(wrappedResponse, 'url', { value: response.url })
+diff --git a/src/tools/FileReadTool/FileReadTool.ts b/src/tools/FileReadTool/FileReadTool.ts
+index ca62a69c02b9ba6236768276d71a9e920ff32c7e..5c8235823561df70cbb3dd4a1dcf816c9666a84c 100644
+--- a/src/tools/FileReadTool/FileReadTool.ts
++++ b/src/tools/FileReadTool/FileReadTool.ts
+@@ -55,7 +55,7 @@ import { lazySchema } from '../../utils/lazySchema.js'
+ import { logError } from '../../utils/log.js'
+ import { isAutoMemFile } from '../../utils/memoryFileDetection.js'
+ import { createUserMessage } from '../../utils/messages.js'
+-import { getCanonicalName, getMainLoopModel } from '../../utils/model/model.js'
++import { getMainLoopModel } from '../../utils/model/model.js'
+ import {
+   mapNotebookCellsToToolResult,
+   readNotebook,
+@@ -412,8 +412,8 @@ export const FileReadTool = buildTool({
+   renderToolResultMessage,
+   // UI.tsx:140 — ALL types render summary chrome only: "Read N lines",
+   // "Read image (42KB)". Never the content itself. The model-facing
+-  // serialization (below) sends content + CYBER_RISK_MITIGATION_REMINDER
+-  // + line prefixes; UI shows none of it. Nothing to index. Caught by
++  // serialization (below) sends the freshness prefix and line-prefixed
++  // content; UI shows none of it. Nothing to index. Caught by
+   // the render-fidelity test when this initially claimed file.content.
+   extractSearchText() {
+     return ''
+@@ -729,13 +729,8 @@ export const FileReadTool = buildTool({
+         let content: string
+ 
+         if (data.file.content) {
+-          const model = fileReadModels.get(data) ?? getMainLoopModel()
+           content =
+-            memoryFileFreshnessPrefix(data) +
+-            formatFileLines(data.file) +
+-            (shouldIncludeFileReadMitigation(model)
+-              ? CYBER_RISK_MITIGATION_REMINDER
+-              : '')
++            memoryFileFreshnessPrefix(data) + formatFileLines(data.file)
+         } else {
+           // Determine the appropriate warning message
+           content =
+@@ -763,20 +758,6 @@ function formatFileLines(file: { content: string; startLine: number }): string {
+   return addLineNumbers(file)
+ }
+ 
+-export const CYBER_RISK_MITIGATION_REMINDER =
+-  '\n\n<system-reminder>\nWhenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.\n</system-reminder>\n'
+-
+-// Models where cyber risk mitigation should be skipped
+-const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])
+-
+-function shouldIncludeFileReadMitigation(model: string): boolean {
+-  const shortName = getCanonicalName(model)
+-  return !MITIGATION_EXEMPT_MODELS.has(shortName)
+-}
+-
+-/** Actual model used by the agent that produced a file read result. */
+-const fileReadModels = new WeakMap<object, string>()
+-
+ /**
+  * Side-channel from call() to mapToolResultToToolResultBlockParam: mtime
+  * of auto-memory files, keyed by the `data` object identity. Avoids
+@@ -1100,7 +1081,6 @@ async function callInner(
+       totalLines,
+     },
+   }
+-  fileReadModels.set(data, context.options.mainLoopModel)
+   if (isAutoMemFile(fullFilePath)) {
+     memoryFileMtimes.set(data, mtimeMs)
+   }

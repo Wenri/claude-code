@@ -1,0 +1,6 @@
+ src/commands/effort/effort.tsx             | 17 +++++++++++++++++
+ src/components/PromptInput/PromptInput.tsx |  8 +-------
+ src/services/api/claude.ts                 |  4 ++--
+ src/services/api/client.ts                 | 13 ++++++++-----
+ src/tools/FileReadTool/FileReadTool.ts     | 28 ++++------------------------
+ 5 files changed, 32 insertions(+), 38 deletions(-)

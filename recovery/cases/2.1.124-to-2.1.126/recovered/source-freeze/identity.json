@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.124-to-2.1.126",
+  "kind": "authenticated-source-overlay-freeze",
+  "base": {
+    "commit": "ae866640a6d67891fe14aeff5bc41da10784b979",
+    "tree": "3ad726cbb5960e18ca78b40d46be27db27474ef0",
+    "srcTree": "43090c8672f1ab7ba4b9a9673bff0a762b7aaf92",
+    "bundleSha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590"
+  },
+  "target": {
+    "commit": "11865927d6656cbc299b8cc6f4696a71c29f55bc",
+    "tree": "dcf1f9eebae7a36ab50ddcb839b9ebf58b526b1b",
+    "srcTree": "9c7c4f699cd0cc740dcb5e5341aeb026d4bc2263",
+    "recoveredSourceCommit": "67116ce3153fe7dfd0e18068da822f08d02b9fd9",
+    "recoveredSourceCommitTree": "715d3f9458e7cbad8160ebd9438d96167d178cbc",
+    "focusedTestCommit": "a65f83b9d80d8f9ee1e8bf6e496c6c484dd8524c",
+    "retainedTestCommit": "67116ce3153fe7dfd0e18068da822f08d02b9fd9",
+    "bundleSha256": "e9d40219be0cad9009c115ec637df4976e987c33d4b7a88cc5f047ead9ad828d"
+  },
+  "overlay": {
+    "path": "source-facing-overlay.patch",
+    "bytes": 8076,
+    "sha256": "457010b448b9075aacc42f2b1f76407cb08ac8dfedd914ae05084dbfda43f8b6",
+    "lines": 186,
+    "changedPaths": 5,
+    "insertions": 32,
+    "deletions": 38
+  },
+  "source": {
+    "files": 2166,
+    "bytes": 32823496,
+    "symlinks": 0
+  },
+  "verification": {
+    "applyToBaseTree": true,
+    "completeSrcByteCompare": true,
+    "reverseToBaseTree": true,
+    "forwardToTargetTree": true,
+    "diffCheck": {
+      "scope": "full-target-tree",
+      "sourceDiagnosticLines": 0,
+      "diagnosticLines": 1,
+      "sha256": "46e47269c72f3c24b9f1e6840408b039b219f1b1f38f61616628f9e9e159aae7",
+      "reviewed": true
+    },
+    "targetTests": {
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "files": 4,
+      "manifest": "target-test-files.sha256",
+      "manifestSha256": "943674e0884d7dac95962260f36cdcc45adee80dd807d9e947487f2daba31046"
+    },
+    "retainedTests": {
+      "files": 12,
+      "manifest": "retained-test-files.sha256",
+      "manifestSha256": "d630feeaf178a298f141ac76c2b562a8233f1526a39e9863b796f8397a7001bc"
+    },
+    "syntaxBuilds": {
+      "passed": 5,
+      "failed": 0
+    },
+    "adjacentDirectEvidence": {
+      "catalog": {
+        "path": "recovery/cases/2.1.124-to-2.1.126/semantic/direct-evidence.json",
+        "bytes": 90365,
+        "sha256": "63f127a2790d6f8eefebab380ab6c0391a640552ca2e48aaf236759ade649c0c"
+      },
+      "test": {
+        "path": "recovery/test/recovery-2.1.126-direct-evidence.test.mjs",
+        "bytes": 43369,
+        "sha256": "ae886c8a452c45a6f4d4bc5cfff536695aded6ef664fb9f3eafec279ea11df2a"
+      },
+      "manifest": "adjacent-direct-evidence.sha256",
+      "manifestSha256": "5e4ae40fb002b653cb710a09ab65330648b482cfbf5283d8168105f02c5110d5"
+    }
+  }
+}
