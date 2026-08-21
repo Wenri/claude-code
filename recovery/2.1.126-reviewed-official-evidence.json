@@ -57,6 +57,11 @@
           "count": 1
         },
         {
+          "path": "src/main.tsx",
+          "fragment": "program.command('project').description('Manage Claude Code project state')",
+          "count": 1
+        },
+        {
           "path": "src/utils/sessionStoragePortable.ts",
           "fragment": "export async function findProjectDirs(projectPath: string): Promise<string[]> {",
           "count": 1
@@ -123,6 +128,11 @@
           "path": "src/tools/SkillTool/SkillTool.ts",
           "fragment": "recordSkillActivated(commandName, command, invocationTrigger)",
           "count": 2
+        },
+        {
+          "path": "src/utils/processUserInput/processSlashCommand.tsx",
+          "fragment": "if (!(command.isMcp && command.loadedFrom !== 'mcp')) {",
+          "count": 1
         }
       ],
       "rationale": "The sealed skill telemetry row retains the invocation-trigger bundle sentinel and the reviewed activation-recording callsite."
@@ -161,6 +171,11 @@
         "token-efficient-tools-2026-03-28"
       ],
       "sourceAssertions": [
+        {
+          "path": "src/services/analytics/growthbook.ts",
+          "fragment": "!isEnvTruthy(process.env.DISABLE_GROWTHBOOK) &&",
+          "count": 1
+        },
         {
           "path": "src/utils/auth.ts",
           "fragment": "if (isEnvTruthy(process.env.CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST)) {",
@@ -231,7 +246,17 @@
         },
         {
           "path": "src/utils/sandbox/sandbox-adapter.ts",
+          "fragment": "const policyTiers = getAllPolicyTierSettings()",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sandbox/sandbox-adapter.ts",
           "fragment": "for (const p of policySettings.sandbox?.filesystem?.allowRead || []) {",
+          "count": 1
+        },
+        {
+          "path": "src/utils/settings/settings.ts",
+          "fragment": "export function getAllPolicyTierSettings(): SettingsJson[] {",
           "count": 1
         }
       ],
@@ -256,6 +281,11 @@
           "count": 1
         },
         {
+          "path": "src/tools/FileReadTool/imageProcessor.ts",
+          "fragment": "export function getImageDimensionsFromBuffer(",
+          "count": 1
+        },
+        {
           "path": "src/utils/imageResizer.ts",
           "fragment": "const fallbackDimensions = getImageDimensionsFromBuffer(imageBuffer)",
           "count": 1
@@ -277,8 +307,18 @@
       ],
       "sourceAssertions": [
         {
+          "path": "src/entrypoints/sdk/coreSchemas.ts",
+          "fragment": "'oauth_org_not_allowed',",
+          "count": 1
+        },
+        {
           "path": "src/services/api/errors.ts",
           "fragment": "'Your organization has disabled Claude subscription access for Claude Code · Use an Anthropic API key instead, or ask your admin to enable access'",
+          "count": 1
+        },
+        {
+          "path": "src/services/api/errors.ts",
+          "fragment": "return OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE",
           "count": 1
         }
       ],
@@ -297,6 +337,11 @@
         "/v2/session_ingress/mcp/ws/"
       ],
       "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/auth.ts",
+          "fragment": "process.stdout.write('Paste code here if prompted > ')",
+          "count": 1
+        },
         {
           "path": "src/services/oauth/auth-code-listener.ts",
           "fragment": "this.localServer.listen(port ?? 0, '127.0.0.1', () => {",
@@ -323,6 +368,11 @@
         "token-efficient-tools-2026-03-28"
       ],
       "sourceAssertions": [
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "if (isInvalidGrantError(error) && refreshTokenUsed) {",
+          "count": 1
+        },
         {
           "path": "src/utils/auth.ts",
           "fragment": "refreshTokenUsed = lockedTokens.refreshToken",
@@ -371,7 +421,7 @@
           "count": 1
         }
       ],
-      "rationale": "The sealed message-rendering row retains the per-turn replacement-text guard that prevents later assistant text from being hidden."
+      "rationale": "The sealed message-rendering row retains the per-turn replacement-text guard that keeps assistant text visible instead of leaving a blank turn."
     },
     {
       "id": "B20",
@@ -387,8 +437,18 @@
       ],
       "sourceAssertions": [
         {
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "fragment": "logForDebugging(`wheel accel: ${config.useDecayCurve ? 'decay' : 'window (native)'} · base=${config.base} · platform=${config.platform} · TERM_PROGRAM=${config.termProgram}${config.wheelFlood ? ' · wheelFlood' : ''}`);",
+          "count": 1
+        },
+        {
           "path": "src/ink/scroll-config.ts",
           "fragment": "return version !== null && version >= 1_092_000 && version < 1_105_000",
+          "count": 1
+        },
+        {
+          "path": "src/ink/scroll-config.ts",
+          "fragment": "useAdaptiveDrain: !wheelFlood && xtermJs,",
           "count": 1
         }
       ],
@@ -407,6 +467,16 @@
         "/v2/session_ingress/mcp/ws/"
       ],
       "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "entry.expiresAt < Date.now()",
+          "count": 1
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "export function hasExpiredMcpAccessTokenWithoutRefresh(",
+          "count": 1
+        },
         {
           "path": "src/services/mcp/config.ts",
           "fragment": "(hasMcpDiscoveryButNoToken(name, config, oauthEntries) ||\n        hasExpiredMcpAccessTokenWithoutRefresh(name, config, oauthEntries))",
@@ -501,6 +571,11 @@
           "path": "src/tools/EnterPlanModeTool/EnterPlanModeTool.ts",
           "fragment": "getAllowedChannels().length > 0 &&\n      getIsNonInteractiveSession()",
           "count": 1
+        },
+        {
+          "path": "src/tools/ExitPlanModeTool/ExitPlanModeV2Tool.ts",
+          "fragment": "getAllowedChannels().length > 0 &&\n      getIsNonInteractiveSession()",
+          "count": 1
         }
       ],
       "rationale": "The sealed tool-execution row retains the interactive-session guard that no longer removes plan-mode tools merely because channels are configured."
@@ -512,19 +587,26 @@
       "disposition": "inherited-retained",
       "retained": true,
       "inheritedRowIds": [
+        "compact-messages",
         "sdk-print-share"
       ],
       "targetFragments": [
+        "CLAUDE_CODE_COLD_COMPACT",
         "ccshare_url"
       ],
       "sourceAssertions": [
+        {
+          "path": "src/components/Messages.tsx",
+          "fragment": "return !msg.isMeta || isChannelOrigin(msg.origin);",
+          "count": 1
+        },
         {
           "path": "src/QueryEngine.ts",
           "fragment": "origin: options?.origin,",
           "count": 9
         }
       ],
-      "rationale": "The sealed SDK row retains origin propagation on every terminal result, preserving remote transcript routing when messaging tools are absent."
+      "rationale": "The sealed message and SDK rows retain both origin propagation on terminal results and channel-origin visibility in remote transcripts."
     },
     {
       "id": "B27",
@@ -564,6 +646,11 @@
           "path": "src/utils/attachments.ts",
           "fragment": "const MAX_EDITED_TEXT_FILE_SNIPPET_BUDGET = 16_384",
           "count": 1
+        },
+        {
+          "path": "src/utils/attachments.ts",
+          "fragment": "snippetBytes += attachment.snippet.length",
+          "count": 1
         }
       ],
       "rationale": "The sealed attachment row retains the aggregate edited-file snippet budget that bounds linter-generated file-modified reminders."
@@ -589,6 +676,11 @@
           "count": 1
         },
         {
+          "path": "src/commands/bridge/bridge.tsx",
+          "fragment": "const trustedDeviceReason = getTrustedDeviceUnenrolledReason();",
+          "count": 1
+        },
+        {
           "path": "src/hooks/useReplBridge.tsx",
           "fragment": "{' '}· {detail || '/remote-control'}",
           "count": 1
@@ -603,22 +695,20 @@
       "disposition": "inherited-retained",
       "retained": true,
       "inheritedRowIds": [
-        "commands-ui",
-        "oauth-mcp-auth"
+        "commands-ui"
       ],
       "targetFragments": [
-        "/v2/session_ingress/mcp/ws/",
         "Fix with Claude"
       ],
       "sourceAssertions": [
         {
-          "path": "src/bridge/trustedDevice.ts",
-          "fragment": "export function getTrustedDeviceUnenrolledReason(): string | null {",
+          "path": "src/components/PromptInput/PromptInputFooter.tsx",
+          "fragment": "const error = useAppState(s_4 => s_4.replBridgeError);",
           "count": 1
         },
         {
-          "path": "src/components/PromptInput/PromptInputFooter.tsx",
-          "fragment": "const error = useAppState(s_4 => s_4.replBridgeError);",
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "{' '}· {detail || '/remote-control'}",
           "count": 1
         }
       ],
@@ -637,6 +727,11 @@
         " \\xB7 wheelFlood"
       ],
       "sourceAssertions": [
+        {
+          "path": "src/ink/termio/osc.ts",
+          "fragment": "['-NoProfile', '-NonInteractive', '-Command', POWERSHELL_CLIPBOARD_COMMAND],",
+          "count": 1
+        },
         {
           "path": "src/ink/termio/osc.ts",
           "fragment": "const POWERSHELL_CLIPBOARD_COMMAND =",
@@ -673,26 +768,29 @@
       "disposition": "inherited-retained",
       "retained": true,
       "inheritedRowIds": [
-        "sdk-print-share",
         "tool-execution-classifier"
       ],
       "targetFragments": [
-        "ccshare_url",
         "setInProgressToolUseIDs({action:\"add\""
       ],
       "sourceAssertions": [
         {
-          "path": "src/QueryEngine.ts",
-          "fragment": "origin: options?.origin,",
-          "count": 9
-        },
-        {
           "path": "src/services/tools/StreamingToolExecutor.ts",
           "fragment": "let hasCompletedResults = false",
           "count": 1
+        },
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "toolUseContext.setInProgressToolUseIDs(previous =>",
+          "count": 1
+        },
+        {
+          "path": "src/services/tools/toolOrchestration.ts",
+          "fragment": "for await (const update of runToolUse(",
+          "count": 1
         }
       ],
-      "rationale": "The sealed SDK and streaming rows retain terminal result provenance and one-pass completed-result tracking for malformed parallel tool batches."
+      "rationale": "The sealed tool-execution row retains validated orchestration and post-validation in-progress registration so malformed parallel tool names cannot leave an orphan pending ID."
     }
   ]
 }

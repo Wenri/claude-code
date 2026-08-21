@@ -152,7 +152,7 @@ test('recovers PromptInput clear actions, footer protection, and redraw', () => 
     "submitRef.current?.('/clear', true);",
     'useDoublePress(setClearPending, submitClear, undefined, 2000)',
     'useExternalClearDetection(handleClearScreen);',
-    "trackAndSetInput(''); setCursorOffset(0); clearBuffer(); resetHistory(); onModeChange('prompt'); setPastedContents({}); setRedrawVersion(version => version + 1);",
+    'const handleClearInput = useCallback(() => { setRedrawVersion(version => version + 1); clearActionShortcutRef.current = clearInputShortcut; clearDoublePress(); }, [clearInputShortcut, clearDoublePress]);',
     "'chat:clearScreen': handleClearScreen",
     "'chat:clearInput': handleClearInput",
     'isActive: !isModalOverlayActive && !isSearchingHistory',

@@ -4,7 +4,7 @@
   "case": "2.1.124-to-2.1.126",
   "release": "2.1.126",
   "complete": true,
-  "claim": "Authenticated adjacent inner bundles are exhaustively partitioned into six post-metadata, binding-aware semantic clusters. Five active clusters bind every changed raw statement, exact reviewed source owners or removals, and focused tests; the remaining settings initializer cluster is explicitly accounting-only. The frozen four-path source tree closes without support bindings, all identifiers/properties/operators/literals are audited, and the exact normalized ledger has zero semantic residue.",
+  "claim": "Authenticated adjacent inner bundles are exhaustively partitioned into six post-metadata, binding-aware semantic clusters. Five active clusters bind every changed raw statement, exact reviewed source owners or removals, and focused tests; the remaining settings initializer cluster is explicitly accounting-only. Four active adjacent source paths close without support bindings, one separately authenticated target-retained Ctrl+L repair closes the fifth source path, all identifiers/properties/operators/literals are audited, and the exact normalized ledger has zero semantic residue.",
   "authenticatedInputs": {
     "baseline": {
       "bytes": 13980928,
@@ -66,15 +66,34 @@
   "knownDelta": {
     "changedSourcePaths": {
       "baseRevision": "ae866640a6d67891fe14aeff5bc41da10784b979",
-      "overlayRevision": "5b99258953100cc337aa42a047dc7d059657c6f8",
-      "recoveredSourceTree": "5632342fec59adeeea18e0d0fc8ab4aff3d72893",
-      "count": 4,
+      "activeOverlayRevision": "5b99258953100cc337aa42a047dc7d059657c6f8",
+      "recoveredOverlayRevision": "67116ce3153fe7dfd0e18068da822f08d02b9fd9",
+      "recoveredSourceTree": "9c7c4f699cd0cc740dcb5e5341aeb026d4bc2263",
+      "count": 5,
       "paths": [
         "src/commands/effort/effort.tsx",
+        "src/components/PromptInput/PromptInput.tsx",
         "src/services/api/claude.ts",
         "src/services/api/client.ts",
         "src/tools/FileReadTool/FileReadTool.ts"
-      ]
+      ],
+      "partitions": {
+        "activeAdjacent": {
+          "count": 4,
+          "paths": [
+            "src/commands/effort/effort.tsx",
+            "src/services/api/claude.ts",
+            "src/services/api/client.ts",
+            "src/tools/FileReadTool/FileReadTool.ts"
+          ]
+        },
+        "targetRetainedSourceRepairs": {
+          "count": 1,
+          "paths": [
+            "src/components/PromptInput/PromptInput.tsx"
+          ]
+        }
+      }
     },
     "releaseBulletClassification": {
       "total": 33,
@@ -117,6 +136,9 @@
       ],
       "hiddenAdjacentRows": [
         "effort-settings-persistence"
+      ],
+      "retainedSourceRepairRows": [
+        "ctrl-l-redraw"
       ]
     },
     "clusterInventory": {
@@ -507,7 +529,84 @@
           }
         }
       ],
-      "supportBindings": []
+      "supportBindings": [],
+      "targetRetainedRepairs": [
+        {
+          "rowId": "ctrl-l-redraw",
+          "title": "Ctrl+L redraws without clearing prompt state",
+          "releaseBullets": [
+            23
+          ],
+          "disposition": "target-retained-source-repair",
+          "retained": true,
+          "sourcePaths": [
+            "src/components/PromptInput/PromptInput.tsx"
+          ],
+          "testIds": [
+            "retained-redraw"
+          ],
+          "bundleSemantics": {
+            "byteIdenticalAcrossAdjacentBundles": true,
+            "handler": {
+              "text": "PC=Aq.useCallback(()=>{z1((y$)=>y$+1),b9.current=y7,iz()},[y7,iz])",
+              "bytes": 66,
+              "sha256": "9834f6f4624d76f84162bfd42383d15bed581dc0e846ba1cbb4cc90d120a7a1e",
+              "offsets": {
+                "baseline": 12479939,
+                "target": 12479422
+              }
+            },
+            "fragments": [
+              {
+                "name": "binding",
+                "text": "\"ctrl+l\":\"chat:clearInput\"",
+                "bytes": 26,
+                "sha256": "4708b57c2de7dda3aec1b08a7bca675e0d2fecac4063132a32ddac40ac8b1ea4",
+                "baselineCount": 1,
+                "targetCount": 1
+              },
+              {
+                "name": "registration",
+                "text": "\"chat:clearInput\":PC",
+                "bytes": 20,
+                "sha256": "1c5f53166f578b29ad6069c4da7d63b109f13d82d54f3aa9419184c3ba683636",
+                "baselineCount": 1,
+                "targetCount": 1
+              },
+              {
+                "name": "shortcut",
+                "text": "m9(\"chat:clearInput\",\"Chat\",\"ctrl+l\")",
+                "bytes": 37,
+                "sha256": "95c24fc4e3eb998cc3061b7d7bd1a47165cfb9d62b0700f367cfb69d79b24bb9",
+                "baselineCount": 1,
+                "targetCount": 1
+              },
+              {
+                "name": "handler",
+                "text": "PC=Aq.useCallback(()=>{z1((y$)=>y$+1),b9.current=y7,iz()},[y7,iz])",
+                "bytes": 66,
+                "sha256": "9834f6f4624d76f84162bfd42383d15bed581dc0e846ba1cbb4cc90d120a7a1e",
+                "baselineCount": 1,
+                "targetCount": 1
+              }
+            ]
+          },
+          "sourceWitnesses": [
+            {
+              "path": "src/components/PromptInput/PromptInput.tsx",
+              "fragment": "const handleClearInput = useCallback(() => {\n    setRedrawVersion(version => version + 1);\n    clearActionShortcutRef.current = clearInputShortcut;\n    clearDoublePress();\n  }, [clearInputShortcut, clearDoublePress]);",
+              "count": 1,
+              "reviewed": true
+            }
+          ],
+          "supersededSourceWitness": {
+            "revision": "5b99258953100cc337aa42a047dc7d059657c6f8",
+            "path": "src/components/PromptInput/PromptInput.tsx",
+            "fragment": "const handleClearInput = useCallback(() => {\n    trackAndSetInput('');\n    setCursorOffset(0);\n    clearBuffer();\n    resetHistory();\n    onModeChange('prompt');\n    setPastedContents({});\n    setRedrawVersion(version => version + 1);\n    clearActionShortcutRef.current = clearInputShortcut;\n    clearDoublePress();\n  }, [trackAndSetInput, clearBuffer, resetHistory, onModeChange, setPastedContents, clearInputShortcut, clearDoublePress]);",
+            "count": 1
+          }
+        }
+      ]
     }
   },
   "ledgers": {

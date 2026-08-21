@@ -38,6 +38,7 @@ const reviews = new Map([
     selectors: [
       ['cli-project-warning-helper', 'src/cli/exit.ts', 'cliWarn'],
       ['project-purge', 'src/cli/handlers/project.tsx', 'purgeProjectHandler'],
+      ['project-purge', 'src/main.tsx', "command('project')"],
       ['project-purge-directory-enumeration', 'src/utils/sessionStoragePortable.ts', 'findProjectDirs'],
     ],
     rationale:
@@ -63,6 +64,7 @@ const reviews = new Map([
     inheritedRowIds: ['brief-skill-telemetry'],
     selectors: [
       ['brief-skill-telemetry', 'src/tools/SkillTool/SkillTool.ts', 'recordSkillActivated'],
+      ['brief-skill-telemetry', 'src/utils/processUserInput/processSlashCommand.tsx', "command.isMcp && command.loadedFrom !== 'mcp'"],
     ],
     rationale:
       'The sealed skill telemetry row retains the invocation-trigger bundle sentinel and the reviewed activation-recording callsite.',
@@ -79,6 +81,7 @@ const reviews = new Map([
     inheritedRowIds: ['settings-runtime'],
     selectors: [
       ['settings-runtime', 'src/utils/auth.ts', 'CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST'],
+      ['settings-runtime', 'src/services/analytics/growthbook.ts', 'DISABLE_GROWTHBOOK'],
     ],
     rationale:
       'The sealed settings/runtime row retains the host-managed provider branch used to preserve deployment-controlled analytics behavior.',
@@ -102,8 +105,10 @@ const reviews = new Map([
   [11, {
     inheritedRowIds: ['settings-runtime'],
     selectors: [
+      ['settings-runtime', 'src/utils/sandbox/sandbox-adapter.ts', 'const policyTiers = getAllPolicyTierSettings()'],
       ['settings-runtime', 'src/utils/sandbox/sandbox-adapter.ts', 'const allowManagedDomainsOnly'],
       ['settings-runtime', 'src/utils/sandbox/sandbox-adapter.ts', 'policySettings.sandbox?.filesystem?.allowRead'],
+      ['settings-runtime', 'src/utils/settings/settings.ts', 'getAllPolicyTierSettings'],
     ],
     rationale:
       'The sealed settings/runtime row retains both managed-domain and managed-read-path aggregation across every policy tier.',
@@ -112,6 +117,7 @@ const reviews = new Map([
     inheritedRowIds: ['image-read-retry'],
     selectors: [
       ['image-read-retry', 'src/services/api/claude.ts', 'Removed oversized image at messages.'],
+      ['image-read-retry', 'src/tools/FileReadTool/imageProcessor.ts', 'getImageDimensionsFromBuffer'],
       ['image-read-retry', 'src/utils/imageResizer.ts', 'getImageDimensionsFromBuffer'],
     ],
     rationale:
@@ -121,6 +127,8 @@ const reviews = new Map([
     inheritedRowIds: ['oauth-mcp-auth'],
     selectors: [
       ['oauth-mcp-auth', 'src/services/api/errors.ts', 'organization has disabled Claude subscription access'],
+      ['oauth-mcp-auth', 'src/services/api/errors.ts', 'return OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE'],
+      ['oauth-mcp-auth', 'src/entrypoints/sdk/coreSchemas.ts', 'oauth_org_not_allowed'],
     ],
     rationale:
       'The sealed OAuth row retains the organization-policy error classification and its administrator guidance instead of routing to login.',
@@ -130,6 +138,7 @@ const reviews = new Map([
     selectors: [
       ['oauth-mcp-auth', 'src/services/oauth/auth-code-listener.ts', '127.0.0.1'],
       ['oauth-mcp-auth', 'src/services/oauth/client.ts', 'timeout: 30000'],
+      ['oauth-mcp-auth', 'src/cli/handlers/auth.ts', 'Paste code here if prompted'],
     ],
     rationale:
       'The sealed OAuth row retains the explicit loopback listener and extended client timeout used by slow, proxied, and callback-limited environments.',
@@ -138,6 +147,7 @@ const reviews = new Map([
     inheritedRowIds: ['settings-runtime'],
     selectors: [
       ['settings-runtime', 'src/utils/auth.ts', 'refreshTokenUsed = lockedTokens.refreshToken'],
+      ['settings-runtime', 'src/utils/auth.ts', 'isInvalidGrantError(error) && refreshTokenUsed'],
     ],
     rationale:
       'The sealed settings/runtime row retains the locked refresh-token identity used to avoid clearing a concurrently replaced valid credential.',
@@ -156,12 +166,14 @@ const reviews = new Map([
       ['compact-messages', 'src/components/Messages.tsx', '!turnsWithReplacementText.has'],
     ],
     rationale:
-      'The sealed message-rendering row retains the per-turn replacement-text guard that prevents later assistant text from being hidden.',
+      'The sealed message-rendering row retains the per-turn replacement-text guard that keeps assistant text visible instead of leaving a blank turn.',
   }],
   [20, {
     inheritedRowIds: ['terminal-bash-scroll'],
     selectors: [
       ['terminal-bash-scroll', 'src/ink/scroll-config.ts', 'version >= 1_092_000'],
+      ['terminal-bash-scroll', 'src/ink/scroll-config.ts', 'useAdaptiveDrain: !wheelFlood'],
+      ['terminal-bash-scroll', 'src/components/ScrollKeybindingHandler.tsx', 'wheel accel:'],
     ],
     rationale:
       'The sealed terminal row retains the affected Cursor and VS Code wheel-flood version window and its corrected scroll configuration.',
@@ -169,6 +181,8 @@ const reviews = new Map([
   [21, {
     inheritedRowIds: ['oauth-mcp-auth'],
     selectors: [
+      ['oauth-mcp-auth', 'src/services/mcp/auth.ts', 'hasExpiredMcpAccessTokenWithoutRefresh'],
+      ['oauth-mcp-auth', 'src/services/mcp/auth.ts', 'entry.expiresAt < Date.now()'],
       ['oauth-mcp-auth', 'src/services/mcp/config.ts', 'hasExpiredMcpAccessTokenWithoutRefresh(name'],
     ],
     rationale:
@@ -194,17 +208,19 @@ const reviews = new Map([
     inheritedRowIds: ['tool-execution-classifier'],
     selectors: [
       ['tool-execution-classifier', 'src/tools/EnterPlanModeTool/EnterPlanModeTool.ts', 'getAllowedChannels().length > 0'],
+      ['tool-execution-classifier', 'src/tools/ExitPlanModeTool/ExitPlanModeV2Tool.ts', 'getAllowedChannels().length > 0'],
     ],
     rationale:
       'The sealed tool-execution row retains the interactive-session guard that no longer removes plan-mode tools merely because channels are configured.',
   }],
   [26, {
-    inheritedRowIds: ['sdk-print-share'],
+    inheritedRowIds: ['compact-messages', 'sdk-print-share'],
     selectors: [
+      ['compact-messages', 'src/components/Messages.tsx', 'return !msg.isMeta || isChannelOrigin(msg.origin)'],
       ['sdk-print-share', 'src/QueryEngine.ts', 'origin: options?.origin'],
     ],
     rationale:
-      'The sealed SDK row retains origin propagation on every terminal result, preserving remote transcript routing when messaging tools are absent.',
+      'The sealed message and SDK rows retain both origin propagation on terminal results and channel-origin visibility in remote transcripts.',
   }],
   [27, {
     inheritedRowIds: ['gateway-doctor-plugins'],
@@ -218,6 +234,7 @@ const reviews = new Map([
     inheritedRowIds: ['image-read-retry'],
     selectors: [
       ['image-read-retry', 'src/utils/attachments.ts', 'MAX_EDITED_TEXT_FILE_SNIPPET_BUDGET'],
+      ['image-read-retry', 'src/utils/attachments.ts', 'snippetBytes += attachment.snippet.length'],
     ],
     rationale:
       'The sealed attachment row retains the aggregate edited-file snippet budget that bounds linter-generated file-modified reminders.',
@@ -225,6 +242,7 @@ const reviews = new Map([
   [29, {
     inheritedRowIds: ['commands-ui', 'oauth-mcp-auth'],
     selectors: [
+      ['commands-ui', 'src/commands/bridge/bridge.tsx', 'trustedDeviceReason = getTrustedDeviceUnenrolledReason'],
       ['commands-ui', 'src/hooks/useReplBridge.tsx', "detail || '/remote-control'"],
       ['oauth-mcp-auth', 'src/bridge/trustedDevice.ts', 'getTrustedDeviceUnenrolledReason'],
     ],
@@ -232,10 +250,10 @@ const reviews = new Map([
       'The sealed Remote Control rows retain per-attempt result details and the up-front trusted-device enrollment failure check.',
   }],
   [30, {
-    inheritedRowIds: ['commands-ui', 'oauth-mcp-auth'],
+    inheritedRowIds: ['commands-ui'],
     selectors: [
       ['commands-ui', 'src/components/PromptInput/PromptInputFooter.tsx', 'replBridgeError'],
-      ['oauth-mcp-auth', 'src/bridge/trustedDevice.ts', 'getTrustedDeviceUnenrolledReason'],
+      ['commands-ui', 'src/hooks/useReplBridge.tsx', "detail || '/remote-control'"],
     ],
     rationale:
       'The sealed Remote Control rows retain the explicit initial error state and the reviewed reason surfaced for trusted-device failures.',
@@ -244,6 +262,7 @@ const reviews = new Map([
     inheritedRowIds: ['terminal-bash-scroll'],
     selectors: [
       ['terminal-bash-scroll', 'src/ink/termio/osc.ts', 'POWERSHELL_CLIPBOARD_COMMAND ='],
+      ['terminal-bash-scroll', 'src/ink/termio/osc.ts', "'-Command', POWERSHELL_CLIPBOARD_COMMAND"],
     ],
     rationale:
       'The sealed Windows terminal row retains stdin-based PowerShell clipboard transport, keeping copied contents out of process arguments.',
@@ -257,13 +276,14 @@ const reviews = new Map([
       'The sealed PowerShell parser witness retains exact stop-parsing-token recognition without treating a bare double dash as that token.',
   }],
   [33, {
-    inheritedRowIds: ['sdk-print-share', 'tool-execution-classifier'],
+    inheritedRowIds: ['tool-execution-classifier'],
     selectors: [
-      ['sdk-print-share', 'src/QueryEngine.ts', 'origin: options?.origin'],
       ['tool-execution-classifier', 'src/services/tools/StreamingToolExecutor.ts', 'hasCompletedResults = false'],
+      ['tool-execution-classifier', 'src/services/tools/toolOrchestration.ts', 'for await (const update of runToolUse'],
+      ['tool-execution-classifier', 'src/services/tools/toolExecution.ts', 'setInProgressToolUseIDs'],
     ],
     rationale:
-      'The sealed SDK and streaming rows retain terminal result provenance and one-pass completed-result tracking for malformed parallel tool batches.',
+      'The sealed tool-execution row retains validated orchestration and post-validation in-progress registration so malformed parallel tool names cannot leave an orphan pending ID.',
   }],
 ])
 

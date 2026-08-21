@@ -62,14 +62,25 @@ const EXPECTED_ARTIFACTS = Object.freeze({
 })
 
 const BASE_REVISION = 'ae866640a6d67891fe14aeff5bc41da10784b979'
-const OVERLAY_REVISION = '5b99258953100cc337aa42a047dc7d059657c6f8'
-const RECOVERED_SOURCE_TREE = '5632342fec59adeeea18e0d0fc8ab4aff3d72893'
+const ACTIVE_OVERLAY_REVISION = '5b99258953100cc337aa42a047dc7d059657c6f8'
+const RECOVERED_OVERLAY_REVISION =
+  '67116ce3153fe7dfd0e18068da822f08d02b9fd9'
+const RECOVERED_SOURCE_TREE = '9c7c4f699cd0cc740dcb5e5341aeb026d4bc2263'
 
-const ALL_CHANGED_SOURCE_PATHS = Object.freeze([
+const ACTIVE_ADJACENT_SOURCE_PATHS = Object.freeze([
   'src/commands/effort/effort.tsx',
   'src/services/api/claude.ts',
   'src/services/api/client.ts',
   'src/tools/FileReadTool/FileReadTool.ts',
+])
+
+const TARGET_RETAINED_SOURCE_REPAIR_PATHS = Object.freeze([
+  'src/components/PromptInput/PromptInput.tsx',
+])
+
+const ALL_CHANGED_SOURCE_PATHS = Object.freeze([
+  ...ACTIVE_ADJACENT_SOURCE_PATHS,
+  ...TARGET_RETAINED_SOURCE_REPAIR_PATHS,
 ])
 
 const RELEASE_BULLET_CLASSIFICATION = Object.freeze({
@@ -81,6 +92,7 @@ const RELEASE_BULLET_CLASSIFICATION = Object.freeze({
     19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
   ],
   hiddenAdjacentRows: ['effort-settings-persistence'],
+  retainedSourceRepairRows: ['ctrl-l-redraw'],
 })
 
 const CLUSTER_BINDING_SPECS = Object.freeze({
@@ -205,6 +217,33 @@ const DIRECT_ROW_SPECS = Object.freeze([
   },
 ])
 
+const CTRL_L_BUNDLE_HANDLER =
+  'PC=Aq.useCallback(()=>{z1((y$)=>y$+1),b9.current=y7,iz()},[y7,iz])'
+const CTRL_L_BUNDLE_HANDLER_SHA256 =
+  '9834f6f4624d76f84162bfd42383d15bed581dc0e846ba1cbb4cc90d120a7a1e'
+const CTRL_L_SOURCE_HANDLER = `const handleClearInput = useCallback(() => {
+    setRedrawVersion(version => version + 1);
+    clearActionShortcutRef.current = clearInputShortcut;
+    clearDoublePress();
+  }, [clearInputShortcut, clearDoublePress]);`
+const SUPERSEDED_CTRL_L_SOURCE_HANDLER = `const handleClearInput = useCallback(() => {
+    trackAndSetInput('');
+    setCursorOffset(0);
+    clearBuffer();
+    resetHistory();
+    onModeChange('prompt');
+    setPastedContents({});
+    setRedrawVersion(version => version + 1);
+    clearActionShortcutRef.current = clearInputShortcut;
+    clearDoublePress();
+  }, [trackAndSetInput, clearBuffer, resetHistory, onModeChange, setPastedContents, clearInputShortcut, clearDoublePress]);`
+const CTRL_L_BUNDLE_FRAGMENTS = Object.freeze([
+  ['binding', '"ctrl+l":"chat:clearInput"'],
+  ['registration', '"chat:clearInput":PC'],
+  ['shortcut', 'm9("chat:clearInput","Chat","ctrl+l")'],
+  ['handler', CTRL_L_BUNDLE_HANDLER],
+])
+
 function assert(condition, message) {
   if (!condition) throw new Error(message)
 }
@@ -319,6 +358,13 @@ function git(sourceRoot, args) {
   }).trim()
 }
 
+function changedSourcePaths(sourceRoot, fromRevision, toRevision) {
+  return git(sourceRoot, [
+    'diff', '--name-only', '--no-renames',
+    `${fromRevision}..${toRevision}`, '--', 'src',
+  ]).split('\n').filter(Boolean).sort()
+}
+
 function authenticateSourceTree(sourceRoot) {
   const dirtySource = git(sourceRoot, [
     'status', '--porcelain', '--untracked-files=all', '--', 'src',
@@ -329,27 +375,53 @@ function authenticateSourceTree(sourceRoot) {
     'recovered src tree identity',
   )
   assert(
-    git(sourceRoot, ['rev-parse', `${OVERLAY_REVISION}:src`]) ===
+    git(sourceRoot, ['rev-parse', `${RECOVERED_OVERLAY_REVISION}:src`]) ===
       RECOVERED_SOURCE_TREE,
-    'frozen overlay src tree identity',
+    'frozen recovered overlay src tree identity',
   )
-  const changedPaths = git(sourceRoot, [
-    'diff', '--name-only', '--no-renames', `${BASE_REVISION}..HEAD`, '--', 'src',
-  ]).split('\n').filter(Boolean).sort()
+  git(sourceRoot, [
+    'merge-base', '--is-ancestor',
+    ACTIVE_OVERLAY_REVISION, RECOVERED_OVERLAY_REVISION,
+  ])
+  const activePaths = changedSourcePaths(
+    sourceRoot,
+    BASE_REVISION,
+    ACTIVE_OVERLAY_REVISION,
+  )
+  assert(
+    JSON.stringify(activePaths) ===
+      JSON.stringify([...ACTIVE_ADJACENT_SOURCE_PATHS].sort()),
+    'active adjacent source topology differs from the frozen four-path inventory',
+  )
+  const repairPaths = changedSourcePaths(
+    sourceRoot,
+    ACTIVE_OVERLAY_REVISION,
+    RECOVERED_OVERLAY_REVISION,
+  )
+  assert(
+    JSON.stringify(repairPaths) ===
+      JSON.stringify([...TARGET_RETAINED_SOURCE_REPAIR_PATHS].sort()),
+    'target-retained repair topology differs from the frozen one-path inventory',
+  )
+  const changedPaths = changedSourcePaths(sourceRoot, BASE_REVISION, 'HEAD')
   assert(
     JSON.stringify(changedPaths) ===
       JSON.stringify([...ALL_CHANGED_SOURCE_PATHS].sort()),
-    'recovered source topology differs from the frozen four-path inventory',
+    'recovered source topology differs from the frozen five-path inventory',
   )
-  return changedPaths
+  return { activePaths, repairPaths, changedPaths }
 }
 
-function baseSource(sourceRoot, sourcePath) {
-  return execFileSync('git', ['show', `${BASE_REVISION}:${sourcePath}`], {
+function sourceAtRevision(sourceRoot, revision, sourcePath) {
+  return execFileSync('git', ['show', `${revision}:${sourcePath}`], {
     cwd: sourceRoot,
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
   })
+}
+
+function baseSource(sourceRoot, sourcePath) {
+  return sourceAtRevision(sourceRoot, BASE_REVISION, sourcePath)
 }
 
 function sourceWitness(sourceRoot, clusterId, spec) {
@@ -416,6 +488,88 @@ function statementWitness({ cluster, spec, statementIndex, baseline, target }) {
     normalizedSha256: statement.normalized.sha256,
     count,
     otherSideCount,
+  }
+}
+
+function ctrlLTargetRetainedRepair({ baseline, target, sourceRoot }) {
+  const fragmentWitnesses = CTRL_L_BUNDLE_FRAGMENTS.map(([name, text]) => {
+    const baselineCount = occurrences(baseline, text)
+    const targetCount = occurrences(target, text)
+    assert(baselineCount === 1, `ctrl-l ${name} baseline count`)
+    assert(targetCount === 1, `ctrl-l ${name} target count`)
+    return {
+      name,
+      text,
+      ...evidence(text),
+      baselineCount,
+      targetCount,
+    }
+  })
+  const handlerIdentity = evidence(CTRL_L_BUNDLE_HANDLER)
+  assert(
+    handlerIdentity.sha256 === CTRL_L_BUNDLE_HANDLER_SHA256,
+    'ctrl-l handler identity',
+  )
+  const handlerOffsets = {
+    baseline: baseline.indexOf(CTRL_L_BUNDLE_HANDLER),
+    target: target.indexOf(CTRL_L_BUNDLE_HANDLER),
+  }
+  assert(handlerOffsets.baseline === 12_479_939, 'ctrl-l baseline offset')
+  assert(handlerOffsets.target === 12_479_422, 'ctrl-l target offset')
+
+  const sourcePath = TARGET_RETAINED_SOURCE_REPAIR_PATHS[0]
+  const current = fs.readFileSync(path.join(sourceRoot, sourcePath), 'utf8')
+  const activeOverlay = sourceAtRevision(
+    sourceRoot,
+    ACTIVE_OVERLAY_REVISION,
+    sourcePath,
+  )
+  assert(
+    occurrences(current, CTRL_L_SOURCE_HANDLER) === 1,
+    'ctrl-l recovered source handler',
+  )
+  assert(
+    occurrences(current, SUPERSEDED_CTRL_L_SOURCE_HANDLER) === 0,
+    'ctrl-l superseded source handler remains',
+  )
+  assert(
+    occurrences(activeOverlay, SUPERSEDED_CTRL_L_SOURCE_HANDLER) === 1,
+    'ctrl-l active-overlay source gap witness',
+  )
+  assert(
+    occurrences(activeOverlay, CTRL_L_SOURCE_HANDLER) === 0,
+    'ctrl-l repair was already present in active overlay',
+  )
+
+  return {
+    rowId: 'ctrl-l-redraw',
+    title: 'Ctrl+L redraws without clearing prompt state',
+    releaseBullets: [23],
+    disposition: 'target-retained-source-repair',
+    retained: true,
+    sourcePaths: [sourcePath],
+    testIds: ['retained-redraw'],
+    bundleSemantics: {
+      byteIdenticalAcrossAdjacentBundles: true,
+      handler: {
+        text: CTRL_L_BUNDLE_HANDLER,
+        ...handlerIdentity,
+        offsets: handlerOffsets,
+      },
+      fragments: fragmentWitnesses,
+    },
+    sourceWitnesses: [{
+      path: sourcePath,
+      fragment: CTRL_L_SOURCE_HANDLER,
+      count: 1,
+      reviewed: true,
+    }],
+    supersededSourceWitness: {
+      revision: ACTIVE_OVERLAY_REVISION,
+      path: sourcePath,
+      fragment: SUPERSEDED_CTRL_L_SOURCE_HANDLER,
+      count: 1,
+    },
   }
 }
 
@@ -539,12 +693,34 @@ export function release21126ClusterInventory({
     'C5 semantic-property residue')
 
   const supportBindings = []
+  const targetRetainedRepairs = [ctrlLTargetRetainedRepair({
+    baseline,
+    target,
+    sourceRoot,
+  })]
   const directSourcePaths = [...new Set(direct.flatMap(row => row.sourcePaths))]
     .sort()
   assert(
     JSON.stringify(directSourcePaths) ===
+      JSON.stringify([...ACTIVE_ADJACENT_SOURCE_PATHS].sort()),
+    'direct owners must close the four active adjacent source paths',
+  )
+  const retainedRepairPaths = [...new Set(targetRetainedRepairs.flatMap(
+    row => row.sourcePaths,
+  ))].sort()
+  assert(
+    JSON.stringify(retainedRepairPaths) ===
+      JSON.stringify([...TARGET_RETAINED_SOURCE_REPAIR_PATHS].sort()),
+    'target-retained repairs must close the one repaired source path',
+  )
+  assert(
+    directSourcePaths.every(sourcePath => !retainedRepairPaths.includes(sourcePath)),
+    'active adjacent and target-retained source ownership overlap',
+  )
+  assert(
+    JSON.stringify([...directSourcePaths, ...retainedRepairPaths].sort()) ===
       JSON.stringify([...ALL_CHANGED_SOURCE_PATHS].sort()),
-    'direct owners must close the four changed source paths',
+    'active adjacent and target-retained ownership must close all source paths',
   )
   const ids = [...direct, ...accountingOnly]
     .flatMap(row => row.clusterIds)
@@ -561,6 +737,7 @@ export function release21126ClusterInventory({
     direct,
     accountingOnly,
     supportBindings,
+    targetRetainedRepairs,
   }
 }
 
@@ -682,7 +859,7 @@ export function rebuildRelease21126Core({
     case: RELEASE_2_1_126.case,
     release: RELEASE_2_1_126.release,
     complete: true,
-    claim: 'Authenticated adjacent inner bundles are exhaustively partitioned into six post-metadata, binding-aware semantic clusters. Five active clusters bind every changed raw statement, exact reviewed source owners or removals, and focused tests; the remaining settings initializer cluster is explicitly accounting-only. The frozen four-path source tree closes without support bindings, all identifiers/properties/operators/literals are audited, and the exact normalized ledger has zero semantic residue.',
+    claim: 'Authenticated adjacent inner bundles are exhaustively partitioned into six post-metadata, binding-aware semantic clusters. Five active clusters bind every changed raw statement, exact reviewed source owners or removals, and focused tests; the remaining settings initializer cluster is explicitly accounting-only. Four active adjacent source paths close without support bindings, one separately authenticated target-retained Ctrl+L repair closes the fifth source path, all identifiers/properties/operators/literals are audited, and the exact normalized ledger has zero semantic residue.',
     authenticatedInputs: {
       baseline: RELEASE_2_1_126.baseline,
       target: RELEASE_2_1_126.target,
@@ -695,10 +872,21 @@ export function rebuildRelease21126Core({
     knownDelta: {
       changedSourcePaths: {
         baseRevision: BASE_REVISION,
-        overlayRevision: OVERLAY_REVISION,
+        activeOverlayRevision: ACTIVE_OVERLAY_REVISION,
+        recoveredOverlayRevision: RECOVERED_OVERLAY_REVISION,
         recoveredSourceTree: RECOVERED_SOURCE_TREE,
         count: ALL_CHANGED_SOURCE_PATHS.length,
         paths: [...ALL_CHANGED_SOURCE_PATHS].sort(),
+        partitions: {
+          activeAdjacent: {
+            count: ACTIVE_ADJACENT_SOURCE_PATHS.length,
+            paths: [...ACTIVE_ADJACENT_SOURCE_PATHS].sort(),
+          },
+          targetRetainedSourceRepairs: {
+            count: TARGET_RETAINED_SOURCE_REPAIR_PATHS.length,
+            paths: [...TARGET_RETAINED_SOURCE_REPAIR_PATHS].sort(),
+          },
+        },
       },
       releaseBulletClassification: {
         total: RELEASE_BULLET_CLASSIFICATION.total,
@@ -706,6 +894,9 @@ export function rebuildRelease21126Core({
         baselineRetained: [...RELEASE_BULLET_CLASSIFICATION.baselineRetained],
         hiddenAdjacentRows: [
           ...RELEASE_BULLET_CLASSIFICATION.hiddenAdjacentRows,
+        ],
+        retainedSourceRepairRows: [
+          ...RELEASE_BULLET_CLASSIFICATION.retainedSourceRepairRows,
         ],
       },
       clusterInventory: inventory,
@@ -757,8 +948,11 @@ export const release21126SemanticDeltaInternals = Object.freeze({
   artifacts: ARTIFACTS,
   expectedArtifacts: EXPECTED_ARTIFACTS,
   baseRevision: BASE_REVISION,
-  overlayRevision: OVERLAY_REVISION,
+  activeOverlayRevision: ACTIVE_OVERLAY_REVISION,
+  recoveredOverlayRevision: RECOVERED_OVERLAY_REVISION,
   recoveredSourceTree: RECOVERED_SOURCE_TREE,
+  activeAdjacentSourcePaths: ACTIVE_ADJACENT_SOURCE_PATHS,
+  targetRetainedSourceRepairPaths: TARGET_RETAINED_SOURCE_REPAIR_PATHS,
   releaseBulletClassification: RELEASE_BULLET_CLASSIFICATION,
 })
 

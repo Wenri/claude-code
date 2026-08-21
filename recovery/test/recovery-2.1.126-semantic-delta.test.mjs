@@ -100,15 +100,32 @@ test('2.1.126 semantic delta exhaustively closes every adjacent cluster', () => 
 
   assert.deepEqual(proof.knownDelta.changedSourcePaths, {
     baseRevision: 'ae866640a6d67891fe14aeff5bc41da10784b979',
-    overlayRevision: '5b99258953100cc337aa42a047dc7d059657c6f8',
-    recoveredSourceTree: '5632342fec59adeeea18e0d0fc8ab4aff3d72893',
-    count: 4,
+    activeOverlayRevision: '5b99258953100cc337aa42a047dc7d059657c6f8',
+    recoveredOverlayRevision: '67116ce3153fe7dfd0e18068da822f08d02b9fd9',
+    recoveredSourceTree: '9c7c4f699cd0cc740dcb5e5341aeb026d4bc2263',
+    count: 5,
     paths: [
       'src/commands/effort/effort.tsx',
+      'src/components/PromptInput/PromptInput.tsx',
       'src/services/api/claude.ts',
       'src/services/api/client.ts',
       'src/tools/FileReadTool/FileReadTool.ts',
     ],
+    partitions: {
+      activeAdjacent: {
+        count: 4,
+        paths: [
+          'src/commands/effort/effort.tsx',
+          'src/services/api/claude.ts',
+          'src/services/api/client.ts',
+          'src/tools/FileReadTool/FileReadTool.ts',
+        ],
+      },
+      targetRetainedSourceRepairs: {
+        count: 1,
+        paths: ['src/components/PromptInput/PromptInput.tsx'],
+      },
+    },
   })
   assert.deepEqual(proof.knownDelta.releaseBulletClassification, {
     total: 33,
@@ -119,6 +136,7 @@ test('2.1.126 semantic delta exhaustively closes every adjacent cluster', () => 
       19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
     ],
     hiddenAdjacentRows: ['effort-settings-persistence'],
+    retainedSourceRepairRows: ['ctrl-l-redraw'],
   })
   assert.equal(
     proof.knownDelta.releaseBulletClassification.activeAdjacent.length +
@@ -164,6 +182,7 @@ test('2.1.126 semantic delta exhaustively closes every adjacent cluster', () => 
     [4],
   )
   assert.deepEqual(inventory.supportBindings, [])
+  assert.equal(inventory.targetRetainedRepairs.length, 1)
 
   const directIds = inventory.direct.flatMap(row => row.clusterIds)
   const accountingIds = inventory.accountingOnly.flatMap(row => row.clusterIds)
@@ -175,11 +194,65 @@ test('2.1.126 semantic delta exhaustively closes every adjacent cluster', () => 
   assert.equal(new Set([...directIds, ...accountingIds]).size, 6)
   assert.deepEqual(
     [...new Set(inventory.direct.flatMap(row => row.sourcePaths))].sort(),
-    proof.knownDelta.changedSourcePaths.paths,
+    proof.knownDelta.changedSourcePaths.partitions.activeAdjacent.paths,
+  )
+  assert.deepEqual(
+    inventory.targetRetainedRepairs.flatMap(row => row.sourcePaths),
+    proof.knownDelta.changedSourcePaths.partitions
+      .targetRetainedSourceRepairs.paths,
   )
 
   const baselineSource = fs.readFileSync(baselinePath, 'utf8')
   const targetSource = fs.readFileSync(targetPath, 'utf8')
+  const retainedRepair = inventory.targetRetainedRepairs[0]
+  assert.deepEqual(
+    {
+      rowId: retainedRepair.rowId,
+      releaseBullets: retainedRepair.releaseBullets,
+      disposition: retainedRepair.disposition,
+      retained: retainedRepair.retained,
+      sourcePaths: retainedRepair.sourcePaths,
+      testIds: retainedRepair.testIds,
+    },
+    {
+      rowId: 'ctrl-l-redraw',
+      releaseBullets: [23],
+      disposition: 'target-retained-source-repair',
+      retained: true,
+      sourcePaths: ['src/components/PromptInput/PromptInput.tsx'],
+      testIds: ['retained-redraw'],
+    },
+  )
+  assert.equal(
+    retainedRepair.bundleSemantics.byteIdenticalAcrossAdjacentBundles,
+    true,
+  )
+  assert.deepEqual(retainedRepair.bundleSemantics.handler.offsets, {
+    baseline: 12_479_939,
+    target: 12_479_422,
+  })
+  assert.equal(
+    retainedRepair.bundleSemantics.handler.sha256,
+    '9834f6f4624d76f84162bfd42383d15bed581dc0e846ba1cbb4cc90d120a7a1e',
+  )
+  for (const fragment of retainedRepair.bundleSemantics.fragments) {
+    assert.equal(fragment.baselineCount, 1, fragment.name)
+    assert.equal(fragment.targetCount, 1, fragment.name)
+    assert.equal(occurrences(baselineSource, fragment.text), 1, fragment.name)
+    assert.equal(occurrences(targetSource, fragment.text), 1, fragment.name)
+  }
+  const retainedSource = fs.readFileSync(
+    path.join(sourceRoot, retainedRepair.sourcePaths[0]),
+    'utf8',
+  )
+  assert.equal(
+    occurrences(
+      retainedSource,
+      retainedRepair.sourceWitnesses[0].fragment,
+    ),
+    1,
+    'retained repair source handler',
+  )
   const clusterLedger = JSON.parse(
     gunzipSync(result.ledgers.cluster).toString('utf8'),
   )
@@ -363,10 +436,10 @@ test('2.1.126 semantic delta exhaustively closes every adjacent cluster', () => 
   const committedProof = fs.readFileSync(
     path.join(structural, 'known-delta-proof.json'),
   )
-  assert.equal(committedProof.length, 25_049)
+  assert.equal(committedProof.length, 29_247)
   assert.equal(
     sha256(committedProof),
-    'd21ddc907423b3fb7d9ed7ac2d8e50fd541b45bc561105c65d6757c12acb54be',
+    '4783b90aa281abc386f968ccdba1022a2f08a547a05c7aa7c09a9f517f76308f',
   )
   const parsedCommittedProof = JSON.parse(committedProof)
   assert.deepEqual(parsedCommittedProof.knownDelta, proof.knownDelta)

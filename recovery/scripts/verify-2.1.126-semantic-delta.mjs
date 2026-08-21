@@ -84,6 +84,11 @@ export function verifyRelease21126SemanticDelta({
   assert(accountingOnlyClusters === 1, 'accounting-only cluster count')
   assert(inventory.supportBindings.length === 0, 'support binding residue')
   assert(
+    inventory.targetRetainedRepairs.length === 1 &&
+      inventory.targetRetainedRepairs[0].rowId === 'ctrl-l-redraw',
+    'target-retained source repair closure',
+  )
+  assert(
     JSON.stringify(committed.knownDelta.releaseBulletClassification) ===
       JSON.stringify({
         total: 33,
@@ -94,6 +99,7 @@ export function verifyRelease21126SemanticDelta({
           19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
         ],
         hiddenAdjacentRows: ['effort-settings-persistence'],
+        retainedSourceRepairRows: ['ctrl-l-redraw'],
       }),
     'release bullet classification',
   )
@@ -105,6 +111,7 @@ export function verifyRelease21126SemanticDelta({
     directClusters,
     accountingOnlyClusters,
     supportBindings: inventory.supportBindings.length,
+    targetRetainedSourceRepairs: inventory.targetRetainedRepairs.length,
     changedSourcePaths: committed.knownDelta.changedSourcePaths.count,
     activeReleaseBullets:
       committed.knownDelta.releaseBulletClassification.activeAdjacent.length,
