@@ -283,7 +283,7 @@ const reviews = new Map([
       ['tool-execution-classifier', 'src/services/tools/toolExecution.ts', 'setInProgressToolUseIDs'],
     ],
     rationale:
-      'The sealed tool-execution row retains validated orchestration and post-validation in-progress registration so malformed parallel tool names cannot leave an orphan pending ID.',
+      'The sealed tool-execution row retains one-pass completed-result tracking, validated orchestration, and post-validation in-progress registration so malformed parallel tool names cannot leave an orphan pending ID.',
   }],
 ])
 
