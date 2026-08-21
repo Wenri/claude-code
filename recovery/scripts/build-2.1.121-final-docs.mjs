@@ -72,16 +72,39 @@ const baselineInner = artifact('baselineAnalyzableBundle')
 const targetInner = artifact('targetAnalyzableBundle')
 const coverage = summary.coverage
 const obligations = coverage.obligations
+const frozenTestFileCount = lineage.testFiles.length
+const semanticCoreTestCount = obligations.testCatalogEntries
+const semanticCoreUnconsumed =
+  semanticCoreTestCount - obligations.usedTestCatalogEntries
+const frozenTestSummary = identity.verification.targetTests
+if (
+  frozenTestFileCount !== 103 ||
+  frozenTestSummary.files !== frozenTestFileCount
+) {
+  throw new Error('expected exactly 103 frozen release-scoped test files')
+}
+if (
+  semanticCoreTestCount !== 33 ||
+  obligations.usedTestCatalogEntries !== semanticCoreTestCount
+) {
+  throw new Error('expected a fully consumed 33-entry semantic-core catalog')
+}
+for (const field of ['tests', 'passed', 'failed', 'skipped']) {
+  if (!Number.isSafeInteger(frozenTestSummary[field])) {
+    throw new Error(`invalid frozen test ${field} count`)
+  }
+}
+if (
+  frozenTestSummary.passed +
+    frozenTestSummary.failed +
+    frozenTestSummary.skipped !==
+  frozenTestSummary.tests
+) {
+  throw new Error('frozen test result counts do not close exactly')
+}
 const categories = Object.entries(direct.categoryCounts)
   .map(([category, count]) => `${category} ${count}`)
   .join(', ')
-const shellContinuation = ` ${String.fromCharCode(92)}`
-const focusedTestCommand = lineage.testFiles
-  .map(
-    (relative, index) =>
-      `  ${relative}${index === lineage.testFiles.length - 1 ? '' : shellContinuation}`,
-  )
-  .join('\n')
 
 const report = `# Claude Code 2.1.121 recovery report
 
@@ -106,11 +129,11 @@ The row-scoped direct catalog contains ${direct.rowCount} obligations (${categor
 - Classifications: ${Object.entries(obligations.classifications)
   .map(([name, count]) => `${name} ${count}`)
   .join(', ')}.
-- Test catalog: ${obligations.usedTestCatalogEntries}/${obligations.testCatalogEntries} entries consumed.
+- Semantic-core test catalog: ${obligations.usedTestCatalogEntries}/${semanticCoreTestCount} entries consumed.
 - Unverified obligations: ${obligations.unverifiedObligationCount}.
 - Unclassified target tokens: ${coverage.unclassifiedTokens}.
 
-Every obligation binds one unique row from \`semantic/direct-evidence.json\`. The direct test pins the catalog byte length and SHA-256, then checks exact counts in both authenticated adjacent bundles and exact hashes/counts in the recovered source. All ${lineage.testFiles.length} frozen source-lineage suites are executed and consumed by the semantic proof.
+Every obligation binds one unique row from \`semantic/direct-evidence.json\`. The direct test pins the catalog byte length and SHA-256, then checks exact counts in both authenticated adjacent bundles and exact hashes/counts in the recovered source. The frozen execution set contains ${frozenTestFileCount} release-scoped suites. The semantic proof has a separate ${semanticCoreTestCount}-entry core catalog, all consumed; the other ${frozenTestFileCount - semanticCoreTestCount} suites are frozen and executed as release regression coverage rather than represented as row-catalog entries.
 
 ## Source freeze
 
@@ -120,7 +143,7 @@ The incremental overlay is frozen from \`${identity.base.commit}\` to \`${identi
 - Overlay: ${number(identity.overlay.bytes)} bytes, SHA-256 \`${identity.overlay.sha256}\`.
 - Changed source paths: ${identity.overlay.changedPaths}; ${number(identity.overlay.insertions)} insertions and ${number(identity.overlay.deletions)} deletions.
 - Frozen source tree: ${number(identity.source.files)} files, ${number(identity.source.bytes)} bytes, zero symlinks.
-- Authenticated target tests: ${identity.verification.targetTests.passed}/${identity.verification.targetTests.tests} passed across ${identity.verification.targetTests.files} files.
+- Authenticated release tests: ${frozenTestSummary.passed}/${frozenTestSummary.tests} passed, ${frozenTestSummary.skipped} skipped, and ${frozenTestSummary.failed} failed across ${frozenTestSummary.files} frozen files.
 - Syntax builds: ${identity.verification.syntaxBuilds.passed} passed, ${identity.verification.syntaxBuilds.failed} failed.
 - Source-only \`git diff --check\`: ${identity.verification.diffCheck.sourceDiagnosticLines} diagnostics.
 - Full-tree \`git diff --check\`: exactly ${identity.verification.diffCheck.diagnosticLines} reviewed acquisition-metadata diagnostic, SHA-256 \`${identity.verification.diffCheck.sha256}\`: \`${fullDiffCheckDiagnostic}\`.
@@ -142,7 +165,7 @@ This directory binds the authenticated 2.1.120→2.1.121 generated bundle to the
 - \`semantic-correspondence.json.gz\`: canonical whole-bundle ownership and obligation report.
 - \`summary.json\`: deterministic public summary and identities.
 
-The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, and path-scoped source removals. Each direct row is consumed exactly once. The catalog identity is itself pinned and loaded by \`recovery-2.1.121-direct-evidence.test.mjs\`; every other release-scoped focused suite is frozen and consumed by at least one row.
+The direct catalog authenticates exact adjacent-bundle fragment counts, exact source fragment hashes/counts, and path-scoped source removals. Each direct row is consumed exactly once. Its ${semanticCoreTestCount}-entry test catalog is fully consumed, and its identity is itself pinned and loaded by \`recovery-2.1.121-direct-evidence.test.mjs\`. The wider ${frozenTestFileCount}-suite release set is separately hash-pinned and executed; its additional ${frozenTestFileCount - semanticCoreTestCount} suites are regression coverage, not extra row-catalog entries.
 
 Closure invariants:
 
@@ -152,6 +175,7 @@ Closure invariants:
 - official bullets covered: ${obligations.releaseBulletsCovered}/${obligations.releaseBulletCount}
 - obligations: ${obligations.obligationCount}
 - unverified obligations: ${obligations.unverifiedObligationCount}
+- unconsumed semantic-core tests: ${semanticCoreUnconsumed}
 - unresolved application source owners: ${summary.sourceOwnership.unresolvedApplication}
 
 The report proves semantic reproduction, not recovery of original authored spelling.
@@ -179,22 +203,20 @@ pixi run node recovery/scripts/verify-2.1.121-recovery.mjs \\
   --repo .
 \`\`\`
 
-This one command re-authenticates all artifact identities, exact deltas, Bun extraction, generated attribution, structural accounting, readable diff, source overlay round trip, all ${lineage.testFiles.length} semantic test files, semantic correspondence, embedded-code reconstruction, and exact package reconstruction. It must report zero unclassified tokens and zero unverified obligations.
+This one command re-authenticates all artifact identities, exact deltas, Bun extraction, generated attribution, structural accounting, readable diff, source overlay round trip, all ${frozenTestFileCount} frozen release-scoped test files, the ${semanticCoreTestCount}-entry semantic-core catalog, semantic correspondence, embedded-code reconstruction, and exact package reconstruction. It must report zero unclassified tokens and zero unverified obligations.
 
-## Focused semantic verification
+## Frozen release-suite verification
 
 \`\`\`sh
-CLAUDE_CODE_2_1_120_BUNDLE="$ARTIFACTS/${baselineInner.localPath}" \\
-CLAUDE_CODE_2_1_121_BUNDLE="$ARTIFACTS/${targetInner.localPath}" \\
-CLAUDE_2_1_120_CLI_INNER="$ARTIFACTS/${baselineInner.localPath}" \\
-CLAUDE_2_1_121_CLI_INNER="$ARTIFACTS/${targetInner.localPath}" \\
-CLAUDE_CODE_2_1_120_WRAPPER="$ARTIFACTS/${baselineBundle.localPath}" \\
-CLAUDE_CODE_2_1_121_WRAPPER="$ARTIFACTS/${targetBundle.localPath}" \\
-pixi run node --test \\
-${focusedTestCommand}
+pixi run node recovery/scripts/verify-source-lineage.mjs \\
+  --case recovery/cases/2.1.120-to-2.1.121/manifest.json \\
+  --artifacts "$ARTIFACTS" \\
+  --repo .
 \`\`\`
 
-Expected frozen result: ${identity.verification.targetTests.tests} tests, ${identity.verification.targetTests.passed} passed, ${identity.verification.targetTests.failed} failed.
+This is the authoritative standalone release-suite command. It authenticates isolated baseline and target Git repositories, scrubs inherited behavior and source redirects, builds a real-file sandbox from the frozen runtime closure, materializes the authenticated bundle aliases and source trees, verifies and expands the case-contained audit inputs, and copies the exact Bun runtime closure and TypeScript tool before execution. It neither reads nor links a repository \`.recovery-tmp\` tree.
+
+Expected frozen result: ${frozenTestSummary.tests} tests, ${frozenTestSummary.passed} passed, ${frozenTestSummary.skipped} skipped, ${frozenTestSummary.failed} failed across ${frozenTestFileCount} files. The ${semanticCoreTestCount}-entry semantic-core catalog is a strict subset of this execution set.
 
 ## Rebuild and verify semantic correspondence
 

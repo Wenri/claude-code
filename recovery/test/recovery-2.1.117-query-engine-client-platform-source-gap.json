@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "kind": "target117-query-engine-client-platform-source-gap",
+  "evidenceIds": [
+    "target117-query-engine-client-platform-whole-unit-proof",
+    "target117-query-engine-client-platform-type-contract-proof",
+    "target117-query-engine-client-platform-source-replay-test"
+  ],
+  "inputs": {
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-query-engine-client-platform-source-gap.mjs",
+      "bytes": 9194,
+      "sha256": "e7a08276507ef4eb5fdc774aad74a9c06bd876189e93481df59dc5233dbd23a6"
+    },
+    "historicalReplay": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-historical-owner-source-gaps.mjs",
+      "bytes": 36748,
+      "sha256": "7045e7401eeb1f43d8f727e3a2fc7e0f37c3cc69bc01136dc29f862615f9b12e",
+      "queryEngineOutput": [
+        48368,
+        "5e450f5547544190009ef2d14575e4c269a3262e5778cfa46b59cabe0793746a"
+      ]
+    },
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "files": [
+        {
+          "path": "src/QueryEngine.ts",
+          "blob": "84b1b0adabbaf9e100689ad9a47f69524925de0a",
+          "bytes": 48302,
+          "sha256": "85996680c2665a627d61acb4c561f062503ee17e05d5ad0aef51f94418a2bded",
+          "declaration": "QueryEngine",
+          "declarationTuple": [
+            7604,
+            45387,
+            37815,
+            "89d0969e8d0c5870239c204ff0a57799603c1203997c26d7341c8613154a58ac"
+          ]
+        },
+        {
+          "path": "src/Tool.ts",
+          "blob": "97924f5c2b21f0873abf598603501d1ffa7b905b",
+          "bytes": 30209,
+          "sha256": "3543c14f3551f55c78347bfc4478cf928d98954bcc08c559fcfc966b0c16b266",
+          "declaration": "ToolUseContext",
+          "declarationTuple": [
+            4843,
+            11343,
+            6512,
+            "70da00e6b5417e8c49040719f3c6bfb9c58e4580af34e0a1a2b522160394561b"
+          ]
+        }
+      ]
+    },
+    "laterSourceWitness": {
+      "release": "2.1.119",
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+      "files": [
+        {
+          "path": "src/QueryEngine.ts",
+          "blob": "a03f82b3241d1054cefbb177e003bffde1301102",
+          "bytes": 50015,
+          "sha256": "6b82c96c636b586376a373585e5eb7b8145f5653a3ead9dd01c95b33eb2f1111",
+          "declarationTuple": [
+            7953,
+            46712,
+            38791,
+            "b4778561ac9620796123adfed3c42171e03ee66a009e328e4bac9ea9004f5e31"
+          ],
+          "submitOptionsMember": [
+            9287,
+            9310,
+            23,
+            "4408ed4e6f0a57d88751f190e08c9a534c4ba9fa68c2ed97551c7a2a5b162db4"
+          ],
+          "messageClientPlatformProperties": [
+            [
+              14656,
+              14702,
+              46,
+              "c97bc6070f2cf1e6d2efbce8e6f633696c4271f4fcb3b6d7cdad5b9a14e60492"
+            ],
+            [
+              21272,
+              21318,
+              46,
+              "c97bc6070f2cf1e6d2efbce8e6f633696c4271f4fcb3b6d7cdad5b9a14e60492"
+            ]
+          ]
+        },
+        {
+          "path": "src/Tool.ts",
+          "blob": "04c9d7ed92368ff02d33d83ff999d6f54ea73954",
+          "bytes": 31755,
+          "sha256": "6156644397063956857ce925e6e24af5ff8772955e0d4c288106c1d2dd5fcfff",
+          "declarationTuple": [
+            5168,
+            12869,
+            7713,
+            "2a53f50e0fc5b5b53e4296413ca9f57be0306ccee3c7eec21bff4c0214b7ed46"
+          ],
+          "messageClientPlatformMember": [
+            6059,
+            6089,
+            30,
+            "9f6acb8569adfbf67c7f04f4518269bf78e8c785d05d97f9d15ab4be6b62253c"
+          ]
+        }
+      ]
+    }
+  },
+  "target117": {
+    "unit": [
+      20612,
+      "unresolved",
+      "ClassDeclaration",
+      12893549,
+      12911965,
+      5651,
+      "d7f8345ac5d67c418bf0cf80a7cdeff59ae87796c75e9d27b84b719b0935268d",
+      "2cb29de6685e230c233828a7c1f82899724b4bb99e493b607ee7c6933f9168af",
+      2
+    ],
+    "baselineUnit": [
+      20550,
+      "ClassDeclaration",
+      12884238,
+      12902574,
+      5639,
+      "66c82ff554ca98afc25ad653983a1e8d357060b2390ce8bfd5203dfc0a34299f",
+      "bcd870c087eca244ff8d4d491aef86f98f86d3eedd9e76082731486e5606b950"
+    ],
+    "owner": "src/QueryEngine.ts",
+    "declaration": "QueryEngine",
+    "typeDependency": "src/Tool.ts::ToolUseContext",
+    "runtimeInsertions": [
+      [
+        12896337,
+        12896377,
+        40,
+        "eeac750664ab48b3101a747fb07eda6ddc79ce840547860ef3a662a9f358f07a"
+      ],
+      [
+        12901080,
+        12901120,
+        40,
+        "eeac750664ab48b3101a747fb07eda6ddc79ce840547860ef3a662a9f358f07a"
+      ]
+    ],
+    "runtimeProperty": [
+      39,
+      "bda48cdbf670ec56676769ee52d57c00a867d2f39b7ca256b1c820a092431791"
+    ],
+    "ownerResidues": [
+      [
+        "property",
+        "defaultSystemPrompt",
+        12895118,
+        12895137,
+        19,
+        "a64d25466cb2575b798d8151067143e586a351e9784e7962fa1ad9a6384b8239",
+        12,
+        13,
+        1,
+        1,
+        "retained-global-occurrence-shift"
+      ],
+      [
+        "property",
+        "messageClientPlatform",
+        12896338,
+        12896359,
+        21,
+        "908bee72b670b3a1575f01194e18be530a1652fa44be7ee78adc64c5ebfd8d45",
+        0,
+        40,
+        0,
+        2,
+        "authentic-runtime-addition"
+      ],
+      [
+        "string",
+        "warn",
+        12898221,
+        12898227,
+        6,
+        "044ac6d152a5f0dfe71dc47ff67627c16a1a8b97cac0b441c6c2eec6682246d0",
+        251,
+        255,
+        1,
+        1,
+        "retained-global-occurrence-shift"
+      ],
+      [
+        "property",
+        "messageClientPlatform",
+        12901081,
+        12901102,
+        21,
+        "908bee72b670b3a1575f01194e18be530a1652fa44be7ee78adc64c5ebfd8d45",
+        0,
+        41,
+        0,
+        2,
+        "authentic-runtime-addition"
+      ],
+      [
+        "string",
+        "function",
+        12901424,
+        12901434,
+        10,
+        "a99c4de307066c6f4355786f498a1d99badc0fe63272ae7752b192ec41da16d4",
+        908,
+        909,
+        2,
+        2,
+        "retained-global-occurrence-shift"
+      ]
+    ],
+    "wholeUnitProof": {
+      "removeExactInsertionCount": 2,
+      "derivedTargetBytes": 18336,
+      "derivedTargetSha256": "353ab96ee09e280a9fc56c2858cc9f6cdb227395d673bd345a273a365312d1f5",
+      "canonicalBytes": 237044,
+      "canonicalSha256": "8c73a779b0cdcb86d4a40de0fbadc8240968b6126eddc09d9535e9f1df9713eb"
+    }
+  },
+  "replay": {
+    "requiredSharedOrder": [
+      "applyTarget117HistoricalOwnerSourceGapRecovery",
+      "applyTarget117QueryEngineClientPlatformSourceRecovery"
+    ],
+    "transitions": [
+      {
+        "state": "raw-target117",
+        "queryInput": [
+          48302,
+          "85996680c2665a627d61acb4c561f062503ee17e05d5ad0aef51f94418a2bded"
+        ],
+        "queryOutput": [
+          48439,
+          "0583529a3e0b5e5f5e9480415ede6b0fa2fa61b5c51fdc168c6f81262ff62cef"
+        ]
+      },
+      {
+        "state": "historical-owner-recovered",
+        "queryInput": [
+          48368,
+          "5e450f5547544190009ef2d14575e4c269a3262e5778cfa46b59cabe0793746a"
+        ],
+        "queryOutput": [
+          48505,
+          "dc919685df388b0d899a073b861c07613bda58b02864cef603c514e44845539c"
+        ]
+      }
+    ],
+    "toolInput": [
+      30209,
+      "3543c14f3551f55c78347bfc4478cf928d98954bcc08c559fcfc966b0c16b266"
+    ],
+    "toolOutput": [
+      30244,
+      "04fd182ba48e1d60c49a6b6a29da6f621bae8158b0a8120bb56bc198f94440e9"
+    ],
+    "postimageDeclarations": {
+      "QueryEngine": [
+        7604,
+        45524,
+        37952,
+        "879d52ef5e6b4244048af587cc40806a75386d0572331a2cd3a98e2ddba53a21"
+      ],
+      "submitMessage": [
+        8657,
+        45173,
+        36548,
+        "a21ee7722de20981e05b5e2b6a7db0bdca13ce0fe9fe28bfd4199fdc34c9b619"
+      ],
+      "submitOptionsMember": [
+        8770,
+        8793,
+        23,
+        "4408ed4e6f0a57d88751f190e08c9a534c4ba9fa68c2ed97551c7a2a5b162db4"
+      ],
+      "messageClientPlatformProperties": [
+        [
+          13892,
+          13938,
+          46,
+          "c97bc6070f2cf1e6d2efbce8e6f633696c4271f4fcb3b6d7cdad5b9a14e60492"
+        ],
+        [
+          20229,
+          20275,
+          46,
+          "c97bc6070f2cf1e6d2efbce8e6f633696c4271f4fcb3b6d7cdad5b9a14e60492"
+        ]
+      ],
+      "ToolUseContext": [
+        4843,
+        11378,
+        6547,
+        "353a682e9387fe900aacdd23d4f3c5ed3aef0c67f7f2c80053eb51cdb6a407a2"
+      ],
+      "toolOptionsMember": [
+        5525,
+        5555,
+        30,
+        "9f6acb8569adfbf67c7f04f4518269bf78e8c785d05d97f9d15ab4be6b62253c"
+      ]
+    },
+    "temporalBoundary": "The Target117 bundle authenticates both runtime properties. Target119 supplies the exact surviving authored option/property/type spelling only; no other Target119 QueryEngine or Tool source is copied."
+  }
+}

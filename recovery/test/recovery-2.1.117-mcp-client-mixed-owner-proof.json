@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-mcp-client-complete-mixed-unit-owner-v1",
+  "evidenceIds": [
+    "target117-mcp-client-authenticated-mixed-unit-test",
+    "target117-mcp-client-build-metadata-object-test",
+    "target117-mcp-client-ensure-connected-companion-test",
+    "target117-mcp-client-source-declaration-test"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "targetUnit": {
+    "targetIndex": 14619,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 9141513,
+    "end": 9160604,
+    "tokenCount": 6773,
+    "bytes": 19091,
+    "sha256": "afbc7fcc369ef6dcf2768371a6a3751ef84e5c382b78bbe8a32ec313d3d0ef16",
+    "coarseHash": "73eb1ede98b259c23adeff2de01f74b7e257cb2f0d2fbc880db3f0fda3ec5b65"
+  },
+  "residues": [
+    {
+      "literalKind": "string",
+      "value": "2.1.117",
+      "start": 9147173,
+      "end": 9147182,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 57,
+      "targetOccurrenceCount": 137,
+      "proof": "build-metadata-object"
+    },
+    {
+      "literalKind": "string",
+      "value": "2026-04-21T17:58:52Z",
+      "start": 9147262,
+      "end": 9147284,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 57,
+      "targetOccurrenceCount": 137,
+      "proof": "build-metadata-object"
+    },
+    {
+      "literalKind": "string",
+      "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+      "start": 9147293,
+      "end": 9147335,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 57,
+      "targetOccurrenceCount": 137,
+      "proof": "build-metadata-object"
+    },
+    {
+      "literalKind": "property",
+      "value": "ensureConnectedClient",
+      "start": 9155713,
+      "end": 9155734,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1,
+      "targetOccurrenceCount": 1,
+      "proof": "matched-companion-export"
+    }
+  ],
+  "buildMetadataObject": {
+    "start": 9146982,
+    "end": 9147336,
+    "bytes": 354,
+    "sha256": "bd766faac46445ee332fc9a4d413d177218f549d3f56d4ff55ad6d12682e50e8",
+    "fields": {
+      "VERSION": "2.1.117",
+      "BUILD_TIME": "2026-04-21T17:58:52Z",
+      "GIT_SHA": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387"
+    }
+  },
+  "targetExport": {
+    "registrar": "UDK",
+    "property": "ensureConnectedClient",
+    "binding": "MwH",
+    "propertyStart": 9155713,
+    "propertyEnd": 9155738
+  },
+  "targetCompanion": {
+    "targetIndex": 14595,
+    "classification": "matched",
+    "nodeType": "FunctionDeclaration",
+    "start": 9126255,
+    "end": 9126459,
+    "tokenCount": 63,
+    "bytes": 204,
+    "sha256": "80f271bc0f6c6c2673b71f9e9beccd9076247c52778611908cda1f0f038e7bb6",
+    "coarseHash": "f3cb9e98472f20d657d1f820a7435a764a6ae5547530a1ae9a69ff160b4bcad7",
+    "baselineUnitIndex": 14528,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "functionName": "MwH"
+  },
+  "source": {
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/services/mcp/client.ts",
+    "blob": "149d8b19d9a5a7f0d0f88b7a6f8382b93b6f93b3",
+    "bytes": 126348,
+    "sha256": "a1c1e90059b2c5ed6d53052c802ba1e870ade9a3d2bc9de2d69bef15c5d5dc8d",
+    "declaration": {
+      "name": "ensureConnectedClient",
+      "start": 66508,
+      "end": 67084,
+      "bytes": 576,
+      "sha256": "92232d2897a443a63fca4520df5c76e9fa4824ca05e436fa156e5b0b952b3ca4"
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "buildMetadataResidues": 3,
+    "sourceExportResidues": 1,
+    "matchedCompanionUnits": 1,
+    "sourceFiles": 1,
+    "sourceReplays": 0,
+    "ownerOverrides": 1
+  }
+}

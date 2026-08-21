@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-plugin-command-policy-wording-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-plugin-command-policy-wording-target-fragment",
+    "target117-plugin-command-policy-wording-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-command-policy-wording-source-gap.mjs",
+      "bytes": 5939,
+      "sha256": "86654f1a48cdafad9b46d51ab1090329534521f00da94a07bd45fb34812de91a"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "sourceFile": {
+      "path": "src/services/plugins/pluginOperations.ts",
+      "blob": "607970af7b1a1a280cbe0b3e95617b34e1596c80",
+      "input": {
+        "bytes": 39582,
+        "sha256": "31b521845f2d7aed1ad745449598713fc8f888a3e9d5cc55efe4f83f36955679"
+      },
+      "output": {
+        "bytes": 39626,
+        "sha256": "1048fd1b897878e86b5ac864e1c4740c5b7e77ed1d323e331994dda8a8b21e80"
+      },
+      "declarations": [
+        {
+          "name": "installPluginOp",
+          "input": {
+            "start": 10967,
+            "end": 15458,
+            "bytes": 4491,
+            "sha256": "36af29a01d8140e338111330d283813825a783fc8b4ae57c3f5b868c115dd92d"
+          },
+          "output": {
+            "start": 10967,
+            "end": 15455,
+            "bytes": 4488,
+            "sha256": "1230d8d59bbad9ec8fc1aa7b882fb4a8619b855f682384124248184790cfd629"
+          }
+        },
+        {
+          "name": "updatePluginOp",
+          "input": {
+            "start": 29842,
+            "end": 32266,
+            "bytes": 2424,
+            "sha256": "a5e022de8424975e5fef3ab2e2932491ec481a0b506717bf73cfdbae80b18714"
+          },
+          "output": {
+            "start": 29839,
+            "end": 32310,
+            "bytes": 2471,
+            "sha256": "b3e5874a9ca2922573bafdb0d12ef4fdfb7e552b382cd680885eed1f3a91ed0c"
+          }
+        }
+      ]
+    }
+  },
+  "summary": {
+    "units": 2,
+    "residues": 2,
+    "recoveredFiles": 1,
+    "replacements": 2,
+    "ownerOverrides": 2
+  },
+  "rows": [
+    {
+      "targetIndex": 16108,
+      "owner": "src/services/plugins/pluginOperations.ts",
+      "declarations": ["installPluginOp"],
+      "targetUnit": [
+        16108,
+        "unresolved",
+        "FunctionDeclaration",
+        10127919,
+        10130113,
+        665,
+        "ecec7b4a3ce6a8afa27d0583413b7d597d8c90893d1a4507df1e209d536715a5",
+        "21d3e725b1ec1d12a9f60dc2b3de9e20f91269dfda5999e4e8f9933e9c706aa6"
+      ],
+      "residues": [
+        ["string", "\" is from marketplace \"", 10129428, 10129451, 2, 0]
+      ]
+    },
+    {
+      "targetIndex": 16114,
+      "owner": "src/services/plugins/pluginOperations.ts",
+      "declarations": ["updatePluginOp"],
+      "targetUnit": [
+        16114,
+        "unresolved",
+        "FunctionDeclaration",
+        10133604,
+        10134881,
+        485,
+        "03cb11e8ba700752d8f02128a58e660c38399d7d5fb2dd206ee27eb95d902298",
+        "3b880917b1fdb0b43f7838851712472a5d968e4c96566b03071a5b930499144b"
+      ],
+      "residues": [
+        ["string", "\" is from marketplace \"", 10133768, 10133791, 3, 0]
+      ]
+    }
+  ],
+  "rejectedCoincidentalOwner": "src/utils/plugins/pluginInstallationHelpers.ts"
+}

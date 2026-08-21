@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-virtual-list-stability-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-virtual-list-stability-target-fragment",
+    "target117-virtual-list-stability-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-virtual-list-stability-source-gaps.mjs",
+      "bytes": 10993,
+      "sha256": "18dbd96a7501766e8b80f8f154ddfb6a3e5696277532dba5942e1e17127dc132"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFiles": [
+      {
+        "path": "src/hooks/useVirtualScroll.ts",
+        "blob": "388b0bad9466829597b84bda238fa3fd3fe34e80",
+        "input": {
+          "bytes": 35122,
+          "sha256": "d27382b007c98ab3af5e2940b0d1f6db041ccbe2897963ce19f63afb340ea4b7"
+        },
+        "output": {
+          "bytes": 35640,
+          "sha256": "74b0f7ce9c674adfd19e0696c3f8f7e768221779e0a430fafa1d3682502b058f"
+        },
+        "declarations": [
+          {
+            "name": "useVirtualScroll",
+            "nodeType": "FunctionDeclaration",
+            "start": 6638,
+            "end": 35441,
+            "bytes": 28981,
+            "sha256": "1b0b5a65d177c0a699f16981c1ee224b75e1f3c522a20f5807cf60d8c31d85d0"
+          }
+        ]
+      },
+      {
+        "path": "src/components/VirtualMessageList.tsx",
+        "blob": "6ceea0c4640a9ecd566cab5952ede0a396cc2e5d",
+        "input": {
+          "bytes": 146330,
+          "sha256": "25e249633126b35334a5bf6ba7b9180ddf292032b82ca18191aad55012a97343"
+        },
+        "output": {
+          "bytes": 148100,
+          "sha256": "2d8121a5e654646dd83e71c544c84069832458001e54e4e1fdf902f47fbad3b7"
+        },
+        "declarations": [
+          {
+            "name": "VirtualMessageList",
+            "nodeType": "FunctionDeclaration",
+            "start": 12194,
+            "end": 34623,
+            "bytes": 22520,
+            "sha256": "46ee7ffe16a467fdadfc7e22a29da5fbd72b894a15d677fd9c98267e5a614753"
+          },
+          {
+            "name": "buildStableMessageKeys",
+            "nodeType": "FunctionDeclaration",
+            "start": 10662,
+            "end": 12192,
+            "bytes": 1531,
+            "sha256": "247a3d1791f228c95d0c4fae9de79ba36360c7cdaf2d5eff9f0911dc73cdf0c8"
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "units": 3,
+    "residues": 19,
+    "recoveredFiles": 2,
+    "ownerCorrections": 1,
+    "incrementalKeyCacheUnits": 2,
+    "appendIdentityGuardUnits": 1,
+    "ownerOverrides": 3
+  },
+  "rows": [
+    {
+      "targetIndex": 16560,
+      "owner": "src/hooks/useVirtualScroll.ts",
+      "rejectedSourceMapOwner": "src/utils/statusNoticeDefinitions.tsx",
+      "declarations": [
+        "useVirtualScroll"
+      ],
+      "targetUnit": [
+        16560,
+        "unresolved",
+        "FunctionDeclaration",
+        10405874,
+        10410452,
+        2386,
+        "d28429fe06393d3b57afd1b04c6cf3f5b6b8b851b596320da1550470b6776b2e",
+        "f62bacaecc295916a499e30eb575aaed583c20e83fe4ad939153dd3e6dbacf66"
+      ],
+      "residues": [
+        ["property", "len", 10406059, 10406062, 174, 173],
+        ["property", "first", 10406065, 10406070, 14, 13],
+        ["property", "len", 10406816, 10406819, 175, 173],
+        ["property", "first", 10406829, 10406834, 15, 13],
+        ["property", "len", 10406841, 10406844, 176, 173],
+        ["property", "last", 10406853, 10406857, 22, 21],
+        ["property", "len", 10406864, 10406867, 177, 173],
+        ["property", "first", 10406880, 10406885, 16, 13],
+        ["property", "last", 10406892, 10406896, 23, 21]
+      ]
+    },
+    {
+      "targetIndex": 16608,
+      "owner": "src/components/VirtualMessageList.tsx",
+      "declarations": [
+        "VirtualMessageList",
+        "buildStableMessageKeys"
+      ],
+      "targetUnit": [
+        16608,
+        "unresolved",
+        "FunctionDeclaration",
+        10431455,
+        10438210,
+        3056,
+        "17682b39694fe59dc0efa3c805d712e2bf45ad26f9aaebad7f1f9858d55c393c",
+        "5a0fb62459a0c05254db6c09aada8943d137362104890250329e98fb50af490c"
+      ],
+      "residues": [
+        ["property", "uuids", 10431751, 10431756, 1, 0],
+        ["property", "seen", 10431760, 10431764, 21, 20]
+      ]
+    },
+    {
+      "targetIndex": 16610,
+      "owner": "src/components/VirtualMessageList.tsx",
+      "declarations": [
+        "buildStableMessageKeys"
+      ],
+      "targetUnit": [
+        16610,
+        "unresolved",
+        "FunctionDeclaration",
+        10439686,
+        10440295,
+        304,
+        "211f20180aa1ad0a36933393b6a128a4a4a4d95bde2731c35557b1ffabeca907",
+        "a108ee669135667119a768d35c37c4c7e8914c9b41da99304c9790f8996b1125"
+      ],
+      "residues": [
+        ["property", "uuids", 10439802, 10439807, 2, 0],
+        ["property", "uuids", 10439846, 10439851, 3, 0],
+        ["property", "seen", 10439857, 10439861, 22, 20],
+        ["property", "seen", 10439940, 10439944, 23, 20],
+        ["property", "seen", 10439968, 10439972, 24, 20],
+        ["property", "seen", 10440004, 10440008, 25, 20],
+        ["property", "uuids", 10440068, 10440073, 4, 0],
+        ["property", "seen", 10440140, 10440144, 26, 20]
+      ]
+    }
+  ]
+}

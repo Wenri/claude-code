@@ -17,6 +17,13 @@ const CATALOG_SHA256 =
 const CATALOG_PATH =
   'recovery/cases/2.1.118-to-2.1.119/semantic/adjacent-direct-evidence.json'
 const repo = fileURLToPath(new URL('../..', import.meta.url))
+// The catalog authenticates the pristine Target119 source tree. Replayed
+// package outputs are covered by their dedicated source-gap proofs and must
+// not silently replace these original row-scoped witnesses.
+const directEvidenceSourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_DIRECT_EVIDENCE_SOURCE_ROOT ??
+    path.join(repo, '.recovery-tmp/semantic-trees/2.1.119/src'),
+)
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
@@ -53,6 +60,19 @@ function readAuthenticatedBundle(environmentName, expectedBytes, expectedSha256)
   assert.equal(value.length, expectedBytes, `${environmentName}: byte length`)
   assert.equal(sha256(value), expectedSha256, `${environmentName}: SHA-256`)
   return value
+}
+
+function readSemanticSource(relativePath, label) {
+  assert.match(relativePath, /^src\//, `${label}: source-relative path`)
+  const filename = path.resolve(directEvidenceSourceRoot, relativePath.slice(4))
+  assert.ok(
+    filename.startsWith(directEvidenceSourceRoot + path.sep),
+    `${label}: source path remains under the selected root`,
+  )
+  const status = fs.lstatSync(filename)
+  assert.equal(status.isFile(), true, `${label}: regular file`)
+  assert.equal(status.isSymbolicLink(), false, `${label}: not a symlink`)
+  return fs.readFileSync(filename)
 }
 
 const catalogBytes = readPinnedFile(
@@ -94,7 +114,7 @@ function assertFragmentMetadata(fragment, label) {
 
 function sourceFiles() {
   const files = []
-  const queue = [path.join(repo, 'src')]
+  const queue = [directEvidenceSourceRoot]
   while (queue.length > 0) {
     const directory = queue.shift()
     for (const entry of fs
@@ -207,10 +227,8 @@ test('adjacent-direct-evidence.exact-source-counts', () => {
         sourceAssertion,
         `${row.id}: ${sourceAssertion.path}`,
       )
-      const source = readPinnedFile(
+      const source = readSemanticSource(
         sourceAssertion.path,
-        fs.statSync(path.join(repo, sourceAssertion.path)).size,
-        sha256(fs.readFileSync(path.join(repo, sourceAssertion.path))),
         `${row.id}: source path`,
       )
       assert.equal(

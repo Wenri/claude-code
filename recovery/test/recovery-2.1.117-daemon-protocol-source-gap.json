@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-daemon-protocol-complete-schema-source-gap-v1",
+  "status": "case-owned-bounded-source-replay",
+  "evidenceIds": [
+    "target117-daemon-protocol-authenticated-complete-schema-unit",
+    "target117-daemon-protocol-bounded-target118-source-derivation",
+    "target117-daemon-protocol-fail-closed-source-replay-test"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "target118Bundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+    "bytes": 13234618,
+    "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "target118StructuralLedger": {
+    "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+    "bytes": 2429007,
+    "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+  },
+  "baselineUnit": {
+    "baselineIndex": 17427,
+    "nodeType": "VariableDeclaration",
+    "start": 10847576,
+    "end": 10850300,
+    "tokenCount": 1211,
+    "bytes": 2724,
+    "sha256": "2332b7aca56176a953f0bf2d642c8e6740e53bec9a2b261610ab6b3324ea89ea",
+    "coarseHash": "b41571d0ffc8b51559df06cc36d54c7acb5688eb1703e93cc878e90ff6c91386"
+  },
+  "targetUnit": {
+    "targetIndex": 17480,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 10862678,
+    "end": 10865464,
+    "tokenCount": 1235,
+    "bytes": 2786,
+    "sha256": "a72a68af49860333fc33bb7e6dbc61a3d99cc095bb38c7c5d3cf21404efef968",
+    "coarseHash": "751f2b245c3678fdf03fcf007849bb4a6b7e3d2b8a7906b88507357a3df14584"
+  },
+  "target118Unit": {
+    "targetIndex": 15800,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 9919009,
+    "end": 9921886,
+    "tokenCount": 1271,
+    "bytes": 2877,
+    "sha256": "c235ddd89422660c7f6e4d5f0e2dd57c833e4053cac12c93b2592e53422dd3a9",
+    "coarseHash": "6ac411afedffdb35d5c9d63cd008438587f5970898377ac5a3c719590fbdb11a"
+  },
+  "targetResidues": [
+    {
+      "literalKind": "property",
+      "value": "procStart",
+      "baselineOccurrenceCount": 1,
+      "targetOccurrenceNumber": 2,
+      "start": 10863636,
+      "end": 10863645,
+      "semanticStatus": "retained-inside-owner-unit-ordinal-artifact"
+    },
+    {
+      "literalKind": "property",
+      "value": "attachId",
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1,
+      "start": 10864835,
+      "end": 10864843,
+      "semanticStatus": "target117-added-attach-correlation"
+    },
+    {
+      "literalKind": "property",
+      "value": "attachId",
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 2,
+      "start": 10864975,
+      "end": 10864983,
+      "semanticStatus": "target117-added-resize-correlation"
+    }
+  ],
+  "runtimeProperties": {
+    "baselineProcStart": {
+      "start": 10848534,
+      "end": 10848565,
+      "bytes": 31,
+      "sha256": "9e820b0242e6728b7a9e1c68f30ceb643a76c4ceb1e57186f79086cb19e09b97"
+    },
+    "targetProcStart": {
+      "start": 10863636,
+      "end": 10863667,
+      "bytes": 31,
+      "sha256": "9e820b0242e6728b7a9e1c68f30ceb643a76c4ceb1e57186f79086cb19e09b97"
+    },
+    "targetAttach": {
+      "start": 10864835,
+      "end": 10864865,
+      "bytes": 30,
+      "sha256": "782657133cdea4f78d00c4159979fd73e343887b30d96024457fe6822e6434dc"
+    },
+    "targetResize": {
+      "start": 10864975,
+      "end": 10865005,
+      "bytes": 30,
+      "sha256": "782657133cdea4f78d00c4159979fd73e343887b30d96024457fe6822e6434dc"
+    },
+    "target118CliVersion": {
+      "start": 9920112,
+      "end": 9920144,
+      "bytes": 32,
+      "sha256": "70d4a3d8c6c745ad3c9efd9968abadba29224bc1910ae07e3aa561a881a7e6b1"
+    },
+    "target118RespawnStale": {
+      "start": 9921539,
+      "end": 9921596,
+      "bytes": 57,
+      "sha256": "4c17f16f41456266240dfb85e853af0199495e3e0e9ae85fe5df9d0e996c57af"
+    }
+  },
+  "runtimeEvolutionProof": {
+    "baselineToTarget117": {
+      "method": "remove exactly the two attachId object properties from target117, retain object/member keys, alpha-normalize binding identifiers, and strip parser positions",
+      "normalizedChars": 51520,
+      "normalizedBytes": 51520,
+      "normalizedSha256": "3803024baec7257d43bff30719db133e9c811b07b5d76d0c58596fed4ec8c00e"
+    },
+    "target117ToTarget118": {
+      "method": "remove exactly cliVersion and the respawn-stale object variant from target118, retain object/member keys, alpha-normalize binding identifiers, and strip parser positions",
+      "normalizedChars": 52618,
+      "normalizedBytes": 52618,
+      "normalizedSha256": "614e72402fb7c0b1cabf6ae240d1108945c57985c156aac2e2e83df688181b0c"
+    }
+  },
+  "sourceDonor": {
+    "patch": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+      "bytes": 3865180,
+      "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4"
+    },
+    "path": "src/daemon/protocol.ts",
+    "patchBlobSha1": "e6e37b3ec05e4cf177276f3d2920850bd3cd2b50",
+    "bytes": 4709,
+    "sha256": "e4e549ee88077b853c8d5088313fdb3c8313b674988a128b198b4b31fc40f973",
+    "target118OnlyRemovals": [
+      "    cliVersion: z.string().optional(),\n",
+      "    z.object({ proto, op: z.literal('respawn-stale'), short }),\n"
+    ]
+  },
+  "recoveredSource": {
+    "path": "src/daemon/protocol.ts",
+    "raw": null,
+    "bytes": 4606,
+    "sha256": "1d1fb726e2b1c0659b763825aa09098ad169da08eb303ad152d3908e90a72d26",
+    "parseDiagnostics": 0,
+    "declarations": [
+      { "name": "PROTOCOL_VERSION", "start": 80, "end": 113, "bytes": 33, "sha256": "3ecfd703242131cfe8ed6192aa2d1958793387714f1b6b40ad177ba2b540e50e" },
+      { "name": "MIN_PROTOCOL_VERSION", "start": 114, "end": 151, "bytes": 37, "sha256": "5b52b766dcc35ee043cf6014c4c179e600874ce21a647498b81822a49c3bd1ba" },
+      { "name": "SHORT_ID_RE", "start": 152, "end": 194, "bytes": 42, "sha256": "11bad8f24766d99d70338affffb85c4de355512dd808323934463e3a55c731e3" },
+      { "name": "DETACH_SEQUENCE", "start": 195, "end": 255, "bytes": 60, "sha256": "2b51afdc987a37cdf540ed087a29bc4b89fba806dce46331333043d0d3ff14ec" },
+      { "name": "DispatchSchema", "start": 257, "end": 1518, "bytes": 1261, "sha256": "ba6d6072cff048665c08c0978efeb758972a94f17c18e704d4dca9fb412055e9" },
+      { "name": "WorkerRecordSchema", "start": 1587, "end": 2000, "bytes": 413, "sha256": "e888250a403f12d964bac52d284a7f30808f145d2f08d37c7edb7531d1877759" },
+      { "name": "ManifestSchema", "start": 2077, "end": 2336, "bytes": 259, "sha256": "b31a4c13a7114950aa78683d38752efaa476dd1b80746e18dea44c6e9d7e40de" },
+      { "name": "ControlMessageSchema", "start": 2405, "end": 4054, "bytes": 1649, "sha256": "ba50fd5db97799474133f8d23a01210d5de34c29fe33550bba425d7d85410266" },
+      { "name": "SettledJobSchema", "start": 4135, "end": 4534, "bytes": 399, "sha256": "c8c51b1e9e6051e64494e1e94285f751d00cc48e3f3e7470be8dc3d06b4f8a4f" }
+    ],
+    "schemaContracts": {
+      "DispatchSchema": {
+        "keys": ["proto", "short", "nonce", "sessionId", "createdAt", "source", "cwd", "launch", "env", "worktree", "isolation", "respawnFlags", "agent", "routine", "seed", "cols", "rows"],
+        "normalizedBytes": 16306,
+        "normalizedSha256": "be01968aef86039e06e8524a0467a38715749ed0bba65e64820630622cd67fc0"
+      },
+      "WorkerRecordSchema": {
+        "keys": ["pid", "procStart", "sessionId", "rendezvousSock", "ptySock", "messagingSock", "startedAt", "attempt", "cwd", "worktreePath", "dispatch"],
+        "normalizedBytes": 5080,
+        "normalizedSha256": "edcca57585eb2caac5be631f846f05554cd182f30c8ffc624d94ee3e2d759d6e"
+      },
+      "ManifestSchema": {
+        "keys": ["proto", "supervisorPid", "updatedAt", "workers"],
+        "normalizedBytes": 2863,
+        "normalizedSha256": "89286fe231e9aa3d0430ffc2970690ae2d3f4783ecc408363ef1dc10c315a0f5"
+      },
+      "ControlMessageSchema": {
+        "ops": ["ping", "nudge", "await-ack", "dispatch", "list", "has", "kill", "reply", "subscribe", "attach", "resize", "ensure-spare", "permission-response"],
+        "normalizedBytes": 22233,
+        "normalizedSha256": "dbe41411f9dea972561b1a25039e5619c364b5996caee9ec51725983a230e3fe"
+      },
+      "SettledJobSchema": {
+        "keys": ["short", "sessionId", "name", "intent", "outcome", "cwd", "worktreePath", "startedAt", "settledAt", "attempts"],
+        "normalizedBytes": 4848,
+        "normalizedSha256": "f4173df4eee29639dd130e77269abde38fbabd5302a87d85f9727dd288106449"
+      }
+    },
+    "forbiddenLaterSemantics": [
+      "cliVersion",
+      "respawn-stale",
+      "detach-message",
+      "lease",
+      "shutdown"
+    ]
+  },
+  "generatorWiring": {
+    "helper": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-daemon-protocol-source-gap.mjs",
+    "helperExport": "applyTarget117DaemonProtocolSourceRecovery",
+    "ownerOverrideExport": "TARGET117_DAEMON_PROTOCOL_OWNER_OVERRIDES",
+    "requiredOrder": "after all existing Target117 source replays; disjoint absent-file materialization",
+    "sourceRootArgument": "{ sourceRoot: target117SourceRoot }"
+  },
+  "failClosed": {
+    "acceptedStates": ["protocol-absent", "exact-postimage"],
+    "rejects": [
+      "unexpected existing file bytes",
+      "protocol symlink",
+      "daemon-directory symlink",
+      "drifted Target118 donor",
+      "missing or duplicate bounded-removal anchor"
+    ]
+  }
+}

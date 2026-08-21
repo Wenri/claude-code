@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-third-party-model-upgrade-static-whole-unit-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-third-party-model-upgrade-authenticated-whole-unit",
+    "target117-third-party-model-upgrade-confirmation-substitution",
+    "target117-third-party-model-upgrade-absent-source-graph-blocker"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "baselineUnit": {
+    "baselineIndex": 20147,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 12220441,
+    "end": 12222106,
+    "tokenCount": 840,
+    "topDefinitionCount": 1,
+    "bytes": 1665,
+    "sha256": "8d58c054dd8f484ca1de715a2f087036f0c665e17bd2eaed6c2f8c007bcb7269",
+    "coarseHash": "aff1008ca03d5e6f068a77aa0e169eac7507a8fa762b633666dfb0f942335e72",
+    "cacheSize": 28
+  },
+  "targetUnit": {
+    "targetIndex": 20218,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 12243449,
+    "end": 12244922,
+    "tokenCount": 770,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 20,
+    "bytes": 1473,
+    "sha256": "df8b5ea325aa35dc14a4dcce4198f81b80c0427703269d579bd077c5bb58c5d3",
+    "coarseHash": "21f153a51cffa19421e2d65cabda86285a3338428daa600d8b9fc79f008f89eb",
+    "cacheSize": 27
+  },
+  "ownerResidue": {
+    "literalKind": "property",
+    "value": "onConfirm",
+    "baselineOccurrenceCount": 5,
+    "targetOccurrenceNumber": 30,
+    "start": 12244531,
+    "end": 12244540,
+    "bytes": 9,
+    "sha256": "79d1b0a37163eee09298d59e62c15c8894378f78b330344552e85863f3669f14",
+    "generatedOwner": "components/ClaudeInChromeOnboarding.tsx",
+    "correctedOwner": "components/ThirdPartyModelUpgradeDialog.tsx",
+    "strictUnderEvidenceValidator": true
+  },
+  "controlSubstitution": {
+    "baselineRegion": {
+      "localStart": 1032,
+      "localEnd": 1344,
+      "start": 12221473,
+      "end": 12221785,
+      "bytes": 312,
+      "sha256": "ef383e209301343f02ecc969151816175764ae9b5c31cc5116c470814e7b6124"
+    },
+    "targetRegion": {
+      "localStart": 1032,
+      "localEnd": 1152,
+      "start": 12244481,
+      "end": 12244601,
+      "bytes": 120,
+      "sha256": "983228d8e9204ccce9dde49086ee8b87fc5fbbb33c59b635e2c7995bd50d30c1"
+    },
+    "baselineSelectCall": {
+      "start": 12221626,
+      "end": 12221755,
+      "bytes": 129,
+      "sha256": "942fb0470dbb56a91548afef3f351f6d0543a8c4b7f48b67089cdba8ed8da579",
+      "exact": "Zm.default.createElement(A8,{defaultValue:\"yes\",defaultFocusValue:\"yes\",options:L,onChange:(Z)=>f(Z===\"yes\"),onCancel:()=>f(!1)})"
+    },
+    "targetConfirmationCall": {
+      "start": 12244502,
+      "end": 12244571,
+      "bytes": 69,
+      "sha256": "4dbd8cdacb07fa76e13318d5976f62a6e64c083dc03002cf3a3e61437580d0ad",
+      "exact": "bm.default.createElement(m_,{onConfirm:()=>f(!0),onCancel:()=>f(!1)})"
+    },
+    "canonicalWholeUnitEquivalence": {
+      "method": "replace each exact controls region by `let L;`; set both compiler cache sizes to 27; subtract one from every surviving baseline cache index 20..27; parse with Acorn; strip positions/raw; alpha-normalize identifiers while retaining noncomputed property/member/method keys",
+      "normalizedChars": 26658,
+      "normalizedBytes": 26658,
+      "sha256": "153c3380319fe9ba1ae3bdff2489f2c47ee690aa60653864080acdb1efb18dd6"
+    }
+  },
+  "moduleInitializers": {
+    "baselineBinding": { "baselineIndex": 20148, "nodeType": "VariableDeclaration", "start": 12222106, "end": 12222117, "bytes": 11, "sha256": "947dcd277fa162b019aa31bcf23bebcfb5030d857504ffe60cc442f86de6b9f9", "exact": "var t14,Zm;" },
+    "baselineInitializer": { "baselineIndex": 20149, "nodeType": "VariableDeclaration", "start": 12222117, "end": 12222176, "tokenCount": 45, "bytes": 59, "sha256": "51ed2c0b4b2d248e6c3625fd95883ebec24e464295f64cb1b88704b1c108b4df", "coarseHash": "ebceecabafe565bf2281d08c7f7fac1d5224021bb37a299556c04f574c4d6989", "exact": "var nW6=v(()=>{gH();s1();LK();t14=x(nH(),1),Zm=x(wH(),1)});" },
+    "targetBinding": { "targetIndex": 20219, "nodeType": "VariableDeclaration", "start": 12244922, "end": 12244933, "tokenCount": 5, "bytes": 11, "sha256": "fc428be001cf7ce8f8ae5304e678dd9d456a09be298100d2927b3ee2df95fdc6", "coarseHash": "c01b63c9a83efc2c82e465e2d798fc3c37152b39ff84fb5b2ced94dd86e0163b", "exact": "var j54,bm;" },
+    "targetInitializer": { "targetIndex": 20220, "nodeType": "VariableDeclaration", "start": 12244933, "end": 12244992, "tokenCount": 45, "bytes": 59, "sha256": "7fbc968270dcbff9a63145215b9e9c2dff3e736acec21930872f71e638821520", "coarseHash": "ebceecabafe565bf2281d08c7f7fac1d5224021bb37a299556c04f574c4d6989", "exact": "var jZ6=v(()=>{gH();YM();VK();j54=x(lH(),1),bm=x(wH(),1)});" }
+  },
+  "confirmationDependency": {
+    "targetDeclaration": { "targetIndex": 10792, "nodeType": "FunctionDeclaration", "start": 6283534, "end": 6284252, "tokenCount": 438, "bytes": 718, "sha256": "0d51bb63916c5cc5f7297fd9883b70b00ca46d6b0fc7a4c70fcaf8e972e80a64", "coarseHash": "442ab5372f93e36a59be2fcf0abc4a51794fbcedbb947c19fd1569040113c048" },
+    "targetInitializer": { "targetIndex": 10794, "nodeType": "VariableDeclaration", "start": 6284264, "end": 6284313, "tokenCount": 37, "bytes": 49, "sha256": "1e6c1825f489998cd76b84da40dbd9157be3494f8b1600a28f83f870a6035dae", "coarseHash": "33555862c476943da840280a771cc7cfd8e7e271c05c2559d4caf08216598e70" },
+    "selectedSource": {
+      "path": "src/components/ConfirmationButtons.tsx",
+      "state": "absent in raw ff0339 source or exact recovered helper in packaged source",
+      "bytes": 843,
+      "chars": 843,
+      "sha256": "44e0c7df811030d27ed88eb313cac012fbdd2ed6a5baab03d9751070806f9960",
+      "declaration": { "name": "ConfirmationButtons", "start": 262, "end": 842, "chars": 580, "bytes": 580, "sha256": "19037f4bc0a7749747800eff626371b71046df75147b0d5b69e5e1f2356f29ee" }
+    }
+  },
+  "sourceGraph": {
+    "raw117": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "componentPath": "src/components/ThirdPartyModelUpgradeDialog.tsx",
+      "componentState": "absent",
+      "caller": {
+        "path": "src/interactiveHelpers.tsx",
+        "blob": "b88dbbf132fcf393dbe022740eb3f407fe031610",
+        "bytes": 57424,
+        "sha256": "8f1003b7c82917fba0bba7bd1cc91302b1ef8e3711f255fb762d7d2a4776b391",
+        "componentOccurrenceCount": 0,
+        "bedrockProviderOccurrenceCount": 0,
+        "vertexProviderOccurrenceCount": 0
+      }
+    },
+    "target118Witness": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "path": "src/components/ThirdPartyModelUpgradeDialog.tsx",
+      "blob": "e06099ad0da6deda3719c60ffd59eb0ca769be93",
+      "bytes": 1416,
+      "chars": 1416,
+      "sha256": "30cf8afd31a822cfff6cbf10d7254664a1dc7090c0d9e6172a2db1b68b2fc3ed",
+      "declaration": { "name": "ThirdPartyModelUpgradeDialog", "start": 296, "end": 1415, "chars": 1119, "bytes": 1119, "sha256": "39532e11227af189b6cd78cfc15d79fc3d2bcfa3aa87a6d4bbaefbd6daf43861" },
+      "requiresPresent": ["import { Select }", "<Select", "defaultFocusValue=\"confirm\""],
+      "requiresAbsent": ["ConfirmationButtons", "onConfirm={() => onDone(true)}"]
+    },
+    "boundedSemanticCandidate": {
+      "provenance": "Target118 name/path/layout donor with the authenticated Target117 controls substitution; semantic evidence only, never replayed",
+      "bytes": 1227,
+      "chars": 1227,
+      "sha256": "44bb6b1b572bde6b76700582bb36456fdd4a17e755a06f8f551e034eebfa8b7e",
+      "declaration": { "name": "ThirdPartyModelUpgradeDialog", "start": 310, "end": 1226, "chars": 916, "bytes": 916, "sha256": "c9503b668fec0cc4ee744d466e219d70c087e361c5437f8b90118f5f339c47ba" }
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The exact Target117 component and both Bedrock/Vertex caller paths are absent from ff0339 source. The first recovered donor is Target118 and still encodes the superseded Select adapter, so creating only the component would leave an unreachable and temporally inferred graph."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/third-party-model-upgrade-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_THIRD_PARTY_MODEL_UPGRADE_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

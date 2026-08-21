@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-sdk-client-platform-schema-bounded-later-donor-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-sdk-client-platform-schema-target-unit-proof",
+    "target117-sdk-client-platform-schema-later-donor-proof",
+    "target117-sdk-client-platform-schema-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-sdk-client-platform-schema-source-gap.mjs",
+      "bytes": 5974,
+      "sha256": "1f1cb51e5915403fcf04f6788f92bab1915516b4a234bf077874867c0d1148da"
+    },
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundles": [
+      ["2.1.117-linux-x64/cli.inner.js", 13114118, "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"],
+      ["2.1.118-linux-x64/cli.inner.js", 13234618, "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"],
+      ["2.1.119-linux-x64/cli.inner.js", 13720987, "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"],
+      ["2.1.120-linux-x64/cli.inner.js", 13784743, "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"],
+      ["2.1.121-linux-x64/cli.inner.js", 13908188, "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"]
+    ],
+    "structuralLedgers": [
+      ["recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz", 2392225, "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"],
+      ["recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz", 2429007, "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"],
+      ["recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", 2550437, "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"],
+      ["recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", 2490663, "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"],
+      ["recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", 2540002, "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"]
+    ],
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "path": "src/entrypoints/sdk/coreSchemas.ts",
+      "blob": "ed71db5f5f3beeaffa695136b61458c7df7c6b0c",
+      "bytes": 57215,
+      "sha256": "82c3611591774b5f4c5a90563e8127426cd0eedca9e874e9c5f718c4ef59cf7d",
+      "declaration": [38750, 39307, 557, "2d5a18dd672a94d812128123367a7e0df0097b2c3a527191987228d05f5a9df1"]
+    },
+    "postimage": {
+      "path": "src/entrypoints/sdk/coreSchemas.ts",
+      "bytes": 57512,
+      "sha256": "b12ebde2b97e2f4fb7b55f912b75f98009163d3933cc7a4a63feaed559777a9a",
+      "declaration": [38750, 39604, 854, "06b7edf948f5acde3644867169145af7d3f310e93884cdf045af30e605e914a6"],
+      "property": [39077, 39368, 291, "8d88a49169c2ae8ef84fe2e3ba0e281d91093b5baf77d8d55095ae2f72424277"]
+    },
+    "lastSourceWithoutProperty": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "path": "src/entrypoints/sdk/coreSchemas.ts",
+      "blob": "6070438ac182dbf17daa1fcdceb24a2c615f3a73",
+      "bytes": 60166,
+      "sha256": "b42199f88bc8a0344ef12f05257cb9137a3c62aee73c8eac3395fbb8bfe9693c"
+    },
+    "firstSourceDonor": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+      "path": "src/entrypoints/sdk/coreSchemas.ts",
+      "blob": "cc5c9fb4187504eccc567a70f6780967e10d3dca",
+      "bytes": 63375,
+      "sha256": "ad2b52db89980335b1c6fd1567c1e3ca73f95f9c0781c6299910112c14b556ff",
+      "property": [41893, 42184, 291, "8d88a49169c2ae8ef84fe2e3ba0e281d91093b5baf77d8d55095ae2f72424277"]
+    }
+  },
+  "target117": {
+    "unit": [
+      9971,
+      "unresolved",
+      "VariableDeclaration",
+      4995035,
+      5033715,
+      10418,
+      "6396b0fe421c6dd6516d5857159407353c50f5d976fc179e8b766d5cece1f924",
+      "bc4ae46259a1b7a893a123f8cb5da08bf4c39387183faf668d59654c11d85d73"
+    ],
+    "property": [5017953, 5018205, 252, "d0d76cee066b1670662338e1a6f0c103b90755ead52bf629d079be3247bed883"],
+    "residues": [
+      ["property", "client_platform", 5017953, 5017968, 1, 0],
+      ["string", "@internal The `anthropic-client-platform` value of the client that sent this message (e.g. `ios`, `android`, `web_claude_ai`, `desktop_app`). Injected server-side by CCR ingress from the request header.", 5018000, 5018204, 1, 0]
+    ]
+  },
+  "persistentTargetWitnesses": [
+    ["2.1.117", 9971, 4995035, 5033715, 10418, "6396b0fe421c6dd6516d5857159407353c50f5d976fc179e8b766d5cece1f924", 5017953, 5018205, "d0d76cee066b1670662338e1a6f0c103b90755ead52bf629d079be3247bed883"],
+    ["2.1.118", 10048, 5023719, 5062983, 10547, "0fb5206b1055d82d154b27a176b08a9b11822815d7aad5d02e8eb899bb33ff50", 5047273, 5047525, "d0d76cee066b1670662338e1a6f0c103b90755ead52bf629d079be3247bed883"],
+    ["2.1.119", 10175, 5075792, 5116129, 10684, "2ead5838ae049ef26b221835561b3c4ab7471aae344aa9c20bac079a10be3b23", 5099743, 5099995, "fde42913a5f89274d28766d328a641df2d7e45bf504ea7ef237b0bd187383ebc"],
+    ["2.1.120", 10243, 5098698, 5139016, 10684, "64a3b345008f2c5b2667074122eb85d6ad3413678f90e69c81956e74786eb6ae", 5122649, 5122901, "328379e537cc2930806e4aaee2c9f2f6c1448d7516c929fde7f5ddb6fa6c8688"],
+    ["2.1.121", 10288, 5112862, 5154200, 10757, "1facfcdc55584baa4ec2c6d8d0e0217d691429d3d9854d964d4d2aa4eae50f6f", 5137833, 5138085, "fde42913a5f89274d28766d328a641df2d7e45bf504ea7ef237b0bd187383ebc"]
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "targetVersionsWithSchemaProperty": 5
+  }
+}

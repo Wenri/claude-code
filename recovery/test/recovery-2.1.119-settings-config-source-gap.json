@@ -1,0 +1,503 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-bounded-source-replay-plus-whole-unit-proof",
+  "criterion": "The complete authenticated Target119 Config unit is admitted only with its exact 15-statement structure, left-arrow setting and save summary, two rc-to-slow display aliases, two build-expanded MACRO.VERSION reads, Config initializer, and unchanged Settings caller. The recovered source already owns the left-arrow and MACRO semantics; a one-file fail-closed replay restores exactly the two missing release-channel display aliases.",
+  "ownerBehavior": "The complete authenticated Target119 Config unit owns the left-arrow agents setting and change summary, the internal rc release-channel display alias, and two build-expanded MACRO.VERSION reads. The Settings caller, Config initializer, source declaration, same-release rc schema, and update-command display alias authenticate the boundary. A bounded fail-closed replay restores only the two missing rc-to-slow display expressions; the left-arrow and macro rows are admitted through exact source-to-runtime and build-expansion proofs.",
+  "summary": {
+    "units": 1,
+    "allOwnerRows": 179,
+    "addedOwnerRows": 10,
+    "rawScannerRows": 8,
+    "productionUnsupportedRows": 10,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 1,
+    "recoveredFiles": 1
+  },
+  "evidenceIds": [
+    "target119-settings-config-authenticated-whole-unit-proof",
+    "target119-settings-config-release-channel-display-source-gap",
+    "target119-settings-config-left-arrow-source-correspondence-proof",
+    "target119-settings-config-build-macro-expansion-proof",
+    "target119-settings-config-caller-module-boundary-proof"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+    }
+  },
+  "baselineUnit": {
+    "baselineIndex": 15536,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 9573918,
+    "end": 9604211,
+    "bytes": 30293,
+    "tokenCount": 9595,
+    "sha256": "51da3e45908c61750cebbab8cf255eae2a9464864d449734074e470d9f2bf075",
+    "coarseHash": "fba9233822c16ca1e7c81e340a2e06455cff15243a2feed3bc2965943b34bf16",
+    "canonicalAstBytes": 373075,
+    "canonicalAstSha256": "66b6e30af4cf0d7b275184aab48c2ecd9a5496b571afe16c8132b220b352c61a",
+    "bodyStatements": {
+      "statements": 15,
+      "jsonBytes": 2785,
+      "sha256": "3d9ecf323a85b13d9347ff4af0120ebddbf0d7b592670f9e358091cafd488b72"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 15840,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 9697352,
+    "end": 9728643,
+    "bytes": 31291,
+    "tokenCount": 9784,
+    "unknownFreeIdentifierCount": 20,
+    "sha256": "6672fd5702101dcd713b94e6037193a889242b6102bbd62832e90c6bf9937da9",
+    "coarseHash": "4756106f22f7cf59a871f24c7e3ebb4a319628e28b89585f26302bdce202bf75",
+    "canonicalAstBytes": 381122,
+    "canonicalAstSha256": "706dc02930219d570342f2fd75328ea1524f417f42d9e7f71c45db9157a6c9c9",
+    "bodyStatements": {
+      "statements": 15,
+      "jsonBytes": 2785,
+      "sha256": "cf07802832cec4cb58cf716fd07d111f21ab978a74ce4c9cccafd8fb0e1edab0"
+    },
+    "props": [
+      "onClose",
+      "context",
+      "setTabsHidden",
+      "onIsSearchModeChange",
+      "contentHeight"
+    ]
+  },
+  "supportingUnits": {
+    "arrowSymbols": {
+      "targetIndex": 2566,
+      "classification": "matched",
+      "baselineUnitIndex": 2486,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "VariableDeclaration",
+      "start": 1037183,
+      "end": 1037557,
+      "bytes": 374,
+      "tokenCount": 115,
+      "sha256": "a976088510fb27576f014ebd0132eb4bd107448659c81c29c262392fa75650cc",
+      "coarseHash": "90de1510c67c182f6e74a8ec8bad4cbcbd07a829152bb24e2dbb87be822c4f04",
+      "declarator": {
+        "start": 1037254,
+        "end": 1037266,
+        "bytes": 12,
+        "sha256": "20753b163a00370aa3a84553d91b0413fe49ead735f4fe20455b5aece0288bee",
+        "raw": "\"\\u2190\"",
+        "value": "←"
+      }
+    },
+    "effectiveConfig": {
+      "targetIndex": 15839,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 9696341,
+      "end": 9697352,
+      "bytes": 1011,
+      "tokenCount": 184,
+      "unknownFreeIdentifierCount": 1,
+      "sha256": "4627aa89f8104aebcc80b20a5929967768a4e55ba8fbb1f3abc8f177a2780303",
+      "coarseHash": "99fc423655e38aa4cdd882f52c2d2649f31202476cfe647027b57cf038aa3de0"
+    },
+    "configInitializer": {
+      "targetIndex": 15844,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 9729992,
+      "end": 9730590,
+      "bytes": 598,
+      "tokenCount": 284,
+      "unknownFreeIdentifierCount": 16,
+      "sha256": "3b46f7b56e9c3ca2656e7b22c0f4b5274cb2a78fc0abc3c42faa8b4a3abff795",
+      "coarseHash": "e7c2cb6f3ca9dfe3ae553e705b7e0c5069183a64d64532453da1683c100d9f7a"
+    },
+    "settingsCaller": {
+      "targetIndex": 15969,
+      "classification": "matched",
+      "baselineUnitIndex": 15665,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 9998992,
+      "end": 10000804,
+      "bytes": 1812,
+      "tokenCount": 943,
+      "unknownFreeIdentifierCount": 0,
+      "sha256": "d6d131feb88389c7f1582a776291ed797cd08b88795c35dabcc2b7473f8103d2",
+      "coarseHash": "4f89777f8cd038669f6d2d8b32a706ff55404fedbee2d706d44552948fc2a166",
+      "configCall": {
+        "start": 9999851,
+        "end": 9999949,
+        "bytes": 98,
+        "sha256": "9d23e8e834ac0db2055242960931a2aa90bf7edd186bf7c2aa10cbb479f53ff6"
+      }
+    },
+    "settingsInitializer": {
+      "targetIndex": 15973,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 10000882,
+      "end": 10000994,
+      "bytes": 112,
+      "tokenCount": 84,
+      "unknownFreeIdentifierCount": 2,
+      "sha256": "82efe2ec4acff288929c99674518bb5b660d340f4f95eb8855ae5390cace0823",
+      "coarseHash": "48ae70e4a93b359f71561ad8b66c51f48b088f251d9adbf2ab616ef8510cd046",
+      "configInitializerCall": {
+        "start": 10000933,
+        "end": 10000938,
+        "bytes": 5,
+        "sha256": "7f1ca896c399a84e63d3125c0136573943f702ce377390729e5f11c5f4a91420"
+      }
+    }
+  },
+  "runtimeContract": {
+    "leftArrowAgents": {
+      "labelTemplate": {
+        "start": 9705238,
+        "end": 9705259,
+        "bytes": 21,
+        "sha256": "3c2736b8f8555f5674f08b01d7a4d2cfc6d4733f0c8cd5cec26ecec30573258f"
+      },
+      "settingObject": {
+        "start": 9705205,
+        "end": 9705479,
+        "bytes": 274,
+        "sha256": "a9b74b3fcaa433f0fdabcbfc38e229a50f81d23e14493f7c8d152319a2d1c0c1"
+      },
+      "changeTemplate": {
+        "start": 9714870,
+        "end": 9714942,
+        "bytes": 72,
+        "sha256": "b47d5722d29ca27c64d78138a0df14fb45c821bb1278112841f041bb81d8bd7d"
+      },
+      "settingId": "leftArrowOpensAgents",
+      "analyticsEvent": "tengu_config_changed"
+    },
+    "releaseChannelDisplay": {
+      "expressions": [
+        {
+          "start": 9705649,
+          "end": 9705716,
+          "bytes": 67,
+          "sha256": "2e4891ca438a83e711708632adb823cdd6c21b76055725edf6e502ce52cd7651"
+        },
+        {
+          "start": 9715842,
+          "end": 9715909,
+          "bytes": 67,
+          "sha256": "2e4891ca438a83e711708632adb823cdd6c21b76055725edf6e502ce52cd7651"
+        }
+      ],
+      "canonicalExpression": {
+        "bytes": 698,
+        "sha256": "5af3b3433c6daee929ebe4f94394090680b4b9ec4e39ff89679085d4bc947394"
+      },
+      "input": "rc",
+      "display": "slow",
+      "fallback": "latest"
+    },
+    "buildMacro": {
+      "sourceExpression": "MACRO.VERSION",
+      "objectExpressions": [
+        {
+          "start": 9724617,
+          "end": 9724971,
+          "bytes": 354,
+          "sha256": "39fe84d744c8aa3abe4ba276db85e965627aafb93705dc525b317abce4ea535b"
+        },
+        {
+          "start": 9725119,
+          "end": 9725473,
+          "bytes": 354,
+          "sha256": "39fe84d744c8aa3abe4ba276db85e965627aafb93705dc525b317abce4ea535b"
+        }
+      ],
+      "memberExpressionSha256": "77a2243fd680c30ce04904c740aaa7f25561701c6593e096b68be8037bfea86d",
+      "memberExpressionBytes": 362,
+      "values": {
+        "VERSION": "2.1.119",
+        "BUILD_TIME": "2026-04-23T19:08:52Z",
+        "GIT_SHA": "6f68554839756189e277b8285a18fe47acd9a5a1"
+      }
+    }
+  },
+  "ownerResidues": {
+    "allOwnerRows": {
+      "rows": 179,
+      "jsonBytes": 11547,
+      "sha256": "92fd4249b856aede10a97b1de87cdff4adb29996c18eda56ba701062fdf6d7f6"
+    },
+    "addedOwnerRows": {
+      "rows": 10,
+      "jsonBytes": 625,
+      "sha256": "912f9f1be70fb9159c66e55708b630b027cd0aea05fdffe2ccc67243d73875df"
+    },
+    "rawScannerRows": {
+      "rows": 8,
+      "jsonBytes": 527,
+      "sha256": "681b02580b895a13643d09798efb0aa54271f1c41771aa37843afe551edc7141"
+    },
+    "ownerPath": "components/Settings/Config.tsx",
+    "rows": [
+      [15840, "string", " opens agents", 9705245, 9705258, 0, 1, true],
+      [15840, "string", "slow", 9705678, 9705684, 0, 1, true],
+      [15840, "string", " opens agents", 9714928, 9714941, 0, 2, true],
+      [15840, "string", "slow", 9715871, 9715877, 0, 2, true],
+      [15840, "string", "2.1.119", 9724808, 9724817, 0, 63, true],
+      [15840, "string", "2026-04-23T19:08:52Z", 9724897, 9724919, 0, 63, true],
+      [15840, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 9724928, 9724970, 0, 63, true],
+      [15840, "string", "2.1.119", 9725310, 9725319, 0, 64, true],
+      [15840, "string", "2026-04-23T19:08:52Z", 9725399, 9725421, 0, 64, true],
+      [15840, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 9725430, 9725472, 0, 64, true]
+    ]
+  },
+  "sourceRecovery": {
+    "path": "src/components/Settings/Config.tsx",
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+    "blob": "38993ac3bc9dd09a27dba2b64f59d6825813409f",
+    "raw": {
+      "bytes": 279326,
+      "chars": 279260,
+      "sha256": "0b799d80d261e8db75b349831dee09e156830802cb8d54d1958370a30be0ef73",
+      "getEffectiveConfig": {
+        "start": 6154,
+        "end": 7609,
+        "bytes": 1455,
+        "chars": 1455,
+        "sha256": "365606df84c1b255b526a9d89be83d0cc8f01f6986aba070f0925ea80627e392"
+      },
+      "Config": {
+        "start": 7610,
+        "end": 80130,
+        "bytes": 72585,
+        "chars": 72520,
+        "sha256": "d695759252862218fae051e49fd62c3b01d23ed0319ba1c0006c81f0139fbc20"
+      },
+      "markerCounts": {
+        "leftArrowLabel": 2,
+        "leftArrowProperty": 10,
+        "macroVersion": 2,
+        "rcLiteral": 0,
+        "slowLiteral": 0
+      }
+    },
+    "post": {
+      "bytes": 279432,
+      "chars": 279366,
+      "sha256": "fab7d084fa08c4f32c37210df43650a0919ce05791058672154662f83da2275f",
+      "getEffectiveConfig": {
+        "start": 6154,
+        "end": 7609,
+        "bytes": 1455,
+        "chars": 1455,
+        "sha256": "365606df84c1b255b526a9d89be83d0cc8f01f6986aba070f0925ea80627e392"
+      },
+      "Config": {
+        "start": 7610,
+        "end": 80236,
+        "bytes": 72691,
+        "chars": 72626,
+        "sha256": "52e439158fe7062097e37a5b5f4dab0fea76f52cc74aa981d201e5b33fa77cac"
+      },
+      "markerCounts": {
+        "leftArrowLabel": 2,
+        "leftArrowProperty": 10,
+        "macroVersion": 2,
+        "rcLiteral": 2,
+        "slowLiteral": 2
+      }
+    },
+    "transforms": [
+      {
+        "label": "release-channel setting display",
+        "input": {
+          "bytes": 52,
+          "sha256": "c5e1bc64042e79653d565c1e05c59b1e3b08a834654e759230f8af4386aa4628"
+        },
+        "output": {
+          "bytes": 105,
+          "sha256": "211361359e21275dfe9f5b953aae5b9a9426f30106aa3087b0d4974a1c0c4bfe"
+        }
+      },
+      {
+        "label": "release-channel change summary",
+        "input": {
+          "bytes": 111,
+          "sha256": "4116628012ea9887f08ee89a1b48776c7ff8e7362ac4b12526dcf91b891a9db2"
+        },
+        "output": {
+          "bytes": 164,
+          "sha256": "f76c1c576e113e6a3faa50ded853b8d87165bc073ea826670650aa24341e7bf5"
+        }
+      }
+    ],
+    "postConditionalExpressions": [
+      {
+        "start": 30493,
+        "end": 30590,
+        "bytes": 97,
+        "sha256": "481024e8ae97f9c4644e35dcc8f5ca7a6f5f5609b093fc7a4779702d4d1cb629"
+      },
+      {
+        "start": 52940,
+        "end": 53037,
+        "bytes": 97,
+        "sha256": "481024e8ae97f9c4644e35dcc8f5ca7a6f5f5609b093fc7a4779702d4d1cb629"
+      }
+    ],
+    "sourceMapTail": {
+      "rawStart": 82231,
+      "postStart": 82337,
+      "bytes": 197029,
+      "chars": 197029,
+      "sha256": "4ba85b7da5656c43657c73e4ad029ee4320aefad4033d76fc90a3a3f1ead2d67"
+    },
+    "sameReleaseSchema": {
+      "path": "src/utils/settings/types.ts",
+      "blob": "94fed4c118c5a60472fa6713d5aa7051621569ea",
+      "bytes": 48344,
+      "chars": 48299,
+      "sha256": "51d69613cf6512d5d92c4f8492a8146a03daa74d2b3b04111b538a1fa618de78",
+      "enumCall": {
+        "start": 33197,
+        "end": 33240,
+        "bytes": 43,
+        "sha256": "f15444ef4dff27e5f5f79de65f7694622c41115c216a61d0151611d81b6354dc"
+      },
+      "values": ["latest", "stable", "rc"]
+    },
+    "sameReleaseDisplayDonor": {
+      "path": "src/cli/update.ts",
+      "blob": "475e6e5de5528f51d348c20fd4fbc5b0c906eaea",
+      "bytes": 17550,
+      "chars": 17528,
+      "sha256": "a916cd2b6f7f29a3da722f9bf16fa16cffcb027d728131ab078bc9cfa8b5160d",
+      "declaration": {
+        "start": 1986,
+        "end": 2038,
+        "bytes": 52,
+        "sha256": "3dc93bb5406086029e9db8495e9d9bf7143c3ba3af16e75cc63b308765e3b227"
+      }
+    }
+  },
+  "sourceBoundary": {
+    "baseline": {
+      "path": "src/components/Settings/Config.tsx",
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "blob": "dc343a35e14b56b4b834fe2d1d05f77b391ce79c",
+      "bytes": 273615,
+      "chars": 273552,
+      "sha256": "5d420434f0fdc292ac6401729c65e44613671342b0ce72ec53c8178d5420d29d",
+      "Config": {
+        "start": 5063,
+        "end": 74422,
+        "bytes": 69422,
+        "chars": 69359,
+        "sha256": "76496201484d7f437baa3394495ef6321a3a03db6a2e7b147307ae0b354aaa2d"
+      },
+      "markerCounts": {
+        "leftArrowLabel": 0,
+        "leftArrowProperty": 0,
+        "macroVersion": 2,
+        "rcLiteral": 0,
+        "slowLiteral": 0
+      }
+    },
+    "gitDiff": {
+      "bytes": 23498,
+      "lines": 524,
+      "sha256": "215a0e9f68e8f814c0a3e20917b7874d1f88a52e14b17d9f87443a2b1ccfdd7a"
+    },
+    "leftArrowSource": {
+      "labelProperty": {
+        "start": 20171,
+        "end": 20194,
+        "bytes": 25,
+        "chars": 23,
+        "sha256": "c14f6a859f6cd98790a72e443b5d74ed8753cb02764cf8e3211f325a64cc93c3"
+      },
+      "settingObject": {
+        "start": 20133,
+        "end": 20785,
+        "bytes": 654,
+        "chars": 652,
+        "sha256": "b1535fb51853143312e39942686753a8b1cc3534403c355b6da262370c00f65f"
+      },
+      "changeTemplate": {
+        "start": 51409,
+        "end": 51495,
+        "bytes": 88,
+        "chars": 86,
+        "sha256": "01603d5cb91cf3751e54d1fc00b30221d6f107ffbd061c707495fce26202e8b1"
+      }
+    },
+    "macroSourceExpressions": [
+      {
+        "start": 73777,
+        "end": 73790,
+        "bytes": 13,
+        "sha256": "1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83"
+      },
+      {
+        "start": 74364,
+        "end": 74377,
+        "bytes": 13,
+        "sha256": "1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83"
+      }
+    ],
+    "settingsCaller": {
+      "path": "src/components/Settings/Settings.tsx",
+      "blob": "41b5b26af1e6059c1fd6ba49f682a6346ae08be5",
+      "bytes": 18641,
+      "chars": 18641,
+      "sha256": "32376e3c65f9e95ed90dfb2acf0e7d0f83d631144f2d75c1bfa362fd9e02f9d7",
+      "unchangedFromBaseline": true,
+      "import": {
+        "start": 702,
+        "end": 739,
+        "bytes": 37,
+        "sha256": "cd6cdf0aa0e40777f32ddb521d717adbf3540db722d846302b3e690c29737f9e"
+      },
+      "Settings": {
+        "start": 1062,
+        "end": 4318,
+        "bytes": 3256,
+        "chars": 3256,
+        "sha256": "586379561170a0015bbe380762ac7a8217ac9b0dbc931eab9ada6687e6f195a4"
+      },
+      "configJsx": {
+        "start": 2788,
+        "end": 2934,
+        "bytes": 146,
+        "sha256": "14d875b66888fdc6f1d39fe0a4ec374ef07b2d9b668ab973fcfde17a46fe747d"
+      }
+    }
+  },
+  "replayDecision": {
+    "mode": "bounded-source-replay",
+    "requiredOrder": "after materializing the exact Target119 source tree; this helper is disjoint from existing Target119 replays",
+    "failClosed": "Require the exact raw 0b799d80 Config.tsx or exact recovered fab7d084 postimage, reject symlinks and every drifted state, replace each authenticated anchor exactly once, preserve the inline source-map tail byte-for-byte, and write only after the complete postimage hash is verified."
+  }
+}

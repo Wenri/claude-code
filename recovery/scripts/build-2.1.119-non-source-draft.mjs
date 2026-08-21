@@ -279,7 +279,7 @@ function verifySourceFreeze() {
   const identityBytes = fs.readFileSync(path.join(sourceFreezeRoot, 'identity.json'))
   assert(
     sha256(identityBytes) ===
-      '41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26',
+      'c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866',
     'source freeze identity SHA-256 mismatch',
   )
   assert(sourceFreezeIdentity.schemaVersion === 1, 'source freeze schema mismatch')

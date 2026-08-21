@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-agents-handler-groups-static-whole-function-owner-v1",
+  "status": "case-owned-static-inherited-owner-proof-no-replay-required",
+  "claim": "Target121 u22062 is the agent-list renderer owned by src/cli/handlers/agents.ts::agentsHandler. It is a complete identifier-renamed counterpart of paired Target120 u21961: both are 448-byte, 207-token functions with identical identifier-normalized tokens and canonical AST. Every one of the nine targetAdded property rows occurs at the same local byte span in the baseline function, including groups at local [397,403); the lone strict groups row is therefore global occurrence-number drift, not new behavior. The recovered source is byte-identical across versions and preserves the grouping semantics, so no replay is warranted.",
+  "evidenceIds": [
+    "target121-agents-handler-authenticated-whole-function",
+    "target121-agents-handler-exact-alpha-pair",
+    "target121-agents-handler-groups-local-invariant",
+    "target121-agents-handler-source-semantic-owner"
+  ],
+  "selectionBoundary": {
+    "afterTargetIndex": 21958,
+    "chosenTargetIndex": 22062,
+    "rule": "first later strict target with a non-build-metadata production owner-supplement residue",
+    "buildMetadataValues": ["2.1.121", "2026-04-27T01:32:27Z", "16ffea721a0a39bc787a236dc19fb62307180b75"],
+    "skipped": [
+      {"targetIndex":21959,"reason":"strict subset contains only build metadata","strictRows":6,"ownerRows":137,"addedOwnerRows":14,"strictValueCounts":[["2.1.121",2],["2026-04-27T01:32:27Z",2],["16ffea721a0a39bc787a236dc19fb62307180b75",2]]},
+      {"targetIndex":21992,"reason":"strict subset contains only build metadata","strictRows":3,"ownerRows":33,"addedOwnerRows":4,"strictValueCounts":[["2.1.121",1],["2026-04-27T01:32:27Z",1],["16ffea721a0a39bc787a236dc19fb62307180b75",1]]},
+      {"targetIndex":22034,"reason":"strict row has no production owner-supplement rows","strictRows":1,"ownerRows":0,"addedOwnerRows":0,"strictRowsExact":[[22034,"property","pluginPruneHandler",13733869,13733887,1]]}
+    ]
+  },
+  "inputs": {
+    "baselineBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js","bytes":13784743,"sha256":"c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+    "targetBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js","bytes":13908188,"sha256":"783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"},
+    "structuralLedger": {"path":"recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz","bytes":2540002,"sha256":"185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"},
+    "typedReportSnapshots": {
+      "postFocusedBatch": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25717702,"sha256":"f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"},
+      "postTail": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25717702,"sha256":"f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a","projection":"postFocusedBatch"},
+      "postReplay": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25395103,"sha256":"87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de","projection":"postTail"},
+      "postDangerous": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25390987,"sha256":"42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7","projection":"postReplay"},
+      "postPrune": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4","projection":"postDangerous"},
+      "postDaemonOwner": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3","projection":"postPrune"}
+    },
+    "sourceCoverageSnapshots": {
+      "postFocusedBatch": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":343532,"sha256":"7a51d49cdd7cb9b26b883ea0f0b1242573cd1ed4a0ba25a91ac1bc98dbc1eabd","rawBytes":2958647,"rawSha256":"92bf969f261a3c716fb8e8a4fa50b879a1a407bf35a51cfca5971afc67c9555b"},
+      "postTail": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":344669,"sha256":"dafa823f59585697d7f696805d929a9427bc090b7bb33fa228c1a9e5d9e3ff43","rawBytes":2963227,"rawSha256":"a7956794d1f4c4613b3fb9917a7d827500b98b8195fec505ed373930cad1adb5"},
+      "postReplay": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"},
+      "postDangerous": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592","projection":"postReplay"},
+      "postPrune": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06","projection":"postDangerous"},
+      "postDaemonOwner": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f","projection":"postPrune"}
+    },
+    "evolutionCompatibility": {"postFocusedBatch":["postFocusedBatch"],"postTail":["postTail"],"postReplay":["postReplay"],"postDangerous":["postDangerous"],"postPrune":["postPrune"],"postDaemonOwner":["postDaemonOwner"]}
+  },
+  "targetUnit": {"targetIndex":22062,"classification":"changed","baselineUnitIndex":21961,"pairReason":"unique-coarse-structural-hash","unknownFreeIdentifierCount":2,"nodeType":"FunctionDeclaration","parseStatus":"parsed","start":13749285,"end":13749733,"bytes":448,"tokenCount":207,"topDefinitionCount":1,"bodyStatementCount":3,"parameterCount":1,"sha256":"9836e1fb703fd420d634eebf92d6a009537f8f68c4d52d8e8fb938693f5cfc30","coarseHash":"7b5bb0a01387ce20ca167679dd4b21cfabf363c584a74088a18aaed70c6dfccb","line":18622,"column":5960},
+  "baselineSemanticCounterpart": {"baselineUnitIndex":21961,"relation":"structural-ledger pair with unique coarse structural hash and exact complete-unit semantic canonicalization","nodeType":"FunctionDeclaration","parseStatus":"parsed","start":13681628,"end":13682076,"bytes":448,"tokenCount":207,"topDefinitionCount":1,"bodyStatementCount":3,"parameterCount":1,"sha256":"eb6aa3fc22920cabc9f32493c1ebe9ebb7ad364d8d27b64433c7d8743a1a5968","coarseHash":"7b5bb0a01387ce20ca167679dd4b21cfabf363c584a74088a18aaed70c6dfccb"},
+  "leftBoundary": {"targetIndex":22061,"baselineUnitIndex":21960,"classification":"matched","pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":13749215,"end":13749285,"tokenCount":32,"sha256":"b51fc2fbbe5916c315a58dbf2731f51928a3b60847b4aa6b2a7b8014bd0d1277","coarseHash":"4937bbb03af06a8f74ec6d47acbdb3b5486cfe7c9545a6638f20aae36bbc9e1a"},
+  "ownerResidues": {
+    "reportedOwner": "cli/handlers/agents.ts",
+    "correctedOwner": "src/cli/handlers/agents.ts",
+    "declarations": ["agentsHandler"],
+    "totalRows": 14,
+    "targetAddedRows": 9,
+    "strictRows": 1,
+    "rowIdentities": {"bytes":773,"sha256":"9ccfe59a14431dfb0083bad14376f21c98747433aafbad35f5e3bc090d64ea4d"},
+    "ownerIdentities": {"bytes":1193,"sha256":"6a6d0c010345a962cb780317678fc70487f5ebdc6c287d8c287a8dd63d9ef021"},
+    "targetAddedIdentities": {"bytes":495,"sha256":"d4f3bd786b2d3c005d753b1c47fb75ebe58c86b323d8f01707ee24d21639335a"},
+    "targetAddedRowsExact": [
+      ["property","label",13749380,13749385,781,804,true],
+      ["property","map",13749482,13749485,2307,2308,true],
+      ["property","label",13749593,13749598,781,805,true],
+      ["property","rows",13749601,13749605,120,124,true],
+      ["property","createElement",13749630,13749643,8558,8706,true],
+      ["property","default",13749622,13749629,5414,5467,true],
+      ["property","createElement",13749663,13749676,8558,8707,true],
+      ["property","default",13749655,13749662,5414,5468,true],
+      ["property","groups",13749682,13749688,18,19,true]
+    ],
+    "strictIdentities": {"bytes":50,"sha256":"a44c6b09f4062c7001347e410dd32f5716e9e5d5c8af4b6228f6ad38299e8df8"},
+    "strictRowsExact": [[22062,"property","groups",13749682,13749688,19]]
+  },
+  "wholeUnitEquivalence": {
+    "canonicalization": "Acorn AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand property keys and noncomputed member/method/field names",
+    "baselineCanonical": {"bytes":7695,"sha256":"59d3ab50a16295d2fc19eba5ca712a0aa66994921923252cfd0de2f466b5e6dd"},
+    "targetCanonical": {"bytes":7695,"sha256":"59d3ab50a16295d2fc19eba5ca712a0aa66994921923252cfd0de2f466b5e6dd"},
+    "identifierNormalizedTokens": {"baseline":{"count":207,"bytes":2708,"sha256":"20f1af469152d214818cf2e4b41ca265418cbfb3eedc65b271bf64f6b0bb5249"},"target":{"count":207,"bytes":2708,"sha256":"20f1af469152d214818cf2e4b41ca265418cbfb3eedc65b271bf64f6b0bb5249"}},
+    "groupsProperty": {
+      "nodeType": "Property",
+      "path": "body.body.2.expression.expressions.0.arguments.0.arguments.2.arguments.1.properties.0",
+      "localStart": 397,
+      "localEnd": 405,
+      "bytes": 8,
+      "sha256": "188750b56166689c675abf76ea0bf1287b950a1b979a23a4717d77db384a1841",
+      "exact": "groups:A",
+      "baseline": {"start":13682025,"end":13682033,"keyStart":13682025,"keyEnd":13682031},
+      "target": {"start":13749682,"end":13749690,"keyStart":13749682,"keyEnd":13749688}
+    },
+    "renderProps": {"localStart":396,"localEnd":420,"bytes":24,"sha256":"71846c71ccc7ab2874522a731b33cd9183d76142b3053747106a07780299a684","exact":"{groups:A,totalActive:z}","propertyNames":["groups","totalActive"]}
+  },
+  "sourceState": {
+    "path": "src/cli/handlers/agents.ts",
+    "declaration": "agentsHandler",
+    "baseline": {"path":".recovery-tmp/semantic-trees/2.1.120/src/cli/handlers/agents.ts","selectedPath":"src/cli/handlers/agents.ts","commit":"6801ead984ba2c3df02bd092ad8b93df096ed8c1","blob":"c94723b001966b3b95996dae4070f1e972f0ffaa","bytes":2089,"chars":2086,"sha256":"8f68c19182ef00910b5e4900e6b37bd0c52768efd214a919f5070e747641f827"},
+    "target": {"path":".recovery-tmp/semantic-trees/2.1.121/src/cli/handlers/agents.ts","selectedPath":"src/cli/handlers/agents.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"c94723b001966b3b95996dae4070f1e972f0ffaa","bytes":2089,"chars":2086,"sha256":"8f68c19182ef00910b5e4900e6b37bd0c52768efd214a919f5070e747641f827"},
+    "function": {"nodeType":"FunctionDeclaration","start":775,"end":2085,"chars":1310,"bytes":1310,"sha256":"f2bf8c66aa934cc4cf6c4dc2f8821a0bb52f6bf37a84fb2c5892158e98e05632","line":32,"column":1,"parameterCount":0,"bodyStatementCount":8},
+    "semanticMarkers": {"allAgents":3,"totalActive":3,"shadowed by":1,"AGENT_SOURCE_GROUPS":2,"overriddenBy":2,"console.log":3,"groups":0,".render(":0}
+  },
+  "sourceReplayDecision": {"decision":"static complete-function inherited-owner proof only; no replay helper and no source writes","reason":"Target120 and Target121 compiled functions are semantically identical and the groups key occupies the same local property node. Target120 and Target121 agents.ts are also byte-identical and preserve the same grouping behavior. The compiled renderer and recovered console renderer differ in presentation architecture, but there is no Target121 behavior delta to replay; adding groups to source would manufacture one."},
+  "sourceCoverageClaim": {
+    "row": {"targetIndex":22062,"start":13749285,"end":13749733,"nodeType":"FunctionDeclaration","sourceHash":"9836e1fb703fd420d634eebf92d6a009537f8f68c4d52d8e8fb938693f5cfc30","structuralClass":"changed","disposition":"source-runtime-covered","ownerIds":["owner-src-cli-handlers-agents-ts"],"evidenceIds":["target121-focused-residue-target-fragment","target121-focused-residue-static-ast","target121-focused-residue-semantic-test"],"behavior":"The authenticated complete target unit has 9 typed residues proved as paired-local-invariant; the focused fixture pins its conservative source-map and coverage-owner union."},
+    "rowCanonical": {"bytes":608,"sha256":"de84659be2049da8d9cee377e267c1b299a70b224154faef9b35efac46f47084"},
+    "owner": {"id":"owner-src-cli-handlers-agents-ts","path":"src/cli/handlers/agents.ts"}
+  },
+  "postTail": {"ownerResidueProjection":"postFocusedBatch","sourceCoverageProjection":"postFocusedBatch"},
+  "postReplay": {"ownerResidueProjection":"postTail","sourceCoverageProjection":"postTail"},
+  "postDangerous": {"ownerResidueProjection":"postReplay","sourceCoverageProjection":"postReplay"},
+  "postPrune": {"ownerResidueProjection":"postDangerous","sourceCoverageProjection":"postDangerous"},
+  "postDaemonOwner": {"ownerResidueProjection":"postPrune","sourceCoverageProjection":"postPrune"},
+  "generatorWiring": {"ownerOverrideModule":"recovery/cases/2.1.120-to-2.1.121/recovered/agents-handler-groups-owner-overrides.mjs","ownerOverrideExport":"TARGET121_AGENTS_HANDLER_GROUPS_OWNER_OVERRIDES","evidenceExport":"TARGET121_AGENTS_HANDLER_GROUPS_EVIDENCE_IDS","replayHelper":null,"expectedAddedOwnerImpact":{"units":-1,"residues":-9},"expectedRawStrictImpact":{"units":-1,"residues":-1}}
+}

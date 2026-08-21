@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-fleet-view-frame-child-row-static-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-fleet-view-frame-row-authenticated-whole-unit",
+    "target121-fleet-view-frame-row-consumer-boundary",
+    "target121-fleet-view-frame-schema-source-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    }
+  },
+  "frozenSharedSnapshot": {
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26646291,
+      "sha256": "75c93caebd73e5cfa9d977c81874b0f4eb617866b973f872b3ec909b8ce113e4"
+    },
+    "sourceCoverage": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+      "bytes": 339584,
+      "sha256": "5d0df0f05882a63ddd9b92bc158e6f7c75426c9ec6409eab5436ff5d55710105"
+    },
+    "ownerRows": {"count":32,"bytes":13021,"sha256":"6c1e3f84577b7dc135b512a56bf885429615f962498ab6a8df0af1fc63e6a42f"},
+    "addedRows": {"count":2,"bytes":1271,"sha256":"4ea86cf74c6ae93e852c25f9457134e71adc40c4ba76f02c3d1d75239566baa5"},
+    "rawStrictRows": {"count":1,"bytes":554,"sha256":"34c41e9c5976f19b5e7d486522977cefcb172c7abbadeab11f26ce25becf8264"},
+    "unclassifiedRows": {"count":0,"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "coverageRow": {
+      "jsonPath": "$.rows[4316]",
+      "bytes": 532,
+      "sha256": "3404d3647846b83898411fd8ca07df0147aa98ae1231c82974d6d7ece8b4c2bb",
+      "targetIndex": 20909,
+      "start": 12552070,
+      "end": 12552495,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "5908e3b0b5983675a4aaa7fff3e40e53bd577f8effa1523a482f54ca1881a4d5",
+      "reportedOwnerId": "owner-src-utils-sessionRestore-ts"
+    }
+  },
+  "ownerCorrection": {
+    "targetIndex": 20909,
+    "reportedOwner": "src/utils/sessionRestore.ts",
+    "correctedOwner": "src/components/FleetView.tsx",
+    "declaration": "FleetView",
+    "internalRuntimeRole": "frame-aware child-row decorator; authored helper symbol unavailable from recovered source"
+  },
+  "baselineUnit": {
+    "baselineUnitIndex": 19595,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 11899002,
+    "end": 11899330,
+    "tokenCount": 160,
+    "topDefinitionCount": 1,
+    "bytes": 328,
+    "sha256": "ad2b0ef9ec94200e9da93e65875471a6da1ece1aa623d02bbdd90f7a934fee0e",
+    "coarseHash": "7efc548b20d54c57b3f9aaf1217a7efe0736680c77cfac72c38935194bf8bb0a",
+    "line": 8950,
+    "column": 21965
+  },
+  "targetUnit": {
+    "targetIndex": 20909,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 12552070,
+    "end": 12552495,
+    "tokenCount": 199,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 0,
+    "bytes": 425,
+    "sha256": "5908e3b0b5983675a4aaa7fff3e40e53bd577f8effa1523a482f54ca1881a4d5",
+    "coarseHash": "f0b29a4ae782de99bb7d1603596aabc83d2f4564caffb9d4e7c0db23097ccf09",
+    "line": 9164,
+    "column": 14055
+  },
+  "wholeUnitRelation": {
+    "method": "Parse both complete FunctionDeclarations with Acorn, remove only the first IfStatement from the target map callback, delete position/raw fields, replace binding/reference identifiers with @id while retaining noncomputed runtime property names, then compare exact canonical JSON.",
+    "targetAddedBranch": {
+      "start": 12552111,
+      "end": 12552208,
+      "bytes": 97,
+      "sha256": "3dc7ec37dc69be2099d1748db4caccf716c5b7af21984d62abc762458d1dbb22",
+      "exact": "if(q.kind===\"frame\")return{row:q,label:q.id,status:[],diffStat:void 0,color:\"claude\",sortRank:0};"
+    },
+    "branchSortRank": {"start":12552196,"end":12552204,"bytes":8,"sha256":"f615e6115d7c76e4accdc658a0a61bf6d4b62e2f0ad0f437ec46f36449d6e9df"},
+    "baselineCanonical": {"bytes":6400,"sha256":"023a7cac85816ce6bc39f1e750108067c63e87bb762228551bf671b46b21a1e9"},
+    "targetWithoutBranchCanonical": {"bytes":6400,"sha256":"023a7cac85816ce6bc39f1e750108067c63e87bb762228551bf671b46b21a1e9"},
+    "withinUnitCounts": {
+      "baseline": {"frame":0,"sortRank":1},
+      "target": {"frame":1,"sortRank":2}
+    }
+  },
+  "addedResidues": [
+    {"literalKind":"string","value":"frame","start":12552123,"end":12552130,"bytes":7,"sha256":"6403d742dd3b2c3057824808325fa33bf51bd2508d294e9d2204b12a7e0cf79f","baselineOccurrenceCount":4,"targetOccurrenceNumber":9,"rawStrict":false,"semanticClass":"authentic-frame-branch"},
+    {"literalKind":"property","value":"sortRank","start":12552449,"end":12552457,"bytes":8,"sha256":"f615e6115d7c76e4accdc658a0a61bf6d4b62e2f0ad0f437ec46f36449d6e9df","baselineOccurrenceCount":3,"targetOccurrenceNumber":4,"rawStrict":true,"semanticClass":"retained-pr-row-global-occurrence-shift-caused-by-branch-sortRank"}
+  ],
+  "moduleBoundary": {
+    "adjacentUnits": [
+      {"targetIndex":20907,"classification":"moved","baselineUnitIndex":19593,"sourceDeclaration":"sort child rows by sortRank","start":12551334,"end":12551398,"tokenCount":29,"bytes":64,"sha256":"ea9692b77392e9f8e8d940dd91e235c1200dda3980ce0254abb8b0aa208466e4"},
+      {"targetIndex":20908,"classification":"moved","baselineUnitIndex":19594,"sourceDeclaration":"actionableStatus","start":12551398,"end":12552070,"tokenCount":283,"bytes":672,"sha256":"de330e9577e33f24476ceb1956f22c098c529fcc100d93ea5e70595b15c4cdb0"},
+      {"targetIndex":20910,"classification":"moved","baselineUnitIndex":19596,"sourceDeclaration":"spawnOrigin","start":12552495,"end":12552625,"tokenCount":41,"bytes":130,"sha256":"3b1dc80e14626887e539e13b88ee2d916463a7bf042fe5ebe9fb379b42f1be8f"},
+      {"targetIndex":20911,"classification":"moved","baselineUnitIndex":19597,"sourceDeclaration":"repoGroup","start":12552625,"end":12552690,"tokenCount":37,"bytes":65,"sha256":"e684a68e31f1854a2e7b4224d7549bfb2b88bedec1d029b24f16bcee7651475c"},
+      {"targetIndex":20912,"classification":"moved","baselineUnitIndex":19598,"sourceDeclaration":"repoGroupLabel","start":12552690,"end":12552801,"tokenCount":48,"bytes":111,"sha256":"d431cb02f0514e3999545882046b2fd1852acc8b36142568109c519f7bd2d209"},
+      {"targetIndex":20913,"classification":"moved","baselineUnitIndex":19599,"sourceDeclaration":"effectiveSortOrder","start":12552801,"end":12552861,"tokenCount":20,"bytes":60,"sha256":"b6f1ae24782c6ab600127584c5772ea344a06e328a589d4c45a2ed79b15794eb"},
+      {"targetIndex":20914,"classification":"unresolved","baselineUnitIndex":null,"sourceDeclaration":"effectiveStateSortOrder","start":12552861,"end":12552926,"tokenCount":20,"bytes":65,"sha256":"ac3719da9b5e8c463b078d845f44005bd512b40d9560476ff625093a35f25235"},
+      {"targetIndex":20915,"classification":"moved","baselineUnitIndex":19600,"sourceDeclaration":"sortJobs","start":12552926,"end":12552994,"tokenCount":35,"bytes":68,"sha256":"72d0b4b65bd7d404d56e5513c76100f223f78b4521f74669a70f36dfb33b69fa"}
+    ],
+    "fleetViewRuntimeUnit": {"targetIndex":20945,"classification":"unresolved","start":12568995,"end":12600373,"nodeType":"FunctionDeclaration","tokenCount":14073,"bytes":31378,"sha256":"ebc949207c23e7fcf98731ec1cfa3762aa722aafbe193e7423887b050be25b1c","coarseHash":"6b7ead51827840f284844ba46f2c596161e47a8b0d356cd3a1fcecb4bb2b449f","unknownFreeIdentifierCount":24},
+    "consumerCalls": [
+      {"role":"focused-job-child-rows","start":12581779,"end":12581803,"bytes":24,"sha256":"c84affa993a07db735fafa6057474cd30e3b1e1562f76e41941c2dad46ba41e3","exact":"tZ4(xq.state.children,w)"},
+      {"role":"rendered-job-child-rows","start":12597192,"end":12597216,"bytes":24,"sha256":"aeeff2a9ec3d31ca44faa046fb993e3a78ef11aaff03d00bb75795b87adb7277","exact":"tZ4(i7.state.children,w)"}
+    ],
+    "moduleInitializer": {"targetIndex":20953,"classification":"unresolved","start":12606713,"end":12607703,"nodeType":"VariableDeclaration","tokenCount":518,"bytes":990,"sha256":"87977bf6532614fdac193f8d4116caf8b6cc0247f636c552e31576f60c22c9e6","coarseHash":"574f5e40cc7ac7e422803ccfe6843ffb09c2f0260d3a24ccc8ec1cbecd3b9e68","unknownFreeIdentifierCount":6}
+  },
+  "sourceStates": {
+    "baseline120FleetView": {
+      "path": ".recovery-tmp/semantic-trees/2.1.120/src/components/FleetView.tsx",
+      "selectedPath": "src/components/FleetView.tsx",
+      "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "blob": "bf0710e02b4d8124abc0ad371555efa7458c1d8d",
+      "bytes": 82350,
+      "chars": 82244,
+      "sha256": "dc4b63eb534e2a2923c6667430db1b241873939b9ff10bcf853b772707249314",
+      "fleetViewDeclaration": {"name":"FleetView","start":30243,"end":77038,"chars":46795,"bytes":46875,"sha256":"52cfe06dd4b7e352c4721686afdd8e93744d9a95fbde9b364312f2c5679e3e9b"},
+      "legacyChildRows": {"start":71525,"end":71859,"chars":334,"bytes":334,"sha256":"746af15908d9f9ce18487054029dfa52d86c3a7dc36aea97093274a9274fa078"}
+    },
+    "target121FleetView": {
+      "path": ".recovery-tmp/semantic-trees/2.1.121/src/components/FleetView.tsx",
+      "selectedPath": "src/components/FleetView.tsx",
+      "commit": "9f034bb03d575603a850e3c75ce003406094f9cc",
+      "tree": "e30c62cef8d103b23920df31a731ee212ed721ba",
+      "blob": "7aac6243bea74b508131812ae4d5bc4f75db94df",
+      "bytes": 85589,
+      "chars": 85473,
+      "sha256": "8e9a6b63a767fe02b16d59b91ae7623ea6089af39781cf24906faab0a643bcab",
+      "fleetViewDeclaration": {"name":"FleetView","start":30851,"end":80267,"chars":49416,"bytes":49506,"sha256":"edf87f941226751c1f52684ff12945376a4b4eb7415efb0f299c017f74c6a079"},
+      "legacyChildRows": {"start":74456,"end":74790,"chars":334,"bytes":334,"sha256":"746af15908d9f9ce18487054029dfa52d86c3a7dc36aea97093274a9274fa078"},
+      "legacyDetailChildrenMap": {"start":76682,"end":77094,"chars":412,"bytes":413,"sha256":"63facebddb4f9c8fe059e85485123fbcf87196b23663d6ce7a82b8ee2ef809e2"},
+      "lexicalCounts": {"sortRank":0,"kind === 'frame'":0},
+      "declarationAnchors": {
+        "spawnOrigin": {"start":20229,"end":20470,"chars":241,"bytes":241,"sha256":"49a21f5e0b8037b763a34a19ee9815b5115e101733495c7edc0c577d722339af"},
+        "repoGroup": {"start":20472,"end":20721,"chars":249,"bytes":249,"sha256":"8516507466ec08f1bb6f7379a8ff02d0aa690e4a9616428379775da6247a64c6"},
+        "repoGroupLabel": {"start":20723,"end":20906,"chars":183,"bytes":183,"sha256":"2afa80c0bb75e0db95c602ddabb4827242b82ec9cf6fe0b5d3727cb265a812f0"},
+        "effectiveSortOrder": {"start":20908,"end":21027,"chars":119,"bytes":119,"sha256":"54199a8d5eda46044b23846d001fcce7101b87f7da8dccb221a280328912a48a"},
+        "effectiveStateSortOrder": {"start":21029,"end":21158,"chars":129,"bytes":129,"sha256":"4643989819ad05329ea4f73a290e2a5a16a485e60ba120c16cd5f27aa11308f7"},
+        "sortJobs": {"start":21160,"end":21351,"chars":191,"bytes":191,"sha256":"34ea40cdc854ffe9c3e3fdbf5d97a5aab9560e36115fec6871e3f98f3132058b"},
+        "childStatusColor": {"start":23288,"end":23442,"chars":154,"bytes":154,"sha256":"a3bf515f4ba76d0996cc3112fdac216f0f03751a564456184f821f832e1d147d"},
+        "rollupChildColor": {"start":23444,"end":23967,"chars":523,"bytes":523,"sha256":"5d1f7ecd7a0017e3ed802b27ee5f5fefcf3887f4d490abd937518df4d933e6c5"},
+        "actionableStatus": {"start":23969,"end":25030,"chars":1061,"bytes":1067,"sha256":"3a3d7a923add676271af539a273d58ae00c6c61620d7ffd910b661313bb0611b"}
+      }
+    },
+    "baseline120JobSchema": {
+      "path": ".recovery-tmp/semantic-trees/2.1.120/src/daemon/jobs.ts",
+      "selectedPath": "src/daemon/jobs.ts",
+      "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "blob": "c42af3dd49d916b5802366084ee3cc68d40498fa",
+      "bytes": 10674,
+      "chars": 10668,
+      "sha256": "72e9439469e8fe5a403ac99689192182ca01bed9d1035178f291e1f99ee82b9f",
+      "childrenSchema": {"start":1043,"end":1217,"chars":174,"bytes":174,"sha256":"027bccf4a30b35bf34d62551a9f25f227177206e9692766174d193d78694a03f"},
+      "frameEnumCount": 0
+    },
+    "target121JobSchema": {
+      "path": ".recovery-tmp/semantic-trees/2.1.121/src/daemon/jobs.ts",
+      "selectedPath": "src/daemon/jobs.ts",
+      "commit": "9f034bb03d575603a850e3c75ce003406094f9cc",
+      "blob": "4d4fac557d1d6b5c9cacc0790c60bbb53c0486da",
+      "bytes": 13527,
+      "chars": 13521,
+      "sha256": "c1545c61e03d395cf2d29a2d06f5d06807903aed6529d75cd07861c651e16eba",
+      "childrenSchema": {"start":1043,"end":1271,"chars":228,"bytes":228,"sha256":"df66764de08a2e5234728c38ce2add51335fade35f3f36e06d49a3d17e7f254f"},
+      "frameEnum": {"start":1168,"end":1191,"chars":23,"bytes":23,"sha256":"39a784cdf5f7637b060c52bb02f15ae5ee795769ca299e6c462569465d37ffa1","exact":"z.enum(['pr', 'frame'])"}
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static complete-unit owner proof only; no replay helper and no source writes",
+    "reason": "The exact Target121 daemon schema authenticates the frame-child type, but the exact Target121 FleetView source retains byte-identical Target120 PR-only childRows mapping, has no sortRank property, and renders detail children through a second legacy inline map. Adding only the 97-byte compiled branch would require inventing the missing authored decorator, row type, sorting helper, and both consumer rewrites."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/fleet-view-frame-child-row-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_FLEET_VIEW_FRAME_CHILD_ROW_OWNER_OVERRIDES",
+    "evidenceExport": "TARGET121_FLEET_VIEW_FRAME_CHILD_ROW_EVIDENCE_IDS",
+    "replayHelper": null,
+    "expectedAddedOwnerImpact": {"units":-1,"residues":-2},
+    "expectedRawStrictImpact": {"units":-1,"residues":-1}
+  }
+}

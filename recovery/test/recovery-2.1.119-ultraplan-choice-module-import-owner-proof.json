@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "complete-unit-static-exact-source-owner-proof-ready",
+  "criterion": "target119-ultraplan-choice-module-initializer-import-boundary-v1",
+  "evidenceIds": [
+    "target119-ultraplan-choice-module-initializer-whole-unit-proof",
+    "target119-ultraplan-choice-import-consumer-boundary-proof",
+    "target119-ultraplan-choice-authored-source-import-proof",
+    "target119-ultraplan-choice-false-session-background-hint-owner-proof",
+    "target119-ultraplan-choice-retained-runtime-lineage-proof",
+    "target119-ultraplan-choice-static-owner-only-proof"
+  ],
+  "inputs": {
+    "bundles": {
+      "2.1.118": {"path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js", "bytes": 13234618, "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"},
+      "2.1.119": {"path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js", "bytes": 13720987, "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"},
+      "2.1.120": {"path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js", "bytes": 13784743, "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+      "2.1.121": {"path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js", "bytes": 13908188, "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"}
+    },
+    "ledgers": {
+      "2.1.118-to-2.1.119": {"path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", "bytes": 2550437, "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"},
+      "2.1.119-to-2.1.120": {"path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", "bytes": 2490663, "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"},
+      "2.1.120-to-2.1.121": {"path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", "bytes": 2540002, "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"}
+    },
+    "frozenMutableSnapshot": {
+      "report": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24830203, "sha256": "23494a59a02ba61ec9a1e6dcfb77776b7170048fcd79d44f182787ba522f28b7"},
+      "coverageGzip": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 371584, "sha256": "5a9e112947a0267f7053fcae41ef3b099f4ab25aa47437c9e327842917e56bb1"},
+      "coverageJson": {"bytes": 3244149, "sha256": "9ea96a8ff75ef0e74b8336cf2932b03587ccf8e0c10644d838311f34548ae4e0"},
+      "readPolicy": "descriptor-only-after-snapshot; tests must not reopen mutable report or coverage"
+    },
+    "helper": {"path": "recovery/cases/2.1.118-to-2.1.119/recovered/ultraplan-choice-module-import-owner-overrides.mjs", "bytes": 1617, "sha256": "0bf3be11079631a4baf8e3f3c6236e4be2845c58694feda86b23d5dc1c712ef4"}
+  },
+  "snapshotPartition": {
+    "sourceRuntimeOwnerResidueRows": {
+      "rows": [[20804, "string", "fs/promises", 12529238, 12529251, 170, 194, true], [20804, "string", "path", 12529265, 12529271, 380, 389, true]],
+      "jsonBytes": 118,
+      "sha256": "c3f1a558980b28e9c0ca14a7bd42418b1635917e06074d038ac9b64c5bdded4b"
+    },
+    "sourceRuntimeAddedOwnerResidueRows": {
+      "rows": [[20804, "string", "fs/promises", 12529238, 12529251, 170, 194, true], [20804, "string", "path", 12529265, 12529271, 380, 389, true]],
+      "jsonBytes": 118,
+      "sha256": "c3f1a558980b28e9c0ca14a7bd42418b1635917e06074d038ac9b64c5bdded4b"
+    },
+    "strictRows": {"rows": [], "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "unclassifiedRows": {"rows": [], "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "coverage": {
+      "rows": 1,
+      "jsonBytes": 557,
+      "sha256": "4821147bbe87381770eb9113ba0d88684d74c9499971b11441f4365f928f82a4",
+      "targetIndex": 20804,
+      "target": {"start": 12529110, "end": 12529302, "nodeType": "VariableDeclaration", "sourceHash": "f652852df77f460198ef81b02bd4d49a65c029892624330d78b8a6c71b4c6f3c", "classification": "changed"},
+      "staleOwnerPaths": ["src/components/SessionBackgroundHint.tsx"],
+      "evidenceIds": ["source-map-attribution", "semantic-test"]
+    }
+  },
+  "ownerOverride": {
+    "key": "2.1.118-to-2.1.119:20804",
+    "targetIndex": 20804,
+    "paths": ["src/components/UltraplanChoiceDialog.tsx"],
+    "declarations": ["currentTranscriptExists", "UltraplanChoiceDialog"]
+  },
+  "runtimeBoundary": {
+    "baseline": {
+      "consumer": {"targetIndex": 19895, "nodeType": "FunctionDeclaration", "start": 12067961, "end": 12071938, "bytes": 3977, "tokenCount": 1830, "sha256": "a4eda6e5909624638c2c0a0554477b08195d469a53d6177c81f172b57fd68f96", "coarseHash": "3ff9cbbda7fd35ca5461ca21df68d0892af69edb80ed2d47a634adf6f29de602", "canonicalProgram": {"jsonBytes": 69165, "sha256": "eacc51a28721c50539a08f5371e953c5e1ef09698a1a6041a06ca481aad43040"}},
+      "bindings": {"targetIndex": 19901, "nodeType": "VariableDeclaration", "start": 12072207, "end": 12072244, "bytes": 37, "tokenCount": 19, "sha256": "0692ac011899da9c513970e18c1f6c577949d6e794aaf89bdc0a27e3c1c78da6", "coarseHash": "5e18350a83bd1ebb73a557ecd7433c871c1d446d6246c50d3c831a24f689645a", "text": "var s14,F98,t14,IC,U98,m85=24,p85=11;"},
+      "initializer": {"targetIndex": 19902, "nodeType": "VariableDeclaration", "start": 12072244, "end": 12072436, "bytes": 192, "tokenCount": 126, "sha256": "0a40b0ae20db062072e3ffc44d10bd5014d6c4f0c1f06fb38680e15d431b8ddb", "coarseHash": "5a1caeec350b4db8f7c8fdba771a3fd7e29c27ce76a8efbc1938f2268e782557", "canonicalProgram": {"jsonBytes": 4468, "sha256": "ea76f4dc78e2d6706e2a826e7a400641b10558c8797620b565d2421e2d4075f5"}}
+    },
+    "target": {
+      "consumer": {"targetIndex": 20797, "classification": "matched", "baselineUnitIndex": 19895, "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 12524837, "end": 12528804, "bytes": 3967, "tokenCount": 1830, "sha256": "1cfea9b2337f6708988d13c004138e218a0c316713e7388f9e0dcbf0ea41c170", "coarseHash": "3ff9cbbda7fd35ca5461ca21df68d0892af69edb80ed2d47a634adf6f29de602", "unknownFreeIdentifierCount": 0, "canonicalProgram": {"jsonBytes": 69165, "sha256": "eacc51a28721c50539a08f5371e953c5e1ef09698a1a6041a06ca481aad43040"}},
+      "bindings": {"targetIndex": 20803, "classification": "matched", "baselineUnitIndex": 19901, "pairReason": "exact-scope-normalized-token-hash", "nodeType": "VariableDeclaration", "start": 12529073, "end": 12529110, "bytes": 37, "tokenCount": 19, "sha256": "56aab811fa6b133efa4435a55f263b6e1a6d9bff1f1efac52e18bf24d7ef0240", "coarseHash": "5e18350a83bd1ebb73a557ecd7433c871c1d446d6246c50d3c831a24f689645a", "unknownFreeIdentifierCount": 0, "text": "var H24,aO8,$24,Sx,sO8,SL5=24,RL5=11;"},
+      "initializer": {"targetIndex": 20804, "classification": "changed", "baselineUnitIndex": 19902, "pairReason": "unique-coarse-structural-hash", "nodeType": "VariableDeclaration", "start": 12529110, "end": 12529302, "bytes": 192, "tokenCount": 126, "sha256": "f652852df77f460198ef81b02bd4d49a65c029892624330d78b8a6c71b4c6f3c", "coarseHash": "5a1caeec350b4db8f7c8fdba771a3fd7e29c27ce76a8efbc1938f2268e782557", "unknownFreeIdentifierCount": 3, "canonicalProgram": {"jsonBytes": 4468, "sha256": "ea76f4dc78e2d6706e2a826e7a400641b10558c8797620b565d2421e2d4075f5"},
+        "requires": [
+          {"module": "fs/promises", "binding": "aO8", "assignment": {"start": 12529226, "end": 12529252, "bytes": 26, "sha256": "378044449c15ec68b87e62cc57440480710c5dc019c783466b37357bde52309f"}, "call": {"start": 12529230, "end": 12529252, "bytes": 22, "sha256": "0369e88f11f1d0a151ef8dfc758be30ec8ba9364b8d4f7e7e5d63c753dab2b4d"}, "literal": {"start": 12529238, "end": 12529251, "bytes": 13, "sha256": "f564c5797ae28404155ae4a772a0d28493b66487746ef7dee5ef752c6ac7347d"}},
+          {"module": "path", "binding": "$24", "assignment": {"start": 12529253, "end": 12529272, "bytes": 19, "sha256": "f1755c0ebaa55150123a93bfcc67701d945d7bf8e62bd52cd7001b315ac4699d"}, "call": {"start": 12529257, "end": 12529272, "bytes": 15, "sha256": "a718642e9523b87bdd2063150c120c341d2194e67710b057702deb696628ef9d"}, "literal": {"start": 12529265, "end": 12529271, "bytes": 6, "sha256": "d070c7ecb482689e5aa2de207d3c81eed20a358eadbc5897d4a3418bdc1a75d0"}}
+        ]
+      },
+      "bindingUses": [
+        {"object": "aO8", "property": "stat", "member": {"start": 12525542, "end": 12525550, "bytes": 8, "sha256": "01f6febd72a4cfb991874f3e3f3cc74650f3a9775b5337ea550f4171d70769dd"}, "call": {"start": 12525542, "end": 12525556, "bytes": 14, "sha256": "1ff4d5d32cc24601dd35a1bad847be77a71acc0c43739cf77ab45644d2c4fbee"}},
+        {"object": "$24", "property": "join", "member": {"start": 12525962, "end": 12525970, "bytes": 8, "sha256": "ba152bb4bf4d8c0ff67c961b433a4ac785d9338389f98b617d1da75371f698ff"}, "call": {"start": 12525962, "end": 12526000, "bytes": 38, "sha256": "b6a9e0d6701b826c652523293f6827446c68cff44cf157fa92a74e1972e05d68"}},
+        {"object": "aO8", "property": "writeFile", "member": {"start": 12526007, "end": 12526020, "bytes": 13, "sha256": "07f8001a071e58d4d823a370a99bdc094033839fd0148f7f740528066d677051"}, "call": {"start": 12526007, "end": 12526044, "bytes": 37, "sha256": "1a23e79994cad5a6751bd04b12283d96efd36f33e3b21ced45a75d75d556c75d"}}
+      ]
+    }
+  },
+  "sourceBoundary": {
+    "baseline": {"commit": "bd846a24e3886322888f02b9f747c132a4a32314", "path": "src/components/UltraplanChoiceDialog.tsx", "state": "absent"},
+    "target": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "path": "src/components/UltraplanChoiceDialog.tsx",
+      "blob": "c0c4a1c33c0dd5e5e766f1f48ef25080b57ad190",
+      "file": {"chars": 7791, "bytes": 7798, "sha256": "42a720440312c4035f225a713636b7b1f7f1c347b6b4e5a407ceac69c6ee8cf0"},
+      "imports": [
+        {"module": "fs/promises", "start": 35, "end": 80, "chars": 45, "bytes": 45, "sha256": "efadcb6590c43a661387ed48064d71333423ae72efa55663ffe6e2d311bf7631", "names": ["stat", "writeFile"], "elements": [{"name": "stat", "start": 44, "end": 48, "chars": 4, "bytes": 4, "sha256": "40460da8c882cdc791836fba76009870f960a151287798f1df8af5e963398f84"}, {"name": "writeFile", "start": 50, "end": 59, "chars": 9, "bytes": 9, "sha256": "7ecab0d963239027822fb22cdd1d61efe6ebfcae36c266c74132ae2cbcf68556"}]},
+        {"module": "path", "start": 111, "end": 138, "chars": 27, "bytes": 27, "sha256": "6e4742508b501bcd5aace8fc1cefcf656c01e5047145908e0aed0e46282856c5", "names": ["join"], "elements": [{"name": "join", "start": 120, "end": 124, "chars": 4, "bytes": 4, "sha256": "58393216032be6257784ac0c6a73efb2a084e27b4cfff1e6acee7b7e6ab93b10"}]}
+      ],
+      "declarations": [
+        {"name": "currentTranscriptExists", "kind": "FunctionDeclaration", "start": 2211, "end": 2422, "chars": 211, "bytes": 211, "sha256": "dadce53e41a113002a0068dde8efb111c86bd8fe76757c559ff1dbb6066ac0f9"},
+        {"name": "UltraplanChoiceDialog", "kind": "FunctionDeclaration", "start": 2424, "end": 7790, "chars": 5366, "bytes": 5373, "sha256": "96e5a895fdd0b92dd4cc087b792adf942f49dee4eb98195176e5b8e3ab49795d"}
+      ],
+      "calls": [
+        {"callee": "stat", "start": 2360, "end": 2377, "chars": 17, "bytes": 17, "sha256": "0070ca82a0ff8ae330775345683869488fe609c1bdb3d27a2f9d005f73bfadee"},
+        {"callee": "join", "start": 4244, "end": 4338, "chars": 94, "bytes": 94, "sha256": "47258c90cb74f8670653fb5e126eb71f110171b16b2f79f9ddd51dbdd3cddb4c"},
+        {"callee": "writeFile", "start": 4353, "end": 4401, "chars": 48, "bytes": 48, "sha256": "f670f3df8d2c33fdc386e07a741d4ec77049cc2a860d3b1c9201c2cafbb6176e"}
+      ]
+    },
+    "exactLaterSource": [
+      {"version": "2.1.120", "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1", "blob": "c0c4a1c33c0dd5e5e766f1f48ef25080b57ad190"},
+      {"version": "2.1.121", "commit": "9f034bb03d575603a850e3c75ce003406094f9cc", "blob": "c0c4a1c33c0dd5e5e766f1f48ef25080b57ad190"}
+    ],
+    "falseOwner": {
+      "path": "src/components/SessionBackgroundHint.tsx",
+      "blob": "ece9ffb770a0e910411399c56b00b8bed80f39ef",
+      "file": {"chars": 13154, "bytes": 13154, "sha256": "e1922c40a002b4e03c5553ffa529feba51a4bab95494b6f176b29da567be83ec"},
+      "fsPromisesLiteralCount": 0,
+      "pathModuleLiteralCount": 0
+    }
+  },
+  "crossReleaseInitializerLineage": [
+    {"case": "2.1.119-to-2.1.120", "version": "2.1.120", "targetIndex": 20891, "baselineUnitIndex": 20804, "classification": "changed", "pairReason": "unique-coarse-structural-hash", "nodeType": "VariableDeclaration", "start": 12567087, "end": 12567279, "bytes": 192, "tokenCount": 126, "sha256": "a320fa03c39460be36308ddb4a1a19c5b52cd413729d33f96a2de6af613bda93", "coarseHash": "5a1caeec350b4db8f7c8fdba771a3fd7e29c27ce76a8efbc1938f2268e782557", "unknownFreeIdentifierCount": 2, "canonicalProgram": {"jsonBytes": 4468, "sha256": "ea76f4dc78e2d6706e2a826e7a400641b10558c8797620b565d2421e2d4075f5"}},
+    {"case": "2.1.120-to-2.1.121", "version": "2.1.121", "targetIndex": 20986, "baselineUnitIndex": 20891, "classification": "changed", "pairReason": "unique-coarse-structural-hash", "nodeType": "VariableDeclaration", "start": 12628026, "end": 12628218, "bytes": 192, "tokenCount": 126, "sha256": "4cb5568de511dd6671d51d56d7e223a179f9fe0d7d07009dbc0b6c5f995a8dcb", "coarseHash": "5a1caeec350b4db8f7c8fdba771a3fd7e29c27ce76a8efbc1938f2268e782557", "unknownFreeIdentifierCount": 2, "canonicalProgram": {"jsonBytes": 4468, "sha256": "ea76f4dc78e2d6706e2a826e7a400641b10558c8797620b565d2421e2d4075f5"}}
+  ],
+  "decision": {
+    "mode": "static-exact-source-owner-proof-only",
+    "sourceReplay": false,
+    "sourceFilesChanged": 0,
+    "replayExport": null,
+    "requiredOrder": null,
+    "reason": "The exact authored Target119 source and its imports are already present. The two residues reflect a false generated owner for a retained runtime initializer, so rewriting source would add no authenticated behavior.",
+    "expectedStrictImpact": {"units": -1, "residues": -2}
+  }
+}

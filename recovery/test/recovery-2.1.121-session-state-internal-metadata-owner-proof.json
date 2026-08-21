@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-session-state-internal-metadata-static-class-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-session-state-manager-authenticated-whole-class",
+    "target121-session-state-internal-metadata-callback-delta",
+    "target121-session-state-internal-metadata-consumer-graph",
+    "target121-session-state-manager-source-architecture-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js","bytes":13784743,"sha256":"c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+    "targetBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js","bytes":13908188,"sha256":"783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"},
+    "structuralLedger": {"path":"recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz","bytes":2540002,"sha256":"185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"}
+  },
+  "frozenSharedSnapshot": {
+    "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":26646291,"sha256":"75c93caebd73e5cfa9d977c81874b0f4eb617866b973f872b3ec909b8ce113e4"},
+    "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":339584,"sha256":"5d0df0f05882a63ddd9b92bc158e6f7c75426c9ec6409eab5436ff5d55710105"},
+    "ownerRows": {"count":53,"bytes":23517,"sha256":"5be50f4f27bdb1a653fa5932a43c54cd3dd5e2dd5da0941d1d5af955ceba6221"},
+    "addedRows": {"count":4,"bytes":3304,"sha256":"4a11c6c675c4381dccbe3cd9c44b706d948c4f26bac776be838acf4c97d13a10"},
+    "rawStrictRows": {"count":3,"bytes":1904,"sha256":"f5fbb0664624bc421be0658be7444b0bcd1dcf96e1ea121bc0115544c4507ea5"},
+    "unclassifiedRows": {"count":0,"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "coverageRow": {"jsonPath":"$.rows[4420]","bytes":589,"sha256":"b377b6132267732e0733f5ac4640c93c8217cc09e7d63df15c12c0e32676b362","reportedOwnerId":"owner-src-utils-permissions-PermissionPromptToolResultSchema-ts","targetIndex":21128,"start":12715552,"end":12716632,"nodeType":"ClassDeclaration","sourceHash":"eb7c5a7a46f84d77be0593f9e8b2a50556c3ae0d921dbcab2d1eb4d8dc6f1199"}
+  },
+  "ownerCorrection": {
+    "reportedOwner": "src/utils/permissions/PermissionPromptToolResultSchema.ts",
+    "correctedOwner": "src/utils/sessionState.ts",
+    "declaration": "SessionStateManager",
+    "reason": "The whole class is the session-scoped notifier introduced in the authenticated Target105 lineage; adjacent permission schema units are merely bundle neighbors."
+  },
+  "wholeClass": {
+    "baseline": {"baselineUnitIndex":21033,"classification":"unmatched-baseline","nodeType":"ClassDeclaration","start":12654162,"end":12655147,"tokenCount":253,"topDefinitionCount":1,"bytes":985,"sha256":"03ba44d1fe397b5a956352c49a9f15ab2a40227de7a6b8ae9236a63eb5e1fedc","coarseHash":"786f63635949a901f6c067986f1f4766b1d338ca8ed1940a4c75a7353a765c01","line":9232,"column":26050},
+    "target": {"targetIndex":21128,"classification":"unresolved","baselineUnitIndex":null,"nodeType":"ClassDeclaration","start":12715552,"end":12716632,"tokenCount":268,"topDefinitionCount":1,"unknownFreeIdentifierCount":0,"bytes":1080,"sha256":"eb7c5a7a46f84d77be0593f9e8b2a50556c3ae0d921dbcab2d1eb4d8dc6f1199","coarseHash":"7469da10c8055b6500c47c770d78cc254ce0888a731b097bde97ed117f0d37c0","line":9198,"column":26399},
+    "addedNodes": [
+      {"nodeType":"PropertyDefinition","name":"onInternalMetadataChanged","start":12715595,"end":12715621,"bytes":26,"sha256":"cdd4b774e20907c20b1d3a2aebc32dc6a326bf74065c167dc6bc99704347bfd8"},
+      {"nodeType":"MethodDefinition","name":"notifyInternalMetadataChanged","start":12716562,"end":12716631,"bytes":69,"sha256":"b8717e6f930599d764e12a5d9959cfce563f5cf5d6647420a63fbe7b3d7121e6"}
+    ],
+    "targetWithoutAddedNodesCanonical": {"method":"Remove exactly the named field and method, strip positions/raw, alpha-normalize private identifiers while retaining class/member/property names","bytes":11143,"sha256":"7dd400729aa96056d22d71acbba170d6b57d38f828d04f56d740a235af9048b0"},
+    "baselineCanonical": {"bytes":11143,"sha256":"7dd400729aa96056d22d71acbba170d6b57d38f828d04f56d740a235af9048b0"}
+  },
+  "addedResidues": [
+    ["property","onInternalMetadataChanged",12715595,12715620,0,1,true],
+    ["string","requires_action",12715817,12715834,7,8,true],
+    ["property","notifyInternalMetadataChanged",12716562,12716591,0,3,true],
+    ["property","onInternalMetadataChanged",12716600,12716625,0,2,true]
+  ],
+  "strictResidueIndexes": [0,2,3],
+  "runtimeConsumers": [
+    {"role":"app-state-background-task-publisher","targetIndex":19683,"unitStart":11976717,"unitEnd":11978166,"unitNodeType":"FunctionDeclaration","unitTokenCount":520,"unitSha256":"b0bb2a9a4203ea98b46a17d8dd7c28ca636a9ebdd3604f55d4c29dd26172f1f8","unitCoarseHash":"58e16ccafee7c31be45131b700985461a074d6bf45578444913fe54ae504657e","unknownFreeIdentifierCount":2,"start":11977139,"end":11977200,"bytes":61,"sha256":"0345d171b0a8fe9ad2e83707ada1b9be7e4df37c49d0af601f4fceda26fb0ca7","exact":"q.notifyInternalMetadataChanged({running_background_tasks:Y})"},
+    {"role":"app-state-session-rule-publisher","targetIndex":19683,"start":11977362,"end":11977434,"bytes":72,"sha256":"4f05284d0e19686fe3fbe23f63a9534564aeef826537374cba4831732ad74790","exact":"q?.notifyInternalMetadataChanged({session_allow_rules:f?.length?f:null})"},
+    {"role":"remote-io-ccr-sink","targetIndex":21913,"unitStart":13607577,"unitEnd":13610752,"unitNodeType":"VariableDeclaration","unitTokenCount":1048,"unitSha256":"688ac763bfe3a7a7386462b492ebf09797ed83f0ed4d577640135a55d1dc4dec","unitCoarseHash":"a21de739a30b1f50da5f5f60da32d24fe3ff0106be9fbc705cc773126136e6e8","unknownFreeIdentifierCount":5,"start":13609556,"end":13609648,"bytes":92,"sha256":"61b4db0bed232b1042cfe9f91bba05d4705fd04b495e881321b28dbb7711ded7","exact":"this.sessionState.onInternalMetadataChanged=(w)=>{this.ccrClient?.reportInternalMetadata(w)}"},
+    {"role":"headless-restored-task-clear","targetIndex":21958,"unitStart":13640484,"unitEnd":13647265,"unitNodeType":"FunctionDeclaration","unitTokenCount":1939,"unitSha256":"7592310a99662497dbf346f77b9339bdd79d9fa20ccf491d2965ce44983587e1","unitCoarseHash":"82ea7ce4e08263a6111cb7716535c5e1762e3999bf29b0a0333585797971274d","unknownFreeIdentifierCount":4,"start":13645640,"end":13645715,"bytes":75,"sha256":"d16787f42af3ea7da6b571349e9e83f59905d49f50865ba6c3ae4f65bc75b48b","exact":"O.sessionState.notifyInternalMetadataChanged({running_background_tasks:[]})"}
+  ],
+  "sourceStates": {
+    "baselineSessionState": {"path":".recovery-tmp/semantic-trees/2.1.120/src/utils/sessionState.ts","selectedPath":"src/utils/sessionState.ts","commit":"6801ead984ba2c3df02bd092ad8b93df096ed8c1","blob":"f2d7366f718109aa507eee9e0bb77ba555d1d12b","bytes":5853,"chars":5835,"sha256":"51987fdc44722dfc7d6dd73a09c878dbc5542ef8bd899cd9a71a2a2add75af3b","classCount":0,"internalNotifierCount":0},
+    "targetSessionState": {"path":".recovery-tmp/semantic-trees/2.1.121/src/utils/sessionState.ts","selectedPath":"src/utils/sessionState.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"9df9fd745a872af1114c258410ef9ea2e22d95b5","bytes":6792,"chars":6774,"sha256":"93297f1ec18da551ec62e92010abfa88c56e210d8a6352e6922b1fbdd750ec80","classCount":0,"nodes":[
+      {"name":"SessionInternalMetadata","start":2116,"end":2302,"chars":186,"bytes":186,"sha256":"145458ff286173c06e698fb7b5c6379d3f1712847f7f30927de6b5c1c35dc34f"},
+      {"name":"RestoredWorkerState","start":2304,"end":2427,"chars":123,"bytes":123,"sha256":"5865dd5556d95751e03b8ca988a967d77dfc82e6c1bb5ee7584de1727030c219"},
+      {"name":"setSessionInternalMetadataChangedListener","start":3328,"end":3483,"chars":155,"bytes":155,"sha256":"84624c03161ac90e0a6fd59f3b943524fc3f20ca8c30970ca0a80ab06742e991"},
+      {"name":"notifySessionInternalMetadataChanged","start":6269,"end":6410,"chars":141,"bytes":141,"sha256":"f06bcb786b61c703bf4b2eaf86ee8dae3a2ba225863ec11181d91b1ccce06787"}
+    ]},
+    "targetStructuredIO": {"path":".recovery-tmp/semantic-trees/2.1.121/src/cli/structuredIO.ts","selectedPath":"src/cli/structuredIO.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"a75b7e9bd3c23f6be7e5bb88e5ffdcbec13883bf","bytes":36081,"chars":36065,"sha256":"16cc92166234bb03bc92e3e37e4b8aaca6752f598502ca5b3a88845fe1075f47","sessionStateManagerCount":0},
+    "targetConsumerFiles": [
+      {"selectedPath":"src/state/onChangeAppState.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"187640a42789187a3213518eef45b21876d93f91","bytes":8782,"chars":8762,"sha256":"0a21160aa27abd88734ffbe9e6d53477934c8c5c64f829a3637590e1317a5a34","required":["notifySessionInternalMetadataChanged({","running_background_tasks:","session_allow_rules:"]},
+      {"selectedPath":"src/cli/remoteIO.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"de6109faf7c0a0a4a6cd8c3b54186c62ef1dd7ea","bytes":10344,"chars":10338,"sha256":"69e6c039cb2c76409f42a0d2fe4c2961cdcf3440d1af161d97105144b8f5c36a","required":["setSessionInternalMetadataChangedListener(metadata => {","reportInternalMetadata(metadata)"]},
+      {"selectedPath":"src/cli/print.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"aa21a37e2211339c97c1c035bca34c7817ed10ea","bytes":248102,"chars":247934,"sha256":"0b838a6f74645f962c29709e71824310bf08f8a327727c2af577c58d75e4f3f0","required":["notifySessionInternalMetadataChanged({ running_background_tasks: [] })"]}
+    ]
+  },
+  "sourceReplayBlocker": {
+    "decision": "static complete-class owner proof only; no replay helper and no source writes",
+    "reason": "Recovered Target121 source proves every internal-metadata semantic edge through process-global functions, but utils/sessionState.ts has no SessionStateManager/default instance and StructuredIO has no SessionStateManager type, third constructor argument, or per-instance callback. Replaying only the two class nodes would preserve a mixed global/instance graph."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/session-state-internal-metadata-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_SESSION_STATE_INTERNAL_METADATA_OWNER_OVERRIDES",
+    "evidenceExport": "TARGET121_SESSION_STATE_INTERNAL_METADATA_EVIDENCE_IDS",
+    "replayHelper": null,
+    "expectedAddedOwnerImpact": {"units":-1,"residues":-4},
+    "expectedRawStrictImpact": {"units":-1,"residues":-3}
+  }
+}

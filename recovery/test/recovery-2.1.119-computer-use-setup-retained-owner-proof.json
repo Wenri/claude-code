@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-retained-computer-use-setup-owner-proof",
+  "criterion": "complete-matched-unit-plus-exact-authored-source-and-caller-graph-plus-strict-ordinal-spill-v1",
+  "evidenceIds": [
+    "target119-computer-use-setup-complete-unit-retention-test",
+    "target119-computer-use-setup-source-owner-lineage-test",
+    "target119-computer-use-setup-caller-graph-test",
+    "target119-computer-use-setup-strict-ordinal-spill-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    }
+  },
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "initial-snapshot",
+        "typedAudit": {
+          "bytes": 24701325,
+          "sha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b"
+        },
+        "sourceCoverage": {
+          "bytes": 377500,
+          "sha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03"
+        }
+      },
+      {
+        "phase": "post-rendezvous",
+        "typedAudit": {
+          "bytes": 24697305,
+          "sha256": "1b156d078208c9df0baea3430dc58387f14d3535cd6052724f0847bd83d4d4f7"
+        },
+        "sourceCoverage": {
+          "bytes": 378822,
+          "sha256": "355c431cda776c760ac1d1e5098dc03f322087bd2deb67a4ab53dd50aa6f2f4d"
+        }
+      },
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      }
+    ]
+  },
+  "partitionSnapshot": {
+    "typedAuditBytes": 24701325,
+    "typedAuditSha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b",
+    "sourceCoverageBytes": 377500,
+    "sourceCoverageSha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03",
+    "productionStrictRows": 1,
+    "ownerResidueRows": 0,
+    "addedOwnerResidueRows": 0,
+    "unclassifiedAddedOccurrenceRows": 0,
+    "coverageTargetRowPresent": false
+  },
+  "postRendezvous": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 617,
+      "sha256": "a840d7fdabe9763aa96aaa747b3a7761f38bd4ae47db5b87f57d3132a7ac62e1"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 9,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 12,
+        "value": "fileURLToPath",
+        "target": {
+          "start": 13453960,
+          "end": 13453973
+        },
+        "structural": {
+          "index": 21655,
+          "classification": "matched",
+          "sourceHash": "7d83fa6840b93a4c5466309f020d7d0064541c886832890b7d94836ff319b89c"
+        },
+        "disposition": null,
+        "ownerPaths": [],
+        "ownerSourceMatches": [],
+        "candidates": [
+          "../src/services/SessionMemory/prompts.ts",
+          "../src/services/SessionMemory/sessionMemory.ts",
+          "../src/utils/computerUse/setup.ts",
+          "../src/utils/deepLink/protocolHandler.ts"
+        ],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageTargetRowsDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "coverageTargetRows": [],
+    "matchedStatic": true
+  },
+  "postStreaming": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 617,
+      "sha256": "a840d7fdabe9763aa96aaa747b3a7761f38bd4ae47db5b87f57d3132a7ac62e1"
+    },
+    "coverageTargetRowsDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "typedResiduesUnchangedFromPostRendezvous": true,
+    "coverageTargetRowsUnchangedFromPostRendezvous": true,
+    "matchedStatic": true
+  },
+  "structuralPair": {
+    "classification": "matched",
+    "pairReason": "exact-scope-normalized-token-hash",
+    "baselineUnitIndex": 20749,
+    "targetUnitIndex": 21655,
+    "unknownFreeIdentifierCount": 0,
+    "targetCoarseHash": "5fb7d3d6af04d451b5fba42335d547a453179a2502a0f484ce2542404fd512ca"
+  },
+  "units": [
+    {
+      "release": "2.1.118",
+      "targetIndex": 20749,
+      "start": 12975234,
+      "end": 12975591,
+      "bytes": 357,
+      "tokens": 98,
+      "sha256": "7122c42b8fa89b5cb011160e76fa211b23520f7576510c9ec50ac7e4d0fda3af"
+    },
+    {
+      "release": "2.1.119",
+      "targetIndex": 21655,
+      "start": 13453856,
+      "end": 13454213,
+      "bytes": 357,
+      "tokens": 98,
+      "sha256": "7d83fa6840b93a4c5466309f020d7d0064541c886832890b7d94836ff319b89c"
+    }
+  ],
+  "canonicalAst": {
+    "bytes": 3646,
+    "sha256": "d3817c11ca523c6f3e8016e748956a84c24ecb53716fd277d326fb278d402d45"
+  },
+  "sourceLineage": {
+    "commits": [
+      "bd846a24e3886322888f02b9f747c132a4a32314",
+      "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05"
+    ],
+    "blob": "8355e9f2e8ab418b9e4eef2fadee2bb8f846b727",
+    "sourceFile": {
+      "path": "src/utils/computerUse/setup.ts",
+      "bytes": 2020,
+      "sha256": "0791278fd2ed2acac6818206aec1ea6c8bcbfadfcdbbac746af17400ad240d63"
+    },
+    "declaration": {
+      "name": "setupComputerUseMCP",
+      "start": 1129,
+      "end": 2015,
+      "bytes": 888,
+      "sha256": "e34d1cfabed9819a7d95a46024042ac633a7faf4ddd9acfc28dc86f80e706974"
+    },
+    "imports": [
+      {
+        "module": "@ant/computer-use-mcp",
+        "binding": "buildComputerUseTools",
+        "start": 0,
+        "end": 61,
+        "bytes": 61,
+        "sha256": "515d4a3e8ecbce151ecee904cc68a5c7bd225dab3a8595d6895a7afd97931345"
+      },
+      {
+        "module": "path",
+        "binding": "join",
+        "start": 62,
+        "end": 89,
+        "bytes": 27,
+        "sha256": "6e4742508b501bcd5aace8fc1cefcf656c01e5047145908e0aed0e46282856c5"
+      },
+      {
+        "module": "url",
+        "binding": "fileURLToPath",
+        "start": 90,
+        "end": 125,
+        "bytes": 35,
+        "sha256": "cd4e0289cf31dd4907180ecc260ee642561d2a26ba718a5adebc69d0576572a7"
+      }
+    ],
+    "fileUrlCall": {
+      "start": 1713,
+      "end": 1743,
+      "bytes": 30,
+      "sha256": "fe09cb02231e621974446e011a4bc12ce81eaf34a3d663aa102d6b1c60e41586"
+    },
+    "argsDeclaration": {
+      "start": 1638,
+      "end": 1799,
+      "bytes": 161,
+      "sha256": "323e05ebd98d5bac2a56b05f7dc4e28766321c833885938dd4c9893f552cb2bf"
+    }
+  },
+  "callerGraph": {
+    "path": "src/main.tsx",
+    "commits": [
+      {
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+        "blob": "1a6745ef0439cc741c40b2f22635d8b8f1189c23"
+      },
+      {
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "blob": "65c357228dea2fad8f75e8477cd398030085b617"
+      }
+    ],
+    "sourceVariants": [
+      {
+        "state": "target-raw",
+        "bytes": 810059,
+        "sha256": "27f42341f13a7a3708d02105d813f42ec9d95487d9dda26a70a553dc3874d0cc"
+      },
+      {
+        "state": "target-package",
+        "bytes": 809321,
+        "sha256": "1700d785a42f5383f7167e71c6eb937c3d1342df5b82fbbc841a55ef5a97cb0c"
+      }
+    ],
+    "dynamicImportStatement": {
+      "bytes": 101,
+      "sha256": "113f3a3a0cb4e7ffc6f9c239c7f59dd40a6f1e3185f59692dae5ea1e4e2f0b2c"
+    },
+    "setupCallStatement": {
+      "bytes": 101,
+      "sha256": "f34904d3cfe3bd43b4d2ad0dcc16222768888961228038bc7ebc5662fd8ab574"
+    },
+    "setupCall": {
+      "bytes": 21,
+      "sha256": "fe55bc708821fe82201990b386b1084ba26f80233c8b3bd7052d73c99a6d56a8"
+    }
+  },
+  "row": {
+    "targetIndex": 21655,
+    "ownerPaths": [
+      "src/utils/computerUse/setup.ts"
+    ],
+    "declaration": "setupComputerUseMCP",
+    "representation": "retained-file-url-to-path-global-ordinal-spill",
+    "structuralLineage": {
+      "classification": "matched",
+      "pairReason": "exact-scope-normalized-token-hash",
+      "unknownFreeIdentifierCount": 0
+    },
+    "strictResidues": [
+      {
+        "kind": "property",
+        "value": "fileURLToPath",
+        "start": 13453960,
+        "end": 13453973,
+        "baselineCount": 9,
+        "targetOrdinal": 12,
+        "targetAdded": true,
+        "localStart": 104,
+        "localEnd": 117,
+        "baselineCounterpart": {
+          "start": 12975338,
+          "end": 12975351,
+          "globalOrdinal": 9
+        },
+        "targetGlobalOccurrenceCount": 12
+      }
+    ]
+  },
+  "sourceReplay": {
+    "required": false,
+    "decision": "blocked-as-release-noop",
+    "reason": "The complete Target119 unit, authored setup.ts declaration, fileURLToPath call, and main.tsx caller graph are already exact retained behavior from Target118. Replaying source would invent a Target119 delta where the authenticated adjacent bundles and source commits prove none."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "replayRequired": false,
+    "targetIndicesSha256": "340bfdf93cf815fc5de9216a9769561c171895f93b7a71a3a57f562c2fda8eb2",
+    "strictResidueIdentitiesSha256": "df675edad3b28e9ceb3a8dae8f761c9df2796d8d89c1cd0c7b320ce3899f774a",
+    "canonicalStrictResidueIdentitiesSha256": "8211248847a8a2cd8e6194ec14c0481e69641d026bb208ecad8ec93b0b63d774",
+    "crossReleaseUnitsSha256": "29bef54ba8ad903c45c2f8f1291dffae2bf2ac6248c983a87d915d83ee7a8685"
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "case-owned-static-complete-unit-predecessor-and-runtime-graph-proof",
+  "criterion": "Admit Target119 u20928 only as one complete SDK control-schema initializer: all seven owner-added rows must be partitioned between six exact Target118 replay-authenticated schema fields and the sole Target119 forwardSubagentText schema endpoint, whose complete 16-occurrence runtime graph is pinned. Incidental schema property text and partial source replay are insufficient.",
+  "ownerBehavior": "The complete authenticated Target119 SDK control-schema initializer differs from its complete Target118 predecessor in exactly four normalized-token hunks: the forwardSubagentText initialize field and the Target119 get_binary_version request/response declarations and union wiring. The six apparent added arguments, _meta, payload, cancelled, messageUuid, and tool_use rows do not occur in that diff and are authenticated by the exact Target118 MCP-call, user-dialog, and message-rating replay declarations. forwardSubagentText is the Target119 schema endpoint of a 16-occurrence runtime graph spanning eight complete generated units, not an incidental property. Historical Target119 source lacks that graph and the six inherited replay declarations, so a controlSchemas-only replay would expose an unimplemented option and is forbidden; this is a complete static runtime/predecessor proof only.",
+  "summary": {
+    "units": 1,
+    "ownerRows": 61,
+    "addedOwnerRows": 7,
+    "ownerSupplementStrictRowsBeforeCorrection": 7,
+    "ownerSupplementStrictRowsAfterCorrection": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0,
+    "targetIndicesSha256": "e78cb1626912b4fbb32c45b96c28caf0dfe0d10225dac3b742c04b45eaf6f1f4",
+    "ownerRowsWithTargetAddedSha256": "de8490b317f6bc5ac01ac1d861b0173c05a25c8ac515b1daf16ecfb53510cdf8",
+    "addedRowsWithTargetAddedSha256": "8220b2543ab737d72868fc18b9aa88560e5581ed30c5f70a83fc6edc71cdffdf",
+    "addedOwnerResidueIdentitiesSha256": "3e29a9360b9f2c2314afcbc28e04a973d873b5cc8dd9379d797bd11f4210a9fd"
+  },
+  "evidenceIds": [
+    "target119-sdk-control-inherited-schema-authenticated-unit",
+    "target119-sdk-control-inherited-schema-predecessor-replay-proof",
+    "target119-sdk-control-forward-subagent-runtime-graph-proof",
+    "target119-sdk-control-source-replay-blocker",
+    "target119-sdk-control-inherited-schema-complete-unit-test"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-sdk-control-inherited-schema-authenticated-unit",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs",
+      "detail": "Pins the complete Target118/Target119 SDK control initializer token streams and the exact four-hunk normalized diff."
+    },
+    {
+      "id": "target119-sdk-control-inherited-schema-predecessor-replay-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs",
+      "detail": "Pins the exact Target118 source-gap replay fixture and its six complete MCP-call, user-dialog, and message-rating schema contracts inherited by Target119."
+    },
+    {
+      "id": "target119-sdk-control-forward-subagent-runtime-graph-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs",
+      "detail": "Pins all sixteen forwardSubagentText occurrences across eight complete Target119 generated units, including the sole SDK schema endpoint in u20928."
+    },
+    {
+      "id": "target119-sdk-control-source-replay-blocker",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs",
+      "detail": "Pins exact historical/package Target119 controlSchemas bytes and proves they lack both the forwardSubagentText runtime graph and the inherited replay declarations, blocking a partial one-file replay."
+    },
+    {
+      "id": "target119-sdk-control-inherited-schema-complete-unit-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs",
+      "detail": "Pins the complete 61-row owner partition digest, exact seven-row owner-added partition, and atomic provisional-or-corrected coverage state."
+    }
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/sdk-control-inherited-schema-owner-overrides.mjs",
+      "bytes": 2111,
+      "sha256": "6712b8a4ff3185ff82a3d43247cf0de63be3e50e8a8f198fcff93bc951a29d96"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "target118ReplayFixture": {
+      "path": "recovery/test/recovery-2.1.118-sdk-control-interactions-source-gap.json",
+      "bytes": 17417,
+      "sha256": "2a55cb995a3141ea2b95d16ef78c0334d9ea6b508dd190bcedc68614cfc99e1a"
+    },
+    "target118ReplayHelper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-sdk-control-interactions-source-gap.mjs",
+      "bytes": 9827,
+      "sha256": "4d0f1b6bc24b6220bde4810a1db37f21ce3bc6bb9304c794f667aa1c8f974111"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionBytes": 24774267,
+      "observedPreCorrectionSha256": "573def697d190cee4d1d8a03707b197063a7155a2ca2b11d22829d59ec27474e",
+      "mutableAfterCorrection": true
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedPreCorrectionBytes": 373728,
+      "observedPreCorrectionSha256": "73707a7ca66ba2e2bb86cd0c0be7d24ab1c0c7ac7d3cf2375cf048bfbbe2d0f3",
+      "mutableAfterCorrection": true
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20022,
+    "nodeType": "VariableDeclaration",
+    "start": 12127198,
+    "end": 12145739,
+    "bytes": 18541,
+    "tokens": 4108,
+    "sha256": "a633d2f93a05f67334bbd4f904b146af363034047056bc4039f22a6e97377fb3",
+    "coarseHash": "38501f677eb77a0d0f0abb98673ad9e2fe4ad411c154d3344df6ddaf7c4ec662"
+  },
+  "targetUnit": {
+    "targetIndex": 20928,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 12587243,
+    "end": 12606147,
+    "bytes": 18904,
+    "tokens": 4192,
+    "sha256": "5b83c0b86db4dfed603a25340c9f5f0f20c2f1e929cf924de00bdb55bd7b7199",
+    "coarseHash": "482c60814bae38dfff13726d3e1631cfd1c6f8822a04af896f51de2eca947f40",
+    "unknownFreeIdentifierCount": 127
+  },
+  "normalizedUnitProof": {
+    "baseline": {
+      "tokens": 4108,
+      "bytes": 19804,
+      "sha256": "697199d0f27f35fea7f1e1fbc7c4ab620aa65e1c66f1b3a20a3caca4a25f7be5"
+    },
+    "target": {
+      "tokens": 4192,
+      "bytes": 20188,
+      "sha256": "a856961b4e1668d5b73ea0860250b6834e51e53953a3d4de230bd81a04bb8be8"
+    },
+    "diff": {
+      "format": "diff --label baseline --label target -U1",
+      "bytes": 605,
+      "sha256": "93c0e860b27cce483651dc9464e0adc3bc0e93f90d61278d765df9d2aa594f5c",
+      "hunks": 4,
+      "retainedValuesAbsent": [
+        "arguments",
+        "_meta",
+        "payload",
+        "cancelled",
+        "messageUuid",
+        "tool_use"
+      ]
+    }
+  },
+  "forwardSubagentRuntimeGraph": {
+    "value": "forwardSubagentText",
+    "baselineCount": 0,
+    "targetCount": 16,
+    "schemaOccurrence": {
+      "start": 12589474,
+      "unitIndex": 20928,
+      "ordinal": 6
+    },
+    "occurrences": [
+      [7978212, 12841],
+      [11162261, 18223],
+      [11162298, 18223],
+      [11212149, 18310],
+      [11215479, 18310],
+      [12589474, 20928],
+      [13490928, 21708],
+      [13492821, 21708],
+      [13497642, 21708],
+      [13509139, 21709],
+      [13509880, 21709],
+      [13536673, 21742],
+      [13536695, 21742],
+      [13565789, 21747],
+      [13565820, 21747],
+      [13565842, 21747]
+    ],
+    "unitIndices": [12841, 18223, 18310, 20928, 21708, 21709, 21742, 21747]
+  },
+  "historicalSource": {
+    "path": "src/entrypoints/sdk/controlSchemas.ts",
+    "bytes": 26131,
+    "sha256": "f116dd669dd76079ea53810a0b9b540aad5b85a0ace8b2b56eb51230e1f6c85c",
+    "gitBlob": "7ffb6173c2bc61625dabe5695bc076ab7151ccef",
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "missingDeclarations": [
+      "SDKControlMcpCallRequestSchema",
+      "SDKControlMcpCallResponseSchema",
+      "SDKControlRequestUserDialogRequestSchema",
+      "SDKControlRequestUserDialogResponseSchema",
+      "SDKControlMessageRatedRequestSchema",
+      "SDKControlMessageRatedResponseSchema"
+    ],
+    "missingGraphValue": "forwardSubagentText"
+  },
+  "inheritedReplayContracts": [
+    {
+      "name": "SDKControlMcpCallRequestSchema",
+      "properties": ["subtype", "tool", "arguments"],
+      "literals": ["mcp_call"]
+    },
+    {
+      "name": "SDKControlMcpCallResponseSchema",
+      "properties": ["content", "structuredContent", "_meta"],
+      "literals": []
+    },
+    {
+      "name": "SDKControlRequestUserDialogRequestSchema",
+      "properties": ["subtype", "dialog_kind", "payload", "tool_use_id"],
+      "literals": ["request_user_dialog"]
+    },
+    {
+      "name": "SDKControlRequestUserDialogResponseSchema",
+      "properties": ["behavior", "result"],
+      "literals": ["completed", "cancelled"]
+    },
+    {
+      "name": "SDKControlMessageRatedRequestSchema",
+      "properties": ["subtype", "messageUuid", "sentiment", "surface", "cleared"],
+      "literals": ["message_rated", "positive", "negative", "tool_use", "assistant_text"]
+    },
+    {
+      "name": "SDKControlMessageRatedResponseSchema",
+      "properties": [],
+      "literals": []
+    }
+  ],
+  "ownerOverride": {
+    "paths": ["src/entrypoints/sdk/controlSchemas.ts"],
+    "declarations": [
+      "SDKControlInitializeRequestSchema",
+      "SDKControlMcpCallRequestSchema",
+      "SDKControlMcpCallResponseSchema",
+      "SDKControlRequestUserDialogRequestSchema",
+      "SDKControlRequestUserDialogResponseSchema",
+      "SDKControlMessageRatedRequestSchema",
+      "SDKControlMessageRatedResponseSchema",
+      "SDKControlRequestInnerSchema"
+    ]
+  },
+  "addedOwnerResidues": [
+    [20928, "property", "forwardSubagentText", 12589474, 12589493, 0, 6],
+    [20928, "property", "arguments", 12595936, 12595945, 31, 33],
+    [20928, "property", "_meta", 12596759, 12596764, 60, 67],
+    [20928, "property", "payload", 12602964, 12602971, 71, 75],
+    [20928, "string", "cancelled", 12603418, 12603429, 39, 41],
+    [20928, "property", "messageUuid", 12604141, 12604152, 13, 15],
+    [20928, "string", "tool_use", 12604350, 12604360, 173, 175]
+  ],
+  "sourceReplay": {
+    "authorized": false,
+    "reason": "The exact Target119 source omits the inherited six-schema replay and the complete forwardSubagentText graph. Replaying only controlSchemas would expose an option without its AgentTool, SDK client, query, QueryEngine, or print consumers; a graph-closed replay spans at least the eight pinned generated units and is outside this bounded case-owned proof."
+  }
+}

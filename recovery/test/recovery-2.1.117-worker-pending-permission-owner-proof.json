@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-worker-pending-permission-composed-jsx-owner-v1",
+  "status": "case-owned-owner-proof-ready",
+  "evidenceIds": [
+    "target117-worker-pending-permission-target-fragment-proof",
+    "target117-worker-pending-permission-source-jsx-owner-test"
+  ],
+  "inputs": {
+    "overrideModule": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/worker-pending-permission-owner-overrides.mjs",
+      "bytes": 1042,
+      "sha256": "6cf48b44d16b4e35bb7ac8c597bd9f8a2b4e7eec0412c6403c0cac9a5edd400d"
+    },
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "source": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "path": "src/components/permissions/WorkerPendingPermission.tsx",
+      "blob": "bff845d2c75b9e24382a820eb2233d39ded209b4",
+      "bytes": 9365,
+      "sha256": "2560a3b78574e0d19503ff48b538bc83afb0e9d5c553792b1207da18e96e8c89",
+      "declaration": [555, 2716, 2161, "97d67756f86cae67c511476e7dcbe8e5cbc63ea50a225aa337df8d7a2f826707"]
+    }
+  },
+  "target117": {
+    "unit": [
+      18545,
+      "unresolved",
+      "FunctionDeclaration",
+      11412042,
+      11413541,
+      666,
+      "00dbdd7c6f91217e70406c670643c1a432fefc6683c471af4e35118310e47bf0",
+      "235e70b2494c3374e82953f3010a40a7b27451ff460e7503cdbccbf228cbd659"
+    ],
+    "titleFragment": [11412415, 11412534, 119, "44bdd2caf63922bceb1bbdb0f7cb8fc84066a24e9184d9b91b95bbe37cfd65cd"],
+    "residue": [
+      "string",
+      " Waiting for team lead approval",
+      11412499,
+      11412532,
+      1,
+      0
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "ownerOverrides": 1,
+    "sourceWrites": 0
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-repl-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-repl-authenticated-whole-unit",
+    "target117-repl-retained-result-dedup-equivalence",
+    "target117-repl-temporally-mixed-source-blocker"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "baselineUnit": {
+    "baselineIndex": 19998,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 12102133,
+    "end": 12160049,
+    "tokenCount": 22318,
+    "topDefinitionCount": 1,
+    "bytes": 57916,
+    "sha256": "3b17ff0bd496c0d7f39baa8f2542135ed7dd3f220d3f6a628ae7f7040c9492c5",
+    "coarseHash": "d2477c310a6e275f5be7b99fac5cd19fd56da81aed11f7c1afea9a1c959bc3d7"
+  },
+  "targetUnit": {
+    "targetIndex": 20069,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 12125567,
+    "end": 12183587,
+    "tokenCount": 22385,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 37,
+    "bytes": 58020,
+    "sha256": "b40c4e59bb013c26732f6e24eea40f367c2f5a611099042e02682bf457a71052",
+    "coarseHash": "b0d8d81f93516157db41d409c78041d22b34da13f4f48714003a352dec12430d"
+  },
+  "ownerResidues": {
+    "generatedOwner": "screens/REPL.tsx",
+    "correctedOwner": "src/screens/REPL.tsx",
+    "declaration": "REPL",
+    "totalRows": 11,
+    "strictRows": 2,
+    "authenticDeltaRows": 5,
+    "retainedOccurrenceShiftRows": 4,
+    "retainedSourceGapRows": 2,
+    "rows": [
+      { "literalKind": "property", "value": "viewerOnly", "baselineOccurrenceCount": 5, "targetOccurrenceNumber": 7, "start": 12135271, "end": 12135281, "bytes": 10, "sha256": "a4758068f27cfe14634ec3f67865b2d6ea2a51d318405a3c80980d50219d6c53", "semanticClass": "authentic-target117-delta", "strict": false },
+      { "literalKind": "property", "value": "remote", "baselineOccurrenceCount": 10, "targetOccurrenceNumber": 12, "start": 12135362, "end": 12135368, "bytes": 6, "sha256": "b71199ebd070b36beab7317920c2c2f1d777df8d05e5527d8458fda57cb17a7a", "semanticClass": "authentic-target117-delta", "strict": false },
+      { "literalKind": "property", "value": "remote", "baselineOccurrenceCount": 10, "targetOccurrenceNumber": 13, "start": 12135388, "end": 12135394, "bytes": 6, "sha256": "b71199ebd070b36beab7317920c2c2f1d777df8d05e5527d8458fda57cb17a7a", "semanticClass": "authentic-target117-delta", "strict": false },
+      { "literalKind": "string", "value": "ask", "baselineOccurrenceCount": 225, "targetOccurrenceNumber": 226, "start": 12143960, "end": 12143965, "bytes": 5, "sha256": "e43a5493c180fde1ca0c3b266b7781876016f68d2caaa937e049f3c050b87a66", "semanticClass": "retained-global-occurrence-shift", "strict": false },
+      { "literalKind": "property", "value": "replHydration", "baselineOccurrenceCount": 6, "targetOccurrenceNumber": 9, "start": 12147638, "end": 12147651, "bytes": 13, "sha256": "e50b3f997e9064a4c96124d8b2008c5b0387f605da654d8b43d58da78c57b206", "semanticClass": "retained-global-occurrence-shift", "strict": false },
+      { "literalKind": "property", "value": "messageClientPlatform", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 39, "start": 12152069, "end": 12152090, "bytes": 21, "sha256": "908bee72b670b3a1575f01194e18be530a1652fa44be7ee78adc64c5ebfd8d45", "semanticClass": "authentic-target117-delta", "strict": false },
+      { "literalKind": "property", "value": "clientPlatform", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 6, "start": 12153445, "end": 12153459, "bytes": 14, "sha256": "5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84", "semanticClass": "authentic-target117-delta", "strict": false },
+      { "literalKind": "property", "value": "resultDedupState", "baselineOccurrenceCount": 13, "targetOccurrenceNumber": 14, "start": 12154919, "end": 12154935, "bytes": 16, "sha256": "2c67ae9d48b9a9ddf8bec42c15558b4b9ec667a6133b3ad42a92c97864b7a013", "semanticClass": "retained-source-gap", "strict": true },
+      { "literalKind": "property", "value": "focus", "baselineOccurrenceCount": 99, "targetOccurrenceNumber": 102, "start": 12168832, "end": 12168837, "bytes": 5, "sha256": "c51faa148557a08cbf790156578b7a82b41f22dd01227f7dde057e34c18a365f", "semanticClass": "retained-global-occurrence-shift", "strict": false },
+      { "literalKind": "property", "value": "toolUseId", "baselineOccurrenceCount": 167, "targetOccurrenceNumber": 169, "start": 12174881, "end": 12174890, "bytes": 9, "sha256": "858dc13ad1cbe7e0dea0a1ff0a80ba637f4db3e985cd7b9e60577ab38b44ad23", "semanticClass": "retained-global-occurrence-shift", "strict": false },
+      { "literalKind": "property", "value": "resultDedupState", "baselineOccurrenceCount": 13, "targetOccurrenceNumber": 15, "start": 12179714, "end": 12179730, "bytes": 16, "sha256": "2c67ae9d48b9a9ddf8bec42c15558b4b9ec667a6133b3ad42a92c97864b7a013", "semanticClass": "retained-source-gap", "strict": true }
+    ]
+  },
+  "withinUnitSemanticCounts": {
+    "method": "Acorn AST noncomputed Property keys plus noncomputed MemberExpression properties; string literals counted separately",
+    "baseline": { "viewerOnly": 0, "remote": 0, "ask": 1, "replHydration": 1, "messageClientPlatform": 0, "clientPlatform": 0, "resultDedupState": 4, "focus": 1, "toolUseId": 1 },
+    "target": { "viewerOnly": 1, "remote": 2, "ask": 1, "replHydration": 1, "messageClientPlatform": 1, "clientPlatform": 1, "resultDedupState": 4, "focus": 1, "toolUseId": 1 }
+  },
+  "targetRemoteTransport": {
+    "conditional": {
+      "start": 12135168,
+      "end": 12135303,
+      "bytes": 135,
+      "sha256": "9563107309bce8a37ef775f7f3391bb5c055422b4d1a9fdeb999361391cc8e95",
+      "exact": "Vr.isRemoteMode?RH8(\"ssh\",Vr,!1):f8H.isRemoteMode?RH8(\"direct\",f8H,!1):kr.isRemoteMode?RH8(\"ccr\",kr,Z?.viewerOnly??!1,Z?.sessionId):oY6"
+    },
+    "calls": [
+      { "kind": "ssh", "start": 12135184, "end": 12135200, "bytes": 16, "sha256": "97a2292925d6ee4432d971d19ba531ffdc97535d6cd49fcef7e9d08d8c477b01", "exact": "RH8(\"ssh\",Vr,!1)" },
+      { "kind": "direct", "start": 12135218, "end": 12135238, "bytes": 20, "sha256": "d8834d6e3db5ba73fa5eeb5a632f47e802139603cd0198f06ccde76f53400cec", "exact": "RH8(\"direct\",f8H,!1)" },
+      { "kind": "ccr", "start": 12135255, "end": 12135299, "bytes": 44, "sha256": "ae5ac3bc70d9375cb957672fc6057b03155cb439649dd7a2cf9e08513900e0af", "exact": "RH8(\"ccr\",kr,Z?.viewerOnly??!1,Z?.sessionId)" }
+    ],
+    "stateSyncEffect": {
+      "start": 12135304,
+      "end": 12135402,
+      "bytes": 98,
+      "sha256": "40ac0432d33dc5b74dabdbc4ac80052a08f47cbfdde13bfb95152e3496e5f341",
+      "exact": "i$.useEffect(()=>{let D$=gW.isRemoteMode?gW:null;if(NGH().remote!==D$)UA8({...NGH(),remote:D$})});"
+    }
+  },
+  "targetClientPlatform": {
+    "messageContextGuard": {
+      "start": 12152052,
+      "end": 12152094,
+      "bytes": 42,
+      "sha256": "0d8ee6efb37d704af77fa6df532aef2a8e4abc996fd4846db0aa5b9ab9c0d998",
+      "exact": "if(e6)T7.options.messageClientPlatform=e6;"
+    },
+    "queuedPromptCall": {
+      "start": 12153333,
+      "end": 12153464,
+      "bytes": 131,
+      "sha256": "0fb244a28cd1f267ebe015dbb9f630b4fd8daf9296ce0992ed2a65d4c76f4ad9",
+      "exact": "LO({value:eX,mode:\"prompt\",origin:r9.origin,isMeta:r9.isMeta,skipSlashCommands:MPH(r9.origin),stopHookActive:e6,clientPlatform:T7})"
+    }
+  },
+  "remoteTransportHelpers": [
+    { "targetIndex": 15193, "classification": "unresolved", "baselineUnitIndex": null, "nodeType": "FunctionDeclaration", "start": 9432405, "end": 9432439, "tokenCount": 12, "topDefinitionCount": 1, "unknownFreeIdentifierCount": 1, "bytes": 34, "sha256": "53367138abb9599a4c3842b00f7af25acc067b2577c78b54006453ccfa1c263f", "coarseHash": "3eb0b19f635c618e1aa92b6e9b22e7f6f79048c00557a2d78ba2471491d4b9dc", "exact": "function $m(){return NGH().remote}" },
+    { "targetIndex": 15194, "classification": "unresolved", "baselineUnitIndex": null, "nodeType": "FunctionDeclaration", "start": 9432439, "end": 9432539, "tokenCount": 23, "topDefinitionCount": 1, "unknownFreeIdentifierCount": 0, "bytes": 100, "sha256": "760e8061adc0b6398c03e5c671d2588cb58aa97f782fddf90a109a486799fd31", "coarseHash": "921fbfe592d163834373a3005d3a8de07970cfe32b698b4865f37169ac6ca276", "exact": "function yP1(H){return Promise.reject(Error(`sendControlRequest not yet wired for ${H} transport`))}" },
+    { "targetIndex": 15195, "classification": "unresolved", "baselineUnitIndex": null, "nodeType": "FunctionDeclaration", "start": 9432539, "end": 9432781, "tokenCount": 76, "topDefinitionCount": 1, "unknownFreeIdentifierCount": 2, "bytes": 242, "sha256": "bed717ba4f8a720ce5d8eaaafbdbd7608c19753d6bae3ac9ea91ddc6710b0859", "coarseHash": "f8102f14df540c802a3ebe6e079a9f2a94089d3d28ecafa50f9fedf5b77e8890", "exact": "function RH8(H,$,q,K){if(!$.isRemoteMode)return oY6;return{kind:H,isRemoteMode:!0,viewerOnly:q,sessionId:K,sendMessage:$.sendMessage,cancelRequest:$.cancelRequest,disconnect:$.disconnect,sendControlRequest:$.sendControlRequest??(()=>yP1(H))}}" },
+    { "targetIndex": 15196, "classification": "moved", "baselineUnitIndex": 15157, "pairReason": "exact-scope-normalized-token-hash", "nodeType": "VariableDeclaration", "start": 9432781, "end": 9432789, "tokenCount": 3, "topDefinitionCount": 1, "unknownFreeIdentifierCount": 0, "bytes": 8, "sha256": "fc3e3e50dec3fab7317e699a3626c55d4f2c6e5f52e196b0b86ea5eba1edcb47", "coarseHash": "941936dce12152cb24bcdbce4275904d00031aa0e28bf2877a9691d298054035", "exact": "var oY6;" },
+    { "targetIndex": 15197, "classification": "unresolved", "baselineUnitIndex": null, "nodeType": "VariableDeclaration", "start": 9432789, "end": 9432833, "tokenCount": 24, "topDefinitionCount": 1, "unknownFreeIdentifierCount": 1, "bytes": 44, "sha256": "7fa3fc1f3a0139378550a29a6b69bedc288b08a221a71ae6f90cea0c56c1121e", "coarseHash": "f7c0146aaab5d7ef6da2894db4d7428150ec1418af8de3b3379045f475d40522", "exact": "var jPH=v(()=>{P$();oY6={isRemoteMode:!1}});" }
+  ],
+  "retainedResultDedup": [
+    {
+      "role": "clear-conversation-context",
+      "baselineObject": { "start": 12131337, "end": 12131655, "bytes": 318, "sha256": "afe7282382000363a00f3bda2eef4752f63ca3526d1e645208a43e3ccd80b1b7" },
+      "targetObject": { "start": 12154657, "end": 12154974, "bytes": 317, "sha256": "1774f044af35ec63adebea5813411789a608502f701ef40d93d525db00890823" },
+      "baselineCall": { "start": 12131334, "end": 12131656, "bytes": 322, "sha256": "ded4ef14be75c15bdef55e17c75ab633476bbbc9995eb180110df7146cdebb9e" },
+      "targetCall": { "start": 12154654, "end": 12154975, "bytes": 321, "sha256": "fcabc13db721b466aa14eeceaac3bc9fd99a3962a46fa67eae6540bcb9ace3ee" },
+      "canonicalObject": { "chars": 3573, "bytes": 3573, "sha256": "364e659252fffdde6b3b2993258c1b68b81c400f11bbae675a1aaa1cedfb98b3" },
+      "canonicalCall": { "chars": 3674, "bytes": 3674, "sha256": "7450a1c1de8c44e770ad97f8aed7fe90d8a6706a21e211852bafe03a53c8554b" }
+    },
+    {
+      "role": "ultraplan-launch-dialog",
+      "baselineObject": { "start": 12155982, "end": 12156232, "bytes": 250, "sha256": "06465571ba068875b1f35f8e8988829a1d484f46186ee2c05feb37d6285d054f" },
+      "targetObject": { "start": 12179519, "end": 12179769, "bytes": 250, "sha256": "56f631e64e908249b30beec17ae4965b2460a08e9a11876970a4e46dee313173" },
+      "baselineCall": { "start": 12155961, "end": 12156233, "bytes": 272, "sha256": "bf610188973c6ff80704db23f01cb707702a06b2478014a72f2e780b39867e6e" },
+      "targetCall": { "start": 12179498, "end": 12179770, "bytes": 272, "sha256": "825de6b87957ff4125cb4c9d0f8c4d0f61044f6fc44ecfa16967bea12a731936" },
+      "canonicalObject": { "chars": 3349, "bytes": 3349, "sha256": "f4aa440ef6103a833c0693dc653a34e64155ddf3ef26d594a52038b1b5ac2207" },
+      "canonicalCall": { "chars": 3612, "bytes": 3612, "sha256": "2d1548b9ddd61d4bfb1cb0ed2e1e6503116fdb50d8b1e911b4d3213285d3c648" }
+    }
+  ],
+  "sourceStates": {
+    "raw117": {
+      "path": ".recovery-tmp/semantic-trees/2.1.117/src/screens/REPL.tsx",
+      "selectedPath": "src/screens/REPL.tsx",
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "blob": "d8afe19de1c2b158eb186986d746f2efe57408cb",
+      "bytes": 898203,
+      "chars": 897799,
+      "sha256": "f774113480082afc6b5b7fc3d3c656ee2eb4d9e683b20ec51acd685bf99cacaf",
+      "declaration": { "name": "REPL", "start": 36849, "end": 259981, "chars": 223132, "bytes": 223476, "sha256": "f767ebdb2f7848a72583c568ea9f3cd3aa912b1bd96e98f355f95a808fad756b" },
+      "activeRemoteTransport": { "start": 78300, "end": 79053, "chars": 753, "bytes": 753, "sha256": "940ccdc2c0b3747252de734f392d31e947b9be167b58a0c18960c4b4ab89c9df" },
+      "activeRemoteEffect": { "start": 79056, "end": 79234, "chars": 178, "bytes": 178, "sha256": "fa15cdd920080a0821efb98c1698bb1482ef29f565d22a5df9a63ebd17783a64" },
+      "declarationLexicalCounts": { "viewerOnly": 1, "messageClientPlatform": 0, "clientPlatform": 0, "resultDedupState": 0 },
+      "runtimeRequiresAbsent": ["viewerOnly:", "messageClientPlatform", "clientPlatform", "resultDedupState"],
+      "runtimeRequiresPresent": ["const activeRemoteControlTransport", "setActiveRemoteControlTransport(activeRemoteControlTransport)"]
+    },
+    "target118Witness": {
+      "path": ".recovery-tmp/semantic-trees/2.1.118/src/screens/REPL.tsx",
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "blob": "8ae789d1cff727c7e022fca832b5fbb4d040a7fd",
+      "bytes": 899836,
+      "chars": 899432,
+      "sha256": "48b033cc2eba7de0382b139e21a36192c6796ba91eb2aecee9742f6982a94e90",
+      "declaration": { "name": "REPL", "start": 37192, "end": 261614, "chars": 224422, "bytes": 224766, "sha256": "32166878073bb0b266f6b9b05a62cf926b2a8840c60398085ce7ee0e1c5d3781" },
+      "activeRemoteTransport": { "start": 79300, "end": 80166, "chars": 866, "bytes": 866, "sha256": "187f41f4aa788235b3f947a36ac66bff3ad72e521713a87ac91320f516e26951" },
+      "activeRemoteEffect": { "start": 80169, "end": 80347, "chars": 178, "bytes": 178, "sha256": "fa15cdd920080a0821efb98c1698bb1482ef29f565d22a5df9a63ebd17783a64" },
+      "declarationLexicalCounts": { "viewerOnly": 4, "messageClientPlatform": 0, "clientPlatform": 0, "resultDedupState": 0 }
+    },
+    "target119Witness": {
+      "path": ".recovery-tmp/semantic-trees/2.1.119/src/screens/REPL.tsx",
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+      "blob": "f0ee9e1a150a3632e0df9ef365d29b33323a0022",
+      "bytes": 908262,
+      "chars": 907862,
+      "sha256": "d871cc40a1869f421bc1d91bed4ba524292f80c4c57459b700e62b96acdd17ed",
+      "declaration": { "name": "REPL", "start": 38236, "end": 270044, "chars": 231808, "bytes": 232148, "sha256": "e3f0888c24c8a399fcc2b5e17b622e3165539052767452bfe00c62fdc7b8c33c" },
+      "activeRemoteTransport": { "start": 83068, "end": 84044, "chars": 976, "bytes": 976, "sha256": "7fe1fedf6c5a6057993ef93aaf2e63845d88b945f1023570ecd2b59ddfd0f295" },
+      "activeRemoteEffect": { "start": 84047, "end": 84225, "chars": 178, "bytes": 178, "sha256": "fa15cdd920080a0821efb98c1698bb1482ef29f565d22a5df9a63ebd17783a64" },
+      "resultDedupStateDeclaration": { "start": 88871, "end": 88989, "chars": 118, "bytes": 118, "sha256": "6f9d2651f9a014aa0cd54a99f09e161756969316345718f47006d2ccef0c9234" },
+      "declarationLexicalCounts": { "viewerOnly": 4, "messageClientPlatform": 1, "clientPlatform": 6, "resultDedupState": 11 }
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The exact ff0339d Target117 owner is a stale REPL snapshot. Target118 is the first source witness with runtime viewerOnly, while Target119 adds session/client-platform/result-dedup semantics together with unrelated REPL evolution. Neither later declaration is an exact Target117 source donor."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/repl-whole-unit-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_REPL_WHOLE_UNIT_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

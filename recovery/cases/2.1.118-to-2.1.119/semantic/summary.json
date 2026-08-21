@@ -4,8 +4,8 @@
   "claim": "Exhaustive generated-unit ownership correspondence plus authenticated behavior obligations and source assertions. Passing focused tests in the source-lineage gate is separately required for the combined source-facing semantic reproduction claim; upstream authored spelling is not claimed byte-identical.",
   "report": {
     "path": "semantic-correspondence.json.gz",
-    "bytes": 1093852,
-    "sha256": "ec7e649ccc8ed367dc160c0b1301b4627567d0c64a97d6f509fab48c985b889b"
+    "bytes": 1093872,
+    "sha256": "41cae97af8435dee9a461d707c2e81fe2bbe675080db646d61d85a1a78c87afb"
   },
   "inputs": {
     "baseline": {
@@ -39,8 +39,8 @@
       "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
     },
     "obligations": {
-      "bytes": 295669,
-      "sha256": "48d635ccb80481abeab6d0124df4d50202e3fe1182c8ca8828cf34ac80dda2ca"
+      "bytes": 295670,
+      "sha256": "77af54135f4ada9f4249c6c302b6987f2743f1bdeb6c1e43030cfad9af299a57"
     },
     "changelog": {
       "bytes": 5230,

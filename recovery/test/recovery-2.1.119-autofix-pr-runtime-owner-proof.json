@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "The complete authenticated Target119 async wrapper and core are admitted atomically. The proof binds every target-added owner residue, the wrapper request shape, the full core control-flow contract, the JSX consumer and module-initializer edge, and canonical preservation through Targets120 and 121. Historical autofix-pr source establishes the public owning boundary but omits the extracted request/core architecture, so no partial source replay is allowed.",
+  "ownerBehavior": "The authenticated Target119 autofix-pr runtime is the atomic async wrapper/core pair consumed by the autofix-pr JSX command. The pair owns the freeformPrompt request shape, start telemetry including has_pr_number/has_repo_path, repository-aware PR resolution, progress events, Remote Control and remote-session result contracts, and all 18 target-added owner residues. Target120 and Target121 preserve the complete pair under canonical AST equality. Historical autofix-pr.tsx is the public owning implementation boundary but remains a stale inline implementation; the exact authored filename of the extracted internal core module is not source-authenticated, so this admission is static and never authorizes a partial replay.",
+  "summary": {
+    "units": 2,
+    "allOwnerRows": 182,
+    "addedOwnerRows": 18,
+    "legacyStrictRows": 12,
+    "ownerOverrides": 2,
+    "sourceReplayHelpers": 0,
+    "targetIndicesSha256": "58966bcbbbced625123ea225282f636c5f3a2bd9c19789c90d042c3800109853"
+  },
+  "evidenceIds": [
+    "target119-autofix-pr-runtime-authenticated-wrapper-core-proof",
+    "target119-autofix-pr-runtime-ui-consumer-module-boundary-proof",
+    "target119-autofix-pr-runtime-cross-release-stability-proof",
+    "target119-autofix-pr-runtime-source-lineage-replay-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+    },
+    "laterBundles": [
+      {
+        "version": "2.1.120",
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+        "bytes": 13784743,
+        "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f",
+        "ledgerPath": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+        "ledgerBytes": 2490663,
+        "ledgerSha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+      },
+      {
+        "version": "2.1.121",
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+        "bytes": 13908188,
+        "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a",
+        "ledgerPath": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+        "ledgerBytes": 2540002,
+        "ledgerSha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+      }
+    ]
+  },
+  "baselineImplementation": {
+    "componentUnit": {
+      "baselineIndex": 15194,
+      "classification": "unmatched-baseline",
+      "nodeType": "FunctionDeclaration",
+      "start": 9441282,
+      "end": 9446908,
+      "bytes": 5626,
+      "tokenCount": 1766,
+      "sha256": "c3a597f24a36d1c892145945045786a3f1f1141e5baa055b182c670ef9c68215",
+      "coarseHash": "ba74d91fca9a0b79c6ffcd7a1076a5a3eaa5883b6c216380717d7e550d95827b"
+    },
+    "localAgentHelperUnit": {
+      "baselineIndex": 15195,
+      "classification": "unmatched-baseline",
+      "nodeType": "FunctionDeclaration",
+      "start": 9446908,
+      "end": 9447716,
+      "bytes": 808,
+      "tokenCount": 247,
+      "sha256": "ab147b190ed45e0251e0685dc7e0ce51fa595535cd1e7e51430a4642a81b6727",
+      "coarseHash": "d57c6c0472d6998ddb55a9fd210bdc7b2c3d9048b4a4026d63239867a06dfe09"
+    },
+    "combined": {
+      "start": 9441282,
+      "end": 9447716,
+      "bytes": 6434,
+      "sha256": "95f0fab7bd9d9d67be8f19492249464dca494d5fb7d2cc97769f219fc311c62b"
+    }
+  },
+  "targetCluster": {
+    "combined": {
+      "start": 9554999,
+      "end": 9559640,
+      "bytes": 4641,
+      "sha256": "89cc123078b1443258bc397e2aa2e3357b93aad66212ba147e5013b7030faec1"
+    },
+    "wrapper": {
+      "targetIndex": 15463,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 9554999,
+      "end": 9555096,
+      "bytes": 97,
+      "tokenCount": 44,
+      "sha256": "54180605b5e978ec5bdf4ecfdda993e94153c71e58e979dd770e1258e0222ded",
+      "coarseHash": "a7a83745a734767dc5f80a2cdf2b356eec645b9fd4421284d94d969a255073e0",
+      "canonicalAstBytes": 1576,
+      "canonicalAstSha256": "d0e70c1f458303fc9e98e5ee60a5202f332464281b1ddc8940968a999398c521"
+    },
+    "core": {
+      "targetIndex": 15464,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 9555096,
+      "end": 9559640,
+      "bytes": 4544,
+      "tokenCount": 1402,
+      "sha256": "40232d530c36a9735b15fda61a71b6705f60eb96af7506c078074e25b341f380",
+      "coarseHash": "c2fa5df9b9edb778762f36579067f64e692b607eca8351bfcb86d8888e50d3e1",
+      "canonicalAstBytes": 52577,
+      "canonicalAstSha256": "cefecf78385b467c25405b8f47b278af992043a75c0ba392ca50642e6120f2d5"
+    }
+  },
+  "runtimeContract": {
+    "wrapper": {
+      "async": true,
+      "parameterCount": 3,
+      "bodyStatementCount": 2,
+      "stopAliases": ["stop", "off"],
+      "requestProperties": ["freeformPrompt"],
+      "coreArgumentCount": 3
+    },
+    "core": {
+      "async": true,
+      "parameterCount": 3,
+      "bodyStatementCount": 3,
+      "inputProperties": ["prNumber", "target", "freeformPrompt", "repoPath"],
+      "controlProperties": ["signal", "onProgress"],
+      "telemetryEvent": "tengu_autofix_pr_started",
+      "telemetryProperties": ["action", "has_pr_number", "has_repo_path"],
+      "progressSteps": ["checking", "spawning-local", "spawning", "subscribing"],
+      "abortChecks": 6,
+      "errorHelperCalls": 13,
+      "cancelHelperCalls": 6,
+      "successResultObjects": 3,
+      "successRemoteControlObjects": 2
+    },
+    "errorHelper": {
+      "targetIndex": 15465,
+      "start": 9559640,
+      "end": 9559780,
+      "bytes": 140,
+      "sha256": "6b7796101d0c545af5ad4daf8450b018460c61cb713b91ce5a36cda77952c8b3",
+      "kind": "error"
+    },
+    "cancelHelper": {
+      "targetIndex": 15466,
+      "start": 9559780,
+      "end": 9559871,
+      "bytes": 91,
+      "sha256": "9d4569d8453ba182a8268f6cb86ca7fdd067560133df6d0244ceadc23b6eac2b",
+      "kind": "cancelled"
+    }
+  },
+  "moduleBoundary": {
+    "coreInitializer": {
+      "targetIndex": 15470,
+      "start": 9560703,
+      "end": 9561047,
+      "bytes": 344,
+      "sha256": "28c9a6d2b7ed5d44ba3ea0763b063e9f1efd127fd3e4ad000226505df8b4586a"
+    },
+    "uiConsumer": {
+      "targetIndex": 15473,
+      "start": 9561081,
+      "end": 9562946,
+      "bytes": 1865,
+      "sha256": "231aa0d771d9dee8c9b6c24aa8453427d222b247fca251301cf725e3b84764ca",
+      "wrapperCall": {
+        "start": 9561312,
+        "end": 9561390,
+        "bytes": 78,
+        "sha256": "43ea2a5df1078628d4053baaee493454b96abb08e3e620a75205f69f0babcd1b"
+      }
+    },
+    "uiExport": {
+      "targetIndex": 15474,
+      "start": 9562946,
+      "end": 9563049,
+      "bytes": 103,
+      "sha256": "9522a719f56ec1f70117d0a66884cce078bfdb71a9c95ad6b7b54049a9e00870"
+    },
+    "uiInitializer": {
+      "targetIndex": 15475,
+      "start": 9563049,
+      "end": 9563140,
+      "bytes": 91,
+      "sha256": "f00d7253a3d6a30ca39d9ada0e6b93c0d789aa874ab982364a91df026be9216b",
+      "coreInitializerCall": {
+        "start": 9563105,
+        "end": 9563110,
+        "bytes": 5,
+        "sha256": "58319a0283c2137baeea19fe39901d8df0138f03c48f29c15e4d98876cc68193"
+      }
+    },
+    "commandInitializer": {
+      "targetIndex": 15478,
+      "start": 9563208,
+      "end": 9563536,
+      "bytes": 328,
+      "sha256": "ce8fa2727c6b509b4cf7af670e3d1c35738e9944c16829cc796c391d4ba283c3"
+    }
+  },
+  "ownerResidues": {
+    "allOwnerRows": {
+      "rows": 182,
+      "jsonBytes": 11481,
+      "sha256": "787e4d5b0b385ebfc499f1d7a68b7f149199e7b3fc7d776e43f0837ad0ec09df"
+    },
+    "addedOwnerRows": {
+      "rows": 18,
+      "jsonBytes": 1138,
+      "sha256": "53ba6cdd97b05087fe4b8e807eb97d71d7bfd6e3946d949bf4d76860f7915aed"
+    },
+    "legacyStrictRows": {
+      "rows": 12,
+      "jsonBytes": 811,
+      "sha256": "6f4b9abd53f5ccac22ddd603015a55cfd9a91670275f9827939e85ae4561e41e"
+    },
+    "rows": [
+      [15463, "property", "freeformPrompt", 9555067, 9555081, 0, 1, true],
+      [15464, "property", "has_pr_number", 9555189, 9555202, 0, 1, true],
+      [15464, "property", "has_repo_path", 9555231, 9555244, 0, 1, true],
+      [15464, "property", "repoPath", 9555254, 9555262, 0, 1, true],
+      [15464, "property", "target", 9555290, 9555296, 174, 188, true],
+      [15464, "property", "freeformPrompt", 9555299, 9555313, 0, 2, true],
+      [15464, "property", "repoPath", 9555316, 9555324, 0, 2, true],
+      [15464, "string", ". Create a PR first, then retry.", 9556198, 9556230, 0, 1, true],
+      [15464, "string", "MERGED", 9556289, 9556297, 4, 7, true],
+      [15464, "string", "CLOSED", 9556309, 9556317, 5, 8, true],
+      [15464, "string", ". Create a PR first, then retry.", 9556679, 9556711, 0, 2, true],
+      [15464, "property", "prInfo", 9556780, 9556786, 0, 1, true],
+      [15464, "property", "isRemoteControl", 9557827, 9557842, 0, 1, true],
+      [15464, "string", " in background", 9557878, 9557892, 2, 3, true],
+      [15464, "string", "\n\nWARNING: You have unpushed local commits, run git push so the PR reflects them", 9558220, 9558300, 0, 1, true],
+      [15464, "property", "isRemoteControl", 9558391, 9558406, 0, 2, true],
+      [15464, "string", " in background", 9558434, 9558448, 2, 4, true],
+      [15464, "string", ")\n  ", 9559543, 9559547, 0, 1, true]
+    ]
+  },
+  "laterLineage": [
+    {
+      "version": "2.1.120",
+      "wrapper": {"targetIndex": 15543, "baselineUnitIndex": 15463, "pairReason": "exact-scope-normalized-token-hash", "start": 9586107, "end": 9586204, "bytes": 97, "tokenCount": 44, "sha256": "a167b54fe001b74a5ff00b543846006e989d942e652301260f16e14fab898d43", "coarseHash": "a7a83745a734767dc5f80a2cdf2b356eec645b9fd4421284d94d969a255073e0"},
+      "core": {"targetIndex": 15544, "baselineUnitIndex": 15464, "pairReason": "exact-scope-normalized-token-hash", "start": 9586204, "end": 9590749, "bytes": 4545, "tokenCount": 1402, "sha256": "ff36659d60ec8dc6ae37a1fde1875b7852dd523ff6d2f8773ada4f744d328a59", "coarseHash": "c2fa5df9b9edb778762f36579067f64e692b607eca8351bfcb86d8888e50d3e1"}
+    },
+    {
+      "version": "2.1.121",
+      "wrapper": {"targetIndex": 15650, "baselineUnitIndex": 15543, "pairReason": "exact-scope-normalized-token-hash", "start": 9648384, "end": 9648481, "bytes": 97, "tokenCount": 44, "sha256": "02713be62c45ca8cf2b153f496faac3562461d0309d3ba17397c557f45635e19", "coarseHash": "a7a83745a734767dc5f80a2cdf2b356eec645b9fd4421284d94d969a255073e0"},
+      "core": {"targetIndex": 15651, "baselineUnitIndex": 15544, "pairReason": "unique-coarse-structural-hash", "start": 9648481, "end": 9653023, "bytes": 4542, "tokenCount": 1402, "sha256": "c9c3ebf2057c6eed6ed9e8e38ed00c7663ac8ee811909ab407fb1863a2900f98", "coarseHash": "c2fa5df9b9edb778762f36579067f64e692b607eca8351bfcb86d8888e50d3e1"}
+    }
+  ],
+  "sourceReplayBlocker": {
+    "publicOwnerPath": "src/commands/autofix-pr/autofix-pr.tsx",
+    "exactExtractedCoreAuthoredPath": null,
+    "file": {
+      "blob": "9ded9770b7352a07885f70d0b8db4371ef74be9b",
+      "bytes": 17317,
+      "chars": 17299,
+      "sha256": "d0d60e24308ac2919bef828cfe9b4325bc229a27c67e6c373a621317397937a6"
+    },
+    "autofixPrDeclaration": {"name": "AutofixPr", "start": 5132, "end": 17060, "bytes": 11938, "chars": 11928, "sha256": "9f24e782d4bb64be6703ff0edb4c6723e54a8b54c6580df6ec0edfac1b854936"},
+    "callDeclaration": {"name": "call", "start": 17062, "end": 17298, "bytes": 236, "chars": 236, "sha256": "cec0ca90aee32ce7216d0590bf51bafde00c48df35447d48a9cc8a2a6127b84d"},
+    "commandFile": {"path": "src/commands/autofix-pr/command.ts", "blob": "e09b63ad87f1e661072a1107696a344c251208e5", "bytes": 717, "sha256": "59fe4d8710546a4de59a6b528e4bb713f765c903a140d31e5e434ed20c390b29", "lazyModule": "./autofix-pr.js"},
+    "versionSnapshots": [
+      {"version": "2.1.118", "commit": "bd846a24e3886322888f02b9f747c132a4a32314", "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0"},
+      {"version": "2.1.119", "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05", "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92"},
+      {"version": "2.1.120", "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1", "tree": "6284c518a191674bf3e42869e05cad35dcaeabf0"},
+      {"version": "2.1.121", "commit": "9f034bb03d575603a850e3c75ce003406094f9cc", "tree": "e30c62cef8d103b23920df31a731ee212ed721ba"}
+    ],
+    "missingMarkers": ["freeformPrompt", "has_pr_number", "has_repo_path", "repoPath", "prInfo", "isRemoteControl"],
+    "sharedSemanticSentinels": [
+      "tengu_autofix_pr_started",
+      "cannot run on the default branch (",
+      "gh CLI is required but not found.",
+      "already monitoring ",
+      "couldn't subscribe the Remote Control session to PR events.",
+      "remote session creation failed.",
+      "WARNING: Failed to turn on autofix for this PR",
+      "WARNING: You have unpushed local commits, run git push so the remote session sees them",
+      "Spawned remote autofix PR session on ",
+      "tengu_autofix_pr_result"
+    ],
+    "laterApiFile": {"version": "2.1.121", "path": "src/commands/autofix-pr/api.ts", "blob": "d494e66350c1597aedeb99d1cffe2dc4a798260c", "bytes": 1896, "sha256": "14d7a2104be910163aebf876d2d8d7c7e69cf56ae1b1370f5eeb20f86de3fcd3", "missingMarkers": ["freeformPrompt", "has_pr_number"]}
+  },
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {"phase": "post-u21759", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 382108, "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"}, "sourceCoverageRaw": {"bytes": 3290710, "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"}},
+      {"phase": "post-u21878", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 383456, "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"}, "sourceCoverageRaw": {"bytes": 3297173, "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"}}
+    ]
+  },
+  "latestArtifactProjection": {
+    "phases": ["post-u21759", "post-u21878"],
+    "units": [
+      {
+        "targetIndex": 15463,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {"full": {"rows": 1, "jsonBytes": 422, "sha256": "7635f82204f39098394f34926e06d9eff0c8f284a3722bebc41c9f5dbd9591d1"}, "identities": {"rows": 1, "jsonBytes": 62, "sha256": "2d410764bc2fb633d3d4bc15ec39ab8c695a4b07d2d4351219ef827a147e5e24"}},
+          "sourceRuntimeAddedOwnerResidueRows": {"full": {"rows": 1, "jsonBytes": 2069, "sha256": "5a77385487dfab55ff9d3928ac5e5437cb715826792b1ec0dff053cbf67b76aa"}, "identities": {"rows": 1, "jsonBytes": 62, "sha256": "2d410764bc2fb633d3d4bc15ec39ab8c695a4b07d2d4351219ef827a147e5e24"}},
+          "rows": {"full": {"rows": 1, "jsonBytes": 2069, "sha256": "5a77385487dfab55ff9d3928ac5e5437cb715826792b1ec0dff053cbf67b76aa"}, "identities": {"rows": 1, "jsonBytes": 62, "sha256": "2d410764bc2fb633d3d4bc15ec39ab8c695a4b07d2d4351219ef827a147e5e24"}},
+          "unclassifiedAddedOccurrenceRows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+        },
+        "coverageRows": {"rows": 1, "jsonBytes": 1302, "sha256": "08f19cad6013b1bba2097337df66037f4b3b5a66615b64ac7268df9afbb4ba36"},
+        "ownerCatalog": [{"id": "owner-src-commands-autofix-pr-autofix-pr-tsx", "path": "src/commands/autofix-pr/autofix-pr.tsx"}]
+      },
+      {
+        "targetIndex": 15464,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {"full": {"rows": 44, "jsonBytes": 18436, "sha256": "df9ee4e314e9443b9781e7fe79e07e9f0aaf9d0e38366e8c70c3204dc892461e"}, "identities": {"rows": 44, "jsonBytes": 2596, "sha256": "214360523e7644d303e6608475104bd96d9d82aa44323d80d1358893d343eb4a"}},
+          "sourceRuntimeAddedOwnerResidueRows": {"full": {"rows": 15, "jsonBytes": 34916, "sha256": "41f93f15d4bc1f3869c28127fc0dd1895a4bdcd8764ec85a41fab78c5289dabb"}, "identities": {"rows": 15, "jsonBytes": 975, "sha256": "f1857c571af637b5f4a02f28d0f0924e39e3d9f6190d665e91d1ea54a67ab39a"}},
+          "rows": {"full": {"rows": 11, "jsonBytes": 22827, "sha256": "418c6c324eb5ec7e04f468e176125ecdbd63db722cfe01fbc7f1dbdb7d3fe55e"}, "identities": {"rows": 11, "jsonBytes": 750, "sha256": "b8f54fbb8b28487f3bc8f8dfa9cb5e34f4a08be6e66892ca2753376d1d7ab7e0"}},
+          "unclassifiedAddedOccurrenceRows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+        },
+        "coverageRows": {"rows": 1, "jsonBytes": 1302, "sha256": "9ccb4b470bfad515f7db77905936264e1a41cc60442cfdf84e255bed38c5262f"},
+        "ownerCatalog": [{"id": "owner-src-commands-autofix-pr-autofix-pr-tsx", "path": "src/commands/autofix-pr/autofix-pr.tsx"}]
+      }
+    ]
+  }
+}

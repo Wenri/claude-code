@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-inherited-source-replay-proof",
+  "criterion": "complete-binary-validation-unit-plus-exact-source-replay-v1",
+  "evidenceIds": [
+    "target119-binary-command-validation-authenticated-target-fragment",
+    "target119-binary-command-validation-source-replay-test",
+    "target119-binary-command-validation-source-ast-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "donor": {
+      "commit": "eeb88ffaee8a1915e6051279e565a8dd7a4cfaca",
+      "path": "src/utils/binaryCheck.ts",
+      "gitBlob": "77a0b59a19b90657f610ea1928682878c5dfd328",
+      "bytes": 1848,
+      "sha256": "ad80d6326374704d5e009f7a04702121ba36fc7f7140f0813ed070d438b9d3c6"
+    }
+  },
+  "source": {
+    "path": "src/utils/binaryCheck.ts",
+    "input": {
+      "bytes": 1466,
+      "sha256": "bfc8cacb7ef1a2e71ce8f5c189ed5797de81471d4a450dae31b958a2265cc020"
+    },
+    "output": {
+      "bytes": 1848,
+      "sha256": "ad80d6326374704d5e009f7a04702121ba36fc7f7140f0813ed070d438b9d3c6"
+    },
+    "declarations": {
+      "SAFE_BINARY_NAME_PATTERN": {
+        "start": 220,
+        "end": 362,
+        "chars": 142,
+        "sha256": "29e995caa04772ce013ed9339c3d1fbb3e37a90bc62cb303ff1999bb9255fa1c"
+      },
+      "isBinaryInstalled": {
+        "start": 676,
+        "end": 1718,
+        "chars": 1042,
+        "sha256": "bafe2a0b43e2030f2b07b3036ac443efbee5f0d5461916d2aef2c5af3e620f23"
+      }
+    }
+  },
+  "supportingUnit": {
+    "targetIndex": 20975,
+    "classification": "matched",
+    "pairReason": "exact-scope-normalized-token-hash",
+    "baseline": {"targetIndex":20069,"nodeType":"FunctionDeclaration","start":12166671,"end":12167098,"bytes":427,"sha256":"38ac420dcd9fec7b6b85a313912e61205cab803b1fa6c85b81e900b45b849fca","coarseHash":"fac70568e384eae2348c5918a423586778f6eebb45ccd49b8fb87ed26cdde2e3"},
+    "target": {"nodeType":"FunctionDeclaration","start":12627283,"end":12627710,"bytes":427,"sha256":"9026c12e1c292c5970b6878fbc64eae3202cd5ac4ba7bef0e30be0e133f5646d","coarseHash":"fac70568e384eae2348c5918a423586778f6eebb45ccd49b8fb87ed26cdde2e3"}
+  },
+  "row": {
+    "targetIndex": 20977,
+    "classification": "changed",
+    "pairReason": "unique-coarse-structural-hash",
+    "ownerPaths": ["src/utils/binaryCheck.ts"],
+    "declarations": ["SAFE_BINARY_NAME_PATTERN", "isBinaryInstalled"],
+    "baseline": {"targetIndex":20071,"nodeType":"VariableDeclaration","start":12167110,"end":12167249,"bytes":139,"sha256":"f647c598226566dd752ea3d00cac74aadcdd54b8199299803869ff6657be6115","coarseHash":"06d8d11b6c8e1ef6503b3ea6f46a4258c171ebebd783665a6eb62b8517aa748b"},
+    "target": {"nodeType":"VariableDeclaration","start":12627722,"end":12627861,"bytes":139,"sha256":"49414731c6d13d196b2a43064b555a3c5c21b55838a8d2a500e270973cb3a9df","coarseHash":"06d8d11b6c8e1ef6503b3ea6f46a4258c171ebebd783665a6eb62b8517aa748b"},
+    "residues": [
+      {"kind":"string","value":"windows","start":12627775,"end":12627784,"baselineCount":77,"targetOrdinal":98,"targetAdded":true},
+      {"kind":"regexp","value":{"flags":"","pattern":"^[A-Za-z0-9/\\\\][A-Za-z0-9_.+:\\\\?/-]*$"},"start":12627785,"end":12627824,"baselineCount":1,"targetOrdinal":1,"targetAdded":false},
+      {"kind":"regexp","value":{"flags":"","pattern":"^[A-Za-z0-9/][A-Za-z0-9_.+/-]*$"},"start":12627825,"end":12627858,"baselineCount":1,"targetOrdinal":1,"targetAdded":false}
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "strictResidues": 1,
+    "targetIndicesSha256": "ec97bb05063dbb22aef01198a550c9ee98075e2da3018cc75ab9a7942126a06d",
+    "residueIdentitiesSha256": "4da9fb90a508453a6d78e39b5f6569005e829faa9468391c3281e326a08f5257"
+  }
+}

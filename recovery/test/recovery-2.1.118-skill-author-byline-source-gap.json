@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "case-owned-replay-ready",
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "indicesSha256": "2b7a156b7b2f3f95a2411f9d9ce997b9936e4ed11051dad9a841d91e2a122ac8",
+    "residueIdentitiesSha256": "5773a0e58c8744b91ba750cc8568820ca8458806d0e04b88f7a8d8da87cac7b3"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "forwardBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "forwardStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "path": "src/tools/SkillTool/UI.tsx",
+      "bytes": 19189,
+      "sha256": "cd40ed905b5f411b34eae96aca77302e4782ae6ea95bbdc6d37fde9281f5b8e0"
+    },
+    "recoveredSource": {
+      "path": "src/tools/SkillTool/UI.tsx",
+      "bytes": 19475,
+      "sha256": "c31a7c4371fc38f7494a18b4dfbe168f7c5b0635706785a1b1cb88153ed8e484"
+    },
+    "helperSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "path": "src/utils/teamArtifacts.ts",
+      "bytes": 5531,
+      "sha256": "7a8c4eeb1a89ca1a4d33e494b5f52bbd723cfa8e599e5257069412610e23fc35"
+    }
+  },
+  "temporalUnits": [
+    {
+      "version": "2.1.117",
+      "index": 12597,
+      "nodeType": "FunctionDeclaration",
+      "start": 7882288,
+      "end": 7882421,
+      "bytes": 133,
+      "sourceHash": "189c129c06c7408d762f282106fc40e6a2d2b76caec438da53b6aa923bc2d877",
+      "coarseHash": "8db002b584fe94c5872aee37e9eab9bbfe4f2a1ac34282420b77ca490cba8dd3",
+      "tokenCount": 54
+    },
+    {
+      "version": "2.1.118",
+      "index": 12691,
+      "nodeType": "FunctionDeclaration",
+      "start": 7920612,
+      "end": 7920871,
+      "bytes": 259,
+      "sourceHash": "284b51eda6a615e08548fc874c0d6edc5e0f939d4ed116bfac51df6cf9025699",
+      "coarseHash": "f1affbc7c2e54761ebc46bd74d342381dda60dbfdbdfc21ee7a25a6b583bf621",
+      "tokenCount": 123
+    },
+    {
+      "version": "2.1.119",
+      "index": 12856,
+      "nodeType": "FunctionDeclaration",
+      "start": 7986550,
+      "end": 7986809,
+      "bytes": 259,
+      "sourceHash": "f6ef77c8dc65f43d27faded18c775d88c3019a4c9fc5a66235918d9f2b316e78",
+      "coarseHash": "f1affbc7c2e54761ebc46bd74d342381dda60dbfdbdfc21ee7a25a6b583bf621",
+      "tokenCount": 123
+    }
+  ],
+  "forwardPair": {
+    "classification": "matched",
+    "baselineUnitIndex": 12691,
+    "targetIndex": 12856,
+    "pairReason": "exact-scope-normalized-token-hash"
+  },
+  "row": {
+    "targetIndex": 12691,
+    "ownerPath": "src/tools/SkillTool/UI.tsx",
+    "evidenceIds": [
+      "target118-skill-author-byline-target-fragment",
+      "target118-skill-author-byline-source-replay-test",
+      "target118-skill-author-byline-source-ast-test"
+    ],
+    "behavior": "Target118 SkillTool display normalizes whitespace and a leading slash, preserves the legacy commands_DEPRECATED slash, and appends the authenticated project-team author as “ · by <author>” only when getTeamArtifactAuthor returns one.",
+    "residue": [
+      "string",
+      " · by ",
+      7920854,
+      7920863,
+      0,
+      1
+    ],
+    "rawResidue": " \\xB7 by "
+  },
+  "sourceSections": {
+    "before": {
+      "declaration": "renderToolUseMessage",
+      "start": 2028,
+      "end": 2445,
+      "bytes": 417,
+      "sha256": "cb1a77d4bde15ba0f3ffa245657e3a8dec9c0a5f11a26ec84d5fa61b061f0407"
+    },
+    "after": {
+      "declaration": "renderToolUseMessage",
+      "start": 2098,
+      "end": 2730,
+      "bytes": 633,
+      "sha256": "f16ee42075c869b8c94155789c39da526e8f214206b96d21ad35c167801b8a6e"
+    },
+    "authorHelper": {
+      "declaration": "getTeamArtifactAuthor",
+      "start": 2926,
+      "end": 3263,
+      "bytes": 337,
+      "sha256": "b34cc38520ea9dd50ca446d9bc4c327923ab98e96b7979be205bd614cdbf60d6"
+    }
+  },
+  "sourceContract": {
+    "declaration": "renderToolUseMessage",
+    "helperDeclaration": "getTeamArtifactAuthor",
+    "teamFeature": "tengu_tussock_oriole",
+    "teamSource": "projectSettings",
+    "legacyLoadedFrom": "commands_DEPRECATED",
+    "byline": " · by "
+  }
+}

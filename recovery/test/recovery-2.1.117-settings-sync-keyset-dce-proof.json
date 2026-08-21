@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "status": "authenticated-dce-nonruntime-proof",
+  "criterion": "complete-unconsumed-binding-graph-v1",
+  "baselineBundle": {
+    "artifact": "2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "artifact": "2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structural": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "targetUnit": {
+    "targetIndex": 17306,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 10797500,
+    "end": 10797582,
+    "bytes": 82,
+    "tokens": 27,
+    "sha256": "29d091a81cd9414058f04dab697f35e825581b5ea213b8edf82e881b80770c65",
+    "coarseHash": "8b10b6c5e2782ba4a59f18c12b45528a7d2b49a8b900aad47c9ec0e523e6568f",
+    "text": "var xd7=v(()=>{db1=[\"enabledPlugins\",\"extraKnownMarketplaces\"],QGY=new Set(db1)});"
+  },
+  "bindingDeclarationUnit": {
+    "targetIndex": 17305,
+    "classification": "moved",
+    "baselineUnitIndex": 17287,
+    "start": 10797488,
+    "end": 10797500,
+    "bytes": 12,
+    "sha256": "bb5237b3f076d96a29bc2872b7ebb97ee6570806d6100579cef58eeb4d8cb0c7",
+    "text": "var db1,QGY;"
+  },
+  "parentInitializerUnit": {
+    "targetIndex": 17309,
+    "classification": "unresolved",
+    "start": 10797799,
+    "end": 10797905,
+    "bytes": 106,
+    "sha256": "afcd0456002db104102ae82f8dc43a1677612f22a6a2bdae15c59a4b15342bbe",
+    "requiredCall": {
+      "name": "xd7",
+      "start": 10797891,
+      "end": 10797896,
+      "text": "xd7()"
+    }
+  },
+  "bindings": {
+    "db1": [10797492, 10797515, 10797575],
+    "QGY": [10797496, 10797563],
+    "xd7": [10797504, 10797891]
+  },
+  "residues": [
+    {
+      "literalKind": "string",
+      "value": "enabledPlugins",
+      "start": 10797520,
+      "end": 10797536,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1
+    },
+    {
+      "literalKind": "string",
+      "value": "extraKnownMarketplaces",
+      "start": 10797537,
+      "end": 10797561,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1
+    }
+  ],
+  "rejectedProvisionalOwner": {
+    "path": "src/commands/agents/index.ts",
+    "bytes": 232,
+    "sha256": "9d2f5beec95958bb74ed2e80e57ba7edc23720cf8edda2f8430698040a6b1054",
+    "requiredAbsentMarkers": ["enabledPlugins", "extraKnownMarketplaces"]
+  },
+  "evidenceIds": [
+    "target117-settings-sync-keyset-dce-target-fragment",
+    "target117-settings-sync-keyset-dce-static-binding-test"
+  ],
+  "category": "unconsumed-settings-sync-keyset-allocation",
+  "reason": "The authenticated Target117 initializer allocates the exact enabledPlugins/extraKnownMarketplaces array and a Set from it, but its complete bundle binding graph has no read, call, pass, return, export, mutation, or state escape for the Set and no array read beyond that constructor argument. The parent module calls the initializer once, so these allocation-only bindings cannot affect observable runtime behavior and require no invented source owner.",
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "targetIndicesSha256": "343a301167a38fc804b2b7447569967620e1cb57aec1b6b953512829231571b1",
+    "residueIdentitiesSha256": "07a1900811f20f7f0b3dea00645f9c8ccf5ed38d0e3252f577efd7c91e0b1caf"
+  }
+}

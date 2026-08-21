@@ -12,6 +12,11 @@ const TARGET_BYTES = 13_720_987
 const TARGET_SHA256 =
   '9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef'
 const repo = fileURLToPath(new URL('../..', import.meta.url))
+const targetSourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_2_1_119_SOURCE_ROOT ??
+    process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ??
+    path.join(repo, '.recovery-tmp/semantic-trees/2.1.119/src'),
+)
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
@@ -41,7 +46,10 @@ function compact(value) {
 }
 
 function readSource(sourcePath) {
-  return fs.readFileSync(path.join(repo, sourcePath), 'utf8')
+  assert.match(sourcePath, /^src\//)
+  const filename = path.resolve(targetSourceRoot, sourcePath.slice(4))
+  assert.ok(filename.startsWith(targetSourceRoot + path.sep))
+  return fs.readFileSync(filename, 'utf8')
 }
 
 function assertSourceFragments(sourcePath, fragments) {

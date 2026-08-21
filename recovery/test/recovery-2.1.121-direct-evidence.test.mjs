@@ -26,6 +26,13 @@ const HIDDEN_PATH = 'recovery/2.1.121-hidden-semantic-inventory.json'
 const BASE_REVISION = '6801ead984ba2c3df02bd092ad8b93df096ed8c1'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
+// The catalog authenticates the pristine Target121 source tree. Package replay
+// outputs are authenticated by their dedicated source-gap tests and must not
+// silently replace these original row-scoped witnesses.
+const directEvidenceSourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_DIRECT_EVIDENCE_SOURCE_ROOT ??
+    path.join(repo, '.recovery-tmp/semantic-trees/2.1.121/src'),
+)
 const frozenSourcePathsPath = path.join(
   repo,
   'recovery/cases/2.1.120-to-2.1.121/recovered/source-freeze/source-paths.txt',
@@ -66,6 +73,22 @@ function readAuthenticatedBundle(environmentName, expectedBytes, expectedSha256)
   assert.equal(value.length, expectedBytes, `${environmentName}: byte length`)
   assert.equal(sha256(value), expectedSha256, `${environmentName}: SHA-256`)
   return value
+}
+
+function readSemanticSource(relativePath, label) {
+  assert.match(relativePath, /^src\//, `${label}: source-relative path`)
+  const filename = path.resolve(
+    directEvidenceSourceRoot,
+    relativePath.slice(4),
+  )
+  assert.ok(
+    filename.startsWith(directEvidenceSourceRoot + path.sep),
+    `${label}: source path remains under the selected root`,
+  )
+  const status = fs.lstatSync(filename)
+  assert.equal(status.isFile(), true, `${label}: regular file`)
+  assert.equal(status.isSymbolicLink(), false, `${label}: not a symlink`)
+  return fs.readFileSync(filename)
 }
 
 function assertFragmentMetadata(fragment, label) {
@@ -220,11 +243,8 @@ test('2.1.121-direct-evidence.exact-source-counts-and-absences', () => {
         sourceAssertion,
         `${row.id}: ${sourceAssertion.path}`,
       )
-      const filename = path.join(repo, sourceAssertion.path)
-      const source = readPinnedFile(
+      const source = readSemanticSource(
         sourceAssertion.path,
-        fs.statSync(filename).size,
-        sha256(fs.readFileSync(filename)),
         `${row.id}: source path`,
       )
       assert.equal(
@@ -242,7 +262,7 @@ test('2.1.121-direct-evidence.exact-source-counts-and-absences', () => {
         `${row.id}: canonical absence paths`,
       )
       const count = sourceAbsence.paths.reduce((sum, sourcePath) => {
-        const source = fs.readFileSync(path.join(repo, sourcePath))
+        const source = readSemanticSource(sourcePath, `${row.id}: absence path`)
         return sum + occurrences(source, value)
       }, 0)
       assert.equal(count, 0, `${row.id}: source absence count`)

@@ -1,0 +1,917 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-memory-write-survey-hook-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "claim": "Target121 u21015 is the complete src/components/FeedbackSurvey/useMemoryWriteSurvey.ts::useMemoryWriteSurvey hook. Target120 u20919 is its direct whole-unit predecessor. The target hook adds a terminal-column to visual-row-count path and an incomplete postReject state path, while the exact Target120, Target121, and fresh-package hook source is byte-identical and retains the older logical-line and immediate-close contract. The postReject setter is binding-only and the timer ref is cleanup-only, so no partial source replay is admitted.",
+  "evidenceIds": [
+    "target121-memory-write-survey-hook-authenticated-whole-unit",
+    "target121-memory-write-survey-hook-width-and-reject-graph",
+    "target121-memory-write-survey-hook-source-gap-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "ownerOverride": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/memory-write-survey-hook-owner-overrides.mjs",
+      "bytes": 1574,
+      "sha256": "de9bce6ff8b653a4acdc5a5f914125ea977aeae35291d74d70359651e0438138"
+    },
+    "typedReportSnapshots": {
+      "provisional": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 26646291,
+        "sha256": "75c93caebd73e5cfa9d977c81874b0f4eb617866b973f872b3ec909b8ce113e4"
+      },
+      "postFocusedBatch": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25717702,
+        "sha256": "f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"
+      },
+      "postDaemonOwner": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3",
+        "projection": "postFocusedBatch"
+      }
+    },
+    "sourceCoverageSnapshots": {
+      "provisional": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 339584,
+        "sha256": "5d0df0f05882a63ddd9b92bc158e6f7c75426c9ec6409eab5436ff5d55710105",
+        "rawBytes": 2944902,
+        "rawSha256": "7cef059481675bf3ebf3068a8d12b3a49fc6058ec5c4181fb96601067f8868db"
+      },
+      "postFocusedBatch": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 343532,
+        "sha256": "7a51d49cdd7cb9b26b883ea0f0b1242573cd1ed4a0ba25a91ac1bc98dbc1eabd",
+        "rawBytes": 2958647,
+        "rawSha256": "92bf969f261a3c716fb8e8a4fa50b879a1a407bf35a51cfca5971afc67c9555b"
+      },
+      "postDaemonOwner": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f",
+        "projection": "postFocusedBatch"
+      }
+    },
+    "evolutionCompatibility": {
+      "provisional": ["provisional"],
+      "postFocusedBatch": ["postFocusedBatch"],
+      "postDaemonOwner": ["postDaemonOwner"]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 21015,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 2,
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "start": 12643008,
+    "end": 12645131,
+    "bytes": 2123,
+    "tokenCount": 979,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 3,
+    "sha256": "97c082b2fbfa7cd4ac4d6227771e6b88c67e078d679f362811c6d8e7f44e53c0",
+    "coarseHash": "4bf6762ebc45e59b5b2d107160411c8a624a645388500ccb3ffdb5a953f78dd0",
+    "line": 9194,
+    "column": 10356
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 20919,
+    "classification": "unmatched-baseline",
+    "relation": "direct useMemoryWriteSurvey predecessor authenticated by the exact module boundary, unique memoryWriteQueue hook signature, the same three-statement complete-function surface, 887-token normalized LCS, and byte-identical recovered declaration lineage",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "start": 12581991,
+    "end": 12583961,
+    "bytes": 1970,
+    "tokenCount": 891,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 3,
+    "sha256": "c0004d726c5d44f8f09caf078b6f995d3feb03f1ae367b8add02a6ece410b08a",
+    "coarseHash": "94974f005e4e16a0108501a1f21e684c1dbf511293b5a470e8747797b0779c97",
+    "line": 9226,
+    "column": 10316
+  },
+  "supportingUnits": {
+    "visualRowCounter": {
+      "targetIndex": 8761,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 4,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 4141917,
+      "end": 4142099,
+      "bytes": 182,
+      "tokenCount": 83,
+      "topDefinitionCount": 1,
+      "sha256": "6808a7aca5f1830ce206de0424a1fa6902f06611611f0f8a0193fa53a4ab0c74",
+      "coarseHash": "5b02b135b44065f35ecc00d7298b289638f35eae1daae53f3a81abf23daccb63",
+      "exact": "function INK(H,$){if(H.isEdit){let q=ENK($),K=hNK(H.structuredPatch);for(let _ of H.structuredPatch)K+=bAH(_.lines.join(`\n`),q);return K}if(H.body===\"\")return 0;return bAH(H.body,$)}"
+    },
+    "contentWidth": {
+      "targetIndex": 21014,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 0,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 12642968,
+      "end": 12643008,
+      "bytes": 40,
+      "tokenCount": 18,
+      "topDefinitionCount": 1,
+      "sha256": "4668b0498bdbcfd23ae3498f9246131b65be2fecde6f62fa901efd3eee1d3040",
+      "coarseHash": "a0ba261334f845600e0d76ee5c780dbfe8513a4393c40f4242b67743d2dc3f67",
+      "exact": "function ww8(H){return Math.max(20,H-6)}"
+    },
+    "closedStateInitializer": {
+      "targetIndex": 21018,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 2,
+      "nodeType": "VariableDeclaration",
+      "parseStatus": "parsed",
+      "start": 12645782,
+      "end": 12646080,
+      "bytes": 298,
+      "tokenCount": 111,
+      "topDefinitionCount": 1,
+      "sha256": "87fd0331091fa5e78d1ffd72d42a7872e27f176c02b5cd4708ba19aeeab074c3",
+      "coarseHash": "fab8f57f40f67000fcfd0fb135f5ab0d4dabbb8849223f1d85639c1dfe094bf0"
+    },
+    "memoryWriteSurveyUi": {
+      "targetIndex": 21048,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 2,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 12657020,
+      "end": 12658037,
+      "bytes": 1017,
+      "tokenCount": 387,
+      "topDefinitionCount": 1,
+      "sha256": "fe300fc2a1f077332954ed03600f768bdf3ac5451b4e40ef0cbc304a06ee324a",
+      "coarseHash": "ba73fda2dbc230d661d6d34f26ee34e814f2d7af13191f049e8a28c485f9300b"
+    },
+    "repl": {
+      "targetIndex": 21373,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 55,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 12808080,
+      "end": 12870870,
+      "bytes": 62790,
+      "tokenCount": 24174,
+      "topDefinitionCount": 1,
+      "sha256": "9ec5b2c56ed51834e6b5daad46cd908af0a5f0bd706ab4b89ad27854cd2e5ee9",
+      "coarseHash": "caab123b95c9837dc2f3c89d58af9b9afe3834feb94e35f1a81628f1e74d8a0d"
+    },
+    "surveyObjectConsumer": {
+      "targetIndex": 21053,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 7,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 12659911,
+      "end": 12662830,
+      "bytes": 2919,
+      "tokenCount": 1094,
+      "topDefinitionCount": 1,
+      "sha256": "5a071b6d13587faa812a9c5cab99e5a022363f1b89a264c1ebd3a66681bbc8b5",
+      "coarseHash": "c47f9e8bdf38be907cea0400c0cad744b6ecfd9921f5bc09bd693e5e8937ba3b",
+      "lineCountStarts": [],
+      "postRejectStarts": []
+    },
+    "baselineClosedStateInitializer": {
+      "baselineUnitIndex": 20922,
+      "classification": "unmatched-baseline",
+      "nodeType": "VariableDeclaration",
+      "parseStatus": "parsed",
+      "start": 12584612,
+      "end": 12584901,
+      "bytes": 289,
+      "tokenCount": 107,
+      "topDefinitionCount": 1,
+      "sha256": "0bc806efaca738fdc91df136bd5f7a7dc5f2b2be0cf909a6d1a509751d450946",
+      "coarseHash": "9474065b07f13fbb66b1fea5458d2d932b4cb390e5bafaf48f2d0dd005906204"
+    },
+    "baselineSurveyObjectConsumer": {
+      "baselineUnitIndex": 20958,
+      "classification": "unmatched-baseline",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 12598922,
+      "end": 12601898,
+      "bytes": 2976,
+      "tokenCount": 1118,
+      "topDefinitionCount": 1,
+      "sha256": "bdf4418ccdea3270ed8c5d16d56b7c1978700f244deb489b51b53e9fbcdb66bd",
+      "coarseHash": "060c5a94d2bca45e957775239b95a5d56c63f231a9a899ffb7ef4d7640643312",
+      "lineCountStarts": [12599361, 12599505, 12599517, 12599711],
+      "postRejectStarts": []
+    }
+  },
+  "ownerResidues": {
+    "reportedOwner": "components/FeedbackSurvey/useMemorySurvey.tsx",
+    "correctedOwner": "src/components/FeedbackSurvey/useMemoryWriteSurvey.ts",
+    "declarations": [
+      "useMemoryWriteSurvey",
+      "width-aware memory-write row count and post-reject state"
+    ],
+    "totalRows": 82,
+    "targetAddedRows": 2,
+    "strictRows": 1,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {
+      "bytes": 4520,
+      "sha256": "cb9870aa2d6cc332b8fd9c35f7041d913dde4bb7a148cd1402ea80724d219bd6"
+    },
+    "ownerIdentityMethod": "row identity plus ownerPaths and ownerSourceMatches in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "ownerIdentities": {
+      "bytes": 8866,
+      "sha256": "c7820d869c7b1a117074cdb2133a08b4227563b5cbee6e74df82d6992e2a60d0"
+    },
+    "targetAddedIdentities": {
+      "bytes": 108,
+      "sha256": "c1c5a738af80b2e38d8abab8deda23dc0ba3ce9d9bcc7219d5e6aefe48d90a5c"
+    },
+    "targetAddedRowsExact": [
+      ["property", "columns", 12643156, 12643163, 181, 191, true],
+      ["property", "postReject", 12645101, 12645111, 0, 1, true]
+    ],
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in strict-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 53,
+      "sha256": "0e2e0bc212687bb6f3ec8018cc01d3b64b251774482f8707d89421e896200139"
+    },
+    "strictRowsExact": [
+      [21015, "property", "postReject", 12645101, 12645111, 1]
+    ],
+    "allRowsExact": [
+      ["property", "hasActivePrompt", 12643022, 12643037, 2, 1, false],
+      ["property", "memoryWriteQueue", 12643078, 12643094, 11, 8, false],
+      ["property", "memoryWriteQueue", 12643119, 12643135, 11, 9, false],
+      ["property", "columns", 12643156, 12643163, 181, 191, true],
+      ["property", "useState", 12643190, 12643198, 825, 753, false],
+      ["property", "useState", 12643214, 12643222, 825, 754, false],
+      ["property", "useState", 12643238, 12643246, 825, 755, false],
+      ["property", "useState", 12643262, 12643270, 825, 756, false],
+      ["property", "useRef", 12643282, 12643288, 533, 403, false],
+      ["property", "useState", 12643304, 12643312, 825, 757, false],
+      ["property", "useRef", 12643321, 12643327, 533, 404, false],
+      ["property", "useRef", 12643336, 12643342, 533, 405, false],
+      ["property", "useRef", 12643354, 12643360, 533, 406, false],
+      ["property", "useState", 12643374, 12643382, 825, 758, false],
+      ["property", "useState", 12643395, 12643403, 825, 759, false],
+      ["property", "useCallback", 12643414, 12643425, 357, 294, false],
+      ["property", "id", 12643472, 12643474, 1766, 1644, false],
+      ["property", "memory_type", 12643475, 12643486, 14, 14, false],
+      ["property", "memoryType", 12643489, 12643499, 2, 2, false],
+      ["property", "is_edit", 12643500, 12643507, 1, 1, false],
+      ["property", "isEdit", 12643510, 12643516, 7, 5, false],
+      ["property", "line_count", 12643517, 12643527, 3, 3, false],
+      ["property", "lineCount", 12643530, 12643539, 35, 22, false],
+      ["property", "was_summarized", 12643540, 12643554, 1, 1, false],
+      ["property", "wasSummarized", 12643557, 12643570, 3, 1, false],
+      ["property", "queue_depth", 12643571, 12643582, 1, 1, false],
+      ["property", "queueDepth", 12643585, 12643595, 3, 1, false],
+      ["property", "id", 12643649, 12643651, 1766, 1645, false],
+      ["string", "memory_write", 12643664, 12643678, 1, 1, false],
+      ["property", "useCallback", 12643691, 12643702, 357, 295, false],
+      ["property", "memoryWriteQueue", 12643725, 12643741, 11, 10, false],
+      ["property", "memoryWriteQueue", 12643778, 12643794, 11, 11, false],
+      ["property", "useCallback", 12643816, 12643827, 357, 296, false],
+      ["property", "abort", 12643897, 12643902, 242, 213, false],
+      ["property", "now", 12643959, 12643962, 1164, 1035, false],
+      ["property", "useCallback", 12643975, 12643986, 357, 297, false],
+      ["property", "useCallback", 12644015, 12644026, 357, 298, false],
+      ["property", "record", 12644055, 12644061, 223, 161, false],
+      ["property", "lineCount", 12644063, 12644072, 35, 23, false],
+      ["property", "lineCount", 12644075, 12644084, 35, 24, false],
+      ["property", "wasSummarized", 12644085, 12644098, 3, 2, false],
+      ["property", "queueDepth", 12644108, 12644118, 3, 2, false],
+      ["string", "reject", 12644127, 12644135, 40, 39, false],
+      ["property", "record", 12644142, 12644148, 223, 162, false],
+      ["property", "id", 12644161, 12644163, 1766, 1646, false],
+      ["property", "record", 12644154, 12644160, 223, 163, false],
+      ["property", "useRef", 12644188, 12644194, 533, 407, false],
+      ["property", "useEffect", 12644216, 12644225, 469, 374, false],
+      ["property", "id", 12644280, 12644282, 1766, 1647, false],
+      ["property", "now", 12644302, 12644305, 1164, 1036, false],
+      ["property", "throttleMs", 12644329, 12644339, 4, 3, false],
+      ["number", "1", 12644372, 12644373, 24555, 23430, false],
+      ["property", "throttleMs", 12644377, 12644387, 4, 4, false],
+      ["property", "record", 12644437, 12644443, 223, 164, false],
+      ["property", "lineCount", 12644446, 12644455, 35, 25, false],
+      ["property", "lineCount", 12644476, 12644485, 35, 26, false],
+      ["property", "wasSummarized", 12644488, 12644501, 3, 3, false],
+      ["number", "1", 12644503, 12644504, 24555, 23431, false],
+      ["property", "queueDepth", 12644505, 12644515, 3, 3, false],
+      ["property", "now", 12644531, 12644534, 1164, 1037, false],
+      ["property", "timeoutMs", 12644539, 12644548, 141, 119, false],
+      ["property", "ceil", 12644595, 12644599, 81, 81, false],
+      ["property", "now", 12644608, 12644611, 1164, 1038, false],
+      ["number", "1000", 12644615, 12644619, 474, 444, false],
+      ["string", "timeout", 12644640, 12644649, 56, 54, false],
+      ["number", "1000", 12644687, 12644691, 474, 445, false],
+      ["property", "summaryLineThreshold", 12644703, 12644723, 11, 3, false],
+      ["property", "then", 12644779, 12644783, 1151, 902, false],
+      ["property", "signal", 12644771, 12644777, 603, 566, false],
+      ["property", "aborted", 12644803, 12644810, 246, 225, false],
+      ["property", "signal", 12644796, 12644802, 603, 567, false],
+      ["property", "useEffect", 12644853, 12644862, 469, 375, false],
+      ["property", "abort", 12644958, 12644963, 242, 214, false],
+      ["string", "open", 12645002, 12645008, 66, 58, false],
+      ["property", "record", 12645009, 12645015, 223, 165, false],
+      ["property", "record", 12645019, 12645025, 223, 166, false],
+      ["property", "summary", 12645032, 12645039, 176, 158, false],
+      ["property", "summaryLineThreshold", 12645042, 12645062, 11, 4, false],
+      ["property", "summaryLineThreshold", 12645065, 12645085, 11, 5, false],
+      ["property", "countdownSec", 12645086, 12645098, 7, 1, false],
+      ["property", "postReject", 12645101, 12645111, 0, 1, true],
+      ["property", "handleOutcome", 12645114, 12645127, 5, 1, false]
+    ]
+  },
+  "wholeUnitLineage": {
+    "rawByteDelta": 153,
+    "tokenDelta": 88,
+    "canonicalization": "Acorn AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand property keys and noncomputed member/method/property-definition keys",
+    "baselineCanonical": {
+      "bytes": 33141,
+      "sha256": "45cca8443400b63365ad7274f67d61548879a0708850520068197e2ee7ad5de8"
+    },
+    "targetCanonical": {
+      "bytes": 36123,
+      "sha256": "b3483933ab1547f0c59de7a019a4f59610b4957641e6c6dc5c3cd27e2da76e4e"
+    },
+    "identifierNormalizedTokens": {
+      "method": "Acorn tokens serialized as [type.label,value], with every name-token value replaced by @id and absent values represented as null",
+      "baselineCount": 891,
+      "targetCount": 979
+    },
+    "lcsAlignment": {
+      "method": "Longest-common-subsequence alignment over identifier-normalized tokens; target insertion wins ties",
+      "equalTokens": 887,
+      "runs": [["=",57],["+",17],["=",49],["+",22],["=",211],["-",1],["=",60],["+",1],["=",1],["+",4],["=",1],["+",4],["=",1],["+",1],["=",2],["+",10],["=",4],["+",2],["=",81],["+",4],["=",32],["+",2],["=",99],["+",2],["=",209],["+",4],["=",27],["+",2],["=",3],["+",11],["=",12],["+",3],["=",13],["+",1],["-",1],["=",1],["+",2],["=",14],["-",2],["=",10]],
+      "runsDescriptor": {
+        "bytes": 340,
+        "sha256": "ba5908f541f74c073430cfaa19679a9d3acab6985658bba4f25470bcf34734a6"
+      }
+    }
+  },
+  "compiledGraph": {
+    "targetBundleOccurrences": {
+      "postReject": [12645101, 12646040],
+      "hookName": [12643017, 12822202],
+      "contentWidthName": [12642977, 12643174, 12657235],
+      "visualRowCounterName": [4141926, 12644425]
+    },
+    "columnsDeclarator": {
+      "nodeType": "VariableDeclarator",
+      "path": "body.body.0.declarations.3",
+      "start": 12643155,
+      "end": 12643171,
+      "localStart": 147,
+      "localEnd": 163,
+      "bytes": 16,
+      "sha256": "60c8359dfdbeb3631b0b95816f64add089aeafa492bf931f44aee18598c4193f",
+      "exact": "{columns:A}=o8()"
+    },
+    "contentWidthDeclarator": {
+      "nodeType": "VariableDeclarator",
+      "path": "body.body.0.declarations.4",
+      "start": 12643172,
+      "end": 12643180,
+      "localStart": 164,
+      "localEnd": 172,
+      "bytes": 8,
+      "sha256": "8b5034ba28cc2807781896162bb0b32dafd18c4adc460880ca0b279f7541f8a4",
+      "exact": "z=ww8(A)"
+    },
+    "visualRowCountCall": {
+      "nodeType": "CallExpression",
+      "path": "body.body.1.test.expressions.1.arguments.0.body.body.5.declarations.0.init",
+      "start": 12644425,
+      "end": 12644433,
+      "localStart": 1417,
+      "localEnd": 1425,
+      "bytes": 8,
+      "sha256": "491318f611c09ad44b31b98a1102bd2470153aac9e27b8affeed61909ba5b6ae",
+      "exact": "INK(q,z)"
+    },
+    "postRejectState": {
+      "nodeType": "VariableDeclarator",
+      "path": "body.body.0.declarations.8",
+      "start": 12643253,
+      "end": 12643276,
+      "localStart": 245,
+      "localEnd": 268,
+      "bytes": 23,
+      "sha256": "8ca9098920797d5904b66713a23ebe3694938295b99fff23ee686890e12a4a73",
+      "exact": "[j,X]=WJ.useState(null)"
+    },
+    "postRejectTimerRef": {
+      "nodeType": "VariableDeclarator",
+      "path": "body.body.0.declarations.9",
+      "start": 12643277,
+      "end": 12643294,
+      "localStart": 269,
+      "localEnd": 286,
+      "bytes": 17,
+      "sha256": "f4ad5950bd34160a8efb8bf3fe179f8b5a41cd454c5a3fd56c883a2ded9a7293",
+      "exact": "J=WJ.useRef(null)"
+    },
+    "postRejectIdentifierCounts": {
+      "state": {"name": "j", "identifierNodes": 5},
+      "setter": {"name": "X", "identifierNodes": 1},
+      "timerRef": {"name": "J", "identifierNodes": 3}
+    },
+    "effectGuard": {
+      "nodeType": "LogicalExpression",
+      "path": "body.body.1.test.expressions.1.arguments.0.body.body.0.test",
+      "start": 12644234,
+      "end": 12644242,
+      "localStart": 1226,
+      "localEnd": 1234,
+      "bytes": 8,
+      "sha256": "55f102c0b502004ba822b61bba1ad7674e3f93d1195f558775e486e6d42b1d7f",
+      "exact": "f||j||!q"
+    },
+    "closeWithoutRemoval": {
+      "nodeType": "VariableDeclarator",
+      "path": "body.body.0.declarations.18",
+      "start": 12643811,
+      "end": 12643969,
+      "localStart": 803,
+      "localEnd": 961,
+      "bytes": 158,
+      "sha256": "61caf6c09edac677c716eeb694fd8233e15b77936a4d84645ebcae7e9b156d97",
+      "exact": "S=WJ.useCallback(()=>{if(W.current)clearInterval(W.current),W.current=null;Z.current?.abort(),Z.current=null,Y(null),M(null),w(null),G.current=Date.now()},[])"
+    },
+    "closeAndRemove": {
+      "nodeType": "VariableDeclarator",
+      "path": "body.body.0.declarations.19",
+      "start": 12643970,
+      "end": 12644009,
+      "localStart": 962,
+      "localEnd": 1001,
+      "bytes": 39,
+      "sha256": "b92091b9699b56757bacb71974b30efdb598238c9559e3e8a6bd6af92e610659",
+      "exact": "R=WJ.useCallback((b)=>{S(),I(b)},[S,I])"
+    },
+    "cleanup": {
+      "nodeType": "CallExpression",
+      "path": "body.body.1.test.expressions.2",
+      "start": 12644850,
+      "end": 12644970,
+      "localStart": 1842,
+      "localEnd": 1962,
+      "bytes": 120,
+      "sha256": "a56fbdad29e749e9e02c568d087b077ca0994ef172bd89060144bcecf52aed27",
+      "exact": "WJ.useEffect(()=>()=>{if(W.current)clearInterval(W.current);if(J.current)clearTimeout(J.current);Z.current?.abort()},[])"
+    },
+    "openReturn": {
+      "nodeType": "ReturnStatement",
+      "path": "body.body.2",
+      "start": 12644989,
+      "end": 12645130,
+      "localStart": 1981,
+      "localEnd": 2122,
+      "bytes": 141,
+      "sha256": "59ff2aa2239914f54a76b229a2894289e133d7c4043818d44b3b2eae13d39c2e",
+      "exact": "return{state:\"open\",record:f?.record??null,summary:O,summaryLineThreshold:v.summaryLineThreshold,countdownSec:D,postReject:j,handleOutcome:C}"
+    },
+    "postRejectProperty": {
+      "nodeType": "Property",
+      "path": "body.body.2.argument.properties.5",
+      "start": 12645101,
+      "end": 12645113,
+      "localStart": 2093,
+      "localEnd": 2105,
+      "bytes": 12,
+      "sha256": "5d3d844bcaff0c1ca0ebb8025389ec20e2e5d18aae9d4040f5644939f964ada6",
+      "exact": "postReject:j"
+    },
+    "baselineLogicalCountCall": {
+      "nodeType": "CallExpression",
+      "path": "body.body.1.test.expressions.1.arguments.0.body.body.5.declarations.0.init",
+      "start": 12583300,
+      "end": 12583306,
+      "localStart": 1309,
+      "localEnd": 1315,
+      "bytes": 6,
+      "sha256": "6dc7b28df30a0f023451147710ab8ae645363fa8e7a0a65c55c241710a444e6b",
+      "exact": "$kK(q)"
+    },
+    "baselineCloseAndRemove": {
+      "nodeType": "VariableDeclarator",
+      "path": "body.body.0.declarations.14",
+      "start": 12582726,
+      "end": 12582891,
+      "localStart": 735,
+      "localEnd": 900,
+      "bytes": 165,
+      "sha256": "e61eeeb6b4e50c190cb47b95d65eb0dac41df0c95744cc4d6acb30d8cf4f049e",
+      "exact": "Z=eW.useCallback((N)=>{if(X.current)clearInterval(X.current),X.current=null;J.current?.abort(),J.current=null,z(null),Y(null),M(null),j.current=Date.now(),W(N)},[W])"
+    },
+    "baselineOpenReturn": {
+      "nodeType": "ReturnStatement",
+      "path": "body.body.2",
+      "start": 12583817,
+      "end": 12583960,
+      "localStart": 1826,
+      "localEnd": 1969,
+      "bytes": 143,
+      "sha256": "a8082663bc47e4082fa919272cec4a48565ffa8db8c8cc5fc819c75d02070f8a",
+      "exact": "return{state:\"open\",record:A.record,summary:f,lineCount:A.lineCount,summaryLineThreshold:L.summaryLineThreshold,countdownSec:O,handleOutcome:v}"
+    },
+    "closedStatePostReject": {
+      "targetIndex": 21018,
+      "nodeType": "Property",
+      "path": "declarations.0.init.arguments.0.body.body.11.expression.expressions.2.right.properties.5",
+      "start": 12646040,
+      "end": 12646055,
+      "localStart": 258,
+      "localEnd": 273,
+      "bytes": 15,
+      "sha256": "91b2e02d4c35df67f975179ad2593d47f99c7e70ad2969b9a3098aaf17c79b9d",
+      "exact": "postReject:null"
+    },
+    "uiContentWidthCall": {
+      "targetIndex": 21048,
+      "nodeType": "CallExpression",
+      "path": "body.body.2.declarations.0.init",
+      "start": 12657235,
+      "end": 12657241,
+      "localStart": 215,
+      "localEnd": 221,
+      "bytes": 6,
+      "sha256": "b97a0c7893d2717fd5c73cd939814c696e26873882003f1caa5ca593879e9969",
+      "exact": "ww8(f)"
+    },
+    "replHookCall": {
+      "targetIndex": 21373,
+      "nodeType": "CallExpression",
+      "path": "body.body.65.declarations.0.init",
+      "start": 12822202,
+      "end": 12822248,
+      "localStart": 14122,
+      "localEnd": 14168,
+      "bytes": 46,
+      "sha256": "f09926b9397f71bcae74963d17fbc532a77ee2d0e2e7964af57cfdc1a86e6e4b",
+      "exact": "fT4({hasActivePrompt:mt,otherSurveyActive:!1})"
+    },
+    "boundary": "u21015 owns only postReject occurrence 1 and columns occurrence 191. The postReject:null contract in u21018, the shared width call in u21048, the hook call inside u21373, and the survey-object consumer u21053 authenticate the graph but remain distinct unit obligations. Target u21053 has no lineCount or postReject read, while baseline u20958 has four lineCount reads and no postReject read."
+  },
+  "sourceCoverageClaim": {
+    "provisionalRow": {
+      "bytes": 576,
+      "sha256": "48190f690d8dabc9311faff50f56339498f5d54a7185b1ab7911205f5fa8f646"
+    },
+    "row": {
+      "targetIndex": 21015,
+      "start": 12643008,
+      "end": 12645131,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "97c082b2fbfa7cd4ac4d6227771e6b88c67e078d679f362811c6d8e7f44e53c0",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": ["owner-src-components-FeedbackSurvey-useMemorySurvey-tsx"],
+      "evidenceIds": ["source-map-attribution", "semantic-test"],
+      "behavior": "Compiled target unit is attributed to src/components/FeedbackSurvey/useMemorySurvey.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+    },
+    "reportedOwner": {
+      "id": "owner-src-components-FeedbackSurvey-useMemorySurvey-tsx",
+      "path": "src/components/FeedbackSurvey/useMemorySurvey.tsx"
+    },
+    "correctedOwner": {
+      "id": "owner-src-components-FeedbackSurvey-useMemoryWriteSurvey-ts",
+      "path": "src/components/FeedbackSurvey/useMemoryWriteSurvey.ts"
+    }
+  },
+  "postFocusedBatch": {
+    "ownerResidues": {
+      "reportedOwner": "components/FeedbackSurvey/useMemoryWriteSurvey.ts",
+      "totalRows": 23,
+      "rowIdentities": {
+        "bytes": 1299,
+        "sha256": "7d7ab514d9590d5d1d13d909d97143c81ad9c36f4cb33aac09b0cc6061abc453"
+      },
+      "ownerIdentities": {
+        "bytes": 2610,
+        "sha256": "89d934eb0215da2b29b7fe24b672cafc6bfd2caf3b081527a22b69417dbd67ae"
+      }
+    },
+    "sourceCoverageClaim": {
+      "rowCanonical": {
+        "bytes": 1261,
+        "sha256": "d2677dc5b190b868e33f5716e49437a27ca0938eb4e97a245483bd6cacad1958"
+      },
+      "row": {
+        "targetIndex": 21015,
+        "start": 12643008,
+        "end": 12645131,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "97c082b2fbfa7cd4ac4d6227771e6b88c67e078d679f362811c6d8e7f44e53c0",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-components-FeedbackSurvey-useMemoryWriteSurvey-ts"],
+        "evidenceIds": [
+          "target121-memory-write-survey-hook-authenticated-whole-unit",
+          "target121-memory-write-survey-hook-width-and-reject-graph",
+          "target121-memory-write-survey-hook-source-gap-blocker"
+        ],
+        "behavior": "The authenticated Target121 unit is the complete useMemoryWriteSurvey hook: it reads terminal columns, derives the shared content width, passes that width to the visual-row counter, and carries a postReject state slot through its open-state contract. Target120 u20919 is the direct whole-hook predecessor. Recovered Target120, Target121, and fresh-package hook source are byte-identical and retain the one-argument logical-line counter, lineCount return field, immediate record removal, and no postReject state or type member. The compiled postReject setter has no reference, its timer ref is cleanup-only, and the related closed-state and UI units remain distinct obligations, so ownership is static and no partial source replay is admitted."
+      },
+      "owner": {
+        "id": "owner-src-components-FeedbackSurvey-useMemoryWriteSurvey-ts",
+        "path": "src/components/FeedbackSurvey/useMemoryWriteSurvey.ts"
+      }
+    }
+  },
+  "postDaemonOwner": {"projection": "postFocusedBatch"},
+  "sourceState": {
+    "path": "src/components/FeedbackSurvey/useMemoryWriteSurvey.ts",
+    "functionName": "useMemoryWriteSurvey",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "d25b72564c89f823cb16f3d922e74289876e9ed0",
+      "bytes": 8010,
+      "chars": 8008,
+      "sha256": "f014a0baac0e94ff75f910beb067ea934b982cebf373c3b13bbd825ec2cd08ff"
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "d25b72564c89f823cb16f3d922e74289876e9ed0",
+      "bytes": 8010,
+      "chars": 8008,
+      "sha256": "f014a0baac0e94ff75f910beb067ea934b982cebf373c3b13bbd825ec2cd08ff"
+    },
+    "hook": {
+      "start": 1962,
+      "end": 7125,
+      "chars": 5163,
+      "bytes": 5163,
+      "sha256": "3bc5585e9d1131aeffe8db513f520cd87d28115cd44335ecdefe202d37d9f584",
+      "line": 57,
+      "endLine": 228,
+      "parameterCount": 1,
+      "bodyStatementCount": 22
+    },
+    "stateType": {
+      "start": 1491,
+      "end": 1766,
+      "chars": 275,
+      "bytes": 275,
+      "sha256": "cf0e3e84122c5d12d438be73eecb9bb58721c9fc76a6dc0b2b943aec32ac511d",
+      "line": 37,
+      "endLine": 45,
+      "memberCount": 7,
+      "memberNames": {
+        "bytes": 94,
+        "sha256": "0ee7ba1cb3e6380a7b38daf3bcacf8eccd0b33f8fff665f2f0f81fd815671428"
+      }
+    },
+    "closedState": {
+      "start": 1774,
+      "end": 1960,
+      "chars": 186,
+      "bytes": 186,
+      "sha256": "3e932bc7452f2cdde1a68a2957080d4b4f5ad11ec8006a89c7ce7d3442e15211",
+      "line": 47,
+      "endLine": 55,
+      "memberCount": 7,
+      "memberNames": {
+        "bytes": 94,
+        "sha256": "0ee7ba1cb3e6380a7b38daf3bcacf8eccd0b33f8fff665f2f0f81fd815671428"
+      }
+    },
+    "logicalCountCall": {
+      "start": 5650,
+      "end": 5683,
+      "chars": 33,
+      "bytes": 33,
+      "sha256": "b6ae19f6886459450891600c3628a4c6a4efd9b57f4da5c43d125975235a17c6",
+      "line": 171,
+      "endLine": 171,
+      "argumentCount": 1,
+      "exact": "countMemoryWriteLines(nextRecord)"
+    },
+    "close": {
+      "start": 4209,
+      "end": 4615,
+      "chars": 406,
+      "bytes": 406,
+      "sha256": "a2cf29f586ea85bcaf478a5208189a9926f53c271fe2300bb19238dc24c27d9c",
+      "line": 124,
+      "endLine": 137
+    },
+    "cleanup": {
+      "start": 6722,
+      "end": 6888,
+      "chars": 166,
+      "bytes": 166,
+      "sha256": "d68e14df0a6d263744aacb2275f223b2164c3a4af6f71de8916798045729fc28",
+      "line": 210,
+      "endLine": 216
+    },
+    "openReturn": {
+      "start": 6927,
+      "end": 7123,
+      "chars": 196,
+      "bytes": 196,
+      "sha256": "5ed1704bfeacc64d7e0ce44b5c70c1a7e884c1b3f09f14f60ce660992f153906",
+      "line": 219,
+      "endLine": 227,
+      "memberCount": 7,
+      "memberNames": {
+        "bytes": 94,
+        "sha256": "0ee7ba1cb3e6380a7b38daf3bcacf8eccd0b33f8fff665f2f0f81fd815671428"
+      }
+    },
+    "markerCounts": {
+      "postReject": 0,
+      "useTerminalSize": 0,
+      "columns": 0,
+      "countMemoryWriteLines": 2,
+      "lineCount": 13,
+      "removeRecord": 5
+    },
+    "reportedSource": {
+      "path": "src/components/FeedbackSurvey/useMemorySurvey.tsx",
+      "file": {
+        "bytes": 30652,
+        "chars": 30648,
+        "sha256": "203e791c0500300aafa2c7b8234b767ad6b5275c1b7e6d7593eb449a2a4d9161"
+      },
+      "functionName": "useMemorySurvey",
+      "function": {
+        "start": 2154,
+        "end": 8694,
+        "chars": 6540,
+        "bytes": 6544,
+        "sha256": "59eaac44c43e2ea9f978e647c64da1b4e7705fd38f96e75a929586fa9e72606c",
+        "line": 47,
+        "endLine": 218,
+        "parameterCount": 4,
+        "bodyStatementCount": 13
+      },
+      "markerCounts": {
+        "memoryWriteQueue": 0,
+        "memory_write": 0,
+        "postReject": 0,
+        "countMemoryWriteLines": 0,
+        "useMemoryWriteSurvey": 0
+      }
+    },
+    "memoryWriteSurveyUi": {
+      "path": "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx",
+      "file": {
+        "bytes": 5377,
+        "chars": 5366,
+        "sha256": "8415c8e6986e54aef5c54ecd566c28a5c530ec2f8f995465db6130662ab62003"
+      },
+      "columns": {
+        "start": 1266,
+        "end": 1297,
+        "chars": 31,
+        "bytes": 31,
+        "sha256": "874b751d5d18f40d833c38fe7d9848e2730bde58cc473539b049d2569a0cbb7c",
+        "line": 39,
+        "endLine": 39,
+        "exact": "{ columns } = useTerminalSize()"
+      },
+      "contentWidth": {
+        "start": 1591,
+        "end": 1631,
+        "chars": 40,
+        "bytes": 40,
+        "sha256": "a786a4379172c324bb6f04a3c5e580a0dd329c4dbaa5f3d779feb67cc34c7735",
+        "line": 49,
+        "endLine": 49,
+        "exact": "contentWidth = Math.max(20, columns - 6)"
+      },
+      "markerCounts": {
+        "postReject": 0,
+        "useTerminalSize": 3,
+        "columns": 3,
+        "Math.max(20, columns - 6)": 1
+      }
+    },
+    "memoryWriteSurveyModel": {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "acceptedFileStates": [
+        {
+          "name": "raw",
+          "bytes": 6969,
+          "chars": 6969,
+          "sha256": "695f0ae48ee6a7cf1380e43849c5223794c626a56068de2f1754531a902c64df"
+        },
+        {
+          "name": "visual-row-producer-recovered",
+          "bytes": 10559,
+          "chars": 10559,
+          "sha256": "fb263ccb96a6989423e4a0a52fbd311292eaaea3e06ed12a2311afe9878c99b1"
+        }
+      ],
+      "logicalCountDeclaration": {
+        "bytes": 283,
+        "sha256": "f9efc61f35b2c11bba32f4f7e6163f73ebd93f31f8f05ee1ee69c62ed306f72a",
+        "parameterCount": 1,
+        "exact": "export function countMemoryWriteLines(record: MemoryWriteSurveyRecord): number {\n  if (record.isEdit) {\n    let count = 0\n    for (const hunk of record.structuredPatch) count += hunk.lines.length\n    return count\n  }\n  return record.body === '' ? 0 : record.body.split('\\n').length\n}"
+      }
+    },
+    "repl": {
+      "path": "src/screens/REPL.tsx",
+      "target121File": {
+        "bytes": 916586,
+        "chars": 916198,
+        "sha256": "74a25cb80d421448c939e953a4b59e4e94c2b124d0ce9e680fbf0b3875323507"
+      },
+      "hookCall": {
+        "start": 100402,
+        "end": 100479,
+        "chars": 77,
+        "bytes": 77,
+        "sha256": "94dee3be21070451a82fa5b3c3bc3e1dc23a828b76b10f87cf4147f3485a8705",
+        "line": 1876,
+        "endLine": 1879,
+        "argumentCount": 1
+      },
+      "surveyJsx": {
+        "start": 268775,
+        "end": 269112,
+        "chars": 337,
+        "bytes": 337,
+        "sha256": "b5b3a6d364e57d006660b67bd8e0c65ae64afb05b74600e4d6c01ecddc05a358",
+        "line": 5310,
+        "endLine": 5310,
+        "attributeCount": 8,
+        "attributeNames": {
+          "bytes": 111,
+          "sha256": "7457d8d0f90a438e4a618aa0bc73b54b072d1e7f308f43bdbd9a75fb706f6d7b"
+        }
+      },
+      "markerCounts": {
+        "postReject": 0,
+        "memoryWriteSurvey.postReject": 0,
+        "memoryWriteSurvey.lineCount": 1
+      }
+    },
+    "freshPackage": {
+      "defaultSourceRoot": "/tmp/target121-daemon-reader-final.lc1acm/2.1.121/src"
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static complete-unit owner proof only; no replay helper and no source writes",
+    "reasons": [
+      "Recovered Target120 and Target121 useMemoryWriteSurvey source and the fresh-package file are byte-identical and omit terminal-size, columns, content-width, and postReject markers.",
+      "The exact authored hook calls the one-argument logical-line counter, returns lineCount, and removes the record inside close; the compiled target uses the two-argument visual-row counter, omits lineCount from its return, and splits close from removal.",
+      "The compiled postReject setter has exactly one identifier node, its binding, while the associated timer ref appears only at declaration and cleanup; there is no producer that can transition postReject away from null.",
+      "The only other postReject bundle occurrence is the separate u21018 closed-state initializer, and neither REPL source nor MemoryWriteSurvey source consumes postReject.",
+      "The visual-row producer recovery can coexist in package mode but does not update this hook or close the postReject contract, so replaying u21015 alone would invent an incomplete cross-file graph."
+    ]
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/memory-write-survey-hook-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_MEMORY_WRITE_SURVEY_HOOK_OWNER_OVERRIDES",
+    "evidenceExport": "TARGET121_MEMORY_WRITE_SURVEY_HOOK_EVIDENCE_IDS",
+    "replayHelper": null,
+    "expectedAddedOwnerImpact": {"units": -1, "residues": -2},
+    "expectedRawStrictImpact": {"units": -1, "residues": -1}
+  },
+  "strictEvolution": {
+    "frozenStandalone": {
+      "before": {"unsupportedUnits": 36, "unsupportedResidues": 407},
+      "after": {"unsupportedUnits": 35, "unsupportedResidues": 406}
+    },
+    "projectedAfterU21925AndU20874": {
+      "before": {"unsupportedUnits": 34, "unsupportedResidues": 404},
+      "after": {"unsupportedUnits": 33, "unsupportedResidues": 403}
+    },
+    "projectedCumulative": {
+      "before": {"unsupportedUnits": 36, "unsupportedResidues": 407},
+      "after": {"unsupportedUnits": 33, "unsupportedResidues": 403}
+    }
+  }
+}

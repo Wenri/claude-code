@@ -1,0 +1,859 @@
+diff --git a/src/bootstrap/state.ts b/src/bootstrap/state.ts
+index dc801f1..c1c6df0 100644
+--- a/src/bootstrap/state.ts
++++ b/src/bootstrap/state.ts
+@@ -96,2 +96,3 @@ type State = {
+   sessionSource: string | undefined
++  sessionStartType: 'fresh' | 'resume' | 'continue'
+   questionPreviewFormat: 'markdown' | 'html' | undefined
+@@ -335,2 +336,3 @@ function getInitialState(): State {
+     sessionSource: undefined,
++    sessionStartType: 'fresh',
+     questionPreviewFormat: undefined,
+@@ -1197,2 +1199,12 @@ export function setSessionSource(source: string): void {
+ 
++export function getSessionStartType(): 'fresh' | 'resume' | 'continue' {
++  return STATE.sessionStartType
++}
++
++export function setSessionStartType(
++  type: 'fresh' | 'resume' | 'continue',
++): void {
++  STATE.sessionStartType = type
++}
++
+ export function getQuestionPreviewFormat(): 'markdown' | 'html' | undefined {
+diff --git a/src/bridge/remoteBridgeCore.ts b/src/bridge/remoteBridgeCore.ts
+index 57ee3cb..d11ff36 100644
+--- a/src/bridge/remoteBridgeCore.ts
++++ b/src/bridge/remoteBridgeCore.ts
+@@ -925,2 +925,3 @@ export async function initEnvLessBridgeCore(
+       )
++      unregister()
+       return
+@@ -928,2 +929,4 @@ export async function initEnvLessBridgeCore(
+ 
++    const timeoutMs = cfg.teardown_archive_timeout_ms
++    const startedAt = Date.now()
+     let token = getAccessToken()
+@@ -934,4 +937,5 @@ export async function initEnvLessBridgeCore(
+       orgUUID,
+-      cfg.teardown_archive_timeout_ms,
++      timeoutMs,
+     )
++    const remainingMs = timeoutMs - (Date.now() - startedAt)
+ 
+@@ -945,5 +949,5 @@ export async function initEnvLessBridgeCore(
+     // wake); an uncaught throw here would skip transport.close + telemetry.
+-    if (status === 401 && onAuth401) {
++    if (status === 401 && onAuth401 && remainingMs >= 200) {
+       try {
+-        await onAuth401(token ?? '')
++        await Promise.race([onAuth401(token ?? ''), sleep(remainingMs)])
+         token = getAccessToken()
+@@ -954,3 +958,3 @@ export async function initEnvLessBridgeCore(
+           orgUUID,
+-          cfg.teardown_archive_timeout_ms,
++          Math.max(1, timeoutMs - (Date.now() - startedAt)),
+         )
+@@ -993,2 +997,3 @@ export async function initEnvLessBridgeCore(
+     )
++    unregister()
+   }
+@@ -1011,3 +1016,3 @@ export async function initEnvLessBridgeCore(
+   // ── 10. Handle ──────────────────────────────────────────────────────────
+-  return {
++  const handle = {
+     bridgeSessionId: sessionId,
+@@ -1220,7 +1225,8 @@ export async function initEnvLessBridgeCore(
+     },
+-    async teardown(options?: { skipArchive?: boolean }) {
+-      unregister()
+-      await teardown(options)
++    teardown,
++    [Symbol.asyncDispose]() {
++      return handle.teardown()
+     },
+   }
++  return handle
+ }
+diff --git a/src/cli/print.ts b/src/cli/print.ts
+index 76f8222..11b51a6 100644
+--- a/src/cli/print.ts
++++ b/src/cli/print.ts
+@@ -66,6 +66,3 @@ import { externalMetadataToAppState } from 'src/state/onChangeAppState.js'
+ import { getInMemoryErrors, logError, logMCPDebug } from 'src/utils/log.js'
+-import {
+-  writeToStdout,
+-  registerProcessOutputErrorHandlers,
+-} from 'src/utils/process.js'
++import { writeToStdout } from 'src/utils/process.js'
+ import type { Stream } from 'src/utils/stream.js'
+@@ -907,5 +904,2 @@ export async function runHeadless(
+ 
+-  // Install errors handlers to gracefully handle broken pipes (e.g., when parent process dies)
+-  registerProcessOutputErrorHandlers()
+-
+   headlessProfilerCheckpoint('after_loadInitialMessages')
+diff --git a/src/commands/pro-trial-expired/index.ts b/src/commands/pro-trial-expired/index.ts
+index 1db1f47..8e1d9e9 100644
+--- a/src/commands/pro-trial-expired/index.ts
++++ b/src/commands/pro-trial-expired/index.ts
+@@ -6,3 +6,3 @@ const proTrialExpired = {
+   description: 'Options shown when the Pro plan Claude Code trial has ended',
+-  isEnabled: () => false,
++  isEnabled: () => true,
+   isHidden: true,
+diff --git a/src/components/Settings/Config.tsx b/src/components/Settings/Config.tsx
+index 38993ac..fea733b 100644
+--- a/src/components/Settings/Config.tsx
++++ b/src/components/Settings/Config.tsx
+@@ -758,3 +758,3 @@ export function Config({
+     label: 'Auto-update channel',
+-    value: settingsData?.autoUpdatesChannel ?? 'latest',
++    value: settingsData?.autoUpdatesChannel === 'rc' ? 'slow' : settingsData?.autoUpdatesChannel ?? 'latest',
+     type: 'managedEnum' as const,
+@@ -1281,3 +1281,3 @@ export function Config({
+     if (settingsData?.autoUpdatesChannel !== initialSettingsData.current?.autoUpdatesChannel) {
+-      formattedChanges.push(`Set auto-update channel to ${chalk.bold(settingsData?.autoUpdatesChannel ?? 'latest')}`);
++      formattedChanges.push(`Set auto-update channel to ${chalk.bold(settingsData?.autoUpdatesChannel === 'rc' ? 'slow' : settingsData?.autoUpdatesChannel ?? 'latest')}`);
+     }
+diff --git a/src/components/StatusLine.tsx b/src/components/StatusLine.tsx
+index 78c7ace..f015e5d 100644
+--- a/src/components/StatusLine.tsx
++++ b/src/components/StatusLine.tsx
+@@ -37,3 +37,3 @@ export function statusLineShouldDisplay(settings: ReadonlySettings): boolean {
+ }
+-function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode?: VimMode, effortValue?: EffortValue, thinkingEnabled?: boolean): StatusLineCommandInput {
++function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, fastMode: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode: VimMode | undefined, cwd: string, effortValue?: EffortValue, thinkingEnabled?: boolean): StatusLineCommandInput {
+   const agentType = getMainThreadAgentType();
+@@ -68,2 +68,3 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
+     ...createBaseHookInput(),
++    cwd,
+     ...(sessionName && {
+@@ -76,3 +77,3 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
+     workspace: {
+-      current_dir: getCwd(),
++      current_dir: cwd,
+       project_dir: getOriginalCwd(),
+@@ -103,2 +104,3 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
+     exceeds_200k_tokens: exceeds200kTokens,
++    fast_mode: fastMode,
+     ...(modelSupportsEffort(runtimeModel) && {
+@@ -159,2 +161,3 @@ function StatusLineInner({
+   const statusLineText = useAppState(s => s.statusLineText);
++  const fastMode = useAppState(s => s.fastMode ?? false);
+   const effortValue = useAppState(s => s.effortValue);
+@@ -182,2 +185,4 @@ function StatusLineInner({
+   mainLoopModelRef.current = mainLoopModel;
++  const fastModeRef = useRef(fastMode);
++  fastModeRef.current = fastMode;
+   const effortValueRef = useRef(effortValue);
+@@ -194,2 +199,3 @@ function StatusLineInner({
+     mainLoopModel: ModelName;
++    fastMode: boolean;
+     effortValue: EffortValue | undefined;
+@@ -202,2 +208,3 @@ function StatusLineInner({
+     mainLoopModel,
++    fastMode,
+     effortValue,
+@@ -231,3 +238,5 @@ function StatusLineInner({
+       }
+-      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, await getGitWorktreeName(getCwd()), vimModeRef.current, effortValueRef.current, thinkingEnabledRef.current);
++      const cwd = getCwd();
++      const gitWorktree = await getGitWorktreeName(cwd);
++      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, fastModeRef.current, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, gitWorktree, vimModeRef.current, cwd, effortValueRef.current, thinkingEnabledRef.current);
+       const text = await executeStatusLineCommand(statusInput, controller.signal, undefined, logResult);
+@@ -260,3 +269,3 @@ function StatusLineInner({
+   useEffect(() => {
+-    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel || effortValue !== previousStateRef.current.effortValue || thinkingEnabled !== previousStateRef.current.thinkingEnabled) {
++    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel || fastMode !== previousStateRef.current.fastMode || effortValue !== previousStateRef.current.effortValue || thinkingEnabled !== previousStateRef.current.thinkingEnabled) {
+       // Don't update messageId here — let doUpdate handle it so
+@@ -266,2 +275,3 @@ function StatusLineInner({
+       previousStateRef.current.mainLoopModel = mainLoopModel;
++      previousStateRef.current.fastMode = fastMode;
+       previousStateRef.current.effortValue = effortValue;
+@@ -270,3 +280,3 @@ function StatusLineInner({
+     }
+-  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, effortValue, thinkingEnabled, scheduleUpdate]);
++  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, fastMode, effortValue, thinkingEnabled, scheduleUpdate]);
+ 
+diff --git a/src/constants/keys.ts b/src/constants/keys.ts
+index 773fdd1..3d5af0d 100644
+--- a/src/constants/keys.ts
++++ b/src/constants/keys.ts
+@@ -11 +11,67 @@ export function getGrowthBookClientKey(): string {
+ }
++
++export const VALID_ENTRYPOINTS = new Set([
++  'cli',
++  'mcp',
++  'sdk-cli',
++  'sdk-ts',
++  'sdk-py',
++  'bench',
++  'claude-vscode',
++  'claude-code-github-action',
++  'local-agent',
++  'claude-desktop',
++  'remote',
++  'remote_desktop',
++  'remote_mobile',
++  'claude_in_slack',
++  'claude-desktop-3p',
++  'ssh-remote',
++]);
++
++export function getEntrypoint(): string | undefined {
++  const entrypoint = process.env.CLAUDE_CODE_ENTRYPOINT;
++  return entrypoint && VALID_ENTRYPOINTS.has(entrypoint) ? entrypoint : undefined;
++}
++
++export function initializeEntrypoint(isNonInteractive: boolean): void {
++  if (process.env.CLAUDE_CODE_ENTRYPOINT) {
++    if (process.env.CLAUDE_CODE_ENTRYPOINT === 'cli' && isNonInteractive) {
++      process.env.CLAUDE_CODE_ENTRYPOINT = 'sdk-cli';
++    }
++    return;
++  }
++  const cliArgs = process.argv.slice(2);
++  const mcpIndex = cliArgs.indexOf('mcp');
++  if (mcpIndex !== -1 && cliArgs[mcpIndex + 1] === 'serve') {
++    process.env.CLAUDE_CODE_ENTRYPOINT = 'mcp';
++    return;
++  }
++  if (isEnvTruthy(process.env.CLAUDE_CODE_ACTION)) {
++    process.env.CLAUDE_CODE_ENTRYPOINT = 'claude-code-github-action';
++    return;
++  }
++  process.env.CLAUDE_CODE_ENTRYPOINT = isNonInteractive ? 'sdk-cli' : 'cli';
++}
++
++export function getSessionStartType(
++  cliArgs: string[],
++): 'fresh' | 'resume' | 'continue' {
++  const separatorIndex = cliArgs.indexOf('--');
++  const commandArgs =
++    separatorIndex === -1 ? cliArgs : cliArgs.slice(0, separatorIndex);
++  if (
++    commandArgs.includes('-r') ||
++    commandArgs.includes('--resume') ||
++    commandArgs.includes('--from-pr') ||
++    commandArgs.some(
++      arg => arg.startsWith('--resume=') || arg.startsWith('--from-pr='),
++    )
++  ) {
++    return 'resume';
++  }
++  if (commandArgs.includes('-c') || commandArgs.includes('--continue')) {
++    return 'continue';
++  }
++  return 'fresh';
++}
+diff --git a/src/entrypoints/sdk/coreSchemas.ts b/src/entrypoints/sdk/coreSchemas.ts
+index cc5c9fb..f145ca2 100644
+--- a/src/entrypoints/sdk/coreSchemas.ts
++++ b/src/entrypoints/sdk/coreSchemas.ts
+@@ -1442,4 +1442,4 @@ export const SDKRateLimitInfoSchema = lazySchema(() =>
+           'org_service_level_disabled',
+-          'org_service_zero_credit_limit',
+           'no_limits_configured',
++          'fetch_error',
+           'unknown',
+diff --git a/src/hooks/useRemoteControlIdleUpsell.tsx b/src/hooks/useRemoteControlIdleUpsell.tsx
+index f918b22..af2d793 100644
+--- a/src/hooks/useRemoteControlIdleUpsell.tsx
++++ b/src/hooks/useRemoteControlIdleUpsell.tsx
+@@ -13,2 +13,3 @@ import {
+ } from '../utils/config.js'
++import { getConfigValue } from '../utils/settings/configSettings.js'
+ 
+@@ -59,3 +60,3 @@ export function shouldShowPushNotificationIdleUpsell(): boolean {
+     hasUsedOrStartsWithRemoteControl() &&
+-    config.agentPushNotifEnabled !== true &&
++    getConfigValue('agentPushNotifEnabled', false).value !== true &&
+     (config.pushNotifUpsellSeenCount ?? 0) <
+diff --git a/src/main.tsx b/src/main.tsx
+index 65c3572..312d7cf 100644
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -28,2 +28,3 @@ import uniqBy from 'lodash-es/uniqBy.js';
+ import React from 'react';
++import { getSessionStartType, initializeEntrypoint } from './constants/keys.js';
+ import { getOauthConfig } from './constants/oauth.js';
+@@ -177,3 +178,3 @@ import { parseSettingSourcesFlag } from 'src/utils/settings/constants.js';
+ import { plural } from 'src/utils/stringUtils.js';
+-import { type ChannelEntry, getInitialMainLoopModel, getIsNonInteractiveSession, getSdkBetas, getSessionId, getUserMsgOptIn, setAllowedChannels, setAllowedSettingSources, setChromeFlagOverride, setClientType, setCwdState, setDirectConnectServerUrl, setFlagSettingsPath, setInitialMainLoopModel, setInlinePlugins, setIsInteractive, setKairosActive, setOriginalCwd, setQuestionPreviewFormat, setSdkBetas, setSessionBypassPermissionsMode, setSessionPersistenceDisabled, setSessionSource, setUserMsgOptIn, switchSession } from './bootstrap/state.js';
++import { type ChannelEntry, getInitialMainLoopModel, getIsNonInteractiveSession, getSdkBetas, getSessionId, getUserMsgOptIn, setAllowedChannels, setAllowedSettingSources, setChromeFlagOverride, setClientType, setCwdState, setDirectConnectServerUrl, setFlagSettingsPath, setInitialMainLoopModel, setInlinePlugins, setIsInteractive, setKairosActive, setOriginalCwd, setQuestionPreviewFormat, setSdkBetas, setSessionBypassPermissionsMode, setSessionPersistenceDisabled, setSessionSource, setSessionStartType, setUserMsgOptIn, switchSession } from './bootstrap/state.js';
+ 
+@@ -567,27 +568,2 @@ function eagerLoadSettings(): void {
+ }
+-function initializeEntrypoint(isNonInteractive: boolean): void {
+-  // Skip if already set (e.g., by SDK or other entrypoints)
+-  if (process.env.CLAUDE_CODE_ENTRYPOINT) {
+-    return;
+-  }
+-  const cliArgs = process.argv.slice(2);
+-
+-  // Check for MCP serve command (handle flags before mcp serve, e.g., --debug mcp serve)
+-  const mcpIndex = cliArgs.indexOf('mcp');
+-  if (mcpIndex !== -1 && cliArgs[mcpIndex + 1] === 'serve') {
+-    process.env.CLAUDE_CODE_ENTRYPOINT = 'mcp';
+-    return;
+-  }
+-  if (isEnvTruthy(process.env.CLAUDE_CODE_ACTION)) {
+-    process.env.CLAUDE_CODE_ENTRYPOINT = 'claude-code-github-action';
+-    return;
+-  }
+-
+-  // Note: 'local-agent' entrypoint is set by the local agent mode launcher
+-  // via CLAUDE_CODE_ENTRYPOINT env var (handled by early return above)
+-
+-  // Set based on interactive status
+-  process.env.CLAUDE_CODE_ENTRYPOINT = isNonInteractive ? 'sdk-cli' : 'cli';
+-}
+-
+ // Set by early argv processing when `claude open <url>` is detected (interactive mode only)
+@@ -866,2 +842,3 @@ export async function main() {
+   initializeEntrypoint(isNonInteractive);
++  setSessionStartType(getSessionStartType(cliArgs));
+ 
+diff --git a/src/screens/REPL.tsx b/src/screens/REPL.tsx
+index f0ee9e1..8cf168e 100644
+--- a/src/screens/REPL.tsx
++++ b/src/screens/REPL.tsx
+@@ -28,2 +28,3 @@ import { sendNotification } from '../services/notifier.js';
+ import { startPreventSleep, stopPreventSleep } from '../services/preventSleep.js';
++import { shouldAutoOpenProTrialExpired } from '../services/proTrial.js';
+ import { useTerminalNotification } from '../ink/useTerminalNotification.js';
+@@ -1352,5 +1353,11 @@ export function REPL({
+   // overlay appear/dismiss).
+-  const repinScroll = useCallback((force = false) => {
++  const repinScroll = useCallback((force = false, reason = '?') => {
+     if (!force && !getConfigValue('autoScrollEnabled', true).value) return;
+-    scrollRef.current?.scrollToBottom();
++    const scrollHandle = scrollRef.current;
++    if (scrollHandle && !scrollHandle.isSticky()) {
++      logForDebugging(
++        `repinScroll(${reason}, force=${force}): yanking from scrollTop=${scrollHandle.getScrollTop()} (max=${Math.max(0, scrollHandle.getScrollHeight() - scrollHandle.getViewportHeight())})`,
++      );
++    }
++    scrollHandle?.scrollToBottom();
+     onRepin();
+@@ -1368,3 +1375,3 @@ export function REPL({
+     if (lastMsgIsHuman) {
+-      repinScroll();
++      repinScroll(false, 'lastMsgIsHuman');
+     }
+@@ -1453,3 +1460,3 @@ export function REPL({
+     if (inputValueRef.current === '' && value !== '' && Date.now() - lastUserScrollTsRef.current >= RECENT_SCROLL_REPIN_WINDOW_MS) {
+-      repinScroll();
++      repinScroll(false, 'typedIntoEmpty');
+     }
+@@ -2241,3 +2248,3 @@ export function REPL({
+           : null;
+-      repinScroll(true);
++      repinScroll(true, 'permissionDialogAppear');
+     } else if (prePermissionScrollTopRef.current !== null) {
+@@ -2246,3 +2253,3 @@ export function REPL({
+     } else {
+-      repinScroll(true);
++      repinScroll(true, 'permissionDialogDismiss');
+     }
+@@ -2256,3 +2263,3 @@ export function REPL({
+     ) {
+-      repinScroll(false);
++      repinScroll(false, `toolJsxDialog→${hasToolJsx}`);
+     }
+@@ -3323,3 +3330,3 @@ export function REPL({
+     // exchange (matches OpenCode's auto-scroll behavior).
+-    repinScroll();
++    repinScroll(false, 'onSubmit');
+ 
+@@ -3833,2 +3840,17 @@ export function REPL({
+   }, [messages, store, setMessages]);
++  const hasAutoOpenedProTrialExpiredRef = useRef(false);
++  useEffect(() => {
++    if (
++      hasAutoOpenedProTrialExpiredRef.current ||
++      !shouldAutoOpenProTrialExpired()
++    ) {
++      return;
++    }
++    hasAutoOpenedProTrialExpiredRef.current = true;
++    void onSubmitRef.current('/pro-trial-expired', {
++      setCursorOffset: () => {},
++      clearBuffer: () => {},
++      resetHistory: () => {}
++    });
++  }, []);
+   const handleExit = useCallback(async () => {
+diff --git a/src/services/analytics/datadog.ts b/src/services/analytics/datadog.ts
+index 2f8bdf3..6cffac5 100644
+--- a/src/services/analytics/datadog.ts
++++ b/src/services/analytics/datadog.ts
+@@ -35,3 +35,5 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_flicker',
++  'tengu_headless_mcp_prewait',
+   'tengu_init',
++  'tengu_mcp_tools_refreshed_mid_turn',
+   'tengu_model_fallback_triggered',
+@@ -48,2 +50,9 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_query_error',
++  'tengu_sdk_control_roundtrip',
++  'tengu_sdk_init_handshake',
++  'tengu_sdk_result',
++  'tengu_sdk_schema_violation',
++  'tengu_sdk_session_crash',
++  'tengu_sdk_stall',
++  'tengu_sdk_ttft',
+   'tengu_session_file_read',
+@@ -59,2 +68,3 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_voice_toggled',
++  'tengu_vscode_sdk_stream_ended_no_result',
+   'tengu_team_mem_sync_pull',
+@@ -63,2 +73,33 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_team_mem_entries_capped',
++  'tengu_timer',
++  'tengu_bg_adopt',
++  'tengu_bg_agent_action',
++  'tengu_bg_agent_dispatch',
++  'tengu_bg_agent_terminal',
++  'tengu_bg_attach',
++  'tengu_bg_attach_legacy_autorespawn',
++  'tengu_bg_classify',
++  'tengu_bg_daemon_install',
++  'tengu_bg_daemon_zombie_restart',
++  'tengu_bg_dispatch',
++  'tengu_bg_dispatch_fallback',
++  'tengu_bg_orphan_reap',
++  'tengu_bg_proto_mismatch',
++  'tengu_bg_pty_unavailable',
++  'tengu_bg_respawn_exhausted',
++  'tengu_bg_respawn_stale',
++  'tengu_bg_roster_parse_failed',
++  'tengu_bg_skew_nudge',
++  'tengu_bg_worker_exit',
++  'tengu_bg_worker_spawn',
++  'tengu_daemon_auto_uninstall',
++  'tengu_daemon_config_reload',
++  'tengu_daemon_control',
++  'tengu_daemon_idle_exit',
++  'tengu_daemon_install',
++  'tengu_daemon_lease',
++  'tengu_daemon_self_restart_on_upgrade',
++  'tengu_daemon_start',
++  'tengu_daemon_worker_crash',
++  'tengu_daemon_worker_permanent_exit',
+ ])
+@@ -68,3 +109,5 @@ const TAG_FIELDS = [
+   'clientType',
++  'entrypoint',
+   'errorType',
++  'sessionKind',
+   'http_status_range',
+@@ -76,2 +119,3 @@ const TAG_FIELDS = [
+   'skillMode',
++  'coachMode',
+   'subscriptionType',
+diff --git a/src/services/analytics/growthbook.ts b/src/services/analytics/growthbook.ts
+index c71bba8..789e76b 100644
+--- a/src/services/analytics/growthbook.ts
++++ b/src/services/analytics/growthbook.ts
+@@ -6,3 +6,3 @@ import {
+ } from '../../bootstrap/state.js'
+-import { getGrowthBookClientKey } from '../../constants/keys.js'
++import { getEntrypoint, getGrowthBookClientKey } from '../../constants/keys.js'
+ import {
+@@ -46,2 +46,4 @@ export type GrowthBookUserAttributes = {
+   github?: GitHubActionsMetadata
++  releaseChannel?: string
++  entrypoint?: string
+ }
+@@ -464,2 +466,5 @@ function getUserAttributes(): GrowthBookUserAttributes {
+   const apiBaseUrlHost = getApiBaseUrlHost()
++  const autoUpdatesChannel = getGlobalConfig()?.autoUpdatesChannel
++  const releaseChannel = false ? autoUpdatesChannel : undefined
++  const entrypoint = getEntrypoint()
+ 
+@@ -482,2 +487,4 @@ function getUserAttributes(): GrowthBookUserAttributes {
+     }),
++    ...(releaseChannel && { releaseChannel }),
++    ...(entrypoint && { entrypoint }),
+   }
+diff --git a/src/services/api/bootstrap.ts b/src/services/api/bootstrap.ts
+index 82ef0d6..7661f5b 100644
+--- a/src/services/api/bootstrap.ts
++++ b/src/services/api/bootstrap.ts
+@@ -36,2 +36,21 @@ const bootstrapResponseSchema = lazySchema(() =>
+       .nullish(),
++    additional_model_costs: z
++      .record(
++        z
++          .object({
++            input_tokens: z.number(),
++            output_tokens: z.number(),
++            prompt_cache_write_tokens: z.number(),
++            prompt_cache_read_tokens: z.number(),
++            web_search_requests: z.number().nullish(),
++          })
++          .transform(costs => ({
++            inputTokens: costs.input_tokens,
++            outputTokens: costs.output_tokens,
++            promptCacheWriteTokens: costs.prompt_cache_write_tokens,
++            promptCacheReadTokens: costs.prompt_cache_read_tokens,
++            webSearchRequests: costs.web_search_requests ?? 0.01,
++          })),
++      )
++      .nullish(),
+   }),
+diff --git a/src/services/mcp/client.ts b/src/services/mcp/client.ts
+index 0cfecdf..7f1c54a 100644
+--- a/src/services/mcp/client.ts
++++ b/src/services/mcp/client.ts
+@@ -1281,3 +1281,5 @@ export const connectToServer = memoize(
+ 
+-      const isTerminalConnectionError = (msg: string): boolean => {
++      const isTerminalConnectionError = (error: Error): boolean => {
++        if (error.name === 'AbortError') return true
++        const msg = error.message
+         return (
+@@ -1289,3 +1291,3 @@ export const connectToServer = memoize(
+           msg.includes('Body Timeout Error') ||
+-          msg.includes('terminated') ||
++          /\bterminated\b/.test(msg) ||
+           // SDK SSE reconnection intermediate errors — may be wrapped around the
+@@ -1422,3 +1424,3 @@ export const connectToServer = memoize(
+ 
+-          if (isTerminalConnectionError(error.message)) {
++          if (isTerminalConnectionError(error)) {
+             transportErrorState.consecutiveErrors++
+diff --git a/src/services/tips/tipRegistry.ts b/src/services/tips/tipRegistry.ts
+index 9b487a8..598e6bd 100644
+--- a/src/services/tips/tipRegistry.ts
++++ b/src/services/tips/tipRegistry.ts
+@@ -21,2 +21,3 @@ import {
+ } from '../../utils/config.js'
++import { getConfigValue } from '../../utils/settings/configSettings.js'
+ import {
+@@ -122,3 +123,3 @@ function isPushNotificationTipRelevant(): boolean {
+       getRemoteControlAtStartup()) &&
+-    config.agentPushNotifEnabled !== true
++    getConfigValue('agentPushNotifEnabled', false).value !== true
+   )
+diff --git a/src/setup.ts b/src/setup.ts
+index 985e857..6c4b200 100644
+--- a/src/setup.ts
++++ b/src/setup.ts
+@@ -103,2 +103,7 @@ export async function setup(
+ 
++  if (process.env.CLAUDE_BG_BACKEND === 'daemon') {
++    const { startRendezvousServer } = await import('./daemon/rendezvous.js')
++    startRendezvousServer()
++  }
++
+   // Teammate snapshot — SIMPLE-only gate (no escape hatch, swarm not used in bare)
+diff --git a/src/tools/AgentTool/AgentTool.tsx b/src/tools/AgentTool/AgentTool.tsx
+index bd3df7e..b090bd6 100644
+--- a/src/tools/AgentTool/AgentTool.tsx
++++ b/src/tools/AgentTool/AgentTool.tsx
+@@ -200,3 +200,4 @@ export const AgentTool = buildTool({
+     getToolPermissionContext,
+-    allowedAgentTypes
++    allowedAgentTypes,
++    model
+   }) {
+@@ -223,3 +224,3 @@ export const AgentTool = buildTool({
+     const isCoordinator = feature('COORDINATOR_MODE') ? isEnvTruthy(process.env.CLAUDE_CODE_COORDINATOR_MODE) : false;
+-    return await getPrompt(filteredAgents, isCoordinator, allowedAgentTypes);
++    return await getPrompt(filteredAgents, model, isCoordinator, allowedAgentTypes);
+   },
+@@ -890,2 +891,8 @@ export const AgentTool = buildTool({
+               });
++              if (toolUseContext.toolUseId) {
++                toolUseContext.emitToolProgress?.({
++                  kind: 'background_hint',
++                  toolUseId: toolUseContext.toolUseId,
++                });
++              }
+             }
+@@ -1114,22 +1121,19 @@ export const AgentTool = buildTool({
+             for (const m of normalizedNew) {
+-              for (const content of m.message.content) {
+-                if (content.type !== 'tool_use' && content.type !== 'tool_result') {
+-                  continue;
+-                }
++              if (!onProgress) continue;
++              const content = m.message.content[0];
++              if (!toolUseContext.options.forwardSubagentText && content?.type !== 'tool_use' && content?.type !== 'tool_result') {
++                continue;
++              }
+ 
+-                // Forward progress updates
+-                if (onProgress) {
+-                  onProgress({
+-                    toolUseID: `agent_${assistantMessage.message.id}`,
+-                    data: {
+-                      message: m,
+-                      type: 'agent_progress',
+-                      // prompt only needed on first progress message (UI.tsx:624
+-                      // reads progressMessages[0]). Omit here to avoid duplication.
+-                      prompt: '',
+-                      agentId: syncAgentId
+-                    }
+-                  });
++              onProgress({
++                toolUseID: `agent_${assistantMessage.message.id}`,
++                data: {
++                  message: m,
++                  type: 'agent_progress',
++                  // prompt only needed on first progress message (UI.tsx:624
++                  // reads progressMessages[0]). Omit here to avoid duplication.
++                  prompt: '',
++                  agentId: syncAgentId
+                 }
+-              }
++              });
+             }
+@@ -1164,2 +1168,8 @@ export const AgentTool = buildTool({
+           }
++          if (toolUseContext.toolUseId) {
++            toolUseContext.emitToolProgress?.({
++              kind: 'clear',
++              toolUseId: toolUseContext.toolUseId,
++            });
++          }
+ 
+diff --git a/src/tools/AgentTool/built-in/backgroundJobAgent.ts b/src/tools/AgentTool/built-in/backgroundJobAgent.ts
+new file mode 100644
+index 0000000..0fdba51
+--- /dev/null
++++ b/src/tools/AgentTool/built-in/backgroundJobAgent.ts
+@@ -0,0 +1,14 @@
++export const backgroundJobAgent = {
++  agentType: 'claude',
++  whenToUse:
++    "Catch-all for any task that doesn't fit a more specific agent. FleetView's default when no agent name is typed.",
++  tools: ['*'],
++  source: 'built-in',
++  baseDir: 'built-in',
++  appendSystemPrompt: true,
++  ...{ permissionMode: 'auto' as const },
++  isolation: 'worktree',
++  getSystemPrompt: () => "This session is a background job. The user may be chatting with you live or may have stepped away — respond to them naturally either way. A classifier watches your message text (not tool output, not subagent reports, not human replies) to track state and surface results in the job list, so the conventions below apply regardless.\n\n**Narrate.** State your approach before acting (one line). After each chunk of work, say what happened and what's next. Before declaring done, run a sanity check and say what you checked.\n\n**Restate.** When you reach a result, state it in your message even if it already appeared in a tool result — the extractor only reads your text. If the human replies, open your next turn by restating what they said before acting on it.\n\nFor noisy investigation — grep sweeps, log trawling, broad search — spawn a subagent and keep only the findings in this thread.\n\n**Done** means `result:` on its own line with the one-line outcome — a self-contained headline a reader who never saw the ask could still understand. This is the one thing a teammate will read to know what you produced without opening your transcript. Skip this for conversational replies with no concrete deliverable (greetings, clarifying questions).\n\n**blocked** — one human action unblocks you (auth, scope question, a decision). Say exactly what.\n**failed** — start over (wrong repo, missing binary, structurally impossible).\nEverything else, keep working. Don't ask when a reasonable guess is cheaper than the round-trip.",
++}
++
++export default backgroundJobAgent
+diff --git a/src/tools/AgentTool/builtInAgents.ts b/src/tools/AgentTool/builtInAgents.ts
+index 721dff9..de78ec7 100644
+--- a/src/tools/AgentTool/builtInAgents.ts
++++ b/src/tools/AgentTool/builtInAgents.ts
+@@ -5,2 +5,3 @@ import { isEnvTruthy } from '../../utils/envUtils.js'
+ import { CLAUDE_CODE_GUIDE_AGENT } from './built-in/claudeCodeGuideAgent.js'
++import { backgroundJobAgent as CLAUDE_AGENT } from './built-in/backgroundJobAgent.js'
+ import { EXPLORE_AGENT } from './built-in/exploreAgent.js'
+@@ -49,2 +50,6 @@ export function getBuiltInAgents(): AgentDefinition[] {
+ 
++  if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_meadow', false)) {
++    agents.push(CLAUDE_AGENT)
++  }
++
+   if (areExplorePlanAgentsEnabled()) {
+diff --git a/src/utils/ShellCommand.ts b/src/utils/ShellCommand.ts
+index fc961f4..7d96b6d 100644
+--- a/src/utils/ShellCommand.ts
++++ b/src/utils/ShellCommand.ts
+@@ -32,3 +32,6 @@ export type ExecResult = {
+ export type ShellCommand = {
+-  background: (backgroundTaskId: string) => boolean
++  background: (
++    backgroundTaskId: string,
++    options?: { skipSpill?: boolean },
++  ) => boolean
+   result: Promise<ExecResult>
+@@ -348,3 +351,3 @@ class ShellCommandImpl implements ShellCommand {
+ 
+-  background(taskId: string): boolean {
++  background(taskId: string, options?: { skipSpill?: boolean }): boolean {
+     if (this.#status === 'running') {
+@@ -358,3 +361,3 @@ class ShellCommandImpl implements ShellCommand {
+         this.#startSizeWatchdog()
+-      } else {
++      } else if (!options?.skipSpill) {
+         // Pipe mode: spill the in-memory buffer so readers can find it on disk.
+diff --git a/src/utils/binaryCheck.ts b/src/utils/binaryCheck.ts
+index 8471753..77a0b59 100644
+--- a/src/utils/binaryCheck.ts
++++ b/src/utils/binaryCheck.ts
+@@ -1,2 +1,3 @@
+ import { logForDebugging } from './debug.js'
++import { getPlatform } from './platform.js'
+ import { which } from './which.js'
+@@ -5,2 +6,6 @@ import { which } from './which.js'
+ const binaryCache = new Map<string, boolean>()
++const SAFE_BINARY_NAME_PATTERN =
++  getPlatform() === 'windows'
++    ? /^[A-Za-z0-9/\\][A-Za-z0-9_.+:\\?/-]*$/
++    : /^[A-Za-z0-9/][A-Za-z0-9_.+/-]*$/
+ 
+@@ -23,2 +28,9 @@ export async function isBinaryInstalled(command: string): Promise<boolean> {
+ 
++  if (!SAFE_BINARY_NAME_PATTERN.test(trimmedCommand)) {
++    logForDebugging(
++      `[binaryCheck] Rejected command with unsafe characters: '${trimmedCommand}'`,
++    )
++    return false
++  }
++
+   // Check cache first
+diff --git a/src/utils/env.ts b/src/utils/env.ts
+index 0dfdc80..110b9c9 100644
+--- a/src/utils/env.ts
++++ b/src/utils/env.ts
+@@ -243,2 +243,10 @@ export const detectDeploymentEnvironment = memoize((): string => {
+   if (process.env.GITPOD_WORKSPACE_ID) return 'gitpod'
++  if (isEnvTruthy(process.env.CODER) || process.env.CODER_WORKSPACE_NAME)
++    return 'coder'
++  if (isEnvTruthy(process.env.DEVPOD) || process.env.DEVPOD_WORKSPACE_UID)
++    return 'devpod'
++  if (process.env.DAYTONA_WS_ID) return 'daytona'
++  if (isEnvTruthy(process.env.GOOGLE_CLOUD_WORKSTATIONS))
++    return 'gcp-cloud-workstations'
++  if (process.env.C9_PID || process.env.C9_USER) return 'aws-cloud9'
+   if (process.env.REPL_ID || process.env.REPL_SLUG) return 'replit'
+diff --git a/src/utils/gracefulShutdown.ts b/src/utils/gracefulShutdown.ts
+index 7ee3541..5345d01 100644
+--- a/src/utils/gracefulShutdown.ts
++++ b/src/utils/gracefulShutdown.ts
+@@ -44,2 +44,3 @@ import { getCurrentSessionTitle, sessionIdExists } from './sessionStorage.js'
+ import { sleep } from './sleep.js'
++import { registerProcessOutputErrorHandlers } from './process.js'
+ import { profileReport } from './startupProfiler.js'
+@@ -280,3 +281,9 @@ export const setupGracefulShutdown = memoize(() => {
+   })
+-  if (process.platform !== 'win32') {
++  if (process.env.CLAUDE_BG_BACKEND === 'daemon') {
++    process.on('SIGHUP', () => {
++      logForDiagnosticsNoPII('info', 'shutdown_signal', {
++        signal: 'SIGHUP_ignored_bg',
++      })
++    })
++  } else {
+     process.on('SIGHUP', () => {
+@@ -307,2 +314,10 @@ export const setupGracefulShutdown = memoize(() => {
+ 
++  registerProcessOutputErrorHandlers(code => {
++    if (!getIsInteractive()) return
++    logForDiagnosticsNoPII('info', 'shutdown_signal', {
++      signal: `stdout_${code}`,
++    })
++    void gracefulShutdown(0)
++  })
++
+   // Log uncaught exceptions for container observability and analytics
+diff --git a/src/utils/hooks.ts b/src/utils/hooks.ts
+index 8210483..c2d88a1 100644
+--- a/src/utils/hooks.ts
++++ b/src/utils/hooks.ts
+@@ -277,3 +277,3 @@ function executeInBackground({
+   // TaskOutput on the ShellCommand accumulates data — no stream listeners needed
+-  if (!shellCommand.background(processId)) {
++  if (!shellCommand.background(processId, { skipSpill: true })) {
+     return false
+diff --git a/src/utils/messages.ts b/src/utils/messages.ts
+index 271c867..292e183 100644
+--- a/src/utils/messages.ts
++++ b/src/utils/messages.ts
+@@ -3439,3 +3439,7 @@ function getReadOnlyToolNames(): string {
+   const tools = hasEmbeddedSearchTools()
+-    ? [FILE_READ_TOOL_NAME, '`find`', '`grep`']
++    ? [
++        FILE_READ_TOOL_NAME,
++        `\`find\`/${GLOB_TOOL_NAME}`,
++        `\`grep\`/${GREP_TOOL_NAME}`,
++      ]
+     : [FILE_READ_TOOL_NAME, GLOB_TOOL_NAME, GREP_TOOL_NAME]
+@@ -3803,3 +3807,3 @@ Read the team config to discover your teammates' names. Check the task list peri
+         createUserMessage({
+-          content: `The following skills were invoked in this session. Continue to follow these guidelines:\n\n${skillsContent}`,
++          content: `The following skills were invoked EARLIER in this session (before the conversation was compacted), not on the current turn. They are shown here for context only so you remain aware of their guidelines.\n\nIMPORTANT: Do NOT re-execute these skills or perform their one-time setup actions (e.g., scheduling, creating files) again. The "## Input" sections below reflect the original arguments from when each skill was first invoked — they are NOT the user's current message. Only continue to apply ongoing behavioral guidelines from these skills where still relevant.\n\n${skillsContent}`,
+           isMeta: true,
+diff --git a/src/utils/model/check1mAccess.ts b/src/utils/model/check1mAccess.ts
+index 62846e0..992d0f9 100644
+--- a/src/utils/model/check1mAccess.ts
++++ b/src/utils/model/check1mAccess.ts
+@@ -35,4 +35,4 @@ function isExtraUsageEnabled(): boolean {
+     case 'org_service_level_disabled':
+-    case 'org_service_zero_credit_limit':
+     case 'no_limits_configured':
++    case 'fetch_error':
+     case 'unknown':
+diff --git a/src/utils/process.ts b/src/utils/process.ts
+index 10ec227..f5c7052 100644
+--- a/src/utils/process.ts
++++ b/src/utils/process.ts
+@@ -1,8 +1,13 @@
+-function handleEPIPE(
+-  stream: NodeJS.WriteStream,
+-): (err: NodeJS.ErrnoException) => void {
+-  return (err: NodeJS.ErrnoException) => {
+-    if (err.code === 'EPIPE') {
+-      stream.destroy()
+-    }
++// Prevents memory leaks and reports a broken stdout pipe to the global
++// shutdown owner (for example, when a parent process exits).
++export function registerProcessOutputErrorHandlers(
++  onStdoutError: (code: 'EPIPE' | 'EIO') => void,
++): void {
++  for (const stream of [process.stdout, process.stderr]) {
++    stream.on('error', (err: NodeJS.ErrnoException) => {
++      if (err.code === 'EPIPE' || err.code === 'EIO') {
++        stream.destroy()
++        if (stream === process.stdout) onStdoutError(err.code)
++      }
++    })
+   }
+@@ -10,8 +15,2 @@ function handleEPIPE(
+ 
+-// Prevents memory leak when pipe is broken (e.g., `claude -p | head -1`)
+-export function registerProcessOutputErrorHandlers(): void {
+-  process.stdout.on('error', handleEPIPE(process.stdout))
+-  process.stderr.on('error', handleEPIPE(process.stderr))
+-}
+-
+ function writeOut(stream: NodeJS.WriteStream, data: string): void {
+diff --git a/src/utils/udsClient.ts b/src/utils/udsClient.ts
+index e178c48..98fa750 100644
+--- a/src/utils/udsClient.ts
++++ b/src/utils/udsClient.ts
+@@ -139,3 +139,3 @@ async function readRegistry(): Promise<RegistryCandidate[]> {
+         try {
+-          const pid = Number(file.slice(0, -5))
++          const pid = parseInt(file.replace(/\.json$/, ''), 10)
+           if (Number.isNaN(pid)) return null
+@@ -147,14 +147,10 @@ async function readRegistry(): Promise<RegistryCandidate[]> {
+           return {
+-            sock:
+-              typeof raw.messagingSocketPath === 'string'
+-                ? raw.messagingSocketPath
+-                : '',
+-            cwd: typeof raw.cwd === 'string' ? raw.cwd : '?',
+-            startedAt: typeof raw.startedAt === 'number' ? raw.startedAt : 0,
++            sock: (raw.messagingSocketPath as string | undefined) ?? '',
++            cwd: (raw.cwd as string | undefined) ?? '?',
++            startedAt: (raw.startedAt as number | undefined) ?? 0,
+             procStart:
+               typeof raw.procStart === 'string' ? raw.procStart : undefined,
+-            name: typeof raw.name === 'string' ? raw.name : undefined,
++            name: raw.name as string | undefined,
+             kind: sessionKind(raw.kind),
+-            sessionId:
+-              typeof raw.sessionId === 'string' ? raw.sessionId : undefined,
++            sessionId: raw.sessionId as string | undefined,
+             bridgeSessionId:
+@@ -163,4 +159,3 @@ async function readRegistry(): Promise<RegistryCandidate[]> {
+                 : undefined,
+-            logPath:
+-              typeof raw.logPath === 'string' ? raw.logPath : undefined,
++            logPath: raw.logPath as string | undefined,
+             status: sessionStatus(raw.status),

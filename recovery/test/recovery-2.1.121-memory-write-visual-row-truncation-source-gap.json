@@ -1,0 +1,320 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "sourceBlob": {
+    "path": "src/memdir/memoryWriteSurvey.ts",
+    "gitObject": "6a69f58c6ac295535032312248ef0782c8f78bb9"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "replayHelper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-memory-write-survey-visual-row-truncation-source-gap.mjs",
+      "bytes": 9927,
+      "sha256": "2316a19158b89d43c760f45ad3709e144fa58a09684506e09ae1f259257e5393"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/memdir/memoryWriteSurvey.ts",
+        "input": {
+          "bytes": 6969,
+          "sha256": "695f0ae48ee6a7cf1380e43849c5223794c626a56068de2f1754531a902c64df"
+        },
+        "output": {
+          "bytes": 10559,
+          "sha256": "fb263ccb96a6989423e4a0a52fbd311292eaaea3e06ed12a2311afe9878c99b1"
+        }
+      }
+    ]
+  },
+  "baselineUnits": [
+    {
+      "index": 8715,
+      "role": "logical-line-only memory write counter before rendered-row truncation",
+      "nodeType": "FunctionDeclaration",
+      "start": 4127787,
+      "end": 4127920,
+      "bytes": 133,
+      "tokenCount": 60,
+      "sourceHash": "058736eaed870028dea0111853facaf02b421f1fa64d0fe5d282fb46b09a34cf",
+      "coarseHash": "12b83063ff28472a17b8dec583ba9e4521c2c2ac4cf28eb082e6501bd9da9c73"
+    }
+  ],
+  "targetUnits": [
+    {
+      "index": 8762,
+      "role": "rendered-row text truncation with exact hidden-row count",
+      "nodeType": "FunctionDeclaration",
+      "start": 4142099,
+      "end": 4142539,
+      "bytes": 440,
+      "tokenCount": 238,
+      "sourceHash": "d9ff82ba42fd0588093094def29022d100aaeb0a4efd2383a41ec37cc905e860",
+      "coarseHash": "3b149c370f2b94ba65d105cc1abf4d8fae3fb11608d663d8fdb79b7738616924"
+    },
+    {
+      "index": 8763,
+      "role": "rendered-row structured-hunk truncation with exact hidden-row count",
+      "nodeType": "FunctionDeclaration",
+      "start": 4142539,
+      "end": 4143005,
+      "bytes": 466,
+      "tokenCount": 272,
+      "sourceHash": "d736751c9f3ef583b2ab2714e3f7ae2a4349b09432cba616f53eb1d84ed4fc48",
+      "coarseHash": "54d2fbe45355c9a94bc791a824f55f95fb139154c99a4c85086a0cea099db7fc"
+    }
+  ],
+  "supportingTargetUnits": [
+    {
+      "index": 8751,
+      "role": "rendered visual-row counter",
+      "nodeType": "FunctionDeclaration",
+      "start": 4140368,
+      "end": 4140593,
+      "bytes": 225,
+      "tokenCount": 129,
+      "sourceHash": "1ea6f29d4f9d0bdc1fa6a5884d8fbf735431fb625cfa920f7f13454f258a2f39",
+      "coarseHash": "05e7cc1f37ddcb534094dab8d50c1121a068fb63235e7427ed90343906e460a2"
+    },
+    {
+      "index": 8759,
+      "role": "six-column diff-gutter width reservation",
+      "nodeType": "FunctionDeclaration",
+      "start": 4141834,
+      "end": 4141871,
+      "bytes": 37,
+      "tokenCount": 17,
+      "sourceHash": "7ccb80bf2753d6ccd52673da8a595024a8377f955ced767d9539a11002812bee",
+      "coarseHash": "f0e7528a526c070c004eb5cac38bc7bab09af719132fa4c718e899848042530d"
+    },
+    {
+      "index": 8760,
+      "role": "inter-hunk separator row counter",
+      "nodeType": "FunctionDeclaration",
+      "start": 4141871,
+      "end": 4141917,
+      "bytes": 46,
+      "tokenCount": 20,
+      "sourceHash": "88df6cf489bafca3b03e793cf0c35c9a3cfc1d25e9687d1912bde7d33221928b",
+      "coarseHash": "4f973b909335b5a4c69d3f57a587db92b69d077d8ee2a981f5e565777d2f5fba"
+    },
+    {
+      "index": 8764,
+      "role": "hard ANSI-aware logical-line wrapper",
+      "nodeType": "FunctionDeclaration",
+      "start": 4143005,
+      "end": 4143100,
+      "bytes": 95,
+      "tokenCount": 51,
+      "sourceHash": "16432ff21a1334e41a5d129a635f73a113ba60e5e90c9d85a7ce40db0f25caf1",
+      "coarseHash": "b58e2ffa70490ff02e6e22c7a779624567f05be3a9a43e980f0faab3ae8e7b7c"
+    }
+  ],
+  "targetFragments": [
+    {
+      "name": "truncateTextUnit",
+      "unitIndex": 8762,
+      "start": 4142099,
+      "end": 4142539,
+      "bytes": 440,
+      "sha256": "d9ff82ba42fd0588093094def29022d100aaeb0a4efd2383a41ec37cc905e860"
+    },
+    {
+      "name": "truncateHunksUnit",
+      "unitIndex": 8763,
+      "start": 4142539,
+      "end": 4143005,
+      "bytes": 466,
+      "sha256": "d736751c9f3ef583b2ab2714e3f7ae2a4349b09432cba616f53eb1d84ed4fc48"
+    },
+    {
+      "name": "widthAwareCountConsumer",
+      "unitIndex": 21015,
+      "start": 12644425,
+      "end": 12644433,
+      "bytes": 8,
+      "sha256": "491318f611c09ad44b31b98a1102bd2470153aac9e27b8affeed61909ba5b6ae",
+      "text": "INK(q,z)"
+    },
+    {
+      "name": "textTruncationConsumer",
+      "unitIndex": 21049,
+      "start": 12658183,
+      "end": 12658198,
+      "bytes": 15,
+      "sha256": "8b404446d014e15738efb1df366e5eece33da3fa16935068b4a21c1e1797532e",
+      "text": "SNK(q.body,A,_)"
+    },
+    {
+      "name": "hunkTruncationConsumer",
+      "unitIndex": 21049,
+      "start": 12658344,
+      "end": 12658370,
+      "bytes": 26,
+      "sha256": "895b1fe7d6ce9f14b188f9b7e82b2c69f8df80e1e9cb60bb0cbe57dcef4e6037",
+      "text": "RNK(q.structuredPatch,A,_)"
+    }
+  ],
+  "strictRows": [
+    {
+      "targetIndex": 8762,
+      "ownerPath": "src/memdir/memoryWriteSurvey.ts",
+      "reportedOwnerPaths": [
+        "utils/permissions/pathValidation.ts"
+      ],
+      "declarations": [
+        "truncateMemoryWriteText",
+        "countVisualRows",
+        "wrapLine"
+      ],
+      "evidenceIds": [
+        "target121-memory-write-visual-row-target-unit-proof",
+        "target121-memory-write-visual-row-source-replay-test",
+        "target121-memory-write-visual-row-runtime-parity-test"
+      ]
+    },
+    {
+      "targetIndex": 8763,
+      "ownerPath": "src/memdir/memoryWriteSurvey.ts",
+      "reportedOwnerPaths": [
+        "utils/permissions/pathValidation.ts"
+      ],
+      "declarations": [
+        "truncateMemoryWriteHunks",
+        "countVisualRows",
+        "getDiffContentWidth",
+        "countHunkSeparators"
+      ],
+      "evidenceIds": [
+        "target121-memory-write-visual-row-target-unit-proof",
+        "target121-memory-write-visual-row-source-replay-test",
+        "target121-memory-write-visual-row-runtime-parity-test"
+      ]
+    }
+  ],
+  "typedResidueSummaries": [
+    {
+      "targetIndex": 8762,
+      "rowCount": 15,
+      "targetAddedCount": 5,
+      "identitiesSha256": "ef56c5e175dd9bc86091c21e7ed3f395b37f01ad062b13911ddbe7ec80b4a47d"
+    },
+    {
+      "targetIndex": 8763,
+      "rowCount": 13,
+      "targetAddedCount": 3,
+      "identitiesSha256": "3a1d92afc0bf42ae7a45451806919f4c172bf155bee8da87189ab4f7dcd4a517"
+    }
+  ],
+  "targetAddedResidues": [
+    [8762, "property", "hiddenRows", 0, 1, 4142144, 4142154],
+    [8762, "property", "hiddenRows", 0, 2, 4142181, 4142191],
+    [8762, "property", "hiddenRows", 0, 3, 4142269, 4142279],
+    [8762, "property", "hiddenRows", 0, 4, 4142328, 4142338],
+    [8762, "property", "hiddenRows", 0, 5, 4142516, 4142526],
+    [8763, "property", "hiddenRows", 0, 6, 4142674, 4142684],
+    [8763, "property", "hiddenRows", 0, 7, 4142729, 4142739],
+    [8763, "property", "hiddenRows", 0, 8, 4142989, 4142999]
+  ],
+  "sourceDeclarations": [
+    {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "name": "DIFF_GUTTER_WIDTH",
+      "charStart": 4163,
+      "charEnd": 4190,
+      "bytes": 27,
+      "sha256": "cfb7ae2dcf059af4bcbc8b83f24f84fefc0f404d95ac460eb89d607272eb23a0"
+    },
+    {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "name": "countVisualRows",
+      "charStart": 4192,
+      "charEnd": 4752,
+      "bytes": 560,
+      "sha256": "9a17a7f1ffeffc52f710e1cc89eb8a5324a8ee81f02fcf99ce8d00c9471c6a81"
+    },
+    {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "name": "getDiffContentWidth",
+      "charStart": 4754,
+      "charEnd": 4880,
+      "bytes": 126,
+      "sha256": "d0c416022c95d8d7fb6a34cf4df44614bddf1fd18d0b08fcd974d99905569879"
+    },
+    {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "name": "countHunkSeparators",
+      "charStart": 4882,
+      "charEnd": 4991,
+      "bytes": 109,
+      "sha256": "1662591ee635075e9377984c2101dc492ac35cc98ccfba5d6b0b544648e364fb"
+    },
+    {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "name": "truncateMemoryWriteText",
+      "charStart": 4993,
+      "charEnd": 6041,
+      "bytes": 1048,
+      "sha256": "2cbd1d391ccac7600a6b08835f81aa341acc40df4afaa9fc4478c59c331a77b6"
+    },
+    {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "name": "truncateMemoryWriteHunks",
+      "charStart": 6043,
+      "charEnd": 7416,
+      "bytes": 1373,
+      "sha256": "0ee3155c35113a3f709ae68d6d9cc2e742e3f5fb32bba679f959d843de166ca8"
+    },
+    {
+      "path": "src/memdir/memoryWriteSurvey.ts",
+      "name": "wrapLine",
+      "charStart": 7418,
+      "charEnd": 7607,
+      "bytes": 189,
+      "sha256": "45e85054ed8f010d560ce9dc9eef67d3e9f936d40ee7b0bd31fc2397cd71b95d"
+    }
+  ],
+  "deferredConsumerUnits": [
+    {
+      "index": 21015,
+      "sourcePath": "src/components/FeedbackSurvey/useMemoryWriteSurvey.ts",
+      "reason": "width-aware count caller remains a later strict source-gap cluster"
+    },
+    {
+      "index": 21049,
+      "sourcePath": "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx",
+      "reason": "text and hunk truncation callers remain a later strict source-gap cluster"
+    },
+    {
+      "index": 21053,
+      "sourcePath": "src/screens/REPL.tsx",
+      "reason": "removed logical lineCount prop is coupled to the later UI cluster"
+    }
+  ],
+  "summary": {
+    "strictUnits": 2,
+    "supportingUnits": 4,
+    "ownerResidues": 28,
+    "targetAddedResidues": 8,
+    "strictIndicesSha256": "f81b2338543a21aecf851fad29597c588da4325dc3479e295ca961ae737728d0",
+    "targetAddedResiduesSha256": "c56cf827f0b4e761254a4170e4d55d827c291ee08b94649e665a5da887eaa94d"
+  }
+}

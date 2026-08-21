@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-plugin-prune-command-two-row-source-replay-v1",
+  "status": "case-owned-row-scoped-two-file-source-replay",
+  "claim": "The last two production rows in Target121 run unit u22106 are one cohesive plugin-prune command graph. Target120 has neither pluginPruneHandler nor a prune command. Target121 imports pluginPruneHandler and createSubcommandRoot together, creates a Root, passes it to the new handler, renders the prune result, waits for exit, and exits. The supplied raw and packaged Target121 source instead imports only pluginPruneHandler, passes options alone, and discards the result. The additional prune registration inserts createSubcommandRoot occurrence 18 and shifts the retained auto-mode critique occurrence from 23 to 24. This bounded replay restores exactly the two missing source files and admits only the pluginPruneHandler row plus that retained ordinal-spill row; it does not override the complete u22106 unit or admit any of its six build-metadata rows.",
+  "evidenceIds": [
+    "target121-plugin-prune-authenticated-command-fragment",
+    "target121-plugin-prune-handler-call-graph",
+    "target121-plugin-prune-source-replay",
+    "target121-plugin-prune-two-row-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-plugin-prune-command-source-gap.mjs",
+      "bytes": 8839,
+      "sha256": "5b24350af091e842440da3eae16c5b834005851076290979f87b197a1dd4cc85"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostDangerousSnapshot": {
+      "method": "The report and coverage descriptors and exact eight-row u22106 tail were copied once before this case helper or fixture was created; the proof test does not reread either shared generated artifact.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      }
+    },
+    "frozenPostPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"},
+      "u22106Counts": {"owner":199,"added":15,"strict":8},
+      "localProjection": {"owner":197,"added":13,"strict":6},
+      "cumulativeProjectionAfterSevenStaticAdmissions": {"owner":190,"added":6,"strict":6}
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "u22106Counts": {"owner":202,"added":18,"strict":9},
+      "strictRows": [
+        [22106,"string","2.1.121",13808731,13808740,0,150,true],
+        [22106,"string","2026-04-27T01:32:27Z",13808820,13808842,0,150,true],
+        [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13808851,13808893,0,150,true],
+        [22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true],
+        [22106,"string","2.1.121",13825108,13825117,0,151,true],
+        [22106,"string","2026-04-27T01:32:27Z",13825197,13825219,0,151,true],
+        [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13825228,13825270,0,151,true],
+        [22106,"property","pluginPruneHandler",13837077,13837095,0,2,true],
+        [22106,"property","createSubcommandRoot",13840517,13840537,23,24,true]
+      ],
+      "localProjection": {"owner":200,"added":16,"strict":7},
+      "cumulativeProjectionAfterSevenStaticAdmissions": {"owner":193,"added":9,"strict":7}
+    },
+    "priorCumulativeEvidence": [
+      {
+        "name": "first-allowed",
+        "path": "recovery/test/recovery-2.1.121-main-run-first-allowed-owner-proof.json",
+        "bytes": 28289,
+        "sha256": "0bf69e223d2058c326d224131b1c7ca9a4441de31e36fa101e448647bb5d86d7"
+      },
+      {
+        "name": "second-allowed",
+        "path": "recovery/test/recovery-2.1.121-main-run-second-allowed-owner-proof.json",
+        "bytes": 25966,
+        "sha256": "af9a73a9635ec8702bab82ddfa9e909b8e517553471e8534c59bf72fee023332"
+      },
+      {
+        "name": "growthbook-timeout-300",
+        "path": "recovery/test/recovery-2.1.121-main-run-growthbook-timeout-owner-proof.json",
+        "bytes": 24258,
+        "sha256": "b0af67816cc1098186158b62315788408419d0f9cb1e4527411d4b5835f1b0dd"
+      },
+      {
+        "name": "dangerous-pre-dialog",
+        "path": "recovery/test/recovery-2.1.121-dangerous-mode-pre-dialog-source-gap.json",
+        "bytes": 25099,
+        "sha256": "118454b85d40a8e29411066b481faa156585c7bb86389a89775bb2e96767a402"
+      }
+    ],
+    "sourceRoots": {
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "package": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    },
+    "sourceStates": [
+      {
+        "name": "raw",
+        "main": {
+          "path": "src/main.tsx",
+          "input": {"bytes":816314,"sha256":"c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"},
+          "output": {"bytes":816431,"sha256":"187faabc7e71e80b8f8868df2375afb1f694695e4e43807296a284107a2dc29a"}
+        },
+        "handler": {
+          "path": "src/cli/handlers/plugins.ts",
+          "input": {"bytes":35334,"sha256":"bec139c4b18f0e606cb44963f347939d454e8cfe79accbed71d49ca5c45f803c"},
+          "output": {"bytes":35562,"sha256":"6cd43506319d48682d2b38aa9d6d3e7335aedfce56aeb88fc0860ec325a102d6"}
+        }
+      },
+      {
+        "name": "package",
+        "main": {
+          "path": "src/main.tsx",
+          "input": {"bytes":816786,"sha256":"ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"},
+          "output": {"bytes":816903,"sha256":"75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"}
+        },
+        "handler": {
+          "path": "src/cli/handlers/plugins.ts",
+          "input": {"bytes":35334,"sha256":"bec139c4b18f0e606cb44963f347939d454e8cfe79accbed71d49ca5c45f803c"},
+          "output": {"bytes":35562,"sha256":"6cd43506319d48682d2b38aa9d6d3e7335aedfce56aeb88fc0860ec325a102d6"}
+        }
+      }
+    ]
+  },
+  "baselineUnits": {
+    "run": {
+      "baselineUnitIndex": 22004,
+      "name": "Zh5",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 13711458,
+      "end": 13773044,
+      "bytes": 61586,
+      "tokenCount": 16389,
+      "sha256": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0",
+      "coarseHash": "4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0",
+      "line": 18786,
+      "column": 12
+    }
+  },
+  "targetUnits": {
+    "run": {
+      "targetIndex": 22106,
+      "name": "WS5",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 42,
+      "start": 13779080,
+      "end": 13841990,
+      "bytes": 62910,
+      "tokenCount": 16656,
+      "sha256": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+      "coarseHash": "c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1",
+      "line": 18764,
+      "column": 12
+    },
+    "pluginPruneHandler": {
+      "targetIndex": 22050,
+      "name": "bI5",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 1,
+      "start": 13745760,
+      "end": 13746206,
+      "bytes": 446,
+      "tokenCount": 161,
+      "sha256": "7486c63fd3b86b5289fd99737b4592b6b52bd15b17690c9c86f0e462a0a09717",
+      "coarseHash": "0a6220a9443d2193338d9491cd2ef2211431e3949a29a03bacd3a8c5d3016de0",
+      "line": 18622,
+      "column": 2435
+    }
+  },
+  "compiledGraph": {
+    "pluginPruneHandlerOccurrences": {
+      "baseline": [],
+      "target": [13733869, 13837077]
+    },
+    "createSubcommandRootOccurrences": {
+      "baseline": [13664203,13760743,13761171,13761589,13762072,13762736,13763672,13763931,13764419,13765143,13765530,13766202,13766518,13766838,13767191,13767641,13768152,13768528,13768973,13769973,13770876,13771214,13771571],
+      "target": [13731474,13828911,13829339,13829757,13830240,13830904,13831840,13832099,13832587,13833311,13833698,13834370,13834686,13835006,13835359,13835809,13836542,13837100,13837474,13837919,13838919,13839822,13840160,13840517],
+      "insertedPruneOrdinal": 18,
+      "retainedStrictOrdinal": 24
+    },
+    "targetHandler": {
+      "start": 13745760,
+      "end": 13746206,
+      "bytes": 446,
+      "sha256": "7486c63fd3b86b5289fd99737b4592b6b52bd15b17690c9c86f0e462a0a09717",
+      "astWithoutLocations": {"bytes":6495,"sha256":"7e7dbf6c86733468bf2a531cfef49232c5af91394470165e5e3c215e0a48fead"},
+      "parameterCount": 2,
+      "requiredBehaviors": ["tengu_plugin_prune_command","prune result render","waitUntilExit","process.exit(0)"]
+    },
+    "targetPruneCommand": {
+      "start": 13836693,
+      "end": 13837248,
+      "bytes": 555,
+      "sha256": "ce2c53547e93eaaab599e9b4c9dfaf900661c8c73fb1c0fbbb87594d0b1d53cd",
+      "tokenCount": 130,
+      "astWithoutLocations": {"bytes":5453,"sha256":"194b54a5f456290c0f8691e4cfef6fba39140de0dbb6d83d1e778c80efb37ece"},
+      "action": {"start":13837061,"end":13837247,"bytes":186,"sha256":"652ef53dece0728b88823f71642fb32aec6e409384a387b00b694262534b3608"},
+      "imports": {"start":13837072,"end":13837226,"bytes":154,"sha256":"ab1f529296387f77950139352977882e4e2585c76ce3b9219391e4224d846580"}
+    },
+    "retainedAutoModeCritique": {
+      "baseline": {"start":13771527,"end":13771735,"bytes":208,"sha256":"60f083d516ece1f696c3b857b6b1375e7a33f6aacf624fd3b7c9fd7d4c985734"},
+      "target": {"start":13840473,"end":13840681,"bytes":208,"sha256":"bcda9992c93df55b5f1e80815e5529f993407ac38ddf1fc7ae2c54f6fca8c407"},
+      "identifierNormalizedTokens": {"count":86,"bytes":1057,"sha256":"4a363bf6abf10aa728d0ab2f204d2b11394cb1f6a1d49b86e3b606f1dcc8aa5f"}
+    }
+  },
+  "sourceGraph": {
+    "mainCommand": {
+      "raw": {
+        "input": {"start":223898,"end":224531,"bytes":633,"sha256":"17c7e290ae630a04549e591cd75a345794b0686aadf8abb255605690db3d2623"},
+        "output": {"start":223898,"end":224648,"bytes":750,"sha256":"52bb49ee6804195b67ceead7e369d9d78c9e2b4fffd59a3f02ab0378bcae8520"}
+      },
+      "package": {
+        "input": {"start":224283,"end":224916,"bytes":633,"sha256":"17c7e290ae630a04549e591cd75a345794b0686aadf8abb255605690db3d2623"},
+        "output": {"start":224283,"end":225033,"bytes":750,"sha256":"52bb49ee6804195b67ceead7e369d9d78c9e2b4fffd59a3f02ab0378bcae8520"}
+      }
+    },
+    "handler": {
+      "input": {"start":30062,"end":30914,"bytes":852,"sha256":"5d36f19dbadc2211b5f75ee4f0238f33ee63656445e8772c3b6930dda391dd27"},
+      "output": {"start":30062,"end":31142,"bytes":1080,"sha256":"3162f107665343633e89ef66a1f2d7808ed30de0e7a1c93e71bde5fde4bf8c04"}
+    },
+    "unchangedDependencyImports": [
+      "React from react",
+      "Text and Root from ../../ink.js",
+      "RenderOnceAndExit from ../../utils/staticRender.js"
+    ],
+    "decision": "graph-closed-source-replay",
+    "replayFiles": ["src/main.tsx", "src/cli/handlers/plugins.ts"]
+  },
+  "rowBoundary": {
+    "frozenU22106Tail": [
+      [22106,"string","2.1.121",13808731,13808740,0,150,true],
+      [22106,"string","2026-04-27T01:32:27Z",13808820,13808842,0,150,true],
+      [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13808851,13808893,0,150,true],
+      [22106,"string","2.1.121",13825108,13825117,0,151,true],
+      [22106,"string","2026-04-27T01:32:27Z",13825197,13825219,0,151,true],
+      [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13825228,13825270,0,151,true],
+      [22106,"property","pluginPruneHandler",13837077,13837095,0,2,true],
+      [22106,"property","createSubcommandRoot",13840517,13840537,23,24,true]
+    ],
+    "admitted": [
+      [22106,"property","pluginPruneHandler",13837077,13837095,0,2,true],
+      [22106,"property","createSubcommandRoot",13840517,13840537,23,24,true]
+    ],
+    "remainingBuildMacros": [
+      [22106,"string","2.1.121",13808731,13808740,0,150,true],
+      [22106,"string","2026-04-27T01:32:27Z",13808820,13808842,0,150,true],
+      [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13808851,13808893,0,150,true],
+      [22106,"string","2.1.121",13825108,13825117,0,151,true],
+      [22106,"string","2026-04-27T01:32:27Z",13825197,13825219,0,151,true],
+      [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13825228,13825270,0,151,true]
+    ],
+    "descriptors": {
+      "frozenTail": {"bytes":567,"sha256":"53fc6a2087f0f4207c71186220adbe8ffb8ac88411a1c2278c33945644e662cb"},
+      "admitted": {"bytes":139,"sha256":"d02a7fb78ed68a35984d03b321ad8fd16130e74613bff82ee341ca21c1f9e065"},
+      "remainingBuildMacros": {"bytes":429,"sha256":"f01dacc36a3dcfc65b84a57277281706753c0dd404b318a9e8b392b0056070be"}
+    }
+  },
+  "cumulativeImpact": {
+    "frozenAfterFirstAllowedSecondAllowed300AndDangerous": {
+      "targetIndex": 22106,
+      "productionRows": 2,
+      "buildMacroRows": 6,
+      "totalRows": 8,
+      "productionValues": ["pluginPruneHandler", "createSubcommandRoot"]
+    },
+    "afterThisReplay": {
+      "targetIndex": 22106,
+      "productionRows": 0,
+      "buildMacroRows": 6,
+      "totalRows": 6,
+      "ownerRowDelta": -2,
+      "addedRowDelta": -2,
+      "strictRowDelta": -2,
+      "coverageRowDelta": 0,
+      "sourceFilesChanged": 2
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "sourceFiles": 2,
+    "wholeUnitOverride": false,
+    "buildMacrosAdmitted": 0
+  }
+}

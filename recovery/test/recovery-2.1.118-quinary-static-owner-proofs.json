@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-quinary-static-source-owner",
+  "evidenceIds": [
+    "target118-quinary-static-owner-target-fragment",
+    "target118-quinary-static-owner-source-ast-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "sourcePath": "src/utils/auth.ts",
+        "bytes": 70182,
+        "sha256": "718049b3e77a29e6ce09c33c133bf911c448b27c7cba9d8e9b6a8442edfe12cd"
+      },
+      {
+        "sourcePath": "src/utils/messages.ts",
+        "bytes": 198780,
+        "sha256": "32db17ddec84b7c6fd0700765fc05c30f381649d2ba5ca97d61fbdf1073d1086"
+      },
+      {
+        "sourcePath": "src/utils/sessionStorage.ts",
+        "bytes": 195992,
+        "sha256": "83d036f974e13db27f8f161c41bb4d40c0d707a852136328ed9d243983f0d3f1"
+      }
+    ]
+  },
+  "summary": {
+    "units": 3,
+    "residues": 5,
+    "indicesSha256": "ee9cf928ea159575bb56ac8d9c7e53272998340d147f9245cd7f5e9c225b5203",
+    "residueIdentitiesSha256": "413200ecda1ac61f6218d1c2204e9698ae85f6222d491059d71aa6c765bcdb0c"
+  },
+  "rows": [
+    {
+      "targetIndex": 6166,
+      "ownerPath": "src/utils/auth.ts",
+      "behavior": "The authenticated Target118 auth export registry binds shouldUseWIFAuth and describeHowToDisableAuthTokenSource to the exact exported historical source declarations; the property residues are module-export lowering, not missing runtime behavior.",
+      "target": {
+        "start": 2790660,
+        "end": 2792500,
+        "bytes": 1840,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "ed1d2797f5d81f15f4110cfad08282befc8c0b40b616c28fb92032b9ac8237c7",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "shouldUseWIFAuth",
+          2790696,
+          2790712,
+          0,
+          1
+        ],
+        [
+          "property",
+          "describeHowToDisableAuthTokenSource",
+          2792183,
+          2792218,
+          0,
+          1
+        ]
+      ],
+      "sourceProof": {
+        "role": "module-export-registry",
+        "declarations": [
+          {
+            "name": "shouldUseWIFAuth",
+            "targetMarkers": [
+              "ANTHROPIC_UNIX_SOCKET",
+              "CLAUDE_CODE_USE_BEDROCK",
+              "CLAUDE_CODE_USE_MANTLE"
+            ],
+            "sourceMarkers": [
+              "isWIFActive()",
+              "process.env.ANTHROPIC_UNIX_SOCKET",
+              "process.env.CLAUDE_CODE_USE_MANTLE"
+            ],
+            "targetBinding": "OE",
+            "targetDeclaration": {
+              "start": 2792612,
+              "end": 2793006,
+              "bytes": 394,
+              "sha256": "0e899c1a3942f3069d385397114652c6848c5c34be64bbd66ebd99baaeb45c90"
+            },
+            "sourceDeclaration": {
+              "start": 3570,
+              "end": 4285,
+              "bytes": 715,
+              "sha256": "1851a9f2ea0ffb14f5a480d1615adf11a6684bc1cccb1eff44afbe3cb1b2a55e"
+            }
+          },
+          {
+            "name": "describeHowToDisableAuthTokenSource",
+            "targetMarkers": [
+              "claude /logout to sign out of claude.ai.",
+              "Unset the apiKeyHelper setting.",
+              "CCR host"
+            ],
+            "sourceMarkers": [
+              "claude /logout to sign out of claude.ai.",
+              "Unset the apiKeyHelper setting.",
+              "CCR host"
+            ],
+            "targetBinding": "_p8",
+            "targetDeclaration": {
+              "start": 2793595,
+              "end": 2794028,
+              "bytes": 433,
+              "sha256": "51b55ba22b32c530e30c3ab8545f728ee393e3c2c24e33637dc3de08819da9ed"
+            },
+            "sourceDeclaration": {
+              "start": 9211,
+              "end": 9848,
+              "bytes": 637,
+              "sha256": "a47722a600f5fd6934cd8865bb6ba4aa17d915cb55d0bb9effb6763c2ea5b8ab"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 15119,
+      "ownerPath": "src/utils/messages.ts",
+      "behavior": "The authenticated Target118 module initializer hoists the exact shared plan-mode paragraph consumed twice by getPlanModeV2Instructions; the standalone string residue is compiler common-template-prefix extraction from the historical source declaration.",
+      "target": {
+        "start": 9414530,
+        "end": 9419354,
+        "bytes": 4824,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "982dcf4d666a359b53da016dc58a70186a5483cd5b63f99689fbc3d0ecc16240",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "Plan mode is active. The user indicated that they do not want you to execute yet -- you MUST NOT make any edits (with the exception of the plan file mentioned below), run any non-readonly tools (including changing configs or making commits), or otherwise make any changes to the system. This supercedes any other instructions you have received.",
+          9418995,
+          9419341,
+          0,
+          1
+        ]
+      ],
+      "sourceProof": {
+        "role": "common-template-prefix-extraction",
+        "sourceDeclaration": {
+          "start": 111156,
+          "end": 117729,
+          "bytes": 6573,
+          "sha256": "b853616cabe25957a2e42109c09bdcb8ca53828268255550a8e2490d1ea643e5"
+        },
+        "targetConsumerReferenceCount": 2,
+        "sourceTemplatePrefixCount": 2,
+        "targetMarkers": [
+          "## Plan File Info:",
+          "## Plan Workflow",
+          "customInstructions"
+        ],
+        "sourceMarkers": [
+          "if (attachment.customInstructions)",
+          "const agentCount = getPlanModeV2AgentCount()",
+          "const exploreAgentCount = getPlanModeV2ExploreAgentCount()"
+        ],
+        "sourceDeclarationName": "getPlanModeV2Instructions",
+        "targetBinding": "lV7",
+        "targetConsumerBinding": "B21",
+        "targetConsumer": {
+          "start": 9379972,
+          "end": 9384145,
+          "bytes": 4173,
+          "sha256": "096df108a4a4783d2cbec02c387b1cdccdf192b8cf05b76fad2875a1f13014a3"
+        }
+      }
+    },
+    {
+      "targetIndex": 17959,
+      "ownerPath": "src/utils/sessionStorage.ts",
+      "behavior": "The authenticated Target118 session-storage export registry binds recordSessionAlias and recordForkContextRef to the exact exported historical source declarations; the property residues are module-export lowering, not missing runtime behavior.",
+      "target": {
+        "start": 11106756,
+        "end": 11110060,
+        "bytes": 3304,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "c2999a9cf1c2444e476319123d0daff65886561075b29fd414058a1cdd6d4843",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "recordSessionAlias",
+          11107647,
+          11107665,
+          0,
+          1
+        ],
+        [
+          "property",
+          "recordForkContextRef",
+          11107703,
+          11107723,
+          0,
+          1
+        ]
+      ],
+      "sourceProof": {
+        "role": "module-export-registry",
+        "declarations": [
+          {
+            "name": "recordSessionAlias",
+            "targetMarkers": [
+              "NFC",
+              "utf8"
+            ],
+            "sourceMarkers": [
+              ".normalize('NFC')",
+              "readFile(aliasesPath, 'utf8')",
+              "fsAppendFile(aliasesPath"
+            ],
+            "targetBinding": "Cl8",
+            "targetDeclaration": {
+              "start": 11112777,
+              "end": 11113201,
+              "bytes": 424,
+              "sha256": "ee07e05f8dfbd837f0f316b260eb1f46f91c74c625dbcc3a871892866130409c"
+            },
+            "sourceDeclaration": {
+              "start": 16636,
+              "end": 17735,
+              "bytes": 1099,
+              "sha256": "ff3f1a8f2cb1a077a7bd1e57b96e4e3f2c0f18fbdbee1980748c92b7da5fa31f"
+            }
+          },
+          {
+            "name": "recordForkContextRef",
+            "targetMarkers": [
+              "fork-context-ref"
+            ],
+            "sourceMarkers": [
+              "appendEntry({ type: 'fork-context-ref', ...entry })"
+            ],
+            "targetBinding": "ZY6",
+            "targetDeclaration": {
+              "start": 11124907,
+              "end": 11124984,
+              "bytes": 77,
+              "sha256": "c6f8be793f1219c4253fa8a1d1db554bb7d8f58a428f17a98a3a22e8530c78ab"
+            },
+            "sourceDeclaration": {
+              "start": 58045,
+              "end": 58226,
+              "bytes": 181,
+              "sha256": "21d1f2e6d09a350d4466b83e72a9edd3961663d21117c42c8bec4d08f457eb54"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

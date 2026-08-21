@@ -1,0 +1,593 @@
+{
+  "schemaVersion": 2,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "case-owned-atomic-two-file-source-replay-proof",
+  "criterion": "Recover Target119 u21167 and its u18089 command dependency only as one complete graph: the authenticated REPL transition, all six diagnostic callers, the guarded pro-trial auto-open effect, and the exact false-to-true command enablement must be pinned together. A REPL-only proof or a partial source state is rejected.",
+  "summary": {
+    "primaryUnits": 1,
+    "dependencyUnits": 2,
+    "ownerRows": 326,
+    "addedOwnerRows": 52,
+    "productionStrictRowsBeforeRecovery": 13,
+    "productionStrictRowsAfterRecovery": 0,
+    "ownerOverrides": 2,
+    "sourceReplayHelpers": 1,
+    "replayedFiles": 2,
+    "targetIndicesSha256": "9f8f247840b6b2ce50df2977cf44571eead8a62c7820394666cc578824ab8913"
+  },
+  "evidenceIds": [
+    "target119-repl-runtime-authenticated-complete-transition",
+    "target119-repl-runtime-scroll-reason-source-replay",
+    "target119-repl-runtime-pro-trial-source-replay",
+    "target119-pro-trial-command-enable-transition",
+    "target119-repl-runtime-source-ast-test",
+    "target119-repl-runtime-adjacency-rejection",
+    "target119-repl-runtime-complete-unit-test"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "provisional",
+        "projection": "provisional",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24727372,
+          "sha256": "44893d07b612b3b5d6589da39ede97a02f57031e124875fad8b80cbc384d8e96"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 375767,
+          "sha256": "9298be0f62522e31e3c47a898e650837f8099efda1eff0470db154ef74ab1020"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3264637,
+          "sha256": "098a0759188bdf750bfd06c6bc87e616b16b398e4bc104fdffcf49f8e08688e9"
+        }
+      },
+      {
+        "phase": "post-streaming",
+        "projection": "corrected",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      },
+      {
+        "phase": "post-u21759",
+        "projection": "corrected",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 382108,
+          "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3290710,
+          "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"
+        }
+      },
+      {
+        "phase": "post-u21878",
+        "projection": "corrected",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 383456,
+          "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3297173,
+          "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"
+        }
+      }
+    ]
+  },
+  "evidenceCatalog": [
+    {
+      "id": "target119-repl-runtime-authenticated-complete-transition",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs",
+      "detail": "Pins complete Target118/Target119 REPL units and their exact thirty-eight-hunk identifier-normalized transition."
+    },
+    {
+      "id": "target119-repl-runtime-scroll-reason-source-replay",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs",
+      "detail": "Replays the reason parameter, diagnostic, and all six exact reason-bearing REPL call sites without importing the inherited cursor-ref optimization."
+    },
+    {
+      "id": "target119-repl-runtime-pro-trial-source-replay",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs",
+      "detail": "Replays the exact existing shouldAutoOpenProTrialExpired dependency import and guarded one-shot command dispatch through onSubmitRef."
+    },
+    {
+      "id": "target119-pro-trial-command-enable-transition",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs",
+      "detail": "Pins the complete u17689-to-u18089 descriptor transition and replays its sole false-to-true isEnabled change in the true command owner."
+    },
+    {
+      "id": "target119-repl-runtime-source-ast-test",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs",
+      "detail": "Pins both preimages, both postimages, and the existing pro-trial service, command registry, ScrollBox, config, debug, and message-predicate dependencies."
+    },
+    {
+      "id": "target119-repl-runtime-adjacency-rejection",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs",
+      "detail": "Pins u21166/u21168/u21169 and proves none has an added or production-strict residue requiring a wider REPL cluster."
+    },
+    {
+      "id": "target119-repl-runtime-complete-unit-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs",
+      "detail": "Pins all 326 owner rows, all 52 added-owner rows, all thirteen strict identities, both coverage corrections, idempotence, and rejection of mixed graph states."
+    }
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/repl-runtime-evolution-owner-overrides.mjs",
+      "bytes": 2473,
+      "sha256": "8f27e3acc778963d93a7a72d9731c50063ae4238e5463e1deeb8748848d700c3"
+    },
+    "helper": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/replay-repl-scroll-reasons-pro-trial-source-gap.mjs",
+      "bytes": 8749,
+      "sha256": "9b62adee8566f099d52a6bb4605ecf6b2c9ce863b4b1dede0f4cb7d2e17ca84d"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineProofFixture": {
+      "path": "recovery/test/recovery-2.1.118-repl-runtime-owner-proof.json",
+      "bytes": 9681,
+      "sha256": "1ee4a0c9a5dccc0e7198bb383007d913b9cca822b6f9128bcde7e01952b96fc9"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedProvisionalBytes": 24727372,
+      "observedProvisionalSha256": "44893d07b612b3b5d6589da39ede97a02f57031e124875fad8b80cbc384d8e96",
+      "mutableAfterCorrection": true
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedProvisionalBytes": 375767,
+      "observedProvisionalSha256": "9298be0f62522e31e3c47a898e650837f8099efda1eff0470db154ef74ab1020",
+      "mutableAfterCorrection": true
+    }
+  },
+  "artifactProjections": {
+    "coverageTupleSchema": [
+      "targetIndex",
+      "start",
+      "end",
+      "nodeType",
+      "sourceHash",
+      "structuralClass",
+      "disposition",
+      "ownerIds",
+      "evidenceIds",
+      "behavior"
+    ],
+    "provisional": {
+      "reportUnits": {
+        "18089": {
+          "owner": {"rows": 7, "jsonBytes": 2924, "sha256": "5a96b03e13aa1119360d6c42288c00805a0103dddb1c58a418335703470d26fe"},
+          "added": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+          "strict": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}
+        },
+        "21167": {
+          "owner": {"rows": 326, "jsonBytes": 132794, "sha256": "ee69d03214d7a9bda49698f77a85c88fce4384517ee6c078aacbecea8c33e4da"},
+          "added": {"rows": 52, "jsonBytes": 84092, "sha256": "cd984171529b7fce3c345feb5bc2fdd669b01c39f572c6664056bd610475b242"},
+          "strict": {"rows": 13, "jsonBytes": 6654, "sha256": "942d04b535b2866afb828c2f59ef6a6a891799306963399a0f4a7bc03b14c80d"}
+        }
+      },
+      "coverageRows": {"rows": 2, "jsonBytes": 1057, "sha256": "a935caddba98b995d67df0d7b1827dc0e32a3d3279b158581f060f654ff05a37"},
+      "coverageTuples": {"rows": 2, "jsonBytes": 817, "sha256": "277ced0dd98944dac609229819a74c7196d66852b4727ca420106344ac13e076"}
+    },
+    "corrected": {
+      "reportUnits": {
+        "18089": {
+          "owner": {"rows": 4, "jsonBytes": 1679, "sha256": "fc1d0b08c652f53e537b8563fae3088a98732b3dd8f0f93a2d5464323f06be09"},
+          "added": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+          "strict": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}
+        },
+        "21167": {
+          "owner": {"rows": 326, "jsonBytes": 132794, "sha256": "ee69d03214d7a9bda49698f77a85c88fce4384517ee6c078aacbecea8c33e4da"},
+          "added": {"rows": 52, "jsonBytes": 84092, "sha256": "cd984171529b7fce3c345feb5bc2fdd669b01c39f572c6664056bd610475b242"},
+          "strict": {"rows": 13, "jsonBytes": 6654, "sha256": "942d04b535b2866afb828c2f59ef6a6a891799306963399a0f4a7bc03b14c80d"}
+        }
+      },
+      "coverageRows": {"rows": 2, "jsonBytes": 2631, "sha256": "655a96c73d6ef1440767961400258e72ebf0db3ff19ec2fb3aa4f269eb299993"},
+      "coverageTuples": {"rows": 2, "jsonBytes": 2391, "sha256": "94eaf01d9f2e1e0c867affe7ad577808dce0491ffe79115680d898ca86e86672"}
+    }
+  },
+  "replUnits": {
+    "baseline": {
+      "targetIndex": 20268,
+      "nodeType": "FunctionDeclaration",
+      "start": 12230186,
+      "end": 12288910,
+      "bytes": 58724,
+      "tokens": 22641,
+      "sha256": "4525480a9ed17be377e86f448c9779759182775cd0428376776a34a1945ced3c",
+      "coarseHash": "5b8ecc267c496cbf3f2c635fe1a3ab952379fbbb91b4626c21372ccd50cd3c47"
+    },
+    "target": {
+      "targetIndex": 21167,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 12689553,
+      "end": 12750078,
+      "bytes": 60525,
+      "tokens": 23287,
+      "sha256": "22d2774afcaa4725c72188c34fd12ea2b8f3ad7f381e78e8c995c4b400b5d2b5",
+      "coarseHash": "c41483931e8da2f95c94442673ee8d99907fedd9d552cd36d63eae09ede56df2",
+      "unknownFreeIdentifierCount": 35
+    },
+    "normalized": {
+      "baseline": {
+        "tokens": 22641,
+        "bytes": 67497,
+        "sha256": "57d0428d6a9f18b097319508d62081129954b8b00fe67c846b308bcfce56dbd8"
+      },
+      "target": {
+        "tokens": 23287,
+        "bytes": 69735,
+        "sha256": "068f5b091f2dba87ea154cceab33dd8d2937be0394a07a07b1219eb2b170f9d9"
+      },
+      "diff": {
+        "format": "diff --label baseline --label target -U1",
+        "bytes": 4547,
+        "sha256": "7f6c25ed9db73ac07fbd5db19e8eeb4ff6191a3b2ae5e09e007c05aeda81bea7",
+        "hunks": 38,
+        "addedTokenLines": 700,
+        "removedTokenLines": 56
+      }
+    }
+  },
+  "commandUnits": {
+    "baseline": {
+      "targetIndex": 17689,
+      "nodeType": "VariableDeclaration",
+      "start": 10952889,
+      "end": 10953124,
+      "bytes": 235,
+      "tokens": 72,
+      "sha256": "981e04d260f7ea39ed5eddc4681f20af1e87743a7d7beeceb7c1a7e46dfce3af"
+    },
+    "target": {
+      "targetIndex": 18089,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 11112719,
+      "end": 11112954,
+      "bytes": 235,
+      "tokens": 72,
+      "sha256": "57fd22ebd35d1afb144634f1c93a132c00540b27b80e64b8f933839626d43ebe",
+      "coarseHash": "efad62ebdbcc2b8cc176639700afef24c972357ca57abdbd7ef0bc45e94d3a42",
+      "unknownFreeIdentifierCount": 4
+    },
+    "normalized": {
+      "baseline": {
+        "tokens": 72,
+        "bytes": 292,
+        "sha256": "529c99984f5e73b881cdbc1dee59887bdd669dba73b78c68123571a20613d3c2"
+      },
+      "target": {
+        "tokens": 72,
+        "bytes": 292,
+        "sha256": "fbf45a3a1497fb3c1ff4b4285db8e5573abe515713f58ef267217e6b0131145f"
+      },
+      "diff": {
+        "format": "diff --label baseline --label target -U1",
+        "bytes": 64,
+        "sha256": "211551ea8e9d57664287a0b5d23be25ee26027935f2d565dedb6af897829f96a",
+        "hunks": 1,
+        "addedTokenLines": 1,
+        "removedTokenLines": 1
+      }
+    }
+  },
+  "dependencyUnit": {
+    "targetIndex": 16922,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 10554528,
+    "end": 10554630,
+    "bytes": 102,
+    "tokens": 28,
+    "sha256": "8e3196c49fba1eda71bd1370f80314b9c61315373198e7d12af436424cfbe73d",
+    "coarseHash": "e67614aa51f599a6f5bb541267b7f9bafc440cf388732fda82f9d12290b500e5",
+    "unknownFreeIdentifierCount": 2
+  },
+  "targetSemanticFragments": {
+    "repinScrollCallback": {
+      "start": 12697117,
+      "end": 12697450,
+      "bytes": 333,
+      "sha256": "a70bb9ee39c44d07f30afebb614d602ceb08bbb27bbe6ac2f455cc46a90e5e85"
+    },
+    "lastMessageEffect": {
+      "start": 12697485,
+      "end": 12697546,
+      "bytes": 61,
+      "sha256": "fc23cd774adf122cd21eb245d3c8b997a04ead0b0847f7345cd6544649b0cbb7"
+    },
+    "typedIntoEmptyCallback": {
+      "start": 12697838,
+      "end": 12698101,
+      "bytes": 263,
+      "sha256": "6e17eb55182cfa8ff2f1c53b5b1cbe9f3a255e4fbd425dbb2b585f83334aad85"
+    },
+    "permissionDialogEffect": {
+      "start": 12707136,
+      "end": 12707486,
+      "bytes": 350,
+      "sha256": "541567f4165d05fcba1ba665b37b9e22a9d0018819b0f557f53e20377673d28f"
+    },
+    "toolJsxEffect": {
+      "start": 12707527,
+      "end": 12707664,
+      "bytes": 137,
+      "sha256": "45faa8d26833bb6e9261f17fbead812b3fb8d0fe4e339dba2a1c04259699b103"
+    },
+    "onSubmitCallback": {
+      "start": 12721099,
+      "end": 12725428,
+      "bytes": 4329,
+      "sha256": "d15b18ac0bccbe511779985de2da8706e273d1b6ee63bad67b45c30df187ab57"
+    },
+    "proTrialAutoOpenEffect": {
+      "start": 12727123,
+      "end": 12727289,
+      "bytes": 166,
+      "sha256": "59ef3b6735cc86a3b228ec8d7ecff4bb505e096ced8b381082125b54899f5ed9"
+    }
+  },
+  "sourceGraph": {
+    "targetCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "inputFiles": [
+      {
+        "path": "src/screens/REPL.tsx",
+        "bytes": 908262,
+        "sha256": "d871cc40a1869f421bc1d91bed4ba524292f80c4c57459b700e62b96acdd17ed",
+        "gitBlob": "f0ee9e1a150a3632e0df9ef365d29b33323a0022"
+      },
+      {
+        "path": "src/commands/pro-trial-expired/index.ts",
+        "bytes": 348,
+        "sha256": "e6ebc95a896a4880fa6ebf084a7063e2793df9bb38ba799f3874a70d8fabc610",
+        "gitBlob": "1db1f47514e483c660a98e9dc7f6a60b47ec7bd8"
+      }
+    ],
+    "outputFiles": [
+      {
+        "path": "src/screens/REPL.tsx",
+        "bytes": 909236,
+        "sha256": "1f80c57ab7ad18b2ace737e30fd24718e30e9d301d9fa82b24feb0414781c38d"
+      },
+      {
+        "path": "src/commands/pro-trial-expired/index.ts",
+        "bytes": 347,
+        "sha256": "a54bef64584b132a3e2d7d62cbf6c3224703a2f937fd476957df446fc2144b0f"
+      }
+    ],
+    "outputAst": {
+      "repl": {
+        "name": "REPL",
+        "kind": "FunctionDeclaration",
+        "start": 38309,
+        "end": 271016,
+        "bytes": 233049,
+        "sha256": "4f251b5cea8b714c94db78b67a211be04b092f735d42069ff10981d2c4beb71e"
+      },
+      "repinScroll": {
+        "kind": "FirstStatement",
+        "start": 75117,
+        "end": 75686,
+        "bytes": 569,
+        "sha256": "2e114d2ee3660fa79f21a015f8bef1ff8ee31086671ae1d6eb2225b052d210ed"
+      },
+      "proTrialRef": {
+        "kind": "FirstStatement",
+        "start": 194078,
+        "end": 194132,
+        "bytes": 54,
+        "sha256": "9c5f7bf60d9fc438ca4a84642eb0095e16e3c8d987600280fee88cd08194f8cd"
+      },
+      "proTrialEffect": {
+        "kind": "ExpressionStatement",
+        "start": 194135,
+        "end": 194491,
+        "bytes": 356,
+        "sha256": "01f539246b1d07ae5d1959eab035e8570716a379d250bb71c93fad9e6b2476ae"
+      },
+      "command": {
+        "kind": "FirstStatement",
+        "start": 50,
+        "end": 314,
+        "bytes": 264,
+        "sha256": "d1284129647066bcd9e778239b9f890513ecf1be90ff0890cf216130ec57bb70"
+      }
+    },
+    "dependencies": [
+      {
+        "path": "src/services/proTrial.ts",
+        "bytes": 3749,
+        "sha256": "6f432078921e7899ee50f060b9d46d9059a6c10ed573e02ec6a4f8cdcf39a088",
+        "gitBlob": "b96483d405c8bb728c85c167c1a09916db046c62",
+        "requiredFragments": ["shouldAutoOpenProTrialExpired", "cachedExtraUsageDisabledReason"]
+      },
+      {
+        "path": "src/commands.ts",
+        "bytes": 27660,
+        "sha256": "f297779e526a77dcdd8670ad5fc159408c6936f41a8b318665997c34be4be999",
+        "gitBlob": "2c919d3560f07b8532ee6fd71ea07f29032e4f8f",
+        "requiredFragments": ["./commands/pro-trial-expired/index.js", "proTrialExpired"]
+      },
+      {
+        "path": "src/ink/components/ScrollBox.tsx",
+        "bytes": 31814,
+        "sha256": "62eaf7266fcf23914fc0a297654c72a35c820665995779f4027589dc61f25ed2",
+        "gitBlob": "03e4a31cb1dab9818a259f89aa46cd83d6c9309b",
+        "requiredFragments": ["isSticky", "getScrollTop", "getScrollHeight", "getViewportHeight", "scrollToBottom"]
+      },
+      {
+        "path": "src/utils/debug.ts",
+        "bytes": 8000,
+        "sha256": "8d6734724d4e8467a50781d3af9d4341d54a8ffc64bf71a2726976714123b01e",
+        "gitBlob": "220da2bf7bc7505a1b637cf1d9fa45cbca2cc0a0",
+        "requiredFragments": ["logForDebugging"]
+      },
+      {
+        "path": "src/utils/settings/configSettings.ts",
+        "bytes": 2210,
+        "sha256": "7c4f8fcadce3fb7595a02c9ca57572ec3d1387b0bf24fa2bef6a864d66e3f250",
+        "gitBlob": "a89d77a6ec1ba0cddc98da945b7167ccb87d944d",
+        "requiredFragments": ["getConfigValue"]
+      },
+      {
+        "path": "src/utils/messagePredicates.ts",
+        "bytes": 427,
+        "sha256": "6f563bc7a5118cd3e5beb07c2249daa1b9378470c04818f4b8086e6d450bc44a",
+        "gitBlob": "300cff572e4d7fd637d93dc6f4eaa40c57ea883b",
+        "requiredFragments": ["isHumanTurn"]
+      }
+    ]
+  },
+  "ownerOverrides": [
+    {
+      "targetIndex": 18089,
+      "paths": ["src/commands/pro-trial-expired/index.ts"],
+      "declarations": ["proTrialExpired"],
+      "behavior": "The complete Target119 pro-trial-expired command descriptor differs from its exact Target118 predecessor only by isEnabled returning true. Its name, description, hidden flag, and lazy loader are otherwise identifier-normalized byte-identical. The raw and packaged command source still return false, and the provisional commands/upgrade owner is false, so the same atomic replay that restores the REPL auto-open caller also enables this exact command declaration."
+    },
+    {
+      "targetIndex": 21167,
+      "paths": ["src/screens/REPL.tsx"],
+      "declarations": ["REPL"],
+      "behavior": "The complete authenticated Target119 REPL evolves the already-proved Target118 REPL through one exact thirty-eight-hunk identifier-normalized transition. Eleven new compiled literals form two closed runtime clusters: scroll re-pin diagnostic reasons across the callback and its six callers, and a guarded one-shot /pro-trial-expired command dispatch; the two useLayoutEffect rows are retained REPL properties shifted only by global occurrence order. An atomic two-file replay restores only these Target119 additions plus the exact false-to-true command enablement, while leaving the inherited cursor-ref optimization absent from both historical source states untouched. The exact helper, command registry, ScrollBox, config, debug, and message-predicate dependencies close the source graph, and immediate adjacent units have no added or strict residues."
+    }
+  ],
+  "provisionalCoverage": [
+    {
+      "targetIndex": 18089,
+      "ownerIds": ["owner-src-commands-upgrade-index-ts"],
+      "evidenceIds": ["source-map-attribution", "semantic-test"],
+      "behavior": "Compiled target unit is attributed to src/commands/upgrade/index.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+    },
+    {
+      "targetIndex": 21167,
+      "ownerIds": ["owner-src-screens-REPL-tsx"],
+      "evidenceIds": ["source-map-attribution", "semantic-test"],
+      "behavior": "Compiled target unit is attributed to src/screens/REPL.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+    }
+  ],
+  "productionStrictResidues": [
+    [21167, "string", "repinScroll(", 12697244, 12697256, 0, 1, true],
+    [21167, "string", ", force=", 12697261, 12697269, 0, 1, true],
+    [21167, "string", "): yanking from scrollTop=", 12697274, 12697300, 0, 1, true],
+    [21167, "string", " (max=", 12697320, 12697326, 0, 1, true],
+    [21167, "string", "lastMsgIsHuman", 12697515, 12697531, 0, 1, true],
+    [21167, "string", "typedIntoEmpty", 12697953, 12697969, 0, 1, true],
+    [21167, "property", "useLayoutEffect", 12707139, 12707154, 26, 29, true],
+    [21167, "string", "permissionDialogAppear", 12707342, 12707366, 0, 1, true],
+    [21167, "string", "permissionDialogDismiss", 12707449, 12707474, 0, 1, true],
+    [21167, "property", "useLayoutEffect", 12707530, 12707545, 26, 30, true],
+    [21167, "string", "toolJsxDialog→", 12707609, 12707628, 0, 1, true],
+    [21167, "string", "onSubmit", 12721144, 12721154, 0, 1, true],
+    [21167, "string", "/pro-trial-expired", 12727198, 12727218, 0, 1, true]
+  ],
+  "residueEvolution": {
+    "ownerRows": 326,
+    "ownerRowsBytes": 21302,
+    "ownerRowsWithTargetAddedSha256": "342f8da38cf8d3551dd103cd0ea4546310f643dbf1b6f8cfeda0e80290ab97ae",
+    "addedRows": 52,
+    "addedRowsBytes": 3201,
+    "addedRowsWithTargetAddedSha256": "5ade4a5b9d5dc22400284dba8ef24a9e5cebf76314d91589af072641444c391c",
+    "strictRows": 13,
+    "strictRowsBytes": 817,
+    "strictRowsWithTargetAddedSha256": "1f6206fb83568beacb6e8f436b102ef237f4868e739f73c1f81bf7bbdab7d12b"
+  },
+  "adjacentUnits": [
+    {
+      "targetIndex": 21166,
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 12689514,
+      "end": 12689553,
+      "bytes": 39,
+      "tokens": 17,
+      "sha256": "569bd6d435cad3ef5ca6521cb78018ac93b3308019d5b70fedb0a4c0550c31de",
+      "baselineUnitIndex": 20267,
+      "ownerRows": 0,
+      "addedOwnerRows": 0,
+      "strictRows": 0
+    },
+    {
+      "targetIndex": 21168,
+      "classification": "matched",
+      "nodeType": "VariableDeclaration",
+      "start": 12750078,
+      "end": 12750318,
+      "bytes": 240,
+      "tokens": 117,
+      "sha256": "a0ebd32ebb38e49838efb79e2a76706b36bc697a0d5d1a19bd66c3d5aff55795",
+      "baselineUnitIndex": 20269,
+      "ownerRows": 0,
+      "addedOwnerRows": 0,
+      "strictRows": 0
+    },
+    {
+      "targetIndex": 21169,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 12750318,
+      "end": 12752024,
+      "bytes": 1706,
+      "tokens": 1120,
+      "sha256": "21e1fadaf65b325039836ec5be3f19fdd65a933f21ce03c24bb5ea65f55f2ae5",
+      "unknownFreeIdentifierCount": 61,
+      "ownerRows": 1,
+      "addedOwnerRows": 0,
+      "strictRows": 0
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "status": "authenticated-retained-complete-unit-source-gap-replay",
+  "criterion": "compiler-identical-predecessor-plus-exact-authenticated-block-replay-v1",
+  "evidenceIds": [
+    "target118-bootstrap-additional-model-costs-target-fragment",
+    "target118-bootstrap-additional-model-costs-source-replay-test",
+    "target118-bootstrap-additional-model-costs-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-bootstrap-additional-model-costs-source-gap.mjs",
+      "bytes": 4840,
+      "sha256": "e8b852fc0b8ecbfda389c0d014fa0848921f31df08e191861cbe827fa983f4c1"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructural": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/semantic/source-coverage.json.gz"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "authenticatedLaterReplay": {
+      "helper": {
+        "path": "recovery/cases/2.1.118-to-2.1.119/recovered/replay-bootstrap-additional-model-costs-source-gap.mjs",
+        "bytes": 4366,
+        "sha256": "971fea465509d74c4bb3658464b0491bd948e75eadda578c10f6cd8bb8a6a993"
+      },
+      "fixture": {
+        "path": "recovery/test/recovery-2.1.119-bootstrap-additional-model-costs-source-gap.json",
+        "bytes": 4706,
+        "sha256": "047cf81a80d8394fcb4a3e7ad5b7e4b338d55cc8418ee1ada969dcc85ef73757"
+      }
+    }
+  },
+  "sourceLineage": {
+    "baseline": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "file": {
+        "path": "src/services/api/bootstrap.ts",
+        "blob": "82ef0d6c8105c8ff1132cdee163c394e32a71237",
+        "bytes": 4634,
+        "sha256": "947aee6acdef6f1cb6310b3953063ad7c7985757bff7f57df6679a9bb440a7d5"
+      }
+    },
+    "target": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/services/api/bootstrap.ts",
+        "blob": "82ef0d6c8105c8ff1132cdee163c394e32a71237",
+        "bytes": 4634,
+        "sha256": "947aee6acdef6f1cb6310b3953063ad7c7985757bff7f57df6679a9bb440a7d5",
+        "declaration": {
+          "name": "bootstrapResponseSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 765,
+          "characterEnd": 1240,
+          "byteStart": 765,
+          "byteEnd": 1240,
+          "bytes": 475,
+          "sha256": "24e27a5a263c4215b74e3f59a342a622519d6354413e8ae8ea53e736be194795"
+        }
+      }
+    }
+  },
+  "authenticatedDonor": {
+    "root": ".recovery-tmp/semantic-trees/2.1.120/src",
+    "file": {
+      "path": "src/services/api/bootstrap.ts",
+      "release": "2.1.120",
+      "bytes": 7368,
+      "sha256": "a3373ca1b67fcb2a65e4bcd76b158f945c54b0395c91356917fbc1489acbfa6d"
+    },
+    "block": {
+      "bytes": 689,
+      "sha256": "4a0dd60c91117bfd6bbe00f311b504b5a6dbd2bf27ca09f96056a5ab63160295"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20078,
+    "nodeType": "VariableDeclaration",
+    "start": 12187166,
+    "end": 12187952,
+    "bytes": 786,
+    "tokenCount": 269,
+    "sourceHash": "1573446bba66de1a6dd8786ee9973085c2e6bcc01f6d17da30a5feb930cfdc36",
+    "coarseHash": "538c3460c01368eeb0069543b27ea901c964f96bba95284d562c57a00cb00ecb"
+  },
+  "targetUnit": {
+    "targetIndex": 20277,
+    "classification": "changed",
+    "nodeType": "VariableDeclaration",
+    "start": 12292525,
+    "end": 12293311,
+    "bytes": 786,
+    "tokenCount": 269,
+    "sourceHash": "4b0fa9d9e8e2245046472416f1851dd5015e53f15cf033a7dbb4e65fda3078e3",
+    "coarseHash": "538c3460c01368eeb0069543b27ea901c964f96bba95284d562c57a00cb00ecb",
+    "ownerPath": "src/services/api/bootstrap.ts",
+    "declarations": ["bootstrapResponseSchema"],
+    "behavior": "The complete Target117 and Target118 bootstrap-schema units are compiler-identical and accept additional per-model token and web-search costs, transforming wire-format fields into the runtime cache shape. Their exact historical source file is the same pinned preimage and omits only that retained schema block, so the bounded replay restores the authenticated 689-byte declaration fragment atomically and rejects every other source state.",
+    "residues": [
+      ["property", "number", 12292945, 12292951, 472, 473],
+      ["property", "number", 12292983, 12292989, 472, 474],
+      ["property", "number", 12293020, 12293026, 472, 475],
+      ["property", "number", 12293052, 12293058, 472, 476]
+    ]
+  },
+  "normalizedUnitProof": {
+    "normalization": "One Acorn token per line with every identifier replaced by ID and literal values retained",
+    "baseline": {"tokens":269,"bytes":642,"sha256":"14c06f426f98dc6e5586e4bc5080116779fa12a131e47a837d897e1696ef4517"},
+    "target": {"tokens":269,"bytes":642,"sha256":"14c06f426f98dc6e5586e4bc5080116779fa12a131e47a837d897e1696ef4517"}
+  },
+  "targetMarkers": [
+    "additional_model_costs",
+    "input_tokens",
+    "output_tokens",
+    "prompt_cache_write_tokens",
+    "prompt_cache_read_tokens",
+    "web_search_requests",
+    "inputTokens",
+    "outputTokens",
+    "promptCacheWriteTokens",
+    "promptCacheReadTokens",
+    "webSearchRequests"
+  ],
+  "sourceReplay": {
+    "input": {
+      "path": "src/services/api/bootstrap.ts",
+      "bytes": 4634,
+      "sha256": "947aee6acdef6f1cb6310b3953063ad7c7985757bff7f57df6679a9bb440a7d5"
+    },
+    "output": {
+      "path": "src/services/api/bootstrap.ts",
+      "bytes": 5323,
+      "sha256": "652ce2e8c95a2b46e6dad10170e5e580b3ea138fad2da20e59df21130b3692a4",
+      "declaration": {
+        "name": "bootstrapResponseSchema",
+        "kind": "VariableDeclaration",
+        "characterStart": 765,
+        "characterEnd": 1929,
+        "byteStart": 765,
+        "byteEnd": 1929,
+        "bytes": 1164,
+        "sha256": "0ab9a0b5e9ef151d8c87e2c7466b37910e95b4166c37572a726b0c9050a51861"
+      }
+    },
+    "markers": [
+      "additional_model_costs: z",
+      "input_tokens: z.number()",
+      "output_tokens: z.number()",
+      "prompt_cache_write_tokens: z.number()",
+      "prompt_cache_read_tokens: z.number()",
+      "web_search_requests: z.number().nullish()",
+      "inputTokens: costs.input_tokens",
+      "outputTokens: costs.output_tokens",
+      "promptCacheWriteTokens: costs.prompt_cache_write_tokens",
+      "promptCacheReadTokens: costs.prompt_cache_read_tokens",
+      "webSearchRequests: costs.web_search_requests ?? 0.01"
+    ]
+  },
+  "ownerAnalysisSnapshot": {
+    "targetIndex": 20277,
+    "ownerPaths": ["services/api/bootstrap.ts"],
+    "target": {
+      "classification": "changed",
+      "start": 12292525,
+      "end": 12293311,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "4b0fa9d9e8e2245046472416f1851dd5015e53f15cf033a7dbb4e65fda3078e3"
+    },
+    "residues": 4,
+    "unsupportedResidues": 4,
+    "residueIdentitiesSha256": "9328aaf86d7f7975c02f01ddb3971d4a1fb8b44acf5af8a87efc09bc1db448e1",
+    "unsupportedResidueIdentitiesSha256": "9328aaf86d7f7975c02f01ddb3971d4a1fb8b44acf5af8a87efc09bc1db448e1",
+    "rowScopedEvidence": {"obligationIds":[],"sourcePaths":[],"testIds":[]}
+  },
+  "coverageStates": {
+    "provisional": {
+      "evidenceIds": ["source-map-attribution", "semantic-test"],
+      "behavior": "Compiled target unit is attributed to src/services/api/bootstrap.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+    },
+    "corrected": {
+      "evidenceIds": [
+        "target118-bootstrap-additional-model-costs-target-fragment",
+        "target118-bootstrap-additional-model-costs-source-replay-test",
+        "target118-bootstrap-additional-model-costs-source-ast-test"
+      ],
+      "behavior": "The complete Target117 and Target118 bootstrap-schema units are compiler-identical and accept additional per-model token and web-search costs, transforming wire-format fields into the runtime cache shape. Their exact historical source file is the same pinned preimage and omits only that retained schema block, so the bounded replay restores the authenticated 689-byte declaration fragment atomically and rejects every other source state."
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "sourceBlockBytes": 689,
+    "sourceBlockSha256": "4a0dd60c91117bfd6bbe00f311b504b5a6dbd2bf27ca09f96056a5ab63160295",
+    "targetIndicesSha256": "16db9d68c8b6c279b390f208f49100341c52b88099b1478c39cc58ea0a7da505",
+    "residueIdentitiesSha256": "9328aaf86d7f7975c02f01ddb3971d4a1fb8b44acf5af8a87efc09bc1db448e1"
+  }
+}

@@ -1,0 +1,661 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-static-production-strict-property-owner-evidence-proof",
+  "criterion": "complete-unit-manual-predecessor-matched-caller-exact-source-dependency-graph-v1",
+  "evidenceIds": [
+    "target119-reconcile-mcp-content-complete-unit-manual-predecessor-proof",
+    "target119-reconcile-mcp-content-four-row-strict-partition-proof",
+    "target119-reconcile-mcp-content-matched-caller-boundary-proof",
+    "target119-reconcile-mcp-content-exact-source-command-resource-graph-proof",
+    "target119-reconcile-mcp-content-imported-runtime-dependency-graph-proof",
+    "target119-reconcile-mcp-content-static-no-replay-proof"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      },
+      {
+        "phase": "post-u21759",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 382108,
+          "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3290710,
+          "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"
+        }
+      },
+      {
+        "phase": "post-u21878",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 383456,
+          "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3297173,
+          "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"
+        }
+      }
+    ]
+  },
+  "inputs": {
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "sourceCommits": {
+      "baseline": {
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+        "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0"
+      },
+      "target": {
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92"
+      }
+    }
+  },
+  "snapshotPartitions": {
+    "ownerDescriptor": {
+      "rows": 4,
+      "jsonBytes": 1567,
+      "sha256": "d52235519ceef051b6ebd05616146b7359d6a8ac9636775a042fd62fb04237aa"
+    },
+    "addedDescriptor": {
+      "rows": 4,
+      "jsonBytes": 1979,
+      "sha256": "a39cc88141e244576844455b53dca8bcba85319b37c9c18d37354e6a60d07e6c"
+    },
+    "strictDescriptor": {
+      "rows": 4,
+      "jsonBytes": 1979,
+      "sha256": "a39cc88141e244576844455b53dca8bcba85319b37c9c18d37354e6a60d07e6c"
+    },
+    "tupleSchema": [
+      "value",
+      "literalKind",
+      "targetAdded",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber",
+      "target.start",
+      "target.end",
+      "structural.index",
+      "structural.classification",
+      "structural.sourceHash",
+      "disposition",
+      "ownerPaths"
+    ],
+    "ownerTupleDescriptor": {
+      "rows": 4,
+      "jsonBytes": 703,
+      "sha256": "b734f4b1edd95f8a9cfa146fa8a451390c2417b0da3872e59c69378e6a3bd8ac"
+    },
+    "addedTupleDescriptor": {
+      "rows": 4,
+      "jsonBytes": 703,
+      "sha256": "b734f4b1edd95f8a9cfa146fa8a451390c2417b0da3872e59c69378e6a3bd8ac"
+    },
+    "strictTupleDescriptor": {
+      "rows": 4,
+      "jsonBytes": 703,
+      "sha256": "b734f4b1edd95f8a9cfa146fa8a451390c2417b0da3872e59c69378e6a3bd8ac"
+    },
+    "ownerTuples": [
+      ["cmds", "property", true, 0, 1, 13579056, 13579060, 21759, "unresolved", "519dbea398a1bb260a8c07d979f2dc98bbd427a487924c1f0ebc7f0f86e2cd86", "source-runtime-covered", ["cli/print.ts"]],
+      ["res", "property", true, 37, 38, 13579063, 13579066, 21759, "unresolved", "519dbea398a1bb260a8c07d979f2dc98bbd427a487924c1f0ebc7f0f86e2cd86", "source-runtime-covered", ["cli/print.ts"]],
+      ["cmds", "property", true, 0, 2, 13580805, 13580809, 21759, "unresolved", "519dbea398a1bb260a8c07d979f2dc98bbd427a487924c1f0ebc7f0f86e2cd86", "source-runtime-covered", ["cli/print.ts"]],
+      ["res", "property", true, 37, 39, 13580904, 13580907, 21759, "unresolved", "519dbea398a1bb260a8c07d979f2dc98bbd427a487924c1f0ebc7f0f86e2cd86", "source-runtime-covered", ["cli/print.ts"]]
+    ],
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 512,
+      "sha256": "f6c2e75dae66fc33b3b9f1ddc63a7e10c7bee2ce4eee8b5e1378d83e701063e2"
+    },
+    "coverageTarget": [
+      {
+        "targetIndex": 21759,
+        "start": 13578175,
+        "end": 13580991,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "519dbea398a1bb260a8c07d979f2dc98bbd427a487924c1f0ebc7f0f86e2cd86",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-cli-print-ts"],
+        "evidenceIds": ["source-map-attribution", "semantic-test"],
+        "behavior": "Compiled target unit is attributed to src/cli/print.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ],
+    "postU21759Coverage": {
+      "coverageTargetDescriptor": {
+        "rows": 1,
+        "jsonBytes": 1745,
+        "sha256": "a64a766e5ce5795a4b95438a7fd8976c27fb79207f9dc63ff79af90c710edc16"
+      },
+      "coverageTarget": [
+        {
+          "targetIndex": 21759,
+          "start": 13578175,
+          "end": 13580991,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "519dbea398a1bb260a8c07d979f2dc98bbd427a487924c1f0ebc7f0f86e2cd86",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-cli-print-ts"],
+          "evidenceIds": [
+            "target119-reconcile-mcp-content-complete-unit-manual-predecessor-proof",
+            "target119-reconcile-mcp-content-four-row-strict-partition-proof",
+            "target119-reconcile-mcp-content-matched-caller-boundary-proof",
+            "target119-reconcile-mcp-content-exact-source-command-resource-graph-proof",
+            "target119-reconcile-mcp-content-imported-runtime-dependency-graph-proof",
+            "target119-reconcile-mcp-content-static-no-replay-proof"
+          ],
+          "behavior": "Target119 u21759 is the complete reconcileMcpServers successor of Target118 u20853, reached through matched caller u21758/u20852 handleMcpSetServers. All four production-strict rows are genuine additions inside the successor: the predecessor has no cmds or res occurrence, while Target119 first stores fetched command/resource results and then projects both into AppState.mcp. The nonzero global Target118 res count is only an occurrence-ordinal baseline and is absent from u20853. Exact historical, raw, and fresh-package Target119 src/cli/print.ts carry the same complete 8,895-byte declaration, including command/resource fetch, local/remote pMap batching, policy-rule reconciliation, command deduplication, and resource replacement; the exact Target118 declaration lacks that graph. The declaration reaches imported MCP clients, cache, transport, permission, collection, and state-update dependencies, so this is static complete-unit, predecessor, caller, and exact-source owner evidence only; no source replay is authorized."
+        }
+      ]
+    },
+    "matchedCallerCoverageDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ownerCatalogDescriptor": {
+      "rows": 1,
+      "jsonBytes": 59,
+      "sha256": "0b1b172688f28f576f36cf6f6842a5996e871e8da0c77a1ed1a9241e36e136b4"
+    },
+    "ownerCatalog": [
+      {
+        "id": "owner-src-cli-print-ts",
+        "path": "src/cli/print.ts"
+      }
+    ]
+  },
+  "units": {
+    "baselineReconcile": {
+      "release": "2.1.118",
+      "index": 20853,
+      "role": "manual predecessor reconcileMcpServers",
+      "nodeType": "FunctionDeclaration",
+      "start": 13097466,
+      "end": 13099413,
+      "bytes": 1947,
+      "tokenCount": 973,
+      "bodyStatements": 9,
+      "sha256": "c07423fdcba04f21e557a323942a04a315067f6e9398df54ef01a8f8998cbca8",
+      "coarseHash": "5113d766aacc5c0008256c663b3a941613cdab5fe2da4a332fe08f06fbb05920"
+    },
+    "targetReconcile": {
+      "release": "2.1.119",
+      "index": 21759,
+      "role": "reconcileMcpServers strict-property owner",
+      "classification": "unresolved",
+      "manualPredecessorUnitIndex": 20853,
+      "nodeType": "FunctionDeclaration",
+      "start": 13578175,
+      "end": 13580991,
+      "bytes": 2816,
+      "tokenCount": 1429,
+      "bodyStatements": 10,
+      "sha256": "519dbea398a1bb260a8c07d979f2dc98bbd427a487924c1f0ebc7f0f86e2cd86",
+      "coarseHash": "154ea4f271e0ed22f65cdb133e0dece4bce7b0e25e3bbc0c887d69d4f0f103b6",
+      "unknownFreeIdentifierCount": 0
+    },
+    "baselineCaller": {
+      "release": "2.1.118",
+      "index": 20852,
+      "role": "handleMcpSetServers caller",
+      "nodeType": "FunctionDeclaration",
+      "start": 13096502,
+      "end": 13097466,
+      "bytes": 964,
+      "tokenCount": 451,
+      "bodyStatements": 9,
+      "sha256": "8a5b1584e646879496236dcda300c8565df4d6f5f8780760a198b9433ff20191",
+      "coarseHash": "767382e4a342abf4ec4a433822497134717d60a2f732d77dc2ab619abea5fd56"
+    },
+    "targetCaller": {
+      "release": "2.1.119",
+      "index": 21758,
+      "role": "matched handleMcpSetServers caller",
+      "classification": "matched",
+      "baselineUnitIndex": 20852,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 13577211,
+      "end": 13578175,
+      "bytes": 964,
+      "tokenCount": 451,
+      "bodyStatements": 9,
+      "sha256": "b327f3eb8a003572e03fff76b1884f0d92c199fa6498f0cb1a152be58ebd3e2f",
+      "coarseHash": "767382e4a342abf4ec4a433822497134717d60a2f732d77dc2ab619abea5fd56",
+      "unknownFreeIdentifierCount": 0
+    }
+  },
+  "predecessorProof": {
+    "basis": "same exact authored declaration name, identical adjacent caller, source-history continuity, and complete compiled-unit comparison",
+    "canonicalTokenStreams": {
+      "baseline": {
+        "tokens": 973,
+        "jsonBytes": 4785,
+        "sha256": "c5a5f85b76df87f025f1a1f6a142d4e48fcbfa879ad113e723b26e7a53040830"
+      },
+      "target": {
+        "tokens": 1429,
+        "jsonBytes": 6899,
+        "sha256": "7f91cdf0bcd874a9c6ae292061eac6c62bf26014af516e8528ff7c07d663abc9"
+      },
+      "baselineCaller": {
+        "tokens": 451,
+        "jsonBytes": 2243,
+        "sha256": "9c702d9e2b4a57cde8aa5aede8a987c668d65af67dc381e8e6b919674b264ddf"
+      },
+      "targetCaller": {
+        "tokens": 451,
+        "jsonBytes": 2243,
+        "sha256": "9c702d9e2b4a57cde8aa5aede8a987c668d65af67dc381e8e6b919674b264ddf"
+      }
+    },
+    "normalizedCompleteUnitDiff": {
+      "baselineLabel": "baseline-u20853",
+      "targetLabel": "target-u21759",
+      "bytes": 2897,
+      "sha256": "2be14cce6316018a9bb776ba1fd154fd1c28cc7c6f828b2ea52bd9d7e5de425c",
+      "hunks": 45,
+      "addedTokens": 481,
+      "deletedTokens": 25
+    },
+    "normalizedCallerDiff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "hunks": 0,
+      "addedTokens": 0,
+      "deletedTokens": 0
+    }
+  },
+  "strictPropertyProof": {
+    "classification": "genuine-successor-additions",
+    "globalOrdinalNote": "res has 37 Target118 occurrences globally, but neither strict property occurs inside predecessor u20853; all four Target119 rows are new within the declaration.",
+    "cmds": {
+      "baselineGlobalPropertyCount": 0,
+      "targetGlobalPropertyCount": 2,
+      "baselineUnitOccurrences": [],
+      "targetUnitOccurrences": [
+        {
+          "kind": "property",
+          "tokenIndex": 494,
+          "start": 13579056,
+          "end": 13579060,
+          "neighborhoodRadius": 40,
+          "neighborhoodTokens": 81,
+          "neighborhoodJsonBytes": 415,
+          "neighborhoodSha256": "b544ad5b2f6b8085a8d3d8c9847f61dd5074ec2cf30afa74f2f484a1a5921a06"
+        },
+        {
+          "kind": "member",
+          "tokenIndex": 1348,
+          "start": 13580805,
+          "end": 13580809,
+          "neighborhoodRadius": 40,
+          "neighborhoodTokens": 81,
+          "neighborhoodJsonBytes": 380,
+          "neighborhoodSha256": "45effda55aaafc422215b932578c3905ae1c9831fb5f7214817cfd8c391f0f02"
+        }
+      ],
+      "fragments": [
+        {
+          "kind": "property",
+          "start": 13579056,
+          "end": 13579062,
+          "bytes": 6,
+          "sha256": "1e2b5fb68e639a91f0a5ef815a86e732fc9738431ead1e22fcc96399074a9ab5",
+          "text": "cmds:U"
+        },
+        {
+          "kind": "member",
+          "start": 13580803,
+          "end": 13580809,
+          "bytes": 6,
+          "sha256": "0a858d66029defea227404fac66240822b8af5b544a83326c881f4af08ab31bd",
+          "text": "l.cmds"
+        }
+      ]
+    },
+    "res": {
+      "baselineGlobalPropertyCount": 37,
+      "targetGlobalPropertyCount": 39,
+      "baselineUnitOccurrences": [],
+      "targetUnitOccurrences": [
+        {
+          "kind": "property",
+          "tokenIndex": 498,
+          "start": 13579063,
+          "end": 13579066,
+          "neighborhoodRadius": 40,
+          "neighborhoodTokens": 81,
+          "neighborhoodJsonBytes": 414,
+          "neighborhoodSha256": "3750bbcfc7f85bc592b228f0e937fd66aa5f5a252efc3e54669ae452b213e44d"
+        },
+        {
+          "kind": "member",
+          "tokenIndex": 1393,
+          "start": 13580904,
+          "end": 13580907,
+          "neighborhoodRadius": 40,
+          "neighborhoodTokens": 76,
+          "neighborhoodJsonBytes": 338,
+          "neighborhoodSha256": "94b2e0a657c746e15460114ad108c248af1566b728b861c4787fe308e9629a2f"
+        }
+      ],
+      "fragments": [
+        {
+          "kind": "property",
+          "start": 13579063,
+          "end": 13579068,
+          "bytes": 5,
+          "sha256": "cf4cab7ce2f846da6493091e0dda6e37fd972529aa180b57d932e445a50505ef",
+          "text": "res:g"
+        },
+        {
+          "kind": "member",
+          "start": 13580902,
+          "end": 13580907,
+          "bytes": 5,
+          "sha256": "c0bf3d8372aa0999ca70d9bfcb138cd7b09d48671c37f8dc17b09606fd7a3029",
+          "text": "l.res"
+        }
+      ]
+    }
+  },
+  "sourceGraph": {
+    "sourcePath": "src/cli/print.ts",
+    "baselineHistorical": {
+      "name": "baseline-historical",
+      "file": {
+        "path": ".recovery-tmp/semantic-trees/2.1.118/src/cli/print.ts",
+        "bytes": 220728,
+        "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6",
+        "gitBlobSha1": "abb0daa1732e1f5b5845c7a0afc52faa3162567c"
+      },
+      "reconcileMcpServers": {
+        "characterStart": 216341,
+        "characterEnd": 220567,
+        "byteStart": 216501,
+        "byteEnd": 220727,
+        "bytes": 4226,
+        "sha256": "b8db531c06ac1d5deb3bab94506091ffb6845d7e51af7b8f5d482426e0a31be0"
+      },
+      "handleMcpSetServers": {
+        "characterStart": 212924,
+        "characterEnd": 216200,
+        "byteStart": 213080,
+        "byteEnd": 216360,
+        "bytes": 3280,
+        "sha256": "0409c7ccc06d88a678ea0bec807f74c271d69c436c5ce539435c5c227f66506c"
+      },
+      "reconcileCallCountInCaller": 1,
+      "markerCounts": {
+        "commands": 0,
+        "resources": 0,
+        "fetchedContent": 0,
+        "fetchCommandsForClient": 0,
+        "fetchResourcesForClient": 0,
+        "fetchToolsForClient": 1,
+        "connectToServer": 1,
+        "clearServerCache": 1,
+        "pMap": 0,
+        "getMcpServerConnectionBatchSize": 0,
+        "getRemoteMcpServerConnectionBatchSize": 0,
+        "isLocalMcpServer": 0,
+        "uniqBy": 0,
+        "omit": 0,
+        "commandBelongsToServer": 0,
+        "buildMcpToolName": 0,
+        "policyRules": 0,
+        "alwaysAllowRules": 0,
+        "alwaysDenyRules": 0
+      },
+      "directIdentifierCalls": [
+        "areMcpConfigsEqual",
+        "clearServerCache",
+        "connectToServer",
+        "fetchToolsForClient",
+        "logError",
+        "setAppState",
+        "toError",
+        "toScopedConfig"
+      ],
+      "runtimeDependencyBindings": [
+        ["areMcpConfigsEqual", "src/services/mcp/client.js"],
+        ["clearServerCache", "src/services/mcp/client.js"],
+        ["connectToServer", "src/services/mcp/client.js"],
+        ["fetchToolsForClient", "src/services/mcp/client.js"],
+        ["logError", "src/utils/log.js"],
+        ["toError", "../utils/errors.js"]
+      ]
+    },
+    "targetHistorical": {
+      "name": "target-historical-and-raw",
+      "file": {
+        "path": ".recovery-tmp/semantic-trees/2.1.119/src/cli/print.ts",
+        "bytes": 228505,
+        "sha256": "e4cc8072e34fb6aa64ebd8f7a4a793c55e748b98bc25d9d446426115da264537",
+        "gitBlobSha1": "76f82223aace2f18deb5fcc9811c7f950bfe3284"
+      },
+      "reconcileMcpServers": {
+        "characterStart": 219449,
+        "characterEnd": 228344,
+        "byteStart": 219609,
+        "byteEnd": 228504,
+        "bytes": 8895,
+        "sha256": "99f68d197b036c061848ae2cb8176c34ed583dc9c3abe43892e2fa645762ce67"
+      },
+      "handleMcpSetServers": {
+        "characterStart": 216032,
+        "characterEnd": 219308,
+        "byteStart": 216188,
+        "byteEnd": 219468,
+        "bytes": 3280,
+        "sha256": "0409c7ccc06d88a678ea0bec807f74c271d69c436c5ce539435c5c227f66506c"
+      },
+      "reconcileCallCountInCaller": 1
+    },
+    "targetStates": [
+      {
+        "name": "historical-or-raw",
+        "file": {
+          "bytes": 228505,
+          "sha256": "e4cc8072e34fb6aa64ebd8f7a4a793c55e748b98bc25d9d446426115da264537",
+          "gitBlobSha1": "76f82223aace2f18deb5fcc9811c7f950bfe3284"
+        },
+        "reconcileMcpServers": {
+          "characterStart": 219449,
+          "characterEnd": 228344,
+          "byteStart": 219609,
+          "byteEnd": 228504,
+          "bytes": 8895,
+          "sha256": "99f68d197b036c061848ae2cb8176c34ed583dc9c3abe43892e2fa645762ce67"
+        },
+        "handleMcpSetServers": {
+          "characterStart": 216032,
+          "characterEnd": 219308,
+          "byteStart": 216188,
+          "byteEnd": 219468,
+          "bytes": 3280,
+          "sha256": "0409c7ccc06d88a678ea0bec807f74c271d69c436c5ce539435c5c227f66506c"
+        },
+        "reconcileCallCountInCaller": 1
+      },
+      {
+        "name": "fresh-package",
+        "file": {
+          "bytes": 228328,
+          "sha256": "036c909aa7ef9278d40e2ceea395eb5aee87eb51dc683e7c5fc270cbaab8c951",
+          "gitBlobSha1": "11b51a6546fdfeb19af37e42c424c715daefadb3"
+        },
+        "reconcileMcpServers": {
+          "characterStart": 219272,
+          "characterEnd": 228167,
+          "byteStart": 219432,
+          "byteEnd": 228327,
+          "bytes": 8895,
+          "sha256": "99f68d197b036c061848ae2cb8176c34ed583dc9c3abe43892e2fa645762ce67"
+        },
+        "handleMcpSetServers": {
+          "characterStart": 215855,
+          "characterEnd": 219131,
+          "byteStart": 216011,
+          "byteEnd": 219291,
+          "bytes": 3280,
+          "sha256": "0409c7ccc06d88a678ea0bec807f74c271d69c436c5ce539435c5c227f66506c"
+        },
+        "reconcileCallCountInCaller": 1
+      }
+    ],
+    "targetMarkerCounts": {
+      "commands": 8,
+      "resources": 7,
+      "fetchedContent": 4,
+      "fetchCommandsForClient": 1,
+      "fetchResourcesForClient": 3,
+      "fetchToolsForClient": 1,
+      "connectToServer": 1,
+      "clearServerCache": 1,
+      "pMap": 2,
+      "getMcpServerConnectionBatchSize": 1,
+      "getRemoteMcpServerConnectionBatchSize": 1,
+      "isLocalMcpServer": 1,
+      "uniqBy": 1,
+      "omit": 1,
+      "commandBelongsToServer": 1,
+      "buildMcpToolName": 1,
+      "policyRules": 2,
+      "alwaysAllowRules": 8,
+      "alwaysDenyRules": 7
+    },
+    "targetDirectIdentifierCalls": [
+      "areMcpConfigsEqual",
+      "buildMcpToolName",
+      "clearServerCache",
+      "commandBelongsToServer",
+      "connectToServer",
+      "fetchCommandsForClient",
+      "fetchResourcesForClient",
+      "fetchToolsForClient",
+      "getMcpServerConnectionBatchSize",
+      "getRemoteMcpServerConnectionBatchSize",
+      "isLocal",
+      "isLocalMcpServer",
+      "logError",
+      "omit",
+      "pMap",
+      "setAppState",
+      "toError",
+      "toScopedConfig",
+      "uniqBy",
+      "updateSessionRules"
+    ],
+    "targetRuntimeDependencyBindings": [
+      ["areMcpConfigsEqual", "src/services/mcp/client.js"],
+      ["buildMcpToolName", "src/services/mcp/mcpStringUtils.js"],
+      ["clearServerCache", "src/services/mcp/client.js"],
+      ["commandBelongsToServer", "src/services/mcp/utils.js"],
+      ["connectToServer", "src/services/mcp/client.js"],
+      ["fetchCommandsForClient", "src/services/mcp/client.js"],
+      ["fetchResourcesForClient", "src/services/mcp/client.js"],
+      ["fetchToolsForClient", "src/services/mcp/client.js"],
+      ["getMcpServerConnectionBatchSize", "src/services/mcp/client.js"],
+      ["getRemoteMcpServerConnectionBatchSize", "src/services/mcp/client.js"],
+      ["isLocalMcpServer", "src/services/mcp/client.js"],
+      ["logError", "src/utils/log.js"],
+      ["omit", "lodash-es/omit.js"],
+      ["pMap", "p-map"],
+      ["toError", "../utils/errors.js"],
+      ["uniqBy", "lodash-es/uniqBy.js"]
+    ],
+    "targetFragments": {
+      "fetchedObject": {
+        "bytes": 29,
+        "sha256": "40ae100545d8cdc1f61cbd76b969588014bb63e1942fe025d0677e8f13c572a3",
+        "text": "{ name, commands, resources }"
+      },
+      "commandsState": {
+        "bytes": 171,
+        "sha256": "35c8c82ac1f2441eb15ac236fc04afede2866fb1a45072727fd0ca23fcd6eeaa"
+      },
+      "resourcesState": {
+        "bytes": 210,
+        "sha256": "fe28519320855bc62bdee784c58b39fa6c95afb6e8bafab987dfec5f17d0fcfb"
+      }
+    }
+  },
+  "override": {
+    "key": "2.1.118-to-2.1.119:21759",
+    "targetIndex": 21759,
+    "ownerPaths": ["src/cli/print.ts"],
+    "declarations": ["reconcileMcpServers"],
+    "dependencyTargetIndices": [21758]
+  },
+  "replayDisposition": {
+    "mode": "static-only",
+    "sourceReplayAuthorized": false,
+    "replayHelper": null,
+    "reason": "Exact Target119 source already contains the complete command/resource behavior. Executing reconcileMcpServers would cross live MCP connection, cache, transport, permission-rule, and AppState mutation boundaries, so static graph evidence is complete and replay is neither needed nor authorized."
+  },
+  "wiringRecipe": {
+    "ownerOverrideExport": "TARGET119_RECONCILE_MCP_CONTENT_STRICT_PROPERTY_OWNER_OVERRIDES",
+    "dependencyExport": "TARGET119_RECONCILE_MCP_CONTENT_DEPENDENCY_TARGET_INDICES",
+    "evidenceExport": "TARGET119_RECONCILE_MCP_CONTENT_STRICT_PROPERTY_EVIDENCE_IDS",
+    "ownerOverrideSpread": "...TARGET119_RECONCILE_MCP_CONTENT_STRICT_PROPERTY_OWNER_OVERRIDES",
+    "replayExport": null
+  },
+  "postWiring": {
+    "expectedImpact": {
+      "productionStrictRowsChanged": 0,
+      "ownerPathsChanged": 0,
+      "coverageRowsEvidenceStrengthened": 1,
+      "sourceReplayFiles": 0
+    }
+  }
+}

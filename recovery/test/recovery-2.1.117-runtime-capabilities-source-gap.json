@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-runtime-capabilities-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-runtime-capabilities-target-fragment",
+    "target117-runtime-capabilities-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-runtime-capabilities-source-gap.mjs",
+      "bytes": 9397,
+      "sha256": "7643516b5e58f7b985e5d9b58118af27153746d6bfcbb53876d01a6324deea0c"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFile": {
+      "path": "src/bootstrap/state.ts",
+      "blob": "35f07dcbe8e15864b4b5eb810a56ee23d32a454c",
+      "input": {
+        "bytes": 57869,
+        "sha256": "92a129f4f813b3a733aba862730992534a0beae04eaa8248c14448f866470271"
+      },
+      "output": {
+        "bytes": 58163,
+        "sha256": "735c307014a8440b3be413c8ad8cc3e5524dc68af0bb88b591a609c90b0039b0"
+      },
+      "declarations": [
+        {
+          "name": "DEFAULT_RUNTIME_CAPABILITIES",
+          "nodeType": "VariableDeclaration",
+          "start": 2107,
+          "end": 2276,
+          "bytes": 169,
+          "sha256": "c6c90edfef0be1d65f82cc0f3ee77f0a8aeaad690c8b7133f64e8d883d6272ea"
+        },
+        {
+          "name": "getInitialState",
+          "nodeType": "FunctionDeclaration",
+          "start": 13468,
+          "end": 19113,
+          "bytes": 5645,
+          "sha256": "d08958a431f96f0ba1d7f11e994888f285b77a23a98cd8cb2e2ac6ab8c696f11"
+        },
+        {
+          "name": "getCaps",
+          "nodeType": "FunctionDeclaration",
+          "start": 40926,
+          "end": 40996,
+          "bytes": 70,
+          "sha256": "ce95cb0320d8f06d74edded6608ca35f556c039df6c892d8ec9a8d158f9c52f9"
+        },
+        {
+          "name": "setCaps",
+          "nodeType": "FunctionDeclaration",
+          "start": 40998,
+          "end": 41078,
+          "bytes": 80,
+          "sha256": "eb365db54eebf0e38a29acf336c62d7e4dd9014459ade91b35d8c9da51c2681e"
+        },
+        {
+          "name": "getRuntimeCapabilities",
+          "nodeType": "FunctionDeclaration",
+          "start": 41228,
+          "end": 41312,
+          "bytes": 84,
+          "sha256": "6d7f19d17abe4bc3e7239caac10175dcbc9aec99a1b477cf7ee355e2d3e644ef"
+        },
+        {
+          "name": "setActiveRemoteControlTransport",
+          "nodeType": "FunctionDeclaration",
+          "start": 41314,
+          "end": 41471,
+          "bytes": 157,
+          "sha256": "3cb5317fd6445dc18f3e9d32619eff8feaa0a87eb68bce7bcdcfe529d7d58d39"
+        },
+        {
+          "name": "getIsRemoteMode",
+          "nodeType": "FunctionDeclaration",
+          "start": 54857,
+          "end": 54946,
+          "bytes": 89,
+          "sha256": "ba3adb2eac7f8eeda6b920b56531eb441ad12e660050075011b3d4a43d9924db"
+        },
+        {
+          "name": "setIsRemoteMode",
+          "nodeType": "FunctionDeclaration",
+          "start": 54948,
+          "end": 55088,
+          "bytes": 140,
+          "sha256": "6ab57bdde6c5fc91ccfc4f7467280e3c7fa54b7bfce0f4336bdb729dc2a6dc4f"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "units": 4,
+    "residues": 10,
+    "recoveredFiles": 1,
+    "exportRegistryUnits": 1,
+    "remoteModeUnits": 2,
+    "defaultStateUnits": 1,
+    "ownerOverrides": 4
+  },
+  "rows": [
+    {
+      "targetIndex": 365,
+      "owner": "src/bootstrap/state.ts",
+      "declarations": ["getCaps", "setCaps"],
+      "targetUnit": [
+        365,
+        "unresolved",
+        "ExpressionStatement",
+        24883,
+        31717,
+        1624,
+        "9483b60236c01d9af7b4c4049ad667d5a238ba30571b07e800eee755dc45b1a6",
+        "33a8666a345a17c0229f291c12ba425aea2fc811be2202c2d23aa735d457e648"
+      ],
+      "residues": [
+        ["property", "setCaps", 26938, 26945, 1, 0],
+        ["property", "getCaps", 30705, 30712, 1, 0]
+      ]
+    },
+    {
+      "targetIndex": 562,
+      "owner": "src/bootstrap/state.ts",
+      "declarations": ["getIsRemoteMode", "getCaps"],
+      "targetUnit": [
+        562,
+        "unresolved",
+        "FunctionDeclaration",
+        46062,
+        46112,
+        14,
+        "a357dd73b7a9111690b563dc8fecb76bb3a3fc5bbed68e004bcded333c6b78c4",
+        "6a6f898ce5849e63cf127f745698baddfce96e0a44b1e4fe5157cb76b2f3b176"
+      ],
+      "residues": [
+        ["property", "caps", 46086, 46090, 4, 1]
+      ]
+    },
+    {
+      "targetIndex": 563,
+      "owner": "src/bootstrap/state.ts",
+      "declarations": ["setIsRemoteMode", "getCaps", "setCaps"],
+      "targetUnit": [
+        563,
+        "unresolved",
+        "FunctionDeclaration",
+        46112,
+        46178,
+        25,
+        "dbe722b3fb236e4805d7b3ee68fe6538985b5fae7318654919c4fe675532254a",
+        "5e10738e645d6cc848dcaf55230455ab468fd7d9cbfa33b122725c2707734fae"
+      ],
+      "residues": [
+        ["property", "caps", 46131, 46135, 5, 1],
+        ["property", "caps", 46143, 46147, 6, 1]
+      ]
+    },
+    {
+      "targetIndex": 596,
+      "owner": "src/bootstrap/state.ts",
+      "declarations": ["DEFAULT_RUNTIME_CAPABILITIES", "getInitialState"],
+      "targetUnit": [
+        596,
+        "unresolved",
+        "VariableDeclaration",
+        47886,
+        48160,
+        113,
+        "9dca4561dc181d178bba6053b7791bdff0826c44885723e8950e36a6dfcad4aa",
+        "520b8fd583e72a3b89560e42849ca6cf7363c85ecf5f935aee9f30c2255d1255"
+      ],
+      "residues": [
+        ["property", "renderTarget", 47968, 47980, 1, 0],
+        ["string", "ink", 47981, 47986, 1, 0],
+        ["property", "canDrive", 48005, 48013, 1, 0],
+        ["property", "transcriptSource", 48017, 48033, 1, 0],
+        ["string", "local-jsonl", 48034, 48047, 1, 0]
+      ]
+    }
+  ]
+}

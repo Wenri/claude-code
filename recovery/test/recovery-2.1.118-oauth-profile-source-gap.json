@@ -1,0 +1,602 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-source-gap-recovered",
+  "evidenceIds": [
+    "target118-oauth-profile-source-gap-target-fragment",
+    "target118-oauth-profile-source-gap-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "recoveredSourceCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "files": [
+      {
+        "path": "src/services/oauth/client.ts",
+        "before": {
+          "bytes": 18466,
+          "sha256": "a235e3ddcecd93b34ddc7791f81df3e6d90a17f323e1b840160f05ba063f2cce"
+        },
+        "after": {
+          "bytes": 20355,
+          "sha256": "0fa1702b5bb443c42920f0c13e4193ca0d5b8d872c207be94b8dae6b7165ab68"
+        }
+      },
+      {
+        "path": "src/cli/handlers/auth.ts",
+        "before": {
+          "bytes": 11377,
+          "sha256": "6c35b4d8bc1305ac10ff600903a04415c4db194d03dcbd61a4fead8eaaadbf42"
+        },
+        "after": {
+          "bytes": 11648,
+          "sha256": "ceca43bde473b754d807ad1a8ab45ebdda415b6e1528be87768da2ffdd91b2ef"
+        }
+      }
+    ]
+  },
+  "summary": {
+    "units": 9,
+    "residues": 53,
+    "ownerFiles": 2,
+    "indicesSha256": "4fa451492e42a11ad44863cb0162f1f51cccc2f344f7e66f2aef6c8d9afa5cda",
+    "residueIdentitiesSha256": "b70e42336193b9027876bbbe72be78f7292216d7e6453512450a8635c20651cd"
+  },
+  "rows": [
+    {
+      "targetIndex": 4012,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1917447,
+        "end": 1919300,
+        "bytes": 1853,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a8714b8002316ca7c0959b53788fdd9e0b8d3d95f5dc103d92bbdb08b4250baa",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "ccOnboardingFlags",
+          1918128,
+          1918145,
+          0,
+          1
+        ],
+        [
+          "property",
+          "ccOnboardingFlags",
+          1918623,
+          1918640,
+          0,
+          2
+        ],
+        [
+          "property",
+          "ccOnboardingFlags",
+          1918643,
+          1918660,
+          0,
+          3
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1918663,
+          1918684,
+          0,
+          1
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1918687,
+          1918708,
+          0,
+          2
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1918711,
+          1918738,
+          0,
+          1
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1918741,
+          1918768,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "targetIndex": 4016,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1920226,
+        "end": 1921197,
+        "bytes": 971,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "dc2806bf5bf2c0a138fa424d0f199b8f605efcafa68862b06a44705f68b6049a",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "ccOnboardingFlags",
+          1920676,
+          1920693,
+          0,
+          4
+        ],
+        [
+          "property",
+          "cc_onboarding_flags",
+          1920711,
+          1920730,
+          0,
+          1
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1920735,
+          1920756,
+          0,
+          3
+        ],
+        [
+          "property",
+          "claude_code_trial_ends_at",
+          1920774,
+          1920799,
+          0,
+          1
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1920806,
+          1920833,
+          0,
+          3
+        ],
+        [
+          "property",
+          "claude_code_trial_duration_days",
+          1920851,
+          1920882,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 4018,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1921459,
+        "end": 1922687,
+        "bytes": 1228,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "dd8e5c248a326e6c748c14834838e5e7c7c7f62110747047dd3b42f3c256272a",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "ccOnboardingFlags",
+          1921894,
+          1921911,
+          0,
+          5
+        ],
+        [
+          "property",
+          "ccOnboardingFlags",
+          1922465,
+          1922482,
+          0,
+          6
+        ],
+        [
+          "property",
+          "cc_onboarding_flags",
+          1922498,
+          1922517,
+          0,
+          2
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1922522,
+          1922543,
+          0,
+          4
+        ],
+        [
+          "property",
+          "claude_code_trial_ends_at",
+          1922559,
+          1922584,
+          0,
+          2
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1922591,
+          1922618,
+          0,
+          4
+        ],
+        [
+          "property",
+          "claude_code_trial_duration_days",
+          1922634,
+          1922665,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "targetIndex": 4019,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1922687,
+        "end": 1923874,
+        "bytes": 1187,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6a02494998817a138fd79d24933875c965d94e697d6db45831af70db5ead0869",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "ccOnboardingFlags",
+          1922843,
+          1922860,
+          0,
+          7
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1922863,
+          1922884,
+          0,
+          5
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1922887,
+          1922914,
+          0,
+          5
+        ],
+        [
+          "property",
+          "ccOnboardingFlags",
+          1923054,
+          1923071,
+          0,
+          8
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1923074,
+          1923095,
+          0,
+          6
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1923098,
+          1923125,
+          0,
+          6
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1923598,
+          1923619,
+          0,
+          7
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          1923624,
+          1923645,
+          0,
+          8
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1923663,
+          1923690,
+          0,
+          7
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          1923695,
+          1923722,
+          0,
+          8
+        ],
+        [
+          "property",
+          "ccOnboardingFlags",
+          1923755,
+          1923772,
+          0,
+          9
+        ],
+        [
+          "property",
+          "ccOnboardingFlags",
+          1923793,
+          1923810,
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "targetIndex": 4020,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1923874,
+        "end": 1924191,
+        "bytes": 317,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ac1f9223f7aed2fa4ea1557456a9acd28944322fd6d0851c5b09612982fff0d7",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "unparseable",
+          1923979,
+          1923992,
+          0,
+          1
+        ],
+        [
+          "property",
+          "oauth_error_status",
+          1924142,
+          1924160,
+          0,
+          1
+        ],
+        [
+          "property",
+          "oauth_error_type",
+          1924171,
+          1924187,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 4022,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1924199,
+        "end": 1924282,
+        "bytes": 83,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "fd632804e9af8a98f42f8713c41d711eb728cb2e0fd9ef61d40a19366b955edd",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "regexp",
+          {
+            "flags": "",
+            "pattern": "^[a-z][a-z_]{0,39}$"
+          },
+          1924258,
+          1924279,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 4026,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1924658,
+        "end": 1925089,
+        "bytes": 431,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b4873c26fad64a4ff6aa97ada849af6cdc1c513565eb80709d2bc6573e36ad94",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "profile-explicit",
+          1924848,
+          1924866,
+          0,
+          2
+        ],
+        [
+          "string",
+          "profile-implicit",
+          1924872,
+          1924890,
+          0,
+          1
+        ],
+        [
+          "string",
+          "profile-explicit",
+          1924929,
+          1924947,
+          0,
+          3
+        ],
+        [
+          "property",
+          "ANTHROPIC_PROFILE",
+          1924960,
+          1924977,
+          1,
+          2
+        ],
+        [
+          "string",
+          "credentials-file · ",
+          1925011,
+          1925033,
+          0,
+          1
+        ],
+        [
+          "string",
+          " · profile ",
+          1925052,
+          1925066,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 4033,
+      "ownerPath": "src/services/oauth/client.ts",
+      "target": {
+        "start": 1925704,
+        "end": 1926247,
+        "bytes": 543,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "a39be73ced5dcc35390028224848f74fb4f413413300f3cc071020725872c13a",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "ANTHROPIC_PROFILE",
+          1925869,
+          1925886,
+          1,
+          3
+        ],
+        [
+          "string",
+          "profile-explicit",
+          1926017,
+          1926035,
+          0,
+          4
+        ],
+        [
+          "string",
+          "env-quad",
+          1926089,
+          1926099,
+          2,
+          3
+        ],
+        [
+          "string",
+          "configs",
+          1926134,
+          1926143,
+          2,
+          3
+        ],
+        [
+          "string",
+          "profile-implicit",
+          1926212,
+          1926230,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "targetIndex": 11686,
+      "ownerPath": "src/cli/handlers/auth.ts",
+      "target": {
+        "start": 7298258,
+        "end": 7299719,
+        "bytes": 1461,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "05cc12f94b57f2ace7db1eda448a0c0321704e1894387a3d6a566055dddda4a5",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "ccOnboardingFlags",
+          7298749,
+          7298766,
+          0,
+          11
+        ],
+        [
+          "property",
+          "cc_onboarding_flags",
+          7298782,
+          7298801,
+          0,
+          3
+        ],
+        [
+          "property",
+          "claudeCodeTrialEndsAt",
+          7298806,
+          7298827,
+          0,
+          9
+        ],
+        [
+          "property",
+          "claude_code_trial_ends_at",
+          7298843,
+          7298868,
+          0,
+          3
+        ],
+        [
+          "property",
+          "claudeCodeTrialDurationDays",
+          7298875,
+          7298902,
+          0,
+          9
+        ],
+        [
+          "property",
+          "claude_code_trial_duration_days",
+          7298918,
+          7298949,
+          0,
+          3
+        ]
+      ]
+    }
+  ]
+}

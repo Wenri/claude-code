@@ -1,0 +1,2718 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-direct-source-owner",
+  "evidenceIds": [
+    "target118-direct-owner-target-fragment",
+    "target118-direct-owner-source-ast-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "sourcePath": "src/utils/customThemes.ts",
+        "bytes": 5118,
+        "sha256": "ff3aa285287d6a44ba9fa94b98b1b9ed8a98ee237c06ea64583ddd1bdebbe765"
+      },
+      {
+        "sourcePath": "src/ink.ts",
+        "bytes": 3926,
+        "sha256": "6845c488e9e58f57b29b0f01ce5bc790750bf8191ed6436a163407006292a089"
+      },
+      {
+        "sourcePath": "src/keybindings/defaultBindings.ts",
+        "bytes": 11905,
+        "sha256": "33999956afdd3a9711128ffabc419588b8edbbea9522a0279b2ea49f694fef71"
+      },
+      {
+        "sourcePath": "src/keybindings/schema.ts",
+        "bytes": 6388,
+        "sha256": "cc835ef7d1ad8512cfc6eb42ad851e13728b4d7f6c0f43b3153d73bdab82770e"
+      },
+      {
+        "sourcePath": "src/context.ts",
+        "bytes": 7107,
+        "sha256": "7ba299f7b60908fa7cd40b18e09eafa3f595686fad75d426c50064302bed764b"
+      },
+      {
+        "sourcePath": "src/components/IdeOnboardingDialog.tsx",
+        "bytes": 16399,
+        "sha256": "f634ccd640d5055625bc78c99b86fb59564b98fa3c758c7ec78b65b9c43abd8e"
+      },
+      {
+        "sourcePath": "src/services/awaySummary.ts",
+        "bytes": 3050,
+        "sha256": "87f195eb49d748b4dc0082c41a44eeb568a70495ec539d6fac0647ab2c094da2"
+      },
+      {
+        "sourcePath": "src/commands/plugin/TagPlugin.tsx",
+        "bytes": 3334,
+        "sha256": "6f43270c4de87b7dca650acd5c06f94f6cefc472857a3fb602c56bd9f4d4bcf8"
+      },
+      {
+        "sourcePath": "src/components/WarmResumeHint.tsx",
+        "bytes": 6300,
+        "sha256": "a01f7c00629ff583a2156dc40838f8876d415c7c6c00fe97708c3b87c573df09"
+      },
+      {
+        "sourcePath": "src/components/design-system/FuzzyPicker.tsx",
+        "bytes": 11455,
+        "sha256": "b522c0b5ca23d508b42ba45bc0b48ffce45b4b1e25512461e832205d0aa8ff6a"
+      },
+      {
+        "sourcePath": "src/components/CustomThemeEditor.tsx",
+        "bytes": 9734,
+        "sha256": "f515537229b33e6003c43f3948e37f75bd587665240d9a488c0070ea53adeab4"
+      },
+      {
+        "sourcePath": "src/vim/transitions.ts",
+        "bytes": 18144,
+        "sha256": "00e4db0ffc8e125780685ba842d786bf56efc0bef975e73dff1d4bdbbeea7f2d"
+      },
+      {
+        "sourcePath": "src/hooks/useVimInput.ts",
+        "bytes": 18600,
+        "sha256": "925e644704e5359707cbbf567c06a3d18a3c22b930fc4ff50a151f3b380580a0"
+      },
+      {
+        "sourcePath": "src/hooks/useSearchInput.ts",
+        "bytes": 11137,
+        "sha256": "4a7270d0cd89e42dca9249675d2989310700ce06482c2ed7d923a0a25d6b985e"
+      }
+    ]
+  },
+  "summary": {
+    "units": 14,
+    "residues": 292,
+    "indicesSha256": "16f065807124e4506ee123cd1a009b6a9e0673a77e0dfa6137976f36760705c0",
+    "residueIdentitiesSha256": "b5443b6408622864b2e622f4f3a7321bab0d9dec2640a4dd3f8691c406e46dff"
+  },
+  "rows": [
+    {
+      "targetIndex": 6723,
+      "ownerPath": "src/utils/customThemes.ts",
+      "behavior": "The authenticated Target118 theme-directory accessor is the authored getUserThemesDir declaration, which joins the Claude config directory with the themes child rather than belonging to the adjacent palette module.",
+      "target": {
+        "start": 3098004,
+        "end": 3098049,
+        "bytes": 45,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cf4333d33cedb009e5469837dace372008a891e91d3b7a498a184f40b21bfc05",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "themes",
+          3098039,
+          3098047,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "export function getUserThemesDir(): string {",
+        "join(getClaudeConfigHomeDir(), 'themes')"
+      ]
+    },
+    {
+      "targetIndex": 7466,
+      "ownerPath": "src/ink.ts",
+      "behavior": "The authenticated Target118 Ink export-table unit exposes useResolvedTheme and useCustomThemes through the authored ink.ts barrel; the adjacent use-tab-status attribution owns only one later export.",
+      "target": {
+        "start": 3502257,
+        "end": 3503037,
+        "bytes": 780,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "3f6b0d6313d0a01634cfac244856016ca4b1fb87c9424f146af43b61f44ec935",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "useResolvedTheme",
+          3502455,
+          3502471,
+          0,
+          1
+        ],
+        [
+          "property",
+          "useCustomThemes",
+          3502557,
+          3502572,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "useResolvedTheme",
+        "useCustomThemes"
+      ]
+    },
+    {
+      "targetIndex": 7509,
+      "ownerPath": "src/keybindings/defaultBindings.ts",
+      "behavior": "The authenticated Target118 default-keybinding initializer owns the ThemePicker ctrl+e theme:editCustom binding in DEFAULT_BINDINGS.",
+      "target": {
+        "start": 3511109,
+        "end": 3516079,
+        "bytes": 4970,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "e68453f44c0cde09738a8b702ac1139ed72c0cd25648d55e887774abdb86f0f8",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "theme:editCustom",
+          3513962,
+          3513980,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "export const DEFAULT_BINDINGS:",
+        "'ctrl+e': 'theme:editCustom'"
+      ]
+    },
+    {
+      "targetIndex": 7522,
+      "ownerPath": "src/keybindings/schema.ts",
+      "behavior": "The authenticated Target118 keybinding schema initializer owns the context/action catalogs and the theme:editCustom action; reservedShortcuts.ts does not define that action.",
+      "target": {
+        "start": 3519229,
+        "end": 3523897,
+        "bytes": 4668,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "c050cd3efda9a752402196c944a122a59c62e23fdb3374cf148af49d1545cb9b",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "theme:editCustom",
+          3521558,
+          3521576,
+          0,
+          2
+        ]
+      ],
+      "sourceMarkers": [
+        "export const KEYBINDING_CONTEXTS = [",
+        "export const KEYBINDING_ACTIONS = [",
+        "'theme:editCustom'"
+      ]
+    },
+    {
+      "targetIndex": 8977,
+      "ownerPath": "src/context.ts",
+      "behavior": "The authenticated Target118 git-status truncation and Perforce workspace guidance are authored by getSystemContext and its git-status helper chain in context.ts.",
+      "target": {
+        "start": 4264922,
+        "end": 4267493,
+        "bytes": 2571,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "2f6f4538194962ea5c796e4f9c46752a8217dea0fe8edd7fd21bf8d93ceac78f",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "This is a Perforce workspace. Files not yet opened for edit are read-only; if a file is read-only, run `p4 edit <file>` via ",
+          4266723,
+          4266849,
+          0,
+          1
+        ],
+        [
+          "string",
+          " to check it out before modifying. Files that are already writable have been opened and can be edited directly.",
+          4266862,
+          4266973,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "export const getSystemContext = memoize(",
+        "This is a Perforce workspace.",
+        "truncated because it exceeds 2k characters"
+      ]
+    },
+    {
+      "targetIndex": 9805,
+      "ownerPath": "src/components/IdeOnboardingDialog.tsx",
+      "behavior": "The authenticated Target118 IDE onboarding renderer is the exact authored IdeOnboardingDialog declaration, including context, review, and Cmd+Esc guidance.",
+      "target": {
+        "start": 4908219,
+        "end": 4910658,
+        "bytes": 2439,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "eae1651781130fd67ade9721d34d6aa65820f88b595543ede09752da2196b84f",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "Claude has context of ",
+          4909301,
+          4909325,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Review Claude Code's changes",
+          4909526,
+          4909556,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Cmd+Esc",
+          4909756,
+          4909765,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "export function IdeOnboardingDialog(",
+        "Claude has context of",
+        "Review Claude Code's changes",
+        "Cmd+Esc"
+      ]
+    },
+    {
+      "targetIndex": 10917,
+      "ownerPath": "src/services/awaySummary.ts",
+      "behavior": "The authenticated Target118 no-turn and api-error result branches are authored by generateAwaySummary, not the adjacent permission-logging module.",
+      "target": {
+        "start": 6331411,
+        "end": 6332269,
+        "bytes": 858,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e9041c6590abf630434bf32a1fa6637546f25c8e47af4edc84ed056bbd89fdff",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "no-turn",
+          6331518,
+          6331527,
+          0,
+          1
+        ],
+        [
+          "string",
+          "api-error",
+          6332067,
+          6332078,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "export async function generateAwaySummary(",
+        "kind: 'no-turn'",
+        "kind: 'api-error'"
+      ]
+    },
+    {
+      "targetIndex": 16266,
+      "ownerPath": "src/commands/plugin/TagPlugin.tsx",
+      "behavior": "The authenticated Target118 plugin tag command is the authored TagPlugin declaration, including dry-run, force, push, and unknown-flag handling; the adjacent validation utility is only a dependency.",
+      "target": {
+        "start": 10262144,
+        "end": 10263765,
+        "bytes": 1621,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "586100d5258f93c8c7de8c92e2b185a50eee8c74480933f0ebf0b4fe836ee858",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "dryRun",
+          10262203,
+          10262209,
+          4,
+          6
+        ],
+        [
+          "property",
+          "unknownFlag",
+          10262220,
+          10262231,
+          0,
+          2
+        ],
+        [
+          "string",
+          " Unexpected argument \"",
+          10262389,
+          10262411,
+          0,
+          1
+        ],
+        [
+          "string",
+          "\".\n\n",
+          10262415,
+          10262419,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Plugin:  ",
+          10262581,
+          10262590,
+          0,
+          1
+        ],
+        [
+          "string",
+          " (from ",
+          10262629,
+          10262636,
+          4,
+          5
+        ],
+        [
+          "string",
+          "Marketplace entry: plugins[",
+          10262678,
+          10262705,
+          0,
+          1
+        ],
+        [
+          "string",
+          "] in ",
+          10262732,
+          10262737,
+          0,
+          1
+        ],
+        [
+          "string",
+          " (version: ",
+          10262789,
+          10262800,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Tag:     ",
+          10262845,
+          10262854,
+          0,
+          1
+        ],
+        [
+          "string",
+          "--force ",
+          10262904,
+          10262914,
+          0,
+          1
+        ],
+        [
+          "string",
+          "git -C ",
+          10262875,
+          10262882,
+          0,
+          1
+        ],
+        [
+          "string",
+          " push ",
+          10262894,
+          10262900,
+          0,
+          1
+        ],
+        [
+          "string",
+          "origin refs/tags/",
+          10262918,
+          10262935,
+          0,
+          1
+        ],
+        [
+          "string",
+          " Dry run — would create tag ",
+          10262969,
+          10263002,
+          0,
+          1
+        ],
+        [
+          "string",
+          " at HEAD in ",
+          10263010,
+          10263022,
+          0,
+          1
+        ],
+        [
+          "string",
+          "-f ",
+          10263067,
+          10263072,
+          0,
+          1
+        ],
+        [
+          "string",
+          "  git -C ",
+          10263037,
+          10263046,
+          0,
+          1
+        ],
+        [
+          "string",
+          " tag ",
+          10263058,
+          10263063,
+          0,
+          1
+        ],
+        [
+          "string",
+          "-a ",
+          10263076,
+          10263079,
+          0,
+          1
+        ],
+        [
+          "string",
+          " -m \"",
+          10263087,
+          10263092,
+          0,
+          1
+        ],
+        [
+          "string",
+          " Created tag ",
+          10263293,
+          10263306,
+          0,
+          1
+        ],
+        [
+          "string",
+          " Pushed to origin",
+          10263344,
+          10263361,
+          0,
+          1
+        ],
+        [
+          "string",
+          "  Push with: ",
+          10263364,
+          10263377,
+          0,
+          1
+        ],
+        [
+          "string",
+          "For -m/--message and --remote, use: claude plugin tag --help",
+          10263394,
+          10263456,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Preparing tag…",
+          10263713,
+          10263734,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "export function TagPlugin(",
+        "dryRun",
+        "unknownFlag",
+        "Marketplace entry: plugins[",
+        "Dry run — would create tag"
+      ]
+    },
+    {
+      "targetIndex": 16623,
+      "ownerPath": "src/components/WarmResumeHint.tsx",
+      "behavior": "The authenticated Target118 warm-resume experiment and rendered resume/fork guidance are authored by WarmResumeHint, not the adjacent LogoV2 component selected by the coalesced UI source map.",
+      "target": {
+        "start": 10438261,
+        "end": 10441066,
+        "bytes": 2805,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6c22d8b8eea305b402a335311b238f2b14040e053fbb26f6c1e0ecadcc28859b",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "antPreview",
+          10438365,
+          10438375,
+          0,
+          1
+        ],
+        [
+          "property",
+          "antPreview",
+          10438412,
+          10438422,
+          0,
+          2
+        ],
+        [
+          "property",
+          "antPreview",
+          10438446,
+          10438456,
+          0,
+          3
+        ],
+        [
+          "property",
+          "antPreview",
+          10438522,
+          10438532,
+          0,
+          4
+        ],
+        [
+          "property",
+          "variant",
+          10438627,
+          10438634,
+          23,
+          24
+        ],
+        [
+          "property",
+          "variant",
+          10438841,
+          10438848,
+          23,
+          25
+        ],
+        [
+          "property",
+          "variant",
+          10439300,
+          10439307,
+          23,
+          26
+        ],
+        [
+          "string",
+          "tengu_warm_resume_hint_eligible",
+          10439324,
+          10439357,
+          0,
+          1
+        ],
+        [
+          "property",
+          "with_fork_session",
+          10439359,
+          10439376,
+          0,
+          1
+        ],
+        [
+          "property",
+          "with_todos",
+          10439396,
+          10439406,
+          0,
+          1
+        ],
+        [
+          "property",
+          "variant",
+          10439586,
+          10439593,
+          23,
+          27
+        ],
+        [
+          "property",
+          "last",
+          10439616,
+          10439620,
+          24,
+          25
+        ],
+        [
+          "property",
+          "variant",
+          10439623,
+          10439630,
+          23,
+          28
+        ],
+        [
+          "string",
+          "last here ",
+          10439726,
+          10439736,
+          0,
+          1
+        ],
+        [
+          "string",
+          " · /resume to continue",
+          10439794,
+          10439821,
+          0,
+          1
+        ],
+        [
+          "string",
+          " · claude --resume --fork-session to branch",
+          10439829,
+          10439877,
+          0,
+          1
+        ],
+        [
+          "string",
+          "/resume",
+          10440192,
+          10440201,
+          0,
+          1
+        ],
+        [
+          "string",
+          "claude --resume --fork-session",
+          10440327,
+          10440359,
+          0,
+          1
+        ],
+        [
+          "string",
+          " to branch",
+          10440361,
+          10440373,
+          0,
+          1
+        ],
+        [
+          "string",
+          "last here ",
+          10440480,
+          10440492,
+          0,
+          2
+        ],
+        [
+          "string",
+          " to continue",
+          10440511,
+          10440525,
+          1,
+          2
+        ],
+        [
+          "string",
+          "2",
+          10440621,
+          10440624,
+          13,
+          14
+        ],
+        [
+          "property",
+          "icon",
+          10440715,
+          10440719,
+          24,
+          25
+        ]
+      ],
+      "sourceMarkers": [
+        "export function WarmResumeHint(",
+        "tengu_warm_resume_hint_eligible",
+        "with_fork_session",
+        "claude --resume --fork-session"
+      ]
+    },
+    {
+      "targetIndex": 17033,
+      "ownerPath": "src/components/design-system/FuzzyPicker.tsx",
+      "behavior": "The authenticated Target118 searchable picker implementation is the authored generic FuzzyPicker declaration, not the adjacent cost command selected by the coalesced command source map.",
+      "target": {
+        "start": 10668227,
+        "end": 10672020,
+        "bytes": 3793,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "af8e25ee39031865e4692fd47992edf20f6e9d5d189611d8a73d6e0226a6b9e6",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "Type to search…",
+          10668263,
+          10668285,
+          0,
+          1
+        ],
+        [
+          "property",
+          "getKey",
+          10668309,
+          10668315,
+          12,
+          13
+        ],
+        [
+          "property",
+          "renderItem",
+          10668318,
+          10668328,
+          6,
+          7
+        ],
+        [
+          "property",
+          "renderPreview",
+          10668331,
+          10668344,
+          0,
+          1
+        ],
+        [
+          "property",
+          "previewPosition",
+          10668347,
+          10668362,
+          0,
+          1
+        ],
+        [
+          "property",
+          "visibleCount",
+          10668374,
+          10668386,
+          2,
+          3
+        ],
+        [
+          "property",
+          "onQueryChange",
+          10668412,
+          10668425,
+          0,
+          1
+        ],
+        [
+          "property",
+          "onSelectMany",
+          10668439,
+          10668451,
+          0,
+          1
+        ],
+        [
+          "property",
+          "onTab",
+          10668454,
+          10668459,
+          0,
+          1
+        ],
+        [
+          "property",
+          "onShiftTab",
+          10668462,
+          10668472,
+          0,
+          1
+        ],
+        [
+          "string",
+          "No results",
+          10668511,
+          10668523,
+          0,
+          1
+        ],
+        [
+          "property",
+          "matchLabel",
+          10668524,
+          10668534,
+          0,
+          1
+        ],
+        [
+          "property",
+          "selectAction",
+          10668537,
+          10668549,
+          0,
+          1
+        ],
+        [
+          "property",
+          "cancelAction",
+          10668561,
+          10668573,
+          0,
+          1
+        ],
+        [
+          "property",
+          "extraHints",
+          10668585,
+          10668595,
+          0,
+          1
+        ],
+        [
+          "property",
+          "window",
+          10668663,
+          10668669,
+          6,
+          7
+        ],
+        [
+          "property",
+          "window",
+          10668683,
+          10668689,
+          6,
+          8
+        ],
+        [
+          "property",
+          "window",
+          10668887,
+          10668893,
+          6,
+          9
+        ],
+        [
+          "property",
+          "window",
+          10668947,
+          10668953,
+          6,
+          10
+        ],
+        [
+          "property",
+          "window",
+          10669143,
+          10669149,
+          6,
+          11
+        ],
+        [
+          "property",
+          "window",
+          10669156,
+          10669162,
+          6,
+          12
+        ],
+        [
+          "property",
+          "deltaY",
+          10669219,
+          10669225,
+          5,
+          6
+        ],
+        [
+          "property",
+          "backspaceExitsOnEmpty",
+          10669412,
+          10669433,
+          1,
+          2
+        ],
+        [
+          "string",
+          "pagedown",
+          10669791,
+          10669801,
+          14,
+          15
+        ],
+        [
+          "property",
+          "window",
+          10670213,
+          10670219,
+          6,
+          13
+        ],
+        [
+          "property",
+          "window",
+          10670302,
+          10670308,
+          6,
+          14
+        ],
+        [
+          "property",
+          "window",
+          10670315,
+          10670321,
+          6,
+          15
+        ],
+        [
+          "property",
+          "windowStart",
+          10670834,
+          10670845,
+          0,
+          1
+        ],
+        [
+          "property",
+          "visibleCount",
+          10670848,
+          10670860,
+          2,
+          4
+        ],
+        [
+          "property",
+          "focusedIndex",
+          10670878,
+          10670890,
+          1,
+          2
+        ],
+        [
+          "property",
+          "getKey",
+          10670905,
+          10670911,
+          12,
+          14
+        ],
+        [
+          "property",
+          "renderItem",
+          10670914,
+          10670924,
+          6,
+          8
+        ],
+        [
+          "property",
+          "emptyText",
+          10670927,
+          10670936,
+          0,
+          1
+        ],
+        [
+          "property",
+          "marked",
+          10670940,
+          10670946,
+          0,
+          1
+        ],
+        [
+          "property",
+          "onItemClick",
+          10670949,
+          10670960,
+          6,
+          7
+        ],
+        [
+          "property",
+          "onItemHover",
+          10670964,
+          10670975,
+          0,
+          1
+        ],
+        [
+          "string",
+          "nav",
+          10671633,
+          10671638,
+          7,
+          8
+        ],
+        [
+          "string",
+          "accept ",
+          10671707,
+          10671714,
+          0,
+          1
+        ],
+        [
+          "string",
+          "mark",
+          10671780,
+          10671786,
+          11,
+          12
+        ]
+      ],
+      "sourceMarkers": [
+        "export function FuzzyPicker<T>(",
+        "placeholder = 'Type to search…'",
+        "onSelectMany",
+        "previewPosition"
+      ]
+    },
+    {
+      "targetIndex": 17039,
+      "ownerPath": "src/components/CustomThemeEditor.tsx",
+      "behavior": "The authenticated Target118 custom-theme editor state machine is the authored CustomThemeEditor declaration, not the adjacent terminal-setup command selected by the coalesced command source map.",
+      "target": {
+        "start": 10673801,
+        "end": 10681854,
+        "bytes": 8053,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f2ecf40ff22bb6e37ff0d369d105c1fb8354adc7f9bc2dabce5ec56f4f962401",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "defaultBase",
+          10673845,
+          10673856,
+          0,
+          1
+        ],
+        [
+          "property",
+          "customThemes",
+          10673893,
+          10673905,
+          0,
+          6
+        ],
+        [
+          "property",
+          "reloadCustomThemes",
+          10673908,
+          10673926,
+          0,
+          5
+        ],
+        [
+          "property",
+          "setPreviewOverrides",
+          10673929,
+          10673948,
+          0,
+          5
+        ],
+        [
+          "string",
+          "colors",
+          10674014,
+          10674022,
+          4,
+          5
+        ],
+        [
+          "property",
+          "slug",
+          10674116,
+          10674120,
+          3,
+          10
+        ],
+        [
+          "property",
+          "base",
+          10674188,
+          10674192,
+          15,
+          16
+        ],
+        [
+          "property",
+          "overrides",
+          10674305,
+          10674314,
+          13,
+          19
+        ],
+        [
+          "property",
+          "overrides",
+          10674320,
+          10674329,
+          13,
+          20
+        ],
+        [
+          "property",
+          "overrides",
+          10674342,
+          10674351,
+          13,
+          21
+        ],
+        [
+          "property",
+          "slug",
+          10675190,
+          10675194,
+          3,
+          11
+        ],
+        [
+          "property",
+          "base",
+          10675212,
+          10675216,
+          15,
+          17
+        ],
+        [
+          "property",
+          "overrides",
+          10675219,
+          10675228,
+          13,
+          22
+        ],
+        [
+          "string",
+          "[theme] save ",
+          10675264,
+          10675277,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Fork ",
+          10676239,
+          10676244,
+          0,
+          1
+        ],
+        [
+          "string",
+          " to your themes",
+          10676253,
+          10676268,
+          0,
+          1
+        ],
+        [
+          "string",
+          "New custom theme",
+          10676270,
+          10676288,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Name: ",
+          10676478,
+          10676486,
+          0,
+          1
+        ],
+        [
+          "string",
+          "colors",
+          10676634,
+          10676642,
+          4,
+          6
+        ],
+        [
+          "property",
+          "slug",
+          10676649,
+          10676653,
+          3,
+          12
+        ],
+        [
+          "property",
+          "base",
+          10676664,
+          10676668,
+          15,
+          18
+        ],
+        [
+          "property",
+          "overrides",
+          10676671,
+          10676680,
+          13,
+          23
+        ],
+        [
+          "string",
+          "[theme] save ",
+          10676741,
+          10676754,
+          0,
+          2
+        ],
+        [
+          "string",
+          "my-theme",
+          10677031,
+          10677041,
+          0,
+          1
+        ],
+        [
+          "string",
+          "based on ",
+          10677396,
+          10677407,
+          0,
+          1
+        ],
+        [
+          "string",
+          " · saved to ",
+          10677410,
+          10677427,
+          0,
+          1
+        ],
+        [
+          "string",
+          ".json",
+          10677441,
+          10677448,
+          43,
+          45
+        ],
+        [
+          "string",
+          "Value: ",
+          10679124,
+          10679133,
+          1,
+          2
+        ],
+        [
+          "string",
+          "rgb(r,g,b) · #rrggbb · ansi:red",
+          10679335,
+          10679374,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Accepts rgb(r,g,b), #rrggbb, ansi256(n), or ansi:name",
+          10679748,
+          10679803,
+          0,
+          1
+        ],
+        [
+          "string",
+          " · based on ",
+          10680192,
+          10680207,
+          0,
+          1
+        ],
+        [
+          "property",
+          "handler",
+          10680250,
+          10680257,
+          34,
+          35
+        ],
+        [
+          "property",
+          "slug",
+          10680415,
+          10680419,
+          3,
+          13
+        ],
+        [
+          "property",
+          "base",
+          10680429,
+          10680433,
+          15,
+          19
+        ],
+        [
+          "property",
+          "overrides",
+          10680436,
+          10680445,
+          13,
+          24
+        ],
+        [
+          "number",
+          "122",
+          10680512,
+          10680515,
+          29,
+          30
+        ],
+        [
+          "number",
+          "124",
+          10680556,
+          10680559,
+          12,
+          13
+        ],
+        [
+          "string",
+          "color",
+          10680601,
+          10680608,
+          17,
+          18
+        ],
+        [
+          "string",
+          " customized · ",
+          10680610,
+          10680627,
+          0,
+          1
+        ],
+        [
+          "string",
+          ".json",
+          10680631,
+          10680636,
+          43,
+          46
+        ],
+        [
+          "string",
+          "editing ",
+          10680639,
+          10680647,
+          0,
+          1
+        ],
+        [
+          "string",
+          ".json",
+          10680651,
+          10680656,
+          43,
+          47
+        ],
+        [
+          "number",
+          "124",
+          10680660,
+          10680663,
+          12,
+          14
+        ],
+        [
+          "number",
+          "126",
+          10680697,
+          10680700,
+          27,
+          28
+        ],
+        [
+          "string",
+          "preset: ",
+          10681235,
+          10681245,
+          1,
+          2
+        ],
+        [
+          "string",
+          "Filter color tokens…",
+          10681516,
+          10681543,
+          0,
+          1
+        ],
+        [
+          "property",
+          "getKey",
+          10681552,
+          10681558,
+          12,
+          16
+        ],
+        [
+          "property",
+          "onQueryChange",
+          10681578,
+          10681591,
+          0,
+          2
+        ],
+        [
+          "property",
+          "onTab",
+          10681606,
+          10681611,
+          0,
+          2
+        ],
+        [
+          "property",
+          "selectAction",
+          10681627,
+          10681639,
+          0,
+          2
+        ],
+        [
+          "property",
+          "cancelAction",
+          10681647,
+          10681659,
+          0,
+          2
+        ],
+        [
+          "property",
+          "matchLabel",
+          10681667,
+          10681677,
+          0,
+          2
+        ],
+        [
+          "property",
+          "renderItem",
+          10681681,
+          10681691,
+          6,
+          10
+        ],
+        [
+          "property",
+          "renderPreview",
+          10681695,
+          10681708,
+          0,
+          2
+        ]
+      ],
+      "sourceMarkers": [
+        "export function CustomThemeEditor(",
+        "customThemes",
+        "setPreviewOverrides",
+        "'New custom theme'",
+        "[theme] save "
+      ]
+    },
+    {
+      "targetIndex": 19473,
+      "ownerPath": "src/vim/transitions.ts",
+      "behavior": "The authenticated Target118 visual text-object transition is the authored fromVisualTextObject declaration; the coalesced Vim source map otherwise assigns the helper to the adjacent types module.",
+      "target": {
+        "start": 11877238,
+        "end": 11877410,
+        "bytes": 172,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "08e473e1c55d3bd444c99f062cf8d41bb5af77b24d6b96e1c42f15b52227d58b",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "offset",
+          11877299,
+          11877305,
+          288,
+          296
+        ],
+        [
+          "property",
+          "cursor",
+          11877292,
+          11877298,
+          108,
+          126
+        ],
+        [
+          "string",
+          "selectRange",
+          11877344,
+          11877357,
+          0,
+          1
+        ],
+        [
+          "property",
+          "next",
+          11877390,
+          11877394,
+          269,
+          283
+        ]
+      ],
+      "sourceMarkers": [
+        "function fromVisualTextObject(",
+        "TEXT_OBJ_TYPES.has(input)",
+        "exit: 'selectRange'"
+      ]
+    },
+    {
+      "targetIndex": 19475,
+      "ownerPath": "src/hooks/useVimInput.ts",
+      "behavior": "The authenticated Target118 visual-mode state machine is the authored useVimInput declaration, including selection anchoring, recorded visual operations, repeat handling, and mode transitions.",
+      "target": {
+        "start": 11877445,
+        "end": 11885087,
+        "bytes": 7642,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "020f01dfcc6bba7f6a286e17fd8032f0ac20ca7a7d1296c087c79313ddefdc5a",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "selectionAnchor",
+          11877615,
+          11877630,
+          0,
+          2
+        ],
+        [
+          "property",
+          "selectionLinewise",
+          11877633,
+          11877650,
+          0,
+          2
+        ],
+        [
+          "string",
+          "VISUAL LINE",
+          11877655,
+          11877668,
+          0,
+          1
+        ],
+        [
+          "property",
+          "offset",
+          11877856,
+          11877862,
+          288,
+          297
+        ],
+        [
+          "property",
+          "setOffset",
+          11877906,
+          11877915,
+          31,
+          37
+        ],
+        [
+          "string",
+          "visualOp",
+          11878103,
+          11878113,
+          0,
+          2
+        ],
+        [
+          "string",
+          "visualChange",
+          11878158,
+          11878172,
+          0,
+          1
+        ],
+        [
+          "property",
+          "span",
+          11878173,
+          11878177,
+          60,
+          65
+        ],
+        [
+          "property",
+          "span",
+          11878180,
+          11878184,
+          60,
+          66
+        ],
+        [
+          "property",
+          "linewise",
+          11878185,
+          11878193,
+          4,
+          9
+        ],
+        [
+          "property",
+          "linewise",
+          11878196,
+          11878204,
+          4,
+          10
+        ],
+        [
+          "property",
+          "offset",
+          11878318,
+          11878324,
+          288,
+          298
+        ],
+        [
+          "property",
+          "setOffset",
+          11878354,
+          11878363,
+          31,
+          38
+        ],
+        [
+          "string",
+          "VISUAL",
+          11878508,
+          11878516,
+          0,
+          1
+        ],
+        [
+          "string",
+          "VISUAL LINE",
+          11878573,
+          11878586,
+          0,
+          2
+        ],
+        [
+          "string",
+          "VISUAL",
+          11878587,
+          11878595,
+          0,
+          2
+        ],
+        [
+          "property",
+          "cursor",
+          11878645,
+          11878651,
+          108,
+          127
+        ],
+        [
+          "property",
+          "setText",
+          11878667,
+          11878674,
+          17,
+          23
+        ],
+        [
+          "property",
+          "setOffset",
+          11878694,
+          11878703,
+          31,
+          39
+        ],
+        [
+          "property",
+          "setOffset",
+          11878711,
+          11878720,
+          31,
+          40
+        ],
+        [
+          "property",
+          "getRegister",
+          11878746,
+          11878757,
+          2,
+          3
+        ],
+        [
+          "property",
+          "setRegister",
+          11878781,
+          11878792,
+          4,
+          8
+        ],
+        [
+          "property",
+          "setLastFind",
+          11878889,
+          11878900,
+          3,
+          4
+        ],
+        [
+          "property",
+          "recordChange",
+          11878945,
+          11878957,
+          13,
+          19
+        ],
+        [
+          "property",
+          "setText",
+          11879080,
+          11879087,
+          17,
+          24
+        ],
+        [
+          "property",
+          "setOffset",
+          11879098,
+          11879107,
+          31,
+          41
+        ],
+        [
+          "property",
+          "offset",
+          11879110,
+          11879116,
+          288,
+          299
+        ],
+        [
+          "string",
+          "replace",
+          11879157,
+          11879166,
+          21,
+          24
+        ],
+        [
+          "string",
+          "indent",
+          11879237,
+          11879245,
+          4,
+          5
+        ],
+        [
+          "string",
+          "join",
+          11879277,
+          11879283,
+          6,
+          8
+        ],
+        [
+          "property",
+          "direction",
+          11879326,
+          11879335,
+          24,
+          26
+        ],
+        [
+          "string",
+          "operator",
+          11879349,
+          11879359,
+          19,
+          24
+        ],
+        [
+          "property",
+          "span",
+          11879546,
+          11879550,
+          60,
+          67
+        ],
+        [
+          "property",
+          "linewise",
+          11879553,
+          11879561,
+          4,
+          11
+        ],
+        [
+          "string",
+          "visualOp",
+          11879524,
+          11879534,
+          0,
+          3
+        ],
+        [
+          "property",
+          "span",
+          11879604,
+          11879608,
+          60,
+          68
+        ],
+        [
+          "property",
+          "linewise",
+          11879611,
+          11879619,
+          4,
+          12
+        ],
+        [
+          "string",
+          "visualReplace",
+          11879575,
+          11879590,
+          0,
+          2
+        ],
+        [
+          "property",
+          "caseOp",
+          11879652,
+          11879658,
+          0,
+          2
+        ],
+        [
+          "property",
+          "span",
+          11879661,
+          11879665,
+          60,
+          69
+        ],
+        [
+          "property",
+          "linewise",
+          11879668,
+          11879676,
+          4,
+          13
+        ],
+        [
+          "string",
+          "visualCase",
+          11879633,
+          11879645,
+          0,
+          2
+        ],
+        [
+          "property",
+          "span",
+          11879720,
+          11879724,
+          60,
+          70
+        ],
+        [
+          "property",
+          "linewise",
+          11879727,
+          11879735,
+          4,
+          14
+        ],
+        [
+          "string",
+          "visualPaste",
+          11879690,
+          11879703,
+          0,
+          2
+        ],
+        [
+          "property",
+          "lines",
+          11879784,
+          11879789,
+          72,
+          74
+        ],
+        [
+          "string",
+          "visualIndent",
+          11879749,
+          11879763,
+          0,
+          2
+        ],
+        [
+          "property",
+          "span",
+          11879824,
+          11879828,
+          60,
+          71
+        ],
+        [
+          "property",
+          "linewise",
+          11879831,
+          11879839,
+          4,
+          15
+        ],
+        [
+          "string",
+          "visualChange",
+          11879803,
+          11879817,
+          0,
+          2
+        ],
+        [
+          "property",
+          "offset",
+          11879948,
+          11879954,
+          288,
+          300
+        ],
+        [
+          "property",
+          "offset",
+          11880003,
+          11880009,
+          288,
+          301
+        ],
+        [
+          "property",
+          "setText",
+          11880115,
+          11880122,
+          17,
+          25
+        ],
+        [
+          "property",
+          "setOffset",
+          11880148,
+          11880157,
+          31,
+          42
+        ],
+        [
+          "property",
+          "setOffset",
+          11880170,
+          11880179,
+          31,
+          43
+        ],
+        [
+          "property",
+          "setOffset",
+          11880368,
+          11880377,
+          31,
+          44
+        ],
+        [
+          "property",
+          "offset",
+          11880380,
+          11880386,
+          288,
+          302
+        ],
+        [
+          "string",
+          "V",
+          11880531,
+          11880534,
+          2,
+          4
+        ],
+        [
+          "string",
+          "count",
+          11880580,
+          11880587,
+          34,
+          36
+        ],
+        [
+          "string",
+          "V",
+          11880598,
+          11880601,
+          2,
+          5
+        ],
+        [
+          "string",
+          "line",
+          11880602,
+          11880608,
+          18,
+          19
+        ],
+        [
+          "property",
+          "setText",
+          11880678,
+          11880685,
+          17,
+          26
+        ],
+        [
+          "property",
+          "setOffset",
+          11880711,
+          11880720,
+          31,
+          45
+        ],
+        [
+          "property",
+          "setOffset",
+          11880733,
+          11880742,
+          31,
+          46
+        ],
+        [
+          "property",
+          "enterInsert",
+          11880747,
+          11880758,
+          11,
+          12
+        ],
+        [
+          "property",
+          "next",
+          11880871,
+          11880875,
+          269,
+          284
+        ],
+        [
+          "property",
+          "next",
+          11880911,
+          11880915,
+          269,
+          285
+        ],
+        [
+          "property",
+          "offset",
+          11881049,
+          11881055,
+          288,
+          303
+        ],
+        [
+          "string",
+          "VISUAL",
+          11881107,
+          11881115,
+          0,
+          3
+        ],
+        [
+          "string",
+          "VISUAL",
+          11881464,
+          11881472,
+          0,
+          4
+        ],
+        [
+          "string",
+          "VISUAL",
+          11881641,
+          11881649,
+          0,
+          5
+        ],
+        [
+          "string",
+          "VISUAL",
+          11881903,
+          11881911,
+          0,
+          6
+        ],
+        [
+          "string",
+          "count",
+          11882006,
+          11882013,
+          34,
+          37
+        ],
+        [
+          "string",
+          "up",
+          11882105,
+          11882109,
+          95,
+          98
+        ],
+        [
+          "string",
+          "count",
+          11882282,
+          11882289,
+          34,
+          38
+        ],
+        [
+          "string",
+          "line",
+          11882455,
+          11882461,
+          18,
+          20
+        ],
+        [
+          "property",
+          "move",
+          11882478,
+          11882482,
+          3,
+          11
+        ],
+        [
+          "string",
+          "VISUAL",
+          11882503,
+          11882511,
+          0,
+          7
+        ],
+        [
+          "property",
+          "next",
+          11882550,
+          11882554,
+          269,
+          286
+        ],
+        [
+          "string",
+          "operator",
+          11882573,
+          11882583,
+          19,
+          25
+        ],
+        [
+          "property",
+          "forceLinewise",
+          11882613,
+          11882626,
+          0,
+          4
+        ],
+        [
+          "string",
+          "VISUAL",
+          11882650,
+          11882658,
+          0,
+          8
+        ],
+        [
+          "string",
+          "replace",
+          11882680,
+          11882689,
+          21,
+          25
+        ],
+        [
+          "string",
+          "case",
+          11882736,
+          11882742,
+          13,
+          16
+        ],
+        [
+          "string",
+          "paste",
+          11882787,
+          11882794,
+          3,
+          5
+        ],
+        [
+          "property",
+          "getRegister",
+          11882800,
+          11882811,
+          2,
+          4
+        ],
+        [
+          "string",
+          "idle",
+          11882871,
+          11882877,
+          110,
+          111
+        ],
+        [
+          "string",
+          "join",
+          11882897,
+          11882903,
+          6,
+          9
+        ],
+        [
+          "string",
+          "indent",
+          11882941,
+          11882949,
+          4,
+          6
+        ],
+        [
+          "property",
+          "count",
+          11882962,
+          11882967,
+          336,
+          337
+        ],
+        [
+          "string",
+          "swap",
+          11883001,
+          11883007,
+          1,
+          3
+        ],
+        [
+          "property",
+          "offset",
+          11883017,
+          11883023,
+          288,
+          304
+        ],
+        [
+          "property",
+          "setOffset",
+          11883026,
+          11883035,
+          31,
+          47
+        ],
+        [
+          "string",
+          "VISUAL",
+          11883062,
+          11883070,
+          0,
+          9
+        ],
+        [
+          "string",
+          "idle",
+          11883106,
+          11883112,
+          110,
+          112
+        ],
+        [
+          "string",
+          "selectRange",
+          11883137,
+          11883150,
+          0,
+          2
+        ],
+        [
+          "property",
+          "prevOffset",
+          11883187,
+          11883197,
+          6,
+          7
+        ],
+        [
+          "property",
+          "measuredText",
+          11883174,
+          11883186,
+          83,
+          86
+        ],
+        [
+          "property",
+          "setOffset",
+          11883215,
+          11883224,
+          31,
+          48
+        ],
+        [
+          "string",
+          "VISUAL",
+          11883244,
+          11883252,
+          0,
+          10
+        ],
+        [
+          "string",
+          "idle",
+          11883294,
+          11883300,
+          110,
+          113
+        ],
+        [
+          "string",
+          "V",
+          11883333,
+          11883336,
+          2,
+          6
+        ],
+        [
+          "string",
+          "line",
+          11883337,
+          11883343,
+          18,
+          21
+        ],
+        [
+          "string",
+          "char",
+          11883344,
+          11883350,
+          19,
+          20
+        ],
+        [
+          "string",
+          "idle",
+          11883462,
+          11883468,
+          110,
+          114
+        ],
+        [
+          "string",
+          "up",
+          11883480,
+          11883484,
+          95,
+          99
+        ],
+        [
+          "string",
+          "idle",
+          11883564,
+          11883570,
+          110,
+          115
+        ],
+        [
+          "property",
+          "onDotRepeat",
+          11883863,
+          11883874,
+          3,
+          4
+        ],
+        [
+          "string",
+          "idle",
+          11883897,
+          11883903,
+          110,
+          116
+        ],
+        [
+          "string",
+          "count",
+          11883922,
+          11883929,
+          34,
+          39
+        ],
+        [
+          "string",
+          "operator",
+          11883948,
+          11883958,
+          19,
+          26
+        ],
+        [
+          "string",
+          "up",
+          11884074,
+          11884078,
+          95,
+          100
+        ],
+        [
+          "string",
+          "count",
+          11884181,
+          11884188,
+          34,
+          40
+        ],
+        [
+          "string",
+          "V",
+          11884338,
+          11884341,
+          2,
+          7
+        ],
+        [
+          "string",
+          "idle",
+          11884362,
+          11884368,
+          110,
+          117
+        ],
+        [
+          "string",
+          "count",
+          11884387,
+          11884394,
+          34,
+          41
+        ],
+        [
+          "property",
+          "offset",
+          11884401,
+          11884407,
+          288,
+          305
+        ],
+        [
+          "string",
+          "V",
+          11884412,
+          11884415,
+          2,
+          8
+        ],
+        [
+          "string",
+          "line",
+          11884416,
+          11884422,
+          18,
+          22
+        ],
+        [
+          "string",
+          "char",
+          11884423,
+          11884429,
+          19,
+          21
+        ],
+        [
+          "property",
+          "next",
+          11884523,
+          11884527,
+          269,
+          287
+        ],
+        [
+          "property",
+          "next",
+          11884563,
+          11884567,
+          269,
+          288
+        ],
+        [
+          "string",
+          "idle",
+          11884626,
+          11884632,
+          110,
+          118
+        ],
+        [
+          "string",
+          "idle",
+          11884687,
+          11884693,
+          110,
+          119
+        ],
+        [
+          "string",
+          "NORMAL",
+          11884859,
+          11884867,
+          17,
+          18
+        ],
+        [
+          "string",
+          "idle",
+          11884882,
+          11884888,
+          110,
+          120
+        ],
+        [
+          "string",
+          "VISUAL LINE",
+          11884914,
+          11884927,
+          0,
+          3
+        ],
+        [
+          "string",
+          "line",
+          11884928,
+          11884934,
+          18,
+          23
+        ],
+        [
+          "string",
+          "char",
+          11884935,
+          11884941,
+          19,
+          22
+        ],
+        [
+          "string",
+          "VISUAL",
+          11884970,
+          11884978,
+          0,
+          11
+        ],
+        [
+          "string",
+          "idle",
+          11885009,
+          11885015,
+          110,
+          121
+        ]
+      ],
+      "sourceMarkers": [
+        "export function useVimInput(",
+        "selectionAnchor",
+        "lastChange?.type === 'visualOp'",
+        "type: 'visualChange'",
+        "mode === 'VISUAL LINE'"
+      ]
+    },
+    {
+      "targetIndex": 19477,
+      "ownerPath": "src/hooks/useSearchInput.ts",
+      "behavior": "The authenticated Target118 special-key initializer is the authored UNHANDLED_SPECIAL_KEYS declaration in useSearchInput, not the adjacent coalesced Vim types module.",
+      "target": {
+        "start": 11885098,
+        "end": 11885355,
+        "bytes": 257,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "138e6c86d58c4a491bc4a21dc9fbcd87ddf6b35d26172d2a67cfcc3126b94cd7",
+        "structuralClass": "changed"
+      },
+      "residues": [
+        [
+          "string",
+          "tab",
+          11885195,
+          11885200,
+          41,
+          44
+        ],
+        [
+          "string",
+          "pageup",
+          11885214,
+          11885222,
+          14,
+          15
+        ],
+        [
+          "string",
+          "pagedown",
+          11885223,
+          11885233,
+          14,
+          16
+        ]
+      ],
+      "sourceMarkers": [
+        "const UNHANDLED_SPECIAL_KEYS = new Set([",
+        "'pageup'",
+        "'pagedown'",
+        "'f12'"
+      ]
+    }
+  ]
+}

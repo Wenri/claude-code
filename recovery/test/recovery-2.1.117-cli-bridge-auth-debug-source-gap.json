@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "status": "case-owned-bounded-source-replay-and-paired-whole-unit-proof",
+  "summary": {
+    "units": 1,
+    "strictResidues": 10,
+    "sourceReplayResidues": 1,
+    "buildMetadataResidues": 9,
+    "deadDceRows": 1,
+    "recoveredFiles": 1,
+    "authenticatedDependencies": 1,
+    "ownerOverrides": 1
+  },
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "baselineUnit": {
+    "baselineIndex": 20732,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 13098456,
+    "end": 13102266,
+    "bytes": 3810,
+    "tokenCount": 1079,
+    "topDefinitionCount": 1,
+    "sha256": "8a56d86b93dba39e5d68b19d85eb408657b64333cea92e56fae8d4f15190e1e1",
+    "coarseHash": "bc22f34ac257a89a429294db3f70e56e2db66e5de36c8b9eacde7dd047906ad4"
+  },
+  "targetUnit": {
+    "targetIndex": 20797,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 13110255,
+    "end": 13114112,
+    "bytes": 3857,
+    "tokenCount": 1094,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 3,
+    "sha256": "73e442595a2efba175940313d190a91b743ccb6819ad95cd25b879d70b66a64e",
+    "coarseHash": "111f36949f47eb454d60d60dba4c5b76b199e0a91d39288e92e69ddac4131e20"
+  },
+  "ownerResidues": {
+    "allOwnerRows": 99,
+    "addedOwnerRows": 11,
+    "strictRows": 10,
+    "tupleDigests": {
+      "allOwnerRows": {
+        "rows": 99,
+        "bytes": 6161,
+        "sha256": "9b3cb1710185c9a38d43b5f503cd13cd0d6f425c3531911d918f9f54c86be4ad"
+      },
+      "addedOwnerRows": {
+        "rows": 11,
+        "bytes": 702,
+        "sha256": "72aae6ba837463c73d9f0d5270d0a4b57f10aefd9e4af11c211b62a8b98cc548"
+      },
+      "strictRows": {
+        "rows": 10,
+        "bytes": 654,
+        "sha256": "7d1138e89d8167f672c1d5621b5a881c7c0a153f33ad6f86533fcc5ad729b2cd"
+      }
+    },
+    "rows": [
+      ["string", "2.1.117", 13110614, 13110623, 0, 135, true, true, "build-metadata"],
+      ["string", "2026-04-21T17:58:52Z", 13110703, 13110725, 0, 135, true, true, "build-metadata"],
+      ["string", "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387", 13110734, 13110776, 0, 135, true, true, "build-metadata"],
+      ["string", "2.1.117", 13111015, 13111024, 0, 136, true, true, "build-metadata"],
+      ["string", "2026-04-21T17:58:52Z", 13111104, 13111126, 0, 136, true, true, "build-metadata"],
+      ["string", "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387", 13111135, 13111177, 0, 136, true, true, "build-metadata"],
+      ["string", "2.1.117", 13111401, 13111410, 0, 137, true, true, "build-metadata"],
+      ["string", "2026-04-21T17:58:52Z", 13111490, 13111512, 0, 137, true, true, "build-metadata"],
+      ["string", "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387", 13111521, 13111563, 0, 137, true, true, "build-metadata"],
+      ["property", "getBridgeAuthDebugInfo", 13112438, 13112460, 0, 2, true, true, "source-gap"],
+      ["string", "respawn", 13113153, 13113162, 1, 2, true, false, "dead-dce"]
+    ]
+  },
+  "pairedWholeUnitProof": {
+    "canonicalBytes": 41895,
+    "canonicalSha256": "00bb79e9ac67dad070e990455253c268faf1ea602b075533c5e51ee5c6006669",
+    "baselineTransformCounts": {
+      "buildMetadataProperties": 9,
+      "debugBindingProperties": 0,
+      "debugSuffixCalls": 0,
+      "deadRespawnCases": 0
+    },
+    "targetTransformCounts": {
+      "buildMetadataProperties": 9,
+      "debugBindingProperties": 1,
+      "debugSuffixCalls": 2,
+      "deadRespawnCases": 1
+    },
+    "targetDebugBinding": {
+      "start": 13112438,
+      "end": 13112462,
+      "bytes": 24,
+      "sha256": "f6ecb52153efa18409d8ae1a97781fc347e6fc66c3bfaf95fd792ad9b8759077"
+    },
+    "targetExitCalls": [
+      {"start": 13112789, "end": 13112797, "bytes": 8, "sha256": "db26f1545bf9b3fb146a416ed3485d1a075c2e5a9d25da431d76f15c0d8f2234"},
+      {"start": 13112819, "end": 13112839, "bytes": 20, "sha256": "367aca092ceb981494b2585a199ea76e10fb0cdf93ec4874888aa1168dd12b02"}
+    ],
+    "targetDeadRespawnCase": {
+      "start": 13113149,
+      "end": 13113163,
+      "bytes": 14,
+      "sha256": "88c104ff34e82a9e45c9b50bad443ed3686451cea35933dfdf9d13c2b966d934"
+    }
+  },
+  "sourceReplay": {
+    "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "tree": "c9e15117699a700016fee35a941dc3896208819f",
+    "cli": {
+      "path": "src/entrypoints/cli.tsx",
+      "blob": "67326f890053cb527d70b58a38fa3bd41854cedd",
+      "input": {"bytes": 39275, "chars": 39265, "sha256": "87d4d49ed7512cf225d074e8f41aa3fb2f69eed19b9199e7eb30ddfd252a324f"},
+      "output": {"bytes": 39359, "chars": 39349, "sha256": "a158efe219ad152b18a06130fab6475458a7680fe456647078e57dc6fd29f698"},
+      "inputMain": {"start": 1947, "end": 11735, "bytes": 9796, "sha256": "2c3d021b9aff93f06edb104cbfc00c73855de7294048329a9918f658890e2481"},
+      "outputMain": {"start": 1947, "end": 11819, "bytes": 9880, "sha256": "5788b7f83df9413adbe944197cc2ededc815de09a5380cd87882a9521ce78352"},
+      "inputAnchors": [
+        {"kind": "dynamic-import", "start": 5439, "end": 5561, "bytes": 122, "sha256": "24bcc9523ebe89cb1168f996e1fcd024dc13c6fb7934c09b7a2ee36b39822ea0"},
+        {"kind": "login-exit", "start": 6243, "end": 6283, "bytes": 40, "sha256": "1e13a377433f5c1a3951cff97c158d66ee3a8ee5e44183d9f0ec3efa78e99747"},
+        {"kind": "disabled-exit", "start": 6376, "end": 6424, "bytes": 48, "sha256": "89b26983399ccfd8875037bb16208d763845cc0ada161b260c4e8919e59636de"}
+      ],
+      "outputAnchors": [
+        {"kind": "dynamic-import", "start": 5439, "end": 5591, "bytes": 152, "sha256": "9411d0228b440b7410d2906956327870f3722cd42521235cdd33976cd359803a"},
+        {"kind": "login-exit", "start": 6273, "end": 6340, "bytes": 67, "sha256": "82bdd70a137f05d2e88b4dcc55ac4e945e0a6ebcb71b80b0233275e339f6d2d9"},
+        {"kind": "disabled-exit", "start": 6433, "end": 6508, "bytes": 75, "sha256": "ba066d5153d058a63a361c1616d901f7d6b58fc4739f027023aa9ef0704eb335"}
+      ]
+    },
+    "dependency": {
+      "path": "src/bridge/bridgeEnabled.ts",
+      "blob": "7c96e0e298c0dcd4d63cd788da02280bda50d0bf",
+      "bytes": 10168,
+      "chars": 10128,
+      "sha256": "aa352b48b4a1f0807afc7c321f4066a941d5560b5bf57efabde15ce52791eab7",
+      "declaration": {"name": "getBridgeAuthDebugInfo", "nodeType": "FunctionDeclaration", "start": 4108, "end": 5772, "bytes": 1664, "sha256": "037301caa51c3a0c1618d43939fb3d55fc0e05735af94be29d9d0db1b6cd98d6"}
+    }
+  },
+  "ownerOverride": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-cli-bridge-auth-debug-source-gap.mjs",
+    "bytes": 7251,
+    "sha256": "ff83eb8d6cd89fa171f2919880917b85cf937009193b872999bb0149ea32c08e"
+  },
+  "evidenceIds": [
+    "target117-cli-bridge-auth-debug-authenticated-whole-unit-proof",
+    "target117-cli-bridge-auth-debug-exact-dependency-proof",
+    "target117-cli-bridge-auth-debug-source-replay-test",
+    "target117-cli-respawn-dead-dce-paired-proof"
+  ],
+  "generatorWiring": {
+    "export": "applyTarget117CliBridgeAuthDebugSourceRecovery",
+    "requiredOrder": "after any replay that mutates src/entrypoints/cli.tsx and before source-coverage generation",
+    "ownerOverrideExport": "TARGET117_CLI_BRIDGE_AUTH_DEBUG_OWNER_OVERRIDES"
+  },
+  "classification": "The strict getBridgeAuthDebugInfo residue is a compile-closed bounded source gap: the exact Target117 bridgeEnabled dependency already exports the helper, while cli.tsx omits its dynamic binding and both diagnostic suffix calls. The nine release literals are build metadata. The added respawn string is a dead switch label under if(!1) and is admitted only through the exact paired whole-unit proof; it is not replayed into authored source."
+}

@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "status": "authenticated-dependency-and-exact-source-compiler-proof",
+  "criterion": "target120-final-tail-u18299-u22004-v1",
+  "evidenceIds": [
+    "target120-agent-sdk-query-build-input-fragment",
+    "target2-1-120-final-tail-authenticated-target-fragment-test",
+    "target2-1-120-final-tail-exact-source-owner-test",
+    "target2-1-120-final-tail-forward-source-ast-test",
+    "target2-1-120-final-tail-compiler-lineage-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "baselineStructural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "semanticCorrespondence": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/semantic/semantic-correspondence.json.gz",
+      "bytes": 728492,
+      "sha256": "dd3eac9de213f2003e9c9c91e1136137e77b0e2346e231376749acaa6a7ed30e"
+    },
+    "typedAudit": {
+      "path": ".recovery-tmp/residue-audits/2.1.119-to-2.1.120.typed-audit.json",
+      "bytes": 20999065,
+      "sha256": "30843cd34174a5c7c4f59defa92d7dc25b62d30a34dd11e01d5d5e08b5f15187"
+    },
+    "historicalSources": [
+      {
+        "path": "src/main.tsx",
+        "bytes": 810851,
+        "sha256": "48f7a1d89e4eecb42c26cde5058408b7a4a251a42d8e6566012d12fbe0502909"
+      }
+    ],
+    "forwardSources": [
+      {
+        "path": "src/main.tsx",
+        "bytes": 816314,
+        "sha256": "c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"
+      },
+      {
+        "path": "src/state/AppStateStore.ts",
+        "bytes": 25341,
+        "sha256": "743fed1cdd2b414006839fc1725b0bb6c157485a9782c42ee4eb4ce47d0984d3"
+      },
+      {
+        "path": "src/cli/print.ts",
+        "bytes": 248102,
+        "sha256": "0b838a6f74645f962c29709e71824310bf08f8a327727c2af577c58d75e4f3f0"
+      }
+    ]
+  },
+  "summary": {
+    "units": 2,
+    "dependencyUnits": 1,
+    "sourceUnits": 1,
+    "residues": 21,
+    "dependencyResidues": 8,
+    "directSourceAstResidues": 1,
+    "forwardSourceAstResidues": 5,
+    "compilerResidues": 7,
+    "indicesSha256": "7ad8e7941e50be27bba407cdffcb26040b53d85169effa8e332de5d477332ceb",
+    "residueIdentitiesSha256": "8cf91bcc84f08c9a38ae235256187b22c30d62768e960496f0a7201dc82bdcac"
+  },
+  "rows": [
+    {
+      "targetIndex": 18299,
+      "category": "dependency-build-input",
+      "priorOwnerPaths": [
+        "src/commands/bridge/index.ts"
+      ],
+      "coverage": {
+        "disposition": "dependency-runtime",
+        "ownerPaths": [],
+        "evidenceIds": [
+          "dependency-attribution",
+          "dependency-build-input-audit",
+          "target120-agent-sdk-query-build-input-fragment"
+        ]
+      },
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 11187929,
+        "end": 11203368,
+        "bytes": 15439,
+        "sourceHash": "d547dccda7ff2f9d042855e5f09f9354e2a9d77094c630c0bfdf547ff7944d9e"
+      },
+      "baselinePredecessor": {
+        "targetIndex": 18223,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 11153978,
+        "end": 11169217,
+        "bytes": 15239,
+        "sourceHash": "f0f10221a03b9fc9f3e67ebc7d17ad8e328eda4ce278132084389c3744a857d7"
+      },
+      "sdkTag": {
+        "value": "@anthropic-ai/claude-agent-sdk",
+        "baselineOffsets": [
+          11153755,
+          11153804,
+          11153850
+        ],
+        "targetOffsets": [
+          11187706,
+          11187755,
+          11187801
+        ],
+        "lastTagStartToRegionStartBytes": 128
+      },
+      "residues": 8,
+      "residueIdentitiesSha256": "f69a857189ba393a1748e09b879e312b1ce92fb72ff979ba982da82ef97f501b",
+      "groups": [
+        {
+          "representation": "dependency-query-upgrade",
+          "targetStarts": [
+            11196253,
+            11196313,
+            11197346,
+            11197401,
+            11197433,
+            11197444
+          ],
+          "targetMarkers": [
+            "skills:Array.isArray(this.initConfig?.skills)?this.initConfig.skills:void 0",
+            "async submitFeedback",
+            "subtype:\"submit_feedback\"",
+            "surface:$?.surface"
+          ]
+        },
+        {
+          "representation": "dependency-existing-occurrence-shift",
+          "targetStarts": [
+            11198025,
+            11198035
+          ],
+          "targetMarkers": [
+            "async messageRated",
+            "surface:H.surface"
+          ]
+        }
+      ],
+      "occurrenceCounts": {
+        "baseline": {
+          "initConfig": 14,
+          "surface": 2,
+          "submitFeedback": 0,
+          "submit_feedback": 0
+        },
+        "target": {
+          "initConfig": 16,
+          "surface": 4,
+          "submitFeedback": 1,
+          "submit_feedback": 1
+        }
+      },
+      "behavior": "The authenticated @anthropic-ai/claude-agent-sdk Query module owns SDK initialization and submit-feedback control methods; the prior bridge source-map candidate is not an authored application owner."
+    },
+    {
+      "targetIndex": 22004,
+      "category": "exact-source-owner-with-compiler-lineage",
+      "ownerPath": "src/main.tsx",
+      "priorOwnerPaths": [
+        "src/main.tsx"
+      ],
+      "coverage": {
+        "disposition": "source-runtime-covered",
+        "ownerPaths": [
+          "src/main.tsx"
+        ],
+        "evidenceIds": [
+          "target2-1-120-final-tail-authenticated-target-fragment-test",
+          "target2-1-120-final-tail-exact-source-owner-test",
+          "target2-1-120-final-tail-forward-source-ast-test",
+          "target2-1-120-final-tail-compiler-lineage-test"
+        ]
+      },
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 13711458,
+        "end": 13773044,
+        "bytes": 61586,
+        "sourceHash": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0"
+      },
+      "semanticCorrespondence": {
+        "ownership": "source-owned-exact",
+        "exactSourcePaths": [
+          "src/main.tsx"
+        ],
+        "targetRangeIndices": {
+          "length": 635,
+          "first": 57680,
+          "last": 58314
+        }
+      },
+      "residues": 13,
+      "residueIdentitiesSha256": "b374c0a2d5324c4fe7a2883bc3a5f9aaf8ccc7980c5b97859ba24b27408176d9",
+      "sourceGroups": [
+        {
+          "representation": "forward-main-deep-link-source-ast",
+          "sourceSnapshot": "forward",
+          "sourcePath": "src/main.tsx",
+          "targetStarts": [
+            13720448,
+            13724042
+          ],
+          "sourceMarkers": [
+            "Buffer.from(value, 'base64url').toString('utf8')",
+            "getProjectPathForConfig.cache?.clear?.()"
+          ],
+          "targetMarkers": [
+            "Buffer.from(O,\"base64url\").toString(\"utf8\")",
+            ".cache?.clear?.()"
+          ]
+        },
+        {
+          "representation": "forward-app-state-source-ast",
+          "sourceSnapshot": "forward",
+          "sourcePath": "src/state/AppStateStore.ts",
+          "targetStarts": [
+            13747403
+          ],
+          "sourceMarkers": [
+            "teammateColors: {",
+            "index: 0,"
+          ],
+          "targetMarkers": [
+            "teammateColors:{assignments:new Map,index:0}"
+          ]
+        },
+        {
+          "representation": "forward-resume-telemetry-source-ast",
+          "sourceSnapshot": "forward",
+          "sourcePath": "src/cli/print.ts",
+          "targetStarts": [
+            13754498,
+            13755022
+          ],
+          "sourceMarkers": [
+            "failure_reason: 'not_found_explicit_id'",
+            "failure_reason: failureReason"
+          ],
+          "targetMarkers": [
+            "failure_reason:\"not_found_explicit_id\"",
+            "failure_reason:GK"
+          ]
+        },
+        {
+          "representation": "direct-dynamic-import-source-ast",
+          "sourceSnapshot": "historical",
+          "sourcePath": "src/main.tsx",
+          "targetStarts": [
+            13770506
+          ],
+          "sourceMarkers": [
+            "ultrareviewHandler",
+            "await import('./cli/handlers/ultrareview.js')"
+          ],
+          "targetMarkers": [
+            "ultrareviewHandler:D"
+          ]
+        }
+      ],
+      "compilerGroups": [
+        {
+          "representation": "config-property-key-lowering",
+          "targetStarts": [
+            13735511
+          ],
+          "sourceMarkers": [
+            "const agentSetting = agentCli ?? getInitialSettings().agent;"
+          ],
+          "targetMarkers": [
+            "$tH(\"agent\")"
+          ]
+        },
+        {
+          "representation": "build-metadata-object-expansion",
+          "targetStarts": [
+            13740600,
+            13740689,
+            13740720,
+            13756940,
+            13757029,
+            13757060
+          ],
+          "sourceMarkers": [
+            "version: MACRO.VERSION",
+            ").version(`${MACRO.VERSION} (Claude Code)`"
+          ],
+          "targetMarkers": [
+            "VERSION:\"2.1.120\"",
+            "BUILD_TIME:\"2026-04-24T19:00:49Z\"",
+            "GIT_SHA:\"080f07fb4224786b965b9ea0a35f0cff594f2eb6\""
+          ]
+        }
+      ],
+      "behavior": "The CLI entrypoint owns deep-link startup normalization, agent selection, initial teammate-color state, resume telemetry, version registration, and ultrareview dispatch emitted by the authenticated target unit."
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-fork-boilerplate-message-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-fork-boilerplate-message-target-fragments",
+    "target116-fork-boilerplate-message-absence-test",
+    "target117-fork-boilerplate-message-dispatcher-source-test",
+    "target117-fork-boilerplate-message-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-fork-boilerplate-message-source-gap.mjs",
+      "bytes": 6987,
+      "sha256": "3ead452601020ef996fb514ec3b86a4f30023f5fa1233f92595418cd3fcef9f0"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "contextFiles": [
+      {
+        "path": "src/components/messages/UserTextMessage.tsx",
+        "blob": "d6628febbfc6c4bdc2e6870fb9424c1a9dc28862",
+        "bytes": 29051,
+        "sha256": "de029e8493040381a2cb744402131334a09d531d6bf73d063b8e2a5145c1e04c",
+        "declaration": {
+          "name": "UserTextMessage",
+          "nodeType": "FunctionDeclaration",
+          "start": 1552,
+          "end": 8374,
+          "bytes": 6822,
+          "sha256": "42ae095c286b2a026837779a0ebe4760d3d032b2903728bb6ca6d92a41824a51"
+        },
+        "dispatcher": {
+          "start": 5946,
+          "end": 6629,
+          "bytes": 683,
+          "sha256": "2de13cc5489fe40064a6702b6b3eeefc6d62a08974ceffe3ec3527ea41e48118"
+        }
+      },
+      {
+        "path": "src/constants/figures.ts",
+        "blob": "d99de2f3815b4262f5dbafbcad7bd4ed0c24effc",
+        "bytes": 2129,
+        "sha256": "63f2e363252f6cd4edf24e578165f5a39c5d039b884ddf5dad2c136de209741b",
+        "declarations": [
+          {
+            "name": "FORK_GLYPH",
+            "nodeType": "FirstStatement",
+            "start": 1195,
+            "end": 1229,
+            "bytes": 34,
+            "sha256": "aef8b608f757f8ad22de2cd85defdc1f9c8b184c7f15812ff5e7f5693a5abb76"
+          }
+        ]
+      },
+      {
+        "path": "src/constants/xml.ts",
+        "blob": "158b31931e9a2f4147ba5c8303f7cf9612be9904",
+        "bytes": 3325,
+        "sha256": "cd9e9a24c5696065cf1194f633afac33914079c34054a347d8aa8b26a8058a48",
+        "declarations": [
+          {
+            "name": "FORK_BOILERPLATE_TAG",
+            "nodeType": "FirstStatement",
+            "start": 2674,
+            "end": 2728,
+            "bytes": 54,
+            "sha256": "567c3b386da5953551b200430212270796f13c6d626632454f7b58aa7eeec752"
+          },
+          {
+            "name": "FORK_DIRECTIVE_PREFIX",
+            "nodeType": "FirstStatement",
+            "start": 2886,
+            "end": 2941,
+            "bytes": 55,
+            "sha256": "80f3028874bcc4188ac79aed087c7a1dd9684a7414b837196f75919ea48e65f5"
+          }
+        ]
+      }
+    ],
+    "rejectedSourceMapOwner": {
+      "path": "src/tasks/RemoteAgentTask/RemoteAgentTask.tsx",
+      "blob": "6afa99811ee362d6cbe3929e965802796f08d4f6",
+      "bytes": 126389,
+      "sha256": "080a002857a47ee24bacec27e58130354557b800d04ea7d2f7b1f192205ffc16"
+    },
+    "recoveredFile": {
+      "path": "src/components/messages/UserForkBoilerplateMessage.tsx",
+      "bytes": 1068,
+      "sha256": "027b3308fe5b7e4e6587865e4b2ad756d04344a8372dd16587839e8d3e726188",
+      "declarations": [
+        {
+          "name": "Props",
+          "nodeType": "TypeAliasDeclaration",
+          "start": 295,
+          "end": 356,
+          "bytes": 61,
+          "sha256": "c1e0994a5ef475e9424160ce4697900747bcaf1f63fc54d4543040f5d93f3923"
+        },
+        {
+          "name": "FORK_BOILERPLATE_RE",
+          "nodeType": "FirstStatement",
+          "start": 358,
+          "end": 470,
+          "bytes": 112,
+          "sha256": "57e17828fa0ec8fd5af240106726652b8d821fd574af864a84521489ee48f21e"
+        },
+        {
+          "name": "UserForkBoilerplateMessage",
+          "nodeType": "FunctionDeclaration",
+          "start": 472,
+          "end": 1067,
+          "bytes": 595,
+          "sha256": "d9ae946246668f586f3408f893db5d8e6e5a1dfe33455be5e23a7df162eef92f"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "behaviorWitnessUnits": 1
+  },
+  "baselineAbsence": {
+    "property": "UserForkBoilerplateMessage",
+    "propertyOccurrences": 0,
+    "residueOccurrences": 0
+  },
+  "behaviorWitness": {
+    "targetUnit": [
+      12460,
+      "unresolved",
+      "FunctionDeclaration",
+      7789226,
+      7789804,
+      302,
+      "2714eeb08bea6427ccfe3a1e9d70a6101fe5548de23c3f3875c24e1a886def4e",
+      "54ffdfaefed6d34e6213ef26a6952aae9e0a8728dcc3400244c11eb4bfcd1004"
+    ],
+    "exactSource": "function iH1(H){let $=M_7.c(8),{addMargin:q,param:K}=H,{text:_}=K,A;if($[0]!==_){let D=_.replace(nH1,\"\");A=D.startsWith(FcH)?D.slice(FcH.length):D,$[0]=_,$[1]=A}else A=$[1];let f=A,z=q?1:0,Y;if($[2]===Symbol.for(\"react.memo_cache_sentinel\"))Y=jHH.createElement(k,{dimColor:!0},_L$),$[2]=Y;else Y=$[2];let O;if($[3]!==f)O=jHH.createElement(m,{paddingLeft:1},jHH.createElement(k,null,f)),$[3]=f,$[4]=O;else O=$[4];let M;if($[5]!==z||$[6]!==O)M=jHH.createElement(m,{marginTop:z,backgroundColor:\"userMessageBackground\",paddingRight:1},Y,O),$[5]=z,$[6]=O,$[7]=M;else M=$[7];return M}"
+  },
+  "row": {
+    "targetIndex": 12462,
+    "owner": "src/components/messages/UserForkBoilerplateMessage.tsx",
+    "rejectedOwner": "src/tasks/RemoteAgentTask/RemoteAgentTask.tsx",
+    "declarations": [
+      "FORK_BOILERPLATE_RE",
+      "UserForkBoilerplateMessage"
+    ],
+    "targetUnit": [
+      12462,
+      "unresolved",
+      "VariableDeclaration",
+      7789820,
+      7789930,
+      63,
+      "4b7ce89a23b8f9025f7d02588d87cfd2b5a352a74bc8525e816f4130b4abe1f0",
+      "fa4e34f7962b5f3516102490751f992aac58604495ab21937679483da90c8e5b"
+    ],
+    "exactSource": "var w_7=v(()=>{d4();wA();gH();M_7=x(lH(),1),jHH=x(wH(),1),nH1=new RegExp(`<${W3H}>[\\\\s\\\\S]*?</${W3H}>\\\\n*`)});",
+    "residues": [
+      [
+        "string",
+        ">[\\s\\S]*?</",
+        7789901,
+        7789914,
+        1,
+        0
+      ],
+      [
+        "string",
+        ">\\n*",
+        7789920,
+        7789925,
+        1,
+        0
+      ]
+    ]
+  }
+}

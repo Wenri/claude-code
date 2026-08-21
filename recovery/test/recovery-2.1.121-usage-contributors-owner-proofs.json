@@ -1,0 +1,809 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-usage-contributors-exact-owner-and-compiler-proof-v1",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 31092432,
+      "sha256": "f76cfab38ea9cf241a60562c7e697b0db3fbbacd7bda281737a37e052502c929"
+    }
+  },
+  "targetIndices": [
+    16054,
+    16056,
+    16057
+  ],
+  "targetIndicesSha256": "4f7f189bd944f623ee382dabc1659856dd31e4bfacbb14fe5dfe413c619e67ad",
+  "units": [
+    {
+      "targetIndex": 16054,
+      "start": 9832170,
+      "end": 9832364,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e",
+      "bytes": 194,
+      "sha256": "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e",
+      "correctedOwner": "src/components/Settings/UsageContributors.tsx"
+    },
+    {
+      "targetIndex": 16056,
+      "start": 9832414,
+      "end": 9833126,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff",
+      "bytes": 712,
+      "sha256": "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff",
+      "correctedOwner": "src/components/Settings/UsageContributors.tsx"
+    },
+    {
+      "targetIndex": 16057,
+      "start": 9833126,
+      "end": 9833849,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba",
+      "bytes": 723,
+      "sha256": "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba",
+      "correctedOwner": "src/components/Settings/UsageContributors.tsx"
+    }
+  ],
+  "residues": [
+    [
+      16054,
+      "property",
+      "cacheMissCost",
+      9832219,
+      9832232,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "cacheMissCount",
+      9832235,
+      9832249,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "longCtxCost",
+      9832252,
+      9832263,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "longCtxCount",
+      9832266,
+      9832278,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "byAgent",
+      9832314,
+      9832321,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "bySkill",
+      9832330,
+      9832337,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "byPlugin",
+      9832346,
+      9832354,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16056,
+      "property",
+      "attributionAgent",
+      9832482,
+      9832498,
+      0,
+      4,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "byAgent",
+      9832505,
+      9832512,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionSkill",
+      9832515,
+      9832531,
+      0,
+      4,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionAgent",
+      9832535,
+      9832551,
+      0,
+      5,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "bySkill",
+      9832566,
+      9832573,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionSkill",
+      9832576,
+      9832592,
+      0,
+      5,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "byPlugin",
+      9832602,
+      9832610,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionPlugin",
+      9832613,
+      9832630,
+      0,
+      4,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "cacheMissCost",
+      9832694,
+      9832707,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "cacheMissCount",
+      9832713,
+      9832727,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "longCtxCost",
+      9832741,
+      9832752,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "longCtxCount",
+      9832758,
+      9832770,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16057,
+      "property",
+      "cacheMissCost",
+      9833413,
+      9833426,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "cacheMissCount",
+      9833435,
+      9833449,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "longCtxCost",
+      9833478,
+      9833489,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "longCtxCount",
+      9833498,
+      9833510,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "requestCount",
+      9833675,
+      9833687,
+      6,
+      7,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "requestCount",
+      9833690,
+      9833702,
+      6,
+      8,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "sessions",
+      9833718,
+      9833726,
+      36,
+      37,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "byAgent",
+      9833757,
+      9833764,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "bySkill",
+      9833791,
+      9833798,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "byPlugin",
+      9833826,
+      9833834,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ]
+  ],
+  "directOwnerResidues": [
+    [
+      16054,
+      "property",
+      "cacheMissCost",
+      9832219,
+      9832232,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "cacheMissCount",
+      9832235,
+      9832249,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "byAgent",
+      9832314,
+      9832321,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "bySkill",
+      9832330,
+      9832337,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "byPlugin",
+      9832346,
+      9832354,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16056,
+      "property",
+      "attributionAgent",
+      9832482,
+      9832498,
+      0,
+      4,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "byAgent",
+      9832505,
+      9832512,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionSkill",
+      9832515,
+      9832531,
+      0,
+      4,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionAgent",
+      9832535,
+      9832551,
+      0,
+      5,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "bySkill",
+      9832566,
+      9832573,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionSkill",
+      9832576,
+      9832592,
+      0,
+      5,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "byPlugin",
+      9832602,
+      9832610,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "attributionPlugin",
+      9832613,
+      9832630,
+      0,
+      4,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "cacheMissCost",
+      9832694,
+      9832707,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "cacheMissCount",
+      9832713,
+      9832727,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16057,
+      "property",
+      "cacheMissCost",
+      9833413,
+      9833426,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "cacheMissCount",
+      9833435,
+      9833449,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "requestCount",
+      9833675,
+      9833687,
+      6,
+      7,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "requestCount",
+      9833690,
+      9833702,
+      6,
+      8,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "sessions",
+      9833718,
+      9833726,
+      36,
+      37,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "byAgent",
+      9833757,
+      9833764,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "bySkill",
+      9833791,
+      9833798,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "byPlugin",
+      9833826,
+      9833834,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ]
+  ],
+  "compilerResidues": [
+    [
+      16054,
+      "property",
+      "longCtxCost",
+      9832252,
+      9832263,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16054,
+      "property",
+      "longCtxCount",
+      9832266,
+      9832278,
+      0,
+      1,
+      "a069b976c3656e8251dc6824abd03e7f6e7da02608cf1b02fddea172e06fee7e"
+    ],
+    [
+      16056,
+      "property",
+      "longCtxCost",
+      9832741,
+      9832752,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16056,
+      "property",
+      "longCtxCount",
+      9832758,
+      9832770,
+      0,
+      2,
+      "e5534e626966d05a4f2349642a89455c37adbcbffc42488bf83ede37928c28ff"
+    ],
+    [
+      16057,
+      "property",
+      "longCtxCost",
+      9833478,
+      9833489,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ],
+    [
+      16057,
+      "property",
+      "longCtxCount",
+      9833498,
+      9833510,
+      0,
+      3,
+      "fdfb5bd26bca701d98a8feef7a0a95ba9d54a966a363e1d5f4d9df17d76c0aba"
+    ]
+  ],
+  "summary": {
+    "units": 3,
+    "residues": 29,
+    "directOwnerResidues": 23,
+    "compilerResidues": 6,
+    "residueIdentitiesSha256": "008c9da010ce345873210f56498cfab443622ed8212cb574df6d389d74ff055a",
+    "compilerResidueIdentitiesSha256": "4eb8ecaeed167b3269c76a27126eea00b2bfebe26d5dd42d9c15072f9cb3c772"
+  },
+  "compilerMappings": [
+    {
+      "targetIndex": 16054,
+      "targetResidues": [
+        {
+          "kind": "property",
+          "value": "longCtxCost",
+          "count": 1
+        },
+        {
+          "kind": "property",
+          "value": "longCtxCount",
+          "count": 1
+        }
+      ],
+      "sourcePath": "src/components/Settings/UsageContributors.tsx",
+      "declaration": "createAccumulator",
+      "sourceMarkers": [
+        "longContextCost: 0",
+        "longContextCount: 0"
+      ],
+      "behavior": "The target accumulator fields longCtxCost/longCtxCount are compiler abbreviations of the source fields longContextCost/longContextCount initialized by createAccumulator."
+    },
+    {
+      "targetIndex": 16056,
+      "targetResidues": [
+        {
+          "kind": "property",
+          "value": "longCtxCost",
+          "count": 1
+        },
+        {
+          "kind": "property",
+          "value": "longCtxCount",
+          "count": 1
+        }
+      ],
+      "sourcePath": "src/components/Settings/UsageContributors.tsx",
+      "declaration": "addRecord",
+      "sourceMarkers": [
+        "inputTokens > 150_000",
+        "accumulator.longContextCost += cost",
+        "accumulator.longContextCount++"
+      ],
+      "behavior": "The target increments abbreviated long-context fields under the same 150,000-input-token condition expressed by addRecord with descriptive source field names."
+    },
+    {
+      "targetIndex": 16057,
+      "targetResidues": [
+        {
+          "kind": "property",
+          "value": "longCtxCost",
+          "count": 1
+        },
+        {
+          "kind": "property",
+          "value": "longCtxCount",
+          "count": 1
+        }
+      ],
+      "sourcePath": "src/components/Settings/UsageContributors.tsx",
+      "declaration": "finalizeAccumulator",
+      "sourceMarkers": [
+        "key: 'long_context'",
+        "cost: accumulator.longContextCost",
+        "count: accumulator.longContextCount"
+      ],
+      "behavior": "The target reads abbreviated long-context fields into the long_context behavior row exactly where finalizeAccumulator reads the descriptive source fields."
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "src/components/Settings/UsageContributors.tsx",
+      "bytes": 24178,
+      "sha256": "1ef00de7eaf1a455f1337bac0a09ed74e00afb898f578e5bc97d30e1a20f41c1",
+      "declarations": [
+        {
+          "name": "createAccumulator",
+          "kind": "FunctionDeclaration",
+          "start": 20138,
+          "end": 20458,
+          "bytes": 320,
+          "sha256": "60c5e421f2896ed58f422ea353412783237095f88df3d13be9cfb009b018368c"
+        },
+        {
+          "name": "addRecord",
+          "kind": "FunctionDeclaration",
+          "start": 20634,
+          "end": 22112,
+          "bytes": 1478,
+          "sha256": "f0965e0170b2c0e198845075019fd3d19a3a8cc83d63b106d75b89890adf0c1f"
+        },
+        {
+          "name": "finalizeAccumulator",
+          "kind": "FunctionDeclaration",
+          "start": 22114,
+          "end": 23783,
+          "bytes": 1669,
+          "sha256": "1f82e47a123200a3a7cabfdfdec58eed478a681da49a327b0bcc0cf2fc43eb04"
+        }
+      ]
+    }
+  ],
+  "evidenceIds": [
+    "target121-usage-contributors-authenticated-target-fragment",
+    "target121-usage-contributors-exact-source-owner-test",
+    "target121-usage-contributors-compiler-normalization-test"
+  ],
+  "ownerOverrides": [
+    {
+      "key": "2.1.120-to-2.1.121:16054",
+      "targetIndex": 16054,
+      "paths": [
+        "src/components/Settings/UsageContributors.tsx"
+      ],
+      "evidenceIds": [
+        "target121-usage-contributors-authenticated-target-fragment",
+        "target121-usage-contributors-exact-source-owner-test",
+        "target121-usage-contributors-compiler-normalization-test"
+      ],
+      "behavior": "The authenticated unit creates the usage-contributor accumulator with cost, request, cache-miss, long-context, session, time-bucket, agent, skill, and plugin state. The target abbreviates longContextCost/longContextCount as longCtxCost/longCtxCount; it is not OverageCreditUpsell UI."
+    },
+    {
+      "key": "2.1.120-to-2.1.121:16056",
+      "targetIndex": 16056,
+      "paths": [
+        "src/components/Settings/UsageContributors.tsx"
+      ],
+      "evidenceIds": [
+        "target121-usage-contributors-authenticated-target-fragment",
+        "target121-usage-contributors-exact-source-owner-test",
+        "target121-usage-contributors-compiler-normalization-test"
+      ],
+      "behavior": "The authenticated unit adds one usage record to the contributor accumulator, attributing cost to agents, skills, and plugins while counting cache misses, long-context input, sessions, subagents, hourly activity, and five-minute concurrency buckets."
+    },
+    {
+      "key": "2.1.120-to-2.1.121:16057",
+      "targetIndex": 16057,
+      "paths": [
+        "src/components/Settings/UsageContributors.tsx"
+      ],
+      "evidenceIds": [
+        "target121-usage-contributors-authenticated-target-fragment",
+        "target121-usage-contributors-exact-source-owner-test",
+        "target121-usage-contributors-compiler-normalization-test"
+      ],
+      "behavior": "The authenticated unit finalizes usage-contributor statistics: it derives cache-miss, long-context, subagent-heavy, high-parallel, and cron behavior totals and summarizes agent, skill, and plugin attribution."
+    }
+  ]
+}

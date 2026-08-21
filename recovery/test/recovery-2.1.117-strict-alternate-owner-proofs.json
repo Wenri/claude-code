@@ -1,0 +1,2195 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-whole-unit-exact-owner-declaration-v1",
+  "status": "strict-declaration-proof-ready",
+  "evidenceIds": [
+    "target117-strict-alternate-owner-target-fragment",
+    "target117-strict-alternate-owner-source-ast-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "ownerResidueReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.116-to-2.1.117.typed-audit.json",
+      "bytes": 26961116,
+      "sha256": "4bc1df9807ecbe96b7b7fdc826c111642be941d8d127c8bc0a3c594ff355b0d9",
+      "fullRows": 889
+    },
+    "coverageAfterSourceGapOverridesBeforeTheseCorrections": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/semantic/source-coverage.json.gz",
+      "bytes": 274636,
+      "sha256": "66f0a577d37d21029b646e0cdecc354211d530dd8ecd45221a4e5b8a9792db0b"
+    },
+    "targetSemanticTree": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "gitTree": "c9e15117699a700016fee35a941dc3896208819f",
+      "sourceGitTree": "0a502684416e0456b87f51879f02178d480c8b7c",
+      "raw": {
+        "files": 1957,
+        "bytes": 30993723,
+        "manifestSha256": "135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee"
+      },
+      "recovered": {
+        "files": 1966,
+        "bytes": 31042772,
+        "manifestSha256": "a47b2a1ccc07566e412ad4246a9c2809898bbfe8a588983c1e353d160d4cae44"
+      },
+      "generatedAndHistoricalPostimage": {
+        "files": 1968,
+        "bytes": 31073648,
+        "manifestSha256": "5eb49c365f39597300f5c1ff061c2b0ad152aa534ab9ec240016be576b75cb93"
+      },
+      "packagedConfirmationPostimage": {
+        "files": 1970,
+        "bytes": 31103596,
+        "manifestSha256": "5851fdabf4bdb46db47af88f896b09f754043be25e6d64b729239f4c1978d8ea"
+      }
+    },
+    "target119SourceOverlay": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/source-facing-overlay.patch",
+      "bytes": 2709667,
+      "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794"
+    }
+  },
+  "temporalWitness": {
+    "target117To118": {
+      "ledger": {
+        "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+        "bytes": 2429007,
+        "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+      },
+      "baselineIndex": 12603,
+      "classification": "matched",
+      "pairReason": "exact-scope-normalized-token-hash",
+      "targetIndex": 12697,
+      "targetNodeType": "FunctionDeclaration",
+      "targetSourceHash": "1adc561a0243ac7d3ae66c84d01ef8553dc7aca75ee21d4216f441b4ecad4707"
+    },
+    "target118To119": {
+      "ledger": {
+        "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+        "bytes": 2550437,
+        "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+      },
+      "baselineIndex": 12697,
+      "classification": "matched",
+      "pairReason": "exact-scope-normalized-token-hash",
+      "targetIndex": 12862,
+      "targetNodeType": "FunctionDeclaration",
+      "targetSourceHash": "b71c2161a59e73a2682b6a12ed962a35e3f8af6d0d1e567f92748655117ec311"
+    }
+  },
+  "summary": {
+    "units": 11,
+    "residues": 20,
+    "exactAlternateDeclarations": 9,
+    "laterExactDeclarationRecoveries": 1,
+    "currentOwnersConfirmed": 1,
+    "rejectedTextOnlyCandidates": 2
+  },
+  "rows": [
+    {
+      "targetIndex": 8231,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 3896869,
+        "end": 3896998,
+        "bytes": 129,
+        "tokenCount": 26,
+        "sourceHash": "2ecd740c74cce44077675ef9fd179c3f86f2403abf2a1ccff6e7327a0430605c",
+        "coarseHash": "22711efc1d9c0da0d523d603fdb84d3b171e31fa8678f7e3027bad0332d00ddf"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "Advisor tool result content could not be processed",
+          "valueSha256": "11961fe320187e89aaefbda323655f2daf2435dd7b1a0b2fee6df4e9f409bf15",
+          "start": 3896944,
+          "end": 3896996,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/services/api/errors.ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/services/api/claude.ts"
+      ],
+      "semanticOwner": "src/services/api/claude.ts",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 19,
+        "sha256": "0008b618f6323919fda3c8027345d3e9f4e8e9264b4723330f49e006eae01ac4"
+      },
+      "declaration": {
+        "kind": "PropertyAssignment",
+        "name": "onError",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "11961fe320187e89aaefbda323655f2daf2435dd7b1a0b2fee6df4e9f409bf15",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "stripAdvisorBlocks",
+            "module": "../../utils/messages.js"
+          },
+          {
+            "local": "APIError",
+            "module": "@anthropic-ai/sdk/error"
+          },
+          {
+            "local": "logEvent",
+            "module": "../analytics/index.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 131940,
+          "sha256": "3cf4bfae89cd1c3d747846ba740487bf716d4f2f4b2d449eb9ca12261d63c21c"
+        },
+        "declaration": {
+          "start": 65989,
+          "end": 66625,
+          "bytes": 636,
+          "sha256": "944b2fb91bc0c98667ecf99019fa4e45d2723d1b299c043ab40da35bafc15810"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "11961fe320187e89aaefbda323655f2daf2435dd7b1a0b2fee6df4e9f409bf15",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "stripAdvisorBlocks",
+            "module": "../../utils/messages.js"
+          },
+          {
+            "local": "APIError",
+            "module": "@anthropic-ai/sdk/error"
+          },
+          {
+            "local": "logEvent",
+            "module": "../analytics/index.js"
+          }
+        ]
+      },
+      "packagedSource": {
+        "file": {
+          "bytes": 134029,
+          "sha256": "591492ae573ed9a7aae4b5b0a698c1f81375f15ff3a5cef8f90807095d190c51"
+        },
+        "declaration": {
+          "start": 66840,
+          "end": 67977,
+          "bytes": 1137,
+          "sha256": "c28e4f82f368dab8eb09ae43ffd568d5dedcf442ee7730dc84a9e7f4157cd7d4"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "11961fe320187e89aaefbda323655f2daf2435dd7b1a0b2fee6df4e9f409bf15",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 142078,
+          "sha256": "43d95ad1588b2cc36ae43bf7935a308cee2cf4d5fa9f042d5295039fe96858fa"
+        },
+        "declaration": {
+          "start": 70870,
+          "end": 73582,
+          "bytes": 2716,
+          "sha256": "84e48a8ba31f41ff538db645557f4061ded54f8be6ec4c6de26ea7e64d0bb966"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "11961fe320187e89aaefbda323655f2daf2435dd7b1a0b2fee6df4e9f409bf15",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "stripAdvisorBlocks",
+            "module": "../../utils/messages.js"
+          },
+          {
+            "local": "APIError",
+            "module": "@anthropic-ai/sdk/error"
+          },
+          {
+            "local": "logEvent",
+            "module": "../analytics/index.js"
+          }
+        ]
+      },
+      "behavior": "The API request onError callback detects the exact HTTP 400 advisor-result rejection, strips advisor blocks, clears stale cache edits, records the retry event, and returns the advisor-strip retry sentinel."
+    },
+    {
+      "targetIndex": 8755,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 4133609,
+        "end": 4133900,
+        "bytes": 291,
+        "tokenCount": 128,
+        "sourceHash": "863a4aec5b5bb554be17ce403dd177c7337d6a07952af90a331978851e953ae1",
+        "coarseHash": "cce76532ff9106990e7faf12179a97087e23451501fcbb62681052e1f139fe4a"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "isForkSubagentEnabled",
+          "valueSha256": "e31fa24b34a72ed58e0198d876cbd60f324f500fba7306297ccba49a1b245259",
+          "start": 4133738,
+          "end": 4133759,
+          "baselineCount": 0,
+          "targetOrdinal": 2
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/utils/permissions/pathValidation.ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/tools/ToolSearchTool/prompt.ts"
+      ],
+      "semanticOwner": "src/tools/ToolSearchTool/prompt.ts",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 41,
+        "sha256": "2a9953affe5acd0e38d562a6e5c20ccf44a95a99a7fb6aeecb6822f7375838e0"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "isDeferredTool",
+        "requiredDynamicModules": [
+          "../AgentTool/forkSubagent.js"
+        ]
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "e31fa24b34a72ed58e0198d876cbd60f324f500fba7306297ccba49a1b245259",
+            "nodeKinds": [
+              "PropertyAccessExpression"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "feature",
+            "module": "bun:bundle"
+          },
+          {
+            "local": "AGENT_TOOL_NAME",
+            "module": "../AgentTool/constants.js"
+          },
+          {
+            "local": "TOOL_SEARCH_TOOL_NAME",
+            "module": "./constants.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 5227,
+          "sha256": "c1894fa6e91676ef001d142ee25abd515256150f4edfa93ed19c08bbeb4aea52"
+        },
+        "declaration": {
+          "start": 2939,
+          "end": 4807,
+          "bytes": 1874,
+          "sha256": "6f8772906602ed90f91660e76f2415c08c6be4ef068b75d0a2efa6b66e88f403"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "e31fa24b34a72ed58e0198d876cbd60f324f500fba7306297ccba49a1b245259",
+            "nodeKinds": [
+              "PropertyAccessExpression"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "feature",
+            "module": "bun:bundle"
+          },
+          {
+            "local": "AGENT_TOOL_NAME",
+            "module": "../AgentTool/constants.js"
+          },
+          {
+            "local": "TOOL_SEARCH_TOOL_NAME",
+            "module": "./constants.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 5384,
+          "sha256": "74ebf6e9132fa224fe50b414282aa84d8f76fc69c313dd48acf828ff8943a1bd"
+        },
+        "declaration": {
+          "start": 2524,
+          "end": 4999,
+          "bytes": 2481,
+          "sha256": "73daf687de203a5b6ff9f34294e84b14bb65d53c15a2ff418d5c3a03e386d4b0"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "e31fa24b34a72ed58e0198d876cbd60f324f500fba7306297ccba49a1b245259",
+            "nodeKinds": [
+              "PropertyAccessExpression"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "feature",
+            "module": "bun:bundle"
+          },
+          {
+            "local": "AGENT_TOOL_NAME",
+            "module": "../AgentTool/constants.js"
+          },
+          {
+            "local": "TOOL_SEARCH_TOOL_NAME",
+            "module": "./constants.js"
+          }
+        ]
+      },
+      "behavior": "Tool deferral keeps ToolSearch eager and dynamically consults the fork-subagent gate so Agent remains available on turn one without introducing a module-initialization cycle."
+    },
+    {
+      "targetIndex": 9067,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 4268685,
+        "end": 4269015,
+        "bytes": 330,
+        "tokenCount": 114,
+        "sourceHash": "9bc69ba62816d972c4347f2e24d010734bc51ff93f08593fe8a21a0d11cbca0b",
+        "coarseHash": "ed9bee49c5cf76cba882c89b128ccc4dfbaad72f943ae31343a17da9234dad31"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": " Is the \"",
+          "valueSha256": "328b05826aa9feb5dc53020b21c9fecbb3369094104b4dda422184e5f79b91f9",
+          "start": 4268811,
+          "end": 4268820,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": " Add the dependency's marketplace, then re-run install.",
+          "valueSha256": "30506487307737c6af0c5efdee0d6d5ad4e8cca2bf7d5a1a566928630f7c8043",
+          "start": 4268857,
+          "end": 4268914,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "dependency",
+          "valueSha256": "f26350dafe3f19aabfd69ac463fb5daf76015c9a2763e76e2ad32fc0fcfedf31",
+          "start": 4268945,
+          "end": 4268957,
+          "baselineCount": 1,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "string",
+          "value": " still unresolved: ",
+          "valueSha256": "6055cf497513f5dae14573f1d054ca4f507836aa30c8fea414335b3617a2b801",
+          "start": 4268974,
+          "end": 4268993,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/utils/plugins/pluginDirectories.ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/utils/plugins/dependencyResolver.ts"
+      ],
+      "semanticOwner": "src/utils/plugins/dependencyResolver.ts",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 19,
+        "sha256": "fdcc7b4e4b5e46dc8c765ccb4d885336284bdb4ec6251444f049deba123bbd02"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "formatUnresolvedDependencySuffix",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "328b05826aa9feb5dc53020b21c9fecbb3369094104b4dda422184e5f79b91f9",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "30506487307737c6af0c5efdee0d6d5ad4e8cca2bf7d5a1a566928630f7c8043",
+            "nodeKinds": [
+              "FirstTemplateToken"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "f26350dafe3f19aabfd69ac463fb5daf76015c9a2763e76e2ad32fc0fcfedf31",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "6055cf497513f5dae14573f1d054ca4f507836aa30c8fea414335b3617a2b801",
+            "nodeKinds": [
+              "TemplateMiddle"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "plural",
+            "module": "../stringUtils.js"
+          },
+          {
+            "local": "parsePluginIdentifier",
+            "module": "./pluginIdentifier.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 20456,
+          "sha256": "ca61dcb77e15a6441078a82d8bf4a9234e5047efbb3b6d16eea13c86c395bc26"
+        },
+        "declaration": {
+          "start": 19334,
+          "end": 19992,
+          "bytes": 660,
+          "sha256": "d4f03f1445b020a184a1d7b67b201d9dcae268d7c82021b221a6e74af1c719d1"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "328b05826aa9feb5dc53020b21c9fecbb3369094104b4dda422184e5f79b91f9",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "30506487307737c6af0c5efdee0d6d5ad4e8cca2bf7d5a1a566928630f7c8043",
+            "nodeKinds": [
+              "FirstTemplateToken"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "f26350dafe3f19aabfd69ac463fb5daf76015c9a2763e76e2ad32fc0fcfedf31",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "6055cf497513f5dae14573f1d054ca4f507836aa30c8fea414335b3617a2b801",
+            "nodeKinds": [
+              "TemplateMiddle"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "plural",
+            "module": "../stringUtils.js"
+          },
+          {
+            "local": "parsePluginIdentifier",
+            "module": "./pluginIdentifier.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 23838,
+          "sha256": "c18b27fbb4485e1dbfaf40e5eab2ca88d0bbe35a318a3ebbd19757b7cb2d662f"
+        },
+        "declaration": {
+          "start": 22714,
+          "end": 23372,
+          "bytes": 660,
+          "sha256": "d4f03f1445b020a184a1d7b67b201d9dcae268d7c82021b221a6e74af1c719d1"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "328b05826aa9feb5dc53020b21c9fecbb3369094104b4dda422184e5f79b91f9",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "30506487307737c6af0c5efdee0d6d5ad4e8cca2bf7d5a1a566928630f7c8043",
+            "nodeKinds": [
+              "FirstTemplateToken"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "f26350dafe3f19aabfd69ac463fb5daf76015c9a2763e76e2ad32fc0fcfedf31",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "6055cf497513f5dae14573f1d054ca4f507836aa30c8fea414335b3617a2b801",
+            "nodeKinds": [
+              "TemplateMiddle"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "plural",
+            "module": "../stringUtils.js"
+          },
+          {
+            "local": "parsePluginIdentifier",
+            "module": "./pluginIdentifier.js"
+          }
+        ]
+      },
+      "behavior": "The unresolved-dependency formatter selects the marketplace-specific hint, pluralizes the exact dependency count, and appends the unresolved identifiers and bounded installation guidance."
+    },
+    {
+      "targetIndex": 12342,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 7759592,
+        "end": 7759710,
+        "bytes": 118,
+        "tokenCount": 39,
+        "sourceHash": "a8fc8c89dcc4f183b840088c9963fe8526b3af9dcee1e20b66fb4da3976513dd",
+        "coarseHash": "11a7752ccd0c2e0e24841560f8d90c4d440c6fe3117c9d4000d6e5fb3970a870"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "CLAUDE_CODE_FORK_SUBAGENT",
+          "valueSha256": "91aacf72611f58cc6d113ca396aa001068a1b5f85334aab4731d4563b4e8c018",
+          "start": 7759641,
+          "end": 7759666,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "tengu_copper_fox",
+          "valueSha256": "c46ad11028e41d45992778ad948c10f0f6137ad79ae5b8aaba9269996cbcba25",
+          "start": 7759687,
+          "end": 7759705,
+          "baselineCount": 0,
+          "targetOrdinal": 2
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/tasks/RemoteAgentTask/RemoteAgentTask.tsx"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/tools/AgentTool/forkSubagent.ts"
+      ],
+      "semanticOwner": "src/tools/AgentTool/forkSubagent.ts",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 66,
+        "sha256": "cbc5df9efdfd6d4bf99873918c6ea178e4a6c6f701afcdaeffc152084ee663c8"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "isForkSubagentEnabled",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "91aacf72611f58cc6d113ca396aa001068a1b5f85334aab4731d4563b4e8c018",
+            "nodeKinds": [
+              "PropertyAccessExpression"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "c46ad11028e41d45992778ad948c10f0f6137ad79ae5b8aaba9269996cbcba25",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "getIsNonInteractiveSession",
+            "module": "../../bootstrap/state.js"
+          },
+          {
+            "local": "getFeatureValue_CACHED_MAY_BE_STALE",
+            "module": "../../services/analytics/growthbook.js"
+          },
+          {
+            "local": "isEnvTruthy",
+            "module": "../../utils/envUtils.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 8744,
+          "sha256": "3e9d55cb7a7ee3a14a2f02bf37d90d89e1cafb3ad50bf2aa3acbe62b034a00c6"
+        },
+        "declaration": {
+          "start": 1268,
+          "end": 1511,
+          "bytes": 243,
+          "sha256": "cc6be4cec6f9f7759e6c085e2249567b600bc05725b5fbc12bd988447a959b0d"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "91aacf72611f58cc6d113ca396aa001068a1b5f85334aab4731d4563b4e8c018",
+            "nodeKinds": [
+              "PropertyAccessExpression"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "c46ad11028e41d45992778ad948c10f0f6137ad79ae5b8aaba9269996cbcba25",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "getIsNonInteractiveSession",
+            "module": "../../bootstrap/state.js"
+          },
+          {
+            "local": "getFeatureValue_CACHED_MAY_BE_STALE",
+            "module": "../../services/analytics/growthbook.js"
+          },
+          {
+            "local": "isEnvTruthy",
+            "module": "../../utils/envUtils.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 9102,
+          "sha256": "cf45e76d0c4beb98006c5b298cabd57d942d46e22a589fec98bea9152e070ed9"
+        },
+        "declaration": {
+          "start": 2242,
+          "end": 2342,
+          "bytes": 100,
+          "sha256": "fa13819ef9508b73c16be45f2da04cc6d25770d14e16a3b5c891556af2d048c9"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": false,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "91aacf72611f58cc6d113ca396aa001068a1b5f85334aab4731d4563b4e8c018",
+            "nodeKinds": []
+          },
+          {
+            "kind": "string",
+            "valueSha256": "c46ad11028e41d45992778ad948c10f0f6137ad79ae5b8aaba9269996cbcba25",
+            "nodeKinds": []
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "getIsNonInteractiveSession",
+            "module": "../../bootstrap/state.js"
+          },
+          {
+            "local": "getFeatureValue_CACHED_MAY_BE_STALE",
+            "module": "../../services/analytics/growthbook.js"
+          },
+          {
+            "local": "isEnvTruthy",
+            "module": "../../utils/envUtils.js"
+          }
+        ]
+      },
+      "behavior": "The target117 fork-subagent gate disables noninteractive use, honors the explicit environment opt-in, and otherwise reads the exact tengu_copper_fox rollout default."
+    },
+    {
+      "targetIndex": 12603,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 7883553,
+        "end": 7883763,
+        "bytes": 210,
+        "tokenCount": 57,
+        "sourceHash": "82ee0ae001f2fa9e3b68087f42fc4b3bb8aa9ac5a387a68dd0de32367e9b2dd9",
+        "coarseHash": "d4a51ed4df70cc28722b06572f4894818c64913e8965d7b5ff0f1eb0bf035efd"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "replacement",
+          "valueSha256": "95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+          "start": 7883603,
+          "end": 7883616,
+          "baselineCount": 4,
+          "targetOrdinal": 5
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/tools/SkillTool/UI.tsx"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/tools/BashTool/sedEditParser.ts"
+      ],
+      "semanticOwner": "src/hooks/useTypeahead.tsx",
+      "correctionKind": "later-exact-declaration-recovery",
+      "rejectedTextOnlyCandidates": [
+        "src/tools/BashTool/sedEditParser.ts"
+      ],
+      "candidateUniverse": {
+        "files": 7,
+        "sha256": "f5566fc8c5b03fb851b0c8795869ccc3a0995a8e5d32826e9e0b5206ed467a6a"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "getReplacementMetadata",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target119-later-exact-declaration",
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": []
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 215359,
+          "sha256": "f8b1818bf9543c7e7f939d3fb8f7b8325ebcfe739fcd086959aff3e2539f6c39"
+        },
+        "declaration": null,
+        "declarationMatches": 0,
+        "coversEveryResidue": false,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+            "nodeKinds": []
+          }
+        ],
+        "requiredRuntimeImports": []
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 219392,
+          "sha256": "e9cb13d21fa5e6539f9fcf85da2384650c5a120c99e0df1b35152835e4569900"
+        },
+        "declaration": {
+          "start": 3866,
+          "end": 4322,
+          "bytes": 456,
+          "sha256": "2f88db7bf973a472d9d1a12cea7f6b40d00431cf4c5283eba625a0f1ed7c8aec"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": []
+      },
+      "laterSourceWitness": {
+        "version": "2.1.119",
+        "file": {
+          "bytes": 219228,
+          "sha256": "76a21f82dba0a23858ad03d3858df08162ea91f61ccceaa08e7c05f349364cce"
+        },
+        "declaration": {
+          "start": 3860,
+          "end": 4316,
+          "bytes": 456,
+          "sha256": "2f88db7bf973a472d9d1a12cea7f6b40d00431cf4c5283eba625a0f1ed7c8aec"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": []
+      },
+      "behavior": "The pure metadata guard requires an object with string replacement and boolean partial fields and returns only those two fields; the exact declaration first appears in the recovered target119 source while its compiled unit is unchanged from target117 through target119."
+    },
+    {
+      "targetIndex": 15194,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 9432439,
+        "end": 9432539,
+        "bytes": 100,
+        "tokenCount": 23,
+        "sourceHash": "760e8061adc0b6398c03e5c671d2588cb58aa97f782fddf90a109a486799fd31",
+        "coarseHash": "921fbfe592d163834373a3005d3a8de07970cfe32b698b4865f37169ac6ca276"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "sendControlRequest not yet wired for ",
+          "valueSha256": "41b6798015cbac24aa34494b42e990e87369b0544a3ea819c247d3012f928c3d",
+          "start": 9432484,
+          "end": 9432521,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": " transport",
+          "valueSha256": "a6d7fabc65cade388b2cb921f53ba7c3ca25dc6b04e7bd3bdd90f87dd6fbccf5",
+          "start": 9432525,
+          "end": 9432535,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/utils/messages.ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/screens/REPL.tsx"
+      ],
+      "semanticOwner": "src/screens/REPL.tsx",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 41,
+        "sha256": "c9096163466c1e9fd16f840a822b6b6eba577febd0ad29a99ea0550985bfbcea"
+      },
+      "declaration": {
+        "kind": "MethodDeclaration",
+        "name": "sendControlRequest",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "41b6798015cbac24aa34494b42e990e87369b0544a3ea819c247d3012f928c3d",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "a6d7fabc65cade388b2cb921f53ba7c3ca25dc6b04e7bd3bdd90f87dd6fbccf5",
+            "nodeKinds": [
+              "LastTemplateToken"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": []
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 898203,
+          "sha256": "f774113480082afc6b5b7fc3d3c656ee2eb4d9e683b20ec51acd685bf99cacaf"
+        },
+        "declaration": {
+          "start": 78567,
+          "end": 78925,
+          "bytes": 358,
+          "sha256": "1afbf48c32892223fa2c3c7c8749dd0a4520d17ab54d7c6f54ed02eab6de3a9b"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "41b6798015cbac24aa34494b42e990e87369b0544a3ea819c247d3012f928c3d",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "a6d7fabc65cade388b2cb921f53ba7c3ca25dc6b04e7bd3bdd90f87dd6fbccf5",
+            "nodeKinds": [
+              "LastTemplateToken"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": []
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 916586,
+          "sha256": "74a25cb80d421448c939e953a4b59e4e94c2b124d0ce9e680fbf0b3875323507"
+        },
+        "declaration": {
+          "start": 85601,
+          "end": 85959,
+          "bytes": 358,
+          "sha256": "1afbf48c32892223fa2c3c7c8749dd0a4520d17ab54d7c6f54ed02eab6de3a9b"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "41b6798015cbac24aa34494b42e990e87369b0544a3ea819c247d3012f928c3d",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "a6d7fabc65cade388b2cb921f53ba7c3ca25dc6b04e7bd3bdd90f87dd6fbccf5",
+            "nodeKinds": [
+              "LastTemplateToken"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": []
+      },
+      "behavior": "The active remote-control transport forwards CCR requests and rejects SSH/direct requests with the exact transport-specific not-yet-wired error."
+    },
+    {
+      "targetIndex": 15627,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 9846147,
+        "end": 9852018,
+        "bytes": 5871,
+        "tokenCount": 3066,
+        "sourceHash": "f92efaa045ee0e3c7e01ae17ccca19d67b016660ecef92341f4cecadd97cea26",
+        "coarseHash": "ff46268b207bea883edbf9e0c7aeeb57cb6606fceb82143957742ccc4d36d706"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "isRemote",
+          "valueSha256": "7f000285136ba2bc8a7b43c12efe76e1d1fc2875d1dae4aa56636fa6f299eaeb",
+          "start": 9846188,
+          "end": 9846196,
+          "baselineCount": 4,
+          "targetOrdinal": 5
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/components/ContextVisualization.tsx"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/commands/context/context.tsx"
+      ],
+      "semanticOwner": "src/components/ContextVisualization.tsx",
+      "correctionKind": "current-owner-confirmed",
+      "rejectedTextOnlyCandidates": [
+        "src/commands/context/context.tsx"
+      ],
+      "candidateUniverse": {
+        "files": 3,
+        "sha256": "a0d13b35b72b461986206453db77c58cf1d7f79400db3e79f510406dc115b411"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "ContextVisualization",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "7f000285136ba2bc8a7b43c12efe76e1d1fc2875d1dae4aa56636fa6f299eaeb",
+            "nodeKinds": [
+              "BindingElement"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "_c",
+            "module": "react/compiler-runtime"
+          },
+          {
+            "local": "Box",
+            "module": "../ink.js"
+          },
+          {
+            "local": "Text",
+            "module": "../ink.js"
+          },
+          {
+            "local": "generateContextSuggestions",
+            "module": "../utils/contextSuggestions.js"
+          },
+          {
+            "local": "formatTokens",
+            "module": "../utils/format.js"
+          },
+          {
+            "local": "ContextSuggestions",
+            "module": "./ContextSuggestions.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 76211,
+          "sha256": "7bfe424bb9be235e36a7138174177178e6c572ea8b9684f618072aab0ddbb557"
+        },
+        "declaration": {
+          "start": 3916,
+          "end": 14706,
+          "bytes": 10799,
+          "sha256": "4c808bf2f6fbd49c0208893c06d449cfe758da073633625bb95184abbe17da6d"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "7f000285136ba2bc8a7b43c12efe76e1d1fc2875d1dae4aa56636fa6f299eaeb",
+            "nodeKinds": [
+              "BindingElement"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "_c",
+            "module": "react/compiler-runtime"
+          },
+          {
+            "local": "Box",
+            "module": "../ink.js"
+          },
+          {
+            "local": "Text",
+            "module": "../ink.js"
+          },
+          {
+            "local": "generateContextSuggestions",
+            "module": "../utils/contextSuggestions.js"
+          },
+          {
+            "local": "formatTokens",
+            "module": "../utils/format.js"
+          },
+          {
+            "local": "ContextSuggestions",
+            "module": "./ContextSuggestions.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 76211,
+          "sha256": "7bfe424bb9be235e36a7138174177178e6c572ea8b9684f618072aab0ddbb557"
+        },
+        "declaration": {
+          "start": 3916,
+          "end": 14706,
+          "bytes": 10799,
+          "sha256": "4c808bf2f6fbd49c0208893c06d449cfe758da073633625bb95184abbe17da6d"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "7f000285136ba2bc8a7b43c12efe76e1d1fc2875d1dae4aa56636fa6f299eaeb",
+            "nodeKinds": [
+              "BindingElement"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "_c",
+            "module": "react/compiler-runtime"
+          },
+          {
+            "local": "Box",
+            "module": "../ink.js"
+          },
+          {
+            "local": "Text",
+            "module": "../ink.js"
+          },
+          {
+            "local": "generateContextSuggestions",
+            "module": "../utils/contextSuggestions.js"
+          },
+          {
+            "local": "formatTokens",
+            "module": "../utils/format.js"
+          },
+          {
+            "local": "ContextSuggestions",
+            "module": "./ContextSuggestions.js"
+          }
+        ]
+      },
+      "behavior": "ContextVisualization itself declares and destructures isRemote, defaults it false, and suppresses local-only collapse status remotely; the context command is only a JSX caller and is not the whole-unit owner."
+    },
+    {
+      "targetIndex": 16050,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 10084192,
+        "end": 10085615,
+        "bytes": 1423,
+        "tokenCount": 516,
+        "sourceHash": "88c710b6b7fdcc53e412a0134ca49fd9125c5bee9c226a1f1b75bc55ecb2c18f",
+        "coarseHash": "e967a6a1467d02afdd425013bd089f3ce3c615bfbfb66cd00eafe7b9a3ae1f30"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "marketplaceMissing",
+          "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+          "start": 10084447,
+          "end": 10084465,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "\" — marketplace \"",
+          "valueSha256": "9d3be7174de238f73a9d32afac84473f75748e2f624fa23229a98f51cdd4a3fa",
+          "start": 10084684,
+          "end": 10084706,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "resolveMissingDependencies: skipping \"",
+          "valueSha256": "bb6e12f99bbeae9fd240b5217cae95127e33e09768c7d202bb7f7e8f35e2a5a9",
+          "start": 10084941,
+          "end": 10084979,
+          "baselineCount": 1,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "property",
+          "value": "marketplaceMissing",
+          "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+          "start": 10085593,
+          "end": 10085611,
+          "baselineCount": 0,
+          "targetOrdinal": 2
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/utils/plugins/pluginStartupCheck.ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/utils/plugins/missingDependencyResolver.ts"
+      ],
+      "semanticOwner": "src/utils/plugins/missingDependencyResolver.ts",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 3,
+        "sha256": "14dca06e5f7eb11e7eba65edb1bb9c10e8e7a6f5331c30e9c6afdb295ac6f6e3"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "resolveMissingDependencies",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "PropertyAssignment",
+              "PropertySignature",
+              "ShorthandPropertyAssignment"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "9d3be7174de238f73a9d32afac84473f75748e2f624fa23229a98f51cdd4a3fa",
+            "nodeKinds": [
+              "TemplateMiddle"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "bb6e12f99bbeae9fd240b5217cae95127e33e09768c7d202bb7f7e8f35e2a5a9",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "PropertyAssignment",
+              "PropertySignature",
+              "ShorthandPropertyAssignment"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "logForDebugging",
+            "module": "../debug.js"
+          },
+          {
+            "local": "errorMessage",
+            "module": "../errors.js"
+          },
+          {
+            "local": "installResolvedPlugin",
+            "module": "./pluginInstallationHelpers.js"
+          },
+          {
+            "local": "getMarketplaceCacheOnly",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "getPluginById",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "loadKnownMarketplacesConfig",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "isSourceAllowedByPolicy",
+            "module": "./marketplaceHelpers.js"
+          },
+          {
+            "local": "parsePluginIdentifier",
+            "module": "./pluginIdentifier.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 5511,
+          "sha256": "3535efe640f3823669894a881fd5efc2ad1e5cf2ce7629196584bff087021c07"
+        },
+        "declaration": {
+          "start": 1262,
+          "end": 4741,
+          "bytes": 3483,
+          "sha256": "c47339268bb8ec47cb8e26902ce5d2e9deb79cd41099b35a5c8dfb2c06ee1bab"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "PropertyAssignment",
+              "PropertySignature",
+              "ShorthandPropertyAssignment"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "9d3be7174de238f73a9d32afac84473f75748e2f624fa23229a98f51cdd4a3fa",
+            "nodeKinds": [
+              "TemplateMiddle"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "bb6e12f99bbeae9fd240b5217cae95127e33e09768c7d202bb7f7e8f35e2a5a9",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "PropertyAssignment",
+              "PropertySignature",
+              "ShorthandPropertyAssignment"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "logForDebugging",
+            "module": "../debug.js"
+          },
+          {
+            "local": "errorMessage",
+            "module": "../errors.js"
+          },
+          {
+            "local": "installResolvedPlugin",
+            "module": "./pluginInstallationHelpers.js"
+          },
+          {
+            "local": "getMarketplaceCacheOnly",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "getPluginById",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "loadKnownMarketplacesConfig",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "isSourceAllowedByPolicy",
+            "module": "./marketplaceHelpers.js"
+          },
+          {
+            "local": "parsePluginIdentifier",
+            "module": "./pluginIdentifier.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 5656,
+          "sha256": "2678b6a08043e643e4dc9a032218bcea3946f5883bc0d07c38fed71435e671d1"
+        },
+        "declaration": {
+          "start": 1100,
+          "end": 4886,
+          "bytes": 3790,
+          "sha256": "37d5c4d01d0590c170967643c2c05e1b4e4039c569ac1b3b345e490ff929ab20"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "PropertyAssignment",
+              "PropertySignature",
+              "ShorthandPropertyAssignment"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "9d3be7174de238f73a9d32afac84473f75748e2f624fa23229a98f51cdd4a3fa",
+            "nodeKinds": [
+              "TemplateMiddle"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "bb6e12f99bbeae9fd240b5217cae95127e33e09768c7d202bb7f7e8f35e2a5a9",
+            "nodeKinds": [
+              "TemplateHead"
+            ]
+          },
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "PropertyAssignment",
+              "PropertySignature",
+              "ShorthandPropertyAssignment"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "logForDebugging",
+            "module": "../debug.js"
+          },
+          {
+            "local": "errorMessage",
+            "module": "../errors.js"
+          },
+          {
+            "local": "installResolvedPlugin",
+            "module": "./pluginInstallationHelpers.js"
+          },
+          {
+            "local": "getMarketplaceCacheOnly",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "getPluginById",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "loadKnownMarketplacesConfig",
+            "module": "./marketplaceManager.js"
+          },
+          {
+            "local": "isSourceAllowedByPolicy",
+            "module": "./marketplaceHelpers.js"
+          },
+          {
+            "local": "parsePluginIdentifier",
+            "module": "./pluginIdentifier.js"
+          }
+        ]
+      },
+      "behavior": "Missing-dependency resolution groups declarations, distinguishes missing marketplaces, enforces source and cross-marketplace policy, installs trusted closures, and returns exact installed, unresolved, and marketplace-missing partitions."
+    },
+    {
+      "targetIndex": 16052,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 10085709,
+        "end": 10085933,
+        "bytes": 224,
+        "tokenCount": 110,
+        "sourceHash": "a477206f0f7a6e05b5cdf6026881b86c9470176f54b544599188b5a6dd0e90ff",
+        "coarseHash": "5a6ee1ba388fe8b35495e3ae61dc6c46310a98122874c02895550ed8dd6a1627"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "marketplaceMissing",
+          "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+          "start": 10085794,
+          "end": 10085812,
+          "baselineCount": 0,
+          "targetOrdinal": 3
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/utils/plugins/pluginStartupCheck.ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/utils/plugins/missingDependencyResolver.ts"
+      ],
+      "semanticOwner": "src/utils/plugins/missingDependencyResolver.ts",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 3,
+        "sha256": "14dca06e5f7eb11e7eba65edb1bb9c10e8e7a6f5331c30e9c6afdb295ac6f6e3"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "recoverInstalledPluginDependencies",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "BindingElement"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "isPluginDependencyError",
+            "module": "../../types/plugin.js"
+          },
+          {
+            "local": "formatDependencyCountSuffix",
+            "module": "./dependencyResolver.js"
+          },
+          {
+            "local": "formatUnresolvedDependencySuffix",
+            "module": "./dependencyResolver.js"
+          },
+          {
+            "local": "loadAllPlugins",
+            "module": "./pluginLoader.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 5511,
+          "sha256": "3535efe640f3823669894a881fd5efc2ad1e5cf2ce7629196584bff087021c07"
+        },
+        "declaration": {
+          "start": 4743,
+          "end": 5506,
+          "bytes": 763,
+          "sha256": "8850be3f7600fc636795887ed1a04d4619559d622fb92d5067575287d1b7cd43"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "BindingElement"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "isPluginDependencyError",
+            "module": "../../types/plugin.js"
+          },
+          {
+            "local": "formatDependencyCountSuffix",
+            "module": "./dependencyResolver.js"
+          },
+          {
+            "local": "formatUnresolvedDependencySuffix",
+            "module": "./dependencyResolver.js"
+          },
+          {
+            "local": "loadAllPlugins",
+            "module": "./pluginLoader.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 5656,
+          "sha256": "2678b6a08043e643e4dc9a032218bcea3946f5883bc0d07c38fed71435e671d1"
+        },
+        "declaration": {
+          "start": 4888,
+          "end": 5651,
+          "bytes": 763,
+          "sha256": "8850be3f7600fc636795887ed1a04d4619559d622fb92d5067575287d1b7cd43"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "property",
+            "valueSha256": "bd1ed72e22715c93748ee9c0ca953cd707714d5cd545acf7c087a9fdb650d24f",
+            "nodeKinds": [
+              "BindingElement"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "isPluginDependencyError",
+            "module": "../../types/plugin.js"
+          },
+          {
+            "local": "formatDependencyCountSuffix",
+            "module": "./dependencyResolver.js"
+          },
+          {
+            "local": "formatUnresolvedDependencySuffix",
+            "module": "./dependencyResolver.js"
+          },
+          {
+            "local": "loadAllPlugins",
+            "module": "./pluginLoader.js"
+          }
+        ]
+      },
+      "behavior": "Installed-plugin dependency recovery filters errors for the selected plugin, resolves them, recomputes the unresolved set, and combines exact installed-count and marketplace-aware suffixes."
+    },
+    {
+      "targetIndex": 16509,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 10377658,
+        "end": 10377847,
+        "bytes": 189,
+        "tokenCount": 72,
+        "sourceHash": "443827e6d92ba0c455724a81b780bdf5ee07a73ad9cfaf32ff667dc278419771",
+        "coarseHash": "f43fdb5118f90ee102826c664a04547787e0ad867db5ae45921397e4b5a48486"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": " · /model to change",
+          "valueSha256": "640d1471378945c3cdc45559e1ae5f0ef6df5b6708c6ded42c3aafc4536b11fd",
+          "start": 10377820,
+          "end": 10377844,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/components/LogoV2/GuestPassesUpsell.tsx"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/components/LogoV2/ModelSourceNotice.tsx"
+      ],
+      "semanticOwner": "src/components/LogoV2/ModelSourceNotice.tsx",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 4,
+        "sha256": "c84fb14e7570c84b48141bcd765c642b10370733ded1ff9c5ffd616294cc6706"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "ModelSourceNotice",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "640d1471378945c3cdc45559e1ae5f0ef6df5b6708c6ded42c3aafc4536b11fd",
+            "nodeKinds": [
+              "JsxText"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "React",
+            "module": "react"
+          },
+          {
+            "local": "useMainLoopModel",
+            "module": "../../hooks/useMainLoopModel.js"
+          },
+          {
+            "local": "Box",
+            "module": "../../ink.js"
+          },
+          {
+            "local": "Text",
+            "module": "../../ink.js"
+          },
+          {
+            "local": "getModelSourceSuffix",
+            "module": "../../utils/model/model.js"
+          },
+          {
+            "local": "renderModelSetting",
+            "module": "../../utils/model/model.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 595,
+          "sha256": "e54fab58b3bede1e0b5c13a9ded5a7076f8867176294ed16c92cabb6fc5abaec"
+        },
+        "declaration": {
+          "start": 231,
+          "end": 593,
+          "bytes": 363,
+          "sha256": "bb936178719d6aed97635aba10599a508e13a87df19f6abcda7f99d41581b230"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "640d1471378945c3cdc45559e1ae5f0ef6df5b6708c6ded42c3aafc4536b11fd",
+            "nodeKinds": [
+              "JsxText"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "React",
+            "module": "react"
+          },
+          {
+            "local": "useMainLoopModel",
+            "module": "../../hooks/useMainLoopModel.js"
+          },
+          {
+            "local": "Box",
+            "module": "../../ink.js"
+          },
+          {
+            "local": "Text",
+            "module": "../../ink.js"
+          },
+          {
+            "local": "getModelSourceSuffix",
+            "module": "../../utils/model/model.js"
+          },
+          {
+            "local": "renderModelSetting",
+            "module": "../../utils/model/model.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 595,
+          "sha256": "e54fab58b3bede1e0b5c13a9ded5a7076f8867176294ed16c92cabb6fc5abaec"
+        },
+        "declaration": {
+          "start": 231,
+          "end": 593,
+          "bytes": 363,
+          "sha256": "bb936178719d6aed97635aba10599a508e13a87df19f6abcda7f99d41581b230"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "640d1471378945c3cdc45559e1ae5f0ef6df5b6708c6ded42c3aafc4536b11fd",
+            "nodeKinds": [
+              "JsxText"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "React",
+            "module": "react"
+          },
+          {
+            "local": "useMainLoopModel",
+            "module": "../../hooks/useMainLoopModel.js"
+          },
+          {
+            "local": "Box",
+            "module": "../../ink.js"
+          },
+          {
+            "local": "Text",
+            "module": "../../ink.js"
+          },
+          {
+            "local": "getModelSourceSuffix",
+            "module": "../../utils/model/model.js"
+          },
+          {
+            "local": "renderModelSetting",
+            "module": "../../utils/model/model.js"
+          }
+        ]
+      },
+      "behavior": "ModelSourceNotice memoizes the source suffix for the active model and renders the exact dimmed model-change guidance only when a suffix exists."
+    },
+    {
+      "targetIndex": 19990,
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12093684,
+        "end": 12094120,
+        "bytes": 436,
+        "tokenCount": 217,
+        "sourceHash": "aecc663e637cf290d847d65f51129348d0518bc142285d11d1efe6ec4c0a9670",
+        "coarseHash": "2060b2861248035e5ccf962b3aa996b0e4c6ed209ade0f2c874e78064fa6b677"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "advisor-experimental",
+          "valueSha256": "e0c4207d7ef03d149e3ff160746d5f20fc141d25d085cdde07a72e13b88aed61",
+          "start": 12093914,
+          "end": 12093936,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "Advisor Tool (experimental) is on and may use more tokens · /advisor",
+          "valueSha256": "a6a746b2693c12d414b807f485a0f7d9b1cabb05071f6c1cace164b36bf4be64",
+          "start": 12093942,
+          "end": 12094015,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ],
+      "coverageBeforeCorrection": {
+        "disposition": "source-runtime-covered",
+        "owners": [
+          "src/hooks/notifs/useFastModeNotification.tsx"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ]
+      },
+      "reportCommonSourceMatches": [
+        "src/hooks/notifs/useAdvisorNotification.tsx"
+      ],
+      "semanticOwner": "src/hooks/notifs/useAdvisorNotification.tsx",
+      "correctionKind": "exact-alternate-declaration",
+      "rejectedTextOnlyCandidates": [],
+      "candidateUniverse": {
+        "files": 3,
+        "sha256": "5276e06b2ef5d8ec7aeaa1bf13cba21770941572e31a8ff661ba8fb76d4f0793"
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "useAdvisorNotification",
+        "requiredDynamicModules": []
+      },
+      "sourceProof": {
+        "root": "target117-historical",
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "e0c4207d7ef03d149e3ff160746d5f20fc141d25d085cdde07a72e13b88aed61",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "a6a746b2693c12d414b807f485a0f7d9b1cabb05071f6c1cace164b36bf4be64",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "useEffect",
+            "module": "react"
+          },
+          {
+            "local": "useRef",
+            "module": "react"
+          },
+          {
+            "local": "getIsRemoteMode",
+            "module": "../../bootstrap/state.js"
+          },
+          {
+            "local": "useNotifications",
+            "module": "../../context/notifications.js"
+          },
+          {
+            "local": "useAppState",
+            "module": "../../state/AppState.js"
+          },
+          {
+            "local": "isAdvisorEnabled",
+            "module": "../../utils/advisor.js"
+          },
+          {
+            "local": "modelSupportsAdvisor",
+            "module": "../../utils/advisor.js"
+          },
+          {
+            "local": "useMainLoopModel",
+            "module": "../useMainLoopModel.js"
+          }
+        ]
+      },
+      "historicalSource": {
+        "file": {
+          "bytes": 1087,
+          "sha256": "3df498509f2217b01f547c3545aba11aae77e943cdfd30ec5c51111a09458121"
+        },
+        "declaration": {
+          "start": 365,
+          "end": 1085,
+          "bytes": 721,
+          "sha256": "34c1a8a2869d0b87fdc662c6769551515bcb55a0c5dad98e12ba601a11e6ea26"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "e0c4207d7ef03d149e3ff160746d5f20fc141d25d085cdde07a72e13b88aed61",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "a6a746b2693c12d414b807f485a0f7d9b1cabb05071f6c1cace164b36bf4be64",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "useEffect",
+            "module": "react"
+          },
+          {
+            "local": "useRef",
+            "module": "react"
+          },
+          {
+            "local": "getIsRemoteMode",
+            "module": "../../bootstrap/state.js"
+          },
+          {
+            "local": "useNotifications",
+            "module": "../../context/notifications.js"
+          },
+          {
+            "local": "useAppState",
+            "module": "../../state/AppState.js"
+          },
+          {
+            "local": "isAdvisorEnabled",
+            "module": "../../utils/advisor.js"
+          },
+          {
+            "local": "modelSupportsAdvisor",
+            "module": "../../utils/advisor.js"
+          },
+          {
+            "local": "useMainLoopModel",
+            "module": "../useMainLoopModel.js"
+          }
+        ]
+      },
+      "currentSource": {
+        "file": {
+          "bytes": 1087,
+          "sha256": "3df498509f2217b01f547c3545aba11aae77e943cdfd30ec5c51111a09458121"
+        },
+        "declaration": {
+          "start": 365,
+          "end": 1085,
+          "bytes": 721,
+          "sha256": "34c1a8a2869d0b87fdc662c6769551515bcb55a0c5dad98e12ba601a11e6ea26"
+        },
+        "declarationMatches": 1,
+        "coversEveryResidue": true,
+        "residueRoles": [
+          {
+            "kind": "string",
+            "valueSha256": "e0c4207d7ef03d149e3ff160746d5f20fc141d25d085cdde07a72e13b88aed61",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          },
+          {
+            "kind": "string",
+            "valueSha256": "a6a746b2693c12d414b807f485a0f7d9b1cabb05071f6c1cace164b36bf4be64",
+            "nodeKinds": [
+              "StringLiteral"
+            ]
+          }
+        ],
+        "requiredRuntimeImports": [
+          {
+            "local": "useEffect",
+            "module": "react"
+          },
+          {
+            "local": "useRef",
+            "module": "react"
+          },
+          {
+            "local": "getIsRemoteMode",
+            "module": "../../bootstrap/state.js"
+          },
+          {
+            "local": "useNotifications",
+            "module": "../../context/notifications.js"
+          },
+          {
+            "local": "useAppState",
+            "module": "../../state/AppState.js"
+          },
+          {
+            "local": "isAdvisorEnabled",
+            "module": "../../utils/advisor.js"
+          },
+          {
+            "local": "modelSupportsAdvisor",
+            "module": "../../utils/advisor.js"
+          },
+          {
+            "local": "useMainLoopModel",
+            "module": "../useMainLoopModel.js"
+          }
+        ]
+      },
+      "behavior": "The advisor notification hook gates remote and disabled states, resets its once-only ref without an advisor model, verifies model support, and emits the exact medium-priority experimental notice."
+    }
+  ]
+}

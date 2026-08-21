@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-vertex-model-probe-direct-owner-proof-v1",
+  "status": "authenticated-direct-source-owner-proof",
+  "evidenceIds": [
+    "target118-vertex-model-probe-authenticated-unit",
+    "target118-vertex-model-probe-source-ast-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/vertex-model-probe-owner-overrides.mjs",
+      "bytes": 1185,
+      "sha256": "9a4ca4e85e03ffa2427d79704cadeaad9d0aca9731c94ce8520d2a22f2330ee1"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/utils/model/vertexUpgrade.ts",
+        "blob": "899c5fc7039eab9af2b37667ab0f4a9047985e9a",
+        "bytes": 10220,
+        "sha256": "07785abae9df83acf15b7598db421521a85f015d89e0306346a7322403fc8b4a"
+      },
+      "declaration": {
+        "name": "probeVertexModel",
+        "characterStart": 8853,
+        "characterEnd": 10219,
+        "byteStart": 8853,
+        "byteEnd": 10219,
+        "bytes": 1366,
+        "sha256": "10cb8940aebee163a6a81633f9286be2b893612fdd1fc51f79f05845b8cd5df8"
+      }
+    },
+    "rejectedProvisionalOwner": {
+      "path": "src/components/ClaudeInChromeOnboarding.tsx",
+      "blob": "10fb1823f6e4a99b5cc3fea8bb9929dfa682e270",
+      "bytes": 12151,
+      "sha256": "155712bf6ce0cccd621a66a2554a1668381de70aabd0a72f7a187d94c2594985"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20229,
+    "start": 12247624,
+    "end": 12248447,
+    "bytes": 823,
+    "tokenCount": 261,
+    "sourceHash": "60fb33bf449a07cfd34ff4bce3da1632aaf064193ea4b21611013017ceeb24e8",
+    "coarseHash": "359515c0602d7488550bf3bee7f26492b0e992ef0ba59c18cb6a2d8e62e81096"
+  },
+  "targetUnit": {
+    "targetIndex": 20428,
+    "classification": "changed",
+    "baselineUnitIndex": 20229,
+    "pairReason": "unique-coarse-structural-hash",
+    "start": 12352973,
+    "end": 12353796,
+    "bytes": 823,
+    "tokenCount": 261,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "c9bbb7f6d6a8073a6e9d26186450dc1c7aeed2cae3e02bf725eec3aa3d33ca12",
+    "coarseHash": "359515c0602d7488550bf3bee7f26492b0e992ef0ba59c18cb6a2d8e62e81096",
+    "ownerPath": "src/utils/model/vertexUpgrade.ts",
+    "provisionalOwnerPath": "src/components/ClaudeInChromeOnboarding.tsx",
+    "declarations": ["probeVertexModel"],
+    "residues": [
+      ["property", "timeout", 12353637, 12353644, 384, 388]
+    ]
+  },
+  "normalizedUnit": {
+    "tokens": 261,
+    "bytes": 756,
+    "sha256": "cf4b061d435f5cb50075114b458d08db6b24cd25e0713c0a55ea7aa4b29daad9"
+  },
+  "sourceContract": {
+    "dynamicImports": ["@anthropic-ai/vertex-sdk", "../proxy.js"],
+    "baseOptionProperties": ["region", "googleAuth", "maxRetries", "timeout", "fetchOptions"],
+    "projectEnvironmentVariables": [
+      "GCLOUD_PROJECT",
+      "GOOGLE_CLOUD_PROJECT",
+      "gcloud_project",
+      "google_cloud_project",
+      "GOOGLE_APPLICATION_CREDENTIALS",
+      "google_application_credentials",
+      "ANTHROPIC_VERTEX_PROJECT_ID"
+    ],
+    "skipAuthenticationVariable": "CLAUDE_CODE_SKIP_VERTEX_AUTH",
+    "timeout": 8000,
+    "maxRetries": 0,
+    "probeModelMaxTokens": 1,
+    "successfulStatus": 429
+  },
+  "ownerOverride": {
+    "paths": ["src/utils/model/vertexUpgrade.ts"],
+    "declarations": ["probeVertexModel"],
+    "evidenceIds": [
+      "target118-vertex-model-probe-authenticated-unit",
+      "target118-vertex-model-probe-source-ast-test"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "722dbccb5bc15f455c7cc463169df31aa42d9b426345789cac1585ad20910715",
+    "residueIdentitiesSha256": "965c23a3278f3460617c6652f546cc9def06c29f3d36f6a439e5d72d3541423b"
+  }
+}

@@ -1,0 +1,504 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "Admit Target119 u16982 only as the complete authenticated LogoV2 unit, with its exact trial-badge, theme, filtered-path, release-metadata, and cache-topology delta. The recovered owner proves the path and part of the change but is a stale 94-slot snapshot, so it is not a replay preimage.",
+  "ownerBehavior": "The authenticated Target119 LogoV2 is a complete 131-slot compiler-cached UI unit. It obtains and formats pro-trial state, colors an expired trial badge as suggestion and an active badge as warning, and places the badge in both compact and full layouts. The same unit adopts the config-backed theme resolver and filters absent agent/cwd path segments. Its baseline/target ASTs are identical after removing exactly those bounded regions, release metadata, and their five cache slots. The recovered LogoV2 owner is a stale 94-slot partial snapshot: it authenticates the module path, declaration, billingType, and theme change, but omits the trial and filtered-path contracts; no source through Target121 supplies them. Admission is therefore static and never authorizes source replay.",
+  "summary": {
+    "units": 1,
+    "preCorrectionOwnerRows": 173,
+    "preCorrectionAddedOwnerRows": 5,
+    "productionStrictRows": 2,
+    "releaseMetadataRows": 3,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-logo-v2-authenticated-whole-unit-proof",
+    "target119-logo-v2-trial-badge-contract-proof",
+    "target119-logo-v2-path-and-theme-delta-proof",
+    "target119-logo-v2-pro-trial-dependency-proof",
+    "target119-logo-v2-runtime-lineage-proof",
+    "target119-logo-v2-source-replay-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "observedTargetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24892396,
+      "sha256": "6915dcc62cb2326e59afd2e28825526e621b91be81a8f7776d2c0a19798031e6",
+      "mutableAfterCorrection": true
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target120StructuralLedger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 16609,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 10425523,
+    "end": 10435600,
+    "bytes": 10077,
+    "tokenCount": 4503,
+    "sha256": "0857dfe6481470122211fe21fa6fff58749a06fc76c283277f9faee9fada0145",
+    "coarseHash": "21777ff2140f812b9cae14c5758a7878d0319635b3c8044cfae91e7ec50b9c8e",
+    "canonicalAstBytes": 170105,
+    "canonicalAstSha256": "026599a50783d2154cc1b3f567e103fbe029a4198ec14be7e78fdedd68a68ef3",
+    "bodyStatements": {
+      "count": 65,
+      "jsonBytes": 7326,
+      "sha256": "7118dba5717e4a5150ca54a139f1d6a1d9e426a336cab4da432f0a87f2b81342"
+    },
+    "cache": {
+      "size": 126,
+      "identifierOccurrences": 261,
+      "memberOccurrences": 260,
+      "uniqueIndices": 123,
+      "minIndex": 0,
+      "maxIndex": 125,
+      "missingIndices": [28, 29, 30],
+      "indexCountsBytes": 878,
+      "indexCountsSha256": "9c6c5d19b8f444ba28c36b382b287ded67540e4161cbb361e80c9f6c4580dfaf"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 16982,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 10570454,
+    "end": 10581062,
+    "bytes": 10608,
+    "tokenCount": 4758,
+    "unknownFreeIdentifierCount": 11,
+    "sha256": "955b70068a86f7f0117f94eedd8edcf4abfba86247c20ccda68aae59572715dd",
+    "coarseHash": "87ad873c9ff5763ef43423f2eec6afdd538f962666d04ad9b74e7e150036d187",
+    "canonicalAstBytes": 179876,
+    "canonicalAstSha256": "454811a3929a8f582d5412dc62bf4f4dab5ff168045e7859e427a1f4166556d8",
+    "bodyStatements": {
+      "count": 68,
+      "jsonBytes": 7664,
+      "sha256": "b9348ba47069602433a1dfa1ff6a68f891e596ca88d608237010ae07ab359d31"
+    },
+    "cache": {
+      "size": 131,
+      "identifierOccurrences": 279,
+      "memberOccurrences": 278,
+      "uniqueIndices": 131,
+      "minIndex": 0,
+      "maxIndex": 130,
+      "missingIndices": [],
+      "indexCountsBytes": 939,
+      "indexCountsSha256": "2ce5013320f503f414234af0cc8b40b9af75037f353509436e01a60281cb037a"
+    }
+  },
+  "wholeUnitDelta": {
+    "baselineReleaseMetadata": {
+      "start": 10426097,
+      "end": 10426563,
+      "bytes": 466,
+      "sha256": "e031eb959e6358fe30e1c3a3de0f1fbc479623a68a70853c2a3ebedece047ba9"
+    },
+    "targetReleaseMetadata": {
+      "start": 10571028,
+      "end": 10571494,
+      "bytes": 466,
+      "sha256": "e3d7f16529d8699e1f465280e77912289ab2ab3286427dedf702abf2dc06b1c9"
+    },
+    "baselineLogoData": {
+      "start": 10427282,
+      "end": 10427415,
+      "bytes": 133,
+      "sha256": "27b5b5830d2e50386af5e16693d494c6b3e42e5e14a96d76678789c7d61bbf5a"
+    },
+    "targetLogoData": {
+      "start": 10572213,
+      "end": 10572346,
+      "bytes": 133,
+      "sha256": "a684f2945f5cf3232e9f3e6b85557ed114ef2d3aa5bb449b08a10f7dfef6b3cd"
+    },
+    "targetTrialBlock": {
+      "start": 10572422,
+      "end": 10572728,
+      "bytes": 306,
+      "sha256": "760f50f9d9d065a748d0ac4c98d46301a5ce86ec22b742c6da5e01d7aeaac4d7"
+    },
+    "baselineTheme": {
+      "start": 10429356,
+      "end": 10429495,
+      "bytes": 139,
+      "sha256": "d1172157263352ff3378ecf4ae5d4af4b5077e859b42579330c736abad449d9b"
+    },
+    "targetTheme": {
+      "start": 10574593,
+      "end": 10574746,
+      "bytes": 153,
+      "sha256": "14a328f7cdec1f21d08d5b9294246aba85b7f346607e8c17e637ce654404a1d7"
+    },
+    "baselineCompactLayout": {
+      "start": 10429495,
+      "end": 10430965,
+      "bytes": 1470,
+      "sha256": "0556cea0bbfb9c17a25f6416c7b914f6715656348af338a7a7367af462cf0e47"
+    },
+    "targetCompactLayout": {
+      "start": 10574746,
+      "end": 10576308,
+      "bytes": 1562,
+      "sha256": "7b9730b67f5f15b8e9b02b0e68888b5e7a388c57d54b8c250ef6b6c82262d0ce"
+    },
+    "baselineFullLayout": {
+      "start": 10430965,
+      "end": 10431255,
+      "bytes": 290,
+      "sha256": "a3e272f178321f588d25bd21d772584d25f5217c40e9f471db4dde2771daf943"
+    },
+    "targetFullLayout": {
+      "start": 10576308,
+      "end": 10576703,
+      "bytes": 395,
+      "sha256": "d6de8a97e118a201f54765f6826dcf2dea54419f7d171bf6fa7ca489647b35ab"
+    },
+    "baselineCwdRender": {
+      "start": 10432259,
+      "end": 10432345,
+      "bytes": 86,
+      "sha256": "927e44d4c353560ed8d9c0927ff3deef1f1437cab4bc6b4bf56687fdd8ff9195"
+    },
+    "targetCwdRender": {
+      "start": 10577707,
+      "end": 10577797,
+      "bytes": 90,
+      "sha256": "b571ae0885f8a6b981099012cf8fcf75de0b1ce649fdd2eaffb2c3f67997ddd4"
+    },
+    "normalization": {
+      "description": "Normalize the three release metadata literals; remove Target119 statement 25 (trial badge); replace baseline/target theme statements, compact layout statements, full-layout construction, and cwd rendering with common sentinels; normalize cache 131 to 126 and shift surviving Target119 indices 58..67 by -2 and >=68 by -5. The remaining 65-statement ASTs are byte-identical after alpha normalization while preserving runtime property keys.",
+      "releaseLiteralCountPerUnit": 3,
+      "bodyStatements": 65,
+      "canonicalAstBytes": 137735,
+      "canonicalAstSha256": "adc9d346f507a3741c2f4e044184f8109a3737c97642c4ab20350ce694f8c327"
+    }
+  },
+  "trialBadgeContract": {
+    "stateCall": {
+      "start": 10572487,
+      "end": 10572492,
+      "bytes": 5,
+      "sha256": "3a540ee63f336cabba4e91c4306cc514450e12c257a01dbef06b177d95471cff"
+    },
+    "formatCall": {
+      "start": 10572496,
+      "end": 10572503,
+      "bytes": 7,
+      "sha256": "351e8b55b436324df1d4dd9e4273e2701795022a9a205b3f5faee902faeb40a2"
+    },
+    "colorConditional": {
+      "start": 10572649,
+      "end": 10572693,
+      "bytes": 44,
+      "sha256": "ab26b6dddec36320a5a55be02b0c6c481302df7b5e2eddbe39681ca135081431"
+    },
+    "compactFilteredPath": {
+      "start": 10574950,
+      "end": 10574996,
+      "bytes": 46,
+      "sha256": "2b092b83e2630cb535491a7ee2d2d86ee4c302422560140e09f5c84bde08906c"
+    },
+    "fullFilteredPath": {
+      "start": 10576545,
+      "end": 10576567,
+      "bytes": 22,
+      "sha256": "53350096e95e829415fecbf4da817ce13dd3db6bc65a75774625d1d20bfe4b58"
+    },
+    "conditionalCwdRender": {
+      "start": 10577724,
+      "end": 10577764,
+      "bytes": 40,
+      "sha256": "3c7d67b1e237d97c71b40e94f0929806902b4de2835e69b2c8f5136ad1fe1399"
+    },
+    "compactTrialInsertionOffset": 10576284,
+    "fullTrialInsertionOffset": 10577914,
+    "expiredLiteralOccurrencesInUnit": 1,
+    "filteredBooleanCallsInUnit": 2
+  },
+  "proTrialDependency": {
+    "exportRegistration": {
+      "targetIndex": 16918,
+      "classification": "unresolved",
+      "nodeType": "ExpressionStatement",
+      "start": 10553742,
+      "end": 10553926,
+      "bytes": 184,
+      "tokenCount": 49,
+      "sha256": "bcdc635e2534a683407424f71471b13716fceeebaf2df3747ae56a4cec010a21",
+      "coarseHash": "1caf255e56af956e6347d17a6796ca6f59ffb93c04ff8e11f80e0bcf6d344e0a"
+    },
+    "stateUnit": {
+      "targetIndex": 16920,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10553988,
+      "end": 10554166,
+      "bytes": 178,
+      "tokenCount": 72,
+      "sha256": "1ba7b26023140aa2b3c6b76fc072580b9e33c47e68792d3633b7bf855115c818",
+      "coarseHash": "4579a622ca9569846a1545e753273311fb892bb4bf41632a7141542202b7c125"
+    },
+    "formatUnit": {
+      "targetIndex": 16923,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10554630,
+      "end": 10554831,
+      "bytes": 201,
+      "tokenCount": 61,
+      "sha256": "4e4020aa77e9c067dba287ef25063a7faece1e1373d86c50100a1628d093e64b",
+      "coarseHash": "d8174d3f3dca7a97b8620457c0bab4fa9756221394625459c25d5a005a8f175f"
+    },
+    "source": {
+      "path": "src/services/proTrial.ts",
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "blob": "b96483d405c8bb728c85c167c1a09916db046c62",
+      "chars": 3749,
+      "bytes": 3749,
+      "sha256": "6f432078921e7899ee50f060b9d46d9059a6c10ed573e02ec6a4f8cdcf39a088",
+      "stateDeclaration": {
+        "start": 989,
+        "end": 1439,
+        "chars": 450,
+        "bytes": 450,
+        "sha256": "70ea68cbf998a6910bc2ed5591d94d644a7db549b27a0979827be445d86d0543"
+      },
+      "formatDeclaration": {
+        "start": 2380,
+        "end": 2734,
+        "chars": 354,
+        "bytes": 354,
+        "sha256": "9ad92fe392d945d6e2cc22bab255d7677ff95ec771d130b56a4d83f01dd3a809"
+      }
+    }
+  },
+  "moduleBoundary": {
+    "initializer": {
+      "targetIndex": 16981,
+      "classification": "matched",
+      "baselineUnitIndex": 16608,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "VariableDeclaration",
+      "start": 10570354,
+      "end": 10570454,
+      "bytes": 100,
+      "tokenCount": 76,
+      "sha256": "bf12c84a5662eb984d2a21a9ba5cf73a4b1df73fc8d53bfa98764fe4b7951e6c",
+      "coarseHash": "db8f48f676ccd2822f1aa41db875b5b97d44e5e243d147133a9b0bc5fa7e9402"
+    },
+    "effortSelector": {
+      "targetIndex": 16984,
+      "classification": "matched",
+      "baselineUnitIndex": 16611,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 10581875,
+      "end": 10581912,
+      "bytes": 37,
+      "tokenCount": 11,
+      "sha256": "ca7045486e2b215449a60ca6fc826af6d637cd72a965c8048841c8814f148892",
+      "coarseHash": "e616d647a54c499dab26ca99ee7255f0a1ec3eb175e556c6946d525ae306d1d2"
+    },
+    "agentSelector": {
+      "targetIndex": 16985,
+      "classification": "matched",
+      "baselineUnitIndex": 16612,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 10581912,
+      "end": 10581943,
+      "bytes": 31,
+      "tokenCount": 11,
+      "sha256": "2d24a850edceb8f11c2d28564c402fc0cf46c7876a8220ca0582122429fab08e",
+      "coarseHash": "a4f581368ed27cc6807abe410c10e5e9bd903895cdf28e9cc12f60d8a0ea521d"
+    }
+  },
+  "runtimeLineage": {
+    "target120Unit": {
+      "targetIndex": 17056,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10603647,
+      "end": 10614251,
+      "bytes": 10604,
+      "tokenCount": 4758,
+      "unknownFreeIdentifierCount": 2,
+      "sha256": "22d062738902eac97e7f8681be4ff191d875ea1bfef7c3300339f766a3536cc5",
+      "coarseHash": "09088f1d0d8bb9a82265b24bd5fed6d40238bcf87d616ab74077ef5f7445d16c"
+    },
+    "releaseNormalized": {
+      "releaseLiteralCountPerUnit": 3,
+      "canonicalAstBytes": 179830,
+      "canonicalAstSha256": "a0c70a7435cf132c84defe2ea53fe5bcc130f15f97bd3a3d92b142fd19e3cd65"
+    }
+  },
+  "sourceOwner": {
+    "path": "src/components/LogoV2/LogoV2.tsx",
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "blob": "588adecf0de1d13743dbcb83a136e4570feb5531",
+    "chars": 76211,
+    "bytes": 76218,
+    "sha256": "fdffa3e9262414ce3dccc372b0284afbb3cd42620cf5ec45bff3aeb3ba06b023",
+    "compilerCacheSize": 94,
+    "declaration": {
+      "start": 3345,
+      "end": 20128,
+      "chars": 16783,
+      "bytes": 16788,
+      "sha256": "856efcc4fd27ca285dcca12b4d52218b63499a4b948ec51b4dc83db9e8242c2f"
+    },
+    "requiredMarkers": [
+      "getLogoDisplayData",
+      "billingType",
+      "getConfigValue('theme', 'dark')",
+      "agentName ? `@${agentName} · ${truncatedCwd}` : truncatedCwd"
+    ],
+    "missingMarkers": [
+      "getProTrialState",
+      "formatTrialBadge",
+      "status === 'expired'",
+      ".filter(Boolean)"
+    ],
+    "sourceMap": {
+      "sources": ["LogoV2.tsx"],
+      "content": {
+        "chars": 17722,
+        "bytes": 17732,
+        "sha256": "fee01054e0c23e3c83f212404de536b387ecf17792c0872f91ff7836b9d0ef6d"
+      },
+      "declaration": {
+        "start": 3198,
+        "end": 17720,
+        "chars": 14522,
+        "bytes": 14532,
+        "sha256": "d5e0283d2516ead4c6c3284ebdada339f7f54378f4263262319387606fbbaa02"
+      }
+    },
+    "baselineSource": {
+      "version": "2.1.118",
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "blob": "e7d3d017e2c823465834a93431c7d6680b0785b9",
+      "chars": 76126,
+      "bytes": 76133,
+      "sha256": "a1d5d330c5b66e496e553424b94907e5ffa4964820a439bfece407c08e7330f8",
+      "declaration": {
+        "start": 3274,
+        "end": 20043,
+        "chars": 16769,
+        "bytes": 16774,
+        "sha256": "5d01fb6eaae714490f64b3d1ed8ab9be462db6be455638cc680b06c91c2d1f97"
+      },
+      "missingThemeMarker": "getConfigValue('theme', 'dark')"
+    },
+    "unchangedTarget120": {
+      "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "blob": "588adecf0de1d13743dbcb83a136e4570feb5531"
+    },
+    "laterSource": {
+      "version": "2.1.121",
+      "commit": "9f034bb03d575603a850e3c75ce003406094f9cc",
+      "blob": "2834b786212164ad9c1a26417343f26be678d2e6",
+      "chars": 76532,
+      "bytes": 76539,
+      "sha256": "6f716f2a0ac8d6d0544c65b12207ad27f0b44d64641a3ade27d4aacf48ecd9be",
+      "declaration": {
+        "start": 3487,
+        "end": 20449,
+        "chars": 16962,
+        "bytes": 16967,
+        "sha256": "b35248bac4f8d808f92ccfc1740b1fa2151849e6efde43d952b4364653229b67"
+      },
+      "addedMarker": "useShowOpus47LaunchNotice",
+      "missingMarkers": ["getProTrialState", "formatTrialBadge", ".filter(Boolean)"]
+    }
+  },
+  "priorTarget117Collision": {
+    "helperPath": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-permission-confirmation-panel-source-gaps.mjs",
+    "helperBytes": 16985,
+    "helperSha256": "b63b5cb95f7594425419be08272e6e5fd6a15e80b2ac013fc3aff49e6325e28f",
+    "key": "2.1.116-to-2.1.117:16982",
+    "paths": [
+      "src/components/permissions/rules/PermissionRuleList.tsx",
+      "src/components/ConfirmationButtons.tsx",
+      "src/components/design-system/Panel.tsx",
+      "src/components/design-system/KeyboardShortcutHint.tsx"
+    ],
+    "overlap": []
+  },
+  "ownerResidues": {
+    "generatedOwnerPath": "components/LogoV2/LogoV2.tsx",
+    "correctedOwnerPath": "src/components/LogoV2/LogoV2.tsx",
+    "rows": [
+      [16982, "string", "2.1.119", 10571269, 10571278, 0, 74, true],
+      [16982, "string", "2026-04-23T19:08:52Z", 10571358, 10571380, 0, 74, true],
+      [16982, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 10571389, 10571431, 0, 74, true],
+      [16982, "property", "billingType", 10572286, 10572297, 16, 17, true],
+      [16982, "string", "expired", 10572661, 10572670, 1, 6, true]
+    ],
+    "releaseMetadataRows": 3,
+    "productionRows": [
+      [16982, "property", "billingType", 10572286, 10572297, 16, 17, true],
+      [16982, "string", "expired", 10572661, 10572670, 1, 6, true]
+    ],
+    "preCorrectionAllOwnerRows": {
+      "count": 173,
+      "jsonBytes": 10638,
+      "sha256": "ec111f0d5c099e458105ea6db060a435818844f7c49858175ff457c1e38156e7"
+    },
+    "preCorrectionAddedOwnerRows": {
+      "count": 5,
+      "jsonBytes": 328,
+      "sha256": "349ee45c7dcd6a1cb3ffbd1edbfacc9bca28922a4e4378577fd6e92a759def07"
+    },
+    "preCorrectionRawRows": {
+      "count": 3,
+      "jsonBytes": 212,
+      "sha256": "fc6e4c5eb76e0deac71e8014421634b5e92117e97e523ae49ba7fa6e93c7cf38"
+    },
+    "sourceMatches": {
+      "2.1.119": [],
+      "2026-04-23T19:08:52Z": [],
+      "6f68554839756189e277b8285a18fe47acd9a5a1": [],
+      "billingType": [
+        "cli/handlers/auth.ts",
+        "services/oauth/client.ts",
+        "services/rateLimitMessages.ts",
+        "utils/auth.ts",
+        "utils/logoV2Utils.ts"
+      ],
+      "expired": [
+        "bridge/bridgeApi.ts",
+        "services/proTrial.ts",
+        "skills/bundled/claude-api/python/claude-api/batches.md",
+        "skills/bundled/claude-api/typescript/claude-api/batches.md"
+      ]
+    }
+  }
+}

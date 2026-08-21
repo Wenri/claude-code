@@ -1,0 +1,464 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-agents-menu-delete-confirmation-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof",
+  "evidenceIds": [
+    "target117-agents-menu-authenticated-delete-confirmation-unit",
+    "target117-agents-menu-delete-confirmation-cache-closure",
+    "target117-agents-menu-historical-attribution-and-stale-source-test"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "attributionSources": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/attribution/sources.jsonl.gz",
+    "bytes": 467885,
+    "sha256": "c843174ba71691c7a59d3ff020f269bb5357c551319c33aba782c22858876252",
+    "row": {
+      "runIndex": 4211,
+      "sourceIndex": 4211,
+      "source": "../src/components/agents/AgentsMenu.tsx",
+      "envelopeStart": 10841739,
+      "envelopeEnd": 10851717,
+      "exactAnchorCount": 10,
+      "monotoneAnchorCount": 9,
+      "nonMonotoneAnchorCount": 1,
+      "targetCluster": {
+        "targetStart": 10783961,
+        "targetEnd": 10794882,
+        "anchorCount": 10,
+        "monotoneAnchorCount": 9,
+        "sampleLiteralSha256": "4c557d2d8300636738eefaf06c89d7876027a5e062be0c5a95194c4cdff1583f",
+        "sampleLiteralPreview": "Deleted agent: "
+      }
+    }
+  },
+  "baselineUnit": {
+    "baselineIndex": 17225,
+    "nodeType": "FunctionDeclaration",
+    "start": 10766603,
+    "end": 10780855,
+    "tokenCount": 6718,
+    "bytes": 14252,
+    "sha256": "4f7d3a4105ffa63a819a74086738ae5d2bec14964ae1017cbf9c1192d51caee1",
+    "coarseHash": "4968ce973ba2b0fb1f0ca32a00000ec9220abdc86ca91367889420a9a897a5ec"
+  },
+  "targetUnit": {
+    "targetIndex": 17275,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 10781812,
+    "end": 10795771,
+    "tokenCount": 6594,
+    "bytes": 13959,
+    "sha256": "f8962bbe9e463e16b5406ae3a5fc4a925c5ca9382684d8aa946c9d2c5d00480e",
+    "coarseHash": "b0bb323022ed04cb904d2447c76ec2cc663839c2d76527036f0a186a92e28abd"
+  },
+  "baselineDeleteCase": {
+    "label": "delete-confirm",
+    "start": 10776362,
+    "end": 10778335,
+    "bytes": 1973,
+    "sha256": "c73159116c6c7d871d8f9c46082834f3e1a2251d87d776b71cbfc367b70880ec",
+    "cacheSlots": {
+      "minimum": 153,
+      "maximum": 177,
+      "unique": 25,
+      "memberAccesses": 54,
+      "accessSequenceSha256": "b2a180f819c76be8eb95e7c9d43b902fc4f7391971a72b9f86283a9ffb82984f"
+    },
+    "selectCall": {
+      "start": 10777372,
+      "end": 10777429,
+      "bytes": 57,
+      "sha256": "a8d10b26ca1d1969e08a205010d650e42f56501a8076530279f1d12290a91fbb"
+    },
+    "choiceCallback": {
+      "start": 10777074,
+      "end": 10777152,
+      "bytes": 78,
+      "sha256": "3db8c476876cae2ed78ed801a19148c160b04089f7d95643f75cd99f0efdaafd"
+    },
+    "cancelCallbacks": 2
+  },
+  "targetDeleteCase": {
+    "label": "delete-confirm",
+    "start": 10791552,
+    "end": 10793255,
+    "bytes": 1703,
+    "sha256": "fb023537a0c06af402e772b68fbaee0870bfbab434cd5fb8a7d6f1ba28e804e1",
+    "cacheSlots": {
+      "minimum": 153,
+      "maximum": 174,
+      "unique": 22,
+      "memberAccesses": 47,
+      "accessSequenceSha256": "6943f16c77527b00f22b604850c023be15edc8ad2acb882823072bd099b1d609"
+    },
+    "cancelCallback": {
+      "start": 10791596,
+      "end": 10791641,
+      "bytes": 45,
+      "sha256": "aefba3978fd4e6f4420b645308d2d15ed2cbee9cecb5d185bc7db71e777f7ca5"
+    },
+    "confirmCallback": {
+      "start": 10792114,
+      "end": 10792134,
+      "bytes": 20,
+      "sha256": "6f2d6da152181c3e9927fe058fe5859e81313eddae2e2166438d783fb6b53859"
+    },
+    "confirmationCall": {
+      "componentBinding": "m_",
+      "start": 10792255,
+      "end": 10792353,
+      "bytes": 98,
+      "sha256": "2b0ac573f44249b734a61e2d45e84370e9ddf3dfbf673cb7c535d38cb4fc5fcf",
+      "confirmLabel": "Yes, delete",
+      "cancelLabel": "No, cancel",
+      "propertyOrder": [
+        "confirmLabel",
+        "cancelLabel",
+        "onConfirm",
+        "onCancel"
+      ]
+    }
+  },
+  "baselineMemoCache": {
+    "arity": 220,
+    "memberAccesses": 457,
+    "uniqueSlots": 220,
+    "minimumSlot": 0,
+    "maximumSlot": 219,
+    "accessSequenceSha256": "e8f76dfa1b4333c02efb212def999dedb225014d4ed675cbf28ca03aacb30e9e"
+  },
+  "targetMemoCache": {
+    "arity": 217,
+    "memberAccesses": 450,
+    "uniqueSlots": 217,
+    "minimumSlot": 0,
+    "maximumSlot": 216,
+    "accessSequenceSha256": "515531aeacdeeeee79a921d42180f9c40e4396f875fc0b0876faacbf06e6574d"
+  },
+  "outsideDeleteCaseEquivalence": {
+    "method": "scope-aware identifier alpha-renaming after replacing the delete-confirm case, changing the baseline memo arity from 220 to 217, and subtracting three from every baseline post-case cache index",
+    "normalizedChars": 228626,
+    "normalizedBytes": 228632,
+    "normalizedSha256": "49a0d502ca2651511009625095da1f7a5a7a0bd5b2d850356b69f50f75fdc49f",
+    "preCaseCacheAccesses": 317,
+    "preCaseCacheMinimum": 0,
+    "preCaseCacheMaximum": 152,
+    "preCaseCacheSequenceSha256": "8c3ead78dcc6d0217e5ee2fbdb71d987fcce9424ed345218902ae64028f3437b",
+    "postCaseCacheAccesses": 86,
+    "targetPostCaseCacheMinimum": 175,
+    "targetPostCaseCacheMaximum": 216,
+    "baselinePostCaseCacheMinimum": 178,
+    "baselinePostCaseCacheMaximum": 219,
+    "shiftedPostCaseCacheSequenceSha256": "b367b1fda590d99251b977a61effdd38f6b55a5eafe53ecb2f6fdc7f7554a062"
+  },
+  "confirmationComponent": {
+    "targetIndex": 10792,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 6283534,
+    "end": 6284252,
+    "tokenCount": 438,
+    "bytes": 718,
+    "sha256": "0d51bb63916c5cc5f7297fd9883b70b00ca46d6b0fc7a4c70fcaf8e972e80a64",
+    "coarseHash": "442ab5372f93e36a59be2fcf0abc4a51794fbcedbb947c19fd1569040113c048",
+    "binding": "m_",
+    "initializer": {
+      "targetIndex": 10794,
+      "start": 6284264,
+      "end": 6284313,
+      "bytes": 49,
+      "sha256": "1e6c1825f489998cd76b84da40dbd9157be3494f8b1600a28f83f870a6035dae"
+    },
+    "agentsInitializer": {
+      "targetIndex": 17290,
+      "start": 10796511,
+      "end": 10796725,
+      "bytes": 214,
+      "sha256": "0dc81789286d5eac7be5316a8919d8d7c2b6968acdf40d1d3b216009f7494ad9",
+      "dependencyInitializerBinding": "YM",
+      "dependencyCall": {
+        "start": 10796598,
+        "end": 10796603,
+        "bytes": 5,
+        "sha256": "64dd239f03bb3579579fe8b25b1d61637555da638196b4c6678025d63cf47a7d"
+      },
+      "withoutDependencyNormalizedBytes": 5603,
+      "withoutDependencyNormalizedSha256": "57eb99181bf2459cb81467a9cbcf1c53e16b890cfa95c1654a1b6744a2143add"
+    },
+    "baselineAgentsInitializer": {
+      "baselineIndex": 17240,
+      "start": 10781595,
+      "end": 10781804,
+      "tokenCount": 156,
+      "bytes": 209,
+      "sha256": "337d2534c168f8394d30d41793c655d151005f3ba0d047118260d401a90c0003",
+      "coarseHash": "d016bc27d8f49343fb1f91f84fd961ef1b59d591fd1590be9a94612c465b3967"
+    },
+    "sourceContext": {
+      "path": "src/components/ConfirmationButtons.tsx",
+      "bytes": 843,
+      "sha256": "44e0c7df811030d27ed88eb313cac012fbdd2ed6a5baab03d9751070806f9960",
+      "declaration": {
+        "name": "ConfirmationButtons",
+        "start": 262,
+        "end": 842,
+        "bytes": 580,
+        "sha256": "19037f4bc0a7749747800eff626371b71046df75147b0d5b69e5e1f2356f29ee"
+      }
+    }
+  },
+  "keyboardShortcutContext": {
+    "targetUnit": {
+      "targetIndex": 7778,
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 3720736,
+      "end": 3721349,
+      "tokenCount": 375,
+      "bytes": 613,
+      "sha256": "6d192daeec21aa00acd8658790eec23a5e93e5f74c4914960e7e8cc7b66ae16c",
+      "coarseHash": "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a",
+      "binding": "K$"
+    },
+    "sourceContext": {
+      "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+      "bytes": 14022,
+      "sha256": "003a5fcb34e20f2a8966397d29b42a1a3edbd9773707c1fa81314d5197b52335",
+      "declaration": {
+        "name": "KeyboardShortcutHint",
+        "start": 8892,
+        "end": 9356,
+        "bytes": 464,
+        "sha256": "a6fb84d3424652326e8e34817a27c567962e622e97a53f542bf832713eebb836"
+      },
+      "provenance": "retained-chord-aware-compatibility-materialization"
+    },
+    "rawSourceContext": {
+      "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+      "bytes": 6847,
+      "sha256": "674320359f925e9f4f73f8761f003a0874bb6835eeb07ebb644192e8557d2b26"
+    }
+  },
+  "agentNavigationFooterContext": {
+    "baselineUnit": {
+      "baselineIndex": 17143,
+      "start": 10718098,
+      "end": 10718528,
+      "bytes": 430,
+      "sha256": "0b5eeab8abcf8163cd96c813012829a1a66fa90656ad8640301225797b4e386e"
+    },
+    "targetUnit": {
+      "targetIndex": 17193,
+      "classification": "changed",
+      "nodeType": "FunctionDeclaration",
+      "start": 10733315,
+      "end": 10733745,
+      "tokenCount": 150,
+      "bytes": 430,
+      "sha256": "4207da1b1a27cf6cbf2287183b1ee3c157b53588d28067a6b95478a3ffaabe20",
+      "coarseHash": "17eb2a6892ca8c928ab481c8f96570c5e124f94417bd35d4a9a6cdf135eb6c8b"
+    },
+    "legacySource": {
+      "path": "src/components/agents/AgentNavigationFooter.tsx",
+      "bytes": 3067,
+      "sha256": "d5d90daad45d6f5e5f708223f05272c9731fc222c23c1d683b8338ae4aad4dce",
+      "props": {
+        "start": 220,
+        "end": 262,
+        "bytes": 42,
+        "sha256": "ed2ca3bef75adb17f51091c3479d5c14d6793385e75841a8f7e517c8ec4576e8"
+      },
+      "declaration": {
+        "name": "AgentNavigationFooter",
+        "start": 263,
+        "end": 810,
+        "bytes": 547,
+        "sha256": "4d516cfa503edd1f57104cc38130a28850a2b23a95c7586abefd71a2f407de7c"
+      },
+      "rawMapSource": {
+        "chars": 606,
+        "bytes": 612,
+        "sha256": "2a93bbeacdad0c7234c0d02f2a9bd227fd7969f8c92e3733779be5cd46b0cbe0",
+        "props": {
+          "start": 168,
+          "end": 208,
+          "bytes": 40,
+          "sha256": "c6eb23d781a6cfa5d0e842ad795af894184b5d3523a41b5b7eba6dfff20e8d25"
+        },
+        "declaration": {
+          "start": 210,
+          "end": 605,
+          "bytes": 401,
+          "sha256": "af19d064fa34efe82e14f10b00a166d40b7a1a81b63a2e19adbff975594d9550"
+        }
+      }
+    }
+  },
+  "agentsCommandCallerContext": {
+    "baselineCall": {
+      "start": 10781921,
+      "end": 10781979,
+      "bytes": 58,
+      "sha256": "405e01294feb284014e5d0c03960578e0efae71e5f41115cf7ad25bab5cb3498"
+    },
+    "targetUnit": {
+      "targetIndex": 17293,
+      "classification": "matched",
+      "baselineUnitIndex": 17243,
+      "nodeType": "FunctionDeclaration",
+      "start": 10796759,
+      "end": 10796901,
+      "tokenCount": 49,
+      "bytes": 142,
+      "sha256": "399db208d86e5937e7fe1a7dc2afd73f9b3f7edf680109b09f7d73c2c9ffe2c1",
+      "coarseHash": "ecf256195026db61373007df5d036fb179d437fe92593b771954e62ddab37613"
+    },
+    "targetCall": {
+      "start": 10796842,
+      "end": 10796900,
+      "bytes": 58,
+      "sha256": "665a29635dc9a585f988242c3b6283150c7cc7a8634ffeee4360303f2296a580"
+    },
+    "legacySource": {
+      "path": "src/commands/agents/agents.tsx",
+      "bytes": 2500,
+      "sha256": "fc3c77e80bc87d35d3c1392c715f026ca92765441254842e6ee8dafc38898d05",
+      "declaration": {
+        "name": "call",
+        "start": 265,
+        "end": 579,
+        "bytes": 314,
+        "sha256": "dac7c218e68e8298b99bf59cd2624381c41257054f5a8afb260f30a7a9f45332"
+      },
+      "agentsMenuJsx": {
+        "start": 532,
+        "end": 576,
+        "bytes": 44,
+        "sha256": "938fff04fc51aabd47f453ae183f8d1c9f97a6773bae5e04aff5a1ddd0d6db3e"
+      },
+      "missingProp": "toolUseContext"
+    }
+  },
+  "residues": [
+    ["property", "confirmLabel", 10792276, 10792288, 0, 11],
+    ["property", "cancelLabel", 10792303, 10792314, 0, 11],
+    ["property", "onConfirm", 10792328, 10792337, 5, 17],
+    ["number", 170, 10792768, 10792771, 13, 14],
+    ["number", 171, 10792908, 10792911, 8, 9],
+    ["number", 214, 10795634, 10795637, 11, 12]
+  ],
+  "source": {
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/components/agents/AgentsMenu.tsx",
+    "blob": "923fe8bf3ae5b0da57697330660d8c7cdb9f1ef9",
+    "bytes": 70586,
+    "sha256": "eeff2e67b683e8235b1dd2d77de9697a2edfc8c008b950d82e12c9fc1f828245",
+    "declaration": {
+      "name": "AgentsMenu",
+      "start": 1536,
+      "end": 22913,
+      "bytes": 21377,
+      "sha256": "acf966a29bcbfd730fe12a6a965db7f72719036f73ad19c97bac8cf16f1f3cfb",
+      "memoCacheArity": 157
+    },
+    "props": {
+      "start": 1412,
+      "end": 1535,
+      "bytes": 123,
+      "sha256": "110eea2f67110dd2ebacac2a7ce0e3b55870ab2bb6841ea4a47b8488f2b9f109",
+      "members": [
+        "tools",
+        "onExit"
+      ]
+    },
+    "deleteCase": {
+      "start": 17022,
+      "end": 20298,
+      "bytes": 3276,
+      "sha256": "3cb74c2d9414078b3204068713918323ec4aebf944fbcbeb67f8b2dc9f2bc3d6"
+    },
+    "selectCall": {
+      "start": 19244,
+      "end": 19308,
+      "bytes": 64,
+      "sha256": "489430f69a7b777653fac8f8c9037a377e1563aa49d79309e168b0be57925d24"
+    },
+    "manualFooter": {
+      "start": 19910,
+      "end": 20015,
+      "bytes": 105,
+      "sha256": "95736b8d415ca625c77607a94f5520e502c7044e6f435bd916a84be1e35dcdf1"
+    },
+    "selectImport": {
+      "module": "../CustomSelect/select.js",
+      "start": 914,
+      "end": 965,
+      "bytes": 51,
+      "sha256": "c0a3e04484fadea00bd4cf9788addfc98ffef578adf2c2fd0d7df335d078190d"
+    },
+    "rawMapSource": {
+      "chars": 11652,
+      "bytes": 11656,
+      "sha256": "5c16d702128508e3adeec26a5cef6e41f3ee8ba9b3f4fd80fef462d4f200e05e",
+      "props": {
+        "start": 1350,
+        "end": 1476,
+        "bytes": 126,
+        "sha256": "70be97c8c7d67d46fef302702345a0a2787038a122a2ff854fe2113c9e08265e"
+      },
+      "declaration": {
+        "start": 1478,
+        "end": 11651,
+        "bytes": 10177,
+        "sha256": "fd97ca14dcca3deccb9352c06cd3506864eb87c2d098835871cb1786150e0fbf"
+      },
+      "deleteCase": {
+        "start": 9203,
+        "end": 10715,
+        "bytes": 1516,
+        "sha256": "03d25eaf019f5aabeb557e23ad8126e2fb15dffabf454833b2511bd47d967766"
+      },
+      "selectJsx": {
+        "start": 9948,
+        "end": 10546,
+        "bytes": 598,
+        "sha256": "a317a237f978ea6f58d7b1b1d528aa09c841fd7e484bcea6e1f71c17e9dae767"
+      },
+      "manualFooter": {
+        "start": 10596,
+        "end": 10689,
+        "bytes": 97,
+        "sha256": "c48d097531bbc2473f1ea2a8a1bd17745a811d3567c406041be3f5ad58d8786e"
+      }
+    },
+    "missingTargetImport": "../ConfirmationButtons.js",
+    "replayDisposition": "blocked-stale-source-no-partial-replay"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 6,
+    "sourceFiles": 1,
+    "sourceReplays": 0,
+    "ownerOverrides": 1,
+    "compilerOnlyResidues": 3,
+    "semanticResidues": 3
+  }
+}

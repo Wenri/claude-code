@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "The complete authenticated Target119 Doctor unit is admitted only with its exact baseline delta, retained Tree occurrences, rc-to-slow display, daemon-gated BackgroundServer dependency graph, export registration, module initializer, and Target120 runtime lineage. The recovered Target119 owner is an unchanged Target118 source snapshot, while the first later source witness is incomplete and temporally newer, so no source replay is authorized.",
+  "ownerBehavior": "The authenticated Target119 Doctor unit owns the release metadata, the rc-to-slow auto-update channel display, and the daemon-gated BackgroundServer child while retaining the surrounding Tree diagnostics. Its export registration, module initializer, false external-release daemon gate, status dependency, and exact Target120 runtime lineage bind the unit to src/screens/Doctor.tsx. The packaged Target119 source is an unchanged Target118 snapshot that omits both runtime additions; the later recovered source adds a non-exact Text-based BackgroundServer with Target120-only wording and still omits the slow channel alias. Admission is therefore static and never authorizes a partial or later-source replay.",
+  "summary": {
+    "units": 1,
+    "preCorrectionOwnerRows": 245,
+    "preCorrectionAddedOwnerRows": 15,
+    "productionStrictRows": 15,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-doctor-authenticated-whole-unit-proof",
+    "target119-doctor-release-channel-delta-proof",
+    "target119-doctor-background-server-boundary-proof",
+    "target119-doctor-export-initializer-lineage-proof",
+    "target119-doctor-retained-occurrence-proof",
+    "target119-doctor-source-replay-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+    },
+    "laterBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "laterStructuralLedger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 15852,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 9932245,
+    "end": 9941112,
+    "bytes": 8867,
+    "tokenCount": 2821,
+    "unknownFreeIdentifierCount": 4,
+    "sha256": "cf030a75e46928c99f812a5c769f8a5822d0e8860dc796c18ba35989ea57ad31",
+    "coarseHash": "d75e07dfd4047ab3ee18f8823f7b108c177acf2704c3cf9551e42c9c8d411311",
+    "canonicalAstBytes": 111257,
+    "canonicalAstSha256": "0582545c7d7c4be44561c79a4449dc2d6b966f115b836c3008cbd7c801d1288d"
+  },
+  "targetUnit": {
+    "targetIndex": 16213,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 10070222,
+    "end": 10079150,
+    "bytes": 8928,
+    "tokenCount": 2844,
+    "unknownFreeIdentifierCount": 8,
+    "sha256": "d8738658c7a49aa45019b5b31eae741d7742bda7522ff0fb925902da42d88608",
+    "coarseHash": "5bd64ca664884c17b4acc2c47e4d7138014bc07ea7f115bf88705b3fc2e20fa0",
+    "canonicalAstBytes": 112096,
+    "canonicalAstSha256": "3d0657974658d3ce75119c01b1e772fddc36b665a6396faea7c169e26f58b6cb"
+  },
+  "wholeUnitDelta": {
+    "bodyStatements": 8,
+    "unchangedCanonicalStatementIndices": [0, 1, 2, 3, 4, 5, 7],
+    "changedCanonicalStatementIndex": 6,
+    "baselineStatementRows": [
+      [0, "VariableDeclaration", 1649, "e9bdb11a5fa20df97ccb744d57aa37738d1c82ba28a9a50a4491a60c185345f6"],
+      [1, "ExpressionStatement", 145, "c481ad5f5698ca2cb90ca3c78f572c6952049807e15a58be689a51626d382019"],
+      [2, "VariableDeclaration", 10504, "908bc3c92e39a6159369eb88bb580a5881772c91e094fbd815364ce716e71cc0"],
+      [3, "ExpressionStatement", 10408, "c87794e4b99139e689f62f9d78924e659661b68b9d5d54789ec34b6db2bf543d"],
+      [4, "VariableDeclaration", 1986, "d643ba7cd1f2f71f06b5d4ef7f7574e7dc0af864abf4e74067dd0a14ed9bf67a"],
+      [5, "IfStatement", 3735, "b6f5bb36bb6d27be725492f5fafb9fc44bce85dd463fab836211596ef5a42262"],
+      [6, "VariableDeclaration", 74874, "f284ed1efa47af0647aff1f3fe2a3dab960f362d4f951fba24e9acdd8e0c3b7b"],
+      [7, "ReturnStatement", 7513, "b89eaf6791b5b748ce912bb1b3482000576d22241b202c2a8074259d6e0f5702"]
+    ],
+    "targetStatementRows": [
+      [0, "VariableDeclaration", 1649, "e9bdb11a5fa20df97ccb744d57aa37738d1c82ba28a9a50a4491a60c185345f6"],
+      [1, "ExpressionStatement", 145, "c481ad5f5698ca2cb90ca3c78f572c6952049807e15a58be689a51626d382019"],
+      [2, "VariableDeclaration", 10504, "908bc3c92e39a6159369eb88bb580a5881772c91e094fbd815364ce716e71cc0"],
+      [3, "ExpressionStatement", 10408, "c87794e4b99139e689f62f9d78924e659661b68b9d5d54789ec34b6db2bf543d"],
+      [4, "VariableDeclaration", 1986, "d643ba7cd1f2f71f06b5d4ef7f7574e7dc0af864abf4e74067dd0a14ed9bf67a"],
+      [5, "IfStatement", 3735, "b6f5bb36bb6d27be725492f5fafb9fc44bce85dd463fab836211596ef5a42262"],
+      [6, "VariableDeclaration", 75713, "fba1677be2e5c5933df3ce6294ee419e6e3eeb4ad448b07cbb0fabea3db647c4"],
+      [7, "ReturnStatement", 7513, "b89eaf6791b5b748ce912bb1b3482000576d22241b202c2a8074259d6e0f5702"]
+    ],
+    "normalizedCanonicalAst": {
+      "bytes": 111183,
+      "sha256": "8e4132283500b25152b9a05845fd0574aeaa0730a31d0a3c60ac766c5683f827"
+    }
+  },
+  "releaseMetadata": {
+    "baselineValues": ["2.1.118", "2026-04-22T21:04:38Z", "ef88b5f0a79aac989f53fd18178939a54a48624a"],
+    "targetValues": ["2.1.119", "2026-04-23T19:08:52Z", "6f68554839756189e277b8285a18fe47acd9a5a1"],
+    "occurrencesPerValue": 2,
+    "baselineLiteralSpans": [[9934634, 9934643], [9934723, 9934745], [9934754, 9934796], [9935047, 9935056], [9935136, 9935158], [9935167, 9935209]],
+    "targetLiteralSpans": [[10072612, 10072621], [10072701, 10072723], [10072732, 10072774], [10073025, 10073034], [10073114, 10073136], [10073145, 10073187]]
+  },
+  "channelDelta": {
+    "baselineCall": {
+      "start": 9937226,
+      "end": 9937290,
+      "bytes": 64,
+      "sha256": "c77bc5c226b6c5e6a979749383121f7b8619396d5b4356e2beea2419cf47e54b"
+    },
+    "targetCall": {
+      "start": 10075204,
+      "end": 10075287,
+      "bytes": 83,
+      "sha256": "e7a9ee6bd21a9a48201b4b1369850a661dea03191078652b1febce14c63b4018"
+    },
+    "targetConditional": {
+      "start": 10075269,
+      "end": 10075286,
+      "bytes": 17,
+      "sha256": "240b270a9d80a29441246acb21143cc5ddf9c6bccb081c8638450f857485c3d5",
+      "input": "rc",
+      "display": "slow"
+    }
+  },
+  "backgroundSlot": {
+    "astPath": ["body", 0, "body", "body", 6, "declarations", 0, "init", "arguments", 8],
+    "baseline": {
+      "start": 9937496,
+      "end": 9937500,
+      "bytes": 4,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "target": {
+      "start": 10075493,
+      "end": 10075538,
+      "bytes": 45,
+      "sha256": "763203cd6c9c62711b3ed545a3cf5085e1dd347ca927597736e0ee12d5d320d0",
+      "gateCall": {"start": 10075493, "end": 10075498, "bytes": 5, "sha256": "46cf5c2527f33cdc34732a14bce311bcf549f0af54ef85f5ae6d7fcaf327d660"},
+      "componentBinding": {"start": 10075524, "end": 10075527, "bytes": 3, "sha256": "97ab548404f6149de0e2ffe656900e3b1eb26b29456fd7d9990d1b77b8461820"}
+    }
+  },
+  "retainedOccurrenceRows": [
+    {"value": "Node", "target": [10076885, 10076889], "baseline": [9938847, 9938851], "sha256": "e93372533f323b2f12783aa3a586135cf421486439c2cdcde47411b78f9839ec"},
+    {"value": "Node", "target": [10077022, 10077026], "baseline": [9938984, 9938988], "sha256": "e93372533f323b2f12783aa3a586135cf421486439c2cdcde47411b78f9839ec"},
+    {"value": "Node", "target": [10077367, 10077371], "baseline": [9939329, 9939333], "sha256": "e93372533f323b2f12783aa3a586135cf421486439c2cdcde47411b78f9839ec"},
+    {"value": "Node", "target": [10077475, 10077479], "baseline": [9939437, 9939441], "sha256": "e93372533f323b2f12783aa3a586135cf421486439c2cdcde47411b78f9839ec"},
+    {"value": "Node", "target": [10077907, 10077911], "baseline": [9939869, 9939873], "sha256": "e93372533f323b2f12783aa3a586135cf421486439c2cdcde47411b78f9839ec"},
+    {"value": "Node", "target": [10078043, 10078047], "baseline": [9940005, 9940009], "sha256": "e93372533f323b2f12783aa3a586135cf421486439c2cdcde47411b78f9839ec"},
+    {"value": "tree", "target": [10078373, 10078379], "baseline": [9940335, 9940341], "sha256": "ec545c4839b455042abf79ea8201df2aaf6c3eca68a4f4f63b45a0fd82501746"}
+  ],
+  "backgroundDependency": {
+    "detailsUnit": {
+      "targetIndex": 16164,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10056741,
+      "end": 10059430,
+      "bytes": 2689,
+      "tokenCount": 748,
+      "unknownFreeIdentifierCount": 13,
+      "sha256": "99642a11aa5603adfadb0d094cacfb5e0df46a3c7ef6c9f16d73d59739cfe933",
+      "coarseHash": "05406d48cdcccd87f10989cb1a57c7802b799ff412eb19d9c1e6834a1c5a4c3b"
+    },
+    "componentUnit": {
+      "targetIndex": 16165,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10059430,
+      "end": 10060050,
+      "bytes": 620,
+      "tokenCount": 231,
+      "unknownFreeIdentifierCount": 10,
+      "sha256": "9f9dde4c83bad217f7358bc4e25ed0bee034e8e888477eb5e8a4009397c985ee",
+      "coarseHash": "54f9f01da2358e5c4aec908d09c7beee2395be94e46088d93174c921862db405",
+      "canonicalAstBytes": 9241,
+      "canonicalAstSha256": "f82905e38cdbb8489e6909a05eb5c8224267d4d760a695d371c5a6a638065d6a"
+    },
+    "initializerUnit": {
+      "targetIndex": 16167,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 10060061,
+      "end": 10060122,
+      "bytes": 61,
+      "tokenCount": 45,
+      "unknownFreeIdentifierCount": 3,
+      "sha256": "f3559d712d9e696a01d7c81c96db052f7dadaaabee434c96cd60a598de4f6f63",
+      "coarseHash": "ebceecabafe565bf2281d08c7f7fac1d5224021bb37a299556c04f574c4d6989"
+    },
+    "statusUnit": {
+      "targetIndex": 16158,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10054184,
+      "end": 10055520,
+      "bytes": 1336,
+      "tokenCount": 453,
+      "unknownFreeIdentifierCount": 14,
+      "sha256": "958e795104cb2a14ab3563985a2f47fcf39039c577ef57f53b27ef7b6f1b2e7d",
+      "coarseHash": "f0dca236b66b67cbb69afd729d9089f1ffb81e4ded59b5f34b547784d34c967d"
+    },
+    "statusCall": {"start": 10059514, "end": 10059519, "bytes": 5, "sha256": "049da2c9d7a50555b76c590ad4dc3596ef2f1b155653b6457d571563393b11a8"},
+    "gateUnit": {
+      "targetIndex": 15819,
+      "nodeType": "FunctionDeclaration",
+      "start": 9689395,
+      "end": 9689419,
+      "bytes": 24,
+      "tokenCount": 9,
+      "sha256": "843fc7ce45afd4c76f6087e9d835f2a327610deedca6e5deb8bf3ba3bcb08aea",
+      "coarseHash": "a155493b35df5a6c931d99ce172e67ad90c86ef7b95eea21b3b475e9eb616538",
+      "returnValue": false
+    },
+    "target119Warning": {
+      "start": 10058833,
+      "end": 10058962,
+      "bytes": 129,
+      "sha256": "6e49351b5bbfca55c9d7025001c6c718a6b6cb7a69b5d1ad90ca4e7d88cd57f8"
+    }
+  },
+  "moduleBoundary": {
+    "exportRegistration": {
+      "targetIndex": 16211,
+      "classification": "matched",
+      "baselineUnitIndex": 15850,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "ExpressionStatement",
+      "start": 10069441,
+      "end": 10069513,
+      "bytes": 72,
+      "tokenCount": 28,
+      "sha256": "015d3a3e3fd50df8c7b9096dc9f95451af8dfb3d931515b81700126499bb3946",
+      "coarseHash": "e9a4a8900d1a39640e968c767a5bc73575b5610d70cef267be7c14a97520df03"
+    },
+    "baselineInitializer": {
+      "targetIndex": 15857,
+      "start": 9942969,
+      "end": 9943216,
+      "bytes": 247,
+      "tokenCount": 172,
+      "sha256": "711fdc1d3a6253975cbd0ccebd9f768b0f92218db7592672b15c11408d7795a8",
+      "coarseHash": "cd48e64bff7d53aec81cdf8eba59d748de8442ca65bec240a235edb81742aa1a"
+    },
+    "targetInitializer": {
+      "targetIndex": 16218,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 10081008,
+      "end": 10081260,
+      "bytes": 252,
+      "tokenCount": 176,
+      "unknownFreeIdentifierCount": 13,
+      "sha256": "869168be9fa3efcf62ca6e133e66cdc42cc7b7df69fcf6bdf1ba62d85a2786e3",
+      "coarseHash": "937c7d05b85e4222476da570921f6a8e469fb6e338bd5082b8d936d7dd4b8e03"
+    },
+    "backgroundInitializerCall": {"start": 10081055, "end": 10081061, "bytes": 6, "sha256": "465910e534e4a2921e99f1b3cfb445916d196fc29f86c84b065dd30d1e83c423"},
+    "normalizedWithoutBackgroundCall": {
+      "bytes": 6236,
+      "sha256": "8476829a4d6c2e267a2b479cf9cfe14a258fe3f0e71425292e5869ddc7dfca5d"
+    }
+  },
+  "laterRuntimeLineage": {
+    "doctorUnit": {
+      "targetIndex": 16287,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10102846,
+      "end": 10111774,
+      "bytes": 8928,
+      "tokenCount": 2844,
+      "sha256": "9509103697ec3d52e6834da07623f5631bfa1fe96911279ad475eeef23c76092",
+      "coarseHash": "7e00bbb5a0864bb436d70c9ac60c6253c32c9fb9e8b665045a626e2949849e74"
+    },
+    "normalizedDoctor": {"bytes": 112022, "sha256": "ffbcd01e366ae67af76134c4242d793c5774348bb59a48507687b1bf55e98819"},
+    "componentUnit": {
+      "targetIndex": 16239,
+      "classification": "matched",
+      "baselineUnitIndex": 16165,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 10092054,
+      "end": 10092674,
+      "bytes": 620,
+      "tokenCount": 231,
+      "sha256": "0415133cdebee02e8f7c3edcbfcc1a05ece667c34788e61706c370b98f2505cf",
+      "coarseHash": "54f9f01da2358e5c4aec908d09c7beee2395be94e46088d93174c921862db405"
+    },
+    "detailsUnit": {
+      "targetIndex": 16238,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 10089369,
+      "end": 10092054,
+      "bytes": 2685,
+      "tokenCount": 748,
+      "sha256": "68e656efa6c1324f54e84166138851b16d6481bd0a78dfcd2e5ecec802f7c219",
+      "coarseHash": "ee043d82e6ec1894b0d1b535c1c3efd5100939c448e0ea7f394a1a36225a2acd"
+    },
+    "normalizedDetails": {"bytes": 29860, "sha256": "c3e72aa09fb16f069057442022a26fc42bce3ed40b4bf1718d858888e38503b7"},
+    "target120Warning": {
+      "start": 10091461,
+      "end": 10091586,
+      "bytes": 125,
+      "sha256": "afc19704e28d55f3f5f36dbed6968a6f1688a2aa2f2fc7472910424ed845285f"
+    }
+  },
+  "sourceOwner": {
+    "path": "src/screens/Doctor.tsx",
+    "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "blob": "8a1e276906db1c0ed848b046cf495b7de31a9fb4",
+    "bytes": 73314,
+    "chars": 73248,
+    "sha256": "5406e0fcb70fef030ea3af06717d13416c032075ead8828cf4347ee673ab80ca",
+    "doctor": {"start": 3616, "end": 16913, "bytes": 13339, "chars": 13297, "sha256": "63c5f00d26f0fbe0ac6168bb8aee3382a73e1c7d9e6d6e5ba71e5fdd186819b9"},
+    "inlineSource": {"bytes": 16035, "chars": 15969, "sha256": "965589854d3974836ab5ee8ae772fb29bdb77e2aa71399d03bf18ce096926709", "doctor": {"start": 3067, "end": 15968, "bytes": 12961, "chars": 12901, "sha256": "3afdd0c66f96d1900407ec2fd9b717995e34a173d2b7bd0422733e6a90ac335c"}},
+    "simpleChannelExpression": "<Text>└ Auto-update channel: {autoUpdatesChannel}</Text>",
+    "missingMarkers": ["BackgroundServerDetails", "BackgroundServer", "isDaemonCliEnabled", "getBgDaemonStatus", "autoUpdatesChannel === \"rc\""]
+  },
+  "laterSourceWitness": {
+    "path": ".recovery-tmp/semantic-trees/2.1.120/src/screens/Doctor.tsx",
+    "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+    "blob": "95851b7af1dd647499891e9873da506f02717102",
+    "bytes": 75394,
+    "chars": 75308,
+    "sha256": "f4399da6befe625a09739c7429b1633f3f8a04911e5c1ad7bfd7f8f6f89ed913",
+    "backgroundDetails": {"start": 3757, "end": 5269, "bytes": 1528, "chars": 1512, "sha256": "7e43593a2a0a1b20dcd398516e9de5f4e2c3e8b49f754d3a57baeec9e1033578"},
+    "background": {"start": 5271, "end": 5621, "bytes": 354, "chars": 350, "sha256": "24395294e8386349be8c3e14dfc534c95bbbf4efc2dac7ea8e370633b35ba86f"},
+    "doctor": {"start": 5623, "end": 18972, "bytes": 13391, "chars": 13349, "sha256": "55f04d5ed88c830951b8e06475679d215d14173eea326bd474ea9d7c731e656a"},
+    "daemonStatusImport": {"start": 969, "end": 1046, "bytes": 77, "chars": 77, "sha256": "4c5169ce0229dd5931d33f42d007e6852f13989aa5573c5bbb27698befeb97dd"},
+    "agentsFleetImport": {"start": 1431, "end": 1492, "bytes": 61, "chars": 61, "sha256": "686a8c7fa1d8e028e6a4dd29582266f153f32f73a34281e2c4bcf1291a9c26ba"},
+    "inlineSourceSha256": "965589854d3974836ab5ee8ae772fb29bdb77e2aa71399d03bf18ce096926709",
+    "stillMissingMarker": "autoUpdatesChannel === \"rc\"",
+    "laterOnlyWarning": "(daemon.json) only run while a foreground client or background job keeps the server alive. They will not start after reboot."
+  },
+  "sourceDependencies": {
+    "gate": {"path": "src/utils/agentsFleet.ts", "bytes": 701, "chars": 701, "sha256": "85fccfdd4753fa73fdcc9be66e6cc5ed1e9bb7a1baa86adf42ce8e13722d9bd0", "declaration": {"start": 476, "end": 540, "bytes": 64, "chars": 64, "sha256": "3ef3130a607322802378d2262d7f73e1bac474f21e39e25cd3fda71bdb85abc3"}},
+    "status": {"path": "src/daemon/status.ts", "bytes": 4972, "chars": 4970, "sha256": "5bdc29348add20175062b6faf565b31f81e5b4921ab8e6b602c9fff617a56922", "declaration": {"start": 1556, "end": 3690, "bytes": 2134, "chars": 2134, "sha256": "63ead1138ad9b09867e54080d35296934722a80f7cc437fb74b1cdb100b0ea6e"}}
+  },
+  "ownerResidues": {
+    "preCorrectionAllOwnerRows": {"rows": 245, "jsonBytes": 15847, "sha256": "86fe67a31ec34347fe5845d42a90d09edbf910e1b36d9f7c55f5e9a1985458db"},
+    "preCorrectionAddedOwnerRows": {"rows": 15, "jsonBytes": 924, "sha256": "cfade6dd805060f6bbd9f85594415b33baf7d6e0f791248b9b4f3a59f2e9c843"},
+    "preCorrectionRawRows": {"rows": 7, "jsonBytes": 490, "sha256": "f63d7bd65cd7f2b1980c4c9efe86a92fa5bfb9c34c1c397719fe628351e67617"},
+    "ownerPath": "screens/Doctor.tsx",
+    "rows": [
+      [16213, "string", "2.1.119", 10072612, 10072621, 0, 68, true],
+      [16213, "string", "2026-04-23T19:08:52Z", 10072701, 10072723, 0, 68, true],
+      [16213, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 10072732, 10072774, 0, 68, true],
+      [16213, "string", "2.1.119", 10073025, 10073034, 0, 69, true],
+      [16213, "string", "2026-04-23T19:08:52Z", 10073114, 10073136, 0, 69, true],
+      [16213, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 10073145, 10073187, 0, 69, true],
+      [16213, "string", "Auto-update channel:", 10075242, 10075264, 0, 1, true],
+      [16213, "string", "slow", 10075278, 10075284, 0, 3, true],
+      [16213, "property", "Node", 10076885, 10076889, 49, 50, true],
+      [16213, "property", "Node", 10077022, 10077026, 49, 51, true],
+      [16213, "property", "Node", 10077367, 10077371, 49, 52, true],
+      [16213, "property", "Node", 10077475, 10077479, 49, 53, true],
+      [16213, "property", "Node", 10077907, 10077911, 49, 54, true],
+      [16213, "property", "Node", 10078043, 10078047, 49, 55, true],
+      [16213, "string", "tree", 10078373, 10078379, 81, 82, true]
+    ]
+  },
+  "replayDecision": {
+    "mode": "static-only",
+    "sourceReplayAuthorized": false,
+    "reason": "The Target119 package and inline source map omit both semantic additions. The Target120 source witness adds a Text-based compatibility rendering with Target120-only worker wording and still omits the rc-to-slow display, so neither a partial Target119 patch nor a whole later-source copy is an authenticated complete-unit replay."
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "case-owned-static-complete-module-proof-exact-source-present",
+  "criterion": "Admit Target119 u20694 only when its complete two-binding declaration, adjacent wake-router timer/release/module graph, wholly added authenticated historical source file, exact source AST, one-row owner-residue partition, and Target120/121 structural descendants all agree. A bare 60000 occurrence or provisional nearest candidate is never sufficient.",
+  "ownerBehavior": "The complete authenticated Target119 wake-router constant unit declares the React module binding beside the sole 60-second dispatch timeout. The adjacent useWakeRouter unit schedules releaseTimedOutDispatch with that binding, the release unit logs the same timeout and deletes the same agent reservation, and completion clears the timer before deleting the reservation. The exact historical Target119 source is a wholly added file whose WAKE_DISPATCH_TIMEOUT_MS, releaseTimedOutDispatch, and useWakeRouter AST reproduces that graph and persists structurally through Target121. The provisional handlePromptSubmit owner and every other bare-60000 match are rejected because none owns the complete diagnostic, callback, timer, and cleanup graph. Source is already exact, so no replay is authorized or needed.",
+  "summary": {
+    "units": 1,
+    "ownerRows": 1,
+    "addedOwnerRows": 1,
+    "productionStrictRowsBeforeCorrection": 1,
+    "productionStrictRowsAfterCorrection": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-wake-router-dispatch-timeout-authenticated-whole-unit-proof",
+    "target119-wake-router-dispatch-timeout-historical-source-file-proof",
+    "target119-wake-router-dispatch-timeout-source-ast-owner-proof",
+    "target119-wake-router-dispatch-timeout-semantic-contract-test",
+    "target119-wake-router-dispatch-timeout-incidental-literal-rejection"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-wake-router-dispatch-timeout-authenticated-whole-unit-proof",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs",
+      "detail": "Pins the complete authenticated u20694 two-declarator statement, its one-row owner-residue partition, and the six contiguous wake-router module units that consume and initialize both bindings."
+    },
+    {
+      "id": "target119-wake-router-dispatch-timeout-historical-source-file-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs",
+      "detail": "Proves src/hooks/useWakeRouter.ts is absent at the Target118 source commit, wholly added at Target119, byte-exact in the recovered package, and structurally retained through Target121."
+    },
+    {
+      "id": "target119-wake-router-dispatch-timeout-source-ast-owner-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs",
+      "detail": "Binds WAKE_DISPATCH_TIMEOUT_MS, releaseTimedOutDispatch, useWakeRouter, their imports, and the timer/callback/cleanup AST to the exact historical useWakeRouter source file."
+    },
+    {
+      "id": "target119-wake-router-dispatch-timeout-semantic-contract-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs",
+      "detail": "Executes a bounded timer/reservation model proving timeout and normal completion both release only the selected agent reservation while completion also clears its timer."
+    },
+    {
+      "id": "target119-wake-router-dispatch-timeout-incidental-literal-rejection",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs",
+      "detail": "Rejects the provisional handlePromptSubmit owner and all other 60000 source matches unless the same file owns the diagnostic, release callback, timer argument, and cleanup graph."
+    }
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionSha256": "2bd6f8c8a720a2b187a0dbcbed0368a184e00df216a323b84abfc010a52655fd",
+      "mutableAfterCorrection": true
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedPreCorrectionSha256": "d47a20d5b9cde6676ad071a5381ac734a364ceb09a548707cce04ede27add767",
+      "mutableAfterCorrection": true
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target120StructuralLedger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "target121Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "target121StructuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    }
+  },
+  "baselineAbsence": {
+    "sourceCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "bundleDiagnosticOccurrences": 0
+  },
+  "targetModule": {
+    "start": 12488823,
+    "end": 12490038,
+    "bytes": 1215,
+    "sha256": "481c3be7d252758da7cbcf3d2684382013c0be43d40294e542397cbce19b287b",
+    "unitsDescriptor": {
+      "units": 6,
+      "jsonBytes": 1991,
+      "sha256": "353a290554e5513f0716bdf873b7eb5321200dd2ba14e7404307f0eed0b31c95"
+    },
+    "timeoutBearingRange": {
+      "start": 12489287,
+      "end": 12490038,
+      "bytes": 751,
+      "sha256": "e322956b151e7c0e524fd5d5717e6a9e5c995d46b714eb10cbeef52006f6d859"
+    },
+    "units": [
+      {
+        "targetIndex": 20690,
+        "role": "selectWakeDispatches",
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12488823,
+        "end": 12489265,
+        "bytes": 442,
+        "tokenCount": 213,
+        "sha256": "7e354ba9494942be20ec32c8923ab11d07a706eaaedc05d68bee1432e23d255f",
+        "coarseHash": "5c95b49f657dff98696043524714eff73bf85a1e56843e57e07923afc010aa83",
+        "unknownFreeIdentifierCount": 1
+      },
+      {
+        "targetIndex": 20691,
+        "role": "local-agent-task-initializer",
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 12489265,
+        "end": 12489287,
+        "bytes": 22,
+        "tokenCount": 15,
+        "sha256": "7fba2dd7d6a9228c9287ca09a32295b41aa38bedcc9f5e816fdc631aef4c8fa3",
+        "coarseHash": "7cf671b3c95c07b3654b5cc6026e24dbe96062ec24b7ab62898b43b9b29ca717",
+        "unknownFreeIdentifierCount": 0
+      },
+      {
+        "targetIndex": 20692,
+        "role": "useWakeRouter",
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12489287,
+        "end": 12489809,
+        "bytes": 522,
+        "tokenCount": 243,
+        "sha256": "ef9f02af4628fed83746644312dbe92945ec3a71bd11c2a046533391f91c8fc4",
+        "coarseHash": "9443ca46ae8e3b010894ad020537de8711ff304011c7a4a7f78334e4dac7c294",
+        "unknownFreeIdentifierCount": 6
+      },
+      {
+        "targetIndex": 20693,
+        "role": "releaseTimedOutDispatch",
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12489809,
+        "end": 12489963,
+        "bytes": 154,
+        "tokenCount": 40,
+        "sha256": "83fd570516c3879d8142b22350bfa4f66e5f00ffcc4354e703ae66a7c5adc7a9",
+        "coarseHash": "2ef03d6498fdb4a271cf3827227d6365d5b0bd8fd1b57994a0f47910dc4dadfe",
+        "unknownFreeIdentifierCount": 1
+      },
+      {
+        "targetIndex": 20694,
+        "role": "WAKE_DISPATCH_TIMEOUT_MS",
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 12489963,
+        "end": 12489981,
+        "bytes": 18,
+        "tokenCount": 7,
+        "sha256": "73766124f72c8b8998b37091c558cb35f25c65400a060f20d8173e3609dd72de",
+        "coarseHash": "ad2d78c0e68f5bebd287ffb11379643f7c7df9399434189ac11adc798a1c8afb",
+        "unknownFreeIdentifierCount": 0
+      },
+      {
+        "targetIndex": 20695,
+        "role": "wake-router-module-initializer",
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 12489981,
+        "end": 12490038,
+        "bytes": 57,
+        "tokenCount": 42,
+        "sha256": "538d1335a3a8fb6a795aab75b1973cc255140c713f5aeed60cf64c679b19bef1",
+        "coarseHash": "248d0b4330f77814a976d4bc1c359d5a8763a6af991c1d0032a81db396197609",
+        "unknownFreeIdentifierCount": 4
+      }
+    ],
+    "diagnostic": "[wakeRouter] dispatch for ",
+    "timeoutMilliseconds": 60000,
+    "bindingGraph": {
+      "timeoutOccurrences": [12489679,12489878,12489971],
+      "callbackOccurrences": [12489675,12489818],
+      "reactBindingOccurrences": 5,
+      "setTimeout": {"start":12489664,"end":12489714,"bytes":50,"sha256":"253baa93cb4fac974a2032b643abf90af1c6b8b12ca6e5d3aa9c4688bff4573b"},
+      "warning": {"start":12489825,"end":12489933,"bytes":108,"sha256":"7b4f91025740abc751ce836abbc012676e1d052185e7312f38d884207dbd7874"},
+      "timeoutDelete": {"start":12489934,"end":12489962,"bytes":28,"sha256":"168a966daf8708e8825f0d9c030f99c11b4ffef80716442ecb26a22e72e1fb8c"}
+    }
+  },
+  "forwardRuntime": [
+    {
+      "version": "2.1.120",
+      "units": [
+        {"role":"selectWakeDispatches","targetIndex":20777,"classification":"matched","baselineUnitIndex":20690,"pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":12526670,"end":12527112,"bytes":442,"tokenCount":213,"sha256":"a6e051429b46b758ef157ee86a21c403e9bd804e92467294fa9609e9c4668cba","coarseHash":"5c95b49f657dff98696043524714eff73bf85a1e56843e57e07923afc010aa83"},
+        {"role":"local-agent-task-initializer","targetIndex":20778,"classification":"matched","baselineUnitIndex":20691,"pairReason":"exact-scope-normalized-token-hash","nodeType":"VariableDeclaration","start":12527112,"end":12527134,"bytes":22,"tokenCount":15,"sha256":"1105a66dbbe2f63d61155f1d9e646bd46239031f4cee773839740514cdf7d8d0","coarseHash":"7cf671b3c95c07b3654b5cc6026e24dbe96062ec24b7ab62898b43b9b29ca717"},
+        {"role":"useWakeRouter","targetIndex":20779,"classification":"matched","baselineUnitIndex":20692,"pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":12527134,"end":12527656,"bytes":522,"tokenCount":243,"sha256":"cbd6f99b90468db3cc749366bddb2210467b69a465e7423dc62762ba4e0bb918","coarseHash":"9443ca46ae8e3b010894ad020537de8711ff304011c7a4a7f78334e4dac7c294"},
+        {"role":"releaseTimedOutDispatch","targetIndex":20780,"classification":"matched","baselineUnitIndex":20693,"pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":12527656,"end":12527810,"bytes":154,"tokenCount":40,"sha256":"c85477172bcb95ea18f99fca923730c334bf6c0bb656d306438bf3eb7f050c39","coarseHash":"2ef03d6498fdb4a271cf3827227d6365d5b0bd8fd1b57994a0f47910dc4dadfe"},
+        {"role":"WAKE_DISPATCH_TIMEOUT_MS","targetIndex":20781,"classification":"matched","baselineUnitIndex":20694,"pairReason":"exact-scope-normalized-token-hash","nodeType":"VariableDeclaration","start":12527810,"end":12527828,"bytes":18,"tokenCount":7,"sha256":"26a09016e8c17b2629fbaeab41aa9ab149ac4a581e7eb75220fe100e369d8b6a","coarseHash":"ad2d78c0e68f5bebd287ffb11379643f7c7df9399434189ac11adc798a1c8afb"}
+      ]
+    },
+    {
+      "version": "2.1.121",
+      "units": [
+        {"role":"selectWakeDispatches","targetIndex":20784,"classification":"matched","baselineUnitIndex":20777,"pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":12521571,"end":12522013,"bytes":442,"tokenCount":213,"sha256":"2885cdfebf3c3a06b552624832d261006f5179a8e3759d89656d216b0764f8b1","coarseHash":"5c95b49f657dff98696043524714eff73bf85a1e56843e57e07923afc010aa83"},
+        {"role":"local-agent-task-initializer","targetIndex":20785,"classification":"matched","baselineUnitIndex":20778,"pairReason":"exact-scope-normalized-token-hash","nodeType":"VariableDeclaration","start":12522013,"end":12522035,"bytes":22,"tokenCount":15,"sha256":"f3c3383b782f31440d743c65ea572e39b59a2dc1b1278be6911961d3c64c52dd","coarseHash":"7cf671b3c95c07b3654b5cc6026e24dbe96062ec24b7ab62898b43b9b29ca717"},
+        {"role":"useWakeRouter","targetIndex":20786,"classification":"matched","baselineUnitIndex":20779,"pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":12522035,"end":12522557,"bytes":522,"tokenCount":243,"sha256":"f2621af953e192394df3108f3c0162cefa55453681b2f71d3dd2dfb0489d2714","coarseHash":"9443ca46ae8e3b010894ad020537de8711ff304011c7a4a7f78334e4dac7c294"},
+        {"role":"releaseTimedOutDispatch","targetIndex":20787,"classification":"matched","baselineUnitIndex":20780,"pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":12522557,"end":12522711,"bytes":154,"tokenCount":40,"sha256":"1b3a0d92a20004c82fb8685e6c98b9d6cb6ab9f71b5b5f163a91bab5ebbb2bf8","coarseHash":"2ef03d6498fdb4a271cf3827227d6365d5b0bd8fd1b57994a0f47910dc4dadfe"},
+        {"role":"WAKE_DISPATCH_TIMEOUT_MS","targetIndex":20788,"classification":"matched","baselineUnitIndex":20781,"pairReason":"exact-scope-normalized-token-hash","nodeType":"VariableDeclaration","start":12522711,"end":12522729,"bytes":18,"tokenCount":7,"sha256":"e81a3a4c4fca96cea1364cc1ace6430ccac92017b783db399bcdad84bb8af6ab","coarseHash":"ad2d78c0e68f5bebd287ffb11379643f7c7df9399434189ac11adc798a1c8afb"}
+      ]
+    }
+  ],
+  "sourceOwner": {
+    "baselineCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "targetCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "path": "src/hooks/useWakeRouter.ts",
+    "targetBlob": "8c6ae719fff7233ba627f236978f48513a0e217d",
+    "file": {
+      "chars": 3786,
+      "bytes": 3786,
+      "sha256": "8d37eaea92ebd07f2551978804141c699c221ac24a384b05fc6b3c35331c8722"
+    },
+    "wholeFileDiff": {
+      "bytes": 4093,
+      "sha256": "64bef390f4039fbd930cc794668c3593b47671feb78fff0a3959c87e92bfcb65"
+    },
+    "declarations": {
+      "WAKE_DISPATCH_TIMEOUT_MS": {"start":502,"end":541,"chars":39,"bytes":39,"sha256":"2155c0c52a17c7462fb840c9bf6b84fac1aff221922172343346e72d2382d47f"},
+      "selectWakeDispatches": {"start":877,"end":2151,"chars":1274,"bytes":1274,"sha256":"1adb59b494f0cd6875fef44793d6606b9508dc7ca184ae984f23079f7e3537ca"},
+      "releaseTimedOutDispatch": {"start":2153,"end":2458,"chars":305,"bytes":305,"sha256":"e0940faa8d2d92e021538e133cc2cd70916408759d66e3af0691d7d118ad3513"},
+      "useWakeRouter": {"start":2460,"end":3785,"chars":1325,"bytes":1325,"sha256":"515f479c8a725b3a4f314efaa24b268eb6f725203bde145e87a74453f2fd1b62"}
+    },
+    "graphFragments": {
+      "numericInitializer": {"start":535,"end":541,"bytes":6,"sha256":"af336673280ce1e644d36fdca7618850da4652abf7f84fbb2afb3be48489301c"},
+      "setTimeout": {"start":3399,"end":3549,"bytes":150,"sha256":"002d56fafd6ffad55351fb009fdbf9843628fee07f8fa33eb4eb4724dee39654"},
+      "warning": {"start":2271,"end":2429,"bytes":158,"sha256":"356bf2b912a57f47ecc4ef4b5ea1ba91700fd63bb0d3306f5e4376df3af4a058"},
+      "timeoutDelete": {"start":2432,"end":2456,"bytes":24,"sha256":"3df9fc3bec6485b79f99e6445dfe67eacc7f8eedd132c5f793d1559014a537f5"},
+      "finallyCallback": {"start":3644,"end":3742,"bytes":98,"sha256":"310e2df56b816fabfe6a68bd3a48cb93695a03c782a96e4449946f7236d1d1b8"}
+    },
+    "imports": [
+      {"module":"react","names":["useEffect","useRef","useSyncExternalStore"],"typeOnly":false},
+      {"module":"../state/AppState.js","names":["useAppStateStore"],"typeOnly":false},
+      {"module":"../tasks/LocalAgentTask/LocalAgentTask.js","names":["getAgentKeepaliveReasons","isLocalAgentTask"],"typeOnly":false},
+      {"module":"../types/textInputTypes.js","names":["QueuedCommand"],"typeOnly":true},
+      {"module":"../utils/debug.js","names":["logForDebugging"],"typeOnly":false},
+      {"module":"../utils/log.js","names":["logError"],"typeOnly":false},
+      {"module":"../utils/messageQueueManager.js","names":["getCommandQueueSnapshot","remove","subscribeToCommandQueue"],"typeOnly":false}
+    ],
+    "localDependencyExports": [
+      {"module":"../state/AppState.js","path":"state/AppState.tsx","names":["useAppStateStore"]},
+      {"module":"../tasks/LocalAgentTask/LocalAgentTask.js","path":"tasks/LocalAgentTask/LocalAgentTask.tsx","names":["getAgentKeepaliveReasons","isLocalAgentTask"]},
+      {"module":"../types/textInputTypes.js","path":"types/textInputTypes.ts","names":["QueuedCommand"]},
+      {"module":"../utils/debug.js","path":"utils/debug.ts","names":["logForDebugging"]},
+      {"module":"../utils/log.js","path":"utils/log.ts","names":["logError"]},
+      {"module":"../utils/messageQueueManager.js","path":"utils/messageQueueManager.ts","names":["getCommandQueueSnapshot","remove","subscribeToCommandQueue"]}
+    ]
+  },
+  "ownerResidues": {
+    "identityFields": ["targetIndex","literalKind","value","start","end","baselineOccurrenceCount","targetOccurrenceNumber","targetAdded"],
+    "all": {
+      "rows": 1,
+      "jsonBytes": 55,
+      "sha256": "b958a6b604856fbcf1d47c174244b9f48e7fc80409b056d357cab9bc2d211169",
+      "identities": [[20694,"number","60000",12489975,12489980,75,89,true]]
+    },
+    "added": {
+      "rows": 1,
+      "jsonBytes": 55,
+      "sha256": "b958a6b604856fbcf1d47c174244b9f48e7fc80409b056d357cab9bc2d211169",
+      "identities": [[20694,"number","60000",12489975,12489980,75,89,true]]
+    },
+    "corrected": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "identities": []
+    }
+  },
+  "attributionFailure": {
+    "provisionalOwnerPaths": ["utils/handlePromptSubmit.ts"],
+    "correctedOwnerPaths": ["hooks/useWakeRouter.ts"],
+    "candidateOwners": [
+      "../src/hooks/useMailboxBridge.ts",
+      "../src/hooks/useMergedClients.ts",
+      "../src/hooks/useMergedCommands.ts",
+      "../src/hooks/useQueueProcessor.ts",
+      "../src/utils/handlePromptSubmit.ts",
+      "../src/utils/queueProcessor.ts",
+      "../src/utils/skills/skillChangeDetector.ts"
+    ],
+    "candidateDescriptor": {"count":7,"jsonBytes":258,"sha256":"01e499406977be9517aba81b54ba5cd6498e4ad289dcdab699a8c67d4b512e0f"},
+    "sourceMatchesDescriptor": {"count":49,"jsonBytes":1472,"sha256":"42cbc571735785c2a4007216c937a5721dc4d428309e08d3e75ddba62e257079"},
+    "soleCompleteGraphSource": "hooks/useWakeRouter.ts"
+  },
+  "coverageEvolution": {
+    "provisional": {
+      "ownerIds": ["owner-src-utils-handlePromptSubmit-ts"],
+      "evidenceIds": ["source-map-attribution","semantic-test"],
+      "behavior": "Compiled target unit is attributed to src/utils/handlePromptSubmit.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+    },
+    "corrected": {
+      "ownerIds": ["owner-src-hooks-useWakeRouter-ts"],
+      "evidenceIds": [
+        "target119-wake-router-dispatch-timeout-authenticated-whole-unit-proof",
+        "target119-wake-router-dispatch-timeout-historical-source-file-proof",
+        "target119-wake-router-dispatch-timeout-source-ast-owner-proof",
+        "target119-wake-router-dispatch-timeout-semantic-contract-test",
+        "target119-wake-router-dispatch-timeout-incidental-literal-rejection"
+      ]
+    }
+  },
+  "replayDecision": {
+    "mode": "static-owner-correction-exact-source-already-present",
+    "graphClosed": true,
+    "sourceAlreadyExact": true,
+    "sourceReplayHelpers": []
+  }
+}

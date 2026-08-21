@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-repl-bridge-skip-archive-source-gap-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-repl-bridge-skip-archive-target-fragment",
+    "target117-repl-bridge-skip-archive-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-repl-bridge-skip-archive-source-gap.mjs",
+      "bytes": 6381,
+      "sha256": "512f6ffc2d9acb99d778217e492f9430ba71ed7f9879f5bd5f273f123481e605"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "targetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "nextReleaseSourceOverlay": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+      "bytes": 3865180,
+      "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4"
+    },
+    "sourceFile": {
+      "path": "src/state/AppStateStore.ts",
+      "input": {
+        "bytes": 22272,
+        "sha256": "275dd622759dc9ffff5d52e2e6d1c75cef06c8cce481ea0d3515613d4e6a424a"
+      },
+      "output": {
+        "bytes": 22420,
+        "sha256": "1b1003645c0800d6effbf3fb0dbcb0708486672e58cee79dc43d7b485471c67a"
+      },
+      "rawDeclarations": [
+        {
+          "name": "AppState",
+          "nodeType": "TypeAliasDeclaration",
+          "start": 3497,
+          "end": 18829,
+          "bytes": 15352,
+          "sha256": "d8a7d4cfb0995afc0fde7502d5e8355bd31e439e51e66946e609160cdeadd683"
+        },
+        {
+          "name": "getDefaultAppState",
+          "nodeType": "FunctionDeclaration",
+          "start": 18876,
+          "end": 22251,
+          "bytes": 3375,
+          "sha256": "5f56a31048528abde2cf91bccf64a6f0d2b44c34c813b91a613e85620d7d466c"
+        }
+      ],
+      "recoveredDeclarations": [
+        {
+          "name": "AppState",
+          "nodeType": "TypeAliasDeclaration",
+          "start": 3497,
+          "end": 18939,
+          "bytes": 15462,
+          "sha256": "f5a5147c889de7584c75617a2948d407a780fe68c5567baa39fdab603b7497dc"
+        },
+        {
+          "name": "getDefaultAppState",
+          "nodeType": "FunctionDeclaration",
+          "start": 18986,
+          "end": 22399,
+          "bytes": 3413,
+          "sha256": "9f99fcf9318eaddd0d90603c636b0331291aa1bbd4da6a8b81ee130dc90ff23a"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "boundedInsertions": 2,
+    "ownerOverrides": 1,
+    "rejectedGlobalTextOwners": 1
+  },
+  "target": [
+    10966,
+    "unresolved",
+    "FunctionDeclaration",
+    6378108,
+    6380276,
+    547,
+    "2ceb13f72eea541b0523d0bd677232fbb7eff4a277929d976e73a277131adc0b",
+    "275618c9d3fd0d01533cf5c5663f82d00ef01be78e8715ee81e4144978d9509d"
+  ],
+  "row": {
+    "targetIndex": 10966,
+    "falseOwner": "src/services/PromptSuggestion/speculation.ts",
+    "falseGlobalTextMatch": "src/hooks/useReplBridge.tsx",
+    "owner": "src/state/AppStateStore.ts",
+    "declaration": "getDefaultAppState",
+    "semanticIdentities": [
+      ["property", "settings"],
+      ["property", "tasks"],
+      ["property", "agentNameRegistry"],
+      ["property", "verbose"],
+      ["property", "mainLoopModel"],
+      ["property", "statusLineText"],
+      ["property", "expandedView"],
+      ["property", "replBridgeSkipNextArchive"],
+      ["property", "showRemoteCallout"]
+    ],
+    "residues": [
+      ["property", "replBridgeSkipNextArchive", 6378821, 6378846, 1]
+    ],
+    "behavior": "The Target117 default AppState initializer owns the one-shot bridge teardown flag and initializes it to false; the useReplBridge cleanup occurrence consumes that state but does not own this initialization unit."
+  }
+}

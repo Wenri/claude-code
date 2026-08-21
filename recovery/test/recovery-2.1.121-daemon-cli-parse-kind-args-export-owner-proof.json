@@ -1,0 +1,713 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "status": "authenticated-unresolved-nonmatched-export-owner-override-no-replay",
+  "criterion": "daemon-cli-generated-export-binding-source-evolution-and-importer-graph-v1",
+  "claim": "Target121 u22178 is the complete generated export table for src/daemon/cli.ts. Its new parseKindArgs property binds directly to complete u22182, handleCliKind u22194 calls the same binding, and daemonMain u22207 imports the namespace to call the two public CLI handlers. Target120 source already authored an exported parseKindArgs function, but the exact Target120 daemon CLI table exported only handleListAllKinds and handleCliKind; Target121 evolves the parser signature and emits parseKindArgs in the runtime export table. Twenty-seven unrelated Target120 three-property tables share the identifier-normalized shape, so the generic alpha-equivalent coverage label is not source lineage. Because u22178 is unresolved and present in the deterministic nonmatched all-owner input, one owner/coverage override to src/daemon/cli.ts is authorized. The graph is complete, so no source replay or whole-unit residue admission is authorized.",
+  "evidenceIds": [
+    "target121-daemon-cli-parse-kind-args-authenticated-export-binding",
+    "target121-daemon-cli-parse-kind-args-authored-source-evolution",
+    "target121-daemon-cli-parse-kind-args-runtime-importer-graph",
+    "target121-daemon-cli-parse-kind-args-normalized-ambiguity-rejection",
+    "target121-daemon-cli-parse-kind-args-nonmatched-override-no-replay"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-cli-parse-kind-args-export-owner-overrides.mjs",
+      "bytes": 2918,
+      "sha256": "8270a8d1abba22a0ddf63029a6b169f23ab6b24e0d12e8b9c9bbf9e6b65e942c"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "allOwnerInput": {
+      "path": ".recovery-tmp/generator-inputs/2.1.120-to-2.1.121.all-owners.json",
+      "bytes": 9491480,
+      "sha256": "a22f33e74ad03338d787b31eab6227af8aa8bad3ab4882f53dbdfb5813d63709"
+    },
+    "frozenPostPruneSnapshot": {
+      "method": "The report, coverage, and all-owner row were frozen before this disjoint case was written. Proof tests use the embedded selected rows and do not reopen those three mutable shared artifacts.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25396455,
+        "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345989,
+        "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+        "rawBytes": 2968244,
+        "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+      },
+      "globalCounts": {
+        "ownerRows": 35669,
+        "addedOwnerRows": 1155,
+        "unclassifiedAddedRows": 0,
+        "strictRows": 1228
+      },
+      "unitCounts": {
+        "ownerRows": 0,
+        "addedOwnerRows": 0,
+        "unclassifiedAddedRows": 0,
+        "strictRows": 1,
+        "coverageRows": 1,
+        "allOwnerRows": 1
+      },
+      "reportRow": {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 1,
+        "value": "parseKindArgs",
+        "target": {"start": 13881369, "end": 13881382},
+        "structural": {
+          "index": 22178,
+          "classification": "unresolved",
+          "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf"
+        },
+        "disposition": "alpha-equivalent",
+        "ownerPaths": [],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/entrypoints/cli.tsx", "../src/main.tsx"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      "reportRowDescriptor": {
+        "bytes": 507,
+        "sha256": "d71b76d7bbf21c751469c57b2c7abc35c7a5efce2965001e5f8a4f2b0cf1134a"
+      },
+      "coverageRow": {
+        "targetIndex": 22178,
+        "start": 13881361,
+        "end": 13881442,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf",
+        "structuralClass": "unresolved",
+        "disposition": "alpha-equivalent",
+        "ownerIds": [],
+        "evidenceIds": ["readable-normalization", "static-semantic-noop"],
+        "reason": "The complete target unit has an exact baseline token-stream match after only bundle-local identifier and generated version/build-metadata normalization; cooked literals, operators, branches, and calls are unchanged."
+      },
+      "coverageRowDescriptor": {
+        "bytes": 535,
+        "sha256": "20d992f39a8459a6023f2815ff81b7691eb90ef22592f696d009b40529101652"
+      },
+      "allOwnerRowIndex": 4771,
+      "allOwnerRow": {
+        "targetIndex": 22178,
+        "start": 13881361,
+        "end": 13881442,
+        "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf",
+        "coarseHash": "a34d30deef03e8afb65544425bb63595a2c7c5a1c4d189607fe736b603bf7dd2",
+        "structuralClass": "unresolved",
+        "nodeType": "ExpressionStatement",
+        "alphaByCoarse": false,
+        "metadataEquivalent": true,
+        "owners": [],
+        "candidateOwners": [
+          {"source": "../src/main.tsx", "score": 81},
+          {"source": "../src/entrypoints/cli.tsx", "score": 81}
+        ],
+        "prefix": "X$(Zu6,{parseKindArgs:()=>ub4,handleListAllKinds:()=>_R5,handleCliKind:()=>AR5});",
+        "semanticOwnership": "source-candidate",
+        "semanticOwners": ["src/entrypoints/cli.tsx", "src/main.tsx"]
+      },
+      "allOwnerRowDescriptor": {
+        "bytes": 640,
+        "sha256": "a74d17794622ca92d2375071f8cd981ed4541de3346ab8fcc47139ae2c7361d2"
+      }
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "method": "The exact post-daemon-owner report/coverage pair was frozen after the authorized u22178 owner correction. Tests select only this pair or the earlier postPrune pair and reject hybrids and unknown descriptors without reopening mutable shared artifacts.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "globalCounts": {
+        "ownerRows": 35634,
+        "addedOwnerRows": 1118,
+        "unclassifiedAddedRows": 0,
+        "strictRows": 1275,
+        "coverageRows": 4807,
+        "coverageOwners": 704
+      },
+      "unitCounts": {
+        "ownerRows": 3,
+        "addedOwnerRows": 1,
+        "unclassifiedAddedRows": 0,
+        "strictRows": 1,
+        "coverageRows": 1
+      },
+      "ownerRows": [
+        {
+          "baselineOccurrenceCount": 0,
+          "literalKind": "property",
+          "targetAdded": true,
+          "targetOccurrenceNumber": 1,
+          "value": "parseKindArgs",
+          "target": {"start": 13881369, "end": 13881382},
+          "structural": {
+            "index": 22178,
+            "classification": "unresolved",
+            "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf"
+          },
+          "disposition": "source-runtime-covered",
+          "ownerPaths": ["daemon/cli.ts"],
+          "ownerSourceMatches": []
+        },
+        {
+          "baselineOccurrenceCount": 2,
+          "literalKind": "property",
+          "targetAdded": false,
+          "targetOccurrenceNumber": 1,
+          "value": "handleListAllKinds",
+          "target": {"start": 13881391, "end": 13881409},
+          "structural": {
+            "index": 22178,
+            "classification": "unresolved",
+            "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf"
+          },
+          "disposition": "source-runtime-covered",
+          "ownerPaths": ["daemon/cli.ts"],
+          "ownerSourceMatches": []
+        },
+        {
+          "baselineOccurrenceCount": 2,
+          "literalKind": "property",
+          "targetAdded": false,
+          "targetOccurrenceNumber": 1,
+          "value": "handleCliKind",
+          "target": {"start": 13881418, "end": 13881431},
+          "structural": {
+            "index": 22178,
+            "classification": "unresolved",
+            "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf"
+          },
+          "disposition": "source-runtime-covered",
+          "ownerPaths": ["daemon/cli.ts"],
+          "ownerSourceMatches": []
+        }
+      ],
+      "ownerRowsDescriptor": {
+        "bytes": 1211,
+        "sha256": "3f8269ad882617de39c8ceb9582769510d5eee1612bdd5de19389f5109e9f713"
+      },
+      "ownerIdentitiesDescriptor": {
+        "bytes": 194,
+        "sha256": "28ea3d718a522e9e34e1b0e5c2cf9110accd26390aa77107ca855c8429c28400"
+      },
+      "addedOwnerRows": [
+        {
+          "baselineOccurrenceCount": 0,
+          "literalKind": "property",
+          "targetAdded": true,
+          "targetOccurrenceNumber": 1,
+          "value": "parseKindArgs",
+          "target": {"start": 13881369, "end": 13881382},
+          "structural": {
+            "index": 22178,
+            "classification": "unresolved",
+            "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf"
+          },
+          "disposition": "source-runtime-covered",
+          "ownerPaths": ["daemon/cli.ts"],
+          "ownerSourceMatches": [],
+          "candidates": ["../src/entrypoints/cli.tsx", "../src/main.tsx"],
+          "cookedSourceMatches": [],
+          "rawSourceMatches": [],
+          "sourceMatches": []
+        }
+      ],
+      "addedOwnerRowsDescriptor": {
+        "bytes": 530,
+        "sha256": "edf0dc328a7541951194f87384ef1708b6e5d2c4f7affde84da8d2c4518ae375"
+      },
+      "addedOwnerIdentitiesDescriptor": {
+        "bytes": 63,
+        "sha256": "ecf7651f57cc77853677463b58051cf4267d4121dffb966da68e298331272071"
+      },
+      "strictRows": [
+        {
+          "baselineOccurrenceCount": 0,
+          "literalKind": "property",
+          "targetAdded": true,
+          "targetOccurrenceNumber": 1,
+          "value": "parseKindArgs",
+          "target": {"start": 13881369, "end": 13881382},
+          "structural": {
+            "index": 22178,
+            "classification": "unresolved",
+            "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf"
+          },
+          "disposition": "source-runtime-covered",
+          "ownerPaths": ["daemon/cli.ts"],
+          "ownerSourceMatches": [],
+          "candidates": ["../src/entrypoints/cli.tsx", "../src/main.tsx"],
+          "cookedSourceMatches": [],
+          "rawSourceMatches": [],
+          "sourceMatches": []
+        }
+      ],
+      "strictRowsDescriptor": {
+        "bytes": 530,
+        "sha256": "edf0dc328a7541951194f87384ef1708b6e5d2c4f7affde84da8d2c4518ae375"
+      },
+      "strictIdentitiesDescriptor": {
+        "bytes": 63,
+        "sha256": "ecf7651f57cc77853677463b58051cf4267d4121dffb966da68e298331272071"
+      },
+      "coverageRows": [{
+        "targetIndex": 22178,
+        "start": 13881361,
+        "end": 13881442,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-daemon-cli-ts"],
+        "evidenceIds": [
+          "target121-daemon-cli-parse-kind-args-authenticated-export-binding",
+          "target121-daemon-cli-parse-kind-args-authored-source-evolution",
+          "target121-daemon-cli-parse-kind-args-runtime-importer-graph",
+          "target121-daemon-cli-parse-kind-args-normalized-ambiguity-rejection",
+          "target121-daemon-cli-parse-kind-args-nonmatched-override-no-replay"
+        ],
+        "behavior": "Authenticated Target121 u22178 is the generated src/daemon/cli.ts export table. Its parseKindArgs property binds directly to complete u22182, while handleListAllKinds and handleCliKind bind to u22193 and u22194; u22194 calls the same parseKindArgs binding, and daemonMain u22207 imports the module namespace to call the two CLI handlers. Target120 source already authored parseKindArgs, but its exact daemon CLI export table contains only the two handlers; Target121 evolves the parser signature and uniquely emits the parseKindArgs export property. Twenty-seven unrelated Target120 three-property tables share the identifier-normalized shape, so the generic alpha-equivalent label does not establish source lineage. The exact unresolved all-owner row authorizes one case-owned owner/coverage override. This proof admits only the parseKindArgs strict row and authorizes no source replay."
+      }],
+      "coverageRowsDescriptor": {
+        "bytes": 1528,
+        "sha256": "a9a19b4e32c22b6734ad866d42014cec7307c3b41b49e35fedeff7a0ead38a8d"
+      }
+    },
+    "sourceRoots": {
+      "baseline": ".recovery-tmp/semantic-trees/2.1.120/src",
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "rowBoundary": {
+    "admitted": [22178, "property", "parseKindArgs", 13881369, 13881382, 0, 1, true],
+    "admittedDescriptor": {
+      "bytes": 61,
+      "sha256": "0c6ccbcd96ffd75d79d35d435221100ac28e33c35b06bc86b96f2b8cf8dc94f9"
+    },
+    "ownerPath": "src/daemon/cli.ts",
+    "ownerId": "owner-src-daemon-cli-ts",
+    "rejectedCandidatePaths": ["src/entrypoints/cli.tsx", "src/main.tsx"],
+    "rowScope": "one-property-row-in-one-complete-export-table",
+    "generatorRowExists": true,
+    "nonmatchedGeneratorBranch": true,
+    "coverageOverrideEligible": true,
+    "generatorWiringAuthorized": true,
+    "generatorWiringPerformedByCase": false,
+    "wholeUnitResidueAdmission": false,
+    "sourceReplayAuthorized": false,
+    "physicalStates": {
+      "frozenBeforeCorrection": {
+        "owner": {"units": 0, "rows": 0},
+        "addedOwner": {"units": 0, "rows": 0},
+        "strict": {"units": 1, "rows": 1},
+        "coverage": {"units": 1, "rows": 1, "disposition": "alpha-equivalent"}
+      },
+      "afterAuthorizedCoverageCorrection": {
+        "owner": {"units": 1, "rows": 3},
+        "addedOwner": {"units": 1, "rows": 1},
+        "strict": {"units": 1, "rows": 1},
+        "coverage": {"units": 1, "rows": 1, "disposition": "source-runtime-covered"}
+      },
+      "afterProofAdmission": {
+        "owner": {"units": 1, "rows": 2},
+        "addedOwner": {"units": 0, "rows": 0},
+        "strict": {"units": 0, "rows": 0},
+        "coverage": {"units": 1, "rows": 1, "disposition": "source-runtime-covered"}
+      }
+    },
+    "correctionMaterializationDelta": {
+      "owner": {"units": 1, "rows": 3},
+      "addedOwner": {"units": 1, "rows": 1},
+      "strict": {"units": 0, "rows": 0},
+      "coverageRowsReplaced": 1
+    },
+    "proofSubtractionFromCorrectedState": {
+      "owner": {"units": 0, "rows": -1},
+      "addedOwner": {"units": -1, "rows": -1},
+      "strict": {"units": -1, "rows": -1},
+      "coverage": {"units": 0, "rows": 0}
+    },
+    "netFrozenToAdmittedDelta": {
+      "owner": {"units": 1, "rows": 2},
+      "addedOwner": {"units": 0, "rows": 0},
+      "strict": {"units": -1, "rows": -1},
+      "coverageRowsReplaced": 1
+    }
+  },
+  "targetUnits": [
+    {
+      "targetIndex": 22177,
+      "role": "daemon-cli-module-namespace",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 0,
+      "nodeType": "VariableDeclaration",
+      "parseStatus": "parsed",
+      "start": 13881350,
+      "end": 13881361,
+      "bytes": 11,
+      "tokenCount": 6,
+      "topDefinitionCount": 1,
+      "sourceHash": "ce010d1e9db6b9044079b214c9ebe66aa0bde830646ff685933864aac3111b80",
+      "coarseHash": "dd597ca1967ba39d68d494eb85daec171e3715dc0d7520066e7a47b2886a8018",
+      "binding": "Zu6"
+    },
+    {
+      "targetIndex": 22178,
+      "role": "daemon-cli-module-export-table",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 3,
+      "nodeType": "ExpressionStatement",
+      "parseStatus": "parsed",
+      "start": 13881361,
+      "end": 13881442,
+      "bytes": 81,
+      "tokenCount": 28,
+      "topDefinitionCount": 0,
+      "sourceHash": "60471b43f776a8ad8241befe7cd6f9d27406f8a77002db75e7f556ff8f51cbcf",
+      "coarseHash": "a34d30deef03e8afb65544425bb63595a2c7c5a1c4d189607fe736b603bf7dd2"
+    },
+    {
+      "targetIndex": 22182,
+      "role": "parseKindArgs-implementation",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 0,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 13881567,
+      "end": 13882340,
+      "bytes": 773,
+      "tokenCount": 320,
+      "topDefinitionCount": 1,
+      "sourceHash": "630c8b2ff54585b603d2aa1ef73630abf97879e6b46b93a97460ad64b640d341",
+      "coarseHash": "105199871b838a67f587d2d522653961f20529de4426a64f30736a49258110e1",
+      "binding": "ub4"
+    },
+    {
+      "targetIndex": 22193,
+      "role": "handleListAllKinds-implementation",
+      "classification": "moved",
+      "baselineUnitIndex": 19519,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "moveEvidence": "unique-exact-structural-hash",
+      "unknownFreeIdentifierCount": 0,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 13887889,
+      "end": 13887974,
+      "bytes": 85,
+      "tokenCount": 46,
+      "topDefinitionCount": 1,
+      "sourceHash": "744fc21f682c389420e646cbb24bf69b91c539322585f4653897cf183be50dbd",
+      "coarseHash": "ba58dc25296f4554937c2457226e4cf8857786e2f41e08107a106395320bd3cd",
+      "binding": "_R5"
+    },
+    {
+      "targetIndex": 22194,
+      "role": "handleCliKind-implementation-and-parser-caller",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 4,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 13887974,
+      "end": 13888106,
+      "bytes": 132,
+      "tokenCount": 61,
+      "topDefinitionCount": 1,
+      "sourceHash": "0804bcbe07fc6c9de8f1df380cf172ff168dc86b05e7411f936fb20cb32ae91f",
+      "coarseHash": "cc4e0472557836c01d80c47e30759da0a1df771435f59fd8fcd941ae045c6282",
+      "binding": "AR5",
+      "parseBindingReference": {"start": 13888011, "end": 13888014}
+    },
+    {
+      "targetIndex": 22196,
+      "role": "daemon-cli-module-initializer",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 3,
+      "nodeType": "VariableDeclaration",
+      "parseStatus": "parsed",
+      "start": 13888113,
+      "end": 13888200,
+      "bytes": 87,
+      "tokenCount": 54,
+      "topDefinitionCount": 1,
+      "sourceHash": "471085755add78d5913bfaae36254bf5bce3ff78998d3663ad00007ebfded74e",
+      "coarseHash": "480ac8eb783ed9ea668e84cdd1a2411bce8d5a565880423020210510742bfefe",
+      "binding": "Tu6"
+    },
+    {
+      "targetIndex": 22207,
+      "role": "daemonMain-dynamic-namespace-consumer",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 38,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 13890373,
+      "end": 13897874,
+      "bytes": 7501,
+      "tokenCount": 2307,
+      "topDefinitionCount": 1,
+      "sourceHash": "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8",
+      "coarseHash": "4977e4b2a99630e3fc877c5ab850880508f19f38bd2209a09e0dbc0d9ec6a0a5",
+      "binding": "LR5"
+    }
+  ],
+  "exportBinding": {
+    "targetIndex": 22178,
+    "fragment": "X$(Zu6,{parseKindArgs:()=>ub4,handleListAllKinds:()=>_R5,handleCliKind:()=>AR5});",
+    "namespaceBinding": "Zu6",
+    "properties": [
+      {
+        "name": "parseKindArgs",
+        "start": 13881369,
+        "end": 13881382,
+        "implementationBinding": "ub4",
+        "bindingStart": 13881387,
+        "bindingEnd": 13881390,
+        "dependencyTargetIndex": 22182
+      },
+      {
+        "name": "handleListAllKinds",
+        "start": 13881391,
+        "end": 13881409,
+        "implementationBinding": "_R5",
+        "bindingStart": 13881414,
+        "bindingEnd": 13881417,
+        "dependencyTargetIndex": 22193
+      },
+      {
+        "name": "handleCliKind",
+        "start": 13881418,
+        "end": 13881431,
+        "implementationBinding": "AR5",
+        "bindingStart": 13881436,
+        "bindingEnd": 13881439,
+        "dependencyTargetIndex": 22194
+      }
+    ],
+    "directDependencyTargetIndices": [22182, 22193, 22194],
+    "runtimeConsumerTargetIndex": 22207,
+    "moduleAnchorTargetIndices": [22177, 22196]
+  },
+  "compiledSymbolOccurrences": {
+    "Zu6": [[13881354, 13881357, 22177], [13881364, 13881367, 22178], [13890789, 13890792, 22207], [13890951, 13890954, 22207]],
+    "ub4": [[13881387, 13881390, 22178], [13881576, 13881579, 22182], [13888011, 13888014, 22194]],
+    "_R5": [[13881414, 13881417, 22178], [13887904, 13887907, 22193]],
+    "AR5": [[13881436, 13881439, 22178], [13887989, 13887992, 22194]],
+    "Tu6": [[13888117, 13888120, 22196], [13890783, 13890786, 22207], [13890945, 13890948, 22207]]
+  },
+  "propertyOccurrenceLineage": {
+    "value": "parseKindArgs",
+    "baseline": {
+      "count": 0,
+      "tokenCoordinates": [],
+      "coordinatesDescriptor": {"bytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}
+    },
+    "target": {
+      "count": 1,
+      "tokenCoordinates": [["name", 13881369, 13881382]],
+      "coordinatesDescriptor": {"bytes": 28, "sha256": "4a1b983f4a4cd2e237c8f21992d289238488275ab6c97b25fb210ce24a117b5a"}
+    }
+  },
+  "baselineModuleLineage": {
+    "namespace": {
+      "index": 19503,
+      "start": 11861020,
+      "end": 11861031,
+      "bytes": 11,
+      "tokenCount": 6,
+      "sourceHash": "0d6d1633f719311048eb7fe1276f7f2dca1bb0dbfe67b79b8a6f033151bc69b1",
+      "text": "var Vh6={};"
+    },
+    "exportTable": {
+      "index": 19504,
+      "start": 11861031,
+      "end": 11861090,
+      "bytes": 59,
+      "tokenCount": 21,
+      "sourceHash": "dcd949c02c754c094a321171211876695637e2a36a44ce6cbc58b1b30b0752d8",
+      "coarseHash": "c4a5a693496f01b8819220dfc1551b8152acb5c0eeda69b7ba3ba3b12b0edd9a",
+      "text": "X$(Vh6,{handleListAllKinds:()=>qO5,handleCliKind:()=>KO5});",
+      "properties": ["handleListAllKinds", "handleCliKind"]
+    },
+    "parseKindArgsImplementation": {
+      "index": 19508,
+      "binding": "r35",
+      "start": 11861215,
+      "end": 11861717,
+      "bytes": 502,
+      "tokenCount": 238,
+      "sourceHash": "1da017d34a37891a7ac1fa700a97904aafcdcb24b9e00fa3161130f64690642c"
+    },
+    "handleListAllKindsImplementation": {
+      "index": 19519,
+      "binding": "qO5",
+      "start": 11867203,
+      "end": 11867288,
+      "bytes": 85,
+      "tokenCount": 46,
+      "sourceHash": "f9143d078cc5cdf3e4a965f4173d10d8afb7b8fa8bc4df67233a4eed969cf05b"
+    },
+    "handleCliKindImplementation": {
+      "index": 19520,
+      "binding": "KO5",
+      "start": 11867288,
+      "end": 11867418,
+      "bytes": 130,
+      "tokenCount": 59,
+      "sourceHash": "87cec7bfc44c90a3e0255893a3235a6e53a90b482d11fee782782b04abf6429d",
+      "parseBinding": "r35"
+    }
+  },
+  "baselineNormalizedAmbiguity": {
+    "method": "Acorn top-level statements whose token rows match after every identifier value is replaced with @id",
+    "normalizedTokenSignature": {
+      "count": 28,
+      "bytes": 344,
+      "sha256": "04fb0193d57decf4777d52e8fac8cfff7259cc926fdf17410f6e429c3f7b2d04"
+    },
+    "matchCount": 27,
+    "matchesDescriptor": {
+      "bytes": 2569,
+      "sha256": "814d7ec5bff83a2525115a2d80cf6616d8ce84cfb34340ad38606701afb61532"
+    },
+    "matches": [
+      [2407,987001,987103,102,"04ad683705fa71a04a10ba8d1c71e3494bcbf230623c14b363dcc7b65ea87174"],
+      [3292,1648477,1648551,74,"739fe89b93f43be19bb4eb7f63ce67745ed7c6a8585cb6a77939e511d4131473"],
+      [3363,1703122,1703226,104,"8c0c421eb9d991db7b49ce1126a234c6736e4b1a174b3ebcd1ccf61c3096b621"],
+      [4564,2083230,2083332,102,"332aeb7e0db611a8773f4aa904dc4086ca38682820118f65ac14dc41e4d95291"],
+      [6755,3096354,3096440,86,"750ad216e76db72b19ce2faa3609b79838cf015126977f243256c2177bc6b49c"],
+      [7334,3438582,3438676,94,"6610c073900a0a0740e9ca058fd119e460ffc6ef2b459f71158a3f0cbf126510"],
+      [7894,3774890,3774963,73,"c76b01b9e74b7a66d4e051e32086b0d1ec6cf5750e73d7a6090b68dd7189eead"],
+      [8835,4186722,4186805,83,"d0900b339f044ab468c3b3b9945705ca7494ce5732ed4c7cfca93966d8d32a6c"],
+      [11650,7284881,7284957,76,"452a9ad6acce7ddefad45c302be0b8587f3a7dc412bbc4909c6ee6d7137b940d"],
+      [13058,8121557,8121634,77,"70bcbb045a7b98ced9b0c21cf8b49a720a0efc222f3ed64cf55e4e061d8ea9a3"],
+      [14010,8801851,8801935,84,"e34c35ed678521255d4a7bc7897a459c49b58050de4cb29c1eadef7b05d361b2"],
+      [16285,10102065,10102137,72,"367635a2faeec467e90ba0be8c3e326f2ba1bd63772c9e4f7cc1ae6c2fb4a0d5"],
+      [16494,10249262,10249355,93,"b1b299519efed1a84ed6dee6aba5124e211d5823f3f8fcef7dd0df6976392208"],
+      [16879,10551768,10551842,74,"6cf038fe243a8f87b6f01343aebe5bb1d8ad02b19162c7f4b3471c749f804b9d"],
+      [17252,10721464,10721574,110,"5c0c4c84dd38ef9a90a4dc23d6d6bafebc15ccbfd087f67a1a3e943203cd5d63"],
+      [18100,11129620,11129695,75,"a420f3593440a809e27e82922493896060d5edcbd0a32a15c57e4935d5b26316"],
+      [18581,11370281,11370356,75,"43c865788a072b7ffb2ca820cb4db0d346132dc9f9a63f8ab00ebc1358ec9859"],
+      [18606,11382432,11382529,97,"b76404afa59e7faa1d927db5f1226d2591ebf26d4f3c9a33747c1a4b4da67c61"],
+      [18771,11445461,11445541,80,"86357766025a3c022305d0e663e42d35e97f5def1b41bf86107b9754c24054d1"],
+      [19369,11768527,11768621,94,"29b82dabc518542fa372ded19a09b018635728191bd2f0eac48e9513337734c3"],
+      [19524,11867522,11867585,63,"70c4511389370a689cab1b7fbe4b3591fe266677ba0bc3e5adde427948484263"],
+      [19860,12085178,12085287,109,"c3f3e90df3c48703acb19d9bc7239cbe2f0f71d05070ec83f5df3288f3a5468c"],
+      [21236,12718228,12718308,80,"5d80a159a8fb1db8cf70087ec36aeef99e8d67bb365610d4cd2fa1b882811b08"],
+      [21257,12736356,12736458,102,"045178ab34e7f79f65958f987f9e03fc67cf86a3c885d2014fb532f965205219"],
+      [21666,13476719,13476795,76,"dd3ca52c494ca2f690839468aec85edf2c0aac9ccf57968f345c1b483e8a58ff"],
+      [21670,13478527,13478634,107,"1aac6274dbde2afccadec9048742bc7708abdd5aae67bb7a95fcaa9142cdf711"],
+      [21975,13685434,13685538,104,"9eaeb1c91e111a64136dad0a89930add8b76bba06cbed491083f2e92c3539d91"]
+    ],
+    "actualBaselineDaemonCliTableInMatches": false,
+    "decision": "generic-normalized-shape-is-ambiguous-and-not-daemon-cli-lineage"
+  },
+  "sourceGraph": {
+    "ownerPath": "src/daemon/cli.ts",
+    "supportPath": "src/daemon/main.ts",
+    "baseline": {
+      "version": "2.1.120",
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "cliGitBlob": "f1b43c7dd5c2c3b35dc374cf64e9c3d091345759",
+      "mainGitBlob": "f5df17bc235869a6571aa9a1bdda991ad300c0db",
+      "cliFile": {"chars":11102,"bytes":11108,"sha256":"a7c4b85c3cf4b98581eda1accc272076ca0979aa0736595c152ed5eb7ed7c8b2"},
+      "mainFile": {"chars":37340,"bytes":37394,"sha256":"1f4d1627b1c62d358e21aa5810f65ec9b413e47e0fe6f8f1761f9be537e0c1fc"},
+      "functions": [
+        {"name":"parseKindArgs","start":1028,"end":2046,"chars":1018,"bytes":1018,"sha256":"1ea50297f0c0e2123087c09ca00c12ff948d57abf3dffe108455b3913cf6dc2b","exported":true,"parameters":["args"]},
+        {"name":"handleListAllKinds","start":3918,"end":4121,"chars":203,"bytes":203,"sha256":"739cddcd911602f03c3503abf7a608615b7cdd46c175c29cb1f72214d3679c2f","exported":true,"parameters":["json","path"]},
+        {"name":"handleCliKind","start":10562,"end":11101,"chars":539,"bytes":539,"sha256":"2c16ce3db55798f36d307c18564774a3044281ed69bc5fac2e87d9fefb386db6","exported":true,"parameters":["kind","rawArgs","path"]}
+      ],
+      "parseIdentifiers": [[1044,1057],[10734,10747]],
+      "parseCall": {"start":10734,"end":10756,"chars":22,"bytes":22,"sha256":"34f237ab6fa0acde8ea83e10a1f0672f42fccffe3553c339590fd933edc94e0f","text":"parseKindArgs(rawArgs)"},
+      "mainImport": {"start":1666,"end":1726,"chars":60,"bytes":60,"sha256":"c7991530fc85a35d75c9e2a8a354d04a24dd08ee1c639719f5bcc19967566794","text":"import { handleCliKind, handleListAllKinds } from './cli.js'","names":["handleCliKind","handleListAllKinds"]},
+      "mainCalls": {
+        "handleListAllKinds": {"start":36803,"end":36870,"chars":67,"bytes":67,"sha256":"3602459ab69241ca7b7623e791475a2fc2d294e457f1430e8f1056b1ae6c44f1","text":"handleListAllKinds(parsed.rest.includes('--json'), parsed.jsonPath)"},
+        "handleCliKind": {"start":37265,"end":37320,"chars":55,"bytes":55,"sha256":"70dab7fb48f25010888e21765dcfda76562bd054c08641c9517489bbf1615f1d","text":"handleCliKind(parsed.sub, parsed.rest, parsed.jsonPath)"}
+      }
+    },
+    "target": {
+      "version": "2.1.121",
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "cliGitBlob": "1f252ff37bbfdd921c024eb8341ef8dee5d1d307",
+      "mainGitBlob": "258b2e28658ba44e476651e804948df583755b92",
+      "cliStates": [
+        {"name":"raw","chars":11836,"bytes":11846,"sha256":"e2991a390cd8c4d1e0e5f6a8ae25331e878c2be0daca5fdfad5893f6e35c61b1"},
+        {"name":"postPrunePackage","chars":11836,"bytes":11846,"sha256":"e2991a390cd8c4d1e0e5f6a8ae25331e878c2be0daca5fdfad5893f6e35c61b1"}
+      ],
+      "functions": [
+        {"name":"parseKindArgs","start":1028,"end":2668,"chars":1640,"bytes":1646,"sha256":"3f303c544a35c9b0a1eb07a62a440f66a161313544a2f0c043f0a2ebe4cd6462","exported":true,"parameters":["kind","args"]},
+        {"name":"handleListAllKinds","start":4613,"end":4816,"chars":203,"bytes":203,"sha256":"739cddcd911602f03c3503abf7a608615b7cdd46c175c29cb1f72214d3679c2f","exported":true,"parameters":["json","path"]},
+        {"name":"handleCliKind","start":11290,"end":11835,"chars":545,"bytes":545,"sha256":"eea022bb7640776b486f88545272cd844a62f418c228427530c1c726fb520c7d","exported":true,"parameters":["kind","rawArgs","path"]}
+      ],
+      "parseIdentifiers": [[1044,1057],[11462,11475]],
+      "parseCall": {"start":11462,"end":11490,"chars":28,"bytes":28,"sha256":"2363fa45a1a1a2c5af4172769fe26aa1522d3cde90a90e1aa510e3ac8ca727ea","text":"parseKindArgs(kind, rawArgs)"},
+      "mainStates": [
+        {
+          "name":"raw",
+          "file":{"chars":51292,"bytes":51364,"sha256":"e63ff7e680a226f93c6953a0a6a096e8846982cc9f5fd705a5809ad7a7a6155a"},
+          "import":{"start":2023,"end":2083,"chars":60,"bytes":60,"sha256":"c7991530fc85a35d75c9e2a8a354d04a24dd08ee1c639719f5bcc19967566794"},
+          "handleListAllKindsCall":{"start":50590,"end":50657,"chars":67,"bytes":67,"sha256":"3602459ab69241ca7b7623e791475a2fc2d294e457f1430e8f1056b1ae6c44f1"},
+          "handleCliKindCall":{"start":51052,"end":51107,"chars":55,"bytes":55,"sha256":"70dab7fb48f25010888e21765dcfda76562bd054c08641c9517489bbf1615f1d"}
+        },
+        {
+          "name":"postPrunePackage",
+          "file":{"chars":50964,"bytes":51036,"sha256":"cb91eacf512342a4b70e01cb135eba59e621124795856eb5b4ea4762e2c5bc7c"},
+          "import":{"start":2057,"end":2117,"chars":60,"bytes":60,"sha256":"c7991530fc85a35d75c9e2a8a354d04a24dd08ee1c639719f5bcc19967566794"},
+          "handleListAllKindsCall":{"start":50262,"end":50329,"chars":67,"bytes":67,"sha256":"3602459ab69241ca7b7623e791475a2fc2d294e457f1430e8f1056b1ae6c44f1"},
+          "handleCliKindCall":{"start":50724,"end":50779,"chars":55,"bytes":55,"sha256":"70dab7fb48f25010888e21765dcfda76562bd054c08641c9517489bbf1615f1d"}
+        }
+      ]
+    },
+    "externalParseKindArgsImporterCount": 0,
+    "decision": "source-authenticated-generated-export-owner-with-complete-runtime-graph-no-replay"
+  },
+  "impact": {
+    "provenUnits": 1,
+    "provenStrictResidues": 1,
+    "ownerCoverageCorrectionAuthorized": true,
+    "ownerRowsMaterializedByCorrection": 3,
+    "addedOwnerRowsMaterializedByCorrection": 1,
+    "strictRowsMaterializedByCorrection": 0,
+    "ownerRowsRemovedByAdmission": 1,
+    "addedOwnerRowsRemovedByAdmission": 1,
+    "strictRowsRemovedByAdmission": 1,
+    "netOwnerRows": 2,
+    "netAddedOwnerRows": 0,
+    "netStrictRows": -1,
+    "coverageRowsReplaced": 1,
+    "coverageRowCountDelta": 0,
+    "sourceReplay": false,
+    "productionRuntime": true
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "status": "case-owned-replay-ready",
+  "sourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "retainedSupplement": {
+      "path": "recovery/cases/2.1.114-to-2.1.116/semantic-supplement.patch",
+      "bytes": 2096432,
+      "sha256": "0b7bd7e8753a41047607e498ab64d66c1bd94f8cb190f4fd2a31cf795b143244"
+    },
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-retained-fullscreen-interaction-source-gaps.mjs",
+      "bytes": 8763,
+      "sha256": "a1714544601a918b74ffa016a44cf38f1b64653cf278ccb2ba98f52f0bba80cd"
+    }
+  },
+  "summary": {
+    "units": 2,
+    "residues": 5,
+    "recoveredFiles": 5,
+    "ownerOverrides": 2,
+    "rejectedFalseOrGlobalOwners": 16
+  },
+  "evidenceIds": [
+    "target117-retained-fullscreen-target-fragments",
+    "target117-retained-fullscreen-source-replay-test"
+  ],
+  "sourceFiles": [
+    {
+      "path": "src/components/CoordinatorAgentStatus.tsx",
+      "input": {
+        "bytes": 36038,
+        "sha256": "da5e786affc810d9b33811213c70aaa3cc31377ea3f8388ab902858a259c6987"
+      },
+      "output": {
+        "bytes": 37877,
+        "sha256": "3a77a016c9115161490f583c227c5dccf6e15ba4509c0d171211c1d31efe1fc1"
+      },
+      "declarations": [
+        ["getDecoratedVisibleAgentTasks", "FunctionDeclaration", 1913, 2168, 255, "b578387136066dfd3656af54c2586bf9b0259cdb505e09131754af85ca7b01ff"],
+        ["CoordinatorTaskPanel", "FunctionDeclaration", 2169, 5815, 3650, "f7465bce72ebc5ec278ddd12af4c2ae225fa3162d14e7c7174b65c6a7f3f39d8"],
+        ["getAgentStatusParts", "FunctionDeclaration", 6945, 7785, 842, "bf6ceec66b3810721a1fa3d583221e2377c47bea08beef709885a57ab0a66726"],
+        ["MainLine", "FunctionDeclaration", 7787, 8628, 841, "6f3db635efa2404b5a324f3ef5abd2191d07478005a5c0df18a82b8ea532c0ef"],
+        ["AgentLine", "FunctionDeclaration", 8886, 11241, 2355, "84756e1432bb574b8516df06f50dc09c0b2e111edec5ff52ac3a45617f4544c4"]
+      ]
+    },
+    {
+      "path": "src/components/App.tsx",
+      "input": {
+        "bytes": 5204,
+        "sha256": "01bc49b40975f9626baf381b42c1083fa06456bc955b1d7051dac81d77811785"
+      },
+      "output": {
+        "bytes": 5659,
+        "sha256": "63179cbde10b91a5edaac01474e7c9bc6090c02ce2d2ec6d82bcf814b4f3c437"
+      },
+      "declarations": [
+        ["App", "FunctionDeclaration", 951, 1966, 1015, "ad5ce185f954843afa95a3d5a1f9844fbaf9250052a5cf4cca13beb4cd9feb0d"]
+      ]
+    },
+    {
+      "path": "src/components/ScrollKeybindingHandler.tsx",
+      "input": {
+        "bytes": 149202,
+        "sha256": "3f1f851036f7529a9d084867692752fd420260275ca5810d48763a21dec7ed75"
+      },
+      "output": {
+        "bytes": 154800,
+        "sha256": "3398e6bf65545fc7be4589c6ee098dd2f4e5c58fb046a5df00d19db6a34d3754"
+      },
+      "declarations": [
+        ["ScrollKeybindingHandler", "FunctionDeclaration", 19042, 33617, 14617, "f5de1e7a306e2f55eb9a23320ed84f0ec4d7009433bd0abbd353ff10651787cb"]
+      ]
+    },
+    {
+      "path": "src/components/PromptInput/PromptInput.tsx",
+      "input": {
+        "bytes": 356470,
+        "sha256": "3a865cec943842f8fed60bc506ffb6ca7a0a4d57b139bbcd63df1a8817e70211"
+      },
+      "output": {
+        "bytes": 361464,
+        "sha256": "7c01c8c4bbe1f87e28de7174d8713ed4be90146b44355028195f6548631c1590"
+      },
+      "declarations": [
+        ["getPromptSelectionOffsets", "FunctionDeclaration", 12570, 13689, 1119, "17d18027967428c763dd61dc35c6546b2b3c1e39fbd51214dd1d5deb921d264a"],
+        ["PromptInput", "FunctionDeclaration", 13691, 104477, 90976, "67ee4ad00fc1607572390a2d3f24f978b71ac57967f808d5f053b312d97dcf28"]
+      ]
+    },
+    {
+      "path": "src/context/selectionDelete.tsx",
+      "input": null,
+      "output": {
+        "bytes": 1429,
+        "sha256": "b5ef0c4da3f51a0242df4f2b23116a2fa5c524b51bed90ff1395fbddaa25f300"
+      },
+      "declarations": [
+        ["SelectionDeleteProvider", "FunctionDeclaration", 715, 1313, 598, "04fef120c87122f4ae1d081d7e31573fee181e1ee4a1dfa0db0744a7c9893ecc"],
+        ["useSelectionDelete", "FunctionDeclaration", 1315, 1428, 113, "4835e666ce2a7222115c9f29325346d3dfbd0623d28b8cafd7f1d390732ff85c"]
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 19181,
+      "target": ["unresolved", "FunctionDeclaration", 11746441, 11748073, 782, "3a0879f84ccc8c721985a7bd30017566b9ffcc08c3dc1007e1bbb484de27384e", "52d206997d778178b2df227e7e6824621795fb957d95925a2c40c14e2b8d6820"],
+      "owner": "src/components/CoordinatorAgentStatus.tsx",
+      "declarations": ["CoordinatorTaskPanel"],
+      "rejectedOwners": ["components/BridgeDialog.tsx"],
+      "residues": [
+        ["property", "hint", 11747838, 11747842, 6, 11]
+      ],
+      "targetWitness": [11747398, 11747877, 479, "9d0bc2af1f8ba13999a45ca6cf5178f0190ed01ff072fe635447a33532d47d6f"]
+    },
+    {
+      "targetIndex": 19389,
+      "target": ["unresolved", "FunctionDeclaration", 11823758, 11852137, 11797, "ebe6cf765a6ca2c9c31be77499f8b4d257d91dd00584dbf5be9f1ef8449bd41d", "9cf76d03354024cd7eef101ba1d79e08429e0dcb4b08e3fd0a44f80342700395"],
+      "owner": "src/components/PromptInput/PromptInput.tsx",
+      "declarations": ["getPromptSelectionOffsets", "PromptInput"],
+      "rejectedOwners": [
+        "src/ink/frame.ts",
+        "src/ink/hit-test.ts",
+        "src/ink/ink.tsx",
+        "src/ink/layout/geometry.ts",
+        "src/ink/log-update.ts",
+        "src/ink/optimizer.ts",
+        "src/ink/output.ts",
+        "src/ink/render-node-to-output.ts",
+        "src/ink/renderer.ts",
+        "src/ink/screen.ts",
+        "src/ink/terminal.ts",
+        "src/keybindings/defaultBindings.ts",
+        "src/utils/computerUse/executor.ts",
+        "src/vim/types.ts",
+        "src/commands/powerup/powerup.tsx"
+      ],
+      "residues": [
+        ["property", "y", 11845795, 11845796, 170, 171],
+        ["property", "y", 11845819, 11845820, 170, 172],
+        ["property", "y", 11845962, 11845963, 170, 173],
+        ["property", "x", 11845991, 11845992, 167, 171]
+      ],
+      "targetWitness": [11845578, 11846264, 686, "6463c986c034c70712410cf5aa6a53f3f47a2cc62ea779fb6da56ecbf59ae15c"]
+    }
+  ],
+  "wiring": {
+    "helperExport": "applyTarget117RetainedFullscreenInteractionSourceRecovery",
+    "overrideExport": "TARGET117_RETAINED_FULLSCREEN_OWNER_OVERRIDES",
+    "order": "Apply after materializing raw ff0339d source and before any later Target117 case-owned replay that touches the same files; then append the two exact owner overrides to Target117 source coverage."
+  }
+}

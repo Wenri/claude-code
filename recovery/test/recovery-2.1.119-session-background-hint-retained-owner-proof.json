@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "complete-unit-static-owner-proof-ready",
+  "criterion": "target119-session-background-hint-retained-whole-unit-v1",
+  "evidenceIds": [
+    "target119-session-background-hint-whole-unit-proof",
+    "target119-session-background-hint-retained-residue-proof",
+    "target119-session-background-hint-keyboard-runtime-boundary-proof",
+    "target119-session-background-hint-cross-release-lineage-proof",
+    "target119-session-background-hint-stale-source-graph-proof",
+    "target119-session-background-hint-static-owner-only-proof"
+  ],
+  "inputs": {
+    "bundles": {
+      "2.1.118": {"path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js", "bytes": 13234618, "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"},
+      "2.1.119": {"path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js", "bytes": 13720987, "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"},
+      "2.1.120": {"path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js", "bytes": 13784743, "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+      "2.1.121": {"path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js", "bytes": 13908188, "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"}
+    },
+    "ledgers": {
+      "2.1.118-to-2.1.119": {"path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", "bytes": 2550437, "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"},
+      "2.1.119-to-2.1.120": {"path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", "bytes": 2490663, "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"},
+      "2.1.120-to-2.1.121": {"path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", "bytes": 2540002, "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"}
+    },
+    "frozenMutableSnapshot": {
+      "report": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24860397, "sha256": "2bd6f8c8a720a2b187a0dbcbed0368a184e00df216a323b84abfc010a52655fd"},
+      "coverageGzip": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 369465, "sha256": "1bca4c7ee984dd010aaf939988b85c3dfa3a9826ecf39ace4db1fff1f41268ab"},
+      "coverageJson": {"bytes": 3235177, "sha256": "6e65cf1388466978a90ee827a403754885ee8bc166629486135836196f797ed4"},
+      "readPolicy": "descriptor-only-after-snapshot; tests must not reopen mutable report or coverage"
+    },
+    "helper": {"path": "recovery/cases/2.1.118-to-2.1.119/recovered/session-background-hint-retained-owner-overrides.mjs", "bytes": 1646, "sha256": "1b433bdb71dd36a5032e82b7c4b633b496590bec2fc7df92dec7086674fb58ce"}
+  },
+  "snapshotPartition": {
+    "ownerRows": {"count": 21, "jsonBytes": 1224, "sha256": "14621e811a50b980c5a065e7158d1f352635c609b3b67fd5a41a4b8f45270665"},
+    "addedRows": {
+      "rows": [[20791, "property", "keyCase", 12524120, 12524127, 25, 35, true], [20791, "string", "lower", 12524128, 12524135, 30, 40, true], [20791, "property", "chord", 12524271, 12524276, 311, 320, true], [20791, "property", "format", 12524299, 12524305, 486, 510, true]],
+      "count": 4,
+      "jsonBytes": 230,
+      "sha256": "218fbedfe53de41ed947315fee21d1dcd8941eabf9aa173a6ae2996f708e015f"
+    },
+    "strictRows": {"rows": [[20791, "property", "keyCase", 12524120, 12524127, 25, 35, true]], "count": 1, "jsonBytes": 59, "sha256": "9c36cdbfd8270f0d19c735d035a828d6e683f604b239f3a9eac497a8d9c1e2f5"},
+    "unclassifiedRows": {"rows": [], "count": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "coverage": {"rows": 1, "jsonBytes": 557, "sha256": "7118058ade301c75358cc747df275e58246eb16c9e464dd33627036b2188e92a", "targetIndex": 20791, "ownerPaths": ["src/components/SessionBackgroundHint.tsx"], "evidenceIds": ["source-map-attribution", "semantic-test"]}
+  },
+  "ownerOverride": {"key": "2.1.118-to-2.1.119:20791", "targetIndex": 20791, "paths": ["src/components/SessionBackgroundHint.tsx"], "declarations": ["SessionBackgroundHint"]},
+  "wholeUnitPair": {
+    "baseline": {"version": "2.1.118", "index": 19889, "nodeType": "FunctionDeclaration", "start": 12066353, "end": 12067475, "bytes": 1122, "tokenCount": 576, "sha256": "aafaec88ce839e18154a678fe2450cf868576f169272523a72a039d77fa862ef", "coarseHash": "8917994004c4be7d60ed72f703b03d30d564b1bcc0b83877ee284b797bd0eb16", "cacheCall": {"start": 12066375, "end": 12066384, "bytes": 9, "sha256": "308bce04f43b5fd07fa35940552eeff82ce8bff05663281a9641cbf1bc51996d", "size": 15}},
+    "target": {"version": "2.1.119", "targetIndex": 20791, "classification": "changed", "nodeType": "FunctionDeclaration", "start": 12523228, "end": 12524350, "bytes": 1122, "tokenCount": 576, "sha256": "95ec2d40d6952ebdab753a62a70c8186b857f48686c8b819b0f468cdcb6ae587", "coarseHash": "8917994004c4be7d60ed72f703b03d30d564b1bcc0b83877ee284b797bd0eb16", "unknownFreeIdentifierCount": 1, "baselineUnitIndex": 19889, "pairReason": "unique-coarse-structural-hash", "cacheCall": {"start": 12523250, "end": 12523259, "bytes": 9, "sha256": "4426e88c2be0d835fd1940b429c6866f9419b9e0da7edbb9e00ace007ce7ba11", "size": 15}},
+    "canonicalProgram": {"jsonBytes": 21296, "sha256": "86d02dcea96417849f855666c6097a88d9e63d071cdd59a6eac6860b7a9620ec"},
+    "retainedResidues": [
+      {"name": "keyCase", "baseline": {"start": 12067245, "end": 12067252, "bytes": 7, "sha256": "6ffba9fd273ecfde8fcf98dcff3a8c121b0b32e5986c424c4765b67760c99675"}, "target": {"start": 12524120, "end": 12524127, "bytes": 7, "sha256": "6ffba9fd273ecfde8fcf98dcff3a8c121b0b32e5986c424c4765b67760c99675"}},
+      {"name": "lower", "baseline": {"start": 12067253, "end": 12067260, "bytes": 7, "sha256": "e0faa231577b36a37a5d745ae0cbf003ce456c9214b692bc964c622a05f609ca"}, "target": {"start": 12524128, "end": 12524135, "bytes": 7, "sha256": "e0faa231577b36a37a5d745ae0cbf003ce456c9214b692bc964c622a05f609ca"}},
+      {"name": "chord", "baseline": {"start": 12067396, "end": 12067401, "bytes": 5, "sha256": "25735baaa5b4e4cc238fa0027f21ed8418e9a12ff4c082f5cfb630f89fdd6fec"}, "target": {"start": 12524271, "end": 12524276, "bytes": 5, "sha256": "25735baaa5b4e4cc238fa0027f21ed8418e9a12ff4c082f5cfb630f89fdd6fec"}},
+      {"name": "format", "baseline": {"start": 12067424, "end": 12067430, "bytes": 6, "sha256": "e904c9ccfa425ff0b055d2c533462314d35a529b055e8abe41d49bb46d827427"}, "target": {"start": 12524299, "end": 12524305, "bytes": 6, "sha256": "e904c9ccfa425ff0b055d2c533462314d35a529b055e8abe41d49bb46d827427"}}
+    ],
+    "keyboardCall": {
+      "baseline": {"start": 12067374, "end": 12067434, "bytes": 60, "sha256": "3b5b13c96f92caf8aadbf0d8f4300444081c0e3a6096e6d1dd7a95ec8eae454e"},
+      "target": {"start": 12524249, "end": 12524309, "bytes": 60, "sha256": "2a19281c6ca54204c1d4e1dbbef1cc81d740272a6b4768870eca8ad6183934ad"},
+      "canonical": {"jsonBytes": 822, "sha256": "24eb224082c62ae96fee3def3bfc0b92d139dc2298d5f93b975a1b9989ee3216"},
+      "properties": ["chord", "action", "format"]
+    }
+  },
+  "keyboardRuntimeBoundary": {
+    "baseline": {"version": "2.1.118", "index": 7840, "start": 3739794, "end": 3740407, "bytes": 613, "tokenCount": 375, "sha256": "47cf160703680d5f5eec5c9b0b08479e40f26859266df88f9338873448b1a330", "coarseHash": "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a"},
+    "target": {"version": "2.1.119", "targetIndex": 7948, "classification": "matched", "nodeType": "FunctionDeclaration", "baselineUnitIndex": 7840, "pairReason": "exact-scope-normalized-token-hash", "unknownFreeIdentifierCount": 0, "start": 3779646, "end": 3780259, "bytes": 613, "tokenCount": 375, "sha256": "a9cc82cdfdfa301fc6b2927347f88713e9b7146fd20a971a9f0e5b97126540eb", "coarseHash": "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a"},
+    "canonicalProgram": {"jsonBytes": 13752, "sha256": "f87e1b5df455d63155278998508bfbdfdf47a38ec2fb6c62129030174e141dd2"},
+    "cacheSize": 12,
+    "props": ["chord", "action", "format", "parens", "bold"]
+  },
+  "sourceBoundary": {
+    "commits": ["bd846a24e3886322888f02b9f747c132a4a32314", "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05", "6801ead984ba2c3df02bd092ad8b93df096ed8c1"],
+    "caller": {
+      "path": "src/components/SessionBackgroundHint.tsx",
+      "blob": "ece9ffb770a0e910411399c56b00b8bed80f39ef",
+      "cooked": {"chars": 13154, "bytes": 13154, "sha256": "e1922c40a002b4e03c5553ffa529feba51a4bab95494b6f176b29da567be83ec"},
+      "raw": {"chars": 3471, "bytes": 3471, "sha256": "b7d6fea44be3714e02f3e12f650c9a5845e1fed0621c88a6a8f503ccf59dd4e0"},
+      "cookedDeclaration": {"start": 1206, "end": 3354, "chars": 2148, "bytes": 2148, "sha256": "a62ef75612cde3f3bf79412cc0f7d63c63742304231d5da3f8b0c645cdfb93c6", "cacheSize": 10},
+      "rawDeclaration": {"start": 1154, "end": 3470, "chars": 2316, "bytes": 2316, "sha256": "824cac7568acc490eae8aaa2ceb37782690b1eabc540393cb2a156cb777f5830"},
+      "staleShortcutJsx": {"cooked": {"start": 3195, "end": 3259, "chars": 64, "bytes": 64, "sha256": "895521b0194efb5ba284fa3da4362ee3a8d5c40a81a7686c3794c12fd9a6062e"}, "raw": {"start": 3375, "end": 3439, "chars": 64, "bytes": 64, "sha256": "895521b0194efb5ba284fa3da4362ee3a8d5c40a81a7686c3794c12fd9a6062e"}, "attributes": ["shortcut", "action"]}
+    },
+    "dependency": {
+      "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+      "blob": "288d5315d5fb943e5f28a08985deb1c6007b28e4",
+      "cooked": {"chars": 6843, "bytes": 6847, "sha256": "674320359f925e9f4f73f8761f003a0874bb6835eeb07ebb644192e8557d2b26"},
+      "raw": {"chars": 1631, "bytes": 1635, "sha256": "a1b3641495920ba9deb3aefd024234a8e5736f4947fb5f5a1c78786bba1243fc"},
+      "cookedProps": {"start": 126, "end": 494, "chars": 368, "bytes": 372, "sha256": "1dc5dd3f6a56187b03a92e13fab8b011582aa04e7411e59d8c6a4efe48030870"},
+      "rawProps": {"start": 75, "end": 438, "chars": 363, "bytes": 367, "sha256": "18618e60abb486c21aca2625a52738a3f81e1c5d8a7f6faab9a855234405c438"},
+      "declaredProps": ["shortcut", "action", "parens", "bold"],
+      "missingProps": ["chord", "format"]
+    },
+    "laterSource": {
+      "commit": "9f034bb03d575603a850e3c75ce003406094f9cc",
+      "caller": {"blob": "63822e704ce2f1ef207e72d65cba6753ad1b7466", "file": {"chars": 1802, "bytes": 1802, "sha256": "2e84df59463131b6e27031024c1dfa9d1e80048b648c5252c21eec48b6ab0cc6"}, "declaration": {"start": 813, "end": 1801, "chars": 988, "bytes": 988, "sha256": "c7b071c66918880123d4c55c0b116e62f91085567eae20cf1d8d3c4acb6a5e2b"}, "props": ["onBackground"], "shortcutAttributes": ["chord", "action", "parens", "format"], "semanticDrift": ["persistent-not-double-press", "action-run-in-background", "padding-left-5", "different-props"]},
+      "dependency": {"blob": "6b6d0f8d8b8b94ce1efca02f475c805d12845940", "file": {"chars": 13958, "bytes": 14022, "sha256": "003a5fcb34e20f2a8966397d29b42a1a3edbd9773707c1fa81314d5197b52335"}, "declaration": {"start": 8892, "end": 9356, "chars": 464, "bytes": 464, "sha256": "a6fb84d3424652326e8e34817a27c567962e622e97a53f542bf832713eebb836"}, "provenance": "compatibility-superset-not-exact-target119-authored-source"}
+    }
+  },
+  "crossReleaseLineage": [
+    {"case": "2.1.119-to-2.1.120", "version": "2.1.120", "targetIndex": 20878, "classification": "changed", "baselineUnitIndex": 20791, "pairReason": "unique-coarse-structural-hash", "unknownFreeIdentifierCount": 5, "nodeType": "FunctionDeclaration", "start": 12561203, "end": 12562325, "bytes": 1122, "tokenCount": 576, "sha256": "fcadbad27f6df9b66e0f307d4c6e1f9b9da236f7d1f001bea89a51d2cf060143", "coarseHash": "8917994004c4be7d60ed72f703b03d30d564b1bcc0b83877ee284b797bd0eb16"},
+    {"case": "2.1.120-to-2.1.121", "version": "2.1.121", "targetIndex": 20972, "classification": "matched", "baselineUnitIndex": 20878, "pairReason": "exact-scope-normalized-token-hash", "unknownFreeIdentifierCount": 0, "nodeType": "FunctionDeclaration", "start": 12622003, "end": 12623125, "bytes": 1122, "tokenCount": 576, "sha256": "443db5f666f909b2a4a17861f61ffdb2e6eac7d9e73bd43ae64873706c021539", "coarseHash": "8917994004c4be7d60ed72f703b03d30d564b1bcc0b83877ee284b797bd0eb16"}
+  ],
+  "decision": {"mode": "static-owner-proof-only", "sourceReplay": false, "sourceFilesChanged": 0, "replayExport": null, "requiredOrder": null, "expectedStrictImpact": {"units": -1, "residues": -1}, "reason": "The runtime delta is entirely retained from Target118, while the available Target119 source graph is stale and the later source graph changes unrelated lifecycle semantics; no authenticated graph-closed Target119 replay exists."}
+}

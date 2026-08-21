@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { gunzipSync } from 'node:zlib'
-import { parse } from 'acorn'
+import { parse } from '../node_modules/acorn/dist/acorn.mjs'
 
 function argumentsFrom(argv) {
   const result = {}

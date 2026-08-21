@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-oauth-env-account-metadata-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-oauth-env-account-metadata-target-fragment",
+    "target117-oauth-env-account-metadata-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-oauth-env-account-metadata-source-gap.mjs",
+      "bytes": 5009,
+      "sha256": "5b174c1228257e325c17d09c05d2aa704f8f480e57528811427a1148a7043f0e"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFile": {
+      "path": "src/utils/auth.ts",
+      "blob": "bf4f40d02654967db25118984ca23266686b7e72",
+      "input": {
+        "bytes": 66751,
+        "sha256": "d324188f34f42d111c4fa6080558064287e9bc2db161af43c5f1b21e0ccec505"
+      },
+      "output": {
+        "bytes": 66987,
+        "sha256": "2372d6ef383b2e24675b0a5f5a42dbc6026bd29b01861a04edf59750fcf49f7b"
+      },
+      "rawDeclaration": {
+        "name": "getClaudeAIOAuthTokens",
+        "nodeType": "VariableDeclaration",
+        "start": 42443,
+        "end": 43708,
+        "bytes": 1265,
+        "sha256": "8c68055cfbdeecb39336ce712ab57bb75cfa652c92f70ec9129e993785ff43cb"
+      },
+      "outputDeclaration": {
+        "name": "getClaudeAIOAuthTokens",
+        "nodeType": "VariableDeclaration",
+        "start": 42443,
+        "end": 43944,
+        "bytes": 1501,
+        "sha256": "47924231226e383342ba296405619762cb7dd6c9ec68d72599192ddd297c8378"
+      }
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "recoveredFiles": 1,
+    "replacements": 2,
+    "ownerOverrides": 1
+  },
+  "rows": [
+    {
+      "targetIndex": 6201,
+      "owner": "src/utils/auth.ts",
+      "declarations": [
+        "getClaudeAIOAuthTokens"
+      ],
+      "targetUnit": [
+        6201,
+        "unresolved",
+        "VariableDeclaration",
+        2802400,
+        2803651,
+        452,
+        "ddc52ae7760346d8e9635eda5b1881a28834012fb6c800fad6bcf74a1312ff78",
+        "0bc6f072a00bcb946b316fec4a08262d1777f3f644fe67938fbd859761d420d5"
+      ],
+      "residues": [
+        [
+          "property",
+          "CLAUDE_CODE_SUBSCRIPTION_TYPE",
+          2803180,
+          2803209,
+          1,
+          0
+        ],
+        [
+          "property",
+          "CLAUDE_CODE_RATE_LIMIT_TIER",
+          2803242,
+          2803269,
+          1,
+          0
+        ],
+        [
+          "property",
+          "CLAUDE_CODE_SUBSCRIPTION_TYPE",
+          2803403,
+          2803432,
+          2,
+          0
+        ],
+        [
+          "property",
+          "CLAUDE_CODE_RATE_LIMIT_TIER",
+          2803465,
+          2803492,
+          2,
+          0
+        ]
+      ]
+    }
+  ]
+}

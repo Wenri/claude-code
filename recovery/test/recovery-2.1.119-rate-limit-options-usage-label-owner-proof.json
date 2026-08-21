@@ -1,0 +1,492 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "Admit Target119 u18092 only as the complete authenticated RateLimitOptionsMenu unit, including all usage-label, organization-reason, retained upgrade-path/team, cancel-label, cache, caller, and module-boundary semantics. The available Target119 source and later semantic reconstruction are not exact replay donors.",
+  "ownerBehavior": "Target119 detects usage-based billing and chooses usage versus extra usage in the request, add-funds, switch, and cancel labels. It replaces the obsolete org service zero-credit reason with org_service_level_disabled while retaining the server upgradePaths gate and team-upgrade flow. Reversing exactly seven bounded target transformations yields the complete Target118 AST with the same 28-slot cache topology; the apparently added overage row is byte-identical retained behavior. Target120 and Target121 retain the exact runtime unit. The recovered Target119 owner and embedded authored source are stale 25-slot snapshots, and the later semantic reconstruction is still a 25-slot compatibility reconstruction with an unconditional dependency guard and the same stale source map. Admission is static and never authorizes replay.",
+  "summary": {
+    "units": 1,
+    "preCorrectionOwnerRows": 36,
+    "preCorrectionAddedOwnerRows": 9,
+    "genuineDeltaRows": 8,
+    "retainedOccurrenceOrderRows": 1,
+    "rawReportRows": 1,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-rate-limit-options-authenticated-whole-unit-proof",
+    "target119-rate-limit-options-usage-label-contract-proof",
+    "target119-rate-limit-options-retained-overage-row-proof",
+    "target119-rate-limit-options-module-boundary-proof",
+    "target119-rate-limit-options-runtime-lineage-proof",
+    "target119-rate-limit-options-source-replay-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "observedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "mutableAfterCorrection": true
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target120Ledger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "target121Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "target121Ledger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 17692,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 10953158,
+    "end": 10956153,
+    "bytes": 2995,
+    "tokenCount": 1225,
+    "sha256": "55acf1c8106a62898f70206d39efac1373e4d8893dbb5f0d3047f3bbd7bdb1bf",
+    "coarseHash": "37bb31bca1029382ec91d9b43df9422e8c513571744eb1810212733046a6c082",
+    "canonicalAstBytes": 46960,
+    "canonicalAstSha256": "6b14782b7a4162e3f1b4fd327b59ec7d91300d8224426ef767b6c16c72211d0e",
+    "bodyStatements": {
+      "count": 19,
+      "jsonBytes": 2134,
+      "sha256": "58e77f1de9fbbd4f3a3e0b649785ab53df37d7db10dd6eb2ec01bbbddaea5bc4"
+    },
+    "cache": {
+      "size": 28,
+      "identifierOccurrences": 63,
+      "memberOccurrences": 62,
+      "uniqueIndices": 28,
+      "minIndex": 0,
+      "maxIndex": 27,
+      "missingIndices": [],
+      "indexCountsBytes": 187,
+      "indexCountsSha256": "e2e1fc8367a3638c5ac3a6b59d4542d7b0c67bce6a221a1966c076a4c0b37122"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 18092,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 11112988,
+    "end": 11116029,
+    "bytes": 3041,
+    "tokenCount": 1265,
+    "unknownFreeIdentifierCount": 0,
+    "sha256": "fedc8e487780568a342db9668423c0f1c9cfcbd325dce886968b417a5078e75c",
+    "coarseHash": "8a0e38fa67be678ae56edf96f75fcb937b4ac38cc4a087be3c57087c36367f7d",
+    "canonicalAstBytes": 48301,
+    "canonicalAstSha256": "f54ec33bc927abb477b6384e027b98bbd8e13387db81df4f5b80d065773e6c7d",
+    "bodyStatements": {
+      "count": 19,
+      "jsonBytes": 2134,
+      "sha256": "9af504d90893cb3dd007f0d4720cb4b1f41d274333fef45d29df63ac92a7a631"
+    },
+    "cache": {
+      "size": 28,
+      "identifierOccurrences": 63,
+      "memberOccurrences": 62,
+      "uniqueIndices": 28,
+      "minIndex": 0,
+      "maxIndex": 27,
+      "missingIndices": [],
+      "indexCountsBytes": 187,
+      "indexCountsSha256": "e2e1fc8367a3638c5ac3a6b59d4542d7b0c67bce6a221a1966c076a4c0b37122"
+    }
+  },
+  "wholeUnitDelta": {
+    "differentBodyStatementIndices": [4, 7],
+    "baselineRegions": {
+      "orgReason": {
+        "start": 10953988,
+        "end": 10954019,
+        "bytes": 31,
+        "sha256": "39891b14631d763a9de876ae96804d960529a7cec467ddf1c0639b08b51f6a31",
+        "text": "\"org_service_zero_credit_limit\""
+      },
+      "requestLabel": {
+        "start": 10954134,
+        "end": 10954155,
+        "bytes": 21,
+        "sha256": "f31e629f32b485d12e537bcf054eb83449526a1cab1670bfd8a22e4d3b67236f",
+        "text": "\"Request extra usage\""
+      },
+      "addFundsLabel": {
+        "start": 10954165,
+        "end": 10954205,
+        "bytes": 40,
+        "sha256": "18d0bc1d485b53720601d2b35842824bfb56757eac0e8d6b078d4331245fee70",
+        "text": "\"Add funds to continue with extra usage\""
+      },
+      "switchLabel": {
+        "start": 10954206,
+        "end": 10954229,
+        "bytes": 23,
+        "sha256": "7ae82a745e44bc1920306feded1da278431820b4b2022cb6367617ea45504795",
+        "text": "\"Switch to extra usage\""
+      },
+      "cancelLabel": {
+        "start": 10954848,
+        "end": 10954888,
+        "bytes": 40,
+        "sha256": "64db0a23a602fbf4d06d9bc2aeacc6dd59c9e0505a8e573c4500a189b2e424c7",
+        "text": "label:\"Stop and wait for limit to reset\""
+      }
+    },
+    "targetRegions": {
+      "billingPredicate": {
+        "start": 11113282,
+        "end": 11113317,
+        "bytes": 35,
+        "sha256": "50a5361162da4d01f53258c7f168fbc74a2081d51db8671b8c129d958032b784",
+        "text": "w=J1()?.billingType===\"usage_based\""
+      },
+      "orgReason": {
+        "start": 11113854,
+        "end": 11113882,
+        "bytes": 28,
+        "sha256": "1bbfc804eaae4da1527df6c727a8915e14fb32036f47881ec8dd27f88da93792",
+        "text": "\"org_service_level_disabled\""
+      },
+      "usageLabel": {
+        "start": 11113971,
+        "end": 11113997,
+        "bytes": 26,
+        "sha256": "6274cc642575a3cee72366743f468433ce10f74e422e8ea0265a922185e1ece5",
+        "text": "$H=w?\"usage\":\"extra usage\""
+      },
+      "requestLabel": {
+        "start": 11114024,
+        "end": 11114039,
+        "bytes": 15,
+        "sha256": "093f2c064497a1040cb26cd38831c717105ad08e37affb580e037ef3e6d801cd",
+        "text": "`Request ${$H}`"
+      },
+      "addFundsLabel": {
+        "start": 11114049,
+        "end": 11114083,
+        "bytes": 34,
+        "sha256": "237273ae17111a4e4debecb14417cad95fee2c8caf5ce23d0fda4060323555d6",
+        "text": "`Add funds to continue with ${$H}`"
+      },
+      "switchLabel": {
+        "start": 11114084,
+        "end": 11114101,
+        "bytes": 17,
+        "sha256": "12537d71388b7384bffa839b2444ce0a562080f83f9ee8d59831444bbf015faf",
+        "text": "`Switch to ${$H}`"
+      },
+      "cancelLabel": {
+        "start": 11114715,
+        "end": 11114764,
+        "bytes": 49,
+        "sha256": "42cd2cc983239ec60296c3c2fcd992a8f034e280c8767460ddd5bf3b289d1d3f",
+        "text": "label:w?\"Stop\":\"Stop and wait for limit to reset\""
+      }
+    },
+    "normalization": {
+      "description": "Remove the sole billing predicate and usage-label declarators; replace the org reason, three dynamic label expressions, and usage-based cancel conditional with their exact Target118 forms. Each target anchor must occur exactly once. The resulting AST is byte-identical to Target118 after alpha-normalizing bindings while preserving runtime property keys.",
+      "targetTextBytes": 2990,
+      "baselineTextBytes": 2995,
+      "canonicalAstBytes": 46960,
+      "canonicalAstSha256": "6b14782b7a4162e3f1b4fd327b59ec7d91300d8224426ef767b6c16c72211d0e"
+    },
+    "retainedOverage": {
+      "baseline": {
+        "start": 10953831,
+        "end": 10953852,
+        "bytes": 21,
+        "sha256": "4422a43fda3ce3d2747ca409cfa6e55b23f5da5691991f2a316b035775997967",
+        "text": "G.includes(\"overage\")"
+      },
+      "target": {
+        "start": 11113697,
+        "end": 11113718,
+        "bytes": 21,
+        "sha256": "d1fa894f08a3d024080206ad4c73fb52b43b88e2f4486542abc2065797e229d1",
+        "text": "W.includes(\"overage\")"
+      },
+      "literalSha256": "fbcfd9b29d88fd6f5811f514271304cc4ddb63527d86fee95018d04a3833bec2"
+    }
+  },
+  "labelContract": {
+    "rows": 16,
+    "jsonBytes": 1093,
+    "sha256": "dadfa2f862a42d6955561b0ad721438fbd4284574b5c7f6556eb2df2a732b5a9",
+    "orgSpendCapReasons": [
+      "out_of_credits",
+      "org_level_disabled_until",
+      "org_service_level_disabled"
+    ],
+    "orgSpendCapReasonsJsonBytes": 74,
+    "orgSpendCapReasonsSha256": "76f296f7cb6fda4761cd30e8270354e27151118e17d0553568d78542c0e02881"
+  },
+  "moduleBoundary": {
+    "exportMap": {
+      "targetIndex": 18091,
+      "classification": "matched",
+      "baselineUnitIndex": 17691,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "ExpressionStatement",
+      "start": 11112965,
+      "end": 11112988,
+      "bytes": 23,
+      "tokenCount": 14,
+      "sha256": "da67118f8038a71c1c94ba9acb3f0e8ff9de0a61d36728a8b159764dfc246a0f",
+      "coarseHash": "39c7f00ced2ae6818bdd3f79252b7f318122948bd7b717f80aa8447334c36f0e",
+      "text": "M$(v74,{call:()=>Yq5});"
+    },
+    "caller": {
+      "targetIndex": 18093,
+      "classification": "matched",
+      "baselineUnitIndex": 17693,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 11116029,
+      "end": 11116112,
+      "bytes": 83,
+      "tokenCount": 29,
+      "sha256": "6a22ec0b52d4c371524df95de7096cda92f0d4fe27991e6bb60286530dc92e45",
+      "coarseHash": "fe0a6560411c3981da1b5f254ba2f460158559e4999fd77751e481a509cdfe58",
+      "text": "async function Yq5(H,$){return VQH.default.createElement(zq5,{onDone:H,context:$})}"
+    },
+    "bindings": {
+      "targetIndex": 18094,
+      "classification": "matched",
+      "baselineUnitIndex": 17694,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "VariableDeclaration",
+      "start": 11116112,
+      "end": 11116160,
+      "bytes": 48,
+      "tokenCount": 9,
+      "sha256": "5db9ab0306159b41cea4c0044c579d538782d1297e67ef5bde88bdc9646eaf06",
+      "coarseHash": "d08b490520f86d2ca1b311cb8e61a876b2a5f87a5b42fed2cb85ca6f1fa96921",
+      "text": "var T74,VQH,bV6=\"https://claude.ai/create/team\";"
+    },
+    "baselineInitializer": {
+      "targetIndex": 17695,
+      "classification": "unmatched-baseline",
+      "nodeType": "VariableDeclaration",
+      "start": 10956284,
+      "end": 10956394,
+      "bytes": 110,
+      "tokenCount": 81,
+      "sha256": "388e19f7e9bb195874059af4f27d7d65d9d4d43fd4d18a42496b534c2f3f81a7",
+      "coarseHash": "bc68e7ff75e4501de94d5d6e597b2c4bb5889159814475a31794e81e1d5988da",
+      "canonicalAstBytes": 2938,
+      "canonicalAstSha256": "13ae286b0e9cfcd78cc7a25dd0a9e91bbd7a9a6f0e1e502deb149c704ea38d59"
+    },
+    "targetInitializer": {
+      "targetIndex": 18095,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 11116160,
+      "end": 11116270,
+      "bytes": 110,
+      "tokenCount": 81,
+      "unknownFreeIdentifierCount": 2,
+      "sha256": "9ad2e47bca879318aff2886585b060ee72c1f5eb1aed3ee5ee515a64c8b34ab4",
+      "coarseHash": "bc68e7ff75e4501de94d5d6e597b2c4bb5889159814475a31794e81e1d5988da",
+      "canonicalAstBytes": 2938,
+      "canonicalAstSha256": "13ae286b0e9cfcd78cc7a25dd0a9e91bbd7a9a6f0e1e502deb149c704ea38d59"
+    }
+  },
+  "runtimeLineage": [
+    {
+      "version": "2.1.120",
+      "ledgerInput": "target120Ledger",
+      "bundleInput": "target120Bundle",
+      "targetIndex": 18168,
+      "classification": "matched",
+      "baselineUnitIndex": 18092,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 11146793,
+      "end": 11149839,
+      "bytes": 3046,
+      "tokenCount": 1265,
+      "sha256": "3b86d5e89030f84ed7ec0355efe00d150c838af1e04ce67e96abd89ae916b52f",
+      "coarseHash": "8a0e38fa67be678ae56edf96f75fcb937b4ac38cc4a087be3c57087c36367f7d",
+      "canonicalAstBytes": 48301,
+      "canonicalAstSha256": "f54ec33bc927abb477b6384e027b98bbd8e13387db81df4f5b80d065773e6c7d"
+    },
+    {
+      "version": "2.1.121",
+      "ledgerInput": "target121Ledger",
+      "bundleInput": "target121Bundle",
+      "targetIndex": 18283,
+      "classification": "matched",
+      "baselineUnitIndex": 18168,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 11216681,
+      "end": 11219722,
+      "bytes": 3041,
+      "tokenCount": 1265,
+      "sha256": "74bfd3331759d6ef1ad968bb04c7f701d35859168ad701d575639054a49efc10",
+      "coarseHash": "8a0e38fa67be678ae56edf96f75fcb937b4ac38cc4a087be3c57087c36367f7d",
+      "canonicalAstBytes": 48301,
+      "canonicalAstSha256": "f54ec33bc927abb477b6384e027b98bbd8e13387db81df4f5b80d065773e6c7d"
+    }
+  ],
+  "sourceOwner": {
+    "path": "src/commands/rate-limit-options/rate-limit-options.tsx",
+    "sourceRootPath": "commands/rate-limit-options/rate-limit-options.tsx",
+    "target118Commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "target119Commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "target120Commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+    "unchangedBlob": "296ca4b8ef077d019bbf814b4c56b04bcabb0537",
+    "chars": 23749,
+    "bytes": 23749,
+    "sha256": "00eb4cdcb499046db772d5d5d6570dd0e43e2c1c02939f1663f02cda8279d260",
+    "declaration": {
+      "start": 1375,
+      "end": 6681,
+      "chars": 5306,
+      "bytes": 5306,
+      "sha256": "0613b7d5b307c64172452567bf886cd906e1100a2995e3786579641682ab611e"
+    },
+    "cache": {
+      "size": 25,
+      "memberOccurrences": 54,
+      "uniqueIndices": 25,
+      "minIndex": 0,
+      "maxIndex": 24,
+      "missingIndices": []
+    },
+    "requiredMarkers": [
+      "function RateLimitOptionsMenu(t0)",
+      "getOauthAccountInfo()?.hasExtraUsageEnabled === true",
+      "org_service_zero_credit_limit",
+      "Add funds to continue with extra usage",
+      "_c(25)"
+    ],
+    "missingMarkers": [
+      "billingType === 'usage_based'",
+      "org_service_level_disabled",
+      "const upgradePaths = claudeAiLimits.upgradePaths",
+      "tengu_coral_beacon",
+      "TEAM_UPGRADE_URL"
+    ],
+    "sourceMap": {
+      "sources": ["rate-limit-options.tsx"],
+      "content": {
+        "chars": 5675,
+        "bytes": 5675,
+        "sha256": "7b03948973b99be19ed8877b2efe9eb4ce5019639e8d982d2d15284253a5b93f"
+      },
+      "declaration": {
+        "start": 1364,
+        "end": 5460,
+        "chars": 4096,
+        "bytes": 4096,
+        "sha256": "71c13f15a9614b124763346236d3d3587c708e10c7e5d5a0f8dbd071cd48944b"
+      }
+    },
+    "laterRecovery": {
+      "commit": "4aead9fbb7e82a15615eb60dc9511defd61f1380",
+      "blob": "26a8dec05ce69266985bd6f08a71c906da85546a",
+      "chars": 24948,
+      "bytes": 24948,
+      "sha256": "b36609b00c70535221b136c10d30a71fe8e4905ca2b50e1842659b1cc236edee",
+      "declaration": {
+        "start": 1496,
+        "end": 7879,
+        "chars": 6383,
+        "bytes": 6383,
+        "sha256": "73b57b4fca2e76c49a495093d054d5106f224247e3d5c141cbbe4d0d49508a84"
+      },
+      "cache": {
+        "size": 25,
+        "memberOccurrences": 52,
+        "uniqueIndices": 25,
+        "minIndex": 0,
+        "maxIndex": 24,
+        "missingIndices": []
+      },
+      "requiredMarkers": [
+        "billingType === 'usage_based'",
+        "org_service_level_disabled",
+        "const usageLabel = isUsageBased ? 'usage' : 'extra usage'",
+        "`Add funds to continue with ${usageLabel}`",
+        "const upgradePaths = claudeAiLimits.upgradePaths",
+        "if (true)",
+        "_c(25)"
+      ],
+      "missingMarkers": ["_c(28)"],
+      "sourceMapContentSha256": "7b03948973b99be19ed8877b2efe9eb4ce5019639e8d982d2d15284253a5b93f"
+    }
+  },
+  "ownerResidues": {
+    "generatedOwnerPath": "commands/rate-limit-options/rate-limit-options.tsx",
+    "correctedOwnerPath": "src/commands/rate-limit-options/rate-limit-options.tsx",
+    "rows": [
+      [18092, "property", "billingType", 11113290, 11113301, 16, 18, true],
+      [18092, "string", "usage_based", 11113304, 11113317, 0, 2, true],
+      [18092, "string", "overage", 11113708, 11113717, 8, 12, true],
+      [18092, "string", "org_service_level_disabled", 11113854, 11113882, 3, 5, true],
+      [18092, "string", "usage", 11113976, 11113983, 10, 12, true],
+      [18092, "string", "extra usage", 11113984, 11113997, 1, 4, true],
+      [18092, "string", "Request ", 11114025, 11114033, 7, 8, true],
+      [18092, "string", "Add funds to continue with ", 11114050, 11114077, 0, 1, true],
+      [18092, "string", "Switch to ", 11114085, 11114095, 0, 1, true]
+    ],
+    "genuineRows": [
+      [18092, "property", "billingType", 11113290, 11113301, 16, 18, true],
+      [18092, "string", "usage_based", 11113304, 11113317, 0, 2, true],
+      [18092, "string", "org_service_level_disabled", 11113854, 11113882, 3, 5, true],
+      [18092, "string", "usage", 11113976, 11113983, 10, 12, true],
+      [18092, "string", "extra usage", 11113984, 11113997, 1, 4, true],
+      [18092, "string", "Request ", 11114025, 11114033, 7, 8, true],
+      [18092, "string", "Add funds to continue with ", 11114050, 11114077, 0, 1, true],
+      [18092, "string", "Switch to ", 11114085, 11114095, 0, 1, true]
+    ],
+    "retainedRows": [
+      [18092, "string", "overage", 11113708, 11113717, 8, 12, true]
+    ],
+    "preCorrectionAllOwnerRows": {
+      "count": 36,
+      "jsonBytes": 2287,
+      "sha256": "34643722d937adfd677a86b70246cff2ce2ea1d98c4e6fb9d9cc46a5cc3f0851"
+    },
+    "preCorrectionAddedOwnerRows": {
+      "count": 9,
+      "jsonBytes": 547,
+      "sha256": "00fd463b61c6d3ee1228aadc9bc5e3b76e555ce3bf390f450004a80335ca6339"
+    },
+    "preCorrectionRawRows": {
+      "count": 1,
+      "jsonBytes": 75,
+      "sha256": "2a747076556b9bbc90817b799e924b371e6da1080ae592eb9ff0f072e10f097b"
+    }
+  }
+}

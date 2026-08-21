@@ -4,12 +4,21 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isDeepStrictEqual } from 'node:util'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.119-to-2.1.120')
 const priorManifestPath = path.join(
   repo,
   'recovery/cases/2.1.118-to-2.1.119/manifest.json',
+)
+const priorManifestExpected = {
+  bytes: 360_450,
+  sha256: '3e40037dd64d27eda8a0fa16c6a7fcdcef314842050e37b6fae7b57c9d1c2b0d',
+}
+const priorSourceLineagePath = path.join(
+  repo,
+  'recovery/cases/2.1.118-to-2.1.119/recovered/source-lineage-core.json',
 )
 const draftPath = path.join(caseRoot, 'manifest.non-source-draft.json')
 const outputPath = path.join(caseRoot, 'manifest.json')
@@ -66,7 +75,20 @@ function walkFiles(directory) {
   return values.sort()
 }
 
-const prior = JSON.parse(fs.readFileSync(priorManifestPath, 'utf8'))
+const priorManifestBytes = fs.readFileSync(priorManifestPath)
+assert(
+  priorManifestBytes.length === priorManifestExpected.bytes &&
+    sha256(priorManifestBytes) === priorManifestExpected.sha256,
+  'predecessor manifest identity',
+)
+const priorManifestDescriptor = {
+  path: path.relative(repo, priorManifestPath).replaceAll('\\', '/'),
+  ...priorManifestExpected,
+}
+const prior = JSON.parse(priorManifestBytes.toString('utf8'))
+const priorSourceLineage = JSON.parse(
+  fs.readFileSync(priorSourceLineagePath, 'utf8'),
+)
 const draft = JSON.parse(fs.readFileSync(draftPath, 'utf8'))
 const sourceLineage = JSON.parse(fs.readFileSync(sourceLineagePath, 'utf8'))
 const sourceIdentity = JSON.parse(fs.readFileSync(sourceIdentityPath, 'utf8'))
@@ -76,6 +98,65 @@ const semanticSummary = JSON.parse(fs.readFileSync(semanticSummaryPath, 'utf8'))
 
 assert(draft.schemaVersion === 4, 'draft manifest schema')
 assert(draft.case === '2.1.119-to-2.1.120', 'draft case identity')
+assert(
+  draft.releaseAdjacency?.baseline === '2.1.119' &&
+    draft.releaseAdjacency?.target === '2.1.120' &&
+    draft.releaseAdjacency?.targetIsNextPublishedVersion === true &&
+    draft.releaseAdjacency?.skippedVersionsAbsent === true &&
+    isDeepStrictEqual(draft.releaseAdjacency?.skipped, []),
+  'draft release adjacency',
+)
+assert(prior.schemaVersion === 4, 'predecessor manifest schema')
+assert(prior.case === '2.1.118-to-2.1.119', 'predecessor case identity')
+assert(
+  prior.releaseAdjacency?.baseline === '2.1.118' &&
+    prior.releaseAdjacency?.target === '2.1.119' &&
+    prior.releaseAdjacency?.targetIsNextPublishedVersion === true &&
+    prior.releaseAdjacency?.skippedVersionsAbsent === true &&
+    isDeepStrictEqual(prior.releaseAdjacency?.skipped, []),
+  'predecessor release adjacency',
+)
+assert(
+  draft.releaseAdjacency.baseline === prior.releaseAdjacency.target,
+  'predecessor release target is the current baseline',
+)
+assert(
+  prior.finalization?.status === 'complete' &&
+    prior.sourceFreeze?.status === 'immutable-and-self-verifying' &&
+    prior.recoveryScope?.allSemanticObligationsVerified === true &&
+    prior.recoveryScope?.sourceClosurePending === false &&
+    prior.recoveryScope?.semanticClosurePending === false,
+  'predecessor completion status',
+)
+assert(
+  isDeepStrictEqual(prior.sourceLineage, priorSourceLineage),
+  'predecessor embedded source lineage',
+)
+const priorAppliedSourceTree = prior.sourceOracle?.appliedSourceTree
+assert(
+  priorAppliedSourceTree?.patchSet ===
+    'cumulative-2.1.89-through-2.1.119-source-facing-overlays',
+  'predecessor cumulative source patch set',
+)
+assert(
+  Array.isArray(priorAppliedSourceTree.files) &&
+    priorAppliedSourceTree.files.length > 0 &&
+    priorAppliedSourceTree.fileCount === priorAppliedSourceTree.files.length,
+  'predecessor cumulative source file count',
+)
+const priorAppliedPaths = priorAppliedSourceTree.files.map(entry => entry.path)
+assert(
+  new Set(priorAppliedPaths).size === priorAppliedPaths.length &&
+    isDeepStrictEqual(
+      priorAppliedPaths,
+      [...priorAppliedPaths].sort((left, right) => left.localeCompare(right)),
+    ),
+  'predecessor cumulative source paths',
+)
+assert(
+  isDeepStrictEqual(prior.sourceLineage?.target, sourceLineage.base),
+  'predecessor target lineage is the current base lineage',
+)
 assert(sourceIdentity.case === draft.case, 'source-freeze case identity')
 assert(sourceIdentity.target.commit === sourceLineage.targetCommit, 'target commit')
 assert(
@@ -215,6 +296,13 @@ const groups = [
     explains: ['targetBundle', 'officialChangelog'],
   },
   {
+    id: '2-1-120-semantic-supplement-overlay',
+    confidence: 'equivalent',
+    prefixes: [],
+    exactPaths: ['semantic-supplement.patch'],
+    explains: ['targetBundle', 'officialChangelog'],
+  },
+  {
     id: '2-1-120-direct-semantic-correspondence',
     confidence: 'equivalent',
     prefixes: ['semantic/'],
@@ -266,6 +354,7 @@ const semanticFiles = {
 const manifest = clone(draft)
 delete manifest.draft
 delete manifest.pendingSourceClosure
+manifest.releaseAdjacency.predecessorManifest = priorManifestDescriptor
 manifest.recoveryScope = {
   platform: 'linux-x64',
   completeness: 'generated-code-complete-linux-x64-source-partial',

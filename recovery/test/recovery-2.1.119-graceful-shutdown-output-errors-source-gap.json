@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "kind": "authenticated-complete-unit-and-atomic-source-replay-proof",
+  "sourceCommit": "351cd4d13",
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "indicesSha256": "40e44bf9e98127cc410dfdc58d12729013bf65bacc4ff02d75a1d2ad29c40a96",
+    "residueIdentitiesSha256": "9f3e6f512ca353d1541454f146347888de1ad5b9bf8527cda0811157ba44f0d9"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    }
+  },
+  "sourceFiles": [
+    {
+      "path": "src/utils/gracefulShutdown.ts",
+      "input": {
+        "bytes": 21881,
+        "sha256": "05be4f92a1a2aded41ccc572f6228bd165d2975eedf7bc0c8cc87fae955f4daf"
+      },
+      "output": {
+        "bytes": 22329,
+        "sha256": "4b75ac84c51b5238553775f0e8a9bd54f7789566b2ba57be9a515171c40ebcfe"
+      }
+    },
+    {
+      "path": "src/utils/process.ts",
+      "input": {
+        "bytes": 2333,
+        "sha256": "b744b56136db7ea40adaa1e00fcc232a67b4d8e9a47582ae1d427153ddff46cc"
+      },
+      "output": {
+        "bytes": 2402,
+        "sha256": "0b92cffb381a0f346cf91903f9365170ac5524e647e5934c1d8a8028e33b42d2"
+      }
+    },
+    {
+      "path": "src/cli/print.ts",
+      "input": {
+        "bytes": 228505,
+        "sha256": "e4cc8072e34fb6aa64ebd8f7a4a793c55e748b98bc25d9d446426115da264537"
+      },
+      "output": {
+        "bytes": 228328,
+        "sha256": "036c909aa7ef9278d40e2ceea395eb5aee87eb51dc683e7c5fc270cbaab8c951"
+      }
+    }
+  ],
+  "targetUnits": [
+    {
+      "index": 898,
+      "role": "process output error handler",
+      "nodeType": "FunctionDeclaration",
+      "start": 147063,
+      "end": 147226,
+      "bytes": 163,
+      "sourceHash": "ac7de763718fdcf460f60bb9628560d738b2e68255a6ef715ad37e6340c760d9",
+      "coarseHash": "8a37327bb64eb31866a333c1f7155de37689ee3f3b1fde72bb36036a5bec45d4"
+    },
+    {
+      "index": 10014,
+      "role": "graceful shutdown signal initializer",
+      "nodeType": "VariableDeclaration",
+      "start": 4985097,
+      "end": 4986402,
+      "bytes": 1305,
+      "sourceHash": "e52c67affd39b36eaa353a2c31a8fcc58dee17705402a4ce77b7b80c20959678",
+      "coarseHash": "c6afee0a50b5baf0eb6e8763cc2bd8837cba541fa32255a8ed853308dd8ad268"
+    }
+  ],
+  "baselineUnits": [
+    {
+      "index": 896,
+      "role": "legacy EPIPE stream callback",
+      "nodeType": "FunctionDeclaration",
+      "start": 146906,
+      "end": 146967,
+      "bytes": 61,
+      "sourceHash": "5220170940c704726c8a2e7462bb1fc21cb89649fc7474abf621e54ab7aff7d2",
+      "coarseHash": "1aded637f95e108d35bb07bd3bf39d24d82ff04a78dbb8349f3bd6636fd6592c"
+    },
+    {
+      "index": 897,
+      "role": "legacy EPIPE-only process output handler",
+      "nodeType": "FunctionDeclaration",
+      "start": 146967,
+      "end": 147076,
+      "bytes": 109,
+      "sourceHash": "fdb6e0e552dbfdc5c87256695e938b60343395eb3632ab487e13721b73074062",
+      "coarseHash": "a1c4c61f3aa83d0fd996027d3fb6d85c9defa23bdba70ac19d00a9946b7936db"
+    },
+    {
+      "index": 9887,
+      "role": "retained daemon-aware shutdown initializer",
+      "nodeType": "VariableDeclaration",
+      "start": 4933382,
+      "end": 4934602,
+      "bytes": 1220,
+      "sourceHash": "275354bdfcf2659c47fc741b52b5c4716e992cb2be50c20f0d8cd56570b319c6",
+      "coarseHash": "c17da2b1e6ed3adc05c43a683e914c8db8f2bcdb66f37dd1d6816085dfa9ca4d"
+    }
+  ],
+  "sourceDeclarations": {
+    "processRaw": {
+      "path": "src/utils/process.ts",
+      "name": "registerProcessOutputErrorHandlers",
+      "charStart": 279,
+      "charEnd": 457,
+      "bytes": 178,
+      "sha256": "b9415ec9cb8b5a0da05ddc01caacc0ae8adeff339c89714af69d4703439c9b86"
+    },
+    "processRecovered": {
+      "path": "src/utils/process.ts",
+      "name": "registerProcessOutputErrorHandlers",
+      "charStart": 134,
+      "charEnd": 526,
+      "bytes": 392,
+      "sha256": "1caf39c31c14301e6191ad3556bddf715644c93dde80c27d5852c4e7c647f9d1"
+    },
+    "gracefulRaw": {
+      "path": "src/utils/gracefulShutdown.ts",
+      "name": "setupGracefulShutdown",
+      "charStart": 9646,
+      "charEnd": 13975,
+      "bytes": 4341,
+      "sha256": "04188aad23d7a89547a66417663a2d597b855e3259b32a9866d87d805b7d01a8"
+    },
+    "gracefulRecovered": {
+      "path": "src/utils/gracefulShutdown.ts",
+      "name": "setupGracefulShutdown",
+      "charStart": 9712,
+      "charEnd": 14423,
+      "bytes": 4723,
+      "sha256": "580a01403f6aea2e1ab0ca235a2d1a7831252f3bac8a34bba4243c47e39a3b2c"
+    }
+  },
+  "residueIdentities": [
+    [10014, "property", "CLAUDE_BG_BACKEND", 4985489, 4985506, 5],
+    [10014, "string", "stdout_", 4985759, 4985766, 1]
+  ],
+  "ownerOverride": {
+    "targetIndex": 10014,
+    "ownerPaths": [
+      "src/utils/gracefulShutdown.ts",
+      "src/utils/process.ts",
+      "src/cli/print.ts"
+    ],
+    "evidenceIds": [
+      "target119-graceful-shutdown-output-errors-target-fragment",
+      "target119-graceful-shutdown-output-errors-source-replay-test",
+      "target119-graceful-shutdown-output-errors-source-ast-test",
+      "target119-process-output-error-handler-target-fragment"
+    ]
+  }
+}

@@ -19,11 +19,11 @@ The row-scoped direct catalog contains 100 obligations (official 39, hidden 13, 
 - Bundle witnesses: 354 fragments and 5 explicit target absences.
 - Source witnesses: 662 exact assertions and 22 path-scoped removals.
 - Classifications: source-localized-adjacent 52, source-localized-inherited 48.
-- Test catalog: 33/33 entries consumed.
+- Semantic-core test catalog: 33/33 entries consumed.
 - Unverified obligations: 0.
 - Unclassified target tokens: 0.
 
-Every obligation binds one unique row from `semantic/direct-evidence.json`. The direct test pins the catalog byte length and SHA-256, then checks exact counts in both authenticated adjacent bundles and exact hashes/counts in the recovered source. All 33 frozen source-lineage suites are executed and consumed by the semantic proof.
+Every obligation binds one unique row from `semantic/direct-evidence.json`. The direct test pins the catalog byte length and SHA-256, then checks exact counts in both authenticated adjacent bundles and exact hashes/counts in the recovered source. The frozen execution set contains 103 release-scoped suites. The semantic proof has a separate 33-entry core catalog, all consumed; the other 70 suites are frozen and executed as release regression coverage rather than represented as row-catalog entries.
 
 ## Source freeze
 
@@ -33,7 +33,7 @@ The incremental overlay is frozen from `6801ead984ba2c3df02bd092ad8b93df096ed8c1
 - Overlay: 2,747,802 bytes, SHA-256 `5b201d69885f58a92ca64522b547594021494c950ed046bd3876f396cfab8acb`.
 - Changed source paths: 274; 21,280 insertions and 3,728 deletions.
 - Frozen source tree: 2,127 files, 33,091,775 bytes, zero symlinks.
-- Authenticated target tests: 121/121 passed across 33 files.
+- Authenticated release tests: 466/480 passed, 14 skipped, and 0 failed across 103 frozen files.
 - Syntax builds: 274 passed, 0 failed.
 - Source-only `git diff --check`: 0 diagnostics.
 - Full-tree `git diff --check`: exactly 1 reviewed acquisition-metadata diagnostic, SHA-256 `a45849856c08d527991e52348d5991ffb9ca17f9fc0d55e4acd4ab7246726b22`: `recovery/cases/2.1.120-to-2.1.121/evidence/CHANGELOG-2.1.121.md:42: new blank line at EOF.`.

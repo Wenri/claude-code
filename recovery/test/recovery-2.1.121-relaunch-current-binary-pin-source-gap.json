@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "c3136ff0a2a594bb34dfd4b5058b200f050a230a",
+  "sourceBlob": {
+    "path": "src/utils/relaunch.ts",
+    "gitObject": "4944f7ef6cdb90a35a6403183353b9d7056ac676"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "replayHelper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-relaunch-current-binary-pin-source-gap.mjs",
+      "bytes": 6471,
+      "sha256": "930c66e91263544a8bdb84a2c7ee14627653d53a850ba0ac6952865ee1c1faa1"
+    },
+    "sourceFile": {
+      "path": "src/utils/relaunch.ts",
+      "input": {
+        "bytes": 5740,
+        "sha256": "d220df76d64026287834a5c43ae863db6238ff388785cc6a8ed9a9537db96979"
+      },
+      "output": {
+        "bytes": 5946,
+        "sha256": "4e2e930a5a39003f6a5bfb56f3308384e7436f9b86e09ae13ce9274c7f0db45a"
+      }
+    }
+  },
+  "baselineUnit": {
+    "index": 12159,
+    "sourceDeclaration": "getRelaunchLauncher",
+    "role": "stable-symlink launcher for version-directory native binaries",
+    "nodeType": "FunctionDeclaration",
+    "start": 7642427,
+    "end": 7642743,
+    "bytes": 316,
+    "tokenCount": 122,
+    "sourceHash": "5b2795db29fe37eb37eed3ee6395d12a72faa9815a14e7eb941c632e32c9474b",
+    "coarseHash": "58e1d7b86fa46da22937a1b080f8c10230577cd88d513ee88ea1ddf6dcb2c273"
+  },
+  "targetUnits": [
+    {
+      "index": 12209,
+      "sourceDeclaration": "isRunningFromVersionsDirectory",
+      "role": "extracted bundled version-directory predicate",
+      "nodeType": "FunctionDeclaration",
+      "start": 7661378,
+      "end": 7661499,
+      "bytes": 121,
+      "tokenCount": 46,
+      "sourceHash": "f551818e95ddb89e7324e6b27deccb30ac5d4cbba39431d8fadf40fa3fe3d919",
+      "coarseHash": "103c0427e35706d67740d1a993f963d04e2395d2c1aba0cc9daee781bd05d97e",
+      "unknownFreeIdentifierCount": 3
+    },
+    {
+      "index": 12210,
+      "sourceDeclaration": "getRelaunchLauncher",
+      "role": "stable launcher with an explicit current-binary pin",
+      "nodeType": "FunctionDeclaration",
+      "start": 7661499,
+      "end": 7661765,
+      "bytes": 266,
+      "tokenCount": 105,
+      "sourceHash": "d3aba6f057290f635f3988e1a331a1fe490122bf923bc62e5f2e706a31072683",
+      "coarseHash": "8c31e13b1cf2eb81b188c21b0ab31c845489aaa4413d4947d35a7a88682ead01",
+      "unknownFreeIdentifierCount": 3
+    }
+  ],
+  "pathModuleInitializers": {
+    "baseline": {
+      "index": 12161,
+      "nodeType": "VariableDeclaration",
+      "start": 7642751,
+      "end": 7642794,
+      "bytes": 43,
+      "tokenCount": 22,
+      "sourceHash": "4154863c74449ff9283345beda43fb7ed7e97672f0aebb600902cbc798ebf48b",
+      "coarseHash": "c9b00523bfcf3b5001161ec7a0058bd8100cae24db04bfe17fd3f91a0ae05293"
+    },
+    "target": {
+      "index": 12212,
+      "nodeType": "VariableDeclaration",
+      "start": 7661773,
+      "end": 7661816,
+      "bytes": 43,
+      "tokenCount": 22,
+      "sourceHash": "7af574037027e442c39844adb2a7d9c21d67e6f9b80e150e76765be8589efd3d",
+      "coarseHash": "c9b00523bfcf3b5001161ec7a0058bd8100cae24db04bfe17fd3f91a0ae05293"
+    }
+  },
+  "retainedDependencies": [
+    {
+      "sourcePath": "src/utils/bundledMode.ts",
+      "sourceFile": {
+        "bytes": 618,
+        "sha256": "b8733a71f54caad826fa5d735575271cb4431850bed6b3901add598c7b26bbe6"
+      },
+      "sourceDeclaration": {
+        "name": "isInBundledMode",
+        "charStart": 449,
+        "charEnd": 617,
+        "bytes": 168,
+        "sha256": "be974e3efca54dd4c2a11ff522c0e51dcaa4314647040cf6369aece9da439cc9"
+      },
+      "targetUnit": {
+        "index": 2592,
+        "baselineUnitIndex": 2568,
+        "classification": "matched",
+        "start": 1045654,
+        "end": 1045752,
+        "bytes": 98,
+        "sourceHash": "efd43540eab63f56344f8867a53cc303424f5e37499a32e7261575a0f00e9ef8"
+      }
+    },
+    {
+      "sourcePath": "src/utils/xdg.ts",
+      "sourceFile": {
+        "bytes": 1876,
+        "sha256": "0bf00e2da1b5b3b7c778bf5df12102cc579f8cee579abf6275a8257a3f859913"
+      },
+      "sourceDeclarations": [
+        {
+          "name": "getXDGDataHome",
+          "charStart": 1394,
+          "charEnd": 1566,
+          "bytes": 172,
+          "sha256": "e1affac51228176924029f2cedc11457001f36446a66505b84e65c116405ea52"
+        },
+        {
+          "name": "getUserBinDir",
+          "charStart": 1732,
+          "charEnd": 1875,
+          "bytes": 143,
+          "sha256": "39807e22fac1af1c87b25d9f795bf3f0be26749817488e193d5c11362bd57d12"
+        }
+      ],
+      "targetUnits": [
+        {
+          "index": 11785,
+          "baselineUnitIndex": 11739,
+          "classification": "matched",
+          "start": 7336507,
+          "end": 7336601,
+          "bytes": 94,
+          "sourceHash": "ef429cc0f61c7d21b3ceb24cb4c751b9c702c05bed1a468bb320df6a7a440d88"
+        },
+        {
+          "index": 11786,
+          "baselineUnitIndex": 11740,
+          "classification": "matched",
+          "start": 7336601,
+          "end": 7336669,
+          "bytes": 68,
+          "sourceHash": "6a87802cce16fc4d467a7d9fb5fab0593b715aad7c1ff77cef32c2a0d70dded7"
+        }
+      ]
+    }
+  ],
+  "callers": [
+    {
+      "targetIndex": 19592,
+      "ownerPath": "src/daemon/supervisor.ts",
+      "declaration": "defaultSpawnPty",
+      "unitStart": 11905135,
+      "unitEnd": 11905441,
+      "unitBytes": 306,
+      "unitSourceHash": "b5dfbb61140eae703964f6e941689a150ad1a96c9d9e8ea3c857cd4a4f460f27",
+      "callStart": 11905215,
+      "callEnd": 11905242
+    },
+    {
+      "targetIndex": 19597,
+      "ownerPath": "src/daemon/supervisor.ts",
+      "declaration": "BackgroundHandle",
+      "unitStart": 11906798,
+      "unitEnd": 11920536,
+      "unitBytes": 13738,
+      "unitSourceHash": "f6e85a0265024a4ff3b5722a9968c173ca2fec8f9f3893c64af6bb3ed4a674c9",
+      "callStart": 11916098,
+      "callEnd": 11916125
+    },
+    {
+      "targetIndex": 22174,
+      "ownerPath": "src/daemon/main.ts",
+      "declaration": "runDaemon",
+      "unitStart": 13875503,
+      "unitEnd": 13881181,
+      "unitBytes": 5678,
+      "unitSourceHash": "dd114539f480b0a7035caa1a759814734f6a474e0104a6dc2b97fe6c5c2e3b32",
+      "callStart": 13878359,
+      "callEnd": 13878386
+    }
+  ],
+  "callerFragment": {
+    "bytes": 27,
+    "sha256": "f85cf29d537f5a5dfdce21905fcc2e2039cedd59146b128b4446706cd180311d",
+    "text": "QE({pinToCurrentBinary:!0})"
+  },
+  "bundleFragments": [
+    {
+      "name": "baselineVersionPrefix",
+      "bundle": "baseline",
+      "start": 7642456,
+      "end": 7642499,
+      "bytes": 43,
+      "sha256": "18e4132662b1abd9d05becd82949b2e30d6991b487b65624bdd37d31bef59a65",
+      "text": "vf$.join(MfH(),\"claude\",\"versions\")+vf$.sep"
+    },
+    {
+      "name": "targetVersionPrefix",
+      "bundle": "target",
+      "start": 7661417,
+      "end": 7661460,
+      "bytes": 43,
+      "sha256": "d7f30f5456c1153600b18687b53ae901a53dc49450e05bd7d69fca4d3670f9fe",
+      "text": "IY$.join(YYH(),\"claude\",\"versions\")+IY$.sep"
+    },
+    {
+      "name": "targetPinGate",
+      "bundle": "target",
+      "start": 7661520,
+      "end": 7661548,
+      "bytes": 28,
+      "sha256": "f44049d4d29a2aaea6e9b989680e40b07ea1a8f1b14f5f3a4ffc3f1f8a722d52",
+      "text": "!H.pinToCurrentBinary&&c68()"
+    },
+    {
+      "name": "targetStableReturn",
+      "bundle": "target",
+      "start": 7661555,
+      "end": 7661598,
+      "bytes": 43,
+      "sha256": "589c43c36be5bb2738441690101b28bdaa5ba39e261a642fc04728d1b96ef6f3",
+      "text": "{cmd:IY$.join(Va(),\"claude\"),prefixArgs:[]}"
+    }
+  ],
+  "strictRows": [
+    {
+      "targetIndex": 12210,
+      "literalKind": "property",
+      "value": "pinToCurrentBinary",
+      "targetOccurrenceNumber": 1,
+      "start": 7661523,
+      "end": 7661541,
+      "bytes": 18,
+      "sha256": "ceac2ab36b889c165adc8c0ff60d06136bad571a6a4452b6c32fbfd6ddb62b15",
+      "generatedOwnerPath": "src/components/Spinner.tsx",
+      "ownerPath": "src/utils/relaunch.ts",
+      "declarations": [
+        "isRunningFromVersionsDirectory",
+        "getRelaunchLauncher"
+      ]
+    }
+  ],
+  "strictRowsIdentitySha256": "c8f380182798235118b15276ccf3d512313bf3d68173eccbfe7d99ba34f6cdf9",
+  "strictEvolution": {
+    "before": {
+      "units": 60,
+      "residues": 481,
+      "indices": [12210, 12768, 13026, 13102, 13110, 13120, 13973, 14165, 14171, 14201, 14209, 14622, 16315, 16363, 16369, 17014, 17015, 17497, 17548, 18378, 18380, 18548, 18549, 18684, 18817, 18932, 19010, 19537, 19553, 19683, 19753, 19995, 20305, 20318, 20320, 20592, 20606, 20617, 20645, 20651, 20672, 20775, 20874, 20909, 20945, 20949, 21015, 21018, 21049, 21128, 21373, 21913, 21925, 21958, 21959, 21992, 22106, 22107, 22170, 22174],
+      "indicesSha256": "e9264b87b80a202320997328c7eb5e571620b37ddb12c6d3010573c590500aab"
+    },
+    "after": {
+      "units": 59,
+      "residues": 480,
+      "indices": [12768, 13026, 13102, 13110, 13120, 13973, 14165, 14171, 14201, 14209, 14622, 16315, 16363, 16369, 17014, 17015, 17497, 17548, 18378, 18380, 18548, 18549, 18684, 18817, 18932, 19010, 19537, 19553, 19683, 19753, 19995, 20305, 20318, 20320, 20592, 20606, 20617, 20645, 20651, 20672, 20775, 20874, 20909, 20945, 20949, 21015, 21018, 21049, 21128, 21373, 21913, 21925, 21958, 21959, 21992, 22106, 22107, 22170, 22174],
+      "indicesSha256": "8068b536c01dc34a3a9f791b9b1ffbd9dd22ec229351794366293fbcb707c3e3"
+    }
+  },
+  "sourceRegions": {
+    "rawLauncher": {
+      "name": "getRelaunchLauncher",
+      "charStart": 1157,
+      "charEnd": 1746,
+      "bytes": 589,
+      "sha256": "e247331a3ed7262718d75151e2c001e47ece489da0e37e5ab9546a16aa6818b8"
+    },
+    "rawReplayAnchor": {
+      "charStart": 996,
+      "charEnd": 1746,
+      "bytes": 750,
+      "sha256": "ad13d7741081a082cf02ed1b6a4d0aea2b20ddf0a556a5da48556a20cb9e1026"
+    },
+    "recoveredReplayAnchor": {
+      "charStart": 996,
+      "charEnd": 1952,
+      "bytes": 956,
+      "sha256": "f20123ade9084364cbc4d7157c203e5c7d3c26de000590543fe82732d94a2cd0"
+    },
+    "recoveredHelper": {
+      "name": "isRunningFromVersionsDirectory",
+      "charStart": 996,
+      "charEnd": 1225,
+      "bytes": 229,
+      "sha256": "a036f88fea8765042ca136ad60eef726d2a55a452f0c8489e16833a7f5bb6d9f"
+    },
+    "recoveredLauncher": {
+      "name": "getRelaunchLauncher",
+      "charStart": 1388,
+      "charEnd": 1952,
+      "bytes": 564,
+      "sha256": "27c9fcf054ca57670ac26b612b9298a7c6266fccf713c41367020331672c28f3"
+    },
+    "recoveredOptionOccurrences": [
+      {
+        "charStart": 1438,
+        "charEnd": 1456,
+        "bytes": 18,
+        "sha256": "ceac2ab36b889c165adc8c0ff60d06136bad571a6a4452b6c32fbfd6ddb62b15"
+      },
+      {
+        "charStart": 1512,
+        "charEnd": 1530,
+        "bytes": 18,
+        "sha256": "ceac2ab36b889c165adc8c0ff60d06136bad571a6a4452b6c32fbfd6ddb62b15"
+      }
+    ]
+  },
+  "wholeUnitProof": {
+    "criterion": "bun-linux-macro-path-import-position-free-alpha-kind-normalized-ast-v1",
+    "compiler": {
+      "path": ".pixi/envs/default/bin/bun",
+      "version": "1.3.11",
+      "options": {
+        "loader": "ts",
+        "target": "bun",
+        "minifyWhitespace": true,
+        "minifySyntax": true
+      }
+    },
+    "proofSourceBytes": 700,
+    "proofSourceSha256": "e7dce381ea953070e772d57fb4b5bf9298769d10cc3af402615780eeee6298ab",
+    "compiledBytes": 551,
+    "compiledSha256": "767b53ce69d0bf36d8932346358ff39050266c6369716f8bf11d2005f3a6ab5b",
+    "canonicalBytes": 5271,
+    "canonicalSha256": "1b38afc3f353a5f5b7bd69ca1d2e5780007ae15998e993fa0cf33fa6ad6f4743"
+  },
+  "runtimeCases": [
+    {
+      "name": "versioned bundled default follows stable symlink",
+      "bundled": true,
+      "execPath": "/data/claude/versions/2.1.121",
+      "argv": ["bun", "/app/cli.js"],
+      "options": null,
+      "expected": { "cmd": "/bin/claude", "prefixArgs": [] }
+    },
+    {
+      "name": "explicit false still follows stable symlink",
+      "bundled": true,
+      "execPath": "/data/claude/versions/2.1.121",
+      "argv": ["bun", "/app/cli.js"],
+      "options": { "pinToCurrentBinary": false },
+      "expected": { "cmd": "/bin/claude", "prefixArgs": [] }
+    },
+    {
+      "name": "pin retains the current version binary",
+      "bundled": true,
+      "execPath": "/data/claude/versions/2.1.121",
+      "argv": ["bun", "/app/cli.js"],
+      "options": { "pinToCurrentBinary": true },
+      "expected": { "cmd": "/data/claude/versions/2.1.121", "prefixArgs": [] }
+    },
+    {
+      "name": "non-versioned bundled binary stays current",
+      "bundled": true,
+      "execPath": "/opt/claude",
+      "argv": ["bun", "/app/cli.js"],
+      "options": null,
+      "expected": { "cmd": "/opt/claude", "prefixArgs": [] }
+    },
+    {
+      "name": "script mode retains the script prefix",
+      "bundled": false,
+      "execPath": "/usr/bin/bun",
+      "argv": ["bun", "/app/cli.js"],
+      "options": { "pinToCurrentBinary": true },
+      "expected": { "cmd": "/usr/bin/bun", "prefixArgs": ["/app/cli.js"] }
+    },
+    {
+      "name": "script mode without argv falls back to execPath",
+      "bundled": false,
+      "execPath": "/usr/bin/bun",
+      "argv": ["bun"],
+      "options": null,
+      "expected": { "cmd": "/usr/bin/bun", "prefixArgs": [] }
+    }
+  ]
+}

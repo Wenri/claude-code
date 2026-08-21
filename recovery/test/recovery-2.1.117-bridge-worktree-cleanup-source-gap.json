@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "status": "case-owned-replay-ready",
+  "summary": {
+    "sourceFiles": 1,
+    "boundedPatches": 8,
+    "authenticatedTargetUnits": 2,
+    "compiledCleanupCalls": 3,
+    "ownerOverrides": 0
+  },
+  "criterion": "The raw ff0339d source omits the worktree-change-aware bridge cleanup graph even though the authenticated 2.1.116 and 2.1.117 bundles both contain it. Recovery is admitted only when eight bounded source anchors transform the exact raw bridgeMain file into the pinned postimage, whose BridgeWorktree, cleanupBridgeWorktree, and runBridgeLoop declarations are byte-identical to the authenticated later source donor. The helper preserves dirty or committed worktrees, force-cleans failed spawns, records the worktree head commit, excludes crashed initial sessions from archive, and never treats a global string coincidence as source proof.",
+  "evidenceIds": [
+    "target117-retained-bridge-worktree-cleanup-target-fragments",
+    "target116-retained-bridge-worktree-cleanup-baseline-fragments",
+    "target117-retained-bridge-worktree-cleanup-source-replay-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "nextTargetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "nextStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    }
+  },
+  "sourceRecovery": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-bridge-worktree-cleanup-source-gap.mjs",
+      "bytes": 11348,
+      "sha256": "6b59a4d69c3ac2a480a74b392114e7026a2e237d732eaee9fdef5baa39bc0ebe"
+    },
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "path": "src/bridge/bridgeMain.ts",
+      "gitBlob": "affa9d4eff3d6a47822c64fc5529e2a8cbbaa480",
+      "bytes": 116403,
+      "sha256": "8ab48ce786f7188a0038992c9c5e3ee2a4ffdc1fc3f18dea8a928cba5cdca5c7"
+    },
+    "laterSourceDonor": {
+      "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "path": "src/bridge/bridgeMain.ts",
+      "gitBlob": "1f6aa8fb0c5f01a8423b6101a6cea3b143fa9761",
+      "bytes": 114301,
+      "sha256": "5e58996228824362060eb56cae0cf5a8e2e6738fbf844f02c588e5b260b907a6"
+    },
+    "outputFile": {
+      "path": "src/bridge/bridgeMain.ts",
+      "bytes": 117653,
+      "sha256": "8e32cd7a5a570b3fce9635ca1cb499ad6c0d5c094ae537baab64af78929d78ec"
+    },
+    "declarations": {
+      "BridgeWorktree": {
+        "bytes": 137,
+        "sha256": "0e9c0e9b2d6d779157932157541debf318a413ce1d7ce65c9b6c64da79d3c0ac"
+      },
+      "cleanupBridgeWorktree": {
+        "bytes": 1372,
+        "sha256": "1369a8f3dafa5c622776e458fcd67938afc77a34058b72efde14a630a7b3b578"
+      },
+      "runBridgeLoop": {
+        "bytes": 56749,
+        "sha256": "42c8df1afdada00be32edbaaabc63195568cf57da9b8e7824e2e960e14cb15e1"
+      }
+    },
+    "imports": {
+      "plural": {
+        "bytes": 48,
+        "sha256": "1c6c10b31f9baf96265a3397e36985195651cb58f49bdd08a7fa1fc9c69ab9bd"
+      },
+      "worktree": {
+        "bytes": 111,
+        "sha256": "ee93b74bf4e6d35c5082e73e8adcfa26dab855283802ff58bc354f56e1b409a3"
+      }
+    },
+    "rawAbsentMarkers": [
+      "cleanupBridgeWorktree",
+      "getAgentWorktreeChanges",
+      "[bridge:worktree] kept",
+      "worktree removal failed, kept:"
+    ]
+  },
+  "bundleEvidence": {
+    "runBridgeLoop": {
+      "classification": "matched",
+      "baselineIndex": 18345,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "target": {
+        "index": 18408,
+        "nodeType": "FunctionDeclaration",
+        "start": 11314919,
+        "end": 11329494,
+        "tokenCount": 5089,
+        "sourceHash": "aa42ea7b3dca82c779fea0dac0ebb75755c351afa6ba8d4f855508df79af53db",
+        "coarseHash": "e088e53c6113d82bf0749542ff42ac1266d1a112325317cdd18cd81b37ab4427"
+      }
+    },
+    "cleanupBridgeWorktree": {
+      "classification": "matched",
+      "baselineIndex": 18351,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "target": {
+        "index": 18414,
+        "nodeType": "FunctionDeclaration",
+        "start": 11330526,
+        "end": 11331209,
+        "tokenCount": 231,
+        "sourceHash": "015b9385ace7e5e3bea54f52ccd2e2e559e163fa6284eb7ec380d0d795f0c1fc",
+        "coarseHash": "3adf740ba18c174e0a2f812188b82f9464200dcdc2f32f31b8a69c13457b813f"
+      }
+    },
+    "callArgumentCounts": [
+      2,
+      3,
+      2
+    ],
+    "baselineAndTargetMarkerCounts": {
+      "[bridge:worktree] kept": 1,
+      "worktree removal failed, kept:": 1,
+      "kept worktree ": 2,
+      "session crashed": 1,
+      "git error checking changes": 1
+    },
+    "nextTransition": {
+      "classification": "matched",
+      "baselineIndex": 18414,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "target": {
+        "index": 18577,
+        "nodeType": "FunctionDeclaration",
+        "start": 11416905,
+        "end": 11417588,
+        "tokenCount": 231,
+        "sourceHash": "67123c131ced793400a48d56e5eb0a9e925114f2b28297668345f7e15751eb79",
+        "coarseHash": "3adf740ba18c174e0a2f812188b82f9464200dcdc2f32f31b8a69c13457b813f"
+      }
+    }
+  }
+}

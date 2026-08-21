@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-static-whole-unit-owner-proof-no-replay",
+  "summary": {
+    "units": 1,
+    "residues": 23,
+    "allOwnerRows": 215,
+    "targetIndicesSha256": "76a22a7cdfe7aeee4676cfb50bef58c7503f10f46253327a92af72f136fbafa8",
+    "residueIdentitiesSha256": "3c6e1c185f252ea9ba3db7fbdb3ab3996e3bb3f40fc5ed64828e2274e8701174"
+  },
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/main-entrypoint-inherited-owner-overrides.mjs",
+      "bytes": 1452,
+      "sha256": "eb6b339ea7321973305a82b3303dffec2b59ac2cefaefadfbb57fb91d476f2a6"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "target117WholeUnitProof": {
+      "path": "recovery/test/recovery-2.1.117-main-entrypoint-whole-unit-owner-proof.json",
+      "bytes": 14696,
+      "sha256": "16fc840a14057d50b91d5a0231dfaea54eeb0a33f3fa984160943993b25c90ce"
+    },
+    "baselineHistoricalSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "file": {
+        "path": "src/main.tsx",
+        "blob": "08632f6f102557ae26fd1c60b8e4fd7fbde63713",
+        "bytes": 804497,
+        "sha256": "896534df5d2d94b4cdfc270a0a4c883eb76d277881ab771974f7c73d1caaaf99",
+        "declaration": {
+          "name": "run",
+          "characterStart": 47217,
+          "characterEnd": 227455,
+          "byteStart": 47249,
+          "byteEnd": 227659,
+          "bytes": 180410,
+          "sha256": "09fec3057c570264ec78a851bf6d824f83e935bda37b550dc5bc51f43db189ed"
+        }
+      }
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "file": {
+        "path": "src/main.tsx",
+        "blob": "1a6745ef0439cc741c40b2f22635d8b8f1189c23",
+        "bytes": 808444,
+        "sha256": "9edfedd84c9154bdd800ca72cc879049e4c7a8fbf0b185a42adfe874cd3fa0bb",
+        "declaration": {
+          "name": "run",
+          "characterStart": 48362,
+          "characterEnd": 231097,
+          "byteStart": 48394,
+          "byteEnd": 231301,
+          "bytes": 182907,
+          "sha256": "e4da6252bd3ad1e7fa70ba63e96d16e9e3f2a4895d8ee4bcfddcc52a327c0a6b"
+        }
+      }
+    },
+    "packagedSource": {
+      "file": {
+        "path": "src/main.tsx",
+        "bytes": 808465,
+        "sha256": "263874a2733f298f2c41359da8a398f78984e33d4f790861081bde852cf67ef6",
+        "declaration": {
+          "name": "run",
+          "characterStart": 48362,
+          "characterEnd": 231118,
+          "byteStart": 48394,
+          "byteEnd": 231322,
+          "bytes": 182928,
+          "sha256": "fa2165004dff1f0b5234f14fdbbfe8aa84012da6f398a9b3d00fb08761cf0d1d"
+        }
+      }
+    }
+  },
+  "evidenceIds": [
+    "target118-main-entrypoint-inherited-authenticated-units",
+    "target118-main-entrypoint-inherited-token-predecessors",
+    "target118-main-entrypoint-build-macro-normalization",
+    "target118-main-entrypoint-plugin-tag-source-transition"
+  ],
+  "ownerOverride": {
+    "paths": ["src/main.tsx"],
+    "declarations": ["run"],
+    "evidenceIds": [
+      "target118-main-entrypoint-inherited-authenticated-units",
+      "target118-main-entrypoint-inherited-token-predecessors",
+      "target118-main-entrypoint-build-macro-normalization",
+      "target118-main-entrypoint-plugin-tag-source-transition"
+    ]
+  },
+  "targetUnit": {
+    "targetIndex": 20972,
+    "classification": "unresolved",
+    "start": 13166596,
+    "end": 13226366,
+    "bytes": 59770,
+    "tokenCount": 15865,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "24cabb3ede118da6eacd67a7ccf9ed6a8d292e25367f0043ffcad1fbe1427a46",
+    "coarseHash": "a2031c94771853b84fa1002e4c6fdb5687ac7eb5bd50e3470455f358715d9dbd",
+    "ownerPath": "src/main.tsx",
+    "declarations": ["run"],
+    "residues": [
+      ["property", "from", 13175394, 13175398, 616, 629],
+      ["property", "from", 13175586, 13175590, 616, 630],
+      ["property", "clear", 13179180, 13179185, 338, 340],
+      ["property", "cache", 13179173, 13179178, 242, 243],
+      ["property", "readFileSync", 13182858, 13182870, 75, 79],
+      ["property", "readFileSync", 13183306, 13183318, 75, 80],
+      ["property", "blocked", 13184914, 13184921, 34, 45],
+      ["property", "warnings", 13187407, 13187415, 117, 131],
+      ["property", "disallowedTools", 13187476, 13187491, 17, 18],
+      ["property", "blocked", 13187654, 13187661, 34, 46],
+      ["number", "300", 13189865, 13189868, 55, 57],
+      ["string", "agent", 13190502, 13190509, 36, 38],
+      ["string", "2.1.118", 13195473, 13195482, 0, 133],
+      ["string", "2026-04-22T21:04:38Z", 13195562, 13195584, 0, 133],
+      ["string", "ef88b5f0a79aac989f53fd18178939a54a48624a", 13195593, 13195635, 0, 133],
+      ["property", "standaloneAgentContext", 13200092, 13200114, 24, 25],
+      ["property", "replBridgeSkipNextArchive", 13201126, 13201151, 2, 7],
+      ["string", "2.1.118", 13210752, 13210761, 0, 134],
+      ["string", "2026-04-22T21:04:38Z", 13210841, 13210863, 0, 134],
+      ["string", "ef88b5f0a79aac989f53fd18178939a54a48624a", 13210872, 13210914, 0, 134],
+      ["property", "pluginTagHandler", 13218934, 13218950, 0, 2],
+      ["property", "createSubcommandRoot", 13224893, 13224913, 22, 23],
+      ["property", "update", 13225872, 13225878, 265, 267]
+    ],
+    "behavior": "The complete authenticated Target117 and Target118 run entrypoint units establish the same implementation boundary. Sixteen Target118 added-owner rows map to unique raw-equal Target117 predecessor tokens in identical sixty-one-token canonical neighborhoods, and six more map identically after normalizing the two exact VERSION, BUILD_TIME, and GIT_SHA macro objects. The sole remaining pluginTagHandler row belongs to the exact authenticated Target118 plugin-tag command source transition, which dynamically imports pluginTagHandler and createSubcommandRoot and invokes them together. Exact historical and packaged run declarations pin the source boundary. This is a complete-unit static/source proof and authorizes no replay."
+  },
+  "baselineUnit": {
+    "targetIndex": 20785,
+    "classification": "unresolved",
+    "start": 13047545,
+    "end": 13105982,
+    "bytes": 58437,
+    "tokenCount": 15668,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "d6f70b2968f45bdc83518ce679bff9239bcec0cc6e9befda7b0f183d096a87c3",
+    "coarseHash": "37b96d9a2b7bfebfd8f8394bc961c52131ff5a6a829a407df37bd6ca79878664"
+  },
+  "canonicalTokenProof": {
+    "neighborhoodRadius": 30,
+    "baseline": {"tokens": 15668, "bytes": 95089, "sha256": "1148a040f93febddf71d61795ea7d59888ad505bcfe3b359e60502187c0eabd2"},
+    "target": {"tokens": 15865, "bytes": 96885, "sha256": "012b7521cb1548197823d0d1a8c6f855804109a7e31579a55e2193a96645bf88"},
+    "macroRows": [12, 13, 14, 17, 18, 19],
+    "sourceTransitionRow": 20,
+    "macroValues": {
+      "baseline": ["2.1.117", "2026-04-21T17:58:52Z", "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387"],
+      "target": ["2.1.118", "2026-04-22T21:04:38Z", "ef88b5f0a79aac989f53fd18178939a54a48624a"]
+    },
+    "residuePredecessors": [
+      [0,1200,1170,13056015,13056019,"from","a089ef6aab244c382d65029c820b0bf036214189be14570b1b37e57addcdb181"],
+      [1,1236,1206,13056207,13056211,"from","f7614ea955930036d747391c0fd1aed6729785aa275b0f6466391d3779b0890b"],
+      [2,1699,1654,13059669,13059674,"clear","dd10afcae97a5a6464f7da827c55fa8e9f64c2f292e772ed6ec76d7163193c0b"],
+      [3,1697,1652,13059662,13059667,"cache","6fe42185d1b32b0765714dcc619e9cb16db39474166ee5ef63e4165c931b4418"],
+      [4,2869,2831,13063368,13063380,"readFileSync","3cc4bef55bccdfa2a6a09952cf9afff9716fbc2cc9d8ef1e3599043c635b2a54"],
+      [5,2969,2931,13063816,13063828,"readFileSync","751fbae3309ddb3e8f896c66b938534ec1d0f948038a443316e384ac49c55b66"],
+      [6,3574,3536,13065424,13065431,"blocked","9309ce586a969bac9d1e7a76f9d8cffae6105ff2a5e143f5a7c74096d1c7d05b"],
+      [7,4490,4452,13067917,13067925,"warnings","60abaa1e7789682d11366b82820741e58d1f5850c7ea2d11a2c2cbd6c4bee92d"],
+      [8,4507,4469,13067986,13068001,"disallowedTools","f772fd4d12150789223bcc5c79f544b9d3d1fad28a96e8cbca07b68533db397e"],
+      [9,4575,4537,13068164,13068171,"blocked","fc324720be5045e78702f12e69c8988c2969883ca166429afb4302e92b44dae5"],
+      [10,5248,5195,13070266,13070269,"300","29322353a4fb52644eb1ddc0d53961f9c2630192e9e65784904d5f7c7cb4624c"],
+      [11,5435,5382,13070903,13070910,"\"agent\"","2763f2c1e4fba6f74bde14d98a0eab650b8e983c8577ca8f37c0978ab2afa092"],
+      [12,7212,7159,13075874,13075883,"\"2.1.117\"","72ca8c777e1e2575664b74056dda5e148fe2d8dfad82d757851056f9ca690a6c"],
+      [13,7220,7167,13075963,13075985,"\"2026-04-21T17:58:52Z\"","789673cbecba170635eb02b6e35a361906329e42d4e8dd0da87b485ea3f785db"],
+      [14,7224,7171,13075994,13076036,"\"5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387\"","d3d8f92b45bbcf747296c1cf6fed27b85ce24cb22abc032beb0125330e60e48e"],
+      [15,8675,8616,13080452,13080474,"standaloneAgentContext","c59707ac3ae24b506a9d3adaf5c99918caf32981e86595a03f4bb4212cb6be17"],
+      [16,8929,8870,13081488,13081513,"replBridgeSkipNextArchive","8aab8a02b04244e1af0e5f77702cb9da0a29b2a440d6a3912e45e5a84b1d6e65"],
+      [17,11923,11863,13091105,13091114,"\"2.1.117\"","9da956341fa61004b162438610e14bc3ef62de54b8bbad5d9a60599e3a827726"],
+      [18,11931,11871,13091194,13091216,"\"2026-04-21T17:58:52Z\"","5fc311a70f6d35949cbf9634b35885837ae79cb8ef03b88b6e62091650df49a8"],
+      [19,11935,11875,13091225,13091267,"\"5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387\"","e95f078231a9123981544f8c49b0c4c14085e3c1ba90ae6e19b28d6d9776f49d"],
+      [21,15458,15261,13104509,13104529,"createSubcommandRoot","4e11ab38fc64bc300af58fad7412bffb62b5ed7daab2b50e73591a98ebef63e6"],
+      [22,15734,15537,13105488,13105494,"update","bbb430251412f359a581cdd0586ac9a29ed2044e826390026a945d1fc686a305"]
+    ]
+  },
+  "sourceTransition": {
+    "pluginTagCommand": {
+      "characterStart": 212772,
+      "characterEnd": 213745,
+      "byteStart": 212964,
+      "byteEnd": 213937,
+      "bytes": 973,
+      "sha256": "1d5be8f7ec70df688fd6fef6a316ead0ebca461719b0ba56b5eb1d15d5eae08f",
+      "pluginTagHandlerOccurrences": 2,
+      "createSubcommandRootOccurrences": 2
+    },
+    "replayHelper": null
+  }
+}

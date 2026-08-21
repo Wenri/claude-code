@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-direct-source-owner-proof",
+  "criterion": "Each complete authenticated target unit is bound to the exact historical daemon/paths.ts declaration that reproduces its closed path or pipe-key behavior. Incidental copies of daemon, pipe.key, or writeFileSync and the coarse neighboring McpParsingWarnings attribution do not qualify.",
+  "summary": {
+    "units": 2,
+    "residues": 3,
+    "targetIndicesSha256": "6f56951b236c3911e5f1e7885bf40d3734eebc5769d91d105b750be41f2b2fd9",
+    "residueIdentitiesSha256": "2ae68f9c3817249214c22135a9ad3ac060775a63154c1dab97b0f185b29ed9dd"
+  },
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/daemon-paths-owner-overrides.mjs",
+      "bytes": 1351,
+      "sha256": "7232cc8b6e1d8e8a5a7e0aa13e36938ae10599fe0c0910d2a149424922d64bca"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "source": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/daemon/paths.ts",
+        "blob": "55caebd92a91d04ce55fa0c00fbec7f1e180bb1d",
+        "bytes": 1487,
+        "sha256": "9dce584f463c502a394072f0d3e858ddbe9a3098f789124ae82cb108c1fb5cb9"
+      },
+      "declarations": [
+        {
+          "name": "getDaemonDir",
+          "start": 303,
+          "end": 395,
+          "bytes": 92,
+          "sha256": "9c88893f512dda8a5e1bb395fd683e53c84e768c4c7bbd94141ea2c0b9ad9c74"
+        },
+        {
+          "name": "getPipeKey",
+          "start": 922,
+          "end": 1486,
+          "bytes": 564,
+          "sha256": "dc1bd02908fd6ae4da87fbd24416cf7e670bbebe128a9acc8b1a0b7e40483356"
+        }
+      ]
+    }
+  },
+  "evidenceIds": [
+    "target118-daemon-paths-target-fragment",
+    "target118-daemon-paths-source-ast-test"
+  ],
+  "rows": [
+    {
+      "targetIndex": 15796,
+      "classification": "unresolved",
+      "start": 9918160,
+      "end": 9918206,
+      "bytes": 46,
+      "tokenCount": 17,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "be01582f932afef32681d696b407bcaa51b3fb94a597d239d9b598460f029e79",
+      "coarseHash": "85326a6007707f601048620c94ca61691660617c18722f46f92c5c8f77618273",
+      "ownerPath": "src/daemon/paths.ts",
+      "provisionalOwnerPath": "src/components/mcp/McpParsingWarnings.tsx",
+      "declarations": [
+        "getDaemonDir"
+      ],
+      "behavior": "The authenticated Target118 getDaemonDir function joins getClaudeConfigHomeDir() with the literal 'daemon'. The exact historical daemon/paths.ts declaration owns the complete unit; the provisional McpParsingWarnings attribution is rejected.",
+      "residues": [
+        [
+          "string",
+          "daemon",
+          9918196,
+          9918204,
+          6,
+          7
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15798,
+      "classification": "unresolved",
+      "start": 9918234,
+      "end": 9918936,
+      "bytes": 702,
+      "tokenCount": 317,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "7b533d421f86b1b5275e23aabeb0245cb19b026eb19a08b6d8f8423857d0d86a",
+      "coarseHash": "6a056d193df4a413acf43a9dabced7dc6ba7d421fc6491243ae9c025e21589df",
+      "ownerPath": "src/daemon/paths.ts",
+      "provisionalOwnerPath": "src/components/mcp/McpParsingWarnings.tsx",
+      "declarations": [
+        "getPipeKey"
+      ],
+      "behavior": "The authenticated Target118 daemon-path initializer defines getPipeKey: it reads daemon/pipe.key, creates an eight-byte random hex key when absent, makes the daemon directory, writes with flag 'wx', and falls back to the winning key only on EEXIST. The exact historical daemon/paths.ts declaration owns the complete unit; the provisional McpParsingWarnings attribution is rejected.",
+      "residues": [
+        [
+          "string",
+          "pipe.key",
+          9918635,
+          9918645,
+          0,
+          1
+        ],
+        [
+          "property",
+          "writeFileSync",
+          9918811,
+          9918824,
+          22,
+          23
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "criterion": "target118-transcript-share-static-owner-v1",
+  "status": "exact-source-owner-no-replay",
+  "evidenceIds": [
+    "target118-transcript-share-authenticated-paired-unit",
+    "target118-transcript-share-source-ast-test",
+    "target118-transcript-share-build-metadata-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/transcript-share-static-owner-overrides.mjs",
+      "bytes": 1113,
+      "sha256": "0187a01f6ad684f850ae1a8d12354b64adb2fed65ce2c37d99ffd93b46b3eb36"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19717,
+    "nodeType": "FunctionDeclaration",
+    "start": 11972008,
+    "end": 11973476,
+    "bytes": 1468,
+    "tokens": 436,
+    "sha256": "c747a96ecdf78249c9c3767f5dafa89d5f77592770f6fd5f4599e54c6f037ef1",
+    "buildIdentity": {
+      "version": "2.1.117",
+      "buildTime": "2026-04-21T17:58:52Z",
+      "gitSha": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 19909,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12073976,
+    "end": 12075444,
+    "bytes": 1468,
+    "tokens": 436,
+    "sha256": "934d9b7be3e4fd9d5e231eaf400c5dde9490cd7fbbfd46f81df2d9b73db73d27",
+    "coarseHash": "00683d3150ad2c56c93fb96594dfc1ba12b66a1dff7f5c7bd62cb4fe5f3222cf",
+    "buildIdentity": {
+      "version": "2.1.118",
+      "buildTime": "2026-04-22T21:04:38Z",
+      "gitSha": "ef88b5f0a79aac989f53fd18178939a54a48624a"
+    },
+    "residues": [
+      ["property", "size", 12074166, 12074170, 614, 616],
+      ["string", "2.1.118", 12074647, 12074656, 0, 103],
+      ["string", "2026-04-22T21:04:38Z", 12074736, 12074758, 0, 103],
+      ["string", "ef88b5f0a79aac989f53fd18178939a54a48624a", 12074767, 12074809, 0, 103]
+    ]
+  },
+  "canonicalPairedUnit": {
+    "normalizations": [
+      "bundle-local identifier names",
+      "VERSION semantic-version literal",
+      "BUILD_TIME ISO timestamp literal",
+      "GIT_SHA forty-hex literal"
+    ],
+    "bytes": 16234,
+    "sha256": "98e5d19c53780cb90cb17ee190549866759f52cc4742fbb9f9c93d09a9654ae6"
+  },
+  "sourceState": {
+    "path": "src/components/FeedbackSurvey/submitTranscriptShare.ts",
+    "file": {
+      "bytes": 3251,
+      "sha256": "8d0ab63a4c41cfb81c7e5e204ee2d77008313bf500422f46ece0a275a5ea3616"
+    },
+    "declaration": {
+      "name": "submitTranscriptShare",
+      "start": 916,
+      "end": 3250,
+      "bytes": 2334,
+      "sha256": "9522d67799917aacb248081b38851f2b5381e7df558461f74efc0ea859493967"
+    },
+    "requiredFragments": [
+      "const { size } = await stat(transcriptPath)",
+      "if (size <= MAX_TRANSCRIPT_READ_BYTES)",
+      "version: MACRO.VERSION",
+      "rawTranscriptJsonl = await readFile(transcriptPath, 'utf-8')"
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/components/FeedbackSurvey/submitTranscriptShare.ts"
+    ],
+    "declarations": ["submitTranscriptShare"]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "targetIndicesSha256": "39172db4adf87e40d9008d0443906a800f7b49c31a251d1a9a7f6d04f954e1b1",
+    "residueIdentitiesSha256": "fbb35cd0c79b39600f4d84c2df9e6b8e30e276f5ec1a34a15411475278882e53"
+  }
+}

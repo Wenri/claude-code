@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-plugin-dependency-marketplace-wording-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-plugin-dependency-marketplace-wording-target-fragment",
+    "target117-plugin-dependency-marketplace-wording-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-dependency-marketplace-wording-source-gap.mjs",
+      "bytes": 5364,
+      "sha256": "65840229551f5b03147f596461d4b5f7c175a36a47bfaadb4bd4177f1e01dc66"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFile": {
+      "path": "src/utils/plugins/pluginInstallationHelpers.ts",
+      "blob": "d1b05ae51e0a64dbd65e69a53fca0078d64b47dc",
+      "input": {
+        "bytes": 36417,
+        "sha256": "87c554f77d8183062cb033c7ecf0458ba9d103973a4ecfafe644cb3a06e1566b"
+      },
+      "output": {
+        "bytes": 36414,
+        "sha256": "b9b07d44f26ba2d2437b07f6d4c3724b625d68258fee1fe9a13b92581a551188"
+      },
+      "declaration": {
+        "name": "installPluginFromMarketplace",
+        "nodeType": "FunctionDeclaration",
+        "start": 31788,
+        "end": 36363,
+        "bytes": 4579,
+        "sha256": "8dadf53ac6f139e4947a0ed89b72ca6f5121732262290e7d1b40972b42530975"
+      }
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1
+  },
+  "row": {
+    "targetIndex": 9207,
+    "owner": "src/utils/plugins/pluginInstallationHelpers.ts",
+    "declarations": ["installPluginFromMarketplace"],
+    "targetUnit": [
+      9207,
+      "unresolved",
+      "FunctionDeclaration",
+      4333870,
+      4335854,
+      508,
+      "984cae72b3abc8006d96f4b1d14f82c7a87de23a98f301baa3e0f5de738011cd",
+      "4b58bbcb1ec6cb761de11a4dff363c73db95db6571617308bb585b03aee2af8d"
+    ],
+    "residues": [
+      ["string", "\" is from marketplace \"", 4335053, 4335076, 1, 0]
+    ]
+  }
+}

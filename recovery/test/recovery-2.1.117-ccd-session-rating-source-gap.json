@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-ccd-session-rating-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-ccd-session-rating-target-module-and-call-fragments",
+    "target116-ccd-session-rating-module-absence-test",
+    "target117-ccd-session-rating-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-ccd-session-rating-telemetry-source-gap.mjs",
+      "bytes": 11620,
+      "sha256": "57f22c7b3d0a3ec74c96ae8b466cdb7b51dc8d09070fee2918da126d26fd786b"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "printFile": {
+      "path": "src/cli/print.ts",
+      "blob": "de5e84cc7614cb2b24ad64b447ed7797b6c81c80",
+      "input": {
+        "bytes": 218976,
+        "sha256": "e491160d1a4c417756b97fd921955d4af4007b851043381c83cc819beeafc690"
+      },
+      "output": {
+        "bytes": 219084,
+        "sha256": "3a66a2aa9704bf3cfed0c230f5261ecb724a2326acb5d8c94dcaeeb4d948e24f"
+      },
+      "inputDeclaration": {
+        "name": "updateSdkMcp",
+        "nodeType": "FunctionDeclaration",
+        "start": 52700,
+        "end": 55412,
+        "bytes": 2716,
+        "sha256": "57f0b30899d6cc8d734f733a411a717d9fd36bc5c2990e3d11f38f4806b36713"
+      },
+      "outputDeclaration": {
+        "name": "updateSdkMcp",
+        "nodeType": "FunctionDeclaration",
+        "start": 52771,
+        "end": 55520,
+        "bytes": 2753,
+        "sha256": "fa2a5cec7d115ccd875a9d3d892d955959b0f44cea4ff2244b87f5856368b439"
+      }
+    },
+    "schemaContextFile": {
+      "path": "src/services/mcp/vscodeSdkMcp.ts",
+      "blob": "a15329cfbe0a31da98eb73d4689262a3ba9bbd23",
+      "bytes": 3703,
+      "sha256": "2d2455646d37f074bd364d6b97b28e3d0114e74b1939d34b2e18919c2b30fcb6",
+      "declaration": {
+        "name": "LogEventNotificationSchema",
+        "nodeType": "FirstStatement",
+        "start": 864,
+        "end": 1084,
+        "bytes": 220,
+        "sha256": "ae01759e402ef2622b74963b87f4e4a170ded1cc1c7370dcef91ae757aa67dc3"
+      }
+    },
+    "recoveredFile": {
+      "path": "src/services/mcp/ccdSessionMcp.ts",
+      "bytes": 1370,
+      "sha256": "51b662f0e9656420676a3554e23728f2bbbcfeb4b1f4428595920b1e8feab6b0",
+      "declarations": [
+        {
+          "name": "CCD_ALLOWED_EVENTS",
+          "nodeType": "FirstStatement",
+          "start": 237,
+          "end": 296,
+          "bytes": 59,
+          "sha256": "ba3ea8c4d731b039aaa90e745e317ca817f3aa8b4b5d396fa8c6436286fcedd2"
+        },
+        {
+          "name": "setupCcdSessionMcp",
+          "nodeType": "FunctionDeclaration",
+          "start": 298,
+          "end": 1369,
+          "bytes": 1071,
+          "sha256": "2b9bae003f7625f0d21e515426074530aa6d5a79f0b01024eb0f5a1bbb6db6c4"
+        }
+      ]
+    },
+    "rejectedSourceMapCandidates": [
+      {
+        "path": "src/utils/idleTimeout.ts",
+        "blob": "b1d2fb6bd84456189c9b0698bbc35dc7a7e403d5",
+        "bytes": 1574,
+        "sha256": "659852a5d91354d5e4aefaeaa90f468995f39339be1fd7b4c566ec727938b4dc"
+      },
+      {
+        "path": "src/utils/sessionUrl.ts",
+        "blob": "9758372fcbfaba9bffdcfc6a3e554d1a0acbf667",
+        "bytes": 1672,
+        "sha256": "eb1aa4c21d6fdd4519ded36f450a6e2f0ad4146f7f83f73db0c5841733e50a22"
+      },
+      {
+        "path": "src/utils/plugins/zipCacheAdapters.ts",
+        "blob": "f72a4060f0528105e7694e3ca1d977b72ab7145b",
+        "bytes": 5310,
+        "sha256": "a8e7f6da7d90099bf3776e5ed23dad849deef12a95b7a3ce01311581165df4c8"
+      }
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "recoveredFiles": 2,
+    "ownerOverrides": 1,
+    "behaviorWitnessUnits": 1
+  },
+  "baselineAbsence": {
+    "ccdSessionStringOccurrences": 0,
+    "allowedEventStringOccurrences": 2,
+    "eventNamePropertyOccurrences": 30,
+    "eventDataPropertyOccurrences": 4
+  },
+  "row": {
+    "targetIndex": 20623,
+    "owner": "src/services/mcp/ccdSessionMcp.ts",
+    "rejectedOwner": "src/utils/idleTimeout.ts",
+    "declarations": [
+      "CCD_ALLOWED_EVENTS",
+      "setupCcdSessionMcp"
+    ],
+    "targetUnit": [
+      20623,
+      "unresolved",
+      "FunctionDeclaration",
+      12914650,
+      12915001,
+      148,
+      "ec1d62f1a026cbfd05153e7da4a19c6bbe8e69cfb85c08530a8b157ae6b99cf1",
+      "9a030b00a48ef6f4c83e6c266a280fda7911a808e25ebdb2429d3a2eb21f5db8"
+    ],
+    "exactSource": "function TO4(H){let $=H.find((q)=>q.name===\"ccd_session\");if(!$||$.type!==\"connected\")return;$.client.setNotificationHandler($c8(),async(q)=>{let{eventName:K,eventData:_}=q.params;if(!G7A.has(K))return;let A=_,f=(z)=>z==null?void 0:String(z);l(K,{message_uuid:f(A.message_uuid),sentiment:f(A.sentiment),surface:f(A.surface),cleared:A.cleared===!0})})}",
+    "residues": [
+      [
+        "string",
+        "ccd_session",
+        12914693,
+        12914706,
+        1,
+        0
+      ],
+      [
+        "property",
+        "eventName",
+        12914796,
+        12914805,
+        31,
+        30
+      ],
+      [
+        "property",
+        "eventData",
+        12914808,
+        12914817,
+        5,
+        4
+      ]
+    ]
+  },
+  "behaviorWitness": {
+    "allowlistUnit": [
+      20625,
+      "unresolved",
+      "VariableDeclaration",
+      12915009,
+      12915074,
+      29,
+      "b00b85df6f1bb0d7dfbf8ea4bf93728785f0386978026e79c91248b0d98f31d9",
+      "64a979289f58aa4cf27d9187f5d34463a799e0affbf3eaa27032daf986be8c2c"
+    ],
+    "allowlistExactSource": "var kO4=v(()=>{V$();rDH();G7A=new Set([\"tengu_message_rated\"])});",
+    "callsite": {
+      "start": 12930180,
+      "end": 12930195,
+      "bytes": 15,
+      "sha256": "887b7ae11ab29893d1833b3b418a3321f93fc9075d0bea289a6e1254ed0794b6",
+      "exactSource": "CMK(OH),TO4(OH)"
+    }
+  }
+}

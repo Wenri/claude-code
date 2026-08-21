@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-retained-confirmation-owner-proof",
+  "criterion": "complete-cross-release-unit-plus-exact-strict-partition-and-historical-owner-lineage-v1",
+  "evidenceIds": [
+    "target119-approve-api-key-complete-unit-retention-test",
+    "target119-approve-api-key-cross-release-confirmation-lineage-test",
+    "target119-approve-api-key-strict-ordinal-spill-test"
+  ],
+  "inputs": {
+    "historicalBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "historicalProof": {
+      "path": "recovery/test/recovery-2.1.117-confirmation-source-proofs.json",
+      "bytes": 14375,
+      "sha256": "dd68f029ce9ecdfbe1d7df320f6e54e52cb405a4ba20c5f9ad2f714c6fe31a6c"
+    },
+    "historicalHelper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-confirmation-source-gaps.mjs",
+      "bytes": 13612,
+      "sha256": "11f09b387d606cb71e7930febea9e85237a28b67ffcf6e106e24b625634b0820"
+    },
+    "sourceFile": {
+      "path": "src/components/ApproveApiKey.tsx",
+      "bytes": 10621,
+      "sha256": "0a848059d2afaf3004b5ac45c1de847cab6d96cf83bbd1989f67cd6a1ffa253e"
+    }
+  },
+  "partitionSnapshot": {
+    "typedAuditBytes": 24727372,
+    "typedAuditSha256": "44893d07b612b3b5d6589da39ede97a02f57031e124875fad8b80cbc384d8e96",
+    "productionStrictRows": 1,
+    "ownerResidueRows": 0,
+    "addedOwnerResidueRows": 0,
+    "unclassifiedAddedOccurrenceRows": 0
+  },
+  "structuralPair": {
+    "classification": "matched",
+    "pairReason": "exact-scope-normalized-token-hash",
+    "baselineUnitIndex": 20330,
+    "targetUnitIndex": 21230,
+    "unknownFreeIdentifierCount": 0,
+    "targetCoarseHash": "4bd6b568ea6ca031419f12c62bf441268151213c1e3074ff5a51db835ddc739f"
+  },
+  "units": [
+    {
+      "release": "2.1.117",
+      "targetIndex": 20131,
+      "start": 12200750,
+      "end": 12202213,
+      "bytes": 1463,
+      "tokens": 640,
+      "sha256": "55db32e2fd77e74c9914366a5a09d35bc6b4a8fb38d5be299e6a59695b956e38"
+    },
+    {
+      "release": "2.1.118",
+      "targetIndex": 20330,
+      "start": 12306109,
+      "end": 12307572,
+      "bytes": 1463,
+      "tokens": 640,
+      "sha256": "0c0ac2b8ebbd45d6fd1466fcc79083b71afae9d65bb9982090bdc374a4928e0c"
+    },
+    {
+      "release": "2.1.119",
+      "targetIndex": 21230,
+      "start": 12767769,
+      "end": 12769232,
+      "bytes": 1463,
+      "tokens": 640,
+      "sha256": "607845e53dd67ff06435967f1d237db6132ca7ecf478c62db4235a93dcef7496"
+    }
+  ],
+  "canonicalAst": {
+    "bytes": 23914,
+    "sha256": "4b5e41fb5de3ce577b7fbc010905d5607bc0bd5f4ec849d43f0c03d79454d873"
+  },
+  "confirmationObject": {
+    "localStart": 1142,
+    "localEnd": 1216,
+    "bytes": 74,
+    "sha256": "92d71cbeb75455a505056c472307e1aa4fe796344593bdd7561426863ddbb832",
+    "text": "{focus:\"cancel\",cancelLabel:M,onConfirm:()=>A(\"yes\"),onCancel:()=>A(\"no\")}"
+  },
+  "sourceLineage": {
+    "commits": [
+      "ff0339d35906735273ae3130a187bb8e30581871",
+      "bd846a24e3886322888f02b9f747c132a4a32314",
+      "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05"
+    ],
+    "blob": "be54c0e3e121c5db6edd8c9a187c17d545170d76",
+    "declaration": {
+      "name": "ApproveApiKey",
+      "start": 354,
+      "end": 3132,
+      "bytes": 2778,
+      "sha256": "3ae340e0bde39e7d02b45373479e60a86a7f1e473954fac151dc963be6fc034a"
+    }
+  },
+  "historicalOwnerProof": {
+    "case": "2.1.116-to-2.1.117",
+    "targetIndex": 20131,
+    "ownerPath": "src/components/ApproveApiKey.tsx",
+    "declaration": "ApproveApiKey",
+    "kind": "legacy-select",
+    "cancelLabel": {
+      "start": 12201908,
+      "end": 12201919,
+      "globalOrdinal": 17
+    }
+  },
+  "row": {
+    "targetIndex": 21230,
+    "ownerPaths": [
+      "src/components/ApproveApiKey.tsx"
+    ],
+    "declaration": "ApproveApiKey",
+    "representation": "retained-confirmation-global-ordinal-spill",
+    "residue": {
+      "kind": "property",
+      "value": "cancelLabel",
+      "start": 12768927,
+      "end": 12768938,
+      "baselineCount": 21,
+      "targetOrdinal": 22,
+      "targetAdded": true
+    },
+    "baselineCounterpart": {
+      "start": 12307267,
+      "end": 12307278,
+      "globalOrdinal": 17
+    },
+    "targetGlobalOccurrenceCount": 26
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "replayRequired": false,
+    "targetIndicesSha256": "f1b4ccc0151898947d51ffe92a2858eb073470cebab3df838e303428bfc1b7bc",
+    "residueIdentitiesSha256": "896c0f89cd98a0be93d1cc17074a79383dc2f1012eb340c8765a62c75dbeb7aa",
+    "crossReleaseUnitsSha256": "82c935d3b332b50ea6b915a2222cdb7fa025cc6f8860f117b703de3c9a0ae363"
+  }
+}

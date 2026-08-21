@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-restore-code-diff-stats-source-replay-v1",
+  "status": "authenticated-bounded-source-replay",
+  "evidenceIds": [
+    "target118-restore-code-diff-stats-target-fragment",
+    "target118-restore-code-diff-stats-source-replay-test",
+    "target118-restore-code-diff-stats-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-restore-code-diff-stats-source-gap.mjs",
+      "bytes": 8943,
+      "sha256": "51e1185d2ffa14f192b4ff5acca23441191c990aa10830b1b41cd3f9e129a908"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/components/MessageSelector.tsx",
+        "blob": "7df5b56644030e52c59d4b84981a23f23590a945",
+        "bytes": 115618,
+        "sha256": "d23ba9581d95a5ddee2a9725a61b6179d362e0de482e3c40cbd60ef0e1a4d4cd",
+        "declarations": [
+          {
+            "name": "RestoreCodeConfirmation",
+            "characterStart": 19638,
+            "characterEnd": 21980,
+            "byteStart": 19647,
+            "byteEnd": 21989,
+            "bytes": 2342,
+            "sha256": "cf271615ca22d850dd9c356e9fa2f65b696d6df84cd9ce7c014a718cbea7c95e"
+          },
+          {
+            "name": "DiffStatsText",
+            "characterStart": 21981,
+            "characterEnd": 22677,
+            "byteStart": 21990,
+            "byteEnd": 22686,
+            "bytes": 696,
+            "sha256": "4d06edbd289d18d672e0bb34234b995b2275e66f505ae67a1bcafb2808220f32"
+          }
+        ]
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/components/MessageSelector.tsx",
+        "bytes": 115915,
+        "sha256": "fb1442dc1e21990db0b783dba3a89a7687550675069043521b89c134beb33a00",
+        "declarations": [
+          {
+            "name": "RestoreCodeConfirmation",
+            "characterStart": 19638,
+            "characterEnd": 22135,
+            "byteStart": 19647,
+            "byteEnd": 22144,
+            "bytes": 2497,
+            "sha256": "9bf53661b128b190e6deb3f6b8f90ff3a264b4053095ee729e8d6eb91756a5e3"
+          },
+          {
+            "name": "DiffStatsText",
+            "characterStart": 22136,
+            "characterEnd": 22974,
+            "byteStart": 22145,
+            "byteEnd": 22983,
+            "bytes": 838,
+            "sha256": "c0248009db19f12c6067393618720727fbcb05cdb6813fe3a582580073fc9cad"
+          }
+        ]
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 18832,
+    "classification": "unresolved",
+    "start": 11582752,
+    "end": 11584008,
+    "bytes": 1256,
+    "tokenCount": 583,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "f09fbbbb5df590ad4d3d5133e4b48846a6b67061d5729d1897b821c944ca0ae2",
+    "coarseHash": "35231cf52add95895c40d9d36ef219ca69048e009fba307e2f4e741d90f23e03",
+    "ownerPath": "src/components/MessageSelector.tsx",
+    "declarations": [
+      "RestoreCodeConfirmation",
+      "DiffStatsText"
+    ],
+    "behavior": "The authenticated Target118 restore-code confirmation computes one-, two-, and many-file labels, passes insertion/deletion counts through the exact compiled added/removed stats contract, suppresses an all-zero diff, conditionally separates two nonzero counts, and renders the result before the exact in-file label. The bounded replay replaces the approximate local DiffStatsText reconstruction without changing unrelated MessageSelector source.",
+    "residues": [
+      ["property", "added", 11583713, 11583718, 37, 38],
+      ["string", "in ", 11583948, 11583953, 1, 2]
+    ]
+  },
+  "supportingTargetUnit": {
+    "targetIndex": 9800,
+    "role": "compiled added/removed display contract",
+    "classification": "unresolved",
+    "start": 4907589,
+    "end": 4908068,
+    "bytes": 479,
+    "tokenCount": 289,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "11c85dd062cb0833b764a736c57a71ab982def21e0946bc8a3c0880845ff1657",
+    "coarseHash": "1e39b3d698824e4a48589e341532d82e4ce4f6b9febd403f36626f59fb7eb762"
+  },
+  "scannerPartition": {
+    "units": 1,
+    "residues": 2,
+    "residueIdentitiesSha256": "c1b1ad9296508a8b2ef0a376aa9bb1843fc68b3d1596ca5d38080affcda41f35",
+    "rows": [
+      [18832, "property", "added", 11583713, 11583718, 37, 38],
+      [18832, "string", "in ", 11583948, 11583953, 1, 2]
+    ],
+    "rawTargetSlices": [
+      "added",
+      "\"in \""
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "targetIndicesSha256": "45c85c28892c01c93578106f4f4ee6f7061fc2b733bd29a4d95b88b12b713c5c",
+    "residueIdentitiesSha256": "c1b1ad9296508a8b2ef0a376aa9bb1843fc68b3d1596ca5d38080affcda41f35"
+  }
+}

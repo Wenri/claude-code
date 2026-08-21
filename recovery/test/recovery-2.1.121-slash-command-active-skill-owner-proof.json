@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-slash-command-active-skill-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-slash-command-active-skill-authenticated-whole-unit",
+    "target121-slash-command-active-skill-producer-consumer-contract",
+    "target121-slash-command-active-skill-source-type-graph-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26946668,
+      "sha256": "e73e33d343c8fb084191d78d538efebf87dd4e9902cf6ff8546e65f5ec383de5"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [13110],
+        "count": 1,
+        "canonicalBytes": 997,
+        "canonicalSha256": "2b574ee3079a5a402d369b0a0fbc87d2ed791510dc63964e2e6e86051ac2f346"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 13110,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 0,
+    "correctedOwner": "src/utils/processUserInput/processSlashCommand.tsx",
+    "declaration": "getMessagesForPromptSlashCommand",
+    "nodeType": "FunctionDeclaration",
+    "start": 8094697,
+    "end": 8095529,
+    "tokenCount": 390,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 6,
+    "bytes": 832,
+    "sha256": "34862df67f6ad400d745e9197a61af24315e821ee80e46d7bb676224f9dbb313",
+    "coarseHash": "8ebd1a26762a2e431c08acd262bac9ef02a0c6459361b384ee982e0db9efb902",
+    "line": 3165,
+    "column": 866
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 12999,
+    "classification": "unmatched-baseline",
+    "relation": "direct semantic predecessor authenticated by the same hook registration, invoked-skill record, attachment extraction, command-permissions message, and return shape",
+    "nodeType": "FunctionDeclaration",
+    "start": 8032335,
+    "end": 8033138,
+    "tokenCount": 380,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 6,
+    "bytes": 803,
+    "sha256": "a27c811823d725182dcd821ad6793598691a8fedfc89b4e925c5242a5d12cb8f",
+    "coarseHash": "3bec452e9be8549a52ff78fc3e387dfd3e4e5d42965c4991031a3ddcc9533c68",
+    "line": 3156,
+    "column": 866
+  },
+  "ownerResidues": {
+    "reportedOwner": "utils/processUserInput/processSlashCommand.tsx",
+    "correctedOwner": "src/utils/processUserInput/processSlashCommand.tsx",
+    "totalRows": 1,
+    "targetAddedRows": 1,
+    "strictRows": 1,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {
+      "bytes": 53,
+      "sha256": "8703ac570a90200f7f9f767014b550430abd0aeade66d7d6d7398919e91dabbd"
+    },
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 52,
+      "sha256": "fbaae29ea901ac4ef04b0162e4c64b1d3f91e563a570d031d4a6685725c3aa80"
+    },
+    "strictRowsExact": [
+      [13110, "property", "activeSkill", 8095061, 8095072, 2]
+    ]
+  },
+  "wholeUnitSemanticDelta": {
+    "rawByteDelta": 29,
+    "tokenDelta": 10,
+    "canonicalization": "Acorn 8.15 AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+    "baselineCanonical": {
+      "bytes": 14336,
+      "sha256": "8fc3507c8bdd1d60b68732229ce8c7759d70f055a3d8f03cc9050c0daf29db18"
+    },
+    "targetCanonical": {
+      "bytes": 14878,
+      "sha256": "2c76d4849ab8cab33d3c011f929a7b043102176b935aea3d2e333488de4f31de"
+    },
+    "retainedInvokedSkillCall": {
+      "baseline": {
+        "start": 8032653,
+        "end": 8032688,
+        "bytes": 35,
+        "sha256": "2f54e62784a04605fcef32cbb20e429779ba3eec93153cc26aa7c8d5da9c7c8f",
+        "canonicalSha256": "9d90f09ae2c044ca6e6f2d1474206d5427fc903f123b02428daaadbc9d75b266",
+        "exact": "BVH(H.name,O,M,Pg()?.agentId??null)"
+      },
+      "target": {
+        "start": 8095015,
+        "end": 8095050,
+        "bytes": 35,
+        "sha256": "20349ff93a0451e714f5a3154260dc01f002080c23152e44b81c2c8441b6a834",
+        "canonicalSha256": "9d90f09ae2c044ca6e6f2d1474206d5427fc903f123b02428daaadbc9d75b266",
+        "exact": "RkH(H.name,O,M,$Q()?.agentId??null)"
+      }
+    },
+    "addition": {
+      "path": "unit.body.body[3|3].expression.expressions[1:1|1:2]",
+      "nodeType": "AssignmentExpression",
+      "start": 8095051,
+      "end": 8095079,
+      "bytes": 28,
+      "sha256": "d454181a9baaa2d518f080f6050a8e7701d382cbe77212379a35401f866bcb4a",
+      "canonicalSha256": "0b32078e20f8cc2da499e6a77a28ef653ff315c610a7dd856d00349926606949",
+      "exact": "q.options.activeSkill=H.name",
+      "descriptorMethod": "[[path,null,[nodeType,absoluteStart,absoluteEnd,rawBytes,rawSHA256,canonicalSHA256]]]; SHA-256 of UTF-8 JSON.stringify",
+      "descriptor": {
+        "bytes": 240,
+        "sha256": "84654f71d53f709e9839fecc61486aab49b9d1a911f8881b180e2d40c6d77809"
+      }
+    },
+    "transform": {
+      "operation": "Replace the target statement-3 SequenceExpression with its first CallExpression, thereby removing only the activeSkill assignment and its separating comma.",
+      "commonCanonical": {
+        "bytes": 14336,
+        "sha256": "8fc3507c8bdd1d60b68732229ce8c7759d70f055a3d8f03cc9050c0daf29db18"
+      }
+    }
+  },
+  "sourceState": {
+    "path": "src/utils/processUserInput/processSlashCommand.tsx",
+    "declarationName": "getMessagesForPromptSlashCommand",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "64f74ba0c297c973028a8f1b7aba12548ad5591e",
+      "bytes": 148854,
+      "chars": 148820,
+      "sha256": "861bcb2bee0da862585ff726a193fbc86ec4c36fc12da0a1cf01d57a1e2b42dc",
+      "declaration": {
+        "start": 41384,
+        "end": 46398,
+        "chars": 5014,
+        "bytes": 5018,
+        "sha256": "acb6052c591e9305c6c6969245170594651f1b2625aec163c0c99b96d395fe3c",
+        "line": 944,
+        "endLine": 1039
+      }
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "5be29b4334e9a1d641851ba6ad22f80eb84ea152",
+      "bytes": 149085,
+      "chars": 149051,
+      "sha256": "7dc626e6301efe83f6fa21a96235e651e02b5f00065faf197be1cd8cf6c4784b",
+      "declaration": {
+        "start": 41615,
+        "end": 46629,
+        "chars": 5014,
+        "bytes": 5018,
+        "sha256": "acb6052c591e9305c6c6969245170594651f1b2625aec163c0c99b96d395fe3c",
+        "line": 950,
+        "endLine": 1045
+      }
+    },
+    "declarationRelation": "Target120 and Target121 recovered getMessagesForPromptSlashCommand declarations are byte-identical and both omit activeSkill.",
+    "retainedAnchorCounts": {
+      "addInvokedSkill": 1,
+      "skipSkillDiscovery": 2
+    },
+    "missingMarkerCounts": {
+      "activeSkill": 0
+    },
+    "toolUseContext": {
+      "path": "src/Tool.ts",
+      "gitBlob": "b4d4a14be5c0f7e6c394472582f7d0c152622e93",
+      "bytes": 32845,
+      "chars": 32785,
+      "sha256": "514e104e5f5ddea0b3b8974b0845aff9efbb4344c63372f58fce79ff798b9739",
+      "declaration": {
+        "name": "ToolUseContext",
+        "start": 5962,
+        "end": 13940,
+        "chars": 7978,
+        "bytes": 7990,
+        "sha256": "31f973bb2749cc2f8907c437571fa78ebc5544b0775eddf2c334fb9154252877",
+        "line": 191,
+        "endLine": 373
+      },
+      "activeSkillOccurrences": 0,
+      "spawnedBySkillOccurrences": 0
+    },
+    "gitDonorAudit": {
+      "marker": "activeSkill",
+      "paths": [
+        "src/utils/processUserInput/processSlashCommand.tsx",
+        "src/Tool.ts"
+      ],
+      "result": "no commit in either recovered Target120 or Target121 semantic-tree history contains the marker in either owner/type path"
+    }
+  },
+  "provenanceGraph": {
+    "targetPropertyOccurrences": 14,
+    "sourcePropertyOccurrences": 0,
+    "downstreamAgentToolConsumer": {
+      "targetIndex": 13026,
+      "unitStart": 8053208,
+      "unitEnd": 8071208,
+      "unitBytes": 18000,
+      "unitSha256": "aba1f72dd4736702f5acde6677c2a158521d4cb622a47bf6df46b81f1bdc3b81",
+      "start": 8060710,
+      "end": 8060772,
+      "bytes": 62,
+      "sha256": "0f85cb208f5014336d906478babe9ad6903a19b00bca0a3f1eadbd5434c6ad1a",
+      "exact": "spawnedBySkill:M.options.spawnedBySkill??M.options.activeSkill"
+    },
+    "siblingSkillToolProducer": {
+      "targetIndex": 13120,
+      "unitStart": 8098801,
+      "unitEnd": 8105254,
+      "unitBytes": 6453,
+      "unitSha256": "e2d37e5d56e366f4b2097060bd1f3382ffacda971143fed49220a0dfbd6e4b96",
+      "start": 8102515,
+      "end": 8102526,
+      "bytes": 11,
+      "sha256": "c4cdfc37a367d145019d44015945f8918337acebd53fcc9de40cd83cd23f2b78",
+      "exact": "activeSkill",
+      "targetOccurrenceNumber": 3
+    },
+    "boundary": "This proof owns only u13110 occurrence 2. The already-proven u13026 consumer and still-independent u13120 producer are pinned only as graph evidence; all other activeSkill residues remain fail-closed obligations."
+  },
+  "generatorWiring": {
+    "replayHelper": null,
+    "ownerOverrideExport": "TARGET121_SLASH_COMMAND_ACTIVE_SKILL_OWNER_OVERRIDES"
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 56,
+      "unsupportedResidues": 473,
+      "firstTargetIndex": 13110,
+      "productionTupleSha256": "0fca2f274fa6840a713a9a8524a2afe87ea5003f46cbee054a05d718201081b2"
+    },
+    "removes": {
+      "targetIndices": [13110],
+      "units": 1,
+      "residueCount": 1,
+      "residues": [
+        [13110, "property", "activeSkill", 8095061, 8095072, 2]
+      ]
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 55,
+      "unsupportedResidues": 472
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The raw Target121 owner is an exact Target120 declaration and its ToolUseContext dependency has no activeSkill member. The consumer and sibling producer are also absent from recovered source, so an isolated assignment replay would create an unauthenticated and type-incomplete graph."
+  }
+}

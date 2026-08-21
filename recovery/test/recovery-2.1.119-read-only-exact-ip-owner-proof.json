@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-alpha-equivalent-read-only-ip-owner-proof",
+  "criterion": "complete-baseline-target-coarse-identity-plus-exact-source-regexp-v1",
+  "evidenceIds": [
+    "target119-read-only-exact-ip-target-fragment",
+    "target119-read-only-exact-ip-source-ast-test",
+    "target119-read-only-exact-ip-semantic-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "source": {
+      "path": "src/tools/BashTool/readOnlyValidation.ts",
+      "bytes": 72817,
+      "sha256": "a79c3c5b1c2e6c2d427dee1d75915ecc01620cead09ed871b3f08212391192c6"
+    }
+  },
+  "baseline": {
+    "unit": {
+      "targetIndex": 10968,
+      "nodeType": "VariableDeclaration",
+      "start": 6359702,
+      "end": 6376710,
+      "bytes": 17008,
+      "sha256": "6e325f4cbe0cc3661d8828c781ddc78edf833feb476a044afa4b7c2d64ce5154",
+      "coarseHash": "963216942baf703ba096bdaa61a842d71c17c22176bf39b60085661cb2ded559"
+    },
+    "argvTuple": {
+      "start": 6375333,
+      "end": 6375466,
+      "bytes": 133,
+      "sha256": "8fdd202b7331511b752e72513c90d64fa3b28f1215196e9e6ac9ee0cfbc9908b"
+    },
+    "ipRegex": {
+      "start": 6375849,
+      "end": 6375860,
+      "bytes": 11,
+      "sha256": "050496a9278f2bf93146181271f385160f854cd7a98bb1da1e9a916c6b764889"
+    }
+  },
+  "target": {
+    "unit": {
+      "targetIndex": 11097,
+      "nodeType": "VariableDeclaration",
+      "start": 6413781,
+      "end": 6430789,
+      "bytes": 17008,
+      "sha256": "f4466a391451a7f3fc1ea69c1cb3ed3488b0992f6750da8ca25ffb2391d3014b",
+      "coarseHash": "963216942baf703ba096bdaa61a842d71c17c22176bf39b60085661cb2ded559"
+    },
+    "argvTuple": {
+      "start": 6429412,
+      "end": 6429545,
+      "bytes": 133,
+      "sha256": "8fdd202b7331511b752e72513c90d64fa3b28f1215196e9e6ac9ee0cfbc9908b"
+    },
+    "ipRegex": {
+      "start": 6429928,
+      "end": 6429939,
+      "bytes": 11,
+      "sha256": "050496a9278f2bf93146181271f385160f854cd7a98bb1da1e9a916c6b764889"
+    },
+    "pairReason": "unique-coarse-structural-hash"
+  },
+  "source": {
+    "declarations": [
+      {
+        "name": "READONLY_COMMAND_REGEXES",
+        "start": 50548,
+        "end": 54088,
+        "bytes": 3540,
+        "sha256": "a5f5a2db243072d0f288ae321f7b653013054674e854aaa51f9956074f217921"
+      },
+      {
+        "name": "isCommandReadOnly",
+        "start": 59550,
+        "end": 63472,
+        "bytes": 3924,
+        "sha256": "e9376f6e758e1de98e109156428e02cbc6b817537b3f32024501b24d826078d0"
+      }
+    ],
+    "ipRegex": {
+      "start": 52454,
+      "end": 52465,
+      "bytes": 11,
+      "sha256": "050496a9278f2bf93146181271f385160f854cd7a98bb1da1e9a916c6b764889"
+    }
+  },
+  "representation": {
+    "argvTuple": [
+      ["claude", "-h"],
+      ["claude", "--help"],
+      ["node", "-v"],
+      ["node", "--version"],
+      ["python", "--version"],
+      ["python3", "--version"],
+      ["ip", "addr"]
+    ],
+    "ipRegex": "/^ip addr$/"
+  },
+  "row": {
+    "targetIndex": 11097,
+    "ownerPaths": [
+      "src/tools/BashTool/readOnlyValidation.ts"
+    ],
+    "declarations": [
+      "READONLY_COMMAND_REGEXES",
+      "isCommandReadOnly"
+    ],
+    "residues": [
+      {
+        "kind": "string",
+        "value": "ip",
+        "start": 6429532,
+        "end": 6429536,
+        "baselineCount": 6,
+        "targetOrdinal": 7
+      }
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "96b35bc06cf7faf7debc6bfd202d3062581fbf407a791281b12c34e879b4841d",
+    "residueIdentitiesSha256": "8aad740417e1a7bac6e6ef3c92d918f966fb08ed1b38290ac9e9f374c7e3f91d"
+  }
+}

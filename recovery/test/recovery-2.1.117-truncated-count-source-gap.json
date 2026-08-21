@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-truncated-count-complete-module-and-bounded-caller-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-truncated-count-complete-target-module-proof",
+    "target117-truncated-count-117-through-121-lineage-proof",
+    "target117-truncated-count-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-source-gap.mjs",
+      "bytes": 11263,
+      "sha256": "b31b3c30d61c451d4252ba17ee9e0c4018d4e3a06e39e425d732ba20886c54fa"
+    },
+    "rawTargetSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundles": [
+      ["2.1.117-linux-x64/cli.inner.js", 13114118, "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"],
+      ["2.1.118-linux-x64/cli.inner.js", 13234618, "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"],
+      ["2.1.119-linux-x64/cli.inner.js", 13720987, "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"],
+      ["2.1.120-linux-x64/cli.inner.js", 13784743, "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"],
+      ["2.1.121-linux-x64/cli.inner.js", 13908188, "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"]
+    ],
+    "structuralLedgers": [
+      ["recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz", 2392225, "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"],
+      ["recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz", 2429007, "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"],
+      ["recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", 2550437, "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"],
+      ["recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", 2490663, "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"],
+      ["recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", 2540002, "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"]
+    ],
+    "contextFiles": [
+      ["src/components/CtrlOToExpand.tsx", "3fe799bb338ad3e53b0c8515851dbf10d86ada77", 6062, "ca9f783b8696b54d29b4ac66a61be9a41ba03a757e7fd4b715b937ff33eb37a2"],
+      ["src/utils/stringUtils.ts", "6f5da15910e3b96376f0e1c09f4787ae99010dc0", 6595, "e191baf119909a210a9fb1b6f026dd36178eb04d4e05450689bd640ea8305f9c"],
+      ["src/ink.ts", "a06b343cc7e7b9c3cac6e6ebc9ae94be2e8addab", 3887, "e2c0463ef56c61433441447197dd90f3dde4b4de7ee645b88cad17eadba9ac4e"]
+    ],
+    "callerFile": {
+      "path": "src/components/FileEditToolUseRejectedMessage.tsx",
+      "blob": "23bfd122e7317ad925742956db0344342fe24764",
+      "input": [15126, "72afdbf7a020285fc7db24b4d5f5c765b22808423a0a38f940efce119fafce59"],
+      "output": [15147, "528c585d2a94e41baf734608bcbab0b615f2973be3774b0546c761082426393d"],
+      "inputDeclaration": [815, 4351, 3536, "5a2383ac825ecab56f9d8cddf6ff30322d8969693f05e1b4683b270da051b9d2"],
+      "outputDeclaration": [868, 4374, 3506, "4ec032b9eb1db8424e61547a937d01ecc8b5fcafb8fe5889ac6f7492e3b41c54"]
+    },
+    "recoveredFile": {
+      "path": "src/components/TruncatedCount.tsx",
+      "bytes": 681,
+      "sha256": "d1cfad7aa51c6e23a2acbc26858c6d711b872d86380fdeed594e8caf05338672",
+      "declarations": [
+        ["TruncatedCount", 233, 517, 284, "65f66bd659e27d41bf0e6d1a30c0fd2f4f20b3fdd5a91a2a22ba2a1df680619c"],
+        ["formatTruncatedCount", 519, 678, 159, "45b6ea3c7b09f789257e98178b1df3a774b7cdd54a87638477d24b0164287a1e"]
+      ]
+    }
+  },
+  "target117": {
+    "moduleRange": [4096155, 4096749, 594, "3f0d0a02ddbbba4191d1543b998f3939c38d30f903fe26215d33c1eb5a7773cb"],
+    "units": [
+      [8615, "unresolved", "FunctionDeclaration", 4096155, 4096609, 260, "10aea372cdcdb38ddd8fc2cd517866752b4733408bb4616b5f1960fd845ef019", "f642559e1d160ef436a68bb69243a78f0baa32707f57a4a4784cdcf8b02dc126"],
+      [8616, "unresolved", "FunctionDeclaration", 4096609, 4096683, 37, "3dad8cccef958f0fc0d207053ebf681c05adc02a613b0815a5b5e5edbdab108e", "1be3c7bb262da7e0c5722c35d4f35686175fc9a5adbbc700ff8e22d2fb53d193"],
+      [8617, "moved", "VariableDeclaration", 4096683, 4096695, 5, "d28409010cff6229b79618924eeadc18737b81956560b4a53f54bd6dce26a482", "c01b63c9a83efc2c82e465e2d798fc3c37152b39ff84fb5b2ced94dd86e0163b"],
+      [8618, "unresolved", "VariableDeclaration", 4096695, 4096749, 41, "8f448ef0711b649eab87c1a91f721e39b5b4cbb87f86cedc970e24a69367b6f4", "6479fc5e7d5da46a80e0eccf797c8ba3d29944b092086020cc3acf421fdd92d6"],
+      [12828, "unresolved", "FunctionDeclaration", 8024694, 8026453, 1024, "8a09bd44941307548e109e28cedcef900a9a5abf505b45292372d68b81d5ae34", "e5065ca57004fbc5feaa8ac4c35c9213b4c0b27c79b268e1d1c4daad85dbfacc"]
+    ],
+    "residue": ["property", "expandable", 4096201, 4096211, 1, 0],
+    "caller": {
+      "unitIndex": 12828,
+      "symbolOffset": 8025750,
+      "call": "createElement(DX,{count:W})"
+    }
+  },
+  "lineage": {
+    "component": [
+      [8615, 8681, "ebc3ac167101d06c3ba0c1adb29205acbad472d2d7e5ec8a534c95e368b589ec"],
+      [8681, 8794, "ade53a95ed1ce6caf276710f106a1205c5610e2624d7d569451ce97199b510a1"],
+      [8794, 8865, "14f87c31e721d8047de6c6f7da046e528555f79a7e7a0aea55516a0570d1b210"],
+      [8865, 8914, "25005acd94ca74578a3b108bb19f09ce8f0a087f2d15df2d9ba73a713189e980"]
+    ],
+    "formatter": [
+      [8616, 8682, "cc0feac9dd9c68eb07ee85f8666eb7e377a3cfc4964a949c5c842dc1bbe227d4"],
+      [8682, 8795, "f99118efacacb670aec60507e16f7bc59d9fd52f1673d70b728afd14a1a0104a"],
+      [8795, 8866, "3abfec0c152072a3961889732726a201293481cdeecdb3d8bb9d826cb7621aec"],
+      [8866, 8915, "f8989d15396ff3360ca7361befb03974b293951bcf4b0d4bbb5d46791edf132c"]
+    ]
+  },
+  "summary": {
+    "strictUnits": 1,
+    "completeModuleUnits": 4,
+    "companionCallerUnits": 1,
+    "residues": 1,
+    "replayedFiles": 2,
+    "ownerOverrides": 3
+  }
+}

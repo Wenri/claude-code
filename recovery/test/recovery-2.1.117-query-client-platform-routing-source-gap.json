@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "kind": "target117-query-client-platform-routing-source-gap",
+  "evidenceIds": [
+    "target117-query-routing-complete-target-unit-proof",
+    "target117-query-routing-shared-classifier-proof",
+    "target117-query-routing-source-replay-test"
+  ],
+  "inputs": {
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-query-client-platform-routing-source-gap.mjs",
+      "bytes": 7637,
+      "sha256": "a73df90648b51871c772bff015b205ed1bf10190aa876a9a1ea1af508aba661c"
+    },
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "files": [
+        {
+          "path": "src/cost-tracker.ts",
+          "blob": "2f5f623177a49d710aa81dfb697a154ea53370ec",
+          "bytes": 11417,
+          "sha256": "ff311677594f51e0ae2e1d26df3755e57d5402aec65d1794390d456206b1e42a",
+          "declaration": "classifyQuerySource",
+          "declarationTuple": [
+            10973,
+            11416,
+            443,
+            "691b98caab3e3ddb658a446b186887c61d4332290bd4835cb2ef58b46781478b"
+          ]
+        },
+        {
+          "path": "src/query.ts",
+          "blob": "18d867f08b4f587cde28a2ea75c3b4450e3374e7",
+          "bytes": 69219,
+          "sha256": "630b920b1ea8e34b90c55d80c6f8ac02af08e67dbcef7485c733559fd4b62692",
+          "declaration": "queryLoop",
+          "declarationTuple": [
+            9824,
+            69086,
+            59392,
+            "7789c6317bc6a543faede24962729a045812e7bed1ab8bb1067bf44315bbe5ef"
+          ]
+        }
+      ]
+    },
+    "postimages": [
+      {
+        "path": "src/cost-tracker.ts",
+        "bytes": 11424,
+        "sha256": "9cad187e0cbd14ed5856c9f68dfdc9ebbdf0842d790de98189dbb7cdc84fc4bb",
+        "declaration": "classifyQuerySource",
+        "declarationTuple": [
+          10973,
+          11423,
+          450,
+          "747f7255ce14961febcc27deec5de36e48b000b68279477b5a12e762760c3f50"
+        ]
+      },
+      {
+        "path": "src/query.ts",
+        "bytes": 69442,
+        "sha256": "fc1fb138cb6d59cff70dd1ec579d766d7c532ed39e1794b3798317b5a676910a",
+        "declaration": "queryLoop",
+        "declarationTuple": [
+          9880,
+          69309,
+          59559,
+          "11f34cae887f4bc8ba1e04f1aa7210c8f2a779c793091df0eaab40ca59b872dd"
+        ]
+      }
+    ]
+  },
+  "target117": {
+    "unit": [
+      13748,
+      "unresolved",
+      "FunctionDeclaration",
+      8681726,
+      8696933,
+      4830,
+      "975fc4a0ca2906f776f618f290e4fe8235410c530cf8d0158a27e6685bf917f2",
+      "1abbb170037fe20fd83ab463941d9114cf53a02a0c70d632124a98988aa9af80"
+    ],
+    "classifierUnit": [
+      9783,
+      "matched",
+      "FunctionDeclaration",
+      4898375,
+      4898577,
+      54,
+      "d24933bcfa92c4b24885f4f7f6ded659fec9f6934362267011bd2952c5e52f4c",
+      "bb6669977604f51722c5d21644f11040a7ea8f55b6a032a89f1edcc2b6358dc3"
+    ],
+    "dumpPromptsRange": [
+      8685112,
+      8685182,
+      70,
+      "e2aac64b7845930727dbe85b8ad2cda929f59e9641d693f66729e34b2e04e8bf"
+    ],
+    "clientPlatformRange": [
+      8686223,
+      8686276,
+      53,
+      "51e46e9034bc671a88452afe653c525c70d38d7690006800015cce3b5aed8010"
+    ],
+    "residues": [
+      [
+        "string",
+        "auxiliary",
+        1,
+        2,
+        8685136,
+        8685147
+      ],
+      [
+        "property",
+        "messageClientPlatform",
+        0,
+        27,
+        8686223,
+        8686244
+      ],
+      [
+        "property",
+        "messageClientPlatform",
+        0,
+        28,
+        8686255,
+        8686276
+      ]
+    ],
+    "owner": "src/query.ts",
+    "dependency": "src/cost-tracker.ts",
+    "declarations": [
+      "queryLoop",
+      "classifyQuerySource"
+    ]
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-static-whole-unit-owner-proof-no-replay",
+  "summary": {
+    "units": 1,
+    "residues": 12,
+    "allOwnerRows": 167,
+    "targetIndicesSha256": "732425a9e5e17f86d44645f1eaea005e1b5b42a1545091307e8df014119d70c9",
+    "residueIdentitiesSha256": "e2922606af94de751533e6a3700181269a3e16edda2faf742d4af2cacbf04521",
+    "allOwnerRowsSha256": "9c8faabf960bbe2acad886d45425e6411d2f783cb53710d6d46ee13f81be3adf"
+  },
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/headless-streaming-inherited-owner-overrides.mjs",
+      "bytes": 1444,
+      "sha256": "102e5c94859e8ccc7f925423220d45037bfd26c129519e8001d68786781d01a2"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "target117WholeUnitProof": {
+      "path": "recovery/test/recovery-2.1.117-headless-streaming-whole-unit-owner-proof.json",
+      "bytes": 16598,
+      "sha256": "c70e522399efb663b75a423a142bba168cde6f88c892064338efb7bdda01e16d"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "file": {
+        "path": "src/cli/print.ts",
+        "blob": "abb0daa1732e1f5b5845c7a0afc52faa3162567c",
+        "bytes": 220728,
+        "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6",
+        "declaration": {
+          "name": "runHeadlessStreaming",
+          "characterStart": 37481,
+          "characterEnd": 172535,
+          "byteStart": 37491,
+          "byteEnd": 172669,
+          "bytes": 135178,
+          "sha256": "df710fe9b20903117adf961363818d169de52ff916712aec02b5245673a4b768"
+        }
+      }
+    },
+    "packagedSource": {
+      "file": {
+        "path": "src/cli/print.ts",
+        "bytes": 220876,
+        "sha256": "c167a878f441028ff6b7850aa658845a7750af4f39eeca66c83a97c291a538e3",
+        "declaration": {
+          "name": "runHeadlessStreaming",
+          "characterStart": 37506,
+          "characterEnd": 172683,
+          "byteStart": 37516,
+          "byteEnd": 172817,
+          "bytes": 135301,
+          "sha256": "755ca65eeda86a9bbf641218739847badc837dbddf23b6b13bd3fd2eff29edbf"
+        }
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 20836,
+    "classification": "unresolved",
+    "start": 13043216,
+    "end": 13082261,
+    "bytes": 39045,
+    "tokenCount": 14423,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "1d3b68dc52251bcd6e75c98754f60548be05a7a2995008fa35e560a98f9fd9fd",
+    "coarseHash": "5c566d69998d704eec86bac8ad241a6c7e98301c37b882e12797f2294720c914",
+    "ownerPath": "src/cli/print.ts",
+    "declarations": ["runHeadlessStreaming"],
+    "residues": [
+      ["property", "getState", 13043956, 13043964, 102, 104],
+      ["property", "max", 13057762, 13057765, 743, 757],
+      ["number", "30000", 13062505, 13062510, 105, 107],
+      ["string", " (", 13062838, 13062840, 211, 212],
+      ["property", "readFile", 13066942, 13066950, 184, 187],
+      ["property", "arguments", 13069219, 13069228, 29, 30],
+      ["string", "cancel", 13070066, 13070074, 125, 128],
+      ["property", "code", 13070656, 13070660, 1454, 1464],
+      ["property", "taskRegistry", 13078350, 13078362, 83, 84],
+      ["string", "tool_use", 13078839, 13078849, 165, 173],
+      ["property", "surface", 13078930, 13078937, 18, 19],
+      ["number", "30000", 13082027, 13082032, 105, 108]
+    ],
+    "behavior": "The complete authenticated Target117 and Target118 runHeadlessStreaming function units establish the same implementation boundary. Every one of the twelve Target118 added-owner residues maps to one unique raw-equal Target117 predecessor token inside an identical sixty-one-token canonical neighborhood, including both 30000 literals and the later taskRegistry and surface occurrences. The frozen Target117 whole-unit proof independently authenticates the retained taskRegistry and launched-replay graph. Exact historical and packaged Target118 print.ts declarations omit that retained graph, so these rows are inherited compiled-function occurrences, not new Target118 source behavior, and this proof authorizes no source replay."
+  },
+  "baselineUnit": {
+    "targetIndex": 20646,
+    "classification": "unresolved",
+    "start": 12925500,
+    "end": 12964719,
+    "bytes": 39219,
+    "tokenCount": 14480,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "85933cd8848eb3080cb343677b650e46999e6da295e7522a99f17b7a6514cc20",
+    "coarseHash": "e018767cd451488a08b505e345d6c67849e8db4d711ecfc30ea744c8aa490aa7"
+  },
+  "ownerOverride": {
+    "paths": ["src/cli/print.ts"],
+    "declarations": ["runHeadlessStreaming"],
+    "evidenceIds": [
+      "target118-headless-streaming-inherited-authenticated-units",
+      "target118-headless-streaming-inherited-token-predecessors",
+      "target118-headless-streaming-inherited-source-boundary"
+    ]
+  },
+  "canonicalTokenProof": {
+    "neighborhoodRadius": 30,
+    "baseline": {
+      "tokens": 14480,
+      "bytes": 74062,
+      "sha256": "d16cd29e288b2c6c0030bde027f42db2f9a05dd306ea69d699739921132536e5"
+    },
+    "target": {
+      "tokens": 14423,
+      "bytes": 73837,
+      "sha256": "928188732874e5a3aeaa34caea4911105b34c96d74c93e7e338fbbf53ba9f669"
+    },
+    "residuePredecessors": [
+      {"targetTokenIndex":328,"baselineTokenIndex":328,"target":[13043956,13043964,"getState","ID"],"baseline":[12926240,12926248,"getState","ID"],"canonicalNeighborhoodSha256":"758364ed12fc111ba4852a33e773b22a6f10c418943580fa9f900d894b2b382f"},
+      {"targetTokenIndex":5304,"baselineTokenIndex":5368,"target":[13057762,13057765,"max","ID"],"baseline":[12940272,12940275,"max","ID"],"canonicalNeighborhoodSha256":"11060745815fd4841ee9f04430d3ca2c80d437b2b68b13a295a1a98e6f1b2f2c"},
+      {"targetTokenIndex":7018,"baselineTokenIndex":7102,"target":[13062505,13062510,"30000","N:30000"],"baseline":[12945054,12945059,"30000","N:30000"],"canonicalNeighborhoodSha256":"8f5bf00fb11dd1febc8370f3ff1044eafa7aea441cb45b98e86f89f23be2726d"},
+      {"targetTokenIndex":7147,"baselineTokenIndex":7231,"target":[13062838,13062840," (","template"],"baseline":[12945386,12945388," (","template"],"canonicalNeighborhoodSha256":"de0c25cc19144ef9ef6f6033e90c749392f3fa7e1ca923efcc85ad82afe0a2c3"},
+      {"targetTokenIndex":8551,"baselineTokenIndex":8608,"target":[13066942,13066950,"readFile","ID"],"baseline":[12949418,12949426,"readFile","ID"],"canonicalNeighborhoodSha256":"e56265b868eb863e812b7809a3ecf0af2631ddfad265436e6bb866e3da4653b7"},
+      {"targetTokenIndex":9508,"baselineTokenIndex":9565,"target":[13069219,13069228,"arguments","ID"],"baseline":[12951689,12951698,"arguments","ID"],"canonicalNeighborhoodSha256":"6ac6bd9b06581dcb6cb313ecb55c183b2c4fde00181d746cbf2d17744ccb80aa"},
+      {"targetTokenIndex":9801,"baselineTokenIndex":9858,"target":[13070066,13070074,"\"cancel\"","S:\"cancel\""],"baseline":[12952534,12952542,"\"cancel\"","S:\"cancel\""],"canonicalNeighborhoodSha256":"cf5cc13fe6c896b0793cab6542eaaee3012ff50f69a3f5b15cec3b759081fec4"},
+      {"targetTokenIndex":9964,"baselineTokenIndex":10021,"target":[13070656,13070660,"code","ID"],"baseline":[12953124,12953128,"code","ID"],"canonicalNeighborhoodSha256":"2e649ccd9fb13c0a0039dc767bdb6c1c810d166e3ba3db777970d5c6cfc67ea6"},
+      {"targetTokenIndex":12994,"baselineTokenIndex":13051,"target":[13078350,13078362,"taskRegistry","ID"],"baseline":[12960809,12960821,"taskRegistry","ID"],"canonicalNeighborhoodSha256":"24387ee3159de051bd01443eb9ac7f86a7bd654faecfb9d58a612c9399339182"},
+      {"targetTokenIndex":13188,"baselineTokenIndex":13245,"target":[13078839,13078849,"\"tool_use\"","S:\"tool_use\""],"baseline":[12961298,12961308,"\"tool_use\"","S:\"tool_use\""],"canonicalNeighborhoodSha256":"adca77dbe06861f0bd9cc1c538a508f7541210f59db42341002ab9f11242935b"},
+      {"targetTokenIndex":13215,"baselineTokenIndex":13272,"target":[13078930,13078937,"surface","ID"],"baseline":[12961389,12961396,"surface","ID"],"canonicalNeighborhoodSha256":"d9a21e862b5b8ff780d2dcdf45d6856382ac54c25c9787a93d9d775ae51550c8"},
+      {"targetTokenIndex":14330,"baselineTokenIndex":14387,"target":[13082027,13082032,"30000","N:30000"],"baseline":[12964486,12964491,"30000","N:30000"],"canonicalNeighborhoodSha256":"9d564349e69edb8fc9bd1af69009904c4bee4c9e66cc6323e3fb8e03bb2785a0"}
+    ]
+  },
+  "sourceReplayBlocker": {
+    "declarationMarkers": {
+      "getState": 0,
+      "30000": 0,
+      "arguments": 0,
+      "taskRegistry": 0,
+      "max": 15,
+      "readFile": 17,
+      "cancel": 2,
+      "code": 10,
+      "tool_use": 8,
+      "surface": 3,
+      "synthetic": 4
+    },
+    "replayHelper": null,
+    "reason": "Both exact Target118 source states omit several authenticated retained runtime contracts, including the taskRegistry branch already frozen by the Target117 whole-unit proof. Replaying isolated residue spellings would invent an incomplete source graph."
+  }
+}

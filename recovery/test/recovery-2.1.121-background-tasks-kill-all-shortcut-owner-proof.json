@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "status": "case-owned-static-owner-proof-source-graph-open",
+  "claim": "Complete-unit and caller-graph owner proof for the BackgroundTasksDialog kill-all threshold/context change; source replay is blocked even when paired with u17497.",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26722348,
+      "sha256": "e4781b8d949233fbe0dc371772cba15894de6d728c40508c6ceb1e0113f6a63b"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "sourceFile": {
+      "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+      "bytes": 116344,
+      "sha256": "efc3d5944edb054f6e86c3dcc42d759e43e4a7b01ac21712f68e9e2b16410b6c"
+    },
+    "agentsMenuSourceFile": {
+      "path": "src/components/agents/AgentsMenu.tsx",
+      "bytes": 70586,
+      "sha256": "eeff2e67b683e8235b1dd2d77de9697a2edfc8c008b950d82e12c9fc1f828245"
+    },
+    "commandsCallerSourceFile": {
+      "path": "src/commands/tasks/tasks.tsx",
+      "bytes": 1901,
+      "sha256": "4bbfb0eef34e0e326d012da9138b274873611be5e86dfcb0bf0ccff707771d47"
+    },
+    "promptCallerSourceFile": {
+      "path": "src/components/PromptInput/PromptInput.tsx",
+      "bytes": 361553,
+      "sha256": "aad092b95436a12e918700aa8dca1a0d1a8f51944b9aad43916ac6505a136cee"
+    },
+    "downstreamSourceFile": {
+      "path": "src/components/tasks/AsyncAgentDetailDialog.tsx",
+      "bytes": 29805,
+      "sha256": "122205422ed282f2ebe33bd8cd16f641d731ce69db878098c3fa33aedb184192"
+    },
+    "downstreamProofFixture": {
+      "path": "recovery/test/recovery-2.1.121-async-agent-detail-kill-all-shortcut-owner-proof.json",
+      "bytes": 12372,
+      "sha256": "ffb7a446b596da7fae18ecbd0db469c334fe2852adb7318c5da6f063929e3ea5"
+    },
+    "downstreamOverrideModule": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/async-agent-detail-kill-all-shortcut-owner-overrides.mjs",
+      "bytes": 1568,
+      "sha256": "132440ba0ab34222ab5826c7b71ce3ff425df7cf54b5eab009a23d50c128a2e5"
+    }
+  },
+  "sourceProvenance": {
+    "commit": "ce21a2637f45d303c67cfedb6c794ebf682b1e09",
+    "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+    "gitObject": "156eaa3960669caa39430607991a520cd7a5e5fb"
+  },
+  "units": {
+    "baseline": {
+      "index": 17428,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 10812025,
+      "end": 10821391,
+      "tokenCount": 3606,
+      "sourceHash": "0c6baa9cad27b1d778ffe4f9c3d2a7fb7cda951320b2a5435fc2190cb2ab5bd0",
+      "coarseHash": "fe04f754a5dd6ea0a92b9c6c3ced0063419d58304e01f02615bace59410aadea",
+      "bytes": 9366,
+      "bodyStatementCount": 16
+    },
+    "target": {
+      "index": 17548,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 10882235,
+      "end": 10891635,
+      "tokenCount": 3627,
+      "sourceHash": "8f2abe066f126fec6e9070f942589b762fc5664b9c41b8194dc11c029d812018",
+      "coarseHash": "9fb23513fe74dd16aa620eb843e2a215c809fa91e7bc0b9bb85a072945c8dd6e",
+      "bytes": 9400,
+      "bodyStatementCount": 16
+    }
+  },
+  "rows": {
+    "strict": {
+      "count": 1,
+      "canonicalBytes": 141,
+      "canonicalSha256": "9c5167635b0f06dff9b71fdaf3606f5223fa16ce31b64a71bc5e87fd0bdce528",
+      "tuples": [[17548, "property", "killAllAgentsShortcut", 10886025, 10886046, 0, 2, true, "source-runtime-covered", ["components/tasks/BackgroundTasksDialog.tsx"]]]
+    },
+    "addedOwner": {
+      "count": 1,
+      "canonicalBytes": 141,
+      "canonicalSha256": "9c5167635b0f06dff9b71fdaf3606f5223fa16ce31b64a71bc5e87fd0bdce528",
+      "tuples": [[17548, "property", "killAllAgentsShortcut", 10886025, 10886046, 0, 2, true, "source-runtime-covered", ["components/tasks/BackgroundTasksDialog.tsx"]]]
+    },
+    "owner": {
+      "count": 138,
+      "canonicalBytes": 18887,
+      "canonicalSha256": "5969db6e5269f309847eae360f0ba273c25b1837324394359046dc4afe695b3f"
+    }
+  },
+  "wholeUnitProof": {
+    "canonicalizer": "Strip start/end/loc/range/raw/shorthand; normalize VariableDeclaration.kind to var; preserve noncomputed Property/MemberExpression/MethodDefinition names; alpha-map every other identifier by first occurrence to @idN, preserving reference relationships.",
+    "baselineCanonical": {
+      "bytes": 141440,
+      "sha256": "2a1171a73c548da8f8665c2cd7c60e91bca2bc58913d52b53caa92852c275d55"
+    },
+    "targetCanonical": {
+      "bytes": 142249,
+      "sha256": "8a1d5eaf64cd4bf1505458f60ad8ef6305cd9d2cf5c9c269a8f9c43e0adc02a6"
+    },
+    "targetAfterReversingDelta": {
+      "bytes": 141440,
+      "sha256": "2a1171a73c548da8f8665c2cd7c60e91bca2bc58913d52b53caa92852c275d55"
+    },
+    "deltaReversal": [
+      "remove the greater-than-one running background local-agent count declarator",
+      "remove killAllAgentsShortcut from the local-agent detail call",
+      "remove the nested selected-local-agent kill-all spread from the running-selection action",
+      "restore the Target120 independent any-running-local-agent kill-all spread"
+    ]
+  },
+  "bundleRegions": {
+    "baselineParams": {"start": 10812038, "end": 10812096, "bytes": 58, "sha256": "8a792c787234913d72070a6475e0484b43f049445a15238b25777b8aa748ce7b", "text": "{onDone:H,toolUseContext:$,initialDetailTaskId:q,onBack:K}"},
+    "targetParams": {"start": 10882248, "end": 10882306, "bytes": 58, "sha256": "8a792c787234913d72070a6475e0484b43f049445a15238b25777b8aa748ce7b", "text": "{onDone:H,toolUseContext:$,initialDetailTaskId:q,onBack:K}"},
+    "baselineKeyHandler": {"statementIndex": 4, "start": 10813815, "end": 10814883, "bytes": 1068, "sha256": "d3bbfe4f92ab0529bc96142b78422a2a736b3ca76f65921bc481cc29cf9264e1"},
+    "targetKeyHandler": {"statementIndex": 4, "start": 10884037, "end": 10885072, "bytes": 1035, "sha256": "810f9623e67190ae5a9be1541b4c4fa99b9e5178f3c38c2fc557597ae545c36d"},
+    "baselineBackStatement": {"statementIndex": 12, "start": 10815344, "end": 10815489, "bytes": 145, "sha256": "19610d4fa496847a1c74e203cf6a3ef0462ee9c84a94c30e0997cf25c9934ca4"},
+    "targetBackAndCountStatement": {"statementIndex": 12, "start": 10885529, "end": 10885710, "bytes": 181, "sha256": "398cd6c8eaa7bf45627486246c4b916de7f411b05ffd0f88798ac27959fc23e4"},
+    "targetCountDeclarator": {"start": 10885674, "end": 10885709, "bytes": 35, "sha256": "bf06820995ad5616d5bab4e91e84f89dd73dc5a36b5f81ec98469597ec73edcf", "text": "g=K6(G,(r)=>r.status===\"running\")>1"},
+    "baselineDetailCall": {"start": 10815719, "end": 10815825, "bytes": 106, "sha256": "1fde3dcaaf4f743e8949fe9729dbe81ca2458786a12353c313efca19d01cac27", "text": "mK.default.createElement(O$4,{agent:r,onDone:H,onKillAgent:()=>void C(r.id),onBack:U,key:`agent-${r.id}`})"},
+    "targetDetailCall": {"start": 10885940, "end": 10886079, "bytes": 139, "sha256": "68f8da79f5e874a45f8cf3176a3459e6e6850a643df4908d9b05adc657731717", "text": "gK.default.createElement(D64,{agent:r,onDone:H,onKillAgent:()=>void C(r.id),onBack:U,killAllAgentsShortcut:g?O:void 0,key:`agent-${r.id}`})"},
+    "targetProperty": {"start": 10886025, "end": 10886057, "bytes": 32, "sha256": "8411227cba2224c421ea3620893b0794d63e7dd8bd5aa286d83a0abd2b3cbdd8", "text": "killAllAgentsShortcut:g?O:void 0"},
+    "baselineActions": {"start": 10817596, "end": 10818391, "bytes": 795, "sha256": "7e20ad6a453609381682594860af2be4d8df39107095be2301454df3ad282dc0"},
+    "targetActions": {"start": 10887847, "end": 10888634, "bytes": 787, "sha256": "085e437beb5334ba9a6806c44f5d3b1c1677d8c573ccb567a928d918402b96ee"},
+    "baselineOuterKillSpread": {"start": 10817888, "end": 10818164, "bytes": 276, "sha256": "cbe5c7e016407dfdfa92ed278751c78c615d0e2f042819dc3728a88dc13fa9db"},
+    "baselineIndependentKillAllSpread": {"start": 10818165, "end": 10818310, "bytes": 145, "sha256": "df84612757f3abdbbfb0974aa2bb93652cbe31c85be398001cebeedfad796314", "text": "...G.some((r)=>r.status===\"running\")?[mK.default.createElement(K$,{key:\"kill-all\",chord:O,action:\"stop all agents\",format:{keyCase:\"lower\"}})]:[]"},
+    "targetOuterKillSpread": {"start": 10888139, "end": 10888553, "bytes": 414, "sha256": "094d44d78536c57809083661a660e631f476d01e7d44fb83f2649137f05c0280"},
+    "targetNestedKillAllSpread": {"start": 10888412, "end": 10888549, "bytes": 137, "sha256": "54256e9350af809154861fca420d29b02a53b30bde471ae9de507a1ce6f1367c", "text": "...I.type===\"local_agent\"&&g?[gK.default.createElement(H$,{key:\"kill-all\",chord:O,action:\"stop all agents\",format:{keyCase:\"lower\"}})]:[]"}
+  },
+  "sourceEvidence": {
+    "compiledProps": {"name": "Props", "charStart": 2999, "charEnd": 3172, "chars": 173, "bytes": 173, "sha256": "48c9f2f5c210844d0899c97e845a9f0eb18093d55023b52e5f0d37b9fb164ed1"},
+    "compiledHelper": {"name": "getSelectableBackgroundTasks", "charStart": 5753, "charEnd": 6079, "chars": 326, "bytes": 326, "sha256": "97b68e5c5d3710bba387751a58ba591d412ca790d8a2d6d0c02f8ea41a03af6a"},
+    "compiledDeclaration": {"name": "BackgroundTasksDialog", "charStart": 6080, "charEnd": 25256, "chars": 19176, "bytes": 19187, "sha256": "6e3087e15bff72d856d64a0e6774a23f9a16ddad89f1c875bcec1720404ce0f6"},
+    "countImport": {"charStart": 2255, "charEnd": 2300, "chars": 45, "bytes": 45, "sha256": "c03704e8fafd3df6ee7a3073195739799662b715ccadcb234fd6b7a0b2ca18da"},
+    "asyncDialogImport": {"charStart": 2488, "charEnd": 2557, "chars": 69, "bytes": 69, "sha256": "02c0120ad857a5d7c8b8e6a4a2f68ba2b88b891ca887cb855bc10070437a74c7"},
+    "compiledAsyncCall": {"charStart": 16746, "charEnd": 16902, "chars": 156, "bytes": 156, "sha256": "e2603aed4b23a29f1ae7ce3ac3791ab30eea70ed842dd17a1a1448be13079b62"},
+    "compiledHandleKeyDown": {"charStart": 11244, "charEnd": 13822, "chars": 2578, "bytes": 2578, "sha256": "cda30a3617cd8dcda95a3a6917e62cb2c17254bf3a4dfee76b5a69f7ad855075"},
+    "compiledRunningAgentCount": {"charStart": 19151, "charEnd": 19306, "chars": 155, "bytes": 155, "sha256": "6ccc07d3141e68acea9a9b7395d6efd45c9d817dfb2da1548071903d2fb3f277"},
+    "compiledActions": {"charStart": 20058, "charEnd": 21041, "chars": 983, "bytes": 989, "sha256": "33769eedfbe1a25145a94b32bf9b9838e67f955b5607974267c6028a3f0a4c8e"},
+    "compiledKillAllHint": {"charStart": 20871, "charEnd": 20965, "chars": 94, "bytes": 94, "sha256": "300553463e6f7848b533e4d30003386afef0eb3bc9c6aed4a3f0fb02e6111b1c"},
+    "sourceMap": {
+      "tailStart": 29416,
+      "tail": {"bytes": 86913, "sha256": "6b8373a1625e5034202370266a6d82f9d36cf1140c9b279c70f9712b3597cba7"},
+      "decodedJson": {"bytes": 65134, "sha256": "36fbbf9e55e6141ef7c93dcd5623621ca9c59213525d39d22fda80958f06b743"},
+      "sources": ["BackgroundTasksDialog.tsx"],
+      "authoredContent": {"bytes": 33158, "sha256": "8bf8bfac2e69d8fada386c33796a480a15bf95d20f4ac01505c1225335cf7b8e"}
+    },
+    "authoredProps": {"name": "Props", "charStart": 3011, "charEnd": 3186, "chars": 175, "bytes": 175, "sha256": "afeceac4de63e8b561dbfad1a826e9133540fc0cadb9124b142d75eb79ccdf5d"},
+    "authoredDeclaration": {"name": "BackgroundTasksDialog", "charStart": 6312, "charEnd": 29344, "chars": 23032, "bytes": 23043, "sha256": "0cfb0831b6d941d6adae8f0649829dfb2598332aa0b48415a0102f597f01a036"},
+    "authoredAsyncCall": {"charStart": 17073, "charEnd": 17293, "chars": 220, "bytes": 220, "sha256": "2ce6036104248765e8e54fa0de30279ad97adfe1bbf767f396d88e4c4ed77541"},
+    "authoredHandleKeyDown": {"charStart": 11567, "charEnd": 14109, "chars": 2542, "bytes": 2542, "sha256": "eb77b5106c63ad0af2fd7f081e189688a941234f2f7bf9a02db970cc47aea5d4"},
+    "authoredActions": {"charStart": 21542, "charEnd": 22768, "chars": 1226, "bytes": 1232, "sha256": "d29774454bc432cd4d47c07ea480f2324ed51452d534bc15f2e5d4ca8b9ea486"},
+    "authoredKillAllHint": {"charStart": 22528, "charEnd": 22668, "chars": 140, "bytes": 140, "sha256": "ace4ccc0085e49f806dddf2ca8bcc76ad196cb147ca6a48c6fc31e634a6d94e0"}
+  },
+  "callerGraph": {
+    "targetSymbol": "mcH",
+    "baselineSymbol": "QdH",
+    "targetReferenceCountIncludingDefinition": 4,
+    "baselineReferenceCountIncludingDefinition": 4,
+    "targetCallers": [
+      {"owner": "commands/tasks/tasks.tsx", "unit": {"index": 17558, "nodeType": "FunctionDeclaration", "start": 10894401, "end": 10894483, "bytes": 82, "sourceHash": "f718fc9d32daec5c8e1e7647bc42244505a57d0a6915d6d5b2b6693daa8c3f1a", "bodyStatementCount": 1}, "call": {"start": 10894432, "end": 10894482, "bytes": 50, "sha256": "b9919cea2fd4c3a8c6d567a4676c441398a098ba77a906d02cfb68f2d807aecd", "text": "ik6.createElement(mcH,{toolUseContext:$,onDone:H})"}},
+      {"owner": "components/agents/AgentsMenu.tsx", "unit": {"index": 17944, "nodeType": "FunctionDeclaration", "start": 11095500, "end": 11110004, "bytes": 14504, "sourceHash": "89eb3d4ad724f743a92dc596f8c62ee287d07f530d0d00fc41c2646ff32ddbaf", "bodyStatementCount": 32}, "call": {"start": 11098540, "end": 11098629, "bytes": 89, "sha256": "cb4d6cf86ddbbc1c359db27ca6d6b06f6a61a839a3aee75a7d343680a5471458", "text": "_q.createElement(mcH,{toolUseContext:_,initialDetailTaskId:Y.taskId,onBack:zH,onDone:LH})"}},
+      {"owner": "components/PromptInput/PromptInput.tsx", "unit": {"index": 20592, "nodeType": "FunctionDeclaration", "start": 12412450, "end": 12441868, "bytes": 29418, "sourceHash": "c6507b3122b37108c58c905c29d2656b93014389de260786e77e81c0d936a461", "bodyStatementCount": 84}, "call": {"start": 12437996, "end": 12438139, "bytes": 143, "sha256": "dde014b9d6cb773bb292cbbe253d391b1eef00a4cfde705736ecb18b166b3174", "text": "HK.createElement(mcH,{onDone:()=>R(!1),toolUseContext:b(O.current,[],new AbortController,DH),initialDetailTaskId:typeof S===\"string\"?S:void 0})"}}
+    ],
+    "baselineCallers": [
+      {"unit": {"index": 17438, "nodeType": "FunctionDeclaration", "start": 10824157, "end": 10824239, "bytes": 82, "sourceHash": "635b74a7846606ef1ad45d26e0805dba4f56f9532e3cbb7007aabf92f7d3181c", "bodyStatementCount": 1}, "call": {"start": 10824188, "end": 10824238, "bytes": 50, "sha256": "0d197de7ac4d4e585f0012a3823b6666ab9df6cb659c330501bf52db84c084e3", "text": "yV6.createElement(QdH,{toolUseContext:$,onDone:H})"}},
+      {"unit": {"index": 17824, "nodeType": "FunctionDeclaration", "start": 11025007, "end": 11039513, "bytes": 14506, "sourceHash": "d7f973b1eca8f6c47698152dee4c7fa1df28fdd8a1d83b1affaeff0509c85eea", "bodyStatementCount": 32}, "call": {"start": 11028049, "end": 11028138, "bytes": 89, "sha256": "a162ee37da04cbf258041e2955d5bfc3ff8e4ce77c8b08b80f16fa96f1e1e145", "text": "a6.createElement(QdH,{toolUseContext:_,initialDetailTaskId:Y.taskId,onBack:_H,onDone:DH})"}},
+      {"unit": {"index": 20597, "nodeType": "FunctionDeclaration", "start": 12420842, "end": 12449952, "bytes": 29110, "sourceHash": "ed2e9f7a39c61bb587e69b10140763fb1bdb669b741a203b696b34d401ad404e", "bodyStatementCount": 84}, "call": {"start": 12446139, "end": 12446273, "bytes": 134, "sha256": "dbdd7d6f24701169929768bce9a5e202931b9333c1f88217e62ce678498ae6e7", "text": "nq.createElement(QdH,{onDone:()=>k(!1),toolUseContext:R(O,[],new AbortController,r),initialDetailTaskId:typeof v===\"string\"?v:void 0})"}}
+    ],
+    "sourceCallers": {
+      "commands": {"charStart": 383, "charEnd": 449, "chars": 66, "bytes": 66, "sha256": "56c491d347077be9ebcc7e4527376753254b5e6928b33e480a04ac1fc33b9f83"},
+      "prompt": {"charStart": 95147, "charEnd": 95391, "chars": 244, "bytes": 244, "sha256": "2a03f5392525e69e9d947c809340e389ffe4f98e897dcdf7e5ac4716be3571eb"},
+      "agentsMenuOccurrences": 0
+    }
+  },
+  "agentsMenuSourceGap": {
+    "declarationName": "AgentsMenu",
+    "declaration": {"charStart": 1536, "charEnd": 22913, "chars": 21377, "bytes": 21377, "sha256": "acf966a29bcbfd730fe12a6a965db7f72719036f73ad19c97bac8cf16f1f3cfb"},
+    "backgroundTasksDialogOccurrences": 0,
+    "taskDetailOccurrences": 0
+  },
+  "downstreamContract": {
+    "targetUnitIndex": 17497,
+    "baselineUnitIndex": 17377,
+    "targetPropertyName": "killAllAgentsShortcut",
+    "targetHintAction": "stop all agents",
+    "targetHintKeyCase": "lower",
+    "sourcePropertyOccurrences": 0,
+    "sourceCtrlGuardOccurrences": 0
+  },
+  "repositoryAlternates": {
+    "sourceFile": {"bytes": 116373, "sha256": "28a30622a3c958365f0df4c4cbeabe90028c2f2234eedbebf0597c0172800d9c"},
+    "sourceDeclaration": {"name": "BackgroundTasksDialog", "charStart": 6080, "charEnd": 25285, "chars": 19205, "bytes": 19216, "sha256": "92dfb41c7bca7d752d23718cc426e6103cdcc565dd33a59e818cf4ffc3c49c70"},
+    "sourceAsyncCall": {"charStart": 16775, "charEnd": 16931, "chars": 156, "bytes": 156, "sha256": "e2603aed4b23a29f1ae7ce3ac3791ab30eea70ed842dd17a1a1448be13079b62"},
+    "sourceRunningAgentCount": {"charStart": 19180, "charEnd": 19335, "chars": 155, "bytes": 155, "sha256": "6ccc07d3141e68acea9a9b7395d6efd45c9d817dfb2da1548071903d2fb3f277"},
+    "sourceActions": {"charStart": 20087, "charEnd": 21070, "chars": 983, "bytes": 989, "sha256": "33769eedfbe1a25145a94b32bf9b9838e67f955b5607974267c6028a3f0a4c8e"},
+    "sourceKillAllHint": {"charStart": 20900, "charEnd": 20994, "chars": 94, "bytes": 94, "sha256": "300553463e6f7848b533e4d30003386afef0eb3bc9c6aed4a3f0fb02e6111b1c"},
+    "sourceMapTailStart": 29445,
+    "agentsMenuSourceFile": {"bytes": 70639, "sha256": "86f64df06362ada9ddc71ae327654bb860bb858749d6caf2fb5447809f298aad"},
+    "agentsMenuDeclarationName": "LegacyAgentsMenu",
+    "agentsMenuDeclaration": {"charStart": 1536, "charEnd": 22912, "chars": 21376, "bytes": 21376, "sha256": "889cd96b4b0e081ae29d1df812c598a329be5ef68c06939920ab231d3a9865a0"},
+    "promptCallerSourceFile": {"bytes": 364057, "sha256": "3296b5f7a51408009147b03bcfb87a6072d79aafa4511680a52004ccab156d02"},
+    "promptCall": {"charStart": 97575, "charEnd": 97819, "chars": 244, "bytes": 244, "sha256": "2a03f5392525e69e9d947c809340e389ffe4f98e897dcdf7e5ac4716be3571eb"}
+  },
+  "behaviorTruthTable": [
+    {"runningBackgroundLocalAgents": 0, "selectionType": "local_agent", "selectionStatus": "running", "baselineListHint": false, "targetListHint": false, "targetDetailProp": false, "targetDetailHint": false},
+    {"runningBackgroundLocalAgents": 1, "selectionType": "local_agent", "selectionStatus": "running", "baselineListHint": true, "targetListHint": false, "targetDetailProp": false, "targetDetailHint": false},
+    {"runningBackgroundLocalAgents": 2, "selectionType": "local_agent", "selectionStatus": "running", "baselineListHint": true, "targetListHint": true, "targetDetailProp": true, "targetDetailHint": true},
+    {"runningBackgroundLocalAgents": 2, "selectionType": "remote_agent", "selectionStatus": "running", "baselineListHint": true, "targetListHint": false, "targetDetailProp": false, "targetDetailHint": false},
+    {"runningBackgroundLocalAgents": 2, "selectionType": "local_agent", "selectionStatus": "completed", "baselineListHint": true, "targetListHint": false, "targetDetailProp": true, "targetDetailHint": false}
+  ],
+  "replayBlockers": [
+    "recovered BackgroundTasksDialog source has no greater-than-one local-agent guard and no killAllAgentsShortcut prop",
+    "its kill-all action remains an independent any-running-agent spread and omits retained lower-case formatting",
+    "its Props/destructure omit retained onBack and its x/f key handlers omit retained ctrl/meta guards",
+    "recovered AgentsMenu source omits the retained task-detail mode, BackgroundTasksDialog import/call, and onBack edge present in target u17944",
+    "recovered AsyncAgentDetailDialog source omits the u17497 prop/consumer and retained ctrl/meta guard"
+  ],
+  "expectedStrictEvolution": {
+    "before": {"units": 42, "residues": 423},
+    "after": {"units": 41, "residues": 422},
+    "removedIndices": [17548],
+    "removedAddedOwnerRows": 1
+  }
+}

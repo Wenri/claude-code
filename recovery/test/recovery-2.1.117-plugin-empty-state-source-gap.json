@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-plugin-empty-state-complete-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-plugin-empty-state-complete-target-unit-proof",
+    "target117-shared-empty-state-target-unit-proof",
+    "target117-plugin-project-installed-dependency-proof",
+    "target117-plugin-empty-state-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-empty-state-source-gap.mjs",
+      "bytes": 14266,
+      "sha256": "1587f1f37c5f97e03ca0356e15d162a3c69651a3ce6848d3965792130f8d1785"
+    },
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "files": [
+        {
+          "path": "src/commands/plugin/DiscoverPlugins.tsx",
+          "blob": "477e3a7484c7edaa7591bb2f5b149d7560be821a",
+          "bytes": 107189,
+          "sha256": "5bdf2ca8ca3069c79c687a8d846ec6ea008da252b316f86d8cdcad1013adb873",
+          "declaration": "EmptyStateMessage",
+          "declarationTuple": [
+            26518,
+            28955,
+            2437,
+            "75c19ff4ff40af66ad89b2f0e8d8f3e09465f1b0501009909bc0d4dad1cb8fa0"
+          ]
+        },
+        {
+          "path": "src/utils/plugins/marketplaceHelpers.ts",
+          "blob": "1deb29390d116e1b7ed80ed9c9e88f6335be056d",
+          "bytes": 18217,
+          "sha256": "4bf2b69a2e3f0e1ed7a74b84aee4480e0a47b197e473d13d721fc7b63d32f8ae",
+          "declaration": "EmptyMarketplaceReason",
+          "declarationTuple": [
+            16565,
+            16775,
+            210,
+            "4f5df9708c50a3e9e53a11c53ba83d0ce5debdefe6870f61664588943bec08da"
+          ]
+        },
+        {
+          "path": "src/components/design-system/EmptyState.tsx",
+          "absent": true
+        }
+      ]
+    },
+    "context": {
+      "path": "src/ink.ts",
+      "bytes": 3887,
+      "sha256": "e2c0463ef56c61433441447197dd90f3dde4b4de7ee645b88cad17eadba9ac4e"
+    },
+    "postimages": [
+      {
+        "path": "src/commands/plugin/DiscoverPlugins.tsx",
+        "bytes": 107743,
+        "sha256": "fc028bf514957d31de90a1216c09c5d0a8c923900923e88a34ad97415557850e",
+        "declaration": "EmptyStateMessage",
+        "declarationTuple": [
+          26701,
+          29511,
+          2810,
+          "9451f5f4e4a7057a4f6ded154fe93b9b12d9cad4cee85e080479ec850df42e98"
+        ],
+        "emptyStateImportTuple": [
+          269,
+          343,
+          74,
+          "71545f613d30d12f5daa05edc23c551aa902814bd6eedd6f9a55142df3d7177c"
+        ],
+        "emptyStateJsxTuple": [
+          29303,
+          29408,
+          105,
+          "4faf3c88b1a6cc1b86dbe891c6f46eca8bb53eefa8930c9994379223df063fea"
+        ],
+        "projectReasonProducerTuple": [
+          8085,
+          8613,
+          528,
+          "2a9a95dca734bff3e807a2417990a87db82adcae973dd1812f5f407d77bb8a12"
+        ],
+        "installedAssignmentTuple": [
+          6549,
+          6605,
+          56,
+          "3fceb79a6bc46dbcfe5e8c5dea2ce088c87d3241b5f7a3e82a22b62b164e7245"
+        ],
+        "targetPluginGlobalGateTuple": [
+          9383,
+          9449,
+          66,
+          "70cf3d43963f1ecdc33c2cb1e1c7285cd0dc20cdeefdff0e7363a0e27e19f7fc"
+        ]
+      },
+      {
+        "path": "src/utils/plugins/marketplaceHelpers.ts",
+        "bytes": 18253,
+        "sha256": "36349ee31e742a9e2ac3f9f9ccfd2bf467d4ef1a1c6d00f32a637daa2138db79",
+        "declaration": "EmptyMarketplaceReason",
+        "declarationTuple": [
+          16565,
+          16811,
+          246,
+          "a70a00b3deea5614c7c5828bba7307d452ccb8876e89c02d08d41d7a8c90c1d2"
+        ]
+      },
+      {
+        "path": "src/components/design-system/EmptyState.tsx",
+        "bytes": 427,
+        "sha256": "43fc9440c08858dbdd4036bbf09d7fb7a0c7ca11df14446b1a6feded5e49449b",
+        "declaration": "EmptyState",
+        "declarationTuple": [
+          144,
+          426,
+          282,
+          "040882edb6df8619a79ee64c0e0a69df6b29f7a25081cf0334a546245be00324"
+        ],
+        "inkImportTuple": [
+          31,
+          71,
+          40,
+          "4baa4daed96b21912c4590edb5959e401d7a2d5bebdf485d0d012bf7bf377352"
+        ]
+      }
+    ]
+  },
+  "target117": {
+    "sharedComponentUnit": [
+      7863,
+      "unresolved",
+      "FunctionDeclaration",
+      3760503,
+      3760938,
+      263,
+      "1b237ae77c21269b4f3b1d363f68405c1aded45853d32b9473392fa0657ca69d",
+      "20129cf94973161e5156278585fe878bfec9ea8aeb3df2a16af25b983017944a"
+    ],
+    "sharedComponentModuleInit": [
+      3760938,
+      3760997,
+      59,
+      "9c858afa32cbb5638519998c51c20cd1f36792d11193a8a4bd6afca95b173b00"
+    ],
+    "allScopeInstalledFunction": [
+      14021,
+      "matched",
+      "FunctionDeclaration",
+      8821641,
+      8821773,
+      61,
+      "d446be1f2190ba48fb3a9b3bd0f8e2c4714e5ad9bebf3265592b11b4ba359342",
+      "be52bd17e9419ecfdeb036640f9893055be16f3352cb0f07348045f0ed995251"
+    ],
+    "globalInstalledFunction": [
+      14022,
+      "matched",
+      "FunctionDeclaration",
+      8821773,
+      8821945,
+      75,
+      "44cea2dff99cc8d56ed09947b87c2c038519dc9c4cfe150dc8dea55d1820c3b0",
+      "8fb8c8d2b58c8db94813c91f095bf8b2c8d00c17795d6d1aaa73bac609b75d52"
+    ],
+    "producerUnit": [
+      16095,
+      "unresolved",
+      "FunctionDeclaration",
+      10113441,
+      10123185,
+      3754,
+      "2a67e323ce2a4cc44aab0b13c22dfda09713735c9973f6ee87c5d1217f81c891",
+      "ae33879689e4d25c302647ff6c58775ddad29f08e2d68087f681d047f544726f"
+    ],
+    "projectReasonProducer": [
+      10115151,
+      10115403,
+      252,
+      "bcd5cedeb754916f592966e63620c858b7e0d4062851705358baae044d3fe900"
+    ],
+    "projectReasonConditional": [
+      10115234,
+      10115398,
+      164,
+      "dec70b659b0a6f7d0b28a05a7f5f080a5f3d865c7852fbda99726a8485e2cac6"
+    ],
+    "allScopeInstalledAssignment": [
+      10114649,
+      10114667,
+      18,
+      "d04a6f8f48a1cb993cae6f7ed787ed81ead56b81e1817bc5cf5d19dc3bdc5b78"
+    ],
+    "targetPluginGlobalGate": [
+      10115627,
+      10115647,
+      20,
+      "5d8cf8e8beb17352b9a8fe291e987bb91acad3b41c16d84b5996a9dc2759f1ec"
+    ],
+    "consumerUnit": [
+      16097,
+      "unresolved",
+      "FunctionDeclaration",
+      10124152,
+      10126342,
+      593,
+      "46763410f378eb7e99b84e1f2914f0cb7bd339d9e671d1af9632f8c08dafd935",
+      "13b53d0227f155eaf6014932276b091e9dc3bb34d91c3df2da598342be41e4fc"
+    ],
+    "projectReasonCase": [
+      10125777,
+      10126106,
+      329,
+      "a85563978dd3f0dd9ce4001da40837821a0b51da3a2f12668ef9c46b72e2ca2c"
+    ],
+    "emptyStateCall": [
+      10126206,
+      10126311,
+      105,
+      "ac9ea791de2478a761a3dcf6938e239cdd08856b419d9eae824b12d3d40b9a34"
+    ],
+    "consumerModuleInitPrefix": [
+      10126342,
+      10126391,
+      49,
+      "af2014a2cec685fc2882cd755dfc7238ba91277c021daf2d434f5fd3c1d6c81c"
+    ],
+    "residue": [
+      "property",
+      "hint",
+      10126227,
+      10126231,
+      6,
+      7
+    ]
+  },
+  "summary": {
+    "strictUnits": 1,
+    "strictResidues": 1,
+    "authenticatedDependencyUnits": 2,
+    "recoveredFiles": 3,
+    "ownerOverrides": 1,
+    "requiredPriorReplays": [],
+    "sourcePathAttribution": {
+      "status": "inferred-no-target-sourcemap",
+      "chosenPath": "src/components/design-system/EmptyState.tsx",
+      "basis": "The authenticated runtime proves one shared EmptyState module and its import graph; the design-system path is the bounded module-neighbor reconstruction, not an exact source-map claim."
+    }
+  }
+}

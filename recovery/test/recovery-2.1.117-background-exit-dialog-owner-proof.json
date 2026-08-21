@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-background-exit-dialog-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-background-exit-dialog-authenticated-whole-unit",
+    "target117-background-exit-dialog-target118-lineage",
+    "target117-background-exit-dialog-stale-source-graph-blocker"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "target118Bundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+    "bytes": 13234618,
+    "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "target118StructuralLedger": {
+    "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+    "bytes": 2429007,
+    "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+  },
+  "baselineUnit": {
+    "baselineIndex": 17410,
+    "nodeType": "FunctionDeclaration",
+    "start": 10838646,
+    "end": 10840476,
+    "tokenCount": 1075,
+    "bytes": 1830,
+    "sha256": "b8924d1a452cb6e1b704e8d42688e6cdb1218b962147d7fef7a49f8981165e41",
+    "coarseHash": "3d2e7e74070e39d447db1705cc64a5ca417edc2424acc19a4044dafacac8c11f",
+    "memoCache": {
+      "arity": 43,
+      "memberAccesses": 88,
+      "uniqueSlots": 43,
+      "minimumSlot": 0,
+      "maximumSlot": 42,
+      "accessSequenceSha256": "b72ec0f9d5be57933ff0f787e8dba55303f99fcf91ca5357401d853e731558f1"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 17463,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 10853998,
+    "end": 10855562,
+    "tokenCount": 955,
+    "bytes": 1564,
+    "sha256": "afe5431f0e215fa9dce86a40b634938f4edd38294fe3ecc2ef697da94355ff92",
+    "coarseHash": "939d09a85a74c78b49f0c6b02a9bc231a62994ed7cbd11f7845d4ad31b9d6ba8",
+    "memoCache": {
+      "arity": 40,
+      "memberAccesses": 80,
+      "uniqueSlots": 40,
+      "minimumSlot": 0,
+      "maximumSlot": 39,
+      "accessSequenceSha256": "64d76e54208f8f4c3207d67ac90790e353809ebb6b032fb772a3eb93c025cb39"
+    }
+  },
+  "target118LineageUnit": {
+    "targetIndex": 17570,
+    "baselineUnitIndex": 17463,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "nodeType": "FunctionDeclaration",
+    "start": 10920830,
+    "end": 10922394,
+    "tokenCount": 955,
+    "bytes": 1564,
+    "sha256": "930ec6b7dbd77ccd88a37bae874d85411110c9f436d83c90c6aa9ba4a0772814",
+    "coarseHash": "939d09a85a74c78b49f0c6b02a9bc231a62994ed7cbd11f7845d4ad31b9d6ba8"
+  },
+  "targetResidues": [
+    { "literalKind": "property", "value": "unit", "baselineOccurrenceCount": 336, "targetOccurrenceNumber": 344, "start": 10854947, "end": 10854951 },
+    { "literalKind": "property", "value": "confirmLabel", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 12, "start": 10855235, "end": 10855247 },
+    { "literalKind": "property", "value": "cancelLabel", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 12, "start": 10855262, "end": 10855273 },
+    { "literalKind": "property", "value": "onConfirm", "baselineOccurrenceCount": 5, "targetOccurrenceNumber": 18, "start": 10855281, "end": 10855290 }
+  ],
+  "semanticSubstitutions": [
+    {
+      "name": "direct-confirm-cancel-callbacks",
+      "target": { "start": 10854205, "end": 10854391, "bytes": 186, "sha256": "edfef7cfd7762d8d9fafb997a40c247cbb9f2003caf76023f8d5c0ec87c211b5" },
+      "baseline": { "start": 10838853, "end": 10839088, "bytes": 235, "sha256": "cdbf3e1298510d17a9412e0539b49d89adc7ef51ebaac3d400f3a16c0e0244f3" },
+      "sentinel": "let M=DELETE_CALLBACKS,"
+    },
+    {
+      "name": "truncated-count",
+      "target": { "start": 10854875, "end": 10854990, "bytes": 115, "sha256": "e0ea14b56289c9816ba2a79025d49f96811630bcfeadaebe7837526c8db7040b" },
+      "baseline": { "start": 10839574, "end": 10839744, "bytes": 170, "sha256": "08630b6e03ca23dff8a9efd8da5bc93fd476f850c07258d255e2fa5d267d22c3" },
+      "sentinel": "let I=DELETE_OVERFLOW;"
+    },
+    {
+      "name": "confirmation-buttons",
+      "target": { "start": 10855173, "end": 10855343, "bytes": 170, "sha256": "2a6439f74160a9f03f0cb9ba3a3f17d53a55709ac7f0b1a91d3fbdd613b7226b" },
+      "baseline": { "start": 10839927, "end": 10840257, "bytes": 330, "sha256": "ecc50b55dcefb0b346ae94f6a32f3d02b91c4a1572437bce558ea3562bc94187" },
+      "sentinel": "let B=DELETE_CONTROLS;"
+    }
+  ],
+  "outsideSubstitutionEquivalence": {
+    "method": "replace the three exact semantic regions with equal sentinels, change baseline memo arity 43 to 40, map baseline cache slots 9..25 by -1, 26..35 by -2, and 36..42 by -3, strip parser positions/raw, alpha-normalize binding identifiers while retaining property/member keys",
+    "normalizedChars": 25808,
+    "normalizedBytes": 25808,
+    "normalizedSha256": "f8612a70b2e34742e435f8aaa12ab171d73189c58667103e66fb7d07f96b411b"
+  },
+  "exactCalls": {
+    "targetTruncatedCount": { "start": 10854909, "end": 10854960, "bytes": 51, "sha256": "17509c9dd32b89f3353d0f9adc8bdc390342ab30fd8b5125ca9238edbaaaa04a" },
+    "baselineManualOverflowText": { "start": 10839625, "end": 10839699, "bytes": 74, "sha256": "8148b270c86106cd718c61ab74b1a88aa1e4f7f68e4113a56ef8eee49dc97907" },
+    "targetConfirmationButtons": { "start": 10855205, "end": 10855305, "bytes": 100, "sha256": "c646a294240311302a314d5b868ccab93206f08f4cc21e70c67718a8b987bc57" },
+    "baselineSelect": { "start": 10840175, "end": 10840227, "bytes": 52, "sha256": "ac4484167cd67f79380f57e52cff4d7f3d7c96662b92320f32191ff16cceb5ef" }
+  },
+  "moduleInitializers": {
+    "baseline": { "baselineIndex": 17413, "start": 10840692, "end": 10840772, "tokenCount": 61, "bytes": 80, "sha256": "4739bffb008ddcd9132fa99664183f78c5fb6edf6f09e20e7100a95949518a70" },
+    "target": { "targetIndex": 17466, "start": 10855778, "end": 10855863, "tokenCount": 65, "bytes": 85, "sha256": "0c9585a02e993ac446f372f8198f362dac1ee240ed0717815b48ff92596d6556" },
+    "targetAddedInitializers": ["YM", "VS"],
+    "baselineRemovedInitializer": "U7"
+  },
+  "dependencies": {
+    "confirmationButtons": {
+      "path": "src/components/ConfirmationButtons.tsx",
+      "bytes": 843,
+      "sha256": "44e0c7df811030d27ed88eb313cac012fbdd2ed6a5baab03d9751070806f9960",
+      "targetUnit": { "targetIndex": 10792, "start": 6283534, "end": 6284252, "bytes": 718, "sha256": "0d51bb63916c5cc5f7297fd9883b70b00ca46d6b0fc7a4c70fcaf8e972e80a64" },
+      "initializer": { "targetIndex": 10794, "start": 6284264, "end": 6284313, "bytes": 49, "sha256": "1e6c1825f489998cd76b84da40dbd9157be3494f8b1600a28f83f870a6035dae" }
+    },
+    "truncatedCount": {
+      "path": "src/components/TruncatedCount.tsx",
+      "bytes": 681,
+      "sha256": "d1cfad7aa51c6e23a2acbc26858c6d711b872d86380fdeed594e8caf05338672",
+      "targetUnit": { "targetIndex": 8615, "start": 4096155, "end": 4096609, "bytes": 454, "sha256": "10aea372cdcdb38ddd8fc2cd517866752b4733408bb4616b5f1960fd845ef019" },
+      "formatUnit": { "targetIndex": 8616, "start": 4096609, "end": 4096683, "bytes": 74, "sha256": "3dad8cccef958f0fc0d207053ebf681c05adc02a613b0815a5b5e5edbdab108e" },
+      "initializer": { "targetIndex": 8618, "start": 4096695, "end": 4096749, "bytes": 54, "sha256": "8f448ef0711b649eab87c1a91f721e39b5b4cbb87f86cedc970e24a69367b6f4" }
+    }
+  },
+  "retainedCaller": {
+    "baselineIndex": 17422,
+    "targetIndex": 17475,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "targetUnit": { "start": 10861873, "end": 10862453, "bytes": 580, "sha256": "3bd4dcf425397bebbe0e86a5d2c5dcdea786859c53af87bbdcdeffcd120bce4a" },
+    "targetCall": { "start": 10862329, "end": 10862389, "bytes": 60, "sha256": "ad95f70d91c1b6de5c624b932ed4cf8da56426475d3c2c2a2635292633c5d942" },
+    "baselineCall": { "start": 10847227, "end": 10847287, "bytes": 60, "sha256": "90c02a3f39df2f24360ce4ae0deab7b13e89b3be9aa438dae64fac888f86f643" }
+  },
+  "target118SourceLineage": {
+    "patch": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+      "bytes": 3865180,
+      "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4"
+    },
+    "path": "src/components/BackgroundExitDialog.tsx",
+    "patchBlobSha1": "29cc6b660639664704f32b4e5364ae8b398d8d9e",
+    "bytes": 2360,
+    "chars": 2357,
+    "sha256": "29a8cd7f74f952473201f3038e61589f00dc2e143c056e272dec6fe56b17f285",
+    "props": { "start": 562, "end": 651, "bytes": 89, "sha256": "e17946dcb31b205d234fbe1ff4e09b1395c7bc4c6424e771f1095ea86a2b5502" },
+    "declaration": { "start": 653, "end": 2356, "chars": 1703, "bytes": 1706, "sha256": "c70c53d46dda9f059ea56d3136886be8adb8e3fdc99d2a9182ad99134a608668" },
+    "boundedTarget117SemanticCandidate": {
+      "bytes": 2119,
+      "chars": 2118,
+      "sha256": "666e184dc6021c866f7d2fd03517e93dea33cd59c54f216ecdd685d402c7e4be",
+      "declaration": { "start": 671, "end": 2117, "chars": 1446, "bytes": 1447, "sha256": "96527c466305925bd51570aabf2c06b76d9873a95ec3b7874b13a54de988e14b" },
+      "provenance": "runtime-constrained semantic candidate only; not accepted as a source replay"
+    }
+  },
+  "sourceReplayBlocker": {
+    "ownerPath": "src/components/BackgroundExitDialog.tsx",
+    "ownerState": "absent",
+    "staleFiles": [
+      { "path": "src/components/ExitFlow.tsx", "bytes": 4364, "sha256": "ed654e276a4a2dad4991906f00eb0392db3384ccf85c4691f04e13b4925fc265", "missing": ["BackgroundExitDialog", "backgroundItems"] },
+      { "path": "src/utils/sessionCronTasks.ts", "bytes": 4512, "sha256": "c5c2169e83e7cc338b90c16eff8df587bfeab8389a98cbf3e20ddc830c80a7f4", "missing": ["SessionBackgroundExitItem"] }
+    ],
+    "decision": "static owner proof only; no helper export and no source writes"
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/background-exit-dialog-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_BACKGROUND_EXIT_DIALOG_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

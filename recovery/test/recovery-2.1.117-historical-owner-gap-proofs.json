@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-historical-owner-gap-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-historical-owner-gap-target-fragment",
+    "target117-historical-owner-gap-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-historical-owner-source-gaps.mjs",
+      "bytes": 36748,
+      "sha256": "7045e7401eeb1f43d8f727e3a2fc7e0f37c3cc69bc01136dc29f862615f9b12e"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "targetSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "gitTree": "c9e15117699a700016fee35a941dc3896208819f",
+      "sourceGitTree": "0a502684416e0456b87f51879f02178d480c8b7c",
+      "rawTree": {
+        "files": 1957,
+        "bytes": 30993723,
+        "manifestSha256": "135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee"
+      },
+      "combinedRecoveredTree": {
+        "files": 1968,
+        "bytes": 31073648,
+        "manifestSha256": "5eb49c365f39597300f5c1ff061c2b0ad152aa534ab9ec240016be576b75cb93"
+      }
+    },
+    "patches": [
+      {
+        "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+        "bytes": 3865180,
+        "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4"
+      },
+      {
+        "path": "recovery/cases/2.1.118-to-2.1.119/recovered/source-facing-overlay.patch",
+        "bytes": 2709667,
+        "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/source-facing-overlay.patch",
+        "bytes": 2747802,
+        "sha256": "5b201d69885f58a92ca64522b547594021494c950ed046bd3876f396cfab8acb"
+      }
+    ]
+  },
+  "summary": {
+    "clusterUnits": 26,
+    "clusterResidues": 79,
+    "historicalGapUnits": 20,
+    "historicalGapResidues": 66,
+    "currentExtractedOwnerUnits": 5,
+    "currentExtractedOwnerResidues": 12,
+    "rejectedPost117Coincidences": 1,
+    "replayExistingFiles": 15,
+    "replayNewFiles": 2,
+    "ownerOverrides": 20
+  },
+  "targets": [
+    [4571, "unresolved", "FunctionDeclaration", 2042987, 2043307, "bcb93407cb5fc45e45804aa6b01d579a0bd3d076176f18ac8ebf92b45f07677c"],
+    [8727, "unresolved", "FunctionDeclaration", 4127668, 4127820, "3a85ecf9fbd495244c5c38ec1fb47189dcb469b30746a26b6646a54263efb9f0"],
+    [8831, "unresolved", "FunctionDeclaration", 4158222, 4158600, "855aeaa97b571366c6086adeb395f548b0da51c8785f61b347423b64c40c071c"],
+    [8833, "unresolved", "FunctionDeclaration", 4158969, 4159592, "057da4b7a1718a50e9331d1e7fe4ad3b2af4305d6d04e881b4ec54ae54384ff2"],
+    [10208, "unresolved", "FunctionDeclaration", 5094489, 5095002, "d0b4a2222c00bbc5d507b8f2fd86515ba292c5bd3af5cfe75194420c246047a0"],
+    [10209, "unresolved", "FunctionDeclaration", 5095002, 5096914, "1ebe0b84c8e9aeab8a02335ae9097c9550301d0c717c5923971c913eb996cf7b"],
+    [10210, "unresolved", "FunctionDeclaration", 5096914, 5098617, "daa0f1679faffa67159f8d39596f2060307891fee1751fc4e554bdf6dcad0369"],
+    [10211, "unresolved", "FunctionDeclaration", 5098617, 5101040, "bdec7bb9e0b23e0c518799f35f201bb9195ecce84b9a6762ede24ca2ecfeb7c2"],
+    [13669, "unresolved", "FunctionDeclaration", 8606230, 8608501, "e07a18d3e7226ed63f6601d4963d3483d05b4c699281af32403c011560a609e0"],
+    [13672, "unresolved", "FunctionDeclaration", 8609481, 8623902, "ee417b382366dc06380ccf9d8303c52945b41acb4c33c8eb271eb4805eaf8c9d"],
+    [13756, "unresolved", "FunctionDeclaration", 8699219, 8705719, "2c3c1adf0c122511a53141c5b5e2c57c62369b0ec2f1ecbe3aef54592899d7f8"],
+    [14883, "changed", "VariableDeclaration", 9290931, 9293799, "7786a99a5074102f603a454deb1d8b9d965add7aec108ceab13afc3177ee75a8"],
+    [15220, "unresolved", "FunctionDeclaration", 9439396, 9442307, "7ddc71736091138c1b84a91813faf90af200567a42779d71ccf49dd2115bd6ab"],
+    [16801, "changed", "FunctionDeclaration", 10535902, 10536951, "89fc338d846fd4e3988be0fbef0196b2b21e63ab175137165ff1fb5d2ed33d56"],
+    [18243, "unresolved", "VariableDeclaration", 11237241, 11237586, "750db1d7b4b5f558ff6f6ded8abe732cad8464f0883f19d3a4ea7867a4b015cf"],
+    [18307, "unresolved", "FunctionDeclaration", 11255875, 11277236, "055fb604fd51e1220b04e6eef5d683f7efcb48c4343eeea761debfd200346145"],
+    [18627, "unresolved", "FunctionDeclaration", 11457571, 11467774, "5fb0d44a55fa92481967c9f99554746efd177ee960be4675cdcd081a55d63091"],
+    [18653, "unresolved", "FunctionDeclaration", 11476023, 11483917, "48053176b9080d241c790521c36dea352827d9724a0ab49860c7fa95f2f194e4"],
+    [18654, "unresolved", "FunctionDeclaration", 11483917, 11484466, "965baf7ac1d2755dc171fa81bf41d0179873e94893a47e107da47570571749a4"],
+    [18925, "changed", "FunctionDeclaration", 11628208, 11632406, "350e5f2c2c5b244d6fc6c96a710af8eb7d7390ad48d1a48917ef211576157523"],
+    [19116, "unresolved", "FunctionDeclaration", 11718653, 11718791, "0760fcf1c50236621813074b2c72dd4b39853382c3c0b8b09556abe7d615e50d"],
+    [19554, "unresolved", "FunctionDeclaration", 11920501, 11922545, "2f905dea1d3f16a9a793678f8b3eaee87c8150dbe2e9d6d0026f625c52f6b9ec"],
+    [19754, "unresolved", "VariableDeclaration", 11989348, 11989572, "20ab9362d3b585797a6ecdc364ad6a9039e9cd91fc9450a255e4478d123713a3"],
+    [19821, "unresolved", "VariableDeclaration", 12011323, 12023048, "1dddab860d7d026e52aebf14aa8da24e2046bcbf4c196fb23113005e3c382e73"],
+    [20578, "unresolved", "FunctionDeclaration", 12860875, 12865298, "7c3a76903c0a19f493348fee9111cd7fe594059b4086e6b41569175eba80f385"],
+    [20613, "unresolved", "FunctionDeclaration", 12911965, 12913467, "580ebf3927a0407bca2e49bcfcc58516de968f25d58ca9f8b130ea6474d8fe0d"]
+  ],
+  "historicalGaps": [
+    {"targetIndex":4571,"owner":"src/utils/genericProcessUtils.ts","declaration":"getProcessStartTokenAsync","residues":[["string","/stat",2043051,2043056,1],["string","lstart=",2043159,2043168,1],["property","TZ",2043230,2043232,1],["string","UTC",2043233,2043238,1]]},
+    {"targetIndex":8831,"owner":"src/services/compact/microCompact.ts","declaration":"selectKeepRecentToolResults","residues":[["property","clearSet",4158551,4158559,1],["property","keepSet",4158562,4158569,1],["property","candidates",4158586,4158596,1]]},
+    {"targetIndex":8833,"owner":"src/services/compact/microCompact.ts","declaration":"keepRecentMicrocompact","residues":[["property","keepSet",4158999,4159006,2],["property","candidates",4159023,4159033,2],["property","clearedContent",4159574,4159588,1]]},
+    {"targetIndex":10208,"owner":"src/services/api/logging.ts","declaration":"logAPIQuery","residues":[["property","messageClientPlatform",5094581,5094602,1],["property","messageClientPlatform",5094848,5094869,2]]},
+    {"targetIndex":10209,"owner":"src/services/api/logging.ts","declaration":"logAPIError","residues":[["property","messageClientPlatform",5095230,5095251,3],["property","messageClientPlatform",5096187,5096208,4]]},
+    {"targetIndex":10210,"owner":"src/services/api/logging.ts","declaration":"logAPISuccess","residues":[["property","messageClientPlatform",5097158,5097179,5],["property","messageClientPlatform",5098188,5098209,6]]},
+    {"targetIndex":10211,"owner":"src/services/api/logging.ts","declaration":"logAPISuccessAndDuration","residues":[["property","messageClientPlatform",5098859,5098880,7],["property","messageClientPlatform",5099798,5099819,8]]},
+    {"targetIndex":13669,"owner":"src/services/tools/toolExecution.ts","declaration":"runToolUse","residues":[["property","messageClientPlatform",8606733,8606754,9],["property","messageClientPlatform",8606757,8606778,10],["property","messageClientPlatform",8606789,8606810,11]]},
+    {"targetIndex":13672,"owner":"src/services/tools/toolExecution.ts","declaration":"checkPermissionsAndCallTool","residues":[["property","messageClientPlatform",8610853,8610874,12],["property","messageClientPlatform",8610877,8610898,13],["property","messageClientPlatform",8610909,8610930,14],["property","messageClientPlatform",8611585,8611606,15],["property","messageClientPlatform",8611609,8611630,16],["property","messageClientPlatform",8611641,8611662,17],["property","messageClientPlatform",8615689,8615710,18],["property","messageClientPlatform",8615713,8615734,19],["property","messageClientPlatform",8615745,8615766,20],["property","messageClientPlatform",8620037,8620058,21],["property","messageClientPlatform",8620061,8620082,22],["property","messageClientPlatform",8620093,8620114,23],["property","messageClientPlatform",8623009,8623030,24],["property","messageClientPlatform",8623033,8623054,25],["property","messageClientPlatform",8623065,8623086,26]]},
+    {"targetIndex":13756,"owner":"src/tools/AgentTool/runAgent.ts","declaration":"runAgent","residues":[["property","messageClientPlatform",8703236,8703257,29],["property","messageClientPlatform",8703268,8703289,30]]},
+    {"targetIndex":18243,"owner":"src/constants/prompts.ts","declaration":"CLAUDE_4_5_OR_4_6_MODEL_IDS","residues":[["string","claude-opus-4-7",11237504,11237521,27]]},
+    {"targetIndex":18307,"owner":"src/services/api/claude.ts","declaration":"queryModel","residues":[["property","messageClientPlatform",11262071,11262092,31],["property","messageClientPlatform",11262095,11262116,32],["property","clearedContent",11264642,11264656,7],["property","clearedContent",11272812,11272826,8],["property","messageClientPlatform",11275418,11275439,33],["property","messageClientPlatform",11275442,11275463,34],["property","messageClientPlatform",11276139,11276160,35],["property","messageClientPlatform",11276163,11276184,36],["property","messageClientPlatform",11276966,11276987,37],["property","messageClientPlatform",11276990,11277011,38]]},
+    {"targetIndex":18627,"owner":"src/bridge/remoteBridgeCore.ts","declaration":"initEnvLessBridgeCore","residues":[["string","set",11458805,11458810,53],["property","skipArchive",11464565,11464576,1]]},
+    {"targetIndex":18653,"owner":"src/hooks/useReplBridge.tsx","declaration":"useReplBridge","residues":[["string"," (skipArchive)",11482935,11482951,1],["property","skipArchive",11482988,11482999,2]]},
+    {"targetIndex":18654,"owner":"src/hooks/useReplBridge.tsx","declaration":"useReplBridge","residues":[["property","clientPlatform",11484352,11484366,2],["property","clientPlatform",11484369,11484383,3]]},
+    {"targetIndex":19116,"owner":"src/hooks/unifiedSuggestions.ts","declaration":"formatResourceTemplateReplacement","residues":[["string","@\"",11718720,11718722,6],["regexp",{"pattern":" ","flags":"g"},11718760,11718764,1],["string","%20",11718765,11718770,2]]},
+    {"targetIndex":19554,"owner":"src/utils/handlePromptSubmit.ts","declaration":"executeUserInput","residues":[["property","clientPlatform",11922266,11922280,4],["property","clientPlatform",11922249,11922263,5]]},
+    {"targetIndex":19821,"owner":"src/services/tips/tipRegistry.ts","declaration":"externalTips","residues":[["string","team-artifacts",12011534,12011550,1],["string","tengu_tussock_oriole",12011662,12011684,1]]},
+    {"targetIndex":20578,"owner":"src/setup.ts","declaration":"setup","residues":[["string","projectSettings",12864001,12864018,80],["string","localSettings",12864045,12864060,116]]},
+    {"targetIndex":20613,"owner":"src/QueryEngine.ts","declaration":"ask","residues":[["property","clientPlatform",12912085,12912099,9],["property","clientPlatform",12913414,12913428,10]]}
+  ],
+  "currentExtractedOwners": [
+    {"targetIndex":14883,"owner":"src/tools/BashTool/bashPermissions.ts","declaration":"WRAPPER_VALUE_FLAGS","residues":[["string","-o",9292944,9292948,20],["string","-u",9292959,9292963,25],["string","-o",9293178,9293182,21],["string","-O",9293183,9293187,8],["string","-S",9293450,9293454,20],["string","-G",9293455,9293459,10],["string","-a",9293509,9293513,30],["string","-S",9293555,9293559,21]]},
+    {"targetIndex":15220,"owner":"src/commands/btw/btw.tsx","declaration":"BtwSideQuestion","residues":[["string","scroll",9442111,9442119,28]]},
+    {"targetIndex":16801,"owner":"src/components/skills/SkillsMenu.tsx","declaration":"SkillRow","residues":[["property","skill",10535935,10535940,30]]},
+    {"targetIndex":18925,"owner":"src/components/permissions/PowerShellPermissionRequest/PowerShellPermissionRequest.tsx","declaration":"PowerShellPermissionRequest","residues":[["string","-",11631383,11631386,461]]},
+    {"targetIndex":19754,"owner":"src/components/FeedbackSurvey/TranscriptSharePrompt.tsx","declaration":"inputToResponse","residues":[["property","y",11989434,11989435,174]]}
+  ],
+  "rejected": {
+    "targetIndex": 8727,
+    "owner": "src/tools/AgentTool/forkSubagent.ts",
+    "residues": [["string","gb_rollout",4127790,4127802,1]],
+    "reason": "Target117 checks noninteractive disablement before the environment override; the later source checks the environment override first, so the shared text is not a Target117-safe declaration backport.",
+    "targetOrder": ["Y_H()", "R6()", "VH(process.env[M59])", "h$(O59,!1)"],
+    "laterOrder": ["isEnvTruthy(process.env.CLAUDE_CODE_FORK_SUBAGENT)", "getIsNonInteractiveSession()", "getFeatureValue_CACHED_MAY_BE_STALE"]
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "case-owned-static-complete-class-source-delta-proof",
+  "criterion": "Admit Target119 u20936 only as one complete authenticated session-state class whose exact predecessor delta and exact historical sessionState.ts delta close the hasTaskSummary/task_summary state graph. Incidental text in the provisional permission-schema owner, a partial declaration, or an adjacent generated initializer is insufficient.",
+  "ownerBehavior": "The complete authenticated Target119 session-state class differs from its complete Target118 predecessor by the task-summary state machine: a false-initialized hasTaskSummary flag, guarded idle clearing routed through notifySessionMetadataChanged, and metadata-driven task_summary SDK events. The exact Target118-to-Target119 sessionState.ts source transition contains the same closed declaration/function graph, while raw and supplemented Target119 source already equal that authenticated postimage, so no replay is authorized. The provisional PermissionPromptToolResultSchema owner is false. Adjacent u20935 is an unrelated matched regex initializer and u20937 is an initializer-only dependency loader with no task-summary behavior or strict rows, so u20936 remains one standalone complete-unit proof.",
+  "summary": {
+    "units": 1,
+    "provisionalOwnerRows": 50,
+    "provisionalAddedOwnerRows": 14,
+    "correctedOwnerRows": 31,
+    "correctedAddedOwnerRows": 4,
+    "productionStrictRowsBeforeCorrection": 4,
+    "productionStrictRowsAfterCorrection": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0,
+    "targetIndicesSha256": "a8940919fb3d43ca0ef7769b418a4bf5558ea0241ae78ec6534667472b965cac"
+  },
+  "evidenceIds": [
+    "target119-session-task-summary-state-authenticated-paired-class",
+    "target119-session-task-summary-state-historical-source-delta",
+    "target119-session-task-summary-state-source-ast-proof",
+    "target119-session-task-summary-state-adjacency-rejection",
+    "target119-session-task-summary-state-complete-unit-test"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-session-task-summary-state-authenticated-paired-class",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs",
+      "detail": "Pins the complete Target118 and Target119 generated classes and their exact five-hunk identifier-normalized token diff."
+    },
+    {
+      "id": "target119-session-task-summary-state-historical-source-delta",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs",
+      "detail": "Pins both authenticated sessionState.ts blobs and their exact five-hunk Target118-to-Target119 Git diff."
+    },
+    {
+      "id": "target119-session-task-summary-state-source-ast-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs",
+      "detail": "Pins hasTaskSummary and both notification functions and proves the closed source-level task-summary state transitions."
+    },
+    {
+      "id": "target119-session-task-summary-state-adjacency-rejection",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs",
+      "detail": "Pins adjacent u20935/u20937 and proves neither is a strict task-summary owner or part of this standalone class."
+    },
+    {
+      "id": "target119-session-task-summary-state-complete-unit-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs",
+      "detail": "Pins all provisional and corrected owner-residue partitions and accepts only atomic provisional or exact corrected coverage state."
+    }
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/session-task-summary-state-owner-overrides.mjs",
+      "bytes": 1729,
+      "sha256": "8381bd991352c996bedac3b7f1cb7f738de6f530a81c5abfbea7cb2579f2810f"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedProvisionalBytes": 24774267,
+      "observedProvisionalSha256": "573def697d190cee4d1d8a03707b197063a7155a2ca2b11d22829d59ec27474e",
+      "mutableAfterCorrection": true
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedProvisionalBytes": 373728,
+      "observedProvisionalSha256": "73707a7ca66ba2e2bb86cd0c0be7d24ab1c0c7ac7d3cf2375cf048bfbbe2d0f3",
+      "mutableAfterCorrection": true
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20030,
+    "nodeType": "ClassDeclaration",
+    "start": 12147592,
+    "end": 12148371,
+    "bytes": 779,
+    "tokens": 194,
+    "sha256": "361e3e16d7059e230bce324ce6c8085543a9ac828ec8600cee065f7c33c26725",
+    "coarseHash": "45d669fe5351cab012e97526803597c36ccd1b6db04eedebab10fab58c5ce183"
+  },
+  "targetUnit": {
+    "targetIndex": 20936,
+    "classification": "unresolved",
+    "nodeType": "ClassDeclaration",
+    "start": 12607999,
+    "end": 12608984,
+    "bytes": 985,
+    "tokens": 253,
+    "sha256": "ccddcf0d43813f1e687c2a97af4677964e1f2e78ebfd9c4f9d9a14fb41702a9e",
+    "coarseHash": "786f63635949a901f6c067986f1f4766b1d338ca8ed1940a4c75a7353a765c01",
+    "unknownFreeIdentifierCount": 0
+  },
+  "normalizedUnitProof": {
+    "baseline": {
+      "tokens": 194,
+      "bytes": 666,
+      "sha256": "6eaa016f802d27279bf34345105c53358e4ffa41a65179251043013272dac80e"
+    },
+    "target": {
+      "tokens": 253,
+      "bytes": 900,
+      "sha256": "14b7547ad71a06b973e0de323cef0a3d15e1f169cd7d2bdd1f420790a8e81e40"
+    },
+    "diff": {
+      "format": "diff --label baseline --label target -U1",
+      "bytes": 471,
+      "sha256": "dc112e9cacb9e5395feb76f5ceaf90c265460d7db18308aab0b28b44741fd8bd",
+      "hunks": 5
+    }
+  },
+  "sourceOwner": {
+    "path": "src/utils/sessionState.ts",
+    "baselineCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "targetCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "baseline": {
+      "bytes": 5309,
+      "sha256": "010af86333b3aec7a44c446089ff6a1e03c6fadf270ee3303a3ca61e0f5869d8",
+      "gitBlob": "8d8e14c67e414578bae54675594950f768b304f9"
+    },
+    "target": {
+      "bytes": 5825,
+      "sha256": "25e275bb013113e38c23dc04b47b14b34bdddbc9f29eea75ce0c1e5161f1c721",
+      "gitBlob": "6fe77a78dc511fd4d16b3342616e064f99587364"
+    },
+    "diff": {
+      "format": "git diff --no-ext-diff --unified=0",
+      "bytes": 1438,
+      "sha256": "89880df1891a8cac3bd5cbb469f5778587ca0da395f1ea5f4abb8d4069c07cbc",
+      "hunks": 5,
+      "runtimeHunks": 3,
+      "typeOnlyHunks": 2
+    },
+    "declarations": {
+      "hasTaskSummary": {
+        "kind": "VariableDeclaration",
+        "start": 3183,
+        "end": 3205,
+        "bytes": 22,
+        "sha256": "314985f2945754fcc5aa647a7dcac202a58627a09b7996ea23c34ea7875740b8"
+      },
+      "notifySessionStateChanged": {
+        "kind": "FunctionDeclaration",
+        "start": 3322,
+        "end": 5088,
+        "bytes": 1770,
+        "sha256": "d9e60c6a2a81fe4ff33d73be716e419d5d0ce68dcf7afab3ec08dc97a0567130"
+      },
+      "notifySessionMetadataChanged": {
+        "kind": "FunctionDeclaration",
+        "start": 5090,
+        "end": 5443,
+        "bytes": 353,
+        "sha256": "0e2174c227b32cba785e28647e7e19b9315d58b1904be2cec8f3f301f87fa403"
+      }
+    }
+  },
+  "adjacentUnits": [
+    {
+      "targetIndex": 20935,
+      "classification": "matched",
+      "nodeType": "VariableDeclaration",
+      "start": 12607791,
+      "end": 12607999,
+      "bytes": 208,
+      "tokens": 23,
+      "sha256": "84fb0959974a78112c98e2795d1f859a12411ab97ea450c3f39c0d6decd1909f",
+      "baselineUnitIndex": 20029,
+      "role": "unrelated regex initializer"
+    },
+    {
+      "targetIndex": 20937,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 12608984,
+      "end": 12609011,
+      "bytes": 27,
+      "tokens": 19,
+      "sha256": "dad691ea854bee4f7bc53f84ca837b98572ca2b6e0c84e63f48eb0404d4440af",
+      "role": "initializer-only dependency loader"
+    }
+  ],
+  "ownerOverride": {
+    "paths": ["src/utils/sessionState.ts"],
+    "declarations": [
+      "hasTaskSummary",
+      "notifySessionStateChanged",
+      "notifySessionMetadataChanged"
+    ]
+  },
+  "provisionalOwner": {
+    "paths": ["src/utils/permissions/PermissionPromptToolResultSchema.ts"],
+    "evidenceIds": ["source-map-attribution", "semantic-test"]
+  },
+  "addedOwnerResidues": [
+    [20936, "string", "idle", 12608079, 12608085, 139, 160, true],
+    [20936, "property", "hasTaskSummary", 12608106, 12608120, 0, 1, true],
+    [20936, "string", "running", 12608439, 12608448, 193, 194, true],
+    [20936, "property", "post_turn_summary", 12608475, 12608492, 1, 4, true],
+    [20936, "string", "idle", 12608507, 12608513, 139, 161, true],
+    [20936, "property", "hasTaskSummary", 12608520, 12608534, 0, 2, true],
+    [20936, "property", "hasTaskSummary", 12608540, 12608554, 0, 3, true],
+    [20936, "property", "state", 12608713, 12608718, 523, 794, true],
+    [20936, "string", "task_summary", 12608779, 12608793, 0, 4, true],
+    [20936, "property", "task_summary", 12608804, 12608816, 2, 3, true],
+    [20936, "property", "hasTaskSummary", 12608828, 12608842, 0, 4, true],
+    [20936, "string", "task_summary", 12608872, 12608886, 0, 5, true],
+    [20936, "property", "detail", 12608887, 12608893, 41, 126, true],
+    [20936, "property", "task_summary", 12608896, 12608908, 2, 4, true]
+  ],
+  "productionStrictResidues": [
+    [20936, "property", "hasTaskSummary", 12608106, 12608120, 0, 1, true],
+    [20936, "property", "hasTaskSummary", 12608520, 12608534, 0, 2, true],
+    [20936, "property", "hasTaskSummary", 12608540, 12608554, 0, 3, true],
+    [20936, "property", "hasTaskSummary", 12608828, 12608842, 0, 4, true]
+  ],
+  "residueEvolution": {
+    "provisional": {
+      "ownerRows": 50,
+      "ownerRowsWithTargetAddedSha256": "33d91dda56d4b77326e6cfdb547505a6f1868845b19c1b7fed065ad312ca8f18",
+      "addedRows": 14,
+      "addedRowsWithTargetAddedSha256": "5ef8297cce9b484eb0f7e047917aaeb690481fab758dcc1eb17bcc760043af7b"
+    },
+    "corrected": {
+      "ownerRows": 31,
+      "ownerRowsWithTargetAddedSha256": "bbc2cb50bd45d47a61c83636128302087836e74ac479a38741be4b51d258bfdc",
+      "addedRows": 4,
+      "addedRowsWithTargetAddedSha256": "c00c7a2974ffd884b6704125a0402dc53370c907b4f262ff00315bb68e19e251"
+    },
+    "strictRows": 4,
+    "strictRowsWithTargetAddedSha256": "c00c7a2974ffd884b6704125a0402dc53370c907b4f262ff00315bb68e19e251",
+    "strictResidueIdentitiesSha256": "73122829dd8408479144557394b7d083f6d4bad77d67717777684066783217ec"
+  },
+  "sourceReplay": {
+    "authorized": false,
+    "reason": "Both raw historical and supplemented Target119 source are already the exact authenticated sessionState.ts target blob. The proof corrects generated ownership only; applying source bytes would be a non-idempotent duplicate of existing behavior."
+  }
+}

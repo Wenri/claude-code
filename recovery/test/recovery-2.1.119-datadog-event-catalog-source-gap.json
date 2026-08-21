@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "versions": {
+    "baseline": "2.1.118",
+    "target": "2.1.119"
+  },
+  "sourceCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceFile": {
+      "path": "src/services/analytics/datadog.ts",
+      "input": {
+        "bytes": 9101,
+        "sha256": "10d740d70976636ee082b820cc1b8dc4341fb1c21fc89eb61d72212e1d64675d"
+      },
+      "output": {
+        "bytes": 10342,
+        "sha256": "21ab325796d971793803515162e9a997c59336ca1c2cd2822b1acef2457eb868"
+      }
+    }
+  },
+  "baselineUnit": {
+    "index": 6624,
+    "role": "Target118 Datadog event and tag catalogs",
+    "nodeType": "VariableDeclaration",
+    "start": 3027198,
+    "end": 3029330,
+    "bytes": 2132,
+    "sourceHash": "4fa558b5e18b9d5a89560276d7dbc119ad5b1dc3b162b383ea0b7e524b058465",
+    "coarseHash": "12a5d32d69d5a4d6fbc6a621ba9f929590c98d10fdcc003968ae9348095ca5d5"
+  },
+  "targetUnits": [
+    {
+      "index": 6725,
+      "role": "Datadog allowlist consumer",
+      "nodeType": "FunctionDeclaration",
+      "start": 3077386,
+      "end": 3078493,
+      "bytes": 1107,
+      "sourceHash": "e0bdb9fa59069abf82f948aad23004a5639430f212fd10cafb4e4cd94668a2ce",
+      "coarseHash": "78d6126faa98355fa29759f6bd463a310857f20c9a9dd95252c93d0ede3d5123"
+    },
+    {
+      "index": 6728,
+      "role": "Target119 Datadog event and tag catalogs",
+      "nodeType": "VariableDeclaration",
+      "start": 3078770,
+      "end": 3081684,
+      "bytes": 2914,
+      "sourceHash": "2c8e9212d44d32fab4039cb0476f5707453012b69316dbae097310f017044461",
+      "coarseHash": "d77f7501bc25413b8f0c7220407d679d8da67c24cd018f7eec1a0ee0b6a41403"
+    }
+  ],
+  "catalogs": {
+    "rawSource": {
+      "allowedEvents": {
+        "count": 44,
+        "sha256": "37e631f9c0e2a2f1ac4ccf93bb60f74bc94d201879089b1ff4cdb86309444e3a"
+      },
+      "tagFields": {
+        "count": 16,
+        "sha256": "50a9f550f69bc52782e6f107cb57923e7ea6e938169381bd73e8f47ac7391d13"
+      }
+    },
+    "baseline": {
+      "allowedEvents": {
+        "count": 55,
+        "sha256": "d14e4cd2647aea1257773f20c1c8b4960a4ad055845220d5a611eec4806eb73e"
+      },
+      "tagFields": {
+        "count": 19,
+        "sha256": "e7945d7f7124f7cca0ad26c5228f8ec701768efed71ab89a4d7b90425e49e5e6"
+      }
+    },
+    "target": {
+      "allowedEvents": {
+        "count": 85,
+        "sha256": "04bfaf3958561b3cf31575ca9f174a71e81153709cb17eecd80e2a771231093e"
+      },
+      "tagFields": {
+        "count": 19,
+        "sha256": "e7945d7f7124f7cca0ad26c5228f8ec701768efed71ab89a4d7b90425e49e5e6"
+      }
+    },
+    "targetDelta": {
+      "addedEvents": [
+        "tengu_bg_adopt",
+        "tengu_bg_agent_action",
+        "tengu_bg_agent_dispatch",
+        "tengu_bg_agent_terminal",
+        "tengu_bg_attach",
+        "tengu_bg_attach_legacy_autorespawn",
+        "tengu_bg_classify",
+        "tengu_bg_daemon_install",
+        "tengu_bg_daemon_zombie_restart",
+        "tengu_bg_dispatch",
+        "tengu_bg_dispatch_fallback",
+        "tengu_bg_orphan_reap",
+        "tengu_bg_proto_mismatch",
+        "tengu_bg_pty_unavailable",
+        "tengu_bg_respawn_exhausted",
+        "tengu_bg_respawn_stale",
+        "tengu_bg_roster_parse_failed",
+        "tengu_bg_skew_nudge",
+        "tengu_bg_worker_exit",
+        "tengu_bg_worker_spawn",
+        "tengu_daemon_auto_uninstall",
+        "tengu_daemon_config_reload",
+        "tengu_daemon_control",
+        "tengu_daemon_idle_exit",
+        "tengu_daemon_install",
+        "tengu_daemon_lease",
+        "tengu_daemon_self_restart_on_upgrade",
+        "tengu_daemon_start",
+        "tengu_daemon_worker_crash",
+        "tengu_daemon_worker_permanent_exit"
+      ],
+      "removedEvents": [],
+      "addedTagFields": [],
+      "removedTagFields": []
+    }
+  },
+  "strictRows": [
+    {
+      "targetIndex": 6728,
+      "ownerPath": "src/services/analytics/datadog.ts",
+      "evidenceIds": [
+        "target119-datadog-event-catalog-target-fragment",
+        "target119-datadog-event-catalog-source-replay-test",
+        "target119-datadog-event-catalog-source-ast-test"
+      ]
+    }
+  ],
+  "residueIdentities": [
+    [6728, "string", "tengu_bg_adopt", 3080434, 3080450, 1],
+    [6728, "string", "tengu_bg_agent_action", 3080451, 3080474, 1],
+    [6728, "string", "tengu_bg_agent_dispatch", 3080475, 3080500, 1],
+    [6728, "string", "tengu_bg_agent_terminal", 3080501, 3080526, 1],
+    [6728, "string", "tengu_bg_attach", 3080527, 3080544, 1],
+    [6728, "string", "tengu_bg_attach_legacy_autorespawn", 3080545, 3080581, 1],
+    [6728, "string", "tengu_bg_classify", 3080582, 3080601, 1],
+    [6728, "string", "tengu_bg_daemon_install", 3080602, 3080627, 1],
+    [6728, "string", "tengu_bg_daemon_zombie_restart", 3080628, 3080660, 1],
+    [6728, "string", "tengu_bg_dispatch", 3080661, 3080680, 1],
+    [6728, "string", "tengu_bg_dispatch_fallback", 3080681, 3080709, 1],
+    [6728, "string", "tengu_bg_orphan_reap", 3080710, 3080732, 1],
+    [6728, "string", "tengu_bg_proto_mismatch", 3080733, 3080758, 1],
+    [6728, "string", "tengu_bg_pty_unavailable", 3080759, 3080785, 1],
+    [6728, "string", "tengu_bg_respawn_exhausted", 3080786, 3080814, 1],
+    [6728, "string", "tengu_bg_respawn_stale", 3080815, 3080839, 1],
+    [6728, "string", "tengu_bg_roster_parse_failed", 3080840, 3080870, 1],
+    [6728, "string", "tengu_bg_skew_nudge", 3080871, 3080892, 1],
+    [6728, "string", "tengu_bg_worker_exit", 3080893, 3080915, 1],
+    [6728, "string", "tengu_bg_worker_spawn", 3080916, 3080939, 1],
+    [6728, "string", "tengu_daemon_auto_uninstall", 3080940, 3080969, 1],
+    [6728, "string", "tengu_daemon_config_reload", 3080970, 3080998, 1],
+    [6728, "string", "tengu_daemon_control", 3080999, 3081021, 1],
+    [6728, "string", "tengu_daemon_idle_exit", 3081022, 3081046, 1],
+    [6728, "string", "tengu_daemon_install", 3081047, 3081069, 1],
+    [6728, "string", "tengu_daemon_lease", 3081070, 3081090, 1],
+    [6728, "string", "tengu_daemon_self_restart_on_upgrade", 3081091, 3081129, 1],
+    [6728, "string", "tengu_daemon_start", 3081130, 3081150, 1],
+    [6728, "string", "tengu_daemon_worker_crash", 3081151, 3081178, 1],
+    [6728, "string", "tengu_daemon_worker_permanent_exit", 3081179, 3081215, 1]
+  ],
+  "sourceDeclarations": [
+    {
+      "path": "src/services/analytics/datadog.ts",
+      "name": "DATADOG_ALLOWED_EVENTS",
+      "charStart": 746,
+      "charEnd": 3394,
+      "bytes": 2648,
+      "sha256": "00fa64a17234a11bfb069770ca44ef370ee6eb32fe2b854c7cff761cd46c5690"
+    },
+    {
+      "path": "src/services/analytics/datadog.ts",
+      "name": "TAG_FIELDS",
+      "charStart": 3396,
+      "charEnd": 3715,
+      "bytes": 319,
+      "sha256": "bd4c6344bd9434a1baa807d5402c55f728f456b1e57af200e4dc9fd643f5687e"
+    }
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 30,
+    "indicesSha256": "70e255675773af485a20f73b4317d8fe167bcb7633f98c231e6aa0b19552859b",
+    "residueIdentitiesSha256": "70f9720e33f5f7cb0d66094f26b95509c2bdb04b0d3e5ad3e544cfa3113788da"
+  }
+}

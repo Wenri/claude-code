@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "summary": {
+    "units": 1,
+    "residues": 7,
+    "indicesSha256": "b4ffe02bbd64be265ca8182af37ba82f804eb21cdc2e7dd2447321e150bdcad3",
+    "residueIdentitiesSha256": "b4ea3e6c41f0e68790de00e69854a5c88591e828c7ebd79d2c7ebb564b78c28a"
+  },
+  "inputs": {
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/bootstrap/state.ts",
+        "input": {
+          "bytes": 59526,
+          "sha256": "7e7a2ffc49d5ea805023bda9346d2eba9bab8e9edce04dfdc9cdd51b4f0e28cf"
+        },
+        "output": {
+          "bytes": 59923,
+          "sha256": "61d86a84b52373ffee4742f9cae9cd23d7d7d10c717d3c34553bae98c0ac3157"
+        }
+      },
+      {
+        "path": "src/state/AppState.tsx",
+        "input": {
+          "bytes": 23480,
+          "sha256": "51165c47d76886fe6a0e9151615f146e2455ba4f198fb2c8d0afc7988681cabe"
+        },
+        "output": {
+          "bytes": 23692,
+          "sha256": "86b0f0f3edea36d759438f84dcf31466839147bb34973893814cbb159d9d2c8f"
+        }
+      },
+      {
+        "path": "src/utils/hooks/execMcpToolHook.ts",
+        "input": {
+          "bytes": 3421,
+          "sha256": "525327cfee4a61f927e6e2ff234d1e08882169643f9d177546ce64358a92c7d4"
+        },
+        "output": {
+          "bytes": 3574,
+          "sha256": "efcc949e18038e60d2fc99ab8acc2b9e6c093bb7219214c6bf8242c2b95bddf5"
+        }
+      },
+      {
+        "path": "src/cli/print.ts",
+        "input": {
+          "bytes": 220728,
+          "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6"
+        },
+        "output": {
+          "bytes": 220876,
+          "sha256": "c167a878f441028ff6b7850aa658845a7750af4f39eeca66c83a97c291a538e3"
+        }
+      }
+    ]
+  },
+  "row": {
+    "targetIndex": 365,
+    "target": {
+      "nodeType": "ExpressionStatement",
+      "start": 24883,
+      "end": 31952,
+      "bytes": 7069,
+      "sourceHash": "eafbdb5429c69352a233bde167fcce072a478d4a8616f8b90c70d245aa587cc6"
+    },
+    "residues": [
+      ["property", "setParentManagedSettings", 25814, 25838, 0, 1],
+      ["property", "setMcpClientsAccessor", 26066, 26087, 0, 1],
+      ["property", "setCacheDiagnosisHeaderLatched", 27086, 27116, 0, 1],
+      ["property", "incrementPromptIndex", 27942, 27962, 0, 1],
+      ["property", "getParentManagedSettings", 29615, 29639, 0, 1],
+      ["property", "getMcpClientsFromAccessor", 29812, 29837, 0, 1],
+      ["property", "getCacheDiagnosisHeaderLatched", 30987, 31017, 0, 1]
+    ],
+    "ownerPath": "src/bootstrap/state.ts",
+    "evidenceIds": [
+      "target118-mcp-client-accessor-target-fragment",
+      "target118-mcp-client-accessor-source-replay-test",
+      "target118-mcp-client-accessor-source-ast-test"
+    ]
+  },
+  "supportingTargetUnits": [
+    [488, "FunctionDeclaration", 41741, 41788, "5ed89f3607d644cbd39f96e0dd7fa8e445097f75551c34aa2436ed07f0150e7c", "function jf8(){return x$.parentManagedSettings}"],
+    [489, "FunctionDeclaration", 41788, 41831, "aa15dfc5620d1cc7cd2f5ba0fe590b26b78ba89f4fa215e725784f6260b2ba96", "function Xf8(H){x$.parentManagedSettings=H}"],
+    [540, "FunctionDeclaration", 44515, 44537, "195d85130e3f6f11d1b71161bc6269f700257ce9d6844ecf07ac301f87fae21f", "function EZH(H){Bf8=H}"],
+    [541, "FunctionDeclaration", 44537, 44567, "f0e0b3d57e3ab56504e37586674dd341a63607c3c9c60e20b61df3b04fecacc2", "function Ff8(){return Bf8?.()}"],
+    [592, "FunctionDeclaration", 47815, 47868, "c15a8c8da1437968682c1ebecd5f2377e479faecc03cd999ae56ea71055f290a", "function Hz8(){return x$.cacheDiagnosisHeaderLatched}"],
+    [593, "FunctionDeclaration", 47868, 47917, "0ea2facee8228689e3ba4924ea3c35047c30b876976d8731883b76095c396e75", "function dD$(H){x$.cacheDiagnosisHeaderLatched=H}"],
+    [599, "FunctionDeclaration", 48242, 48296, "140bd322e8bbfa021824a4b91c2495e45ed5e59266b7834e8800eaa4df74beeb", "function qz8(){return x$.promptIndex++,x$.promptIndex}"],
+    [11052, "FunctionDeclaration", 6411428, 6412610, "a416a37429bf4858ec08d276cf4b6511d7e252b3aeae024964e5332c6c00872e", "EZH(()=>z.getState().mcp.clients)"],
+    [11054, "FunctionDeclaration", 6412690, 6412724, "3ba4719ea548678838b34a01c1105cb29893ed0a8d98f7445bd4969dddd69d2b", "function Gu9(){return EZH(void 0)}"],
+    [18240, "FunctionDeclaration", 11220129, 11221208, "7bc6d73df463424ee9c38561bb5640fdf79753ecfa551152e0d8b89ecb689540", "let A=K??Ff8()"],
+    [20836, "FunctionDeclaration", 13043216, 13082261, "1d3b68dc52251bcd6e75c98754f60548be05a7a2995008fa35e560a98f9fd9fd", "EZH(()=>[...z().mcp.clients,...YH,...qH.clients])"]
+  ],
+  "sourceDeclarations": {
+    "src/bootstrap/state.ts": [
+      "setMcpClientsAccessor",
+      "getMcpClientsFromAccessor",
+      "setParentManagedSettings",
+      "getParentManagedSettings",
+      "setCacheDiagnosisHeaderLatched",
+      "getCacheDiagnosisHeaderLatched",
+      "getNextPromptIndex"
+    ],
+    "src/state/AppState.tsx": ["AppStateProvider"],
+    "src/utils/hooks/execMcpToolHook.ts": ["execMcpToolHook"]
+  }
+}

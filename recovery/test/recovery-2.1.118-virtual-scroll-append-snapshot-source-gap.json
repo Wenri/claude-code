@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-virtual-scroll-append-snapshot-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-virtual-scroll-append-snapshot-target-fragment",
+    "target118-virtual-scroll-append-snapshot-source-replay-test",
+    "target118-virtual-scroll-append-snapshot-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-virtual-scroll-append-snapshot-source-gap.mjs",
+      "bytes": 6115,
+      "sha256": "1ff23b768d06c038c8cbf5512b022263fd760003d42d7ba028c48a77ca7566fa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/hooks/useVirtualScroll.ts",
+        "blob": "388b0bad9466829597b84bda238fa3fd3fe34e80",
+        "bytes": 35122,
+        "sha256": "d27382b007c98ab3af5e2940b0d1f6db041ccbe2897963ce19f63afb340ea4b7"
+      },
+      "declaration": {
+        "name": "useVirtualScroll",
+        "start": 6638,
+        "end": 34923,
+        "bytes": 28463,
+        "sha256": "a8dbdba7f1a9ced131e510937e81bed58e941a61be7eb6722dd347551f12e193"
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/hooks/useVirtualScroll.ts",
+        "bytes": 35641,
+        "sha256": "003426538b320bb7bc69578e1841ce6a79c88a6d56ae1ab3e116d5a157b3d31d"
+      },
+      "declaration": {
+        "name": "useVirtualScroll",
+        "start": 6638,
+        "end": 35442,
+        "bytes": 28982,
+        "sha256": "660eca5fa686bf4eafe4f21038d9a83e818fa3660b316bd5e75aac9cca30e6fd"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 16656,
+    "classification": "unresolved",
+    "start": 10452711,
+    "end": 10457313,
+    "bytes": 4602,
+    "tokenCount": 2409,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "9681f8661971ef092ddbddc19140ff1c04816e66673f7a7ddf93f89f5d5ade98",
+    "coarseHash": "03a1f6d4f3825b298074e1c4017ef0606278d5e3a7788b5e6992ccc79afc9c58",
+    "ownerPath": "src/hooks/useVirtualScroll.ts",
+    "provisionalOwnerPath": "src/utils/statusNoticeDefinitions.tsx",
+    "declarations": [
+      "useVirtualScroll"
+    ],
+    "behavior": "Target118 useVirtualScroll snapshots item-key length and boundary identities, skips cache garbage collection only for append-only growth, and refreshes the snapshot before every early return. The recovered declaration preserves the complete virtual-scroll implementation around that optimization.",
+    "residues": [
+      [
+        "property",
+        "last",
+        10452915,
+        10452919,
+        24,
+        26
+      ],
+      [
+        "property",
+        "last",
+        10453690,
+        10453694,
+        24,
+        27
+      ],
+      [
+        "property",
+        "last",
+        10453729,
+        10453733,
+        24,
+        28
+      ]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/hooks/useVirtualScroll.ts"
+    ],
+    "evidenceIds": [
+      "target118-virtual-scroll-append-snapshot-target-fragment",
+      "target118-virtual-scroll-append-snapshot-source-replay-test",
+      "target118-virtual-scroll-append-snapshot-source-ast-test"
+    ],
+    "behavior": "Target118 useVirtualScroll snapshots item-key length and boundary identities, skips cache garbage collection only for append-only growth, and refreshes the snapshot before every early return. The recovered declaration preserves the complete virtual-scroll implementation around that optimization."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "99ef3900386a6059e6ba6c9b738172e5d79ed298b550c4288282052bc7760fa6",
+    "residueIdentitiesSha256": "13284b57b8675d0f6bbfa9c5f0fe82b7689d671b1c2ca18489af0e6967c10fb4"
+  }
+}

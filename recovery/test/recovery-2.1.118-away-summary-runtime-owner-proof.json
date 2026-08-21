@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "criterion": "target118-away-summary-complete-unit-result-contract-v1",
+  "status": "authenticated-static-whole-unit-owner-proof-no-replay",
+  "evidenceIds": [
+    "target118-away-summary-runtime-authenticated-target-fragment",
+    "target118-away-summary-runtime-result-contract-test",
+    "target118-away-summary-runtime-owner-lineage-test",
+    "target118-away-summary-runtime-source-replay-blocker"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/away-summary-runtime-owner-overrides.mjs",
+      "bytes": 1328,
+      "sha256": "bfaf391f2c7b7777bbd7775ee97b5331dc64fdbc0966ef9c569a23aefcfa6c9c"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19776,
+    "nodeType": "FunctionDeclaration",
+    "start": 11997075,
+    "end": 11999471,
+    "bytes": 2396,
+    "tokens": 1067,
+    "sha256": "5070bd279bcbd9baa5b1ea615cf5e5ab6b7d8b3d0ad2f2b9ae4e90c746294120",
+    "coarseHash": "fa05d1bc21b27fba6832861b93a7793850916a11a46b559572e36ee21b4ad516"
+  },
+  "targetUnit": {
+    "targetIndex": 19968,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12098999,
+    "end": 12101409,
+    "bytes": 2410,
+    "tokens": 1075,
+    "sha256": "0441e4637c2a7761c26460778b441a5c3f1e4bc7214f9003b52555d863841852",
+    "coarseHash": "3bcb4f75e79b66622a3430133e477d2164f24718f0dfce1c48cd99cecc306768",
+    "ownerPath": "src/hooks/useAwaySummary.ts",
+    "rejectedOwnerPath": "src/hooks/notifs/useInstallMessages.tsx",
+    "declarations": ["useAwaySummary"],
+    "behavior": "The complete authenticated Target118 useAwaySummary unit is its Target117 predecessor with exactly the away-summary result contract changed from a nullable string to the discriminated {kind,text} result. The min and force residues are retained predecessor occurrences; the ok residue is the exact live result guard, and the paired text read feeds the unchanged recap formatting and insertion flow. Exact Target118 and later source snapshots authenticate src/hooks/useAwaySummary.ts as the owner, while their incompatible surrounding cache/fork graphs make this a static whole-unit proof rather than a source replay.",
+    "residues": [
+      ["property", "min", 12099738, 12099741, 619, 620],
+      ["property", "force", 12100158, 12100163, 73, 82],
+      ["property", "force", 12100239, 12100244, 73, 83],
+      ["string", "ok", 12100392, 12100396, 27, 30],
+      ["property", "min", 12100862, 12100865, 619, 621]
+    ]
+  },
+  "resultContractFragments": {
+    "baselineGuard": {
+      "start": 11998459,
+      "end": 11998467,
+      "text": "p===null",
+      "bytes": 8,
+      "sha256": "599bcb2582d94d9ff4d8ab9ae4ace70dc46afe51f2d00a76cb4acbeae2c47258"
+    },
+    "targetGuard": {
+      "start": 12100383,
+      "end": 12100396,
+      "text": "p.kind!==\"ok\"",
+      "bytes": 13,
+      "sha256": "712ddda1be0e34ef031e50ec17cb050c7a616a4252291fd3c9486c4bc9abc5a2"
+    },
+    "baselineFormatting": {
+      "start": 11998475,
+      "end": 11998493,
+      "text": "let h=f.current<3?",
+      "bytes": 18,
+      "sha256": "a3b013d7bd22fd41adc94f869109244b9e37698a67d1afa46e7322a7a0e8add9"
+    },
+    "targetFormatting": {
+      "start": 12100404,
+      "end": 12100431,
+      "text": "let h=p.text,F=f.current<3?",
+      "bytes": 27,
+      "sha256": "522f9665136e5f31cfab4bdd914d688d83b340c8ab5892a7b21611fc690bf263"
+    }
+  },
+  "normalizedTokenProof": {
+    "normalization": "Acorn token labels with every identifier replaced by _, string and number values JSON encoded, regexp values rendered /pattern/flags",
+    "baseline": {
+      "tokens": 1067,
+      "bytes": 5104,
+      "sha256": "f54500b4cbe944764cce11fcc2f54e3ed67fced7deeabdd40805614b753a6e27"
+    },
+    "target": {
+      "tokens": 1075,
+      "bytes": 5138,
+      "sha256": "54e7954a0582cf2f7d577d49f9e29a10c81969d86fe0bf18610f2194d79a5da6"
+    },
+    "edits": [
+      {
+        "at": 590,
+        "remove": [".", "_", "==/!=/===/!==", "\"ok\""],
+        "insert": ["==/!=/===/!==", "null"]
+      },
+      {
+        "atAfterPriorEdits": 601,
+        "remove": [",", "_", "=", "_", ".", "_"],
+        "insert": []
+      }
+    ],
+    "common": {
+      "tokens": 1067,
+      "bytes": 5104,
+      "sha256": "f54500b4cbe944764cce11fcc2f54e3ed67fced7deeabdd40805614b753a6e27"
+    }
+  },
+  "sourceStates": {
+    "target118": {
+      "hook": {
+        "path": "src/hooks/useAwaySummary.ts",
+        "bytes": 3881,
+        "sha256": "d9cbd8c93f9013b755e9cc39b053c35d427f4c0d366275460b14fca1b5915101",
+        "declaration": {
+          "name": "useAwaySummary",
+          "start": 1231,
+          "end": 3876,
+          "bytes": 2649,
+          "sha256": "7ac1c943a082f3cdbc4c81a8151f8bd4ec6c6450a439a2c4756546e97d7894da"
+        }
+      },
+      "service": {
+        "path": "src/services/awaySummary.ts",
+        "bytes": 3050,
+        "sha256": "87f195eb49d748b4dc0082c41a44eeb568a70495ec539d6fac0647ab2c094da2",
+        "declaration": {
+          "name": "generateAwaySummary",
+          "start": 1590,
+          "end": 3043,
+          "bytes": 1453,
+          "sha256": "911ed60d73a17f2e1cd78d925f661baf81487433039adedc86b4e94477381544"
+        }
+      },
+      "rejectedOwner": {
+        "path": "src/hooks/notifs/useInstallMessages.tsx",
+        "bytes": 3180,
+        "sha256": "0a332836496a1417e7f6d1aa30d24b32c964622df7bf05da0cecd886fafa44bc",
+        "declaration": {
+          "name": "useInstallMessages",
+          "start": 137,
+          "end": 211,
+          "bytes": 74,
+          "sha256": "d62ffddff50a6a108d490c69c562b8c6f165bca50677940c5a6821b8ae433eda"
+        }
+      }
+    },
+    "target119Later": {
+      "root": ".recovery-tmp/semantic-trees/2.1.119/src",
+      "hook": {
+        "path": "src/hooks/useAwaySummary.ts",
+        "bytes": 9773,
+        "sha256": "453414c09758a5dbcda0158b4411086c9126e1657a950798d1a5df8ebbc13a46",
+        "declaration": {
+          "name": "useAwaySummary",
+          "start": 2912,
+          "end": 9772,
+          "bytes": 6860,
+          "sha256": "8d4e75a69206abb882b2eaba9f926a68d3375998cb0fc93bebcb34ea43000690"
+        }
+      },
+      "service": {
+        "path": "src/services/awaySummary.ts",
+        "bytes": 2858,
+        "sha256": "69d0617ed5db942ad4ba6c2a8f81df1f3cbc592d48c2f2b2684de9aa7a085491",
+        "declaration": {
+          "name": "generateAwaySummary",
+          "start": 1263,
+          "end": 2857,
+          "bytes": 1594,
+          "sha256": "643d40d8a05d5bf74b3909679b7e34903dacbfedc89d82873cf5059df7ca6320"
+        }
+      }
+    }
+  },
+  "ownerOverride": {
+    "paths": ["src/hooks/useAwaySummary.ts"],
+    "declarations": ["useAwaySummary"]
+  },
+  "summary": {
+    "units": 1,
+    "strictResidues": 5,
+    "completeOwnerRows": 136,
+    "targetIndicesSha256": "8ac8ebe3fcfb64dee6abbf02d0fdeceddbce434a86ddb915513843e4911a3aaa",
+    "strictResidueIdentitiesSha256": "671fb790f0c073744e35479af8d35d11baeee6a8658999529fca9c9013761840",
+    "completeOwnerRowsBytes": 7487,
+    "completeOwnerRowsSha256": "d4b691ebbc6b63f6058771564be251f646e7d54d8a336abeab8d0532c9850f65"
+  }
+}

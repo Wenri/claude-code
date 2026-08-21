@@ -1,0 +1,432 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-handle-prompt-submit-active-skill-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "claim": "Target121 u20775 is the complete src/utils/handlePromptSubmit.ts::executeUserInput unit. It creates one context before processing queued commands, passes the same mutable context through processUserInput, then appends context.options?.activeSkill to onQuery. Removing that declaration and final argument while restoring the predecessor's inline context factory makes the complete Target121 AST and identifier-normalized token stream exactly equal to unmatched Target120 u20768. The authenticated provenance graph accounts for every spawnedBySkill and activeSkill bundle occurrence. Recovered Target120, Target121, and fresh-package source omit the entire field/type/callback graph, so ownership is static and no partial replay is admitted.",
+  "evidenceIds": [
+    "target121-handle-prompt-submit-active-skill-authenticated-whole-unit",
+    "target121-handle-prompt-submit-active-skill-mutable-context-graph",
+    "target121-handle-prompt-submit-active-skill-source-type-graph-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "clearedMutableSnapshot": {
+      "consultedOnceOnly": true,
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 26646291,
+        "sha256": "75c93caebd73e5cfa9d977c81874b0f4eb617866b973f872b3ec909b8ce113e4"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 338328,
+        "sha256": "92f9bd2e3df5ac77e21cae2fd383791d47d23ada0e0b707e89a908374300c92b"
+      },
+      "testPolicy": "Descriptor provenance only: the proof never reopens either mutable artifact and instead authenticates the strict identity directly from the frozen bundle and ledger."
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 20775,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 0,
+    "correctedOwner": "src/utils/handlePromptSubmit.ts",
+    "declarations": ["BaseExecutionParams", "executeUserInput"],
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "generator": false,
+    "start": 12518538,
+    "end": 12520613,
+    "bytes": 2075,
+    "tokenCount": 824,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 4,
+    "sha256": "e4b5f9d005699236742515036428f5233ec45cadb1c0d596eda0283b6003e32d",
+    "coarseHash": "eb85a6b78143c9045c2ac23abb003c2674dd66478e4768d422e0926c5d917fc6",
+    "line": 9158,
+    "column": 7071
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 20768,
+    "classification": "unmatched-baseline",
+    "relation": "direct executeUserInput predecessor authenticated by complete-unit AST reconstruction, exact identifier-normalized tokens, the context factory/processUserInput/onQuery chain, and byte-identical recovered declaration lineage",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "generator": false,
+    "start": 12523672,
+    "end": 12525712,
+    "bytes": 2040,
+    "tokenCount": 813,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 4,
+    "sha256": "4896d8d4b0a5053bda29954ddeb97fb666e5f0fa90ca3dd5f5dbec14bf263c78",
+    "coarseHash": "22c2c778c1750acac82502b95f6f1ddb516550759617e87f13fec7e2a55d98d9",
+    "line": 9203,
+    "column": 7077
+  },
+  "ownerResidues": {
+    "reportedOwner": "utils/handlePromptSubmit.ts",
+    "correctedOwner": "src/utils/handlePromptSubmit.ts",
+    "strictRows": 1,
+    "baselineOccurrenceCount": 0,
+    "targetAdded": true,
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in strict report order; authenticated independently from the sole exact property occurrence inside u20775",
+    "strictIdentities": {
+      "bytes": 55,
+      "sha256": "de2fbae36720a137ba5a09485679387fd578944e3713b940fc4d42bce357a037"
+    },
+    "strictRowsExact": [
+      [20775, "property", "activeSkill", 12520389, 12520400, 11]
+    ]
+  },
+  "wholeUnitLineage": {
+    "rawByteDelta": 35,
+    "tokenDelta": 11,
+    "canonicalization": "Acorn AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys and noncomputed MemberExpression properties",
+    "baselineCanonical": {
+      "bytes": 31673,
+      "sha256": "d09c3e38a3e1f2fb34163f1c47dae3575a13834390cc3a3c5b36eddd34f86582"
+    },
+    "targetCanonical": {
+      "bytes": 32166,
+      "sha256": "fbcf8add3e62164797557627d9a83d54b5b603fecb4f840da5d7675c037a38c3"
+    },
+    "reconstructedTargetCanonical": {
+      "bytes": 31673,
+      "sha256": "d09c3e38a3e1f2fb34163f1c47dae3575a13834390cc3a3c5b36eddd34f86582"
+    },
+    "identifierNormalizedTokens": {
+      "method": "Acorn tokens serialized as [type.label,value], with every name-token value replaced by @id and absent values represented as null",
+      "baseline": {
+        "count": 813,
+        "bytes": 10614,
+        "sha256": "320609be0acffa173e4ba562029d250e586a2ff1c8a0db012aec15929d0cf9b4"
+      },
+      "target": {
+        "count": 824,
+        "bytes": 10759,
+        "sha256": "5fd83b76ee84501a1494bb2e0c14526619385203f42ad9ced3f5449a087b676d"
+      },
+      "cachedContextDeclaration": {
+        "count": 7,
+        "bytes": 89,
+        "sha256": "a2f46582099c1259b04a06e58df840acf2c644ab471c90f429a6dcc6ab6ee364"
+      },
+      "activeSkillArgumentInsertion": {
+        "count": 6,
+        "bytes": 80,
+        "sha256": "8d6a916e7b0c54bb65e5e7f749291ee73793c47a12e9b1150ed063e68fb33225"
+      },
+      "reconstructedTarget": {
+        "count": 813,
+        "bytes": 10614,
+        "sha256": "320609be0acffa173e4ba562029d250e586a2ff1c8a0db012aec15929d0cf9b4"
+      }
+    },
+    "lcsAlignment": {
+      "method": "Longest-common-subsequence alignment over identifier-normalized tokens; target insertion wins ties",
+      "equalTokens": 811,
+      "runs": [
+        ["=", 230],
+        ["+", 7],
+        ["=", 62],
+        ["-", 2],
+        ["=", 427],
+        ["+", 6],
+        ["=", 92]
+      ],
+      "runsDescriptor": {
+        "bytes": 63,
+        "sha256": "f53cea8f5821d430cc03af7578002873bae09727d4246a19b8da71dc02ff0805"
+      }
+    },
+    "edits": {
+      "contextFactory": {
+        "nodeType": "FunctionDeclaration",
+        "path": "body.body.2",
+        "start": 12518828,
+        "end": 12518860,
+        "localStart": 290,
+        "localEnd": 322,
+        "bytes": 32,
+        "sha256": "e79244894aa341f754ca2c57198b7d3a49dbc5cc6ee691df030394dd64303da7",
+        "canonicalBytes": 460,
+        "canonicalSha256": "e74f33a45bc98f97f37e8309d0a69a42449a98e4c2183a174d525e153f45c64b",
+        "exact": "function G(){return f($,[],P,q)}"
+      },
+      "cachedContextDeclaration": {
+        "nodeType": "VariableDeclaration",
+        "path": "body.body.3.block.body.2.expression.argument.arguments.1.body.arguments.1.body.body.0",
+        "start": 12519099,
+        "end": 12519109,
+        "localStart": 561,
+        "localEnd": 571,
+        "bytes": 10,
+        "sha256": "40f27a453016d680a2950c3e2a4035967cb6510da313b159d5100ff98ad33073",
+        "canonicalBytes": 239,
+        "canonicalSha256": "e6454e3898587c67b5ef4fbcec605930eda457e37289a6a9c237e351f9dd1033",
+        "exact": "let B=G();"
+      },
+      "targetProcessContext": {
+        "nodeType": "Property",
+        "path": "body.body.3.block.body.2.expression.argument.arguments.1.body.arguments.1.body.body.1.body.body.0.declarations.2.init.argument.arguments.0.properties.4",
+        "start": 12519246,
+        "end": 12519255,
+        "localStart": 708,
+        "localEnd": 717,
+        "bytes": 9,
+        "sha256": "364752413930555d3bf86147bd57470d48475b0c1fb1817d4ae4729fb0c79ac8",
+        "exact": "context:B"
+      },
+      "baselineInlineProcessContext": {
+        "nodeType": "Property",
+        "path": "body.body.3.block.body.2.expression.argument.arguments.1.body.arguments.1.body.body.0.body.body.0.declarations.2.init.argument.arguments.0.properties.4",
+        "start": 12524370,
+        "end": 12524381,
+        "localStart": 698,
+        "localEnd": 709,
+        "bytes": 11,
+        "sha256": "013f08540da67bb2914b4f29004593fd5ed118dc74efb11fbc3ab82060a3fbc6",
+        "exact": "context:G()"
+      },
+      "activeSkillChain": {
+        "nodeType": "ChainExpression",
+        "start": 12520378,
+        "end": 12520400,
+        "localStart": 1840,
+        "localEnd": 1862,
+        "bytes": 22,
+        "sha256": "b959cb4a1166c242d22fd450b59c0485b6ee70a04f05e9870cddb5e7ad1af0fd",
+        "canonicalBytes": 319,
+        "canonicalSha256": "381507a8cc2179cfbf4fe4a82956e8ef23beb8aa22b2845b1eb71dd42394ad09",
+        "exact": "B.options?.activeSkill"
+      },
+      "activeSkillArgumentInsertion": {
+        "start": 12520377,
+        "end": 12520400,
+        "localStart": 1839,
+        "localEnd": 1862,
+        "bytes": 23,
+        "sha256": "3a01e7805d67e92ad7e99f51bb18f6daf1e98f331c83a4007b7ea82a54737384",
+        "exact": ",B.options?.activeSkill"
+      },
+      "targetOnQueryCall": {
+        "nodeType": "CallExpression",
+        "path": "body.body.3.block.body.2.expression.argument.arguments.1.body.arguments.1.body.body.3.consequent.body.2.expression.argument",
+        "argumentCount": 11,
+        "start": 12520332,
+        "end": 12520401,
+        "localStart": 1794,
+        "localEnd": 1863,
+        "bytes": 69,
+        "sha256": "f22447497e183b0d2856382dec3bef8d0b812fbda2ee1491c103090316497f9f",
+        "exact": "M(W,P,Z,v??[],V?S$$(V,q):q,l?j:void 0,Q,N,c,a,B.options?.activeSkill)"
+      },
+      "baselineOnQueryCall": {
+        "nodeType": "CallExpression",
+        "argumentCount": 10,
+        "start": 12525454,
+        "end": 12525500,
+        "localStart": 1782,
+        "localEnd": 1828,
+        "bytes": 46,
+        "sha256": "147f3d6db4f6fdad6d8a5c88de2f0836736d675d8577dec78683cc184e95febd",
+        "exact": "M(W,P,Z,v??[],k?ZH$(k,q):q,Q?j:void 0,g,N,i,n)"
+      }
+    }
+  },
+  "provenanceGraph": {
+    "bundleOccurrenceCounts": {
+      "baseline": {"spawnedBySkill": 0, "activeSkill": 0},
+      "target": {"spawnedBySkill": 14, "activeSkill": 14}
+    },
+    "units": [
+      {
+        "targetIndex": 13026,
+        "role": "AgentTool derives spawned provenance from explicit spawnedBySkill or the active-skill fallback",
+        "start": 8053208,
+        "end": 8071208,
+        "nodeType": "VariableDeclaration",
+        "sha256": "aba1f72dd4736702f5acde6677c2a158521d4cb622a47bf6df46b81f1bdc3b81",
+        "occurrences": [["spawnedBySkill", 8060710, 8060724, 1], ["spawnedBySkill", 8060735, 8060749, 2], ["activeSkill", 8060761, 8060772, 1]]
+      },
+      {
+        "targetIndex": 13110,
+        "role": "processSlashCommand writes the selected prompt skill to the mutable context",
+        "start": 8094697,
+        "end": 8095529,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "34862df67f6ad400d745e9197a61af24315e821ee80e46d7bb676224f9dbb313",
+        "occurrences": [["activeSkill", 8095061, 8095072, 2]]
+      },
+      {
+        "targetIndex": 13120,
+        "role": "SkillTool writes its normalized skill name to the mutable context",
+        "start": 8098801,
+        "end": 8105254,
+        "nodeType": "VariableDeclaration",
+        "sha256": "e2d37e5d56e366f4b2097060bd1f3382ffacda971143fed49220a0dfbd6e4b96",
+        "occurrences": [["activeSkill", 8102515, 8102526, 3]]
+      },
+      {
+        "targetIndex": 13973,
+        "role": "resumeAgent explicitly clears spawned provenance for a resumed agent",
+        "start": 8749307,
+        "end": 8752275,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "b888999468985a27bc4006a94f425002b8dbe6d37f4972c5ae3a33278b92b8ad",
+        "occurrences": [["spawnedBySkill", 8751064, 8751078, 3]]
+      },
+      {
+        "targetIndex": 14201,
+        "role": "query receives spawned provenance and forwards spawnedBySkill plus context.options.activeSkill to API options",
+        "start": 8891516,
+        "end": 8909182,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "6bec08f51c847c01bc053e1062538df60560317f739c264bbc7870fdf224844c",
+        "occurrences": [["spawnedBySkill", 8891632, 8891646, 4], ["spawnedBySkill", 8896099, 8896113, 5], ["activeSkill", 8896116, 8896127, 4], ["activeSkill", 8896138, 8896149, 5]]
+      },
+      {
+        "targetIndex": 14209,
+        "role": "runAgent carries spawned provenance through request, context, and nested query construction",
+        "start": 8911653,
+        "end": 8919205,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "75ef6d84a05054fc03ecb54ffd23bae16d1d5f21be72094315037c8e0c63d7f4",
+        "occurrences": [["spawnedBySkill", 8911810, 8911824, 6], ["spawnedBySkill", 8915521, 8915535, 7], ["spawnedBySkill", 8917067, 8917081, 8]]
+      },
+      {
+        "targetIndex": 18932,
+        "role": "fork execution derives spawned provenance from explicit spawnedBySkill or activeSkill",
+        "start": 11527537,
+        "end": 11529057,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "983a08c61a8b15868febc6d26cb163edb74caa295d1e402059681dfc0325c402",
+        "occurrences": [["spawnedBySkill", 11528623, 11528637, 9], ["spawnedBySkill", 11528648, 11528662, 10], ["activeSkill", 11528674, 11528685, 6]]
+      },
+      {
+        "targetIndex": 19537,
+        "role": "queryModel consumes spawned and active skill metadata at four attribution sites",
+        "start": 11857089,
+        "end": 11880059,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "bb7118482634277258c63c74e61dddfa3090edbfb507b766f981eceb1626e56e",
+        "occurrences": [["spawnedBySkill", 11867203, 11867217, 11], ["spawnedBySkill", 11870657, 11870671, 12], ["spawnedBySkill", 11875999, 11876013, 13], ["spawnedBySkill", 11877138, 11877152, 14], ["activeSkill", 11867220, 11867231, 7], ["activeSkill", 11870674, 11870685, 8], ["activeSkill", 11876016, 11876027, 9], ["activeSkill", 11877155, 11877166, 10]]
+      },
+      {
+        "targetIndex": 20775,
+        "role": "executeUserInput retains the mutable processing context and forwards activeSkill to onQuery",
+        "start": 12518538,
+        "end": 12520613,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "e4b5f9d005699236742515036428f5233ec45cadb1c0d596eda0283b6003e32d",
+        "occurrences": [["activeSkill", 12520389, 12520400, 11]]
+      },
+      {
+        "targetIndex": 21373,
+        "role": "REPL onQuery installs the forwarded active skill on the query ToolUseContext",
+        "start": 12808080,
+        "end": 12870870,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "9ec5b2c56ed51834e6b5daad46cd908af0a5f0bd706ab4b89ad27854cd2e5ee9",
+        "occurrences": [["activeSkill", 12836700, 12836711, 12]]
+      },
+      {
+        "targetIndex": 21925,
+        "role": "QueryEngine captures activeSkill from one context and preserves it on the replacement context",
+        "start": 13614493,
+        "end": 13633240,
+        "nodeType": "ClassDeclaration",
+        "sha256": "b50a3d63b4a326c0e0cdc40cb78fc2b6e3a637fff64c051a41a0c331e97d9e36",
+        "occurrences": [["activeSkill", 13621674, 13621685, 13], ["activeSkill", 13622391, 13622402, 14]]
+      }
+    ],
+    "edgeAnchors": [
+      {"id": "agent-tool-active-fallback", "targetIndex": 13026, "nodeType": "Property", "start": 8060710, "end": 8060772, "bytes": 62, "sha256": "0f85cb208f5014336d906478babe9ad6903a19b00bca0a3f1eadbd5434c6ad1a", "exact": "spawnedBySkill:M.options.spawnedBySkill??M.options.activeSkill"},
+      {"id": "slash-command-active-producer", "targetIndex": 13110, "nodeType": "AssignmentExpression", "start": 8095051, "end": 8095079, "bytes": 28, "sha256": "d454181a9baaa2d518f080f6050a8e7701d382cbe77212379a35401f866bcb4a", "exact": "q.options.activeSkill=H.name"},
+      {"id": "skill-tool-active-producer", "targetIndex": 13120, "nodeType": "AssignmentExpression", "start": 8102505, "end": 8102528, "bytes": 23, "sha256": "3105721b4cfe8147682bb943f06ac453453da09ecdb530b42ff34ba24006c84e", "exact": "q.options.activeSkill=f"},
+      {"id": "resume-agent-spawn-clear", "targetIndex": 13973, "nodeType": "Property", "start": 8751064, "end": 8751085, "bytes": 21, "sha256": "f04524219aefa8e8d65f720bfeaee336c178891878da5875e7641138df8bec4f", "exact": "spawnedBySkill:void 0"},
+      {"id": "query-spawn-ingress", "targetIndex": 14201, "nodeType": "Property", "start": 8891632, "end": 8891648, "bytes": 16, "sha256": "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "exact": "spawnedBySkill:Y"},
+      {"id": "query-active-forward", "targetIndex": 14201, "nodeType": "Property", "start": 8896116, "end": 8896149, "bytes": 33, "sha256": "27dafb5f4e4831eb54b83fb5af1aa028c8a39093e2aa3108e8af3a764a3c2f78", "exact": "activeSkill:P.options.activeSkill"},
+      {"id": "run-agent-spawn-carry", "targetIndex": 14209, "nodeType": "Property", "start": 8911810, "end": 8911826, "bytes": 16, "sha256": "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "exact": "spawnedBySkill:Y"},
+      {"id": "fork-active-fallback", "targetIndex": 18932, "nodeType": "Property", "start": 11528623, "end": 11528685, "bytes": 62, "sha256": "30e41c3d7882864178280f3afe03e6224620e196a60f4384dca973f5306919fb", "exact": "spawnedBySkill:$.options.spawnedBySkill??$.options.activeSkill"},
+      {"id": "query-model-attribution-consumer", "targetIndex": 19537, "nodeType": "CallExpression", "start": 11867183, "end": 11867232, "bytes": 49, "sha256": "e44131746d96a43849324cb021c0e59ca68c73986d5c7cebd2ee5e21428b2f8c", "exact": "KJ$(A.querySource,A.spawnedBySkill,A.activeSkill)"},
+      {"id": "handle-submit-active-forward", "targetIndex": 20775, "nodeType": "CallExpression", "start": 12520332, "end": 12520401, "bytes": 69, "sha256": "f22447497e183b0d2856382dec3bef8d0b812fbda2ee1491c103090316497f9f", "exact": "M(W,P,Z,v??[],V?S$$(V,q):q,l?j:void 0,Q,N,c,a,B.options?.activeSkill)"},
+      {"id": "repl-active-context-install", "targetIndex": 21373, "nodeType": "AssignmentExpression", "start": 12836689, "end": 12836714, "bytes": 25, "sha256": "145cf29bf7c6fb5c90925bdb363e02bb883da90e80f54c8933bd8e0cd519bfea", "exact": "$9.options.activeSkill=K4"},
+      {"id": "query-engine-active-capture", "targetIndex": 21925, "nodeType": "VariableDeclarator", "start": 13621660, "end": 13621685, "bytes": 25, "sha256": "8f03acf2669af61cfaf5a48852978a10f1b03ef2eb5bf0f47aed69bbbcd66b37", "exact": "aH=qH.options.activeSkill"},
+      {"id": "query-engine-active-restore", "targetIndex": 21925, "nodeType": "Property", "start": 13622391, "end": 13622405, "bytes": 14, "sha256": "671410843077aa963c50451def3cd5633576834c7a976a84349f584f6fbab4ca", "exact": "activeSkill:aH"}
+    ],
+    "edges": [
+      {"id": "interactive-producers-to-forwarder", "from": [13110, 13120], "through": [20775], "to": [21373], "behavior": "Both skill processors mutate the exact context object that u20775 caches, passes into processUserInput, reads after processing, and hands to REPL onQuery."},
+      {"id": "repl-to-query-and-attribution", "from": [21373], "through": [14201], "to": [19537], "behavior": "REPL installs the received active skill on the query context; query forwards active and spawned provenance; queryModel consumes both for attribution."},
+      {"id": "active-to-agent-spawn", "from": [14201], "through": [13026, 18932], "to": [14209], "behavior": "AgentTool and fork execution use activeSkill as the fallback source of spawnedBySkill, which runAgent carries through nested execution."},
+      {"id": "resume-and-query-engine-boundaries", "from": [13973, 21925], "through": [], "to": [], "behavior": "Resume explicitly clears spawned provenance, while QueryEngine preserves activeSkill when replacing its context; both are independent non-interactive boundaries."}
+    ],
+    "boundary": "This lane admits only u20775 activeSkill occurrence 11. Every other provenance occurrence is exact dependency evidence and remains independently owned."
+  },
+  "sourceState": {
+    "sourceRootMarkerCounts": {"spawnedBySkill": 0, "activeSkill": 0},
+    "handlePromptSubmit": {
+      "path": "src/utils/handlePromptSubmit.ts",
+      "file": {"bytes": 21897, "chars": 21863, "sha256": "1a9d69be16cc4655f69ad50df2e7060c72480cda6ef2f56c5491d0ecafaf3d60"},
+      "target120": {"gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1", "gitBlob": "ab71cc0d9fd747a99406fe32381160df1ffe8a16"},
+      "target121": {"gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a", "gitBlob": "ab71cc0d9fd747a99406fe32381160df1ffe8a16"},
+      "baseExecutionParams": {"start": 1926, "end": 3352, "chars": 1426, "bytes": 1428, "sha256": "04aa6c488da83dd3fa80612a5174c9d4f5479208109c82b65a4a69897484fc68", "line": 39, "endLine": 77, "memberCount": 16, "memberNames": {"bytes": 252, "sha256": "40c0f70a2019ccff1c0e33ea0347f1734c52503ae929b4c7af9a37173facc1b9"}, "onQueryParameterCount": 9, "onQueryParameterNames": ["newMessages", "abortController", "shouldQuery", "additionalAllowedTools", "mainLoopModel", "onBeforeQuery", "input", "effort", "clientPlatform"]},
+      "executeUserInput": {"start": 12901, "end": 21862, "chars": 8961, "bytes": 8987, "sha256": "4f09b53975d10a06c9820e5a6c5282c9c9bdbf6f3399c8eba165e98ae60d38a7", "line": 397, "endLine": 615, "parameterCount": 1, "bodyStatementCount": 5},
+      "makeContext": {"start": 13690, "end": 13818, "chars": 128, "bytes": 128, "sha256": "ce6fd0912834345a7616438e0c7e2264028b182941f35b009f9f80f201231ed3", "line": 423, "endLine": 425, "bodyStatementCount": 1},
+      "processUserInputCall": {"start": 16390, "end": 17110, "chars": 720, "bytes": 720, "sha256": "ddd60c99e7942389e75f66afd572e1f70d15d80585bf87c851c3e89f40c2494f", "line": 477, "endLine": 497, "argumentCount": 1, "contextProperty": "context: makeContext()"},
+      "onQueryCall": {"start": 19758, "end": 20115, "chars": 357, "bytes": 357, "sha256": "c036e66880f8e33583cb616c1e7ad53dd92c873f84a65121d490200e7ee2d27b", "line": 564, "endLine": 576, "argumentCount": 9}
+    },
+    "toolUseContext": {
+      "path": "src/Tool.ts",
+      "file": {"bytes": 32845, "chars": 32785, "sha256": "514e104e5f5ddea0b3b8974b0845aff9efbb4344c63372f58fce79ff798b9739"},
+      "gitBlob": "b4d4a14be5c0f7e6c394472582f7d0c152622e93",
+      "declaration": {"start": 5962, "end": 13940, "chars": 7978, "bytes": 7990, "sha256": "31f973bb2749cc2f8907c437571fa78ebc5544b0775eddf2c334fb9154252877", "line": 191, "endLine": 373, "memberCount": 53},
+      "optionsType": {"start": 6004, "end": 7353, "chars": 1349, "bytes": 1349, "sha256": "dc9ca6ee7aa8bddafd7f853f3d12ad51de761eee7ce2a11124789fd7b2340fb3", "line": 192, "endLine": 223, "memberCount": 21, "memberNames": {"bytes": 366, "sha256": "2f9e559d5fd2a41adb5781524b05db63f5c0f8411b5104a342417354327db063"}}
+    },
+    "processUserInputContext": {
+      "path": "src/utils/processUserInput/processUserInput.ts",
+      "file": {"bytes": 21808, "chars": 21790, "sha256": "8c573d842c974b53581b85368d35bf48757e7b0e12951923b6dc47cbd606adcd"},
+      "gitBlob": "fd759bba1dadf6e86ea5ab4ab5c5a3af49dbefeb",
+      "declaration": {"start": 2141, "end": 2218, "chars": 77, "bytes": 77, "sha256": "d34a21052d9d3f9f947e349ca9112b0dc57264cb8b7ff5a84be953a4c80cee8d", "line": 71, "endLine": 71, "exact": "export type ProcessUserInputContext = ToolUseContext & LocalJSXCommandContext"}
+    },
+    "freshPackage": {"defaultSourceRoot": "/tmp/target121-daemon-reader-final.lc1acm/2.1.121/src"}
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reasons": [
+      "Recovered Target120 and Target121 handlePromptSubmit.ts are byte-identical and keep makeContext() inline for each processUserInput call; neither caches the context nor forwards activeSkill.",
+      "BaseExecutionParams.onQuery has nine parameters and the recovered call has nine arguments, while the authenticated Target121 bundle call has eleven minified arguments and appends the active-skill chain as its final argument.",
+      "Recovered ToolUseContext.options has neither spawnedBySkill nor activeSkill, and ProcessUserInputContext only intersects ToolUseContext with LocalJSXCommandContext.",
+      "The complete recovered Target120, Target121, and fresh-package source roots contain zero occurrences of both provenance fields, although the authenticated Target121 bundle has fourteen of each across eleven units."
+    ]
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/handle-prompt-submit-active-skill-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_HANDLE_PROMPT_SUBMIT_ACTIVE_SKILL_OWNER_OVERRIDES",
+    "replayHelper": null
+  },
+  "strictEvolution": {
+    "integrationOrder": "u19537 is integrated before u20775",
+    "before": {"unsupportedUnits": 37, "unsupportedResidues": 408},
+    "removes": {"targetIndices": [20775], "units": 1, "residueCount": 1, "residues": [[20775, "property", "activeSkill", 12520389, 12520400, 11]]},
+    "predictedAfter": {"unsupportedUnits": 36, "unsupportedResidues": 407}
+  }
+}

@@ -1,0 +1,534 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-static-production-strict-property-owner-evidence-proof",
+  "criterion": "complete-unit-manual-predecessor-live-module-binding-exact-source-call-graph-v1",
+  "evidenceIds": [
+    "target119-headless-classifier-complete-unit-predecessor-proof",
+    "target119-headless-classifier-strict-property-ordinal-proof",
+    "target119-headless-classifier-live-module-binding-proof",
+    "target119-headless-classifier-export-implementation-graph-proof",
+    "target119-headless-classifier-exact-source-call-graph-proof",
+    "target119-headless-classifier-static-no-replay-proof"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-rendezvous",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24697305,
+          "sha256": "1b156d078208c9df0baea3430dc58387f14d3535cd6052724f0847bd83d4d4f7"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 378822,
+          "sha256": "355c431cda776c760ac1d1e5098dc03f322087bd2deb67a4ab53dd50aa6f2f4d"
+        }
+      },
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      }
+    ]
+  },
+  "inputs": {
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "sourceCommits": {
+      "baseline": {
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+        "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0"
+      },
+      "target": {
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92"
+      }
+    },
+    "sourceFiles": {
+      "baselinePrint": {
+        "path": "src/cli/print.ts",
+        "bytes": 220728,
+        "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6",
+        "gitBlobSha1": "abb0daa1732e1f5b5845c7a0afc52faa3162567c"
+      },
+      "targetPrint": {
+        "path": "src/cli/print.ts",
+        "bytes": 228505,
+        "sha256": "e4cc8072e34fb6aa64ebd8f7a4a793c55e748b98bc25d9d446426115da264537",
+        "gitBlobSha1": "76f82223aace2f18deb5fcc9811c7f950bfe3284"
+      },
+      "targetTaskSummary": {
+        "path": "src/utils/taskSummary.ts",
+        "bytes": 5042,
+        "sha256": "b42c9d30512c4dd4c3cf40eb51176286f0c9699981f73dab33cb40bde37d3b85",
+        "gitBlobSha1": "85124bb8b1f1b024f29a70401b4b250412d8d8ea"
+      }
+    }
+  },
+  "snapshotPartitions": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 521,
+      "sha256": "8cb206effaf22113fdb5e6a536114c0b5ee1cbd0ddd004d68681f56e6a21a69e"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 1,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 2,
+        "value": "runClassifierSummaryForBlocked",
+        "target": {
+          "start": 13520554,
+          "end": 13520584
+        },
+        "structural": {
+          "index": 21741,
+          "classification": "unresolved",
+          "sourceHash": "66acb64e7eb34b33992ec0e74242f41282b733cb3e0020f6f2052b7ab3659aaf"
+        },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": [
+          "cli/print.ts"
+        ],
+        "ownerSourceMatches": [],
+        "candidates": [
+          "../src/cli/print.ts"
+        ],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 512,
+      "sha256": "32d1a0cf7b74b3ac564d2f31b331fc05415c252670d8868a13b235f857b3fa45"
+    },
+    "coverageTarget": [
+      {
+        "targetIndex": 21741,
+        "start": 13515784,
+        "end": 13522235,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "66acb64e7eb34b33992ec0e74242f41282b733cb3e0020f6f2052b7ab3659aaf",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-cli-print-ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ],
+        "behavior": "Compiled target unit is attributed to src/cli/print.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ],
+    "coverageGraphTupleSchema": [
+      "targetIndex",
+      "start",
+      "end",
+      "nodeType",
+      "sourceHash",
+      "structuralClass",
+      "disposition",
+      "ownerIds",
+      "evidenceIds"
+    ],
+    "coverageGraphDescriptor": {
+      "rows": 13,
+      "jsonBytes": 3089,
+      "sha256": "8ee59e82e8c3a1e435a856da19e8cc4af94d2562978db5f515c5dc21fd858e46"
+    },
+    "coverageGraphTuples": [
+      [13989, 8791979, 8791990, "VariableDeclaration", "917c0b18ae787f4816a25a622e2778447c98ded7f68afaca25514f182d8fc264", "moved", "alpha-equivalent", [], ["structural-pairing"]],
+      [13990, 8791990, 8792171, "ExpressionStatement", "3736eb0f9e0b771dcbce02e1278e4216b9805832a195289e6b83c85dcd6ebc16", "unresolved", "alpha-equivalent", [], ["readable-normalization", "static-semantic-noop"]],
+      [13991, 8792171, 8792497, "FunctionDeclaration", "62150be9c1f5a6c65a0197d8358d8b738e1104f2335f6bf8e75f95490dd3914d", "unresolved", "source-runtime-covered", ["owner-src-utils-taskSummary-ts"], ["target119-transitive-owner-target-fragment", "target119-transitive-owner-source-ast-test"]],
+      [13992, 8792497, 8792750, "FunctionDeclaration", "e689723c9aa6165c9d50cc51655399059abbc160fd17d5e80049d8122bcb9e51", "unresolved", "source-runtime-covered", ["owner-src-utils-taskSummary-ts"], ["target119-transitive-owner-target-fragment", "target119-transitive-owner-source-ast-test"]],
+      [13993, 8792750, 8792972, "FunctionDeclaration", "31beb0aa9f48c259fcf03db89e63101faef1c1b9e188a6947a484fc5e167548a", "unresolved", "source-runtime-covered", ["owner-src-utils-taskSummary-ts"], ["target119-transitive-owner-target-fragment", "target119-transitive-owner-source-ast-test"]],
+      [13994, 8792972, 8793223, "FunctionDeclaration", "c763b87bc20719e170036ba8c6a6f0144891fdaaa328af9c6eaa5c293c4a6b0f", "unresolved", "source-runtime-covered", ["owner-src-utils-taskSummary-ts"], ["target119-transitive-owner-target-fragment", "target119-transitive-owner-source-ast-test"]],
+      [13995, 8793223, 8793378, "FunctionDeclaration", "81377f6f9ca0d34b27c118b113ba9c3485744ff5cb67f06f5aaa73f08500e3f6", "unresolved", "source-runtime-covered", ["owner-src-utils-taskSummary-ts"], ["target119-transitive-owner-target-fragment", "target119-transitive-owner-source-ast-test"]],
+      [13996, 8793378, 8793402, "FunctionDeclaration", "476a4d26274d964911ebfccfdf560b57ce1de1bc7fa3f0049ee42d600cd159f2", "moved", "alpha-equivalent", [], ["structural-pairing"]],
+      [13998, 8793558, 8793818, "FunctionDeclaration", "363cc9c4ea924a17f342d95ce1caf1df3211d904f9b922186ac762352dbfb821", "unresolved", "source-runtime-covered", ["owner-src-utils-taskSummary-ts"], ["target119-transitive-owner-target-fragment", "target119-transitive-owner-source-ast-test"]],
+      [13999, 8793818, 8793833, "VariableDeclaration", "09ad954c0510393213749e3270f3d223b9f44f335f65260bbdbc1f6f1c18ed7f", "moved", "alpha-equivalent", [], ["structural-pairing"]],
+      [14000, 8793833, 8793983, "VariableDeclaration", "1fb6addf0bfa402bfbe333436bc221b2c00ac50180b35454d652a62a73c1abcd", "unresolved", "source-runtime-covered", ["owner-src-utils-taskSummary-ts"], ["target119-transitive-owner-target-fragment", "target119-transitive-owner-source-ast-test"]],
+      [21741, 13515784, 13522235, "FunctionDeclaration", "66acb64e7eb34b33992ec0e74242f41282b733cb3e0020f6f2052b7ab3659aaf", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["source-map-attribution", "semantic-test"]],
+      [21763, 13581991, 13582967, "VariableDeclaration", "38cdd27883151b3f0c0f6353591debf30b65807c9e9f95e4393df8e1ef05f7a5", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["source-map-attribution", "semantic-test"]]
+    ],
+    "ownerCatalogDescriptor": {
+      "rows": 2,
+      "jsonBytes": 133,
+      "sha256": "9aeaedd741ceccf7c28d41916a3616d81a68f2375b3ff578d3cd96605e46e184"
+    },
+    "ownerCatalog": [
+      {
+        "id": "owner-src-cli-print-ts",
+        "path": "src/cli/print.ts"
+      },
+      {
+        "id": "owner-src-utils-taskSummary-ts",
+        "path": "src/utils/taskSummary.ts"
+      }
+    ]
+  },
+  "units": {
+    "baselineHeadless": {
+      "release": "2.1.118",
+      "index": 20835,
+      "role": "manual predecessor runHeadless",
+      "nodeType": "FunctionDeclaration",
+      "start": 13036787,
+      "end": 13043216,
+      "bytes": 6429,
+      "tokenCount": 1852,
+      "sha256": "0bdb83e0ed1b4a1c7bccdb8de7932e90378065159c26178187fadb19da565baf",
+      "coarseHash": "0c15e17b37ba3014c6186747dddb4dd3d5bfd1a56af5285c294dffcf3b315d84"
+    },
+    "targetHeadless": {
+      "release": "2.1.119",
+      "index": 21741,
+      "role": "runHeadless strict-property caller",
+      "classification": "unresolved",
+      "manualPredecessorUnitIndex": 20835,
+      "nodeType": "FunctionDeclaration",
+      "start": 13515784,
+      "end": 13522235,
+      "bytes": 6451,
+      "tokenCount": 1854,
+      "sha256": "66acb64e7eb34b33992ec0e74242f41282b733cb3e0020f6f2052b7ab3659aaf",
+      "coarseHash": "c19cbf68f6bcf904ff0d3c867fc4ea73d75361bd0b18d7000717a3e799d0d156",
+      "unknownFreeIdentifierCount": 2
+    }
+  },
+  "predecessorProof": {
+    "commonTopLevelStatements": 29,
+    "totalTopLevelStatements": {
+      "baseline": 31,
+      "target": 31
+    },
+    "normalizations": [
+      {
+        "side": "baseline",
+        "kind": "remove-leading-output-error-initializer-call",
+        "statementIndex": 24,
+        "statement": {
+          "start": 13041689,
+          "end": 13041764,
+          "bytes": 75,
+          "sha256": "92747efada2299fc9ba996a1c8508efee65c388476aba792d1f2436359bacf74"
+        }
+      },
+      {
+        "side": "target",
+        "kind": "remove-task-summary-filter-arm",
+        "statementIndex": 27,
+        "literal": "task_summary",
+        "statement": {
+          "start": 13520837,
+          "end": 13521478,
+          "bytes": 641,
+          "sha256": "73db85e4e16d5cdf5e608231a948c5ca258dfbdd6569dae63aa0d481bd831bfa"
+        }
+      }
+    ],
+    "pairedChangedStatements": {
+      "targetOutputInitializer": {
+        "statementIndex": 24,
+        "start": 13520686,
+        "end": 13520755,
+        "bytes": 69,
+        "sha256": "8286337751f74ba39c2cb764a725ce40a8cac1fd611dead3b9e424e73e6f5b01"
+      },
+      "baselineMessageLoop": {
+        "statementIndex": 27,
+        "start": 13041846,
+        "end": 13042459,
+        "bytes": 613,
+        "sha256": "62721017523e23c8e629cfc5c397c8609319abbebb2f56ee8ec22808cdc161e4"
+      }
+    },
+    "normalizedCompleteUnitCanonical": {
+      "jsonBytes": 74887,
+      "sha256": "79fc86e00d219eeccd2e8448b92f23b4915dd3c29d25bce3717fa1843be5a7c9"
+    },
+    "permissionSequence": {
+      "baseline": {
+        "start": 13041497,
+        "end": 13041605,
+        "bytes": 108,
+        "sha256": "cb057ef02a182e180ba7516aa49c074e0a216129ef3bba0c0aecdcc65f1c7570"
+      },
+      "target": {
+        "start": 13520494,
+        "end": 13520602,
+        "bytes": 108,
+        "sha256": "c7430eb09c4bde9ca4b99941ee233adc420ff6f3fe7c09b02b0c48c48af15bba"
+      },
+      "canonical": {
+        "jsonBytes": 964,
+        "sha256": "d73b07406dcbe3c9530d491a8f9a890a7cb0daabf560f15a6c9b4be8e80ee4c7"
+      }
+    },
+    "classifierExpression": {
+      "baseline": {
+        "start": 13041552,
+        "end": 13041605,
+        "bytes": 53,
+        "sha256": "e298a0f6d9e0de7ddbcd45a71908146b5d89fc659e2bc035bb36752894a40840",
+        "text": "X55?.runClassifierSummaryForBlocked(b,O.sessionState)"
+      },
+      "target": {
+        "start": 13520549,
+        "end": 13520602,
+        "bytes": 53,
+        "sha256": "8c0a434450d293e0d917eccac357cb150d2656567eb04fb50c823e0e2766c8cd",
+        "text": "LV5?.runClassifierSummaryForBlocked(C,O.sessionState)"
+      },
+      "canonical": {
+        "jsonBytes": 479,
+        "sha256": "d08e526e49832cd243f5581c9238ab1fefcdac5115cfba16ab6fe6f4faae1343"
+      }
+    }
+  },
+  "strictProperty": {
+    "value": "runClassifierSummaryForBlocked",
+    "baselineOccurrences": [
+      {
+        "start": 13041557,
+        "end": 13041587,
+        "unitIndex": 20835,
+        "role": "retained optional caller"
+      }
+    ],
+    "targetOccurrences": [
+      {
+        "start": 8792015,
+        "end": 8792045,
+        "unitIndex": 13990,
+        "role": "new module export"
+      },
+      {
+        "start": 13520554,
+        "end": 13520584,
+        "unitIndex": 21741,
+        "role": "retained optional caller and strict row"
+      }
+    ],
+    "baselineOccurrenceCount": 1,
+    "targetOccurrenceNumber": 2
+  },
+  "compiledGraph": {
+    "dependencyTargetIndices": [13989, 13990, 13991, 13992, 13993, 13994, 13995, 13996, 13998, 13999, 14000, 21763],
+    "excludedSiblingTargetIndices": [13997],
+    "units": [
+      {"index": 13989, "name": "B78", "role": "taskSummary namespace object", "nodeType": "VariableDeclaration", "start": 8791979, "end": 8791990, "bytes": 11, "tokenCount": 6, "sha256": "917c0b18ae787f4816a25a622e2778447c98ded7f68afaca25514f182d8fc264", "coarseHash": "dd597ca1967ba39d68d494eb85daec171e3715dc0d7520066e7a47b2886a8018"},
+      {"index": 13990, "name": null, "role": "taskSummary export table", "nodeType": "ExpressionStatement", "start": 8791990, "end": 8792171, "bytes": 181, "tokenCount": 49, "sha256": "3736eb0f9e0b771dcbce02e1278e4216b9805832a195289e6b83c85dcd6ebc16", "coarseHash": "dffe041e86cc44624f2b2bdd66178c873eccec1daa143446957065708687135c"},
+      {"index": 13991, "name": "lE7", "sourceName": "detectSurfaces", "nodeType": "FunctionDeclaration", "start": 8792171, "end": 8792497, "bytes": 326, "tokenCount": 115, "sha256": "62150be9c1f5a6c65a0197d8358d8b738e1104f2335f6bf8e75f95490dd3914d", "coarseHash": "f742cb8aeacb8308a70128cfbecbfc6b514925c56d9e606115dbfb76fb2b4b94"},
+      {"index": 13992, "name": "iE7", "sourceName": "sinksFor", "nodeType": "FunctionDeclaration", "start": 8792497, "end": 8792750, "bytes": 253, "tokenCount": 96, "sha256": "e689723c9aa6165c9d50cc51655399059abbc160fd17d5e80049d8122bcb9e51", "coarseHash": "ac7266379a2f8c8c86540d21d4f3f472776ad55ecbee7560fe4dbfd4b0af4518"},
+      {"index": 13993, "name": "Xk1", "sourceName": "disabledSurfaces", "nodeType": "FunctionDeclaration", "start": 8792750, "end": 8792972, "bytes": 222, "tokenCount": 79, "sha256": "31beb0aa9f48c259fcf03db89e63101faef1c1b9e188a6947a484fc5e167548a", "coarseHash": "e6ba56f3a331846eb5019c081c5a884e239f0d429aee33d16b8258a7b8e42db5"},
+      {"index": 13994, "name": "rE7", "sourceName": "engineFor", "nodeType": "FunctionDeclaration", "start": 8792972, "end": 8793223, "bytes": 251, "tokenCount": 72, "sha256": "c763b87bc20719e170036ba8c6a6f0144891fdaaa328af9c6eaa5c293c4a6b0f", "coarseHash": "115ddc554d94145ad15d74ed1a0234a1ebfe9fe2d6b471cc0f72ea298428cfa1"},
+      {"index": 13995, "name": "Jk1", "sourceName": "emittedEngine", "nodeType": "FunctionDeclaration", "start": 8793223, "end": 8793378, "bytes": 155, "tokenCount": 34, "sha256": "81377f6f9ca0d34b27c118b113ba9c3485744ff5cb67f06f5aaa73f08500e3f6", "coarseHash": "cddefc759c798b84db574264e4de973442f8b9860019270fe3d056fe4c03f2d9"},
+      {"index": 13996, "name": "oE7", "sourceName": "isPostTurnSummaryVisibleInCli", "nodeType": "FunctionDeclaration", "start": 8793378, "end": 8793402, "bytes": 24, "tokenCount": 9, "sha256": "476a4d26274d964911ebfccfdf560b57ce1de1bc7fa3f0049ee42d600cd159f2", "coarseHash": "a155493b35df5a6c931d99ce172e67ad90c86ef7b95eea21b3b475e9eb616538"},
+      {"index": 13998, "name": "Pk1", "sourceName": "runClassifierSummaryForBlocked", "nodeType": "FunctionDeclaration", "start": 8793558, "end": 8793818, "bytes": 260, "tokenCount": 81, "sha256": "363cc9c4ea924a17f342d95ce1caf1df3211d904f9b922186ac762352dbfb821", "coarseHash": "0b0d160a5105791588a2db7a3c71d284d66299390b8ac9114fa0704b5721da7e"},
+      {"index": 13999, "name": "nE7,cE7", "role": "taskSummary module state", "nodeType": "VariableDeclaration", "start": 8793818, "end": 8793833, "bytes": 15, "tokenCount": 8, "sha256": "09ad954c0510393213749e3270f3d223b9f44f335f65260bbdbc1f6f1c18ed7f", "coarseHash": "b0ebd6348f5a3147ed8c3d4710fbd0ee2fb9f74d0214cbca42aa11b2e59a67ac"},
+      {"index": 14000, "name": "F78", "role": "taskSummary module initializer", "nodeType": "VariableDeclaration", "start": 8793833, "end": 8793983, "bytes": 150, "tokenCount": 71, "sha256": "1fb6addf0bfa402bfbe333436bc221b2c00ac50180b35454d652a62a73c1abcd", "coarseHash": "66025f99c5cc7a3ef86256380b6e946574a3f6f5eabc382fa045ca98a2d9e2c4"},
+      {"index": 21763, "name": "qh4", "role": "cli print module initializer and live namespace assignment", "nodeType": "VariableDeclaration", "start": 13581991, "end": 13582967, "bytes": 976, "tokenCount": 663, "sha256": "38cdd27883151b3f0c0f6353591debf30b65807c9e9f95e4393df8e1ef05f7a5", "coarseHash": "0b20ec219b763e9c2a528ab0deb4a4f1ce23c38959f88dd699c5ebb9bbdd4dd0"}
+    ],
+    "exportTable": {
+      "targetIndex": 13990,
+      "text": "M$(B78,{sinksFor:()=>iE7,runClassifierSummaryForBlocked:()=>Pk1,isPostTurnSummaryVisibleInCli:()=>oE7,engineFor:()=>rE7,detectSurfaces:()=>lE7,classifiedToPostTurnSummary:()=>Lk1});",
+      "property": {
+        "start": 8792015,
+        "end": 8792053,
+        "bytes": 38,
+        "sha256": "456e2ef2f98ac046985ce62695457fdd2510afa5f3fd3a543169d78a27642f6b",
+        "text": "runClassifierSummaryForBlocked:()=>Pk1"
+      },
+      "binding": "Pk1"
+    },
+    "baselineBinding": {
+      "name": "X55",
+      "start": 13099766,
+      "end": 13099774,
+      "bytes": 8,
+      "sha256": "926e318ebc115528736527adf50e488aea89ce685cb07215661615915fc1efa5",
+      "text": "X55=null",
+      "identifierCount": 2,
+      "assignmentWriteCount": 0
+    },
+    "targetBinding": {
+      "name": "LV5",
+      "initializerTargetIndex": 21763,
+      "start": 13582827,
+      "end": 13582846,
+      "bytes": 19,
+      "sha256": "1719341761563747b529c9c9a9e731dcf0cdef5db80b041011e24ba55013c344",
+      "text": "LV5=(F78(),b6(B78))",
+      "identifierCount": 3,
+      "assignmentWriteCount": 1,
+      "moduleInitializer": "F78",
+      "namespaceObject": "B78"
+    },
+    "implementationCanonicalAfterOptionalCallTempInlining": {
+      "jsonBytes": 3026,
+      "sha256": "1a55cf4cdeb7243378933a12737f91fd5ccc0d8a5b2376558a48197e52f14630"
+    },
+    "moduleInitializerExternalCalls": ["J$", "B8", "mz", "tH", "Q$"]
+  },
+  "sourceGraph": {
+    "baseline": {
+      "print": {
+        "runHeadless": {"characterStart": 17622, "characterEnd": 37479, "bytes": 19867, "sha256": "36fd36153043d424ab2ac223d8ea22d4f6d26b68d89b12a4490d57e896ccd69f"},
+        "permissionCallback": {"characterStart": 31195, "characterEnd": 31566, "bytes": 371, "sha256": "bba1b1e0713d44ecd37edbf5d677c6256fc62ff7d34d626b12ff755f88750d00"},
+        "canUseToolCall": {"characterStart": 31589, "characterEnd": 31725, "bytes": 136, "sha256": "36b275fbf4693cd3b451ef87fcf6a4136c0e791f0601740cb475efae53dc0b02"},
+        "classifierImportCount": 0,
+        "classifierCallCount": 0
+      },
+      "taskSummaryPathPresent": false
+    },
+    "targetPrintVariants": [
+      {
+        "state": "historical-target",
+        "file": {"bytes": 228505, "sha256": "e4cc8072e34fb6aa64ebd8f7a4a793c55e748b98bc25d9d446426115da264537", "gitBlobSha1": "76f82223aace2f18deb5fcc9811c7f950bfe3284"},
+        "runHeadless": {"characterStart": 17967, "characterEnd": 38032, "bytes": 20075, "sha256": "c3f5841405e5d994849e22ef59177034d95d8fdc79c738458a9d9124f2cc2e4e"},
+        "permissionCallback": {"characterStart": 31588, "characterEnd": 32071, "bytes": 483, "sha256": "8e04d8b27e47e609fb0569c5250e353d92e1e44dd71025299bc4ae54d6bedda6"},
+        "classifierCall": {"characterStart": 31960, "characterEnd": 32067, "bytes": 107, "sha256": "07bb33cefb8152de9dfb43967c3a95aadb152da00fa49b6c8a0fbb2a86b1f8ae"},
+        "taskSummaryImport": {"characterStart": 2443, "characterEnd": 2516, "bytes": 73, "sha256": "51e0404da514bc35f32db30883c06f04be12da12f3bb936b8cf099c09ff446c4"},
+        "canUseToolCall": {"characterStart": 32094, "characterEnd": 32230, "bytes": 136, "sha256": "36b275fbf4693cd3b451ef87fcf6a4136c0e791f0601740cb475efae53dc0b02"}
+      },
+      {
+        "state": "post-rendezvous-fresh-package",
+        "file": {"bytes": 228328, "sha256": "036c909aa7ef9278d40e2ceea395eb5aee87eb51dc683e7c5fc270cbaab8c951", "gitBlobSha1": "11b51a6546fdfeb19af37e42c424c715daefadb3"},
+        "runHeadless": {"characterStart": 17926, "characterEnd": 37855, "bytes": 19939, "sha256": "6615c6daa25d2ed9836b88ec8b64be33b8c8f0c7d79f60241c4f051d4e83b0e3"},
+        "permissionCallback": {"characterStart": 31547, "characterEnd": 32030, "bytes": 483, "sha256": "8e04d8b27e47e609fb0569c5250e353d92e1e44dd71025299bc4ae54d6bedda6"},
+        "classifierCall": {"characterStart": 31919, "characterEnd": 32026, "bytes": 107, "sha256": "07bb33cefb8152de9dfb43967c3a95aadb152da00fa49b6c8a0fbb2a86b1f8ae"},
+        "taskSummaryImport": {"characterStart": 2443, "characterEnd": 2516, "bytes": 73, "sha256": "51e0404da514bc35f32db30883c06f04be12da12f3bb936b8cf099c09ff446c4"},
+        "canUseToolCall": {"characterStart": 32053, "characterEnd": 32189, "bytes": 136, "sha256": "36b275fbf4693cd3b451ef87fcf6a4136c0e791f0601740cb475efae53dc0b02"}
+      },
+      {
+        "state": "current-raw",
+        "file": {"bytes": 248102, "sha256": "0b838a6f74645f962c29709e71824310bf08f8a327727c2af577c58d75e4f3f0", "gitBlobSha1": "aa21a37e2211339c97c1c035bca34c7817ed10ea"},
+        "runHeadless": {"characterStart": 20894, "characterEnd": 42011, "bytes": 21127, "sha256": "9c2877e31d9d15f81c94309a4fc68b4bd09396067e47ab389a4ab18e253efac8"},
+        "permissionCallback": {"characterStart": 34645, "characterEnd": 35128, "bytes": 483, "sha256": "8e04d8b27e47e609fb0569c5250e353d92e1e44dd71025299bc4ae54d6bedda6"},
+        "classifierCall": {"characterStart": 35017, "characterEnd": 35124, "bytes": 107, "sha256": "07bb33cefb8152de9dfb43967c3a95aadb152da00fa49b6c8a0fbb2a86b1f8ae"},
+        "taskSummaryImport": {"characterStart": 2678, "characterEnd": 2751, "bytes": 73, "sha256": "51e0404da514bc35f32db30883c06f04be12da12f3bb936b8cf099c09ff446c4"},
+        "canUseToolCall": {"characterStart": 35151, "characterEnd": 35287, "bytes": 136, "sha256": "36b275fbf4693cd3b451ef87fcf6a4136c0e791f0601740cb475efae53dc0b02"}
+      }
+    ],
+    "taskSummary": {
+      "file": {"bytes": 5042, "sha256": "b42c9d30512c4dd4c3cf40eb51176286f0c9699981f73dab33cb40bde37d3b85"},
+      "declarations": [
+        {"name": "envBoolean", "characterStart": 865, "characterEnd": 1030, "bytes": 165, "sha256": "8730060a48ac4e979fdf03f9820404f261eed8dc15af60f46b00d69fc4176695"},
+        {"name": "isPostTurnSummaryVisibleInCli", "characterStart": 1032, "characterEnd": 1107, "bytes": 75, "sha256": "9a9fb7c6e37a57c8eb9585f6f80b2bd396cb315329957750607464523abf19f0"},
+        {"name": "detectSurfaces", "characterStart": 1109, "characterEnd": 1984, "bytes": 875, "sha256": "a9c3f0e742088eb4ef6ded95e5cd51722cda7437fe9f0b96968d7f0e36d6abe3"},
+        {"name": "disabledSurfaces", "characterStart": 2020, "characterEnd": 2536, "bytes": 516, "sha256": "4e831c9b02338d8e0bc35900d7b810d4fe98a027ffe01e64f6021b10ff54a64d"},
+        {"name": "sinksFor", "characterStart": 2538, "characterEnd": 3172, "bytes": 634, "sha256": "3d67c5687c67a71c424b9e4ddb01edc567b72fb2faee3129a322e51179e1ae23"},
+        {"name": "emittedEngine", "characterStart": 3174, "characterEnd": 3527, "bytes": 353, "sha256": "cdadb05eea93c7c5418d1a1cb879a2aa60d6b75b37c919a8afcc8c6976312583"},
+        {"name": "engineFor", "characterStart": 3529, "characterEnd": 4094, "bytes": 565, "sha256": "0fd2787bc3db0abc7c20f6408878d9a78c0e402cc1ea903d77798899a80d56e6"},
+        {"name": "classifiedToPostTurnSummary", "characterStart": 4096, "characterEnd": 4459, "bytes": 363, "sha256": "f38f45fe7ca40dd47977bd4db929d51386130929785b51d36803f5207743721a"},
+        {"name": "runClassifierSummaryForBlocked", "characterStart": 4461, "characterEnd": 5041, "bytes": 580, "sha256": "91d326ebc922141176af5ad2f2b9e23a252faf3dd53d59b01551e1e53d0c71f5"}
+      ],
+      "reachableLocalFunctions": ["runClassifierSummaryForBlocked", "sinksFor", "detectSurfaces", "engineFor", "disabledSurfaces", "isPostTurnSummaryVisibleInCli", "emittedEngine", "envBoolean"],
+      "excludedExportedSiblingFunctions": ["classifiedToPostTurnSummary"],
+      "externalRuntimeImports": [
+        {"name": "getFeatureValue_CACHED_MAY_BE_STALE", "module": "../services/analytics/growthbook.js"},
+        {"name": "getRuntimeCapabilities", "module": "../bootstrap/state.js"},
+        {"name": "isReplBridgeActive", "module": "../bootstrap/state.js"},
+        {"name": "isBgSession", "module": "./concurrentSessions.js"},
+        {"name": "isFleetViewWatching", "module": "./concurrentSessions.js"},
+        {"name": "logForDebugging", "module": "./debug.js"}
+      ]
+    },
+    "classifierImportText": "import { runClassifierSummaryForBlocked } from 'src/utils/taskSummary.js'",
+    "classifierCallText": "runClassifierSummaryForBlocked(details, {\n      notifyMetadataChanged: notifySessionMetadataChanged,\n    })"
+  },
+  "replayDisposition": {
+    "mode": "static-only",
+    "sourceReplayAuthorized": false,
+    "reasons": [
+      "The complete runHeadless entry point is dependency-rich and cannot be executed as an isolated graph.",
+      "The reachable taskSummary source graph crosses six runtime value imports for feature flags, runtime capabilities, session surfaces, and diagnostics.",
+      "The compiled taskSummary initializer invokes five external bundle module initializers before publishing its sink map.",
+      "Exact Target119 cli/print.ts and utils/taskSummary.ts already contain the live import, callback call, and implementation, so no source gap exists."
+    ]
+  },
+  "override": {
+    "key": "2.1.118-to-2.1.119:21741",
+    "targetIndex": 21741,
+    "ownerPaths": ["src/cli/print.ts"],
+    "declarations": ["runHeadless"],
+    "dependencyTargetIndices": [13989, 13990, 13991, 13992, 13993, 13994, 13995, 13996, 13998, 13999, 14000, 21763]
+  },
+  "postWiring": {
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 1745,
+      "sha256": "6ebdd5aff63a74eab2eeecfdbfdf82f9a26ef38a489a27c51bb72ffbabdc8862"
+    },
+    "expectedImpact": {
+      "productionStrictRowsChanged": 0,
+      "ownerPathsChanged": 0,
+      "coverageRowsEvidenceStrengthened": 1,
+      "sourceFilesChanged": 0,
+      "sourceReplayFiles": 0
+    }
+  },
+  "postStreaming": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 521,
+      "sha256": "8cb206effaf22113fdb5e6a536114c0b5ee1cbd0ddd004d68681f56e6a21a69e"
+    },
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 1745,
+      "sha256": "6ebdd5aff63a74eab2eeecfdbfdf82f9a26ef38a489a27c51bb72ffbabdc8862"
+    },
+    "coverageGraphTupleDescriptor": {
+      "rows": 13,
+      "jsonBytes": 3415,
+      "sha256": "9f45675853a15052ee45a3a38faefdfa142f99bc922447fa80fab32935239f07"
+    },
+    "typedResiduesUnchangedFromPostRendezvous": true,
+    "coverageTargetEqualsPostWiringProjection": true
+  },
+  "wiringRecipe": {
+    "helperPath": "recovery/cases/2.1.118-to-2.1.119/recovered/headless-classifier-summary-strict-property-owner-overrides.mjs",
+    "sharedGenerator": ".tmp-generate-late-coverage.mjs",
+    "importExport": "TARGET119_HEADLESS_CLASSIFIER_SUMMARY_STRICT_PROPERTY_OWNER_OVERRIDES",
+    "ownerOverrideSpread": "...TARGET119_HEADLESS_CLASSIFIER_SUMMARY_STRICT_PROPERTY_OWNER_OVERRIDES.map(({ key, paths, evidenceIds, behavior }) => [key, { paths: [...paths], evidenceIds: [...evidenceIds], behavior }])",
+    "replayExport": null,
+    "combinedHarnessChangeRequired": false
+  }
+}

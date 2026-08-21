@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-mcp-entrypoint-build-context-whole-unit-proof-v1",
+  "status": "authenticated-static-whole-unit-owner-proof-no-replay",
+  "evidenceIds": [
+    "target118-mcp-entrypoint-build-context-authenticated-units",
+    "target118-mcp-entrypoint-build-context-macro-normalization",
+    "target118-mcp-entrypoint-build-context-source-transition"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/mcp-entrypoint-build-context-owner-overrides.mjs",
+      "bytes": 1333,
+      "sha256": "8e73cd137af63831e3858ba22d1e7f8c8d9ea89b44b01893819a7754e8a4fca9"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "baseCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "targetCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "targetTree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "baseFile": {
+        "path": "src/entrypoints/mcp.ts",
+        "blob": "eee7ea227b7b3b01fe4e17d0471c43d922c2585b",
+        "bytes": 6297,
+        "sha256": "43aa760305dfe0d436b3424c2e73183311d075a85db0fba981695ae13cf96fe9",
+        "declaration": {
+          "name": "startMCPServer",
+          "characterStart": 1335,
+          "characterEnd": 6296,
+          "byteStart": 1335,
+          "byteEnd": 6296,
+          "bytes": 4961,
+          "sha256": "2e1cf224939094ae643e0e77fde48243196497186d3f7a170e76b4d6926cab3e"
+        }
+      },
+      "targetFile": {
+        "path": "src/entrypoints/mcp.ts",
+        "blob": "5117323959a459b72e74c05062e85b0c1c283b94",
+        "bytes": 6331,
+        "sha256": "f41f8ea5a047f9fa1cfc59e834b0ba2dc09e4f14dacaf3e838ae7abdf91f0399",
+        "declaration": {
+          "name": "startMCPServer",
+          "characterStart": 1335,
+          "characterEnd": 6330,
+          "byteStart": 1335,
+          "byteEnd": 6330,
+          "bytes": 4995,
+          "sha256": "dbfb7e1afc18d87f7bb8e122053461993d1b855d913bbd7c449dea9146af8260"
+        }
+      }
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20680,
+    "classification": "unresolved",
+    "start": 12988617,
+    "end": 12990766,
+    "bytes": 2149,
+    "tokenCount": 679,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "fbdff4ec7ee175dd690589303dd147da595ec8c7649ba73156afd0adced4d1b6",
+    "coarseHash": "d6d79fd7ef1435c14a8a8f04f99b8ae101bcbcf7ee01d3eb789052847d6d9a24"
+  },
+  "targetUnit": {
+    "targetIndex": 20870,
+    "classification": "unresolved",
+    "start": 13106226,
+    "end": 13108375,
+    "bytes": 2149,
+    "tokenCount": 679,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "5581590b95db872bbc692424ab36e1a6aee8417c04957751864e788295806d1a",
+    "coarseHash": "c6a4affadf001c7b904a757677780582a3fce820a4ac18c9f1f30123fb0dfc84",
+    "ownerPath": "src/entrypoints/mcp.ts",
+    "declarations": ["startMCPServer"],
+    "residues": [
+      ["string", "2.1.118", 13106499, 13106508, 0, 109],
+      ["string", "2026-04-22T21:04:38Z", 13106588, 13106610, 0, 109],
+      ["string", "ef88b5f0a79aac989f53fd18178939a54a48624a", 13106619, 13106661, 0, 109],
+      ["property", "arguments", 13106999, 13107008, 29, 31],
+      ["number", "1", 13107495, 13107496, 23422, 23526],
+      ["property", "taskRegistry", 13107564, 13107576, 83, 85],
+      ["property", "agentLifecycle", 13107681, 13107695, 12, 13]
+    ],
+    "behavior": "The complete authenticated Target117 and Target118 MCP entrypoint units have identical 679-token canonical streams after normalizing only the exact VERSION, BUILD_TIME, and GIT_SHA macro values. The remaining four strict arguments, numeric-one, taskRegistry, and agentLifecycle rows are raw-equal same-index predecessor tokens in identical seventeen-token neighborhoods. The exact historical source transition adds only the already-authenticated setReplContext no-op to startMCPServer, and the packaged declaration is the exact Target118 postimage. This is a whole-unit static/source proof and authorizes no replay."
+  },
+  "canonicalTokenProof": {
+    "macroTokenIndices": [50, 58, 62],
+    "normalizedToken": "BUILD_MACRO",
+    "baseline": {
+      "tokens": 679,
+      "bytes": 3417,
+      "sha256": "797747ea5ce6e5bdb612482e2c2b42a9c35d13961191e81d1cca016a6029dd02"
+    },
+    "target": {
+      "tokens": 679,
+      "bytes": 3417,
+      "sha256": "797747ea5ce6e5bdb612482e2c2b42a9c35d13961191e81d1cca016a6029dd02"
+    },
+    "macroTransitions": [
+      [50, "2.1.117", 12988890, 12988899, "2.1.118", 13106499, 13106508],
+      [58, "2026-04-21T17:58:52Z", 12988979, 12989001, "2026-04-22T21:04:38Z", 13106588, 13106610],
+      [62, "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387", 12989010, 12989052, "ef88b5f0a79aac989f53fd18178939a54a48624a", 13106619, 13106661]
+    ],
+    "strictPredecessors": [
+      [193, 12989390, 12989399, "arguments", 8, "79aec979535109a53975818abf76ec38740b2431cabae9ade43f5950edca3fc3"],
+      [366, 12989886, 12989887, "1", 8, "37b22a948ca16708331e5b96c5fc4f23b7a32d94b67b4634a19fb1a91d035cdb"],
+      [385, 12989955, 12989967, "taskRegistry", 8, "dd29398a7fa395b1975c51386584f64b2db0e59e26fd5116c7a3f0d40eacdef1"],
+      [413, 12990072, 12990086, "agentLifecycle", 8, "dd29398a7fa395b1975c51386584f64b2db0e59e26fd5116c7a3f0d40eacdef1"]
+    ]
+  },
+  "sourceTransition": {
+    "targetInsertion": {
+      "characterStart": 4491,
+      "characterEnd": 4525,
+      "bytes": 34,
+      "sha256": "aae3160ee91140ea2e5751a1f7da3f33ade2395caf0cf0f0bce2091b920d7729",
+      "text": "        setReplContext: () => {},\n"
+    },
+    "removeInsertionMatchesBaseFile": true,
+    "sourceReplayHelper": null
+  },
+  "ownerOverride": {
+    "paths": ["src/entrypoints/mcp.ts"],
+    "declarations": ["startMCPServer"],
+    "evidenceIds": [
+      "target118-mcp-entrypoint-build-context-authenticated-units",
+      "target118-mcp-entrypoint-build-context-macro-normalization",
+      "target118-mcp-entrypoint-build-context-source-transition"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 7,
+    "targetIndicesSha256": "19dda97bf69f4c67420c0826c51dc6dcd02d65e515d409874f80613f50568ba2",
+    "residueIdentitiesSha256": "ec4f47bdcef6b32ae07200c25e81d414ec300ea09b51db59d9ad5fa81e83583c"
+  }
+}

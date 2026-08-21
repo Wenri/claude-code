@@ -1,0 +1,1230 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-update-entrypoint-whole-unit-source-delta-proof-v1",
+  "status": "authenticated-static-whole-unit-owner-proof-no-replay",
+  "evidenceIds": [
+    "target118-update-entrypoint-authenticated-units",
+    "target118-update-entrypoint-build-metadata-normalization",
+    "target118-update-entrypoint-inherited-residue-contexts",
+    "target118-update-entrypoint-source-transition"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target118-update-entrypoint-authenticated-units",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs",
+      "detail": "The proof pins the complete authenticated Target117 and Target118 update units and all seventy-two owner-added rows atomically."
+    },
+    {
+      "id": "target118-update-entrypoint-build-metadata-normalization",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs",
+      "detail": "Exactly twenty-three VERSION, BUILD_TIME, and GIT_SHA triples are normalized and mapped across the complete units."
+    },
+    {
+      "id": "target118-update-entrypoint-inherited-residue-contexts",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs",
+      "detail": "The catch token and both dot tokens map to raw-equal Target117 predecessors inside identical seventeen-token canonical neighborhoods."
+    },
+    {
+      "id": "target118-update-entrypoint-source-transition",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs",
+      "detail": "Exact historical source proves the isEnvTruthy import, DISABLE_UPDATES guard, and Homebrew latest-tip additions and the packaged Target118 postimage."
+    }
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/update-entrypoint-owner-overrides.mjs",
+      "bytes": 1295,
+      "sha256": "baeb21f62f7a892efb989db4eb705417b60c35cfb68b3bf04bd0ffb07df0964a"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "baseCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "baseTree": "c9e15117699a700016fee35a941dc3896208819f",
+      "targetCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "targetTree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "baseFile": {
+        "path": "src/cli/update.ts",
+        "blob": "8a748f4d7d67455f0a57306293aab58d653d0329",
+        "chars": 14827,
+        "bytes": 14849,
+        "sha256": "1fcbd1cb25ea89663477e9608590dc2fcd872aa42d255f97599106e3ad056291",
+        "declaration": {
+          "name": "update",
+          "characterStart": 1065,
+          "characterEnd": 14826,
+          "byteStart": 1065,
+          "byteEnd": 14848,
+          "bytes": 13783,
+          "sha256": "e9357c020085db65369a312a99a7461a630629b77b71ad2bbab842b2f015bc45"
+        }
+      },
+      "targetFile": {
+        "path": "src/cli/update.ts",
+        "blob": "aa0882a29817b67949874b95b1eedeb73f987bb0",
+        "chars": 15523,
+        "bytes": 15545,
+        "sha256": "afcfed1b888000c1a7afa7f93a480900a05caf86d22c5a93ffaad5fa3bd4b47a",
+        "declaration": {
+          "name": "update",
+          "characterStart": 1117,
+          "characterEnd": 15522,
+          "byteStart": 1117,
+          "byteEnd": 15544,
+          "bytes": 14427,
+          "sha256": "f08086635a7f28c9b411b36fcb5870ab0ab16a73a89cd6be99f1a2fd3991f554"
+        }
+      },
+      "packagePostimage": {
+        "path": "src/cli/update.ts",
+        "chars": 15523,
+        "bytes": 15545,
+        "sha256": "afcfed1b888000c1a7afa7f93a480900a05caf86d22c5a93ffaad5fa3bd4b47a"
+      }
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20768,
+    "classification": "unresolved",
+    "start": 13025663,
+    "end": 13041589,
+    "bytes": 15926,
+    "tokenCount": 2809,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "95699356aa8b06fafbe0d220588bf2d9a4356e08c7398bdecc555eeb17a97925",
+    "coarseHash": "bfe2b3df58e5beb51dd345fbab88c3ed43d14bc0f7c755c022a5dd4b4a669739"
+  },
+  "targetUnit": {
+    "targetIndex": 20954,
+    "classification": "unresolved",
+    "start": 13143977,
+    "end": 13160271,
+    "bytes": 16294,
+    "tokenCount": 2880,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "a290974a7e7804350638586fe5b72ce64dda7809c3a4a519319eda14044c13e5",
+    "coarseHash": "564f2f402bc673edd4ac122292025715178592e2055c44eba89754fe2cb26893",
+    "ownerPath": "src/cli/update.ts",
+    "declarations": [
+      "update"
+    ],
+    "residues": [
+      [
+        "string",
+        "2.1.118",
+        13144385,
+        13144394,
+        0,
+        110
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13144474,
+        13144496,
+        0,
+        110
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13144505,
+        13144547,
+        0,
+        110
+      ],
+      [
+        "string",
+        "2.1.118",
+        13146379,
+        13146388,
+        0,
+        111
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13146468,
+        13146490,
+        0,
+        111
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13146499,
+        13146541,
+        0,
+        111
+      ],
+      [
+        "string",
+        "2.1.118",
+        13146769,
+        13146778,
+        0,
+        112
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13146858,
+        13146880,
+        0,
+        112
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13146889,
+        13146931,
+        0,
+        112
+      ],
+      [
+        "string",
+        "2.1.118",
+        13147546,
+        13147555,
+        0,
+        113
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13147635,
+        13147657,
+        0,
+        113
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13147666,
+        13147708,
+        0,
+        113
+      ],
+      [
+        "string",
+        "2.1.118",
+        13147936,
+        13147945,
+        0,
+        114
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13148025,
+        13148047,
+        0,
+        114
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13148056,
+        13148098,
+        0,
+        114
+      ],
+      [
+        "string",
+        "2.1.118",
+        13148518,
+        13148527,
+        0,
+        115
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13148607,
+        13148629,
+        0,
+        115
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13148638,
+        13148680,
+        0,
+        115
+      ],
+      [
+        "string",
+        "2.1.118",
+        13148908,
+        13148917,
+        0,
+        116
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13148997,
+        13149019,
+        0,
+        116
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13149028,
+        13149070,
+        0,
+        116
+      ],
+      [
+        "property",
+        "catch",
+        13150059,
+        13150064,
+        416,
+        422
+      ],
+      [
+        "string",
+        "2.1.118",
+        13150386,
+        13150395,
+        0,
+        117
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13150475,
+        13150497,
+        0,
+        117
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13150506,
+        13150548,
+        0,
+        117
+      ],
+      [
+        "string",
+        ".",
+        13150558,
+        13150559,
+        687,
+        694
+      ],
+      [
+        "string",
+        "2.1.118",
+        13151098,
+        13151107,
+        0,
+        118
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13151187,
+        13151209,
+        0,
+        118
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13151218,
+        13151260,
+        0,
+        118
+      ],
+      [
+        "string",
+        "2.1.118",
+        13151506,
+        13151515,
+        0,
+        119
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13151595,
+        13151617,
+        0,
+        119
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13151626,
+        13151668,
+        0,
+        119
+      ],
+      [
+        "string",
+        "2.1.118",
+        13152082,
+        13152091,
+        0,
+        120
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13152171,
+        13152193,
+        0,
+        120
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13152202,
+        13152244,
+        0,
+        120
+      ],
+      [
+        "string",
+        "2.1.118",
+        13152779,
+        13152788,
+        0,
+        121
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13152868,
+        13152890,
+        0,
+        121
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13152899,
+        13152941,
+        0,
+        121
+      ],
+      [
+        "string",
+        "2.1.118",
+        13153200,
+        13153209,
+        0,
+        122
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13153289,
+        13153311,
+        0,
+        122
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13153320,
+        13153362,
+        0,
+        122
+      ],
+      [
+        "string",
+        "2.1.118",
+        13154153,
+        13154162,
+        0,
+        123
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13154242,
+        13154264,
+        0,
+        123
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13154273,
+        13154315,
+        0,
+        123
+      ],
+      [
+        "string",
+        "2.1.118",
+        13154522,
+        13154531,
+        0,
+        124
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13154611,
+        13154633,
+        0,
+        124
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13154642,
+        13154684,
+        0,
+        124
+      ],
+      [
+        "string",
+        "2.1.118",
+        13155196,
+        13155205,
+        0,
+        125
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13155285,
+        13155307,
+        0,
+        125
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13155316,
+        13155358,
+        0,
+        125
+      ],
+      [
+        "string",
+        "2.1.118",
+        13155897,
+        13155906,
+        0,
+        126
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13155986,
+        13156008,
+        0,
+        126
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13156017,
+        13156059,
+        0,
+        126
+      ],
+      [
+        "string",
+        ".",
+        13156069,
+        13156070,
+        687,
+        695
+      ],
+      [
+        "string",
+        "2.1.118",
+        13156288,
+        13156297,
+        0,
+        127
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13156377,
+        13156399,
+        0,
+        127
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13156408,
+        13156450,
+        0,
+        127
+      ],
+      [
+        "string",
+        "2.1.118",
+        13156693,
+        13156702,
+        0,
+        128
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13156782,
+        13156804,
+        0,
+        128
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13156813,
+        13156855,
+        0,
+        128
+      ],
+      [
+        "string",
+        "2.1.118",
+        13157121,
+        13157130,
+        0,
+        129
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13157210,
+        13157232,
+        0,
+        129
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13157241,
+        13157283,
+        0,
+        129
+      ],
+      [
+        "string",
+        "2.1.118",
+        13158333,
+        13158342,
+        0,
+        130
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13158422,
+        13158444,
+        0,
+        130
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13158453,
+        13158495,
+        0,
+        130
+      ],
+      [
+        "string",
+        "2.1.118",
+        13159053,
+        13159062,
+        0,
+        131
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13159142,
+        13159164,
+        0,
+        131
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13159173,
+        13159215,
+        0,
+        131
+      ],
+      [
+        "string",
+        "2.1.118",
+        13159796,
+        13159805,
+        0,
+        132
+      ],
+      [
+        "string",
+        "2026-04-22T21:04:38Z",
+        13159885,
+        13159907,
+        0,
+        132
+      ],
+      [
+        "string",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        13159916,
+        13159958,
+        0,
+        132
+      ]
+    ],
+    "unsupportedResidues": [
+      [
+        "property",
+        "catch",
+        13150059,
+        13150064,
+        416,
+        422
+      ],
+      [
+        "string",
+        ".",
+        13150558,
+        13150559,
+        687,
+        694
+      ],
+      [
+        "string",
+        ".",
+        13156069,
+        13156070,
+        687,
+        695
+      ]
+    ],
+    "behavior": "The complete authenticated Target118 update unit is the complete Target117 unit plus exactly two canonical token insertions: the DISABLE_UPDATES administrator guard and the Homebrew claude-code@latest tip. Exact historical source proves those two declaration additions and the sole supporting isEnvTruthy import. All sixty-nine release-metadata rows are the exact twenty-three VERSION, BUILD_TIME, and GIT_SHA transitions, while catch and both dot rows map to raw-equal Target117 predecessor tokens in identical seventeen-token canonical neighborhoods. This is a whole-unit static/source proof and authorizes no replay."
+  },
+  "canonicalTokenProof": {
+    "normalization": "Canonicalize identifier tokens to ID and normalize only the exact release-specific VERSION, BUILD_TIME, and GIT_SHA string values to BUILD_MACRO.",
+    "baselineMacroValues": {
+      "VERSION": "2.1.117",
+      "BUILD_TIME": "2026-04-21T17:58:52Z",
+      "GIT_SHA": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387"
+    },
+    "targetMacroValues": {
+      "VERSION": "2.1.118",
+      "BUILD_TIME": "2026-04-22T21:04:38Z",
+      "GIT_SHA": "ef88b5f0a79aac989f53fd18178939a54a48624a"
+    },
+    "baselineTokens": 2809,
+    "targetTokens": 2880,
+    "normalizedBaselineSha256": "2dbb1eac714d483d8334c0cc6f9b190b98fc06c52b27941985084091ee5e83ea",
+    "normalizedTargetSha256": "d8aeca5d95f964d461f4415bdb96b5c23d72f55b510b7baddf2f67eb82cc4be6",
+    "macroObjectCount": 23,
+    "metadataTokenCount": 69,
+    "macroTokenPairs": [
+      [
+        34,
+        58
+      ],
+      [
+        42,
+        66
+      ],
+      [
+        46,
+        70
+      ],
+      [
+        581,
+        605
+      ],
+      [
+        589,
+        613
+      ],
+      [
+        593,
+        617
+      ],
+      [
+        621,
+        645
+      ],
+      [
+        629,
+        653
+      ],
+      [
+        633,
+        657
+      ],
+      [
+        734,
+        805
+      ],
+      [
+        742,
+        813
+      ],
+      [
+        746,
+        817
+      ],
+      [
+        774,
+        845
+      ],
+      [
+        782,
+        853
+      ],
+      [
+        786,
+        857
+      ],
+      [
+        881,
+        952
+      ],
+      [
+        889,
+        960
+      ],
+      [
+        893,
+        964
+      ],
+      [
+        921,
+        992
+      ],
+      [
+        929,
+        1000
+      ],
+      [
+        933,
+        1004
+      ],
+      [
+        1256,
+        1327
+      ],
+      [
+        1264,
+        1335
+      ],
+      [
+        1268,
+        1339
+      ],
+      [
+        1403,
+        1474
+      ],
+      [
+        1411,
+        1482
+      ],
+      [
+        1415,
+        1486
+      ],
+      [
+        1447,
+        1518
+      ],
+      [
+        1455,
+        1526
+      ],
+      [
+        1459,
+        1530
+      ],
+      [
+        1531,
+        1602
+      ],
+      [
+        1539,
+        1610
+      ],
+      [
+        1543,
+        1614
+      ],
+      [
+        1651,
+        1722
+      ],
+      [
+        1659,
+        1730
+      ],
+      [
+        1663,
+        1734
+      ],
+      [
+        1703,
+        1774
+      ],
+      [
+        1711,
+        1782
+      ],
+      [
+        1715,
+        1786
+      ],
+      [
+        1872,
+        1943
+      ],
+      [
+        1880,
+        1951
+      ],
+      [
+        1884,
+        1955
+      ],
+      [
+        1905,
+        1976
+      ],
+      [
+        1913,
+        1984
+      ],
+      [
+        1917,
+        1988
+      ],
+      [
+        2000,
+        2071
+      ],
+      [
+        2008,
+        2079
+      ],
+      [
+        2012,
+        2083
+      ],
+      [
+        2106,
+        2177
+      ],
+      [
+        2114,
+        2185
+      ],
+      [
+        2118,
+        2189
+      ],
+      [
+        2157,
+        2228
+      ],
+      [
+        2165,
+        2236
+      ],
+      [
+        2169,
+        2240
+      ],
+      [
+        2198,
+        2269
+      ],
+      [
+        2206,
+        2277
+      ],
+      [
+        2210,
+        2281
+      ],
+      [
+        2254,
+        2325
+      ],
+      [
+        2262,
+        2333
+      ],
+      [
+        2266,
+        2337
+      ],
+      [
+        2514,
+        2585
+      ],
+      [
+        2522,
+        2593
+      ],
+      [
+        2526,
+        2597
+      ],
+      [
+        2624,
+        2695
+      ],
+      [
+        2632,
+        2703
+      ],
+      [
+        2636,
+        2707
+      ],
+      [
+        2729,
+        2800
+      ],
+      [
+        2737,
+        2808
+      ],
+      [
+        2741,
+        2812
+      ]
+    ],
+    "macroTokenPairsSha256": "bc24a23f4e2801e23bacb0290c5828d3ff8ab6af02adb012fcf06ccf7277de4d",
+    "matchedSegments": [
+      {
+        "baselineStart": 0,
+        "baselineEnd": 6,
+        "targetStart": 0,
+        "targetEnd": 6,
+        "tokens": 6,
+        "canonicalSha256": "10089faa2fa1255daee7e30ecf7ed698b4986522a3703b6a99a11247e7887f98"
+      },
+      {
+        "baselineStart": 6,
+        "baselineEnd": 687,
+        "targetStart": 30,
+        "targetEnd": 711,
+        "tokens": 681,
+        "canonicalSha256": "d1d22df73e0417919aeaa22d8e24baf3ae3bd25a083544820185de859ca510a3"
+      },
+      {
+        "baselineStart": 687,
+        "baselineEnd": 2809,
+        "targetStart": 758,
+        "targetEnd": 2880,
+        "tokens": 2122,
+        "canonicalSha256": "9c94278ce464ce0149fd7190ca97df9b16a8acd026d88cb2985d7d0a86ce8c7d"
+      }
+    ],
+    "compiledInsertions": [
+      {
+        "id": "disable-updates-guard",
+        "sourceInsertion": 1,
+        "targetTokenStart": 6,
+        "targetTokenEnd": 30,
+        "tokens": 24,
+        "targetByteStart": 13143998,
+        "targetByteEnd": 13144144,
+        "raw": {
+          "bytes": 146,
+          "sha256": "a34428678eebee275e083b3e6b8943e0e2a0c9f7343efe69f5228c5fb71965f5"
+        },
+        "canonicalTokensSha256": "7f031df056af238fa9cf6f6097046224a5454773322422faf6ab6b2e62041830"
+      },
+      {
+        "id": "homebrew-latest-tip",
+        "sourceInsertion": 2,
+        "targetTokenStart": 711,
+        "targetTokenEnd": 758,
+        "tokens": 47,
+        "targetByteStart": 13147047,
+        "targetByteEnd": 13147267,
+        "raw": {
+          "bytes": 220,
+          "sha256": "3deba269e7bb7f9bd996d01e9b81068d9df65ddd0bf38175301e1080fa085417"
+        },
+        "canonicalTokensSha256": "64608e0fba4724aecf3d86210cee89b0d4a2684556c096598f84fd001186bcff"
+      }
+    ],
+    "reconstructedBaselineSha256": "2dbb1eac714d483d8334c0cc6f9b190b98fc06c52b27941985084091ee5e83ea",
+    "strictPredecessors": [
+      {
+        "literalKind": "property",
+        "value": "catch",
+        "targetTokenIndex": 1274,
+        "baselineTokenIndex": 1203,
+        "targetStart": 13150059,
+        "targetEnd": 13150064,
+        "baselineStart": 13031379,
+        "baselineEnd": 13031384,
+        "raw": "catch",
+        "contextRadius": 8,
+        "canonicalContextSha256": "e749a064d0fea177fea134a4412fe301338a4c8090a11929ba0aa43539486525"
+      },
+      {
+        "literalKind": "string",
+        "value": ".",
+        "targetTokenIndex": 1344,
+        "baselineTokenIndex": 1273,
+        "targetStart": 13150558,
+        "targetEnd": 13150559,
+        "baselineStart": 13031877,
+        "baselineEnd": 13031878,
+        "raw": ".",
+        "contextRadius": 8,
+        "canonicalContextSha256": "b0f8d82b4a3de9f25a30d756e1de454a06988378213efe971452017ca74f9f15"
+      },
+      {
+        "literalKind": "string",
+        "value": ".",
+        "targetTokenIndex": 2194,
+        "baselineTokenIndex": 2123,
+        "targetStart": 13156069,
+        "targetEnd": 13156070,
+        "baselineStart": 13037387,
+        "baselineEnd": 13037388,
+        "raw": ".",
+        "contextRadius": 8,
+        "canonicalContextSha256": "b0f8d82b4a3de9f25a30d756e1de454a06988378213efe971452017ca74f9f15"
+      }
+    ]
+  },
+  "sourceTransition": {
+    "insertions": [
+      {
+        "id": "is-env-truthy-import",
+        "characterStart": 1064,
+        "characterEnd": 1116,
+        "byteStart": 1064,
+        "byteEnd": 1116,
+        "bytes": 52,
+        "sha256": "522e9f0bd8192ed147683fff9056cdf3c8a380f13e397cc3d092764ac0703305",
+        "text": "import { isEnvTruthy } from 'src/utils/envUtils.js'\n"
+      },
+      {
+        "id": "disable-updates-guard",
+        "characterStart": 1150,
+        "characterEnd": 1362,
+        "byteStart": 1150,
+        "byteEnd": 1362,
+        "bytes": 212,
+        "sha256": "b461f188fb3ba953f81c238eaaa18f9392cba3e7f659f6624d849c684caa4560",
+        "text": "  if (isEnvTruthy(process.env.DISABLE_UPDATES)) {\n    writeToStdout(\n      'Updates are disabled by your administrator. Contact your IT team to get the latest version.\\n',\n    )\n    await gracefulShutdown(0)\n  }\n"
+      },
+      {
+        "id": "homebrew-latest-tip",
+        "characterStart": 5163,
+        "characterEnd": 5595,
+        "byteStart": 5165,
+        "byteEnd": 5597,
+        "bytes": 432,
+        "sha256": "bb30a4fcbea79fd608727aa2ac1c6786aa1e10c0422eb4b779890ee957f51489",
+        "text": "      if (homebrewCaskName !== 'claude-code@latest') {\n        writeToStdout('\\n')\n        writeToStdout(\n          chalk.dim(\n            'Tip: For more frequent updates, use the claude-code@latest cask:\\n',\n          ),\n        )\n        writeToStdout(\n          chalk.dim(\n            `  brew uninstall --cask ${homebrewCaskName ?? 'claude-code'} && brew install --cask claude-code@latest`,\n          ) + '\\n',\n        )\n      }\n"
+      }
+    ],
+    "removalMatchesBaseFile": true,
+    "sourceReplayHelper": null
+  },
+  "ownerAnalysisPin": {
+    "targetIndex": 20954,
+    "ownerPaths": [
+      "cli/update.ts"
+    ],
+    "target": {
+      "classification": "unresolved",
+      "start": 13143977,
+      "end": 13160271,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "a290974a7e7804350638586fe5b72ce64dda7809c3a4a519319eda14044c13e5"
+    },
+    "residues": 72,
+    "unsupportedResidues": 3,
+    "residueIdentitiesSha256": "f5a641850cc9f12102c01e3d5e93bee78e659bb152deb6896ac42a142a8c9e79",
+    "unsupportedResidueIdentitiesSha256": "bb998f429b8b2e39cda5d7e81593d711cd212907730ddd26e59b7d5d6f0cac76",
+    "rowScopedEvidence": {
+      "obligationIds": [
+        "disable-updates",
+        "push-notification-tips-and-homebrew-copy"
+      ],
+      "sourcePaths": [
+        "src/cli/update.ts",
+        "src/services/tips/tipRegistry.ts"
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings",
+        "recovery-2-1-118-runtime-session"
+      ]
+    }
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/cli/update.ts"
+    ],
+    "declarations": [
+      "update"
+    ],
+    "evidenceIds": [
+      "target118-update-entrypoint-authenticated-units",
+      "target118-update-entrypoint-build-metadata-normalization",
+      "target118-update-entrypoint-inherited-residue-contexts",
+      "target118-update-entrypoint-source-transition"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 72,
+    "unsupportedResidues": 3,
+    "targetIndicesSha256": "a0ee8d78644b18b8ce5a36d48d3d88183d926de3011f7f8f492b92bf9e39df25",
+    "residueIdentitiesSha256": "f5a641850cc9f12102c01e3d5e93bee78e659bb152deb6896ac42a142a8c9e79",
+    "unsupportedResidueIdentitiesSha256": "bb998f429b8b2e39cda5d7e81593d711cd212907730ddd26e59b7d5d6f0cac76"
+  }
+}

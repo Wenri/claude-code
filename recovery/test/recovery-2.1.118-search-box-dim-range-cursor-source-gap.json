@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-search-box-dim-range-cursor-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-search-box-dim-range-cursor-target-fragment",
+    "target118-search-box-dim-range-cursor-source-replay-test",
+    "target118-search-box-dim-range-cursor-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-search-box-dim-range-cursor-source-gap.mjs",
+      "bytes": 5466,
+      "sha256": "43f8f8e15608875eebd40d4441578df8d2e588f093cc0707e5fc63a0b02c8513"
+    },
+    "donor": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/SearchBox.target118.tsx",
+      "bytes": 4220,
+      "sha256": "3523600a86121f1f75bf6840f5117b9e7059e4ad622fdc455f68e1b37cc4a2b4"
+    },
+    "baseDonor": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/SearchBox.target117.tsx",
+      "bytes": 3630,
+      "sha256": "ab7cb597e9c70452afcbd6dc6f8156503f43bdb34d849deabf587cf210f2dd25"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/components/SearchBox.tsx",
+        "blob": "96338a76b6c991307149717250a3114b0498131f",
+        "bytes": 9421,
+        "sha256": "ee45b2a89f0e04b3894aecbe61e0f73d1f24893aba5bafeb2f1c3594edee81b1"
+      }
+    },
+    "inheritedSource": {
+      "file": {
+        "path": "src/components/SearchBox.tsx",
+        "bytes": 3630,
+        "sha256": "ab7cb597e9c70452afcbd6dc6f8156503f43bdb34d849deabf587cf210f2dd25"
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/components/SearchBox.tsx",
+        "bytes": 4220,
+        "sha256": "3523600a86121f1f75bf6840f5117b9e7059e4ad622fdc455f68e1b37cc4a2b4"
+      },
+      "declarations": [
+        {
+          "name": "renderSearchBoxQuery",
+          "start": 734,
+          "end": 2218,
+          "bytes": 1484,
+          "sha256": "c9e7ca80fa8f63ecfb51581554310d8d706743532734617a0ec68092730a820e"
+        },
+        {
+          "name": "SearchBox",
+          "start": 2220,
+          "end": 4215,
+          "bytes": 1995,
+          "sha256": "d2d6cdce5b2f1530d8713b1a5a7120827024a209fe55ca15c83a2986e5b24624"
+        }
+      ]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 15517,
+    "classification": "unresolved",
+    "start": 9564876,
+    "end": 9566724,
+    "bytes": 1848,
+    "tokenCount": 1036,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "8c15a4d03d76b703f7611033fb6cba0cf3d293fda04189fa20703a4c7b753f6a",
+    "coarseHash": "d291b540e7ae0c7721909e003a678bf8d241a890f0a39c0ebe7d10548d0b018a",
+    "ownerPath": "src/components/SearchBox.tsx",
+    "provisionalOwnerPath": "src/components/LanguagePicker.tsx",
+    "declarations": [
+      "SearchBox",
+      "renderSearchBoxQuery"
+    ],
+    "behavior": "The complete authenticated Target118 SearchBox owns dimRange and cursorChar: it partitions query text at highlight, dim-range, and cursor boundaries, dims only the requested range, substitutes a custom terminal cursor when supplied, preserves the placeholder cursor fallback, and retains prefixColor; LanguagePicker is rejected as a coarse neighboring owner.",
+    "residues": [
+      [
+        "property",
+        "dimRange",
+        9565020,
+        9565028,
+        0,
+        1
+      ]
+    ]
+  },
+  "companionTargetUnit": {
+    "targetIndex": 15518,
+    "classification": "unresolved",
+    "start": 9566724,
+    "end": 9567221,
+    "bytes": 497,
+    "tokenCount": 312,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "31eba6d5424fb2aa1e479c637aad8c317c12f63d7c6b98bdbd4352e7403a0c02",
+    "coarseHash": "9035013c6cf514c17f184c1990c2e26732ae91aa1efdd2738c02bd8e5df4862d"
+  },
+  "baselineTargetUnits": [
+    {
+      "targetIndex": 15456,
+      "start": 9531246,
+      "end": 9533021,
+      "bytes": 1775,
+      "sourceHash": "8dc5e6f799d1a7f9da1c632755fcf8221d7c2275da5ccc49d7a66a29f48fb3c6"
+    },
+    {
+      "targetIndex": 15457,
+      "start": 9533021,
+      "end": 9533396,
+      "bytes": 375,
+      "sourceHash": "f0c6693f20a771f8b31e1a6d9b6625d8e06360930b84d7cdabe6c7a47daea0f9"
+    }
+  ],
+  "ownerOverride": {
+    "paths": [
+      "src/components/SearchBox.tsx"
+    ],
+    "evidenceIds": [
+      "target118-search-box-dim-range-cursor-target-fragment",
+      "target118-search-box-dim-range-cursor-source-replay-test",
+      "target118-search-box-dim-range-cursor-source-ast-test"
+    ],
+    "behavior": "The complete authenticated Target118 SearchBox owns dimRange and cursorChar: it partitions query text at highlight, dim-range, and cursor boundaries, dims only the requested range, substitutes a custom terminal cursor when supplied, preserves the placeholder cursor fallback, and retains prefixColor; LanguagePicker is rejected as a coarse neighboring owner."
+  },
+  "summary": {
+    "units": 1,
+    "companionUnits": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "e95e19e6d06ff4d151a7ec781ab562877135d0a18519935a0407fe3864b8cb00",
+    "residueIdentitiesSha256": "f00a6edb5641b4a63d483df09acd596d3ad6886ad301cd330f9c4c9bfc661afd"
+  }
+}

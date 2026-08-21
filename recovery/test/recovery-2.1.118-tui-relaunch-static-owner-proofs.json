@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-direct-source-owner-proof",
+  "criterion": "Each complete authenticated target unit is bound to the exact historical relaunch or TUI renderer declaration that reproduces its closed behavior. Incidental bridge-variable or fullscreen literals and the coarse neighboring theme-command attribution do not qualify.",
+  "summary": {
+    "units": 2,
+    "residues": 3,
+    "targetIndicesSha256": "804a720a2826ab47a88b04b4b5213d2b1428da59d41a28c3077be2fee61d64c5",
+    "residueIdentitiesSha256": "29bb1a40ea208d35c82cde82ccf08e3ec27477fd0e7910d92ffa0b56cf29ba88"
+  },
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/tui-relaunch-static-owner-overrides.mjs",
+      "bytes": 1279,
+      "sha256": "9f8123c8059703c1020f95f98831bbb0e6793206035232303b01323cb7ef9f3b"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "source": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "files": [
+        {
+          "path": "src/utils/relaunch.ts",
+          "blob": "321e0a7ff4728bd6f3b1eca64c92a03255c382f9",
+          "bytes": 5793,
+          "sha256": "bae6672a24d95c1ee7f5864fc4a30e903975dbd6032139adeff7de0d4f521bb1",
+          "declarations": [
+            {
+              "name": "relaunch",
+              "start": 3834,
+              "end": 5792,
+              "bytes": 1958,
+              "sha256": "944d24f13a005f710fdf0ed75e5b453f2c179cd378a914b743d76e380be21a8f"
+            }
+          ]
+        },
+        {
+          "path": "src/commands/tui/tui.ts",
+          "blob": "90912e5676a7ab05e8500627bbcf57e6bd35be33",
+          "bytes": 1637,
+          "sha256": "ce292e2fa81f332d3d3bb7e73787b4a0501e582cb0d460dcc19158c6ac9b8960",
+          "declarations": [
+            {
+              "name": "RENDERERS",
+              "start": 343,
+              "end": 395,
+              "bytes": 52,
+              "sha256": "09cd1e1b0ee6f7b71b14860bd299ef9b50ccac19631e3bdb3420a26a85353cf8"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "evidenceIds": [
+    "target118-tui-relaunch-static-target-fragment",
+    "target118-tui-relaunch-static-source-ast-test"
+  ],
+  "rows": [
+    {
+      "targetIndex": 17052,
+      "classification": "unresolved",
+      "start": 10683848,
+      "end": 10684809,
+      "bytes": 961,
+      "tokenCount": 397,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "c4163e5c74b1be420b8cc6069f7bd8356fa488afe218286b2365c972b917e91b",
+      "coarseHash": "6c4cb6c3b047f8f56e370eacf266a9c1897fc1ece9f9a56b4d470fd905596f2c",
+      "ownerPath": "src/utils/relaunch.ts",
+      "provisionalOwnerPath": "src/commands/theme/index.ts",
+      "declarations": [
+        "relaunch"
+      ],
+      "behavior": "The authenticated Target118 relaunch function strips the TUI-switch and both bridge-reattach variables from the inherited environment before applying explicit overrides and dropEnv. The exact historical utils/relaunch.ts declaration owns the complete unit; the provisional theme command attribution is rejected.",
+      "residues": [
+        [
+          "property",
+          "CLAUDE_BRIDGE_REATTACH_SESSION",
+          10684289,
+          10684319,
+          0,
+          1
+        ],
+        [
+          "property",
+          "CLAUDE_BRIDGE_REATTACH_SEQ",
+          10684329,
+          10684355,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17059,
+      "classification": "unresolved",
+      "start": 10686009,
+      "end": 10686082,
+      "bytes": 73,
+      "tokenCount": 39,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "cf4e6f3d5a9035bdfafe308a2872617fa82c5bd2975a9d2a43aeb3cd522827db",
+      "coarseHash": "f507c42d521e11517a3cbf3efa4d5317a63cd91621b6c9a8d28baf8b540fa6fe",
+      "ownerPath": "src/commands/tui/tui.ts",
+      "provisionalOwnerPath": "src/commands/theme/index.ts",
+      "declarations": [
+        "RENDERERS"
+      ],
+      "behavior": "The authenticated Target118 TUI module initializes the exact renderer domain ['default', 'fullscreen']. The exact historical commands/tui/tui.ts declaration owns the complete unit; the provisional theme command attribution is rejected.",
+      "residues": [
+        [
+          "string",
+          "fullscreen",
+          10686066,
+          10686078,
+          11,
+          12
+        ]
+      ]
+    }
+  ]
+}

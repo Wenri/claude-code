@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-effort-command-thin-client-dispatch-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-effort-command-thin-client-dispatch-target-fragment",
+    "target118-effort-command-thin-client-dispatch-source-replay-test",
+    "target118-effort-command-thin-client-dispatch-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-effort-command-thin-client-dispatch-source-gap.mjs",
+      "bytes": 5440,
+      "sha256": "9c9fbac754f0dae6a6a11b35abd3f10ca11b9050e4aaab556cae2b7ac36badbb"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/commands/effort/index.ts",
+        "blob": "6e469c7d394994164eb14a7b0cbae8963f51b125",
+        "bytes": 434,
+        "sha256": "c411f09e44a5a7bd0aab0cdec098387f3ee456853734a3f3bd0f22cdc5531200"
+      },
+      "declaration": {
+        "name": "default",
+        "start": 140,
+        "end": 433,
+        "bytes": 293,
+        "sha256": "874c8fd151365ab9ea55b9cff3cdc7222c6d1c2a6f907ac0f5ece2990c9056de"
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/commands/effort/index.ts",
+        "bytes": 475,
+        "sha256": "5302f666fc64da11add9854e1007735be91f5b5c9e3eabe29c784e7d9565fe8b"
+      },
+      "declaration": {
+        "name": "default",
+        "start": 140,
+        "end": 474,
+        "bytes": 334,
+        "sha256": "cc0f6f5516d6d288de27c4482e84a28b5c4d39767090cfeaa340bb2c2f937d89"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 17726,
+    "classification": "unresolved",
+    "start": 10966277,
+    "end": 10966781,
+    "bytes": 504,
+    "tokenCount": 138,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "5695d6ced8ceac13baa7c631f3f7243e65ea4365b766b114784197fac58d0079",
+    "coarseHash": "1a83645facee811888730e1414fe6b2d8a374686be8a389195d217929dac87e0",
+    "ownerPath": "src/commands/effort/index.ts",
+    "provisionalOwnerPath": "src/commands/effort/effort.tsx",
+    "declarations": [
+      "default"
+    ],
+    "behavior": "The complete authenticated Target118 effort command descriptor dispatches through the thin-client control-request channel while retaining its JSX loader, argument domain, and immediate-command policy; commands/effort/effort.tsx is rejected as a coarse neighboring implementation owner.",
+    "residues": [
+      [
+        "property",
+        "thinClientDispatch",
+        10966477,
+        10966495,
+        9,
+        10
+      ],
+      [
+        "string",
+        "control-request",
+        10966496,
+        10966513,
+        2,
+        6
+      ]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/commands/effort/index.ts"
+    ],
+    "evidenceIds": [
+      "target118-effort-command-thin-client-dispatch-target-fragment",
+      "target118-effort-command-thin-client-dispatch-source-replay-test",
+      "target118-effort-command-thin-client-dispatch-source-ast-test"
+    ],
+    "behavior": "The complete authenticated Target118 effort command descriptor dispatches through the thin-client control-request channel while retaining its JSX loader, argument domain, and immediate-command policy; commands/effort/effort.tsx is rejected as a coarse neighboring implementation owner."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "12ee39b75309660fc73cdf7786ab1dca852bffaebabc3b35767d1664ff0e5257",
+    "residueIdentitiesSha256": "d59559e90ede3693be52ce7a090ae3b0030325e1e74d754b2e815b7684921afc"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "case": "2.1.116-to-2.1.117",
+  "inputs": {
+    "baselineBundle": ["2.1.116-linux-x64/cli.inner.js", 13102272, "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"],
+    "targetBundle": ["2.1.117-linux-x64/cli.inner.js", 13114118, "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"],
+    "structuralLedger": ["recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz", 2392225, "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"],
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-secondary-consumers-source-gap.mjs",
+      "bytes": 10578,
+      "sha256": "6a70e494338c278834ae6d2809d622f83180675eaf24b26a0ad88aa5254dc892"
+    },
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "files": [
+        {
+          "path": "src/components/ModelPicker.tsx",
+          "declaration": "ModelPicker",
+          "blob": "6b34a8043988812130f061cd67bbfbd2b5ad9481",
+          "bytes": 54861,
+          "sha256": "4d691c333750aa5075bb2b04a199288b07dcb3552e68001fa44fda6e648a11f7",
+          "declarationTuple": [2395, 13919, 11530, "b730b06695369abfeaee1d8cef4ab4d69f5070f4c84ce4727b2ee126fa8f5688"]
+        },
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "declaration": "UsageContributorsResult",
+          "blob": "1d66c712f920510107c2eb067e06223e1bca3516",
+          "bytes": 16143,
+          "sha256": "ae6722934a5cdba2a7244247aca2156b68b568a29d867c91bbf7e70ede0f7b09",
+          "declarationTuple": [4378, 7299, 2928, "eab74cce8cd8847a9e0cc665d1e84bcddef62defd431ebb5686834f28fa874b4"]
+        },
+        {
+          "path": "src/commands/ide/ide.tsx",
+          "declaration": "IDEScreen",
+          "blob": "0a41b9779d7de8b1740252360cf1c8b9e89df135",
+          "bytes": 77066,
+          "sha256": "58f0f4fd6e2aead9d423bc37c13a9ee576bec6c0e9b5f2016170582dd4180e6e",
+          "declarationTuple": [1464, 6842, 5378, "e19cf5b3433b0e03d0ca4e26296b21edf62d4d6952ff6a258b73569b2b349b8d"]
+        }
+      ]
+    },
+    "context": {
+      "path": "src/components/TruncatedCount.tsx",
+      "bytes": 681,
+      "sha256": "d1cfad7aa51c6e23a2acbc26858c6d711b872d86380fdeed594e8caf05338672"
+    },
+    "postimages": [
+      {
+        "path": "src/components/ModelPicker.tsx",
+        "declaration": "ModelPicker",
+        "bytes": 54912,
+        "sha256": "ae0fc7842e2f8490df51e764e94312379b01e9d396dc13045989d3851d68ec95",
+        "declarationTuple": [2449, 13972, 11527, "eaa19c896c474a56d6e67485ed0f0c949ceccacc303d03302774f7d94602583e"]
+      },
+      {
+        "path": "src/components/Settings/UsageContributors.tsx",
+        "declaration": "UsageContributorsResult",
+        "bytes": 16142,
+        "sha256": "f2997717d294370ab05a334ab107a3796ad02b3151e99907f862d497e9a0334a",
+        "declarationTuple": [4432, 7300, 2873, "4ff4b4cd870046ee98b52eb0f7ec20876d589afae6963c2a594afee8ed639543"]
+      },
+      {
+        "path": "src/commands/ide/ide.tsx",
+        "declaration": "IDEScreen",
+        "bytes": 77270,
+        "sha256": "6e8f025fde89aa42fa067a581010beda2eeb077f355333190564cfdde7102070",
+        "declarationTuple": [1533, 7046, 5513, "8dbddac687cc54dd82227732a2d8a1447f20b49c2fbfd28c0b8bbaf537ec1d21"]
+      }
+    ]
+  },
+  "target117": [
+    {
+      "index": 15423,
+      "owner": "src/components/ModelPicker.tsx",
+      "reportedOwner": "components/ModelPicker.tsx",
+      "declaration": "ModelPicker",
+      "unit": [15423, "unresolved", "FunctionDeclaration", 9517975, 9523669, 2816, "3888804c9d21b5b727baf94e2786442828edc0aaea06e85c3beae276969b92eb", "3292dc5769f4871e4c88cdff214fdcb30239323312993f7bf7a44f0002d5bbb3"],
+      "call": [9521626, 9521669, 43, "426e14c4dee0b5252602ed356d5c12b3f9a01dab75d061d80c4d691553592ff3"],
+      "residue": ["property", "unit", 336, 341, 9521655, 9521659],
+      "targetProps": {"count": "U", "unit": "model"},
+      "sourceProps": {"count": "hiddenCount", "unit": "model"}
+    },
+    {
+      "index": 15511,
+      "owner": "src/components/Settings/UsageContributors.tsx",
+      "reportedOwner": "components/LogoV2/OverageCreditUpsell.tsx",
+      "declaration": "UsageContributorsResult",
+      "unit": [15511, "unresolved", "FunctionDeclaration", 9579387, 9582340, 1418, "43f7a6fc42bbc5d99e11aea79ad4801425444f4efd6c0960a703aceab528fefc", "2823c168c286335eabf6d5149433750d08da7565bf85ed9510304ce1449e6298"],
+      "call": [9580447, 9580489, 42, "350adc76685be696da073e0e9485123291ad0ff791dbabace23975c2b76ce594"],
+      "residue": ["property", "unit", 336, 342, 9580476, 9580480],
+      "targetProps": {"count": "F", "unit": "file"},
+      "sourceProps": {"count": "result.oversizedFiles.length - 3", "unit": "file"}
+    },
+    {
+      "index": 15859,
+      "owner": "src/commands/ide/ide.tsx",
+      "reportedOwner": "commands/ide/ide.tsx",
+      "declaration": "IDEScreen",
+      "unit": [15859, "unresolved", "FunctionDeclaration", 9927540, 9930610, 1346, "9a8236998c918d00dc03a3405770e612d1c24753461fb490f9adbe877c7c320f", "6fc962798fb801bec1fd57fc918cae36c2804d0b40005e10396d86619ca68d17"],
+      "call": [9930111, 9930169, 58, "8786b38b4934b64613ffe04936f5c1b4035de47590cb01af7f1783f4d5b54899"],
+      "residue": ["property", "unit", 336, 343, 9930157, 9930161],
+      "targetProps": {"count": "K.length-4", "unit": "IDE"},
+      "sourceProps": {"count": "unavailableIDEs.length - 4", "unit": "IDE"}
+    }
+  ],
+  "evidenceIds": [
+    "target117-truncated-count-secondary-complete-target-unit-proof",
+    "target117-truncated-count-secondary-source-replay-test",
+    "target117-truncated-count-secondary-exact-owner-correction-proof"
+  ]
+}

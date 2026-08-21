@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "Admit Target119 u20456 only when its complete normalized token stream is the complete Target118 ModeIndicator plus the one authenticated foreground-agents branch, all 69 owner rows and 15 scanner-added rows are pinned, the exact historical source delta owns the branch and its dependencies, and whole-unit replay remains blocked by the stale shortcut/chord dependency graph.",
+  "ownerBehavior": "The complete authenticated Target119 ModeIndicator is the complete Target118 unit plus exactly one 60-token foreground-agents hint branch. The branch is gated by non-background, non-loading, empty-input, fleet availability, and leftArrowOpensAgents not being false, and renders the pending-aware left-arrow hint. All fifteen scanner-added owner residues are retained occurrence drift already present in the complete Target118 unit. The exact Target118-to-Target119 historical source delta adds the two imports, prop plumbing, compiler-cache slots, and this branch, authenticating ModeIndicator as the owner. The inherited authenticated unit nevertheless uses the chord-aware 12-slot KeyboardShortcutHint graph while recovered source still uses shortcut with 9 slots and carries an unchanged stale inline source map, so admission is static and never authorizes whole-unit source replay.",
+  "summary": {
+    "units": 1,
+    "ownerRows": 69,
+    "addedOwnerRows": 15,
+    "productionStrictRowsBeforeCorrection": 15,
+    "productionStrictRowsAfterCorrection": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-prompt-input-foreground-agents-authenticated-whole-unit-proof",
+    "target119-prompt-input-foreground-agents-source-delta-proof",
+    "target119-prompt-input-foreground-agents-semantic-test",
+    "target119-prompt-input-foreground-agents-source-replay-blocker"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-prompt-input-foreground-agents-authenticated-whole-unit-proof",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs",
+      "detail": "Pins the complete Target118 and Target119 ModeIndicator units, the sole 60-token insertion, and every one of the 69 typed owner residues."
+    },
+    {
+      "id": "target119-prompt-input-foreground-agents-source-delta-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs",
+      "detail": "Pins the exact 18-insertion/3-deletion historical source delta that adds the two dependency imports, prop plumbing, cache slots, and foreground-agents branch."
+    },
+    {
+      "id": "target119-prompt-input-foreground-agents-semantic-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs",
+      "detail": "Exhaustively verifies the five branch gates and pending-aware label while proving all fifteen scanner-added rows are retained from the complete Target118 unit."
+    },
+    {
+      "id": "target119-prompt-input-foreground-agents-source-replay-blocker",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs",
+      "detail": "Rejects whole-unit replay because the authenticated runtime uses chord and the inherited 12-slot shortcut component while recovered source exposes shortcut with 9 slots and a stale inline source map."
+    }
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionSha256": "bd4ae27067c10156b3566d8974891a6ca3614b186bfd4084a816bf51613b4163",
+      "mutableAfterCorrection": true
+    },
+    "allOwners": {
+      "path": ".recovery-tmp/generator-inputs/2.1.118-to-2.1.119.all-owners.json",
+      "bytes": 10041641,
+      "sha256": "b6f39561b683e547ddbfc55bf34ea86103c5bf93df827192205b23a7db744b16"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19530,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 11906424,
+    "end": 11911296,
+    "bytes": 4872,
+    "tokenCount": 1941,
+    "unknownFreeIdentifierCount": 1,
+    "sha256": "3d0f23d9d82ec7dd880dff771c459cb5112d8b8b02632cbd1f8e9bb117dfdb16",
+    "coarseHash": "2097841596ec8c79d16d162b351faba073dc265e1784194ee191135674de8496"
+  },
+  "targetUnit": {
+    "targetIndex": 20456,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12366041,
+    "end": 12371051,
+    "bytes": 5010,
+    "tokenCount": 2001,
+    "unknownFreeIdentifierCount": 5,
+    "sha256": "dde744c04dfb7f652fccfcc86f0f5bb8cd05ce61eac696fad95a001096c2a78d",
+    "coarseHash": "18b576c3bd0e6c088b36fe8c85978cbae5481fac52751557768fca52306a031d"
+  },
+  "wholeUnitDelta": {
+    "normalization": "Each identifier token resolved by the structural index is replaced with its top, local, or free kind; non-reference property names and every other token remain exact.",
+    "baseline": {"tokens": 1941, "jsonBytes": 28076, "sha256": "b6a2ed15dc3d215a442d41752cac5c9139aaa1334d422340a638e341f56a56fc"},
+    "target": {"tokens": 2001, "jsonBytes": 28935, "sha256": "b234d150eb09d51e151ddd14813bc2e91e62ce5c1b9788d9490bd74c7d3bdd0d"},
+    "commonPrefixTokens": 1384,
+    "insertedTokens": 60,
+    "commonSuffixTargetStart": 1444,
+    "netTokenIncrease": 60,
+    "collapsed": {"tokens": 1942, "jsonBytes": 28110, "sha256": "cea28216a9d6d7b1617f8702d7655a7c64521d554a2178f6b25f43f0d772d61d"},
+    "targetInsertion": {
+      "start": 12369437,
+      "end": 12369586,
+      "bytes": 149,
+      "sha256": "ebeea257f089198b82b95a3d96289755224b0f25bab0891c045b15f11534056d"
+    },
+    "targetInsertionText": "if(!S9()&&!_&&K&&bZH()&&y$().leftArrowOpensAgents!==!1)LH.push(Dq.createElement(V,{dimColor:!0,key:\"fg-agents\"},A4H,\" \",A?\"again \":\"\",\"for agents\"));"
+  },
+  "sourceLineage": {
+    "path": "src/components/PromptInput/PromptInputFooterLeftSide.tsx",
+    "baselineCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "targetCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "baselineBlob": "5af0bf0e9ee0a32df1d8fd66cb348e2ee4379c39",
+    "targetBlob": "e2378a2ca843d967facbfb6823c9d952139a45e8",
+    "baselineFile": {"chars": 87369, "bytes": 87415, "sha256": "060e26a358c66c42bf029cc1db0422a34ade9fdfd415f188f5b8262a1a8b4cf8"},
+    "targetFile": {"chars": 88089, "bytes": 88137, "sha256": "747f1ac8df399c726374704fe236cb1b97450161bb7c56325fdc1b659bbf0db8"},
+    "diff": {"insertions": 18, "deletions": 3, "unifiedZeroBytes": 2711, "unifiedZeroSha256": "7d9d9bb6f40116d57e1d11f0eb61274d6918c63d37f7edaced95aaec17861206"},
+    "baselineDeclarations": {
+      "Props": {"start": 3246, "end": 3847, "chars": 601, "bytes": 601, "sha256": "2bf57bb6dbe38c13b249c3c6963c837c4e0331847c0b55798148e15320c340f9"},
+      "PromptInputFooterLeftSide": {"start": 5127, "end": 8047, "chars": 2920, "bytes": 2922, "sha256": "17b82b3eded1b667700844ce3be82a093a481484fe781130a9c32c6f7868c2c1"},
+      "ModeIndicatorProps": {"start": 8048, "end": 8352, "chars": 304, "bytes": 304, "sha256": "4c5f90e1e8bba67eaae43ae8d33fa0c1c530936144c473f807ebdaca70f59dcc"},
+      "ModeIndicator": {"start": 8353, "end": 23056, "chars": 14703, "bytes": 14741, "sha256": "a13067aaf3ecd351f6f444d91717b5b87271fe7c3ed20fca4531a12f972c0d73"}
+    },
+    "targetDeclarations": {
+      "Props": {"start": 3386, "end": 4016, "chars": 630, "bytes": 630, "sha256": "b82bbcf013e42b6d666ef19bd81816a5f837c33f14c803f80acd710a46500e55"},
+      "PromptInputFooterLeftSide": {"start": 5296, "end": 8415, "chars": 3119, "bytes": 3121, "sha256": "1e901b0125e274c1fc8d407b2f8421f660ad2ed58d7cbc13b4bda98db662d129"},
+      "ModeIndicatorProps": {"start": 8416, "end": 8774, "chars": 358, "bytes": 358, "sha256": "48bc48573593d0a598d05ece39366a4bed4db3dc31a672c452430bcc96318421"},
+      "ModeIndicator": {"start": 8775, "end": 23776, "chars": 15001, "bytes": 15041, "sha256": "8ee1e3903513973ff89c216a5088de63c1f2eb46dfa011c04c5bb716bc3d1f1e"}
+    },
+    "targetImports": [
+      {"module": "../../utils/concurrentSessions.js", "start": 2840, "end": 2904, "bytes": 64, "sha256": "63ee5c713bbea40c7d9b09298a94b703843e45076694b454086486487f8f45fe"},
+      {"module": "../../utils/agentsFleet.js", "start": 2905, "end": 2979, "bytes": 74, "sha256": "1fd0af97306bb1e3672e8fdb2303f87e5ece75e56c91ef0acb1fa6222179129d"}
+    ],
+    "targetBranch": {"start": 19674, "end": 19933, "chars": 259, "bytes": 261, "sha256": "62c177975181953feadd676dfa4ff980b22a158c2cea112fe2844b36f59e702a"},
+    "inlineSourceMap": {
+      "sources": ["PromptInputFooterLeftSide.tsx"],
+      "names": 200,
+      "mappingsBytes": 19043,
+      "mappingsSha256": "daa16c2cd1198a7e88195777292122ef686abd74fd2d668f32a67f7f995c560c",
+      "authoredContent": {"chars": 24070, "bytes": 24116, "sha256": "b378ace8e572e7418d8e84b2eab6b0f4af13561ba9a1800146aa218bd0b81cf0"},
+      "unchangedAcrossSourceDelta": true
+    }
+  },
+  "sourceDependencies": [
+    {
+      "path": "src/utils/concurrentSessions.ts",
+      "file": {"chars": 12153, "bytes": 12165, "sha256": "20c4e660d3db1dd8462cc76a73f93f8b6a67050821f51ec8bf4b779dacf8c73d"},
+      "declaration": {"name": "isBgSession", "start": 3123, "end": 3200, "chars": 77, "bytes": 77, "sha256": "299b3a0f7176882e601a2f0fb31af7d960db5cfba59de8340d93113633d2bf34"}
+    },
+    {
+      "path": "src/utils/agentsFleet.ts",
+      "file": {"chars": 701, "bytes": 701, "sha256": "85fccfdd4753fa73fdcc9be66e6cc5ed1e9bb7a1baa86adf42ce8e13722d9bd0"},
+      "declarations": [
+        {"name": "isAgentsFleetEnabled", "start": 91, "end": 216, "chars": 125, "bytes": 125, "sha256": "04d1d14e70b05914681f56d220cee080382212cfd29bb633a038c48c273bd779"},
+        {"name": "isFgLeftArrowAgentsAvailable", "start": 218, "end": 399, "chars": 181, "bytes": 181, "sha256": "711951e2c993313018931426e50eed5190dcadb88b46b40a2d01d1194ed00639"}
+      ]
+    },
+    {
+      "path": "src/utils/config.ts",
+      "file": {"chars": 66030, "bytes": 66083, "sha256": "2e2d669d31705ec09f6de3c3f56a9d9d469e74a287695f1f5dc49ef5cdbf823e"},
+      "schemaFragment": {"start": 20584, "end": 20614, "bytes": 30, "sha256": "72a521ed8a8f85084ab75fda6855ea5700bac2a12d6fb75762b953d37cdffcee"},
+      "keyFragment": {"start": 28612, "end": 28635, "bytes": 23, "sha256": "b44ee0992bdd3ac1ca053b3a36619cf76609e7e404bdb9eb75b9dbc55ab79f10"}
+    }
+  ],
+  "keyboardShortcutGraph": {
+    "targetUnit": {
+      "targetIndex": 7948,
+      "classification": "matched",
+      "baselineUnitIndex": 7840,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 3779646,
+      "end": 3780259,
+      "bytes": 613,
+      "tokenCount": 375,
+      "sha256": "a9cc82cdfdfa301fc6b2927347f88713e9b7146fd20a971a9f0e5b97126540eb",
+      "coarseHash": "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a"
+    },
+    "targetCacheSize": 12,
+    "targetProps": ["chord", "action", "format", "parens", "bold"],
+    "sourcePath": "src/components/design-system/KeyboardShortcutHint.tsx",
+    "sourceFile": {"chars": 6843, "bytes": 6847, "sha256": "674320359f925e9f4f73f8761f003a0874bb6835eeb07ebb644192e8557d2b26"},
+    "sourceProps": ["shortcut", "action", "parens", "bold"],
+    "sourceCacheSize": 9
+  },
+  "attribution": {
+    "targetIndex": 20456,
+    "owners": [["../src/components/PromptInput/PromptInputFooterLeftSide.tsx", 3935]],
+    "candidateOwners": [["../src/components/PromptInput/PromptInputFooterLeftSide.tsx", 4789]],
+    "semanticOwnership": "source-owned-exact"
+  },
+  "ownerResidues": {
+    "identityFields": ["targetIndex", "literalKind", "value", "start", "end", "baselineOccurrenceCount", "targetOccurrenceNumber", "targetAdded"],
+    "all": {
+      "rows": 69,
+      "jsonBytes": 4458,
+      "sha256": "38039960e58c81459ec355e222d8bae031717571659e8969e21bf399549eaee9",
+      "identities": [
+        [20456,"property","columns",12366238,12366245,174,171,false],
+        [20456,"property","taskDecorations",12366331,12366346,12,10,false],
+        [20456,"property","useState",12366390,12366398,757,691,false],
+        [20456,"property","useMemo",12366683,12366690,184,126,false],
+        [20456,"property","useState",12366968,12366976,757,692,false],
+        [20456,"property","useRef",12367028,12367034,485,355,false],
+        [20456,"property","useEffect",12367043,12367052,437,310,false],
+        [20456,"property","createElement",12367457,12367470,8196,7608,false],
+        [20456,"property","pr",12367701,12367703,23,23,false],
+        [20456,"property","createElement",12367707,12367720,8196,7609,false],
+        [20456,"property","pr",12367751,12367753,23,24,true],
+        [20456,"property","pr",12367767,12367769,23,25,true],
+        [20456,"property","pr",12367788,12367790,23,26,true],
+        [20456,"number","60",12367826,12367828,227,234,true],
+        [20456,"property","createElement",12367929,12367942,8196,7610,false],
+        [20456,"property","createElement",12368017,12368030,8196,7611,false],
+        [20456,"property","createElement",12368054,12368067,8196,7612,false],
+        [20456,"property","chord",12368072,12368077,311,310,false],
+        [20456,"property","format",12368105,12368111,486,504,true],
+        [20456,"property","keyCase",12368113,12368120,25,29,true],
+        [20456,"string","lower",12368121,12368128,30,34,true],
+        [20456,"property","createElement",12368152,12368165,8196,7613,false],
+        [20456,"property","createElement",12368193,12368206,8196,7614,false],
+        [20456,"property","createElement",12368276,12368289,8196,7615,false],
+        [20456,"property","createElement",12368562,12368575,8196,7616,false],
+        [20456,"property","createElement",12368612,12368625,8196,7617,false],
+        [20456,"property","chord",12368630,12368635,311,311,false],
+        [20456,"property","format",12368667,12368673,486,505,true],
+        [20456,"property","keyCase",12368675,12368682,25,30,true],
+        [20456,"string","lower",12368683,12368690,30,35,true],
+        [20456,"property","createElement",12368744,12368757,8196,7618,false],
+        [20456,"string","bg-detach",12368777,12368788,1,1,false],
+        [20456,"string"," for agents",12368794,12368807,1,1,false],
+        [20456,"property","createElement",12368897,12368910,8196,7619,false],
+        [20456,"property","createElement",12368941,12368954,8196,7620,false],
+        [20456,"property","createElement",12368965,12368978,8196,7621,false],
+        [20456,"property","createElement",12369093,12369106,8196,7622,false],
+        [20456,"property","createElement",12369117,12369130,8196,7623,false],
+        [20456,"property","createElement",12369200,12369213,8196,7624,false],
+        [20456,"property","createElement",12369366,12369379,8196,7625,false],
+        [20456,"property","createElement",12369503,12369516,8196,7626,false],
+        [20456,"property","createElement",12369653,12369666,8196,7627,false],
+        [20456,"property","createElement",12369779,12369792,8196,7628,false],
+        [20456,"property","createElement",12369833,12369846,8196,7629,false],
+        [20456,"property","createElement",12369863,12369876,8196,7630,false],
+        [20456,"property","chord",12369881,12369886,311,312,true],
+        [20456,"property","createElement",12369926,12369939,8196,7631,false],
+        [20456,"property","createElement",12370007,12370020,8196,7632,false],
+        [20456,"string"," to native select",12370060,12370079,1,1,false],
+        [20456,"property","createElement",12370152,12370165,8196,7633,false],
+        [20456,"property","createElement",12370253,12370266,8196,7634,false],
+        [20456,"property","createElement",12370307,12370320,8196,7635,false],
+        [20456,"property","chord",12370325,12370330,311,313,true],
+        [20456,"string","enter",12370331,12370338,115,118,true],
+        [20456,"property","createElement",12370364,12370377,8196,7636,false],
+        [20456,"property","chord",12370382,12370387,311,314,true],
+        [20456,"string","down",12370388,12370394,111,113,true],
+        [20456,"property","createElement",12370466,12370479,8196,7637,false],
+        [20456,"property","createElement",12370507,12370520,8196,7638,false],
+        [20456,"property","createElement",12370559,12370572,8196,7639,false],
+        [20456,"property","createElement",12370622,12370635,8196,7640,false],
+        [20456,"property","createElement",12370670,12370683,8196,7641,false],
+        [20456,"property","createElement",12370729,12370742,8196,7642,false],
+        [20456,"property","createElement",12370776,12370789,8196,7643,false],
+        [20456,"property","createElement",12370831,12370844,8196,7644,false],
+        [20456,"property","createElement",12370879,12370892,8196,7645,false],
+        [20456,"property","createElement",12370929,12370942,8196,7646,false],
+        [20456,"property","createElement",12370986,12370999,8196,7647,false],
+        [20456,"property","createElement",12371023,12371036,8196,7648,false]
+      ]
+    },
+    "added": {
+      "rows": 15,
+      "jsonBytes": 840,
+      "sha256": "d706286344f7e66946b2a1be02dc524064e18e904471bbee7058907be8253bbf",
+      "indexSha256": "f093f181dfb4746714fda2ce9fa1cac18c60cbbcc831577f200c50269406a26b",
+      "identities": [
+        [20456,"property","pr",12367751,12367753,23,24,true],
+        [20456,"property","pr",12367767,12367769,23,25,true],
+        [20456,"property","pr",12367788,12367790,23,26,true],
+        [20456,"number","60",12367826,12367828,227,234,true],
+        [20456,"property","format",12368105,12368111,486,504,true],
+        [20456,"property","keyCase",12368113,12368120,25,29,true],
+        [20456,"string","lower",12368121,12368128,30,34,true],
+        [20456,"property","format",12368667,12368673,486,505,true],
+        [20456,"property","keyCase",12368675,12368682,25,30,true],
+        [20456,"string","lower",12368683,12368690,30,35,true],
+        [20456,"property","chord",12369881,12369886,311,312,true],
+        [20456,"property","chord",12370325,12370330,311,313,true],
+        [20456,"string","enter",12370331,12370338,115,118,true],
+        [20456,"property","chord",12370382,12370387,311,314,true],
+        [20456,"string","down",12370388,12370394,111,113,true]
+      ]
+    }
+  },
+  "coverageEvolution": {
+    "ownerIds": ["owner-src-components-PromptInput-PromptInputFooterLeftSide-tsx"],
+    "provisionalEvidenceIds": ["source-map-attribution", "semantic-test"],
+    "correctedEvidenceIds": [
+      "target119-prompt-input-foreground-agents-authenticated-whole-unit-proof",
+      "target119-prompt-input-foreground-agents-source-delta-proof",
+      "target119-prompt-input-foreground-agents-semantic-test",
+      "target119-prompt-input-foreground-agents-source-replay-blocker"
+    ],
+    "postCorrectionStrictIndexSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "semanticContract": {
+    "conditions": ["notBackgroundSession", "notLoading", "inputEmpty", "fleetAvailable", "leftArrowOpensAgentsNotFalse"],
+    "pendingLabel": "← again for agents",
+    "readyLabel": "← for agents"
+  },
+  "replayDecision": {
+    "mode": "static-only",
+    "graphClosed": false,
+    "targetKeyboardProp": "chord",
+    "sourceKeyboardProp": "shortcut",
+    "targetKeyboardCacheSize": 12,
+    "sourceKeyboardCacheSize": 9,
+    "inlineSourceMapTracksDelta": false,
+    "sourceReplayHelpers": []
+  }
+}

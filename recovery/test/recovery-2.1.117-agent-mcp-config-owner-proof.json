@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-agent-mcp-config-exact-source-owner-v1",
+  "status": "case-owned-static-exact-source-owner-proof",
+  "evidenceIds": [
+    "target117-agent-mcp-config-authenticated-whole-unit",
+    "target117-agent-mcp-config-exact-source-declaration",
+    "target117-agent-mcp-config-positional-owner-correction"
+  ],
+  "helper": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/recovered/agent-mcp-config-owner-overrides.mjs",
+    "bytes": 966,
+    "sha256": "6edc0388a14bb5c93930182bf3e2a5c18d356bdb2e759d405ef1477574a2a41e"
+  },
+  "bundles": {
+    "baseline116": { "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js", "bytes": 13102272, "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a" },
+    "target117": { "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js", "bytes": 13114118, "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661" },
+    "target118": { "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js", "bytes": 13234618, "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa" },
+    "target119": { "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js", "bytes": 13720987, "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef" },
+    "target120": { "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js", "bytes": 13784743, "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f" },
+    "target121": { "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js", "bytes": 13908188, "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a" }
+  },
+  "structuralLedgers": {
+    "117": { "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz", "bytes": 2392225, "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152" },
+    "118": { "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz", "bytes": 2429007, "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e" },
+    "119": { "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", "bytes": 2550437, "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839" },
+    "120": { "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", "bytes": 2490663, "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3" },
+    "121": { "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", "bytes": 2540002, "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e" }
+  },
+  "targetUnit": {
+    "targetIndex": 20260,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12262073,
+    "end": 12262266,
+    "tokenCount": 91,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 1,
+    "bytes": 193,
+    "sha256": "ed57ea9809d84e0eeb472452efdda15fe5369dd40ba1e7f3da0e2c27ddbdc314",
+    "coarseHash": "264ede92bdd24d95974d847fcaf37cce115bdfabf89cf2779070b29c7979d704",
+    "normalizedAst": { "chars": 3348, "bytes": 3348, "sha256": "f654b3308d5b04faedbba764c2a634768b461940abff9221125b78b09eceb228" }
+  },
+  "ownerResidue": {
+    "targetIndex": 20260,
+    "literalKind": "property",
+    "value": "onBlocked",
+    "baselineOccurrenceCount": 0,
+    "targetOccurrenceNumber": 1,
+    "targetOccurrenceCount": 2,
+    "start": 12262233,
+    "end": 12262242,
+    "bytes": 9,
+    "sha256": "3e5d66f84fd809b86d668007ebe3a85aae4da1f50567c238263b2ebf96f143b1"
+  },
+  "sourceOwner": {
+    "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "tree": "c9e15117699a700016fee35a941dc3896208819f",
+    "blob": "4999239307608248bbde4ae2b452f889c3e00db0",
+    "path": "src/services/mcp/agentConfig.ts",
+    "file": { "chars": 969, "bytes": 969, "sha256": "e35ad60e0ef9282854613c5630294de950f83888fcadd3a85ed7e5e755cbeddf" },
+    "declaration": { "name": "mergeMainAgentMcpServers", "nodeType": "FunctionDeclaration", "start": 260, "end": 968, "chars": 708, "bytes": 708, "sha256": "bfac6a45c46d14675748cc9207d93782b822954016563c6d2c3dba9773bcd22a" },
+    "imports": [
+      { "module": "./config.js", "names": ["doesEnterpriseMcpConfigExist", "filterMcpServersByPolicy"], "typeOnlyNames": [] },
+      { "module": "./types.js", "names": ["ScopedMcpServerConfig"], "typeOnlyNames": ["ScopedMcpServerConfig"] },
+      { "module": "../../tools/AgentTool/loadAgentsDir.js", "names": ["agentMcpSpecsToScopedConfigs", "AgentDefinition"], "typeOnlyNames": ["AgentDefinition"] }
+    ],
+    "onBlockedTypeStart": 453,
+    "onBlockedCallStart": 895,
+    "semanticOrder": [
+      "missing-agent",
+      "strict-config",
+      "enterprise-config",
+      "convert-agent-specs",
+      "empty-agent-configs",
+      "filter-policy",
+      "notify-blocked",
+      "merge-allowed-before-explicit"
+    ]
+  },
+  "rejectedPositionalOwner": {
+    "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "blob": "df6ac50859799d674341c6773427aeae88304752",
+    "path": "src/components/TeleportRepoMismatchDialog.tsx",
+    "file": { "chars": 13044, "bytes": 13046, "sha256": "18b255cb9e558d239141806637fea4caf2caf10114d7da87429b7ccbe91200bb" },
+    "declaration": { "name": "TeleportRepoMismatchDialog", "nodeType": "FunctionDeclaration", "start": 558, "end": 3329, "chars": 2771, "bytes": 2773, "sha256": "3c7314787b27fb64bbaf8ff069ca8a6e07a0148202823b5da4ef8c68182afd2d" },
+    "forbiddenText": ["strictMcpConfig", "onBlocked", "filterMcpServersByPolicy", "agentMcpSpecsToScopedConfigs"]
+  },
+  "exactLineage": [
+    { "version": "2.1.117", "bundleKey": "target117", "ledgerKey": "117", "targetIndex": 20260, "classification": "unresolved", "nodeType": "FunctionDeclaration", "start": 12262073, "end": 12262266, "tokenCount": 91, "bytes": 193, "sha256": "ed57ea9809d84e0eeb472452efdda15fe5369dd40ba1e7f3da0e2c27ddbdc314", "coarseHash": "264ede92bdd24d95974d847fcaf37cce115bdfabf89cf2779070b29c7979d704" },
+    { "version": "2.1.118", "bundleKey": "target118", "ledgerKey": "118", "targetIndex": 20459, "baselineUnitIndex": 20260, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 12367423, "end": 12367616, "tokenCount": 91, "bytes": 193, "sha256": "8a472a9a70e8c76a4e8f7e70f144dc11a6e475f211985ad229d793a64cd60c15", "coarseHash": "264ede92bdd24d95974d847fcaf37cce115bdfabf89cf2779070b29c7979d704" },
+    { "version": "2.1.119", "bundleKey": "target119", "ledgerKey": "119", "targetIndex": 21364, "baselineUnitIndex": 20459, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 12830886, "end": 12831079, "tokenCount": 91, "bytes": 193, "sha256": "1284a2479ff7d95b7e6796fe1df47520bc846867d0c92e181c3026554db8d45c", "coarseHash": "264ede92bdd24d95974d847fcaf37cce115bdfabf89cf2779070b29c7979d704" },
+    { "version": "2.1.120", "bundleKey": "target120", "ledgerKey": "120", "targetIndex": 21476, "baselineUnitIndex": 21364, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 12889385, "end": 12889578, "tokenCount": 91, "bytes": 193, "sha256": "4ca260967975bb945b795d6a5ec08c6ca805afcdc891eb6799a8ae67a69e1cc7", "coarseHash": "264ede92bdd24d95974d847fcaf37cce115bdfabf89cf2779070b29c7979d704" },
+    { "version": "2.1.121", "bundleKey": "target121", "ledgerKey": "121", "targetIndex": 21572, "baselineUnitIndex": 21476, "classification": "changed", "pairReason": "unique-coarse-structural-hash", "nodeType": "FunctionDeclaration", "start": 12953217, "end": 12953410, "tokenCount": 91, "bytes": 193, "sha256": "9e9cd3beb1c5680663eaf80adfd1f0483e0d9854c5022c792a12a89716b4589f", "coarseHash": "264ede92bdd24d95974d847fcaf37cce115bdfabf89cf2779070b29c7979d704" }
+  ],
+  "lineageNormalizedAst": { "chars": 3348, "bytes": 3348, "sha256": "f654b3308d5b04faedbba764c2a634768b461940abff9221125b78b09eceb228" },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/agent-mcp-config-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_AGENT_MCP_CONFIG_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

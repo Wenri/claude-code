@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+  "status": "authenticated-command-alias-selection-source-replay",
+  "evidenceIds": [
+    "target118-command-alias-selection-target-fragment",
+    "target118-command-alias-selection-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/components/PromptInput/PromptInputFooterSuggestions.tsx",
+        "bytes": 34368,
+        "sha256": "b7b2e6a76a2c5758c8027f9ae5719f33c6b997004e443d23bc6b11f30c670e75"
+      },
+      {
+        "path": "src/utils/suggestions/commandSuggestions.ts",
+        "bytes": 20041,
+        "sha256": "717ee7941db01777413d47d49d0bb40f60456b07c11bc771ec0cbe32d5a049cf"
+      }
+    ]
+  },
+  "outputs": {
+    "sourceFiles": [
+      {
+        "path": "src/components/PromptInput/PromptInputFooterSuggestions.tsx",
+        "bytes": 34393,
+        "sha256": "7acf8edb562a6d23cfb05486807018a0065e054b0918b6afb54364c5825def35"
+      },
+      {
+        "path": "src/utils/suggestions/commandSuggestions.ts",
+        "bytes": 20227,
+        "sha256": "01c517554b8f4e967deb48c5870ee5c508abae7b3e31122848f01288b3afca1f"
+      }
+    ]
+  },
+  "summary": {
+    "units": 2,
+    "residues": 2,
+    "indicesSha256": "83727e95eb6482a40f5e4cb365a6c5b41164e1ec725ee9a2d825f218ae2d4bbd",
+    "residueIdentitiesSha256": "b958d2d5a7ca9a09e2a118c2ace463cbef6e58b3c5522bdd0ca740c8afe64119"
+  },
+  "sourceMarkers": {
+    "type": "matchedAlias?: string;",
+    "payload": "    matchedAlias,",
+    "guard": "matchedAlias && findCommand(matchedAlias, commands) === suggestion.metadata",
+    "fallback": ": suggestion.metadata.name"
+  },
+  "rows": [
+    {
+      "targetIndex": 19257,
+      "ownerPath": "src/utils/suggestions/commandSuggestions.ts",
+      "behavior": "Target118 retains the matched command alias on each suggestion item so selection can preserve the exact alias the user typed.",
+      "target": {
+        "start": 11798771,
+        "end": 11799076,
+        "bytes": 305,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e8f6be49f49e1de69bfc25a1ea2fb7a6a3bf82d46f3fc44c52d009104f9e4407",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        {
+          "literalKind": "property",
+          "value": "matchedAlias",
+          "start": 11799060,
+          "end": 11799072,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 19259,
+      "ownerPath": "src/utils/suggestions/commandSuggestions.ts",
+      "behavior": "Target118 applies a selected alias only when it still resolves to the same command object, otherwise falling back to the canonical command name.",
+      "target": {
+        "start": 11801175,
+        "end": 11801661,
+        "bytes": 486,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d15a9977111365dde80be8fb75165a7a565b30586c1a04e8d298941b4d8657f8",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        {
+          "literalKind": "property",
+          "value": "matchedAlias",
+          "start": 11801462,
+          "end": 11801474,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 2
+        }
+      ]
+    }
+  ]
+}

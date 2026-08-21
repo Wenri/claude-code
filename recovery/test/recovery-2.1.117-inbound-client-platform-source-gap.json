@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-inbound-client-platform-bounded-later-donor-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-inbound-client-platform-target-unit-proof",
+    "target117-inbound-client-platform-later-donor-proof",
+    "target117-inbound-client-platform-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-inbound-client-platform-source-gap.mjs",
+      "bytes": 7037,
+      "sha256": "305b8e04969ca8382e885703bdb1112695deb63e511c92bf846b10dfbf6161a0"
+    },
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundles": [
+      ["2.1.117-linux-x64/cli.inner.js", 13114118, "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"],
+      ["2.1.118-linux-x64/cli.inner.js", 13234618, "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"],
+      ["2.1.119-linux-x64/cli.inner.js", 13720987, "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"],
+      ["2.1.120-linux-x64/cli.inner.js", 13784743, "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"],
+      ["2.1.121-linux-x64/cli.inner.js", 13908188, "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"]
+    ],
+    "structuralLedgers": [
+      ["recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz", 2392225, "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"],
+      ["recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz", 2429007, "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"],
+      ["recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", 2550437, "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"],
+      ["recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", 2490663, "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"],
+      ["recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", 2540002, "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"]
+    ],
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "path": "src/bridge/inboundMessages.ts",
+      "blob": "2c02f5054ba17e3a556ce7332040ea92dc2531b3",
+      "bytes": 2727,
+      "sha256": "b6fbd085bb77ab2f4b8e7e5377a945e0d9625426691bfa3cc3b75584844f6ffc",
+      "declaration": [764, 1326, 562, "a94a0def7783d727829b85109a09f0c1cac27ae4f0c97c35de9b73709bbf2c3d"]
+    },
+    "laterDonor": {
+      "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "tree": "6284c518a191674bf3e42869e05cad35dcaeabf0",
+      "path": "src/bridge/inboundMessages.ts",
+      "blob": "56f24ac586ff5735aeef33723ba02a4fae4106c3",
+      "bytes": 2946,
+      "sha256": "d34bd33f96f3fff30da98493a616b081d150a109534a65649b860c24533cb993",
+      "declaration": [764, 1545, 781, "3fc6898d8a44c7ae748d467ef12ee4b5e2516b4976709d0cf78cdd46e3b1f2b6"]
+    }
+  },
+  "target117": {
+    "unit": [
+      18561,
+      "unresolved",
+      "FunctionDeclaration",
+      11418750,
+      11419080,
+      117,
+      "ff028522d6f81ac5d5f7f74aac2a66c84b52422aa355a8cb98bbe65b5acdefe4",
+      "00188eee1cc443473dc82ddf5e1fb4a1e392b8b3ae901460eaee5952dfabe789"
+    ],
+    "exactSource": "function iK8(H){if(H.type!==\"user\")return;let $=H.message?.content;if(!$)return;if(Array.isArray($)&&$.length===0)return;let q=\"uuid\"in H&&typeof H.uuid===\"string\"?H.uuid:void 0,K=\"client_platform\"in H&&typeof H.client_platform===\"string\"?H.client_platform:void 0;return{content:Array.isArray($)?HQ1($):$,uuid:q,clientPlatform:K}}",
+    "residues": [
+      ["string", "client_platform", 11418930, 11418947, 1, 0],
+      ["property", "client_platform", 11418962, 11418977, 2, 0],
+      ["property", "client_platform", 11418991, 11419006, 3, 0],
+      ["property", "clientPlatform", 11419062, 11419076, 1, 0]
+    ],
+    "callWitnesses": [
+      [18654, 11483949, "965baf7ac1d2755dc171fa81bf41d0179873e94893a47e107da47570571749a4"],
+      [20646, 12961832, "85933cd8848eb3080cb343677b650e46999e6da295e7522a99f17b7a6514cc20"]
+    ]
+  },
+  "lineage": [
+    [18561, 18727, "4ccf1adc02d3bb3808948c739e2a8d72c3d14121b3ba85c93d2b18d4ca7774f6"],
+    [18727, 19689, "c33f2a1b054c8b1fe61ac9221fb2449248d7d761178a71bf5f55af2c8ecabdf0"],
+    [19689, 19771, "2750108b62fed4521027adc0db0f16b52925bd8c1de26810adb7327dd2c44b0a"],
+    [19771, 19748, "3d4d4fa04fda15d4e28c611165b7ebbb3700d86907239a57ff6a0cbe1e4fae06"]
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "distinctUnadmittedWitnessUnits": 2
+  }
+}

@@ -1,0 +1,395 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-hook-empty-state-atomic-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-hook-empty-state-complete-target-unit-proof",
+    "target117-shared-empty-state-target-unit-proof",
+    "target117-retained-keyboard-shortcut-contract-proof",
+    "target117-hook-empty-state-source-replay-test",
+    "target117-hook-empty-state-owner-correction-proof"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-hook-empty-state-source-gaps.mjs",
+      "bytes": 18588,
+      "sha256": "3d10b39c36d44687d469165143963e52b042a3f01f1b910b701c1ea0c8712a58"
+    },
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "files": [
+        {
+          "path": "src/components/hooks/SelectHookMode.tsx",
+          "blob": "cec6c6a278896210e7b377f75454f96e974103ae",
+          "bytes": 12907,
+          "sha256": "b5ce44026145656f81819e0cdc7cb1dce06ec680010c8a598ca326578b5f5b60",
+          "declaration": "SelectHookMode",
+          "declarationTuple": [
+            1004,
+            3313,
+            2309,
+            "5af6eeb1f30ffea224cc4395806d23b74debe067a6785d26954db19b9954e61c"
+          ],
+          "oldEmptyStateTuple": [
+            1467,
+            1664,
+            197,
+            "a204a1de94ec2c3c26e4a8fbdaf2e8837600cdab30b34696e6419a970eb48e27"
+          ]
+        },
+        {
+          "path": "src/components/hooks/SelectMatcherMode.tsx",
+          "blob": "d292fc891d347350e62ff33ca6365bade52604e3",
+          "bytes": 14809,
+          "sha256": "c7fb972b7142d0c300e4fed4fd76c00d5d312a5b900c1ca8a0db6e65dd4be3a2",
+          "declaration": "SelectMatcherMode",
+          "declarationTuple": [
+            1069,
+            3830,
+            2761,
+            "a1a289f8bb7f6da64cbe0289a2eec430ef2891bb6a85cc4a49384dd9c3a8f33b"
+          ],
+          "oldEmptyStateTuple": [
+            2253,
+            2450,
+            197,
+            "bc74efce3902e9ae1c089371957b3d14cfeaf38ec4c255f5a7f485d46bba57b9"
+          ]
+        },
+        {
+          "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+          "blob": "288d5315d5fb943e5f28a08985deb1c6007b28e4",
+          "bytes": 6847,
+          "sha256": "674320359f925e9f4f73f8761f003a0874bb6835eeb07ebb644192e8557d2b26",
+          "declaration": "KeyboardShortcutHint",
+          "declarationTuple": [
+            1316,
+            2242,
+            926,
+            "3072744959fc4af3adfb66655b0ab1bdd8146e70f728eaf34c072aba73a74179"
+          ]
+        }
+      ]
+    },
+    "context": {
+      "path": "src/components/design-system/EmptyState.tsx",
+      "bytes": 427,
+      "sha256": "43fc9440c08858dbdd4036bbf09d7fb7a0c7ca11df14446b1a6feded5e49449b",
+      "provenance": "bounded-module-neighbor-inference-no-target-sourcemap"
+    },
+    "postimages": [
+      {
+        "path": "src/components/hooks/SelectHookMode.tsx",
+        "bytes": 13005,
+        "sha256": "edf052a4adbc823dcd8e1ec476f4e2bb3f09cb4b0da45473970eb52e2306b2e5",
+        "declaration": "SelectHookMode",
+        "declarationTuple": [
+          1140,
+          3382,
+          2242,
+          "0e4e39d187481eae81f2477ce2f3e963c82782b04572471ee3a6b0aa88315831"
+        ],
+        "importTuple": [
+          814,
+          894,
+          80,
+          "0863ecffa1ac48f510a2225e0ca7b6053c9790bec839b08f357d16ceffa44951"
+        ],
+        "delegateTuple": [
+          1608,
+          1732,
+          124,
+          "2c83511ff76417cd2b87e30991ef73ad7f24a221b4954df6a6d3a5feaf96cad3"
+        ],
+        "inputGuideTuple": [
+          3713,
+          3800,
+          87,
+          "070329abc0771795b67ab9e659dec734bc79bc8b669e2881e72899d0a510e83c"
+        ],
+        "keyboardCallTuple": [
+          3741,
+          3797,
+          56,
+          "9461f1eae75fdae461c9ee63b6db0003add09ff758fb4c85aefb86f28bd0efd5"
+        ],
+        "emptyStateImportTuple": [
+          753,
+          813,
+          60,
+          "f78f21b72289f65e95aaf0874e7fe11b1d75707fde98599c2acd388c605864a6"
+        ],
+        "cacheSize": 19,
+        "cacheSlot": 0
+      },
+      {
+        "path": "src/components/hooks/SelectMatcherMode.tsx",
+        "bytes": 14907,
+        "sha256": "e41cb7a9a00ec2d829ed08c334516496c410597cf50b1985173dd61d2d370793",
+        "declaration": "SelectMatcherMode",
+        "declarationTuple": [
+          1205,
+          3899,
+          2694,
+          "55bd2d06d5530e61648c874c0428d8fa7365e46a56acf5df8ade70a7244faf41"
+        ],
+        "importTuple": [
+          769,
+          849,
+          80,
+          "0863ecffa1ac48f510a2225e0ca7b6053c9790bec839b08f357d16ceffa44951"
+        ],
+        "delegateTuple": [
+          2394,
+          2518,
+          124,
+          "2c83511ff76417cd2b87e30991ef73ad7f24a221b4954df6a6d3a5feaf96cad3"
+        ],
+        "inputGuideTuple": [
+          4213,
+          4301,
+          88,
+          "3ddf9f8acc8e186f113936b716755efb0ee075418e52b4f0815ed27ea47b92f6"
+        ],
+        "keyboardCallTuple": [
+          4242,
+          4298,
+          56,
+          "9461f1eae75fdae461c9ee63b6db0003add09ff758fb4c85aefb86f28bd0efd5"
+        ],
+        "emptyStateImportTuple": [
+          708,
+          768,
+          60,
+          "f78f21b72289f65e95aaf0874e7fe11b1d75707fde98599c2acd388c605864a6"
+        ],
+        "cacheSize": 25,
+        "cacheSlot": 7
+      },
+      {
+        "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+        "bytes": 14022,
+        "sha256": "003a5fcb34e20f2a8966397d29b42a1a3edbd9773707c1fa81314d5197b52335",
+        "declaration": "KeyboardShortcutHint",
+        "declarationTuple": [
+          8892,
+          9356,
+          464,
+          "a6fb84d3424652326e8e34817a27c567962e622e97a53f542bf832713eebb836"
+        ],
+        "formatterDeclarationTuple": [
+          6373,
+          7495,
+          1122,
+          "6f4a276de397b1b323da57a32ae2b04d14b97fec39fcf61c0e959d5db446bea4"
+        ]
+      }
+    ]
+  },
+  "target117": {
+    "keyboardShortcutUnit": [
+      7778,
+      "matched",
+      "FunctionDeclaration",
+      3720736,
+      3721349,
+      375,
+      "6d192daeec21aa00acd8658790eec23a5e93e5f74c4914960e7e8cc7b66ae16c",
+      "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a"
+    ],
+    "keyboardShortcutInitializer": [
+      7780,
+      "unresolved",
+      "VariableDeclaration",
+      3721361,
+      3721417,
+      41,
+      "8c1e6e98e8fed05ab66a209ae3b370a3cd2c0cdf4638cd516fe2345976496603",
+      "6479fc5e7d5da46a80e0eccf797c8ba3d29944b092086020cc3acf421fdd92d6"
+    ],
+    "sharedComponentUnit": [
+      7863,
+      "unresolved",
+      "FunctionDeclaration",
+      3760503,
+      3760938,
+      263,
+      "1b237ae77c21269b4f3b1d363f68405c1aded45853d32b9473392fa0657ca69d",
+      "20129cf94973161e5156278585fe878bfec9ea8aeb3df2a16af25b983017944a"
+    ],
+    "sharedComponentBinding": [
+      7864,
+      "moved",
+      "VariableDeclaration",
+      3760938,
+      3760949,
+      5,
+      "2fa5b5b629dd1e6776b37b3e28d4cd062963738552a26fd351b62c83a02302a7",
+      "c01b63c9a83efc2c82e465e2d798fc3c37152b39ff84fb5b2ced94dd86e0163b"
+    ],
+    "sharedComponentInitializer": [
+      7865,
+      "unresolved",
+      "VariableDeclaration",
+      3760949,
+      3760997,
+      37,
+      "bdbbcc0b6c89eec4e7e55c6d35e6f14bcee24e3f7efea8b894fb929505e77cae",
+      "33555862c476943da840280a771cc7cfd8e7e271c05c2559d4caf08216598e70"
+    ],
+    "consumers": [
+      {
+        "targetIndex": 17078,
+        "owner": "src/components/hooks/SelectHookMode.tsx",
+        "declaration": "SelectHookMode",
+        "unit": [
+          17078,
+          "unresolved",
+          "FunctionDeclaration",
+          10689645,
+          10690824,
+          564,
+          "bf65eb5cf852f83a77058bd297b617c27c77d73816b3252f95eaa199070813f4",
+          "48bf7a1ecfe504872ffd07538ec2619ebb0b37d67801026dc87df1e3c0b1ea32"
+        ],
+        "call": [
+          10689921,
+          10690045,
+          124,
+          "a3b3884f41b8ec0ce445a7c5dfd897036c0ec95585b40d658d38fc209ba90e62"
+        ],
+        "inputGuideUnit": [
+          17080,
+          "unresolved",
+          "FunctionDeclaration",
+          10691013,
+          10691090,
+          23,
+          "7f33ce15546476d6b6e09e5ecaf7fb0d4da61acd2199d6ba721fe0e8515c6652",
+          "f2be84db0e4199cf3a4090d221f0a11739a37a6e5abde23d3f969dc48b259a0a"
+        ],
+        "inputGuideCall": [
+          10691035,
+          10691089,
+          54,
+          "d43bf9cdad80c787e33e2e8c32dfe2ab7daf14c5f074cc930b1d8662c504bf34"
+        ],
+        "moduleInitializer": [
+          17082,
+          "unresolved",
+          "VariableDeclaration",
+          10691101,
+          10691176,
+          57,
+          "e4735904bda70a6fcf5cd17c8d4e3453787db8c2959b06daba96656434b5adb0",
+          "67b865207aed3bd289225c2fbfc2bb0f55ab3d9866edd004bb39215696f6c131"
+        ],
+        "residue": [
+          "property",
+          "hint",
+          10689942,
+          10689946,
+          6,
+          9
+        ],
+        "cacheSize": 19,
+        "cacheSlot": 0,
+        "emptyLengthBinding": "K"
+      },
+      {
+        "targetIndex": 17083,
+        "owner": "src/components/hooks/SelectMatcherMode.tsx",
+        "staleGeneratedOwner": "src/components/hooks/SelectHookMode.tsx",
+        "declaration": "SelectMatcherMode",
+        "unit": [
+          17083,
+          "unresolved",
+          "FunctionDeclaration",
+          10691176,
+          10692473,
+          684,
+          "792f32d1e53085ff1fbd26bcae7d88cd1e00631970d245fe8812ed1a945e261a",
+          "7d752545bc12327ce14cfba5bf202b4dfce489100235be6e66539bb6b3e61ab8"
+        ],
+        "call": [
+          10691664,
+          10691788,
+          124,
+          "d0cef11bb123fca6014044773569134824a55f8ce4bdb896c06c21007a7a4abb"
+        ],
+        "inputGuideUnit": [
+          17085,
+          "unresolved",
+          "FunctionDeclaration",
+          10692645,
+          10692722,
+          23,
+          "1b515e5705b709ffcae1ffaa2a220470fc1aab166939611dcc4ef1f05cf13f77",
+          "f2be84db0e4199cf3a4090d221f0a11739a37a6e5abde23d3f969dc48b259a0a"
+        ],
+        "inputGuideCall": [
+          10692667,
+          10692721,
+          54,
+          "005b02c54b5d067b0eaa9e681264e8d5a5370ddcdf05a612590181573c3f9682"
+        ],
+        "moduleInitializer": [
+          17088,
+          "unresolved",
+          "VariableDeclaration",
+          10692765,
+          10692840,
+          57,
+          "fe0aaaae6254e66a70ecc9d2ccdefd1f8aa32f8d4be10df3744c2c41fd1fda9a",
+          "67b865207aed3bd289225c2fbfc2bb0f55ab3d9866edd004bb39215696f6c131"
+        ],
+        "residue": [
+          "property",
+          "hint",
+          10691685,
+          10691689,
+          6,
+          10
+        ],
+        "cacheSize": 25,
+        "cacheSlot": 7,
+        "emptyLengthBinding": "K"
+      }
+    ]
+  },
+  "summary": {
+    "strictUnits": 2,
+    "strictResidues": 2,
+    "recoveredFiles": 3,
+    "ownerOverrides": 2,
+    "requiredPriorReplays": [
+      "applyTarget117PluginEmptyStateSourceRecovery"
+    ],
+    "sourcePathAttribution": {
+      "status": "inferred-no-target-sourcemap",
+      "chosenPath": "src/components/design-system/EmptyState.tsx",
+      "basis": "The authenticated runtime and module initializer prove the shared component contract and dependency graph, but not the authored module path or export spelling."
+    },
+    "keyboardShortcutSource": {
+      "status": "retained-compatibility-materialization",
+      "basis": "Target117 and baseline authenticate the chord/format runtime and the exact two chord callers. The embedded source is the previously recovered compatibility superset, not a claim of exact authored Target117 source text."
+    }
+  }
+}

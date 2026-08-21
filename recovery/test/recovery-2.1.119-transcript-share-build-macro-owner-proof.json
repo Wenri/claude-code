@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "case-owned-static-complete-unit-source-and-build-proof",
+  "criterion": "Admit Target119 u20814 only when its complete authenticated function, complete Target118 predecessor, exact historical submitTranscriptShare declaration, six non-build owner-added rows, and three exact build-macro rows form one closed proof. Incidental size/stat/readFile/split/map/join occurrences or bare release literals are insufficient.",
+  "ownerBehavior": "The complete authenticated Target119 submitTranscriptShare unit is identical to its complete Target118 predecessor after only bundle-local identifier and exact VERSION, BUILD_TIME, and GIT_SHA normalization. The exact historical declaration directly owns size/stat/readFile and the transcript-share call path, while the complete paired units prove split/map/join are retained pipeline operations rather than Target119 additions. The remaining three strict rows are the Target119 build identity inlined by the declaration's sole MACRO.VERSION access. The source file is byte-identical across the authenticated Target118, Target119, and Target120 source commits, so this is a complete static source-and-build proof and authorizes no replay.",
+  "summary": {
+    "units": 1,
+    "ownerRows": 28,
+    "addedOwnerRows": 9,
+    "productionStrictRowsBeforeCorrection": 3,
+    "productionStrictRowsAfterCorrection": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0,
+    "targetIndicesSha256": "a334a01006d28527b613fff64add0a67f16fd24803714cba494502813f79e901",
+    "ownerResidueIdentitiesSha256": "51f6366efe21a5f059b7b5fbe68de5cdadd95227d4e9e3b47e65c06e16bd1ff7",
+    "addedOwnerResidueIdentitiesSha256": "5be125dabef8c5e10e122f515c19529e46d3a630323355fb94304fd5d0c52fd7",
+    "productionStrictResidueIdentitiesSha256": "5e06abc343770c98819100581be58339b8f5a14fd49980261ff8d77c7c4a4786"
+  },
+  "evidenceIds": [
+    "target119-transcript-share-authenticated-paired-unit",
+    "target119-transcript-share-historical-source-file-proof",
+    "target119-transcript-share-source-ast-owner-proof",
+    "target119-transcript-share-build-macro-proof",
+    "target119-transcript-share-complete-unit-test"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-transcript-share-authenticated-paired-unit",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs",
+      "detail": "Pins the complete Target118 and Target119 submitTranscriptShare function units and proves their canonical ASTs differ only in bundle-local identifiers and exact build identity."
+    },
+    {
+      "id": "target119-transcript-share-historical-source-file-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs",
+      "detail": "Pins one byte-identical submitTranscriptShare source blob across the authenticated Target118, Target119, and Target120 source commits and the recovered Target119 package tree."
+    },
+    {
+      "id": "target119-transcript-share-source-ast-owner-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs",
+      "detail": "Binds the unique submitTranscriptShare declaration, fs/promises stat/readFile imports, size guard, transcript-share endpoint, and sole MACRO.VERSION access to the exact historical source file."
+    },
+    {
+      "id": "target119-transcript-share-build-macro-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs",
+      "detail": "Proves VERSION, BUILD_TIME, and GIT_SHA are the only semantic differences between the paired complete compiled units and exactly match the Target119 build identity."
+    },
+    {
+      "id": "target119-transcript-share-complete-unit-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs",
+      "detail": "Pins the complete 28-row owner partition, nine owner-added rows, three production-strict build rows, and atomic provisional-or-corrected coverage state."
+    }
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/transcript-share-build-macro-owner-overrides.mjs",
+      "bytes": 1602,
+      "sha256": "0ca86c1126c8cf5de4fcbf1c50c3dc70e25388b1a22e8d98302f26a5489ab464"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionBytes": 24786895,
+      "observedPreCorrectionSha256": "58af453b51adf4c340bc492898ecba0ecf84c5376d0bca769a66f91faf4e55c5",
+      "mutableAfterCorrection": true
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedPreCorrectionBytes": 372095,
+      "observedPreCorrectionSha256": "f7812bf2a9e618100978c32848173ae1433cf587fdc3b558198df3c05f67e682",
+      "mutableAfterCorrection": true
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19909,
+    "nodeType": "FunctionDeclaration",
+    "start": 12073976,
+    "end": 12075444,
+    "bytes": 1468,
+    "tokens": 436,
+    "sha256": "934d9b7be3e4fd9d5e231eaf400c5dde9490cd7fbbfd46f81df2d9b73db73d27",
+    "buildIdentity": {
+      "VERSION": "2.1.118",
+      "BUILD_TIME": "2026-04-22T21:04:38Z",
+      "GIT_SHA": "ef88b5f0a79aac989f53fd18178939a54a48624a"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 20814,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12533250,
+    "end": 12534718,
+    "bytes": 1468,
+    "tokens": 436,
+    "sha256": "b5547e09d7900c8e2a9590eb0c4500ab03b017368420f9e47a25ffc0b192f04d",
+    "coarseHash": "807152310d30054547cd4a126f3c813c0d1a24b2c64ab1773ee0dc73e4118839",
+    "buildIdentity": {
+      "VERSION": "2.1.119",
+      "BUILD_TIME": "2026-04-23T19:08:52Z",
+      "GIT_SHA": "6f68554839756189e277b8285a18fe47acd9a5a1"
+    }
+  },
+  "canonicalPairedUnit": {
+    "normalizations": [
+      "bundle-local identifier names",
+      "VERSION semantic-version literal",
+      "BUILD_TIME ISO timestamp literal",
+      "GIT_SHA forty-hex literal"
+    ],
+    "bytes": 16234,
+    "sha256": "98e5d19c53780cb90cb17ee190549866759f52cc4742fbb9f9c93d09a9654ae6"
+  },
+  "sourceState": {
+    "path": "src/components/FeedbackSurvey/submitTranscriptShare.ts",
+    "file": {
+      "bytes": 3251,
+      "sha256": "8d0ab63a4c41cfb81c7e5e204ee2d77008313bf500422f46ece0a275a5ea3616",
+      "gitBlob": "52e14251c704c569fe3f062d0b80aad65b8dc686"
+    },
+    "declaration": {
+      "name": "submitTranscriptShare",
+      "start": 916,
+      "end": 3250,
+      "bytes": 2334,
+      "sha256": "9522d67799917aacb248081b38851f2b5381e7df558461f74efc0ea859493967"
+    },
+    "historicalCommits": [
+      {
+        "version": "2.1.118",
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314"
+      },
+      {
+        "version": "2.1.119",
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05"
+      },
+      {
+        "version": "2.1.120",
+        "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1"
+      }
+    ],
+    "requiredFragments": [
+      "const { size } = await stat(transcriptPath)",
+      "if (size <= MAX_TRANSCRIPT_READ_BYTES)",
+      "rawTranscriptJsonl = await readFile(transcriptPath, 'utf-8')",
+      "version: MACRO.VERSION",
+      "redactSensitiveInfo(jsonStringify(data))",
+      "https://api.anthropic.com/api/claude_code_shared_session_transcripts"
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/components/FeedbackSurvey/submitTranscriptShare.ts"
+    ],
+    "declarations": [
+      "submitTranscriptShare"
+    ]
+  },
+  "addedOwnerResidues": [
+    [20814, "property", "size", 12533440, 12533444, 633, 653],
+    [20814, "property", "stat", 12533458, 12533462, 192, 199],
+    [20814, "property", "readFile", 12533488, 12533496, 188, 206],
+    [20814, "property", "join", 12533691, 12533695, 2305, 2375],
+    [20814, "property", "map", 12533618, 12533621, 2158, 2176],
+    [20814, "property", "split", 12533607, 12533612, 742, 752],
+    [20814, "string", "2.1.119", 12533921, 12533930, 0, 122],
+    [20814, "string", "2026-04-23T19:08:52Z", 12534010, 12534032, 0, 122],
+    [20814, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 12534041, 12534083, 0, 122]
+  ],
+  "residuePartitions": {
+    "directSourceAst": [
+      "size",
+      "stat",
+      "readFile"
+    ],
+    "completePredecessorPipeline": [
+      "join",
+      "map",
+      "split"
+    ],
+    "buildMacro": [
+      "2.1.119",
+      "2026-04-23T19:08:52Z",
+      "6f68554839756189e277b8285a18fe47acd9a5a1"
+    ]
+  },
+  "productionStrictResidues": [
+    [20814, "string", "2.1.119", 12533921, 12533930, 0, 122],
+    [20814, "string", "2026-04-23T19:08:52Z", 12534010, 12534032, 0, 122],
+    [20814, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 12534041, 12534083, 0, 122]
+  ],
+  "sourceReplay": {
+    "authorized": false,
+    "reason": "The recovered Target119 source is already the exact authenticated historical source file and the complete generated unit differs from its complete Target118 predecessor only by build identity. No source bytes are missing from this proof lane."
+  }
+}

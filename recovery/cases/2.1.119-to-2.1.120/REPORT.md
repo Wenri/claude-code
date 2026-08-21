@@ -27,7 +27,7 @@ Every obligation binds one unique row from `semantic/direct-evidence.json`. The 
 
 ## Source freeze
 
-The incremental overlay is frozen from `351cd4d13f70a564dc2d90f59ab0093dc6fc7b05` to `9ca39e71e1bb5f506119000c7e5237fe716953a8`.
+The incremental overlay is frozen from `351cd4d13f70a564dc2d90f59ab0093dc6fc7b05` to the durable authenticated 2.1.120 evidence commit `6801ead984ba2c3df02bd092ad8b93df096ed8c1`.
 
 - Target src Git tree: `a80c537f012b1588e3900c998971fec31eefc3ce`.
 - Overlay: 1,817,973 bytes, SHA-256 `a3d9bcf357ceac5567626666fbd4da958e612b26ee01e43b8d485dd5f6beaa9e`.

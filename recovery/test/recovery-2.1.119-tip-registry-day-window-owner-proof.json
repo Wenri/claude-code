@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "case-owned-static-complete-unit-arithmetic-fold-proof",
+  "criterion": "Admit Target119 u20919 only when the complete authenticated predecessor and target units remain property-preserving identifier-normalized AST equals, the two compiled 86400000 literals retain identical unit-relative positions, and the exact historical externalTips declaration contains exactly two ordered day-window divisors that evaluate to 86400000. Incidental numeric occurrences or unscoped source text are insufficient.",
+  "ownerBehavior": "The complete authenticated Target119 externalTips initialization unit has the same unique coarse structural hash, token count, byte length, property-preserving identifier-normalized AST, and two day-window literal offsets as its complete Target118 predecessor. The exact historical externalTips declaration contains exactly two ordered (1000 * 60 * 60 * 24) divisors, in plan-mode-for-complex-tasks and opusplan-mode-reminder, which each evaluate to 86400000 and compile to those two literals. Three unrelated earlier Target119 occurrences only shift the inherited literals from global ordinals 19/20 to 22/23; they are not new runtime behavior. The remaining eligible owner row is directly authored by the same exact declaration and referral dependency. Raw and supplemented Target119 source retain the exact externalTips declaration, so this complete static source/AST proof authorizes no replay.",
+  "summary": {
+    "units": 1,
+    "ownerRows": 3,
+    "addedOwnerRows": 2,
+    "ownerSupplementStrictRowsBeforeCorrection": 2,
+    "ownerSupplementStrictRowsAfterCorrection": 0,
+    "typedReportStrictRows": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0,
+    "targetIndicesSha256": "1949c0464f5430d0ec7de81f352bb878869b4c15b3090034e43a095da9c0d4e4",
+    "ownerResidueIdentitiesSha256": "137560e697a8469f4dc93903b2f242ffece1b643c5e9246bcd71b4022755db3a",
+    "addedOwnerResidueIdentitiesSha256": "cbdd511dac7e407cf4464d3a051027aa93af673a32679a52c22f1e02ebfc6e63",
+    "ownerSupplementStrictResidueIdentitiesSha256": "cbdd511dac7e407cf4464d3a051027aa93af673a32679a52c22f1e02ebfc6e63"
+  },
+  "evidenceIds": [
+    "target119-tip-registry-day-window-authenticated-paired-unit",
+    "target119-tip-registry-day-window-historical-source-file-proof",
+    "target119-tip-registry-day-window-source-ast-constant-fold-proof",
+    "target119-tip-registry-day-window-occurrence-shift-proof",
+    "target119-tip-registry-day-window-complete-unit-test"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-tip-registry-day-window-authenticated-paired-unit",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs",
+      "detail": "Pins the complete Target118 and Target119 externalTips initialization units, their unique coarse pairing, and their property-preserving identifier-normalized AST equality."
+    },
+    {
+      "id": "target119-tip-registry-day-window-historical-source-file-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs",
+      "detail": "Pins the byte-identical Target118 and Target119 historical tipRegistry source blob and the exact externalTips declaration retained by the supplemented package source."
+    },
+    {
+      "id": "target119-tip-registry-day-window-source-ast-constant-fold-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs",
+      "detail": "Binds exactly two ordered source divisor ASTs to the plan-mode and opusplan reminder tip objects, evaluates each source arithmetic tree to 86400000, and pins their direct dependencies."
+    },
+    {
+      "id": "target119-tip-registry-day-window-occurrence-shift-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs",
+      "detail": "Proves the two literals remain at identical offsets inside paired complete units while three earlier target occurrences shift only their global ordinals from 19/20 to 22/23."
+    },
+    {
+      "id": "target119-tip-registry-day-window-complete-unit-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs",
+      "detail": "Pins the complete three-row owner partition, two-row owner-added and owner-supplement-strict partitions, direct eligible source row, and atomic provisional-or-corrected coverage state."
+    }
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/tip-registry-day-window-owner-overrides.mjs",
+      "bytes": 1732,
+      "sha256": "f96a2aa5802e8919fea735509f114d8f5a480f425f456aee7e6b38a593afa8cb"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionBytes": 24774267,
+      "observedPreCorrectionSha256": "573def697d190cee4d1d8a03707b197063a7155a2ca2b11d22829d59ec27474e",
+      "mutableAfterCorrection": true
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedPreCorrectionBytes": 373728,
+      "observedPreCorrectionSha256": "73707a7ca66ba2e2bb86cd0c0be7d24ab1c0c7ac7d3cf2375cf048bfbbe2d0f3",
+      "mutableAfterCorrection": true
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20013,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 12113261,
+    "end": 12125205,
+    "bytes": 11944,
+    "tokens": 2751,
+    "sha256": "09891cf37d053f3a3fb62945f0b71699ddf4498f660b1030870d408e167673f9",
+    "coarseHash": "9cf8357d89322bc3d1a616312bc64cf5d91d7ea03be668dfda61dfb8a9999630",
+    "unknownFreeIdentifierCount": 8
+  },
+  "targetUnit": {
+    "targetIndex": 20919,
+    "classification": "changed",
+    "nodeType": "VariableDeclaration",
+    "start": 12573298,
+    "end": 12585242,
+    "bytes": 11944,
+    "tokens": 2751,
+    "sha256": "e09baf973dbc51cc62b72a016cdfcfba5e6e36001821e7a2aa4b5debdad2f03f",
+    "coarseHash": "9cf8357d89322bc3d1a616312bc64cf5d91d7ea03be668dfda61dfb8a9999630",
+    "unknownFreeIdentifierCount": 32,
+    "baselineUnitIndex": 20013,
+    "pairReason": "unique-coarse-structural-hash"
+  },
+  "canonicalPairedUnit": {
+    "normalizations": [
+      "bundle-local binding identifier names only; member properties and object keys are preserved"
+    ],
+    "jsonBytes": 105427,
+    "sha256": "ee5ae486e6a187cfce09203c7e57babf1e45786f9980278942ce72ac3ed64a91"
+  },
+  "compiledTipObjects": [
+    {
+      "id": "plan-mode-for-complex-tasks",
+      "relativeStart": 622,
+      "relativeEnd": 935,
+      "bytes": 313,
+      "baselineSha256": "81ce9d7eb6078bed9ef69cdb2697ba15370f974837e9c47b55e9a47ecd44196b",
+      "targetSha256": "fb4ce87cc917398f861092b1836d73293d4823cab3b248d18f072d3f114ed3c4",
+      "canonicalJsonBytes": 2678,
+      "canonicalSha256": "2ddf96413d34e7c64b05199929296000b8c98f93f186d65bab47eea479652d63",
+      "dayLiteralRelativeStart": 918,
+      "dayLiteralRelativeEnd": 926
+    },
+    {
+      "id": "opusplan-mode-reminder",
+      "relativeStart": 8866,
+      "relativeEnd": 9212,
+      "bytes": 346,
+      "baselineSha256": "f438e1490fe576eadad7032c4ecbab434118db1f3cf9ebbc26a1c38248a1560d",
+      "targetSha256": "a923e4625b0afa40475a1bce3f2194bbdc7d6c32ec565be8aeb5ae48d47f7ed1",
+      "canonicalJsonBytes": 3165,
+      "canonicalSha256": "3423fedbba4d50b8f1a92cb51860aad32ad04e5e61a931727c5b61665bd0576b",
+      "dayLiteralRelativeStart": 9184,
+      "dayLiteralRelativeEnd": 9192
+    },
+    {
+      "id": "guest-passes",
+      "relativeStart": 11220,
+      "relativeEnd": 11546,
+      "bytes": 326,
+      "baselineSha256": "afa27ac1ecd82a7df820fae63fdb90f89f94dab681318a02f734e10e5d76c407",
+      "targetSha256": "ffc62805369d9ce8ff56769b6cd34069c38b84e25afff2db1da0d52dfce8df14",
+      "canonicalJsonBytes": 3677,
+      "canonicalSha256": "f6950be6bbb134e52a601d27297612c3786fc529981fa331b71eb987aa9b10fb"
+    }
+  ],
+  "globalDayLiteralOccurrences": {
+    "value": "86400000",
+    "baselineCount": 20,
+    "baselineUnitOrdinals": [19, 20],
+    "baselineUnitStarts": [12114179, 12122445],
+    "targetCount": 23,
+    "targetUnitOrdinals": [22, 23],
+    "targetUnitStarts": [12574216, 12582482],
+    "unitRelativeStarts": [918, 9184]
+  },
+  "sourceState": {
+    "path": "src/services/tips/tipRegistry.ts",
+    "historicalFile": {
+      "bytes": 25930,
+      "sha256": "cd02a4e52bab668e3da047ba569937e78b0779d12f94ac0ca501aa5b335727b5",
+      "gitBlob": "9b487a8f5e05757e20d662126ab84f2ce6717cbb"
+    },
+    "supplementedPackageFile": {
+      "bytes": 26026,
+      "sha256": "a6b00668635103783f14d7179216447c3f29cc8b1e276634b11c0a9a344083f0"
+    },
+    "historicalCommits": [
+      {
+        "version": "2.1.118",
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314"
+      },
+      {
+        "version": "2.1.119",
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05"
+      }
+    ],
+    "declaration": {
+      "name": "externalTips",
+      "historicalStart": 4379,
+      "historicalEnd": 24237,
+      "supplementedPackageStart": 4475,
+      "supplementedPackageEnd": 24333,
+      "bytes": 19869,
+      "sha256": "14fbb8477507c062fa4aadf1c0fd26e947d08d245add747a76f636a6e6488e58"
+    },
+    "tipObjects": [
+      {
+        "id": "plan-mode-for-complex-tasks",
+        "historicalStart": 5232,
+        "historicalEnd": 5869,
+        "supplementedPackageStart": 5328,
+        "supplementedPackageEnd": 5965,
+        "bytes": 637,
+        "sha256": "af954701e4e61bd012653b456e909c40d3c5ece51f31051c93dfe4dc18826c56"
+      },
+      {
+        "id": "opusplan-mode-reminder",
+        "historicalStart": 18267,
+        "historicalEnd": 19071,
+        "supplementedPackageStart": 18363,
+        "supplementedPackageEnd": 19167,
+        "bytes": 804,
+        "sha256": "efc0a32c175d8433cbe1dfcb9361880d27bedf0b79105af760c601a4466a59a2"
+      },
+      {
+        "id": "guest-passes",
+        "historicalStart": 22795,
+        "historicalEnd": 23407,
+        "supplementedPackageStart": 22891,
+        "supplementedPackageEnd": 23503,
+        "bytes": 614,
+        "sha256": "b5c3933d09901858ebf425f82282e1a060eb7dade7a2a735f3512d6093624145"
+      }
+    ],
+    "dayDivisors": [
+      {
+        "tipId": "plan-mode-for-complex-tasks",
+        "historicalStart": 5784,
+        "supplementedPackageStart": 5880,
+        "bytes": 21,
+        "sha256": "fbec5271b4cec1dd15d052c5344f2f5480f1ff2f15f50c850ac77b9636b6b101",
+        "text": "(1000 * 60 * 60 * 24)",
+        "evaluatesTo": 86400000
+      },
+      {
+        "tipId": "opusplan-mode-reminder",
+        "historicalStart": 18967,
+        "supplementedPackageStart": 19063,
+        "bytes": 21,
+        "sha256": "fbec5271b4cec1dd15d052c5344f2f5480f1ff2f15f50c850ac77b9636b6b101",
+        "text": "(1000 * 60 * 60 * 24)",
+        "evaluatesTo": 86400000
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "getShortcutDisplay",
+        "module": "../../keybindings/shortcutFormat.js"
+      },
+      {
+        "name": "getGlobalConfig",
+        "module": "../../utils/config.js"
+      },
+      {
+        "name": "getUserSpecifiedModelSetting",
+        "module": "../../utils/model/model.js"
+      },
+      {
+        "name": "checkCachedPassesEligibility",
+        "module": "../api/referral.js"
+      }
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/services/tips/tipRegistry.ts"
+    ],
+    "declarations": [
+      "externalTips"
+    ]
+  },
+  "ownerResidues": [
+    [20919, "number", "86400000", 12574216, 12574224, 20, 22],
+    [20919, "number", "86400000", 12582482, 12582490, 20, 23],
+    [20919, "property", "eligible", 12584816, 12584824, 21, 21]
+  ],
+  "addedOwnerResidues": [
+    [20919, "number", "86400000", 12574216, 12574224, 20, 22],
+    [20919, "number", "86400000", 12582482, 12582490, 20, 23]
+  ],
+  "ownerSupplementStrictResidues": [
+    [20919, "number", "86400000", 12574216, 12574224, 20, 22],
+    [20919, "number", "86400000", 12582482, 12582490, 20, 23]
+  ],
+  "typedReportStrictResidues": [],
+  "residuePartitions": {
+    "arithmeticConstantFold": [
+      [20919, "number", "86400000", 12574216, 12574224, 20, 22],
+      [20919, "number", "86400000", 12582482, 12582490, 20, 23]
+    ],
+    "directSourceAst": [
+      [20919, "property", "eligible", 12584816, 12584824, 21, 21]
+    ]
+  },
+  "sourceReplay": {
+    "authorized": false,
+    "reason": "The exact Target118 and Target119 historical source already contains both day-window arithmetic expressions, and the supplemented package retains the byte-identical externalTips declaration. The complete compiled units prove the literals are inherited constant folds; no source bytes are missing in this lane."
+  }
+}

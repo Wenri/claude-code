@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-fleet-view-runtime-status-static-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-fleet-view-authenticated-runtime-whole-units",
+    "target121-fleet-view-job-status-call-boundary",
+    "target121-fleet-view-build-metadata-lineage",
+    "target121-fleet-view-source-architecture-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    }
+  },
+  "frozenSharedSnapshot": {
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26646291,
+      "sha256": "75c93caebd73e5cfa9d977c81874b0f4eb617866b973f872b3ec909b8ce113e4"
+    },
+    "sourceCoverage": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+      "bytes": 339584,
+      "sha256": "5d0df0f05882a63ddd9b92bc158e6f7c75426c9ec6409eab5436ff5d55710105"
+    },
+    "units": [
+      {
+        "targetIndex": 20945,
+        "ownerRows": {"count":1651,"bytes":675487,"sha256":"ca59b444f89ac9fd1a14e95ff45ce3ec725b4b3a1f305d181c2191d7c69420bd"},
+        "addedRows": {"count":95,"bytes":165703,"sha256":"8a80cb3af39885457ef2e3761ecfef9100cb9e9d7f65197359447a2c8fa9085c"},
+        "rawStrictRows": {"count":7,"bytes":3931,"sha256":"b06db577f4fb47b2df3b9895aff118ad222c3882fe733e0ca6976623edc659bc"},
+        "coverageRow": {"jsonPath":"$.rows[4352]","bytes":532,"sha256":"75600b0fbea2e5fb08d1b8b28009edffd0f1a4549fe6d789554ffc57bcdd6fe7","reportedOwnerId":"owner-src-utils-sessionRestore-ts"}
+      },
+      {
+        "targetIndex": 20949,
+        "ownerRows": {"count":211,"sha256":"49b2af78bb74fa5cff068e1986bcbb8afa617d17d201b26fdb8865294e68d03a"},
+        "addedRows": {"count":21,"sha256":"96cbb41e98f06a6b7a09f7b6d40889742459d8e30652d33a536889947c985eac"},
+        "rawStrictRows": {"count":6,"bytes":3405,"sha256":"9c47169e8d4fbdb5487158d58a05fac964aa611996de5d3ff94f2075c44c878e"},
+        "coverageRow": {"jsonPath":"$.rows[4356]","bytes":532,"sha256":"0b35667c0cf7f73babba18449993f43c831c1cd92dd5d960cbc254fda19d1d93","reportedOwnerId":"owner-src-utils-sessionRestore-ts"}
+      }
+    ]
+  },
+  "ownerCorrection": {
+    "reportedOwner": "src/utils/sessionRestore.ts",
+    "correctedOwner": "src/components/FleetView.tsx",
+    "declarations": ["FleetView"],
+    "internalStatusDeclaration": "authored symbol unavailable; bounded by the exact FleetView call and shared compiled module initializer"
+  },
+  "units": {
+    "fleetView": {
+      "baseline": {"baselineUnitIndex":19629,"classification":"unmatched-baseline","nodeType":"FunctionDeclaration","start":11915794,"end":11943983,"tokenCount":12703,"topDefinitionCount":1,"bytes":28189,"sha256":"9a4b5c246b0133d099722d871f448f12f9f00fd928f5fe0d6f0d4653e9a71d76","coarseHash":"e0bd5769e70c58b23aded788d39d796a7e7dea3fae7574cd214328573114ef82","line":8953,"column":2554},
+      "target": {"targetIndex":20945,"classification":"unresolved","baselineUnitIndex":null,"nodeType":"FunctionDeclaration","start":12568995,"end":12600373,"tokenCount":14073,"topDefinitionCount":1,"unknownFreeIdentifierCount":24,"bytes":31378,"sha256":"ebc949207c23e7fcf98731ec1cfa3762aa722aafbe193e7423887b050be25b1c","coarseHash":"6b7ead51827840f284844ba46f2c596161e47a8b0d356cd3a1fcecb4bb2b449f","line":9168,"column":3003},
+      "directStatusCall": {
+        "baseline": {"start":11941725,"end":11941755,"bytes":30,"sha256":"161728c94e47e5f12394c1017b58a5a60fbda6225ab553491541dfd15e097c63","exact":"b$.createElement(qM5,{job:f7})"},
+        "target": {"start":12598073,"end":12598103,"bytes":30,"sha256":"bbb669f690a378175f4833d0f000394e9ac88688b939896b41b29f842bbc93a3","exact":"b$.createElement(WZ5,{job:xq})"},
+        "canonical": {"bytes":517,"sha256":"2d4ab3eac0d1245b1865425d9a86fedb89ae2a7666d946ac5e63415acbc29bba"}
+      }
+    },
+    "jobStatus": {
+      "baseline": {"baselineUnitIndex":19633,"classification":"unmatched-baseline","nodeType":"FunctionDeclaration","start":11944674,"end":11948038,"tokenCount":1360,"topDefinitionCount":1,"bytes":3364,"sha256":"be09bc391f6d43cde7cadba2cd5f0291ecc08549c2fab93e73048eb718cfd5bf","coarseHash":"4b826a5d6071ca727906c04a7f5b1dad34d128893d3425ba08dcaffaf9998227","line":8960,"column":7262},
+      "target": {"targetIndex":20949,"classification":"unresolved","baselineUnitIndex":null,"nodeType":"FunctionDeclaration","start":12601064,"end":12604428,"tokenCount":1360,"topDefinitionCount":1,"unknownFreeIdentifierCount":0,"bytes":3364,"sha256":"24a5915ed3ddf7d30d8b271b87fbe2669c52d0c6488be4a53ab02df83dda9f28","coarseHash":"45e7e9f61709d02146498b84f42ad81d021c70af9e3f5025768b48135bb9a1cb","line":9175,"column":7542},
+      "normalizedWholeUnit": {"method":"Acorn complete FunctionDeclaration; remove positions/raw, alpha-normalize private identifiers while retaining public property names, replace only VERSION/BUILD_TIME/GIT_SHA literal values with @build","bytes":52868,"sha256":"57bb7fd5722ba02b599a6f873242b28bff1c1741ba18e655426c62bba4395f64"},
+      "runtimeLabels": [
+        {"value":"no job focused","start":12601250,"end":12601264,"bytes":14,"sha256":"bce128f5c321dea9eac7f34ed3b31a9cf26581191cca6176f34fec72a762f34b"},
+        {"value":"backend ","start":12601398,"end":12601406,"bytes":8,"sha256":"b503c84f4a60b81ba63558860ec08d7a106285d786070543a153fd5f72c1134b"},
+        {"value":"dir ","start":12601619,"end":12601623,"bytes":4,"sha256":"ec97832a2c4554740b054e0d3e1afe09c7a7f743cd97f8746582c7608e4d1c76"},
+        {"value":"cwd ","start":12601873,"end":12601877,"bytes":4,"sha256":"80418562a2b8cfd200f88a40c109dc09b316e80f07eb2d16e741f15b28f0682e"},
+        {"value":"shell ","start":12602263,"end":12602269,"bytes":6,"sha256":"ca6b2160e717e8daf459efaee99eb0708986db9f718b4c373daed9167c15ca26"},
+        {"value":"session ","start":12602441,"end":12602449,"bytes":8,"sha256":"74934d0511fb019b3b7dec308453d15ed4098092fd1a1590b5fc1be0318d95d3"},
+        {"value":"version ","start":12602675,"end":12602683,"bytes":8,"sha256":"10fb81274ca0f1da150b05e8d12193c58182aedb6f9f14299ae39d24b73efa5f"},
+        {"value":"updated ","start":12603907,"end":12603915,"bytes":8,"sha256":"53961930ab4482d84c75d77b7bb111d24f97119459f81bfa62e487c6ff500474"}
+      ]
+    },
+    "moduleInitializer": {"targetIndex":20953,"classification":"unresolved","nodeType":"VariableDeclaration","start":12606713,"end":12607703,"tokenCount":518,"topDefinitionCount":1,"unknownFreeIdentifierCount":6,"bytes":990,"sha256":"87977bf6532614fdac193f8d4116caf8b6cc0247f636c552e31576f60c22c9e6","coarseHash":"574f5e40cc7ac7e422803ccfe6843ffb09c2f0260d3a24ccc8ec1cbecd3b9e68"}
+  },
+  "strictResidues": {
+    "fleetView": [
+      ["string","2.1.121",12573271,12573280,0,115],
+      ["string","2026-04-27T01:32:27Z",12573360,12573382,0,115],
+      ["string","16ffea721a0a39bc787a236dc19fb62307180b75",12573391,12573433,0,115],
+      ["property","useLayoutEffect",12581899,12581914,31,32],
+      ["property","useLayoutEffect",12584593,12584608,31,33],
+      ["string","Couldn't ",12585237,12585246,0,1],
+      ["string","Couldn't ",12589676,12589685,0,2]
+    ],
+    "jobStatus": [
+      ["string","2.1.121",12603010,12603019,0,116],
+      ["string","2026-04-27T01:32:27Z",12603099,12603121,0,116],
+      ["string","16ffea721a0a39bc787a236dc19fb62307180b75",12603130,12603172,0,116],
+      ["string","2.1.121",12603521,12603530,0,117],
+      ["string","2026-04-27T01:32:27Z",12603610,12603632,0,117],
+      ["string","16ffea721a0a39bc787a236dc19fb62307180b75",12603641,12603683,0,117]
+    ]
+  },
+  "sourceStates": {
+    "baseline120": {"path":".recovery-tmp/semantic-trees/2.1.120/src/components/FleetView.tsx","selectedPath":"src/components/FleetView.tsx","commit":"6801ead984ba2c3df02bd092ad8b93df096ed8c1","blob":"bf0710e02b4d8124abc0ad371555efa7458c1d8d","bytes":82350,"chars":82244,"sha256":"dc4b63eb534e2a2923c6667430db1b241873939b9ff10bcf853b772707249314","fleetViewDeclaration":{"start":30243,"end":77038,"chars":46795,"bytes":46875,"sha256":"52cfe06dd4b7e352c4721686afdd8e93744d9a95fbde9b364312f2c5679e3e9b"},"lexicalCounts":{"useLayoutEffectCalls":1,"couldntInDeclaration":1,"noJobFocused":0,"cliVersion":0,"macroVersion":1}},
+    "target121": {"path":".recovery-tmp/semantic-trees/2.1.121/src/components/FleetView.tsx","selectedPath":"src/components/FleetView.tsx","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","tree":"e30c62cef8d103b23920df31a731ee212ed721ba","blob":"7aac6243bea74b508131812ae4d5bc4f75db94df","bytes":85589,"chars":85473,"sha256":"8e9a6b63a767fe02b16d59b91ae7623ea6089af39781cf24906faab0a643bcab","fleetViewDeclaration":{"start":30851,"end":80267,"chars":49416,"bytes":49506,"sha256":"edf87f941226751c1f52684ff12945376a4b4eb7415efb0f299c017f74c6a079"},"lexicalCounts":{"useLayoutEffectCalls":1,"couldntInDeclaration":4,"noJobFocused":0,"cliVersion":0,"macroVersion":1},"layoutEffectAnchor":{"start":46136,"end":46159,"bytes":23,"sha256":"d4000bc37df2aee66354e6a5816cb8f6161295473edf29eeb0746935989c873b"}}
+  },
+  "sourceReplayBlocker": {
+    "decision": "static complete-unit owner proof only; no replay helper and no source writes",
+    "reason": "Target121 FleetView source authenticates the owner and part of u20945, but it has one authored useLayoutEffect call versus two compiled call sites, retains the legacy inline detail renderer, and has no standalone no-job/backend/version status component. Recovering either compiled unit in isolation would invent an authored component boundary and leave its caller architecture mixed."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/fleet-view-runtime-status-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_FLEET_VIEW_RUNTIME_STATUS_OWNER_OVERRIDES",
+    "evidenceExport": "TARGET121_FLEET_VIEW_RUNTIME_STATUS_EVIDENCE_IDS",
+    "replayHelper": null,
+    "expectedAddedOwnerImpact": {"units":-2,"residues":-116},
+    "expectedRawStrictImpact": {"units":-2,"residues":-13}
+  }
+}

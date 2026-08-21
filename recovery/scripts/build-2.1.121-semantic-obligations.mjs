@@ -15,21 +15,45 @@ const directTestPath = path.join(
   repo,
   'recovery/test/recovery-2.1.121-direct-evidence.test.mjs',
 )
+const focusedTestNames = [
+  'autocompact-rapid-refill',
+  'compaction-spinner',
+  'console-platform-wizards',
+  'daemon-service',
+  'dialog-overflow',
+  'dream-skill',
+  'dynamic-loop',
+  'feedback-surface',
+  'hidden-obligations',
+  'inherited-active-core',
+  'inherited-runtime-residuals',
+  'lower-runtime-boundaries',
+  'mcp-refresh-repl-copy',
+  'official-owned-cluster',
+  'official-residual-cluster',
+  'official-runtime-settings-cluster',
+  'powershell-pipeline-paths',
+  'powerup-team-onboarding',
+  'query-terminal-schema',
+  'reactive-runtime-gaps',
+  'remote-control-boundary',
+  'remote-ux-and-branch',
+  'removed-gates',
+  'residual-dream-hook-defer',
+  'retained-runtime-surfaces',
+  'runtime-hardening',
+  'sdk-control-runtime',
+  'settings-auth-runtime',
+  'subscription-upsell-gates',
+  'usage-attribution',
+  'warm-resume',
+  'worktree-baseline',
+]
 const focusedTestPaths = Object.fromEntries(
-  fs
-    .readdirSync(path.join(repo, 'recovery/test'))
-    .filter(
-      name =>
-        /^recovery-2\.1\.121-.*\.test\.mjs$/.test(name) &&
-        name !== 'recovery-2.1.121-direct-evidence.test.mjs',
-    )
-    .sort()
-    .map(name => [
-      name
-        .replace(/^recovery-2\.1\.121-/, '')
-        .replace(/\.test\.mjs$/, ''),
-      path.join(repo, 'recovery/test', name),
-    ]),
+  focusedTestNames.map(name => [
+    name,
+    path.join(repo, 'recovery/test', `recovery-2.1.121-${name}.test.mjs`),
+  ]),
 )
 const changelogPath = path.join(caseRoot, 'evidence/CHANGELOG-2.1.121.md')
 const sourcePathsPath = path.join(
@@ -40,6 +64,19 @@ const baseCommit = '6801ead984ba2c3df02bd092ad8b93df096ed8c1'
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+assert(focusedTestNames.length === 32, 'frozen focused test total')
+assert(
+  new Set(focusedTestNames).size === focusedTestNames.length,
+  'unique frozen focused test names',
+)
+for (const [name, filename] of Object.entries(focusedTestPaths)) {
+  const status = fs.lstatSync(filename)
+  assert(
+    status.isFile() && !status.isSymbolicLink(),
+    `frozen focused test must be a regular file: ${name}`,
+  )
 }
 
 function sha256(value) {
@@ -205,6 +242,7 @@ const output = {
 
 const catalogTestIds = new Set(output.testCatalog.map(row => row.id))
 const usedTestIds = new Set(obligations.flatMap(row => row.testIds))
+assert(output.testCatalog.length === 33, 'frozen semantic test catalog total')
 assert(
   obligations.every(row => row.testIds.every(id => catalogTestIds.has(id))),
   'every obligation test binding resolves to the frozen catalog',

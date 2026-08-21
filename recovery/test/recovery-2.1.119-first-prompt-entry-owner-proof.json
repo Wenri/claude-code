@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-first-prompt-entry-exact-source-owner-proof",
+  "criterion": "complete-target-helper-plus-sole-source-state-machine-owner-v1",
+  "evidenceIds": [
+    "target119-first-prompt-entry-authenticated-target-fragment",
+    "target119-first-prompt-entry-exact-source-owner-test",
+    "target119-first-prompt-entry-source-ast-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "frozenAnalysis": {
+      "path": "recovery/test/recovery-2.1.119-owner-residue-analysis.json",
+      "bytes": 751734,
+      "sha256": "2f724f6eeb76b532bb76c264887e78fce4c4435f073992d2cc539ca12890edc7"
+    },
+    "sourceFile": {
+      "path": "src/utils/sessionStoragePortable.ts",
+      "bytes": 25448,
+      "sha256": "c9470c555fe9e621d4c47cea89261393b124ab54246353968be88d272f57945f"
+    },
+    "rejectedSourceFile": {
+      "path": "src/utils/windowsPaths.ts",
+      "bytes": 6202,
+      "sha256": "811ea01327e34c88400b882cfa03a7773476298a32461b431a58a2ea35c54e8e"
+    }
+  },
+  "target": {
+    "unit": {
+      "targetIndex": 2244,
+      "nodeType": "FunctionDeclaration",
+      "start": 931654,
+      "end": 932316,
+      "bytes": 662,
+      "sha256": "729529d7d7a6b4023c1ac03c15068480bd6d65f3c4e0150f5472baf2b426836d"
+    },
+    "regexpInitializer": {
+      "start": 932328,
+      "end": 932457,
+      "bytes": 129,
+      "sha256": "862637e1850d1033cd4870dd0e01ad338138d5f193f3c2e893acdd67b446a73a"
+    }
+  },
+  "source": {
+    "declarations": [
+      {
+        "name": "SKIP_FIRST_PROMPT_PATTERN",
+        "start": 3785,
+        "end": 3886,
+        "bytes": 101,
+        "sha256": "6b5b5f50a56933b83f89fb6618535d9fb41f0b5f0263cd4b5acf4207a6e9360b"
+      },
+      {
+        "name": "COMMAND_NAME_RE",
+        "start": 3888,
+        "end": 3949,
+        "bytes": 61,
+        "sha256": "899a95f2c1ec336ba25cb84e2e90a7bb348494adfa7418aeab4b9116514e2d9e"
+      },
+      {
+        "name": "extractFirstPromptFromHead",
+        "start": 4213,
+        "end": 6395,
+        "bytes": 2182,
+        "sha256": "4e38e9e84facbbe6c5bea09aa5be222d69bf32c43fe2e87de6738a29d8083897"
+      }
+    ],
+    "soleMarkerCandidate": "src/utils/sessionStoragePortable.ts"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "targetIndicesSha256": "3809cd4ff30eb897cba300a7a67eec4ffe45adff7be6f6fc7bf04df9ae0c2ca3",
+    "residueIdentitiesSha256": "a21369ca2c308a0c9ac3584d4f564b2b84801ee8ff82af9ca0163e97c998f1df"
+  },
+  "row": {
+    "targetIndex": 2244,
+    "ownerPath": "src/utils/sessionStoragePortable.ts",
+    "priorOwnerPaths": [
+      "src/utils/windowsPaths.ts"
+    ],
+    "declaration": "extractFirstPromptFromHead",
+    "residues": [
+      {
+        "kind": "property",
+        "value": "commandFallback",
+        "start": 932096,
+        "end": 932111,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "commandFallback",
+        "start": 932114,
+        "end": 932129,
+        "baselineCount": 0,
+        "targetOrdinal": 2
+      },
+      {
+        "kind": "regexp",
+        "value": {
+          "pattern": "<bash-input>([\\s\\S]*?)<\\/bash-input>",
+          "flags": ""
+        },
+        "start": 932150,
+        "end": 932188,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      }
+    ]
+  }
+}

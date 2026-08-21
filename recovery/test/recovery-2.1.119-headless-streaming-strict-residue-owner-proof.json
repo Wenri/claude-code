@@ -1,0 +1,604 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-static-complete-unit-production-strict-residue-owner-proof-no-replay",
+  "criterion": "complete-unit-manual-predecessor-strict-partition-caller-schema-exact-source-graph-v1",
+  "evidenceIds": [
+    "target119-headless-streaming-complete-unit-predecessor-diff-proof",
+    "target119-headless-streaming-production-strict-partition-proof",
+    "target119-headless-streaming-build-version-macro-source-proof",
+    "target119-headless-streaming-inherited-control-contract-proof",
+    "target119-headless-streaming-caller-schema-source-graph-proof",
+    "target119-headless-streaming-static-no-replay-proof"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-rendezvous",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24697305,
+          "sha256": "1b156d078208c9df0baea3430dc58387f14d3535cd6052724f0847bd83d4d4f7"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 378822,
+          "sha256": "355c431cda776c760ac1d1e5098dc03f322087bd2deb67a4ab53dd50aa6f2f4d"
+        }
+      },
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      }
+    ]
+  },
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/headless-streaming-strict-residue-owner-overrides.mjs",
+      "bytes": 2404,
+      "sha256": "22ff5f0ea8e5917c768cf56aadd76a021b14b1682503e28c7cc7b54ba27cd253"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "sourceCommits": {
+      "baseline": {
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+        "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0"
+      },
+      "target": {
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92"
+      }
+    },
+    "dependencyProofs": {
+      "target119Caller": {
+        "path": "recovery/test/recovery-2.1.119-headless-classifier-summary-strict-property-owner-proof.json",
+        "bytes": 29245,
+        "sha256": "bf06768c07f633989cc544fba72457710e7322800c59ac9f874d6b99e3e66500"
+      },
+      "target119SdkControl": {
+        "path": "recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.json",
+        "bytes": 11673,
+        "sha256": "9ab15cac8f93fd21a0b40b59f1b78302029d2535c620592b302952b803ea738d"
+      },
+      "target118HeadlessStreaming": {
+        "path": "recovery/test/recovery-2.1.118-headless-streaming-inherited-owner-proof.json",
+        "bytes": 9692,
+        "sha256": "56835ff48de8d98385d3d38e9ccf5f497c6b18c6aa4fd9fc8502fafa21059c2d"
+      },
+      "target117HeadlessStreaming": {
+        "path": "recovery/test/recovery-2.1.117-headless-streaming-whole-unit-owner-proof.json",
+        "bytes": 16598,
+        "sha256": "c70e522399efb663b75a423a142bba168cde6f88c892064338efb7bdda01e16d"
+      }
+    }
+  },
+  "snapshotPartitions": {
+    "typedResiduesDescriptor": {
+      "rows": 15,
+      "jsonBytes": 7573,
+      "sha256": "f44191691314eeba1fdff291db1c92e87b891abc225095a39a86f69fdc705f84"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 1,
+        "value": "pluginSource",
+        "target": { "start": 13527040, "end": 13527054 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 128,
+        "value": "2.1.119",
+        "target": { "start": 13545422, "end": 13545431 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 128,
+        "value": "2026-04-23T19:08:52Z",
+        "target": { "start": 13545511, "end": 13545533 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 128,
+        "value": "6f68554839756189e277b8285a18fe47acd9a5a1",
+        "target": { "start": 13545542, "end": 13545584 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 129,
+        "value": "2.1.119",
+        "target": { "start": 13545804, "end": 13545813 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 129,
+        "value": "2026-04-23T19:08:52Z",
+        "target": { "start": 13545893, "end": 13545915 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 129,
+        "value": "6f68554839756189e277b8285a18fe47acd9a5a1",
+        "target": { "start": 13545924, "end": 13545966 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 1,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 2,
+        "value": "callbackUrl",
+        "target": { "start": 13554307, "end": 13554318 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 11,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 12,
+        "value": "synthetic",
+        "target": { "start": 13558665, "end": 13558674 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 11,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 13,
+        "value": "synthetic",
+        "target": { "start": 13558678, "end": 13558687 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 2,
+        "literalKind": "string",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 3,
+        "value": "message_rated",
+        "target": { "start": 13559317, "end": 13559332 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 9,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 10,
+        "value": "sentiment",
+        "target": { "start": 13559353, "end": 13559362 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 6,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 7,
+        "value": "cleared",
+        "target": { "start": 13559388, "end": 13559395 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 9,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 11,
+        "value": "sentiment",
+        "target": { "start": 13559455, "end": 13559464 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      {
+        "baselineOccurrenceCount": 6,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 8,
+        "value": "cleared",
+        "target": { "start": 13559479, "end": 13559486 },
+        "structural": { "index": 21742, "classification": "unresolved", "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1" },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": ["cli/print.ts"],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/cli/print.ts"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 512,
+      "sha256": "1dc35427f70e99de33eae615af5404204bd34941ed36824c23459edd51ea9564"
+    },
+    "coverageTarget": [
+      {
+        "targetIndex": 21742,
+        "start": 13522235,
+        "end": 13562851,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-cli-print-ts"],
+        "evidenceIds": ["source-map-attribution", "semantic-test"],
+        "behavior": "Compiled target unit is attributed to src/cli/print.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ],
+    "coverageGraphTupleSchema": [
+      "targetIndex", "start", "end", "nodeType", "sourceHash",
+      "structuralClass", "disposition", "ownerIds", "evidenceIds"
+    ],
+    "coverageGraphDescriptor": {
+      "rows": 3,
+      "jsonBytes": 943,
+      "sha256": "bca2f2525457dceea531edd71e107f91f02b7387faec3ce4aecdf0126fc68954"
+    },
+    "coverageGraphTuples": [
+      [20928, 12587243, 12606147, "VariableDeclaration", "5b83c0b86db4dfed603a25340c9f5f0f20c2f1e929cf924de00bdb55bd7b7199", "unresolved", "source-runtime-covered", ["owner-src-entrypoints-sdk-controlSchemas-ts"], ["target119-sdk-control-inherited-schema-authenticated-unit", "target119-sdk-control-inherited-schema-predecessor-replay-proof", "target119-sdk-control-forward-subagent-runtime-graph-proof", "target119-sdk-control-source-replay-blocker", "target119-sdk-control-inherited-schema-complete-unit-test"]],
+      [21741, 13515784, 13522235, "FunctionDeclaration", "66acb64e7eb34b33992ec0e74242f41282b733cb3e0020f6f2052b7ab3659aaf", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["source-map-attribution", "semantic-test"]],
+      [21742, 13522235, 13562851, "FunctionDeclaration", "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["source-map-attribution", "semantic-test"]]
+    ],
+    "ownerCatalogDescriptor": {
+      "rows": 2,
+      "jsonBytes": 159,
+      "sha256": "97d60b7ce3084d39a426e8318f9a726404adb126bd1c667d961db807a63331db"
+    },
+    "ownerCatalog": [
+      { "id": "owner-src-cli-print-ts", "path": "src/cli/print.ts" },
+      { "id": "owner-src-entrypoints-sdk-controlSchemas-ts", "path": "src/entrypoints/sdk/controlSchemas.ts" }
+    ]
+  },
+  "units": {
+    "baselineStreaming": {
+      "release": "2.1.118",
+      "index": 20836,
+      "role": "manual predecessor runHeadlessStreaming",
+      "classification": "unmatched-baseline",
+      "nodeType": "FunctionDeclaration",
+      "start": 13043216,
+      "end": 13082261,
+      "bytes": 39045,
+      "tokenCount": 14423,
+      "sha256": "1d3b68dc52251bcd6e75c98754f60548be05a7a2995008fa35e560a98f9fd9fd",
+      "coarseHash": "5c566d69998d704eec86bac8ad241a6c7e98301c37b882e12797f2294720c914"
+    },
+    "targetStreaming": {
+      "release": "2.1.119",
+      "index": 21742,
+      "role": "complete runHeadlessStreaming production-strict owner",
+      "classification": "unresolved",
+      "manualPredecessorUnitIndex": 20836,
+      "nodeType": "FunctionDeclaration",
+      "start": 13522235,
+      "end": 13562851,
+      "bytes": 40616,
+      "tokenCount": 14824,
+      "sha256": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1",
+      "coarseHash": "82a7da2fbb996f06104ac6dbdaf2c7a6ba47e8e2136feeb9b59780620802a1fd",
+      "unknownFreeIdentifierCount": 20
+    }
+  },
+  "predecessorProof": {
+    "canonicalTokenStreams": {
+      "baseline": { "tokens": 14423, "jsonBytes": 73837, "sha256": "928188732874e5a3aeaa34caea4911105b34c96d74c93e7e338fbbf53ba9f669" },
+      "target": { "tokens": 14824, "jsonBytes": 76309, "sha256": "058218ec0ba9409b560f4112a71088ea6c4256a3aa3d8ddf2e8bc5f8229d68a5" }
+    },
+    "normalizedCompleteUnitDiff": {
+      "format": "gnu-diff-U0-one-canonical-token-per-line",
+      "baselineLabel": "baseline-u20836",
+      "targetLabel": "target-u21742",
+      "bytes": 2431,
+      "sha256": "766d853d64d40ffb2beff53dd47319cc45e05730e960aca3dce3a054523c6e15",
+      "hunks": 13,
+      "addedTokens": 409,
+      "deletedTokens": 8
+    },
+    "neighborhoodRadius": 60,
+    "inheritedResiduePredecessors": [
+      { "value": "callbackUrl", "targetTokenIndex": 11666, "baselineTokenIndex": 11303, "target": [13554307, 13554318, "callbackUrl", "ID"], "baseline": [13073815, 13073826, "callbackUrl", "ID"], "canonicalNeighborhoodSha256": "da5839c71eb52f77abcbfedf449b1e6054b863f0c93c779742a578bb1ebcbbb7" },
+      { "value": "synthetic", "targetTokenIndex": 13285, "baselineTokenIndex": 12904, "target": [13558665, 13558674, "synthetic", "ID"], "baseline": [13078127, 13078136, "synthetic", "ID"], "canonicalNeighborhoodSha256": "2a3a2b44d42e523b3cd7d94d54e38cf0f879d4651054d316934aa9ad1988716b" },
+      { "value": "synthetic", "targetTokenIndex": 13289, "baselineTokenIndex": 12908, "target": [13558678, 13558687, "synthetic", "ID"], "baseline": [13078140, 13078149, "synthetic", "ID"], "canonicalNeighborhoodSha256": "40cfbced121d8e7eb5373dee61afae29955e687a2e1ec68ba0aec501328622fa" },
+      { "value": "message_rated", "targetTokenIndex": 13552, "baselineTokenIndex": 13171, "target": [13559317, 13559332, "\"message_rated\"", "S:\"message_rated\""], "baseline": [13078779, 13078794, "\"message_rated\"", "S:\"message_rated\""], "canonicalNeighborhoodSha256": "b77e051b240133260aca058dfd53f62c14553ab19c045d3cc6c9e6f09c6810bb" },
+      { "value": "sentiment", "targetTokenIndex": 13561, "baselineTokenIndex": 13180, "target": [13559353, 13559362, "sentiment", "ID"], "baseline": [13078815, 13078824, "sentiment", "ID"], "canonicalNeighborhoodSha256": "df24c40421816da2372cf5f02a20d42c4a87b4e77e743db4dca797e50cf38639" },
+      { "value": "cleared", "targetTokenIndex": 13571, "baselineTokenIndex": 13190, "target": [13559388, 13559395, "cleared", "ID"], "baseline": [13078850, 13078857, "cleared", "ID"], "canonicalNeighborhoodSha256": "010fdef8c3d034c92bbdaa09b5ed1abce24d2ab8c153831059333295610d3d47" },
+      { "value": "sentiment", "targetTokenIndex": 13592, "baselineTokenIndex": 13211, "target": [13559455, 13559464, "sentiment", "ID"], "baseline": [13078917, 13078926, "sentiment", "ID"], "canonicalNeighborhoodSha256": "6b098f7b64d9bbf7e0c9b1d26e716b2be5177a5a5be6e9a2a552cf76153cefe8" },
+      { "value": "cleared", "targetTokenIndex": 13600, "baselineTokenIndex": 13219, "target": [13559479, 13559486, "cleared", "ID"], "baseline": [13078941, 13078948, "cleared", "ID"], "canonicalNeighborhoodSha256": "4bad98340ec00cc40e39c42bb84e5cfc62474049b3e1d4b883828e33365e6e38" }
+    ]
+  },
+  "strictPartition": {
+    "newDiffRowOffsets": [13527040, 13545422, 13545511, 13545542, 13545804, 13545893, 13545924],
+    "inheritedRowOffsets": [13554307, 13558665, 13558678, 13559317, 13559353, 13559388, 13559455, 13559479],
+    "newCompiledFragments": {
+      "pluginSourceInExpression": {
+        "start": 13527040,
+        "end": 13527066,
+        "bytes": 26,
+        "sha256": "e4c38947002f340cb1424cd77ac96bc7128f74169b6ec553611b2ecb8c59c17f",
+        "canonical": { "tokens": 5, "jsonBytes": 41, "sha256": "aa5d58c39de4a586d636317a5a7cfb5d089ba4420133b766a3a2c52dfac7e953" }
+      },
+      "getBinaryVersionBranch": {
+        "start": 13545171,
+        "end": 13545981,
+        "bytes": 810,
+        "sha256": "9c90d409f6f43249227a3a16e6aee9165d8645f1e00c7490ee73000c80bc5f22",
+        "canonical": { "tokens": 95, "jsonBytes": 1029, "sha256": "1c71134b13adb35e9f7939fbe6bf720a6a9004cbe7dd5635a68a675e2cb2e659" },
+        "expandedValues": {
+          "2.1.119": 2,
+          "2026-04-23T19:08:52Z": 2,
+          "6f68554839756189e277b8285a18fe47acd9a5a1": 2
+        }
+      }
+    },
+    "inheritedCompiledFragments": {
+      "oauthCallback": {
+        "baseline": { "start": 13073750, "end": 13074312, "bytes": 562, "sha256": "5792203a519449b52854b7a71c4fe5f2ddee5e612667096dc1b7a5fd8e63d4ef" },
+        "target": { "start": 13554242, "end": 13554804, "bytes": 562, "sha256": "db90b022db94b6d0b8f700a747cac015106a5bfe612e1742fea53d94e1e9035a" },
+        "canonical": { "tokens": 172, "jsonBytes": 1015, "sha256": "ad2060c33d8eb824dcd04348ea1c4ec14d4c38d24d00cc54033cfbf472850a0f" }
+      },
+      "syntheticResponseCall": {
+        "baseline": { "start": 13078099, "end": 13078151, "bytes": 52, "sha256": "f6b96197a2a88e3485af121ef4845f65fe76eec195a095512c240f8409c1037f" },
+        "target": { "start": 13558637, "end": 13558689, "bytes": 52, "sha256": "57e4349e87a7e4606bbda402374aea792cca7a3b3802ef03f2858f2eb4fa8843" },
+        "canonical": { "tokens": 18, "jsonBytes": 81, "sha256": "323dc219b315b3794b853fcd85a553bd2b5b08114d179567570e3fd20894964e" }
+      },
+      "messageRatedBranch": {
+        "baseline": { "start": 13078758, "end": 13078964, "bytes": 206, "sha256": "815f3f1888889ecdcf3806d8ca4da484386f22f81f6832ea87cf7c2e052ae3bb" },
+        "target": { "start": 13559296, "end": 13559502, "bytes": 206, "sha256": "552f8a12077a5c9a6aec5b7b0c40a95dbde0bfba2c5398d9da639dc627b6d5ba" },
+        "canonical": { "tokens": 68, "jsonBytes": 369, "sha256": "fc4e4575da6584f6279746338c9ed331054c4adaf3625fe88cefa8b11868f240" }
+      }
+    }
+  },
+  "sourceGraph": {
+    "sourcePath": "src/cli/print.ts",
+    "markers": ["'pluginSource' in", "get_binary_version", "mcp_oauth_callback_url", "callbackUrl", "synthetic", "synthetic:", "message_rated", "sentiment", "cleared", "forwardSubagentText", "read_file", "clientPlatform", "allowedAgentTypes", "excludeDynamicSections", "policyRules"],
+    "baselineHistorical": {
+      "file": { "bytes": 220728, "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6", "gitBlobSha1": "abb0daa1732e1f5b5845c7a0afc52faa3162567c" },
+      "streamingDeclaration": { "characterStart": 37481, "characterEnd": 172535, "byteStart": 37491, "byteEnd": 172669, "bytes": 135178, "sha256": "df710fe9b20903117adf961363818d169de52ff916712aec02b5245673a4b768" },
+      "callerDeclaration": { "characterStart": 17622, "characterEnd": 37479, "byteStart": 17622, "byteEnd": 37489, "bytes": 19867, "sha256": "36fd36153043d424ab2ac223d8ea22d4f6d26b68d89b12a4490d57e896ccd69f", "runHeadlessStreamingOccurrences": 2 },
+      "markerCounts": [0, 0, 3, 4, 4, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0],
+      "oauthCallbackBranch": { "characterStart": 138544, "characterEnd": 140765, "byteStart": 138630, "byteEnd": 140853, "bytes": 2223, "sha256": "8891dfc7789c83fc1996712358f4c79d9e5c6b06e35709e253aea4e5d0330cd7" },
+      "getBinaryVersionBranch": null,
+      "pluginSourceInExpression": null,
+      "messageRatedBranch": null
+    },
+    "targetStates": [
+      {
+        "name": "historical-target119",
+        "file": { "bytes": 228505, "sha256": "e4cc8072e34fb6aa64ebd8f7a4a793c55e748b98bc25d9d446426115da264537", "gitBlobSha1": "76f82223aace2f18deb5fcc9811c7f950bfe3284" },
+        "streamingDeclaration": { "characterStart": 38034, "characterEnd": 175441, "byteStart": 38044, "byteEnd": 175575, "bytes": 137531, "sha256": "b0cfb458ab4ff9142ca33d08ff4feb262753d62ff555ba0c7c5d9651edc12b8e" },
+        "callerDeclaration": { "characterStart": 17967, "characterEnd": 38032, "byteStart": 17967, "byteEnd": 38042, "bytes": 20075, "sha256": "c3f5841405e5d994849e22ef59177034d95d8fdc79c738458a9d9124f2cc2e4e", "runHeadlessStreamingOccurrences": 2 },
+        "markerCounts": [0, 1, 3, 4, 4, 0, 0, 0, 2, 0, 1, 9, 5, 7, 1],
+        "oauthCallbackBranch": { "characterStart": 140863, "characterEnd": 143084, "byteStart": 140949, "byteEnd": 143172, "bytes": 2223, "sha256": "8891dfc7789c83fc1996712358f4c79d9e5c6b06e35709e253aea4e5d0330cd7" },
+        "getBinaryVersionBranch": { "characterStart": 117383, "characterEnd": 117582, "byteStart": 117445, "byteEnd": 117644, "bytes": 199, "sha256": "161f2b31f948e655fc9ccb469316217f24f6bb7bbf429701ddda0c9dd99e4372" },
+        "pluginSourceInExpression": null,
+        "messageRatedBranch": null
+      },
+      {
+        "name": "fresh-package-target119",
+        "file": { "bytes": 228328, "sha256": "036c909aa7ef9278d40e2ceea395eb5aee87eb51dc683e7c5fc270cbaab8c951", "gitBlobSha1": "11b51a6546fdfeb19af37e42c424c715daefadb3" },
+        "streamingDeclaration": { "characterStart": 37857, "characterEnd": 175264, "byteStart": 37867, "byteEnd": 175398, "bytes": 137531, "sha256": "b0cfb458ab4ff9142ca33d08ff4feb262753d62ff555ba0c7c5d9651edc12b8e" },
+        "callerDeclaration": { "characterStart": 17926, "characterEnd": 37855, "byteStart": 17926, "byteEnd": 37865, "bytes": 19939, "sha256": "6615c6daa25d2ed9836b88ec8b64be33b8c8f0c7d79f60241c4f051d4e83b0e3", "runHeadlessStreamingOccurrences": 2 },
+        "markerCounts": [0, 1, 3, 4, 4, 0, 0, 0, 2, 0, 1, 9, 5, 7, 1],
+        "oauthCallbackBranch": { "characterStart": 140686, "characterEnd": 142907, "byteStart": 140772, "byteEnd": 142995, "bytes": 2223, "sha256": "8891dfc7789c83fc1996712358f4c79d9e5c6b06e35709e253aea4e5d0330cd7" },
+        "getBinaryVersionBranch": { "characterStart": 117206, "characterEnd": 117405, "byteStart": 117268, "byteEnd": 117467, "bytes": 199, "sha256": "161f2b31f948e655fc9ccb469316217f24f6bb7bbf429701ddda0c9dd99e4372" },
+        "pluginSourceInExpression": null,
+        "messageRatedBranch": null
+      },
+      {
+        "name": "current-later-source-reconstruction",
+        "file": { "bytes": 248102, "sha256": "0b838a6f74645f962c29709e71824310bf08f8a327727c2af577c58d75e4f3f0", "gitBlobSha1": "aa21a37e2211339c97c1c035bca34c7817ed10ea" },
+        "streamingDeclaration": { "characterStart": 42013, "characterEnd": 190815, "byteStart": 42023, "byteEnd": 190957, "bytes": 148934, "sha256": "f887b86a2528c68bf85c0621bb1c62e4d505a782cdda8fefc7a70175fd6152a7" },
+        "callerDeclaration": { "characterStart": 20894, "characterEnd": 42011, "byteStart": 20894, "byteEnd": 42021, "bytes": 21127, "sha256": "9c2877e31d9d15f81c94309a4fc68b4bd09396067e47ab389a4ab18e253efac8", "runHeadlessStreamingOccurrences": 2 },
+        "markerCounts": [1, 1, 3, 3, 4, 0, 2, 2, 4, 3, 1, 9, 5, 7, 1],
+        "oauthCallbackBranch": { "characterStart": 154789, "characterEnd": 157011, "byteStart": 154883, "byteEnd": 157107, "bytes": 2224, "sha256": "5d9618d5f775108f4d60befa47ae34acde4119d6638e91ea2560b182c16db1db" },
+        "getBinaryVersionBranch": { "characterStart": 124494, "characterEnd": 124693, "byteStart": 124556, "byteEnd": 124755, "bytes": 199, "sha256": "161f2b31f948e655fc9ccb469316217f24f6bb7bbf429701ddda0c9dd99e4372" },
+        "pluginSourceInExpression": { "characterStart": 61889, "characterEnd": 61924, "byteStart": 61917, "byteEnd": 61952, "bytes": 35, "sha256": "5e94a1d0f4aaf050b33abeb5d5db3053aad89435ac6bbb9fee117f8004d2e825", "canonical": { "tokens": 5, "jsonBytes": 41, "sha256": "aa5d58c39de4a586d636317a5a7cfb5d089ba4420133b766a3a2c52dfac7e953" } },
+        "messageRatedBranch": { "characterStart": 172458, "characterEnd": 172884, "byteStart": 172584, "byteEnd": 173010, "bytes": 426, "sha256": "1cceb1d5a5cb4dc9026fe5da284a2cf91c8744462dbc0d69157245119ea7d5e8" }
+      }
+    ]
+  },
+  "dependencyGraph": {
+    "dependencyTargetIndices": [20928, 21741],
+    "caller": { "targetIndex": 21741, "declaration": "runHeadless", "sourceCallsToRunHeadlessStreaming": 2 },
+    "sdkControlSchema": { "targetIndex": 20928, "messageRatedRequestFields": ["subtype", "messageUuid", "sentiment", "surface", "cleared"], "messageRatedLiterals": ["message_rated", "positive", "negative", "tool_use", "assistant_text"] },
+    "inheritedPredecessor": { "target118Index": 20836, "target117PredecessorIndex": 20646, "declaration": "runHeadlessStreaming" }
+  },
+  "replayDisposition": {
+    "mode": "static-only",
+    "sourceReplayAuthorized": false,
+    "replayHelper": null,
+    "reasons": [
+      "The exact Target119 historical and fresh-package declarations omit the pluginSource exclusion, synthetic response contract, and message-rating branch as one graph.",
+      "The current later source reconstruction corroborates pluginSource and message-rating semantics but still omits the compiled synthetic response call, so it is not an exact Target119 replay donor.",
+      "The complete target unit has twenty unknown free identifiers and dynamic bridge imports; graph-closed replay would exceed this bounded case."
+    ]
+  },
+  "override": {
+    "key": "2.1.118-to-2.1.119:21742",
+    "targetIndex": 21742,
+    "ownerPaths": ["src/cli/print.ts"],
+    "declarations": ["runHeadlessStreaming"],
+    "dependencyTargetIndices": [20928, 21741]
+  },
+  "postWiring": {
+    "expectedImpact": {
+      "coverageRowsChanged": 1,
+      "coverageCardinalityDelta": 0,
+      "ownerPathChanges": 0,
+      "evidenceBehaviorCorrections": 1,
+      "replayOutputs": 0
+    }
+  },
+  "postStreaming": {
+    "typedResiduesDescriptor": {
+      "rows": 15,
+      "jsonBytes": 7573,
+      "sha256": "f44191691314eeba1fdff291db1c92e87b891abc225095a39a86f69fdc705f84"
+    },
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 1915,
+      "sha256": "9a8b494c5702a48b189167a711f633736c1e96df6f5794ee1bcc86015cd59217"
+    },
+    "coverageGraphTupleDescriptor": {
+      "rows": 3,
+      "jsonBytes": 1607,
+      "sha256": "6acc35e423a9c213e6b152a1484a81f5cb6582602718b7b458ec98122b78b50b"
+    },
+    "typedResiduesUnchangedFromPostRendezvous": true,
+    "coverageTargetEqualsPostWiringProjection": true
+  },
+  "wiringRecipe": {
+    "helperPath": "./recovery/cases/2.1.118-to-2.1.119/recovered/headless-streaming-strict-residue-owner-overrides.mjs",
+    "sharedGenerator": ".tmp-generate-late-coverage.mjs",
+    "importExport": "TARGET119_HEADLESS_STREAMING_STRICT_RESIDUE_OWNER_OVERRIDES",
+    "ownerOverrideSpread": "...TARGET119_HEADLESS_STREAMING_STRICT_RESIDUE_OWNER_OVERRIDES",
+    "replayExport": null,
+    "combinedHarnessChangeRequired": false
+  }
+}

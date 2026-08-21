@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "sourceBlob": {
+    "path": "src/utils/commitAttribution.ts",
+    "gitObject": "6cf8c4d0305716ff314b0e0739b233f4cd83ad5b"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "replayHelper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-internal-repo-url-validation-source-gap.mjs",
+      "bytes": 6178,
+      "sha256": "9d079a5955b66d4849d5c7e94f6160cf6fc8c10e7d43fc59b4e4d2eb4fc3fcc7"
+    },
+    "sourceFile": {
+      "path": "src/utils/commitAttribution.ts",
+      "input": {
+        "bytes": 29594,
+        "sha256": "c39e33a003eb1cf695c317bd71a508e812fa2b7b57417775753daad198fed907"
+      },
+      "output": {
+        "bytes": 30200,
+        "sha256": "47d65fb463579fbfa24ee53c6228ccbbe5b86fe34f94049e07d7b75896350817"
+      }
+    }
+  },
+  "baselineUnit": {
+    "index": 11230,
+    "sourceDeclaration": "internal repository URL matcher",
+    "role": "permissive normalized suffix allowlist match",
+    "nodeType": "FunctionDeclaration",
+    "start": 6481915,
+    "end": 6482014,
+    "bytes": 99,
+    "tokenCount": 42,
+    "sourceHash": "4af54f884202e0d1899a617bd2f351e7add23f41ddece5e8c3fc34a0b81f1a07",
+    "coarseHash": "8f7832ebbe36db7b1e35d0b561e4960c5b27b7055166b02860180c005a25fd15"
+  },
+  "targetUnit": {
+    "index": 11275,
+    "sourceDeclaration": "isInternalModelRepoUrl",
+    "role": "scheme-validating, traversal-rejecting, boundary-aware internal repository URL matcher",
+    "nodeType": "FunctionDeclaration",
+    "start": 6498324,
+    "end": 6498678,
+    "bytes": 354,
+    "tokenCount": 141,
+    "sourceHash": "85e3a39227eef2a38bf0600b3e28057890c0ab10cf0a6dba1e95595c41729509",
+    "coarseHash": "ad164a4a6402e5860676d70099e4ff3e021f3d5000e70b6bc48df5d2db4b36cc",
+    "unknownFreeIdentifierCount": 0
+  },
+  "moduleInitializer": {
+    "classification": "matched",
+    "pairReason": "exact-scope-normalized-token-hash",
+    "baseline": {
+      "index": 11245,
+      "nodeType": "VariableDeclaration",
+      "start": 6487106,
+      "end": 6487444,
+      "bytes": 338,
+      "tokenCount": 167,
+      "sourceHash": "f419a5b8c87af4a63fcce610dc0eb4cf69d7bea15db501b33e98b0c58e5511f5",
+      "coarseHash": "3e09cdc3a0325865596c4166874df3f6957e70fe59893170f0d1c65fc8d71a47"
+    },
+    "target": {
+      "index": 11290,
+      "nodeType": "VariableDeclaration",
+      "start": 6503770,
+      "end": 6504108,
+      "bytes": 338,
+      "tokenCount": 167,
+      "sourceHash": "404a65bd20a5aefe21294d404921809ae237968931067127ec8d74815b7a4e62",
+      "coarseHash": "3e09cdc3a0325865596c4166874df3f6957e70fe59893170f0d1c65fc8d71a47"
+    }
+  },
+  "bundleFragments": [
+    {
+      "name": "baselineHelperCall",
+      "bundle": "baseline",
+      "start": 6487389,
+      "end": 6487395,
+      "bytes": 6,
+      "sha256": "fd951897691fe3d0add522654397068cc037b446a96a1daf9fb48d73cf5d7558",
+      "text": "OH_(q)"
+    },
+    {
+      "name": "targetHelperCall",
+      "bundle": "target",
+      "start": 6504053,
+      "end": 6504059,
+      "bytes": 6,
+      "sha256": "a7ef80b9411b0c75da8918553f8e21c97f41738a86be08088917a7066510e0ab",
+      "text": "a$1(q)"
+    },
+    {
+      "name": "targetSshSchemeTest",
+      "bundle": "target",
+      "start": 6498369,
+      "end": 6498380,
+      "bytes": 11,
+      "sha256": "1346be866110e439f04d2f893dc0b941f81590bf66bd35399758469f9ee79ffc",
+      "text": "/^ssh:\\/\\//"
+    },
+    {
+      "name": "targetGitAtTest",
+      "bundle": "target",
+      "start": 6498391,
+      "end": 6498398,
+      "bytes": 7,
+      "sha256": "252a39a78bebeacaeb64246ff9361fe1e019f9091d25b79b713111c87b939180",
+      "text": "/^git@/"
+    },
+    {
+      "name": "targetSshSchemeReplacement",
+      "bundle": "target",
+      "start": 6498459,
+      "end": 6498470,
+      "bytes": 11,
+      "sha256": "1346be866110e439f04d2f893dc0b941f81590bf66bd35399758469f9ee79ffc",
+      "text": "/^ssh:\\/\\//"
+    },
+    {
+      "name": "targetUserAtReplacement",
+      "bundle": "target",
+      "start": 6498483,
+      "end": 6498493,
+      "bytes": 10,
+      "sha256": "5858e2ea70fb342ea3b48eb8cba2336b6dba4628ebea74169e4269d4a9389542",
+      "text": "/^[^@/]+@/"
+    }
+  ],
+  "strictRows": [
+    {
+      "targetIndex": 11275,
+      "literalKind": "regexp",
+      "pattern": "^ssh:\\/\\/",
+      "flags": "",
+      "targetOccurrenceNumber": 1,
+      "start": 6498369,
+      "end": 6498380,
+      "ownerPath": "src/utils/commitAttribution.ts",
+      "declarations": ["isInternalModelRepoUrl", "isInternalModelRepo"]
+    },
+    {
+      "targetIndex": 11275,
+      "literalKind": "regexp",
+      "pattern": "^git@",
+      "flags": "",
+      "targetOccurrenceNumber": 1,
+      "start": 6498391,
+      "end": 6498398,
+      "ownerPath": "src/utils/commitAttribution.ts",
+      "declarations": ["isInternalModelRepoUrl", "isInternalModelRepo"]
+    },
+    {
+      "targetIndex": 11275,
+      "literalKind": "regexp",
+      "pattern": "^ssh:\\/\\/",
+      "flags": "",
+      "targetOccurrenceNumber": 2,
+      "start": 6498459,
+      "end": 6498470,
+      "ownerPath": "src/utils/commitAttribution.ts",
+      "declarations": ["isInternalModelRepoUrl", "isInternalModelRepo"]
+    },
+    {
+      "targetIndex": 11275,
+      "literalKind": "regexp",
+      "pattern": "^[^@/]+@",
+      "flags": "",
+      "targetOccurrenceNumber": 1,
+      "start": 6498483,
+      "end": 6498493,
+      "ownerPath": "src/utils/commitAttribution.ts",
+      "declarations": ["isInternalModelRepoUrl", "isInternalModelRepo"]
+    }
+  ],
+  "strictRowsIdentitySha256": "04b2c273f8e15549bb30d84c0bab3a8b9967797aed30df43738ca76bacfac4ba",
+  "sourceRegions": {
+    "rawAllowlist": {
+      "charStart": 1295,
+      "charEnd": 3041,
+      "bytes": 1746,
+      "sha256": "f78d2ce2183654d1294090f768365cb95c3bfd9a1a5bf5eafce8a0f95e07ba5e"
+    },
+    "recoveredHelper": {
+      "name": "isInternalModelRepoUrl",
+      "charStart": 3043,
+      "charEnd": 3673,
+      "bytes": 630,
+      "sha256": "4dd0ed5c883abe8af7ea0dd3429f2688a32e8920f694dd3b436ac8e46f39b2f4",
+      "compiledBytes": 499,
+      "compiledSha256": "4bff267576ede5de459a9294f0c96bfcf8d26f2b90a7d7da1683d4c72fd2237b"
+    },
+    "rawConsumer": {
+      "name": "isInternalModelRepo",
+      "charStart": 4361,
+      "charEnd": 4836,
+      "bytes": 475,
+      "sha256": "169ba5a3a71503e21c199210fb5fe5f49091153f6891bf713a8cc9f292b6bd90"
+    },
+    "recoveredConsumer": {
+      "name": "isInternalModelRepo",
+      "charStart": 4993,
+      "charEnd": 5442,
+      "bytes": 449,
+      "sha256": "55c5bd6104f8edf8f301faa7f7a3d15fcb55b9acc2b9434acf4c3e511a8998f8"
+    },
+    "rawCall": {
+      "charStart": 4679,
+      "charEnd": 4757,
+      "bytes": 78,
+      "sha256": "fccc5acf6b3942547687c26dbbf3f7442a9da8eaae68bb6c6699621f107d4ba1"
+    },
+    "recoveredCall": {
+      "charStart": 5311,
+      "charEnd": 5363,
+      "bytes": 52,
+      "sha256": "e051563300df7af5cb362f7a909f1752e322382c06acb6038b394fba509bdfa2"
+    }
+  },
+  "wholeUnitProof": {
+    "criterion": "bun-minify-syntax-position-free-alpha-kind-normalized-ast-v1",
+    "compiler": {
+      "path": ".pixi/envs/default/bin/bun",
+      "version": "1.3.11",
+      "options": {
+        "loader": "ts",
+        "target": "bun",
+        "minifyWhitespace": true,
+        "minifySyntax": true
+      }
+    },
+    "canonicalBytes": 5745,
+    "canonicalSha256": "4b4fe5d5c8cfd17d769273eca1f37620b72b6ac15302bd26c8b551edd6222e2c"
+  },
+  "runtimeCases": [
+    ["https://github.com/anthropics/private", true],
+    ["https://github.com/anthropics/private.git", true],
+    ["https://github.com/anthropics/private/", true],
+    ["https://github.com/anthropics/private/subdir", true],
+    ["ssh://git@github.com/anthropics/private", true],
+    ["git@github.com:anthropics/private", true],
+    ["http://github.com/anthropics/private", true],
+    ["github.com/anthropics/private", false],
+    ["git://github.com/anthropics/private", false],
+    ["https://evilgithub.com/anthropics/private", false],
+    ["https://attacker.example/github.com/anthropics/private", false],
+    ["https://github.com/anthropics/private-evil", false],
+    ["https://github.com/anthropics/private.evil", false],
+    ["https://github.com/anthropics/private/../public", false],
+    ["foo@github.com:anthropics/private", false]
+  ],
+  "strictEvolution": {
+    "before": {
+      "units": 61,
+      "residues": 485,
+      "indices": [11275, 12210, 12768, 13026, 13102, 13110, 13120, 13973, 14165, 14171, 14201, 14209, 14622, 16315, 16363, 16369, 17014, 17015, 17497, 17548, 18378, 18380, 18548, 18549, 18684, 18817, 18932, 19010, 19537, 19553, 19683, 19753, 19995, 20305, 20318, 20320, 20592, 20606, 20617, 20645, 20651, 20672, 20775, 20874, 20909, 20945, 20949, 21015, 21018, 21049, 21128, 21373, 21913, 21925, 21958, 21959, 21992, 22106, 22107, 22170, 22174],
+      "indicesSha256": "2191faf37ce07cb69c2c7b35719b5d42878b01cd46ac643478231679dbaf5ce4"
+    },
+    "after": {
+      "units": 60,
+      "residues": 481,
+      "indices": [12210, 12768, 13026, 13102, 13110, 13120, 13973, 14165, 14171, 14201, 14209, 14622, 16315, 16363, 16369, 17014, 17015, 17497, 17548, 18378, 18380, 18548, 18549, 18684, 18817, 18932, 19010, 19537, 19553, 19683, 19753, 19995, 20305, 20318, 20320, 20592, 20606, 20617, 20645, 20651, 20672, 20775, 20874, 20909, 20945, 20949, 21015, 21018, 21049, 21128, 21373, 21913, 21925, 21958, 21959, 21992, 22106, 22107, 22170, 22174],
+      "indicesSha256": "e9264b87b80a202320997328c7eb5e571620b37ddb12c6d3010573c590500aab"
+    }
+  }
+}

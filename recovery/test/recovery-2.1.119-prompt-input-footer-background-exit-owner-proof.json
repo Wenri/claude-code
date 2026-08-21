@@ -1,0 +1,387 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "criterion": "target119-prompt-input-footer-background-exit-whole-unit-owner-proof-v1",
+  "status": "authenticated-static-whole-unit-owner-proof",
+  "evidenceIds": [
+    "target119-prompt-input-footer-authenticated-whole-unit-proof",
+    "target119-prompt-input-footer-background-exit-action-proof",
+    "target119-prompt-input-footer-retained-cache-proof",
+    "target119-prompt-input-footer-caller-dependency-boundary-proof",
+    "target119-prompt-input-footer-source-lineage-proof",
+    "target119-prompt-input-footer-static-replay-blocker"
+  ],
+  "inputs": {
+    "ownerOverride": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/prompt-input-footer-background-exit-owner-overrides.mjs",
+      "bytes": 1753,
+      "sha256": "9c67180ac134ee7f4131e5a01387bc7fcfb9a5268ed816c849546d8cc6e4bd5e"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "baselineLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "observedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedBytes": 24870998,
+      "observedSha256": "bd4ae27067c10156b3566d8974891a6ca3614b186bfd4084a816bf51613b4163",
+      "mutableAfterCorrection": true
+    },
+    "observedCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedBytes": 364461,
+      "observedSha256": "b6a3ba672a2a4cf0614cdb357da52258c432898a4a9e9d030a27bb43e33ed047",
+      "mutableAfterCorrection": true
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19529,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 11904557,
+    "end": 11906424,
+    "bytes": 1867,
+    "tokenCount": 874,
+    "sha256": "ea20afd149d5ee325c7c0c3d582c805c92d046ff879b46f0c48ebbfe435f816e",
+    "coarseHash": "8469b2e6eff02b9e135d42f58f19179940153c8edc691c481a06c449b88e2865",
+    "unknownFreeIdentifierCount": 2
+  },
+  "targetUnit": {
+    "targetIndex": 20455,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12364158,
+    "end": 12366041,
+    "bytes": 1883,
+    "tokenCount": 882,
+    "sha256": "fc2afbdfbb9b290d337b6d34dd65dce420ffb779a4a8393ea08a30cec6a759d6",
+    "coarseHash": "a29715296d27eeaaf0f12ab1d736fe8a516caa52812a7056bc92e9864b3bd73c",
+    "unknownFreeIdentifierCount": 2
+  },
+  "wholeUnitDelta": {
+    "bytesAdded": 16,
+    "tokensAdded": 8,
+    "normalizedAstJsonBytes": 34181,
+    "normalizedAstSha256": "ac22f910169f46abba38a8f7df4895431ee0a390ef4784f7b0aed3cbd0fb0067",
+    "normalization": "replace only createElement arguments after q.key in the exit-message branch with one EXIT_ACTION literal; then strip positions/raw and alpha-normalize non-property identifiers",
+    "baselineExitBranch": {
+      "start": 11904900,
+      "end": 11905065,
+      "bytes": 165,
+      "sha256": "29f7a32c7d970e313bb9434ebe9457c585cbd0def69ad7fcdec9a26a62ffe655"
+    },
+    "targetExitBranch": {
+      "start": 12364501,
+      "end": 12364683,
+      "bytes": 182,
+      "sha256": "93cadd0b23d92147c34b1034e44f92059579c90995df4ebcf3a84fe60d41beba"
+    },
+    "baselineExitCall": {
+      "start": 11904941,
+      "end": 11905025,
+      "bytes": 84,
+      "sha256": "46aac963408685a8736df065d0f9a2d73d9977eff89505e0e66a8087d40e20f9",
+      "text": "Kq.createElement(k,{dimColor:!0,key:\"exit-message\"},\"Press \",q.key,\" again to exit\")"
+    },
+    "targetExitCall": {
+      "start": 12364542,
+      "end": 12364643,
+      "bytes": 101,
+      "sha256": "ebeda802c49ba05df178b178a6b3ca522fbd3d44a7c6f728926f20b36644d941",
+      "text": "Dq.createElement(V,{dimColor:!0,key:\"exit-message\"},\"Press \",q.key,\" again to \",S9()?\"detach\":\"exit\")"
+    },
+    "targetActionExpression": {
+      "start": 12364622,
+      "end": 12364642,
+      "bytes": 20,
+      "sha256": "95ffe9da7da2c095f04c995f4f8c1170b80be77fbf4333fae025d91bad0b99c2",
+      "text": "S9()?\"detach\":\"exit\""
+    },
+    "actionTruthTable": {
+      "rows": [[false, "exit"], [true, "detach"]],
+      "jsonBytes": 32,
+      "sha256": "065cd697560d84d82217874b51d954175d7ae638d6934f0f6e2f6d1a0551f89a"
+    },
+    "cache": {
+      "capacity": 31,
+      "memberOccurrences": 64,
+      "uniqueIndices": 31,
+      "min": 0,
+      "max": 30,
+      "missing": [],
+      "sequenceJsonSha256": "0562a4f521f6b35797eee44603ea6a86009350d51892f8c2eaef72e1ffe19856",
+      "baselineSlot30": [
+        {"start": 11906396, "end": 11906398, "bytes": 2, "sha256": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4"},
+        {"start": 11906411, "end": 11906413, "bytes": 2, "sha256": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4"}
+      ],
+      "targetSlot30": [
+        {"start": 12366013, "end": 12366015, "bytes": 2, "sha256": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4"},
+        {"start": 12366028, "end": 12366030, "bytes": 2, "sha256": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4"}
+      ]
+    }
+  },
+  "runtimeBoundary": {
+    "baselineInitializer": {
+      "targetIndex": 19534,
+      "classification": "changed",
+      "nodeType": "VariableDeclaration",
+      "start": 11912014,
+      "end": 11912257,
+      "bytes": 243,
+      "tokenCount": 180,
+      "sha256": "5eef9902e1831d4d633eead5feb8eb85504bd5d4017d3eb17350f50a3403f7a5",
+      "coarseHash": "805f0db52f592f75fc8e8cfecc210ce1879322ac27b8703947839d6f57479428",
+      "baselineUnitIndex": 19340,
+      "pairReason": "unique-coarse-structural-hash",
+      "unknownFreeIdentifierCount": 3
+    },
+    "targetInitializer": {
+      "targetIndex": 20460,
+      "classification": "changed",
+      "nodeType": "VariableDeclaration",
+      "start": 12371769,
+      "end": 12372012,
+      "bytes": 243,
+      "tokenCount": 180,
+      "sha256": "cdc56f593f9ba109ceb73510a6b133205ab21adb2830cc4441c2dc96bc605237",
+      "coarseHash": "805f0db52f592f75fc8e8cfecc210ce1879322ac27b8703947839d6f57479428",
+      "baselineUnitIndex": 19534,
+      "pairReason": "unique-coarse-structural-hash",
+      "unknownFreeIdentifierCount": 5
+    },
+    "initializerCanonical": {
+      "jsonBytes": 6479,
+      "sha256": "68e87bacab4af232a2f7f936cf71f53b7dc249b0f9294baf840aef45053e0ccc"
+    },
+    "baselineCaller": {
+      "targetIndex": 19535,
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 11912257,
+      "end": 11914484,
+      "bytes": 2227,
+      "tokenCount": 764,
+      "sha256": "823e184a28fa3703167cee78439578ec9890c09df3cee91fd63c47805d515205",
+      "coarseHash": "7b7e93888cd8ca68cb5ccb514b28e32dcc816913e9950281ee38e23e6a6de9e7",
+      "baselineUnitIndex": 19341,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "unknownFreeIdentifierCount": 0
+    },
+    "targetCaller": {
+      "targetIndex": 20461,
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 12372012,
+      "end": 12374233,
+      "bytes": 2221,
+      "tokenCount": 764,
+      "sha256": "ab958037e5b850090cbf227d573a04a89959570d3e722efce465b4473f53f30e",
+      "coarseHash": "7b7e93888cd8ca68cb5ccb514b28e32dcc816913e9950281ee38e23e6a6de9e7",
+      "baselineUnitIndex": 19535,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "unknownFreeIdentifierCount": 0
+    },
+    "callerCanonical": {
+      "jsonBytes": 30668,
+      "sha256": "1851af22a7f16d9214130f79f8c8ea7a8a5590dd80093e88e46640e617c7c76e"
+    },
+    "callerProperties": {
+      "ordered": ["exitMessage", "leftArrowPending", "vimMode", "mode", "toolPermissionContext", "suppressHint", "isInputEmpty", "isLoading", "tasksSelected", "teamsSelected", "teammateFooterIndex", "tmuxSelected", "isPasting", "showExpandPasteHint", "isSearching", "historyQuery", "setHistoryQuery", "historyFailedMatch", "onOpenTasksDialog"],
+      "jsonBytes": 308,
+      "sha256": "6eb9fb49402b2a8f5d7b90211dbd839f10a4b030e8deb0c2756ac805e5e6ca2e"
+    },
+    "baselineComponentCall": {
+      "start": 11913791,
+      "end": 11914123,
+      "bytes": 332,
+      "sha256": "7a42755935364cdf7c587ba3435d337aac52ee37b581aa7392f0dcba57bdc95d"
+    },
+    "targetComponentCall": {
+      "start": 12373540,
+      "end": 12373872,
+      "bytes": 332,
+      "sha256": "f6afe2af6c323d35dfe8c6395c272dca931ee6f5769267a096a400fd0bebcc96"
+    }
+  },
+  "dependencyBoundary": {
+    "baselineEnvSessionKind": {
+      "targetIndex": 4625,
+      "start": 2054117,
+      "end": 2054139,
+      "bytes": 22,
+      "sha256": "dd3dcf01e0f63ed0790ce0f1fb70b6d3868ce50a0262c32f816a4235bf433f47",
+      "text": "function K7H(){return}"
+    },
+    "baselineIsBgSession": {
+      "targetIndex": 4626,
+      "start": 2054139,
+      "end": 2054173,
+      "bytes": 34,
+      "sha256": "a69b64be231f1c78577ae94b56d86aa74b4f3f558a289a1d93925378cbb05de3",
+      "text": "function OW(){return K7H()===\"bg\"}"
+    },
+    "targetEnvSessionKind": {
+      "targetIndex": 4724,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 2104158,
+      "end": 2104280,
+      "bytes": 122,
+      "tokenCount": 34,
+      "sha256": "52df981edabe198635bb968dba5dca202e79f5c530a40f260d3edd316aa3f258",
+      "coarseHash": "d4df7ec3b9b61f9b3a5b6b58b64ccfc40d581f5cd73fce124e40fa697da5cd48",
+      "unknownFreeIdentifierCount": 0,
+      "text": "function u9H(){{let H=process.env.CLAUDE_CODE_SESSION_KIND;if(H===\"bg\"||H===\"daemon\"||H===\"daemon-worker\")return H}return}"
+    },
+    "targetIsBgSession": {
+      "targetIndex": 4725,
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 2104280,
+      "end": 2104314,
+      "bytes": 34,
+      "tokenCount": 12,
+      "sha256": "5c3cd7d917e0c7ccba4b9288a9c71fbdf2851219f3694486df9fa188316eece0",
+      "coarseHash": "6952c057d6ef3217abdd0caf566fb5f4ea1c3ebf20c19f2889446060d4d7eb75",
+      "baselineUnitIndex": 4626,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "unknownFreeIdentifierCount": 0,
+      "text": "function S9(){return u9H()===\"bg\"}"
+    },
+    "wrapperCanonical": {
+      "jsonBytes": 457,
+      "sha256": "404da033f470bcadbb4bb0e4c7186da186a1ac819d91de669cd406102c37ee86"
+    }
+  },
+  "residueProof": {
+    "allOwnerRows": {
+      "rows": 26,
+      "jsonBytes": 1574,
+      "sha256": "8b6a1188343edde5a1c92a803bb1d0979f76d7e9396f6db0988cd8bb19da6bbf"
+    },
+    "addedOwnerRows": {
+      "rows": 5,
+      "jsonBytes": 270,
+      "sha256": "e863c1c3e0d6296957e37cedff35439b504a232b888fc00fb15fa5fede86b4bb"
+    },
+    "rawReportRows": {
+      "rows": 1,
+      "jsonBytes": 58,
+      "sha256": "cf26d596ed554e1eff04f149302a03c12819312de77b94bdf49578ee214c287f"
+    },
+    "unclassifiedRows": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ownerRows": [
+      [20455, "property", "c", 12364184, 12364185, 809, 755, false],
+      [20455, "number", "31", 12364186, 12364188, 421, 418, false],
+      [20455, "property", "exitMessage", 12364191, 12364202, 4, 1, false],
+      [20455, "property", "vimMode", 12364224, 12364231, 9, 5, false],
+      [20455, "property", "suppressHint", 12364265, 12364277, 4, 1, false],
+      [20455, "property", "isPasting", 12364376, 12364385, 6, 3, false],
+      [20455, "property", "showExpandPasteHint", 12364388, 12364407, 4, 1, false],
+      [20455, "property", "isSearching", 12364410, 12364421, 4, 1, false],
+      [20455, "property", "historyQuery", 12364424, 12364436, 6, 2, false],
+      [20455, "property", "setHistoryQuery", 12364439, 12364454, 6, 2, false],
+      [20455, "property", "createElement", 12364545, 12364558, 8196, 7601, false],
+      [20455, "string", " again to ", 12364609, 12364621, 0, 1, true],
+      [20455, "string", "detach", 12364627, 12364635, 0, 7, true],
+      [20455, "string", "exit", 12364636, 12364642, 67, 74, true],
+      [20455, "property", "createElement", 12364750, 12364763, 8196, 7602, false],
+      [20455, "property", "createElement", 12364923, 12364936, 8196, 7603, false],
+      [20455, "property", "createElement", 12365177, 12365190, 8196, 7604, false],
+      [20455, "number", "11", 12365269, 12365271, 889, 844, false],
+      [20455, "number", "11", 12365284, 12365286, 889, 845, false],
+      [20455, "number", "12", 12365299, 12365301, 918, 871, false],
+      [20455, "property", "createElement", 12365325, 12365338, 8196, 7605, false],
+      [20455, "number", "12", 12365397, 12365399, 918, 872, false],
+      [20455, "property", "createElement", 12365575, 12365588, 8196, 7606, false],
+      [20455, "property", "createElement", 12365928, 12365941, 8196, 7607, false],
+      [20455, "number", "30", 12366013, 12366015, 397, 402, true],
+      [20455, "number", "30", 12366028, 12366030, 397, 403, true]
+    ],
+    "addedRows": [
+      [20455, "string", " again to ", 12364609, 12364621, 0, 1, true],
+      [20455, "string", "detach", 12364627, 12364635, 0, 7, true],
+      [20455, "string", "exit", 12364636, 12364642, 67, 74, true],
+      [20455, "number", "30", 12366013, 12366015, 397, 402, true],
+      [20455, "number", "30", 12366028, 12366030, 397, 403, true]
+    ],
+    "rawRows": [
+      [20455, "string", " again to ", 12364609, 12364621, 0, 1, true]
+    ]
+  },
+  "sourceBoundary": {
+    "target119Commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "owner": {
+      "path": "src/components/PromptInput/PromptInputFooterLeftSide.tsx",
+      "blob": "e2378a2ca843d967facbfb6823c9d952139a45e8",
+      "file": {"chars": 88089, "bytes": 88137, "sha256": "747f1ac8df399c726374704fe236cb1b97450161bb7c56325fdc1b659bbf0db8"},
+      "isBgSessionImport": {"start": 2840, "end": 2904, "chars": 64, "bytes": 64, "sha256": "63ee5c713bbea40c7d9b09298a94b703843e45076694b454086486487f8f45fe"},
+      "props": {"start": 3386, "end": 4016, "chars": 630, "bytes": 630, "sha256": "b82bbcf013e42b6d666ef19bd81816a5f837c33f14c803f80acd710a46500e55"},
+      "declaration": {"start": 5296, "end": 8415, "chars": 3119, "bytes": 3121, "sha256": "1e901b0125e274c1fc8d407b2f8421f660ad2ed58d7cbc13b4bda98db662d129"},
+      "cacheCall": {"start": 5346, "end": 5363, "chars": 17, "bytes": 17, "sha256": "d95d885812957ff62b80ad48dc78d3887113cbd8041ae21386e6d51d100eb9f0", "text": "const $ = _c(29);"},
+      "exitJsx": {"start": 5814, "end": 5899, "chars": 85, "bytes": 85, "sha256": "e3f055535e5718ebf0c1eac2f099836d05f8c807bf60aa926ba7c7c047adb6e1"},
+      "modeInputBinding": {"start": 7574, "end": 7602, "chars": 28, "bytes": 28, "sha256": "6758f1ac315737233fa54fab960d1522a1c18ef5bb58c93685637fd6abbc0863", "text": "isInputEmpty={!suppressHint}"},
+      "cache": {"capacity": 29, "memberOccurrences": 55, "uniqueIndices": 27, "min": 0, "max": 28, "missing": [11, 12], "sequenceJsonBytes": 145, "sequenceJsonSha256": "0be77a59269996c472cf83a44b9101d44fa8d404b0dced4ef3119ee3750cc028"}
+    },
+    "caller": {
+      "path": "src/components/PromptInput/PromptInputFooter.tsx",
+      "blob": "bcfc714a0aaf2f60357a1c6dc4ea32b9ddb743d5",
+      "file": {"chars": 33649, "bytes": 33652, "sha256": "fc02f5bacf813f3d69da0f60fdf10998c8f78721ad9e0167e96f03335de7e652"},
+      "props": {"start": 1661, "end": 2821, "chars": 1160, "bytes": 1160, "sha256": "62918e986cd8dc6f90c43bb8c9b0089730c5a8889fa927d16d01be336d59dd60"},
+      "declaration": {"start": 2822, "end": 7540, "chars": 4718, "bytes": 4720, "sha256": "4ea8c8cb4342e1043ee6c05b23837b396cd9a0c77c111776e2e706aa79ba033e"},
+      "componentCall": {"start": 6273, "end": 6849, "chars": 576, "bytes": 576, "sha256": "31dfdf3115ca747f1e796f1566f7ca01010232e2e8fe7e524e533ff28eb687e5"}
+    },
+    "dependency": {
+      "path": "src/utils/concurrentSessions.ts",
+      "blob": "5bcfb070e6fa340bafc491321b30faae9c07a063",
+      "file": {"chars": 12153, "bytes": 12165, "sha256": "20c4e660d3db1dd8462cc76a73f93f8b6a67050821f51ec8bf4b779dacf8c73d"},
+      "envSessionKind": {"start": 2703, "end": 2935, "chars": 232, "bytes": 232, "sha256": "e956aa87f44102794f7f5895072bc4506b61852758e43f3fbdca38d92e3e61a4"},
+      "isBgSession": {"start": 3123, "end": 3200, "chars": 77, "bytes": 77, "sha256": "299b3a0f7176882e601a2f0fb31af7d960db5cfba59de8340d93113633d2bf34"}
+    },
+    "laterTarget120": {
+      "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "ownerBlob": "390e4ee289180b7a9ef9d81244f35e3d74a62c00",
+      "ownerFile": {"chars": 88783, "bytes": 88831, "sha256": "558c4a2ac42aff7d188b542d95fe5e1594cffbf7c0dc3c2d5864a8852e0b8f50"},
+      "ownerDeclaration": {"start": 5644, "end": 8931, "chars": 3287, "bytes": 3289, "sha256": "90ef531dc7f1e18ba19e77e36f553694b7c8d461b752d268d8bba3dc0127c0aa"},
+      "callerBlob": "5c36494f7ee63be6ad1739f597a550a73b5b0f6d",
+      "callerFile": {"chars": 33879, "bytes": 33882, "sha256": "39a3bb582b644bccc82bdda7203b4bbbb6345ae260438bb6f9ea61433dff704f"},
+      "callerDeclaration": {"start": 2790, "end": 7770, "chars": 4980, "bytes": 4982, "sha256": "7c977cde0e3a803291840eb7f38179cba98502f5f94494e194f4e4d25856c258"},
+      "componentCall": {"start": 6330, "end": 7070, "chars": 740, "bytes": 740, "sha256": "c0c24b4aafc5f289ad827fe090866fcf1619f9a973c80ab1f01841cafba8bf54"},
+      "incompatibleExitFragments": ["detach (session keeps running)", "stop session", "getCurrentWorktreeSession()", "appStateStore.getState().tasks"]
+    }
+  },
+  "replayDecision": {
+    "mode": "static-coverage-only",
+    "sourceFilesReplayed": 0,
+    "packageCallOrder": null,
+    "reason": "The exact runtime whole unit already inherits a 31-slot cache, isInputEmpty owner prop, and isInputEmpty caller prop from Target118, while the frozen Target119 source graph has a 29-slot owner with holes, no owner/caller isInputEmpty prop, and a constant exit label. Target120 restores those retained props only together with later hide-Vim, task-store, worktree, and stop-session semantics. Neither source state is a complete Target119 preimage or postimage, so source replay is fail-closed."
+  },
+  "expectedImpact": {
+    "ownerOverrideCount": 1,
+    "strictUnitsRemoved": 1,
+    "strictResiduesRemoved": 5,
+    "sourceFilesReplayed": 0,
+    "packageCallOrder": null,
+    "mode": "static-coverage-only"
+  }
+}

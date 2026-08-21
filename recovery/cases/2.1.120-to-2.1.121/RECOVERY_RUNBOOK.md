@@ -20,54 +20,20 @@ pixi run node recovery/scripts/verify-2.1.121-recovery.mjs \
   --repo .
 ```
 
-This one command re-authenticates all artifact identities, exact deltas, Bun extraction, generated attribution, structural accounting, readable diff, source overlay round trip, all 33 semantic test files, semantic correspondence, embedded-code reconstruction, and exact package reconstruction. It must report zero unclassified tokens and zero unverified obligations.
+This one command re-authenticates all artifact identities, exact deltas, Bun extraction, generated attribution, structural accounting, readable diff, source overlay round trip, all 103 frozen release-scoped test files, the 33-entry semantic-core catalog, semantic correspondence, embedded-code reconstruction, and exact package reconstruction. It must report zero unclassified tokens and zero unverified obligations.
 
-## Focused semantic verification
+## Frozen release-suite verification
 
 ```sh
-CLAUDE_CODE_2_1_120_BUNDLE="$ARTIFACTS/2.1.120-linux-x64/cli.inner.js" \
-CLAUDE_CODE_2_1_121_BUNDLE="$ARTIFACTS/2.1.121-linux-x64/cli.inner.js" \
-CLAUDE_2_1_120_CLI_INNER="$ARTIFACTS/2.1.120-linux-x64/cli.inner.js" \
-CLAUDE_2_1_121_CLI_INNER="$ARTIFACTS/2.1.121-linux-x64/cli.inner.js" \
-CLAUDE_CODE_2_1_120_WRAPPER="$ARTIFACTS/2.1.120-linux-x64/cli.js" \
-CLAUDE_CODE_2_1_121_WRAPPER="$ARTIFACTS/2.1.121-linux-x64/cli.js" \
-pixi run node --test \
-  recovery/test/recovery-2.1.121-autocompact-rapid-refill.test.mjs \
-  recovery/test/recovery-2.1.121-compaction-spinner.test.mjs \
-  recovery/test/recovery-2.1.121-console-platform-wizards.test.mjs \
-  recovery/test/recovery-2.1.121-daemon-service.test.mjs \
-  recovery/test/recovery-2.1.121-dialog-overflow.test.mjs \
-  recovery/test/recovery-2.1.121-direct-evidence.test.mjs \
-  recovery/test/recovery-2.1.121-dream-skill.test.mjs \
-  recovery/test/recovery-2.1.121-dynamic-loop.test.mjs \
-  recovery/test/recovery-2.1.121-feedback-surface.test.mjs \
-  recovery/test/recovery-2.1.121-hidden-obligations.test.mjs \
-  recovery/test/recovery-2.1.121-inherited-active-core.test.mjs \
-  recovery/test/recovery-2.1.121-inherited-runtime-residuals.test.mjs \
-  recovery/test/recovery-2.1.121-lower-runtime-boundaries.test.mjs \
-  recovery/test/recovery-2.1.121-mcp-refresh-repl-copy.test.mjs \
-  recovery/test/recovery-2.1.121-official-owned-cluster.test.mjs \
-  recovery/test/recovery-2.1.121-official-residual-cluster.test.mjs \
-  recovery/test/recovery-2.1.121-official-runtime-settings-cluster.test.mjs \
-  recovery/test/recovery-2.1.121-powershell-pipeline-paths.test.mjs \
-  recovery/test/recovery-2.1.121-powerup-team-onboarding.test.mjs \
-  recovery/test/recovery-2.1.121-query-terminal-schema.test.mjs \
-  recovery/test/recovery-2.1.121-reactive-runtime-gaps.test.mjs \
-  recovery/test/recovery-2.1.121-remote-control-boundary.test.mjs \
-  recovery/test/recovery-2.1.121-remote-ux-and-branch.test.mjs \
-  recovery/test/recovery-2.1.121-removed-gates.test.mjs \
-  recovery/test/recovery-2.1.121-residual-dream-hook-defer.test.mjs \
-  recovery/test/recovery-2.1.121-retained-runtime-surfaces.test.mjs \
-  recovery/test/recovery-2.1.121-runtime-hardening.test.mjs \
-  recovery/test/recovery-2.1.121-sdk-control-runtime.test.mjs \
-  recovery/test/recovery-2.1.121-settings-auth-runtime.test.mjs \
-  recovery/test/recovery-2.1.121-subscription-upsell-gates.test.mjs \
-  recovery/test/recovery-2.1.121-usage-attribution.test.mjs \
-  recovery/test/recovery-2.1.121-warm-resume.test.mjs \
-  recovery/test/recovery-2.1.121-worktree-baseline.test.mjs
+pixi run node recovery/scripts/verify-source-lineage.mjs \
+  --case recovery/cases/2.1.120-to-2.1.121/manifest.json \
+  --artifacts "$ARTIFACTS" \
+  --repo .
 ```
 
-Expected frozen result: 121 tests, 121 passed, 0 failed.
+This is the authoritative standalone release-suite command. It authenticates isolated baseline and target Git repositories, scrubs inherited behavior and source redirects, builds a real-file sandbox from the frozen runtime closure, materializes the authenticated bundle aliases and source trees, verifies and expands the case-contained audit inputs, and copies the exact Bun runtime closure and TypeScript tool before execution. It neither reads nor links a repository `.recovery-tmp` tree.
+
+Expected frozen result: 480 tests, 466 passed, 14 skipped, 0 failed across 103 files. The 33-entry semantic-core catalog is a strict subset of this execution set.
 
 ## Rebuild and verify semantic correspondence
 

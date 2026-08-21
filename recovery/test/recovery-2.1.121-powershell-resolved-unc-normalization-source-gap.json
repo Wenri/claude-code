@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-powershell-resolved-unc-normalization-replay-v1",
+  "status": "case-owned-bounded-source-replay",
+  "evidenceIds": [
+    "target121-powershell-resolved-unc-whole-unit-proof",
+    "target121-powershell-resolved-unc-source-replay-test",
+    "target121-powershell-resolved-unc-runtime-parity-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26835556,
+      "sha256": "7ef8bfa1ffe09424d8a3c51644d70f0149d5c10dbddbf437f023792d7908c546"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [14622],
+        "count": 1,
+        "canonicalBytes": 845,
+        "canonicalSha256": "89b4304be7802a222fcd54d5de80a1ba5e3a899b6b1b19165af3ce9aa182298c"
+      }
+    },
+    "sourceFile": {
+      "path": "src/tools/PowerShellTool/powershellPermissions.ts",
+      "input": {
+        "bytes": 67606,
+        "chars": 67392,
+        "sha256": "ed585012c3b30be5d1f9b0acab3c24685730522f35c5579c17bb040fbebc7fe2"
+      },
+      "output": {
+        "bytes": 68130,
+        "chars": 67916,
+        "sha256": "0df47f0a3809537fd44a72461732a9fafa2d0f3f18779eaf2c7ddc482b0ddaeb"
+      }
+    }
+  },
+  "owner": {
+    "targetIndex": 14622,
+    "reportedOwner": "tools/PowerShellTool/powershellPermissions.ts",
+    "correctedOwner": "src/tools/PowerShellTool/powershellPermissions.ts",
+    "declaration": "powershellToolHasPermission"
+  },
+  "targetUnit": {
+    "targetIndex": 14622,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 6,
+    "nodeType": "FunctionDeclaration",
+    "start": 9123990,
+    "end": 9132143,
+    "tokenCount": 2735,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 49,
+    "bytes": 8153,
+    "sha256": "7fdb321d26c6fddb511cd68be5430cab83105add5c9aee21898471f93b240af7",
+    "coarseHash": "fc6cefa32937dfa8fd6472572da1c6f2b85c1a774456b3e37efbd510d75d4327",
+    "line": 4773,
+    "column": 3501
+  },
+  "baselineUnit": {
+    "baselineUnitIndex": 14514,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 9062631,
+    "end": 9070559,
+    "tokenCount": 2678,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 49,
+    "bytes": 7928,
+    "sha256": "4ce4a816b3eb1f05a4dfd44eb843286a89df9e905526980dd0d06710c7f0baf5",
+    "coarseHash": "72ee71fbf2f39ba3db772a0ead0704135cb2d02875ae5e136b2515fc94e383b9",
+    "line": 4757,
+    "column": 3501
+  },
+  "ownerResidues": {
+    "totalRows": 20,
+    "targetAddedRows": 2,
+    "strictRows": 2,
+    "rowIdentities": {
+      "bytes": 1358,
+      "sha256": "f06df3aa0d9324b8c35625e599b2b5d588574bb22a764fa338b2062abf6a9449"
+    },
+    "addedIdentities": {
+      "bytes": 157,
+      "sha256": "0a47b8be3779828ac38887bce1e67a8496a0207469fdba536ded3d47269deb39"
+    },
+    "strictIdentities": {
+      "bytes": 169,
+      "sha256": "ec6f05e5d6b62ee7150e94d6e8f7166112400ce2419f5e25b3ad89ea0c2b048e"
+    },
+    "strictRowsExact": [
+      [14622, "regexp", {"flags": "", "pattern": "^\\/[A-Za-z]{1,2}:"}, 9126627, 9126646, 1],
+      [14622, "regexp", {"flags": "", "pattern": "(?<!:)[\\\\/]{2,}[^\\s\\\\/]"}, 9126999, 9127024, 1]
+    ]
+  },
+  "wholeUnitEvidence": {
+    "relation": "direct powershellToolHasPermission predecessor with the same two parameters, 49-statement body, and 47 alpha-canonically identical statements; only nested body statements 19 and 20 differ",
+    "rawByteDelta": 225,
+    "tokenDelta": 57,
+    "canonicalization": "Acorn 8.15 AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+    "baselineCanonical": {
+      "bytes": 104394,
+      "sha256": "caab5c19d4ea678588b35e5a0fd4900cb04894c07dbb09d4d00ac872a739d9bd"
+    },
+    "targetCanonical": {
+      "bytes": 106653,
+      "sha256": "e2943bb735cec5a6287b9534e14fc25a7cd7cd8a4a6336a64d7ae692d6f76886"
+    },
+    "retainedStatements": {
+      "count": 47,
+      "excludedIndices": [19, 20],
+      "identityMethod": "[bodyIndex,canonicalSHA256] using the fixture canonicalizer",
+      "bytes": 3375,
+      "sha256": "9d5494dd1316a719c331777255b6f7b07cdfe7ba149f8426f055d94697095496"
+    },
+    "changedStatements": [
+      {
+        "bodyIndex": 19,
+        "declaration": "extractProviderPathFromArg",
+        "baseline": {
+          "start": 9065159,
+          "end": 9065287,
+          "bytes": 128,
+          "sha256": "cdc9e9b0fac78fac0fbfdbfb6c3a4bad9c4b0cc6bb480741933801d94fa9cdfa",
+          "canonicalSha256": "1f029611e1bc2ef8ac3a5c86361198df91bf939c9f12ab102f051b401879fe2a"
+        },
+        "target": {
+          "start": 9126518,
+          "end": 9126703,
+          "bytes": 185,
+          "sha256": "edd7a6a425eec25730c7096130e8847d44b9c7613e3d3727837358418db96710",
+          "canonicalSha256": "d75e7de23fae4c2261ddca16b6d8195c0e39fb6c90d2fb12d0216688132a705f"
+        },
+        "semanticDelta": "accept slash as a candidate parameter prefix, but strip through the colon only for /^\\/[A-Za-z]{1,2}:/ so URL-like and long slash prefixes are retained"
+      },
+      {
+        "bodyIndex": 20,
+        "declaration": "providerOrUncDecisionForArg",
+        "baseline": {
+          "start": 9065287,
+          "end": 9065574,
+          "bytes": 287,
+          "sha256": "4781c1cea4cc547e1f407fd417ddb52c762cd4a7d53533f29082954bcb51eeec",
+          "canonicalSha256": "0918c799cf9f6d264432d3cb73dec20436642b8a31ba5a74ad6561a842ef5255"
+        },
+        "target": {
+          "start": 9126703,
+          "end": 9127158,
+          "bytes": 455,
+          "sha256": "5c7677c2fc3ba71cfc46a51b697d8e810ed0bc59efa234418d69bed5ef3e98be",
+          "canonicalSha256": "f335c7f1c60f0a0c00eab4856f7ed0d85d1d5ee5f4043325145bec718cca1365"
+        },
+        "semanticDelta": "after the shared UNC helper, ask on Windows when a non-URL position begins two or more slash/backslash separators followed by a non-separator non-space"
+      }
+    ],
+    "strictRegexLiterals": [
+      {"start": 9126627, "end": 9126646, "bytes": 19, "sha256": "58ce531598e6b51a7724685fe30151c1a982ddb47a0df0cd6db4fcf853055ae4", "exact": "/^\\/[A-Za-z]{1,2}:/"},
+      {"start": 9126999, "end": 9127024, "bytes": 25, "sha256": "1ba324f13099fd2eab7b803e7f9f990129c0d1f473065b458b109ef3c470e87e", "exact": "/(?<!:)[\\\\/]{2,}[^\\s\\\\/]/"}
+    ],
+    "reverseTransform": {
+      "operation": "in target statement 19 remove the slash alternative from the outer condition and the slash-drive guard from the inner condition; in target statement 20 delete the third IfStatement",
+      "normalizedCanonical": {
+        "bytes": 104394,
+        "sha256": "caab5c19d4ea678588b35e5a0fd4900cb04894c07dbb09d4d00ac872a739d9bd"
+      }
+    }
+  },
+  "sourceState": {
+    "target120Commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+    "target121Commit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+    "rawGitBlob": "942991e7cfd77974225a07f1048db445e2e8bf31",
+    "rawRelation": "Target120 and recovered Target121 powershellPermissions.ts are byte-identical and omit both target regexes and getPlatform import.",
+    "rawDeclaration": {
+      "name": "powershellToolHasPermission",
+      "start": 20937,
+      "end": 67391,
+      "chars": 46454,
+      "bytes": 46644,
+      "sha256": "37af5d2628a8c7238a255af322e85cdfbabdcd4ba89cbd1e04cd382b2e51b4bc",
+      "line": 639,
+      "endLine": 1648
+    },
+    "rawNestedDeclarations": [
+      {"name": "extractProviderPathFromArg", "start": 37032, "end": 37947, "chars": 915, "bytes": 923, "sha256": "699e3d57cdd9b0f31692eb23ea69185ecf11affa98e1d4c78129a6d06f7ce2bb", "line": 985, "endLine": 1002},
+      {"name": "providerOrUncDecisionForArg", "start": 37950, "end": 38501, "chars": 551, "bytes": 551, "sha256": "8959db26d1e8df3d85f187227beb4e63970e7ad7162e3278fffcac4c02cff97a", "line": 1003, "endLine": 1018}
+    ],
+    "recoveredDeclaration": {
+      "name": "powershellToolHasPermission",
+      "start": 20991,
+      "end": 67915,
+      "chars": 46924,
+      "bytes": 47114,
+      "sha256": "0b6a7d6ccc2ac3fa898766ed5d64865a4fc576208a88f364481f83b62e4629f5",
+      "line": 640,
+      "endLine": 1665
+    },
+    "recoveredNestedDeclarations": [
+      {"name": "extractProviderPathFromArg", "start": 37086, "end": 38110, "chars": 1024, "bytes": 1032, "sha256": "31acadb9860b02bf3978e28f5e0d5591e49bdb2669f50569cac093be37b6eed2", "line": 986, "endLine": 1009},
+      {"name": "providerOrUncDecisionForArg", "start": 38113, "end": 39025, "chars": 912, "bytes": 912, "sha256": "bb3ecdbed6f6b1ad4cae4f01234788a57813ce2629a310303983df08b38c7d0f", "line": 1010, "endLine": 1035}
+    ],
+    "imports": {
+      "retainedUncHelper": {"start": 1213, "end": 1303, "chars": 90, "bytes": 90, "sha256": "bfd1acf4316cb94be9ea849766547e960a6f4b47f2494ed38fa6434a665523b1", "line": 37, "endLine": 37, "exact": "import { containsVulnerableUncPath } from '../../utils/shell/readOnlyCommandValidation.js'"},
+      "addedPlatform": {"start": 441, "end": 494, "chars": 53, "bytes": 53, "sha256": "5bd248857705c45087feadc4e5f6fcda0a00c4eba6cb0eafe9c6de6bafe0e957", "line": 14, "endLine": 14, "exact": "import { getPlatform } from '../../utils/platform.js'"}
+    },
+    "dependencies": [
+      {
+        "path": "src/utils/platform.ts",
+        "gitBlob": "ec263671d2959aeace84fcdc12b61fa03dedeb47",
+        "bytes": 3801,
+        "chars": 3801,
+        "sha256": "9593ffa1f4ec1f3b38d417a5c7e89649c00a599539f39208afa67f2596baa303",
+        "declaration": {"name": "getPlatform", "start": 365, "end": 1265, "chars": 900, "bytes": 900, "sha256": "c371b668d2ca8f137a88bd291b977dcbe6c2ea476e411306357533655cd25620", "line": 11, "endLine": 49}
+      },
+      {
+        "path": "src/utils/shell/readOnlyCommandValidation.ts",
+        "gitBlob": "b976115748860b78cb78b8d5cb53d28deacf9f45",
+        "bytes": 68416,
+        "chars": 68266,
+        "sha256": "4904bef72875a4efe673d2c295055117eb629cd109ce96aa98824fce54ef2d93",
+        "declaration": {"name": "containsVulnerableUncPath", "start": 55008, "end": 58135, "chars": 3127, "bytes": 3129, "sha256": "5257fc82c6a0d32c72456f6c24f8329cdb857d5a78bc9d72c24a28572774605d", "line": 1562, "endLine": 1638}
+      }
+    ],
+    "gitDonorAudit": {
+      "markers": ["^\\/[A-Za-z]{1,2}:", "(?<!:)[\\\\/]{2,}"],
+      "path": "src/tools/PowerShellTool/powershellPermissions.ts",
+      "result": "no recovered Target120/121 history contains either target-only regex"
+    }
+  },
+  "runtimeContract": {
+    "slashDrive": {
+      "strips": ["/C:env:HOME", "/ab:env:HOME", "-Path:env:HOME", "–Path:env:HOME"],
+      "retains": ["/long:env:HOME", "https://server/share", "/not-a-drive"]
+    },
+    "resolvedUnc": {
+      "asksOnWindows": ["//server/share", "prefix\\\\server\\share", "prefix//server/share", "prefix\\/server"],
+      "doesNotAskFromNewFallback": ["https://server/share", "http://server/share", "single/slash", "single\\slash"],
+      "nonWindowsFallback": false
+    }
+  },
+  "generatorWiring": {
+    "replayHelper": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-powershell-resolved-unc-normalization-source-gap.mjs",
+    "ownerOverrideExport": "TARGET121_POWERSHELL_UNC_OWNER_OVERRIDES"
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 49,
+      "unsupportedResidues": 445,
+      "firstTargetIndex": 14622,
+      "productionIndexSha256": "57431d24ec30f01eb6c3eff2ebb676ddcd9721641e3a419c8b92da710a2d8e28",
+      "productionResidueSha256": "71f996e6173c352cb47368e93a303d4d61fc06f4fac77431fc2acdb28e826ce5"
+    },
+    "removes": {
+      "targetIndices": [14622],
+      "units": 1,
+      "residueCount": 2
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 48,
+      "unsupportedResidues": 443
+    }
+  }
+}

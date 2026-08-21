@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/services/analytics/growthbook.ts",
+        "input": {
+          "bytes": 40526,
+          "sha256": "42541e6311ebed2d2865332eb7d9b2b99ac46f16d47674e702d7b035c1b96cf4"
+        },
+        "output": {
+          "bytes": 41134,
+          "sha256": "4ea6c7ae00211865f8b1e7833ef170233162e71987a593cff3f4975b9548bc3b"
+        }
+      },
+      {
+        "path": "src/utils/config.ts",
+        "input": {
+          "bytes": 67413,
+          "sha256": "81842b83269321ea2f38fa4315fb42aad002b480fa01a8bb9e6a407964b7d20e"
+        },
+        "output": {
+          "bytes": 67503,
+          "sha256": "402030c1d4c2f2709f785871873d3523dd6057bcc47692ba8881f793b13f1a2c"
+        }
+      },
+      {
+        "path": "src/components/WarmResumeHint.tsx",
+        "input": {
+          "bytes": 4618,
+          "sha256": "b2f45128ba18a31444c69cd01a3131dd9f5231a6ec84080460247295cd598e58"
+        },
+        "output": {
+          "bytes": 4612,
+          "sha256": "2253a1f9f20cf6867a8f8763bfcc1e598ac867f8c51fc650b5161633011b71f4"
+        }
+      }
+    ]
+  },
+  "baselineUnits": [
+    {
+      "index": 6648,
+      "role": "in-memory experiment membership before persisted fallback",
+      "nodeType": "FunctionDeclaration",
+      "start": 3066905,
+      "end": 3066939,
+      "bytes": 34,
+      "sourceHash": "350cdc49a2501e9c113b227a21ac84f38526b31af2521a7076f754c7445b590f",
+      "coarseHash": "6db86ec56648b9f336bba01e08d69f8a11936cb4af0d293cfaed329894d6e384"
+    },
+    {
+      "index": 6656,
+      "role": "feature-value-only disk sync before experiment persistence",
+      "nodeType": "FunctionDeclaration",
+      "start": 3067923,
+      "end": 3068062,
+      "bytes": 139,
+      "sourceHash": "7f8771bccac1d2484f01fb15b5fbefb8980d8496c8db02d8c30a778eb1cd580b",
+      "coarseHash": "aafb056085a019b33a67d1bae54fa83b038cbec7a4054cfa829e7aea0a92b89c"
+    }
+  ],
+  "targetUnits": [
+    {
+      "index": 6660,
+      "role": "GrowthBook public export table",
+      "nodeType": "ExpressionStatement",
+      "start": 3073613,
+      "end": 3074427,
+      "bytes": 814,
+      "sourceHash": "e6d41f870a0fac0a241d979e2a5e03e1923a000cb7f92cd0b79ca4a4ce680656",
+      "coarseHash": "51678f66a90af15a88d45d1c66926dbd0022df3b2a4ef7c1393ad3176aba8543"
+    },
+    {
+      "index": 6665,
+      "role": "synchronous persisted feature-value presence API",
+      "nodeType": "FunctionDeclaration",
+      "start": 3074729,
+      "end": 3074796,
+      "bytes": 67,
+      "sourceHash": "a6bae95fb4a24071d59888f381a2c6ee07c649578cabef24f9f6822323862679",
+      "coarseHash": "b0e8bd3a86e32e19534e979109df1ebe03b40f70971988d71b4c083f700c4a42"
+    },
+    {
+      "index": 6666,
+      "role": "live-first and persisted-fallback experiment membership",
+      "nodeType": "FunctionDeclaration",
+      "start": 3074796,
+      "end": 3074908,
+      "bytes": 112,
+      "sourceHash": "73531074f476afcb5eb8d4e03140a3d8e84840e5794ab3634334c6bc2a73ed5b",
+      "coarseHash": "b2ef55cfc04b07c2112f1e6078c751867f2c58a1ddf8627bf662af30e15c7189"
+    },
+    {
+      "index": 6674,
+      "role": "atomic feature-value and sorted experiment-name disk sync",
+      "nodeType": "FunctionDeclaration",
+      "start": 3075892,
+      "end": 3076128,
+      "bytes": 236,
+      "sourceHash": "c5c913dadec6b2aae496cc3da6516728efadb8e84a783df8107f8cf8dea436d8",
+      "coarseHash": "73e75885dbbefc9e0aeea86048685ad7f1a9b93a36ff14c91137fe038e9df8ba"
+    },
+    {
+      "index": 17190,
+      "role": "warm-resume experiment registration consumer",
+      "nodeType": "FunctionDeclaration",
+      "start": 10682521,
+      "end": 10682576,
+      "bytes": 55,
+      "sourceHash": "cda56a4f6cb9bc5dbf7f7b2c713389b82136f9be8ff3a10a09fed0fd5b99d472",
+      "coarseHash": "233d010c31e9e7b009c60875d9ab461f351d569193cc7a887a3e28b7ab24901f"
+    }
+  ],
+  "targetBindings": [
+    {
+      "exportName": "isFeatureFromExperiment",
+      "propertyStart": 3073861,
+      "propertyEnd": 3073892,
+      "localName": "kr8",
+      "definitionIndex": 6666
+    },
+    {
+      "exportName": "hasGrowthBookCachedValue",
+      "propertyStart": 3073954,
+      "propertyEnd": 3073986,
+      "localName": "Vr8",
+      "definitionIndex": 6665
+    }
+  ],
+  "strictRows": [
+    {
+      "targetIndex": 6666,
+      "ownerPath": "src/services/analytics/growthbook.ts",
+      "rejectedOwnerPath": "src/services/analytics/firstPartyEventLogger.ts",
+      "evidenceIds": [
+        "target121-growthbook-experiment-cache-target-fragment",
+        "target121-growthbook-experiment-cache-source-replay-test",
+        "target121-growthbook-experiment-cache-source-ast-test"
+      ]
+    },
+    {
+      "targetIndex": 6674,
+      "ownerPath": "src/services/analytics/growthbook.ts",
+      "rejectedOwnerPath": "src/services/analytics/firstPartyEventLogger.ts",
+      "evidenceIds": [
+        "target121-growthbook-experiment-cache-target-fragment",
+        "target121-growthbook-experiment-cache-source-replay-test",
+        "target121-growthbook-experiment-cache-source-ast-test"
+      ]
+    }
+  ],
+  "residueIdentities": [
+    [
+      6666,
+      "property",
+      "cachedExperimentFeatures",
+      3074866,
+      3074890,
+      1
+    ],
+    [
+      6674,
+      "property",
+      "cachedExperimentFeatures",
+      3076017,
+      3076041,
+      2
+    ],
+    [
+      6674,
+      "property",
+      "cachedExperimentFeatures",
+      3076098,
+      3076122,
+      3
+    ]
+  ],
+  "sourceDeclarations": [
+    {
+      "path": "src/services/analytics/growthbook.ts",
+      "name": "hasGrowthBookCachedValue",
+      "charStart": 7437,
+      "charEnd": 7584,
+      "bytes": 147,
+      "sha256": "69ab8fba297834125b8a1ac768358ef6b6e21430d0fad9f331791da19913c0ae"
+    },
+    {
+      "path": "src/services/analytics/growthbook.ts",
+      "name": "isFeatureFromExperiment",
+      "charStart": 7586,
+      "charEnd": 7832,
+      "bytes": 246,
+      "sha256": "38aff64625d84e2c9d0c12ccbee201116ec62da922e9e6f0c91873426b8b2cab"
+    },
+    {
+      "path": "src/services/analytics/growthbook.ts",
+      "name": "syncRemoteEvalToDisk",
+      "charStart": 15339,
+      "charEnd": 15850,
+      "bytes": 511,
+      "sha256": "ff7512183321047684389be54f5a206055a5a5ac6b3f6fb8263bf7782a7bb065"
+    },
+    {
+      "path": "src/components/WarmResumeHint.tsx",
+      "name": "isGateRegistered",
+      "charStart": 2317,
+      "charEnd": 2526,
+      "bytes": 209,
+      "sha256": "4a9cb04b89086e0a07c0f8194f2e9d605bffb4e18eeb5d2745f4603d751dd572"
+    }
+  ],
+  "sourceTypeField": {
+    "path": "src/utils/config.ts",
+    "interface": "GlobalConfig",
+    "name": "cachedExperimentFeatures",
+    "type": "string[]",
+    "optional": true,
+    "charStart": 20342,
+    "charEnd": 20377,
+    "bytes": 35,
+    "sha256": "bc99dc818f7c35d7971e1819992673e61ef436a11cc51bb97ddcc5fd8f626ebb"
+  },
+  "summary": {
+    "units": 2,
+    "residues": 3,
+    "indicesSha256": "4cc46f4d8ffe602ec79f9abf926d457e80853352f1c7c1d8fee671839ac16ea3",
+    "residueIdentitiesSha256": "8f52f6f48d23481b09bb98904ce251dd7edd5b8bd842b0104b1d8a0750a353cb"
+  }
+}

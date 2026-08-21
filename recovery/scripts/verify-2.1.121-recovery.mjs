@@ -4,19 +4,36 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const defaultRepo = fileURLToPath(new URL('../..', import.meta.url))
 const fullDiffCheckDiagnostic =
   'recovery/cases/2.1.120-to-2.1.121/evidence/CHANGELOG-2.1.121.md:42: new blank line at EOF.'
 const fullDiffCheckSha256 =
   'a45849856c08d527991e52348d5991ffb9ca17f9fc0d55e4acd4ab7246726b22'
-function expectedTestsForRepo(repo) {
+const expectedFrozenTargetTestExecution = Object.freeze({
+  tests: 480,
+  passed: 466,
+  failed: 0,
+  skipped: 14,
+  files: 103,
+  manifest: 'target-test-files.sha256',
+})
+
+function expectedReleaseTestsForRepo(repo) {
   return fs
     .readdirSync(path.join(repo, 'recovery/test'))
     .filter(name => /^recovery-2\.1\.121-.*\.test\.mjs$/.test(name))
     .map(name => `recovery/test/${name}`)
     .sort()
+}
+
+function expectedReleaseTestManifest(repo, files) {
+  return `${files
+    .map(relative =>
+      `${sha256(fs.readFileSync(path.join(repo, relative)))}  ${relative}`,
+    )
+    .join('\n')}\n`
 }
 
 function parseArguments(argv) {
@@ -46,9 +63,157 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function confinedRelativeParts(relative, label) {
+  if (typeof relative !== 'string') {
+    throw new Error(`${label}: path must be a string`)
+  }
+  const parts = relative.split('/')
+  if (
+    relative.length === 0 ||
+    relative.includes('\0') ||
+    path.isAbsolute(relative) ||
+    relative.includes('\\') ||
+    path.posix.normalize(relative) !== relative ||
+    parts.includes('') ||
+    parts.includes('.') ||
+    parts.includes('..')
+  ) {
+    throw new Error(`${label}: unsafe relative path ${relative}`)
+  }
+  return parts
+}
+
+function inspectConfinedCaseFile(caseRoot, relative, label) {
+  const parts = confinedRelativeParts(relative, label)
+  const unresolvedRoot = path.resolve(caseRoot)
+  let rootStatus
+  try {
+    rootStatus = fs.lstatSync(unresolvedRoot)
+  } catch (error) {
+    throw new Error(`${label}: case root is not accessible`, { cause: error })
+  }
+  if (rootStatus.isSymbolicLink() || !rootStatus.isDirectory()) {
+    throw new Error(`${label}: case root must be a real directory`)
+  }
+  const root = fs.realpathSync(unresolvedRoot)
+  const resolvedRootStatus = fs.lstatSync(root)
+  const rootAfterResolution = fs.lstatSync(unresolvedRoot)
+  if (
+    resolvedRootStatus.isSymbolicLink() ||
+    !resolvedRootStatus.isDirectory() ||
+    rootAfterResolution.isSymbolicLink() ||
+    !rootAfterResolution.isDirectory() ||
+    resolvedRootStatus.dev !== rootStatus.dev ||
+    resolvedRootStatus.ino !== rootStatus.ino ||
+    rootAfterResolution.dev !== rootStatus.dev ||
+    rootAfterResolution.ino !== rootStatus.ino
+  ) {
+    throw new Error(`${label}: case root changed while resolving`)
+  }
+  let filename = root
+  let finalStatus
+  for (let index = 0; index < parts.length; index += 1) {
+    filename = path.join(filename, parts[index])
+    let status
+    try {
+      status = fs.lstatSync(filename)
+    } catch (error) {
+      throw new Error(`${label}: path is not accessible: ${relative}`, {
+        cause: error,
+      })
+    }
+    if (status.isSymbolicLink()) {
+      throw new Error(`${label}: symbolic-link path component: ${relative}`)
+    }
+    const final = index === parts.length - 1
+    if (!final && !status.isDirectory()) {
+      throw new Error(`${label}: non-directory path component: ${relative}`)
+    }
+    if (final && !status.isFile()) {
+      throw new Error(`${label}: expected a regular file: ${relative}`)
+    }
+    if (final) finalStatus = status
+  }
+  const realFilename = fs.realpathSync(filename)
+  const realRelative = path.relative(root, realFilename)
+  if (
+    realRelative.length === 0 ||
+    path.isAbsolute(realRelative) ||
+    realRelative === '..' ||
+    realRelative.startsWith(`..${path.sep}`)
+  ) {
+    throw new Error(`${label}: path escaped case root: ${relative}`)
+  }
+  const rootAfterTraversal = fs.lstatSync(unresolvedRoot)
+  if (
+    rootAfterTraversal.isSymbolicLink() ||
+    !rootAfterTraversal.isDirectory() ||
+    rootAfterTraversal.dev !== rootStatus.dev ||
+    rootAfterTraversal.ino !== rootStatus.ino ||
+    fs.realpathSync(unresolvedRoot) !== root
+  ) {
+    throw new Error(`${label}: case root changed while reading`)
+  }
+  return {
+    device: finalStatus.dev,
+    filename,
+    inode: finalStatus.ino,
+    realFilename,
+    root,
+    rootDevice: rootStatus.dev,
+    rootInode: rootStatus.ino,
+    unresolvedRoot,
+  }
+}
+
+export function readConfinedCaseFile(caseRoot, relative, label = 'case file') {
+  const before = inspectConfinedCaseFile(caseRoot, relative, label)
+  let descriptor
+  try {
+    const noFollow = fs.constants.O_NOFOLLOW
+    const flags = Number.isInteger(noFollow)
+      ? fs.constants.O_RDONLY | noFollow
+      : fs.constants.O_RDONLY
+    descriptor = fs.openSync(before.filename, flags)
+    const opened = fs.fstatSync(descriptor)
+    assert(opened.isFile(), `${label}: opened target must be a regular file`)
+    assert(
+      opened.dev === before.device && opened.ino === before.inode,
+      `${label}: target changed before open`,
+    )
+    const value = fs.readFileSync(descriptor)
+    const openedAfterRead = fs.fstatSync(descriptor)
+    assert(
+      openedAfterRead.dev === opened.dev && openedAfterRead.ino === opened.ino,
+      `${label}: opened target changed while reading`,
+    )
+    const after = inspectConfinedCaseFile(
+      before.unresolvedRoot,
+      relative,
+      label,
+    )
+    assert(
+      after.realFilename === before.realFilename &&
+        after.device === opened.dev &&
+        after.inode === opened.ino &&
+        after.root === before.root &&
+        after.rootDevice === before.rootDevice &&
+        after.rootInode === before.rootInode,
+      `${label}: target changed after read`,
+    )
+    return value
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor)
+  }
+}
+
 function readPinned(root, metadata, label) {
-  assert(metadata.path.startsWith('semantic/'), `${label}: unsafe path`)
-  const value = fs.readFileSync(path.join(root, metadata.path))
+  assert(
+    typeof metadata?.path === 'string' &&
+      metadata.path.split('/')[0] === 'semantic',
+    `${label}: unsafe path`,
+  )
+  const value = readConfinedCaseFile(root, metadata.path, label)
   assert(value.length === metadata.bytes, `${label}: byte length`)
   assert(sha256(value) === metadata.sha256, `${label}: SHA-256`)
   return JSON.parse(value)
@@ -63,7 +228,7 @@ function main() {
     )
   }
   const repo = path.resolve(args.repo ?? defaultRepo)
-  const expectedTests = expectedTestsForRepo(repo)
+  const expectedReleaseTests = expectedReleaseTestsForRepo(repo)
   const manifestPath = path.resolve(
     args.case ??
       path.join(
@@ -130,41 +295,105 @@ function main() {
   assert(
     summary.coverage.obligations.testCatalogEntries ===
       summary.coverage.obligations.usedTestCatalogEntries,
-    'all focused tests consumed',
+    'all semantic-core tests consumed',
   )
 
   assert(
     JSON.stringify(manifest.sourceLineage.testFiles) ===
-      JSON.stringify(expectedTests),
-    'exact source-lineage semantic tests',
+      JSON.stringify(expectedReleaseTests),
+    'exact source-lineage release-scoped tests',
+  )
+  const testFileAssertions = manifest.sourceLineage.testFileAssertions
+  assert(
+    Array.isArray(testFileAssertions) && testFileAssertions.length > 0,
+    'source-lineage test assertions required',
+  )
+  const testFileAssertionPaths = testFileAssertions.map(
+    assertion => assertion?.path,
   )
   assert(
-    manifest.sourceLineage.testFileAssertions.length === expectedTests.length,
-    'source-lineage test assertions',
+    testFileAssertionPaths.every(
+      assertionPath =>
+        typeof assertionPath === 'string' && assertionPath.length > 0,
+    ),
+    'source-lineage test assertion paths',
   )
   assert(
-    manifest.sourceLineage.testArtifactEnvironment
-      .CLAUDE_CODE_2_1_120_WRAPPER === 'baselineBundle' &&
-      manifest.sourceLineage.testArtifactEnvironment
-        .CLAUDE_CODE_2_1_121_WRAPPER === 'targetBundle',
-    'Fleet wrapper artifact environment',
+    new Set(testFileAssertionPaths).size === testFileAssertionPaths.length,
+    'unique source-lineage test assertion paths',
   )
-  const sourceIdentity = JSON.parse(
-    fs.readFileSync(path.join(caseRoot, manifest.sourceFreeze.identity), 'utf8'),
-  )
+  const expectedReleaseTestSet = new Set(expectedReleaseTests)
+  const assertedReleaseTests = testFileAssertionPaths
+    .filter(assertionPath => expectedReleaseTestSet.has(assertionPath))
+    .sort()
   assert(
-    sha256(
-      fs.readFileSync(path.join(caseRoot, manifest.sourceFreeze.identity)),
-    ) === manifest.sourceFreeze.identitySha256,
+    JSON.stringify(assertedReleaseTests) ===
+      JSON.stringify(expectedReleaseTests),
+    'exact source-lineage release-test assertion projection',
+  )
+  const expectedTestArtifactEnvironment = {
+    CLAUDE_CODE_2_1_120_BUNDLE: 'baselineAnalyzableBundle',
+    CLAUDE_CODE_2_1_121_BUNDLE: 'targetAnalyzableBundle',
+    CLAUDE_CODE_2_1_120_INNER_BUNDLE: 'baselineAnalyzableBundle',
+    CLAUDE_CODE_2_1_121_INNER_BUNDLE: 'targetAnalyzableBundle',
+    CLAUDE_2_1_120_CLI_INNER: 'baselineAnalyzableBundle',
+    CLAUDE_2_1_121_CLI_INNER: 'targetAnalyzableBundle',
+    CLAUDE_CODE_2_1_120_WRAPPER: 'baselineBundle',
+    CLAUDE_CODE_2_1_121_WRAPPER: 'targetBundle',
+  }
+  assert(
+    JSON.stringify(manifest.sourceLineage.testArtifactEnvironment) ===
+      JSON.stringify(expectedTestArtifactEnvironment),
+    'exact source-lineage test artifact environment',
+  )
+  const sourceIdentityValue = readConfinedCaseFile(
+    caseRoot,
+    manifest.sourceFreeze.identity,
+    'source-freeze identity',
+  )
+  const sourceIdentity = JSON.parse(sourceIdentityValue)
+  assert(
+    sha256(sourceIdentityValue) === manifest.sourceFreeze.identitySha256,
     'source-freeze identity SHA-256',
   )
   assert(
     sourceIdentity.target.srcTree === manifest.sourceLineage.targetSrcGitTree,
     'source target Git tree',
   )
+  const targetTestManifestRelative =
+    'recovered/source-freeze/target-test-files.sha256'
+  const expectedTargetTestManifest = expectedReleaseTestManifest(
+    repo,
+    expectedReleaseTests,
+  )
+  const targetTestManifest = readConfinedCaseFile(
+    caseRoot,
+    targetTestManifestRelative,
+    'target test manifest',
+  )
   assert(
-    sourceIdentity.verification.targetTests.failed === 0,
-    'frozen target tests',
+    targetTestManifest.equals(Buffer.from(expectedTargetTestManifest)),
+    'exact current release-test manifest',
+  )
+  const targetTestManifestSha256 = sha256(targetTestManifest)
+  const targetTestManifestAssertions =
+    manifest.sourceFreeze.fileAssertions.filter(
+      assertion => assertion.path === targetTestManifestRelative,
+    )
+  assert(
+    targetTestManifestAssertions.length === 1 &&
+      targetTestManifestAssertions[0].bytes === targetTestManifest.length &&
+      targetTestManifestAssertions[0].sha256 === targetTestManifestSha256,
+    'authenticated current release-test manifest',
+  )
+  const expectedFrozenTargetTests = {
+    ...expectedFrozenTargetTestExecution,
+    manifestSha256: targetTestManifestSha256,
+  }
+  assert(
+    JSON.stringify(sourceIdentity.verification.targetTests) ===
+      JSON.stringify(expectedFrozenTargetTests),
+    'exact frozen release-test execution',
   )
   assert(
     /^[a-f0-9]{40}$/.test(sourceIdentity.base.commit) &&
@@ -194,10 +423,11 @@ function main() {
     'manifest full-tree diff-check allowlist',
   )
   assert(
-    fs.readFileSync(
-      path.join(caseRoot, manifest.sourceFreeze.diffCheck.rawOutput),
-      'utf8',
-    ) === `${fullDiffCheckDiagnostic}\n`,
+    readConfinedCaseFile(
+      caseRoot,
+      manifest.sourceFreeze.diffCheck.rawOutput,
+      'frozen full-tree diff-check output',
+    ).toString('utf8') === `${fullDiffCheckDiagnostic}\n`,
     'frozen full-tree diff-check diagnostic',
   )
   const runDiffCheck = extraArguments => {
@@ -286,9 +516,14 @@ function main() {
   )
 }
 
-try {
-  main()
-} catch (error) {
-  console.error(error instanceof Error ? error.stack : String(error))
-  process.exitCode = 1
+const invokedAsScript =
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+if (invokedAsScript) {
+  try {
+    main()
+  } catch (error) {
+    console.error(error instanceof Error ? error.stack : String(error))
+    process.exitCode = 1
+  }
 }

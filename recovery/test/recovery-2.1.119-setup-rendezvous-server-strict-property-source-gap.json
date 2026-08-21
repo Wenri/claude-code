@@ -1,0 +1,529 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-production-strict-source-gap-owner-union-proof",
+  "criterion": "complete-unit-single-branch-predecessor-export-implementation-source-replay-and-daemon-gate-v1",
+  "evidenceIds": [
+    "target119-setup-rendezvous-authenticated-whole-unit-delta-proof",
+    "target119-setup-rendezvous-manual-predecessor-proof",
+    "target119-setup-rendezvous-export-implementation-graph-proof",
+    "target119-setup-rendezvous-source-gap-replay-test",
+    "target119-setup-rendezvous-daemon-gate-semantic-test",
+    "target119-setup-rendezvous-static-owner-union-proof"
+  ],
+  "artifactPhasePolicy": {
+    "accepted": [
+      {
+        "phase": "post-u21367-current",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24703386,
+          "sha256": "319ad2549d1c140f5f84a1cbe044804876a385f6673f69ff3cb3f973b8971d29"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 378143,
+          "sha256": "3c29396a4f8bd5604379d07b2e2a3ebdb4083db045c1beeabf26eb11d5f548a0"
+        }
+      },
+      {
+        "phase": "post-rendezvous",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24697305,
+          "sha256": "1b156d078208c9df0baea3430dc58387f14d3535cd6052724f0847bd83d4d4f7"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 378822,
+          "sha256": "355c431cda776c760ac1d1e5098dc03f322087bd2deb67a4ab53dd50aa6f2f4d"
+        }
+      },
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      }
+    ],
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true
+  },
+  "inputs": {
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    }
+  },
+  "partitionSnapshot": {
+    "productionStrictRows": 1,
+    "ownerResidueRows": 0,
+    "addedOwnerResidueRows": 0,
+    "unclassifiedAddedOccurrenceRows": 0,
+    "coverageTargetRows": 1,
+    "sourceCallSiteRowsBeforeReplay": 0,
+    "implementationDeclarationRows": 1
+  },
+  "snapshotPartitions": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 504,
+      "sha256": "8ae3a388792e097d7a7267de63888f4ab8da2c2aed8250886b5e5b6def0f1fba"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 2,
+        "value": "startRendezvousServer",
+        "target": {
+          "start": 13464689,
+          "end": 13464710
+        },
+        "structural": {
+          "index": 21685,
+          "classification": "unresolved",
+          "sourceHash": "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f"
+        },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": [
+          "setup.ts"
+        ],
+        "ownerSourceMatches": [],
+        "candidates": [
+          "../src/setup.ts"
+        ],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageRowsDescriptor": {
+      "rows": 1,
+      "jsonBytes": 504,
+      "sha256": "0c2c2de1239c0f3196d6d0a0949a332ae3095e901bb7082eeaf601f3c04018cc"
+    },
+    "coverageRows": [
+      {
+        "targetIndex": 21685,
+        "start": 13464366,
+        "end": 13468915,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-setup-ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ],
+        "behavior": "Compiled target unit is attributed to src/setup.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ],
+    "ownerCatalogDescriptor": {
+      "rows": 2,
+      "jsonBytes": 125,
+      "sha256": "e52e8a2874f4bc1c29d583c6a521dd451be9619165b8c4337b6264d6456e62e9"
+    },
+    "ownerCatalog": [
+      {
+        "id": "owner-src-daemon-rendezvous-ts",
+        "path": "src/daemon/rendezvous.ts"
+      },
+      {
+        "id": "owner-src-setup-ts",
+        "path": "src/setup.ts"
+      }
+    ]
+  },
+  "postRendezvous": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 527,
+      "sha256": "a2ffc2ee521432bf5b3e977ad998929cf778cf83f2fbda22ac7363b52ec3f291"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 2,
+        "value": "startRendezvousServer",
+        "target": {
+          "start": 13464689,
+          "end": 13464710
+        },
+        "structural": {
+          "index": 21685,
+          "classification": "unresolved",
+          "sourceHash": "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f"
+        },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": [
+          "daemon/rendezvous.ts",
+          "setup.ts"
+        ],
+        "ownerSourceMatches": [],
+        "candidates": [
+          "../src/setup.ts"
+        ],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageRowsDescriptor": {
+      "rows": 1,
+      "jsonBytes": 1290,
+      "sha256": "6d8131fe7f4437173cd6ac6285d14f377edbf84e6ee8c24c90e99b1ff0123a25"
+    },
+    "coverageRows": [
+      {
+        "targetIndex": 21685,
+        "start": 13464366,
+        "end": 13468915,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-setup-ts",
+          "owner-src-daemon-rendezvous-ts"
+        ],
+        "evidenceIds": [
+          "target119-setup-rendezvous-authenticated-whole-unit-delta-proof",
+          "target119-setup-rendezvous-manual-predecessor-proof",
+          "target119-setup-rendezvous-export-implementation-graph-proof",
+          "target119-setup-rendezvous-source-gap-replay-test",
+          "target119-setup-rendezvous-daemon-gate-semantic-test",
+          "target119-setup-rendezvous-static-owner-union-proof"
+        ],
+        "behavior": "Target119 u21685 adds exactly one daemon-only gate to the otherwise identifier-canonical Target118 u20779 setup function. The gate dynamically initializes the Target119 rendezvous export module (u13936/u13942), resolves startRendezvousServer to its complete implementation u13937, and calls it only when CLAUDE_BG_BACKEND equals daemon. The exact supplied Target119 setup.ts omits this authenticated call site even though src/daemon/rendezvous.ts contains the complete declaration, so the owner proof is the setup.ts plus daemon/rendezvous.ts union and the minimal source replay restores only that missing gate."
+      }
+    ],
+    "sourceSetup": {
+      "path": "src/setup.ts",
+      "bytes": 20808,
+      "sha256": "ab632bbf567fb24436d7448980c51bd8caeb577ab9d13dc24ed50661933c5348"
+    }
+  },
+  "postStreaming": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 527,
+      "sha256": "a2ffc2ee521432bf5b3e977ad998929cf778cf83f2fbda22ac7363b52ec3f291"
+    },
+    "coverageRowsDescriptor": {
+      "rows": 1,
+      "jsonBytes": 1290,
+      "sha256": "6d8131fe7f4437173cd6ac6285d14f377edbf84e6ee8c24c90e99b1ff0123a25"
+    },
+    "typedResiduesUnchangedFromPostRendezvous": true,
+    "coverageRowsUnchangedFromPostRendezvous": true,
+    "sourceSetupUnchangedFromPostRendezvous": true
+  },
+  "units": {
+    "baselineSetup": {
+      "release": "2.1.118",
+      "index": 20779,
+      "role": "manual predecessor setup function",
+      "nodeType": "FunctionDeclaration",
+      "start": 12985742,
+      "end": 12990165,
+      "bytes": 4423,
+      "tokenCount": 1228,
+      "sha256": "03c20e9dcb5b56ed44eae6b5684aad98cc3cf70a0501c2e87fd5f8031eda220c",
+      "coarseHash": "a50bd33649e809a50fc6848459eca134b8b8673a1308cdf0215f2b831fd2bd75"
+    },
+    "targetSetup": {
+      "release": "2.1.119",
+      "index": 21685,
+      "role": "setup function with rendezvous gate",
+      "classification": "unresolved",
+      "manualPredecessorUnitIndex": 20779,
+      "nodeType": "FunctionDeclaration",
+      "start": 13464366,
+      "end": 13468915,
+      "bytes": 4549,
+      "tokenCount": 1271,
+      "sha256": "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f",
+      "coarseHash": "ec2098501bc55965f3017d104e559fc342e34c0ddf242d782006b4832996795f",
+      "unknownFreeIdentifierCount": 4
+    },
+    "daemonBranch": {
+      "topLevelStatementIndex": 5,
+      "localStart": 274,
+      "localEnd": 400,
+      "start": 13464640,
+      "end": 13464766,
+      "bytes": 126,
+      "sha256": "491aeadf7e8fea8bd00b404a25a85d2b6a261ef1ee41308ca543ec305bf3338d",
+      "canonicalAst": {
+        "bytes": 1642,
+        "sha256": "1a5c879f725db7abf0dd4895474c52f4ac2f302f4c36a4dac7ce7cacfbd904e0"
+      },
+      "exact": "if(process.env.CLAUDE_BG_BACKEND===\"daemon\"){let{startRendezvousServer:X}=await Promise.resolve().then(() => (JX6(),yE7));X()}"
+    },
+    "canonicalPredecessorProof": {
+      "baselineCanonicalAst": {
+        "bytes": 47505,
+        "sha256": "7065af9439833646ae8ed4812fa24ff183262af0d3fc097a3c58ff5013298911"
+      },
+      "targetCanonicalAst": {
+        "bytes": 49165,
+        "sha256": "9a8cf4e7956b6186a6b30b2155805cecf954bc6aaeafafeec278832559d24c70"
+      },
+      "targetWithoutDaemonBranchCanonicalAst": {
+        "bytes": 47505,
+        "sha256": "7065af9439833646ae8ed4812fa24ff183262af0d3fc097a3c58ff5013298911"
+      },
+      "baselineTopLevelStatements": 22,
+      "targetTopLevelStatements": 23,
+      "semanticDeltaStatements": 1
+    },
+    "dependencyUnits": [
+      {
+        "role": "rendezvous export binding",
+        "index": 13936,
+        "classification": "unresolved",
+        "nodeType": "ExpressionStatement",
+        "start": 8773052,
+        "end": 8773136,
+        "bytes": 84,
+        "tokenCount": 28,
+        "sha256": "b2b56d2629fa8c1acbcdfd9e81747d251d56d6a35e6575f8376fb257d95ebcab",
+        "coarseHash": "415802b622ea22f3847e49dbc63a6e8eab3583b8ae1d8c00b8e3a3f193c8d014",
+        "exact": "M$(yE7,{stopRendezvousServer:()=>oV1,startRendezvousServer:()=>rV1,sendRv:()=>u78});"
+      },
+      {
+        "role": "startRendezvousServer implementation",
+        "index": 13937,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 8773136,
+        "end": 8773717,
+        "bytes": 581,
+        "tokenCount": 262,
+        "sha256": "1c6df0e85b7b10828bca63ad5c967837fed82ecd4ef4ec2a045a05165ecda843",
+        "coarseHash": "737692c9f151cb3b464f37ba3a8882574cba351f39a1c835e1180d1a88dd6f28"
+      },
+      {
+        "role": "rendezvous module initializer",
+        "index": 13942,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 8774423,
+        "end": 8774541,
+        "bytes": 118,
+        "tokenCount": 52,
+        "sha256": "6d2579cb3c358de3b921ddc6ed651c67d845e52ff7c552974e75045668b47f05",
+        "coarseHash": "84982fa93cc7d2b8f2fed35e881ce7ec736ab75f1d1a3637f16ddfdbbf28184b",
+        "exact": "var JX6=T(()=>{G2();W_();tH();g3();i$();VE7=require(\"fs/promises\"),kE7=require(\"net\"),NE7=require(\"string_decoder\")});"
+      }
+    ]
+  },
+  "sourceGraph": {
+    "baseline": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "setup": {
+        "path": "src/setup.ts",
+        "bytes": 20646,
+        "sha256": "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35",
+        "gitBlobSha1": "985e8577a6bd69992cd6ad7827e3d3d9e294527d"
+      },
+      "rendezvousPathPresent": false
+    },
+    "target": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "setup": {
+        "path": "src/setup.ts",
+        "bytes": 20646,
+        "sha256": "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35",
+        "gitBlobSha1": "985e8577a6bd69992cd6ad7827e3d3d9e294527d",
+        "setupDeclaration": {
+          "start": 2347,
+          "end": 20615,
+          "bytes": 18298,
+          "sha256": "868fa31caa2a0c7f8653c08e0590e7c066174d6d50b86d62304ddc32664547a9"
+        },
+        "rendezvousCallSitePresent": false
+      },
+      "rendezvous": {
+        "path": "src/daemon/rendezvous.ts",
+        "bytes": 2874,
+        "sha256": "ad4ba12305e3ad82c3e4d49222020445d47b97cc329d0d2cecd8d8a6f88c759d",
+        "gitBlobSha1": "6b9588bf7e47ae8de5f5edb9bb05b64fd427882e",
+        "declaration": {
+          "name": "startRendezvousServer",
+          "start": 1407,
+          "end": 2496,
+          "bytes": 1089,
+          "sha256": "03d02b8ba9f272c00b7398c647fb9d2dbf6aa54448e806ecd607b43a32752738"
+        }
+      }
+    },
+    "retainedTarget120": {
+      "setup": {
+        "path": "src/setup.ts",
+        "bytes": 20646,
+        "sha256": "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35"
+      },
+      "rendezvous": {
+        "path": "src/daemon/rendezvous.ts",
+        "bytes": 2874,
+        "sha256": "ad4ba12305e3ad82c3e4d49222020445d47b97cc329d0d2cecd8d8a6f88c759d"
+      }
+    },
+    "currentCumulative": {
+      "setup": {
+        "path": "src/setup.ts",
+        "bytes": 21164,
+        "sha256": "4a2233a4ca9cf1fc3ef7849d7b00c5aa20eee456458872470f217764017c6f78",
+        "setupDeclaration": {
+          "start": 2522,
+          "end": 21135,
+          "bytes": 18641,
+          "sha256": "479b06d00ce50acd252800466c0a45a772a709f4cea70a587d270518e905fbaa"
+        },
+        "rendezvousCallSitePresent": false
+      },
+      "rendezvous": {
+        "path": "src/daemon/rendezvous.ts",
+        "bytes": 3949,
+        "sha256": "06fea96dc88a120f02493a43baf3db5926d8e4685231eed9a2fe2115f0db57e5",
+        "declaration": {
+          "name": "startRendezvousServer",
+          "start": 2480,
+          "end": 3569,
+          "bytes": 1089,
+          "sha256": "03d02b8ba9f272c00b7398c647fb9d2dbf6aa54448e806ecd607b43a32752738"
+        }
+      }
+    }
+  },
+  "sourceReplay": {
+    "required": true,
+    "path": "src/setup.ts",
+    "anchor": {
+      "bytes": 90,
+      "sha256": "9be40cad766fa29ee5588c065a1c4627f7c987fa2533b7ae109f7133feaa6b27"
+    },
+    "branch": {
+      "bytes": 158,
+      "sha256": "1bdc4cfcc657fbcc80534a1d48269cfb3177c437469eaad33dcb95633f70e3b4",
+      "dynamicImport": {
+        "module": "./daemon/rendezvous.js",
+        "binding": "startRendezvousServer",
+        "bytes": 72,
+        "sha256": "dea6f34f8221175de51fe93998a48fae21ee02622416e746679f0f5d8e56b4c6"
+      },
+      "call": {
+        "bytes": 23,
+        "sha256": "031a6936c485c6c566b3bf740e9d026f93bf4ba455b196985fb916fbfb7a3fa5"
+      }
+    },
+    "variants": [
+      {
+        "state": "target-release-source",
+        "input": {
+          "bytes": 20646,
+          "sha256": "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35"
+        },
+        "output": {
+          "bytes": 20808,
+          "sha256": "ab632bbf567fb24436d7448980c51bd8caeb577ab9d13dc24ed50661933c5348",
+          "setupDeclaration": {
+            "start": 2347,
+            "end": 20777,
+            "bytes": 18460,
+            "sha256": "ace0aa18fb4f8560be469f520645bf1c8af2efc2e9012a35af6aa15b6bc83007"
+          }
+        }
+      },
+      {
+        "state": "current-cumulative-source",
+        "input": {
+          "bytes": 21164,
+          "sha256": "4a2233a4ca9cf1fc3ef7849d7b00c5aa20eee456458872470f217764017c6f78"
+        },
+        "output": {
+          "bytes": 21326,
+          "sha256": "a17849a09e2ca1c5ced1484600b6c8377f7eff33f1f6864b083318281a9c6515",
+          "setupDeclaration": {
+            "start": 2522,
+            "end": 21297,
+            "bytes": 18803,
+            "sha256": "051ca9b7796fd5bbf102de2ae39932348fe6f57a23b9b06d69791d010d1efe7b"
+          }
+        }
+      }
+    ],
+    "deltaBytes": 162,
+    "decision": "minimal-required-source-gap-replay",
+    "reason": "The authenticated Target119 setup unit contains one daemon-only dynamic-import gate that is absent from both supplied setup.ts variants, while the exact Target119 rendezvous source already contains the complete implementation. Replaying only this gate restores the proven call edge without altering rendezvous behavior or any retained setup statement."
+  },
+  "ownerCorrection": {
+    "targetIndex": 21685,
+    "existingOwnerIds": [
+      "owner-src-setup-ts"
+    ],
+    "correctedOwnerIds": [
+      "owner-src-daemon-rendezvous-ts",
+      "owner-src-setup-ts"
+    ],
+    "paths": [
+      "src/setup.ts",
+      "src/daemon/rendezvous.ts"
+    ],
+    "declarations": [
+      "setup",
+      "startRendezvousServer"
+    ],
+    "dependencyTargetIndices": [
+      13936,
+      13937,
+      13942
+    ],
+    "coverageGeneratorWiringAuthorized": true,
+    "sourceReplayAuthorized": true
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "dependencyUnits": 3,
+    "sourceFiles": 2,
+    "replayFiles": 1,
+    "targetIndicesSha256": "783a54f1855876ab6fddcd4674e36801a3d000411e675b4b35a8cf19d6dfbf82",
+    "strictResidueIdentitiesSha256": "1294e2449c80e4a3edf104478bac7e54f9a97824cc58d3ff09214e520c24ece7",
+    "dependencyTargetIndicesSha256": "75aca8ba1a2c00ec8dcddd1ac723d5b786ff38abc60f81b40a88427156bc14ad",
+    "completeGraphTargetIndicesSha256": "b02e7ad962aa08b0250655a3cdce57db6a8c577ca928c49a447c53e35c5b2d5b",
+    "crossReleaseUnitsSha256": "9c33a5c4ce9e0539130d1154018db2cb39e1bb9ca0b89559ee211725eb30a39c",
+    "correctedOwnerPathsSha256": "42fafbda8de7f2fa0ea8685625bd11404f470b3edce40fbf369c1ab1df746e75"
+  }
+}

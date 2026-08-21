@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-headless-streaming-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-headless-streaming-authenticated-whole-unit",
+    "target117-headless-streaming-ultrareview-replay-source-proof",
+    "target117-headless-streaming-retained-control-contract-proof",
+    "target117-headless-streaming-source-snapshot-blocker"
+  ],
+  "ownerOverride": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/recovered/headless-streaming-whole-unit-owner-overrides.mjs",
+    "bytes": 1327,
+    "sha256": "b0fd3ff839d18e07e2ee17edcc4e0d69d0cca0f89267c5de6e60122b0e5aac3e"
+  },
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "baselineUnit": {
+    "baselineIndex": 20581,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 12915603,
+    "end": 12954120,
+    "tokenCount": 14203,
+    "topDefinitionCount": 1,
+    "bytes": 38517,
+    "sha256": "66fa02021a22925ae2e3eb6c757c5a9e91a25ecb102ebe0ed8bdd47efeb44ce2",
+    "coarseHash": "0fe6af40c4767a0538288c15f915e1af5492ee8251d0cffb3b04f8c82f02b5de"
+  },
+  "targetUnit": {
+    "targetIndex": 20646,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 12925500,
+    "end": 12964719,
+    "tokenCount": 14480,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 8,
+    "bytes": 39219,
+    "sha256": "85933cd8848eb3080cb343677b650e46999e6da295e7522a99f17b7a6514cc20",
+    "coarseHash": "e018767cd451488a08b505e345d6c67849e8db4d711ecfc30ea744c8aa490aa7"
+  },
+  "ownerResidues": {
+    "generatedOwner": "cli/print.ts",
+    "correctedOwner": "src/cli/print.ts",
+    "declaration": "runHeadlessStreaming",
+    "totalRows": 26,
+    "strictRows": 5,
+    "sourceCoveredContextRows": 21,
+    "retainedSourceGapRows": 3,
+    "authenticatedLaunchedReplayRows": 2,
+    "rows": [
+      {"literalKind":"property","value":"forkContextMessages","baselineOccurrenceCount":22,"targetOccurrenceNumber":23,"start":12933994,"end":12934013,"bytes":19,"sha256":"b5542141e793fa03f1def888b19ebbef386cd48af8c595cc789394fc60f33b9c","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":11,"start":12936164,"end":12936178,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":12,"start":12936213,"end":12936227,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":13,"start":12936196,"end":12936210,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":14,"start":12936232,"end":12936246,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":15,"start":12938820,"end":12938834,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":16,"start":12938838,"end":12938852,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"code","baselineOccurrenceCount":1445,"targetOccurrenceNumber":1454,"start":12953124,"end":12953128,"bytes":4,"sha256":"5694d08a2e53ffcae0c3103e5ad6f6076abd960eb1f8a56577040bc1028f702b","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"taskRegistry","baselineOccurrenceCount":80,"targetOccurrenceNumber":81,"start":12959680,"end":12959692,"bytes":12,"sha256":"2c70c982d16a83d632f22c6bd2d3efc1df3923781367ea83b613c223b86ebb9c","semanticClass":"retained-source-gap","strict":true},
+      {"literalKind":"property","value":"persist","baselineOccurrenceCount":1,"targetOccurrenceNumber":3,"start":12959826,"end":12959833,"bytes":7,"sha256":"1c61425b1ba94748e725edd6fbc902b80e08483116a8affb4b8829143e486f1e","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"synthetic","baselineOccurrenceCount":10,"targetOccurrenceNumber":11,"start":12960599,"end":12960608,"bytes":9,"sha256":"b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2","semanticClass":"retained-source-gap","strict":true},
+      {"literalKind":"property","value":"taskRegistry","baselineOccurrenceCount":80,"targetOccurrenceNumber":82,"start":12960809,"end":12960821,"bytes":12,"sha256":"2c70c982d16a83d632f22c6bd2d3efc1df3923781367ea83b613c223b86ebb9c","semanticClass":"retained-source-gap","strict":true},
+      {"literalKind":"string","value":"<command-name>/ultrareview","baselineOccurrenceCount":0,"targetOccurrenceNumber":1,"start":12960881,"end":12960907,"bytes":26,"sha256":"11b6619b0f991f74ca15fa656f951f19cdbae65b46fb261a1a229866bed6c396","semanticClass":"authenticated-launched-replay","strict":true},
+      {"literalKind":"string","value":"</command-name>","baselineOccurrenceCount":0,"targetOccurrenceNumber":1,"start":12960922,"end":12960937,"bytes":15,"sha256":"f4df0966a80b1db15726c011a19182ae73361dd4de1ade0c242e1bccdb452683","semanticClass":"authenticated-launched-replay","strict":true},
+      {"literalKind":"property","value":"sentiment","baselineOccurrenceCount":7,"targetOccurrenceNumber":8,"start":12961274,"end":12961283,"bytes":9,"sha256":"df82d7244147796b6a6486dc21c4502c0c4d67a8aecc64d86ab310926503c5e3","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"surface","baselineOccurrenceCount":16,"targetOccurrenceNumber":17,"start":12961287,"end":12961294,"bytes":7,"sha256":"763cdc62a869262b6ff432a40eae29a00bb96f96f7a3320845abc8cd144d12e2","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"string","value":"tool_use","baselineOccurrenceCount":164,"targetOccurrenceNumber":165,"start":12961298,"end":12961308,"bytes":10,"sha256":"2ea06e16082e89486ae012b8e8d7b0949cea064ad35edc07765cf6f84ed8f35e","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"cleared","baselineOccurrenceCount":4,"targetOccurrenceNumber":5,"start":12961309,"end":12961316,"bytes":7,"sha256":"55faf5eb0a3b57e2c21160a5c8a8c7eb053264c41aea5ad52c3faeaa791c896d","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"string","value":"tengu_message_rated","baselineOccurrenceCount":2,"targetOccurrenceNumber":3,"start":12961337,"end":12961358,"bytes":21,"sha256":"87b7427e7c1fd1fea6b9361e7bd8789e4c71b7da12ae219acc136ba404d1eb02","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"sentiment","baselineOccurrenceCount":7,"targetOccurrenceNumber":9,"start":12961376,"end":12961385,"bytes":9,"sha256":"df82d7244147796b6a6486dc21c4502c0c4d67a8aecc64d86ab310926503c5e3","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"surface","baselineOccurrenceCount":16,"targetOccurrenceNumber":18,"start":12961389,"end":12961396,"bytes":7,"sha256":"763cdc62a869262b6ff432a40eae29a00bb96f96f7a3320845abc8cd144d12e2","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"cleared","baselineOccurrenceCount":4,"targetOccurrenceNumber":6,"start":12961400,"end":12961407,"bytes":7,"sha256":"55faf5eb0a3b57e2c21160a5c8a8c7eb053264c41aea5ad52c3faeaa791c896d","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":17,"start":12961995,"end":12962009,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":18,"start":12962013,"end":12962027,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"client_platform","baselineOccurrenceCount":0,"targetOccurrenceNumber":4,"start":12964199,"end":12964214,"bytes":15,"sha256":"a62fc88fd442570289cefb15ef8a61e066c7357cd966dac50beacbc55b74f32a","semanticClass":"source-covered-context","strict":false},
+      {"literalKind":"property","value":"clientPlatform","baselineOccurrenceCount":0,"targetOccurrenceNumber":19,"start":12964333,"end":12964347,"bytes":14,"sha256":"5245288a51af5fde0fb89beab2a9cccad83acb9722fd3b54835022b798cadd84","semanticClass":"source-covered-context","strict":false}
+    ]
+  },
+  "targetUltrareview": {
+    "condition": {"start":12960648,"end":12960689,"bytes":41,"sha256":"e0078e43ebd5742dce73de4d2eb1cd7635639e83279a73be616daff1b99b987c"},
+    "consequent": {"start":12960690,"end":12961209,"bytes":519,"sha256":"6006551acef5e33f77d5783a9f64dd934c59c13a2a6a3472f732f0c9f70833f7"},
+    "launchedIf": {"start":12960833,"end":12961170,"bytes":337,"sha256":"28b04522ef623f3e6bec077e7ec05f43a8b46cba842578a3aed4346ea8d4f25d"},
+    "launchedBlock": {"start":12960859,"end":12961170,"bytes":311,"sha256":"089699a9a810ad5da4643e312e7f150295c9de58925dde1cfc70a9183ecca1f6"},
+    "commandTemplate": {"start":12960880,"end":12960938,"bytes":58,"sha256":"43bcf02504cf909fef24507afafeae2765e9526bdd352c940864a8ff39ae5c88","exact":"`<command-name>/ultrareview${sH?\" \"+sH:\"\"}</command-name>`"}
+  },
+  "baselineUltrareview": {
+    "condition": {"start":12950459,"end":12950500,"bytes":41,"sha256":"5583cb9beb00a6cd8e75c1dd7a58dce1f85e0dd5e9172ad2073ad2a0a5b8e204"},
+    "consequent": {"start":12950501,"end":12950683,"bytes":182,"sha256":"4f8cccea421ea61e2890c32ec0b6a16bbc5499f069a67dcd482669a07c543ac0"},
+    "launchedIfCount": 0,
+    "commandTemplateCount": 0
+  },
+  "retainedGeneratedContracts": {
+    "withinUnitCounts": {
+      "baseline": {"taskRegistry":2,"synthetic":1},
+      "target": {"taskRegistry":2,"synthetic":1}
+    },
+    "taskRegistry": {
+      "baselineProperties": [
+        {"start":12949492,"end":12949512,"bytes":20,"sha256":"11f18e5954b640f2cf8d120f68d7c7237b76b6b1becefd6864aed4b063415859"},
+        {"start":12950620,"end":12950640,"bytes":20,"sha256":"11f18e5954b640f2cf8d120f68d7c7237b76b6b1becefd6864aed4b063415859"}
+      ],
+      "targetProperties": [
+        {"start":12959680,"end":12959700,"bytes":20,"sha256":"a21b975d4adfb55180fcaf860c8a824e0d3c905b2a8f4fb8552b1e6c6303c52b"},
+        {"start":12960809,"end":12960829,"bytes":20,"sha256":"a21b975d4adfb55180fcaf860c8a824e0d3c905b2a8f4fb8552b1e6c6303c52b"}
+      ],
+      "canonicalBytes": 449,
+      "canonicalSha256": "64f8b3e67f7ab34fd4a92497731063f97ac6dba2970465d5dcc8991d7b49bb2f"
+    },
+    "synthetic": {
+      "baselineProperties": [
+        {"start":12950397,"end":12950419,"bytes":22,"sha256":"49753bd1d81c104e9cba754e4c99cc59e2adc902883b26b7673929556181cea8"}
+      ],
+      "targetProperties": [
+        {"start":12960586,"end":12960608,"bytes":22,"sha256":"cfdf209fd5f1d806aa5c4b476507a19297254a280563e42cde75a144055f5f3b"}
+      ],
+      "canonicalBytes": 433,
+      "canonicalSha256": "03a225b6e1c517a8e981935938174fde1594c8d9d5bd0ab7d108c841ccb21371"
+    }
+  },
+  "source": {
+    "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "tree": "c9e15117699a700016fee35a941dc3896208819f",
+    "rawPrint": {
+      "path": "src/cli/print.ts",
+      "blob": "de5e84cc7614cb2b24ad64b447ed7797b6c81c80",
+      "bytes": 218976,
+      "chars": 218816,
+      "sha256": "e491160d1a4c417756b97fd921955d4af4007b851043381c83cc819beeafc690",
+      "declaration": {"start":37044,"end":170990,"bytes":134070,"sha256":"9d151478e5fd4fb1810d5cccf03a795bc287581e2c0702b1ac4a524635dc0e97"},
+      "ultrareviewCondition": {"start":156490,"end":156538,"bytes":48,"sha256":"b738fd184fcb5832d7ab0dd2558ba25707413295a723cbbf6e1639c715e532d7"},
+      "ultrareviewBlock": {"start":156540,"end":158340,"bytes":1800,"sha256":"afcdd201ce6ce7c11a756bfa5a37a52aa675a558cb383ccc64b074e55c45df68"},
+      "launchedIf": {"start":157083,"end":158144,"bytes":1061,"sha256":"85d83932108ed14fc47817ccabf67efec8e88e2052b01445e5ad0ecb550b2fc7"},
+      "launchedBlock": {"start":157117,"end":158144,"bytes":1027,"sha256":"3017cb006066b326b3ba48ef56f6078c090894e2588f589a8be3db86466394e4"},
+      "commandTemplate": {"start":157227,"end":157309,"bytes":82,"sha256":"82bbd16360d2037696102354e60cea90cf0d2b1478f0e2f98b1536910908f9e0"},
+      "xmlImport": {"start":6461,"end":6624,"bytes":163,"sha256":"62ba5dce28ca946ed2e67f7e9909dba68bd4d07fbbfbf47201e5b76427420c6e"}
+    },
+    "packagedPrint": {
+      "path": "src/cli/print.ts",
+      "bytes": 219152,
+      "chars": 218992,
+      "sha256": "b6c97d7a85c94dfa50e05d8e20179748666a4387f2efb6de25bfc089bb8dcf13",
+      "declaration": {"start":37115,"end":171098,"bytes":134107,"sha256":"91e60665238259e6bde5ab8f2d8634744c390a15d7b24ebdbec65cddf044b8b7"},
+      "ultrareviewBlock": {"start":156648,"end":158448,"bytes":1800,"sha256":"afcdd201ce6ce7c11a756bfa5a37a52aa675a558cb383ccc64b074e55c45df68"},
+      "launchedIf": {"start":157191,"end":158252,"bytes":1061,"sha256":"85d83932108ed14fc47817ccabf67efec8e88e2052b01445e5ad0ecb550b2fc7"},
+      "commandTemplate": {"start":157335,"end":157417,"bytes":82,"sha256":"82bbd16360d2037696102354e60cea90cf0d2b1478f0e2f98b1536910908f9e0"},
+      "producers": [
+        {"path":"recovery/cases/2.1.116-to-2.1.117/recovered/replay-ccd-session-rating-telemetry-source-gap.mjs","bytes":11620,"sha256":"57f22c7b3d0a3ec74c96ae8b466cdb7b51dc8d09070fee2918da126d26fd786b"},
+        {"path":"recovery/cases/2.1.116-to-2.1.117/recovered/replay-headless-streaming-test-export-source-gap.mjs","bytes":6135,"sha256":"7c6fb954784ae648d43fa43d6ba80e055cdd126d277f9123c3119d7d422a9b1b"}
+      ]
+    },
+    "xmlConstants": {
+      "path": "src/constants/xml.ts",
+      "blob": "158b31931e9a2f4147ba5c8303f7cf9612be9904",
+      "bytes": 3325,
+      "sha256": "cd9e9a24c5696065cf1194f633afac33914079c34054a347d8aa8b26a8058a48",
+      "COMMAND_NAME_TAG": {"start":78,"end":111,"bytes":33,"sha256":"67fefd9431f131c78f4870ad692cc04af7f3be7605e52526f21fce92b178cc27","value":"command-name"},
+      "LOCAL_COMMAND_STDOUT_TAG": {"start":517,"end":566,"bytes":49,"sha256":"09f909463d5aaa61cfdbc98569ee85da3fd5c960857c3408e4c30e5a23f23ebe","value":"local-command-stdout"}
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The exact Target117 source already contains the authenticated launched-message replay. Its runHeadlessStreaming snapshot omits the retained taskRegistry and synthetic response properties, as well as other target-runtime context such as forkContextMessages. Replaying the branch is a no-op, while replacing the whole function from any later source would mix unrelated release evolution."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/headless-streaming-whole-unit-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_HEADLESS_STREAMING_WHOLE_UNIT_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

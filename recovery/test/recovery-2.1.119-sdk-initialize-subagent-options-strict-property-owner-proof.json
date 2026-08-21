@@ -1,0 +1,433 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-static-production-strict-property-owner-evidence-proof",
+  "criterion": "complete-unit-predecessor-schema-consumer-exact-source-gap-v1",
+  "evidenceIds": [
+    "target119-sdk-initialize-subagent-options-complete-unit-predecessor-proof",
+    "target119-sdk-initialize-subagent-options-six-row-strict-partition-proof",
+    "target119-sdk-initialize-subagent-options-inherited-append-prompt-proof",
+    "target119-sdk-initialize-subagent-options-forward-transfer-diff-proof",
+    "target119-sdk-initialize-subagent-options-schema-streaming-graph-proof",
+    "target119-sdk-initialize-subagent-options-exact-source-gap-proof",
+    "target119-sdk-initialize-subagent-options-static-no-replay-proof"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      },
+      {
+        "phase": "post-u21759",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 382108,
+          "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3290710,
+          "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"
+        }
+      },
+      {
+        "phase": "post-u21878",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 383456,
+          "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3297173,
+          "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"
+        }
+      }
+    ]
+  },
+  "inputs": {
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "dependencyProofs": {
+      "sdkSchemaHelper": {
+        "path": "recovery/cases/2.1.118-to-2.1.119/recovered/sdk-control-inherited-schema-owner-overrides.mjs",
+        "bytes": 2111,
+        "sha256": "6712b8a4ff3185ff82a3d43247cf0de63be3e50e8a8f198fcff93bc951a29d96"
+      },
+      "sdkSchemaFixture": {
+        "path": "recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.json",
+        "bytes": 11673,
+        "sha256": "9ab15cac8f93fd21a0b40b59f1b78302029d2535c620592b302952b803ea738d"
+      },
+      "streamingHelper": {
+        "path": "recovery/cases/2.1.118-to-2.1.119/recovered/headless-streaming-strict-residue-owner-overrides.mjs",
+        "bytes": 2404,
+        "sha256": "22ff5f0ea8e5917c768cf56aadd76a021b14b1682503e28c7cc7b54ba27cd253"
+      },
+      "streamingFixture": {
+        "path": "recovery/test/recovery-2.1.119-headless-streaming-strict-residue-owner-proof.json",
+        "bytes": 32535,
+        "sha256": "138ada13ecf04d5033617a74e4d7a6a505d5a2643f8c722cb256af6419abcbe5"
+      }
+    }
+  },
+  "snapshotPartitions": {
+    "rowTupleSchema": [
+      "value",
+      "literalKind",
+      "targetAdded",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber",
+      "target.start",
+      "target.end",
+      "structural.index",
+      "structural.classification",
+      "structural.sourceHash",
+      "disposition",
+      "ownerPaths"
+    ],
+    "ownerDescriptor": {
+      "rows": 14,
+      "jsonBytes": 5678,
+      "sha256": "698aa5fd263b8c6dcba01db450e1a35f48460f2ab9047a603685d9ddacff35cd"
+    },
+    "ownerTupleDescriptor": {
+      "rows": 14,
+      "jsonBytes": 2654,
+      "sha256": "2c99c7b9f9eefd3a155e7924c3724c2f365e2d76032d9cd096d10629667564a0"
+    },
+    "addedDescriptor": {
+      "rows": 10,
+      "jsonBytes": 11600,
+      "sha256": "5bda226ea2f4e6271bb467a70a27366a88531cdb7c39ed91f10d904a8de550a4"
+    },
+    "addedTupleDescriptor": {
+      "rows": 10,
+      "jsonBytes": 1902,
+      "sha256": "75bbecb113aa84afcfc35de3f1879610be0bea4dcc66a491a95734419af5fdf0"
+    },
+    "strictDescriptor": {
+      "rows": 6,
+      "jsonBytes": 3085,
+      "sha256": "50dccdb0c52f890b4f5e030d18ddeb873cc0404e99f200a8bd7b1e1447494eea"
+    },
+    "strictTupleDescriptor": {
+      "rows": 6,
+      "jsonBytes": 1171,
+      "sha256": "9592555a2099a53aa9bc985f8aed14bad1f1f7a41f54b520455c8f621ed30f55"
+    },
+    "ownerTuples": [
+      ["appendSubagentSystemPrompt", "property", true, 16, 17, 13565531, 13565557, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["appendSubagentSystemPrompt", "property", true, 16, 18, 13565569, 13565595, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["appendSubagentSystemPrompt", "property", true, 16, 19, 13565598, 13565624, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["forwardSubagentText", "property", true, 0, 14, 13565789, 13565808, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["forwardSubagentText", "property", true, 0, 15, 13565820, 13565839, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["forwardSubagentText", "property", true, 0, 16, 13565842, 13565861, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["aliases", "property", true, 193, 198, 13566746, 13566753, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["aliases", "property", true, 193, 199, 13566756, 13566763, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["aliases", "property", true, 193, 200, 13566774, 13566781, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["tengu_sdk_init_handshake", "string", false, 2, 2, 13567331, 13567357, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["uptime_ms", "property", false, 1, 1, 13567359, 13567368, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["mcp_client_count", "property", false, 1, 1, 13567403, 13567419, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["mcp_pending_count", "property", false, 1, 1, 13567437, 13567454, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]],
+      ["randomUUID", "property", true, 177, 197, 13567642, 13567652, 21747, "unresolved", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "source-runtime-covered", ["cli/print.ts"]]
+    ],
+    "addedTupleIndexesIntoOwner": [0, 1, 2, 3, 4, 5, 6, 7, 8, 13],
+    "strictTupleIndexesIntoOwner": [0, 1, 2, 3, 4, 5],
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 512,
+      "sha256": "7c9227fb554044ecf7015c09fc0d94c61c2ed047ed2eb933b8d72fe5f6fc6c4e"
+    },
+    "coverageGraphDescriptor": {
+      "rows": 3,
+      "jsonBytes": 3940,
+      "sha256": "e7ba645e68c01384052d538b8a1db95293b0a7182f52376483c99e3a11f4360e"
+    },
+    "coverageGraphTupleSchema": ["targetIndex", "start", "end", "nodeType", "sourceHash", "structuralClass", "disposition", "ownerIds", "evidenceIds"],
+    "coverageGraphTupleDescriptor": {
+      "rows": 3,
+      "jsonBytes": 1281,
+      "sha256": "2def6a3d931ce7c1f691b76cbdee3fd6b48ddf1739fe42323d752be0707072be"
+    },
+    "coverageGraphTuples": [
+      [20928, 12587243, 12606147, "VariableDeclaration", "5b83c0b86db4dfed603a25340c9f5f0f20c2f1e929cf924de00bdb55bd7b7199", "unresolved", "source-runtime-covered", ["owner-src-entrypoints-sdk-controlSchemas-ts"], ["target119-sdk-control-inherited-schema-authenticated-unit", "target119-sdk-control-inherited-schema-predecessor-replay-proof", "target119-sdk-control-forward-subagent-runtime-graph-proof", "target119-sdk-control-source-replay-blocker", "target119-sdk-control-inherited-schema-complete-unit-test"]],
+      [21742, 13522235, 13562851, "FunctionDeclaration", "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["target119-headless-streaming-complete-unit-predecessor-diff-proof", "target119-headless-streaming-production-strict-partition-proof", "target119-headless-streaming-build-version-macro-source-proof", "target119-headless-streaming-inherited-control-contract-proof", "target119-headless-streaming-caller-schema-source-graph-proof", "target119-headless-streaming-static-no-replay-proof"]],
+      [21747, 13565069, 13567674, "FunctionDeclaration", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["source-map-attribution", "semantic-test"]]
+    ],
+    "postU21759Coverage": {
+      "coverageTargetDescriptor": {
+        "rows": 1,
+        "jsonBytes": 1878,
+        "sha256": "09900cf24cc91232a9d0ec4b116e6af1934dae6eca9588120a09b8af66db92fb"
+      },
+      "coverageGraphDescriptor": {
+        "rows": 3,
+        "jsonBytes": 5306,
+        "sha256": "bdf98b41bbeae466edd3ccf0d8bfe0740ceb3bafdf0778e3a44ce124d59b7375"
+      },
+      "coverageGraphTupleDescriptor": {
+        "rows": 3,
+        "jsonBytes": 1744,
+        "sha256": "299d7e57c2b44d0d79a1998c268021ba6d264f1c721b3c7c11a96bd779ce57ec"
+      },
+      "coverageGraphTuples": [
+        [20928, 12587243, 12606147, "VariableDeclaration", "5b83c0b86db4dfed603a25340c9f5f0f20c2f1e929cf924de00bdb55bd7b7199", "unresolved", "source-runtime-covered", ["owner-src-entrypoints-sdk-controlSchemas-ts"], ["target119-sdk-control-inherited-schema-authenticated-unit", "target119-sdk-control-inherited-schema-predecessor-replay-proof", "target119-sdk-control-forward-subagent-runtime-graph-proof", "target119-sdk-control-source-replay-blocker", "target119-sdk-control-inherited-schema-complete-unit-test"]],
+        [21742, 13522235, 13562851, "FunctionDeclaration", "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["target119-headless-streaming-complete-unit-predecessor-diff-proof", "target119-headless-streaming-production-strict-partition-proof", "target119-headless-streaming-build-version-macro-source-proof", "target119-headless-streaming-inherited-control-contract-proof", "target119-headless-streaming-caller-schema-source-graph-proof", "target119-headless-streaming-static-no-replay-proof"]],
+        [21747, 13565069, 13567674, "FunctionDeclaration", "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246", "unresolved", "source-runtime-covered", ["owner-src-cli-print-ts"], ["target119-sdk-initialize-subagent-options-complete-unit-predecessor-proof", "target119-sdk-initialize-subagent-options-six-row-strict-partition-proof", "target119-sdk-initialize-subagent-options-inherited-append-prompt-proof", "target119-sdk-initialize-subagent-options-forward-transfer-diff-proof", "target119-sdk-initialize-subagent-options-schema-streaming-graph-proof", "target119-sdk-initialize-subagent-options-exact-source-gap-proof", "target119-sdk-initialize-subagent-options-static-no-replay-proof"]]
+      ]
+    },
+    "ownerCatalogDescriptor": {
+      "rows": 2,
+      "jsonBytes": 159,
+      "sha256": "97d60b7ce3084d39a426e8318f9a726404adb126bd1c667d961db807a63331db"
+    },
+    "ownerCatalog": [
+      {"id": "owner-src-cli-print-ts", "path": "src/cli/print.ts"},
+      {"id": "owner-src-entrypoints-sdk-controlSchemas-ts", "path": "src/entrypoints/sdk/controlSchemas.ts"}
+    ]
+  },
+  "units": {
+    "baselineInitialize": {
+      "release": "2.1.118",
+      "index": 20841,
+      "role": "manual predecessor handleInitializeRequest",
+      "classification": "unmatched-baseline",
+      "nodeType": "FunctionDeclaration",
+      "start": 13084479,
+      "end": 13086963,
+      "bytes": 2484,
+      "tokenCount": 857,
+      "sha256": "a75099836d960e24126653cde863af4a07cd8fadddc209d7c4a03026cf5b84d5",
+      "coarseHash": "58ba7bb428790c35d17641de399b3b5c1c9dc6ee250e12f31a87045718b229ef",
+      "bodyStatements": 18
+    },
+    "targetInitialize": {
+      "release": "2.1.119",
+      "index": 21747,
+      "role": "complete handleInitializeRequest production-strict owner",
+      "classification": "unresolved",
+      "manualPredecessorUnitIndex": 20841,
+      "nodeType": "FunctionDeclaration",
+      "start": 13565069,
+      "end": 13567674,
+      "bytes": 2605,
+      "tokenCount": 889,
+      "sha256": "5f2076ff48afe476e93853b777aa2bb58b1ae80b026b59cf9aa0b81f2080d246",
+      "coarseHash": "0ec7f01e70ab6d02a5fda6ec5b08294dc10c044f3129c24146fd43621b984347",
+      "unknownFreeIdentifierCount": 0,
+      "bodyStatements": 19
+    },
+    "schemaDependency": {
+      "index": 20928,
+      "nodeType": "VariableDeclaration",
+      "start": 12587243,
+      "end": 12606147,
+      "bytes": 18904,
+      "tokenCount": 4192,
+      "sha256": "5b83c0b86db4dfed603a25340c9f5f0f20c2f1e929cf924de00bdb55bd7b7199"
+    },
+    "streamingDependency": {
+      "index": 21742,
+      "nodeType": "FunctionDeclaration",
+      "start": 13522235,
+      "end": 13562851,
+      "bytes": 40616,
+      "tokenCount": 14824,
+      "sha256": "6df04c4398adb09f0be6dbd2613e441e9ea6b228417124b036ab44ff8db992d1"
+    }
+  },
+  "predecessorProof": {
+    "canonicalTokenStreams": {
+      "baseline": {"tokens": 857, "jsonBytes": 4231, "sha256": "61a7c8955c0491681a9925a9431161052d42559eaacbedbd3dfe6d299618dbb5"},
+      "target": {"tokens": 889, "jsonBytes": 4395, "sha256": "677346090d9aeafa7c03bb0d3d0a4db4f31aacc8fa22e9dcc3421f50739793fd"}
+    },
+    "normalizedCompleteUnitDiff": {
+      "format": "gnu-diff-U0-one-canonical-token-per-line",
+      "baselineLabel": "baseline-u20841",
+      "targetLabel": "target-u21747",
+      "bytes": 212,
+      "sha256": "028473f8cb502cd84e135cf92a8d5fa850a9357abb082cc5bee724de2540f999",
+      "hunks": 2,
+      "addedTokens": 32,
+      "deletedTokens": 0
+    },
+    "fragments": {
+      "inheritedAppendSubagentSystemPrompt": {
+        "baseline": {"start": 13084936, "end": 13085035, "bytes": 99, "sha256": "88eb6c656149c68a4729b94393f2b3fe0c75fde635f964c689f1568591d524ee"},
+        "target": {"start": 13565526, "end": 13565625, "bytes": 99, "sha256": "88eb6c656149c68a4729b94393f2b3fe0c75fde635f964c689f1568591d524ee"},
+        "canonical": {"tokens": 17, "jsonBytes": 93, "sha256": "0fa1288bd893be10113e91f7854550f3b41406278c51f38a110a14b29a9e2048"}
+      },
+      "newForwardSubagentText": {
+        "target": {"start": 13565784, "end": 13565862, "bytes": 78, "sha256": "1d2a5e563ed9d01db6f9d563bf99b4e907994465bec669eccf93039364f0be85"},
+        "canonical": {"tokens": 17, "jsonBytes": 93, "sha256": "0fa1288bd893be10113e91f7854550f3b41406278c51f38a110a14b29a9e2048"}
+      },
+      "newAliasesConditional": {
+        "target": {"start": 13566754, "end": 13566788, "bytes": 34, "sha256": "0e6cb8068ad2bc356013b9bfd4642c0b6244139f2c4ceeeae678d7f494a5e4e3"},
+        "canonical": {"tokens": 12, "jsonBytes": 60, "sha256": "ab08ed43b94817e2b1a07bb982e139df384d95a112c74d9785cd8261c6c20760"}
+      }
+    }
+  },
+  "strictPropertyProof": {
+    "appendSubagentSystemPrompt": {
+      "baselineUnitOccurrences": [
+        {"tokenIndex": 133, "start": 13084941, "end": 13084967, "neighborhoodRadius": 40, "neighborhoodTokens": 81, "neighborhoodJsonBytes": 443, "neighborhoodSha256": "a735ae0779f089376ceb5ae9f37cda9722a57272ad44041bb1fb11bb1ac5d5d4"},
+        {"tokenIndex": 140, "start": 13084979, "end": 13085005, "neighborhoodRadius": 40, "neighborhoodTokens": 81, "neighborhoodJsonBytes": 443, "neighborhoodSha256": "745576cb3fb2babee1d74a4e0e1eede1ebd9eb6ed3b834c8f3d5c290fcbc8a5f"},
+        {"tokenIndex": 144, "start": 13085008, "end": 13085034, "neighborhoodRadius": 40, "neighborhoodTokens": 81, "neighborhoodJsonBytes": 428, "neighborhoodSha256": "8f79efab303fea77951c0fe9359fdd0fa7ff3a3d3cbcd4c9afae549be30a64c7"}
+      ],
+      "targetUnitOccurrences": [
+        {"tokenIndex": 133, "start": 13565531, "end": 13565557, "targetOccurrenceNumber": 17, "neighborhoodRadius": 40, "neighborhoodTokens": 81, "neighborhoodJsonBytes": 443, "neighborhoodSha256": "a735ae0779f089376ceb5ae9f37cda9722a57272ad44041bb1fb11bb1ac5d5d4"},
+        {"tokenIndex": 140, "start": 13565569, "end": 13565595, "targetOccurrenceNumber": 18, "neighborhoodRadius": 40, "neighborhoodTokens": 81, "neighborhoodJsonBytes": 443, "neighborhoodSha256": "745576cb3fb2babee1d74a4e0e1eede1ebd9eb6ed3b834c8f3d5c290fcbc8a5f"},
+        {"tokenIndex": 144, "start": 13565598, "end": 13565624, "targetOccurrenceNumber": 19, "neighborhoodRadius": 40, "neighborhoodTokens": 81, "neighborhoodJsonBytes": 428, "neighborhoodSha256": "8f79efab303fea77951c0fe9359fdd0fa7ff3a3d3cbcd4c9afae549be30a64c7"}
+      ],
+      "baselineGlobalCount": 16,
+      "targetGlobalCount": 20,
+      "disposition": "inherited-byte-equal-inside-manual-predecessor"
+    },
+    "forwardSubagentText": {
+      "baselineUnitOccurrences": [],
+      "targetUnitOccurrences": [
+        {"tokenIndex": 184, "start": 13565789, "end": 13565808, "targetOccurrenceNumber": 14},
+        {"tokenIndex": 191, "start": 13565820, "end": 13565839, "targetOccurrenceNumber": 15},
+        {"tokenIndex": 195, "start": 13565842, "end": 13565861, "targetOccurrenceNumber": 16}
+      ],
+      "baselineGlobalCount": 0,
+      "targetGlobalCount": 16,
+      "disposition": "new-complete-unit-diff-statement"
+    }
+  },
+  "compiledDependencyGraph": {
+    "dependencyTargetIndices": [20928, 21742],
+    "appendSubagentSystemPromptOccurrences": [[8823231, 14024], [8823278, 14024], [8824915, 14024], [8824952, 14024], [11161951, 18223], [11161995, 18223], [11215289, 18310], [11215318, 18310], [12588033, 20928], [13490744, 21708], [13492635, 21708], [13497456, 21708], [13508937, 21709], [13509607, 21709], [13536435, 21742], [13536464, 21742], [13565531, 21747], [13565569, 21747], [13565598, 21747], [13680586, 21878]],
+    "forwardSubagentTextOccurrences": [[7978212, 12841], [11162261, 18223], [11162298, 18223], [11212149, 18310], [11215479, 18310], [12589474, 20928], [13490928, 21708], [13492821, 21708], [13497642, 21708], [13509139, 21709], [13509880, 21709], [13536673, 21742], [13536695, 21742], [13565789, 21747], [13565820, 21747], [13565842, 21747]],
+    "fragments": {
+      "schemaEndpoint": {"targetIndex": 20928, "start": 12589474, "end": 12589516, "bytes": 42, "sha256": "c44f3f2953f58aa202a87b7b6dd2fe5edf15470a770058a5aec3af2e91e9c27f", "text": "forwardSubagentText:E.boolean().optional()"},
+      "streamingConsumer": {"targetIndex": 21742, "start": 13536673, "end": 13536714, "bytes": 41, "sha256": "c997a17d381a898f0be7b0268741dbac6b15ae4e091dea122abc9c040aac0b68", "text": "forwardSubagentText:D.forwardSubagentText"},
+      "initializeTransfer": {"targetIndex": 21747, "start": 13565784, "end": 13565862, "bytes": 78, "sha256": "1d2a5e563ed9d01db6f9d563bf99b4e907994465bec669eccf93039364f0be85", "text": "if(H.forwardSubagentText!==void 0)Y.forwardSubagentText=H.forwardSubagentText;"}
+    },
+    "dependencyProofContracts": {
+      "schemaTargetIndex": 20928,
+      "schemaExport": "TARGET119_SDK_CONTROL_INHERITED_SCHEMA_OWNER_OVERRIDES",
+      "streamingTargetIndex": 21742,
+      "streamingExport": "TARGET119_HEADLESS_STREAMING_STRICT_RESIDUE_OWNER_OVERRIDES",
+      "streamingDependsOnSchema": true
+    }
+  },
+  "sourceGraph": {
+    "sourcePath": "src/cli/print.ts",
+    "baselineHistorical": {
+      "file": {"bytes": 220728, "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6", "gitBlobSha1": "abb0daa1732e1f5b5845c7a0afc52faa3162567c"},
+      "handleInitializeRequest": {"characterStart": 178758, "characterEnd": 185459, "byteStart": 178894, "byteEnd": 185597, "bytes": 6703, "sha256": "324145b5d8686e5cd53aba2f7b12297c44273bd1ed97f5e741d1106f60ef8eac"},
+      "markerCounts": {"appendSubagentSystemPrompt": 0, "forwardSubagentText": 0, "excludeDynamicSections": 0, "aliases": 0, "tengu_sdk_init_handshake": 0, "uptime_ms": 0, "mcp_client_count": 0, "mcp_pending_count": 0, "randomUUID": 1}
+    },
+    "targetStates": [
+      {
+        "name": "historical-or-raw-target119",
+        "file": {"bytes": 228505, "sha256": "e4cc8072e34fb6aa64ebd8f7a4a793c55e748b98bc25d9d446426115da264537", "gitBlobSha1": "76f82223aace2f18deb5fcc9811c7f950bfe3284"},
+        "handleInitializeRequest": {"characterStart": 181664, "characterEnd": 188540, "byteStart": 181800, "byteEnd": 188678, "bytes": 6878, "sha256": "cb44da0bcd6a1b19ac85b9746f1716f0762e656fc3f138fdb0a4ddf18bef5233"},
+        "markerCounts": {"appendSubagentSystemPrompt": 0, "forwardSubagentText": 0, "excludeDynamicSections": 4, "aliases": 0, "tengu_sdk_init_handshake": 0, "uptime_ms": 0, "mcp_client_count": 0, "mcp_pending_count": 0, "randomUUID": 1}
+      },
+      {
+        "name": "fresh-package-target119",
+        "file": {"bytes": 228328, "sha256": "036c909aa7ef9278d40e2ceea395eb5aee87eb51dc683e7c5fc270cbaab8c951", "gitBlobSha1": "11b51a6546fdfeb19af37e42c424c715daefadb3"},
+        "handleInitializeRequest": {"characterStart": 181487, "characterEnd": 188363, "byteStart": 181623, "byteEnd": 188501, "bytes": 6878, "sha256": "cb44da0bcd6a1b19ac85b9746f1716f0762e656fc3f138fdb0a4ddf18bef5233"},
+        "markerCounts": {"appendSubagentSystemPrompt": 0, "forwardSubagentText": 0, "excludeDynamicSections": 4, "aliases": 0, "tengu_sdk_init_handshake": 0, "uptime_ms": 0, "mcp_client_count": 0, "mcp_pending_count": 0, "randomUUID": 1}
+      }
+    ],
+    "laterSource121": {
+      "file": {"bytes": 248102, "sha256": "0b838a6f74645f962c29709e71824310bf08f8a327727c2af577c58d75e4f3f0", "gitBlobSha1": "aa21a37e2211339c97c1c035bca34c7817ed10ea"},
+      "handleInitializeRequest": {"characterStart": 198510, "characterEnd": 205811, "byteStart": 198654, "byteEnd": 205957, "bytes": 7303, "sha256": "061d8bb316c00af9ba4bae8bc575556f3ddffda04339927f3752ec64978611c5"},
+      "markerCounts": {"appendSubagentSystemPrompt": 4, "forwardSubagentText": 4, "excludeDynamicSections": 4, "aliases": 0, "tengu_sdk_init_handshake": 0, "uptime_ms": 0, "mcp_client_count": 0, "mcp_pending_count": 0, "randomUUID": 1},
+      "appendTransfer": {"characterStart": 200122, "characterEnd": 200257, "byteStart": 200266, "byteEnd": 200401, "bytes": 135, "sha256": "db098b65578ee15cbd88294371419fed511b5376e7901fe87f945612e5db928e"},
+      "forwardTransfer": {"characterStart": 200371, "characterEnd": 200485, "byteStart": 200515, "byteEnd": 200629, "bytes": 114, "sha256": "d46ee4e4cf05df8526270d552d2959c185c6943903dbf5e16df7d00c932ba91d"},
+      "streamingForwardProperty": {"characterStart": 93280, "characterEnd": 93328, "byteStart": 93324, "byteEnd": 93372, "bytes": 48, "sha256": "e9f6edb65d5f7f054be8e2009af5b72da57e397349310737b7a17996fe95af21"}
+    },
+    "controlSchemas": {
+      "historicalTarget119": {
+        "file": {"bytes": 26131, "sha256": "f116dd669dd76079ea53810a0b9b540aad5b85a0ace8b2b56eb51230e1f6c85c", "gitBlobSha1": "7ffb6173c2bc61625dabe5695bc076ab7151ccef"},
+        "initializeDeclaration": {"characterStart": 1891, "characterEnd": 3915, "byteStart": 1891, "byteEnd": 3915, "bytes": 2024, "sha256": "4f29d5b774d74e7b6bb98bc4d6f75a40cb6fd5b274b15201375d11d5a0b349a3"},
+        "markerCounts": {"appendSubagentSystemPrompt": 0, "forwardSubagentText": 0}
+      },
+      "laterSource121": {
+        "file": {"bytes": 35719, "sha256": "b5c241c3d26fd1a0397d70a90c665bcfe314a5fd4baf0b5ba43215e2e7f9a6ad", "gitBlobSha1": "1d6c1de8cd93f73cd6f73fb9b3a1726d49b45fcb"},
+        "initializeDeclaration": {"characterStart": 2122, "characterEnd": 4756, "byteStart": 2122, "byteEnd": 4756, "bytes": 2634, "sha256": "fefdfc4ef772cf5b7b149909dc915182dda8fbf4fc3d1594db028d0daf13ed39"},
+        "markerCounts": {"appendSubagentSystemPrompt": 1, "forwardSubagentText": 1},
+        "forwardProperty": {"characterStart": 4594, "characterEnd": 4637, "byteStart": 4594, "byteEnd": 4637, "bytes": 43, "sha256": "580cde4dcc019a20a29d2d4a48269596cc42fceccc03a2ed429605d02c6094d8"}
+      }
+    },
+    "targetDirectIdentifierCalls": ["applyMainThreadAgentHooks", "formatDescriptionWithSource", "getAPIProvider", "getAccountInformation", "getAllOutputStyles", "getAppState", "getCommandName", "getCwd", "getFastModeState", "getMainThreadAgentType", "getSessionId", "getSettings_DEPRECATED", "isBuiltInAgent", "isFastModeAvailable", "isFastModeEnabled", "parseAgentsFromJson", "parseUserSpecifiedModel", "randomUUID", "registerHookCallbacks", "setInitJsonSchema", "setMainLoopModelOverride", "setMainThreadAgentType", "setSessionSkillAllowlist"]
+  },
+  "replayDisposition": {
+    "mode": "static-only",
+    "sourceReplayAuthorized": false,
+    "replayHelper": null,
+    "reasons": [
+      "Exact historical and fresh-package Target119 cli/print.ts omit appendSubagentSystemPrompt, forwardSubagentText, the compiled aliases response field, and the compiled SDK-init telemetry contract.",
+      "The later source reconstruction corroborates both subagent transfers and the u20928/u21742 schema-consumer path, but still omits the compiled aliases and SDK-init telemetry contracts and is not an exact Target119 donor.",
+      "handleInitializeRequest has twenty-three direct identifier-call dependencies, and the option graph crosses the authenticated u20928 schema and u21742 streaming units; a graph-closed replay exceeds this bounded case."
+    ]
+  },
+  "override": {
+    "key": "2.1.118-to-2.1.119:21747",
+    "targetIndex": 21747,
+    "ownerPaths": ["src/cli/print.ts"],
+    "declarations": ["handleInitializeRequest"],
+    "dependencyTargetIndices": [20928, 21742]
+  },
+  "postWiring": {
+    "expectedImpact": {
+      "productionStrictRowsChanged": 0,
+      "ownerPathsChanged": 0,
+      "coverageRowsEvidenceStrengthened": 1,
+      "sourceFilesChanged": 0,
+      "sourceReplayFiles": 0
+    }
+  },
+  "wiringRecipe": {
+    "helperPath": "./recovery/cases/2.1.118-to-2.1.119/recovered/sdk-initialize-subagent-options-strict-property-owner-overrides.mjs",
+    "sharedGenerator": ".tmp-generate-late-coverage.mjs",
+    "importExport": "TARGET119_SDK_INITIALIZE_SUBAGENT_OPTIONS_STRICT_PROPERTY_OWNER_OVERRIDES",
+    "ownerOverrideSpread": "...TARGET119_SDK_INITIALIZE_SUBAGENT_OPTIONS_STRICT_PROPERTY_OWNER_OVERRIDES",
+    "replayExport": null,
+    "combinedHarnessChangeRequired": false
+  }
+}

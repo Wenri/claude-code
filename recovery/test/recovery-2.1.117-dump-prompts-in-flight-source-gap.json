@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-dump-prompts-in-flight-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-dump-prompts-in-flight-target-fragments",
+    "target116-dump-prompts-without-in-flight-fragments",
+    "target117-dump-prompts-in-flight-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-dump-prompts-in-flight-source-gap.mjs",
+      "bytes": 6475,
+      "sha256": "1674d4d740da3b06a70af7bb65165f921e11be771a19f6c8fa0f35358637edf8"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rejectedSourceMapOwner": {
+      "path": "src/utils/headlessProfiler.ts",
+      "blob": "50aadaf22a8e5d12ba740ec1f0c88ff5bd446276",
+      "bytes": 6058,
+      "sha256": "d1861a7959235db0805b10c88e1bd28fe5b4b6c413dd4fb7f6ee214c668a3195"
+    },
+    "sourceFile": {
+      "path": "src/services/api/dumpPrompts.ts",
+      "blob": "a3a0e2ff9b5fb799fb6470b758ce6a02a708871a",
+      "input": {
+        "bytes": 7332,
+        "sha256": "ca729320f1efe28756d7f18a0c973d686fd954d1311b172013e07dbdcf729baa"
+      },
+      "output": {
+        "bytes": 7507,
+        "sha256": "478581314b3fc9e00519d4f7b42fd626ecfc98df0724058ed83f0a27365349ab"
+      },
+      "declarations": [
+        {
+          "name": "DumpState",
+          "nodeType": "TypeAliasDeclaration",
+          "start": 639,
+          "end": 939,
+          "bytes": 302,
+          "sha256": "234af8403b39a341e82904df613798be010ea424d2fdcb5cdf905617141371d3"
+        },
+        {
+          "name": "dumpRequest",
+          "nodeType": "FunctionDeclaration",
+          "start": 2726,
+          "end": 4727,
+          "bytes": 2001,
+          "sha256": "2cefc6dc766682bb1cc84d024cd3df51efc6d51e98c0b20bc928cda439b87191"
+        },
+        {
+          "name": "createDumpPromptsFetch",
+          "nodeType": "FunctionDeclaration",
+          "start": 4729,
+          "end": 7502,
+          "bytes": 2775,
+          "sha256": "caa6a8dde77ca82b8f55e42fc06ba7d791300534f7b5cd86109f65bf33fc7568"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "units": 2,
+    "residues": 4,
+    "recoveredFiles": 1,
+    "ownerOverrides": 2
+  },
+  "baselineWitnesses": [
+    {
+      "baselineUnit": [
+        10437,
+        "unmatched",
+        "FunctionDeclaration",
+        5210975,
+        5211035,
+        33,
+        "01bec42c39d33cf0a5b79a789a249ce043dff46c395f82cbd2696fced39be3db",
+        "d2e98d038c65b70ff973683aa5f2a84eeee2eed5cbd6238b03831003be0db21c"
+      ],
+      "exactSource": "function $v9(H,$,q,K){try{let _=c$(H);s09(_);return}catch{}}"
+    },
+    {
+      "baselineUnit": [
+        10438,
+        "unmatched",
+        "FunctionDeclaration",
+        5211035,
+        5211317,
+        112,
+        "5ceb12976bb361703b1ced7364e577563e72e324078e75c6d6b9187c49b61e1e",
+        "42e61fcfadf522f88783abcab5104835b7f5975c589385b7c741c7d80b3c00cc"
+      ],
+      "exactSource": "function bhK(H){let $=t09(H);return async(q,K)=>{let _=gF$.get(H)??{initialized:!1,messageCountSeen:0,lastInitDataHash:\"\",lastInitFingerprint:\"\"};if(gF$.set(H,_),K?.method===\"POST\"&&K.body){let A=new Date().toISOString();setImmediate($v9,K.body,A,_,$)}return globalThis.fetch(q,K)}}"
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 10471,
+      "owner": "src/services/api/dumpPrompts.ts",
+      "declarations": ["dumpRequest"],
+      "targetUnit": [
+        10471,
+        "unresolved",
+        "FunctionDeclaration",
+        5221124,
+        5221210,
+        42,
+        "640096eb76b1214b0810959833bf8c7a4d74588eb08f15cd9dab9337dad58c85",
+        "354db430741c0d37cab529a019e5efc9016d07b9d1dbda28fc94511d8469c345"
+      ],
+      "exactSource": "function WT9(H,$,q,K){try{let _=d$(H);JT9(_);return}catch{}finally{q.dumpInFlight=!1}}",
+      "residues": [
+        ["property", "dumpInFlight", 5221193, 5221205, 1, 0]
+      ]
+    },
+    {
+      "targetIndex": 10472,
+      "owner": "src/services/api/dumpPrompts.ts",
+      "declarations": ["DumpState", "createDumpPromptsFetch"],
+      "targetUnit": [
+        10472,
+        "unresolved",
+        "FunctionDeclaration",
+        5221210,
+        5221543,
+        129,
+        "9f07782106b798e71aaf8dfc7d0a2b207fc4beb8ca343fec3cd4594acd085583",
+        "1f787cceb8d20472408da75edaed8191b770a9e6d85495f3c956056878d91193"
+      ],
+      "exactSource": "function HSK(H){let $=XT9(H);return async(q,K)=>{let _=dU$.get(H)??{initialized:!1,messageCountSeen:0,lastInitDataHash:\"\",lastInitFingerprint:\"\",dumpInFlight:!1};if(dU$.set(H,_),K?.method===\"POST\"&&K.body&&!_.dumpInFlight){_.dumpInFlight=!0;let A=new Date().toISOString();setImmediate(WT9,K.body,A,_,$)}return globalThis.fetch(q,K)}}",
+      "residues": [
+        ["property", "dumpInFlight", 5221355, 5221367, 2, 0],
+        ["property", "dumpInFlight", 5221419, 5221431, 3, 0],
+        ["property", "dumpInFlight", 5221435, 5221447, 4, 0]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,488 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-main-run-first-dynamic-mcp-allowed-row-scoped-static-owner-v1",
+  "status": "case-owned-row-scoped-static-owner-evidence",
+  "claim": "After the bounded viewMode/focus replay, Target121 u22106 retains ten genuine owner-added rows and six build-macro rows. The first allowed key is the smallest adjacency-closed next unit: its policy-filter declaration, blocked warning, and sole spread consumer form one three-statement graph whose identifier-normalized tokens are byte-for-byte descriptor-identical in complete Target120 u22004 and Target121 u22106. Both accepted main.tsx source states already contain that exact graph in run, so no source replay is warranted. This case admits only the first allowed key at 13797608..13797615. The later allowed return branch and the other eight genuine rows remain explicit deferred identities; six VERSION/BUILD_TIME/GIT_SHA rows remain separately classified build macros.",
+  "evidenceIds": [
+    "target121-main-run-first-allowed-authenticated-compiled-lineage",
+    "target121-main-run-first-allowed-source-owner-graph",
+    "target121-main-run-first-allowed-post-replay-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-first-allowed-owner-evidence.mjs",
+      "bytes": 1426,
+      "sha256": "8e002317743c7b048f22dbb5f2554a90966f15c7699482699118e742cb8972fc"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "postViewModeReplaySnapshot": {
+      "frozenBeforeAnalysis": true,
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25395103,
+        "sha256": "87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      },
+      "knownPriorDescriptors": {
+        "typedReport": {
+          "bytes": 25717702,
+          "sha256": "f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"
+        },
+        "sourceCoverage": {
+          "bytes": 344669,
+          "sha256": "dafa823f59585697d7f696805d929a9427bc090b7bb33fa228c1a9e5d9e3ff43"
+        }
+      },
+      "compatibility": "The report and coverage must both match the exact post-viewMode-replay descriptors. Known prior/post hybrids are rejected without opening prior mutable artifacts."
+    },
+    "postDangerousReplaySnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7",
+        "projection": "postViewModeReplaySnapshot excluding dangerous-mode replay rows"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592",
+        "projection": "postViewModeReplaySnapshot"
+      }
+    },
+    "postPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4","projection":"postDangerousReplaySnapshot"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06","projection":"postDangerousReplaySnapshot"},
+      "u22106Counts": {"owner":199,"added":15,"strict":8}
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "u22106Counts": {"owner":202,"added":18,"strict":9}
+    },
+    "evolutionCompatibility": {
+      "postViewModeReplay": ["postViewModeReplay"],
+      "postDangerousReplay": ["postDangerousReplay"],
+      "postPrune": ["postPrune"],
+      "postDaemonOwner": ["postDaemonOwner"]
+    },
+    "sourceFile": {
+      "path": "src/main.tsx",
+      "auditedPackageSourceRoot": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPruneAuditedPackageSourceRoot": "/tmp/target121-prune-final.QAqOlk/2.1.121/src",
+      "postPruneSourceState": {"file":{"bytes":816903,"sha256":"75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"},"run":{"start":50568,"end":239469,"bytes":189073,"sha256":"044bac3a6f53bd31c78b2b1b0a7de0ba06a54700ea5c869c6c196da34c453f13"},"projection":"postDangerousReplay"},
+      "acceptedStates": {
+        "preViewModeReplay": {
+          "file": {
+            "bytes": 816314,
+            "sha256": "c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"
+          },
+          "run": {
+            "start": 50530,
+            "end": 238967,
+            "bytes": 188609,
+            "sha256": "cd625ff130da4c44f430dc952e22f6ee2b5bf4838b0740c55813b7d676955891"
+          },
+          "importSpecifier": {
+            "start": 13151,
+            "end": 13175,
+            "bytes": 24,
+            "sha256": "ae0d31fcd6f3d1835ca780a1441f1e37d96e01f35ff7d7dafda0291db0b3f5d4"
+          },
+          "dynamicMcpConfig": {
+            "start": 87679,
+            "end": 87739,
+            "bytes": 60,
+            "sha256": "f21926c656c0e700efa6257dbd8be570851fa451999089e521dbc27bfcb03913"
+          },
+          "scopedConfigs": {
+            "start": 91552,
+            "end": 91671,
+            "bytes": 119,
+            "sha256": "a185418b993dfd7c1f455ff1a10ef33d4bc088ce093fdabafb16c038a58dabde"
+          },
+          "allowedGraphs": [
+            {
+              "ordinal": 0,
+              "binding": {"start":92134,"end":92141,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+              "variableDeclaration": {"start":92122,"end":92212,"bytes":90,"sha256":"ad0c494b591d9d9ba13831d44e970317624ecd8b3d8f5a4c67c1c6e959bc4164"},
+              "initializer": "filterMcpServersByPolicy(scopedConfigs)",
+              "fragment": {"start":92116,"end":92487,"bytes":371,"sha256":"ddf9a4f4c217eb2f240ac2a2a5c2fb713298e21cd54284d54e36a85b1059effc"},
+              "statementKinds": ["FirstStatement","IfStatement","ExpressionStatement"],
+              "allowedIdentifierOccurrences": [
+                {"relativeStart":18,"relativeEnd":25,"parentKind":"BindingElement"},
+                {"relativeStart":353,"relativeEnd":360,"parentKind":"SpreadAssignment"}
+              ]
+            },
+            {
+              "ordinal": 1,
+              "binding": {"start":105015,"end":105022,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+              "variableDeclaration": {"start":105005,"end":105083,"bytes":78,"sha256":"9a4a521ccdb9e644fa57f097c912b1a9eeda0faa23ce7eef6b626b6da3062286"},
+              "initializer": "filterMcpServersByPolicy(configs)",
+              "fragment": {"start":104999,"end":105292,"bytes":293,"sha256":"6f5e9cea1271e076cbb8bf55e67e99327d1ea841ecc6a4142d7658c7466fa16d"},
+              "statementKinds": ["FirstStatement","IfStatement","ReturnStatement"],
+              "allowedIdentifierOccurrences": [
+                {"relativeStart":16,"relativeEnd":23,"parentKind":"BindingElement"},
+                {"relativeStart":285,"relativeEnd":292,"parentKind":"ReturnStatement"}
+              ]
+            }
+          ]
+        },
+        "postViewModeReplay": {
+          "file": {
+            "bytes": 816530,
+            "sha256": "13589f838f55a46b5eeaa551acd450ee5bdcd1fcd8e71578039e6a03d77d54c9"
+          },
+          "run": {
+            "start": 50530,
+            "end": 239183,
+            "bytes": 188825,
+            "sha256": "927d72ca12ffb99029fa491601321e807090df1181e29b678b042130451a4c80"
+          },
+          "importSpecifier": {
+            "start": 13151,
+            "end": 13175,
+            "bytes": 24,
+            "sha256": "ae0d31fcd6f3d1835ca780a1441f1e37d96e01f35ff7d7dafda0291db0b3f5d4"
+          },
+          "dynamicMcpConfig": {
+            "start": 87915,
+            "end": 87975,
+            "bytes": 60,
+            "sha256": "f21926c656c0e700efa6257dbd8be570851fa451999089e521dbc27bfcb03913"
+          },
+          "scopedConfigs": {
+            "start": 91788,
+            "end": 91907,
+            "bytes": 119,
+            "sha256": "a185418b993dfd7c1f455ff1a10ef33d4bc088ce093fdabafb16c038a58dabde"
+          },
+          "allowedGraphs": [
+            {
+              "ordinal": 0,
+              "binding": {"start":92370,"end":92377,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+              "variableDeclaration": {"start":92358,"end":92448,"bytes":90,"sha256":"ad0c494b591d9d9ba13831d44e970317624ecd8b3d8f5a4c67c1c6e959bc4164"},
+              "initializer": "filterMcpServersByPolicy(scopedConfigs)",
+              "fragment": {"start":92352,"end":92723,"bytes":371,"sha256":"ddf9a4f4c217eb2f240ac2a2a5c2fb713298e21cd54284d54e36a85b1059effc"},
+              "statementKinds": ["FirstStatement","IfStatement","ExpressionStatement"],
+              "allowedIdentifierOccurrences": [
+                {"relativeStart":18,"relativeEnd":25,"parentKind":"BindingElement"},
+                {"relativeStart":353,"relativeEnd":360,"parentKind":"SpreadAssignment"}
+              ]
+            },
+            {
+              "ordinal": 1,
+              "binding": {"start":105251,"end":105258,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+              "variableDeclaration": {"start":105241,"end":105319,"bytes":78,"sha256":"9a4a521ccdb9e644fa57f097c912b1a9eeda0faa23ce7eef6b626b6da3062286"},
+              "initializer": "filterMcpServersByPolicy(configs)",
+              "fragment": {"start":105235,"end":105528,"bytes":293,"sha256":"6f5e9cea1271e076cbb8bf55e67e99327d1ea841ecc6a4142d7658c7466fa16d"},
+              "statementKinds": ["FirstStatement","IfStatement","ReturnStatement"],
+              "allowedIdentifierOccurrences": [
+                {"relativeStart":16,"relativeEnd":23,"parentKind":"BindingElement"},
+                {"relativeStart":285,"relativeEnd":292,"parentKind":"ReturnStatement"}
+              ]
+            }
+          ]
+        },
+        "postDangerousReplay": {
+          "file": {"bytes":816786,"sha256":"ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"},
+          "run": {"start":50568,"end":239352,"bytes":188956,"sha256":"182548866a9e70349f677944468c6f500b36339fb2e99b92691ca193db6af775"},
+          "importSpecifier": {"start":13189,"end":13213,"bytes":24,"sha256":"ae0d31fcd6f3d1835ca780a1441f1e37d96e01f35ff7d7dafda0291db0b3f5d4"},
+          "dynamicMcpConfig": {"start":87953,"end":88013,"bytes":60,"sha256":"f21926c656c0e700efa6257dbd8be570851fa451999089e521dbc27bfcb03913"},
+          "scopedConfigs": {"start":91826,"end":91945,"bytes":119,"sha256":"a185418b993dfd7c1f455ff1a10ef33d4bc088ce093fdabafb16c038a58dabde"},
+          "allowedGraphs": [
+            {
+              "ordinal": 0,
+              "binding": {"start":92408,"end":92415,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+              "variableDeclaration": {"start":92396,"end":92486,"bytes":90,"sha256":"ad0c494b591d9d9ba13831d44e970317624ecd8b3d8f5a4c67c1c6e959bc4164"},
+              "initializer": "filterMcpServersByPolicy(scopedConfigs)",
+              "fragment": {"start":92390,"end":92761,"bytes":371,"sha256":"ddf9a4f4c217eb2f240ac2a2a5c2fb713298e21cd54284d54e36a85b1059effc"},
+              "statementKinds": ["FirstStatement","IfStatement","ExpressionStatement"],
+              "allowedIdentifierOccurrences": [
+                {"relativeStart":18,"relativeEnd":25,"parentKind":"BindingElement"},
+                {"relativeStart":353,"relativeEnd":360,"parentKind":"SpreadAssignment"}
+              ]
+            },
+            {
+              "ordinal": 1,
+              "binding": {"start":105289,"end":105296,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+              "variableDeclaration": {"start":105279,"end":105357,"bytes":78,"sha256":"9a4a521ccdb9e644fa57f097c912b1a9eeda0faa23ce7eef6b626b6da3062286"},
+              "initializer": "filterMcpServersByPolicy(configs)",
+              "fragment": {"start":105273,"end":105566,"bytes":293,"sha256":"6f5e9cea1271e076cbb8bf55e67e99327d1ea841ecc6a4142d7658c7466fa16d"},
+              "statementKinds": ["FirstStatement","IfStatement","ReturnStatement"],
+              "allowedIdentifierOccurrences": [
+                {"relativeStart":16,"relativeEnd":23,"parentKind":"BindingElement"},
+                {"relativeStart":285,"relativeEnd":292,"parentKind":"ReturnStatement"}
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 22004,
+    "name": "Zh5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13711458,
+    "end": 13773044,
+    "bytes": 61586,
+    "tokenCount": 16389,
+    "topDefinitionCount": 1,
+    "sha256": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0",
+    "coarseHash": "4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0",
+    "line": 18786,
+    "column": 12
+  },
+  "targetUnit": {
+    "targetIndex": 22106,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 42,
+    "name": "WS5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13779080,
+    "end": 13841990,
+    "bytes": 62910,
+    "tokenCount": 16656,
+    "topDefinitionCount": 1,
+    "sha256": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+    "coarseHash": "c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1",
+    "line": 18764,
+    "column": 12
+  },
+  "compiledAllowedGraphs": {
+    "method": "The ObjectPattern allowed property is expanded to its containing VariableDeclaration plus the next two sibling statements. Acorn name tokens are normalized to @id; definition/use offsets are relative to the three-statement fragment.",
+    "baseline": [
+      {
+        "ordinal": 0,
+        "key": {"localStart":18455,"localEnd":18462,"start":13729913,"end":13729920,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+        "property": {"localStart":18455,"localEnd":18465,"start":13729913,"end":13729923,"bytes":10,"sha256":"3e107179f2eff8f6ee83fb13bcfd8d7c8d4d86a55b34917f5ecd26a1789c598f"},
+        "boundIdentifierOccurrences": [
+          {"relativeStart":55,"relativeEnd":57,"parentType":"Property"},
+          {"relativeStart":198,"relativeEnd":200,"parentType":"SpreadElement"}
+        ],
+        "fragment": {"localStart":18408,"localEnd":18609,"start":13729866,"end":13730067,"bytes":201,"sha256":"9340b9f6d9f3bcabcda7fb7ac5c01e26b38d22c9d2bc82fda74cf24f3599810a","normalizedTokens":{"count":82,"bytes":1095,"sha256":"c4e44c4d6805ce0b0ce77ef8571986b047321b5ee48c224e713f4491f282504e"}},
+        "statementTypes": ["VariableDeclaration","IfStatement","ExpressionStatement"]
+      },
+      {
+        "ordinal": 1,
+        "key": {"localStart":21195,"localEnd":21202,"start":13732653,"end":13732660,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+        "property": {"localStart":21195,"localEnd":21205,"start":13732653,"end":13732663,"bytes":10,"sha256":"e5c28c5f28bb7cbd0c799ccb48f748ed1102339d4f8b0e543d76320e1af6a9ee"},
+        "boundIdentifierOccurrences": [
+          {"relativeStart":12,"relativeEnd":14,"parentType":"Property"},
+          {"relativeStart":159,"relativeEnd":161,"parentType":"ReturnStatement"}
+        ],
+        "fragment": {"localStart":21191,"localEnd":21352,"start":13732649,"end":13732810,"bytes":161,"sha256":"ba651232fe456a68e6edd8788d393fcce645537de18e5fcd2e36ef832b3179c6","normalizedTokens":{"count":53,"bytes":748,"sha256":"59b038528dab0aa99901e4c6a3ef27738dd302e93cb1318f9ddfa2c46c75275d"}},
+        "statementTypes": ["VariableDeclaration","IfStatement","ReturnStatement"]
+      }
+    ],
+    "target": [
+      {
+        "ordinal": 0,
+        "key": {"localStart":18528,"localEnd":18535,"start":13797608,"end":13797615,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+        "property": {"localStart":18528,"localEnd":18538,"start":13797608,"end":13797618,"bytes":10,"sha256":"2d5e1d826f1841b2bd7ae644caae455d03598cce4b0c7e233a92d728ce8d1e87"},
+        "boundIdentifierOccurrences": [
+          {"relativeStart":55,"relativeEnd":57,"parentType":"Property"},
+          {"relativeStart":198,"relativeEnd":200,"parentType":"SpreadElement"}
+        ],
+        "fragment": {"localStart":18481,"localEnd":18682,"start":13797561,"end":13797762,"bytes":201,"sha256":"6644441e857113484d9cec6935794c368ddbd37e51049a02f546b15c887b2d2d","normalizedTokens":{"count":82,"bytes":1095,"sha256":"c4e44c4d6805ce0b0ce77ef8571986b047321b5ee48c224e713f4491f282504e"}},
+        "statementTypes": ["VariableDeclaration","IfStatement","ExpressionStatement"]
+      },
+      {
+        "ordinal": 1,
+        "key": {"localStart":21268,"localEnd":21275,"start":13800348,"end":13800355,"bytes":7,"sha256":"eabc01f12ec3e7cb6db0ada0f8f37323b0cfe6d08a2a73479e7d5b62d7e63529"},
+        "property": {"localStart":21268,"localEnd":21278,"start":13800348,"end":13800358,"bytes":10,"sha256":"c44b0560cbece92863539b0a034e85e0d43e9358dec6c972a9f039c95a650f94"},
+        "boundIdentifierOccurrences": [
+          {"relativeStart":12,"relativeEnd":14,"parentType":"Property"},
+          {"relativeStart":159,"relativeEnd":161,"parentType":"ReturnStatement"}
+        ],
+        "fragment": {"localStart":21264,"localEnd":21425,"start":13800344,"end":13800505,"bytes":161,"sha256":"0df9121b67958e41beb6abf2183e2e5cc430d7e3b4dd2095b8f0ade35dc10c4c","normalizedTokens":{"count":53,"bytes":748,"sha256":"59b038528dab0aa99901e4c6a3ef27738dd302e93cb1318f9ddfa2c46c75275d"}},
+        "statementTypes": ["VariableDeclaration","IfStatement","ReturnStatement"]
+      }
+    ]
+  },
+  "reportSnapshot": {
+    "targetIndex": 22106,
+    "identityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in frozen report order; descriptors are SHA-256 of UTF-8 JSON.stringify",
+    "ownerRows": {
+      "count": 200,
+      "fullRows": {"bytes":81503,"sha256":"e139fe25f96b30824aac915f0387fd3b2d0208872b87b6c2394b4307a163b4fc"},
+      "identities": {"bytes":13503,"sha256":"f56b5605e396a33063b5ce1cdbf54723cdfefbcb4de1c87dccb13d2878029b0b"},
+      "attributionIdentities": {"bytes":16703,"sha256":"1f549ed17abcef2c46f50c6b778d263dc6d7e6c0f2cf72681f784b2362fa59a3"}
+    },
+    "addedRows": {
+      "count": 16,
+      "fullRows": {"bytes":13710,"sha256":"858bcd9dbd8cf2f42990a260470d47d742a3b52813950d118e661f0a8075c89f"},
+      "identities": {"bytes":966,"sha256":"2176929407d288662a742d65eb11807019d843c08256643f182e217d1520f1f1"},
+      "exact": [
+        ["property","allowed",13797608,13797615,65,68,true],
+        ["property","allowed",13800348,13800355,65,69,true],
+        ["number","300",13802998,13803001,60,67,true],
+        ["string","2.1.121",13808731,13808740,0,150,true],
+        ["string","2026-04-27T01:32:27Z",13808820,13808842,0,150,true],
+        ["string","16ffea721a0a39bc787a236dc19fb62307180b75",13808851,13808893,0,150,true],
+        ["property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true],
+        ["property","sessionState",13812452,13812464,28,30,true],
+        ["property","index",13815572,13815577,296,297,true],
+        ["property","isAbsolute",13822198,13822208,74,75,true],
+        ["property","error_name",13823208,13823218,13,14,true],
+        ["string","2.1.121",13825108,13825117,0,151,true],
+        ["string","2026-04-27T01:32:27Z",13825197,13825219,0,151,true],
+        ["string","16ffea721a0a39bc787a236dc19fb62307180b75",13825228,13825270,0,151,true],
+        ["property","pluginPruneHandler",13837077,13837095,0,2,true],
+        ["property","createSubcommandRoot",13840517,13840537,23,24,true]
+      ]
+    },
+    "strictRows": {
+      "count": 9,
+      "fullRows": {"bytes":4548,"sha256":"4418da70a455e83e5e8d3dc3328eea4b5d7be81636fb8d05d5e9b2b52e073746"},
+      "identities": {"bytes":587,"sha256":"70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"},
+      "exact": [
+        [22106,"string","2.1.121",13808731,13808740,150],
+        [22106,"string","2026-04-27T01:32:27Z",13808820,13808842,150],
+        [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13808851,13808893,150],
+        [22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,1],
+        [22106,"string","2.1.121",13825108,13825117,151],
+        [22106,"string","2026-04-27T01:32:27Z",13825197,13825219,151],
+        [22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13825228,13825270,151],
+        [22106,"property","pluginPruneHandler",13837077,13837095,2],
+        [22106,"property","createSubcommandRoot",13840517,13840537,24]
+      ]
+    }
+  },
+  "postDaemonOwner": {
+    "reportSnapshot": {
+      "ownerRows": {"count":202,"fullRows":{"bytes":82282,"sha256":"12667e8e660ac9d2922044a635480cabfaebf9c4dfab21c4c1c9e70e73d2d9a6"},"identities":{"bytes":13602,"sha256":"34c010ba52ab4f198005aa949999c1a9fa505e13a36b8dbf86ae1aa2f41a5b26"},"attributionIdentities":{"bytes":16834,"sha256":"e2e8255d90e0f2e763cd7dfd014c7912056de908a0fd1fd701fdc2d5d2717064"}},
+      "addedRows": {"count":18,"fullRows":{"bytes":15716,"sha256":"593670e825fbcc41f6d3f61292701a24d95b4f8382ee73fea180f5e92ba37326"},"identities":{"bytes":1065,"sha256":"3c8e691f746c6a26d6174ba0a97caf0c142ac35fefae4cae1827cb8bbd79437f"}},
+      "strictRows": {"count":9,"fullRows":{"bytes":4548,"sha256":"4418da70a455e83e5e8d3dc3328eea4b5d7be81636fb8d05d5e9b2b52e073746"},"identities":{"bytes":587,"sha256":"70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"}}
+    },
+    "restoredAddedRowsProjection": "priorViewModeReplay.removedOwnerAddedRowsExact followed by reportSnapshot.addedRows.exact"
+  },
+  "postDangerous": {
+    "reportSnapshot": {
+      "targetIndex": 22106,
+      "ownerRows": {
+        "count": 199,
+        "fullRows": {"bytes":81085,"sha256":"13cace3be55665334e303e43c341e5859b589845e474f80cbe5d1e143867e76c"},
+        "identities": {"bytes":13425,"sha256":"f00a23d93b511d06d290bd4f9b3ae4fe1d4043f168a5271d647ca430a5eb8562"},
+        "attributionIdentities": {"bytes":16609,"sha256":"700747539e464bd2a8825188794ded7398f60f62bdcac7488d797e121a388fbd"}
+      },
+      "addedRows": {
+        "count": 15,
+        "fullRows": {"bytes":13193,"sha256":"bd2b89b6f681184cad0d7216e2e5aeb23f9408261f66d6bfa95e9cab865b77ba"},
+        "identities": {"bytes":888,"sha256":"20432f175c6adaa772965d5cfb4771182166021aa931b502893fd98fe1988d38"},
+        "exactProjection": "reportSnapshot excluding removedRowsExact"
+      },
+      "strictRows": {
+        "count": 8,
+        "fullRows": {"bytes":4031,"sha256":"59c0f3f3dabcc32279a43bb2564f5ddbacff960557ae688dd16eb6db8f32cfca"},
+        "identities": {"bytes":510,"sha256":"2aecbae5c355ac1faa832d5bdff219e003fab8da75f91fd8466b496cf477f378"},
+        "exactProjection": "reportSnapshot excluding removedStrictRowsExact"
+      }
+    },
+    "removedRowsExact": ["property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true],
+    "removedStrictRowsExact": [22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,1],
+    "rowClassification": {
+      "admittedStaticOrdinals": [0],
+      "deferredProductionOrdinals": [1,2,6,7,8,9,13,14],
+      "buildMacroOrdinals": [3,4,5,10,11,12],
+      "deferredProductionValues": ["allowed","300","sessionState","index","isAbsolute","error_name","pluginPruneHandler","createSubcommandRoot"],
+      "buildMacroValues": ["2.1.121","2026-04-27T01:32:27Z","16ffea721a0a39bc787a236dc19fb62307180b75"]
+    },
+    "staticAdmission": {
+      "predictedImpact": {
+        "rawOwnerRows": 199,
+        "rawAddedRows": 15,
+        "admittedOwnerAddedRows": 1,
+        "remainingDeferredProductionRows": 8,
+        "separatelyHandledBuildMacroRows": 6,
+        "rawStrictRowsRemoved": 0,
+        "coverageRowsAddedOrReplaced": 0,
+        "predictedOwnerRows": 198,
+        "predictedAddedRows": 14,
+        "predictedStrictRows": 8,
+        "predictedCoverageRows": 1
+      }
+    },
+    "coverageProjection": "postViewModeReplay"
+  },
+  "priorViewModeReplay": {
+    "removedOwnerAddedRowsExact": [
+      ["property","viewMode",13792763,13792771,3,4,true],
+      ["string","focus",13792780,13792787,16,17,true]
+    ],
+    "ownerRowDelta": -2,
+    "addedRowDelta": -2,
+    "strictRowDelta": 0,
+    "coverageRowDelta": 0
+  },
+  "rowClassification": {
+    "admittedStaticOrdinals": [0],
+    "deferredProductionOrdinals": [1,2,6,7,8,9,10,14,15],
+    "buildMacroOrdinals": [3,4,5,11,12,13],
+    "deferredProductionValues": ["allowed","300","skipDangerousModePromptSetPreDialog","sessionState","index","isAbsolute","error_name","pluginPruneHandler","createSubcommandRoot"],
+    "buildMacroValues": ["2.1.121","2026-04-27T01:32:27Z","16ffea721a0a39bc787a236dc19fb62307180b75"]
+  },
+  "staticAdmission": {
+    "sourceOwner": "src/main.tsx::run",
+    "mode": "static-row-proof-no-source-replay",
+    "reason": "Both exact source states already contain the complete first allowed binding graph. Replaying source would be redundant and would broaden the change surface beyond a row whose definition and sole consumer are already authored.",
+    "ownerResidue": ["property","allowed",13797608,13797615,65,68,true],
+    "predictedImpact": {
+      "admittedOwnerAddedRows": 1,
+      "remainingDeferredProductionRows": 9,
+      "separatelyHandledBuildMacroRows": 6,
+      "rawStrictRowsRemoved": 0,
+      "coverageRowsAddedOrReplaced": 0,
+      "predictedOwnerRows": 199,
+      "predictedAddedRows": 15,
+      "predictedStrictRows": 9,
+      "predictedCoverageRows": 1
+    }
+  },
+  "coverageRowsDescriptor": {
+    "bytes": 504,
+    "sha256": "e486a23cc17516c26a7c03d6ee6a8188534bed98501e230dd9a2af7d61f34502"
+  },
+  "coverageRow": {
+    "targetIndex": 22106,
+    "start": 13779080,
+    "end": 13841990,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+    "structuralClass": "unresolved",
+    "disposition": "source-runtime-covered",
+    "ownerIds": ["owner-src-main-tsx"],
+    "evidenceIds": ["source-map-attribution","semantic-test"],
+    "behavior": "Compiled target unit is attributed to src/main.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+  }
+}

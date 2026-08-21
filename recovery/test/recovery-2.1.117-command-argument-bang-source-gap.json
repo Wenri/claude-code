@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-command-argument-bang-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-command-argument-bang-target-fragment",
+    "target117-command-argument-bang-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-command-argument-bang-escaping-source-gap.mjs",
+      "bytes": 11173,
+      "sha256": "bc340b43983e28c3899c2acd15e83e035e3f2ffac2cecbb90f93a59c404e92cd"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rejectedSourceMapOwner": {
+      "path": "src/memdir/memoryAge.ts",
+      "blob": "bb87bbeacd37f3885dc5d44b659bd4f4ea53a99e",
+      "bytes": 1931,
+      "sha256": "44399506ce1e1fb45dc09f6e53a90f6c44e6c9ea03a74b363ac9e0dd81adfe99"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/argumentSubstitution.ts",
+        "blob": "1deef3e7d819a7d788fe9079d54c1719e4365c7f",
+        "input": {
+          "bytes": 5079,
+          "sha256": "b9ba476d55e6099af7cc2878e80ee82fa992dadd316d617bd2f8b23fea7ec803"
+        },
+        "output": {
+          "bytes": 5694,
+          "sha256": "9815527c59ed7a4fbe71b1c15881b88201af2d811dc75f7e86062200c62f933d"
+        },
+        "declarations": [
+          {
+            "name": "substituteArguments",
+            "nodeType": "FunctionDeclaration",
+            "start": 3266,
+            "end": 5350,
+            "bytes": 2084,
+            "sha256": "fada919b2bde1f222067e85c98bd24b1ccfa670c9f828739c2365da65a07cfc4"
+          },
+          {
+            "name": "escapeBangForCommandSubstitution",
+            "nodeType": "FunctionDeclaration",
+            "start": 5514,
+            "end": 5693,
+            "bytes": 179,
+            "sha256": "3641e2f5b19737466f592ec83750e5a9a1e9a1a265c2969fd4139a5e00752e3b"
+          }
+        ]
+      },
+      {
+        "path": "src/utils/plugins/loadPluginCommands.ts",
+        "blob": "4c8807dd9f0e5489bb1db3fb9c2f01d0902b0e96",
+        "input": {
+          "bytes": 31612,
+          "sha256": "d3591a31416197cd1d209016f40ebb3b53a09d8775098a0e8bb518285e0e0256"
+        },
+        "output": {
+          "bytes": 31692,
+          "sha256": "91f6c949a931e85d918a86b2ff41399f821b7b367150915ea9f1b4e759aed6d4"
+        },
+        "declarations": [
+          {
+            "name": "createPluginCommand",
+            "nodeType": "FunctionDeclaration",
+            "start": 6303,
+            "end": 13417,
+            "bytes": 7116,
+            "sha256": "ce88963f37f5c24e6d7c836a54b842cc50afda771f737fdc48db7f61eb804dc4"
+          }
+        ]
+      },
+      {
+        "path": "src/skills/loadSkillsDir.ts",
+        "blob": "b2d1e06b963aa39c0c28290cd446777c42828618",
+        "input": {
+          "bytes": 35009,
+          "sha256": "9830c1368c75b598654993ee32090c6f31ddef932e510907ffc12c2bf60b79df"
+        },
+        "output": {
+          "bytes": 35087,
+          "sha256": "6453d1b5a62756eefd715b8bab192f45e256cb646473b93e5d9fe0cf76424691"
+        },
+        "declarations": [
+          {
+            "name": "createSkillCommand",
+            "nodeType": "FunctionDeclaration",
+            "start": 8783,
+            "end": 12646,
+            "bytes": 3869,
+            "sha256": "bc28fbd334fbd7698de7cf75c6886725995ccb6caa4238f9b89e1d581119085c"
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 6,
+    "recoveredFiles": 3,
+    "callsiteWitnessUnits": 2,
+    "correctedOwners": 1,
+    "ownerOverrides": 1
+  },
+  "row": {
+    "targetIndex": 8978,
+    "owner": "src/utils/argumentSubstitution.ts",
+    "declarations": [
+      "escapeBangForCommandSubstitution",
+      "substituteArguments"
+    ],
+    "targetUnit": [
+      8978,
+      "unresolved",
+      "FunctionDeclaration",
+      4248546,
+      4248642,
+      30,
+      "c511f8945d1b0c4f72ca218d24d8ad24992dd27c5d9db09bcfb916c6fe114de5",
+      "b9020e904cb43fdf8ca3c9c0f7e373c9321869cee6223c5e47f0d0219bcb9331"
+    ],
+    "residues": [
+      ["regexp", {"flags": "g", "pattern": "`!"}, 4248579, 4248584, 1, 0],
+      ["string", "` !", 4248585, 4248590, 1, 0],
+      ["regexp", {"flags": "g", "pattern": "!`"}, 4248600, 4248605, 1, 0],
+      ["string", "! `", 4248606, 4248611, 1, 0],
+      ["regexp", {"flags": "gm", "pattern": "(^|\\s)!"}, 4248621, 4248632, 1, 0],
+      ["string", "$1\\!", 4248633, 4248640, 1, 0]
+    ]
+  },
+  "callsiteWitnesses": [
+    {
+      "targetIndex": 13937,
+      "owner": "src/utils/plugins/loadPluginCommands.ts",
+      "declaration": "createPluginCommand",
+      "targetUnit": [
+        13937,
+        "unresolved",
+        "FunctionDeclaration",
+        8776675,
+        8779098,
+        913,
+        "82fe6e486837f20c8134b9a7d8f5c994d5a2ca62e718f9c1e9d2ca8306af3636",
+        "34b6f0ef771bd89222c82a5e990672dac306664363ac2c10478881cb212d1704"
+      ],
+      "callStart": 8778401,
+      "callEnd": 8778418,
+      "call": "hhH(h,B,!0,X,_m$)"
+    },
+    {
+      "targetIndex": 14208,
+      "owner": "src/skills/loadSkillsDir.ts",
+      "declaration": "createSkillCommand",
+      "targetUnit": [
+        14208,
+        "unresolved",
+        "FunctionDeclaration",
+        8943327,
+        8944647,
+        437,
+        "b29222cf96163f189bc31eeb1c670de38e7360a7b7bcc2db98d3fa55cbc97f36",
+        "927eb8aab2d44404d904ae595879eceab926061d9786fe1232e73f396c77736f"
+      ],
+      "callStart": 8944124,
+      "callEnd": 8944141,
+      "call": "hhH(I,E,!0,z,_m$)"
+    }
+  ]
+}

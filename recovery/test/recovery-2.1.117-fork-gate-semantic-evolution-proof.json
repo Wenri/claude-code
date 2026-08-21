@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-fork-gate-static-semantic-evolution-proof-v1",
+  "status": "case-owned-static-semantic-evolution-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-fork-gate-authenticated-resolver-whole-unit",
+    "target117-fork-gate-exact-through-target120-lineage",
+    "target117-fork-gate-target121-priority-evolution-blocker"
+  ],
+  "helper": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/recovered/fork-gate-semantic-evolution-overrides.mjs",
+    "bytes": 1109,
+    "sha256": "b2328f6c971e96d559b7848d205ca3f0a119ce48aa3a613d34e0bd6ffcde3e1a"
+  },
+  "bundles": {
+    "baseline116": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "target117": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "target118": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "target119": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "target120": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target121": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    }
+  },
+  "structuralLedgers": {
+    "117": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "118": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "119": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "120": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "121": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    }
+  },
+  "baselineDisabledGate": {
+    "baselineIndex": 9826,
+    "nodeType": "FunctionDeclaration",
+    "start": 4907742,
+    "end": 4907765,
+    "bytes": 23,
+    "tokenCount": 9,
+    "sha256": "df8dcdf011bfac460799b2767e8cc1804fd16418df494854c5045e65df37c909",
+    "coarseHash": "a155493b35df5a6c931d99ce172e67ad90c86ef7b95eea21b3b475e9eb616538",
+    "source": "function ix(){return!1}"
+  },
+  "target117Resolver": {
+    "ownerPath": "src/tools/AgentTool/forkSubagent.ts",
+    "declaration": "resolveForkSubagentSource",
+    "targetIndex": 8727,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 4127668,
+    "end": 4127820,
+    "bytes": 152,
+    "tokenCount": 54,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 2,
+    "sha256": "3a85ecf9fbd495244c5c38ec1fb47189dcb469b30746a26b6646a54263efb9f0",
+    "coarseHash": "5282eb501344b3976361ccbade1c10cc5bce1719b6cd0a40d40ce585d76da1c5",
+    "normalizedAst": {
+      "chars": 1647,
+      "bytes": 1647,
+      "sha256": "5196ed6136814a7a47e1e4d7e3bf74e3ac236d7b702d81ca84f3f8808c345865"
+    },
+    "branches": [
+      { "role": "coordinator-disabled", "start": 4127683, "end": 4127709, "bytes": 26, "sha256": "d7d721f2aa57e28d591f4df380fdfb3514d1db10255c841ad9183fce69c18b11", "result": "disabled" },
+      { "role": "noninteractive-disabled", "start": 4127709, "end": 4127734, "bytes": 25, "sha256": "80c57050fd713e397e18fae2d985b920bb16f358ce5ad003963e01ac8b8bd4a0", "result": "disabled" },
+      { "role": "environment", "start": 4127734, "end": 4127770, "bytes": 36, "sha256": "698761f88d402e52d74c2670f932fb2d59d21a85172682d692337da97d8e5f81", "result": "env" },
+      { "role": "growthbook", "start": 4127770, "end": 4127803, "bytes": 33, "sha256": "99c09d908ebb30f14d86686ea79fdcabdbfda60e58fcb2fbeeaecfff644f5eec", "result": "gb_rollout" },
+      { "role": "fallback", "start": 4127803, "end": 4127819, "bytes": 16, "sha256": "6d5c4ec1eb5502b9ffec485138d43878f2f0b6cbbdd46d77fa4883e7a1ecb9bb", "result": "disabled" }
+    ]
+  },
+  "ownerResidue": {
+    "targetIndex": 8727,
+    "literalKind": "string",
+    "value": "gb_rollout",
+    "baselineOccurrenceCount": 0,
+    "targetOccurrenceNumber": 1,
+    "start": 4127790,
+    "end": 4127802,
+    "bytes": 12,
+    "sha256": "2652a9401987acce0314295771033df252ddfcf1f90190839394eee50238a623"
+  },
+  "target117OwnerClosure": {
+    "alwaysFalseCoordinatorGate": { "targetIndex": 8723, "nodeType": "FunctionDeclaration", "start": 4127304, "end": 4127328, "bytes": 24, "tokenCount": 9, "sha256": "0483d627e5319e0bb5ff40dfb85edce9835ec2496f540357fb748c89ba67674f", "coarseHash": "a155493b35df5a6c931d99ce172e67ad90c86ef7b95eea21b3b475e9eb616538" },
+    "exportTable": { "targetIndex": 8726, "nodeType": "ExpressionStatement", "start": 4127398, "end": 4127668, "bytes": 270, "tokenCount": 70, "sha256": "2fc6588153039baf12d43cd9f6d470d0ce130824617b46be9d69f23c9e082645", "coarseHash": "415060c8390c056a12276309de49647b267682cff73e1c05fa57e937c760c994" },
+    "getSource": { "targetIndex": 8728, "nodeType": "FunctionDeclaration", "start": 4127820, "end": 4127923, "bytes": 103, "tokenCount": 45, "sha256": "85d4f32ce4d6c1ab5afb79eefaf60ddd5e97cbd2515d89225c3ff9deca545472", "coarseHash": "e9199699f3a7cf9172fa5d923f545e3c75a9b5bae2210467aca721110b915a6f" },
+    "reset": { "targetIndex": 8729, "nodeType": "FunctionDeclaration", "start": 4127923, "end": 4127947, "bytes": 24, "tokenCount": 9, "sha256": "ffb4bd39a61b246259f7b134e078ada272f9dca4b32d26ba0e16540829c78a83", "coarseHash": "0ce8cd45f62b93cb69f5930e826c572174777f1e9856bfa9679bca6278e860ce" },
+    "isEnabled": { "targetIndex": 8730, "nodeType": "FunctionDeclaration", "start": 4127947, "end": 4127987, "bytes": 40, "tokenCount": 12, "sha256": "36bc7cc9a3ac4d1ecc133b1e7fe4b3c4ac337394c648c7308b58eeeb0390ca03", "coarseHash": "987673fd54c6dab809285177604d2f10fa1dd436d2715da046d7a00ef30ba67b" },
+    "constants": { "targetIndex": 8735, "nodeType": "VariableDeclaration", "start": 4130162, "end": 4130333, "bytes": 171, "tokenCount": 29, "sha256": "b17352612452f3e8fde1c4e463272e23a412cc2eca42c96f576ef45b3978a485", "coarseHash": "a1cf5a1e7c4601ec36fa21a78aafa18bc7bc6629555e388f563bff0b66071b24" },
+    "dependencies": [
+      { "role": "getIsNonInteractiveSession", "targetIndex": 458, "nodeType": "FunctionDeclaration", "start": 40191, "end": 40229, "bytes": 38, "tokenCount": 11, "sha256": "6ff2e0a7cd4ba12897fde60d164ad33a62fa39c613881ef416d692c6dacb204a", "coarseHash": "3dfa4bb3b7ca99dc8c4795b030d499531c91d41391660a38e2d67380b7b1374b" },
+      { "role": "isEnvTruthy", "targetIndex": 359, "nodeType": "FunctionDeclaration", "start": 24294, "end": 24436, "bytes": 142, "tokenCount": 57, "sha256": "424f80c51234b5f24d2d6ff0d91f37e8740754cafc2d8d2622b422857fb5ba0a", "coarseHash": "9b72cddd354ea3a29efd612abe8718ec9027a6ddfcb5910e35c3d94e04360bca" },
+      { "role": "getFeatureValueCached", "targetIndex": 6505, "nodeType": "FunctionDeclaration", "start": 2994707, "end": 2994966, "bytes": 259, "tokenCount": 130, "sha256": "9f38612ff31b3bc5e322749e70ec3c0d3db8b830e44aaccc72feb2b61d2b8601", "coarseHash": "289116eeb5db5422003e75640ddfd39f6fa1047710ff8505484d246f8e9e5310" }
+    ],
+    "telemetryCall": { "start": 4127896, "end": 4127913, "bytes": 17, "sha256": "8959ca6362517ea907d40301101565d18e1fe5b210a59c57747a429e0a1bf248" },
+    "constantLiterals": [
+      { "role": "growthbook-key", "start": 4130174, "end": 4130192, "bytes": 18, "sha256": "11c3f2ebb74cb9587c2623f0d903822bba806ac8e662bcfb61eeb5c5450bbae4" },
+      { "role": "environment-key", "start": 4130197, "end": 4130224, "bytes": 27, "sha256": "4526080bbe831d3a41633385554c765c9a24e87a8ad47cd231197ef67f396ca7" },
+      { "role": "telemetry-event", "start": 4130229, "end": 4130258, "bytes": 29, "sha256": "3aac5a2b2a3c196c886602b4e6981aafcd61fdf6cdc93ace64333365d452b896" }
+    ]
+  },
+  "exactLineage": [
+    { "version": "2.1.117", "targetIndex": 8727, "baselineUnitIndex": null, "classification": "unresolved", "nodeType": "FunctionDeclaration", "start": 4127668, "end": 4127820, "bytes": 152, "tokenCount": 54, "sha256": "3a85ecf9fbd495244c5c38ec1fb47189dcb469b30746a26b6646a54263efb9f0", "coarseHash": "5282eb501344b3976361ccbade1c10cc5bce1719b6cd0a40d40ce585d76da1c5" },
+    { "version": "2.1.118", "targetIndex": 8792, "baselineUnitIndex": 8727, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 4152515, "end": 4152667, "bytes": 152, "tokenCount": 54, "sha256": "a3284db1f4fcecabfc9c41b002ab0d81ef95129b826762b4807caaa8405fd67d", "coarseHash": "5282eb501344b3976361ccbade1c10cc5bce1719b6cd0a40d40ce585d76da1c5" },
+    { "version": "2.1.119", "targetIndex": 8906, "baselineUnitIndex": 8792, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 4200412, "end": 4200564, "bytes": 152, "tokenCount": 54, "sha256": "9897c0e27148860e7f9de1362b93eab9249bda1b1458fa54cf953e1bed496c5e", "coarseHash": "5282eb501344b3976361ccbade1c10cc5bce1719b6cd0a40d40ce585d76da1c5" },
+    { "version": "2.1.120", "targetIndex": 8978, "baselineUnitIndex": 8906, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 4229082, "end": 4229234, "bytes": 152, "tokenCount": 54, "sha256": "e0c393462dab55a17fb0a3a64da8476b4a8925727d95663c1cd3ed6e487a5718", "coarseHash": "5282eb501344b3976361ccbade1c10cc5bce1719b6cd0a40d40ce585d76da1c5" }
+  ],
+  "target121Evolution": {
+    "targetIndex": 9030,
+    "baselineUnitIndex": 8978,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 4244633,
+    "end": 4244832,
+    "bytes": 199,
+    "tokenCount": 64,
+    "sha256": "5127dd2997214cfff37fc729130f51770621d5033fb5198535e6292c7deddb82",
+    "coarseHash": "540b9722bc43fb7ce973397b259196b4c00acc3a3d68f31b8aaa239bd2af73b7",
+    "normalizedAst": { "chars": 2001, "bytes": 2001, "sha256": "53d52d67c652003311127012bf3023cf753f9a40a4bb9962e3a68e761537eb5c" },
+    "environmentBranch": { "ordinal": 2, "start": 4244674, "end": 4244731, "bytes": 57, "sha256": "11b5f904a0fe19a57d11cb8d2afae926833bd975826b5ec02bab5017bc976b58" },
+    "noninteractiveBranch": { "ordinal": 3, "start": 4244731, "end": 4244756, "bytes": 25, "sha256": "79a6d063eee5502420394c31a284dba26a90e597c52f95c946ba9fd678b73fcf" }
+  },
+  "sourceWitnesses": {
+    "rawTarget117": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "blob": "19bf495b9dcd547d3d4d9bad7f901a04651b59b8",
+      "path": "src/tools/AgentTool/forkSubagent.ts",
+      "file": { "bytes": 8744, "chars": 8724, "sha256": "3e9d55cb7a7ee3a14a2f02bf37d90d89e1cafb3ad50bf2aa3acbe62b034a00c6" },
+      "declaration": { "name": "isForkSubagentEnabled", "nodeType": "FunctionDeclaration", "start": 1268, "end": 1511, "bytes": 243, "chars": 243, "sha256": "cc6be4cec6f9f7759e6c085e2249567b600bc05725b5fbc12bd988447a959b0d" },
+      "priority": ["noninteractive-disabled", "environment-enabled", "growthbook-enabled"]
+    },
+    "laterEvolved": {
+      "commit": "eec133c16f71c17ed23445cc9ec26114ac6994ea",
+      "blob": "e6d831149c9ae6c9dbe9d14cf711cfaf19da27ef",
+      "path": "src/tools/AgentTool/forkSubagent.ts",
+      "file": { "bytes": 9575, "chars": 9555, "sha256": "8f1dfaaa31f6e22d6a17dca31117f6e74c87e350f1adfb8825aaa10d2f73a6af" },
+      "logEventImport": { "start": 384, "end": 444, "bytes": 60, "chars": 60, "sha256": "60a0643305d4426a07dbe4b8ab6e0f8c47f2bae69974ae303d10d69563c87968" },
+      "declarations": [
+        { "name": "ForkSubagentSource", "nodeType": "TypeAliasDeclaration", "start": 1329, "end": 1388, "bytes": 59, "chars": 59, "sha256": "0a3bd9d46836915ffe823bf2d391561c25ee453b9237bfb14112779bf6606ee7" },
+        { "name": "forkSubagentSource", "nodeType": "VariableStatement", "start": 1389, "end": 1445, "bytes": 56, "chars": 56, "sha256": "6bfd170a11b1857d4922eaa51c5266084694d7e407d06dc49171d3839c525a0c" },
+        { "name": "resolveForkSubagentSource", "nodeType": "FunctionDeclaration", "start": 1447, "end": 1829, "bytes": 382, "chars": 382, "sha256": "201bce395ff58d6fa67594a1bbacf5bf2ed893853b2df087e8c61552140eb128" },
+        { "name": "getForkSubagentSource", "nodeType": "FunctionDeclaration", "start": 1831, "end": 2139, "bytes": 308, "chars": 308, "sha256": "9d6d84289628cad026bd8c319bb008403f32ab8cfff00ed167eb857f6e9699c1" },
+        { "name": "_resetForkSubagentSourceTelemetryForTesting", "nodeType": "FunctionDeclaration", "start": 2141, "end": 2240, "bytes": 99, "chars": 99, "sha256": "c36806366a88391bb868e859491ac6ab8d52cac1c3eddcbbaf576ad3b70f8b9e" },
+        { "name": "isForkSubagentEnabled", "nodeType": "FunctionDeclaration", "start": 2242, "end": 2342, "bytes": 100, "chars": 100, "sha256": "fa13819ef9508b73c16be45f2da04cc6d25770d14e16a3b5c891556af2d048c9" }
+      ],
+      "priority": ["environment", "noninteractive-disabled", "growthbook"],
+      "intentComment": "The explicit environment override intentionally wins in SDK/print mode."
+    }
+  },
+  "truthTable": [
+    { "noninteractive": false, "environment": false, "growthbook": false, "target117Source": "disabled", "raw117Enabled": false, "laterSource": "disabled" },
+    { "noninteractive": false, "environment": false, "growthbook": true, "target117Source": "gb_rollout", "raw117Enabled": true, "laterSource": "gb_rollout" },
+    { "noninteractive": false, "environment": true, "growthbook": false, "target117Source": "env", "raw117Enabled": true, "laterSource": "env" },
+    { "noninteractive": false, "environment": true, "growthbook": true, "target117Source": "env", "raw117Enabled": true, "laterSource": "env" },
+    { "noninteractive": true, "environment": false, "growthbook": false, "target117Source": "disabled", "raw117Enabled": false, "laterSource": "disabled" },
+    { "noninteractive": true, "environment": false, "growthbook": true, "target117Source": "disabled", "raw117Enabled": false, "laterSource": "disabled" },
+    { "noninteractive": true, "environment": true, "growthbook": false, "target117Source": "disabled", "raw117Enabled": false, "laterSource": "env" },
+    { "noninteractive": true, "environment": true, "growthbook": true, "target117Source": "disabled", "raw117Enabled": false, "laterSource": "env" }
+  ],
+  "sourceReplayBlocker": {
+    "decision": "static semantic-evolution proof only; no source replay",
+    "reason": "Raw Target117 source authenticates the historical noninteractive-before-environment enablement truth table but omits the source-valued resolver, cache, reset, and telemetry closure. The later recovered closure authenticates declaration identity but deliberately puts environment before noninteractive. Copying it would change Target117 behavior when both predicates are true.",
+    "divergentInputs": [
+      { "noninteractive": true, "environment": true, "target117Source": "disabled", "laterSource": "env" }
+    ]
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/fork-gate-semantic-evolution-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_FORK_GATE_SEMANTIC_EVOLUTION_OVERRIDES",
+    "replayHelper": null
+  }
+}

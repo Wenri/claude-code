@@ -6,16 +6,26 @@ import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { isDeepStrictEqual } from 'node:util'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.119-to-2.1.120')
-const recoveredRoot = path.join(caseRoot, 'recovered')
-const freezeRoot = path.join(recoveredRoot, 'source-freeze')
-const overlayPath = path.join(recoveredRoot, 'source-facing-overlay.patch')
-const freezeOverlayPath = path.join(freezeRoot, 'source-facing-overlay.patch')
-const lineagePath = path.join(recoveredRoot, 'source-lineage-core.json')
+const recoveredRelative = 'recovered'
+const freezeRelative = `${recoveredRelative}/source-freeze`
+const overlayRelative = `${recoveredRelative}/source-facing-overlay.patch`
+const freezeOverlayRelative = `${freezeRelative}/source-facing-overlay.patch`
+const lineageRelative = `${recoveredRelative}/source-lineage-core.json`
 const directEvidencePath = path.join(caseRoot, 'semantic/direct-evidence.json')
-const baseRevision = '351cd4d'
+const baseRevision = '351cd4d13f70a564dc2d90f59ab0093dc6fc7b05'
+const targetIdentity = Object.freeze({
+  commit: '6801ead984ba2c3df02bd092ad8b93df096ed8c1',
+  tree: '6284c518a191674bf3e42869e05cad35dcaeabf0',
+  srcTree: 'a80c537f012b1588e3900c998971fec31eefc3ce',
+})
+const retainedManifestIdentity = Object.freeze({
+  bytes: 360_450,
+  sha256: '3e40037dd64d27eda8a0fa16c6a7fcdcef314842050e37b6fae7b57c9d1c2b0d',
+})
 
 const targetTests = [
   'recovery/test/recovery-2.1.120-official-bullets.test.mjs',
@@ -72,6 +82,11 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+function compareText(left, right) {
+  if (left === right) return 0
+  return left < right ? -1 : 1
+}
+
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: options.cwd ?? repo,
@@ -93,11 +108,255 @@ function git(args, options = {}) {
   return run('git', args, options)
 }
 
-function write(relative, value) {
-  const filename = path.join(freezeRoot, relative)
-  fs.mkdirSync(path.dirname(filename), { recursive: true })
-  fs.writeFileSync(filename, value)
-  return filename
+function assertOutputRelative(relative) {
+  assert(
+    typeof relative === 'string' &&
+      relative.startsWith(`${recoveredRelative}/`) &&
+      path.posix.normalize(relative) === relative &&
+      !relative.split('/').includes('..'),
+    `unsafe staged output path: ${String(relative)}`,
+  )
+}
+
+function stageOutput(outputs, relative, value) {
+  assertOutputRelative(relative)
+  assert(!outputs.has(relative), `duplicate staged output: ${relative}`)
+  outputs.set(
+    relative,
+    Buffer.isBuffer(value) ? Buffer.from(value) : Buffer.from(String(value)),
+  )
+}
+
+function stageFreezeOutput(outputs, relative, value) {
+  stageOutput(outputs, `${freezeRelative}/${relative}`, value)
+}
+
+function stagedMetadata(outputs, relative, rootRelative = '') {
+  const value = outputs.get(relative)
+  assert(value !== undefined, `missing staged output: ${relative}`)
+  return {
+    path: path.posix.relative(rootRelative, relative),
+    bytes: value.length,
+    sha256: sha256(value),
+  }
+}
+
+function lstatIfExists(filename, label) {
+  try {
+    return fs.lstatSync(filename)
+  } catch (error) {
+    if (error?.code === 'ENOENT') return null
+    throw new Error(`${label} is not accessible: ${filename}`, {
+      cause: error,
+    })
+  }
+}
+
+function assertRealDirectory(directory, label) {
+  const status = lstatIfExists(directory, label)
+  assert(
+    status !== null && status.isDirectory() && !status.isSymbolicLink(),
+    `${label} is not a real directory: ${directory}`,
+  )
+}
+
+function ensureRealChildDirectory(parent, name, label, createdDirectories) {
+  assert(!name.includes(path.sep), `${label} has an unsafe name`)
+  assertRealDirectory(parent, `${label} parent`)
+  const directory = path.join(parent, name)
+  let status = lstatIfExists(directory, label)
+  if (status === null) {
+    fs.mkdirSync(directory)
+    createdDirectories.push(directory)
+    status = fs.lstatSync(directory)
+  }
+  assert(
+    status.isDirectory() && !status.isSymbolicLink(),
+    `${label} is not a real directory: ${directory}`,
+  )
+  return directory
+}
+
+function publicationOrder(outputs) {
+  const identityRelative = `${freezeRelative}/identity.json`
+  const sumsRelative = `${freezeRelative}/SHA256SUMS`
+  const freezeLeaves = [...outputs.keys()]
+    .filter(
+      relative =>
+        relative.startsWith(`${freezeRelative}/`) &&
+        relative !== identityRelative &&
+        relative !== sumsRelative,
+    )
+    .sort(compareText)
+  const expected = new Set([
+    ...freezeLeaves,
+    overlayRelative,
+    lineageRelative,
+    identityRelative,
+    sumsRelative,
+  ])
+  assert(
+    expected.size === outputs.size &&
+      [...outputs.keys()].every(relative => expected.has(relative)),
+    'invalid staged publication set',
+  )
+
+  // Publish the outer overlay before the lineage that authenticates it. The
+  // identity and its checksum ledger are the final two commit markers.
+  return [
+    ...freezeLeaves,
+    overlayRelative,
+    lineageRelative,
+    identityRelative,
+    sumsRelative,
+  ]
+}
+
+function publishStagedOutputs(outputs) {
+  const transaction = crypto.randomBytes(12).toString('hex')
+  const lockPath = path.join(caseRoot, '.source-freeze-publish.lock')
+  const createdDirectories = []
+  const prepared = []
+  const published = []
+  const cleanupErrors = []
+  const preservedBackups = new Set()
+  let lockDescriptor
+  let failure = null
+  let completed = false
+
+  const captureCleanup = action => {
+    try {
+      action()
+    } catch (error) {
+      cleanupErrors.push(error)
+    }
+  }
+
+  try {
+    assertRealDirectory(caseRoot, 'source-freeze case root')
+    lockDescriptor = fs.openSync(lockPath, 'wx', 0o600)
+    fs.writeFileSync(lockDescriptor, `${process.pid}\n`)
+    const recoveredDirectory = ensureRealChildDirectory(
+      caseRoot,
+      recoveredRelative,
+      'source-freeze recovered root',
+      createdDirectories,
+    )
+    const freezeDirectory = ensureRealChildDirectory(
+      recoveredDirectory,
+      'source-freeze',
+      'source-freeze output root',
+      createdDirectories,
+    )
+    const allowedFreezeEntries = new Set(
+      [...outputs.keys()]
+        .filter(relative => relative.startsWith(`${freezeRelative}/`))
+        .map(relative => relative.slice(freezeRelative.length + 1)),
+    )
+    const unexpectedFreezeEntries = fs
+      .readdirSync(freezeDirectory)
+      .filter(name => !allowedFreezeEntries.has(name))
+      .sort(compareText)
+    assert(
+      unexpectedFreezeEntries.length === 0,
+      `unexpected existing source-freeze entries: ${unexpectedFreezeEntries.join(', ')}`,
+    )
+
+    for (const relative of publicationOrder(outputs)) {
+      assertOutputRelative(relative)
+      const value = outputs.get(relative)
+      const filename = relative.startsWith(`${freezeRelative}/`)
+        ? path.join(
+            freezeDirectory,
+            relative.slice(freezeRelative.length + 1),
+          )
+        : path.join(recoveredDirectory, path.posix.basename(relative))
+      const parent = path.dirname(filename)
+      assertRealDirectory(parent, `publication parent for ${relative}`)
+      const existing = lstatIfExists(filename, `publication target ${relative}`)
+      assert(
+        existing === null ||
+          (existing.isFile() && !existing.isSymbolicLink()),
+        `publication target is not a real file: ${relative}`,
+      )
+      const temporary = path.join(
+        parent,
+        `.${path.basename(filename)}.${transaction}.tmp`,
+      )
+      const backup = path.join(
+        parent,
+        `.${path.basename(filename)}.${transaction}.bak`,
+      )
+      const record = {
+        backup,
+        existed: existing !== null,
+        filename,
+        relative,
+        temporary,
+      }
+      prepared.push(record)
+      fs.writeFileSync(temporary, value, { flag: 'wx' })
+      if (existing !== null) {
+        fs.copyFileSync(filename, backup, fs.constants.COPYFILE_EXCL)
+      }
+    }
+    for (const record of prepared) {
+      const { filename, relative, temporary } = record
+      assertRealDirectory(
+        path.dirname(filename),
+        `publication commit parent for ${relative}`,
+      )
+      fs.renameSync(temporary, filename)
+      published.push(record)
+    }
+    completed = true
+  } catch (error) {
+    failure = error
+    for (const record of [...published].reverse()) {
+      try {
+        if (record.existed) {
+          fs.renameSync(record.backup, record.filename)
+        } else {
+          fs.rmSync(record.filename, { force: true })
+        }
+      } catch (rollbackError) {
+        if (record.existed) preservedBackups.add(record.backup)
+        cleanupErrors.push(rollbackError)
+      }
+    }
+  }
+
+  for (const { backup, temporary } of prepared) {
+    captureCleanup(() => fs.rmSync(temporary, { force: true }))
+    if (!preservedBackups.has(backup)) {
+      captureCleanup(() => fs.rmSync(backup, { force: true }))
+    }
+  }
+  if (!completed) {
+    for (const directory of [...createdDirectories].reverse()) {
+      captureCleanup(() => fs.rmdirSync(directory))
+    }
+  }
+  if (lockDescriptor !== undefined) {
+    captureCleanup(() => fs.closeSync(lockDescriptor))
+    captureCleanup(() => fs.rmSync(lockPath, { force: true }))
+  }
+
+  if (failure !== null) {
+    if (cleanupErrors.length > 0) {
+      throw new AggregateError(
+        [failure, ...cleanupErrors],
+        'source-freeze publication failed and rollback was incomplete',
+      )
+    }
+    throw failure
+  }
+  if (cleanupErrors.length > 0) {
+    throw new AggregateError(
+      cleanupErrors,
+      'source-freeze publication cleanup failed',
+    )
+  }
 }
 
 function metadata(filename, root = caseRoot) {
@@ -202,6 +461,49 @@ function bundle(filename, bytes, digest, label) {
   return path.resolve(filename)
 }
 
+function authenticatedRetainedTests() {
+  const retainedCaseRoot = path.join(
+    repo,
+    'recovery/cases/2.1.118-to-2.1.119',
+  )
+  const retainedManifestValue = fs.readFileSync(
+    path.join(retainedCaseRoot, 'manifest.json'),
+  )
+  assert(
+    retainedManifestValue.length === retainedManifestIdentity.bytes,
+    'retained T119 manifest byte length',
+  )
+  assert(
+    sha256(retainedManifestValue) === retainedManifestIdentity.sha256,
+    'retained T119 manifest SHA-256',
+  )
+  const retainedManifest = JSON.parse(retainedManifestValue)
+  assert(
+    retainedManifest.case === '2.1.118-to-2.1.119',
+    'retained T119 manifest case',
+  )
+  assert(
+    retainedManifest.finalization?.status === 'complete',
+    'retained T119 manifest finalization',
+  )
+  const recoveredLineage = JSON.parse(
+    fs.readFileSync(
+      path.join(retainedCaseRoot, 'recovered/source-lineage-core.json'),
+      'utf8',
+    ),
+  )
+  assert(
+    isDeepStrictEqual(retainedManifest.sourceLineage, recoveredLineage),
+    'retained T119 embedded and recovered source lineage',
+  )
+  assert(
+    Array.isArray(recoveredLineage.testFiles) &&
+      recoveredLineage.testFiles.length > 0,
+    'retained T119 test files',
+  )
+  return recoveredLineage.testFiles
+}
+
 function testSummary(stdout) {
   const read = label => {
     const match = stdout.match(new RegExp(`(?:ℹ|#) ${label} (\\d+)`))
@@ -233,7 +535,24 @@ function main() {
     `${args['target-commit']}^{commit}`,
   ]).trim()
   assert(/^[a-f0-9]{40}$/.test(targetCommit), 'target commit identity')
+  assert(
+    targetCommit === targetIdentity.commit,
+    `target commit must be the durable authenticated 2.1.120 commit ${targetIdentity.commit}`,
+  )
+  assert(
+    git(['rev-parse', `${targetCommit}^{tree}`]).trim() === targetIdentity.tree,
+    'target Git tree identity',
+  )
+  assert(
+    git(['rev-parse', `${targetCommit}:src`]).trim() === targetIdentity.srcTree,
+    'target src Git tree identity',
+  )
   run('git', ['diff', '--quiet', targetCommit, '--', 'src'])
+  const untrackedSource = git(['ls-files', '--others', '--', 'src']).trim()
+  assert(
+    untrackedSource.length === 0,
+    `repository has untracked source paths:\n${untrackedSource}`,
+  )
 
   const baselineInner = bundle(
     args['baseline-inner'],
@@ -275,9 +594,9 @@ function main() {
     { encoding: 'buffer' },
   )
   assert(overlay.length > 0, 'source overlay is empty')
-  fs.mkdirSync(freezeRoot, { recursive: true })
-  fs.writeFileSync(overlayPath, overlay)
-  fs.writeFileSync(freezeOverlayPath, overlay)
+  const stagedOutputs = new Map()
+  stageOutput(stagedOutputs, overlayRelative, overlay)
+  stageOutput(stagedOutputs, freezeOverlayRelative, overlay)
 
   const temporaryRoot = fs.mkdtempSync(
     path.join(os.tmpdir(), 'claude-2.1.120-source-freeze-'),
@@ -285,6 +604,11 @@ function main() {
   let baseSummary
   let targetSummary
   try {
+    const validationOverlayPath = path.join(
+      temporaryRoot,
+      'source-facing-overlay.patch',
+    )
+    fs.writeFileSync(validationOverlayPath, overlay)
     const baseWorkspace = path.join(temporaryRoot, 'base')
     const targetWorkspace = path.join(temporaryRoot, 'target')
     const reverseWorkspace = path.join(temporaryRoot, 'reverse')
@@ -306,18 +630,20 @@ function main() {
       'target commit versus repository',
     )
 
-    git(['apply', '--check', overlayPath], { cwd: baseWorkspace })
-    git(['apply', overlayPath], { cwd: baseWorkspace })
+    git(['apply', '--check', validationOverlayPath], { cwd: baseWorkspace })
+    git(['apply', validationOverlayPath], { cwd: baseWorkspace })
     assertTreesEqual(
       targetSummary,
       summarizeSourceTree(path.join(baseWorkspace, 'src')),
       'forward-applied overlay versus target',
     )
     fs.cpSync(targetWorkspace, reverseWorkspace, { recursive: true })
-    git(['apply', '--reverse', '--check', overlayPath], {
+    git(['apply', '--reverse', '--check', validationOverlayPath], {
       cwd: reverseWorkspace,
     })
-    git(['apply', '--reverse', overlayPath], { cwd: reverseWorkspace })
+    git(['apply', '--reverse', validationOverlayPath], {
+      cwd: reverseWorkspace,
+    })
     assertTreesEqual(
       baseSummary,
       summarizeSourceTree(path.join(reverseWorkspace, 'src')),
@@ -448,20 +774,16 @@ function main() {
     fs.rmSync(syntaxRoot, { recursive: true, force: true })
   }
 
-  const retainedTests = JSON.parse(
-    fs.readFileSync(
-      path.join(repo, 'recovery/cases/2.1.118-to-2.1.119/manifest.json'),
-      'utf8',
-    ),
-  ).sourceLineage.testFiles
+  const retainedTests = authenticatedRetainedTests()
   const directMetadata = metadata(directEvidencePath, repo)
   const directTestMetadata = metadata(
     path.join(repo, 'recovery/test/recovery-2.1.120-direct-evidence.test.mjs'),
     repo,
   )
-  write('source-paths.txt', nameStatus)
-  write('source-numstat.tsv', numstat)
-  write(
+  stageFreezeOutput(stagedOutputs, 'source-paths.txt', nameStatus)
+  stageFreezeOutput(stagedOutputs, 'source-numstat.tsv', numstat)
+  stageFreezeOutput(
+    stagedOutputs,
     'source-stat.txt',
     git([
       'diff',
@@ -473,29 +795,48 @@ function main() {
       'src',
     ]),
   )
-  write(
+  stageFreezeOutput(
+    stagedOutputs,
     'source-files.sha256',
     `${targetSummary.records
       .map(record => `${record.sha256}  ${record.path}`)
       .join('\n')}\n`,
   )
-  write('source-symlinks.txt', '')
-  write('target-test-files.sha256', testManifest(targetTests))
-  write('retained-test-files.sha256', testManifest(retainedTests))
-  write(
+  stageFreezeOutput(stagedOutputs, 'source-symlinks.txt', '')
+  stageFreezeOutput(
+    stagedOutputs,
+    'target-test-files.sha256',
+    testManifest(targetTests),
+  )
+  stageFreezeOutput(
+    stagedOutputs,
+    'retained-test-files.sha256',
+    testManifest(retainedTests),
+  )
+  stageFreezeOutput(
+    stagedOutputs,
     'adjacent-direct-evidence.sha256',
     `${directMetadata.sha256}  ${directMetadata.path}\n`,
   )
-  write('diff-check.raw.txt', diffCheckRaw)
-  write(
+  stageFreezeOutput(stagedOutputs, 'diff-check.raw.txt', diffCheckRaw)
+  stageFreezeOutput(
+    stagedOutputs,
     'diff-check-allowlist.txt',
     diagnosticLines === 0
       ? 'unexpected diagnostics: 0\n'
       : `reviewed exact git diff --check output: ${diagnosticLines} line(s)\n` +
           `sha256: ${diffCheckSha256}\n`,
   )
-  write('applied-src-byte-compare.txt', 'identical\n')
-  write('forward-src-byte-compare.txt', 'identical\n')
+  stageFreezeOutput(
+    stagedOutputs,
+    'applied-src-byte-compare.txt',
+    'identical\n',
+  )
+  stageFreezeOutput(
+    stagedOutputs,
+    'forward-src-byte-compare.txt',
+    'identical\n',
+  )
 
   const patchStats = {
     files: changed.length,
@@ -505,18 +846,21 @@ function main() {
     insertions: numberRows.reduce((sum, entry) => sum + entry.insertions, 0),
     deletions: numberRows.reduce((sum, entry) => sum + entry.deletions, 0),
   }
-  const overlayMetadata = metadata(overlayPath)
-  const targetTestManifest = metadata(
-    path.join(freezeRoot, 'target-test-files.sha256'),
-    freezeRoot,
+  const overlayMetadata = stagedMetadata(stagedOutputs, overlayRelative)
+  const targetTestManifest = stagedMetadata(
+    stagedOutputs,
+    `${freezeRelative}/target-test-files.sha256`,
+    freezeRelative,
   )
-  const retainedTestManifest = metadata(
-    path.join(freezeRoot, 'retained-test-files.sha256'),
-    freezeRoot,
+  const retainedTestManifest = stagedMetadata(
+    stagedOutputs,
+    `${freezeRelative}/retained-test-files.sha256`,
+    freezeRelative,
   )
-  const directManifest = metadata(
-    path.join(freezeRoot, 'adjacent-direct-evidence.sha256'),
-    freezeRoot,
+  const directManifest = stagedMetadata(
+    stagedOutputs,
+    `${freezeRelative}/adjacent-direct-evidence.sha256`,
+    freezeRelative,
   )
   const identity = {
     schemaVersion: 1,
@@ -580,7 +924,11 @@ function main() {
       },
     },
   }
-  write('identity.json', `${JSON.stringify(identity, null, 2)}\n`)
+  stageFreezeOutput(
+    stagedOutputs,
+    'identity.json',
+    `${JSON.stringify(identity, null, 2)}\n`,
+  )
 
   const sumPaths = [
     'source-facing-overlay.patch',
@@ -598,11 +946,16 @@ function main() {
     'forward-src-byte-compare.txt',
     'identity.json',
   ]
-  write(
+  stageFreezeOutput(
+    stagedOutputs,
     'SHA256SUMS',
     `${sumPaths
       .map(relative =>
-        `${sha256(fs.readFileSync(path.join(freezeRoot, relative)))}  ${relative}`,
+        `${stagedMetadata(
+          stagedOutputs,
+          `${freezeRelative}/${relative}`,
+          freezeRelative,
+        ).sha256}  ${relative}`,
       )
       .join('\n')}\n`,
   )
@@ -637,7 +990,33 @@ function main() {
     },
     testFileAssertions,
   }
-  fs.writeFileSync(lineagePath, `${JSON.stringify(sourceLineage, null, 2)}\n`)
+  stageOutput(
+    stagedOutputs,
+    lineageRelative,
+    `${JSON.stringify(sourceLineage, null, 2)}\n`,
+  )
+
+  const expectedStagedOutputs = [
+    overlayRelative,
+    lineageRelative,
+    ...[...sumPaths, 'SHA256SUMS'].map(
+      relative => `${freezeRelative}/${relative}`,
+    ),
+  ].sort(compareText)
+  assert(
+    JSON.stringify([...stagedOutputs.keys()].sort(compareText)) ===
+      JSON.stringify(expectedStagedOutputs),
+    'staged source-freeze output set',
+  )
+  const identityMetadata = stagedMetadata(
+    stagedOutputs,
+    `${freezeRelative}/identity.json`,
+  )
+  const sourceLineageMetadata = stagedMetadata(
+    stagedOutputs,
+    lineageRelative,
+  )
+  publishStagedOutputs(stagedOutputs)
 
   console.log(
     JSON.stringify({
@@ -649,8 +1028,8 @@ function main() {
       tests: testsVerified,
       syntaxBuilds: syntaxCheck.length,
       diffCheck: identity.verification.diffCheck,
-      identity: metadata(path.join(freezeRoot, 'identity.json')),
-      sourceLineage: metadata(lineagePath),
+      identity: identityMetadata,
+      sourceLineage: sourceLineageMetadata,
     }),
   )
 }

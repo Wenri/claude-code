@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-push-notification-tip-relevance-complete-owner-v1",
+  "status": "case-owned-static-proof-ready",
+  "evidenceIds": [
+    "target118-push-notification-tip-relevance-target-fragment",
+    "target118-push-notification-tip-relevance-source-ast-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/push-notification-tip-relevance-owner-overrides.mjs",
+      "bytes": 973,
+      "sha256": "8ce1f0907f9764bc1b6121d43b883d5fbd16e01f932a802b0e5e6f71adad10bd"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/services/tips/tipRegistry.ts",
+        "blob": "9b487a8f5e05757e20d662126ab84f2ce6717cbb",
+        "bytes": 25930,
+        "sha256": "cd02a4e52bab668e3da047ba569937e78b0779d12f94ac0ca501aa5b335727b5"
+      },
+      "declaration": {
+        "name": "isPushNotificationTipRelevant",
+        "start": 3968,
+        "end": 4371,
+        "bytes": 403,
+        "sha256": "c2b3210bd895c7d880ded25b8cc70f616a08007a400b38c336a266d2d2287711"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 17757,
+    "classification": "unresolved",
+    "start": 10973270,
+    "end": 10973344,
+    "bytes": 74,
+    "tokenCount": 27,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "840cc86897c5fe2355cc1fc71882ba1c1427676ba49a8ede50c644cde751caec",
+    "coarseHash": "051e939fe1e8a58f1b12e729f2f6960780134dea983163513b37e475acb20db9",
+    "ownerPath": "src/services/tips/tipRegistry.ts",
+    "provisionalOwnerPath": "src/components/RemoteCallout.tsx",
+    "declarations": [
+      "isPushNotificationTipRelevant"
+    ],
+    "behavior": "The complete authenticated Target118 push-notification tip-relevance predicate requires bridge support and its feature gate, requires prior or startup Remote Control use, and rejects an already-enabled agent push notification setting; the provisional RemoteCallout.tsx attribution is rejected.",
+    "residues": [
+      [
+        "property",
+        "agentPushNotifEnabled",
+        10973317,
+        10973338,
+        18,
+        19
+      ]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/services/tips/tipRegistry.ts"
+    ],
+    "evidenceIds": [
+      "target118-push-notification-tip-relevance-target-fragment",
+      "target118-push-notification-tip-relevance-source-ast-test"
+    ],
+    "behavior": "The complete authenticated Target118 push-notification tip-relevance predicate requires bridge support and its feature gate, requires prior or startup Remote Control use, and rejects an already-enabled agent push notification setting; the provisional RemoteCallout.tsx attribution is rejected."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "174555dd268eaf8b376781303a123d6130d334f5c010fac35909c29a68f379f4",
+    "residueIdentitiesSha256": "3c2a57bc3631a3e7f6d33b91ccae67513f41de16a5739e8c7bd039698bb2dc0d"
+  }
+}

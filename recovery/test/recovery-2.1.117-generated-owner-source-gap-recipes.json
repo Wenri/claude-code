@@ -1,0 +1,716 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "bounded-generated-owner-source-gap-recipes-v1",
+  "status": "case-owned-replay-ready",
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "caseManifest": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/manifest.json",
+      "bytes": 200284,
+      "sha256": "f1e559736a6d7751d7e25d89e225f8540639a98fc6c921518e1f2a536156c83c"
+    },
+    "targetSemanticTree": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "gitTree": "c9e15117699a700016fee35a941dc3896208819f",
+      "sourceGitTree": "0a502684416e0456b87f51879f02178d480c8b7c"
+    },
+    "rawOwnerResidueProvenance": {
+      "kind": "embedded-pre-replay-selected-rows",
+      "sourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "sourceTree": {
+        "files": 1957,
+        "bytes": 30993723,
+        "manifestSha256": "135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee"
+      },
+      "recipes": 6,
+      "residueUnits": 5,
+      "residues": 16,
+      "selectedRows": [
+        {
+          "id": "toggle-memory-thin-client-dispatch",
+          "targetIndex": 15823,
+          "ownerPaths": [
+            "src/commands/memory/index.ts"
+          ],
+          "residues": [
+            {
+              "kind": "property",
+              "valueSha256": "eb3d731be431a82832cf13ac5acb72840eb3acf1fceaff7acc11c4d74605e815"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "cefb26654c57311fb526830269bacadb2a1ef05684c8fea4117e2c1e19432e96"
+            }
+          ]
+        },
+        {
+          "id": "powerup-ink-requirement",
+          "targetIndex": 16315,
+          "ownerPaths": [
+            "src/commands/mobile/index.ts"
+          ],
+          "residues": []
+        },
+        {
+          "id": "recap-thin-client-dispatch",
+          "targetIndex": 17695,
+          "ownerPaths": [
+            "src/commands/voice/index.ts"
+          ],
+          "residues": [
+            {
+              "kind": "property",
+              "valueSha256": "eb3d731be431a82832cf13ac5acb72840eb3acf1fceaff7acc11c4d74605e815"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "cefb26654c57311fb526830269bacadb2a1ef05684c8fea4117e2c1e19432e96"
+            }
+          ]
+        },
+        {
+          "id": "team-onboarding-workspace-requirement",
+          "targetIndex": 17724,
+          "ownerPaths": [
+            "src/commands/remote-setup/index.ts"
+          ],
+          "residues": [
+            {
+              "kind": "property",
+              "valueSha256": "b9014eaab626647d8cbb266e1e87c18be0ddd847def16bfbd4e25f7097555d88"
+            },
+            {
+              "kind": "property",
+              "valueSha256": "21a3230e03772a58aff1b3709a9e232850916337e1fba95c434076b6668c6e08"
+            }
+          ]
+        },
+        {
+          "id": "fork-feature-module",
+          "targetIndex": 17731,
+          "ownerPaths": [
+            "src/commands/remote-setup/index.ts"
+          ],
+          "residues": [
+            {
+              "kind": "string",
+              "valueSha256": "116490e0a3d00ea8b326af8d95c68a6de7bbc33e70244862d41d86e1bb9bf4ab"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "b194233b1e715a3cade0f09491d468ea47c4a1cbee9b034d72671bf651a42728"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "be124a0296979d921c1abf5843eb7aa05bb8bea1253db101cb90a26af3aa374c"
+            }
+          ]
+        },
+        {
+          "id": "background-job-agent",
+          "targetIndex": 19649,
+          "ownerPaths": [
+            "src/utils/sessionRestore.ts"
+          ],
+          "residues": [
+            {
+              "kind": "string",
+              "valueSha256": "6fbe15c0473c3452a278d588019667e55f5c5baba4eac84e9da225c362267af3"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "5c73a5c73dc13ecfc980360fd350c74b6f118d464b142e6f5fe69d79ea34ae49"
+            },
+            {
+              "kind": "property",
+              "valueSha256": "6f1b82f0b5fe30b42660779e5608740af3095c4fee9f07dec86ec1e97171a2d7"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "5c73a5c73dc13ecfc980360fd350c74b6f118d464b142e6f5fe69d79ea34ae49"
+            },
+            {
+              "kind": "property",
+              "valueSha256": "3624d3181d5c4f8abf2f25fa708f5efa04236b79d0deafe9f292b590b2ca0f7e"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "d63516bc98983230cc2f6dff6e9c746d0b15e70026f924131114fdef35c11f83"
+            },
+            {
+              "kind": "string",
+              "valueSha256": "adc25c82df11c438a9d7d11ddb36a32c3caaf74f279ed8c0710fc5c7a8d0350b"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "summary": {
+    "recipes": 6,
+    "typedOwnerResidueUnits": 5,
+    "typedOwnerResidues": 16,
+    "additionalExactOwnerCounterexamples": 1,
+    "newGeneratedInternalOwners": 1,
+    "missingFeatureModuleOwners": 1,
+    "transitiveOwners": 4,
+    "macroOnlyUnits": 0
+  },
+  "recipes": [
+    {
+      "id": "toggle-memory-thin-client-dispatch",
+      "target": {
+        "index": 15823,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 9913879,
+        "end": 9914187,
+        "sourceHash": "335851f14f9d026e08d843271c606d9d02a24382b66a5b0e6b18c08037ab6a24"
+      },
+      "generatedEvidence": {
+        "fragment": "thinClientDispatch:\"post-text\"",
+        "bytes": 30,
+        "sha256": "7cbb509a9037588f6003729af9b9fd3f2ff1a5e1e6817541049af5108b55dee1",
+        "baselineCount": 0,
+        "targetCount": 6
+      },
+      "typedOwnerResidues": [
+        {
+          "kind": "property",
+          "valueSha256": "eb3d731be431a82832cf13ac5acb72840eb3acf1fceaff7acc11c4d74605e815"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "cefb26654c57311fb526830269bacadb2a1ef05684c8fea4117e2c1e19432e96"
+        }
+      ],
+      "rejectedOwners": [
+        {
+          "path": "src/commands/memory/index.ts",
+          "sha256": "15d2f44ead737f46aed1a6248901b3a01b91b24c24785af446163885d0a1ce88"
+        }
+      ],
+      "sourceRecipe": {
+        "classification": "transitive-owner-with-target-metadata",
+        "ownerCandidates": [
+          "src/commands/toggle-memory.ts",
+          "src/commands/toggle-memory/index.ts"
+        ],
+        "sourceAnchors": [
+          "toggle-memory",
+          "thinClientDispatch",
+          "post-text"
+        ],
+        "evidence": [
+          {
+            "path": "recovery/cases/2.1.114-to-2.1.116/semantic-supplement.patch",
+            "bytes": 2096432,
+            "sha256": "0b7bd7e8753a41047607e498ab64d66c1bd94f8cb190f4fd2a31cf795b143244",
+            "diffHeader": "diff --git a/src/commands/toggle-memory.ts b/src/commands/toggle-memory.ts"
+          },
+          {
+            "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+            "bytes": 3865180,
+            "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4",
+            "diffHeader": "diff --git a/src/commands/toggle-memory/index.ts b/src/commands/toggle-memory/index.ts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "powerup-ink-requirement",
+      "target": {
+        "index": 16315,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 10317734,
+        "end": 10317936,
+        "sourceHash": "d86b74bcf3dff06df8297eb883afb05e0222f4cca11319586e1d1a9a8adb5528"
+      },
+      "generatedEvidence": {
+        "fragment": "requires:{ink:!0}",
+        "bytes": 17,
+        "sha256": "34de74fec95cf0b99846c26f62b398c1bf6d8897d2eb42a0b7185d3bc9e83966",
+        "baselineCount": 0,
+        "targetCount": 20
+      },
+      "typedOwnerResidues": [],
+      "rejectedOwners": [
+        {
+          "path": "src/commands/mobile/index.ts",
+          "sha256": "2659b5aa53ffe37c61cefa038555baf0fa8f646d7b098ca824b63dbdf2cc99eb"
+        }
+      ],
+      "sourceRecipe": {
+        "classification": "transitive-owner-with-target-metadata",
+        "ownerCandidates": [
+          "src/commands/powerup/index.ts"
+        ],
+        "sourceAnchors": [
+          "powerup",
+          "requires",
+          "ink"
+        ],
+        "evidence": [
+          {
+            "path": "recovery/cases/2.1.94-to-2.1.96/semantic-supplement.patch",
+            "bytes": 4321868,
+            "sha256": "dba122f721559133bdad7970c15ccda26c9dfcef2c5d0e82de65dbffdb2c1542",
+            "diffHeader": "diff --git a/src/commands/powerup/index.ts b/src/commands/powerup/index.ts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap-thin-client-dispatch",
+      "target": {
+        "index": 17695,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 10928924,
+        "end": 10929181,
+        "sourceHash": "ce160b58c8669b2a9a65dcad4bf32538afd6fe691f8a2ca10a7e02184f45de40"
+      },
+      "generatedEvidence": {
+        "fragment": "thinClientDispatch:\"post-text\"",
+        "bytes": 30,
+        "sha256": "7cbb509a9037588f6003729af9b9fd3f2ff1a5e1e6817541049af5108b55dee1",
+        "baselineCount": 0,
+        "targetCount": 6
+      },
+      "typedOwnerResidues": [
+        {
+          "kind": "property",
+          "valueSha256": "eb3d731be431a82832cf13ac5acb72840eb3acf1fceaff7acc11c4d74605e815"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "cefb26654c57311fb526830269bacadb2a1ef05684c8fea4117e2c1e19432e96"
+        }
+      ],
+      "rejectedOwners": [
+        {
+          "path": "src/commands/voice/index.ts",
+          "sha256": "ed0560e84b6d28484ab1922e780b8112bd1f5d22748abf48cc996bbd4521d07c"
+        }
+      ],
+      "sourceRecipe": {
+        "classification": "transitive-owner-with-target-metadata",
+        "ownerCandidates": [
+          "src/commands/recap.ts",
+          "src/commands/recap/index.ts"
+        ],
+        "sourceAnchors": [
+          "recap",
+          "thinClientDispatch",
+          "post-text"
+        ],
+        "evidence": [
+          {
+            "path": "recovery/cases/2.1.104-to-2.1.105/semantic-supplement.patch",
+            "bytes": 1329483,
+            "sha256": "a4b761ee17ae0747c3c29c92415588f11768a1c54d785105e8dbec625b0dc825",
+            "diffHeader": "diff --git a/src/commands/recap.ts b/src/commands/recap.ts"
+          },
+          {
+            "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+            "bytes": 3865180,
+            "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4",
+            "diffHeader": "diff --git a/src/commands/recap/index.ts b/src/commands/recap/index.ts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "team-onboarding-workspace-requirement",
+      "target": {
+        "index": 17724,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 10943872,
+        "end": 10945395,
+        "sourceHash": "73a1e9a70d6c0d0b0be05ef5225b40c8b26f50c092be09c1b5b2c72eb7746b61"
+      },
+      "generatedEvidence": {
+        "fragment": "requires:{workspace:!0}",
+        "bytes": 23,
+        "sha256": "fe17f7f398750772094047e52f7ef9824b15cdfefdd07e968ae968400d9c096b",
+        "baselineCount": 0,
+        "targetCount": 3
+      },
+      "typedOwnerResidues": [
+        {
+          "kind": "property",
+          "valueSha256": "b9014eaab626647d8cbb266e1e87c18be0ddd847def16bfbd4e25f7097555d88"
+        },
+        {
+          "kind": "property",
+          "valueSha256": "21a3230e03772a58aff1b3709a9e232850916337e1fba95c434076b6668c6e08"
+        }
+      ],
+      "rejectedOwners": [
+        {
+          "path": "src/commands/remote-setup/index.ts",
+          "sha256": "bc0caa650a24411d8d2a4f2d82504c37027f6eef5a9b487fca21a458a44210f3"
+        }
+      ],
+      "sourceRecipe": {
+        "classification": "transitive-owner-with-target-metadata",
+        "ownerCandidates": [
+          "src/commands/team-onboarding.ts",
+          "src/commands/team-onboarding/index.ts"
+        ],
+        "sourceAnchors": [
+          "team-onboarding",
+          "requires",
+          "workspace"
+        ],
+        "evidence": [
+          {
+            "path": "recovery/cases/2.1.112-to-2.1.113/semantic-supplement.patch",
+            "bytes": 569787,
+            "sha256": "91133b4948462f541f65f302b2b38e2686bdcfbef7f0bed5aacd537084e4afaa",
+            "diffHeader": "diff --git a/src/commands/team-onboarding.ts b/src/commands/team-onboarding.ts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "fork-feature-module",
+      "target": {
+        "index": 17731,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 10947573,
+        "end": 10947895,
+        "sourceHash": "ce0ca84523034dac57e9055c4e0d722a245459ec6eade698e7941cdeb1e3a2c1"
+      },
+      "generatedEvidence": {
+        "fragment": "Usage: /fork \\\\<directive\\\\>",
+        "bytes": 28,
+        "sha256": "e48f9e1ee9cf0a5be95e5eb6846e81f3173a6185cb0e1d80852f6edabc93c84a",
+        "baselineCount": 0,
+        "targetCount": 1
+      },
+      "typedOwnerResidues": [
+        {
+          "kind": "string",
+          "valueSha256": "116490e0a3d00ea8b326af8d95c68a6de7bbc33e70244862d41d86e1bb9bf4ab"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "b194233b1e715a3cade0f09491d468ea47c4a1cbee9b034d72671bf651a42728"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "be124a0296979d921c1abf5843eb7aa05bb8bea1253db101cb90a26af3aa374c"
+        }
+      ],
+      "rejectedOwners": [
+        {
+          "path": "src/commands/remote-setup/index.ts",
+          "sha256": "bc0caa650a24411d8d2a4f2d82504c37027f6eef5a9b487fca21a458a44210f3"
+        }
+      ],
+      "sourceRecipe": {
+        "classification": "missing-feature-module",
+        "ownerCandidates": [
+          "src/commands/fork/fork.ts"
+        ],
+        "sourceAnchors": [
+          "Usage: /fork",
+          "Cannot fork before the first conversation turn",
+          " forked "
+        ],
+        "evidence": [
+          {
+            "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+            "bytes": 3865180,
+            "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4",
+            "diffHeader": "diff --git a/src/commands/fork/fork.ts b/src/commands/fork/fork.ts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "background-job-agent",
+      "target": {
+        "index": 19649,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 11942812,
+        "end": 11944672,
+        "sourceHash": "b20865efff9d89848d1d7672879884119d6add275085aadc2fb3481b53bff1bb"
+      },
+      "generatedEvidence": {
+        "fragment": "This session is a background job.",
+        "bytes": 33,
+        "sha256": "927ebd92c4dbd4452fae8a0633aa07adfb9cd4af3e7c5bc5d492cdf21f3c1762",
+        "baselineCount": 0,
+        "targetCount": 1
+      },
+      "typedOwnerResidues": [
+        {
+          "kind": "string",
+          "valueSha256": "6fbe15c0473c3452a278d588019667e55f5c5baba4eac84e9da225c362267af3"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "5c73a5c73dc13ecfc980360fd350c74b6f118d464b142e6f5fe69d79ea34ae49"
+        },
+        {
+          "kind": "property",
+          "valueSha256": "6f1b82f0b5fe30b42660779e5608740af3095c4fee9f07dec86ec1e97171a2d7"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "5c73a5c73dc13ecfc980360fd350c74b6f118d464b142e6f5fe69d79ea34ae49"
+        },
+        {
+          "kind": "property",
+          "valueSha256": "3624d3181d5c4f8abf2f25fa708f5efa04236b79d0deafe9f292b590b2ca0f7e"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "d63516bc98983230cc2f6dff6e9c746d0b15e70026f924131114fdef35c11f83"
+        },
+        {
+          "kind": "string",
+          "valueSha256": "adc25c82df11c438a9d7d11ddb36a32c3caaf74f279ed8c0710fc5c7a8d0350b"
+        }
+      ],
+      "rejectedOwners": [
+        {
+          "path": "src/utils/sessionRestore.ts",
+          "sha256": "f9eef4e4f883c5078a29e47f8d78c112a3b2bc1547396abd24ca82da727e9090"
+        }
+      ],
+      "sourceRecipe": {
+        "classification": "new-generated-internal-owner",
+        "ownerCandidates": [],
+        "sourceAnchors": [
+          "This session is a background job.",
+          "Catch-all for any task that doesn't fit a more specific agent.",
+          "result:"
+        ],
+        "evidence": [
+          {
+            "path": "recovery/cases/2.1.116-to-2.1.117/manifest.json",
+            "bytes": 200284,
+            "sha256": "f1e559736a6d7751d7e25d89e225f8540639a98fc6c921518e1f2a536156c83c",
+            "ledgerId": "background-job-agent"
+          }
+        ],
+        "ownerSelectionRule": "Create a bounded 2.1.117 semantic owner from the authenticated target unit; do not assign a nearest source-map neighbor."
+      }
+    }
+  ],
+  "recoveryReplay": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-generated-owner-source-gaps.mjs",
+      "bytes": 19387,
+      "sha256": "1b824b009f42085f787444c90a7f692c8088928dab6a256e68136b35ed68a6fb",
+      "functionExport": "applyTarget117GeneratedOwnerRecovery",
+      "ownerOverridesExport": "TARGET117_GENERATED_OWNER_OVERRIDES",
+      "sourceFilesExport": "TARGET117_RECOVERED_SOURCE_FILES"
+    },
+    "rawSourceTree": {
+      "files": 1957,
+      "bytes": 30993723,
+      "manifestSha256": "135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee"
+    },
+    "recoveredSourceTree": {
+      "files": 1966,
+      "bytes": 31042772,
+      "manifestSha256": "a47b2a1ccc07566e412ad4246a9c2809898bbfe8a588983c1e353d160d4cae44"
+    },
+    "authenticatedPatchInputs": [
+      {
+        "path": "recovery/cases/2.1.117-to-2.1.118/recovered/source-facing-overlay.patch",
+        "bytes": 3865180,
+        "sha256": "fc47a3190c81fc255b9e497af3cb95eb97ef6371ea359fb4c12a7e16f82500d4"
+      },
+      {
+        "path": "recovery/cases/2.1.104-to-2.1.105/semantic-supplement.patch",
+        "bytes": 1329483,
+        "sha256": "a4b761ee17ae0747c3c29c92415588f11768a1c54d785105e8dbec625b0dc825"
+      },
+      {
+        "path": "recovery/cases/2.1.94-to-2.1.96/semantic-supplement.patch",
+        "bytes": 4321868,
+        "sha256": "dba122f721559133bdad7970c15ccda26c9dfcef2c5d0e82de65dbffdb2c1542"
+      },
+      {
+        "path": "recovery/cases/2.1.112-to-2.1.113/semantic-supplement.patch",
+        "bytes": 569787,
+        "sha256": "91133b4948462f541f65f302b2b38e2686bdcfbef7f0bed5aacd537084e4afaa"
+      }
+    ],
+    "sourceFiles": [
+      {
+        "path": "src/commands/fork/fork.ts",
+        "bytes": 6480,
+        "sha256": "c618b48cc2e75030886c1b7957d2c0cc46271ab8b5887a279700c36b261cc1ff"
+      },
+      {
+        "path": "src/commands/fork/index.ts",
+        "bytes": 402,
+        "sha256": "05fa1d580380b7b1aa340307a568facc41c487cd5e7211e756bc81a496202d0b"
+      },
+      {
+        "path": "src/commands/powerup/index.ts",
+        "bytes": 279,
+        "sha256": "7cae63b745bd08f6158fa920d9bdacfbdb47e7ee489125f60f2edc986b6e9ad7"
+      },
+      {
+        "path": "src/commands/powerup/powerup.tsx",
+        "bytes": 21424,
+        "sha256": "ed606b202520bcd693aae93210994216d001d2fb4df4932ffbc3b5522e1fe2a3"
+      },
+      {
+        "path": "src/commands/recap.ts",
+        "bytes": 1074,
+        "sha256": "8e02b5f77e9d77fc3c5ae0d7354e1fe34c5925d9beee79fe2e4d9cca7c09ab15"
+      },
+      {
+        "path": "src/commands/team-onboarding.ts",
+        "bytes": 16280,
+        "sha256": "341da8f213bd471d0ac737aa11829150a3ac1b4912653b0d04082c49a69a6bc8"
+      },
+      {
+        "path": "src/commands/toggle-memory/index.ts",
+        "bytes": 381,
+        "sha256": "2d7f52aa98da275f3c3949a74b063894a2ff5fcdd34e530fc3394b3086ba523a"
+      },
+      {
+        "path": "src/commands/toggle-memory/toggle-memory.ts",
+        "bytes": 775,
+        "sha256": "6386414c103521b1cc04ec210341c7a1611106630d1fe57009694b9890e6b32f"
+      },
+      {
+        "path": "src/tools/AgentTool/built-in/backgroundJobAgent.ts",
+        "bytes": 1954,
+        "sha256": "153311cfb7a786658170cd0922ffd50a99ca91ace33cd490c948cb09c83f2f59"
+      }
+    ],
+    "ownerOverrides": [
+      {
+        "key": "2.1.116-to-2.1.117:15823",
+        "targetIndex": 15823,
+        "paths": [
+          "src/commands/toggle-memory/index.ts"
+        ]
+      },
+      {
+        "key": "2.1.116-to-2.1.117:16315",
+        "targetIndex": 16315,
+        "paths": [
+          "src/commands/powerup/index.ts"
+        ]
+      },
+      {
+        "key": "2.1.116-to-2.1.117:17695",
+        "targetIndex": 17695,
+        "paths": [
+          "src/commands/recap.ts"
+        ]
+      },
+      {
+        "key": "2.1.116-to-2.1.117:17724",
+        "targetIndex": 17724,
+        "paths": [
+          "src/commands/team-onboarding.ts"
+        ]
+      },
+      {
+        "key": "2.1.116-to-2.1.117:17731",
+        "targetIndex": 17731,
+        "paths": [
+          "src/commands/fork/fork.ts"
+        ]
+      },
+      {
+        "key": "2.1.116-to-2.1.117:19649",
+        "targetIndex": 19649,
+        "paths": [
+          "src/tools/AgentTool/built-in/backgroundJobAgent.ts"
+        ]
+      }
+    ],
+    "temporalBoundary": {
+      "nextTransitionCase": "2.1.117-to-2.1.118",
+      "nextStructuralLedger": {
+        "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+        "bytes": 2429007,
+        "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+      },
+      "inheritedNextTransitionUnits": [
+        {
+          "purpose": "toggle-memory implementation",
+          "baselineIndex": 15820,
+          "baselineNodeType": "VariableDeclaration",
+          "baselineSourceHash": "f66c0a055c53de0c5cf1db954dcc759bc1122cc47ce635a2482820f347d78a3b",
+          "classification": "matched",
+          "targetIndex": 15903,
+          "targetNodeType": "VariableDeclaration",
+          "targetSourceHash": "80bf17af2d0b6fcb41321c40e4d50d971ae66034224a3023545c41b3ce3c51db",
+          "pairReason": "exact-scope-normalized-token-hash"
+        },
+        {
+          "purpose": "fork command call",
+          "baselineIndex": 17731,
+          "baselineNodeType": "VariableDeclaration",
+          "baselineSourceHash": "ce0ca84523034dac57e9055c4e0d722a245459ec6eade698e7941cdeb1e3a2c1",
+          "classification": "matched",
+          "targetIndex": 17887,
+          "targetNodeType": "VariableDeclaration",
+          "targetSourceHash": "69ec5f2f8e51b023bb490cadb7c4b002a0c99b907b747bab55223c595cf51c9e",
+          "pairReason": "exact-scope-normalized-token-hash"
+        }
+      ],
+      "target117OnlySourceAssertions": [
+        {
+          "path": "src/commands/recap.ts",
+          "requiredFragments": [
+            "summary === null",
+            "No recap available — needs at least one completed turn, or generation failed.",
+            "getFeatureValue_CACHED_MAY_BE_STALE('tengu_sedge_lantern', true)",
+            "thinClientDispatch: 'post-text'"
+          ],
+          "forbiddenLaterFragments": [
+            "switch (result.kind)",
+            "Nothing to recap yet — send a message first.",
+            "Couldn't generate a recap. Run with --debug for details."
+          ]
+        }
+      ],
+      "boundedGeneratedOwner": {
+        "path": "src/tools/AgentTool/built-in/backgroundJobAgent.ts",
+        "targetIndex": 19649,
+        "promptBytes": 1529,
+        "promptSha256": "adc25c82df11c438a9d7d11ddb36a32c3caaf74f279ed8c0710fc5c7a8d0350b"
+      }
+    }
+  },
+  "coverageRule": {
+    "temporaryDisposition": "source-runtime-gap",
+    "coveredDisposition": "source-runtime-covered",
+    "coveredRequirement": "Every covered recipe must resolve to a non-rejected owner file in the 2.1.117 semantic source root containing all recipe source anchors.",
+    "replayRequirement": "Apply the pinned case-owned replay helper to an exact target117 source tree and pass the focused source-root-aware semantic test before changing the row to source-runtime-covered."
+  }
+}

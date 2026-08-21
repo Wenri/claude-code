@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-code-session-git-context-source-replay-v1",
+  "status": "authenticated-source-replay",
+  "evidenceIds": [
+    "target118-code-session-git-context-target-fragment",
+    "target118-code-session-git-context-source-replay-test",
+    "target118-code-session-git-context-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-code-session-git-context-source-gap.mjs",
+      "bytes": 10710,
+      "sha256": "1c3fbedf7c8e5560eac08e8887f2f046881db0121d4e4a96080305b3582078d1"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "forwardBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "forwardStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "files": [
+        {
+          "path": "src/bridge/codeSessionApi.ts",
+          "blob": "f64360f73f8bac6b9511e578e69a5889854dddcd",
+          "bytes": 6037,
+          "sha256": "c058b8ab08341f14cccdc06700cf7237dcb7c79d1827b1c069e136ec554d73ea"
+        },
+        {
+          "path": "src/utils/gitSessionContext.ts",
+          "state": "absent"
+        }
+      ]
+    },
+    "targetSource": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+      "files": [
+        {
+          "path": "src/bridge/codeSessionApi.ts",
+          "blob": "a3e7037dbf82ee22d51f32be79e228d207fce67a",
+          "bytes": 6818,
+          "sha256": "df2b7759f74f3d7bb04f99be419ec19a16f857ea60aacf91d7da5d98f630bbd5",
+          "declaration": {
+            "name": "createCodeSession",
+            "characterStart": 898,
+            "characterEnd": 3208,
+            "byteStart": 900,
+            "byteEnd": 3212,
+            "bytes": 2312,
+            "sha256": "d61ce4fa21d6eca93036031b1cf1e16381e8a0a197bf3b503ba962f1bb4dda26"
+          }
+        },
+        {
+          "path": "src/utils/gitSessionContext.ts",
+          "blob": "587343a90f9d4604654517f18a0ba4aa337f805e",
+          "bytes": 1574,
+          "sha256": "cccbbe4a791ec1e01f732add778ab0650d7b815b248cdefaf08e8d7d5f949d91",
+          "declaration": {
+            "name": "buildGitSessionContext",
+            "characterStart": 79,
+            "characterEnd": 1573,
+            "byteStart": 79,
+            "byteEnd": 1573,
+            "bytes": 1494,
+            "sha256": "486339523e645d7d45c2177389a921c46bee4a7bb24dc07b24f1a1bccfafe035"
+          }
+        }
+      ]
+    }
+  },
+  "lineage": {
+    "baseline": {
+      "index": 18620,
+      "nodeType": "FunctionDeclaration",
+      "start": 11454967,
+      "end": 11455934,
+      "bytes": 967,
+      "tokenCount": 377,
+      "sourceHash": "9050eac5b2c248e4f3ebd8df761587e48fd6ba0659ca7fc231d0ac946f3bcbc6",
+      "coarseHash": "62d7e3e6c78ae0a86911eb71d06180867bf00d7b9c8858ee6654952c5fd377f9"
+    },
+    "target": {
+      "index": 18786,
+      "classification": "changed",
+      "baselineUnitIndex": 18620,
+      "pairReason": "unique-coarse-structural-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 11541829,
+      "end": 11542796,
+      "bytes": 967,
+      "tokenCount": 377,
+      "sourceHash": "6fbc7bf9e4ba1adb168ecce467ea3a4645568f9629f8e19e9030cbd5d4a44740",
+      "coarseHash": "62d7e3e6c78ae0a86911eb71d06180867bf00d7b9c8858ee6654952c5fd377f9"
+    },
+    "forward": {
+      "index": 19736,
+      "classification": "matched",
+      "baselineUnitIndex": 18786,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 12015752,
+      "end": 12016719,
+      "bytes": 967,
+      "tokenCount": 377,
+      "sourceHash": "45143ebb53c8763ad218bbcf4c0168711ccd1c7726f26dd70858dd960b4dfda8",
+      "coarseHash": "62d7e3e6c78ae0a86911eb71d06180867bf00d7b9c8858ee6654952c5fd377f9"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 18786,
+    "ownerPath": "src/bridge/codeSessionApi.ts",
+    "declarations": [
+      "createCodeSession"
+    ],
+    "behavior": "The authenticated Target118 createCodeSession unit retains the Target117 git-context request contract: it builds source and outcome descriptors from the repository and branch, adds cwd/model config, enables outcome-branch reuse only for non-empty context, and posts the complete config with the session request. The bounded replay restores the exact historical Target118 codeSessionApi declaration plus its gitSessionContext dependency.",
+    "residues": [
+      ["property", "outcomes", 11542014, 11542022, 19, 20],
+      ["property", "sources", 11542101, 11542108, 21, 22],
+      ["property", "outcomes", 11542113, 11542121, 19, 21]
+    ]
+  },
+  "scannerPartition": {
+    "units": 1,
+    "residues": 3,
+    "residueIdentitiesSha256": "2e1fe21bff9e19d04324aa8b25bcb8346a58c5ed21978464ec77506d46b3aa6a",
+    "rows": [
+      [18786, "property", "outcomes", 11542014, 11542022, 19, 20],
+      [18786, "property", "sources", 11542101, 11542108, 21, 22],
+      [18786, "property", "outcomes", 11542113, 11542121, 19, 21]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/bridge/codeSessionApi.ts"
+    ],
+    "evidenceIds": [
+      "target118-code-session-git-context-target-fragment",
+      "target118-code-session-git-context-source-replay-test",
+      "target118-code-session-git-context-source-ast-test"
+    ],
+    "behavior": "The authenticated Target118 createCodeSession unit retains the Target117 git-context request contract: it builds source and outcome descriptors from the repository and branch, adds cwd/model config, enables outcome-branch reuse only for non-empty context, and posts the complete config with the session request. The bounded replay restores the exact historical Target118 codeSessionApi declaration plus its gitSessionContext dependency."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "targetIndicesSha256": "90906c53a9956098e47dd38bd347daf56b505d62c6f426ab9d56fa37e9713850",
+    "residueIdentitiesSha256": "2e1fe21bff9e19d04324aa8b25bcb8346a58c5ed21978464ec77506d46b3aa6a"
+  }
+}

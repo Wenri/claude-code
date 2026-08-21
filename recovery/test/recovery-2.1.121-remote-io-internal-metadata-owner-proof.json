@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-remote-io-internal-metadata-static-whole-initializer-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "claim": "Target121 u21913 is the complete src/cli/remoteIO.ts module initializer. Removing its sole 92-byte onInternalMetadataChanged assignment makes the complete Target121 AST and all 1027 retained identifier-normalized tokens identical to adjacent unmatched Target120 u21812; exact u21914-to-u21813 pairing closes the right boundary. Target121 remoteIO.ts independently adds only the equivalent process-global listener import and callback relative to Target120, but recovered source cannot replay the compiled per-instance graph without the missing SessionStateManager/StructuredIO architecture pinned by u21128.",
+  "evidenceIds": [
+    "target121-remote-io-authenticated-whole-initializer",
+    "target121-remote-io-exact-internal-metadata-callback-delta",
+    "target121-remote-io-source-owner-lineage",
+    "target121-remote-io-source-architecture-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js","bytes":13784743,"sha256":"c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+    "targetBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js","bytes":13908188,"sha256":"783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"},
+    "structuralLedger": {"path":"recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz","bytes":2540002,"sha256":"185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"},
+    "typedReportSnapshots": {
+      "postFocusedBatch": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25717702,"sha256":"f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"},
+      "postTail": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25717702,"sha256":"f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a","projection":"postFocusedBatch"},
+      "postReplay": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25395103,"sha256":"87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de","projection":"postTail"},
+      "postDangerous": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25390987,"sha256":"42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7","projection":"postReplay"},
+      "postPrune": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4","projection":"postDangerous"},
+      "postDaemonOwner": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3","projection":"postPrune"}
+    },
+    "sourceCoverageSnapshots": {
+      "postFocusedBatch": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":343532,"sha256":"7a51d49cdd7cb9b26b883ea0f0b1242573cd1ed4a0ba25a91ac1bc98dbc1eabd","rawBytes":2958647,"rawSha256":"92bf969f261a3c716fb8e8a4fa50b879a1a407bf35a51cfca5971afc67c9555b"},
+      "postTail": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":344669,"sha256":"dafa823f59585697d7f696805d929a9427bc090b7bb33fa228c1a9e5d9e3ff43","rawBytes":2963227,"rawSha256":"a7956794d1f4c4613b3fb9917a7d827500b98b8195fec505ed373930cad1adb5"},
+      "postReplay": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"},
+      "postDangerous": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592","projection":"postReplay"},
+      "postPrune": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06","projection":"postDangerous"},
+      "postDaemonOwner": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f","projection":"postPrune"}
+    },
+    "evolutionCompatibility": {"postFocusedBatch":["postFocusedBatch"],"postTail":["postTail"],"postReplay":["postReplay"],"postDangerous":["postDangerous"],"postPrune":["postPrune"],"postDaemonOwner":["postDaemonOwner"]},
+    "sessionStateDependencyFixture": {"path":"recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.json","bytes":10687,"sha256":"6119576dc873597ab386d20e10f7d5688b7534ad376b6c35dacc8f64b9525397"}
+  },
+  "targetUnit": {
+    "targetIndex": 21913,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 5,
+    "nodeType": "VariableDeclaration",
+    "parseStatus": "parsed",
+    "start": 13607577,
+    "end": 13610752,
+    "bytes": 3175,
+    "tokenCount": 1048,
+    "topDefinitionCount": 1,
+    "sha256": "688ac763bfe3a7a7386462b492ebf09797ed83f0ed4d577640135a55d1dc4dec",
+    "coarseHash": "a21de739a30b1f50da5f5f60da32d24fe3ff0106be9fbc705cc773126136e6e8",
+    "line": 18544,
+    "column": 5244
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 21812,
+    "classification": "unmatched-baseline",
+    "relation": "the unit immediately before exact-paired baseline u21813, corresponding to target u21913 immediately before exact-paired target u21914; complete initializer AST and normalized-token lineage is exact after the sole callback insertion is removed",
+    "nodeType": "VariableDeclaration",
+    "parseStatus": "parsed",
+    "start": 13542326,
+    "end": 13545408,
+    "bytes": 3082,
+    "tokenCount": 1027,
+    "topDefinitionCount": 1,
+    "sha256": "9c975da892bbcc27ef9a89d65005a27dd355373c56071da993bf1ae56d44a963",
+    "coarseHash": "631976bb58d98a9a5652bdc1ae2d5d7e15c2b33a05ed3b3d0ce6a6ccfd50c3f5",
+    "line": 18565,
+    "column": 5244
+  },
+  "rightBoundary": {
+    "targetIndex": 21914,
+    "baselineUnitIndex": 21813,
+    "classification": "matched",
+    "pairReason": "exact-scope-normalized-token-hash",
+    "nodeType": "FunctionDeclaration",
+    "start": 13610752,
+    "end": 13610829,
+    "tokenCount": 36,
+    "sha256": "5d4f74bfa119ffc570452c8f2c8647f2534c74fd0201d1f14a1058c31e406df4",
+    "coarseHash": "223d9f42ccc15d63af22b59a57f7404bf00a4a0c1a72e56ef0418480eb2157d3"
+  },
+  "ownerResidues": {
+    "reportedOwner": "cli/remoteIO.ts",
+    "correctedOwner": "src/cli/remoteIO.ts",
+    "declarations": ["RemoteIO", "constructor"],
+    "totalRows": 17,
+    "targetAddedRows": 2,
+    "strictRows": 1,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {"bytes":1005,"sha256":"62891b628a4c8ed9f94ac2b7b40c13f8f5a9cb450f7c32ae0ac449f4107d6614"},
+    "ownerIdentityMethod": "row identity plus ownerPaths and ownerSourceMatches in typed-report order",
+    "ownerIdentities": {"bytes":1396,"sha256":"4499b9b5c4898ec16a20f2e5b9bc011ccc74d300b729bb8609bd7f41a762e951"},
+    "targetAddedIdentities": {"bytes":129,"sha256":"8df8c6128fd9877fed1e5950c04e6d0bce18f64a3a4d263d8cfd6e3b44ea361e"},
+    "targetAddedRowsExact": [
+      ["property","constructor",13607835,13607846,1291,1295,true],
+      ["property","onInternalMetadataChanged",13609574,13609599,0,3,true]
+    ],
+    "strictIdentities": {"bytes":68,"sha256":"17546edd3ce2864f56bf81a77af9b35f2a5151fed56a9223fd0323cf3687945c"},
+    "strictRowsExact": [
+      [21913,"property","onInternalMetadataChanged",13609574,13609599,3]
+    ],
+    "constructorAccounting": "The constructor property is present in both complete class ASTs; targetAdded=true is a bundle-global occurrence-number residue, not a second structural insertion."
+  },
+  "wholeUnitLineage": {
+    "rawByteDelta": 93,
+    "tokenDelta": 21,
+    "canonicalization": "Acorn AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand property keys and noncomputed member/method/field names",
+    "baselineCanonical": {"bytes":41159,"sha256":"f563e4f9ec7fdfde44a2797a9b5f0ff7c42a352b2b3f13e87e9e9143362ea6cc"},
+    "targetCanonical": {"bytes":42165,"sha256":"efe635d3ba2efe08a7bbdda0e931983f67bd7db7955a944c431aa8f48528d84d"},
+    "targetWithoutCallbackCanonical": {"bytes":41159,"sha256":"f563e4f9ec7fdfde44a2797a9b5f0ff7c42a352b2b3f13e87e9e9143362ea6cc"},
+    "identifierNormalizedTokens": {
+      "method": "Acorn tokens serialized as [type.label,value], with name-token values replaced by @id and absent values represented as null",
+      "baseline": {"count":1027,"bytes":13478,"sha256":"e7b147e27ec595b002b550ff39fdf3bc4d45ac25bffb3a5b4df2a5c1466bc598"},
+      "target": {"count":1048,"bytes":13744,"sha256":"9243682d569cb06d36d67f45e84f90506ce867af9c9ac7c8327c12f3c0deae2d"},
+      "callbackInsertion": {"count":21,"bytes":267,"sha256":"8c68027d7856fc150a265cc2127b81f64c06e7caa69484b1c56766962ac2a94e"},
+      "targetWithoutCallback": {"count":1027,"bytes":13478,"sha256":"e7b147e27ec595b002b550ff39fdf3bc4d45ac25bffb3a5b4df2a5c1466bc598"}
+    },
+    "alignment": {"runs":[["=",680],["+",21],["=",372]],"runsDescriptor":{"bytes":30,"sha256":"c33acb98589e6a3b4e9a6158f0675e9f2aae1353dab6a360d03cbc3ac02bd36f"}},
+    "compiledClassSurface": {"memberCount":13,"memberNames":{"bytes":179,"sha256":"0144e02bf1ca092319109381dde44cc34156b22a91c8abf6eb9b573391243186"}},
+    "callback": {
+      "nodeType": "AssignmentExpression",
+      "path": "declarations.0.init.arguments.0.body.body.18.expression.right.body.body.7.value.body.body.8.consequent.body.5.expression.expressions.3",
+      "start": 13609556,
+      "end": 13609648,
+      "localStart": 1979,
+      "localEnd": 2071,
+      "bytes": 92,
+      "sha256": "61b4db0bed232b1042cfe9f91bba05d4705fd04b495e881321b28dbb7711ded7",
+      "canonicalBytes": 1005,
+      "canonicalSha256": "5d45f78c5bdccd06440b6113d9c6078435d68b439d195bc90025c1d1ea380a09",
+      "exact": "this.sessionState.onInternalMetadataChanged=(w)=>{this.ccrClient?.reportInternalMetadata(w)}"
+    },
+    "callbackInsertion": {"start":13609556,"end":13609649,"localStart":1979,"localEnd":2072,"bytes":93,"sha256":"cb4ce5765963bdf541a7e314dd39b83543080a43e84477eab09af0d32bb927e0","exact":"this.sessionState.onInternalMetadataChanged=(w)=>{this.ccrClient?.reportInternalMetadata(w)},"},
+    "previousCallback": {"nodeType":"AssignmentExpression","start":13609479,"end":13609555,"localStart":1902,"localEnd":1978,"bytes":76,"sha256":"1d9e84ffdbc791839f89ec0b346a905ef4a62aba99e47a0a7615f525afc3c269","exact":"this.sessionState.onMetadataChanged=(w)=>{this.ccrClient?.reportMetadata(w)}"},
+    "nextCallback": {"nodeType":"CallExpression","start":13609649,"end":13609701,"localStart":2072,"localEnd":2124,"bytes":52,"sha256":"9cdcbdb547305242f30044758da7e2613ef1eb17f0b3a299fd6d3da9aab8c09d","exact":"e3K((w)=>this.sessionState.notifyMetadataChanged(w))"}
+  },
+  "sourceState": {
+    "path": "src/cli/remoteIO.ts",
+    "className": "RemoteIO",
+    "baseline": {"path":".recovery-tmp/semantic-trees/2.1.120/src/cli/remoteIO.ts","selectedPath":"src/cli/remoteIO.ts","commit":"6801ead984ba2c3df02bd092ad8b93df096ed8c1","blob":"753e249c4f5dc178fdbbf780b766fc9ba6e626b5","bytes":10171,"chars":10165,"sha256":"ce328a85c8835037b465579cad4e3b1f7022a0bb1c9a6bdbb4c972ce67bea8d6"},
+    "target": {"path":".recovery-tmp/semantic-trees/2.1.121/src/cli/remoteIO.ts","selectedPath":"src/cli/remoteIO.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"de6109faf7c0a0a4a6cd8c3b54186c62ef1dd7ea","bytes":10344,"chars":10338,"sha256":"69e6c039cb2c76409f42a0d2fe4c2961cdcf3440d1af161d97105144b8f5c36a","class":{"nodeType":"ClassDeclaration","start":1683,"end":10337,"chars":8654,"bytes":8660,"sha256":"70ffdf84cbc5bac7f6fe920bf9234bd4714926104d72d01df4911a973b1791d2","line":38,"column":1},"constructor":{"nodeType":"Constructor","start":2021,"end":9227,"chars":7206,"bytes":7212,"sha256":"ed43962df1f618b725b7d4a9d240d4d86d17c932c3c5aa4ec930c085c9404ebf","line":47,"column":3},"classMemberCount":12,"memberNames":{"bytes":159,"sha256":"a3f70be02e99dfc742474e4509cae2d86c393df51ecc3f2298e3e1e0988b08c6"},"constructorParameterCount":3,"superArgumentCount":2,"sessionStateMemberCount":0},
+    "exactAdditions": [
+      {"role":"listener-import","start":966,"end":1011,"chars":45,"bytes":45,"sha256":"67add5ac7aadbbf2abba2d51d6bc9b754b03ba0eb45276d4a92eef4c8bed88b3","exact":"  setSessionInternalMetadataChangedListener,\n"},
+      {"role":"listener-callback","start":6913,"end":7041,"chars":128,"bytes":128,"sha256":"f38e196a1dee4283c688ba85c9208b103068bab7982898972aedc593174093be","exact":"      setSessionInternalMetadataChangedListener(metadata => {\n        this.ccrClient?.reportInternalMetadata(metadata)\n      })\n"}
+    ],
+    "targetWithoutExactAdditions": {"bytes":10171,"chars":10165,"sha256":"ce328a85c8835037b465579cad4e3b1f7022a0bb1c9a6bdbb4c972ce67bea8d6"}
+  },
+  "dependencyProof": {
+    "fixtureTargetIndex": 21128,
+    "runtimeConsumerRole": "remote-io-ccr-sink",
+    "sourceArchitectureDecision": "static complete-class owner proof only; no replay helper and no source writes",
+    "requiredStructuredIOConstructorParameters": 2,
+    "requiredSessionStateManagerCount": 0
+  },
+  "sourceReplayBlocker": {
+    "decision": "static complete-initializer owner proof only; no replay helper and no source writes",
+    "reason": "The recovered target source proves RemoteIO ownership and the equivalent CCR sink, but it retains process-global listener registration, a three-parameter RemoteIO constructor, a two-argument StructuredIO super call, no this.sessionState member graph, and no compiled flushDeliveryAcks member. The u21128 dependency independently pins that StructuredIO and sessionState.ts omit SessionStateManager. Replaying only the callback would create a mixed global/per-instance graph."
+  },
+  "sourceCoverageClaim": {
+    "row": {"targetIndex":21913,"start":13607577,"end":13610752,"nodeType":"VariableDeclaration","sourceHash":"688ac763bfe3a7a7386462b492ebf09797ed83f0ed4d577640135a55d1dc4dec","structuralClass":"unresolved","disposition":"source-runtime-covered","ownerIds":["owner-src-cli-remoteIO-ts"],"evidenceIds":["source-map-attribution","semantic-test"],"behavior":"Compiled target unit is attributed to src/cli/remoteIO.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."},
+    "rowCanonical": {"bytes":516,"sha256":"522767866198d0c4c21e82628c8f38cf0adaa940548141e63a29e82b2414043d"},
+    "owner": {"id":"owner-src-cli-remoteIO-ts","path":"src/cli/remoteIO.ts"}
+  },
+  "postTail": {
+    "ownerResidueProjection": "postFocusedBatch",
+    "sourceCoverageClaim": {
+      "row": {"targetIndex":21913,"start":13607577,"end":13610752,"nodeType":"VariableDeclaration","sourceHash":"688ac763bfe3a7a7386462b492ebf09797ed83f0ed4d577640135a55d1dc4dec","structuralClass":"unresolved","disposition":"source-runtime-covered","ownerIds":["owner-src-cli-remoteIO-ts"],"evidenceIds":["target121-remote-io-authenticated-whole-initializer","target121-remote-io-exact-internal-metadata-callback-delta","target121-remote-io-source-owner-lineage","target121-remote-io-source-architecture-blocker"],"behavior":"The authenticated Target121 RemoteIO module initializer is exactly its adjacent unmatched Target120 predecessor after removing one onInternalMetadataChanged assignment from the constructor CCR callback sequence. Target121 remoteIO.ts independently adds the equivalent setSessionInternalMetadataChangedListener-to-ccrClient.reportInternalMetadata edge and otherwise reconstructs byte-for-byte to Target120 source. The bundle uses a four-parameter RemoteIO constructor, a three-argument StructuredIO super call, and per-instance sessionState callbacks, while recovered source retains a three-parameter/two-argument process-global listener graph and omits another compiled class member. The authenticated u21128 SessionStateManager proof pins the same callback and the missing per-instance dependency. This is a static complete-initializer owner proof; no partial source replay is admitted."},
+      "rowCanonical": {"bytes":1402,"sha256":"25828acf25c49635668411f9af901b31d9c3cfc63d50105f9e23a1e9d939da2e"},
+      "owner": {"id":"owner-src-cli-remoteIO-ts","path":"src/cli/remoteIO.ts"}
+    }
+  },
+  "postReplay": {"ownerResidueProjection":"postTail","sourceCoverageProjection":"postTail"},
+  "postDangerous": {"ownerResidueProjection":"postReplay","sourceCoverageProjection":"postReplay"},
+  "postPrune": {"ownerResidueProjection":"postDangerous","sourceCoverageProjection":"postDangerous"},
+  "postDaemonOwner": {"ownerResidueProjection":"postPrune","sourceCoverageProjection":"postPrune"},
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/remote-io-internal-metadata-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_REMOTE_IO_INTERNAL_METADATA_OWNER_OVERRIDES",
+    "evidenceExport": "TARGET121_REMOTE_IO_INTERNAL_METADATA_EVIDENCE_IDS",
+    "replayHelper": null,
+    "expectedAddedOwnerImpact": {"units":-1,"residues":-2},
+    "expectedRawStrictImpact": {"units":-1,"residues":-1}
+  }
+}

@@ -7,7 +7,12 @@
     "targetIsNextPublishedVersion": true,
     "skipped": [],
     "skippedVersionsAbsent": true,
-    "provenance": "evidence/provenance.json"
+    "provenance": "evidence/provenance.json",
+    "predecessorManifest": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/manifest.json",
+      "bytes": 275998,
+      "sha256": "5c378bdbedaad3b8a39c2b69038ef7f2857b025290f68d6437d5309b7bc8bf61"
+    }
   },
   "recoveryScope": {
     "platform": "linux-x64",
@@ -4940,11 +4945,260 @@
     "root": "src",
     "baseCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
     "baseGitTree": "6284c518a191674bf3e42869e05cad35dcaeabf0",
-    "baseSourceGitTree": "a80c537f012b1588e3900c998971fec31eefc3ce",
     "baseSrcGitTree": "a80c537f012b1588e3900c998971fec31eefc3ce",
     "targetCommit": "6d1dcf52c331e9c76445e8eb6a3ae98c63826b21",
     "targetGitTree": "40ae313020dddf43ff7bc2a3f4c8fbd8d31d47b3",
     "targetSrcGitTree": "b55f7a7932216b9e4bce7705543ab970d34fbdff",
+    "testGitRepositories": {
+      "CLAUDE_CODE_2_1_120_REPOSITORY_ROOT": {
+        "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+        "gitTree": "6284c518a191674bf3e42869e05cad35dcaeabf0",
+        "srcGitTree": "a80c537f012b1588e3900c998971fec31eefc3ce"
+      },
+      "CLAUDE_CODE_2_1_121_REPOSITORY_ROOT": {
+        "commit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+        "gitTree": "b9a46998cc6a47f76764c1f0b04ec1c04dab1449",
+        "srcGitTree": "b55f7a7932216b9e4bce7705543ab970d34fbdff",
+        "detachedCommits": [
+          {
+            "commit": "9f034bb03d575603a850e3c75ce003406094f9cc",
+            "gitTree": "e30c62cef8d103b23920df31a731ee212ed721ba",
+            "srcGitTree": "652c2140c66f33b44de9a0c79bab247aa84f99a2"
+          }
+        ]
+      }
+    },
+    "testSandbox": {
+      "schemaVersion": 1,
+      "legacyArtifacts": [
+        {
+          "destination": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+          "artifact": "baselineAnalyzableBundle"
+        },
+        {
+          "destination": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+          "artifact": "targetAnalyzableBundle"
+        }
+      ],
+      "expandedFiles": [
+        {
+          "source": "structural/all-owners.json.gz",
+          "bytes": 1035816,
+          "sha256": "b42a301c879554afd738a5afd3fd03c131fa6361dd62c37694ae68cd2961866d",
+          "compression": "gzip",
+          "destination": ".recovery-tmp/generator-inputs/2.1.120-to-2.1.121.all-owners.json",
+          "expandedBytes": 9491480,
+          "expandedSha256": "a22f33e74ad03338d787b31eab6227af8aa8bad3ab4882f53dbdfb5813d63709"
+        },
+        {
+          "source": "structural/typed-audit.json.gz",
+          "bytes": 963461,
+          "sha256": "e9174bc686d74bc181550e54e8a05db1cc9e90cd4d964dac2c54bb525b291978",
+          "compression": "gzip",
+          "destination": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+          "expandedBytes": 25369097,
+          "expandedSha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+        }
+      ],
+      "sourceTrees": [
+        {
+          "destination": ".recovery-tmp/semantic-trees/2.1.120/src",
+          "repositoryEnvironment": "CLAUDE_CODE_2_1_120_REPOSITORY_ROOT"
+        },
+        {
+          "destination": ".recovery-tmp/semantic-trees/2.1.121/src",
+          "repositoryEnvironment": "CLAUDE_CODE_2_1_121_REPOSITORY_ROOT"
+        },
+        {
+          "destination": "src",
+          "repositoryEnvironment": "CLAUDE_CODE_2_1_121_REPOSITORY_ROOT"
+        }
+      ],
+      "toolchainFiles": [
+        {
+          "source": ".pixi/envs/default/bin/bun",
+          "destination": ".pixi/envs/default/bin/bun",
+          "bytes": 59446272,
+          "sha256": "6b4c3ee486bf5866a4d3830c5c5786b92717c2205619c2f144c17fa77017c425",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libarchive.so.13.8.8",
+          "destination": ".pixi/envs/default/lib/libarchive.so.13",
+          "bytes": 981496,
+          "sha256": "3155c374bef7babb4c6c8ffa2fc10d47fef89385c4f000d263551ec8b7f5d367",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libbrotlicommon.so.1.2.0",
+          "destination": ".pixi/envs/default/lib/libbrotlicommon.so.1",
+          "bytes": 143408,
+          "sha256": "d5bba266a5752ababb4a56a79aec3071f9eac8984a3c818493ad006b4b74beb4",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libbrotlidec.so.1.2.0",
+          "destination": ".pixi/envs/default/lib/libbrotlidec.so.1",
+          "bytes": 59768,
+          "sha256": "ad80d23baef2449aa9163b77217eca29e8370f0f6c62caa06dfcaf51d15c34d4",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libbrotlienc.so.1.2.0",
+          "destination": ".pixi/envs/default/lib/libbrotlienc.so.1",
+          "bytes": 776496,
+          "sha256": "486fafa6ed14344798e408763f5a716aca427bcb71fe0febc916afd33dce8f91",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libbz2.so.1.0.8",
+          "destination": ".pixi/envs/default/lib/libbz2.so.1.0",
+          "bytes": 241888,
+          "sha256": "cc570bce44ed3ab1b0f480bdb95c04e8224432811bfb5a55b533135a6001a03b",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libcares.so.2.19.5",
+          "destination": ".pixi/envs/default/lib/libcares.so.2",
+          "bytes": 323632,
+          "sha256": "0ab5892532c3befe905456ead7bebe2e36699b2a7307177be666ed0602514772",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libcrypto.so.3",
+          "destination": ".pixi/envs/default/lib/libcrypto.so.3",
+          "bytes": 7207344,
+          "sha256": "a81fb38c65e3fab72af5e31179fc8d76090b921a149c71c727e2fbe5e83a62df",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libdeflate.so.0",
+          "destination": ".pixi/envs/default/lib/libdeflate.so.0",
+          "bytes": 101872,
+          "sha256": "9f915c3467f59a215e969f24fa341425fe7bd6972a340079529d2cf21f818a28",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libgcc_s.so.1",
+          "destination": ".pixi/envs/default/lib/libgcc_s.so.1",
+          "bytes": 902640,
+          "sha256": "e1e904051f77f9569c2ea53c83bb4083c26575e0fbd4010e46f1cb8b21037ad1",
+          "mode": 420
+        },
+        {
+          "source": ".pixi/envs/default/lib/libhdr_histogram.so.6.2.3",
+          "destination": ".pixi/envs/default/lib/libhdr_histogram.so.6",
+          "bytes": 54264,
+          "sha256": "4ec2dedb2a09391ee0304549a6fc4fa2c228d94a315764e1689428fc7409efc0",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libhwy.so.1.4.0",
+          "destination": ".pixi/envs/default/lib/libhwy.so.1",
+          "bytes": 80216,
+          "sha256": "e25dfbe9e006cc6a1d7f2b01814a0668dafa807cfad6b6bd7478d7d7affb6326",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libiconv.so.2.7.0",
+          "destination": ".pixi/envs/default/lib/libiconv.so.2",
+          "bytes": 1178544,
+          "sha256": "ec9f94edf6d531397d6a53e5fd0a93747d683d64eafcb12e7a75546824152a3d",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libicudata.so.75.1",
+          "destination": ".pixi/envs/default/lib/libicudata.so.75",
+          "bytes": 30741448,
+          "sha256": "e065d9cbce8450291e1e8f9125f9a115a07b0181728217b7bf4e3db65c60a322",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libicui18n.so.75.1",
+          "destination": ".pixi/envs/default/lib/libicui18n.so.75",
+          "bytes": 4817400,
+          "sha256": "8332a1c6b589195ceac95fa127a256258f26e636616cf3d4f64fb9e5d182336d",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libicuuc.so.75.1",
+          "destination": ".pixi/envs/default/lib/libicuuc.so.75",
+          "bytes": 2585632,
+          "sha256": "c9a25b3248c0b20fe3e2bf10042fba72009eed6d72422dca53c8ac169ca65d1b",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/liblolhtml.so.1.4.0",
+          "destination": ".pixi/envs/default/lib/liblolhtml.so.1",
+          "bytes": 882416,
+          "sha256": "c1dfb8c77a818b1c4ab7783b9e7b2b0a1c7b72af5abed065eb1e23640fb57c25",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libls-hpack.so",
+          "destination": ".pixi/envs/default/lib/libls-hpack.so",
+          "bytes": 836272,
+          "sha256": "6e4ec871aeb52ecfda01242dc904f07232d5f6c6c89af3ade278eb216288f861",
+          "mode": 420
+        },
+        {
+          "source": ".pixi/envs/default/lib/liblz4.so.1.10.0",
+          "destination": ".pixi/envs/default/lib/liblz4.so.1",
+          "bytes": 190600,
+          "sha256": "34f4953d4e73474636347458db1f1048ba4b1ba967f36ef3da53051d0d1bc4da",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/liblzma.so.5",
+          "destination": ".pixi/envs/default/lib/liblzma.so.5",
+          "bytes": 222712,
+          "sha256": "07dceced575343c83860aedde6e7e2ac5deb7a0fa31b0f195c44388544817abc",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/liblzo2.so.2.0.0",
+          "destination": ".pixi/envs/default/lib/liblzo2.so.2",
+          "bytes": 229264,
+          "sha256": "7fb098ccaf6ce5c1c925dff401bfcd9d70e46ca878cc63051da80489b7392038",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libstdc++.so.6.0.34",
+          "destination": ".pixi/envs/default/lib/libstdc++.so.6",
+          "bytes": 21295144,
+          "sha256": "9581ad615b7c073423f57b69a3b148a89f8ea76fc909124211f9007909b807a6",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libxml2.so.16.1.1",
+          "destination": ".pixi/envs/default/lib/libxml2.so.16",
+          "bytes": 1444464,
+          "sha256": "f43ab2fc9a6a52de1a580b34db5b24470d58050c262452a8db12423ccb6c247d",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libz.so.1.3.2",
+          "destination": ".pixi/envs/default/lib/libz.so.1",
+          "bytes": 117128,
+          "sha256": "22f1601237b86f0f48ed5b83071d1505167ae2e16365b33b4eed6e96dbf71ab0",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/libzstd.so.1.5.7",
+          "destination": ".pixi/envs/default/lib/libzstd.so.1",
+          "bytes": 1198840,
+          "sha256": "e32f1e98942e91193d137ae9d460adf8e8cfbf504c8a8aedfb5825576d53a801",
+          "mode": 493
+        },
+        {
+          "source": ".pixi/envs/default/lib/node_modules/typescript/lib/typescript.js",
+          "destination": ".pixi/envs/default/lib/node_modules/typescript/lib/typescript.js",
+          "bytes": 9143423,
+          "sha256": "630f808ac32d968a49a392c42cc06fd72abd939aaa7edfe3302810c067934653",
+          "mode": 420
+        }
+      ]
+    },
     "patchSet": "2.1.120-to-2.1.121-incremental",
     "patchOrder": [
       "recovered/source-facing-overlay.patch"
@@ -8455,43 +8709,115 @@
       "src/utils/worktree.ts"
     ],
     "testFiles": [
+      "recovery/test/recovery-2.1.121-agent-tool-skill-provenance-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-agents-fleet-gate-cache-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-agents-handler-groups-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-async-agent-detail-kill-all-shortcut-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-autocompact-rapid-refill.test.mjs",
+      "recovery/test/recovery-2.1.121-background-tasks-kill-all-shortcut-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-bootstrap-state-export-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-classifier-build-name-filter-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-claudemd-cowork-memory-default-entrypoint-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-compaction-spinner.test.mjs",
       "recovery/test/recovery-2.1.121-console-platform-wizards.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-main-log-rotation-strict-number-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-main-owner-proofs.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-service-executable-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-daemon-service.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-spare-connect-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-spare-owner-proofs.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-status-doctor-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-supervisor-create-server-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-supervisor-handle-control-strict-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.test.mjs",
+      "recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-dangerous-mode-pre-dialog-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-datadog-event-catalog-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-diagnostics-inline-expand-hint-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-dialog-overflow.test.mjs",
       "recovery/test/recovery-2.1.121-direct-evidence.test.mjs",
       "recovery/test/recovery-2.1.121-dream-skill.test.mjs",
       "recovery/test/recovery-2.1.121-dynamic-loop.test.mjs",
+      "recovery/test/recovery-2.1.121-entrypoint-dce-existing-closure-audit.test.mjs",
+      "recovery/test/recovery-2.1.121-extra-usage-owner-proofs.test.mjs",
       "recovery/test/recovery-2.1.121-feedback-surface.test.mjs",
+      "recovery/test/recovery-2.1.121-file-edit-unicode-escape-case-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-final-strict-accounting.test.mjs",
+      "recovery/test/recovery-2.1.121-fleet-view-frame-child-row-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-fleet-view-runtime-status-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-fleetview-pr-poll-delay-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-focused-residue-proofs.test.mjs",
+      "recovery/test/recovery-2.1.121-fork-spawned-by-skill-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-growthbook-experiment-cache-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-handle-prompt-submit-active-skill-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-headless-restored-task-clear-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-hidden-obligations.test.mjs",
       "recovery/test/recovery-2.1.121-inherited-active-core.test.mjs",
       "recovery/test/recovery-2.1.121-inherited-runtime-residuals.test.mjs",
+      "recovery/test/recovery-2.1.121-ink-frame-timing-live-counts-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-internal-repo-url-validation-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-lower-runtime-boundaries.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-first-allowed-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-growthbook-timeout-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-is-absolute-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-resume-error-name-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-second-allowed-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-session-state-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-teammate-colors-index-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-main-run-view-mode-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-mcp-refresh-repl-copy.test.mjs",
+      "recovery/test/recovery-2.1.121-memory-write-survey-hook-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-memory-write-visual-row-truncation-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-official-owned-cluster.test.mjs",
       "recovery/test/recovery-2.1.121-official-residual-cluster.test.mjs",
       "recovery/test/recovery-2.1.121-official-runtime-settings-cluster.test.mjs",
+      "recovery/test/recovery-2.1.121-peer-credentials-macos-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-plugin-prune-command-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-powershell-pipeline-paths.test.mjs",
+      "recovery/test/recovery-2.1.121-powershell-resolved-unc-normalization-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-powerup-team-onboarding.test.mjs",
+      "recovery/test/recovery-2.1.121-pty-worker-owner-proofs.test.mjs",
+      "recovery/test/recovery-2.1.121-query-engine-active-skill-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-query-model-skill-attribution-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-query-run-agent-runtime-state-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-query-terminal-schema.test.mjs",
       "recovery/test/recovery-2.1.121-reactive-runtime-gaps.test.mjs",
+      "recovery/test/recovery-2.1.121-relaunch-current-binary-pin-source-gap.test.mjs",
       "recovery/test/recovery-2.1.121-remote-control-boundary.test.mjs",
+      "recovery/test/recovery-2.1.121-remote-io-internal-metadata-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-remote-ux-and-branch.test.mjs",
       "recovery/test/recovery-2.1.121-removed-gates.test.mjs",
+      "recovery/test/recovery-2.1.121-rename-generated-session-name-source-gap.test.mjs",
+      "recovery/test/recovery-2.1.121-repl-runtime-source-gap-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-residual-dream-hook-defer.test.mjs",
+      "recovery/test/recovery-2.1.121-resume-agent-spawned-by-skill-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-retained-runtime-surfaces.test.mjs",
       "recovery/test/recovery-2.1.121-runtime-hardening.test.mjs",
       "recovery/test/recovery-2.1.121-sdk-control-runtime.test.mjs",
+      "recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-settings-auth-runtime.test.mjs",
+      "recovery/test/recovery-2.1.121-skill-tool-active-skill-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-slash-command-active-skill-owner-proof.test.mjs",
+      "recovery/test/recovery-2.1.121-slash-command-content-telemetry-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-subscription-upsell-gates.test.mjs",
+      "recovery/test/recovery-2.1.121-tail-generator-evidence.test.mjs",
+      "recovery/test/recovery-2.1.121-tail-residue-classification.test.mjs",
+      "recovery/test/recovery-2.1.121-tail-semantic-correspondence-admissions.test.mjs",
+      "recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.test.mjs",
       "recovery/test/recovery-2.1.121-usage-attribution.test.mjs",
+      "recovery/test/recovery-2.1.121-usage-contributors-owner-proofs.test.mjs",
       "recovery/test/recovery-2.1.121-warm-resume.test.mjs",
       "recovery/test/recovery-2.1.121-worktree-baseline.test.mjs"
     ],
     "testArtifactEnvironment": {
       "CLAUDE_CODE_2_1_120_BUNDLE": "baselineAnalyzableBundle",
       "CLAUDE_CODE_2_1_121_BUNDLE": "targetAnalyzableBundle",
+      "CLAUDE_CODE_2_1_120_INNER_BUNDLE": "baselineAnalyzableBundle",
+      "CLAUDE_CODE_2_1_121_INNER_BUNDLE": "targetAnalyzableBundle",
       "CLAUDE_2_1_120_CLI_INNER": "baselineAnalyzableBundle",
       "CLAUDE_2_1_121_CLI_INNER": "targetAnalyzableBundle",
       "CLAUDE_CODE_2_1_120_WRAPPER": "baselineBundle",
@@ -8499,9 +8825,784 @@
     },
     "testFileAssertions": [
       {
+        "path": "recovery/2.1.121-direct-evidence-specs.json",
+        "bytes": 153243,
+        "sha256": "09415d2aa4ddf3f5bc28faf3af96c0e230eebede39edc6037b431872cd737894"
+      },
+      {
+        "path": "recovery/2.1.121-hidden-semantic-inventory.json",
+        "bytes": 14909,
+        "sha256": "98c0e34c978169d25cf0c0c53fc038589678776ba3bb1666a5c1bf7b8b4dd38a"
+      },
+      {
+        "path": "recovery/2.1.121-official-owned-cluster-inventory.json",
+        "bytes": 9653,
+        "sha256": "b2067fff62d893931fa59532223989c96f49bac0e4f5c69e2879b17ac4764435"
+      },
+      {
+        "path": "recovery/2.1.121-official-residual-cluster-inventory.json",
+        "bytes": 4782,
+        "sha256": "3965468d5b4cf283accfd0c814f7c81eafaabc171d00cd5ae8a5f6368ab66131"
+      },
+      {
+        "path": "recovery/2.1.121-official-runtime-settings-cluster-inventory.json",
+        "bytes": 10053,
+        "sha256": "49842ffdb5da2d50c76a7e9323bf1ac5bc5bfebd78f0a2bf45e34f2b08e1e6d9"
+      },
+      {
+        "path": "recovery/cases/2.1.100-to-2.1.101/semantic-supplement.patch",
+        "bytes": 2302473,
+        "sha256": "5f09c2856c494d70c5712be1c4091e2099772bfbbc2e30690aedcb1e0c36f2b0"
+      },
+      {
+        "path": "recovery/cases/2.1.101-to-2.1.104/semantic-supplement.patch",
+        "bytes": 18821,
+        "sha256": "44b5ec955eee89528bdeb2c0d33d4d3fb8cfbc70f3478e1d3c73fb5f70e54339"
+      },
+      {
+        "path": "recovery/cases/2.1.104-to-2.1.105/semantic-supplement.patch",
+        "bytes": 1329483,
+        "sha256": "a4b761ee17ae0747c3c29c92415588f11768a1c54d785105e8dbec625b0dc825"
+      },
+      {
+        "path": "recovery/cases/2.1.105-to-2.1.107/semantic-supplement.patch",
+        "bytes": 1359,
+        "sha256": "578ee3c4a3bd575dc03fb3437cb184910148adbe9ad632cd99e71339a001175a"
+      },
+      {
+        "path": "recovery/cases/2.1.107-to-2.1.108/manifest.json",
+        "bytes": 59349,
+        "sha256": "5409c197add638936ecdd8b7c7823d7f83df20f8e9ee8c3e0fde2940421eeeec"
+      },
+      {
+        "path": "recovery/cases/2.1.107-to-2.1.108/semantic-supplement.patch",
+        "bytes": 1047143,
+        "sha256": "e6b5ac40a3d8b2970b64822b30bf95af14ab63a53630dddb85b8745ab6219720"
+      },
+      {
+        "path": "recovery/cases/2.1.107-to-2.1.108/semantic/claude-api-content.json",
+        "bytes": 1855,
+        "sha256": "b07f3eeeee3a9497ed59c507e898f337ce9aea0db42cefb0154c4fc7e5cd2f05"
+      },
+      {
+        "path": "recovery/cases/2.1.107-to-2.1.108/semantic/dependency-coverage.json.gz",
+        "bytes": 9050,
+        "sha256": "d6ea59d67d3d4fabd7b0758d3b1b1c2133bb91cda17d5de4598fc39d4a670154"
+      },
+      {
+        "path": "recovery/cases/2.1.107-to-2.1.108/semantic/source-coverage.json.gz",
+        "bytes": 274934,
+        "sha256": "079471ab2227e7864659775ae3cfa047f53a232b978db1386f89992e3dbc2090"
+      },
+      {
+        "path": "recovery/cases/2.1.108-to-2.1.109/manifest.json",
+        "bytes": 55844,
+        "sha256": "359ff7be08cf07aa8d0b462c973f414b16211c86737bee51a13a869bc9ce3fc3"
+      },
+      {
+        "path": "recovery/cases/2.1.108-to-2.1.109/semantic/claude-api-content.json",
+        "bytes": 161,
+        "sha256": "f5e171846619ee7e8f6456720683c59a4870563d7d7bed38b773e3935269ca12"
+      },
+      {
+        "path": "recovery/cases/2.1.108-to-2.1.109/semantic/dependency-coverage.json.gz",
+        "bytes": 1370,
+        "sha256": "c13a4f68703c4bbd724a0dd134fa98166602f757216b31fb6827c4f3617c9dfe"
+      },
+      {
+        "path": "recovery/cases/2.1.108-to-2.1.109/semantic/source-coverage.json.gz",
+        "bytes": 51052,
+        "sha256": "e69beb042ef7c5207f36a64e2f79fe193d8d136d4c7c861e2888a8f99ec6444d"
+      },
+      {
+        "path": "recovery/cases/2.1.109-to-2.1.110/manifest.json",
+        "bytes": 74794,
+        "sha256": "d1e57f4692a2f746cef154b374bb77836eb5ec2e28eaa987160e5332cefd2b9e"
+      },
+      {
+        "path": "recovery/cases/2.1.109-to-2.1.110/semantic-supplement.patch",
+        "bytes": 1476652,
+        "sha256": "55fc741e98d20f9f97b66b432f78c327a1ba1f2ba4444cefd57cefa2052eddb7"
+      },
+      {
+        "path": "recovery/cases/2.1.109-to-2.1.110/semantic/claude-api-content.json",
+        "bytes": 161,
+        "sha256": "121ca2ea1c719a537a913e8238cc8e7513e65f5aec281ee6c7e511a41807c4a5"
+      },
+      {
+        "path": "recovery/cases/2.1.109-to-2.1.110/semantic/dependency-coverage.json.gz",
+        "bytes": 10260,
+        "sha256": "b8407b4d329a78300fa952192c3439c89e31b8357f78e9dc987b5477c62bb8ca"
+      },
+      {
+        "path": "recovery/cases/2.1.109-to-2.1.110/semantic/source-coverage.json.gz",
+        "bytes": 456273,
+        "sha256": "4dbe062e598f0a1745df31c855e83d98b860560ba8f1429a9b1fbfa6c7acd2d5"
+      },
+      {
+        "path": "recovery/cases/2.1.110-to-2.1.111/manifest.json",
+        "bytes": 83464,
+        "sha256": "748adb9c83e8ca7051075dd602080bbbe3a71d421479ede42457d8ba27df1602"
+      },
+      {
+        "path": "recovery/cases/2.1.110-to-2.1.111/semantic-supplement.patch",
+        "bytes": 475044,
+        "sha256": "67a350ca5f759b57e73bc971564a8640f367dd3faf7dcf0d7e6cce08be72a44f"
+      },
+      {
+        "path": "recovery/cases/2.1.110-to-2.1.111/semantic/claude-api-content.json",
+        "bytes": 5616,
+        "sha256": "285743e358bd9094719755775ec78d800a70771f3f65b08eb03f4bbc272b50c4"
+      },
+      {
+        "path": "recovery/cases/2.1.110-to-2.1.111/semantic/dependency-coverage.json.gz",
+        "bytes": 8510,
+        "sha256": "880e63193fbfa0f09a4f353c2f98d7e71e371e73202b36d6b20bbef30d7f95fd"
+      },
+      {
+        "path": "recovery/cases/2.1.110-to-2.1.111/semantic/source-coverage.json.gz",
+        "bytes": 169431,
+        "sha256": "3f81b11ec9fa2da33f7c45fc5f83e19a491d90368ef5f9d24088f9175b83f763"
+      },
+      {
+        "path": "recovery/cases/2.1.111-to-2.1.112/manifest.json",
+        "bytes": 75562,
+        "sha256": "fb9f56046ad256f52ea83068a5be4e61782f5b80cf86ccfb67bb38534d3ae920"
+      },
+      {
+        "path": "recovery/cases/2.1.111-to-2.1.112/semantic/claude-api-content.json",
+        "bytes": 161,
+        "sha256": "e5793301707c08d88c13d3c5f97b20b1929a68f8ce14192b994ca387be04de0d"
+      },
+      {
+        "path": "recovery/cases/2.1.111-to-2.1.112/semantic/dependency-coverage.json.gz",
+        "bytes": 856,
+        "sha256": "9a054695d60d2a7d84953f752defcee5b29a89896e0f17a640f57ca1df2aee96"
+      },
+      {
+        "path": "recovery/cases/2.1.111-to-2.1.112/semantic/source-coverage.json.gz",
+        "bytes": 42472,
+        "sha256": "5220ff7bc9b0aec61e9a8d0b0e32a0848d4f7497327963730da8364aee147f20"
+      },
+      {
+        "path": "recovery/cases/2.1.112-to-2.1.113/manifest.json",
+        "bytes": 90563,
+        "sha256": "a8cd0d06a293a643354d4617e1f45b5115d9f96ec9089188c4287b30c9aba935"
+      },
+      {
+        "path": "recovery/cases/2.1.112-to-2.1.113/semantic-supplement.patch",
+        "bytes": 569787,
+        "sha256": "91133b4948462f541f65f302b2b38e2686bdcfbef7f0bed5aacd537084e4afaa"
+      },
+      {
+        "path": "recovery/cases/2.1.112-to-2.1.113/semantic/claude-api-content.json",
+        "bytes": 161,
+        "sha256": "e17ccd495f431f5b3fbbc135a51e06594123effde4e2121eef346de44e631b44"
+      },
+      {
+        "path": "recovery/cases/2.1.112-to-2.1.113/semantic/dependency-coverage.json.gz",
+        "bytes": 106285,
+        "sha256": "db58e4657fc1edfaf94ba2cfa92a2ac6f941f5db6424b1d437f66b6412ab9d98"
+      },
+      {
+        "path": "recovery/cases/2.1.112-to-2.1.113/semantic/release-behaviors.json",
+        "bytes": 14769,
+        "sha256": "a05d884a4565a80f697593066b1665f506b107fb98c18c9a5a43a9d9d82e1b27"
+      },
+      {
+        "path": "recovery/cases/2.1.112-to-2.1.113/semantic/source-coverage.json.gz",
+        "bytes": 601373,
+        "sha256": "832c160bf73316c5233df5ecf5e812edbc86320677bf62ae19fbf99d38bb0da5"
+      },
+      {
+        "path": "recovery/cases/2.1.113-to-2.1.114/manifest.json",
+        "bytes": 87305,
+        "sha256": "b3c28c7ee5b5bd2a8c95ac083c8829f34395ff69a7480031cbbc0c29d8daeb78"
+      },
+      {
+        "path": "recovery/cases/2.1.113-to-2.1.114/semantic/claude-api-content.json",
+        "bytes": 161,
+        "sha256": "3be0afb868d9f44d27465df7fbb64ba02b121a4ac479f70544b8ca89741dfdb0"
+      },
+      {
+        "path": "recovery/cases/2.1.113-to-2.1.114/semantic/dependency-coverage.json.gz",
+        "bytes": 501,
+        "sha256": "769d53bd7560905b4253cb5d05168993880e6fff1bb8ec4ac31ce065c45df7b0"
+      },
+      {
+        "path": "recovery/cases/2.1.113-to-2.1.114/semantic/source-coverage.json.gz",
+        "bytes": 41674,
+        "sha256": "cb0818e4d432c535f5319b3f1de7602eafc1b02415bdab43e6fc8d8f4c156bd7"
+      },
+      {
+        "path": "recovery/cases/2.1.114-to-2.1.116/manifest.json",
+        "bytes": 112353,
+        "sha256": "232afbbd911f5dc1a9a1055fcb64000e7607f0d0586a9669393cf9fabcb65fa6"
+      },
+      {
+        "path": "recovery/cases/2.1.114-to-2.1.116/semantic-supplement.patch",
+        "bytes": 2096432,
+        "sha256": "0b7bd7e8753a41047607e498ab64d66c1bd94f8cb190f4fd2a31cf795b143244"
+      },
+      {
+        "path": "recovery/cases/2.1.114-to-2.1.116/semantic/claude-api-content.json",
+        "bytes": 1393,
+        "sha256": "945c5acb09f73cc5411c35c82c0eeb634e337ae52b36ecb099e1ae5d250a6422"
+      },
+      {
+        "path": "recovery/cases/2.1.114-to-2.1.116/semantic/dependency-coverage.json.gz",
+        "bytes": 23583,
+        "sha256": "ce3434a30e84577600b16e8aacbf88dd9483f23ab566a9f3d071c1c6899d07d1"
+      },
+      {
+        "path": "recovery/cases/2.1.114-to-2.1.116/semantic/source-coverage.json.gz",
+        "bytes": 304382,
+        "sha256": "70e3f3b94c4d2bc2f0ddcb5b3f20886bc8be279a6a37d18d141220c845cfe45a"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/evidence/CHANGELOG-2.1.121.md",
+        "bytes": 4278,
+        "sha256": "8ac3fb8dc7362badf900efa41021616ce2b34968290d18c21037557c6c9aa840"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/agent-tool-skill-provenance-owner-overrides.mjs",
+        "bytes": 1134,
+        "sha256": "0c512ef3d9fc6701ec1e87e32a7d16255c96c14b2a342cbf1be6a405fd6c93ef"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/agents-handler-groups-owner-overrides.mjs",
+        "bytes": 1439,
+        "sha256": "1184ee72d1595a4e6ebc2eb1f0068aa31a2372c6ae8023b45fa1fae75602c872"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/async-agent-detail-kill-all-shortcut-owner-overrides.mjs",
+        "bytes": 1568,
+        "sha256": "132440ba0ab34222ab5826c7b71ce3ff425df7cf54b5eab009a23d50c128a2e5"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/background-tasks-kill-all-shortcut-owner-overrides.mjs",
+        "bytes": 1888,
+        "sha256": "f025233a87cc8092efc1053d060494eb49e4a42508a871823d640faf4f288bb3"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/build-daemon-main-owner-proofs.mjs",
+        "bytes": 15801,
+        "sha256": "b6244c9d6233844638aec575eed0665c9335579238099bc1f61abb8c1e22ddf7"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/build-daemon-spare-owner-proofs.mjs",
+        "bytes": 7083,
+        "sha256": "82fa79dd526763b9971b797dc2b08fb1a7ca4d3874810c4ebab524a8df836e75"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/build-daemon-supervisor-owner-proofs.mjs",
+        "bytes": 10524,
+        "sha256": "0af768ecc7f9f3960545d3e31bf433c84fcd1db3d43e4ef69c010d5789c8c8d3"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/build-extra-usage-owner-proofs.mjs",
+        "bytes": 8342,
+        "sha256": "86054dd7d2606ab423da51750e861a1635cda7d60cb4954dd32dc890d0141019"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/build-pty-worker-owner-proofs.mjs",
+        "bytes": 9875,
+        "sha256": "d0745d29458d874385d7915e8f33b36527f9525b0a39becb628806d46994c592"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/build-usage-contributors-owner-proofs.mjs",
+        "bytes": 9009,
+        "sha256": "1a443735cc4eb7c1405fef8c25ef7c4dc7748c4bfe4be859eaa40d2c593410eb"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/classifier-build-name-filter-owner-overrides.mjs",
+        "bytes": 1914,
+        "sha256": "54bdd8ad4718e299696be58a2b6bb2a28e5c65423f95bbea552d2b22ee1de647"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-cli-parse-kind-args-export-owner-overrides.mjs",
+        "bytes": 2918,
+        "sha256": "8270a8d1abba22a0ddf63029a6b169f23ab6b24e0d12e8b9c9bbf9e6b65e942c"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-main-log-rotation-strict-number-owner-evidence.mjs",
+        "bytes": 3040,
+        "sha256": "e50b4abba880aeda3a8dabf8368c19f995793ecd22dde329119ce7d04ba7a539"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-main-owner-overrides.mjs",
+        "bytes": 981,
+        "sha256": "22cea1708640773ee362d2a01943fbd93c07ab72cec4f76025b79ab44635708f"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-service-executable-owner-overrides.mjs",
+        "bytes": 1508,
+        "sha256": "449447425968ae2ef59f2c9402bf63d8303bfd04ad373eb7b11006a9660630d5"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-spare-connect-owner-evidence.mjs",
+        "bytes": 2087,
+        "sha256": "7f18980014cc75d300c6a219e18c7b6c4408e287cc5c2f2578ad09994671dd2c"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-spare-export-binding-owner-overrides.mjs",
+        "bytes": 2531,
+        "sha256": "367cfacf58112663763901eb65e7a7ac6f065724763d20e0740a6264541a2148"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-spare-owner-overrides.mjs",
+        "bytes": 924,
+        "sha256": "b1b32eae4a3e474e85775de6ed87c37c001f5238ea12aa338a64abefc656604d"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-status-doctor-owner-overrides.mjs",
+        "bytes": 2299,
+        "sha256": "bc66e463e9fd38feb506a05eae7cc35cf68ad814ab4b32f23a915bb4c57366f8"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-create-server-owner-evidence.mjs",
+        "bytes": 1894,
+        "sha256": "c91cbcce4d1e80b8d3ecf0b5b713e9c960522e7954daf5822872a534785d18e6"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-handle-control-strict-owner-evidence.mjs",
+        "bytes": 2993,
+        "sha256": "ba910bf050ca7caf949275668295af5eb769ef01d5c2b4b922c2f223662fcc68"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-owner-overrides.mjs",
+        "bytes": 1641,
+        "sha256": "b6a0ba398a75c8bcc3af63ddc3f510161916a9573b7b47a90df49749949bdee8"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-worker-config-run-daemon-owner-overrides.mjs",
+        "bytes": 2943,
+        "sha256": "7dd907e0df5bcc6c4cba76e59ffd1218b6983878962ba826a0e5d9a77f8e0210"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/extra-usage-owner-overrides.mjs",
+        "bytes": 3892,
+        "sha256": "77a6c95a0a0fa3c333de848a26315a76ba11cca4896f3b71d5526370289e36b5"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/fleet-view-frame-child-row-owner-overrides.mjs",
+        "bytes": 1265,
+        "sha256": "9ce71aba723456388074c65394a5a4226fcbbf2bedf239b87146670a570a30c9"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/fleet-view-runtime-status-owner-overrides.mjs",
+        "bytes": 1875,
+        "sha256": "bf2207fcb2c1f822016106a9c317db97aa2de4c953dff6e3a445f7778cc5e153"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/fleetview-pr-poll-delay-owner-overrides.mjs",
+        "bytes": 1410,
+        "sha256": "b78b0c57489d4c1aadaed24af9b5d85b1c2e5450a5ab2f5b2a163570d52b3554"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/fork-spawned-by-skill-owner-overrides.mjs",
+        "bytes": 1223,
+        "sha256": "cbb7388604bebadf28b6c2af5ae548fa3ff1ad30dcb865f13e01e30ae3e9384c"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/handle-prompt-submit-active-skill-owner-overrides.mjs",
+        "bytes": 1652,
+        "sha256": "ddc21de93cebd77002e9e63c94bb3c8b1f7390158291b9051b5c4e39a7d603a5"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/headless-restored-task-clear-owner-overrides.mjs",
+        "bytes": 1473,
+        "sha256": "c16e7905686225905a1e15fc08a4aea947159eb93583dbe77da399c83fd4da32"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-first-allowed-owner-evidence.mjs",
+        "bytes": 1426,
+        "sha256": "8e002317743c7b048f22dbb5f2554a90966f15c7699482699118e742cb8972fc"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-growthbook-timeout-owner-evidence.mjs",
+        "bytes": 1866,
+        "sha256": "ec4fbefaa1fa4f6756fd8162de01e394a39037783535a003c3667157d6f7694d"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-is-absolute-owner-evidence.mjs",
+        "bytes": 1939,
+        "sha256": "5a40f06ca2f28b598e4bd4a4889aa72606e2277b8036858c0657b92d14aa7473"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-resume-error-name-owner-evidence.mjs",
+        "bytes": 1983,
+        "sha256": "ddc4c43e1b11450e3636cbf02d0431dd1983feeb38d99ee0a3c282cfec5380a8"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-second-allowed-owner-evidence.mjs",
+        "bytes": 1498,
+        "sha256": "6db36f512a04582272568af71e474afc276c1a42df9c647609f0d836dbfb82af"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-session-state-owner-evidence.mjs",
+        "bytes": 2085,
+        "sha256": "bd602fc269d7f359caceffaffa91d42699d8997e81218c8592d49caa10e7bb1e"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-teammate-colors-index-owner-evidence.mjs",
+        "bytes": 1912,
+        "sha256": "662ef6c32847137299d336bfeacab69e4bba2f74a3e1bf97b7414172a6dc1170"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/memory-write-survey-hook-owner-overrides.mjs",
+        "bytes": 1574,
+        "sha256": "de9bce6ff8b653a4acdc5a5f914125ea977aeae35291d74d70359651e0438138"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/peer-credentials-macos-owner-evidence.mjs",
+        "bytes": 1679,
+        "sha256": "9834939fb109b0f61f4808a78eddb3aa8298b1aadf577b2a48eac2aa56337400"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/pty-worker-owner-overrides.mjs",
+        "bytes": 1630,
+        "sha256": "68a23f2a4cf993465c5233dcb67127d5f5424c74ed64916d1c8bb62e80cf80dd"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/query-engine-active-skill-owner-overrides.mjs",
+        "bytes": 1444,
+        "sha256": "85b7dbd70c28af7484e62660d1423a36dba0a1fe75bd08ff8a8b3531fb2bd265"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/query-model-skill-attribution-owner-overrides.mjs",
+        "bytes": 1389,
+        "sha256": "e3225ed1b17f4f555ca65554b9e2aab86174248026bfca3f34172fd9ae01f524"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/query-run-agent-runtime-state-owner-overrides.mjs",
+        "bytes": 2049,
+        "sha256": "fe08ee830c7f362a0b3f622b9a4c0572b034ce36879590d5e8f57f6779d82c67"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/remote-io-internal-metadata-owner-overrides.mjs",
+        "bytes": 1640,
+        "sha256": "6ccd147f83afd87f38999300378e25351808ac5df14a19e29faafd14dba767ba"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/repl-runtime-source-gap-owner-overrides.mjs",
+        "bytes": 1132,
+        "sha256": "8c88b55fe3ea9b6a384ad415a48800d955aa3eedb20f7bda048661b6ff6e66d1"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-agents-fleet-gate-cache-source-gap.mjs",
+        "bytes": 4824,
+        "sha256": "d353bd38ef6d71a323dbf442d68b88eff725fc8823c1699f69bf154de19f07b1"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-bootstrap-state-export-source-gap.mjs",
+        "bytes": 3935,
+        "sha256": "90411479b26ce15b15c786555268f992e4d17eac39860d57db2e31f43179fa68"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-claudemd-cowork-memory-default-entrypoint-source-gap.mjs",
+        "bytes": 6032,
+        "sha256": "6b17f1b42310b1de92c82133efeab6746480f848f43d6e306befb841a4a0b7f7"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-hub-status-reader-proc-start-source-gap.mjs",
+        "bytes": 7884,
+        "sha256": "85229bbc9e21b44f3f9ffebf1bd3a2b933d7a4bbe3abc0ec1c37bcf9573c1023"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs",
+        "bytes": 6780,
+        "sha256": "10aee9141b009335f5891ef9fb0d3b9b20504a4bbdbdddc11cb86e5eaffee9e7"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-dangerous-mode-pre-dialog-source-gap.mjs",
+        "bytes": 7306,
+        "sha256": "8c37ab84b0b4891f0cbbd0c26b37e4da2b553e88f95d724dfb64587b2d89bd96"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-datadog-event-catalog-source-gap.mjs",
+        "bytes": 9647,
+        "sha256": "4494dd3d7dbc021695e3bf3f242fa28a0d659e6a92f868cddc6a4acccf3afcfa"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-diagnostics-inline-expand-hint-source-gap.mjs",
+        "bytes": 6204,
+        "sha256": "40c135894d40d209d0bd4b42ec8024b9cbf1d6c08e524dcdfabbea52eb00674c"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-file-edit-unicode-escape-case-source-gap.mjs",
+        "bytes": 10929,
+        "sha256": "c600fd22d107108ae5750a00cefb6ce597ee447fb312f4b73d490a456d40cfb3"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-growthbook-experiment-cache-source-gap.mjs",
+        "bytes": 8733,
+        "sha256": "13d95a3157918088d1ecf9631154c54902e2ffcc07d983d354300143eddd3de6"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-ink-frame-timing-live-counts-source-gap.mjs",
+        "bytes": 7073,
+        "sha256": "0aaff1352a0eea7c4dfa607b349f181cc143fe572c61c1ddaacbbb5d7711226d"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-internal-repo-url-validation-source-gap.mjs",
+        "bytes": 6178,
+        "sha256": "9d079a5955b66d4849d5c7e94f6160cf6fc8c10e7d43fc59b4e4d2eb4fc3fcc7"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-main-run-view-mode-source-gap.mjs",
+        "bytes": 5269,
+        "sha256": "1059a2a83c66fc0ac9f4bc66666dd448b1d1dc5bb947acd5c2a973d003f6e83b"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-memory-write-survey-visual-row-truncation-source-gap.mjs",
+        "bytes": 9927,
+        "sha256": "2316a19158b89d43c760f45ad3709e144fa58a09684506e09ae1f259257e5393"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-plugin-prune-command-source-gap.mjs",
+        "bytes": 8839,
+        "sha256": "5b24350af091e842440da3eae16c5b834005851076290979f87b197a1dd4cc85"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-powershell-resolved-unc-normalization-source-gap.mjs",
+        "bytes": 8366,
+        "sha256": "2bbe9ced965d02ceb771acc81e1efdac463d1cc75b1ebeee12a6ddda14a936a8"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-relaunch-current-binary-pin-source-gap.mjs",
+        "bytes": 6471,
+        "sha256": "930c66e91263544a8bdb84a2c7ee14627653d53a850ba0ac6952865ee1c1faa1"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-rename-generated-session-name-source-gap.mjs",
+        "bytes": 6673,
+        "sha256": "ad596c6aff779483e999f951cc0681e722bdbbb3334959aa1c69dad1f48aad8b"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/resume-agent-spawned-by-skill-owner-overrides.mjs",
+        "bytes": 1338,
+        "sha256": "1bf7b53f7f52a3220f6df0fcb8ba4c793c730510910d039c879c262f06a78c19"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/session-state-internal-metadata-owner-overrides.mjs",
+        "bytes": 1502,
+        "sha256": "04425b56b001d5e78ce0593194d3b7bbcd6132141bd10329cddac5d34da32ea9"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/skill-tool-active-skill-owner-overrides.mjs",
+        "bytes": 1219,
+        "sha256": "4a2a901e44b2dd24c280fdc4c1b8747f7c6a4adf02865fddf0706b5614e2ffe2"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/slash-command-active-skill-owner-overrides.mjs",
+        "bytes": 1253,
+        "sha256": "1213238324291dca590bfa5f01a4b178b0a2b2fd69645073956f35a994c09143"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/slash-command-content-telemetry-owner-overrides.mjs",
+        "bytes": 1235,
+        "sha256": "88cf80a8f469f112cb0073fbeb9816440c18518715a24035404c8906e9a36346"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/source-freeze/source-paths.txt",
+        "bytes": 9107,
+        "sha256": "0d2affdcffe0ed18121e52a22273896c116a4432e048ee3bfd4ffc9047936171"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/ultrareview-handler-owner-overrides.mjs",
+        "bytes": 6409,
+        "sha256": "36ad5145d7a2efdac0be4182a128a277351251a53d82387198ca8c300d85e664"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/usage-contributors-owner-overrides.mjs",
+        "bytes": 1530,
+        "sha256": "586f6c1c52794e6ddcc979263d5fd4032414def1ac4320cdf3a6a9524830006a"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/dependency-coverage.json.gz",
+        "bytes": 24061,
+        "sha256": "86577929a9e409a02341911f25f738b8942a589c9576a9d8b3faa3829f5314d3"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",
+        "bytes": 340038,
+        "sha256": "bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/obligations.json",
+        "bytes": 410130,
+        "sha256": "9f9524be315e0902e5c83c0b61315c54070f3ba5adabf78307925c1ed58af1ca"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/semantic-correspondence.json.gz",
+        "bytes": 776241,
+        "sha256": "b1be6a21300967dd861b1bda0624b4353cf692968a68414b28b8ee1a72660867"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83"
+      },
+      {
+        "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+        "bytes": 2540002,
+        "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+      },
+      {
+        "path": "recovery/cases/2.1.88-to-2.1.89/semantic-supplement.patch",
+        "bytes": 3512210,
+        "sha256": "adb702c880a26e1806d23bed31ffc7a1958fd0f415539ea6a8dd3c422af557f2"
+      },
+      {
+        "path": "recovery/cases/2.1.89-to-2.1.90/semantic-supplement.patch",
+        "bytes": 5016682,
+        "sha256": "b107b8c95712ec6b8c3c7e2c06a5fe73201a1d463efd38c7acc436c8f9c602d7"
+      },
+      {
+        "path": "recovery/cases/2.1.90-to-2.1.91/semantic-supplement.patch",
+        "bytes": 5618705,
+        "sha256": "68d1b6acd88c1e89c781e26c8b7b4e78ca1155f37ca0f0558570f67b2fc0ed24"
+      },
+      {
+        "path": "recovery/cases/2.1.91-to-2.1.92/semantic-supplement.patch",
+        "bytes": 5567219,
+        "sha256": "43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062"
+      },
+      {
+        "path": "recovery/cases/2.1.92-to-2.1.94/semantic-supplement.patch",
+        "bytes": 4985553,
+        "sha256": "5184c64ed80aceb89ebed6bce2072fff918e0a5a008b1969d95f718a811658d0"
+      },
+      {
+        "path": "recovery/cases/2.1.94-to-2.1.96/semantic-supplement.patch",
+        "bytes": 4321868,
+        "sha256": "dba122f721559133bdad7970c15ccda26c9dfcef2c5d0e82de65dbffdb2c1542"
+      },
+      {
+        "path": "recovery/cases/2.1.96-to-2.1.97/semantic-supplement.patch",
+        "bytes": 3458612,
+        "sha256": "d99083ce418556083209341fa4c7d88956b8b23b56ee6751f1c3f2dc93aa919e"
+      },
+      {
+        "path": "recovery/cases/2.1.97-to-2.1.98/semantic-supplement.patch",
+        "bytes": 3442582,
+        "sha256": "231100dc4e997dd1f43a1bf51dc548bf50d4c24cf0352f82a149ddf42d88a822"
+      },
+      {
+        "path": "recovery/cases/2.1.98-to-2.1.100/semantic-supplement.patch",
+        "bytes": 19916,
+        "sha256": "89199551a490880dc4ccd3677350841d4c8452a01837fb336d2572a3ed906a1b"
+      },
+      {
+        "path": "recovery/node_modules/acorn/dist/acorn.mjs",
+        "bytes": 229792,
+        "sha256": "b4c8c70200e72bae33cf1085e0ecb1e792c1b6924ed50cab817caf14f51bb249"
+      },
+      {
+        "path": "recovery/scripts/inspect-semantic-literal-gaps.mjs",
+        "bytes": 16072,
+        "sha256": "c0559184e7c2e2abd1a90bd44f6f27c00836ad9f0643785547214028afe46bfd"
+      },
+      {
+        "path": "recovery/test/late-semantic-source-coverage.test.mjs",
+        "bytes": 26931,
+        "sha256": "e9d1eb4c7648a90de79d2012ca28e6d36cf8580310cba4485280a8829ac44fde"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.116-workload-identity-semantic.test.mjs",
+        "bytes": 17878,
+        "sha256": "5168ce7817edbb89a17d2e3d5378b3d1aa3e76961bf4769867d536ec6e3a7357"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-agent-tool-skill-provenance-owner-proof.json",
+        "bytes": 40809,
+        "sha256": "0e18ab83170204d5ee170216766ec9dbf3bbf64daa9dce0e02ef2eb7e55403e4"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-agent-tool-skill-provenance-owner-proof.test.mjs",
+        "bytes": 37078,
+        "sha256": "fc325eceb7cfed95c3b19f8e682e9225315cdc5f5b79e8794a4bd562b5bc86f2"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-agents-fleet-gate-cache-source-gap.json",
+        "bytes": 5539,
+        "sha256": "a0565f37d415c347f21331616f81bc6afa3c10cdc234410d68264a96e7b6ee98"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-agents-fleet-gate-cache-source-gap.test.mjs",
+        "bytes": 19426,
+        "sha256": "8911a15d7d8d18d50fd2ab99a873ff87db06ee2b38a706f7a3f666dea88d8e02"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-agents-handler-groups-owner-proof.json",
+        "bytes": 13894,
+        "sha256": "3222a5aabc59dbda1c30979a3b828d5dd2f93bc9cfee6eccb9d93f23a21a6283"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-agents-handler-groups-owner-proof.test.mjs",
+        "bytes": 29573,
+        "sha256": "31d08d3d96cfa48dd3dc58ce3aa3f4d1c41fc9c4caa54dead6bf8818f84a5f3e"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-async-agent-detail-kill-all-shortcut-owner-proof.json",
+        "bytes": 12372,
+        "sha256": "ffb7a446b596da7fae18ecbd0db469c334fe2852adb7318c5da6f063929e3ea5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-async-agent-detail-kill-all-shortcut-owner-proof.test.mjs",
+        "bytes": 23397,
+        "sha256": "2847104c439cddde559199639202fbeb7925bd585964ad314eb4c35b37b4190c"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-autocompact-rapid-refill.test.mjs",
         "bytes": 2776,
         "sha256": "4424202d1eaf5e3f62f3fc4c190569eea25958651435b810a0e88bdacade4cca"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-background-tasks-kill-all-shortcut-owner-proof.json",
+        "bytes": 20298,
+        "sha256": "609508f806420ad62c2da2662a8c3794f9c5ee80c127429c19a6daa7bcbdfdd3"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-background-tasks-kill-all-shortcut-owner-proof.test.mjs",
+        "bytes": 35465,
+        "sha256": "4872405f518cec478b641c0f4dc054c402a26311a17ca90d36c034b7c4fe1a7d"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-bootstrap-state-export-source-gap.json",
+        "bytes": 4144,
+        "sha256": "fafd8728a6886a0a7e21b8483e8929ca56504663bd55cc721a887dca4a2acd46"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-bootstrap-state-export-source-gap.test.mjs",
+        "bytes": 16549,
+        "sha256": "8f9a6c9e7807ca750f1d164112093cde1891ebb005f3f44ff59546d2e6e01c13"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-build-metadata-residue-proofs.json",
+        "bytes": 116880,
+        "sha256": "de449ce0213d7a2a8c71f8b0bfb830fe34aec37255c76e4dfb81dd568f10dd49"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-classifier-build-name-filter-owner-proof.json",
+        "bytes": 20037,
+        "sha256": "4732af7d2879e7fbb45ab257cec5cfda0dd3e2169d22647b61e2d367900416b8"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-classifier-build-name-filter-owner-proof.test.mjs",
+        "bytes": 31958,
+        "sha256": "f4b22cea1db1b652efcc0c5033e5a4a981146279d11b37dbb8e012df07de8baa"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-claudemd-cowork-memory-default-entrypoint-source-gap.json",
+        "bytes": 8599,
+        "sha256": "08c2f198f7b409404903522342d843ab014879e6314680804c8ff640dd9c0996"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-claudemd-cowork-memory-default-entrypoint-source-gap.test.mjs",
+        "bytes": 21326,
+        "sha256": "9283493c9a8e12197e412bee24b44f8d7efdd48c3d2cf26c3a5f325db364796b"
       },
       {
         "path": "recovery/test/recovery-2.1.121-compaction-spinner.test.mjs",
@@ -8514,9 +9615,179 @@
         "sha256": "c93ac8188c12ba632865dce42a70ddbcfdb54bbf1d0c77292e3a2b916d639045"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.json",
+        "bytes": 33457,
+        "sha256": "54ac0f4afcbc5e96687f5e202ca9ce883cd601a6a30c8f6d42d7e2dcafecaefa"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.test.mjs",
+        "bytes": 35540,
+        "sha256": "27344a844554ea94dc8f41995199e1eff543abce53e8e5a3b69079b2e60b990b"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.json",
+        "bytes": 19568,
+        "sha256": "89453f835b72e9d565e87d02303727339fa5c819cf1daefa508fad5e5bdf1ae3"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.test.mjs",
+        "bytes": 38820,
+        "sha256": "867414adbb91a7bb56480c503495a188eca00212f3d1db6f3e5b95ad98ddd780"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-main-log-rotation-strict-number-owner-proof.json",
+        "bytes": 21926,
+        "sha256": "a6b9904ab3f4c7adb6fdb7361d68e5a89d297c1fc2c866c4a0ffcbed0b3424d8"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-main-log-rotation-strict-number-owner-proof.test.mjs",
+        "bytes": 28251,
+        "sha256": "2c115feb0ba619976e3806548781dcad7704764e2b9cfab7884e7da6fe43f565"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-main-owner-proofs.json",
+        "bytes": 54985,
+        "sha256": "9b553ff3c0e895fccadf96d93225a00e80186fb775c7218784047e2b6fc5b6eb"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-main-owner-proofs.test.mjs",
+        "bytes": 19753,
+        "sha256": "42deb59d79515d6b461c28929ca7a97a28c438854119ce9822c8c67a9b6a769e"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-service-executable-owner-proof.json",
+        "bytes": 17727,
+        "sha256": "d9cbf5f792fe183d30459842d5d09dba721a2cd881b3e6842838a98644df77e4"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-service-executable-owner-proof.test.mjs",
+        "bytes": 30270,
+        "sha256": "6d927e3390bb0aba649633d7b17dbc60c0a4c04a4a91bc70ab0f7345751eeb97"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-daemon-service.test.mjs",
         "bytes": 15846,
         "sha256": "1bbc1735cb7040f5355292bad476d132f035522e63e79fed66aa33e47a4fabac"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-spare-connect-owner-proof.json",
+        "bytes": 12145,
+        "sha256": "5d0b6c82d65e529d832e8e4e3b768b28f6a861a02ff1df661460b6602cb21769"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-spare-connect-owner-proof.test.mjs",
+        "bytes": 21858,
+        "sha256": "11841cd31ae14b34fd84022fab26b9967b7e7f4aec78299d01c5a7dece938c1d"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.json",
+        "bytes": 21700,
+        "sha256": "24c6e221d4ab7879c7143a8295d4bdc5fc73cb0a9554916658cf03f9775cd992"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.test.mjs",
+        "bytes": 25987,
+        "sha256": "2589c5c7d46e36d03ea3e24a9e0d12fd8fae48315d1d5cf041af5d048b0436c5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-spare-owner-proofs.json",
+        "bytes": 10062,
+        "sha256": "daa101fe1dbd747ef9bc1ec59791198c64fe67beca75663bd44d26483a673eda"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-spare-owner-proofs.test.mjs",
+        "bytes": 9996,
+        "sha256": "869aa8a608a34c7123a0435a80e99ce0d2479aa554421879df357b7bbd41609e"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-status-doctor-owner-proof.json",
+        "bytes": 18084,
+        "sha256": "e2137a1c2b87b55167c7a06133f52dc2a30146d3d11e90b7550233ebe20e8201"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-status-doctor-owner-proof.test.mjs",
+        "bytes": 29496,
+        "sha256": "566469674ae3724c5fa90f0aa1e080ece0db7ca4ea42e2a102822068d57a94c2"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.json",
+        "bytes": 13231,
+        "sha256": "ecb979016d34ba60cfe514979d1419dcc382f5c2f0a9ea90c681c2185cf75e4a"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.test.mjs",
+        "bytes": 32078,
+        "sha256": "51b624a137897bdb1d32decb4252c68404b3cbf4efebdf1707894e792685e55b"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-supervisor-create-server-owner-proof.json",
+        "bytes": 10158,
+        "sha256": "fb94aea0d777e4674e7e8dd00e5a7dfb4155463574d6fea86167565235b0cbf0"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-supervisor-create-server-owner-proof.test.mjs",
+        "bytes": 17119,
+        "sha256": "dcf1d14a8a59d94b206bcaa1d82972d9446dc2e823c9bd99b0edc35c97620cc0"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-supervisor-handle-control-strict-owner-proof.json",
+        "bytes": 19050,
+        "sha256": "aef2d8711a1fb34971c9283c3deb40e0786f1c61f942db9b04f1cb2770118201"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-supervisor-handle-control-strict-owner-proof.test.mjs",
+        "bytes": 25648,
+        "sha256": "32bd750c233e66c04bfd729db8efa152c4b4604afe3fbc96956ad09fd27f7417"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.json",
+        "bytes": 78567,
+        "sha256": "4be8cd934d5b395a7ea9ef4e55ef0043ef3b35236d7df644d020e7cfa94d31fc"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.test.mjs",
+        "bytes": 12598,
+        "sha256": "4df7bc061c1f116514a295cf8caa583da641c095d346f6f10c40976aa8aca78f"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.json",
+        "bytes": 27671,
+        "sha256": "461e571f55ff464efd9717a265a84ee5a735d8f3d1e8e3de424ad625473983b1"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs",
+        "bytes": 26723,
+        "sha256": "5dd3103c1cb063fadfdcc6fc5561671406ec6f922902044ca594576b8966e690"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-dangerous-mode-pre-dialog-source-gap.json",
+        "bytes": 25099,
+        "sha256": "118454b85d40a8e29411066b481faa156585c7bb86389a89775bb2e96767a402"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-dangerous-mode-pre-dialog-source-gap.test.mjs",
+        "bytes": 39274,
+        "sha256": "1ff3e0ebbf6e9ecbf2170bf77fbe810fec23eff0dbe258d0be07c31929e310bd"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-datadog-event-catalog-source-gap.json",
+        "bytes": 6363,
+        "sha256": "53d9c8976ab8dad3a9c84e5dc99bfaba60cbfd38dbb87eda4007b0cb9c2e28dd"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-datadog-event-catalog-source-gap.test.mjs",
+        "bytes": 16934,
+        "sha256": "4a2b880e22277a691d219646e45e381a1e283096384f14a7b3382aea53ab52f8"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-diagnostics-inline-expand-hint-source-gap.json",
+        "bytes": 10966,
+        "sha256": "83d84bf43d84e9f55e0e28c848eb4157c350505518e608cd29959fe4fabe90f5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-diagnostics-inline-expand-hint-source-gap.test.mjs",
+        "bytes": 23225,
+        "sha256": "7297a8e7cb8be321034efdad78bd749fb667665e18bf51cc48773096123e278f"
       },
       {
         "path": "recovery/test/recovery-2.1.121-dialog-overflow.test.mjs",
@@ -8525,8 +9796,8 @@
       },
       {
         "path": "recovery/test/recovery-2.1.121-direct-evidence.test.mjs",
-        "bytes": 8974,
-        "sha256": "6afcd9dc34d4027a19478206630d0e96155bdd0690be4d222707d54f0f8756a3"
+        "bytes": 9811,
+        "sha256": "42ab6a027653eae552ce701906a3d156ff7b36e222159bb3fe0d7f711a465e4f"
       },
       {
         "path": "recovery/test/recovery-2.1.121-dream-skill.test.mjs",
@@ -8539,9 +9810,134 @@
         "sha256": "7417503f5a12ac413aefae8ebc6050add06974e8b490788a2a2421c11c80fce6"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-entrypoint-dce-existing-closure-audit.json",
+        "bytes": 23638,
+        "sha256": "2d037196078e2b15d54048582f377cf6c7cb597ac63793239ee7f0394559b6bd"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-entrypoint-dce-existing-closure-audit.test.mjs",
+        "bytes": 22404,
+        "sha256": "30038b75e006ae34a8c6d77c20d0fc9e46312ea37915639fe15c61be95ddd59c"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-exact-owner-correction-proofs.json",
+        "bytes": 46472,
+        "sha256": "8f05fe44b7062cb90180565bc0954d6b798cf7a89cb8b1b6a8543a01f525cf6c"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-extra-usage-owner-proofs.json",
+        "bytes": 86472,
+        "sha256": "026f61fbd44a921216ca8c06183c60a6aec52134f3f424b64a012aa5b54ef7c5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-extra-usage-owner-proofs.test.mjs",
+        "bytes": 10202,
+        "sha256": "a8cd691068baacf7ce233c4a183c9bda30aac0f6815441df807e9b6939fead2e"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-feedback-surface.test.mjs",
         "bytes": 4637,
         "sha256": "6b00ce351962f299464002cd5e91eaf0bf39850f83cbcdb5371059f732af4f80"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-file-edit-unicode-escape-case-source-gap.json",
+        "bytes": 12010,
+        "sha256": "a1e3351f1566f280bab3e3c38df1ba6a4584f927b9d54c01e21fd1359888d13f"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-file-edit-unicode-escape-case-source-gap.test.mjs",
+        "bytes": 24874,
+        "sha256": "102531710035acf93b16ba467877fda78fa958fff428878f37391455dd08be66"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-final-strict-accounting.json",
+        "bytes": 260554,
+        "sha256": "1534d38e4d4b0edfe04bf475f8a4f72ae3153387ba7c512bd05649362a296054"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-final-strict-accounting.test.mjs",
+        "bytes": 24714,
+        "sha256": "7f29e0404804145895e8ce4bc21d9f09a8143b90003abc3c09dd14a25ad09488"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fleet-view-frame-child-row-owner-proof.json",
+        "bytes": 14345,
+        "sha256": "e6d184a40edba7ed33ac72207ada7fa5f378fa3b745dbd386311ca969af5e1e0"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fleet-view-frame-child-row-owner-proof.test.mjs",
+        "bytes": 19684,
+        "sha256": "ceb34d0f777ad596d4ecb93e376244b7cd450888e8ec48701ffb2f727e58984e"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fleet-view-runtime-status-owner-proof.json",
+        "bytes": 10644,
+        "sha256": "0c9e00759791e91b9e89dcb7d8596a7d78f9119bb9325e90585d291acd7b78b1"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fleet-view-runtime-status-owner-proof.test.mjs",
+        "bytes": 16406,
+        "sha256": "0d8c67fd2e870dafcdc6231d0ef0102de483a76e5ad29ba7621bba6574117237"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fleetview-pr-poll-delay-owner-proof.json",
+        "bytes": 26047,
+        "sha256": "012b3f2e1fc7feb928376cc11646d8f5b35d1259700c0c74b54e001c5bf205ab"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fleetview-pr-poll-delay-owner-proof.test.mjs",
+        "bytes": 34449,
+        "sha256": "9d8352f70d0ee8427ba5311e35a1c261d2ff7afb6cf9a151062640da40a5e171"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-focused-residue-proofs.json",
+        "bytes": 105597,
+        "sha256": "6fa229df1ceb1eaa7e7062aeab920a7deb1f7f6cfdf3aeddef0520efdcc9b7fd"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-focused-residue-proofs.test.mjs",
+        "bytes": 326,
+        "sha256": "ea55ff6157d457f34485c6c6bfc5d537f190e2368283119f5995f0b0a8c9c162"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fork-spawned-by-skill-owner-proof.json",
+        "bytes": 20976,
+        "sha256": "7fe68a2502d0f971e467ec6bc90a1d1e7724f824279060423adf5a271beb6a2a"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-fork-spawned-by-skill-owner-proof.test.mjs",
+        "bytes": 33309,
+        "sha256": "0b51950d1e560dd79ea6f5b4ddcd0f7e84f1afae0d8cdd5c99dcab3b53293d2f"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-growthbook-experiment-cache-source-gap.json",
+        "bytes": 7913,
+        "sha256": "1ec39774d5a9bbfbfee50571cc5e97e7fbf84ed682d5478847295fa02e5a1900"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-growthbook-experiment-cache-source-gap.test.mjs",
+        "bytes": 22863,
+        "sha256": "b665e73c08e15c4354c5e1b9df152c5536a2017d836d4b0e88b6b2fc80a08f16"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-handle-prompt-submit-active-skill-owner-proof.json",
+        "bytes": 25846,
+        "sha256": "e9345e6ca24fcf83e5ed686f907800c581d92361596f41b229278abb6da1b859"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-handle-prompt-submit-active-skill-owner-proof.test.mjs",
+        "bytes": 33908,
+        "sha256": "360567538da287da35db33203bd025cc8c079b2f090b089f4ec7e6acc965b7b5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-headless-restored-task-clear-owner-proof.json",
+        "bytes": 16612,
+        "sha256": "c1bc3e2411719bfd8219e2acaa8163fa3540c6092ab83934ed958a9b1bd204e5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-headless-restored-task-clear-owner-proof.test.mjs",
+        "bytes": 33731,
+        "sha256": "f58a343550a7889fb8f7b94c74c92b24d42caaf11dc7300c54abb118fa6923c1"
       },
       {
         "path": "recovery/test/recovery-2.1.121-hidden-obligations.test.mjs",
@@ -8559,14 +9955,134 @@
         "sha256": "79800bf21e9ddc89bce72326ca0fa6f4f578fa784e227b95841601377c42e812"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-ink-frame-timing-live-counts-source-gap.json",
+        "bytes": 8035,
+        "sha256": "bdbc23ce7cc4894925e22596f7d058de260499125dffedd9fcbe1860dd453595"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-ink-frame-timing-live-counts-source-gap.test.mjs",
+        "bytes": 24190,
+        "sha256": "d5429eaade29bbdd73c37932550ba7a301f6c50d639cce0fbc83d9e63973ca19"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-internal-repo-url-validation-source-gap.json",
+        "bytes": 10256,
+        "sha256": "ccae6b32d4d81e4dbd4d56f9fd26eb8b21380039aa1ef31ea7a221fcaa410d43"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-internal-repo-url-validation-source-gap.test.mjs",
+        "bytes": 22123,
+        "sha256": "80d050f6ab7455a3d7a230aceec5be4401c2e670f664ddddc6fe58c885618911"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-lower-runtime-boundaries.test.mjs",
         "bytes": 6197,
         "sha256": "1836ca9fc4ce542e2a91199f7e04d0a0698f3a712dc2b19d8835eaf98500b32a"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-main-run-first-allowed-owner-proof.json",
+        "bytes": 28289,
+        "sha256": "0bf69e223d2058c326d224131b1c7ca9a4441de31e36fa101e448647bb5d86d7"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-first-allowed-owner-proof.test.mjs",
+        "bytes": 33245,
+        "sha256": "efe6c0baba8a3217ca904aa9dfa4d910797b02aa5714eef1e631120ded5a3d99"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-growthbook-timeout-owner-proof.json",
+        "bytes": 24258,
+        "sha256": "b0af67816cc1098186158b62315788408419d0f9cb1e4527411d4b5835f1b0dd"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-growthbook-timeout-owner-proof.test.mjs",
+        "bytes": 33521,
+        "sha256": "12a2cce8f02b84152feea287a84aad1711fdf3505211d0f7064b37cd09083c39"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-is-absolute-owner-proof.json",
+        "bytes": 22519,
+        "sha256": "05bf0d86baacbfb9fc75acc23ebb5ababc23eb6eb9f147fd2e39a5c3da8986be"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-is-absolute-owner-proof.test.mjs",
+        "bytes": 30529,
+        "sha256": "edb4ab19f4a73ee35fa5775fde18e3e1e817d4b85d9ff9654431fb174afbee0a"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-resume-error-name-owner-proof.json",
+        "bytes": 14561,
+        "sha256": "ac974895b33c5432ff4fd18e9ed7c662646af65e622f4afc123ea176f6a72ac6"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-resume-error-name-owner-proof.test.mjs",
+        "bytes": 22548,
+        "sha256": "0138e05ee0629cdc3b66adea27d915fb63b19665e579c3a6e57cd62e81754ea4"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-second-allowed-owner-proof.json",
+        "bytes": 25966,
+        "sha256": "af9a73a9635ec8702bab82ddfa9e909b8e517553471e8534c59bf72fee023332"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-second-allowed-owner-proof.test.mjs",
+        "bytes": 33354,
+        "sha256": "c22393a528b799003ee5ce1715aefe9bf27b2dc4df0f367042b38b87dc202e2f"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-session-state-owner-proof.json",
+        "bytes": 22504,
+        "sha256": "c8d8a01df44a6f60da7b38e4a8f39a375c1fd6eda769bba5f2805d717733785f"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-session-state-owner-proof.test.mjs",
+        "bytes": 32585,
+        "sha256": "97799c32fee729bbbd4851b63848af3c2f16796971ea8513844ad6508ebe0952"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-teammate-colors-index-owner-proof.json",
+        "bytes": 12170,
+        "sha256": "c926591d9cbd74c5f01bda6dcb0b796b74503233ad60afe7fd2b81b317575ab8"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-teammate-colors-index-owner-proof.test.mjs",
+        "bytes": 23667,
+        "sha256": "bd641c922fe017e1b2d07ecc06641c671a2467d97dad63d0630c8d87de296c83"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-view-mode-source-gap.json",
+        "bytes": 19896,
+        "sha256": "54cbff7e493a4d497fa82f127a6e2b0448881fa2931da924b6a8573257b23af6"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-main-run-view-mode-source-gap.test.mjs",
+        "bytes": 38039,
+        "sha256": "8a56b084d29aa2e6f63fd7911ccd7af7d7dd9fa8f88ea17cc0cf7ea011a549a4"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-mcp-refresh-repl-copy.test.mjs",
         "bytes": 2492,
         "sha256": "00f4436868f20aacae62827336984a9791939aee97797417592c7d7d84869656"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-memory-write-survey-hook-owner-proof.json",
+        "bytes": 39030,
+        "sha256": "d6166a170200b994638966ca3a96cb3d376c2214604f7aa711edc7d5e8c4021e"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-memory-write-survey-hook-owner-proof.test.mjs",
+        "bytes": 38120,
+        "sha256": "5d70c427c5a91ad4d37128efb2ce5dd2c1c8db2454bfb5b213c76ae5f13a8508"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-memory-write-visual-row-truncation-source-gap.json",
+        "bytes": 10534,
+        "sha256": "bc35dea9fad25c10ac7e4790f74014701d3020d841bb39d3f61c6ff224011b0d"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-memory-write-visual-row-truncation-source-gap.test.mjs",
+        "bytes": 21717,
+        "sha256": "83fd866ad293838af875768070f7cc7f0befbdd5b61d9b16b788f08ea0eda75f"
       },
       {
         "path": "recovery/test/recovery-2.1.121-official-owned-cluster.test.mjs",
@@ -8584,14 +10100,84 @@
         "sha256": "b5906aebebc796d894aab8bf901a3dd07b1b1a393091659c6315a23d04e0f321"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-peer-credentials-macos-owner-proof.json",
+        "bytes": 11045,
+        "sha256": "ba60b407e5bb133fd24bdaa6cc44a973591fc641cb028618bbeed9b3e6459b62"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-peer-credentials-macos-owner-proof.test.mjs",
+        "bytes": 19799,
+        "sha256": "ab52742424ae606cece388716c723f0532741a3767a8840dab02a6113e0aaa8a"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-plugin-prune-command-source-gap.json",
+        "bytes": 15319,
+        "sha256": "d06e6283ca4d9b1161ebe6488c4d912e6902262366c8c2390b4b19704eb56b4d"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-plugin-prune-command-source-gap.test.mjs",
+        "bytes": 28576,
+        "sha256": "c1d0844706aacc55e705347ed7dddc4cc7582e980d4167c32dbd2f2c05baf988"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-powershell-pipeline-paths.test.mjs",
         "bytes": 2927,
         "sha256": "71a3d527b227ab08d5986407645df802b8c13333702eb5d7687aefcaf914e12a"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-powershell-resolved-unc-normalization-source-gap.json",
+        "bytes": 13082,
+        "sha256": "c929a3eb0484bf35736ae4fb4b6545ae36431530bc5e20e1f4f278035b92185c"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-powershell-resolved-unc-normalization-source-gap.test.mjs",
+        "bytes": 28896,
+        "sha256": "3d7998a39477ede400142e1118fb24a54fe5fe3cc1f2923583e7c4a4093b42db"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-powerup-team-onboarding.test.mjs",
         "bytes": 6797,
         "sha256": "34d4f0310d802d1491bb3b5fbf375e2201441d108fb8425ffb224adc037e7013"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-pty-worker-owner-proofs.json",
+        "bytes": 55561,
+        "sha256": "2ebb8f355bf3302e746aac8471863cba286ac863e8f29fe0ad34244866e7251c"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-pty-worker-owner-proofs.test.mjs",
+        "bytes": 13188,
+        "sha256": "79d30161a45352a596cad2e8e74da26a6cafa16d1ed9ccbb1af266cd4874476a"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-query-engine-active-skill-owner-proof.json",
+        "bytes": 22510,
+        "sha256": "3240f047ee80a80f2447457437c7027bd953e58e5bf52ab76d7d0fd8772e87b1"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-query-engine-active-skill-owner-proof.test.mjs",
+        "bytes": 38360,
+        "sha256": "13a332a85050fb3aa057196036ceaa3f528f6410e44cc3273e22e65eafa6b507"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-query-model-skill-attribution-owner-proof.json",
+        "bytes": 24594,
+        "sha256": "d08d75eca83f8ab045f7ba06d345ebd5b5b343f5012967229c3e62f1b9c9a4b5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-query-model-skill-attribution-owner-proof.test.mjs",
+        "bytes": 39411,
+        "sha256": "a17015e69596bffb7f038ff0787ff80c3d538a4ba17ac594a3bc281934331c61"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-query-run-agent-runtime-state-owner-proof.json",
+        "bytes": 23401,
+        "sha256": "6f5b8a7096671c5ff9fe3cb2e00dca4ba5f22178d4dda89d746dd72950fb0537"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-query-run-agent-runtime-state-owner-proof.test.mjs",
+        "bytes": 33124,
+        "sha256": "f8446789ea9a55b4333a00281cc5601a5993ac3fec879158b16d001671b7cadd"
       },
       {
         "path": "recovery/test/recovery-2.1.121-query-terminal-schema.test.mjs",
@@ -8604,9 +10190,29 @@
         "sha256": "d36b170eab736e06e7c09e04b7011ed5d2aeb0d9bda5fdc50227b11e910fd660"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-relaunch-current-binary-pin-source-gap.json",
+        "bytes": 13927,
+        "sha256": "afe874845fbce08e52405ad0a72b55e8aa22e4a24a9443dbc8c111e20f6d2da5"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-relaunch-current-binary-pin-source-gap.test.mjs",
+        "bytes": 25332,
+        "sha256": "d21565ec5e9a001b1a9a14a642733de4e29f82b2e5d234444407991eba289bb6"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-remote-control-boundary.test.mjs",
         "bytes": 7075,
         "sha256": "38baf51fc91274a2e2ce4965f72f5f7cf6ef26ca0760ef5ecf26194b3c7e7f19"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-remote-io-internal-metadata-owner-proof.json",
+        "bytes": 17920,
+        "sha256": "fd39e43ace588ec202097b7bcb032ed37dccaf0f203d27091ef02ad4fc375013"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-remote-io-internal-metadata-owner-proof.test.mjs",
+        "bytes": 34242,
+        "sha256": "f691c36bd88c3b1202b283e6a22296ee8fe0ef93316f8fa0a9f5c1491f47bc95"
       },
       {
         "path": "recovery/test/recovery-2.1.121-remote-ux-and-branch.test.mjs",
@@ -8619,9 +10225,39 @@
         "sha256": "eac1b63c3d4d9d0adaf25b4dd111d570ec3842d15453b4b83daa173e08eb8054"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-rename-generated-session-name-source-gap.json",
+        "bytes": 13197,
+        "sha256": "622d892118484b65b06663b8eacd8efc70d391c5bb0e22cbc1c50843804731fc"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-rename-generated-session-name-source-gap.test.mjs",
+        "bytes": 29377,
+        "sha256": "468c730a83ba3ffe6ae3ca685edf4eda54db498f507cbd7bcdac3aadfbe28126"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-repl-runtime-source-gap-owner-proof.json",
+        "bytes": 14982,
+        "sha256": "f00d8cc095c9cacd7a2c3112c5b20851fe6b56b0e9dc68ff92862f0de963d334"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-repl-runtime-source-gap-owner-proof.test.mjs",
+        "bytes": 20044,
+        "sha256": "3bec8123091e468ea8afb4f511ec1322fd282a1c5e5162591fcb06ac1fabe0f4"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-residual-dream-hook-defer.test.mjs",
         "bytes": 5122,
         "sha256": "282b382826b77aea74d1cbc9e915547be0bc6950bc6935b3e79aa8a1f361949a"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-resume-agent-spawned-by-skill-owner-proof.json",
+        "bytes": 13206,
+        "sha256": "9497ec51cb6fc46322dfbdfe152d26b71c790992b73fbe8a797aace3f2d72d0a"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-resume-agent-spawned-by-skill-owner-proof.test.mjs",
+        "bytes": 29152,
+        "sha256": "c8a1ffbab303e5f31b09f51518703baa73fcb1ad0205b160a48777e3c5b3a6a0"
       },
       {
         "path": "recovery/test/recovery-2.1.121-retained-runtime-surfaces.test.mjs",
@@ -8639,9 +10275,49 @@
         "sha256": "66db7a7ea45ef5a7a7b2f8479b244f549fce97e41a8144308ae6ccdcbce1f5a3"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.json",
+        "bytes": 10687,
+        "sha256": "6119576dc873597ab386d20e10f7d5688b7534ad376b6c35dacc8f64b9525397"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.test.mjs",
+        "bytes": 13904,
+        "sha256": "1b188f6a1b7c549bee7c9414deae5b0f26710bfda6adcdb920d73f0b0f9a07a6"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-settings-auth-runtime.test.mjs",
         "bytes": 4665,
         "sha256": "4cd98ea87304bfb95879772ed559b9e964da55d01e8512522ff09b278ee383c8"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-skill-tool-active-skill-owner-proof.json",
+        "bytes": 14907,
+        "sha256": "d6fb78d6ff502cdc8e58432e6633d51dce0f124ed1376cec39b89578ff9a8fd1"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-skill-tool-active-skill-owner-proof.test.mjs",
+        "bytes": 33078,
+        "sha256": "0afbaec95fe4b2e3f1b33b71ec4782d114425c26454a293a2d322d2f1bcb1387"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-slash-command-active-skill-owner-proof.json",
+        "bytes": 11586,
+        "sha256": "c5e44e3c5b7c6451c12c7ca9c6aa2de3bbee52785cbca74a857b8c4a62441170"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-slash-command-active-skill-owner-proof.test.mjs",
+        "bytes": 28140,
+        "sha256": "59078b7c7ec9b387d0666c59060a225b2db17e588a40fcb65428252eeb6f462b"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-slash-command-content-telemetry-owner-proof.json",
+        "bytes": 11511,
+        "sha256": "7551ab80df70ea571fd11da0cc983d2c966fb8c66b00541bb51950e79338de00"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-slash-command-content-telemetry-owner-proof.test.mjs",
+        "bytes": 29636,
+        "sha256": "7fced6a17d8e1d5afad4f9104202a7eceeeeeb93e0eb0346a5b343cff2a8cfb1"
       },
       {
         "path": "recovery/test/recovery-2.1.121-subscription-upsell-gates.test.mjs",
@@ -8649,9 +10325,59 @@
         "sha256": "d03bcc966e9f0ae5623fdbbbd6e1f308146cb540d2f90e3de049453f98dd40e5"
       },
       {
+        "path": "recovery/test/recovery-2.1.121-tail-generator-evidence.json",
+        "bytes": 689567,
+        "sha256": "8d404fed3334faa983ee591f7459696ccbd34cd1c26a20b54fe21d63b155305d"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-tail-generator-evidence.test.mjs",
+        "bytes": 370,
+        "sha256": "62302252f5e8c8fe3ca0565c5f9f9f3a2d1d76bba59b5326421ce6d181063925"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-tail-residue-classification.json",
+        "bytes": 12892,
+        "sha256": "46b1f52dabba93d0506dead02d21995b92d1dfbeaf7e373d12df3f9c11a37300"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-tail-residue-classification.test.mjs",
+        "bytes": 347,
+        "sha256": "68f8d0040ab499c4a85021a5b6daa80c12f2f3968d7debf979c5a0d55c8d58da"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-tail-semantic-correspondence-admissions.json",
+        "bytes": 20108,
+        "sha256": "9a7a048bd05ff2e122013da11fa6effcfc4da4d9764b1dbc650da893adc095ba"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-tail-semantic-correspondence-admissions.test.mjs",
+        "bytes": 16561,
+        "sha256": "434e12b858443c3aaf5195e075fc7a8d91cf7e0b8ba349d5d807e1957a79aedd"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.json",
+        "bytes": 23416,
+        "sha256": "6194ec5ed5112e3a0348bb5d9fe5150741554010c80b286ecb6252de36895a05"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.test.mjs",
+        "bytes": 40604,
+        "sha256": "b058ddb12c7d7c545f06acbeea29a797a9a220d5cf9ef84a3a522948a244c9a9"
+      },
+      {
         "path": "recovery/test/recovery-2.1.121-usage-attribution.test.mjs",
         "bytes": 3393,
         "sha256": "2a921ebd72a8d2f9fa64e16532425afdb2522481ab4516a520596c2ee4804ff1"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-usage-contributors-owner-proofs.json",
+        "bytes": 19044,
+        "sha256": "63fe7e66b937055a214f022c3aba5c958ab15f16de77e219892e3e5ad530953e"
+      },
+      {
+        "path": "recovery/test/recovery-2.1.121-usage-contributors-owner-proofs.test.mjs",
+        "bytes": 12100,
+        "sha256": "1dbddb741c003160b29a4679774db9a98c1165fee342862485eb1ee14fcbd0ae"
       },
       {
         "path": "recovery/test/recovery-2.1.121-warm-resume.test.mjs",
@@ -8662,6 +10388,26 @@
         "path": "recovery/test/recovery-2.1.121-worktree-baseline.test.mjs",
         "bytes": 2230,
         "sha256": "831ca860db886ad8e37a2e7f7f6d9924ebf972a36b30d8702a00fd1de625018c"
+      },
+      {
+        "path": "recovery/test/recovery-late-build-metadata-residue-proofs.test.mjs",
+        "bytes": 11182,
+        "sha256": "4079090826ca686d227379414ee76d516d6a1c4e8e5acdde61f112d02a5413f7"
+      },
+      {
+        "path": "recovery/test/recovery-late-focused-residue-proof-helpers.mjs",
+        "bytes": 25206,
+        "sha256": "c9e4c441cc8b31d4bc707902f1e4a04ea31384141d5432a88b5b9c98b06724d2"
+      },
+      {
+        "path": "recovery/test/recovery-late-tail-generator-evidence-helpers.mjs",
+        "bytes": 31992,
+        "sha256": "0a087466b1fdd83ced9985cec467ed1bc8b989502d168bc089cc2e1a11edc0c9"
+      },
+      {
+        "path": "recovery/test/recovery-late-tail-residue-classification-helpers.mjs",
+        "bytes": 18675,
+        "sha256": "0338c0e9ae527d903eefce588c685045b44b5801d7aa07b5e504303949db7c62"
       }
     ]
   },
@@ -8816,17 +10562,17 @@
         "obligations": {
           "path": "semantic/obligations.json",
           "bytes": 410130,
-          "sha256": "ffc43c6c0c85da321db3febcbcab87e7643b98c191196a8ed49608949fa53dcb"
+          "sha256": "9f9524be315e0902e5c83c0b61315c54070f3ba5adabf78307925c1ed58af1ca"
         },
         "report": {
           "path": "semantic/semantic-correspondence.json.gz",
-          "bytes": 776242,
-          "sha256": "209b07e802facc6d78b02c097dd9c6a6905261059747610415542e012528fea8"
+          "bytes": 776241,
+          "sha256": "b1be6a21300967dd861b1bda0624b4353cf692968a68414b28b8ee1a72660867"
         },
         "summary": {
           "path": "semantic/summary.json",
           "bytes": 4667,
-          "sha256": "5c137abf4efa72ca07f67c46b88bb723032e1c57c006112e2c6d254cfb5826bd"
+          "sha256": "bb2cc4eb5ed9ef56f6479dac21f9385661e18013b65d0e1ac4230ef398f6d586"
         }
       },
       "obligationCoverage": {
@@ -8853,13 +10599,13 @@
     "fileAssertions": [
       {
         "path": "RECOVERY_RUNBOOK.md",
-        "bytes": 5898,
-        "sha256": "d71578ae911006469cb6b484dbf3fa80d3a10c54299e9dea23f3be18db755b36"
+        "bytes": 4115,
+        "sha256": "19fb6ce0bb55a18614674cc82ddb0076f1fe9a53af2b3ec1c2fafd2e22f0c95a"
       },
       {
         "path": "REPORT.md",
-        "bytes": 3701,
-        "sha256": "1c8031c374a21e0d8d78ff2a9ec59e26975b867a23aea5e37a353848c3586f33"
+        "bytes": 3920,
+        "sha256": "89c2f5caf8046929b267b3643e051888fad004de1648404c8c28ee53989e4b08"
       },
       {
         "path": "attribution/sources.jsonl.gz",
@@ -8967,6 +10713,346 @@
         "sha256": "9fc62f14995ae58e58b2d77f3344a423f150773138876d7a01508b6085d4f4b8"
       },
       {
+        "path": "recovered/agent-tool-skill-provenance-owner-overrides.mjs",
+        "bytes": 1134,
+        "sha256": "0c512ef3d9fc6701ec1e87e32a7d16255c96c14b2a342cbf1be6a405fd6c93ef"
+      },
+      {
+        "path": "recovered/agents-handler-groups-owner-overrides.mjs",
+        "bytes": 1439,
+        "sha256": "1184ee72d1595a4e6ebc2eb1f0068aa31a2372c6ae8023b45fa1fae75602c872"
+      },
+      {
+        "path": "recovered/async-agent-detail-kill-all-shortcut-owner-overrides.mjs",
+        "bytes": 1568,
+        "sha256": "132440ba0ab34222ab5826c7b71ce3ff425df7cf54b5eab009a23d50c128a2e5"
+      },
+      {
+        "path": "recovered/background-tasks-kill-all-shortcut-owner-overrides.mjs",
+        "bytes": 1888,
+        "sha256": "f025233a87cc8092efc1053d060494eb49e4a42508a871823d640faf4f288bb3"
+      },
+      {
+        "path": "recovered/build-daemon-main-owner-proofs.mjs",
+        "bytes": 15801,
+        "sha256": "b6244c9d6233844638aec575eed0665c9335579238099bc1f61abb8c1e22ddf7"
+      },
+      {
+        "path": "recovered/build-daemon-spare-owner-proofs.mjs",
+        "bytes": 7083,
+        "sha256": "82fa79dd526763b9971b797dc2b08fb1a7ca4d3874810c4ebab524a8df836e75"
+      },
+      {
+        "path": "recovered/build-daemon-supervisor-owner-proofs.mjs",
+        "bytes": 10524,
+        "sha256": "0af768ecc7f9f3960545d3e31bf433c84fcd1db3d43e4ef69c010d5789c8c8d3"
+      },
+      {
+        "path": "recovered/build-extra-usage-owner-proofs.mjs",
+        "bytes": 8342,
+        "sha256": "86054dd7d2606ab423da51750e861a1635cda7d60cb4954dd32dc890d0141019"
+      },
+      {
+        "path": "recovered/build-pty-worker-owner-proofs.mjs",
+        "bytes": 9875,
+        "sha256": "d0745d29458d874385d7915e8f33b36527f9525b0a39becb628806d46994c592"
+      },
+      {
+        "path": "recovered/build-usage-contributors-owner-proofs.mjs",
+        "bytes": 9009,
+        "sha256": "1a443735cc4eb7c1405fef8c25ef7c4dc7748c4bfe4be859eaa40d2c593410eb"
+      },
+      {
+        "path": "recovered/classifier-build-name-filter-owner-overrides.mjs",
+        "bytes": 1914,
+        "sha256": "54bdd8ad4718e299696be58a2b6bb2a28e5c65423f95bbea552d2b22ee1de647"
+      },
+      {
+        "path": "recovered/daemon-cli-parse-kind-args-export-owner-overrides.mjs",
+        "bytes": 2918,
+        "sha256": "8270a8d1abba22a0ddf63029a6b169f23ab6b24e0d12e8b9c9bbf9e6b65e942c"
+      },
+      {
+        "path": "recovered/daemon-main-log-rotation-strict-number-owner-evidence.mjs",
+        "bytes": 3040,
+        "sha256": "e50b4abba880aeda3a8dabf8368c19f995793ecd22dde329119ce7d04ba7a539"
+      },
+      {
+        "path": "recovered/daemon-main-owner-overrides.mjs",
+        "bytes": 981,
+        "sha256": "22cea1708640773ee362d2a01943fbd93c07ab72cec4f76025b79ab44635708f"
+      },
+      {
+        "path": "recovered/daemon-service-executable-owner-overrides.mjs",
+        "bytes": 1508,
+        "sha256": "449447425968ae2ef59f2c9402bf63d8303bfd04ad373eb7b11006a9660630d5"
+      },
+      {
+        "path": "recovered/daemon-spare-connect-owner-evidence.mjs",
+        "bytes": 2087,
+        "sha256": "7f18980014cc75d300c6a219e18c7b6c4408e287cc5c2f2578ad09994671dd2c"
+      },
+      {
+        "path": "recovered/daemon-spare-export-binding-owner-overrides.mjs",
+        "bytes": 2531,
+        "sha256": "367cfacf58112663763901eb65e7a7ac6f065724763d20e0740a6264541a2148"
+      },
+      {
+        "path": "recovered/daemon-spare-owner-overrides.mjs",
+        "bytes": 924,
+        "sha256": "b1b32eae4a3e474e85775de6ed87c37c001f5238ea12aa338a64abefc656604d"
+      },
+      {
+        "path": "recovered/daemon-status-doctor-owner-overrides.mjs",
+        "bytes": 2299,
+        "sha256": "bc66e463e9fd38feb506a05eae7cc35cf68ad814ab4b32f23a915bb4c57366f8"
+      },
+      {
+        "path": "recovered/daemon-supervisor-create-server-owner-evidence.mjs",
+        "bytes": 1894,
+        "sha256": "c91cbcce4d1e80b8d3ecf0b5b713e9c960522e7954daf5822872a534785d18e6"
+      },
+      {
+        "path": "recovered/daemon-supervisor-handle-control-strict-owner-evidence.mjs",
+        "bytes": 2993,
+        "sha256": "ba910bf050ca7caf949275668295af5eb769ef01d5c2b4b922c2f223662fcc68"
+      },
+      {
+        "path": "recovered/daemon-supervisor-owner-overrides.mjs",
+        "bytes": 1641,
+        "sha256": "b6a0ba398a75c8bcc3af63ddc3f510161916a9573b7b47a90df49749949bdee8"
+      },
+      {
+        "path": "recovered/daemon-worker-config-run-daemon-owner-overrides.mjs",
+        "bytes": 2943,
+        "sha256": "7dd907e0df5bcc6c4cba76e59ffd1218b6983878962ba826a0e5d9a77f8e0210"
+      },
+      {
+        "path": "recovered/extra-usage-owner-overrides.mjs",
+        "bytes": 3892,
+        "sha256": "77a6c95a0a0fa3c333de848a26315a76ba11cca4896f3b71d5526370289e36b5"
+      },
+      {
+        "path": "recovered/fleet-view-frame-child-row-owner-overrides.mjs",
+        "bytes": 1265,
+        "sha256": "9ce71aba723456388074c65394a5a4226fcbbf2bedf239b87146670a570a30c9"
+      },
+      {
+        "path": "recovered/fleet-view-runtime-status-owner-overrides.mjs",
+        "bytes": 1875,
+        "sha256": "bf2207fcb2c1f822016106a9c317db97aa2de4c953dff6e3a445f7778cc5e153"
+      },
+      {
+        "path": "recovered/fleetview-pr-poll-delay-owner-overrides.mjs",
+        "bytes": 1410,
+        "sha256": "b78b0c57489d4c1aadaed24af9b5d85b1c2e5450a5ab2f5b2a163570d52b3554"
+      },
+      {
+        "path": "recovered/fork-spawned-by-skill-owner-overrides.mjs",
+        "bytes": 1223,
+        "sha256": "cbb7388604bebadf28b6c2af5ae548fa3ff1ad30dcb865f13e01e30ae3e9384c"
+      },
+      {
+        "path": "recovered/handle-prompt-submit-active-skill-owner-overrides.mjs",
+        "bytes": 1652,
+        "sha256": "ddc21de93cebd77002e9e63c94bb3c8b1f7390158291b9051b5c4e39a7d603a5"
+      },
+      {
+        "path": "recovered/headless-restored-task-clear-owner-overrides.mjs",
+        "bytes": 1473,
+        "sha256": "c16e7905686225905a1e15fc08a4aea947159eb93583dbe77da399c83fd4da32"
+      },
+      {
+        "path": "recovered/main-run-first-allowed-owner-evidence.mjs",
+        "bytes": 1426,
+        "sha256": "8e002317743c7b048f22dbb5f2554a90966f15c7699482699118e742cb8972fc"
+      },
+      {
+        "path": "recovered/main-run-growthbook-timeout-owner-evidence.mjs",
+        "bytes": 1866,
+        "sha256": "ec4fbefaa1fa4f6756fd8162de01e394a39037783535a003c3667157d6f7694d"
+      },
+      {
+        "path": "recovered/main-run-is-absolute-owner-evidence.mjs",
+        "bytes": 1939,
+        "sha256": "5a40f06ca2f28b598e4bd4a4889aa72606e2277b8036858c0657b92d14aa7473"
+      },
+      {
+        "path": "recovered/main-run-resume-error-name-owner-evidence.mjs",
+        "bytes": 1983,
+        "sha256": "ddc4c43e1b11450e3636cbf02d0431dd1983feeb38d99ee0a3c282cfec5380a8"
+      },
+      {
+        "path": "recovered/main-run-second-allowed-owner-evidence.mjs",
+        "bytes": 1498,
+        "sha256": "6db36f512a04582272568af71e474afc276c1a42df9c647609f0d836dbfb82af"
+      },
+      {
+        "path": "recovered/main-run-session-state-owner-evidence.mjs",
+        "bytes": 2085,
+        "sha256": "bd602fc269d7f359caceffaffa91d42699d8997e81218c8592d49caa10e7bb1e"
+      },
+      {
+        "path": "recovered/main-run-teammate-colors-index-owner-evidence.mjs",
+        "bytes": 1912,
+        "sha256": "662ef6c32847137299d336bfeacab69e4bba2f74a3e1bf97b7414172a6dc1170"
+      },
+      {
+        "path": "recovered/memory-write-survey-hook-owner-overrides.mjs",
+        "bytes": 1574,
+        "sha256": "de9bce6ff8b653a4acdc5a5f914125ea977aeae35291d74d70359651e0438138"
+      },
+      {
+        "path": "recovered/peer-credentials-macos-owner-evidence.mjs",
+        "bytes": 1679,
+        "sha256": "9834939fb109b0f61f4808a78eddb3aa8298b1aadf577b2a48eac2aa56337400"
+      },
+      {
+        "path": "recovered/pty-worker-owner-overrides.mjs",
+        "bytes": 1630,
+        "sha256": "68a23f2a4cf993465c5233dcb67127d5f5424c74ed64916d1c8bb62e80cf80dd"
+      },
+      {
+        "path": "recovered/query-engine-active-skill-owner-overrides.mjs",
+        "bytes": 1444,
+        "sha256": "85b7dbd70c28af7484e62660d1423a36dba0a1fe75bd08ff8a8b3531fb2bd265"
+      },
+      {
+        "path": "recovered/query-model-skill-attribution-owner-overrides.mjs",
+        "bytes": 1389,
+        "sha256": "e3225ed1b17f4f555ca65554b9e2aab86174248026bfca3f34172fd9ae01f524"
+      },
+      {
+        "path": "recovered/query-run-agent-runtime-state-owner-overrides.mjs",
+        "bytes": 2049,
+        "sha256": "fe08ee830c7f362a0b3f622b9a4c0572b034ce36879590d5e8f57f6779d82c67"
+      },
+      {
+        "path": "recovered/remote-io-internal-metadata-owner-overrides.mjs",
+        "bytes": 1640,
+        "sha256": "6ccd147f83afd87f38999300378e25351808ac5df14a19e29faafd14dba767ba"
+      },
+      {
+        "path": "recovered/repl-runtime-source-gap-owner-overrides.mjs",
+        "bytes": 1132,
+        "sha256": "8c88b55fe3ea9b6a384ad415a48800d955aa3eedb20f7bda048661b6ff6e66d1"
+      },
+      {
+        "path": "recovered/replay-agents-fleet-gate-cache-source-gap.mjs",
+        "bytes": 4824,
+        "sha256": "d353bd38ef6d71a323dbf442d68b88eff725fc8823c1699f69bf154de19f07b1"
+      },
+      {
+        "path": "recovered/replay-bootstrap-state-export-source-gap.mjs",
+        "bytes": 3935,
+        "sha256": "90411479b26ce15b15c786555268f992e4d17eac39860d57db2e31f43179fa68"
+      },
+      {
+        "path": "recovered/replay-claudemd-cowork-memory-default-entrypoint-source-gap.mjs",
+        "bytes": 6032,
+        "sha256": "6b17f1b42310b1de92c82133efeab6746480f848f43d6e306befb841a4a0b7f7"
+      },
+      {
+        "path": "recovered/replay-daemon-hub-status-reader-proc-start-source-gap.mjs",
+        "bytes": 7884,
+        "sha256": "85229bbc9e21b44f3f9ffebf1bd3a2b933d7a4bbe3abc0ec1c37bcf9573c1023"
+      },
+      {
+        "path": "recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs",
+        "bytes": 6780,
+        "sha256": "10aee9141b009335f5891ef9fb0d3b9b20504a4bbdbdddc11cb86e5eaffee9e7"
+      },
+      {
+        "path": "recovered/replay-dangerous-mode-pre-dialog-source-gap.mjs",
+        "bytes": 7306,
+        "sha256": "8c37ab84b0b4891f0cbbd0c26b37e4da2b553e88f95d724dfb64587b2d89bd96"
+      },
+      {
+        "path": "recovered/replay-datadog-event-catalog-source-gap.mjs",
+        "bytes": 9647,
+        "sha256": "4494dd3d7dbc021695e3bf3f242fa28a0d659e6a92f868cddc6a4acccf3afcfa"
+      },
+      {
+        "path": "recovered/replay-diagnostics-inline-expand-hint-source-gap.mjs",
+        "bytes": 6204,
+        "sha256": "40c135894d40d209d0bd4b42ec8024b9cbf1d6c08e524dcdfabbea52eb00674c"
+      },
+      {
+        "path": "recovered/replay-file-edit-unicode-escape-case-source-gap.mjs",
+        "bytes": 10929,
+        "sha256": "c600fd22d107108ae5750a00cefb6ce597ee447fb312f4b73d490a456d40cfb3"
+      },
+      {
+        "path": "recovered/replay-growthbook-experiment-cache-source-gap.mjs",
+        "bytes": 8733,
+        "sha256": "13d95a3157918088d1ecf9631154c54902e2ffcc07d983d354300143eddd3de6"
+      },
+      {
+        "path": "recovered/replay-ink-frame-timing-live-counts-source-gap.mjs",
+        "bytes": 7073,
+        "sha256": "0aaff1352a0eea7c4dfa607b349f181cc143fe572c61c1ddaacbbb5d7711226d"
+      },
+      {
+        "path": "recovered/replay-internal-repo-url-validation-source-gap.mjs",
+        "bytes": 6178,
+        "sha256": "9d079a5955b66d4849d5c7e94f6160cf6fc8c10e7d43fc59b4e4d2eb4fc3fcc7"
+      },
+      {
+        "path": "recovered/replay-main-run-view-mode-source-gap.mjs",
+        "bytes": 5269,
+        "sha256": "1059a2a83c66fc0ac9f4bc66666dd448b1d1dc5bb947acd5c2a973d003f6e83b"
+      },
+      {
+        "path": "recovered/replay-memory-write-survey-visual-row-truncation-source-gap.mjs",
+        "bytes": 9927,
+        "sha256": "2316a19158b89d43c760f45ad3709e144fa58a09684506e09ae1f259257e5393"
+      },
+      {
+        "path": "recovered/replay-plugin-prune-command-source-gap.mjs",
+        "bytes": 8839,
+        "sha256": "5b24350af091e842440da3eae16c5b834005851076290979f87b197a1dd4cc85"
+      },
+      {
+        "path": "recovered/replay-powershell-resolved-unc-normalization-source-gap.mjs",
+        "bytes": 8366,
+        "sha256": "2bbe9ced965d02ceb771acc81e1efdac463d1cc75b1ebeee12a6ddda14a936a8"
+      },
+      {
+        "path": "recovered/replay-relaunch-current-binary-pin-source-gap.mjs",
+        "bytes": 6471,
+        "sha256": "930c66e91263544a8bdb84a2c7ee14627653d53a850ba0ac6952865ee1c1faa1"
+      },
+      {
+        "path": "recovered/replay-rename-generated-session-name-source-gap.mjs",
+        "bytes": 6673,
+        "sha256": "ad596c6aff779483e999f951cc0681e722bdbbb3334959aa1c69dad1f48aad8b"
+      },
+      {
+        "path": "recovered/resume-agent-spawned-by-skill-owner-overrides.mjs",
+        "bytes": 1338,
+        "sha256": "1bf7b53f7f52a3220f6df0fcb8ba4c793c730510910d039c879c262f06a78c19"
+      },
+      {
+        "path": "recovered/session-state-internal-metadata-owner-overrides.mjs",
+        "bytes": 1502,
+        "sha256": "04425b56b001d5e78ce0593194d3b7bbcd6132141bd10329cddac5d34da32ea9"
+      },
+      {
+        "path": "recovered/skill-tool-active-skill-owner-overrides.mjs",
+        "bytes": 1219,
+        "sha256": "4a2a901e44b2dd24c280fdc4c1b8747f7c6a4adf02865fddf0706b5614e2ffe2"
+      },
+      {
+        "path": "recovered/slash-command-active-skill-owner-overrides.mjs",
+        "bytes": 1253,
+        "sha256": "1213238324291dca590bfa5f01a4b178b0a2b2fd69645073956f35a994c09143"
+      },
+      {
+        "path": "recovered/slash-command-content-telemetry-owner-overrides.mjs",
+        "bytes": 1235,
+        "sha256": "88cf80a8f469f112cb0073fbeb9816440c18518715a24035404c8906e9a36346"
+      },
+      {
         "path": "recovered/source-facing-overlay.patch",
         "bytes": 2747802,
         "sha256": "5b201d69885f58a92ca64522b547594021494c950ed046bd3876f396cfab8acb"
@@ -8974,7 +11060,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "e4d2475945559a5883128cc53b3fe930e88cf544ff163e4045aba7bf83b85003"
+        "sha256": "034013f5f05b17252b51ed5c302e9996891fc5860bcb8e857306fc4f222cc28d"
       },
       {
         "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -9003,8 +11089,8 @@
       },
       {
         "path": "recovered/source-freeze/identity.json",
-        "bytes": 2494,
-        "sha256": "a726c7263e17b153eefc29eba824052c966c59858f82810faf377212bad36650"
+        "bytes": 2516,
+        "sha256": "bf8b08f50652913d740d0b3d522f353fa4fce7f34fe873fae955df209c3ff72a"
       },
       {
         "path": "recovered/source-freeze/retained-test-files.sha256",
@@ -9043,18 +11129,38 @@
       },
       {
         "path": "recovered/source-freeze/target-test-files.sha256",
-        "bytes": 4194,
-        "sha256": "0b3a9273b97d29fd59751283573b4acc13df81c86f135e1744ef3f9310dd312e"
+        "bytes": 14273,
+        "sha256": "b1283de943d0c771a4e26865eba9705aded39ee6f0184cf73d6b6a0a6d9d749e"
       },
       {
         "path": "recovered/source-lineage-core.json",
-        "bytes": 113657,
-        "sha256": "98beeb0c2adfb664f9b81afc682afd0a3fac75a952d330bf95dcd8c10de8ed35"
+        "bytes": 189266,
+        "sha256": "43bce606d6b62727dabb2e1ae29a0dd74e73c616b27d69ec68a9e99d258eef1b"
+      },
+      {
+        "path": "recovered/ultrareview-handler-owner-overrides.mjs",
+        "bytes": 6409,
+        "sha256": "36ad5145d7a2efdac0be4182a128a277351251a53d82387198ca8c300d85e664"
+      },
+      {
+        "path": "recovered/usage-contributors-owner-overrides.mjs",
+        "bytes": 1530,
+        "sha256": "586f6c1c52794e6ddcc979263d5fd4032414def1ac4320cdf3a6a9524830006a"
+      },
+      {
+        "path": "semantic-supplement.patch",
+        "bytes": 32585,
+        "sha256": "c159a0d170a3e107dac2b2a95df5c4bf16876b458ba3e491843fb43bad92a5d3"
       },
       {
         "path": "semantic/README.md",
-        "bytes": 1240,
-        "sha256": "beeaf7d7bfd2ba50c00c51c82afc82729d3c0452ff8227830ee7f786924a66d9"
+        "bytes": 1385,
+        "sha256": "8ff85417c23aa5a6f57f3a780c7380f9150ac860fc1adcda7174acf26716248f"
+      },
+      {
+        "path": "semantic/dependency-coverage.json.gz",
+        "bytes": 24061,
+        "sha256": "86577929a9e409a02341911f25f738b8942a589c9576a9d8b3faa3829f5314d3"
       },
       {
         "path": "semantic/direct-evidence.json",
@@ -9064,22 +11170,37 @@
       {
         "path": "semantic/obligations.json",
         "bytes": 410130,
-        "sha256": "ffc43c6c0c85da321db3febcbcab87e7643b98c191196a8ed49608949fa53dcb"
+        "sha256": "9f9524be315e0902e5c83c0b61315c54070f3ba5adabf78307925c1ed58af1ca"
       },
       {
         "path": "semantic/semantic-correspondence.json.gz",
-        "bytes": 776242,
-        "sha256": "209b07e802facc6d78b02c097dd9c6a6905261059747610415542e012528fea8"
+        "bytes": 776241,
+        "sha256": "b1be6a21300967dd861b1bda0624b4353cf692968a68414b28b8ee1a72660867"
+      },
+      {
+        "path": "semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83"
       },
       {
         "path": "semantic/summary.json",
         "bytes": 4667,
-        "sha256": "5c137abf4efa72ca07f67c46b88bb723032e1c57c006112e2c6d254cfb5826bd"
+        "sha256": "bb2cc4eb5ed9ef56f6479dac21f9385661e18013b65d0e1ac4230ef398f6d586"
+      },
+      {
+        "path": "structural/all-owners.json.gz",
+        "bytes": 1035816,
+        "sha256": "b42a301c879554afd738a5afd3fd03c131fa6361dd62c37694ae68cd2961866d"
       },
       {
         "path": "structural/generated-delta.json.gz",
         "bytes": 2540002,
         "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+      },
+      {
+        "path": "structural/typed-audit.json.gz",
+        "bytes": 963461,
+        "sha256": "e9174bc686d74bc181550e54e8a05db1cc9e90cd4d964dac2c54bb525b291978"
       }
     ],
     "semanticCatalogContract": {
@@ -9184,7 +11305,9 @@
         "readable-diff/normalized.diff.gz",
         "readable-diff/renames.tsv",
         "readable-diff/statements.diff",
-        "structural/generated-delta.json.gz"
+        "structural/all-owners.json.gz",
+        "structural/generated-delta.json.gz",
+        "structural/typed-audit.json.gz"
       ],
       "explains": [
         "targetBundle",
@@ -9196,6 +11319,74 @@
       "id": "2-1-121-source-facing-overlay-and-freeze",
       "confidence": "equivalent",
       "files": [
+        "recovered/agent-tool-skill-provenance-owner-overrides.mjs",
+        "recovered/agents-handler-groups-owner-overrides.mjs",
+        "recovered/async-agent-detail-kill-all-shortcut-owner-overrides.mjs",
+        "recovered/background-tasks-kill-all-shortcut-owner-overrides.mjs",
+        "recovered/build-daemon-main-owner-proofs.mjs",
+        "recovered/build-daemon-spare-owner-proofs.mjs",
+        "recovered/build-daemon-supervisor-owner-proofs.mjs",
+        "recovered/build-extra-usage-owner-proofs.mjs",
+        "recovered/build-pty-worker-owner-proofs.mjs",
+        "recovered/build-usage-contributors-owner-proofs.mjs",
+        "recovered/classifier-build-name-filter-owner-overrides.mjs",
+        "recovered/daemon-cli-parse-kind-args-export-owner-overrides.mjs",
+        "recovered/daemon-main-log-rotation-strict-number-owner-evidence.mjs",
+        "recovered/daemon-main-owner-overrides.mjs",
+        "recovered/daemon-service-executable-owner-overrides.mjs",
+        "recovered/daemon-spare-connect-owner-evidence.mjs",
+        "recovered/daemon-spare-export-binding-owner-overrides.mjs",
+        "recovered/daemon-spare-owner-overrides.mjs",
+        "recovered/daemon-status-doctor-owner-overrides.mjs",
+        "recovered/daemon-supervisor-create-server-owner-evidence.mjs",
+        "recovered/daemon-supervisor-handle-control-strict-owner-evidence.mjs",
+        "recovered/daemon-supervisor-owner-overrides.mjs",
+        "recovered/daemon-worker-config-run-daemon-owner-overrides.mjs",
+        "recovered/extra-usage-owner-overrides.mjs",
+        "recovered/fleet-view-frame-child-row-owner-overrides.mjs",
+        "recovered/fleet-view-runtime-status-owner-overrides.mjs",
+        "recovered/fleetview-pr-poll-delay-owner-overrides.mjs",
+        "recovered/fork-spawned-by-skill-owner-overrides.mjs",
+        "recovered/handle-prompt-submit-active-skill-owner-overrides.mjs",
+        "recovered/headless-restored-task-clear-owner-overrides.mjs",
+        "recovered/main-run-first-allowed-owner-evidence.mjs",
+        "recovered/main-run-growthbook-timeout-owner-evidence.mjs",
+        "recovered/main-run-is-absolute-owner-evidence.mjs",
+        "recovered/main-run-resume-error-name-owner-evidence.mjs",
+        "recovered/main-run-second-allowed-owner-evidence.mjs",
+        "recovered/main-run-session-state-owner-evidence.mjs",
+        "recovered/main-run-teammate-colors-index-owner-evidence.mjs",
+        "recovered/memory-write-survey-hook-owner-overrides.mjs",
+        "recovered/peer-credentials-macos-owner-evidence.mjs",
+        "recovered/pty-worker-owner-overrides.mjs",
+        "recovered/query-engine-active-skill-owner-overrides.mjs",
+        "recovered/query-model-skill-attribution-owner-overrides.mjs",
+        "recovered/query-run-agent-runtime-state-owner-overrides.mjs",
+        "recovered/remote-io-internal-metadata-owner-overrides.mjs",
+        "recovered/repl-runtime-source-gap-owner-overrides.mjs",
+        "recovered/replay-agents-fleet-gate-cache-source-gap.mjs",
+        "recovered/replay-bootstrap-state-export-source-gap.mjs",
+        "recovered/replay-claudemd-cowork-memory-default-entrypoint-source-gap.mjs",
+        "recovered/replay-daemon-hub-status-reader-proc-start-source-gap.mjs",
+        "recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs",
+        "recovered/replay-dangerous-mode-pre-dialog-source-gap.mjs",
+        "recovered/replay-datadog-event-catalog-source-gap.mjs",
+        "recovered/replay-diagnostics-inline-expand-hint-source-gap.mjs",
+        "recovered/replay-file-edit-unicode-escape-case-source-gap.mjs",
+        "recovered/replay-growthbook-experiment-cache-source-gap.mjs",
+        "recovered/replay-ink-frame-timing-live-counts-source-gap.mjs",
+        "recovered/replay-internal-repo-url-validation-source-gap.mjs",
+        "recovered/replay-main-run-view-mode-source-gap.mjs",
+        "recovered/replay-memory-write-survey-visual-row-truncation-source-gap.mjs",
+        "recovered/replay-plugin-prune-command-source-gap.mjs",
+        "recovered/replay-powershell-resolved-unc-normalization-source-gap.mjs",
+        "recovered/replay-relaunch-current-binary-pin-source-gap.mjs",
+        "recovered/replay-rename-generated-session-name-source-gap.mjs",
+        "recovered/resume-agent-spawned-by-skill-owner-overrides.mjs",
+        "recovered/session-state-internal-metadata-owner-overrides.mjs",
+        "recovered/skill-tool-active-skill-owner-overrides.mjs",
+        "recovered/slash-command-active-skill-owner-overrides.mjs",
+        "recovered/slash-command-content-telemetry-owner-overrides.mjs",
         "recovered/source-facing-overlay.patch",
         "recovered/source-freeze/SHA256SUMS",
         "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -9212,7 +11403,20 @@
         "recovered/source-freeze/source-stat.txt",
         "recovered/source-freeze/source-symlinks.txt",
         "recovered/source-freeze/target-test-files.sha256",
-        "recovered/source-lineage-core.json"
+        "recovered/source-lineage-core.json",
+        "recovered/ultrareview-handler-owner-overrides.mjs",
+        "recovered/usage-contributors-owner-overrides.mjs"
+      ],
+      "explains": [
+        "targetBundle",
+        "officialChangelog"
+      ]
+    },
+    {
+      "id": "2-1-121-semantic-supplement-overlay",
+      "confidence": "equivalent",
+      "files": [
+        "semantic-supplement.patch"
       ],
       "explains": [
         "targetBundle",
@@ -9224,9 +11428,11 @@
       "confidence": "equivalent",
       "files": [
         "semantic/README.md",
+        "semantic/dependency-coverage.json.gz",
         "semantic/direct-evidence.json",
         "semantic/obligations.json",
         "semantic/semantic-correspondence.json.gz",
+        "semantic/source-coverage.json.gz",
         "semantic/summary.json"
       ],
       "explains": [
@@ -9251,13 +11457,13 @@
   "recoveredFileAssertions": [
     {
       "path": "RECOVERY_RUNBOOK.md",
-      "bytes": 5898,
-      "sha256": "d71578ae911006469cb6b484dbf3fa80d3a10c54299e9dea23f3be18db755b36"
+      "bytes": 4115,
+      "sha256": "19fb6ce0bb55a18614674cc82ddb0076f1fe9a53af2b3ec1c2fafd2e22f0c95a"
     },
     {
       "path": "REPORT.md",
-      "bytes": 3701,
-      "sha256": "1c8031c374a21e0d8d78ff2a9ec59e26975b867a23aea5e37a353848c3586f33"
+      "bytes": 3920,
+      "sha256": "89c2f5caf8046929b267b3643e051888fad004de1648404c8c28ee53989e4b08"
     },
     {
       "path": "attribution/sources.jsonl.gz",
@@ -9365,6 +11571,346 @@
       "sha256": "9fc62f14995ae58e58b2d77f3344a423f150773138876d7a01508b6085d4f4b8"
     },
     {
+      "path": "recovered/agent-tool-skill-provenance-owner-overrides.mjs",
+      "bytes": 1134,
+      "sha256": "0c512ef3d9fc6701ec1e87e32a7d16255c96c14b2a342cbf1be6a405fd6c93ef"
+    },
+    {
+      "path": "recovered/agents-handler-groups-owner-overrides.mjs",
+      "bytes": 1439,
+      "sha256": "1184ee72d1595a4e6ebc2eb1f0068aa31a2372c6ae8023b45fa1fae75602c872"
+    },
+    {
+      "path": "recovered/async-agent-detail-kill-all-shortcut-owner-overrides.mjs",
+      "bytes": 1568,
+      "sha256": "132440ba0ab34222ab5826c7b71ce3ff425df7cf54b5eab009a23d50c128a2e5"
+    },
+    {
+      "path": "recovered/background-tasks-kill-all-shortcut-owner-overrides.mjs",
+      "bytes": 1888,
+      "sha256": "f025233a87cc8092efc1053d060494eb49e4a42508a871823d640faf4f288bb3"
+    },
+    {
+      "path": "recovered/build-daemon-main-owner-proofs.mjs",
+      "bytes": 15801,
+      "sha256": "b6244c9d6233844638aec575eed0665c9335579238099bc1f61abb8c1e22ddf7"
+    },
+    {
+      "path": "recovered/build-daemon-spare-owner-proofs.mjs",
+      "bytes": 7083,
+      "sha256": "82fa79dd526763b9971b797dc2b08fb1a7ca4d3874810c4ebab524a8df836e75"
+    },
+    {
+      "path": "recovered/build-daemon-supervisor-owner-proofs.mjs",
+      "bytes": 10524,
+      "sha256": "0af768ecc7f9f3960545d3e31bf433c84fcd1db3d43e4ef69c010d5789c8c8d3"
+    },
+    {
+      "path": "recovered/build-extra-usage-owner-proofs.mjs",
+      "bytes": 8342,
+      "sha256": "86054dd7d2606ab423da51750e861a1635cda7d60cb4954dd32dc890d0141019"
+    },
+    {
+      "path": "recovered/build-pty-worker-owner-proofs.mjs",
+      "bytes": 9875,
+      "sha256": "d0745d29458d874385d7915e8f33b36527f9525b0a39becb628806d46994c592"
+    },
+    {
+      "path": "recovered/build-usage-contributors-owner-proofs.mjs",
+      "bytes": 9009,
+      "sha256": "1a443735cc4eb7c1405fef8c25ef7c4dc7748c4bfe4be859eaa40d2c593410eb"
+    },
+    {
+      "path": "recovered/classifier-build-name-filter-owner-overrides.mjs",
+      "bytes": 1914,
+      "sha256": "54bdd8ad4718e299696be58a2b6bb2a28e5c65423f95bbea552d2b22ee1de647"
+    },
+    {
+      "path": "recovered/daemon-cli-parse-kind-args-export-owner-overrides.mjs",
+      "bytes": 2918,
+      "sha256": "8270a8d1abba22a0ddf63029a6b169f23ab6b24e0d12e8b9c9bbf9e6b65e942c"
+    },
+    {
+      "path": "recovered/daemon-main-log-rotation-strict-number-owner-evidence.mjs",
+      "bytes": 3040,
+      "sha256": "e50b4abba880aeda3a8dabf8368c19f995793ecd22dde329119ce7d04ba7a539"
+    },
+    {
+      "path": "recovered/daemon-main-owner-overrides.mjs",
+      "bytes": 981,
+      "sha256": "22cea1708640773ee362d2a01943fbd93c07ab72cec4f76025b79ab44635708f"
+    },
+    {
+      "path": "recovered/daemon-service-executable-owner-overrides.mjs",
+      "bytes": 1508,
+      "sha256": "449447425968ae2ef59f2c9402bf63d8303bfd04ad373eb7b11006a9660630d5"
+    },
+    {
+      "path": "recovered/daemon-spare-connect-owner-evidence.mjs",
+      "bytes": 2087,
+      "sha256": "7f18980014cc75d300c6a219e18c7b6c4408e287cc5c2f2578ad09994671dd2c"
+    },
+    {
+      "path": "recovered/daemon-spare-export-binding-owner-overrides.mjs",
+      "bytes": 2531,
+      "sha256": "367cfacf58112663763901eb65e7a7ac6f065724763d20e0740a6264541a2148"
+    },
+    {
+      "path": "recovered/daemon-spare-owner-overrides.mjs",
+      "bytes": 924,
+      "sha256": "b1b32eae4a3e474e85775de6ed87c37c001f5238ea12aa338a64abefc656604d"
+    },
+    {
+      "path": "recovered/daemon-status-doctor-owner-overrides.mjs",
+      "bytes": 2299,
+      "sha256": "bc66e463e9fd38feb506a05eae7cc35cf68ad814ab4b32f23a915bb4c57366f8"
+    },
+    {
+      "path": "recovered/daemon-supervisor-create-server-owner-evidence.mjs",
+      "bytes": 1894,
+      "sha256": "c91cbcce4d1e80b8d3ecf0b5b713e9c960522e7954daf5822872a534785d18e6"
+    },
+    {
+      "path": "recovered/daemon-supervisor-handle-control-strict-owner-evidence.mjs",
+      "bytes": 2993,
+      "sha256": "ba910bf050ca7caf949275668295af5eb769ef01d5c2b4b922c2f223662fcc68"
+    },
+    {
+      "path": "recovered/daemon-supervisor-owner-overrides.mjs",
+      "bytes": 1641,
+      "sha256": "b6a0ba398a75c8bcc3af63ddc3f510161916a9573b7b47a90df49749949bdee8"
+    },
+    {
+      "path": "recovered/daemon-worker-config-run-daemon-owner-overrides.mjs",
+      "bytes": 2943,
+      "sha256": "7dd907e0df5bcc6c4cba76e59ffd1218b6983878962ba826a0e5d9a77f8e0210"
+    },
+    {
+      "path": "recovered/extra-usage-owner-overrides.mjs",
+      "bytes": 3892,
+      "sha256": "77a6c95a0a0fa3c333de848a26315a76ba11cca4896f3b71d5526370289e36b5"
+    },
+    {
+      "path": "recovered/fleet-view-frame-child-row-owner-overrides.mjs",
+      "bytes": 1265,
+      "sha256": "9ce71aba723456388074c65394a5a4226fcbbf2bedf239b87146670a570a30c9"
+    },
+    {
+      "path": "recovered/fleet-view-runtime-status-owner-overrides.mjs",
+      "bytes": 1875,
+      "sha256": "bf2207fcb2c1f822016106a9c317db97aa2de4c953dff6e3a445f7778cc5e153"
+    },
+    {
+      "path": "recovered/fleetview-pr-poll-delay-owner-overrides.mjs",
+      "bytes": 1410,
+      "sha256": "b78b0c57489d4c1aadaed24af9b5d85b1c2e5450a5ab2f5b2a163570d52b3554"
+    },
+    {
+      "path": "recovered/fork-spawned-by-skill-owner-overrides.mjs",
+      "bytes": 1223,
+      "sha256": "cbb7388604bebadf28b6c2af5ae548fa3ff1ad30dcb865f13e01e30ae3e9384c"
+    },
+    {
+      "path": "recovered/handle-prompt-submit-active-skill-owner-overrides.mjs",
+      "bytes": 1652,
+      "sha256": "ddc21de93cebd77002e9e63c94bb3c8b1f7390158291b9051b5c4e39a7d603a5"
+    },
+    {
+      "path": "recovered/headless-restored-task-clear-owner-overrides.mjs",
+      "bytes": 1473,
+      "sha256": "c16e7905686225905a1e15fc08a4aea947159eb93583dbe77da399c83fd4da32"
+    },
+    {
+      "path": "recovered/main-run-first-allowed-owner-evidence.mjs",
+      "bytes": 1426,
+      "sha256": "8e002317743c7b048f22dbb5f2554a90966f15c7699482699118e742cb8972fc"
+    },
+    {
+      "path": "recovered/main-run-growthbook-timeout-owner-evidence.mjs",
+      "bytes": 1866,
+      "sha256": "ec4fbefaa1fa4f6756fd8162de01e394a39037783535a003c3667157d6f7694d"
+    },
+    {
+      "path": "recovered/main-run-is-absolute-owner-evidence.mjs",
+      "bytes": 1939,
+      "sha256": "5a40f06ca2f28b598e4bd4a4889aa72606e2277b8036858c0657b92d14aa7473"
+    },
+    {
+      "path": "recovered/main-run-resume-error-name-owner-evidence.mjs",
+      "bytes": 1983,
+      "sha256": "ddc4c43e1b11450e3636cbf02d0431dd1983feeb38d99ee0a3c282cfec5380a8"
+    },
+    {
+      "path": "recovered/main-run-second-allowed-owner-evidence.mjs",
+      "bytes": 1498,
+      "sha256": "6db36f512a04582272568af71e474afc276c1a42df9c647609f0d836dbfb82af"
+    },
+    {
+      "path": "recovered/main-run-session-state-owner-evidence.mjs",
+      "bytes": 2085,
+      "sha256": "bd602fc269d7f359caceffaffa91d42699d8997e81218c8592d49caa10e7bb1e"
+    },
+    {
+      "path": "recovered/main-run-teammate-colors-index-owner-evidence.mjs",
+      "bytes": 1912,
+      "sha256": "662ef6c32847137299d336bfeacab69e4bba2f74a3e1bf97b7414172a6dc1170"
+    },
+    {
+      "path": "recovered/memory-write-survey-hook-owner-overrides.mjs",
+      "bytes": 1574,
+      "sha256": "de9bce6ff8b653a4acdc5a5f914125ea977aeae35291d74d70359651e0438138"
+    },
+    {
+      "path": "recovered/peer-credentials-macos-owner-evidence.mjs",
+      "bytes": 1679,
+      "sha256": "9834939fb109b0f61f4808a78eddb3aa8298b1aadf577b2a48eac2aa56337400"
+    },
+    {
+      "path": "recovered/pty-worker-owner-overrides.mjs",
+      "bytes": 1630,
+      "sha256": "68a23f2a4cf993465c5233dcb67127d5f5424c74ed64916d1c8bb62e80cf80dd"
+    },
+    {
+      "path": "recovered/query-engine-active-skill-owner-overrides.mjs",
+      "bytes": 1444,
+      "sha256": "85b7dbd70c28af7484e62660d1423a36dba0a1fe75bd08ff8a8b3531fb2bd265"
+    },
+    {
+      "path": "recovered/query-model-skill-attribution-owner-overrides.mjs",
+      "bytes": 1389,
+      "sha256": "e3225ed1b17f4f555ca65554b9e2aab86174248026bfca3f34172fd9ae01f524"
+    },
+    {
+      "path": "recovered/query-run-agent-runtime-state-owner-overrides.mjs",
+      "bytes": 2049,
+      "sha256": "fe08ee830c7f362a0b3f622b9a4c0572b034ce36879590d5e8f57f6779d82c67"
+    },
+    {
+      "path": "recovered/remote-io-internal-metadata-owner-overrides.mjs",
+      "bytes": 1640,
+      "sha256": "6ccd147f83afd87f38999300378e25351808ac5df14a19e29faafd14dba767ba"
+    },
+    {
+      "path": "recovered/repl-runtime-source-gap-owner-overrides.mjs",
+      "bytes": 1132,
+      "sha256": "8c88b55fe3ea9b6a384ad415a48800d955aa3eedb20f7bda048661b6ff6e66d1"
+    },
+    {
+      "path": "recovered/replay-agents-fleet-gate-cache-source-gap.mjs",
+      "bytes": 4824,
+      "sha256": "d353bd38ef6d71a323dbf442d68b88eff725fc8823c1699f69bf154de19f07b1"
+    },
+    {
+      "path": "recovered/replay-bootstrap-state-export-source-gap.mjs",
+      "bytes": 3935,
+      "sha256": "90411479b26ce15b15c786555268f992e4d17eac39860d57db2e31f43179fa68"
+    },
+    {
+      "path": "recovered/replay-claudemd-cowork-memory-default-entrypoint-source-gap.mjs",
+      "bytes": 6032,
+      "sha256": "6b17f1b42310b1de92c82133efeab6746480f848f43d6e306befb841a4a0b7f7"
+    },
+    {
+      "path": "recovered/replay-daemon-hub-status-reader-proc-start-source-gap.mjs",
+      "bytes": 7884,
+      "sha256": "85229bbc9e21b44f3f9ffebf1bd3a2b933d7a4bbe3abc0ec1c37bcf9573c1023"
+    },
+    {
+      "path": "recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs",
+      "bytes": 6780,
+      "sha256": "10aee9141b009335f5891ef9fb0d3b9b20504a4bbdbdddc11cb86e5eaffee9e7"
+    },
+    {
+      "path": "recovered/replay-dangerous-mode-pre-dialog-source-gap.mjs",
+      "bytes": 7306,
+      "sha256": "8c37ab84b0b4891f0cbbd0c26b37e4da2b553e88f95d724dfb64587b2d89bd96"
+    },
+    {
+      "path": "recovered/replay-datadog-event-catalog-source-gap.mjs",
+      "bytes": 9647,
+      "sha256": "4494dd3d7dbc021695e3bf3f242fa28a0d659e6a92f868cddc6a4acccf3afcfa"
+    },
+    {
+      "path": "recovered/replay-diagnostics-inline-expand-hint-source-gap.mjs",
+      "bytes": 6204,
+      "sha256": "40c135894d40d209d0bd4b42ec8024b9cbf1d6c08e524dcdfabbea52eb00674c"
+    },
+    {
+      "path": "recovered/replay-file-edit-unicode-escape-case-source-gap.mjs",
+      "bytes": 10929,
+      "sha256": "c600fd22d107108ae5750a00cefb6ce597ee447fb312f4b73d490a456d40cfb3"
+    },
+    {
+      "path": "recovered/replay-growthbook-experiment-cache-source-gap.mjs",
+      "bytes": 8733,
+      "sha256": "13d95a3157918088d1ecf9631154c54902e2ffcc07d983d354300143eddd3de6"
+    },
+    {
+      "path": "recovered/replay-ink-frame-timing-live-counts-source-gap.mjs",
+      "bytes": 7073,
+      "sha256": "0aaff1352a0eea7c4dfa607b349f181cc143fe572c61c1ddaacbbb5d7711226d"
+    },
+    {
+      "path": "recovered/replay-internal-repo-url-validation-source-gap.mjs",
+      "bytes": 6178,
+      "sha256": "9d079a5955b66d4849d5c7e94f6160cf6fc8c10e7d43fc59b4e4d2eb4fc3fcc7"
+    },
+    {
+      "path": "recovered/replay-main-run-view-mode-source-gap.mjs",
+      "bytes": 5269,
+      "sha256": "1059a2a83c66fc0ac9f4bc66666dd448b1d1dc5bb947acd5c2a973d003f6e83b"
+    },
+    {
+      "path": "recovered/replay-memory-write-survey-visual-row-truncation-source-gap.mjs",
+      "bytes": 9927,
+      "sha256": "2316a19158b89d43c760f45ad3709e144fa58a09684506e09ae1f259257e5393"
+    },
+    {
+      "path": "recovered/replay-plugin-prune-command-source-gap.mjs",
+      "bytes": 8839,
+      "sha256": "5b24350af091e842440da3eae16c5b834005851076290979f87b197a1dd4cc85"
+    },
+    {
+      "path": "recovered/replay-powershell-resolved-unc-normalization-source-gap.mjs",
+      "bytes": 8366,
+      "sha256": "2bbe9ced965d02ceb771acc81e1efdac463d1cc75b1ebeee12a6ddda14a936a8"
+    },
+    {
+      "path": "recovered/replay-relaunch-current-binary-pin-source-gap.mjs",
+      "bytes": 6471,
+      "sha256": "930c66e91263544a8bdb84a2c7ee14627653d53a850ba0ac6952865ee1c1faa1"
+    },
+    {
+      "path": "recovered/replay-rename-generated-session-name-source-gap.mjs",
+      "bytes": 6673,
+      "sha256": "ad596c6aff779483e999f951cc0681e722bdbbb3334959aa1c69dad1f48aad8b"
+    },
+    {
+      "path": "recovered/resume-agent-spawned-by-skill-owner-overrides.mjs",
+      "bytes": 1338,
+      "sha256": "1bf7b53f7f52a3220f6df0fcb8ba4c793c730510910d039c879c262f06a78c19"
+    },
+    {
+      "path": "recovered/session-state-internal-metadata-owner-overrides.mjs",
+      "bytes": 1502,
+      "sha256": "04425b56b001d5e78ce0593194d3b7bbcd6132141bd10329cddac5d34da32ea9"
+    },
+    {
+      "path": "recovered/skill-tool-active-skill-owner-overrides.mjs",
+      "bytes": 1219,
+      "sha256": "4a2a901e44b2dd24c280fdc4c1b8747f7c6a4adf02865fddf0706b5614e2ffe2"
+    },
+    {
+      "path": "recovered/slash-command-active-skill-owner-overrides.mjs",
+      "bytes": 1253,
+      "sha256": "1213238324291dca590bfa5f01a4b178b0a2b2fd69645073956f35a994c09143"
+    },
+    {
+      "path": "recovered/slash-command-content-telemetry-owner-overrides.mjs",
+      "bytes": 1235,
+      "sha256": "88cf80a8f469f112cb0073fbeb9816440c18518715a24035404c8906e9a36346"
+    },
+    {
       "path": "recovered/source-facing-overlay.patch",
       "bytes": 2747802,
       "sha256": "5b201d69885f58a92ca64522b547594021494c950ed046bd3876f396cfab8acb"
@@ -9372,7 +11918,7 @@
     {
       "path": "recovered/source-freeze/SHA256SUMS",
       "bytes": 1244,
-      "sha256": "e4d2475945559a5883128cc53b3fe930e88cf544ff163e4045aba7bf83b85003"
+      "sha256": "034013f5f05b17252b51ed5c302e9996891fc5860bcb8e857306fc4f222cc28d"
     },
     {
       "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -9401,8 +11947,8 @@
     },
     {
       "path": "recovered/source-freeze/identity.json",
-      "bytes": 2494,
-      "sha256": "a726c7263e17b153eefc29eba824052c966c59858f82810faf377212bad36650"
+      "bytes": 2516,
+      "sha256": "bf8b08f50652913d740d0b3d522f353fa4fce7f34fe873fae955df209c3ff72a"
     },
     {
       "path": "recovered/source-freeze/retained-test-files.sha256",
@@ -9441,18 +11987,38 @@
     },
     {
       "path": "recovered/source-freeze/target-test-files.sha256",
-      "bytes": 4194,
-      "sha256": "0b3a9273b97d29fd59751283573b4acc13df81c86f135e1744ef3f9310dd312e"
+      "bytes": 14273,
+      "sha256": "b1283de943d0c771a4e26865eba9705aded39ee6f0184cf73d6b6a0a6d9d749e"
     },
     {
       "path": "recovered/source-lineage-core.json",
-      "bytes": 113657,
-      "sha256": "98beeb0c2adfb664f9b81afc682afd0a3fac75a952d330bf95dcd8c10de8ed35"
+      "bytes": 189266,
+      "sha256": "43bce606d6b62727dabb2e1ae29a0dd74e73c616b27d69ec68a9e99d258eef1b"
+    },
+    {
+      "path": "recovered/ultrareview-handler-owner-overrides.mjs",
+      "bytes": 6409,
+      "sha256": "36ad5145d7a2efdac0be4182a128a277351251a53d82387198ca8c300d85e664"
+    },
+    {
+      "path": "recovered/usage-contributors-owner-overrides.mjs",
+      "bytes": 1530,
+      "sha256": "586f6c1c52794e6ddcc979263d5fd4032414def1ac4320cdf3a6a9524830006a"
+    },
+    {
+      "path": "semantic-supplement.patch",
+      "bytes": 32585,
+      "sha256": "c159a0d170a3e107dac2b2a95df5c4bf16876b458ba3e491843fb43bad92a5d3"
     },
     {
       "path": "semantic/README.md",
-      "bytes": 1240,
-      "sha256": "beeaf7d7bfd2ba50c00c51c82afc82729d3c0452ff8227830ee7f786924a66d9"
+      "bytes": 1385,
+      "sha256": "8ff85417c23aa5a6f57f3a780c7380f9150ac860fc1adcda7174acf26716248f"
+    },
+    {
+      "path": "semantic/dependency-coverage.json.gz",
+      "bytes": 24061,
+      "sha256": "86577929a9e409a02341911f25f738b8942a589c9576a9d8b3faa3829f5314d3"
     },
     {
       "path": "semantic/direct-evidence.json",
@@ -9462,28 +12028,43 @@
     {
       "path": "semantic/obligations.json",
       "bytes": 410130,
-      "sha256": "ffc43c6c0c85da321db3febcbcab87e7643b98c191196a8ed49608949fa53dcb"
+      "sha256": "9f9524be315e0902e5c83c0b61315c54070f3ba5adabf78307925c1ed58af1ca"
     },
     {
       "path": "semantic/semantic-correspondence.json.gz",
-      "bytes": 776242,
-      "sha256": "209b07e802facc6d78b02c097dd9c6a6905261059747610415542e012528fea8"
+      "bytes": 776241,
+      "sha256": "b1be6a21300967dd861b1bda0624b4353cf692968a68414b28b8ee1a72660867"
+    },
+    {
+      "path": "semantic/source-coverage.json.gz",
+      "bytes": 347677,
+      "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83"
     },
     {
       "path": "semantic/summary.json",
       "bytes": 4667,
-      "sha256": "5c137abf4efa72ca07f67c46b88bb723032e1c57c006112e2c6d254cfb5826bd"
+      "sha256": "bb2cc4eb5ed9ef56f6479dac21f9385661e18013b65d0e1ac4230ef398f6d586"
+    },
+    {
+      "path": "structural/all-owners.json.gz",
+      "bytes": 1035816,
+      "sha256": "b42a301c879554afd738a5afd3fd03c131fa6361dd62c37694ae68cd2961866d"
     },
     {
       "path": "structural/generated-delta.json.gz",
       "bytes": 2540002,
       "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    {
+      "path": "structural/typed-audit.json.gz",
+      "bytes": 963461,
+      "sha256": "e9174bc686d74bc181550e54e8a05db1cc9e90cd4d964dac2c54bb525b291978"
     }
   ],
   "sourceFreeze": {
     "status": "immutable-and-self-verifying",
     "identity": "recovered/source-freeze/identity.json",
-    "identitySha256": "a726c7263e17b153eefc29eba824052c966c59858f82810faf377212bad36650",
+    "identitySha256": "bf8b08f50652913d740d0b3d522f353fa4fce7f34fe873fae955df209c3ff72a",
     "overlay": {
       "path": "recovered/source-facing-overlay.patch",
       "bytes": 2747802,
@@ -9508,7 +12089,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "e4d2475945559a5883128cc53b3fe930e88cf544ff163e4045aba7bf83b85003"
+        "sha256": "034013f5f05b17252b51ed5c302e9996891fc5860bcb8e857306fc4f222cc28d"
       },
       {
         "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -9537,8 +12118,8 @@
       },
       {
         "path": "recovered/source-freeze/identity.json",
-        "bytes": 2494,
-        "sha256": "a726c7263e17b153eefc29eba824052c966c59858f82810faf377212bad36650"
+        "bytes": 2516,
+        "sha256": "bf8b08f50652913d740d0b3d522f353fa4fce7f34fe873fae955df209c3ff72a"
       },
       {
         "path": "recovered/source-freeze/retained-test-files.sha256",
@@ -9577,18 +12158,18 @@
       },
       {
         "path": "recovered/source-freeze/target-test-files.sha256",
-        "bytes": 4194,
-        "sha256": "0b3a9273b97d29fd59751283573b4acc13df81c86f135e1744ef3f9310dd312e"
+        "bytes": 14273,
+        "sha256": "b1283de943d0c771a4e26865eba9705aded39ee6f0184cf73d6b6a0a6d9d749e"
       }
     ]
   },
   "finalization": {
     "status": "complete",
-    "sourceFreezeIdentitySha256": "a726c7263e17b153eefc29eba824052c966c59858f82810faf377212bad36650",
-    "semanticObligationsSha256": "ffc43c6c0c85da321db3febcbcab87e7643b98c191196a8ed49608949fa53dcb",
-    "semanticReportSha256": "209b07e802facc6d78b02c097dd9c6a6905261059747610415542e012528fea8",
-    "semanticSummarySha256": "5c137abf4efa72ca07f67c46b88bb723032e1c57c006112e2c6d254cfb5826bd",
-    "recoveredFiles": 46,
-    "recoveredEdits": 5
+    "sourceFreezeIdentitySha256": "bf8b08f50652913d740d0b3d522f353fa4fce7f34fe873fae955df209c3ff72a",
+    "semanticObligationsSha256": "9f9524be315e0902e5c83c0b61315c54070f3ba5adabf78307925c1ed58af1ca",
+    "semanticReportSha256": "b1be6a21300967dd861b1bda0624b4353cf692968a68414b28b8ee1a72660867",
+    "semanticSummarySha256": "bb2cc4eb5ed9ef56f6479dac21f9385661e18013b65d0e1ac4230ef398f6d586",
+    "recoveredFiles": 121,
+    "recoveredEdits": 6
   }
 }

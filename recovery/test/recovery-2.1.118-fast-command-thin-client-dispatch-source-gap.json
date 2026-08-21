@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-fast-command-thin-client-dispatch-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-fast-command-thin-client-dispatch-target-fragment",
+    "target118-fast-command-thin-client-dispatch-source-replay-test",
+    "target118-fast-command-thin-client-dispatch-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-fast-command-thin-client-dispatch-source-gap.mjs",
+      "bytes": 5363,
+      "sha256": "73f33cf93fe3bcd7b0c612d106a7e3c5284eb953c444e1b8a5193b41dd455b8e"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/commands/fast/index.ts",
+        "blob": "88ed5506d71e6232cebecaa13d405d6fcc3762c1",
+        "bytes": 693,
+        "sha256": "114ad2b63f64ad326bb428bbfed0922b2f7f1d3df1dca0c5100c7061f212966f"
+      },
+      "declaration": {
+        "name": "fast",
+        "start": 230,
+        "end": 671,
+        "bytes": 441,
+        "sha256": "f6e992f064db21fbfe1fdd5f49f29ed8f46f154fa05194c85ac8dbaa7741b8d1"
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/commands/fast/index.ts",
+        "bytes": 734,
+        "sha256": "63ee05aa4a4bcac20265df24de01fc3c4a2f1e31fb8455632093523ffb77a940"
+      },
+      "declaration": {
+        "name": "fast",
+        "start": 230,
+        "end": 712,
+        "bytes": 482,
+        "sha256": "eab8bf8ad6edb4ebc0efc5b3ef98130353a15aa7b120317936bb79e9c29b16db"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 17142,
+    "classification": "unresolved",
+    "start": 10720496,
+    "end": 10721020,
+    "bytes": 524,
+    "tokenCount": 185,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "c6366347f533be1a036a602d8c7e15da044c5615df6ba33162e058ecc3036808",
+    "coarseHash": "4cc3b67047d9e64a40838461d4c25a36c12c22bd33440b4d8b5b2a31cdff6f65",
+    "ownerPath": "src/commands/fast/index.ts",
+    "provisionalOwnerPath": "src/commands/fast/fast.tsx",
+    "declarations": [
+      "fast"
+    ],
+    "behavior": "The complete authenticated Target118 fast command descriptor dispatches through the thin-client control-request channel while retaining its JSX loader, visibility, availability, and immediate-command policy; commands/fast/fast.tsx is rejected as a coarse neighboring implementation owner.",
+    "residues": [
+      [
+        "string",
+        "control-request",
+        10720751,
+        10720768,
+        2,
+        4
+      ]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/commands/fast/index.ts"
+    ],
+    "evidenceIds": [
+      "target118-fast-command-thin-client-dispatch-target-fragment",
+      "target118-fast-command-thin-client-dispatch-source-replay-test",
+      "target118-fast-command-thin-client-dispatch-source-ast-test"
+    ],
+    "behavior": "The complete authenticated Target118 fast command descriptor dispatches through the thin-client control-request channel while retaining its JSX loader, visibility, availability, and immediate-command policy; commands/fast/fast.tsx is rejected as a coarse neighboring implementation owner."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "6dafe3bb9857228f4fdff313db368c9acb912d6bead31357968cd203101fe881",
+    "residueIdentitiesSha256": "02f9bfffe71465c99b066f113f0540f206dd16c4077cad51ac5e567127d70e77"
+  }
+}

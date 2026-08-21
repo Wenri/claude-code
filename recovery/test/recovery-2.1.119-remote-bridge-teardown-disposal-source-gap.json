@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "sourceCommit": "351cd4d",
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    }
+  },
+  "sourceFile": {
+    "path": "src/bridge/remoteBridgeCore.ts",
+    "input": {
+      "bytes": 50785,
+      "sha256": "0751b6716d0eeec353e38c65663979e4630b634d6eeb7731a4d1096f318e483c"
+    },
+    "output": {
+      "bytes": 51015,
+      "sha256": "cfd078e37a19d69c01f4f04293e35c3b0841975a479552907dd3b5fd512763e4"
+    },
+    "inputDeclaration": {
+      "name": "initEnvLessBridgeCore",
+      "start": 7311,
+      "end": 44503,
+      "bytes": 37950,
+      "sha256": "482ee235c1713a0b08b7a2d91ba9bdc492482ed1d7bd17b1f55a619379110493"
+    },
+    "outputDeclaration": {
+      "name": "initEnvLessBridgeCore",
+      "start": 7311,
+      "end": 44733,
+      "bytes": 38180,
+      "sha256": "812dd9b0cda0b7dd43014fd470811fe5ebd9b27a8aefef1814b267c0be6fd409"
+    },
+    "graphClosure": {
+      "changedFiles": [
+        "src/bridge/remoteBridgeCore.ts"
+      ],
+      "existingImports": [
+        "sleep",
+        "registerCleanup"
+      ],
+      "runtimeGlobals": [
+        "Date",
+        "Math",
+        "Promise",
+        "Symbol"
+      ]
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 18793,
+    "nodeType": "FunctionDeclaration",
+    "start": 11544433,
+    "end": 11555976,
+    "bytes": 11543,
+    "tokenCount": 3881,
+    "sourceHash": "2972360f558cce1071b74255225f132a64d3653fd148a85c521e32964488661e",
+    "coarseHash": "ad9a2c18716b6140ead3d6c232868c6844cdb969026d37200931f5181ec03d02"
+  },
+  "targetUnit": {
+    "targetIndex": 19743,
+    "nodeType": "FunctionDeclaration",
+    "start": 12018356,
+    "end": 12029914,
+    "bytes": 11558,
+    "tokenCount": 3892,
+    "sourceHash": "51260db4dcbf96d0594f90a0f0c12454c9813db7ab6a27efea5329b6a05eeb64",
+    "coarseHash": "4ef01590a30ec1fd39b745bc3ef36e8a254624d49f0f7fe27baf5fafc1c72db9"
+  },
+  "authenticatedFragments": {
+    "baselineBoundedArchiveRetry": {
+      "start": 11552426,
+      "end": 11552743,
+      "bytes": 317,
+      "sha256": "9d7454b7f4634ef01d9310e716cfbdb013dae38954798f01220bff7eb6dacbf1"
+    },
+    "targetBoundedArchiveRetry": {
+      "start": 12026344,
+      "end": 12026661,
+      "bytes": 317,
+      "sha256": "4cbe6430e6c95ef0b320c2113cf36f825085eba027dc856dc6d986bba019d4eb"
+    },
+    "targetFlushAddition": {
+      "start": 12027382,
+      "end": 12027402,
+      "bytes": 20,
+      "sha256": "c70362e43b905634b55238e918b5411063f388f89abf732f95610f4ca25b40ea"
+    },
+    "targetCleanupRegistration": {
+      "start": 12027107,
+      "end": 12027121,
+      "bytes": 14,
+      "sha256": "259e72bbc8ea78db05eba8c9a8211ca322c601d7cff3420d52691407137997b0"
+    },
+    "targetDirectTeardown": {
+      "start": 12029845,
+      "end": 12029857,
+      "bytes": 12,
+      "sha256": "812f7e604518cf190747e931c1c99e11318c3708a31f3d942dd4aebcf6a7dd5c"
+    },
+    "targetAsyncDispose": {
+      "start": 12029857,
+      "end": 12029902,
+      "bytes": 45,
+      "sha256": "b7e04e22543140f489695bc02653ab0f1daee90f49e9cde301958ddf8c734ce1"
+    }
+  },
+  "residues": [
+    [
+      19743,
+      "number",
+      "200",
+      12026470,
+      12026473,
+      282,
+      285
+    ],
+    [
+      19743,
+      "property",
+      "asyncDispose",
+      12029865,
+      12029877,
+      5,
+      10
+    ]
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "targetIndicesSha256": "073230f6f262dbb12fcaa2a9ea06f89e385c762697b91401f180ba3820bf5933",
+    "residueIdentitiesSha256": "237f987054d85d788488a12429baa1888431223fe05fbc995a66c466e83cbb22"
+  }
+}

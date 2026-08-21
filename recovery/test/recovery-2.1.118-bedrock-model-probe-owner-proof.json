@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-bedrock-model-probe-direct-owner-proof-v1",
+  "status": "authenticated-direct-source-owner-proof",
+  "evidenceIds": [
+    "target118-bedrock-model-probe-authenticated-unit",
+    "target118-bedrock-model-probe-source-ast-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/bedrock-model-probe-owner-overrides.mjs",
+      "bytes": 1160,
+      "sha256": "95fc83045dae3f54431318dbcebd6d2cae15b81bb085d6d2fa211ebf0c2c9548"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/utils/model/bedrockUpgrade.ts",
+        "blob": "56791c891756296ba12b4f21ea1cc2f3c022c94b",
+        "bytes": 11045,
+        "sha256": "4964d9e6bcb8328f98ce839dfa23f6df3100a3f393c6528527a9ccfa71f2d687"
+      },
+      "declaration": {
+        "name": "probeBedrockModel",
+        "characterStart": 9360,
+        "characterEnd": 11044,
+        "byteStart": 9360,
+        "byteEnd": 11044,
+        "bytes": 1684,
+        "sha256": "485ad9c3f27627745416faa94caf50bac9a1063bd63d1209ae264d63e2af82f0"
+      }
+    },
+    "rejectedProvisionalOwner": {
+      "path": "src/components/ClaudeInChromeOnboarding.tsx",
+      "blob": "10fb1823f6e4a99b5cc3fea8bb9929dfa682e270",
+      "bytes": 12151,
+      "sha256": "155712bf6ce0cccd621a66a2554a1668381de70aabd0a72f7a187d94c2594985"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20213,
+    "start": 12242232,
+    "end": 12243052,
+    "bytes": 820,
+    "tokenCount": 276,
+    "sourceHash": "8e649041366bf2a7bb24e056d5fd9b86d9da2f3c9c12d55997735d28fbb3dd89",
+    "coarseHash": "97c82cf711285ed43936aa4825fe03484748831b66eb4a677ed265f170acdd4b"
+  },
+  "targetUnit": {
+    "targetIndex": 20412,
+    "classification": "changed",
+    "baselineUnitIndex": 20213,
+    "pairReason": "unique-coarse-structural-hash",
+    "start": 12347581,
+    "end": 12348401,
+    "bytes": 820,
+    "tokenCount": 276,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "5a3ee719e3fcaf274239072720b7a0ab97de7f8129d3ebcccab73fdb335e1eb9",
+    "coarseHash": "97c82cf711285ed43936aa4825fe03484748831b66eb4a677ed265f170acdd4b",
+    "ownerPath": "src/utils/model/bedrockUpgrade.ts",
+    "provisionalOwnerPath": "src/components/ClaudeInChromeOnboarding.tsx",
+    "declarations": ["probeBedrockModel"],
+    "residues": [
+      ["property", "timeout", 12347908, 12347915, 384, 387]
+    ]
+  },
+  "normalizedUnit": {
+    "tokens": 276,
+    "bytes": 797,
+    "sha256": "86649919dfc3fa2e1e40821aef815a812ea222478552f6726eb5c79816e0f4b5"
+  },
+  "sourceContract": {
+    "dynamicImports": ["@anthropic-ai/bedrock-sdk", "../proxy.js"],
+    "baseOptionProperties": ["awsRegion", "maxRetries", "timeout", "fetchOptions"],
+    "timeout": 8000,
+    "maxRetries": 0,
+    "probeModelMaxTokens": 1,
+    "successfulStatus": 429
+  },
+  "ownerOverride": {
+    "paths": ["src/utils/model/bedrockUpgrade.ts"],
+    "declarations": ["probeBedrockModel"],
+    "evidenceIds": [
+      "target118-bedrock-model-probe-authenticated-unit",
+      "target118-bedrock-model-probe-source-ast-test"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "d38a4f654ad8ec87ee09cef1b428718ec7c4cc6e62e7452925b7375d366f5ce8",
+    "residueIdentitiesSha256": "d9c817952b8e1fc6ed5675cbe6c4ba9324b78d9fc74fffa4cd440da5f39eb040"
+  }
+}

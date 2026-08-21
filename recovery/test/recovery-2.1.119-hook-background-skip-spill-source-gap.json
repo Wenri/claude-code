@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "criterion": "target119-hook-background-skip-spill-source-gap-v1",
+  "evidenceIds": [
+    "target119-hook-background-skip-spill-authenticated-units",
+    "target119-hook-background-skip-spill-source-replay-test",
+    "target119-hook-background-skip-spill-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/replay-hook-background-skip-spill-source-gap.mjs",
+      "bytes": 5439,
+      "sha256": "5c63ff4efb86c87b10c8bf5ca1967708c5d64ffa15539895c0b52fb7335c916b"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+    },
+    "source": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+      "blob": "8210483efaf473410215d729d51e84b35174b52a",
+      "path": "src/utils/hooks.ts",
+      "input": {
+        "bytes": 169841,
+        "sha256": "cfdfc53c05c7d8c0845a305f2a736e24abe22822b12703e782c7c24d7d9dcc11"
+      },
+      "output": {
+        "bytes": 169862,
+        "sha256": "4947d9e518c5f5a85cb6d6416ee03c4653b6febe69ae00e479a93ac11228db89"
+      },
+      "rawDeclaration": {
+        "name": "executeInBackground",
+        "start": 7076,
+        "end": 9630,
+        "bytes": 2554,
+        "sha256": "11613977ae4eb6f9c7880d8395589a8e7f1d541d253a95e67c628900c1a273c6"
+      },
+      "outputDeclaration": {
+        "name": "executeInBackground",
+        "start": 7076,
+        "end": 9651,
+        "bytes": 2575,
+        "sha256": "7eb48d04aeeb661fbaf463a4d3b904c009ce7d79341bed80f2a712b7dd147d4e"
+      },
+      "rawCall": {
+        "start": 9400,
+        "text": "shellCommand.background(processId)",
+        "bytes": 34,
+        "sha256": "97b9ff76db4c6c267ed6b4dab189dece0f3103f95e08f413de4550e5cbf5fe35"
+      },
+      "outputCall": {
+        "start": 9400,
+        "text": "shellCommand.background(processId, { skipSpill: true })",
+        "bytes": 55,
+        "sha256": "bb963fe2fd9be97e2c99e54fb7be4f66cdff49475244ec0cf54d570c000b8aa5"
+      }
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 18293,
+    "nodeType": "FunctionDeclaration",
+    "start": 11233968,
+    "end": 11234769,
+    "bytes": 801,
+    "tokenCount": 313,
+    "sourceHash": "c65db6034cabaffd3038348125f191b95fe92ef33044096bdaa126ad9f672566",
+    "coarseHash": "0e224ff4b1ee0c57be3cae5c611f0f8004b504023e58cb148607d4fb55932b6b"
+  },
+  "targetUnit": {
+    "targetIndex": 19143,
+    "nodeType": "FunctionDeclaration",
+    "start": 11639461,
+    "end": 11640277,
+    "bytes": 816,
+    "tokenCount": 320,
+    "sourceHash": "9a08e7fd34893b4d6989c26d6d755f929a6e70070676f7afd70355ab0c6a99dd",
+    "coarseHash": "2feec52c227924cd1ae324849d3773d928d1cd8b6ba8909088f798752a1d3206"
+  },
+  "compiledDelta": {
+    "baseline": "q.background(H)",
+    "target": "q.background(H,{skipSpill:!0})",
+    "targetOnlyTokens": 7,
+    "normalizedTokenCount": 313,
+    "normalizedCanonicalBytes": 1601,
+    "normalizedCanonicalSha256": "14c2e3e3bd39e7e0598edd87fe4d53cf8ae54a3e5a4767eae193c055441bf409"
+  },
+  "rows": {
+    "addedOwner": {
+      "count": 2,
+      "canonicalBytes": 195,
+      "canonicalSha256": "0b057a0cc8a2c7ac52f58f7fe4d02fb22484b5f4c17ac5b6488fee6396c25125",
+      "tuples": [
+        [19143, "string", "\":", 11639957, 11639959, 2, 3, true, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "property", "skipSpill", 11640140, 11640149, 0, 2, true, "source-runtime-covered", ["utils/hooks.ts"]]
+      ]
+    },
+    "owner": {
+      "count": 13,
+      "canonicalBytes": 1310,
+      "canonicalSha256": "e9347895567ebed28be584976861732762be668ac9e1f1b9cc00378d821801d9",
+      "tuples": [
+        [19143, "property", "rewakeMessage", 11639574, 11639587, 4, 2, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "property", "rewakeSummary", 11639590, 11639603, 4, 2, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", "\":", 11639957, 11639959, 2, 3, true, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", "Stop hook feedback", 11639963, 11639983, 1, 1, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", " ", 11639994, 11639995, 1913, 1628, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", "<", 11640016, 11640017, 301, 273, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", ">\n<", 11640022, 11640025, 25, 23, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", ">", 11640030, 11640031, 390, 361, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", "</", 11640039, 11640041, 86, 83, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", ">\n</", 11640046, 11640050, 8, 7, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "string", ">\n", 11640055, 11640057, 12, 10, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "property", "stopHookActive", 11640088, 11640102, 19, 10, false, "source-runtime-covered", ["utils/hooks.ts"]],
+        [19143, "property", "skipSpill", 11640140, 11640149, 0, 2, true, "source-runtime-covered", ["utils/hooks.ts"]]
+      ]
+    }
+  },
+  "ownerOverride": {
+    "paths": ["src/utils/hooks.ts"],
+    "declarations": ["executeInBackground"],
+    "evidenceIds": [
+      "target119-hook-background-skip-spill-authenticated-units",
+      "target119-hook-background-skip-spill-source-replay-test",
+      "target119-hook-background-skip-spill-source-ast-test"
+    ],
+    "behavior": "The complete authenticated Target119 executeInBackground unit differs from its Target118 predecessor only by passing { skipSpill: true } to the registered background ShellCommand path. This preserves the in-memory stdout/stderr buffers needed by hook completion handling; the shifted command-error punctuation residue is exact predecessor syntax. The bounded source replay changes the sole matching call and leaves the asyncRewake path and pending-hook registration unchanged."
+  },
+  "expectedStrictEvolution": {
+    "beforeUnits": 49,
+    "beforeResidues": 432,
+    "removedIndices": [19143],
+    "removedResidues": 2,
+    "afterUnits": 48,
+    "afterResidues": 430
+  }
+}

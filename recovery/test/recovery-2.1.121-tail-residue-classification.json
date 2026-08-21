@@ -1,0 +1,508 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "scope": "complete units left in focused-residue excludedUnsupportedTargetIndices after macro-only and exact-owner-correction partitions",
+  "policy": {
+    "statement": "Fail closed by whole unit. Transitive source requires every typed residue to carry an exact sourceMatches witness, except an explicitly pinned exact-owner override. Compiler/DCE requires an authenticated target slice plus pinned source markers for a bounded transform. Dependency build-input requires intersection with the pinned dependency ledger. Every other unit remains a genuine source-supplement gap.",
+    "dependencyBuildInputTargetIndices": [],
+    "compilerProofs": [
+      {
+        "targetIndex": 12706,
+        "method": "jsx-text-and-interpolation-lowering",
+        "sourceFiles": [
+          {
+            "path": "commands/extra-usage/ExtraUsageDialog.tsx",
+            "bytes": 35410,
+            "sha256": "bdc61837396aeba9f5dac416426f68dc307cf038f65e9b5a15ca4c18298dd2a0",
+            "markers": [
+              "Couldn't calculate tax. Try again, or buy at",
+              "Subtotal after discount",
+              "Total due"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "Couldn't calculate tax. Try again, or buy at ",
+          "Subtotal after discount",
+          "Total due"
+        ]
+      },
+      {
+        "targetIndex": 18319,
+        "method": "constant-template-concatenation",
+        "sourceFiles": [
+          {
+            "path": "commands/focus.ts",
+            "bytes": 2549,
+            "sha256": "712d928a940bfa947273518e0fb4c667f6f342bba2003f25c768190a22d572e6",
+            "markers": [
+              "FULLSCREEN_REQUIRED",
+              "Focus view disabled. ${FULLSCREEN_REQUIRED}"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "Focus view disabled. Focus view needs the fullscreen renderer."
+        ]
+      },
+      {
+        "targetIndex": 22217,
+        "method": "bun-bundle-macro-object-inlining",
+        "sourceFiles": [
+          {
+            "path": "entrypoints/cli.tsx",
+            "bytes": 44573,
+            "sha256": "7bb93feddcf06d0cfbf386314ba1b0a1d79f4a536a89a67c01136ce30e9da12a",
+            "markers": [
+              "MACRO.VERSION",
+              "MACRO.GIT_SHA"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "ISSUES_EXPLAINER",
+          "README_URL",
+          "2.1.121"
+        ]
+      }
+    ],
+    "transitiveOverrides": [
+      {
+        "targetIndex": 16738,
+        "sourceFile": {
+          "path": "commands/plugin/BrowseMarketplace.tsx",
+          "bytes": 120065,
+          "sha256": "f2ff42437c9036f74f880f0226fca124c90aab963d5463f1eaad98979ee07c91",
+          "markers": [
+            "Plugin \"${targetPlugin}\" not found in any marketplace"
+          ]
+        },
+        "targetMarkers": [
+          "any marketplace"
+        ]
+      }
+    ]
+  },
+  "inputs": {
+    "baselineBundle": {
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structural": {
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "semanticCorrespondence": {
+      "bytes": 776241,
+      "sha256": "b1be6a21300967dd861b1bda0624b4353cf692968a68414b28b8ee1a72660867"
+    },
+    "dependencyCoverage": {
+      "bytes": 24061,
+      "sha256": "86577929a9e409a02341911f25f738b8942a589c9576a9d8b3faa3829f5314d3"
+    },
+    "focusedFixture": {
+      "bytes": 105597,
+      "sha256": "6fa229df1ceb1eaa7e7062aeab920a7deb1f7f6cfdf3aeddef0520efdcc9b7fd"
+    }
+  },
+  "evolvedProjections": {
+    "sourceCoverage": {
+      "bytes": 347677,
+      "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83"
+    },
+    "profiles": [
+      {
+        "name": "raw-source",
+        "sourceAnchor": {
+          "path": "src/daemon/hub.tsx",
+          "bytes": 34360,
+          "sha256": "37012eadad08ae7c1ede58917cb847b3a9536c888650d9370b1572782787bcc1"
+        },
+        "summary": {
+          "units": 116,
+          "residues": 648,
+          "indexSha256": "609dcd914a2beb4fa795c84e35ffac8d760b4bd6b155192a4f335e1fff112c9f",
+          "residueIdentitySha256": "9f4c117b55d79fa9c851e86447df3869633886e444afb5d0abcab9f3296a5e83"
+        },
+        "categories": {
+          "dependency-build-input": {
+            "units": 0,
+            "residues": 0,
+            "indexSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "residueIdentitySha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "transitive-source": {
+            "units": 16,
+            "residues": 46,
+            "indexSha256": "31d24eb92588b5601f86df0d920d1922601c5bce19b24a160805d13dd620f83e",
+            "residueIdentitySha256": "00bc59eca2ae3d8b3a5dfd61195fd3c292980512dc9e6904f1db2a7ba63b7595"
+          },
+          "dce-compiler": {
+            "units": 3,
+            "residues": 91,
+            "indexSha256": "e2ebc103eaa1e2d57b1c66d1e017a3b0e8687e32d63edc305bcfc651950df6a1",
+            "residueIdentitySha256": "79467a5893ce1a9d1834bf0956f84abd6794180ae4aee21c94804fe7094deadb"
+          },
+          "source-supplement": {
+            "units": 97,
+            "residues": 511,
+            "indexSha256": "bb5f8b58e67e3fe73598c6cd573cb88522269bb8100e1569f9600f2dd42b533b",
+            "residueIdentitySha256": "be60e159d89dc7b474e79d5a4fc699f98ca281f297346b833e3ec2323e458ae2"
+          }
+        }
+      },
+      {
+        "name": "recovered-package",
+        "sourceAnchor": {
+          "path": "src/daemon/hub.tsx",
+          "bytes": 34901,
+          "sha256": "b58e0e85331175a947f36e7ebd832a9cb4f36d01574d85d7058be96f57ebb330"
+        },
+        "summary": {
+          "units": 98,
+          "residues": 598,
+          "indexSha256": "9fee9a46c8b97a9c6994a44696cb6a25959a60bfbaf2ddf3e86b1bdfd90c8259",
+          "residueIdentitySha256": "155847311dd59b557bc7cb89b541b2ce05d98aba319c45501fda825b608a9f5c"
+        },
+        "categories": {
+          "dependency-build-input": {
+            "units": 0,
+            "residues": 0,
+            "indexSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "residueIdentitySha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "transitive-source": {
+            "units": 16,
+            "residues": 46,
+            "indexSha256": "31d24eb92588b5601f86df0d920d1922601c5bce19b24a160805d13dd620f83e",
+            "residueIdentitySha256": "00bc59eca2ae3d8b3a5dfd61195fd3c292980512dc9e6904f1db2a7ba63b7595"
+          },
+          "dce-compiler": {
+            "units": 3,
+            "residues": 91,
+            "indexSha256": "e2ebc103eaa1e2d57b1c66d1e017a3b0e8687e32d63edc305bcfc651950df6a1",
+            "residueIdentitySha256": "79467a5893ce1a9d1834bf0956f84abd6794180ae4aee21c94804fe7094deadb"
+          },
+          "source-supplement": {
+            "units": 79,
+            "residues": 461,
+            "indexSha256": "012b98cc35acce172dcf53f3037d6ff0d384a5472171a8e79833f53694e63cdb",
+            "residueIdentitySha256": "b247ee08ef37fe0d8054ce03cc00a572b05247e604c01a919426fcd0e4e404fa"
+          }
+        }
+      }
+    ]
+  },
+  "summary": {
+    "units": 252,
+    "residues": 2333
+  },
+  "categories": {
+    "dependency-build-input": {
+      "units": 0,
+      "residues": 0,
+      "indices": [],
+      "indexSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "residueIdentitySha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "transitive-source": {
+      "units": 152,
+      "residues": 870,
+      "indices": [
+        641,
+        6728,
+        6730,
+        6733,
+        8508,
+        8952,
+        9117,
+        9367,
+        9368,
+        9813,
+        9908,
+        11031,
+        12080,
+        12081,
+        12083,
+        12125,
+        12127,
+        12177,
+        12678,
+        12679,
+        12686,
+        12693,
+        12695,
+        12700,
+        12701,
+        12702,
+        12703,
+        12709,
+        12717,
+        12719,
+        12720,
+        12721,
+        12722,
+        14123,
+        14125,
+        14130,
+        14141,
+        14162,
+        15477,
+        16053,
+        16070,
+        16071,
+        16075,
+        16076,
+        16079,
+        16086,
+        16286,
+        16304,
+        16309,
+        16324,
+        16326,
+        16335,
+        16336,
+        16337,
+        16338,
+        16339,
+        16340,
+        16347,
+        16348,
+        16365,
+        16738,
+        17104,
+        17600,
+        18175,
+        18656,
+        18685,
+        18803,
+        18807,
+        18808,
+        18809,
+        18811,
+        18812,
+        18819,
+        18826,
+        18827,
+        18831,
+        18837,
+        18838,
+        18878,
+        18885,
+        18887,
+        18890,
+        18893,
+        18894,
+        18898,
+        18899,
+        18903,
+        18906,
+        19175,
+        19494,
+        19519,
+        19554,
+        19589,
+        19595,
+        19596,
+        19763,
+        20365,
+        20529,
+        20541,
+        20646,
+        20650,
+        20653,
+        20883,
+        20904,
+        20936,
+        20937,
+        20942,
+        20953,
+        20957,
+        20990,
+        21053,
+        21075,
+        21129,
+        21541,
+        21795,
+        21902,
+        21974,
+        22117,
+        22120,
+        22121,
+        22122,
+        22124,
+        22125,
+        22128,
+        22129,
+        22130,
+        22131,
+        22132,
+        22133,
+        22139,
+        22141,
+        22143,
+        22144,
+        22145,
+        22148,
+        22152,
+        22153,
+        22154,
+        22156,
+        22161,
+        22165,
+        22176,
+        22182,
+        22187,
+        22189,
+        22191,
+        22200,
+        22201,
+        22202,
+        22203,
+        22208,
+        22211
+      ],
+      "indexSha256": "d4f52cd403a80df9196033464980343009d8d768078e3655b229228720501421",
+      "residueIdentitySha256": "0b840fd507a5ca5cd8d57560050eb8b1f7f1342f3f41ec9ebd582767ea18e438"
+    },
+    "dce-compiler": {
+      "units": 3,
+      "residues": 115,
+      "indices": [
+        12706,
+        18319,
+        22217
+      ],
+      "indexSha256": "e2ebc103eaa1e2d57b1c66d1e017a3b0e8687e32d63edc305bcfc651950df6a1",
+      "residueIdentitySha256": "6101af83c1e763949406e24d8adb5a726b1178afd02e5c89c3bc84089634de12"
+    },
+    "source-supplement": {
+      "units": 97,
+      "residues": 1348,
+      "indices": [
+        370,
+        6666,
+        6674,
+        6723,
+        6786,
+        7458,
+        7556,
+        8762,
+        8763,
+        9209,
+        10152,
+        11275,
+        12210,
+        12681,
+        12682,
+        12683,
+        12684,
+        12685,
+        12687,
+        12688,
+        12689,
+        12691,
+        12699,
+        12704,
+        12708,
+        12712,
+        12716,
+        12768,
+        13026,
+        13102,
+        13110,
+        13120,
+        13973,
+        14165,
+        14171,
+        14201,
+        14209,
+        14622,
+        16054,
+        16056,
+        16057,
+        16315,
+        16363,
+        16369,
+        17014,
+        17015,
+        17497,
+        17548,
+        18378,
+        18380,
+        18548,
+        18549,
+        18684,
+        18817,
+        18932,
+        19010,
+        19537,
+        19553,
+        19577,
+        19592,
+        19597,
+        19683,
+        19753,
+        19995,
+        20305,
+        20318,
+        20320,
+        20592,
+        20606,
+        20617,
+        20645,
+        20651,
+        20672,
+        20775,
+        20874,
+        20909,
+        20945,
+        20949,
+        21015,
+        21018,
+        21049,
+        21128,
+        21373,
+        21913,
+        21925,
+        21958,
+        21959,
+        21992,
+        22106,
+        22107,
+        22119,
+        22136,
+        22140,
+        22151,
+        22170,
+        22174,
+        22207
+      ],
+      "indexSha256": "bb5f8b58e67e3fe73598c6cd573cb88522269bb8100e1569f9600f2dd42b533b",
+      "residueIdentitySha256": "5f984b6bfe75d497e6ddf116a4c1776da54f128f5fff570bf41317137af38a82"
+    }
+  },
+  "dependencyLedger": {
+    "rows": 443,
+    "packages": 73,
+    "tailIntersection": []
+  },
+  "supplementEvidence": {
+    "canonicalJson": {
+      "bytes": 30944,
+      "sha256": "1126e0a70e924275b731a0f78a33a4d62402a3ea9fb6a229eeb4d6e00cd7420d",
+      "withObligations": 33,
+      "obligations": 28,
+      "testIds": 21,
+      "sourcePaths": 129
+    }
+  }
+}

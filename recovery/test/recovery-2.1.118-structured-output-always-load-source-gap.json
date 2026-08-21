@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-structured-output-always-load-source-replay-v1",
+  "status": "authenticated-source-gap-replay",
+  "evidenceIds": [
+    "target118-structured-output-always-load-target-fragment",
+    "target118-structured-output-always-load-source-replay-test",
+    "target118-structured-output-always-load-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-structured-output-always-load-source-gap.mjs",
+      "bytes": 3978,
+      "sha256": "cee681a6be19c40527e3acb424274abe09e10defce6569c4266899300d29124f"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/utils/hooks/hookHelpers.ts",
+        "blob": "c6bed459ac2114f18d34d2773685ddcdb1c88bd9",
+        "bytes": 2521,
+        "sha256": "95c39cede6f072b12f9b4400b2aa618d838a0b7e2cce474108a4b576d73108db"
+      },
+      "inputDeclaration": {
+        "name": "createStructuredOutputTool",
+        "characterStart": 1249,
+        "characterEnd": 1927,
+        "byteStart": 1249,
+        "byteEnd": 1927,
+        "bytes": 678,
+        "sha256": "97f6e7832b52352b1787840a7c9d0f33166725dc2842073f56df127f7205a3c0"
+      },
+      "outputFile": {
+        "path": "src/utils/hooks/hookHelpers.ts",
+        "bytes": 2543,
+        "sha256": "d99b31db8487d9546f125fd2e866cc2209cf7ba04f8be85e6cd5547fc6b8c890"
+      },
+      "outputDeclaration": {
+        "name": "createStructuredOutputTool",
+        "characterStart": 1249,
+        "characterEnd": 1949,
+        "byteStart": 1249,
+        "byteEnd": 1949,
+        "bytes": 700,
+        "sha256": "1ffe327f16e2f6de588af32efd9e66ad98325b358a03c4f3f3e6eafb81a98684"
+      }
+    },
+    "consumerSource": {
+      "file": {
+        "path": "src/tools/ToolSearchTool/prompt.ts",
+        "blob": "ca3e6b07be3f67adce964588d1f2d2d607445ded",
+        "bytes": 5227,
+        "sha256": "c1894fa6e91676ef001d142ee25abd515256150f4edfa93ed19c08bbeb4aea52"
+      },
+      "declaration": {
+        "name": "isDeferredTool",
+        "characterStart": 2939,
+        "characterEnd": 4807,
+        "byteStart": 2951,
+        "byteEnd": 4825,
+        "bytes": 1874,
+        "sha256": "6f8772906602ed90f91660e76f2415c08c6be4ef068b75d0a2efa6b66e88f403"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 18210,
+    "classification": "unresolved",
+    "start": 11205332,
+    "end": 11205757,
+    "bytes": 425,
+    "tokenCount": 78,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "61f754eb2fa0b7a97b306ed575950339505591ba4eb9a7de62e72a097e5b31fc",
+    "coarseHash": "53bd672d1f6b859e564e1f5f0e739039d1365f2210611414f37d40172c08a67e",
+    "ownerPath": "src/utils/hooks/hookHelpers.ts",
+    "provisionalOwnerPath": "src/utils/hooks/hookHelpers.ts",
+    "declarations": [
+      "createStructuredOutputTool"
+    ],
+    "behavior": "The authenticated Target118 structured-output verification tool is permanently available through alwaysLoad: true, while retaining the exact hook response schema, JSON schema, and mandatory final-call prompt. The bounded replay adds only that property to createStructuredOutputTool so hook verification cannot be deferred by ToolSearch.",
+    "residues": [
+      ["property", "alwaysLoad", 11205361, 11205371, 2, 3]
+    ]
+  },
+  "sourceReplay": {
+    "path": "src/utils/hooks/hookHelpers.ts",
+    "before": {
+      "bytes": 2521,
+      "sha256": "95c39cede6f072b12f9b4400b2aa618d838a0b7e2cce474108a4b576d73108db"
+    },
+    "after": {
+      "bytes": 2543,
+      "sha256": "d99b31db8487d9546f125fd2e866cc2209cf7ba04f8be85e6cd5547fc6b8c890"
+    }
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/utils/hooks/hookHelpers.ts"
+    ],
+    "evidenceIds": [
+      "target118-structured-output-always-load-target-fragment",
+      "target118-structured-output-always-load-source-replay-test",
+      "target118-structured-output-always-load-source-ast-test"
+    ],
+    "behavior": "The authenticated Target118 structured-output verification tool is permanently available through alwaysLoad: true, while retaining the exact hook response schema, JSON schema, and mandatory final-call prompt. The bounded replay adds only that property to createStructuredOutputTool so hook verification cannot be deferred by ToolSearch."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "c8c3b27d0870321d1aea4fbafa6b75d82135e03b1d3aec317ea9e6f7aeb20f04",
+    "residueIdentitiesSha256": "295943bcd81f5cea77d3c47786de6be16a40f196806e657efb2ba36e3e61e259"
+  }
+}

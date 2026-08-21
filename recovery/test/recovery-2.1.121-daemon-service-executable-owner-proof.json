@@ -1,0 +1,510 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-service-executable-reachability-owner-v1",
+  "status": "case-owned-static-owner-proof-source-already-authentic",
+  "evidenceIds": [
+    "target121-daemon-service-executable-authenticated-whole-unit",
+    "target121-daemon-service-executable-retained-source-declaration",
+    "target121-daemon-service-executable-new-main-reachability",
+    "target121-daemon-service-executable-stale-owner-correction"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26813485,
+      "sha256": "248ef433cb70c7b8d0cf4378870c6827bb7110c619bbe8bf7546fd2abccf216a"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [16315],
+        "count": 1,
+        "canonicalBytes": 1275,
+        "canonicalSha256": "6bf749d19bdf553da70241ff979032f6b9cf45bd8e8e78c744a5de8a2fd10106"
+      }
+    }
+  },
+  "ownerCorrection": {
+    "reportedOwner": "components/mcp/McpParsingWarnings.tsx",
+    "correctedOwner": "src/daemon/service.ts",
+    "declaration": "serviceExecutableIsMissing",
+    "reason": "The complete unit is the systemd service executable probe. The generated MCP owner is a coarse attribution collision; the regexp has an exact cooked match only in daemon/service.ts, and the strict access property is the compiled namespace form of that declaration's named fs/promises import.",
+    "staleOwner": {
+      "path": "src/components/mcp/McpParsingWarnings.tsx",
+      "bytes": 24860,
+      "chars": 24854,
+      "sha256": "69bd66f203f213118c8dcf13c1da58569a1873978b2806e6afc36347cf22a939",
+      "markerCounts": {
+        "ExecStart": 0,
+        "serviceExecutableIsMissing": 0,
+        "access": 0,
+        "readFile": 0
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 16315,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 0,
+    "nodeType": "FunctionDeclaration",
+    "declaration": "serviceExecutableIsMissing",
+    "minifiedName": "El7",
+    "start": 10146330,
+    "end": 10146563,
+    "tokenCount": 99,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 7,
+    "bytes": 233,
+    "sha256": "e96014cf9ea5bc8dc5ebfb2339972f0e42f7baff709dae2939b675ea87145284",
+    "coarseHash": "19e2a9761562cc4af62cd4d058587a657787aea99248eddab2ff17b8f213cb43",
+    "line": 5701,
+    "column": 1225,
+    "exact": "async function El7(){let H=fT6();if(!H)return!1;let $;try{$=await ms.readFile(H,\"utf8\")}catch{return!1}let q=$.match(/^ExecStart=(?:\"([^\"]+)\"|(\\S+))/m),K=q?.[1]??q?.[2];if(!K)return!1;try{return await ms.access(K),!1}catch{return!0}}"
+  },
+  "baselineRelation": {
+    "baselineUnitIndex": null,
+    "classification": "newly-live-retained-source-declaration",
+    "reason": "Target120 source already exports the identical declaration, but Target120 daemonMain neither imports nor calls it. The authenticated Target120 bundle therefore dead-code-eliminates the export and contains no ExecStart probe regexp. Target121 adds the import/call and emits u16315.",
+    "bundleMarkerCounts": {
+      "baseline": {
+        "execStartProbeRegexp": 0,
+        "serviceBinaryMissing": 0
+      },
+      "target": {
+        "execStartProbeRegexp": 1,
+        "serviceBinaryMissing": 1,
+        "minifiedNameDefinitionAndCall": 2
+      }
+    }
+  },
+  "compiledSemanticRegions": {
+    "servicePathCall": {
+      "nodeType": "CallExpression",
+      "start": 10146357,
+      "end": 10146362,
+      "bytes": 5,
+      "sha256": "8ae67d8717273a7f69871dfedd18e2f0e3184ba1ce721e1f2ba38009b028c260",
+      "exact": "fT6()"
+    },
+    "readCall": {
+      "nodeType": "CallExpression",
+      "start": 10146396,
+      "end": 10146417,
+      "bytes": 21,
+      "sha256": "0f94209e36096409399403a3f56b9749ad9362309d14c45641e4bf5c9274bf3f",
+      "exact": "ms.readFile(H,\"utf8\")"
+    },
+    "regexp": {
+      "nodeType": "Literal",
+      "start": 10146447,
+      "end": 10146480,
+      "bytes": 33,
+      "sha256": "47c6b68296a549e1f3a1918b0718cbf33de0fca7f7f710b3386656f91eb1307c",
+      "pattern": "^ExecStart=(?:\"([^\"]+)\"|(\\S+))",
+      "flags": "m",
+      "exact": "/^ExecStart=(?:\"([^\"]+)\"|(\\S+))/m"
+    },
+    "executableSelection": {
+      "nodeType": "LogicalExpression",
+      "start": 10146484,
+      "end": 10146498,
+      "bytes": 14,
+      "sha256": "5fac2e0444f211ab71650a7d824721193f9ff7c9607de590eda5a9ea4a14f8b0",
+      "operator": "??",
+      "indices": [1, 2],
+      "exact": "q?.[1]??q?.[2]"
+    },
+    "accessCall": {
+      "nodeType": "CallExpression",
+      "start": 10146531,
+      "end": 10146543,
+      "bytes": 12,
+      "sha256": "9831b040b296396002a0fb1d554fcf1a228a31ad884a505840ac212329aa65c5",
+      "exact": "ms.access(K)"
+    },
+    "accessMember": {
+      "nodeType": "MemberExpression",
+      "start": 10146531,
+      "end": 10146540,
+      "bytes": 9,
+      "sha256": "4ac3dcf76355dc792d184fa632bf94d64fd8f792ef180c476889c05868d58d9f",
+      "exact": "ms.access"
+    }
+  },
+  "ownerResidues": {
+    "totalRows": 5,
+    "targetAddedRows": 2,
+    "strictRows": 1,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {
+      "bytes": 310,
+      "sha256": "e8f03104db1d7aad2555052d012908865bbe2ed360889ec184beacd06004841c"
+    },
+    "addedIdentities": {
+      "bytes": 151,
+      "sha256": "55dfdf0474e81e03b56e30b6deee0ca6642b02c84bc6cb75081594a4519640fe"
+    },
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 50,
+      "sha256": "e74a5b965da92e315c6282840195856246281c1232de77506be9def5d37462af"
+    },
+    "strictRowsExact": [
+      [16315, "property", "access", 10146534, 10146540, 21]
+    ],
+    "targetAddedRowsExact": [
+      ["regexp", {"flags": "m", "pattern": "^ExecStart=(?:\"([^\"]+)\"|(\\S+))"}, 10146447, 10146480, 0, 1, true],
+      ["property", "access", 10146534, 10146540, 19, 21, true]
+    ],
+    "postDaemonOwner": {
+      "totalRows": 2,
+      "targetAddedRows": 1,
+      "strictRows": 1,
+      "reportedOwner": "daemon/service.ts",
+      "rowIdentities": {
+        "bytes": 108,
+        "sha256": "cde6152d8ec26c133682feb8e636860edc213e1f7810c447fa061581fa34a465"
+      },
+      "addedIdentities": {
+        "bytes": 52,
+        "sha256": "e5161b2308638bd6e63975b8e77258788914be80703dfc4e8a753e4f9afbc3d4"
+      },
+      "strictIdentities": {
+        "bytes": 50,
+        "sha256": "e74a5b965da92e315c6282840195856246281c1232de77506be9def5d37462af"
+      },
+      "strictRowsExact": [
+        [16315, "property", "access", 10146534, 10146540, 21]
+      ],
+      "targetAddedRowsExact": [
+        ["property", "access", 10146534, 10146540, 19, 21, true]
+      ]
+    }
+  },
+  "compiledDependencies": {
+    "servicePathUnit": {
+      "targetIndex": 16308,
+      "baselineUnitIndex": 16183,
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 10144302,
+      "end": 10144439,
+      "tokenCount": 47,
+      "bytes": 137,
+      "sha256": "72d5b6013a258ce18156b26dfe26b4356b5f73bbda02e68251755542aa92f8c9",
+      "coarseHash": "d98b9bd55ddfd8307e5f649124b4fae8f513c6a615ed1ec6460648a580d84c5e",
+      "exact": "function fT6(){let H=process.env.XDG_CONFIG_HOME||XTH.join(AT6.homedir(),\".config\");return XTH.join(H,\"systemd\",\"user\",`${vKH}.service`)}"
+    },
+    "moduleInitializer": {
+      "targetIndex": 16318,
+      "baselineUnitIndex": 16191,
+      "classification": "changed",
+      "nodeType": "VariableDeclaration",
+      "start": 10146820,
+      "end": 10146935,
+      "tokenCount": 51,
+      "bytes": 115,
+      "sha256": "cb2067d9396d45996979ebf7f3369a4c042c854761f25ef1a5bb442c2190cfc9",
+      "coarseHash": "955d8ec870969dfa6b9e1fe5c25a5ca56d77c941baa5f86f5e059d3579c027d0",
+      "exact": "var MOH=T(()=>{E$();tK();OYH();Nl7=require(\"fs\"),ms=require(\"fs/promises\"),AT6=require(\"os\"),XTH=require(\"path\")});",
+      "fsPromisesBinding": {
+        "start": 10146869,
+        "end": 10146894,
+        "bytes": 25,
+        "sha256": "bf4edae8ed018900e05e162a0555ec94a7111cb73ad22c19faa21d3ec5160a45",
+        "exact": "ms=require(\"fs/promises\")"
+      }
+    }
+  },
+  "compiledCaller": {
+    "targetIndex": 22207,
+    "owner": "src/daemon/main.ts",
+    "declaration": "daemonMain",
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 13890373,
+    "end": 13897874,
+    "tokenCount": 2307,
+    "bytes": 7501,
+    "sha256": "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8",
+    "coarseHash": "4977e4b2a99630e3fc877c5ab850880508f19f38bd2209a09e0dbc0d9ec6a0a5",
+    "call": {
+      "nodeType": "CallExpression",
+      "start": 13893466,
+      "end": 13893471,
+      "bytes": 5,
+      "sha256": "d04a0f4e3839732b1ed0dba1eeffbd7ba177bd2b923f53e99c6fc1e9394568a6",
+      "exact": "El7()"
+    },
+    "await": {
+      "nodeType": "AwaitExpression",
+      "start": 13893460,
+      "end": 13893471,
+      "bytes": 11,
+      "sha256": "849fcef08a1fd2509ca1c9bec15945ff045fa6393f77f0dcbd13da432ed9f9f4",
+      "exact": "await El7()"
+    },
+    "regenerationBranch": {
+      "nodeType": "IfStatement",
+      "start": 13893457,
+      "end": 13893857,
+      "bytes": 400,
+      "sha256": "53d0f5d20f594b6d30ea9fb4504bd4091c9921b4b493697ae147f3aa79b6c39d"
+    }
+  },
+  "sourceState": {
+    "path": "src/daemon/service.ts",
+    "declarationName": "serviceExecutableIsMissing",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "1fca72feeb094fbd31e6e86c02bb837a32e6e1d4",
+      "bytes": 5626,
+      "chars": 5626,
+      "sha256": "94e8a7444d163bf9a308aad31f21387475b315cfbcc86da0d73dd16d82a3d99f",
+      "fsPromisesImport": {
+        "start": 71,
+        "end": 143,
+        "line": 3,
+        "endLine": 3,
+        "bytes": 72,
+        "chars": 72,
+        "sha256": "c794146e0dd949e7653a80c9ac1f96a5280d6c7a1e4d441e4b4e511d1d2e7bf6"
+      },
+      "declaration": {
+        "start": 5216,
+        "end": 5625,
+        "line": 167,
+        "endLine": 183,
+        "bytes": 409,
+        "chars": 409,
+        "sha256": "cb08d7b4aeb3e3972362dbb55a49c56295481846b800842655bcf531aa82f67a"
+      }
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "48c3402f3b319d1e42d0e650786e4891020ad00f",
+      "bytes": 5642,
+      "chars": 5642,
+      "sha256": "5e63a73cc19af51633e96916dcbcd37e131708f31811472a7c25a5575394b142",
+      "fsPromisesImport": {
+        "start": 71,
+        "end": 143,
+        "line": 3,
+        "endLine": 3,
+        "bytes": 72,
+        "chars": 72,
+        "sha256": "c794146e0dd949e7653a80c9ac1f96a5280d6c7a1e4d441e4b4e511d1d2e7bf6"
+      },
+      "declaration": {
+        "start": 5232,
+        "end": 5641,
+        "line": 167,
+        "endLine": 183,
+        "bytes": 409,
+        "chars": 409,
+        "sha256": "cb08d7b4aeb3e3972362dbb55a49c56295481846b800842655bcf531aa82f67a"
+      },
+      "sourceCalls": {
+        "readFile": {
+          "start": 5339,
+          "end": 5380,
+          "line": 170,
+          "endLine": 170,
+          "bytes": 41,
+          "chars": 41,
+          "sha256": "799ed899ef62a5d6e8caf156beb39b05b686bec8b8db66a18f6521bf8bdf102a",
+          "exact": "readFile(getSystemdServicePath(), 'utf8')"
+        },
+        "match": {
+          "start": 5430,
+          "end": 5475,
+          "line": 174,
+          "endLine": 174,
+          "bytes": 45,
+          "chars": 45,
+          "sha256": "f6968cce9ef33b26f3f084681ff2afe957b9c57c18b3184bd1bf0d8545150504",
+          "exact": "unit.match(/^ExecStart=(?:\"([^\"]+)\"|(\\S+))/m)"
+        },
+        "access": {
+          "start": 5572,
+          "end": 5590,
+          "line": 178,
+          "endLine": 178,
+          "bytes": 18,
+          "chars": 18,
+          "sha256": "ec0853de13e233e48a9d6e062feb76a1df7886e453849159aecaed1fee0eed0f",
+          "exact": "access(executable)"
+        }
+      }
+    },
+    "declarationRelation": "Target120 and Target121 serviceExecutableIsMissing declarations are byte-identical; no source transform is admissible or necessary."
+  },
+  "sourceCallerEvolution": {
+    "path": "src/daemon/main.ts",
+    "target120": {
+      "gitBlob": "f5df17bc235869a6571aa9a1bdda991ad300c0db",
+      "bytes": 37394,
+      "chars": 37340,
+      "sha256": "1f4d1627b1c62d358e21aa5810f65ec9b413e47e0fe6f8f1761f9be537e0c1fc",
+      "serviceImport": {
+        "start": 1261,
+        "end": 1556,
+        "line": 33,
+        "endLine": 44,
+        "bytes": 295,
+        "chars": 295,
+        "sha256": "4520a9c291284795899c7e1dea6b432880e99e6949d288ae278564b4112169a3"
+      },
+      "markerCounts": {
+        "serviceExecutableIsMissing": 0,
+        "serviceBinaryMissing": 0
+      }
+    },
+    "target121": {
+      "gitBlob": "258b2e28658ba44e476651e804948df583755b92",
+      "bytes": 51364,
+      "chars": 51292,
+      "sha256": "e63ff7e680a226f93c6953a0a6a096e8846982cc9f5fd705a5809ad7a7a6155a",
+      "serviceImport": {
+        "start": 1638,
+        "end": 1913,
+        "line": 52,
+        "endLine": 62,
+        "bytes": 275,
+        "chars": 275,
+        "sha256": "c705cc772b811405f5250d8decf298952bc1744c9b63a67b0e8de42418c7a7aa"
+      },
+      "declaration": {
+        "name": "daemonMain",
+        "start": 39622,
+        "end": 51291,
+        "line": 1291,
+        "endLine": 1655,
+        "bytes": 11685,
+        "chars": 11669,
+        "sha256": "6d9672fc39e416b9d19e9467b74bd0eb4904908e066f83c6ba6a899ee48b8e6b"
+      },
+      "call": {
+        "start": 45840,
+        "end": 45868,
+        "line": 1491,
+        "endLine": 1491,
+        "bytes": 28,
+        "chars": 28,
+        "sha256": "861a2858ee419d4c98eee149323e00a3d0ec4d75bc1e48c3bd9c0b345b1d03cc",
+        "exact": "serviceExecutableIsMissing()"
+      },
+      "regenerationBranch": {
+        "start": 45830,
+        "end": 46247,
+        "line": 1491,
+        "endLine": 1501,
+        "bytes": 419,
+        "chars": 417,
+        "sha256": "708be23902f2d52c5b7c456a22790d6a5fc6b95708962414ed018631c20b70b9"
+      },
+      "markerCounts": {
+        "serviceExecutableIsMissing": 2,
+        "serviceBinaryMissing": 1
+      }
+    },
+    "target121PostDaemonOwner": {
+      "bytes": 51036,
+      "chars": 50964,
+      "sha256": "cb91eacf512342a4b70e01cb135eba59e621124795856eb5b4ea4762e2c5bc7c",
+      "serviceImport": {
+        "start": 1672,
+        "end": 1947,
+        "line": 55,
+        "endLine": 65,
+        "bytes": 275,
+        "chars": 275,
+        "sha256": "c705cc772b811405f5250d8decf298952bc1744c9b63a67b0e8de42418c7a7aa"
+      },
+      "declaration": {
+        "name": "daemonMain",
+        "start": 39294,
+        "end": 50963,
+        "line": 1283,
+        "endLine": 1647,
+        "bytes": 11685,
+        "chars": 11669,
+        "sha256": "6d9672fc39e416b9d19e9467b74bd0eb4904908e066f83c6ba6a899ee48b8e6b"
+      },
+      "call": {
+        "start": 45512,
+        "end": 45540,
+        "line": 1483,
+        "endLine": 1483,
+        "bytes": 28,
+        "chars": 28,
+        "sha256": "861a2858ee419d4c98eee149323e00a3d0ec4d75bc1e48c3bd9c0b345b1d03cc",
+        "exact": "serviceExecutableIsMissing()"
+      },
+      "regenerationBranch": {
+        "start": 45502,
+        "end": 45919,
+        "line": 1483,
+        "endLine": 1493,
+        "bytes": 419,
+        "chars": 417,
+        "sha256": "708be23902f2d52c5b7c456a22790d6a5fc6b95708962414ed018631c20b70b9"
+      },
+      "markerCounts": {
+        "serviceExecutableIsMissing": 2,
+        "serviceBinaryMissing": 1
+      }
+    }
+  },
+  "semanticContract": {
+    "servicePath": "getSystemdServicePath()",
+    "encoding": "utf8",
+    "regexpPattern": "^ExecStart=(?:\"([^\"]+)\"|(\\S+))",
+    "regexpFlags": "m",
+    "executableSelection": "match?.[1] ?? match?.[2]",
+    "outcomes": {
+      "serviceReadFailure": false,
+      "missingExecStart": false,
+      "executableAccessible": false,
+      "executableMissing": true
+    }
+  },
+  "classification": {
+    "sourceReplay": "not-needed-and-forbidden",
+    "proof": "static-complete-unit-owner-and-reachability",
+    "expectedStrictImpact": {
+      "unitsRemoved": 1,
+      "rowsRemoved": 1,
+      "postIntegrationStrictUnits": 47,
+      "postIntegrationStrictRows": 442
+    }
+  }
+}

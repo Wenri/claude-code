@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-direct-static-owner-bounded-closure-v1",
+  "status": "case-owned-override-ready",
+  "evidenceIds": [
+    "target117-direct-static-owner-target-fragment",
+    "target117-direct-static-owner-source-declaration-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/direct-static-owner-overrides.mjs",
+      "bytes": 2081,
+      "sha256": "353db8d6b5f828318b847e50cc0673aa0c56b2623df1c3ff0ffbfb4182d5ee1d"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871"
+  },
+  "summary": {
+    "units": 5,
+    "residues": 7,
+    "rawDirectOwners": 3,
+    "laterBoundedWitnesses": 2,
+    "crossKindRepresentations": 2,
+    "excludedSemanticEvolutionUnits": 1,
+    "ownerOverrides": 5
+  },
+  "rows": [
+    {
+      "targetIndex": 6067,
+      "kind": "raw-direct-cross-kind",
+      "owner": "src/utils/context.ts",
+      "declarations": [
+        "getSonnetContextWindowExperiment"
+      ],
+      "sourceWitness": {
+        "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+        "blob": "225989cceb8b7e695496fd55a0196a541cd82667",
+        "file": {
+          "bytes": 6983,
+          "sha256": "a647ddf4abf09f1f7200e5c5ab5a3a8946ef60416bd8225b1ad61b24ac7ec25c"
+        },
+        "declarations": [
+          {
+            "name": "getSonnetContextWindowExperiment",
+            "nodeType": "FunctionDeclaration",
+            "start": 3229,
+            "end": 3811,
+            "bytes": 582,
+            "sha256": "19e6bc910e9801b43e47c083510af92fa7d730590719e030166e2143fef4c886"
+          }
+        ]
+      },
+      "targetClosure": [
+        [
+          6067,
+          "unresolved",
+          "FunctionDeclaration",
+          2749942,
+          2750195,
+          88,
+          "d4e2bc4fc3509f02e8c42261d6016b76dc3634ea6c61099b4522903d05fc4147",
+          "e3ce0e3e0ff227800ae85219a8dbb744880b267f08c0a71f00182275b0321c85"
+        ]
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "claude-sonnet-4-6"
+        ],
+        [
+          "property",
+          "clientDataCache"
+        ],
+        [
+          "property",
+          "isFinite"
+        ]
+      ],
+      "crossKindResidues": [
+        ["property", "kelp_forest_sonnet", "string"]
+      ],
+      "residues": [
+        [
+          "property",
+          "kelp_forest_sonnet",
+          2750070,
+          2750088,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "targetIndex": 8735,
+      "kind": "later-bounded-closure",
+      "owner": "src/tools/AgentTool/forkSubagent.ts",
+      "declarations": [
+        "resolveForkSubagentSource",
+        "getForkSubagentSource"
+      ],
+      "sourceWitness": {
+        "commit": "983f36c6565dec91284019146f24f7a9bd75dd2b",
+        "blob": "6b9c063b4f1735ee8588269705e9174d4c601f5d",
+        "file": {
+          "bytes": 9102,
+          "sha256": "cf45e76d0c4beb98006c5b298cabd57d942d46e22a589fec98bea9152e070ed9"
+        },
+        "declarations": [
+          {
+            "name": "resolveForkSubagentSource",
+            "nodeType": "FunctionDeclaration",
+            "start": 1447,
+            "end": 1829,
+            "bytes": 382,
+            "sha256": "201bce395ff58d6fa67594a1bbacf5bf2ed893853b2df087e8c61552140eb128"
+          },
+          {
+            "name": "getForkSubagentSource",
+            "nodeType": "FunctionDeclaration",
+            "start": 1831,
+            "end": 2139,
+            "bytes": 308,
+            "sha256": "9d6d84289628cad026bd8c319bb008403f32ab8cfff00ed167eb857f6e9699c1"
+          }
+        ]
+      },
+      "targetClosure": [
+        [
+          8727,
+          "unresolved",
+          "FunctionDeclaration",
+          4127668,
+          4127820,
+          54,
+          "3a85ecf9fbd495244c5c38ec1fb47189dcb469b30746a26b6646a54263efb9f0",
+          "5282eb501344b3976361ccbade1c10cc5bce1719b6cd0a40d40ce585d76da1c5"
+        ],
+        [
+          8728,
+          "unresolved",
+          "FunctionDeclaration",
+          4127820,
+          4127923,
+          45,
+          "85d4f32ce4d6c1ab5afb79eefaf60ddd5e97cbd2515d89225c3ff9deca545472",
+          "e9199699f3a7cf9172fa5d923f545e3c75a9b5bae2210467aca721110b915a6f"
+        ],
+        [
+          8735,
+          "unresolved",
+          "VariableDeclaration",
+          4130162,
+          4130333,
+          29,
+          "b17352612452f3e8fde1c4e463272e23a412cc2eca42c96f576ef45b3978a485",
+          "a1cf5a1e7c4601ec36fa21a78aafa18bc7bc6629555e388f563bff0b66071b24"
+        ]
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "tengu_fork_subagent_enabled"
+        ],
+        [
+          "string",
+          "disabled"
+        ],
+        [
+          "string",
+          "env"
+        ],
+        [
+          "string",
+          "gb_rollout"
+        ],
+        [
+          "property",
+          "env"
+        ],
+        [
+          "property",
+          "source"
+        ]
+      ],
+      "crossKindResidues": [
+        ["string", "CLAUDE_CODE_FORK_SUBAGENT", "property"]
+      ],
+      "residues": [
+        [
+          "string",
+          "CLAUDE_CODE_FORK_SUBAGENT",
+          4130197,
+          4130224,
+          1,
+          0
+        ],
+        [
+          "string",
+          "tengu_fork_subagent_enabled",
+          4130229,
+          4130258,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "targetIndex": 12469,
+      "kind": "raw-direct",
+      "owner": "src/components/messages/UserTextMessage.tsx",
+      "declarations": [
+        "UserTextMessage"
+      ],
+      "sourceWitness": {
+        "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+        "blob": "d6628febbfc6c4bdc2e6870fb9424c1a9dc28862",
+        "file": {
+          "bytes": 29051,
+          "sha256": "de029e8493040381a2cb744402131334a09d531d6bf73d063b8e2a5145c1e04c"
+        },
+        "declarations": [
+          {
+            "name": "UserTextMessage",
+            "nodeType": "FunctionDeclaration",
+            "start": 1552,
+            "end": 8374,
+            "bytes": 6822,
+            "sha256": "42ae095c286b2a026837779a0ebe4760d3d032b2903728bb6ca6d92a41824a51"
+          }
+        ]
+      },
+      "targetClosure": [
+        [
+          12469,
+          "unresolved",
+          "FunctionDeclaration",
+          7791403,
+          7794137,
+          1346,
+          "0d3b0807a34fae1fb26be558f5db0761c917da9d743a05a84445c3a7a3f51c89",
+          "68f27ff27d7f398433686d2aa6f6a3b11fd97f7645e7b6f10e08adf038f8d00d"
+        ]
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "<fork-boilerplate>"
+        ],
+        [
+          "property",
+          "UserForkBoilerplateMessage"
+        ],
+        [
+          "property",
+          "includes"
+        ],
+        [
+          "property",
+          "addMargin"
+        ],
+        [
+          "property",
+          "param"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "UserForkBoilerplateMessage",
+          7793517,
+          7793543,
+          2,
+          0
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16363,
+      "kind": "later-bounded-branch",
+      "owner": "src/commands/rename/rename.ts",
+      "declarations": [
+        "performRename"
+      ],
+      "sourceWitness": {
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "blob": "432b02211b4f7aee376c351c2c0c36e2a5119df2",
+        "file": {
+          "bytes": 3779,
+          "sha256": "f953d225b55aacbaab611c90562e790c41d28d5cc4b49a1af8d4af172935037b"
+        },
+        "declarations": [
+          {
+            "name": "performRename",
+            "nodeType": "FunctionDeclaration",
+            "start": 1006,
+            "end": 3424,
+            "bytes": 2420,
+            "sha256": "e2bb17330b59098cae171862a51d3f64904d7872991bff8ab838cc1cfc6741c4"
+          }
+        ]
+      },
+      "targetClosure": [
+        [
+          16363,
+          "unresolved",
+          "FunctionDeclaration",
+          10333422,
+          10334272,
+          302,
+          "4c22dae394c4b3c9f8ad4500ef4693759461e5d8b44c6f751c7ef77ff6f9400f",
+          "a3074ab40acad19fe58dbbde2a76453447e8dcd9cff246ba34566c0fb9d2dba6"
+        ]
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "ccr"
+        ],
+        [
+          "property",
+          "updateSessionTitle"
+        ],
+        [
+          "property",
+          "kind"
+        ],
+        [
+          "property",
+          "sessionId"
+        ],
+        [
+          "property",
+          "messages"
+        ],
+        [
+          "property",
+          "abortController"
+        ],
+        [
+          "property",
+          "signal"
+        ],
+        [
+          "property",
+          "getAppState"
+        ],
+        [
+          "property",
+          "replBridgeSessionId"
+        ],
+        [
+          "property",
+          "standaloneAgentContext"
+        ],
+        [
+          "property",
+          "name"
+        ]
+      ],
+      "residues": [
+        [
+          "string",
+          "ccr",
+          10334121,
+          10334126,
+          1,
+          0
+        ],
+        [
+          "property",
+          "updateSessionTitle",
+          10334207,
+          10334225,
+          2,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 20645,
+      "kind": "raw-direct",
+      "owner": "src/cli/print.ts",
+      "declarations": [
+        "runHeadless"
+      ],
+      "sourceWitness": {
+        "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+        "blob": "de5e84cc7614cb2b24ad64b447ed7797b6c81c80",
+        "file": {
+          "bytes": 218976,
+          "sha256": "e491160d1a4c417756b97fd921955d4af4007b851043381c83cc819beeafc690"
+        },
+        "declarations": [
+          {
+            "name": "runHeadless",
+            "nodeType": "FunctionDeclaration",
+            "start": 17411,
+            "end": 37042,
+            "bytes": 19641,
+            "sha256": "5b410cff9744ae54dba09971a71360031736d6846df3c9260f394c7d08c61e4c"
+          }
+        ]
+      },
+      "targetClosure": [
+        [
+          20645,
+          "unresolved",
+          "FunctionDeclaration",
+          12919103,
+          12925500,
+          1850,
+          "160096a4f227864aa742e2d550e411970b2ee901edaaa506d9d23e78eb15a243",
+          "4ac00c1651d7a16d8cd0a7177ac946b759fcf4d2ef7b7bd016bd02f75f266250"
+        ]
+      ],
+      "semanticIdentities": [
+        [
+          "property",
+          "agentDefinition"
+        ],
+        [
+          "property",
+          "activeAgents"
+        ],
+        [
+          "property",
+          "allAgents"
+        ],
+        [
+          "property",
+          "agent"
+        ],
+        [
+          "property",
+          "agentType"
+        ],
+        [
+          "property",
+          "systemPrompt"
+        ],
+        [
+          "property",
+          "getSystemPrompt"
+        ],
+        [
+          "property",
+          "length"
+        ],
+        [
+          "property",
+          "exitCode"
+        ],
+        [
+          "property",
+          "rewindFiles"
+        ],
+        [
+          "property",
+          "uuid"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "agentDefinition",
+          12922341,
+          12922356,
+          19,
+          18
+        ]
+      ]
+    }
+  ]
+}

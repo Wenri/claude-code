@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-skills-empty-state-bounded-branch-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-skills-empty-state-complete-target-unit-proof",
+    "target117-shared-empty-state-target-unit-proof",
+    "target117-skills-empty-state-bounded-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-skills-empty-state-source-gap.mjs",
+      "bytes": 7422,
+      "sha256": "62c6902611d594157ad1fd6622bdd6fa3e52eb6b1dd975df8d882bd9efb54461"
+    },
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "file": {
+        "path": "src/components/skills/SkillsMenu.tsx",
+        "blob": "f395f10f5da2c4ba353124b3f22af87a7c3e82d1",
+        "bytes": 9480,
+        "sha256": "e3c920a1278804eff7b7fed25c4e636b84eae7eb901ffcf3fa9abdbd5d093eed",
+        "declaration": "SkillsMenu",
+        "declarationTuple": [
+          3234,
+          9472,
+          6245,
+          "8983ff7db0a37d7757e70ac96a639765b2afb81ead06af936a752f2157fd73e6"
+        ]
+      }
+    },
+    "context": {
+      "path": "src/components/design-system/EmptyState.tsx",
+      "bytes": 427,
+      "sha256": "43fc9440c08858dbdd4036bbf09d7fb7a0c7ca11df14446b1a6feded5e49449b",
+      "provenance": "bounded-module-neighbor-inference-no-target-sourcemap"
+    },
+    "postimage": {
+      "path": "src/components/skills/SkillsMenu.tsx",
+      "bytes": 9500,
+      "sha256": "9fe0bea92f1e127c0b35378ca42307151092837b8f44bcbbea4e5a7e1352c070",
+      "declaration": "SkillsMenu",
+      "declarationTuple": [
+        3294,
+        9492,
+        6205,
+        "c36bccd16bfc76bec25d39c0243b62383f9b7d074be208dab08d642678be7257"
+      ],
+      "importTuple": [
+        968,
+        1027,
+        59,
+        "2f69f64031bf99a4e6f93aeaaf95321e477c10eff353d80ed0c42c455f579e6d"
+      ],
+      "delegateTuple": [
+        7080,
+        7201,
+        121,
+        "f2cc16485d517fe0aed78f145a82f307b631b8dcee8a408b263f24bcb8fd918c"
+      ]
+    }
+  },
+  "target117": {
+    "sharedComponentUnit": [
+      7863,
+      "unresolved",
+      "FunctionDeclaration",
+      3760503,
+      3760938,
+      263,
+      "1b237ae77c21269b4f3b1d363f68405c1aded45853d32b9473392fa0657ca69d",
+      "20129cf94973161e5156278585fe878bfec9ea8aeb3df2a16af25b983017944a"
+    ],
+    "unit": [
+      16800,
+      "unresolved",
+      "FunctionDeclaration",
+      10533657,
+      10535902,
+      901,
+      "0a06811fbd10e030e8bd79b33db43b83487e6c19da5c44323e9aef9cee62c7be",
+      "3d22f10c819a16902e45eb770aa8893342c4b0b04d01bbb90e1cf374815e4f81"
+    ],
+    "moduleInitializer": [
+      16803,
+      "unresolved",
+      "VariableDeclaration",
+      10536974,
+      10537381,
+      188,
+      "579ecd4805aa61cd5f4986158711b30760ab30ee6fea2982cc12951b82e88c56",
+      "45832e9689e9390c7784a3d5229fd555d8fe825bf5d32986349f44387512bcf9"
+    ],
+    "zeroSkillsReturn": [
+      10535036,
+      10535262,
+      226,
+      "9af31d2feb39bbbd1f56fd9f69367ce34d92eafa470057604d50b7f984edd38d"
+    ],
+    "emptyStateCall": [
+      10535159,
+      10535260,
+      101,
+      "aac2f7848e74eed3b3e91896d34a0cd783c8ad1625f4d3b204cbd05b8319432e"
+    ],
+    "residue": [
+      "property",
+      "hint",
+      10535180,
+      10535184,
+      6,
+      8
+    ],
+    "owner": "src/components/skills/SkillsMenu.tsx",
+    "declarations": [
+      "SkillsMenu",
+      "EmptyState"
+    ]
+  },
+  "summary": {
+    "strictUnits": 1,
+    "strictResidues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "requiredPriorReplays": [
+      "applyTarget117PluginEmptyStateSourceRecovery"
+    ],
+    "scope": "Only the zero-skills branch is replayed. The unit's independently covered VirtualList and SkillRow semantics remain outside this override's behavioral claim."
+  }
+}

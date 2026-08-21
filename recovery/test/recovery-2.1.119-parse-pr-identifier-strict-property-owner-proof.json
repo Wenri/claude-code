@@ -1,0 +1,512 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-static-strict-property-owner-proof",
+  "criterion": "module-export-binding-plus-byte-exact-adjacent-source-function-v1",
+  "evidenceIds": [
+    "target119-parse-pr-identifier-export-binding-proof",
+    "target119-parse-pr-identifier-adjacent-implementation-proof",
+    "target119-parse-pr-identifier-exact-source-ast-proof",
+    "target119-parse-pr-identifier-multi-host-semantic-test",
+    "target119-parse-pr-identifier-static-no-replay-proof"
+  ],
+  "inputs": {
+    "typedAudit": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24701325,
+      "sha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b"
+    },
+    "sourceCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "bytes": 377500,
+      "sha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": {
+      "baseline": {
+        "version": "2.1.118",
+        "path": "src/screens/ResumeConversation.tsx",
+        "bytes": 59859,
+        "sha256": "5de3d1ca0e3a331dcceb7eac33b41256acc0b3e57cc469e87e2b0298f056fd51",
+        "gitBlobSha1": "a0407c24a3ff08815a8c880f8e6464e86b815a1f"
+      },
+      "target": {
+        "version": "2.1.119",
+        "path": "src/screens/ResumeConversation.tsx",
+        "bytes": 59911,
+        "sha256": "19779ae3d970416e9cff2c0f36bdcb1fb1a762fdd3e7af16a480c1c137917200",
+        "gitBlobSha1": "00173e3ca3c1d841e33344435bcf20aaf2d1fbb0"
+      },
+      "retained": [
+        {
+          "version": "2.1.120",
+          "path": "src/screens/ResumeConversation.tsx",
+          "bytes": 59911,
+          "sha256": "19779ae3d970416e9cff2c0f36bdcb1fb1a762fdd3e7af16a480c1c137917200",
+          "gitBlobSha1": "00173e3ca3c1d841e33344435bcf20aaf2d1fbb0"
+        },
+        {
+          "version": "2.1.121",
+          "path": "src/screens/ResumeConversation.tsx",
+          "bytes": 59911,
+          "sha256": "19779ae3d970416e9cff2c0f36bdcb1fb1a762fdd3e7af16a480c1c137917200",
+          "gitBlobSha1": "00173e3ca3c1d841e33344435bcf20aaf2d1fbb0"
+        }
+      ]
+    }
+  },
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "pre-correction",
+        "typedAudit": {
+          "bytes": 24701325,
+          "sha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b"
+        },
+        "sourceCoverage": {
+          "bytes": 377500,
+          "sha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03"
+        },
+        "corrected": false
+      },
+      {
+        "phase": "post-correction",
+        "typedAudit": {
+          "bytes": 24703386,
+          "sha256": "319ad2549d1c140f5f84a1cbe044804876a385f6673f69ff3cb3f973b8971d29"
+        },
+        "sourceCoverage": {
+          "bytes": 378143,
+          "sha256": "3c29396a4f8bd5604379d07b2e2a3ebdb4083db045c1beeabf26eb11d5f548a0"
+        },
+        "corrected": true
+      },
+      {
+        "phase": "post-rendezvous",
+        "typedAudit": {
+          "bytes": 24697305,
+          "sha256": "1b156d078208c9df0baea3430dc58387f14d3535cd6052724f0847bd83d4d4f7"
+        },
+        "sourceCoverage": {
+          "bytes": 378822,
+          "sha256": "355c431cda776c760ac1d1e5098dc03f322087bd2deb67a4ab53dd50aa6f2f4d"
+        },
+        "corrected": true
+      },
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        },
+        "corrected": true
+      }
+    ]
+  },
+  "snapshotPartitions": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 557,
+      "sha256": "1ebfaa7f705b2d5487474d1c4cbd9cdc5ac40bff56b1a2656268a3988c50ab1e"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 1,
+        "value": "parsePrIdentifier",
+        "target": {
+          "start": 12831125,
+          "end": 12831142
+        },
+        "structural": {
+          "index": 21367,
+          "classification": "unresolved",
+          "sourceHash": "c21a619678759b0710e6c44eece0ee920a0c77ecf06d64cfeb63c2b8ce5170e4"
+        },
+        "disposition": "alpha-equivalent",
+        "ownerPaths": [],
+        "ownerSourceMatches": [],
+        "candidates": [
+          "../src/components/TeleportRepoMismatchDialog.tsx",
+          "../src/screens/ResumeConversation.tsx"
+        ],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageRowsDescriptor": {
+      "rows": 2,
+      "jsonBytes": 1084,
+      "sha256": "3fc078772dd7bc57cf1376d5b314a6c411c26eeb1a4de215e5f8565707eea424"
+    },
+    "coverageRows": [
+      {
+        "targetIndex": 21367,
+        "start": 12831117,
+        "end": 12831180,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "c21a619678759b0710e6c44eece0ee920a0c77ecf06d64cfeb63c2b8ce5170e4",
+        "structuralClass": "unresolved",
+        "disposition": "alpha-equivalent",
+        "ownerIds": [],
+        "evidenceIds": [
+          "readable-normalization",
+          "static-semantic-noop"
+        ],
+        "reason": "The complete target unit has an exact baseline token-stream match after only bundle-local identifier and generated version/build-metadata normalization; cooked literals, operators, branches, and calls are unchanged."
+      },
+      {
+        "targetIndex": 21368,
+        "start": 12831180,
+        "end": 12831390,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5e80581425e1a2627cec7978b739b99152e80d85680796802cda0114133795f0",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-screens-ResumeConversation-tsx"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ],
+        "behavior": "Compiled target unit is attributed to src/screens/ResumeConversation.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ]
+  },
+  "postCorrection": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 595,
+      "sha256": "c92c1e4ae5af07e0fdf713fb545784f78f788a531c0c38d77769d7573cc521b0"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 0,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 1,
+        "value": "parsePrIdentifier",
+        "target": {
+          "start": 12831125,
+          "end": 12831142
+        },
+        "structural": {
+          "index": 21367,
+          "classification": "unresolved",
+          "sourceHash": "c21a619678759b0710e6c44eece0ee920a0c77ecf06d64cfeb63c2b8ce5170e4"
+        },
+        "disposition": "source-runtime-covered",
+        "ownerPaths": [
+          "screens/ResumeConversation.tsx"
+        ],
+        "ownerSourceMatches": [],
+        "candidates": [
+          "../src/components/TeleportRepoMismatchDialog.tsx",
+          "../src/screens/ResumeConversation.tsx"
+        ],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageRowsDescriptor": {
+      "rows": 2,
+      "jsonBytes": 1899,
+      "sha256": "12ec4add27437314f300bc3acbe97cf0967df0c68235141b13d21787988cf391"
+    },
+    "coverageRows": [
+      {
+        "targetIndex": 21367,
+        "start": 12831117,
+        "end": 12831180,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "c21a619678759b0710e6c44eece0ee920a0c77ecf06d64cfeb63c2b8ce5170e4",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-screens-ResumeConversation-tsx"
+        ],
+        "evidenceIds": [
+          "target119-parse-pr-identifier-export-binding-proof",
+          "target119-parse-pr-identifier-adjacent-implementation-proof",
+          "target119-parse-pr-identifier-exact-source-ast-proof",
+          "target119-parse-pr-identifier-multi-host-semantic-test",
+          "target119-parse-pr-identifier-static-no-replay-proof"
+        ],
+        "behavior": "The complete authenticated Target119 u21367 module export table adds parsePrIdentifier beside ResumeConversation, and its arrow binding points directly to adjacent u21368. That complete function is alpha-canonically identical to the exact Target119 src/screens/ResumeConversation.tsx parsePrIdentifier declaration, including the byte-identical multi-host pull, pull-requests, and merge_requests regex. Target118 u20462 exports only ResumeConversation while adjacent u20463 contains the older GitHub-only implementation. The sole strict parsePrIdentifier property is therefore generated module-binding residue owned by ResumeConversation.tsx; this static exact-source owner correction pins u21368 as its dependency and authorizes no source replay."
+      },
+      {
+        "targetIndex": 21368,
+        "start": 12831180,
+        "end": 12831390,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5e80581425e1a2627cec7978b739b99152e80d85680796802cda0114133795f0",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-screens-ResumeConversation-tsx"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ],
+        "behavior": "Compiled target unit is attributed to src/screens/ResumeConversation.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ],
+    "ownerCatalogDescriptor": {
+      "rows": 1,
+      "jsonBytes": 95,
+      "sha256": "5d8b065e9c6b5b79f978f6d44152f222fe6aaf14bee83c694c8b27540fed8efe"
+    },
+    "ownerCatalog": [
+      {
+        "id": "owner-src-screens-ResumeConversation-tsx",
+        "path": "src/screens/ResumeConversation.tsx"
+      }
+    ],
+    "dependencyTargetIndices": [
+      21368
+    ]
+  },
+  "postStreaming": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 595,
+      "sha256": "c92c1e4ae5af07e0fdf713fb545784f78f788a531c0c38d77769d7573cc521b0"
+    },
+    "coverageRowsDescriptor": {
+      "rows": 2,
+      "jsonBytes": 1899,
+      "sha256": "12ec4add27437314f300bc3acbe97cf0967df0c68235141b13d21787988cf391"
+    },
+    "ownerCatalogDescriptor": {
+      "rows": 1,
+      "jsonBytes": 95,
+      "sha256": "5d8b065e9c6b5b79f978f6d44152f222fe6aaf14bee83c694c8b27540fed8efe"
+    },
+    "typedResiduesUnchangedFromPostCorrection": true,
+    "coverageRowsUnchangedFromPostCorrection": true,
+    "ownerCatalogUnchangedFromPostCorrection": true
+  },
+  "target": {
+    "binding": {
+      "targetIndex": 21367,
+      "nodeType": "ExpressionStatement",
+      "start": 12831117,
+      "end": 12831180,
+      "bytes": 63,
+      "tokenCount": 21,
+      "sha256": "c21a619678759b0710e6c44eece0ee920a0c77ecf06d64cfeb63c2b8ce5170e4",
+      "coarseHash": "b02451d86f843280aa5fa6a076a1f3124eaf5b86174d8d2596d460dafaebebc0",
+      "text": "M$(dv4,{parsePrIdentifier:()=>gv4,ResumeConversation:()=>_05});",
+      "exports": [
+        "parsePrIdentifier",
+        "ResumeConversation"
+      ],
+      "localBindings": {
+        "parsePrIdentifier": "gv4",
+        "ResumeConversation": "_05"
+      }
+    },
+    "implementation": {
+      "targetIndex": 21368,
+      "nodeType": "FunctionDeclaration",
+      "start": 12831180,
+      "end": 12831390,
+      "bytes": 210,
+      "tokenCount": 63,
+      "sha256": "5e80581425e1a2627cec7978b739b99152e80d85680796802cda0114133795f0",
+      "coarseHash": "6421fc93086425eccba38426645081e7f2e1eef04290779a4b4fc2b84360272d",
+      "binding": "gv4",
+      "canonicalProgram": {
+        "jsonBytes": 2171,
+        "sha256": "d03c7bf19fcc3d03d4d74ee98b6c5cd013b0c06e0fa757548370cd68dd66d7b1"
+      }
+    },
+    "regex": {
+      "start": 12831258,
+      "end": 12831341,
+      "bytes": 83,
+      "sha256": "4de43b76a0bfc5cb5750f25a7cf58837d33c0d27117f1ab938475909f97efe4b",
+      "text": "/(?:https?:\\/\\/)?[^/\\s]+\\/[^\\s]+?\\/(?:pull|pull-requests|-\\/merge_requests)\\/(\\d+)/"
+    }
+  },
+  "baseline": {
+    "binding": {
+      "baselineUnitIndex": 20462,
+      "nodeType": "ExpressionStatement",
+      "start": 12367654,
+      "end": 12367691,
+      "bytes": 37,
+      "tokenCount": 14,
+      "sha256": "39c19d99a3fbf60816722c2fa6d546d8a0a4303e643ed1fcd5c0f31e0e699ab8",
+      "coarseHash": "8f52fee9e0c61c596eaa484e48c6651611744ab53d6f6373b7aaec8730b16b81",
+      "text": "v$(m34,{ResumeConversation:()=>K_5});",
+      "exports": [
+        "ResumeConversation"
+      ],
+      "localBindings": {
+        "ResumeConversation": "K_5"
+      }
+    },
+    "implementation": {
+      "baselineUnitIndex": 20463,
+      "nodeType": "FunctionDeclaration",
+      "start": 12367691,
+      "end": 12367858,
+      "bytes": 167,
+      "tokenCount": 63,
+      "sha256": "1cb287a9c6af63962fb4532cc318b3ebe95994c7194d057e07da2900aae78185",
+      "coarseHash": "c99dcf203654c394308d723e0f396ee5d56addb823ad6eb9a6e0b6612d847cec",
+      "binding": "q_5",
+      "canonicalProgram": {
+        "jsonBytes": 2125,
+        "sha256": "4f9510791e3f5b16a296821c2ca85d1550a319a0d3dfc3d81fe8f635e47a4401"
+      }
+    },
+    "regex": {
+      "start": 12367769,
+      "end": 12367809,
+      "bytes": 40,
+      "sha256": "236e51c94b88601eb606240d003da22556727a0d90d98ddad0f5fce61b24ff5f",
+      "text": "/github\\.com\\/[^/]+\\/[^/]+\\/pull\\/(\\d+)/"
+    }
+  },
+  "source": {
+    "ownerPath": "src/screens/ResumeConversation.tsx",
+    "declarationName": "parsePrIdentifier",
+    "targetDeclaration": {
+      "start": 2476,
+      "end": 2865,
+      "bytes": 389,
+      "sha256": "ed640e99049c2a15ab49bef1f8d6cafeaf5112f09d5ccec820f920bfa670896d",
+      "canonicalProgram": {
+        "jsonBytes": 2171,
+        "sha256": "d03c7bf19fcc3d03d4d74ee98b6c5cd013b0c06e0fa757548370cd68dd66d7b1"
+      },
+      "regex": {
+        "start": 2694,
+        "end": 2777,
+        "bytes": 83,
+        "sha256": "4de43b76a0bfc5cb5750f25a7cf58837d33c0d27117f1ab938475909f97efe4b"
+      }
+    },
+    "baselineDeclaration": {
+      "start": 2476,
+      "end": 2813,
+      "bytes": 337,
+      "sha256": "dc9bced5a72e93272e376633b30efd729fc3249c4b3cce0b9f1322c96ebb462b",
+      "canonicalProgram": {
+        "jsonBytes": 2125,
+        "sha256": "4f9510791e3f5b16a296821c2ca85d1550a319a0d3dfc3d81fe8f635e47a4401"
+      },
+      "regex": {
+        "start": 2689,
+        "end": 2729,
+        "bytes": 40,
+        "sha256": "236e51c94b88601eb606240d003da22556727a0d90d98ddad0f5fce61b24ff5f"
+      }
+    },
+    "semanticCases": [
+      {
+        "input": "42",
+        "target": 42,
+        "baseline": 42
+      },
+      {
+        "input": "https://github.com/openai/codex/pull/123",
+        "target": 123,
+        "baseline": 123
+      },
+      {
+        "input": "https://bitbucket.org/workspace/repo/pull-requests/456",
+        "target": 456,
+        "baseline": null
+      },
+      {
+        "input": "https://gitlab.example/group/repo/-/merge_requests/789",
+        "target": 789,
+        "baseline": null
+      },
+      {
+        "input": "forge.example/team/repo/pull/321",
+        "target": 321,
+        "baseline": null
+      },
+      {
+        "input": "https://github.com/openai/codex/issues/12",
+        "target": null,
+        "baseline": null
+      },
+      {
+        "input": "not-a-pr",
+        "target": null,
+        "baseline": null
+      }
+    ]
+  },
+  "override": {
+    "targetIndex": 21367,
+    "ownerPaths": [
+      "src/screens/ResumeConversation.tsx"
+    ],
+    "declarations": [
+      "parsePrIdentifier"
+    ],
+    "dependencyTargetIndices": [
+      21368
+    ],
+    "disposition": "static-owner-proof",
+    "replayAuthorized": false
+  },
+  "impact": {
+    "correctedUnits": 1,
+    "correctedStrictResidues": 1,
+    "beforeOwnerPaths": [],
+    "afterOwnerPaths": [
+      "src/screens/ResumeConversation.tsx"
+    ],
+    "exports": {
+      "baseline": [
+        "ResumeConversation"
+      ],
+      "target": [
+        "parsePrIdentifier",
+        "ResumeConversation"
+      ],
+      "added": [
+        "parsePrIdentifier"
+      ]
+    }
+  }
+}

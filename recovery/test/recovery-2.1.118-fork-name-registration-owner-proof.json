@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-fork-name-registration-extracted-state-update-proof-v1",
+  "status": "authenticated-static-owner-proof",
+  "evidenceIds": [
+    "target118-fork-name-registration-target-fragments",
+    "target118-fork-name-registration-source-ast-test",
+    "target118-fork-name-registration-semantic-test"
+  ],
+  "inputs": {
+    "overrideModule": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/fork-name-registration-owner-overrides.mjs",
+      "bytes": 943,
+      "sha256": "dea4a1bac8646a518f9a337c91891ee2ff1c9801334fd020e4f26d0bc8526541"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/commands/fork/fork.ts",
+        "blob": "d75d5b6976c40755976cf903fb728822ba13b489",
+        "bytes": 6480,
+        "sha256": "c618b48cc2e75030886c1b7957d2c0cc46271ab8b5887a279700c36b261cc1ff"
+      },
+      "declaration": {
+        "name": "spawnFork",
+        "start": 2574,
+        "end": 5887,
+        "bytes": 3313,
+        "sha256": "3c7d191bd80e6f07f49394bd61542a699f75718076aa1cebbf0eb4691a9429f4"
+      },
+      "registryBlock": {
+        "start": 3674,
+        "end": 3874,
+        "bytes": 200,
+        "sha256": "6d291d9c1d28034e30eeeabc23236a123667b0022feaf7fcdeaaf30a07487f02"
+      }
+    }
+  },
+  "supportingTargetUnit": {
+    "targetIndex": 16739,
+    "classification": "matched",
+    "start": 10521060,
+    "end": 10521485,
+    "bytes": 425,
+    "tokenCount": 171,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "9970cfbd647428a44a208ed42bca99eced5448930e036cd6bcdf2a9d418ffc96",
+    "baselineUnitIndex": 16643,
+    "role": "agent-lifecycle state-update helper"
+  },
+  "targetUnit": {
+    "targetIndex": 17881,
+    "classification": "unresolved",
+    "start": 11022572,
+    "end": 11024029,
+    "bytes": 1457,
+    "tokenCount": 512,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "d5178cc573150b53a91ab192a796db3ed3e09f218e29dbd6620963257f89afa9",
+    "coarseHash": "c386d7970da5ee5f35ebc11a9ca0c01dfbf6bf43d39e39b5c3ad75ad1a36bda7",
+    "ownerPath": "src/commands/fork/fork.ts",
+    "provisionalOwnerPath": "src/commands/remote-setup/index.ts",
+    "declarations": [
+      "spawnFork"
+    ],
+    "behavior": "The authenticated Target118 fork spawn derives a bounded display name, registers an asynchronous fork task, binds that name to the generated agent ID, supplies the fork system prompt and replay log to runAgent, and returns the same name/ID pair. Its registerName call delegates to the matched lifecycle helper's cloned agentNameRegistry update.",
+    "residues": [
+      [
+        "property",
+        "registerName",
+        11023074,
+        11023086,
+        4,
+        5
+      ]
+    ]
+  },
+  "sourceProof": {
+    "ownerPath": "src/commands/fork/fork.ts",
+    "declaration": "spawnFork",
+    "registryTransition": {
+      "mapSource": "previous.agentNameRegistry",
+      "key": "name",
+      "value": "asAgentId(agentId)",
+      "resultProperty": "agentNameRegistry"
+    },
+    "sharedBehaviorMarkers": [
+      "getRenderedSystemPrompt",
+      "replHydration",
+      "replayLog",
+      "registerAsyncAgent",
+      "agentNameRegistry",
+      "resolvedAgentModel",
+      "runWithAgentContext",
+      "runAsyncAgentLifecycle",
+      "runAgent",
+      "enableSummarization",
+      "getWorktreeResult"
+    ],
+    "rejectedOwnerPaths": [
+      "src/commands/remote-setup/index.ts"
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/commands/fork/fork.ts"
+    ],
+    "evidenceIds": [
+      "target118-fork-name-registration-target-fragments",
+      "target118-fork-name-registration-source-ast-test",
+      "target118-fork-name-registration-semantic-test"
+    ],
+    "behavior": "The authenticated Target118 fork spawn registers the derived fork name and agent ID through agentLifecycle.registerName, whose matched lifecycle helper performs the same cloned agentNameRegistry update that historical src/commands/fork/fork.ts performs inline. The registerName property is an extracted state-update representation, not a missing remote-setup behavior."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "supportingTargetUnits": 1,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "451a71baf3b49a12802a7feb7de5c47f5e6a754cdd4a0c1f94e58570e8886796",
+    "residueIdentitiesSha256": "d9bf5af681ca2afac65617b52e03ad64ddd9db86797794ec93a56edf2e53788f"
+  }
+}

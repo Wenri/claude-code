@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-bridge-dialog-react-compiler-cache-closure-v1",
+  "evidenceIds": [
+    "target117-bridge-dialog-authenticated-memo-cache-closure",
+    "target117-bridge-dialog-source-compiler-cache-owner-test"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "targetUnit": {
+    "targetIndex": 19151,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 11738530,
+    "end": 11742773,
+    "tokenCount": 2477,
+    "bytes": 4243,
+    "sha256": "da78d19023eb9642f43b54801bf578d84756ac6cea2e0bdcc5500fb51062d0b5",
+    "coarseHash": "d392238990597995e0eb1a3f5d193a533b1a54a152e93924372fdf51ed59b56c"
+  },
+  "residue": {
+    "literalKind": "number",
+    "value": 96,
+    "start": 11738558,
+    "end": 11738560,
+    "baselineOccurrenceCount": 43,
+    "targetOccurrenceNumber": 44,
+    "targetOccurrenceCount": 44
+  },
+  "targetMemoCache": {
+    "runtimeObject": "M84",
+    "property": "c",
+    "binding": "$",
+    "callStart": 11738552,
+    "callEnd": 11738561,
+    "arity": 96,
+    "memberAccesses": 198,
+    "uniqueSlots": 96,
+    "minimumSlot": 0,
+    "maximumSlot": 95,
+    "accessSequenceSha256": "b0ca83caa5a63a03b934f38efd9a807703082f4a96140e6eb9da43b10f0f3ceb"
+  },
+  "source": {
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/components/BridgeDialog.tsx",
+    "blob": "4f25836c63f16e2d3eda295a3babb39245635311",
+    "bytes": 34418,
+    "sha256": "9ff17aa923e869c4c13f7e189f3a5fbcfe8e5beaecdc6e47a0124799f83f1eb2",
+    "declaration": {
+      "name": "BridgeDialog",
+      "start": 1059,
+      "end": 9130,
+      "bytes": 8071,
+      "sha256": "417f0640482a8d6757b10223c0cbf1b7af2917d0113d46af683de00d320e3676"
+    },
+    "memoCache": {
+      "importModule": "react/compiler-runtime",
+      "importedName": "c",
+      "localName": "_c",
+      "binding": "$",
+      "callStart": 1106,
+      "callEnd": 1112,
+      "argumentStart": 1109,
+      "argumentEnd": 1111,
+      "arity": 87,
+      "memberAccesses": 179,
+      "uniqueSlots": 87,
+      "minimumSlot": 0,
+      "maximumSlot": 86,
+      "accessSequenceSha256": "31c5b38d626043ca6578ac678d7a777f75c3eb06fd5332f9049247667fd47d6d"
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "sourceFiles": 1,
+    "sourceReplays": 0,
+    "ownerOverrides": 1
+  }
+}

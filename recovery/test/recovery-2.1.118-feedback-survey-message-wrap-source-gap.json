@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "criterion": "target118-feedback-survey-message-wrap-source-gap-v1",
+  "status": "inherited-source-gap-replay",
+  "evidenceIds": [
+    "target118-feedback-survey-message-wrap-target-fragment",
+    "target118-feedback-survey-message-wrap-source-replay-test",
+    "target118-feedback-survey-message-wrap-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-feedback-survey-message-wrap-source-gap.mjs",
+      "bytes": 4844,
+      "sha256": "ef6902bc1b8cab3403ea19ad64dd82303055fd1ce5d4e355ba4a75185275d91a"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19744,
+    "nodeType": "FunctionDeclaration",
+    "start": 11985117,
+    "end": 11986671,
+    "bytes": 1554,
+    "tokens": 818,
+    "sha256": "df2fcf7ab872588494592852f0dba8241f9f7fd043ecac58b2be8511e03849e5",
+    "wrapMarkerOffset": 870,
+    "wrapContext": {
+      "bytes": 91,
+      "sha256": "46b372ea450a0699323a2e00497db1e87d63a5e86aa2217025ca41345a95d1fb"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 19936,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12087081,
+    "end": 12088606,
+    "bytes": 1525,
+    "tokens": 796,
+    "sha256": "22d81abd6efc26a94c5555669d92ddf1eee24d96e519a1885415dec0e8caab1f",
+    "coarseHash": "2d21ebb7b1712d98b181a3cde6d3996e29de2128ba752ea80b70ec0545cc7f68",
+    "wrapMarkerOffset": 858,
+    "wrapContext": {
+      "bytes": 91,
+      "sha256": "d122d5b7931bd106bd2f0304321e6d3d927729c14950ca5f357cb66b319e2822"
+    },
+    "residues": [
+      ["property", "wrap", 12087939, 12087943, 108, 109]
+    ]
+  },
+  "sourceState": {
+    "path": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+    "inputFiles": [
+      {
+        "state": "raw",
+        "bytes": 10660,
+        "sha256": "2307bbad58362eaa0b134b2e3b8d749bb70549f6b51676b38e569f88c011a78e"
+      },
+      {
+        "state": "strict-transitive-recovered",
+        "bytes": 10969,
+        "sha256": "ca06933f64a53a5d31fa542b18719d6ef774ccc57e85d2b29aea1da033fb055f"
+      }
+    ],
+    "outputFiles": [
+      {
+        "state": "raw",
+        "bytes": 10672,
+        "sha256": "381d51ba9ed8c360de1355b23cada8f5dcd01067979af51342143e6242c78fb0"
+      },
+      {
+        "state": "strict-transitive-recovered",
+        "bytes": 10981,
+        "sha256": "d8b3268a7fc817db1ca590bb51881ccd9ec37ae7940dce2c2ae86c1e8132fe2a"
+      }
+    ],
+    "inputDeclaration": {
+      "name": "FeedbackSurveyView",
+      "bytes": 2023,
+      "sha256": "ce75fd3507edcd083209dd282214d1c4996eb63434741870c34a43aaac7dd830"
+    },
+    "outputDeclaration": {
+      "name": "FeedbackSurveyView",
+      "bytes": 2035,
+      "sha256": "103d2c058ecd692cd2cac4c832d061797f4e4627c33f5f534c4bd716e03c48f1"
+    },
+    "inputJsx": "<Text bold={true}>{message}</Text>",
+    "outputJsx": "<Text bold={true} wrap=\"wrap\">{message}</Text>"
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/components/FeedbackSurvey/FeedbackSurveyView.tsx"
+    ],
+    "declarations": ["FeedbackSurveyView"]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "b4503da2442b843062bae48a894682326e3632f4b0bc900b0321462a0144fcb0",
+    "residueIdentitiesSha256": "a091466587b511c09ddffef98efebfa12858742bf266434d09f72f5bf695d120"
+  }
+}

@@ -1,0 +1,401 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-status-doctor-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-daemon-status-doctor-authenticated-whole-units",
+    "target121-daemon-status-lease-contract-evolution",
+    "target121-doctor-status-consumer-contract",
+    "target121-daemon-status-build-macro-expansion"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26810532,
+      "sha256": "097c49ee8a6c97d4036c7d928ad9ce0528aa0800c334182cc37074efd769a305"
+    }
+  },
+  "ownerCorrection": {
+    "reportedOwner": "components/mcp/McpParsingWarnings.tsx",
+    "correctedOwners": [
+      "src/daemon/status.ts",
+      "src/screens/Doctor.tsx"
+    ],
+    "reason": "u16363 is getBgDaemonStatus and u16369 is its BackgroundServerDetails consumer. The generated MCP owner is a coarse attribution collision across the adjacent daemon status module.",
+    "staleOwner": {
+      "path": "src/components/mcp/McpParsingWarnings.tsx",
+      "bytes": 24860,
+      "chars": 24854,
+      "sha256": "69bd66f203f213118c8dcf13c1da58569a1873978b2806e6afc36347cf22a939",
+      "markerCounts": {
+        "getBgDaemonStatus": 0,
+        "BackgroundServerDetails": 0,
+        "leaseClients": 0,
+        "MACRO.VERSION": 0
+      }
+    }
+  },
+  "buildMetadata": {
+    "baseline": {
+      "version": "2.1.120",
+      "buildTime": "2026-04-24T19:00:49Z",
+      "gitSha": "080f07fb4224786b965b9ea0a35f0cff594f2eb6",
+      "memberSha256": "bc6fe3ff7994685a63107f3a0dc18bd654cc258809a0edf9c0799747be4cfaca"
+    },
+    "target": {
+      "version": "2.1.121",
+      "buildTime": "2026-04-27T01:32:27Z",
+      "gitSha": "16ffea721a0a39bc787a236dc19fb62307180b75",
+      "memberSha256": "ab1462173235d9bec33808648f9b53927b85972f08ef14d8e7505ca9dceef5dc"
+    },
+    "normalizedMemberCanonical": {
+      "method": "Acorn AST with start/end/raw removed, scoped identifiers alpha-normalized except public property names, and VERSION/BUILD_TIME/GIT_SHA literal values replaced by @build",
+      "bytes": 1559,
+      "sha256": "a3652267ce1ff1731beeee7a0d3b551ece661607261ef1677791259a79ead232"
+    }
+  },
+  "units": [
+    {
+      "target": {
+        "targetIndex": 16363,
+        "classification": "unresolved",
+        "unknownFreeIdentifierCount": 2,
+        "declaration": "getBgDaemonStatus",
+        "minifiedName": "JT6",
+        "owner": "src/daemon/status.ts",
+        "nodeType": "FunctionDeclaration",
+        "start": 10156773,
+        "end": 10158240,
+        "tokenCount": 518,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 3,
+        "bytes": 1467,
+        "sha256": "e36859f263166d05219da4b0ba76c8b9a38460eb4a44cb27569a6d2cfe48aa79",
+        "coarseHash": "f0ae829d7cfe7ac886779fd560ca77e969fae739b55ced287b2d695e8ee54427",
+        "line": 5706,
+        "column": 1585
+      },
+      "baseline": {
+        "baselineUnitIndex": 16232,
+        "classification": "unmatched-baseline",
+        "declaration": "getBgDaemonStatus predecessor",
+        "nodeType": "FunctionDeclaration",
+        "start": 10086813,
+        "end": 10088148,
+        "tokenCount": 453,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 3,
+        "bytes": 1335,
+        "sha256": "6952f88bf4449b04711b39a4bf10ec5baf53f8475e8c2b38ac90b20168399f75",
+        "coarseHash": "16c6b6d1d6e83c0d26c2ad5732dd66f3cc41eb09b5b5f481f88720a4436ed4e8",
+        "line": 5694,
+        "column": 1569
+      },
+      "relation": "Direct getBgDaemonStatus predecessor. Five preflight declarators, the job/version calculation, and all thirteen pre-existing result properties are alpha-canonically retained after build-field normalization; Target121 adds the lease request/client result contract.",
+      "ownerResidues": {
+        "totalRows": 95,
+        "targetAddedRows": 6,
+        "strictRows": 3,
+        "rowIdentities": {
+          "bytes": 5238,
+          "sha256": "04823c1a73c693d15747fbd4939b81380e05ec6da5eac841478811fa9a6928f1"
+        },
+        "addedIdentities": {
+          "bytes": 344,
+          "sha256": "22026118dc1e6bc20e3eecce767809e9503cf5b78795311d940c70e016d3c729"
+        },
+        "strictIdentities": {
+          "bytes": 191,
+          "sha256": "1a098a48e2e9bdbfda1364c58d0d6b8e09d2581a36a91b846e57ca6a155e84f5"
+        },
+        "strictRowsExact": [
+          [16363, "string", "2.1.121", 10157570, 10157579, 65],
+          [16363, "string", "2026-04-27T01:32:27Z", 10157659, 10157681, 65],
+          [16363, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 10157690, 10157732, 65]
+        ]
+      },
+      "correctedOwnerResidues": {
+        "ownerPath": "daemon/status.ts",
+        "totalRows": 19,
+        "targetAddedRows": 4,
+        "strictRows": 3,
+        "rowIdentities": {
+          "bytes": 1209,
+          "sha256": "9b8a3c718f765213ef0d6384b10d350ce7ca4a4efb92a394b4f79d7c70b74284"
+        },
+        "addedIdentities": {
+          "bytes": 242,
+          "sha256": "68165ce2b1dd0af03aaf9cb5ab7ae137e8b87bda499599d374ddd662cf20b340"
+        }
+      }
+    },
+    {
+      "target": {
+        "targetIndex": 16369,
+        "classification": "unresolved",
+        "unknownFreeIdentifierCount": 0,
+        "declaration": "BackgroundServerDetails",
+        "minifiedName": "ii1",
+        "owner": "src/screens/Doctor.tsx",
+        "nodeType": "FunctionDeclaration",
+        "start": 10159714,
+        "end": 10162399,
+        "tokenCount": 748,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 15,
+        "bytes": 2685,
+        "sha256": "e965560fd99b5102e92ebd4cda217c8c8393811ec3c5ad0d0d40dbbee4c8ca0a",
+        "coarseHash": "6769751f8e7c390523cc58f1757abaf0644e1ee02054b2ed692fe0d52822210b",
+        "line": 5707,
+        "column": 227
+      },
+      "baseline": {
+        "baselineUnitIndex": 16238,
+        "classification": "unmatched-baseline",
+        "declaration": "BackgroundServerDetails predecessor",
+        "nodeType": "FunctionDeclaration",
+        "start": 10089369,
+        "end": 10092054,
+        "tokenCount": 748,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 15,
+        "bytes": 2685,
+        "sha256": "68e656efa6c1324f54e84166138851b16d6481bd0a78dfcd2e5ecec802f7c219",
+        "coarseHash": "ee043d82e6ec1894b0d1b535c1c3efd5100939c448e0ea7f394a1a36225a2acd",
+        "line": 5695,
+        "column": 227
+      },
+      "relation": "Direct BackgroundServerDetails predecessor; same 2,685 bytes, 748 tokens, and 15 statements. After alpha renaming and normalizing the two compile-time build objects, the complete units are identical.",
+      "ownerResidues": {
+        "totalRows": 103,
+        "targetAddedRows": 9,
+        "strictRows": 6,
+        "rowIdentities": {
+          "bytes": 6396,
+          "sha256": "456780c23e2793eb1b52131aedc6fb5133325f534ede600f923ef8c1ba45cd44"
+        },
+        "addedIdentities": {
+          "bytes": 555,
+          "sha256": "89ce162b52fb3e3ad8044f9468496a8850f354a183d48e33fa9e1b7d7018ce28"
+        },
+        "strictIdentities": {
+          "bytes": 381,
+          "sha256": "cca5e401b4997b8ecc5fb53e66486c0ee6cee1276b9a568ca3fa734267248660"
+        },
+        "strictRowsExact": [
+          [16369, "string", "2.1.121", 10160564, 10160573, 66],
+          [16369, "string", "2026-04-27T01:32:27Z", 10160653, 10160675, 66],
+          [16369, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 10160684, 10160726, 66],
+          [16369, "string", "2.1.121", 10161035, 10161044, 67],
+          [16369, "string", "2026-04-27T01:32:27Z", 10161124, 10161146, 67],
+          [16369, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 10161155, 10161197, 67]
+        ]
+      },
+      "correctedOwnerResidues": {
+        "ownerPath": "screens/Doctor.tsx",
+        "totalRows": 52,
+        "targetAddedRows": 6,
+        "strictRows": 6,
+        "rowIdentities": {
+          "bytes": 3344,
+          "sha256": "da9495758ccd559acf7aa128c4fe15026c3ce167d3e000a09a57cd7b729f6913"
+        },
+        "addedIdentities": {
+          "bytes": 387,
+          "sha256": "58e85ad5d876b88e2c2e6949ed0005fd296268bd74f07fc73fd4f72ae97d1657"
+        }
+      }
+    }
+  ],
+  "wholeUnitEvidence": {
+    "u16363": {
+      "rawByteDelta": 132,
+      "tokenDelta": 65,
+      "baselineCanonical": {
+        "bytes": 18494,
+        "sha256": "e8de3078bc380dbcb4ffae1de3f9785e7d141d11accd347803bf7d00ca058f47"
+      },
+      "targetCanonical": {
+        "bytes": 20960,
+        "sha256": "0a8203c42537ba9fa1163c880f45e67ed0cfe920ddb51dbe835f40fee02446ed"
+      },
+      "baselineBuildNormalizedCanonical": {
+        "bytes": 18445,
+        "sha256": "2034cf9d1b8ff27fb3a40e8570317086ed919816fad318273a35757378c11a00"
+      },
+      "targetBuildNormalizedCanonical": {
+        "bytes": 20911,
+        "sha256": "c6d4cdce1d8ad5a46bf215cdf09c9a7e6d335497472ba6f47c77b8e54fb33386"
+      },
+      "retainedSubtrees": {
+        "count": 19,
+        "method": "Five initial VariableDeclarators, the jobs IfStatement, and thirteen existing return Properties are individually alpha-canonicalized after build normalization; [kind,index-or-name,canonicalSHA256] is hashed in source order.",
+        "bytes": 1692,
+        "sha256": "3046579270ec51884d9ea07bf22a91d794e75fbebf059c0864be5811b7567b0a"
+      },
+      "baselineListSetup": {
+        "nodeType": "VariableDeclaration",
+        "start": 10087145,
+        "end": 10087220,
+        "bytes": 75,
+        "sha256": "02765c7fda8a219833ae1c03e50f6cd23af1ebfab3fe98d2b5b1ac3238854e22"
+      },
+      "targetLeaseContract": {
+        "local": {
+          "nodeType": "VariableDeclarator",
+          "start": 10157096,
+          "end": 10157100,
+          "bytes": 4,
+          "sha256": "f56e20a56c967b40f4e49c78a08efd517979d7dd36e49db26191e3e5eeaa7449",
+          "exact": "M=[]"
+        },
+        "parallelSetup": {
+          "nodeType": "VariableDeclaration",
+          "start": 10157110,
+          "end": 10157263,
+          "bytes": 153,
+          "sha256": "b1cf2bbb143f18102373ce56bbb00f304c7f458b2837b643de688a1ab7bedaf7"
+        },
+        "leasesBranch": {
+          "nodeType": "IfStatement",
+          "start": 10157743,
+          "end": 10157777,
+          "bytes": 34,
+          "sha256": "a29d2b0dd846b089833342a29c82a172f9b0512b57456d0954daa1f86b0bf9ca",
+          "exact": "if(j.ok&&\"clients\"in j)M=j.clients"
+        },
+        "returnProperty": {
+          "nodeType": "Property",
+          "start": 10158224,
+          "end": 10158238,
+          "bytes": 14,
+          "sha256": "1537f7dc5df3e62e7726d09cc63ea7a903a30cdaa4abc6eba29e16fb5e989b6d",
+          "exact": "leaseClients:M"
+        }
+      },
+      "buildMemberExpressions": {
+        "baseline": [
+          {"start": 10087336, "end": 10087698, "bytes": 362, "sha256": "bc6fe3ff7994685a63107f3a0dc18bd654cc258809a0edf9c0799747be4cfaca"}
+        ],
+        "target": [
+          {"start": 10157379, "end": 10157741, "bytes": 362, "sha256": "ab1462173235d9bec33808648f9b53927b85972f08ef14d8e7505ca9dceef5dc"}
+        ]
+      }
+    },
+    "u16369": {
+      "rawByteDelta": 0,
+      "tokenDelta": 0,
+      "baselineCanonical": {
+        "bytes": 29880,
+        "sha256": "6a5e1f9e3860b0e3e52fe420fd35f6a473b2b4a187e1dc0f65608394303fd999"
+      },
+      "targetCanonical": {
+        "bytes": 29880,
+        "sha256": "90fa4ee1db4963fdfcd94b9ace18db84347260af365efd8bdc7559c32c0a0da2"
+      },
+      "normalizedCompleteUnit": {
+        "buildObjectCount": 2,
+        "bytes": 29782,
+        "sha256": "61a6db73e3b59b54effd3c13c256b5bf976f49b392e66cee596b7ead0a033297"
+      },
+      "buildMemberExpressions": {
+        "baseline": [
+          {"start": 10090028, "end": 10090390, "bytes": 362, "sha256": "bc6fe3ff7994685a63107f3a0dc18bd654cc258809a0edf9c0799747be4cfaca"},
+          {"start": 10090499, "end": 10090861, "bytes": 362, "sha256": "bc6fe3ff7994685a63107f3a0dc18bd654cc258809a0edf9c0799747be4cfaca"}
+        ],
+        "target": [
+          {"start": 10160373, "end": 10160735, "bytes": 362, "sha256": "ab1462173235d9bec33808648f9b53927b85972f08ef14d8e7505ca9dceef5dc"},
+          {"start": 10160844, "end": 10161206, "bytes": 362, "sha256": "ab1462173235d9bec33808648f9b53927b85972f08ef14d8e7505ca9dceef5dc"}
+        ]
+      }
+    }
+  },
+  "sourceState": {
+    "status": {
+      "path": "src/daemon/status.ts",
+      "target120": {
+        "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+        "gitBlob": "ce1d4da3d0b6a504f98ca0352802151909b496e8",
+        "bytes": 4972,
+        "chars": 4970,
+        "sha256": "5bdc29348add20175062b6faf565b31f81e5b4921ab8e6b602c9fff617a56922",
+        "type": {"start": 410, "end": 825, "line": 16, "endLine": 30, "bytes": 415, "chars": 415, "sha256": "c7d375065c265238f71c686191c37236bd2074836e25301b278a03335f1a7795"},
+        "declaration": {"start": 1556, "end": 3690, "line": 58, "endLine": 120, "bytes": 2134, "chars": 2134, "sha256": "63ead1138ad9b09867e54080d35296934722a80f7cc437fb74b1cdb100b0ea6e"},
+        "macroVersionOffsets": [2911]
+      },
+      "target121": {
+        "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+        "gitBlob": "4b43aa1471d1bceab6a19843b2b3b5434d926a9d",
+        "bytes": 6229,
+        "chars": 6227,
+        "sha256": "64b1b6e685afebc62b069b6db5a2e4b3525309d04517246e3f7f5dd2e772ff45",
+        "type": {"start": 410, "end": 892, "line": 16, "endLine": 31, "bytes": 482, "chars": 482, "sha256": "a75f646368185d1fc567216ef514966eba0c855585cdb080a62d083b4943020d"},
+        "declaration": {"start": 1623, "end": 4599, "line": 59, "endLine": 142, "bytes": 2976, "chars": 2976, "sha256": "2b9bfee6298e905f0819d1b45b834c59ef34ba00b256e52d75d176864ff1bd9e"},
+        "macroVersionOffsets": [3302],
+        "leaseType": {"start": 826, "end": 890, "line": 30, "endLine": 30, "bytes": 64, "chars": 64, "sha256": "2471288c3eee56aa31f2ef210aa7269211bba2780a4b8187c75341d886184ee0"},
+        "leaseLocal": {"start": 2476, "end": 2545, "line": 80, "endLine": 80, "bytes": 69, "chars": 69, "sha256": "7a20575b473c1b71275603df6252be9bdb33bff38ce134e45de4264900f6400b"},
+        "leaseRequest": {"start": 2818, "end": 2922, "line": 88, "endLine": 91, "bytes": 104, "chars": 104, "sha256": "bbe9b2ca69e0b4956ee637282add832b6fb96a5322cfe72d7ac8f66f706a93c4"},
+        "leaseValidation": {"start": 3342, "end": 3837, "line": 102, "endLine": 113, "bytes": 495, "chars": 495, "sha256": "fdc6c064c3f0413bc450f95be195829ad1e52d67f780876f58589796558b33d4"},
+        "leaseReturn": {"start": 4580, "end": 4592, "line": 140, "endLine": 140, "bytes": 12, "chars": 12, "sha256": "6b6f5f5bda8b141d7c4c723e162036b83ed6040a27fb2b8ee4e31aac812a0e40"}
+      },
+      "replayBlocker": "Recovered Target121 source validates leases.clients with Array.isArray and a typed filter, while the authenticated target unit uses only j.ok && 'clients' in j and directly assigns j.clients. Ownership and the build-metadata rows are authenticated, but rewriting either behavior would exceed this compiler-metadata lane."
+    },
+    "doctor": {
+      "path": "src/screens/Doctor.tsx",
+      "target120": {
+        "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+        "gitBlob": "95851b7af1dd647499891e9873da506f02717102",
+        "bytes": 75394,
+        "chars": 75308,
+        "sha256": "f4399da6befe625a09739c7429b1633f3f8a04911e5c1ad7bfd7f8f6f89ed913"
+      },
+      "target121": {
+        "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+        "gitBlob": "95851b7af1dd647499891e9873da506f02717102",
+        "bytes": 75394,
+        "chars": 75308,
+        "sha256": "f4399da6befe625a09739c7429b1633f3f8a04911e5c1ad7bfd7f8f6f89ed913"
+      },
+      "statusImport": {"start": 969, "end": 1046, "line": 16, "endLine": 16, "bytes": 77, "chars": 77, "sha256": "4c5169ce0229dd5931d33f42d007e6852f13989aa5573c5bbb27698befeb97dd"},
+      "detailsDeclaration": {"start": 3757, "end": 5269, "line": 103, "endLine": 125, "bytes": 1528, "chars": 1512, "sha256": "7e43593a2a0a1b20dcd398516e9de5f4e2c3e8b49f754d3a57baeec9e1033578"},
+      "macroVersionOffsets": [4425, 4533],
+      "callerDeclaration": {"start": 5271, "end": 5621, "line": 127, "endLine": 135, "bytes": 354, "chars": 350, "sha256": "24395294e8386349be8c3e14dfc534c95bbbf4efc2dac7ea8e370633b35ba86f"},
+      "declarationRelation": "The complete Doctor.tsx file, status import, BackgroundServerDetails declaration, and BackgroundServer caller are byte-identical across recovered Target120 and Target121."
+    }
+  },
+  "cohesion": {
+    "producer": "getBgDaemonStatus(): Promise<BgDaemonStatus>",
+    "consumer": "BackgroundServerDetails({ promise }: { promise: Promise<BgDaemonStatus> })",
+    "caller": "BackgroundServer memoizes getBgDaemonStatus() and passes its promise to BackgroundServerDetails",
+    "sharedRuntimeFields": ["supervisor", "workersLive", "workersRoster", "controlReachable", "serviceInstalled", "configuredWorkers"],
+    "strictBuildExpansionCounts": {"u16363": 1, "u16369": 2}
+  },
+  "classification": {
+    "sourceReplay": "blocked-and-unnecessary",
+    "proof": "static-complete-unit-owner-and-compiler-metadata",
+    "expectedImpact": {
+      "unitsRemoved": 2,
+      "strictRowsRemoved": 9,
+      "ownerAddedRowsRemoved": 15,
+      "postIntegrationUnits": 45,
+      "postIntegrationResidues": 426
+    }
+  }
+}

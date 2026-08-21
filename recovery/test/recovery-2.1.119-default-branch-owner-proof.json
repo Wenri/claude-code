@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-default-branch-source-transition-proof",
+  "criterion": "complete-target-unit-plus-bounded-command-to-filesystem-semantic-transition-v1",
+  "evidenceIds": [
+    "target119-default-branch-authenticated-target-fragment",
+    "target119-default-branch-source-transition-test",
+    "target119-default-branch-source-ast-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "frozenAnalysis": {
+      "path": "recovery/test/recovery-2.1.119-owner-residue-analysis.json",
+      "bytes": 751734,
+      "sha256": "2f724f6eeb76b532bb76c264887e78fce4c4435f073992d2cc539ca12890edc7"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/git.ts",
+        "bytes": 31864,
+        "sha256": "1bfaf83c2ae13c3f38e020b365065a2e07d0b8fbb0779e6018c4f51e76c771ca"
+      },
+      {
+        "path": "src/utils/git/gitFilesystem.ts",
+        "bytes": 24173,
+        "sha256": "3b8d8ffbc00ae0bb30852402e97be4dfaeb81bf06286cacc810beccee161bf71"
+      }
+    ]
+  },
+  "target": {
+    "unit": {
+      "targetIndex": 2486,
+      "nodeType": "VariableDeclaration",
+      "start": 999350,
+      "end": 1001465,
+      "bytes": 2115,
+      "sha256": "051c0d9450e25ce7e99ba97214a792103337ceb4aa07bbf3d84de9337167f9cd"
+    },
+    "resolver": {
+      "binding": "k0",
+      "start": 999642,
+      "end": 1000049,
+      "bytes": 407,
+      "sha256": "0c6ca182319c53cca122940f092c10fa005e10f97508098471dc4b4eaf1d8d6f"
+    }
+  },
+  "source": {
+    "declarations": [
+      {
+        "path": "src/utils/git.ts",
+        "name": "getDefaultBranch",
+        "start": 9443,
+        "end": 9541,
+        "bytes": 98,
+        "sha256": "dd5bc5c1edc371a610e64c448cc6cdf19c31c8d4984fecd80bdd06956394512f"
+      },
+      {
+        "path": "src/utils/git/gitFilesystem.ts",
+        "name": "computeDefaultBranch",
+        "start": 19166,
+        "end": 19893,
+        "bytes": 727,
+        "sha256": "792395e68b289c774bb0dc576179e11bce1a0839aff562e9cfc9edfec79643f1"
+      }
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "targetIndicesSha256": "60c5070b615f63da09d4a994bfa2b2b3059909cfef98b691e5a185e731d5939d",
+    "residueIdentitiesSha256": "5fc67bfab58bb5738cc90ccb5c7ccf0b393db289a281f87ded131b23fe953851"
+  },
+  "row": {
+    "targetIndex": 2486,
+    "ownerPaths": [
+      "src/utils/git.ts",
+      "src/utils/git/gitFilesystem.ts"
+    ],
+    "declarations": [
+      "getDefaultBranch",
+      "computeDefaultBranch"
+    ],
+    "residues": [
+      {
+        "kind": "regexp",
+        "value": {
+          "pattern": "^origin\\/",
+          "flags": ""
+        },
+        "start": 999828,
+        "end": 999839,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "master",
+        "start": 999879,
+        "end": 999887,
+        "baselineCount": 2,
+        "targetOrdinal": 3
+      },
+      {
+        "kind": "string",
+        "value": "show-ref",
+        "start": 999923,
+        "end": 999933,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-schema-transition-owner",
+  "evidenceIds": [
+    "target118-cache-diagnosis-schema-target-fragment",
+    "target118-cache-diagnosis-schema-source-ast-test",
+    "target118-cache-diagnosis-schema-transition-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "path": "src/services/api/promptCacheBreakDetection.ts",
+      "bytes": 26288,
+      "sha256": "bebdc028df79cb8df8e8ff715e0b02421db929f0a309c8af987574546513b2fe"
+    },
+    "targetSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "path": "src/services/api/promptCacheBreakDetection.ts",
+      "bytes": 26771,
+      "sha256": "8f6b8176c229f00fc537072903ee9879f5f271dfb264c1cbce6582bdd666ce3a"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 8816,
+    "start": 4155822,
+    "end": 4156815,
+    "bytes": 993,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "6368fcff4c17375e3ded1539b8397cf28b2569f7357a78073ec4db82c4f4c652"
+  },
+  "targetUnit": {
+    "targetIndex": 8881,
+    "start": 4180914,
+    "end": 4181947,
+    "bytes": 1033,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "7114078dcc8f23ace60bf7bd1602eb6abd43e3ccbad19e3b637a838886583900",
+    "residues": [
+      ["property", "cacheDiagnosis", 4181615, 4181629, 0, 5]
+    ]
+  },
+  "sourceDeclarations": {
+    "baseline": {
+      "PreviousState": {
+        "start": 1118,
+        "end": 3059,
+        "bytes": 1961,
+        "sha256": "4b557135c65d7076ba25042bf52f30a7db0c8cf60d0f2f1354314328306e7dc5"
+      },
+      "PromptStateSnapshot": {
+        "start": 8300,
+        "end": 8680,
+        "bytes": 380,
+        "sha256": "66be55dc5f2d67ea0908425859d391c9578fd5db43af1e9880f835147835a6e3"
+      },
+      "recordPromptState": {
+        "start": 8849,
+        "end": 15249,
+        "bytes": 6408,
+        "sha256": "46e673cb874a38c8f135a05f2a9df541d15c4632ff1c76118cf8e8dc6280aadc"
+      }
+    },
+    "target": {
+      "PreviousState": {
+        "start": 1118,
+        "end": 3085,
+        "bytes": 1987,
+        "sha256": "e603ba891985378ff4bcb2f9b19f50e624bfe36d956e743a106d90385edfbf6a"
+      },
+      "PromptStateSnapshot": {
+        "start": 8359,
+        "end": 8766,
+        "bytes": 407,
+        "sha256": "62ca646cd555eb67bc08c1de2f4e2449207896cdcbd164f4c9aca32ec7b75ecd"
+      },
+      "recordPromptState": {
+        "start": 8935,
+        "end": 15565,
+        "bytes": 6638,
+        "sha256": "ae1393d70b8cd1324747dcd9b959c1a6510c77f8558fa4951ad20bd68598c2c9"
+      }
+    }
+  },
+  "transition": {
+    "field": "cacheDiagnosis",
+    "changedField": "cacheDiagnosisChanged",
+    "schemaDefault": false,
+    "diagnostic": "cache diagnosis toggled",
+    "ownerPath": "src/services/api/promptCacheBreakDetection.ts",
+    "rejectedOwnerPath": "src/buddy/companion.ts"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "indicesSha256": "371c44347c609235ad30389c43cc7fd28ad37f0065d236973df1c674d034647f",
+    "residueIdentitiesSha256": "bec44c111ca5ed85a4f566db144c293a248eb4a09a967da9a470e23b85869ca1"
+  }
+}

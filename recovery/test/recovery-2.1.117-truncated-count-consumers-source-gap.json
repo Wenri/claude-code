@@ -1,0 +1,151 @@
+{
+  "case": "2.1.116-to-2.1.117",
+  "inputs": {
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-consumers-source-gap.mjs",
+      "bytes": 19544,
+      "sha256": "3568536ba5e3df2d651fd3d51d1c95cdb7a5ce0e5403d43b01c05a0b244be2fb"
+    },
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "files": [
+        {
+          "path": "src/components/messages/SystemTextMessage.tsx",
+          "blob": "a5fd83b4359de708b4c56438fd86b42f2d7bf82e",
+          "bytes": 79395,
+          "sha256": "50dc1b23380f7a935603ca11cfb0bfd50c5ec94b9bddc3b6754be37acdc9b66d",
+          "declarations": [
+            ["SystemTextMessage", 1983, 7684, 5701, "355f81461446aaacc8c9fdb9778c61b8353e72f7d668c960ca34f00297424007"],
+            ["MemorySavedMessage", 17003, 18692, 1689, "4bf7afc299f65def5fdace84f9def6883ecc4b26108c7417072e9c5d1329902d"]
+          ]
+        },
+        {
+          "path": "src/tools/AgentTool/UI.tsx",
+          "blob": "497805a97d8afa796ad98544d33873d3d1564766",
+          "bytes": 125359,
+          "sha256": "ec572743582b458da27869933927b8b44e9707ab26cfd304c5dc5afff6bcfe34",
+          "declaration": [15245, 21293, 6055, "5963c81859ceea2fa24f709a2343b10059431eb437f87db6e5d0c5513ddfbc29"]
+        },
+        {
+          "path": "src/tools/SkillTool/UI.tsx",
+          "blob": "9f2e75802e50f8c2dbbe5e59aefd0d450cdd594a",
+          "bytes": 19189,
+          "sha256": "cd40ed905b5f411b34eae96aca77302e4782ae6ea95bbdc6d37fde9281f5b8e0",
+          "declaration": [2445, 3892, 1447, "53f6b880745cb2b651621d7d4f020e3bcf5f507cb99a54be6d3d06d18ecc6d28"]
+        },
+        {
+          "path": "src/tools/FileWriteTool/UI.tsx",
+          "blob": "ea2ca657e3a17502e52431ca608e44bb4a022322",
+          "bytes": 42851,
+          "sha256": "3a672a167c5e09b1eaf38bc834c2bf9e896dbcef7fa4b5997d80ddbe21e6129a",
+          "declaration": [2290, 3426, 1138, "7a3c8aa9ab9ac1929d7c0cad552e7fd825fcd40e7c5a45cad465bc97f0ae4e1a"]
+        }
+      ]
+    },
+    "context": {
+      "path": "src/components/TruncatedCount.tsx",
+      "bytes": 681,
+      "sha256": "d1cfad7aa51c6e23a2acbc26858c6d711b872d86380fdeed594e8caf05338672"
+    },
+    "postimages": [
+      {
+        "path": "src/components/messages/SystemTextMessage.tsx",
+        "bytes": 80465,
+        "sha256": "46d159b986799258157ad0c4ba1bc0f3fe026666b16369e7297fbc0e0c816f58",
+        "declarations": [
+          ["SystemTextMessage", 2074, 8091, 6017, "edc53eed097146757a5beca0d4cc86b3003b189d692fdeb5feba201132c7d4f7"],
+          ["MemorySavedMessage", 17410, 19762, 2352, "87c737c79d887eaf7ad1cc1a3b92a531ce01b336ae687a1c90f3ab6c0a16f901"]
+        ]
+      },
+      {
+        "path": "src/tools/AgentTool/UI.tsx",
+        "bytes": 125323,
+        "sha256": "929ccdb35072e74a4ca264ad28bdcc3ced3e3d6fb0e992f5fb2c3e41d35e2276",
+        "declaration": [15314, 21257, 5950, "17e62852fae9976f29dfa4216dd7b04b2b572a08fc8ce224b4261816fbbeeced"]
+      },
+      {
+        "path": "src/tools/SkillTool/UI.tsx",
+        "bytes": 19192,
+        "sha256": "946028b0bbd4ced3ac340822f4a6bd8571339e7d92b155e7976a2597bdb96565",
+        "declaration": [2514, 3895, 1381, "4a36df1c4e3060e8583ae1bf80b1fe4faefd72d74c02ead9dba202f2dfff65f1"]
+      },
+      {
+        "path": "src/tools/FileWriteTool/UI.tsx",
+        "bytes": 42768,
+        "sha256": "47aa617f6ba4ee871314068ded73b0499bbda661e9c29251abc6ea8f131c4ad4",
+        "declaration": [2292, 3345, 1053, "9913d57636f07f6875e5e896eefc36f10bcf4e98a47e75c5c696fdec1a079461"]
+      }
+    ]
+  },
+  "dependentTarget117": {
+    "index": 12511,
+    "unit": [12511, "changed", "FunctionDeclaration", 7822411, 7825851, 1681, "071a6e51341ed7b198c4b7ed20cbf86cf9fd377c6bab537fe26fa5c4f687d5f4", "e569e180c3f5865e36edb6f1f2122fc46dbea3a15c87044c48523371bc06ab21"],
+    "baselineUnitIndex": 12459,
+    "pairReason": "unique-coarse-structural-hash",
+    "memoryBranch": [7822655, 7822840, 185, "a957e7a66b6866179539169bb810550ed397daae4bc35e2788228b3fdd288c6a"],
+    "limitBinding": [7833628, 7833633, 5, "4882e118e198353781e650426f9d648bb0db1bb2ae4c3fb060a2019b74b34556"]
+  },
+  "target117": [
+    {
+      "index": 12519,
+      "owner": "src/components/messages/SystemTextMessage.tsx",
+      "declaration": "MemorySavedMessage",
+      "unit": [12519, "unresolved", "FunctionDeclaration", 7830743, 7831938, 684, "7d948616b864881c91974fdac10ad7b2889889c6efd49ce6639cb315d0a7ff72", "35dcba0be5909ca12fd5af55b27b2e50118c686f8e2945e0e54d92c92dcf2270"],
+      "call": [7831635, 7831691, 56, "6b652af8185a86b0adad2921f1cce77552d2beb8345ea2895556fd52dd508066"],
+      "residues": [["property", "unit", 336, 338, 7831664, 7831668], ["property", "expandable", 0, 3, 7831676, 7831686]],
+      "targetProps": {"count": "L", "unit": "file", "expandable": true},
+      "sourceProps": {"count": "hiddenCount", "unit": "file", "expandable": true}
+    },
+    {
+      "index": 12569,
+      "owner": "src/tools/AgentTool/UI.tsx",
+      "declaration": "renderToolUseProgressMessage",
+      "unit": [12569, "unresolved", "FunctionDeclaration", 7854233, 7856434, 870, "80942b24bd56025e17c2bdb557159ed4b353924f7d371b06e5785688914fde25", "fa404facd0fbc3a5d3bcc6db36f9e930eb1451a5cbbe7ba647c4cf4259c0b503"],
+      "call": [7856371, 7856431, 60, "58bb0345423c9e7d68d3435ced0057126bd26fb350a05778c7b718c4daec0fb6"],
+      "residues": [["property", "unit", 336, 339, 7856400, 7856404], ["string", "tool use", 0, 1, 7856405, 7856415], ["property", "expandable", 0, 4, 7856416, 7856426]],
+      "targetProps": {"count": "w", "unit": "tool use", "expandable": true},
+      "sourceProps": {"count": "hiddenToolUseCount", "unit": "tool use", "expandable": true}
+    },
+    {
+      "index": 12598,
+      "owner": "src/tools/SkillTool/UI.tsx",
+      "declaration": "renderToolUseProgressMessage",
+      "unit": [12598, "unresolved", "FunctionDeclaration", 7882421, 7883102, 253, "02d4dc84f590cc940d1ac4ed5c25ba6eda8745cbe38a7cdcfdd59d71df5be4ca", "a16c86d1dbd7c41e98fe6ff8c049b400b383f0297c9eca1fcace75d2c3d14f18"],
+      "call": [7883053, 7883099, 46, "43fa0925ffe0b4e4b5789be1ffb759fac9bf0c1888f65f4170ad0274c3d3bec8"],
+      "residues": [["property", "unit", 336, 340, 7883082, 7883086], ["string", "tool use", 0, 2, 7883087, 7883097]],
+      "targetProps": {"count": "_", "unit": "tool use", "expandable": false},
+      "sourceProps": {"count": "hiddenCount", "unit": "tool use", "expandable": false}
+    },
+    {
+      "index": 12843,
+      "owner": "src/tools/FileWriteTool/UI.tsx",
+      "declaration": "FileWriteToolCreatedMessage",
+      "unit": [12843, "unresolved", "FunctionDeclaration", 8028562, 8029896, 818, "5dcf7b72ffc43b98a8587de431895cbf0d9b4303705434b5f3024f63dda33ad0", "dedf842fad8b2879b135f4941cb1fcef247cb8f6ea3d958d2072e1136fa5a90b"],
+      "call": [8029640, 8029684, 44, "3ebdd932aa4d818d1278b45598cd549cda83a0305626d7d822594590bde79be2"],
+      "residues": [["property", "expandable", 0, 5, 8029669, 8029679]],
+      "targetProps": {"count": "w", "unit": null, "expandable": true},
+      "sourceProps": {"count": "plusLines", "unit": null, "expandable": true}
+    }
+  ],
+  "evidenceIds": [
+    "target117-truncated-count-consumers-complete-target-unit-proof",
+    "target117-truncated-count-consumers-source-replay-test",
+    "target117-truncated-count-consumers-temporal-boundary-proof"
+  ]
+}

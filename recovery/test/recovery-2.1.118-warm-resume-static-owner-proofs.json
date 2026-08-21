@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-direct-source-owner-proof",
+  "criterion": "Each complete authenticated target unit is bound to the exact historical WarmResumeHint.tsx declaration that reproduces its closed eligibility or experiment-variant behavior. Incidental isTeammate or '2' literals and the coarse neighboring LogoV2 attribution do not qualify.",
+  "summary": {
+    "units": 2,
+    "residues": 2,
+    "targetIndicesSha256": "bef225801134d7abc23bc82bd4f87772d0be0b3fa04010fab62776456f119dc7",
+    "residueIdentitiesSha256": "72f26da89a4e0675a9f44624b6f662c217853a3e21f729639e348bad0f4fe7c9"
+  },
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/warm-resume-static-owner-overrides.mjs",
+      "bytes": 1261,
+      "sha256": "c63b22ce653dc4a103b98a6448a8167d10d1db530224676cc245e81238951717"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "source": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/components/WarmResumeHint.tsx",
+        "blob": "270b99771fb9728fa978147ac01e5b777624bf0c",
+        "bytes": 6300,
+        "sha256": "a01f7c00629ff583a2156dc40838f8876d415c7c6c00fe97708c3b87c573df09"
+      },
+      "declarations": [
+        {
+          "name": "VARIANTS",
+          "start": 1067,
+          "end": 1113,
+          "bytes": 46,
+          "sha256": "fc8a51d5a5998b8904740b1f12e2fe5c52faf786beef6a5b94a34a627437e78b"
+        },
+        {
+          "name": "isEligibleLog",
+          "start": 1805,
+          "end": 1914,
+          "bytes": 109,
+          "sha256": "bb71a15fe6fc3e00cf1c2123623f89f3d23a34c84a97a8c699d29c367b60550f"
+        }
+      ]
+    }
+  },
+  "evidenceIds": [
+    "target118-warm-resume-static-target-fragment",
+    "target118-warm-resume-static-source-ast-test"
+  ],
+  "rows": [
+    {
+      "targetIndex": 16625,
+      "classification": "unresolved",
+      "start": 10441143,
+      "end": 10441204,
+      "bytes": 61,
+      "tokenCount": 19,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "bc32485a85b623a3990a4f18b2ad8f03bbe655f4e2edcca2e9078286e5651180",
+      "coarseHash": "8a55b3e40e4c45d31d7ae3d47569eac347be1fa5c68ac1f0fcb9324fbb15f3bc",
+      "ownerPath": "src/components/WarmResumeHint.tsx",
+      "provisionalOwnerPath": "src/components/LogoV2/LogoV2.tsx",
+      "declarations": [
+        "isEligibleLog"
+      ],
+      "behavior": "The authenticated Target118 isEligibleLog function accepts only launches with no session kind that are not teammate sessions. The exact historical WarmResumeHint.tsx declaration owns the complete unit; the provisional LogoV2 attribution is rejected.",
+      "residues": [
+        [
+          "property",
+          "isTeammate",
+          10441193,
+          10441203,
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16630,
+      "classification": "unresolved",
+      "start": 10441433,
+      "end": 10441584,
+      "bytes": 151,
+      "tokenCount": 112,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "e1989b8e51b8a20034f982e4d508a6e625c24b924a6891756293ef500e4cfc80",
+      "coarseHash": "17b54b67d53f28078b495976ada4fa7761993bc36c4a4ca6d9d48159a68a99ba",
+      "ownerPath": "src/components/WarmResumeHint.tsx",
+      "provisionalOwnerPath": "src/components/LogoV2/LogoV2.tsx",
+      "declarations": [
+        "VARIANTS"
+      ],
+      "behavior": "The authenticated Target118 WarmResumeHint module initializes the exact four experiment variants ['0', '1', '2', '3']. The exact historical WarmResumeHint.tsx VARIANTS declaration owns the complete unit; the provisional LogoV2 attribution is rejected.",
+      "residues": [
+        [
+          "string",
+          "2",
+          10441573,
+          10441576,
+          13,
+          15
+        ]
+      ]
+    }
+  ]
+}

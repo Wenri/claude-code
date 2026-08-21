@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-graph-replay-blocked",
+  "criterion": "Admit the complete authenticated Target119 resume-return decision helper only with all owner rows, the sole live REPL call, every runtime dependency boundary, exact Target118/120/121 structural lineage, and the complete source-graph replay blocker.",
+  "ownerBehavior": "The helper checks the feature and persisted dismissal gates, parses age and token thresholds, ignores messages newer than one minute and non-user/assistant messages, computes the age of the last eligible message, lazily calls the supplied token estimator, and returns the exact sessionAgeMinutes/estimatedTokens object only when both thresholds pass. The compiler-preserved declaration is owned by src/utils/resumeReturn.ts#getResumeReturnInfo; src/screens/REPL.tsx is its live caller. The Target119 source package omits the extracted owner, dialog, config field, import, state, caller, focus, telemetry, and action graph, so source replay is blocked.",
+  "summary": {
+    "units": 1,
+    "allOwnerRows": 23,
+    "addedOwnerRows": 4,
+    "strictRows": 4,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-resume-return-decision-authenticated-whole-unit-proof",
+    "target119-resume-return-decision-runtime-dependency-proof",
+    "target119-resume-return-decision-cross-release-owner-lineage-proof",
+    "target119-resume-return-decision-source-graph-replay-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24885507,
+      "sha256": "2319a9145bb9f0cdeb441bc44786c045346619c0b51a5a057b8b309c65901a62"
+    },
+    "later": [
+      {
+        "version": "2.1.120",
+        "bundle": {"path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js", "bytes": 13784743, "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+        "ledger": {"path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", "bytes": 2490663, "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"}
+      },
+      {
+        "version": "2.1.121",
+        "bundle": {"path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js", "bytes": 13908188, "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"},
+        "ledger": {"path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", "bytes": 2540002, "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"}
+      }
+    ]
+  },
+  "unit": {
+    "targetIndex": 19650,
+    "classification": "changed",
+    "pairReason": "unique-coarse-structural-hash",
+    "ownerPath": "src/utils/resumeReturn.ts",
+    "declaration": "getResumeReturnInfo",
+    "rejectedOwners": [
+      "src/components/CostThresholdDialog.tsx",
+      "src/components/IdleReturnDialog.tsx"
+    ],
+    "baseline": {
+      "targetIndex": 18683,
+      "nodeType": "FunctionDeclaration",
+      "start": 11493027,
+      "end": 11493519,
+      "bytes": 492,
+      "tokenCount": 173,
+      "sha256": "bb0f6130487e149eebef8a5849adc2d4dd582e9efe026b2c8a01eb5be9da44a7",
+      "coarseHash": "e4e77a5c0f4ca365a58bf0b53ab8cbd2f0de1d01b449ed2533cad6754a29df70"
+    },
+    "target": {
+      "nodeType": "FunctionDeclaration",
+      "start": 11973969,
+      "end": 11974461,
+      "bytes": 492,
+      "tokenCount": 173,
+      "sha256": "b894cc7c81bf09234a57a2317cf28adbd66826ceb137c6fb527a0a42bdc85a07",
+      "coarseHash": "e4e77a5c0f4ca365a58bf0b53ab8cbd2f0de1d01b449ed2533cad6754a29df70"
+    },
+    "canonicalAst": {
+      "bytes": 6500,
+      "sha256": "8e768a68811c3c55ef736f84201caa455b920527ffbb8c2e1f7d7b2a4a9126aa"
+    }
+  },
+  "ownerResidues": {
+    "allRows": {"rows": 23, "jsonBytes": 1431, "sha256": "c220d140b184da08a008eb38d88e8aa075635410e2776eb3bfd503dcf0064fbf"},
+    "addedRows": {"rows": 4, "jsonBytes": 225, "sha256": "35398d290beaf5520ea5d7327622b1f29f70bad531b1b370d1b46119e89d2917"},
+    "rows": [
+      [19650, "string", "tengu_gleaming_fair", 11973994, 11974015, 1, 1, false],
+      [19650, "property", "resumeReturnDismissed", 11974040, 11974061, 3, 1, false],
+      [19650, "property", "CLAUDE_CODE_RESUME_THRESHOLD_MINUTES", 11974095, 11974131, 1, 1, false],
+      [19650, "property", "env", 11974091, 11974094, 1665, 1557, false],
+      [19650, "number", "70", 11974132, 11974134, 103, 98, false],
+      [19650, "property", "CLAUDE_CODE_RESUME_TOKEN_THRESHOLD", 11974153, 11974187, 1, 1, false],
+      [19650, "property", "env", 11974149, 11974152, 1665, 1558, false],
+      [19650, "number", "100000", 11974188, 11974191, 60, 59, false],
+      [19650, "property", "now", 11974200, 11974203, 1031, 943, false],
+      [19650, "number", "60000", 11974206, 11974211, 75, 82, true],
+      [19650, "property", "timestamp", 11974299, 11974308, 324, 285, false],
+      [19650, "property", "findLast", 11974216, 11974224, 38, 38, false],
+      [19650, "property", "type", 11974233, 11974237, 7404, 6737, false],
+      [19650, "string", "user", 11974240, 11974246, 420, 365, false],
+      [19650, "property", "type", 11974250, 11974254, 7404, 6738, false],
+      [19650, "string", "assistant", 11974257, 11974268, 291, 285, false],
+      [19650, "property", "parse", 11974276, 11974281, 351, 369, true],
+      [19650, "property", "timestamp", 11974284, 11974293, 324, 286, false],
+      [19650, "property", "now", 11974339, 11974342, 1031, 944, false],
+      [19650, "property", "parse", 11974350, 11974355, 351, 370, true],
+      [19650, "number", "60000", 11974360, 11974365, 75, 83, true],
+      [19650, "property", "sessionAgeMinutes", 11974422, 11974439, 6, 1, false],
+      [19650, "property", "estimatedTokens", 11974442, 11974457, 6, 1, false]
+    ]
+  },
+  "runtimeGraph": {
+    "definitionName": "WO4",
+    "definitionOccurrences": 1,
+    "totalCallSyntaxOccurrences": 2,
+    "caller": {
+      "ownerPath": "src/screens/REPL.tsx",
+      "targetIndex": 21167,
+      "start": 12689553,
+      "end": 12750078,
+      "bytes": 60525,
+      "tokenCount": 23287,
+      "sha256": "22d2774afcaa4725c72188c34fd12ea2b8f3ad7f381e78e8c995c4b400b5d2b5",
+      "callback": {"start": 12700669, "end": 12700729, "bytes": 60, "sha256": "dc6d44f2e363adb8ab574631f2c74a38de3eb97d8fd72a078eb7857e6e3a4aa7"},
+      "call": {"start": 12700701, "end": 12700711, "bytes": 10, "sha256": "1c2cdde1fa45d023d8eac9124bf651b435bfee2265f1e11354995e4fda423a1f"}
+    },
+    "dependencies": [
+      {"role": "environment-number-parser", "symbol": "ex", "targetIndex": 625, "start": 51620, "end": 51708, "bytes": 88, "tokenCount": 40, "sha256": "c17d94523ee7530eafed30b104aa5914e438362f465545781ed36420b32b4fef"},
+      {"role": "feature-value-reader", "symbol": "k$", "sourcePath": "src/services/analytics/growthbook.ts", "targetIndex": 6647, "start": 3058590, "end": 3058850, "bytes": 260, "tokenCount": 130, "sha256": "39955a1aee5439a4e2f05e27a70c91389020cc5f10f9fab7e2431b3f48600643"},
+      {"role": "global-config-reader", "symbol": "y$", "sourcePath": "src/utils/config.ts", "targetIndex": 6696, "start": 3068452, "end": 3068713, "bytes": 261, "tokenCount": 125, "sha256": "912f6accdfde2069b5ab3f44c87a34ecc69dce92c1f8056cc4ba954d2cb9d936"},
+      {"role": "message-token-estimator", "symbol": "LX", "sourcePath": "src/services/compact/microCompact.ts", "targetIndex": 9104, "start": 4317520, "end": 4317762, "bytes": 242, "tokenCount": 147, "sha256": "9c3472939a2a1d088d72645790dd55d37dd7d2a2765fe6610f7b4f86666c2121"}
+    ],
+    "dialog": {
+      "sourcePath": "src/components/ResumeReturnDialog.tsx",
+      "targetIndex": 19651,
+      "start": 11974461,
+      "end": 11975702,
+      "bytes": 1241,
+      "tokenCount": 527,
+      "sha256": "5edfbdf281d12b0a645c284d32bb0e7abc5d3ff8096ed58b49185e3d8fb9efff"
+    }
+  },
+  "compiledLineage": [
+    {"version": "2.1.120", "targetIndex": 19732, "baselineUnitIndex": 19650, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "start": 12009360, "end": 12009852, "bytes": 492, "tokenCount": 173, "sha256": "f2b9d4e9d837ddd3f8008eacde8ada45abea800da12b873e7be31df3c10c27cb", "coarseHash": "e4e77a5c0f4ca365a58bf0b53ab8cbd2f0de1d01b449ed2533cad6754a29df70"},
+    {"version": "2.1.121", "targetIndex": 19709, "baselineUnitIndex": 19732, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "start": 11986274, "end": 11986766, "bytes": 492, "tokenCount": 173, "sha256": "69ba71de218831614100156caaff2721bad9950e0cf4d6dd04e6df7d3b7986e5", "coarseHash": "e4e77a5c0f4ca365a58bf0b53ab8cbd2f0de1d01b449ed2533cad6754a29df70"}
+  ],
+  "sourceGraph": {
+    "target119": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "sourceRootState": "exact-package-source-with-complete-resume-return-graph-absent",
+      "repl": {"path": "src/screens/REPL.tsx", "blob": "f0ee9e1a150a3632e0df9ef365d29b33323a0022", "bytes": 908262, "sha256": "d871cc40a1869f421bc1d91bed4ba524292f80c4c57459b700e62b96acdd17ed"},
+      "config": {"path": "src/utils/config.ts", "blob": "ee247a14738e5c3e1262698c821186dca866bbdc", "bytes": 66083, "sha256": "2e2d669d31705ec09f6de3c3f56a9d9d469e74a287695f1f5dc49ef5cdbf823e"},
+      "absentPaths": ["src/utils/resumeReturn.ts", "src/components/ResumeReturnDialog.tsx"],
+      "absentMarkers": ["ResumeReturnDialog", "tengu_gleaming_fair", "CLAUDE_CODE_RESUME_THRESHOLD_MINUTES", "CLAUDE_CODE_RESUME_TOKEN_THRESHOLD", "resumeReturnDismissed", "tengu_resume_return_action", "getResumeReturnInfo"]
+    },
+    "predecessorRecovery": {
+      "commit": "eeb88ffaee8a1915e6051279e565a8dd7a4cfaca",
+      "shape": "older-inline-asynchronous-token-count-graph",
+      "repl": {"path": "src/screens/REPL.tsx", "blob": "4194ed56f9350876dc57d4191821c5f7c65d04c2", "bytes": 910262, "sha256": "d46cc3509eae81697cd2712247823ee05adfc4c59d8eb3d0ffd0c4d8add8f180"},
+      "dialog": {"path": "src/components/ResumeReturnDialog.tsx", "blob": "03b10ca88c1c86520f81a43abc601ec906e0de07", "bytes": 1960, "sha256": "fef80a3b3b1b54a075b5caba26e0b6b2f0136b8e0e64856229fc37ea6f84d756"},
+      "config": {"path": "src/utils/config.ts", "blob": "10114bceb6b3fb3dafcb3294b2ca06f6f646f6ba", "bytes": 66358, "sha256": "64e5952c766db04f35b978521a6de455239f089ef74fcbd4176b438738032f10"},
+      "ownerPathAbsent": "src/utils/resumeReturn.ts"
+    },
+    "target121": {
+      "commit": "4aead9fbb7e82a15615eb60dc9511defd61f1380",
+      "shape": "later-extracted-complete-source-graph",
+      "owner": {"path": "src/utils/resumeReturn.ts", "blob": "de7e8dc193621999beccd2d16689f2c7b8f1d5d3", "bytes": 1628, "sha256": "d11729878cde52f5ee605769e904d860230ddf57d08ec140c605d382d22fc3f7", "declaration": {"name": "getResumeReturnInfo", "start": 580, "end": 1627, "chars": 1047, "sha256": "afd25c78119deda84824f8efb903e247b46e9d4877f2dae3e0d6f778051c908f"}},
+      "repl": {"path": "src/screens/REPL.tsx", "blob": "b681036d461703bbea62a695d3992e5d89384e43", "bytes": 916316, "sha256": "fa210bb70e3b0874e5eebccff99e42ae92a222c846ff38e856ff17137eb83a69"},
+      "dialog": {"path": "src/components/ResumeReturnDialog.tsx", "blob": "2d9d9ef29e98d2cc7b8e63e499686f114aabcb83", "bytes": 1864, "sha256": "633743892e6586ab44960585bf2426a1115df288e6e8d2fce51ce91d511cf065"},
+      "config": {"path": "src/utils/config.ts", "blob": "a265235ee1f4342c90a96d35b3359a5f1f2fa7df", "bytes": 67131, "sha256": "82a19d9585b5042619b7a3733527948dfec913e94f2a9bbab461340ab8016d41"},
+      "ownerRuntimeImports": [
+        ["../services/analytics/growthbook.js", "getFeatureValue_CACHED_MAY_BE_STALE"],
+        ["../services/compact/microCompact.js", "estimateMessageTokens"],
+        ["./config.js", "getGlobalConfig"]
+      ]
+    },
+    "replayBlocker": {
+      "operation": "static-proof-only-until-complete-target119-owner-graph-is-authenticated",
+      "requiredGraph": ["src/utils/resumeReturn.ts", "src/components/ResumeReturnDialog.tsx", "src/screens/REPL.tsx", "src/utils/config.ts"],
+      "reason": "Target119 has no authored source donor for the extracted helper graph. The predecessor recovery is an older inline async implementation, while the first complete extracted source graph is temporally Target121 and its full files include unrelated later behavior. Adding only the owner declaration would leave an orphan; adding only caller/UI/config fragments would not authenticate their Target119 preimages. No partial or later-source replay is authorized."
+    }
+  }
+}

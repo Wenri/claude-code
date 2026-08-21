@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-secondary-direct-source-owner",
+  "evidenceIds": [
+    "target118-secondary-direct-owner-target-fragment",
+    "target118-secondary-direct-owner-source-ast-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "sourcePath": "src/utils/messages.ts",
+        "bytes": 198780,
+        "sha256": "32db17ddec84b7c6fd0700765fc05c30f381649d2ba5ca97d61fbdf1073d1086"
+      },
+      {
+        "sourcePath": "src/commands/plugin/ManageMarketplaces.tsx",
+        "bytes": 118944,
+        "sha256": "5a48fdd64aabc16bc918c0674030e5518db4420e3911475a03b9c0ad38318d71"
+      },
+      {
+        "sourcePath": "src/commands/plugin/ManagePlugins.tsx",
+        "bytes": 329388,
+        "sha256": "f47ddc401357fd58a1da07f86ae5e42c7f11f79ed2d4c16e7ef05991203ed3ff"
+      }
+    ]
+  },
+  "summary": {
+    "units": 3,
+    "residues": 9,
+    "indicesSha256": "ddf227525d9a6f6c87ff97a25ff9d281f8e78292c8e3c3e0867078fd148d5a16",
+    "residueIdentitiesSha256": "6a3e8c2e2d8d988d1a0877ea6c5d31753e0054c4b76fd4593b553e66d57e0a9e"
+  },
+  "rows": [
+    {
+      "targetIndex": 15071,
+      "ownerPath": "src/utils/messages.ts",
+      "declaration": "getPlanModeV2Instructions",
+      "behavior": "The authenticated Target118 plan-mode instruction unit is authored by getPlanModeV2Instructions in messages.ts, including both plan-file sections and the AskUserQuestion clarification guidance.",
+      "target": {
+        "start": 9379972,
+        "end": 9384145,
+        "bytes": 4173,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "096df108a4a4783d2cbec02c387b1cdccdf192b8cf05b76fad2875a1f13014a3",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "\n\n## Plan File Info:\n",
+          9380294,
+          9380315,
+          0,
+          1
+        ],
+        [
+          "string",
+          "\n\n## Plan File Info:\n",
+          9380683,
+          9380704,
+          0,
+          2
+        ],
+        [
+          "string",
+          "\n\nNOTE: At any point in time through this workflow you should feel free to ask the user questions or clarifications using the ",
+          9383807,
+          9383933,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "## Plan File Info:",
+        "questions or clarifications",
+        "ASK_USER_QUESTION_TOOL_NAME"
+      ]
+    },
+    {
+      "targetIndex": 16206,
+      "ownerPath": "src/commands/plugin/ManageMarketplaces.tsx",
+      "declaration": "ManageMarketplaces",
+      "behavior": "The authenticated Target118 marketplace management unit is the authored ManageMarketplaces declaration, including the pending update/remove result shape and action summary labels.",
+      "target": {
+        "start": 10180454,
+        "end": 10192503,
+        "bytes": 12049,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6d0ee72b4fc1a07054be05529fba0bcc846a9589072bcb751263c735233dc6e9",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "updated",
+          10182950,
+          10182957,
+          7,
+          9
+        ],
+        [
+          "string",
+          "Update ",
+          10192157,
+          10192166,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Remove ",
+          10192237,
+          10192246,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "updated:",
+        "• Update {updateCount}",
+        "• Remove {removeCount}"
+      ]
+    },
+    {
+      "targetIndex": 16234,
+      "ownerPath": "src/commands/plugin/ManagePlugins.tsx",
+      "declaration": "PluginComponentsDisplay",
+      "behavior": "The authenticated Target118 plugin component summary unit is the authored PluginComponentsDisplay declaration, including the Agents, Skills, and Hooks sections.",
+      "target": {
+        "start": 10211057,
+        "end": 10214278,
+        "bytes": 3221,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5158a01b61aa7a9cbb033ea67c759734274bb9deb45611cadfc8e2bede4d3b97",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "Agents:",
+          10213363,
+          10213372,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Skills:",
+          10213564,
+          10213573,
+          0,
+          1
+        ],
+        [
+          "string",
+          "Hooks:",
+          10213764,
+          10213772,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "Agents:",
+        "Skills:",
+        "Hooks:"
+      ]
+    }
+  ]
+}

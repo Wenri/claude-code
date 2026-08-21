@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-warm-resume-session-kind-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-warm-resume-session-kind-target-fragment",
+    "target118-warm-resume-session-kind-source-replay-test",
+    "target118-warm-resume-session-kind-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-warm-resume-session-kind-source-gap.mjs",
+      "bytes": 6593,
+      "sha256": "bc0b9aa205fa9b920c9a89f5322c12054d7cae9294505da69a86beb176e62fe4"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "files": [
+        {
+          "path": "src/components/WarmResumeHint.tsx",
+          "blob": "270b99771fb9728fa978147ac01e5b777624bf0c",
+          "bytes": 6300,
+          "sha256": "a01f7c00629ff583a2156dc40838f8876d415c7c6c00fe97708c3b87c573df09"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "blob": "f00ce67f4c49a3d2f144c2376d0aa3c20a5a407a",
+          "bytes": 6808,
+          "sha256": "e4ca77513dc97cc36fec8722dc3ec4a37cc97af95ec9cc7a6fd37e5b460a6afa"
+        }
+      ],
+      "declarations": [
+        {
+          "path": "src/components/WarmResumeHint.tsx",
+          "name": "isLaunchEligible",
+          "start": 1452,
+          "end": 1612,
+          "bytes": 160,
+          "sha256": "862b04446cdd68577bc27d2f3bd9455e6549b803a5a3fef118ee92d97fcebd8c"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "name": "envSessionKind",
+          "start": 1170,
+          "end": 1402,
+          "bytes": 232,
+          "sha256": "e956aa87f44102794f7f5895072bc4506b61852758e43f3fbdca38d92e3e61a4"
+        }
+      ]
+    },
+    "recoveredSource": {
+      "files": [
+        {
+          "path": "src/components/WarmResumeHint.tsx",
+          "bytes": 6415,
+          "sha256": "43e0d73d2796e5753b0ec5a0b6810925a3f136e7044a1d8c37c9d9d3e9454ac9"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "bytes": 6815,
+          "sha256": "9913df1f21af24f60b89e379488f7dcb5cbbff4423e7e5639ae26a1bd99404d0"
+        }
+      ],
+      "declarations": [
+        {
+          "path": "src/components/WarmResumeHint.tsx",
+          "name": "isLaunchEligible",
+          "start": 1516,
+          "end": 1727,
+          "bytes": 211,
+          "sha256": "d5634270e8f81d70f25e1374a11f089f0e83f6233fd8fad6cedc364833759aad"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "name": "envSessionKind",
+          "start": 1170,
+          "end": 1409,
+          "bytes": 239,
+          "sha256": "ff1e9340bd848625488e92ef7654a4fa475847470cf401c99f2a21ccf9bb1291"
+        }
+      ]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 16619,
+    "classification": "unresolved",
+    "start": 10437889,
+    "end": 10438011,
+    "bytes": 122,
+    "tokenCount": 56,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "c9a1e690fc6be628f93eb9a3c39547008545d046d45f8801f90911fe38eb6ed1",
+    "coarseHash": "b5c86367c35393889b5ebf626b6ed7c86805da509d534e5571b538262ba9672f",
+    "ownerPaths": [
+      "src/components/WarmResumeHint.tsx",
+      "src/utils/concurrentSessions.ts"
+    ],
+    "provisionalOwnerPath": "src/components/LogoV2/LogoV2.tsx",
+    "declarations": [
+      "isLaunchEligible",
+      "envSessionKind"
+    ],
+    "behavior": "Target118 launch eligibility rejects explicit CLI arguments, every non-interactive session kind, teammate sessions, and CI. The recovered WarmResumeHint declaration calls the same exported envSessionKind implementation used by concurrent-session registration.",
+    "residues": [
+      [
+        "property",
+        "isCI",
+        10437988,
+        10437992,
+        4,
+        5
+      ]
+    ]
+  },
+  "supportingTargetUnit": {
+    "targetIndex": 4625,
+    "classification": "matched",
+    "start": 2054117,
+    "end": 2054139,
+    "bytes": 22,
+    "tokenCount": 7,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "dd3dcf01e0f63ed0790ce0f1fb70b6d3868ce50a0262c32f816a4235bf433f47",
+    "coarseHash": "977c215516b34e860d333904b8e9fb3061253dfcf8a074595c6852e6f775802a"
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/components/WarmResumeHint.tsx",
+      "src/utils/concurrentSessions.ts"
+    ],
+    "evidenceIds": [
+      "target118-warm-resume-session-kind-target-fragment",
+      "target118-warm-resume-session-kind-source-replay-test",
+      "target118-warm-resume-session-kind-source-ast-test"
+    ],
+    "behavior": "Target118 launch eligibility rejects explicit CLI arguments, every non-interactive session kind, teammate sessions, and CI. The recovered WarmResumeHint declaration calls the same exported envSessionKind implementation used by concurrent-session registration."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 2,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "23ef10e77cf95869dbfa620692b5dc1db3df0b34a8f4e7a0e177a3ffb8478012",
+    "residueIdentitiesSha256": "6b2c659e5a33a6deb28ef1dce7ea82c31998c0239a74c4bc08b2c6fe9e08ef64"
+  }
+}

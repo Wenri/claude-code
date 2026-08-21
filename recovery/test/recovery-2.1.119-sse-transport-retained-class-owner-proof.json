@@ -1,0 +1,518 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "criterion": "target119-sse-transport-retained-class-whole-unit-owner-proof-v1",
+  "status": "authenticated-static-whole-unit-owner-proof",
+  "evidenceIds": [
+    "target119-sse-transport-authenticated-whole-class-proof",
+    "target119-sse-transport-cross-release-alpha-equivalence-proof",
+    "target119-sse-transport-residue-occurrence-order-proof",
+    "target119-sse-transport-runtime-caller-boundary-proof",
+    "target119-sse-transport-source-lineage-proof",
+    "target119-sse-transport-static-replay-blocker"
+  ],
+  "inputs": {
+    "ownerOverride": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/sse-transport-retained-class-owner-overrides.mjs",
+      "bytes": 1734,
+      "sha256": "a45a94a206746c0a7dc034ae2bc1bdb4cd87a0d5fd6f00886c7ee109f1937832"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target120Ledger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "target121Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "target121Ledger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "observedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedBytes": 24884441,
+      "observedSha256": "bbefcae87790ef0b3f42ac99244f5d60ab9414327f6b06c9bef17f2f16f3cbf6",
+      "mutableAfterCorrection": true
+    },
+    "observedCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedBytes": 362618,
+      "observedSha256": "68c1206a5729f5e9b5e80a2bd5ec5b48940ed4b05d96d0b2d81b3663b5b9610e",
+      "mutableAfterCorrection": true
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 18782,
+    "nodeType": "VariableDeclaration",
+    "start": 11531970,
+    "end": 11539566,
+    "bytes": 7596,
+    "tokenCount": 2255,
+    "sha256": "2be224c93ff38d698d9a1f59253a9fa174268681b91b287c5982486d78c5bcb4",
+    "coarseHash": "1d1fce6ebe4d610a46037bfa09d0f741794d5309a4e8a893f69adc7a7631a143",
+    "canonicalAstBytes": 89237,
+    "canonicalAstSha256": "d45f9e15ea8f174ea22ad4ce109edfc93d15688ab9ff82fb32239b6117438bdb"
+  },
+  "targetUnit": {
+    "targetIndex": 19732,
+    "classification": "changed",
+    "nodeType": "VariableDeclaration",
+    "start": 12005893,
+    "end": 12013489,
+    "bytes": 7596,
+    "tokenCount": 2255,
+    "sha256": "9e18ec688a1ddbee4502101ec38061d077ac0ce2ffc0f64fdcc5de07f6749c6e",
+    "coarseHash": "1d1fce6ebe4d610a46037bfa09d0f741794d5309a4e8a893f69adc7a7631a143",
+    "baselineUnitIndex": 18782,
+    "pairReason": "unique-coarse-structural-hash",
+    "unknownFreeIdentifierCount": 3,
+    "canonicalAstBytes": 89237,
+    "canonicalAstSha256": "d45f9e15ea8f174ea22ad4ce109edfc93d15688ab9ff82fb32239b6117438bdb"
+  },
+  "wholeUnitEquivalence": {
+    "sameLength": true,
+    "sameTokenCount": true,
+    "sameCoarseHash": true,
+    "rawDifferenceRuns": 59,
+    "rawDifferenceRunsJsonBytes": 1200,
+    "rawDifferenceRunsSha256": "69974678c94f97d8125c47d163ca9bbe3aeda41d46a48f1b08b1e31c0510119c",
+    "canonicalAstBytes": 89237,
+    "canonicalAstSha256": "d45f9e15ea8f174ea22ad4ce109edfc93d15688ab9ff82fb32239b6117438bdb"
+  },
+  "runtimeClass": {
+    "target": {
+      "start": 12005985,
+      "end": 12013486,
+      "bytes": 7501,
+      "sha256": "1d066319ba66e740a31c2874d4ce7056a1e9c2d34eea5d199033c27cac594f64"
+    },
+    "memberCount": 34,
+    "memberShapeJsonBytes": 3518,
+    "memberShapeSha256": "b2a1524b367dc4fe859be8afbb35a124845be711c2a850c0d38a0cc98773538c",
+    "importantMembers": {
+      "constructor": {
+        "baseline": {
+          "start": 11532331,
+          "end": 11532641,
+          "bytes": 310,
+          "sha256": "1f787f50b262a4c417ff207bffc4d3dd754039f309de3d4005a4fbe0bf43e87c"
+        },
+        "target": {
+          "start": 12006254,
+          "end": 12006564,
+          "bytes": 310,
+          "sha256": "27e4d0e3e7db35fa304fc206a362d0d065285ec2c1fc1ba55d486e1584a0cbc4"
+        },
+        "canonicalAstBytes": 4262,
+        "canonicalAstSha256": "d92583820597954f3fcaef457d039f7ef3389d1db20baece1881ddec7c85b03f"
+      },
+      "readStream": {
+        "baseline": {
+          "start": 11534253,
+          "end": 11535610,
+          "bytes": 1357,
+          "sha256": "56ddf79ec89064dda6c99c9ce5c32319193e5aa1b6c1787450bcdcf7169da35d"
+        },
+        "target": {
+          "start": 12008176,
+          "end": 12009533,
+          "bytes": 1357,
+          "sha256": "50716f802d1916a63212a69bb7970959fdb3a50198f2535c794a5ad8683b3511"
+        },
+        "canonicalAstBytes": 17631,
+        "canonicalAstSha256": "a61b238f33b12ca83c4fa4aafa3b8b9ca9b1b26c5e1d304dc18ad03699d2a29a"
+      },
+      "close": {
+        "baseline": {
+          "start": 11539337,
+          "end": 11539530,
+          "bytes": 193,
+          "sha256": "dcf03f32bdf4d374ba78eff71d19ceb3e15ec82f47255b3833b4b54b5c2c20b0"
+        },
+        "target": {
+          "start": 12013260,
+          "end": 12013453,
+          "bytes": 193,
+          "sha256": "dcf03f32bdf4d374ba78eff71d19ceb3e15ec82f47255b3833b4b54b5c2c20b0"
+        },
+        "canonicalAstBytes": 2266,
+        "canonicalAstSha256": "7861b7b56624ce9e7f9845ce547c2702bf3f7d0757cca68afc6408da055e8e92"
+      },
+      "Symbol.dispose": {
+        "baseline": {
+          "start": 11539530,
+          "end": 11539562,
+          "bytes": 32,
+          "sha256": "992edc9e8df6e2dd82d290928924c43500148fdbcda52ac3ac0c1bca9514a04c"
+        },
+        "target": {
+          "start": 12013453,
+          "end": 12013485,
+          "bytes": 32,
+          "sha256": "992edc9e8df6e2dd82d290928924c43500148fdbcda52ac3ac0c1bca9514a04c"
+        },
+        "canonicalAstBytes": 645,
+        "canonicalAstSha256": "f8c999a920250dc4004b5acf660e33f9e5bc99215307afdb960e6bdd5d72c05c",
+        "text": "[Symbol.dispose](){this.close()}"
+      }
+    }
+  },
+  "residueProof": {
+    "allOwnerRows": {
+      "rows": 6,
+      "jsonBytes": 364,
+      "sha256": "76f7aa2ad7d9c8fa9735fa2078f0a93536259e202e6612c6f2af7110b0153167"
+    },
+    "addedOwnerRows": {
+      "rows": 3,
+      "jsonBytes": 182,
+      "sha256": "968d86457b32f1a7f5ec955f9e7b16b047780f693e5a31586df10b80000f5db2"
+    },
+    "rawReportRows": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ownerRows": [
+      {
+        "identity": [19732, "property", "constructor", 12006254, 12006265, 1277, 1279, true],
+        "relativeOffset": 361,
+        "baselineStart": 11532331,
+        "baselineEnd": 11532342,
+        "bytes": 11,
+        "sha256": "e3c1703abf8a6b3df04dd30e184fe02bb6724f46830b544562ff083169371068",
+        "text": "constructor"
+      },
+      {
+        "identity": [19732, "property", "Cookie", 12007107, 12007113, 2, 2, false],
+        "relativeOffset": 1214,
+        "baselineStart": 11533184,
+        "baselineEnd": 11533190,
+        "bytes": 6,
+        "sha256": "45823eaac0c829b633f393ddf15c042d87fb1f1ce6a7b0a1fd0dc7e4f76126ea",
+        "text": "Cookie"
+      },
+      {
+        "identity": [19732, "property", "Authorization", 12007123, 12007136, 85, 73, false],
+        "relativeOffset": 1230,
+        "baselineStart": 11533200,
+        "baselineEnd": 11533213,
+        "bytes": 13,
+        "sha256": "ca5839e38a15433e62b39767d6a86eaafba17ea6b3ea61e3b89e2ac46baa874c",
+        "text": "Authorization"
+      },
+      {
+        "identity": [19732, "property", "done", 12008262, 12008266, 149, 155, true],
+        "relativeOffset": 2369,
+        "baselineStart": 11534339,
+        "baselineEnd": 11534343,
+        "bytes": 4,
+        "sha256": "a4c3ed04a95a3da14a9d235c83d868bed7c0f45cf7f3faa751ee8f50598d2211",
+        "text": "done"
+      },
+      {
+        "identity": [19732, "property", "value", 12008269, 12008274, 3791, 3711, false],
+        "relativeOffset": 2376,
+        "baselineStart": 11534346,
+        "baselineEnd": 11534351,
+        "bytes": 5,
+        "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+        "text": "value"
+      },
+      {
+        "identity": [19732, "property", "dispose", 12013461, 12013468, 73, 82, true],
+        "relativeOffset": 7568,
+        "baselineStart": 11539538,
+        "baselineEnd": 11539545,
+        "bytes": 7,
+        "sha256": "09d3036c1462ad51929f894acb63ee3926dec07ff1d888cce5aa6f4fcf97b3c6",
+        "text": "dispose"
+      }
+    ],
+    "addedValues": ["constructor", "done", "dispose"],
+    "classification": "retained-global-occurrence-order-drift"
+  },
+  "runtimeBoundary": {
+    "baseline": {
+      "prebinding": {
+        "index": 18781,
+        "start": 11531890,
+        "end": 11531970,
+        "bytes": 80,
+        "tokenCount": 35,
+        "sha256": "96197dfc5f98f92352a00d0f241d810ca4e49597ae8f45c6c8fb394f727a833a",
+        "coarseHash": "5d70bb72129ade0f1af463c42ffc998a7501ab2458371b679ab5854d168a4a03",
+        "canonicalAstBytes": 1120,
+        "canonicalAstSha256": "5953d6ceee808b14ea876944613458d6fbb67fb2a5844943e315ebe4c920b3cf"
+      },
+      "caller": {
+        "index": 18783,
+        "start": 11539566,
+        "end": 11541669,
+        "bytes": 2103,
+        "tokenCount": 721,
+        "sha256": "4a5c5515a1bd6f0b0e43c04ea6ff8a08798c6e9ee736a4d3865b74f9616f2a92",
+        "coarseHash": "b45f2a4cf41643eb59e60b019583c71fab90e6f47f5924e419da9b2e06127536",
+        "canonicalAstBytes": 28347,
+        "canonicalAstSha256": "7f8fd38be1d2b664bf871c24f1d711b227839143c06f903c07f37dc18aa593fe"
+      },
+      "newExpression": {
+        "start": 11539997,
+        "end": 11540023,
+        "bytes": 26,
+        "sha256": "4d198e1508885059dbe61912d1f609f83363867c67d43bc6a644d929f7461661"
+      },
+      "initializer": {
+        "index": 18784,
+        "start": 11541669,
+        "end": 11541719,
+        "bytes": 50,
+        "tokenCount": 35,
+        "sha256": "6395915656052e9596d4126b8d8dfa38e30f0961cdd574c1ddd5c54893cb16cd",
+        "coarseHash": "73fb24cd4e38064a58c52d19506b78e1a27fb635a395e7f31a51dc0f57f2b7a0",
+        "canonicalAstBytes": 1314,
+        "canonicalAstSha256": "496061ae3199e5795b61202f342c7461eb6c44892e5a22b17d68e47fd4159da8"
+      }
+    },
+    "target": {
+      "prebinding": {
+        "index": 19731,
+        "classification": "matched",
+        "baselineUnitIndex": 18781,
+        "pairReason": "exact-scope-normalized-token-hash",
+        "start": 12005813,
+        "end": 12005893,
+        "bytes": 80,
+        "tokenCount": 35,
+        "sha256": "f70eac9db49f0338a5ea69d636609b893a43b15b5ff091811e6d61ea9d8f5fbc",
+        "coarseHash": "5d70bb72129ade0f1af463c42ffc998a7501ab2458371b679ab5854d168a4a03",
+        "canonicalAstBytes": 1120,
+        "canonicalAstSha256": "5953d6ceee808b14ea876944613458d6fbb67fb2a5844943e315ebe4c920b3cf"
+      },
+      "caller": {
+        "index": 19733,
+        "classification": "matched",
+        "baselineUnitIndex": 18783,
+        "pairReason": "exact-scope-normalized-token-hash",
+        "start": 12013489,
+        "end": 12015592,
+        "bytes": 2103,
+        "tokenCount": 721,
+        "sha256": "a70620557e080d83b2218cddb3e3624c4f8fac4c16eb541b7d0d9f8c170d0aad",
+        "coarseHash": "b45f2a4cf41643eb59e60b019583c71fab90e6f47f5924e419da9b2e06127536",
+        "canonicalAstBytes": 28347,
+        "canonicalAstSha256": "7f8fd38be1d2b664bf871c24f1d711b227839143c06f903c07f37dc18aa593fe"
+      },
+      "newExpression": {
+        "start": 12013920,
+        "end": 12013946,
+        "bytes": 26,
+        "sha256": "4142e516ae0a6d1bf7be7c05f4f41ed305a8220120115e21033af39216f73731",
+        "text": "new e0H(Y,{},K,void 0,_,f)"
+      },
+      "initializer": {
+        "index": 19734,
+        "classification": "unresolved",
+        "start": 12015592,
+        "end": 12015642,
+        "bytes": 50,
+        "tokenCount": 35,
+        "sha256": "f24fb144db61ceb0eadb17896b48db73120aa25b77ff8d385c78646a6d874441",
+        "coarseHash": "73fb24cd4e38064a58c52d19506b78e1a27fb635a395e7f31a51dc0f57f2b7a0",
+        "unknownFreeIdentifierCount": 3,
+        "canonicalAstBytes": 1314,
+        "canonicalAstSha256": "496061ae3199e5795b61202f342c7461eb6c44892e5a22b17d68e47fd4159da8"
+      }
+    }
+  },
+  "crossReleaseLineage": [
+    {
+      "version": "2.1.120",
+      "targetIndex": 19816,
+      "classification": "changed",
+      "nodeType": "VariableDeclaration",
+      "baselineUnitIndex": 19732,
+      "pairReason": "unique-coarse-structural-hash",
+      "unknownFreeIdentifierCount": 3,
+      "start": 12041627,
+      "end": 12049223,
+      "bytes": 7596,
+      "tokenCount": 2255,
+      "sha256": "e2da47e44abda95b452d208ee48d3c8df6282fab2b0aebad69ce28abc7bec3d1",
+      "coarseHash": "1d1fce6ebe4d610a46037bfa09d0f741794d5309a4e8a893f69adc7a7631a143",
+      "canonicalAstBytes": 89237,
+      "canonicalAstSha256": "d45f9e15ea8f174ea22ad4ce109edfc93d15688ab9ff82fb32239b6117438bdb"
+    },
+    {
+      "version": "2.1.121",
+      "targetIndex": 19793,
+      "classification": "changed",
+      "nodeType": "VariableDeclaration",
+      "baselineUnitIndex": 19816,
+      "pairReason": "unique-coarse-structural-hash",
+      "unknownFreeIdentifierCount": 1,
+      "start": 12018791,
+      "end": 12026387,
+      "bytes": 7596,
+      "tokenCount": 2255,
+      "sha256": "d70b083b45693fc2c7d56ad31639a3209586330545a85e5db97bb937eb1701f3",
+      "coarseHash": "1d1fce6ebe4d610a46037bfa09d0f741794d5309a4e8a893f69adc7a7631a143",
+      "canonicalAstBytes": 89237,
+      "canonicalAstSha256": "d45f9e15ea8f174ea22ad4ce109edfc93d15688ab9ff82fb32239b6117438bdb"
+    }
+  ],
+  "sourceBoundary": {
+    "path": "src/cli/transports/SSETransport.ts",
+    "file": {
+      "chars": 24206,
+      "bytes": 24223,
+      "sha256": "24c8886ecac367a80a7d5d59d8693b6060e8cbeecd6d69ffdc231548d7fe99f4"
+    },
+    "typeImport": {
+      "start": 558,
+      "end": 605,
+      "chars": 47,
+      "bytes": 47,
+      "sha256": "b05f88b5420e8b59ad539225b775bad88f9e03deed3a4d2c85dfbeb671552306",
+      "text": "import type { Transport } from './Transport.js'"
+    },
+    "class": {
+      "start": 5229,
+      "end": 23382,
+      "chars": 18153,
+      "bytes": 18168,
+      "sha256": "87730c85a3d528629e10054559380986f9ce2a1f6b93510a20f73874553e8792",
+      "memberCount": 32,
+      "memberShapeJsonBytes": 2752,
+      "memberShapeSha256": "406d3dbbb38c03579fee2ce9246019684467d5be079d4d44a380d87fb0b11632"
+    },
+    "constructor": {
+      "start": 6189,
+      "end": 7535,
+      "chars": 1346,
+      "bytes": 1350,
+      "sha256": "752f641355e4faa6823f836c85558519647149f5fdee4c8c9f552551bfc06b02"
+    },
+    "readStream": {
+      "start": 11275,
+      "end": 14717,
+      "chars": 3442,
+      "bytes": 3448,
+      "sha256": "198d091333a89bf1c6d604412a60aa7fb8a5719de6b9ae1434d5f9f8b303af47"
+    },
+    "readResultBinding": {
+      "start": 11546,
+      "end": 11583,
+      "chars": 37,
+      "bytes": 37,
+      "sha256": "768984221c653d8f72ed7ae6692d46cb28577ea36a59152ed24a445c14e63ec8",
+      "text": "{ done, value } = await reader.read()"
+    },
+    "close": {
+      "start": 23127,
+      "end": 23380,
+      "chars": 253,
+      "bytes": 253,
+      "sha256": "af39864c2ddbf6a2b67001e32be0b26c20ad01286c5b14773ee90b2c76da1c12"
+    },
+    "runtimeOnlyMember": "[Symbol.dispose]",
+    "runtimeOnlyMemberAbsent": true,
+    "missingDependency": "src/cli/transports/Transport.ts",
+    "missingDependencyAcrossGitLineage": true,
+    "git": {
+      "targetCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "targetTree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+      "blob": "6c9c2252864df00616bce9bb10321e2576800ae1",
+      "stableCommits": [
+        "bd846a24e3886322888f02b9f747c132a4a32314",
+        "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+        "9f034bb03d575603a850e3c75ce003406094f9cc"
+      ]
+    }
+  },
+  "sourceCallers": {
+    "bridge": {
+      "path": "src/bridge/replBridgeTransport.ts",
+      "file": {
+        "chars": 16286,
+        "bytes": 16357,
+        "sha256": "27d2336e121a62490e883bcb413f6902715adabac404e8b1dec34fab01f984ab"
+      },
+      "gitBlob": "a7901e93acb57d4202c845ecc5537d49fd2ba12f",
+      "declaration": {
+        "name": "createV2ReplTransport",
+        "start": 5585,
+        "end": 16285,
+        "chars": 10700,
+        "bytes": 10755,
+        "sha256": "c55202ac6c84c343e27681c3eed6da53c93a73d1b3578153038478f552f839eb"
+      },
+      "newExpression": {
+        "start": 8715,
+        "end": 8830,
+        "chars": 115,
+        "bytes": 115,
+        "sha256": "cac47c22ca5087b524028d0f94500838d25ac8435d24480ab98d7aeec9244bbd",
+        "argumentCount": 6
+      }
+    },
+    "transportUtils": {
+      "path": "src/cli/transports/transportUtils.ts",
+      "file": {
+        "chars": 1765,
+        "bytes": 1767,
+        "sha256": "15f41a02cce8f2647d3ef563e4e6757e4f40415e745cd430bfaf32af24421f41"
+      },
+      "gitBlob": "92524731ea9453ddcc5d41fdcc381c4a9b9fd3e6",
+      "declaration": {
+        "name": "getTransportForUrl",
+        "start": 638,
+        "end": 1764,
+        "chars": 1126,
+        "bytes": 1126,
+        "sha256": "4aad2bf9aa20792c93904a28bf2d378aae86776895269021069f166dbbc081c9"
+      },
+      "newExpression": {
+        "start": 1331,
+        "end": 1391,
+        "chars": 60,
+        "bytes": 60,
+        "sha256": "50185771c2613b824172b4e9bd1072c3ecf7067c7faaa85c57b45583094f6144",
+        "argumentCount": 4
+      }
+    }
+  },
+  "expectedImpact": {
+    "ownerOverrideCount": 1,
+    "strictUnitsRemoved": 1,
+    "strictResiduesRemoved": 3,
+    "sourceFilesReplayed": 0,
+    "packageCallOrder": null,
+    "mode": "static-coverage-only"
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "criterion": "target119-inbound-attachment-schema-inherited-owner-proof-v1",
+  "evidenceIds": [
+    "target119-inbound-attachment-schema-authenticated-units",
+    "target119-inbound-attachment-schema-token-identity",
+    "target119-inbound-attachment-schema-source-boundary"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/inbound-attachment-schema-inherited-owner-overrides.mjs",
+      "bytes": 1227,
+      "sha256": "f176f72aea060b5db832786c8add4e108bc8518517e12dcdcb82c0379d35ba31"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+    },
+    "source": {
+      "path": "src/bridge/inboundAttachments.ts",
+      "bytes": 6267,
+      "sha256": "a41b8430ffec6d429a9145cc5efb8a3b0c85898d7ddbf5e6a8b5f6c1d4f767b9",
+      "blob": "f7c13c88f316813fa311c2d613c66fb8b23d87ce",
+      "commits": [
+        "bd846a24e3886322888f02b9f747c132a4a32314",
+        "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+        "11890981447ee2cea3407c608f4411e43e5fe72a"
+      ],
+      "attachmentSchema": {
+        "start": 1228,
+        "end": 1344,
+        "bytes": 116,
+        "sha256": "d2dbbb84b5ce62def0ec5184e1e61b971eb128c25541ddbdff848e3cad3224ea"
+      }
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 18818,
+    "nodeType": "VariableDeclaration",
+    "start": 11564433,
+    "end": 11564673,
+    "bytes": 240,
+    "tokenCount": 116,
+    "sourceHash": "e85cab3b1e87e35c8c1c57661ed783f2fb4f83f9a15f62c308ee0c93d7d87b49",
+    "coarseHash": "1c236b81f309f6154706878d4218987e25feeaef4ded16a07f04ea7f3e1be0f5"
+  },
+  "targetUnit": {
+    "targetIndex": 19768,
+    "nodeType": "VariableDeclaration",
+    "start": 12038371,
+    "end": 12038611,
+    "bytes": 240,
+    "tokenCount": 116,
+    "sourceHash": "ca56b05e69d0f5d54975df9e6117e01b9f0befa3a69846acc5b21856885fab8c",
+    "coarseHash": "1c236b81f309f6154706878d4218987e25feeaef4ded16a07f04ea7f3e1be0f5"
+  },
+  "canonicalTokenProof": {
+    "tokens": 116,
+    "bytes": 539,
+    "sha256": "c3fc8faf901d77e0be37dc0994678589093cfbc2f67947fc8533879c61e6a9a3"
+  },
+  "rows": {
+    "addedOwner": {
+      "count": 1,
+      "canonicalBytes": 115,
+      "canonicalSha256": "f30cf7b015557a205d8fcb01112adaba5ee36b6fb860793bbe0fb3e47821feec",
+      "tuples": [
+        [19768, "property", "nullish", 12038569, 12038576, 11, 12, true, "source-runtime-covered", ["bridge/inboundAttachments.ts"]]
+      ]
+    },
+    "owner": {
+      "count": 3,
+      "canonicalBytes": 350,
+      "canonicalSha256": "8bad72be0ba3e5aa251645a7da5e79733ecafe636758012e3ac659b7db58e183",
+      "tuples": [
+        [19768, "property", "is_image", 12038548, 12038556, 3, 3, false, "source-runtime-covered", ["bridge/inboundAttachments.ts"]],
+        [19768, "property", "nullish", 12038569, 12038576, 11, 12, true, "source-runtime-covered", ["bridge/inboundAttachments.ts"]],
+        [19768, "property", "boolean", 12038559, 12038566, 212, 212, false, "source-runtime-covered", ["bridge/inboundAttachments.ts"]]
+      ]
+    }
+  },
+  "ownerOverride": {
+    "paths": ["src/bridge/inboundAttachments.ts"],
+    "declarations": ["attachmentSchema", "attachmentsArraySchema"],
+    "evidenceIds": [
+      "target119-inbound-attachment-schema-authenticated-units",
+      "target119-inbound-attachment-schema-token-identity",
+      "target119-inbound-attachment-schema-source-boundary"
+    ],
+    "behavior": "The complete Target119 inbound-attachment schema initializer is token-for-token alpha-identical to its authenticated Target118 predecessor, including file_uuid, file_name, and nullable is_image validation. The strict nullish residue is therefore retained runtime syntax. Historical Target118 through Target121 source snapshots share one older schema without is_image, so this Target119 owner proof deliberately does not replay an inherited source gap at the wrong release boundary."
+  },
+  "expectedImpact": {
+    "units": 1,
+    "residues": 1
+  }
+}

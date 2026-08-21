@@ -12,6 +12,12 @@ const TARGET_BYTES = 13_720_987
 const TARGET_SHA256 =
   '9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef'
 const repo = fileURLToPath(new URL('../..', import.meta.url))
+const semanticSourceRoot =
+  process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ?? path.join(repo, 'src')
+
+function sourceFilename(sourcePath) {
+  return path.join(semanticSourceRoot, sourcePath.replace(/^src\//, ''))
+}
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
@@ -41,7 +47,7 @@ function compact(value) {
 }
 
 function assertSourceFragments(sourcePath, fragments) {
-  const contents = compact(fs.readFileSync(path.join(repo, sourcePath), 'utf8'))
+  const contents = compact(fs.readFileSync(sourceFilename(sourcePath), 'utf8'))
   for (const fragment of fragments) {
     assert.equal(
       contents.includes(compact(fragment)),
@@ -52,7 +58,40 @@ function assertSourceFragments(sourcePath, fragments) {
 }
 
 function readSource(sourcePath) {
-  return fs.readFileSync(path.join(repo, sourcePath), 'utf8')
+  return fs.readFileSync(sourceFilename(sourcePath), 'utf8')
+}
+
+function sourceFiles(directory, prefix = '') {
+  const files = []
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name
+    const filename = path.join(directory, entry.name)
+    if (entry.isDirectory()) files.push(...sourceFiles(filename, relative))
+    else if (/\.(?:ts|tsx)$/.test(entry.name)) files.push(relative)
+  }
+  return files.sort()
+}
+
+function sourceSnapshot(directory) {
+  const files = sourceFiles(directory).map(relative => {
+    const value = fs.readFileSync(path.join(directory, relative))
+    return { relative, value }
+  })
+  const serialized = JSON.stringify(
+    files.map(({ relative, value }) => [
+      relative,
+      value.length,
+      sha256(value),
+    ]),
+  )
+  return {
+    profile: {
+      files: files.length,
+      jsonBytes: Buffer.byteLength(serialized),
+      sha256: sha256(serialized),
+    },
+    source: files.map(({ value }) => value.toString('utf8')).join('\n'),
+  }
 }
 
 const FRAGMENTS = [
@@ -97,34 +136,57 @@ const FRAGMENTS = [
 ]
 
 const DAEMON_EVENT_COUNTS = [
-  ['tengu_bg_adopt', 0, 2, 1],
-  ['tengu_bg_agent_action', 0, 9, 8],
-  ['tengu_bg_agent_dispatch', 0, 2, 1],
-  ['tengu_bg_agent_terminal', 0, 2, 1],
-  ['tengu_bg_attach', 0, 4, 1],
-  ['tengu_bg_attach_legacy_autorespawn', 0, 2, 1],
-  ['tengu_bg_classify', 0, 2, 1],
-  ['tengu_bg_daemon_install', 0, 2, 1],
-  ['tengu_bg_daemon_zombie_restart', 0, 2, 1],
-  ['tengu_bg_dispatch', 0, 4, 1],
-  ['tengu_bg_dispatch_fallback', 0, 2, 1],
-  ['tengu_bg_orphan_reap', 0, 2, 1],
-  ['tengu_bg_proto_mismatch', 0, 2, 1],
-  ['tengu_bg_pty_unavailable', 0, 2, 1],
-  ['tengu_bg_respawn_exhausted', 0, 2, 1],
-  ['tengu_bg_respawn_stale', 0, 2, 1],
-  ['tengu_bg_roster_parse_failed', 0, 3, 2],
-  ['tengu_bg_skew_nudge', 0, 3, 2],
-  ['tengu_bg_worker_exit', 0, 2, 1],
-  ['tengu_bg_worker_spawn', 0, 2, 1],
-  ['tengu_daemon_config_reload', 0, 2, 1],
-  ['tengu_daemon_control', 0, 3, 2],
-  ['tengu_daemon_idle_exit', 0, 2, 1],
-  ['tengu_daemon_install', 0, 2, 1],
-  ['tengu_daemon_self_restart_on_upgrade', 0, 2, 1],
-  ['tengu_daemon_start', 0, 2, 1],
-  ['tengu_daemon_worker_crash', 0, 2, 1],
-  ['tengu_daemon_worker_permanent_exit', 0, 2, 1],
+  ['tengu_bg_adopt', 0, 2, 1, 2],
+  ['tengu_bg_agent_action', 0, 9, 8, 9],
+  ['tengu_bg_agent_dispatch', 0, 2, 1, 2],
+  ['tengu_bg_agent_terminal', 0, 2, 1, 2],
+  ['tengu_bg_attach', 0, 4, 1, 2],
+  ['tengu_bg_attach_legacy_autorespawn', 0, 2, 1, 2],
+  ['tengu_bg_classify', 0, 2, 1, 2],
+  ['tengu_bg_daemon_install', 0, 2, 1, 2],
+  ['tengu_bg_daemon_zombie_restart', 0, 2, 1, 2],
+  ['tengu_bg_dispatch', 0, 4, 1, 2],
+  ['tengu_bg_dispatch_fallback', 0, 2, 1, 2],
+  ['tengu_bg_orphan_reap', 0, 2, 1, 2],
+  ['tengu_bg_proto_mismatch', 0, 2, 1, 2],
+  ['tengu_bg_pty_unavailable', 0, 2, 1, 2],
+  ['tengu_bg_respawn_exhausted', 0, 2, 1, 2],
+  ['tengu_bg_respawn_stale', 0, 2, 1, 2],
+  ['tengu_bg_roster_parse_failed', 0, 3, 2, 3],
+  ['tengu_bg_skew_nudge', 0, 3, 2, 3],
+  ['tengu_bg_worker_exit', 0, 2, 1, 2],
+  ['tengu_bg_worker_spawn', 0, 2, 1, 2],
+  ['tengu_daemon_config_reload', 0, 2, 1, 2],
+  ['tengu_daemon_control', 0, 3, 2, 3],
+  ['tengu_daemon_idle_exit', 0, 2, 1, 2],
+  ['tengu_daemon_install', 0, 2, 1, 2],
+  ['tengu_daemon_self_restart_on_upgrade', 0, 2, 1, 2],
+  ['tengu_daemon_start', 0, 2, 1, 2],
+  ['tengu_daemon_worker_crash', 0, 2, 1, 2],
+  ['tengu_daemon_worker_permanent_exit', 0, 2, 1, 2],
+]
+
+const SOURCE_PHASES = [
+  {
+    id: 'historical-target119',
+    profile: {
+      files: 2023,
+      jsonBytes: 217234,
+      sha256: 'fe0e513f8584f809b612e8f0e11f3c2bbcf45a5b70b0143c13769637d7b9307a',
+    },
+    sourceCallColumn: 3,
+    sourceOnlyDaemonEvents: 0,
+  },
+  {
+    id: 'recovered-target119-package',
+    profile: {
+      files: 2024,
+      jsonBytes: 217359,
+      sha256: 'b0c92062b28f681fe84320874e61bf3479f6d8537fb8bff460c53b9199f0fde6',
+    },
+    sourceCallColumn: 4,
+    sourceOnlyDaemonEvents: 1,
+  },
 ]
 
 const DAEMON_EVENT_SOURCE_PATHS = [
@@ -490,24 +552,37 @@ test('daemon and background telemetry call sites match authenticated target coun
     TARGET_BYTES,
     TARGET_SHA256,
   )
-  const source = fs
-    .readdirSync(path.join(repo, 'src'), { recursive: true, withFileTypes: true })
-    .filter(entry => entry.isFile() && /\.(?:ts|tsx)$/.test(entry.name))
-    .map(entry => fs.readFileSync(path.join(entry.parentPath, entry.name), 'utf8'))
-    .join('\n')
-  for (const [event, baselineCount, targetCount, sourceCalls] of DAEMON_EVENT_COUNTS) {
+  const snapshot = sourceSnapshot(semanticSourceRoot)
+  const sourcePhase = SOURCE_PHASES.find(
+    candidate =>
+      JSON.stringify(candidate.profile) === JSON.stringify(snapshot.profile),
+  )
+  assert.ok(
+    sourcePhase,
+    `unrecognized Target119 source phase: ${JSON.stringify(snapshot.profile)}`,
+  )
+  for (const row of DAEMON_EVENT_COUNTS) {
+    const [event, baselineCount, targetCount] = row
+    const sourceCalls = row[sourcePhase.sourceCallColumn]
     assert.equal(occurrences(baseline, event), baselineCount, event + ': baseline')
     assert.equal(occurrences(target, event), targetCount, event + ': target')
     assert.equal(
-      occurrences(source, `'${event}'`) + occurrences(source, `"${event}"`),
+      occurrences(snapshot.source, `'${event}'`) +
+        occurrences(snapshot.source, `"${event}"`),
       sourceCalls,
       event + ': recovered runtime calls',
     )
   }
   assert.equal(occurrences(target, 'tengu_daemon_auto_uninstall'), 1)
   assert.equal(occurrences(target, 'tengu_daemon_lease'), 1)
-  assert.equal(occurrences(source, "'tengu_daemon_auto_uninstall'"), 0)
-  assert.equal(occurrences(source, "'tengu_daemon_lease'"), 0)
+  assert.equal(
+    occurrences(snapshot.source, "'tengu_daemon_auto_uninstall'"),
+    sourcePhase.sourceOnlyDaemonEvents,
+  )
+  assert.equal(
+    occurrences(snapshot.source, "'tengu_daemon_lease'"),
+    sourcePhase.sourceOnlyDaemonEvents,
+  )
 })
 
 test('daemon telemetry events bind to their exact recovered source paths', () => {
@@ -785,7 +860,10 @@ test('recovers classifier summaries, context clears, result dedup, and connectio
     'executeTeammateIdleHooks(',
     'undefined, toolUseContext',
   ])
-  const stopHooksSource = fs.readFileSync(path.join(repo, 'src/query/stopHooks.ts'), 'utf8')
+  const stopHooksSource = fs.readFileSync(
+    sourceFilename('src/query/stopHooks.ts'),
+    'utf8',
+  )
   assert.equal(stopHooksSource.includes('notifySessionMetadataChanged'), false)
   assert.equal(stopHooksSource.includes("sleepRan ? 'later' : 'next'"), false)
   assertSourceFragments('src/utils/hooks.ts', [
@@ -856,7 +934,7 @@ test('assistant scaffold template bytes match the authenticated bundle exactly',
     TARGET_BYTES,
     TARGET_SHA256,
   )
-  const source = fs.readFileSync(path.join(repo, 'src/assistant/install.ts'), 'utf8')
+  const source = fs.readFileSync(sourceFilename('src/assistant/install.ts'), 'utf8')
   const assets = [
     ['S94', 'I94'],
     ['C94', 'R94'],

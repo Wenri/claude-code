@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 2,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-retained-confirmation-matched-unit-cluster-proof",
+  "criterion": "complete-cross-release-unit-cluster-plus-exact-strict-partitions-and-historical-owner-lineage-v1",
+  "evidenceIds": [
+    "target119-retained-confirmation-complete-unit-test",
+    "target119-retained-confirmation-cross-release-lineage-test",
+    "target119-retained-confirmation-strict-ordinal-spill-test",
+    "target119-retained-confirmation-matched-no-coverage-test"
+  ],
+  "inputs": {
+    "historicalBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineStructural": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "historicalProof": {
+      "path": "recovery/test/recovery-2.1.117-confirmation-source-proofs.json",
+      "bytes": 14375,
+      "sha256": "dd68f029ce9ecdfbe1d7df320f6e54e52cb405a4ba20c5f9ad2f714c6fe31a6c"
+    },
+    "historicalHelper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-confirmation-source-gaps.mjs",
+      "bytes": 13612,
+      "sha256": "11f09b387d606cb71e7930febea9e85237a28b67ffcf6e106e24b625634b0820"
+    },
+    "immutableReportSnapshot": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24699833,
+      "sha256": "00f24b4182b7c0fc74d583935ae144ee94dab0ef442d08302b3d8440f57effd2"
+    },
+    "immutableCoverageSnapshot": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "bytes": 377024,
+      "sha256": "4eb0337aa7f99cddfe66dc33a36fba5dde400b52c8c36560344a4296d7aa79cc"
+    }
+  },
+  "partitionSnapshot": {
+    "canonicalTuple": [
+      "targetIndex",
+      "literalKind",
+      "value",
+      "targetStart",
+      "targetEnd",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber"
+    ],
+    "emptySourceRuntimePartition": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "canonicalRows": []
+    },
+    "byTarget": [
+      {
+        "targetIndex": 21248,
+        "owner": "emptySourceRuntimePartition",
+        "addedOwner": "emptySourceRuntimePartition",
+        "strict": {
+          "rows": 2,
+          "jsonBytes": 116,
+          "sha256": "cdf33e88050302af7ac724963b777f2ff87b53a0663cf1bb50d0036da159afe4",
+          "canonicalRows": [
+            [21248, "property", "confirmLabel", 12792307, 12792319, 20, 22],
+            [21248, "property", "cancelLabel", 12792352, 12792363, 21, 23]
+          ]
+        },
+        "coverageTargetRowPresent": false
+      },
+      {
+        "targetIndex": 21269,
+        "owner": "emptySourceRuntimePartition",
+        "addedOwner": "emptySourceRuntimePartition",
+        "strict": {
+          "rows": 2,
+          "jsonBytes": 116,
+          "sha256": "8b82b2e8bf5f27e461a47e4407fd47f8c826e3bf5c5d9b46b017440ed1be370e",
+          "canonicalRows": [
+            [21269, "property", "confirmLabel", 12798388, 12798400, 20, 23],
+            [21269, "property", "cancelLabel", 12798428, 12798439, 21, 24]
+          ]
+        },
+        "coverageTargetRowPresent": false
+      },
+      {
+        "targetIndex": 21291,
+        "owner": "emptySourceRuntimePartition",
+        "addedOwner": "emptySourceRuntimePartition",
+        "strict": {
+          "rows": 3,
+          "jsonBytes": 171,
+          "sha256": "a0aafc827cea09d1bc114fceeda319659658c54c7166050ac574a83d925317d1",
+          "canonicalRows": [
+            [21291, "property", "cancelFirst", 12803634, 12803645, 5, 9],
+            [21291, "property", "confirmLabel", 12803664, 12803676, 20, 24],
+            [21291, "property", "cancelLabel", 12803693, 12803704, 21, 25]
+          ]
+        },
+        "coverageTargetRowPresent": false
+      },
+      {
+        "targetIndex": 21298,
+        "owner": "emptySourceRuntimePartition",
+        "addedOwner": "emptySourceRuntimePartition",
+        "strict": {
+          "rows": 2,
+          "jsonBytes": 116,
+          "sha256": "6942507b564112374822a990561a62bf6e34c6f2e8afe0e39d231a2a4c50c8d8",
+          "canonicalRows": [
+            [21298, "property", "confirmLabel", 12804874, 12804886, 20, 25],
+            [21298, "property", "cancelLabel", 12804927, 12804938, 21, 26]
+          ]
+        },
+        "coverageTargetRowPresent": false
+      }
+    ],
+    "strictAggregate": {
+      "rows": 9,
+      "jsonBytes": 516,
+      "sha256": "fc516aefbe96cb17442d69936bde46ba0ee0664bbbce130d366c4db48d9a1015",
+      "canonicalRows": [
+        [21248, "property", "confirmLabel", 12792307, 12792319, 20, 22],
+        [21248, "property", "cancelLabel", 12792352, 12792363, 21, 23],
+        [21269, "property", "confirmLabel", 12798388, 12798400, 20, 23],
+        [21269, "property", "cancelLabel", 12798428, 12798439, 21, 24],
+        [21291, "property", "cancelFirst", 12803634, 12803645, 5, 9],
+        [21291, "property", "confirmLabel", 12803664, 12803676, 20, 24],
+        [21291, "property", "cancelLabel", 12803693, 12803704, 21, 25],
+        [21298, "property", "confirmLabel", 12804874, 12804886, 20, 25],
+        [21298, "property", "cancelLabel", 12804927, 12804938, 21, 26]
+      ]
+    },
+    "coverageReason": "Matched structural units remain outside source-coverage rows; this separate frozen proof ledger closes their raw strict residues."
+  },
+  "globalPropertyOccurrenceCounts": {
+    "2.1.117": {
+      "confirmLabel": 20,
+      "cancelLabel": 21,
+      "cancelFirst": 5
+    },
+    "2.1.118": {
+      "confirmLabel": 20,
+      "cancelLabel": 21,
+      "cancelFirst": 5
+    },
+    "2.1.119": {
+      "confirmLabel": 25,
+      "cancelLabel": 26,
+      "cancelFirst": 9
+    }
+  },
+  "sourceCommits": [
+    "ff0339d35906735273ae3130a187bb8e30581871",
+    "bd846a24e3886322888f02b9f747c132a4a32314",
+    "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05"
+  ],
+  "rows": [
+    {
+      "targetIndex": 21248,
+      "baselineUnitIndex": 20348,
+      "historicalTargetIndex": 20149,
+      "ownerPaths": ["src/components/Onboarding.tsx"],
+      "declaration": "Onboarding",
+      "representation": "retained-confirmation-global-ordinal-spill",
+      "structuralLineage": {
+        "classification": "matched",
+        "pairReason": "exact-scope-normalized-token-hash",
+        "unknownFreeIdentifierCount": 0,
+        "coarseHash": "beb4eaefea82698f691cb58cb7d7bccad4c4a82a9eda9d0c7bd8be1a392adff9"
+      },
+      "units": [
+        {"release": "2.1.117", "targetIndex": 20149, "start": 12222889, "end": 12226337, "bytes": 3448, "tokens": 1125, "sha256": "fc2d6cdae07be24e36fb1dec538021daf71183f219abf9cd1cc4aef1ecb9f573"},
+        {"release": "2.1.118", "targetIndex": 20348, "start": 12328243, "end": 12331691, "bytes": 3448, "tokens": 1125, "sha256": "c1c6efac4dc5ac5aaf4118f315f3203952bb5a647c523681f26b29fc3b90f530"},
+        {"release": "2.1.119", "targetIndex": 21248, "start": 12789903, "end": 12793351, "bytes": 3448, "tokens": 1125, "sha256": "a71fb60654f6753482115aacc5de3be3dd1c5b8b5f02e66847c21d70ac417151"}
+      ],
+      "confirmationObject": {
+        "localStart": 2403,
+        "localEnd": 2562,
+        "targetBytes": 159,
+        "targetSha256": "f448d78082a6573fd030bc11ba770bcceb9747430af82ee713a4e6ebdd1c7772",
+        "targetText": "{confirmLabel:\"Yes, use recommended settings\",cancelLabel:\"No, maybe later with /terminal-setup\",onConfirm:()=>void Tg$(f).catch(()=>{}).finally(Y),onCancel:Y}"
+      },
+      "sourceFile": {"path": "src/components/Onboarding.tsx", "bytes": 31528, "sha256": "149ceb457c51efc815c162e6bb9eb358af6fdd430ec522bf7a0abb1ba9199aee", "gitBlob": "d4b62663cb719648dd2c424e6124ec35b1560890"},
+      "sourceDeclaration": {"name": "Onboarding", "start": 1555, "end": 7885, "bytes": 6331, "sha256": "232fef9a2c951aee5fd3ebbce7d370625a3ae3024214e4a1b975afa31da49e22"},
+      "choiceLabels": ["Yes, use recommended settings", "No, maybe later with /terminal-setup"],
+      "historicalOwnerKind": "legacy-select",
+      "strictResidues": [
+        {"kind": "property", "value": "confirmLabel", "start": 12792307, "end": 12792319, "baselineCount": 20, "targetOrdinal": 22, "targetAdded": true, "baselineCounterpart": {"start": 12330647, "end": 12330659, "globalOrdinal": 17}, "historicalCounterpart": {"start": 12225293, "end": 12225305, "globalOrdinal": 17}},
+        {"kind": "property", "value": "cancelLabel", "start": 12792352, "end": 12792363, "baselineCount": 21, "targetOrdinal": 23, "targetAdded": true, "baselineCounterpart": {"start": 12330692, "end": 12330703, "globalOrdinal": 18}, "historicalCounterpart": {"start": 12225338, "end": 12225349, "globalOrdinal": 18}}
+      ]
+    },
+    {
+      "targetIndex": 21269,
+      "baselineUnitIndex": 20369,
+      "historicalTargetIndex": 20170,
+      "ownerPaths": ["src/components/TrustDialog/TrustDialog.tsx"],
+      "declaration": "TrustDialog",
+      "representation": "retained-confirmation-global-ordinal-spill",
+      "structuralLineage": {
+        "classification": "matched",
+        "pairReason": "exact-scope-normalized-token-hash",
+        "unknownFreeIdentifierCount": 0,
+        "coarseHash": "b87bd13a9c81767f3a8de5fe783663501b6648b28ff0fb4ccdae6c16a899e5f9"
+      },
+      "units": [
+        {"release": "2.1.117", "targetIndex": 20170, "start": 12228621, "end": 12232199, "bytes": 3578, "tokens": 1450, "sha256": "8a3387350e5a20094719ce6317b1ce9ee7f0220df94c503449a62b8d32137658"},
+        {"release": "2.1.118", "targetIndex": 20369, "start": 12333975, "end": 12337548, "bytes": 3573, "tokens": 1450, "sha256": "f651ecadddebdd9fa7420b6c8b0436e42e4e80ee930b4a1affee44f10f87a353"},
+        {"release": "2.1.119", "targetIndex": 21269, "start": 12795635, "end": 12799206, "bytes": 3571, "tokens": 1450, "sha256": "2e822c8b967adb60dc5daa6861ddad1cca0ddfec71a0e48a3226fd0a4d48bb3a"}
+      ],
+      "confirmationObject": {
+        "localStart": 2752,
+        "localEnd": 2869,
+        "targetBytes": 117,
+        "targetSha256": "9fb2365fa6c4445a0058ad953b592afd3d6b7f8f6823aa60bd3b6818a6e78240",
+        "targetText": "{confirmLabel:\"Yes, I trust this folder\",cancelLabel:\"No, exit\",onConfirm:()=>s(\"enable_all\"),onCancel:()=>s(\"exit\")}"
+      },
+      "sourceFile": {"path": "src/components/TrustDialog/TrustDialog.tsx", "bytes": 32481, "sha256": "85177ac27e46d5cb5463c4b093569f18e38ec56cb4fd984ae983d656d4631556", "gitBlob": "3bfcc22c08c4dc356a1470e2b7e470c59623b88d"},
+      "sourceDeclaration": {"name": "TrustDialog", "start": 1293, "end": 7885, "bytes": 6593, "sha256": "e52f59bb3c0462fab583b888fc8a0fef786c2a30e18ecbf81457fd465d4833b2"},
+      "choiceLabels": ["Yes, I trust this folder", "No, exit"],
+      "historicalOwnerKind": "legacy-select",
+      "strictResidues": [
+        {"kind": "property", "value": "confirmLabel", "start": 12798388, "end": 12798400, "baselineCount": 20, "targetOrdinal": 23, "targetAdded": true, "baselineCounterpart": {"start": 12336730, "end": 12336742, "globalOrdinal": 18}, "historicalCounterpart": {"start": 12231373, "end": 12231385, "globalOrdinal": 18}},
+        {"kind": "property", "value": "cancelLabel", "start": 12798428, "end": 12798439, "baselineCount": 21, "targetOrdinal": 24, "targetAdded": true, "baselineCounterpart": {"start": 12336770, "end": 12336781, "globalOrdinal": 19}, "historicalCounterpart": {"start": 12231413, "end": 12231424, "globalOrdinal": 19}}
+      ]
+    },
+    {
+      "targetIndex": 21291,
+      "baselineUnitIndex": 20386,
+      "historicalTargetIndex": 20187,
+      "ownerPaths": ["src/components/BypassPermissionsModeDialog.tsx"],
+      "declaration": "BypassPermissionsModeDialog",
+      "representation": "retained-confirmation-global-ordinal-spill",
+      "structuralLineage": {
+        "classification": "matched",
+        "pairReason": "exact-scope-normalized-token-hash",
+        "unknownFreeIdentifierCount": 0,
+        "coarseHash": "e0893f527cb1adf18aef2d1fa47b9b104447021ffaccfce1acfcdf34eeb5c236"
+      },
+      "units": [
+        {"release": "2.1.117", "targetIndex": 20187, "start": 12233865, "end": 12235263, "bytes": 1398, "tokens": 385, "sha256": "ddf33f7da9da2b34fc344fd955a8952bb0a22f3afe4a2f7176fd8a444cff90dd"},
+        {"release": "2.1.118", "targetIndex": 20386, "start": 12339214, "end": 12340612, "bytes": 1398, "tokens": 385, "sha256": "aadf842e879b94aa33a5daf009d4da668125f1abd035ea1d67101ffc65bb622f"},
+        {"release": "2.1.119", "targetIndex": 21291, "start": 12802408, "end": 12803806, "bytes": 1398, "tokens": 385, "sha256": "2a8faf0408f19e22b439a157bf9ef1c49bb49af38ee26065f1d588d024be961a"}
+      ],
+      "confirmationObject": {
+        "localStart": 1225,
+        "localEnd": 1360,
+        "targetBytes": 135,
+        "targetSha256": "e86509a079d75ab7ca040c1bec695d768bbe63f779ecdae549f2ae258e5ccaf8",
+        "targetText": "{cancelFirst:!0,focus:\"cancel\",confirmLabel:\"Yes, I accept\",cancelLabel:\"No, exit\",onConfirm:()=>A(\"accept\"),onCancel:()=>A(\"decline\")}"
+      },
+      "sourceFile": {"path": "src/components/BypassPermissionsModeDialog.tsx", "bytes": 9136, "sha256": "8cec2d578c944cab062448752e0e9823fa39c36a26bc09b6dab2e87c0f232b5d", "gitBlob": "ed09416c86f9ec76ce6d9302be762b63dddf2f16"},
+      "sourceDeclaration": {"name": "BypassPermissionsModeDialog", "start": 490, "end": 2551, "bytes": 2061, "sha256": "4f04357bfa451f58bc9bfac1bfbccc5904bde0f6c914356acb4a251cd914301e"},
+      "choiceLabels": ["Yes, I accept", "No, exit"],
+      "historicalOwnerKind": "legacy-select",
+      "strictResidues": [
+        {"kind": "property", "value": "cancelFirst", "start": 12803634, "end": 12803645, "baselineCount": 5, "targetOrdinal": 9, "targetAdded": true, "baselineCounterpart": {"start": 12340440, "end": 12340451, "globalOrdinal": 5}, "historicalCounterpart": {"start": 12235091, "end": 12235102, "globalOrdinal": 5}},
+        {"kind": "property", "value": "confirmLabel", "start": 12803664, "end": 12803676, "baselineCount": 20, "targetOrdinal": 24, "targetAdded": true, "baselineCounterpart": {"start": 12340470, "end": 12340482, "globalOrdinal": 19}, "historicalCounterpart": {"start": 12235121, "end": 12235133, "globalOrdinal": 19}},
+        {"kind": "property", "value": "cancelLabel", "start": 12803693, "end": 12803704, "baselineCount": 21, "targetOrdinal": 25, "targetAdded": true, "baselineCounterpart": {"start": 12340499, "end": 12340510, "globalOrdinal": 20}, "historicalCounterpart": {"start": 12235150, "end": 12235161, "globalOrdinal": 20}}
+      ]
+    },
+    {
+      "targetIndex": 21298,
+      "baselineUnitIndex": 20393,
+      "historicalTargetIndex": 20194,
+      "ownerPaths": ["src/components/DevChannelsDialog.tsx"],
+      "declaration": "DevChannelsDialog",
+      "representation": "retained-confirmation-global-ordinal-spill",
+      "structuralLineage": {
+        "classification": "matched",
+        "pairReason": "exact-scope-normalized-token-hash",
+        "unknownFreeIdentifierCount": 0,
+        "coarseHash": "6f0a587501ce01e8ab0e366ec31c2d221cba06ed9248677df40ddf653729b9cb"
+      },
+      "units": [
+        {"release": "2.1.117", "targetIndex": 20194, "start": 12235482, "end": 12236665, "bytes": 1183, "tokens": 466, "sha256": "17538d852b549ba452d77df84a81f41b0f1cc153c30cdfa8baff8a34b771cc31"},
+        {"release": "2.1.118", "targetIndex": 20393, "start": 12340831, "end": 12342014, "bytes": 1183, "tokens": 466, "sha256": "58751951f6b15814dcbfda7b7a8ed4c5056d8e16599fbca4a3b061fc30feba82"},
+        {"release": "2.1.119", "targetIndex": 21298, "start": 12804025, "end": 12805208, "bytes": 1183, "tokens": 466, "sha256": "3f554eca83d4029068a264d4af8c61bee3f6808dacf2018581df49ec37127b56"}
+      ],
+      "confirmationObject": {
+        "localStart": 848,
+        "localEnd": 970,
+        "targetBytes": 122,
+        "targetSha256": "82665ebd595a9e0ae581d73dedcf8c6acc007bc7503a7ae6188fd8485589eefe",
+        "targetText": "{confirmLabel:\"I am using this for local development\",cancelLabel:\"Exit\",onConfirm:()=>A(\"accept\"),onCancel:()=>A(\"exit\")}"
+      },
+      "sourceFile": {"path": "src/components/DevChannelsDialog.tsx", "bytes": 9113, "sha256": "e513f094cd741b1ce029e0cd1ddc69101163d0ea3b0aba37eb877592f9ddc6bb", "gitBlob": "5e68afb5d06b4300cdc030ca9bb35c159efcf4e1"},
+      "sourceDeclaration": {"name": "DevChannelsDialog", "start": 429, "end": 2424, "bytes": 1995, "sha256": "95b0cfb1379584eae1a9cf89777c339ab8d848f5e8be366ad182e505324363a4"},
+      "choiceLabels": ["I am using this for local development", "Exit"],
+      "historicalOwnerKind": "legacy-select",
+      "strictResidues": [
+        {"kind": "property", "value": "confirmLabel", "start": 12804874, "end": 12804886, "baselineCount": 20, "targetOrdinal": 25, "targetAdded": true, "baselineCounterpart": {"start": 12341680, "end": 12341692, "globalOrdinal": 20}, "historicalCounterpart": {"start": 12236331, "end": 12236343, "globalOrdinal": 20}},
+        {"kind": "property", "value": "cancelLabel", "start": 12804927, "end": 12804938, "baselineCount": 21, "targetOrdinal": 26, "targetAdded": true, "baselineCounterpart": {"start": 12341733, "end": 12341744, "globalOrdinal": 21}, "historicalCounterpart": {"start": 12236384, "end": 12236395, "globalOrdinal": 21}}
+      ]
+    }
+  ],
+  "summary": {
+    "units": 4,
+    "crossReleaseUnits": 12,
+    "residues": 9,
+    "replayRequired": false,
+    "targetIndicesSha256": "dbf2df267edc6cb47882ed814becd1feddaaa9fc418650a8aa74483a4f44e827",
+    "strictResidueIdentitiesSha256": "fc516aefbe96cb17442d69936bde46ba0ee0664bbbce130d366c4db48d9a1015",
+    "crossReleaseUnitsSha256": "41d1c3668b2a4561add76c0e140ce906af700e647880ff93ab1d3293d0683666"
+  },
+  "sourceReplay": {
+    "mode": "static",
+    "authorized": false,
+    "reason": "All four exact source blobs are unchanged across Targets 117-119, both structural edges for every complete compiled function are exact-scope-normalized-token-hash matches, and the frozen Target117 proof already authenticates each Select-to-legacy-confirmation representation. Replaying source would duplicate retained behavior rather than restore a gap."
+  }
+}

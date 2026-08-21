@@ -1,0 +1,1335 @@
+{
+  "schemaVersion": 2,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-live-module-binding-plus-complete-function-source-and-compiler-owner-proof",
+  "criterion": "exact-export-helper-namespace-binding-function-initializer-and-live-import-consumer-lineage-plus-closed-residue-partitions-v2",
+  "evidenceIds": [
+    "target119-pro-trial-start-owner-target-fragment",
+    "target119-pro-trial-start-owner-source-compiler-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceUniverse": {
+      "release": "2.1.119",
+      "kind": "authenticated-target-commit",
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "files": 2023,
+      "markerCandidates": [
+        "src/components/ProTrialStartScreen.tsx"
+      ]
+    },
+    "freshPackageSourceUniverse": {
+      "release": "2.1.119",
+      "kind": "fresh-recovered-package-worktree",
+      "files": 2024,
+      "markerCandidates": [
+        "src/components/ProTrialStartScreen.tsx"
+      ],
+      "exactDeltaFromAuthenticatedTarget": [
+        {
+          "path": "src/tools/AgentTool/built-in/backgroundJobAgent.ts",
+          "bytes": 1954,
+          "sha256": "153311cfb7a786658170cd0922ffd50a99ca91ace33cd490c948cb09c83f2f59"
+        }
+      ]
+    },
+    "sourceFile": {
+      "path": "src/components/ProTrialStartScreen.tsx",
+      "bytes": 2025,
+      "sha256": "799db4f90639180ed413ee300a7a651ebcfa73d7ed468b9f060af465cc0acd64",
+      "gitBlob": "5b1ac555bc509120a9d029330a968a83e65037b2"
+    },
+    "consumerSourceFile": {
+      "path": "src/interactiveHelpers.tsx",
+      "bytes": 68482,
+      "sha256": "2b19f4c4b9a58a408e2bc96329e8b85899272a4aa9ebd7c09c408a7196f6b58f",
+      "gitBlob": "630e5ed4420d9a0c51e92d0f550afe2c0da72d4e"
+    },
+    "immutableReportSnapshot": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24699833,
+      "sha256": "00f24b4182b7c0fc74d583935ae144ee94dab0ef442d08302b3d8440f57effd2"
+    },
+    "immutableCoverageSnapshot": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "bytes": 377024,
+      "sha256": "4eb0337aa7f99cddfe66dc33a36fba5dde400b52c8c36560344a4296d7aa79cc"
+    },
+    "integratedReportSnapshot": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24701325,
+      "sha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b"
+    },
+    "integratedCoverageSnapshot": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "bytes": 377500,
+      "sha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03"
+    },
+    "sourceHistory": {
+      "baselineCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "baselinePathPresent": false,
+      "targetCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05"
+    }
+  },
+  "summary": {
+    "units": 3,
+    "residues": 38,
+    "targetIndicesSha256": "e31c3f0a7f314fc259e920637bd694b2ffb195c409965fe5ed8e9092f9b9783a",
+    "residueIdentitiesSha256": "d2dd9e38c5443ea8814ad981c9ded5b26920b2c97a43ae3dc1e1ca7062322e70",
+    "representationCounts": {
+      "source-named-export-binding": 1,
+      "source-dynamic-import-ast": 2,
+      "source-file-ast": 20,
+      "jsx-create-element-lowering": 10,
+      "react-compiler-memo-cache": 1,
+      "jsx-text-lowering": 4
+    }
+  },
+  "frozenPartitions": {
+    "canonicalTuple": [
+      "targetIndex",
+      "literalKind",
+      "value",
+      "targetStart",
+      "targetEnd",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber"
+    ],
+    "owner": {
+      "rows": 44,
+      "jsonBytes": 2429,
+      "sha256": "2af4b61970e68b724535526319c59ae650e4ed2826095c87d34c4fe4d71fe7c8",
+      "ownerOnlyRetainedRows": [
+        [
+          21281,
+          "property",
+          "onDone",
+          12800015,
+          12800021,
+          229,
+          227
+        ]
+      ]
+    },
+    "addedOwner": {
+      "rows": 43,
+      "jsonBytes": 2375,
+      "sha256": "c32a0553bb9aed9d0a5ba83c8cb9d9291a381252b8558275a8604074f84a9903"
+    },
+    "strict": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "canonicalRows": []
+    }
+  },
+  "bindingAndConsumerPartitionSnapshot": {
+    "canonicalTuple": [
+      "targetIndex",
+      "literalKind",
+      "value",
+      "targetStart",
+      "targetEnd",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber"
+    ],
+    "emptyPartition": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "byTarget": [
+      {
+        "targetIndex": 21280,
+        "sourceRuntimeOwnerResidueRows": "emptyPartition",
+        "sourceRuntimeAddedOwnerResidueRows": "emptyPartition",
+        "rawStrictRows": {
+          "rows": 1,
+          "jsonBytes": 64,
+          "sha256": "3c09bab6bbfea30048e6d8b583a69e3a5085ab707280028fdebe7defc016d714",
+          "canonicalRows": [
+            [21280, "property", "ProTrialStartScreen", 12799953, 12799972, 0, 1]
+          ]
+        },
+        "unclassifiedAddedOccurrenceRows": "emptyPartition",
+        "coverage": {
+          "rowPresent": true,
+          "sourceOwnershipAbsent": true,
+          "row": {
+            "targetIndex": 21280,
+            "start": 12799945,
+            "end": 12799983,
+            "nodeType": "ExpressionStatement",
+            "sourceHash": "ed253fb5cf8e5baf5b1253c0a4a4953e33c5a6f5a35f1523d0ef64f6eadc272a",
+            "structuralClass": "unresolved",
+            "disposition": "alpha-equivalent",
+            "ownerIds": [],
+            "evidenceIds": ["readable-normalization", "static-semantic-noop"],
+            "reason": "The complete target unit has an exact baseline token-stream match after only bundle-local identifier and generated version/build-metadata normalization; cooked literals, operators, branches, and calls are unchanged."
+          }
+        }
+      },
+      {
+        "targetIndex": 21342,
+        "sourceRuntimeOwnerResidueRows": {
+          "rows": 76,
+          "jsonBytes": 4392,
+          "sha256": "69b86de7e546ebdc3cc664b08a7d55dd6e054e15459972e499635afc6f00511c"
+        },
+        "sourceRuntimeAddedOwnerResidueRows": {
+          "rows": 15,
+          "jsonBytes": 923,
+          "sha256": "a80c5d2d21364d7907bf26c9716be9b1db20309389ac613599f82d9613c7f86b"
+        },
+        "rawStrictRows": {
+          "rows": 2,
+          "jsonBytes": 124,
+          "sha256": "80bf6b9d907208cab17c3543e62d4a3a0759b2fe4f9fde3bdd0d0a1f2b0948e1",
+          "canonicalRows": [
+            [21342, "property", "getProTrialState", 12819592, 12819608, 0, 2],
+            [21342, "property", "ProTrialStartScreen", 12819695, 12819714, 0, 2]
+          ]
+        },
+        "unclassifiedAddedOccurrenceRows": "emptyPartition",
+        "coverage": {
+          "rowPresent": true,
+          "sourceOwnershipAbsent": false,
+          "ownerIds": ["owner-src-interactiveHelpers-tsx"],
+          "evidenceIds": ["source-map-attribution", "semantic-test"]
+        }
+      }
+    ],
+    "postIntegration": {
+      "sourceRuntimeOwnerResidueRowsByTarget": {
+        "21280": "rawStrictRows"
+      },
+      "sourceRuntimeAddedOwnerResidueRowsByTarget": {
+        "21280": "rawStrictRows"
+      },
+      "coverageRows": [
+        {
+          "targetIndex": 21280,
+          "start": 12799945,
+          "end": 12799983,
+          "nodeType": "ExpressionStatement",
+          "sourceHash": "ed253fb5cf8e5baf5b1253c0a4a4953e33c5a6f5a35f1523d0ef64f6eadc272a",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-components-ProTrialStartScreen-tsx"],
+          "evidenceIds": [
+            "target119-pro-trial-start-owner-target-fragment",
+            "target119-pro-trial-start-owner-source-compiler-test"
+          ],
+          "behavior": "The complete authenticated Target119 unit is the live named-export registration for ProTrialStartScreen: it installs the ProTrialStartScreen getter on the module namespace, points that getter at the adjacent compiled declaration, and is reached by the interactiveHelpers dynamic import after the exact module initializer runs. The exact source export and live render consumer reject the provisional dialog candidates and prove this target-added property is a genuine module binding rather than alpha-equivalent retained noise or dead code."
+        },
+        {
+          "targetIndex": 21342,
+          "start": 12818398,
+          "end": 12821709,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "55c964f0e2be8d2f2ff2eea278079be97f63410406383cb796be485694780552",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-interactiveHelpers-tsx"],
+          "evidenceIds": [
+            "target119-pro-trial-start-owner-target-fragment",
+            "target119-pro-trial-start-owner-source-compiler-test"
+          ],
+          "behavior": "The complete authenticated Target119 showSetupScreens unit is the live downstream boundary of the Pro trial module: its conditional dynamic import executes the exact ProTrialStartScreen initializer, returns the namespace carrying the u21280 getter, destructures that named export, and renders the adjacent u21281 function. The exact interactiveHelpers.tsx source block closes the runtime edge while keeping unrelated startup-dialog and build-macro changes outside this proof."
+        }
+      ]
+    }
+  },
+  "moduleBindingProof": {
+    "sourceExport": {
+      "path": "src/components/ProTrialStartScreen.tsx",
+      "declarationKind": "FunctionDeclaration",
+      "declarationStart": 504,
+      "declarationEnd": 2022,
+      "declarationBytes": 1520,
+      "declarationSha256": "6163f2ddf213b4da687e8af69169fe4a731e9169dc231f04669d50390275b5c9",
+      "exportModifier": {"start": 504, "end": 510, "text": "export"},
+      "exportedName": {"start": 520, "end": 539, "text": "ProTrialStartScreen"}
+    },
+    "compiledModuleUnits": {
+      "namespace": {
+        "targetIndex": 21279,
+        "start": 12799934,
+        "end": 12799945,
+        "nodeType": "VariableDeclaration",
+        "tokenCount": 6,
+        "sourceHash": "2b140e3f6e4071aeb5acd18ced589ea8af446a4eb9da2ce7d842ba98290ecdb9",
+        "text": "var Dv4={};"
+      },
+      "binding": {
+        "targetIndex": 21280,
+        "start": 12799945,
+        "end": 12799983,
+        "nodeType": "ExpressionStatement",
+        "tokenCount": 14,
+        "sourceHash": "ed253fb5cf8e5baf5b1253c0a4a4953e33c5a6f5a35f1523d0ef64f6eadc272a",
+        "text": "M$(Dv4,{ProTrialStartScreen:()=>EZ5});"
+      },
+      "function": {
+        "targetIndex": 21281,
+        "start": 12799983,
+        "end": 12801360,
+        "nodeType": "FunctionDeclaration",
+        "tokenCount": 536,
+        "sourceHash": "f86e56fb43dc6ec075a78c43ab9c513607a40ccc79ca252235749edff3c0ff89"
+      },
+      "dependencyBindings": {
+        "targetIndex": 21282,
+        "start": 12801360,
+        "end": 12801375,
+        "nodeType": "VariableDeclaration",
+        "tokenCount": 7,
+        "sourceHash": "5b16b131bf54213e82781bce1f18fb22f96831ba88c4eac13c8e30397a4dddfd",
+        "text": "var Ov4,PP,Mv4;"
+      },
+      "initializer": {
+        "targetIndex": 21283,
+        "start": 12801375,
+        "end": 12801470,
+        "nodeType": "VariableDeclaration",
+        "tokenCount": 72,
+        "sourceHash": "78f80f9646f5c5b41d366736a6dabb08f354ebfd041b3c890f270b393cd9ef2d",
+        "text": "var wv4=T(()=>{gH();e6();v$();ddH();g$();$J$();gJ();Ov4=x(cH(),1),PP=x(JH(),1),Mv4=x(JH(),1)});"
+      }
+    },
+    "exportHelper": {
+      "start": 1741,
+      "end": 1840,
+      "bytes": 99,
+      "sha256": "efd77896fd85d02f0b5168adc55fef6f50d66cffab33222cbda9f1f9b40aa8c1",
+      "text": "var M$=(H,$)=>{for(var q in $)nOH(H,q,{get:$[q],enumerable:!0,configurable:!0,set:sI4.bind($,q)})};"
+    },
+    "compiledConsumer": {
+      "targetIndex": 21342,
+      "start": 12818398,
+      "end": 12821709,
+      "nodeType": "FunctionDeclaration",
+      "tokenCount": 1367,
+      "sourceHash": "55c964f0e2be8d2f2ff2eea278079be97f63410406383cb796be485694780552",
+      "dynamicImport": {
+        "start": 12819691,
+        "end": 12819766,
+        "sha256": "a6df1f7aaa6a1bea5c1346b6078d91d1d806a935401d0da5cbd2160f7e7020a2",
+        "text": "let{ProTrialStartScreen:O}=await Promise.resolve().then(() => (wv4(),Dv4));"
+      },
+      "render": {
+        "start": 12819809,
+        "end": 12819864,
+        "sha256": "6293516235bab336ce232147e612f0de58d8315ea6c3b445fd7114df981f89a4",
+        "text": "await Dv(H,(M)=>Iw.default.createElement(O,{onDone:M}))"
+      }
+    },
+    "sourceConsumer": {
+      "path": "src/interactiveHelpers.tsx",
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "showSetupScreens",
+        "start": 5116,
+        "end": 15058,
+        "bytes": 9952,
+        "sha256": "931c5e74a040ba0653a6bdb6d4bf627aa3d9665c1ea3663a794e696dcb0528ca"
+      },
+      "proTrialBlock": {
+        "start": 9584,
+        "end": 9968,
+        "bytes": 384,
+        "sha256": "c6869d4bd9cb1199811b2f3fd1cd96fceadfd047f0ae883163a6a466435d5a4c"
+      },
+      "dynamicImport": {
+        "start": 9772,
+        "end": 9817,
+        "bytes": 45,
+        "sha256": "913d9a55074a2060e536f1ad0ef3ade61f86ce3a03cd7860a61f37b3d38edb16"
+      },
+      "renderedJsx": {
+        "start": 9919,
+        "end": 9956,
+        "bytes": 37,
+        "sha256": "1b07d8c5c362361359ea906f6410532a92b44091ed1559853390fb4691ad8e74"
+      }
+    },
+    "rejectedScannerCandidates": [
+      {
+        "path": "src/components/BypassPermissionsModeDialog.tsx",
+        "bytes": 9136,
+        "sha256": "8cec2d578c944cab062448752e0e9823fa39c36a26bc09b6dab2e87c0f232b5d",
+        "exportedDeclaration": "BypassPermissionsModeDialog",
+        "containsProTrialStartScreen": false
+      },
+      {
+        "path": "src/components/TrustDialog/TrustDialog.tsx",
+        "bytes": 32481,
+        "sha256": "85177ac27e46d5cb5463c4b093569f18e38ec56cb4fd984ae983d656d4631556",
+        "exportedDeclaration": "TrustDialog",
+        "containsProTrialStartScreen": false
+      }
+    ],
+    "classification": "live-lazy-named-export-binding",
+    "dce": false,
+    "retainedNoise": false
+  },
+  "compilerProof": {
+    "sourceJsxElements": 10,
+    "targetCreateElementResidues": 10,
+    "reactCompilerMemoCache": {
+      "property": "c",
+      "slots": 9
+    },
+    "jsxTextLowerings": [
+      {
+        "source": " Starting your trial…",
+        "target": " Starting your trial…"
+      },
+      {
+        "source": "Couldn&apos;t start your trial. Press ",
+        "target": "Couldn't start your trial. Press "
+      },
+      {
+        "source": " to continue.",
+        "target": " to continue."
+      },
+      {
+        "source": " to start your trial",
+        "target": " to start your trial"
+      }
+    ]
+  },
+  "coverageEvolution": {
+    "correctedScanner": {
+      "units": 1,
+      "residues": 43,
+      "residueIdentitiesSha256": "c32a0553bb9aed9d0a5ba83c8cb9d9291a381252b8558275a8604074f84a9903",
+      "representationCounts": {
+        "jsx-boolean-attribute-lowering": 2,
+        "jsx-create-element-lowering": 10,
+        "react-compiler-cache-sentinel-call": 8,
+        "react-compiler-cache-slot": 21,
+        "react-compiler-memo-cache": 1,
+        "source-file-ast": 1
+      },
+      "sourceBoldAttributes": 2,
+      "rows": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12800009,
+          "end": 12800010,
+          "baselineCount": 809,
+          "targetOrdinal": 813,
+          "representation": "react-compiler-memo-cache"
+        },
+        {
+          "kind": "number",
+          "value": "9",
+          "start": 12800011,
+          "end": 12800012,
+          "baselineCount": 1219,
+          "targetOrdinal": 1237,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "property",
+          "value": "useState",
+          "start": 12800037,
+          "end": 12800045,
+          "baselineCount": 757,
+          "targetOrdinal": 801,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "number",
+          "value": "0",
+          "start": 12800061,
+          "end": 12800062,
+          "baselineCount": 43986,
+          "targetOrdinal": 44650,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "0",
+          "start": 12800330,
+          "end": 12800331,
+          "baselineCount": 43986,
+          "targetOrdinal": 44651,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "2",
+          "start": 12800344,
+          "end": 12800345,
+          "baselineCount": 4345,
+          "targetOrdinal": 4399,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "2",
+          "start": 12800358,
+          "end": 12800359,
+          "baselineCount": 4345,
+          "targetOrdinal": 4400,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 12800372,
+          "end": 12800373,
+          "baselineCount": 3370,
+          "targetOrdinal": 3399,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "property",
+          "value": "for",
+          "start": 12800384,
+          "end": 12800387,
+          "baselineCount": 1252,
+          "targetOrdinal": 1284,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "string",
+          "value": "react.memo_cache_sentinel",
+          "start": 12800388,
+          "end": 12800415,
+          "baselineCount": 1044,
+          "targetOrdinal": 1071,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 12800446,
+          "end": 12800447,
+          "baselineCount": 3370,
+          "targetOrdinal": 3400,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 12800460,
+          "end": 12800461,
+          "baselineCount": 3370,
+          "targetOrdinal": 3401,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 12800482,
+          "end": 12800483,
+          "baselineCount": 2359,
+          "targetOrdinal": 2389,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "property",
+          "value": "for",
+          "start": 12800494,
+          "end": 12800497,
+          "baselineCount": 1252,
+          "targetOrdinal": 1285,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "string",
+          "value": "react.memo_cache_sentinel",
+          "start": 12800498,
+          "end": 12800525,
+          "baselineCount": 1044,
+          "targetOrdinal": 1072,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 12800537,
+          "end": 12800538,
+          "baselineCount": 2359,
+          "targetOrdinal": 2390,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 12800551,
+          "end": 12800552,
+          "baselineCount": 2359,
+          "targetOrdinal": 2391,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "5",
+          "start": 12800569,
+          "end": 12800570,
+          "baselineCount": 1926,
+          "targetOrdinal": 1943,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "property",
+          "value": "for",
+          "start": 12800581,
+          "end": 12800584,
+          "baselineCount": 1252,
+          "targetOrdinal": 1286,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "string",
+          "value": "react.memo_cache_sentinel",
+          "start": 12800585,
+          "end": 12800612,
+          "baselineCount": 1044,
+          "targetOrdinal": 1073,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800619,
+          "end": 12800632,
+          "baselineCount": 8196,
+          "targetOrdinal": 8259,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "number",
+          "value": "5",
+          "start": 12800645,
+          "end": 12800646,
+          "baselineCount": 1926,
+          "targetOrdinal": 1944,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "5",
+          "start": 12800659,
+          "end": 12800660,
+          "baselineCount": 1926,
+          "targetOrdinal": 1945,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "6",
+          "start": 12800673,
+          "end": 12800674,
+          "baselineCount": 1515,
+          "targetOrdinal": 1532,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "property",
+          "value": "for",
+          "start": 12800685,
+          "end": 12800688,
+          "baselineCount": 1252,
+          "targetOrdinal": 1287,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "string",
+          "value": "react.memo_cache_sentinel",
+          "start": 12800689,
+          "end": 12800716,
+          "baselineCount": 1044,
+          "targetOrdinal": 1074,
+          "representation": "react-compiler-cache-sentinel-call"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800723,
+          "end": 12800736,
+          "baselineCount": 8196,
+          "targetOrdinal": 8260,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "number",
+          "value": "6",
+          "start": 12800853,
+          "end": 12800854,
+          "baselineCount": 1515,
+          "targetOrdinal": 1533,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "6",
+          "start": 12800867,
+          "end": 12800868,
+          "baselineCount": 1515,
+          "targetOrdinal": 1534,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "7",
+          "start": 12800881,
+          "end": 12800882,
+          "baselineCount": 1391,
+          "targetOrdinal": 1402,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800893,
+          "end": 12800906,
+          "baselineCount": 8196,
+          "targetOrdinal": 8261,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800973,
+          "end": 12800986,
+          "baselineCount": 8196,
+          "targetOrdinal": 8262,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800997,
+          "end": 12801010,
+          "baselineCount": 8196,
+          "targetOrdinal": 8263,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801023,
+          "end": 12801036,
+          "baselineCount": 8196,
+          "targetOrdinal": 8264,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801090,
+          "end": 12801103,
+          "baselineCount": 8196,
+          "targetOrdinal": 8265,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801161,
+          "end": 12801174,
+          "baselineCount": 8196,
+          "targetOrdinal": 8266,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "number",
+          "value": "0",
+          "start": 12801184,
+          "end": 12801185,
+          "baselineCount": 43986,
+          "targetOrdinal": 44652,
+          "representation": "jsx-boolean-attribute-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801216,
+          "end": 12801229,
+          "baselineCount": 8196,
+          "targetOrdinal": 8267,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801265,
+          "end": 12801278,
+          "baselineCount": 8196,
+          "targetOrdinal": 8268,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "number",
+          "value": "0",
+          "start": 12801288,
+          "end": 12801289,
+          "baselineCount": 43986,
+          "targetOrdinal": 44653,
+          "representation": "jsx-boolean-attribute-lowering"
+        },
+        {
+          "kind": "number",
+          "value": "7",
+          "start": 12801327,
+          "end": 12801328,
+          "baselineCount": 1391,
+          "targetOrdinal": 1403,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "8",
+          "start": 12801334,
+          "end": 12801335,
+          "baselineCount": 1851,
+          "targetOrdinal": 1882,
+          "representation": "react-compiler-cache-slot"
+        },
+        {
+          "kind": "number",
+          "value": "8",
+          "start": 12801348,
+          "end": 12801349,
+          "baselineCount": 1851,
+          "targetOrdinal": 1883,
+          "representation": "react-compiler-cache-slot"
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 21280,
+      "priorOwnerPaths": [],
+      "provisionalCandidates": [
+        "src/components/BypassPermissionsModeDialog.tsx",
+        "src/components/TrustDialog/TrustDialog.tsx"
+      ],
+      "sourceOwner": "src/components/ProTrialStartScreen.tsx",
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "ProTrialStartScreen",
+        "start": 504,
+        "end": 2022,
+        "bytes": 1520,
+        "sourceHash": "6163f2ddf213b4da687e8af69169fe4a731e9169dc231f04669d50390275b5c9"
+      },
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "ExpressionStatement",
+        "parseStatus": "parsed",
+        "start": 12799945,
+        "end": 12799983,
+        "bytes": 38,
+        "tokenCount": 14,
+        "sourceHash": "ed253fb5cf8e5baf5b1253c0a4a4953e33c5a6f5a35f1523d0ef64f6eadc272a",
+        "coarseHash": "b007d4c8b1355517e4b5feef64588c70aa52710d339d71434ad653fbd78f3aa4"
+      },
+      "behavior": "The complete authenticated Target119 unit is the live named-export registration for ProTrialStartScreen: it installs the ProTrialStartScreen getter on the module namespace, points that getter at the adjacent compiled declaration, and is reached by the interactiveHelpers dynamic import after the exact module initializer runs. The exact source export and live render consumer reject the provisional dialog candidates and prove this target-added property is a genuine module binding rather than alpha-equivalent retained noise or dead code.",
+      "evidenceIds": [
+        "target119-pro-trial-start-owner-target-fragment",
+        "target119-pro-trial-start-owner-source-compiler-test"
+      ],
+      "sourceMarkers": [
+        "export function ProTrialStartScreen"
+      ],
+      "residues": [
+        {
+          "kind": "property",
+          "value": "ProTrialStartScreen",
+          "start": 12799953,
+          "end": 12799972,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-named-export-binding"
+        }
+      ]
+    },
+    {
+      "targetIndex": 21281,
+      "priorOwnerPaths": [
+        "src/components/TrustDialog/TrustDialog.tsx"
+      ],
+      "sourceOwner": "src/components/ProTrialStartScreen.tsx",
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "ProTrialStartScreen",
+        "start": 504,
+        "end": 2022,
+        "bytes": 1520,
+        "sourceHash": "6163f2ddf213b4da687e8af69169fe4a731e9169dc231f04669d50390275b5c9"
+      },
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "parseStatus": "parsed",
+        "start": 12799983,
+        "end": 12801360,
+        "bytes": 1377,
+        "tokenCount": 536,
+        "sourceHash": "f86e56fb43dc6ec075a78c43ab9c513607a40ccc79ca252235749edff3c0ff89",
+        "coarseHash": "4537079241b79ee3eb2a78d7da99f57e8796cac09d6b000c0c553ec324eac516"
+      },
+      "behavior": "The complete authenticated Target119 unit is the compiled ProTrialStartScreen declaration: its trial-start state machine, telemetry, duration copy, spinner, and success/error controls uniquely bind src/components/ProTrialStartScreen.tsx; React compiler memo-cache, JSX createElement, and JSX text normalization residues are pinned mechanical lowerings of that exact declaration.",
+      "evidenceIds": [
+        "target119-pro-trial-start-owner-target-fragment",
+        "target119-pro-trial-start-owner-source-compiler-test"
+      ],
+      "sourceMarkers": [
+        "tengu_pro_trial_start_pressed",
+        "tengu_pro_trial_start_ok",
+        "tengu_pro_trial_start_error",
+        "Your Pro plan includes a Claude Code trial."
+      ],
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12800009,
+          "end": 12800010,
+          "baselineCount": 809,
+          "targetOrdinal": 813,
+          "representation": "react-compiler-memo-cache"
+        },
+        {
+          "kind": "property",
+          "value": "useState",
+          "start": 12800037,
+          "end": 12800045,
+          "baselineCount": 757,
+          "targetOrdinal": 801,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "idle",
+          "start": 12800046,
+          "end": 12800052,
+          "baselineCount": 139,
+          "targetOrdinal": 171,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "starting",
+          "start": 12800107,
+          "end": 12800117,
+          "baselineCount": 14,
+          "targetOrdinal": 17,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "error",
+          "start": 12800132,
+          "end": 12800139,
+          "baselineCount": 1155,
+          "targetOrdinal": 1172,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "starting",
+          "start": 12800154,
+          "end": 12800164,
+          "baselineCount": 14,
+          "targetOrdinal": 18,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "tengu_pro_trial_start_pressed",
+          "start": 12800168,
+          "end": 12800199,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "catch",
+          "start": 12800259,
+          "end": 12800264,
+          "baselineCount": 431,
+          "targetOrdinal": 577,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "tengu_pro_trial_start_ok",
+          "start": 12800222,
+          "end": 12800248,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "tengu_pro_trial_start_error",
+          "start": 12800279,
+          "end": 12800308,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "error",
+          "start": 12800315,
+          "end": 12800322,
+          "baselineCount": 1155,
+          "targetOrdinal": 1173,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800619,
+          "end": 12800632,
+          "baselineCount": 8196,
+          "targetOrdinal": 8259,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800723,
+          "end": 12800736,
+          "baselineCount": 8196,
+          "targetOrdinal": 8260,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "string",
+          "value": "Your Pro plan includes ",
+          "start": 12800754,
+          "end": 12800777,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": " days of Claude Code.",
+          "start": 12800781,
+          "end": 12800802,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "Your Pro plan includes a Claude Code trial.",
+          "start": 12800804,
+          "end": 12800849,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800893,
+          "end": 12800906,
+          "baselineCount": 8196,
+          "targetOrdinal": 8261,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "paddingX",
+          "start": 12800933,
+          "end": 12800941,
+          "baselineCount": 75,
+          "targetOrdinal": 78,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "starting",
+          "start": 12800959,
+          "end": 12800969,
+          "baselineCount": 14,
+          "targetOrdinal": 19,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800973,
+          "end": 12800986,
+          "baselineCount": 8196,
+          "targetOrdinal": 8262,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12800997,
+          "end": 12801010,
+          "baselineCount": 8196,
+          "targetOrdinal": 8263,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801023,
+          "end": 12801036,
+          "baselineCount": 8196,
+          "targetOrdinal": 8264,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "string",
+          "value": " Starting your trial…",
+          "start": 12801044,
+          "end": 12801072,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "jsx-text-lowering"
+        },
+        {
+          "kind": "string",
+          "value": "error",
+          "start": 12801079,
+          "end": 12801086,
+          "baselineCount": 1155,
+          "targetOrdinal": 1174,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801090,
+          "end": 12801103,
+          "baselineCount": 8196,
+          "targetOrdinal": 8265,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "string",
+          "value": "error",
+          "start": 12801113,
+          "end": 12801120,
+          "baselineCount": 1155,
+          "targetOrdinal": 1175,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "Couldn't start your trial. Press ",
+          "start": 12801122,
+          "end": 12801157,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "jsx-text-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801161,
+          "end": 12801174,
+          "baselineCount": 8196,
+          "targetOrdinal": 8266,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "string",
+          "value": "Enter",
+          "start": 12801187,
+          "end": 12801194,
+          "baselineCount": 35,
+          "targetOrdinal": 36,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": " to continue.",
+          "start": 12801196,
+          "end": 12801211,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "jsx-text-lowering"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801216,
+          "end": 12801229,
+          "baselineCount": 8196,
+          "targetOrdinal": 8267,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "string",
+          "value": "permission",
+          "start": 12801239,
+          "end": 12801251,
+          "baselineCount": 75,
+          "targetOrdinal": 76,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12801265,
+          "end": 12801278,
+          "baselineCount": 8196,
+          "targetOrdinal": 8268,
+          "representation": "jsx-create-element-lowering"
+        },
+        {
+          "kind": "string",
+          "value": "Enter",
+          "start": 12801291,
+          "end": 12801298,
+          "baselineCount": 35,
+          "targetOrdinal": 37,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": " to start your trial",
+          "start": 12801300,
+          "end": 12801322,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "jsx-text-lowering"
+        }
+      ]
+    },
+    {
+      "targetIndex": 21342,
+      "priorOwnerPaths": [
+        "src/interactiveHelpers.tsx"
+      ],
+      "sourceOwner": "src/interactiveHelpers.tsx",
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "showSetupScreens",
+        "start": 5116,
+        "end": 15058,
+        "bytes": 9952,
+        "sourceHash": "931c5e74a040ba0653a6bdb6d4bf627aa3d9665c1ea3663a794e696dcb0528ca"
+      },
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "parseStatus": "parsed",
+        "start": 12818398,
+        "end": 12821709,
+        "bytes": 3311,
+        "tokenCount": 1367,
+        "sourceHash": "55c964f0e2be8d2f2ff2eea278079be97f63410406383cb796be485694780552",
+        "coarseHash": "ace649a2f6081c18b7b2e81000de6c3f25bfe97021604a63ac9dfaec855ecd8c"
+      },
+      "behavior": "The complete authenticated Target119 showSetupScreens unit is the live downstream boundary of the Pro trial module: its conditional dynamic import executes the exact ProTrialStartScreen initializer, returns the namespace carrying the u21280 getter, destructures that named export, and renders the adjacent u21281 function. The exact interactiveHelpers.tsx source block closes the runtime edge while keeping unrelated startup-dialog and build-macro changes outside this proof.",
+      "evidenceIds": [
+        "target119-pro-trial-start-owner-target-fragment",
+        "target119-pro-trial-start-owner-source-compiler-test"
+      ],
+      "sourceMarkers": [
+        "getProTrialState",
+        "./components/ProTrialStartScreen.js",
+        "tengu_pro_trial_start_screen_shown"
+      ],
+      "residues": [
+        {
+          "kind": "property",
+          "value": "getProTrialState",
+          "start": 12819592,
+          "end": 12819608,
+          "baselineCount": 0,
+          "targetOrdinal": 2,
+          "representation": "source-dynamic-import-ast"
+        },
+        {
+          "kind": "property",
+          "value": "ProTrialStartScreen",
+          "start": 12819695,
+          "end": 12819714,
+          "baselineCount": 0,
+          "targetOrdinal": 2,
+          "representation": "source-dynamic-import-ast"
+        }
+      ]
+    }
+  ],
+  "sourceReplay": {
+    "mode": "static",
+    "authorized": false,
+    "reason": "The exact Target119 ProTrialStartScreen source export, compiled binding/function/initializer chain, and interactiveHelpers live consumer are already present and authenticated. ProTrialStartScreen.tsx is absent from the Target118 source commit and introduced intact in Target119, while the target interactiveHelpers source already contains the consumer block, so replaying either source would duplicate recovered behavior rather than fill a gap."
+  },
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {"phase": "preIntegration", "projection": "preIntegration", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24699833, "sha256": "00f24b4182b7c0fc74d583935ae144ee94dab0ef442d08302b3d8440f57effd2"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 377024, "sha256": "4eb0337aa7f99cddfe66dc33a36fba5dde400b52c8c36560344a4296d7aa79cc"}},
+      {"phase": "postIntegration", "projection": "postIntegration", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24701325, "sha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 377500, "sha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03"}},
+      {"phase": "post-u21759", "projection": "postIntegration", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 382108, "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"}, "sourceCoverageRaw": {"bytes": 3290710, "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"}},
+      {"phase": "post-u21878", "projection": "postIntegration", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 383456, "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"}, "sourceCoverageRaw": {"bytes": 3297173, "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"}}
+    ]
+  },
+  "latestArtifactProjection": {
+    "phases": ["post-u21759", "post-u21878"],
+    "units": [
+      {
+        "targetIndex": 21280,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {"full": {"rows": 1, "jsonBytes": 429, "sha256": "c651f85157c118fa3cb062f3ab72d25ae69c4973733afbef85bda1de0db45ec7"}, "identities": {"rows": 1, "jsonBytes": 64, "sha256": "3c09bab6bbfea30048e6d8b583a69e3a5085ab707280028fdebe7defc016d714"}},
+          "sourceRuntimeAddedOwnerResidueRows": {"full": {"rows": 1, "jsonBytes": 610, "sha256": "34a282821b1251c48c4dd693b2be102d3855b57419d36fe91396073c41a58695"}, "identities": {"rows": 1, "jsonBytes": 64, "sha256": "3c09bab6bbfea30048e6d8b583a69e3a5085ab707280028fdebe7defc016d714"}},
+          "rows": {"full": {"rows": 1, "jsonBytes": 610, "sha256": "34a282821b1251c48c4dd693b2be102d3855b57419d36fe91396073c41a58695"}, "identities": {"rows": 1, "jsonBytes": 64, "sha256": "3c09bab6bbfea30048e6d8b583a69e3a5085ab707280028fdebe7defc016d714"}},
+          "unclassifiedAddedOccurrenceRows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+        },
+        "coverageRows": {"rows": 1, "jsonBytes": 972, "sha256": "4e9ae48a63080ed631c66b3b9fc16e606546bf360a57a895f328bbf54bbdf730"},
+        "ownerCatalog": [{"id": "owner-src-components-ProTrialStartScreen-tsx", "path": "src/components/ProTrialStartScreen.tsx"}]
+      },
+      {
+        "targetIndex": 21281,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {"full": {"rows": 44, "jsonBytes": 18490, "sha256": "7e63bd18aa9cccb24d30456aeaa953bbea7d6aa2883f5de4f5513cfd260a8b54"}, "identities": {"rows": 44, "jsonBytes": 2429, "sha256": "2af4b61970e68b724535526319c59ae650e4ed2826095c87d34c4fe4d71fe7c8"}},
+          "sourceRuntimeAddedOwnerResidueRows": {"full": {"rows": 43, "jsonBytes": 1240567, "sha256": "f30c2b7465e4464361da08714c9b59698b8adfb6ccb78641ff5a7829201c3e63"}, "identities": {"rows": 43, "jsonBytes": 2375, "sha256": "c32a0553bb9aed9d0a5ba83c8cb9d9291a381252b8558275a8604074f84a9903"}},
+          "rows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}},
+          "unclassifiedAddedOccurrenceRows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+        },
+        "coverageRows": {"rows": 1, "jsonBytes": 811, "sha256": "aa6268fc287f9568bfec845c26fd570d166f44140c4282c00f7a5df913fec8c2"},
+        "ownerCatalog": [{"id": "owner-src-components-ProTrialStartScreen-tsx", "path": "src/components/ProTrialStartScreen.tsx"}]
+      },
+      {
+        "targetIndex": 21342,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {"full": {"rows": 76, "jsonBytes": 31281, "sha256": "ddc9625bf026c23537a2cf22eddc8f37514f4f753e8ebedad7a8606341b8e917"}, "identities": {"rows": 76, "jsonBytes": 4392, "sha256": "69b86de7e546ebdc3cc664b08a7d55dd6e054e15459972e499635afc6f00511c"}},
+          "sourceRuntimeAddedOwnerResidueRows": {"full": {"rows": 15, "jsonBytes": 31900, "sha256": "075ce5ff5b59dabd18a44bd73e1400761ab501885cc19a054688e95227e1a1c2"}, "identities": {"rows": 15, "jsonBytes": 923, "sha256": "a80c5d2d21364d7907bf26c9716be9b1db20309389ac613599f82d9613c7f86b"}},
+          "rows": {"full": {"rows": 2, "jsonBytes": 1056, "sha256": "79247898222e05772c0549611d4b93bd3f5576c2966124db13e0922bfd3e9c3e"}, "identities": {"rows": 2, "jsonBytes": 124, "sha256": "80bf6b9d907208cab17c3543e62d4a3a0759b2fe4f9fde3bdd0d0a1f2b0948e1"}},
+          "unclassifiedAddedOccurrenceRows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+        },
+        "coverageRows": {"rows": 1, "jsonBytes": 896, "sha256": "9cd6d96a42c087555086cd9a5c1dd6b1766a510a360c67d269e772087d71b20a"},
+        "ownerCatalog": [{"id": "owner-src-interactiveHelpers-tsx", "path": "src/interactiveHelpers.tsx"}]
+      }
+    ]
+  }
+}

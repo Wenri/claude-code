@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "sourceFile": {
+      "path": "src/services/analytics/datadog.ts",
+      "input": {
+        "bytes": 9101,
+        "sha256": "10d740d70976636ee082b820cc1b8dc4341fb1c21fc89eb61d72212e1d64675d"
+      },
+      "output": {
+        "bytes": 11308,
+        "sha256": "4faf8d5d88dbe58775b886ec50a4ebbda7d948b2751f5cb879d7cef70a26574f"
+      }
+    }
+  },
+  "baselineUnit": {
+    "index": 6763,
+    "role": "Target120 Datadog event and tag catalogs",
+    "nodeType": "VariableDeclaration",
+    "start": 3098220,
+    "end": 3101585,
+    "bytes": 3365,
+    "sourceHash": "ca7827a2b4a85917294df5a4868f8e6cb7687afa85f1611f13cc0089af65fc56",
+    "coarseHash": "8203ebb43b8433742614f0b5f0f06dc52540b547aeafaf254249787bfb8e550f"
+  },
+  "targetUnits": [
+    {
+      "index": 6783,
+      "role": "Datadog allowlist consumer",
+      "nodeType": "FunctionDeclaration",
+      "start": 3105346,
+      "end": 3106453,
+      "bytes": 1107,
+      "sourceHash": "e80727f13f741beed9311dd45de825c46604695a662fe0b6839cb44fa69c013d",
+      "coarseHash": "78d6126faa98355fa29759f6bd463a310857f20c9a9dd95252c93d0ede3d5123"
+    },
+    {
+      "index": 6786,
+      "role": "Target121 Datadog event and tag catalogs",
+      "nodeType": "VariableDeclaration",
+      "start": 3106730,
+      "end": 3110521,
+      "bytes": 3791,
+      "sourceHash": "fa117464fbba8c5e0763264582c8b897331ee4dc5aaeacf97804028cc2ac943b",
+      "coarseHash": "f99f27cdb6772eb7e4cfbf0ce22466400a069c3b43efa673eca2518f6beab669"
+    }
+  ],
+  "catalogs": {
+    "rawSource": {
+      "allowedEvents": {
+        "count": 44,
+        "sha256": "37e631f9c0e2a2f1ac4ccf93bb60f74bc94d201879089b1ff4cdb86309444e3a"
+      },
+      "tagFields": {
+        "count": 16,
+        "sha256": "50a9f550f69bc52782e6f107cb57923e7ea6e938169381bd73e8f47ac7391d13"
+      }
+    },
+    "baseline": {
+      "allowedEvents": {
+        "count": 97,
+        "sha256": "530f5604f73e10258d354d999a27360d3ccaa74090dbf292d673a12bf1cb6d49"
+      },
+      "tagFields": {
+        "count": 21,
+        "sha256": "963114befec1bf622d8f37ec13df334347a8b71227c61edf0f53844f9469b461"
+      }
+    },
+    "target": {
+      "allowedEvents": {
+        "count": 110,
+        "sha256": "87b934ed4b58f8494754233d1b324120979de367e54c983405a72ca92e409ff7"
+      },
+      "tagFields": {
+        "count": 23,
+        "sha256": "8ffe66785c4fe4d4c3137fd05d51ee90e02b0d2f704ccc5a88c579da0a04662b"
+      }
+    },
+    "targetDelta": {
+      "addedEvents": [
+        "tengu_copper_lantern",
+        "tengu_bg_attach_first_frame",
+        "tengu_bg_daemon_cold_start_ask",
+        "tengu_bg_daemon_cold_start_ask_answer",
+        "tengu_bg_daemon_spawn_failed",
+        "tengu_bg_dispatch_sigkill_escalate",
+        "tengu_bg_killjob_ctrl_fallback",
+        "tengu_bg_respawn_unconfirmed_bail",
+        "tengu_bg_spare_claim",
+        "tengu_bg_spare_claim_fail",
+        "tengu_bg_spare_spawn",
+        "tengu_daemon_cold_start_prompt",
+        "tengu_daemon_install_prompt_answer",
+        "tengu_daemon_peer_uid_reject",
+        "tengu_daemon_yield",
+        "tengu_daemon_yield_takeover"
+      ],
+      "removedEvents": [
+        "tengu_daemon_auto_uninstall",
+        "tengu_daemon_control",
+        "tengu_daemon_install"
+      ],
+      "addedTagFields": [
+        "op",
+        "source"
+      ],
+      "removedTagFields": []
+    }
+  },
+  "strictRows": [
+    {
+      "targetIndex": 6786,
+      "ownerPath": "src/services/analytics/datadog.ts",
+      "evidenceIds": [
+        "target121-datadog-event-catalog-target-fragment",
+        "target121-datadog-event-catalog-source-replay-test",
+        "target121-datadog-event-catalog-source-ast-test"
+      ]
+    }
+  ],
+  "residueIdentities": [
+    [6786, "string", "tengu_copper_lantern", 3107592, 3107614, 2],
+    [6786, "string", "tengu_bg_attach_first_frame", 3108909, 3108938, 1],
+    [6786, "string", "tengu_bg_daemon_spawn_failed", 3109095, 3109125, 1],
+    [6786, "string", "tengu_bg_dispatch_sigkill_escalate", 3109208, 3109244, 1],
+    [6786, "string", "tengu_bg_killjob_ctrl_fallback", 3109245, 3109277, 1],
+    [6786, "string", "tengu_bg_respawn_unconfirmed_bail", 3109408, 3109443, 1],
+    [6786, "string", "tengu_bg_spare_claim", 3109516, 3109538, 1],
+    [6786, "string", "tengu_bg_spare_claim_fail", 3109539, 3109566, 1],
+    [6786, "string", "tengu_bg_spare_spawn", 3109567, 3109589, 1],
+    [6786, "string", "tengu_daemon_cold_start_prompt", 3109637, 3109669, 1],
+    [6786, "string", "tengu_daemon_install_prompt_answer", 3109724, 3109760, 1],
+    [6786, "string", "tengu_daemon_peer_uid_reject", 3109782, 3109812, 1],
+    [6786, "string", "tengu_daemon_yield", 3109967, 3109987, 1],
+    [6786, "string", "tengu_daemon_yield_takeover", 3109988, 3110017, 1]
+  ],
+  "sourceDeclarations": [
+    {
+      "path": "src/services/analytics/datadog.ts",
+      "name": "DATADOG_ALLOWED_EVENTS",
+      "charStart": 746,
+      "charEnd": 4313,
+      "bytes": 3567,
+      "sha256": "861fff8c7ccdd44f27fbc47756134c02f38c54ac59ed69e0cced950ea9d1aef1"
+    },
+    {
+      "path": "src/services/analytics/datadog.ts",
+      "name": "TAG_FIELDS",
+      "charStart": 4315,
+      "charEnd": 4681,
+      "bytes": 366,
+      "sha256": "648d18fb564feaf4131ebea529dc69bfd59c6357aa7da525a43b2b18f79190e0"
+    }
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 14,
+    "indicesSha256": "61c288a72af6b2f8f7dae505113a36e40576c4fa846f74d6f0aeb7ec070b062b",
+    "residueIdentitiesSha256": "7ffd7a56270555d33070134ddd255bc2ada5367a1d762e206ba1f4ec9d993606"
+  }
+}

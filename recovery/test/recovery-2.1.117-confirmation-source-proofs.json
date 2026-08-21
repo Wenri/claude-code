@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-confirmation-source-gap-and-legacy-equivalence-v1",
+  "status": "case-owned-replay-ready",
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-confirmation-source-gaps.mjs",
+      "bytes": 13612,
+      "sha256": "11f09b387d606cb71e7930febea9e85237a28b67ffcf6e106e24b625634b0820"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "targetSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "rawTree": {
+        "files": 1957,
+        "bytes": 30993723,
+        "manifestSha256": "135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee"
+      },
+      "allCaseRecoveryTree": {
+        "files": 1970,
+        "bytes": 31103596,
+        "manifestSha256": "5851fdabf4bdb46db47af88f896b09f754043be25e6d64b729239f4c1978d8ea"
+      }
+    },
+    "authenticatedConsoleSource": {
+      "commit": "04fa3cc098785e6e8aa9d51e94d8a2065f7b485b",
+      "blob": "0ad0f6d688b340576b4dd09d2e126f9f535a2ab4",
+      "path": "src/components/ConsoleOAuthWizards.tsx",
+      "bytes": 65788,
+      "sha256": "e3b57b9bbb727acae433ea03037bc32bc3a6aa1189d9565989e8aedf6c8d5a42"
+    }
+  },
+  "summary": {
+    "units": 20,
+    "residues": 60,
+    "genericComponentUnits": 1,
+    "consoleReplayUnits": 4,
+    "legacySelectEquivalentUnits": 15,
+    "recoveredFiles": 2,
+    "authenticatedDeclarationSlices": 33,
+    "ownerOverrides": 20
+  },
+  "targets": [
+    [10792,"unresolved","FunctionDeclaration",6283534,6284252,"0d51bb63916c5cc5f7297fd9883b70b00ca46d6b0fc7a4c70fcaf8e972e80a64"],
+    [10809,"unresolved","FunctionDeclaration",6291821,6293838,"043310284e417ff4d24f3a37cbe0f38b53a7a158f1e444cfc2b243e5ee2bed29"],
+    [11693,"unresolved","FunctionDeclaration",7444027,7446195,"b2c108d317e4979436cbcdd0c50b0a6a8f308f947c6a48fc3e237d6c3ff77639"],
+    [11818,"unresolved","FunctionDeclaration",7501939,7503863,"1b55b4b19626ac79e4cd2b56a5e5a71448570aaa16e194faac0b09b25c747f3f"],
+    [11830,"unresolved","FunctionDeclaration",7506600,7508698,"77c3615b7927c91ec8dcf425110754edef9fcbd2e222e5a2ac6ee2f6a1e08121"],
+    [11866,"unresolved","FunctionDeclaration",7528583,7530136,"071e569ed67deb7f2ca0621982633c26d4b65b01b3eccfd930e16ac3c3bda61b"],
+    [11887,"unresolved","FunctionDeclaration",7544831,7546927,"9fdd00fa27c7879294a1af75bd2ab505ee3d6b2a251230dc70b119b99d91e810"],
+    [11890,"unresolved","FunctionDeclaration",7547004,7548568,"0997919d7ab10f8037f11f3c42aeee09734370174949d9c2d27c2ad23befffed"],
+    [15439,"unresolved","FunctionDeclaration",9525010,9526697,"7ce6417f4db40922e4c7575cc1607b82742553ed430e0b3a8af649783873035b"],
+    [15852,"unresolved","FunctionDeclaration",9926724,9927280,"ebff33c2320c32dd3b6397558f948668f83227d0e93bff8818e22d306e3611ac"],
+    [16870,"unresolved","FunctionDeclaration",10566794,10571267,"cf40edeb39698a7de09e05fe6f2855578306086879011784b0b68c5f4e15efe4"],
+    [17541,"unresolved","FunctionDeclaration",10877809,10878762,"6d5b90431d56e6172b1b68de8f521271783d61e6203faaae18bb9a62d9601c87"],
+    [17707,"unresolved","FunctionDeclaration",10931378,10933362,"b8be90e742edf47f648568b65169b61c241317edbe6c892124eaf0230731c51a"],
+    [18721,"unresolved","FunctionDeclaration",11521516,11523714,"ac509c00707ce04af9d6ec7074e1d9f883b3ea585c51c0bad38e7ba9b045bab3"],
+    [18869,"unresolved","FunctionDeclaration",11589072,11590914,"62ff5b5ab886493ba181bb2415cad9af4cee80b7478f1eef121b3305c088ee0b"],
+    [20131,"unresolved","FunctionDeclaration",12200750,12202213,"55db32e2fd77e74c9914366a5a09d35bc6b4a8fb38d5be299e6a59695b956e38"],
+    [20149,"unresolved","FunctionDeclaration",12222889,12226337,"fc2d6cdae07be24e36fb1dec538021daf71183f219abf9cd1cc4aef1ecb9f573"],
+    [20170,"unresolved","FunctionDeclaration",12228621,12232199,"8a3387350e5a20094719ce6317b1ce9ee7f0220df94c503449a62b8d32137658"],
+    [20187,"unresolved","FunctionDeclaration",12233865,12235263,"ddf33f7da9da2b34fc344fd955a8952bb0a22f3afe4a2f7176fd8a444cff90dd"],
+    [20194,"unresolved","FunctionDeclaration",12235482,12236665,"17538d852b549ba452d77df84a81f41b0f1cc153c30cdfa8baff8a34b771cc31"]
+  ],
+  "rows": [
+    {"targetIndex":10792,"kind":"generic-component","owner":"src/components/ConfirmationButtons.tsx","declaration":"ConfirmationButtons","residues":[["property","confirmLabel",6283589,6283601,1],["property","cancelLabel",6283604,6283615,1],["property","cancelFirst",6283618,6283629,1]]},
+    {"targetIndex":10809,"kind":"legacy-select","owner":"src/components/ManagedSettingsSecurityDialog/ManagedSettingsSecurityDialog.tsx","declaration":"ManagedSettingsSecurityDialog","file":[14484,"a6b500802474a995c88c33a392f00a811954174542bf0f5a16c745ab647c8a8d"],"source":[648,4048,3401,"44bc3b6cda0cc1aa32d109285cd010cd0e6cc4bb41e7b27d6c35c43ba3a30c2e"],"strings":["Yes, I trust these settings","No, exit Claude Code"],"residues":[["property","confirmLabel",6292964,6292976,2],["property","cancelLabel",6293007,6293018,2]]},
+    {"targetIndex":11693,"kind":"console-replay","owner":"src/components/ConsoleOAuthWizards.tsx","declaration":"BedrockConfirmStep","source":[2393,"01eb4f5ffb349dc31890b80644db8adbacc8226e7ab34886d8506de7e303411d"],"residues":[["property","confirmLabel",7445848,7445860,3],["property","cancelLabel",7445868,7445879,3]]},
+    {"targetIndex":11818,"kind":"console-replay","owner":"src/components/ConsoleOAuthWizards.tsx","declaration":"BedrockVerifyStep","source":[2639,"a81367d77f6473145e2cfb1e1965e9b4d00f578c2ecd3130a406015aff48852c"],"residues":[["property","cancelFirst",7503728,7503739,2],["property","confirmLabel",7503758,7503770,4],["property","cancelLabel",7503805,7503816,4]]},
+    {"targetIndex":11830,"kind":"console-replay","owner":"src/components/ConsoleOAuthWizards.tsx","declaration":"VertexConfirmStep","source":[2201,"04b1052029f10f0d1455198bb0600d2abb8b527e5fdf5705a3967e0f13a79c01"],"residues":[["property","confirmLabel",7508351,7508363,5],["property","cancelLabel",7508371,7508382,5]]},
+    {"targetIndex":11866,"kind":"console-replay","owner":"src/components/ConsoleOAuthWizards.tsx","declaration":"VertexVerifyStep","source":[1963,"3d89ad1d1a8f995f517251e848f437ceee4e3ce9f229c9c392110348be57bc2a"],"residues":[["property","cancelFirst",7530001,7530012,3],["property","confirmLabel",7530031,7530043,6],["property","cancelLabel",7530078,7530089,6],["property","onConfirm",7530108,7530117,6]]},
+    {"targetIndex":11887,"kind":"legacy-select","owner":"src/components/TeleportStash.tsx","declaration":"TeleportStash","file":[15582,"ca063a9f010b502eaa109d8dcc605592eaff2f73bfaae4d38d36c5ba9cc26826"],"source":[528,3833,3305,"f12035169bbebc17ed720f1341f7fe9d723520825e5a5bff5d01cb640e0bc51f"],"strings":["Stash changes and continue","Exit"],"residues":[["property","confirmLabel",7546829,7546841,7],["property","cancelLabel",7546871,7546882,7],["property","onConfirm",7546890,7546899,7]]},
+    {"targetIndex":11890,"kind":"legacy-select","owner":"src/components/TeleportError.tsx","declaration":"TeleportError","file":[18824,"2d17bc2344165596e6e13eef04839f6a6e01b48763690b3e25d15bac58ab63f8"],"source":[1042,4826,3784,"45c06e820ed50088ad65565c2a0fadcc2b37d5248408945dc81d601992038c57"],"strings":["Login with Claude account","Exit"],"residues":[["property","confirmLabel",7548450,7548462,8],["property","cancelLabel",7548491,7548502,8],["property","onConfirm",7548510,7548519,8]]},
+    {"targetIndex":15439,"kind":"legacy-select","owner":"src/components/ClaudeMdExternalIncludesDialog.tsx","declaration":"ClaudeMdExternalIncludesDialog","file":[13532,"c477baaf0aac2bdb97ef37c01d483dbe2719d5aee4e09c37f78248e43b0e2638"],"source":[549,3372,2823,"c8eeadf110a2a92957cea1dfe572daa18c18e4e856ecae1e0ae720d7f9ee1db9"],"strings":["Yes, allow external imports","No, disable external imports"],"residues":[["property","confirmLabel",9526259,9526271,9],["property","cancelLabel",9526302,9526313,9],["property","onConfirm",9526345,9526354,9]]},
+    {"targetIndex":15852,"kind":"legacy-select","owner":"src/components/IdeAutoConnectDialog.tsx","declaration":"IdeDisableAutoConnectDialog","file":[13271,"667747e4781123e9a1db8ce272c6ece505519f892a9e7d6fc8713698a0fd68fd"],"source":[2132,3499,1367,"4c3a7b88059908b1cd0f94a793966d18f1590743da83f744e4103bcf78cd1e69"],"strings":["No","Yes","Do you wish to disable auto-connect to IDE?"],"residues":[["property","cancelFirst",9926961,9926972,4],["property","onConfirm",9926991,9927000,10]]},
+    {"targetIndex":16870,"kind":"legacy-select","owner":"src/components/tasks/RemoteSessionDetailDialog.tsx","declaration":"UltraplanSessionDetail","file":[96185,"8772131f129868cc5357ae588b39ddb2937366790e5e5882caa8a563d0086ec1"],"source":[3913,11630,7718,"e025acc10007f72ddc12f53c30227d4596b6c72b80965496b6fff7fd07f40b2d"],"strings":["Terminate session","Back"],"targetOnlyStrings":["Terminate session and discard plan"],"residues":[["property","confirmLabel",10568416,10568428,10],["property","cancelLabel",10568432,10568443,10],["property","onConfirm",10568451,10568460,11]]},
+    {"targetIndex":17541,"kind":"legacy-select","owner":"src/commands/model/model.tsx","declaration":"CacheMissWarningDialog","file":[41215,"58951fd4512de595bfab2754d5cc2567a674eb85b7794070b57cdc28de586e1a"],"source":[5644,6708,1064,"d46edd1268b8a5f1e6386a6971e4e58ea4c52dab04d027bbfab43a020e400fd4"],"strings":["Yes, switch to ","No, go back"],"residues":[["property","confirmLabel",10878297,10878309,13],["property","cancelLabel",10878312,10878323,13]]},
+    {"targetIndex":17707,"kind":"legacy-select","owner":"src/commands/remote-setup/remote-setup.tsx","declaration":"Web","file":[21786,"4d9be86efa57e82457c29a7fad4b46b27c02dec36e9a8fde0ab4e993d20090ce"],"source":[2530,5961,3437,"f1e45cdd1781699d696798046de32df18375b2088ffc2a8670534e4b86d90c20"],"strings":["Continue","Cancel"],"residues":[["property","confirmLabel",10933279,10933291,14],["property","cancelLabel",10933303,10933314,14],["property","onConfirm",10933324,10933333,22]]},
+    {"targetIndex":18721,"kind":"legacy-select","owner":"src/components/permissions/AskUserQuestionPermissionRequest/SubmitQuestionsView.tsx","declaration":"SubmitQuestionsView","file":[16641,"4b123c1d4a4d58cc777b7a105b905c4e330649974210b4a00548b2937809ea16"],"source":[931,4520,3589,"2f6e996c62069add19fc1f6fba7e4cbe3402dcb46c4cedd495ba0ffcff964b3c"],"strings":["Submit answers","Cancel"],"residues":[["property","confirmLabel",11523145,11523157,15],["property","cancelLabel",11523175,11523186,15],["property","onConfirm",11523196,11523205,23]]},
+    {"targetIndex":18869,"kind":"legacy-select","owner":"src/components/permissions/EnterPlanModePermissionRequest/EnterPlanModePermissionRequest.tsx","declaration":"EnterPlanModePermissionRequest","file":[13340,"03be7a247fc644c2486f7128fb44cedcfcd5b240a9d0bb8ac098e12894dfb225"],"source":[646,3854,3212,"c36764e006661a3abeae6d963778e6322fdeba38c5a2ce46fd854ae43f7e6c55"],"strings":["Yes, enter plan mode","No, start implementing now"],"residues":[["property","confirmLabel",11590596,11590608,16],["property","cancelLabel",11590632,11590643,16],["property","onConfirm",11590673,11590682,24]]},
+    {"targetIndex":20131,"kind":"legacy-select","owner":"src/components/ApproveApiKey.tsx","declaration":"ApproveApiKey","file":[10621,"0a848059d2afaf3004b5ac45c1de847cab6d96cf83bbd1989f67cd6a1ffa253e"],"source":[354,3132,2778,"3ae340e0bde39e7d02b45373479e60a86a7f1e473954fac151dc963be6fc034a"],"strings":["Yes","No (","recommended"],"residues":[["property","focus",12201893,12201898,103],["property","cancelLabel",12201908,12201919,17],["property","onConfirm",12201922,12201931,25]]},
+    {"targetIndex":20149,"kind":"legacy-select","owner":"src/components/Onboarding.tsx","declaration":"Onboarding","file":[31528,"149ceb457c51efc815c162e6bb9eb358af6fdd430ec522bf7a0abb1ba9199aee"],"source":[1555,7885,6331,"232fef9a2c951aee5fd3ebbce7d370625a3ae3024214e4a1b975afa31da49e22"],"strings":["Yes, use recommended settings","No, maybe later with /terminal-setup"],"residues":[["property","confirmLabel",12225293,12225305,17],["property","cancelLabel",12225338,12225349,18],["property","onConfirm",12225389,12225398,26],["string","confirm",12225674,12225683,24]]},
+    {"targetIndex":20170,"kind":"legacy-select","owner":"src/components/TrustDialog/TrustDialog.tsx","declaration":"TrustDialog","file":[32481,"85177ac27e46d5cb5463c4b093569f18e38ec56cb4fd984ae983d656d4631556"],"source":[1293,7885,6593,"e52f59bb3c0462fab583b888fc8a0fef786c2a30e18ecbf81457fd465d4833b2"],"strings":["Yes, I trust this folder","No, exit"],"residues":[["property","confirmLabel",12231373,12231385,18],["property","cancelLabel",12231413,12231424,19],["property","onConfirm",12231436,12231445,27],["string","confirm",12231798,12231807,25]]},
+    {"targetIndex":20187,"kind":"legacy-select","owner":"src/components/BypassPermissionsModeDialog.tsx","declaration":"BypassPermissionsModeDialog","file":[9136,"8cec2d578c944cab062448752e0e9823fa39c36a26bc09b6dab2e87c0f232b5d"],"source":[490,2551,2061,"4f04357bfa451f58bc9bfac1bfbccc5904bde0f6c914356acb4a251cd914301e"],"strings":["Yes, I accept","No, exit"],"residues":[["property","cancelFirst",12235091,12235102,5],["property","focus",12235106,12235111,104],["property","confirmLabel",12235121,12235133,19],["property","cancelLabel",12235150,12235161,20],["property","onConfirm",12235173,12235182,28]]},
+    {"targetIndex":20194,"kind":"legacy-select","owner":"src/components/DevChannelsDialog.tsx","declaration":"DevChannelsDialog","file":[9113,"e513f094cd741b1ce029e0cd1ddc69101163d0ea3b0aba37eb877592f9ddc6bb"],"source":[429,2424,1995,"95b0cfb1379584eae1a9cf89777c339ab8d848f5e8be366ad182e505324363a4"],"strings":["I am using this for local development","Exit"],"residues":[["property","confirmLabel",12236331,12236343,20],["property","cancelLabel",12236384,12236395,21],["property","onConfirm",12236403,12236412,29]]}
+  ]
+}

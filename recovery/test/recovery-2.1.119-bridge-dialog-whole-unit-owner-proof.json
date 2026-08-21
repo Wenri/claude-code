@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "Admit Target119 u20251 only as the complete authenticated BridgeDialog unit. The Target118 and Target119 alpha-normalized token streams must be identical outside the one config-call argument replacement, every owner residue must remain pinned, the chord-aware footer and 96-slot cache must be inherited, and the historical source must authenticate the owner while remaining ineligible for replay because its BridgeDialog and KeyboardShortcutHint graph is stale.",
+  "ownerBehavior": "The complete authenticated Target119 BridgeDialog is a 96-slot compiler-cached UI unit. After alpha normalization, the only Target118-to-Target119 token change replaces the disconnect config-updater argument with the direct remoteControlAtStartup false pair; basename, QR toString, the chord-aware KeyboardShortcutHint footer, and the entire cache topology are inherited and remain stable through Target121. The recovered BridgeDialog authenticates the declaration, imports, and direct config call, but is a stale 87-slot manual-footer snapshot, while the recovered KeyboardShortcutHint requires shortcut and compiles to 9 slots instead of the authenticated chord-aware 12-slot dependency. Admission is static and never authorizes a partial or graph-incomplete source replay.",
+  "summary": {
+    "units": 1,
+    "ownerRows": 55,
+    "addedOwnerRows": 20,
+    "productionStrictRowsBeforeCorrection": 20,
+    "productionStrictRowsAfterCorrection": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-bridge-dialog-authenticated-whole-unit-proof",
+    "target119-bridge-dialog-config-call-delta-proof",
+    "target119-bridge-dialog-inherited-footer-proof",
+    "target119-bridge-dialog-source-map-owner-proof",
+    "target119-bridge-dialog-source-replay-blocker"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-bridge-dialog-authenticated-whole-unit-proof",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs",
+      "detail": "Pins the complete authenticated Target119 u20251 bytes, token ledger, 96-slot cache topology, and exact 55-row owner-residue partition."
+    },
+    {
+      "id": "target119-bridge-dialog-config-call-delta-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs",
+      "detail": "Proves the normalized Target118 and Target119 token streams are identical except Tt1 becoming the remoteControlAtStartup false argument pair at token 626, the sole net-three-token delta."
+    },
+    {
+      "id": "target119-bridge-dialog-inherited-footer-proof",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs",
+      "detail": "Pins the inherited c96 basename, QR toString, and chord-aware KeyboardShortcutHint footer in Target118 and Target119 together with its Target120 and Target121 lineage."
+    },
+    {
+      "id": "target119-bridge-dialog-source-map-owner-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs",
+      "detail": "Binds the sole generated owner candidate to the exact historical BridgeDialog declaration, path and qrcode imports, config call, inline source map, and authored source names."
+    },
+    {
+      "id": "target119-bridge-dialog-source-replay-blocker",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs",
+      "detail": "Rejects replay because BridgeDialog is a c87 manual-footer source and KeyboardShortcutHint exposes shortcut with c9 rather than the authenticated chord-aware c12 graph."
+    }
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionSha256": "bbefcae87790ef0b3f42ac99244f5d60ab9414327f6b06c9bef17f2f16f3cbf6",
+      "mutableAfterCorrection": true
+    },
+    "allOwners": {
+      "path": ".recovery-tmp/generator-inputs/2.1.118-to-2.1.119.all-owners.json",
+      "bytes": 10041641,
+      "sha256": "b6f39561b683e547ddbfc55bf34ea86103c5bf93df827192205b23a7db744b16"
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target120StructuralLedger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "target121Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "target121StructuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19319,
+    "classification": "matched",
+    "baselineUnitIndex": 19151,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "nodeType": "FunctionDeclaration",
+    "start": 11828309,
+    "end": 11832552,
+    "bytes": 4243,
+    "tokenCount": 2477,
+    "sha256": "56fc34a5b376e6c0fb08f61791166e24841c59a11b9511b3cc86f684b39ba54a",
+    "coarseHash": "d392238990597995e0eb1a3f5d193a533b1a54a152e93924372fdf51ed59b56c"
+  },
+  "targetUnit": {
+    "targetIndex": 20251,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12289501,
+    "end": 12293761,
+    "bytes": 4260,
+    "tokenCount": 2480,
+    "unknownFreeIdentifierCount": 2,
+    "sha256": "0abd8deeb394bb1ffd02e2c5a484113645f39b4f194dbf2eb9a2bc0e69e00f8a",
+    "coarseHash": "f5ee9cb3782c12e9ab5c771561e1a94329633bc9298f9b7de1b7d2d40aeefbd9"
+  },
+  "forwardUnits": [
+    {
+      "version": "2.1.120",
+      "targetIndex": 20336,
+      "classification": "matched",
+      "baselineUnitIndex": 20251,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 12326123,
+      "end": 12330383,
+      "bytes": 4260,
+      "tokenCount": 2480,
+      "sha256": "c35f1ace5354331144b244986e8e2f0521df1fca27a2db1b7429a44ebfb8627c",
+      "coarseHash": "f5ee9cb3782c12e9ab5c771561e1a94329633bc9298f9b7de1b7d2d40aeefbd9"
+    },
+    {
+      "version": "2.1.121",
+      "targetIndex": 20336,
+      "classification": "changed",
+      "baselineUnitIndex": 20336,
+      "pairReason": "unique-coarse-structural-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 12321169,
+      "end": 12325429,
+      "bytes": 4260,
+      "tokenCount": 2480,
+      "sha256": "eaad7fb9e92aff6f190904426af93b6db97e7d463933d5acaea0f0ec12d6d793",
+      "coarseHash": "f5ee9cb3782c12e9ab5c771561e1a94329633bc9298f9b7de1b7d2d40aeefbd9"
+    }
+  ],
+  "wholeUnitDelta": {
+    "normalization": "Each identifier token resolved by the structural index is replaced with its top, local, or free kind; non-reference property names and every other token remain exact.",
+    "baseline": {
+      "tokens": 2477,
+      "jsonBytes": 33948,
+      "sha256": "f8f2d765f2e861061e5b176aced910af15c3715424fdbdcbc03a0f7125e3aa5d"
+    },
+    "target": {
+      "tokens": 2480,
+      "jsonBytes": 34005,
+      "sha256": "63f75422fa00fe15f83539b9ec3633f3aad0ebbb290fb6574d0e1ebda37f7946"
+    },
+    "commonPrefixTokens": 626,
+    "commonSuffixBaselineStart": 627,
+    "commonSuffixTargetStart": 630,
+    "baselineReplacement": [["name", "@free"]],
+    "targetReplacement": [["string", "\"remoteControlAtStartup\""], [",", ","], ["!/~", "!"], ["num", "1"]],
+    "netTokenIncrease": 3,
+    "collapsed": {
+      "tokens": 2477,
+      "jsonBytes": 33963,
+      "sha256": "d2f9a871f9cad8df12eefed0e9aad1405add69dc1a1a31f68b122f6842f18921"
+    },
+    "baselineArgument": {
+      "start": 11829437,
+      "end": 11829440,
+      "bytes": 3,
+      "sha256": "6777f4c1515e9732e7d23181885dd26bfaae2233c7663f39d4b48822e0d7033c"
+    },
+    "targetArguments": {
+      "start": 12290629,
+      "end": 12290656,
+      "bytes": 27,
+      "sha256": "375256ff7448a708a1bff17318beb2737d3ed067acabb31b146838299eefa189"
+    }
+  },
+  "cacheTopology": {
+    "baseline": {"size": 96, "members": 198, "uniqueIndices": 96, "minIndex": 0, "maxIndex": 95, "missingIndices": [], "indexCountsBytes": 663, "indexCountsSha256": "aa6b6c8f181ebf3f2bad8025f3992f00290e08c6b70cb256e06c8dc7ae08454e"},
+    "target": {"size": 96, "members": 198, "uniqueIndices": 96, "minIndex": 0, "maxIndex": 95, "missingIndices": [], "indexCountsBytes": 663, "indexCountsSha256": "aa6b6c8f181ebf3f2bad8025f3992f00290e08c6b70cb256e06c8dc7ae08454e"}
+  },
+  "inheritedContract": {
+    "markers": [
+      {"value": ".c(96)", "baselineLocalOffsets": [25], "targetLocalOffsets": [25], "forwardLocalOffsets": [25]},
+      {"value": "basename", "baselineLocalOffsets": [303], "targetLocalOffsets": [303], "forwardLocalOffsets": [303]},
+      {"value": "toString", "baselineLocalOffsets": [561], "targetLocalOffsets": [561], "forwardLocalOffsets": [561]},
+      {"value": "{chord:\"d\",action:\"disconnect\"}", "baselineLocalOffsets": [3390], "targetLocalOffsets": [3410], "forwardLocalOffsets": [3410]},
+      {"value": "\"space for QR code\"", "baselineLocalOffsets": [3450], "targetLocalOffsets": [3470], "forwardLocalOffsets": [3470]},
+      {"value": "{chord:[\"enter\",\"escape\"],action:\"close\"}", "baselineLocalOffsets": [3657], "targetLocalOffsets": [3677], "forwardLocalOffsets": [3677]}
+    ]
+  },
+  "keyboardShortcutDependency": {
+    "baselineUnit": {
+      "targetIndex": 7840,
+      "classification": "matched",
+      "baselineUnitIndex": 7778,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "start": 3739794,
+      "end": 3740407,
+      "bytes": 613,
+      "tokenCount": 375,
+      "sha256": "47cf160703680d5f5eec5c9b0b08479e40f26859266df88f9338873448b1a330",
+      "coarseHash": "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a"
+    },
+    "targetUnit": {
+      "targetIndex": 7948,
+      "classification": "matched",
+      "baselineUnitIndex": 7840,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "start": 3779646,
+      "end": 3780259,
+      "bytes": 613,
+      "tokenCount": 375,
+      "sha256": "a9cc82cdfdfa301fc6b2927347f88713e9b7146fd20a971a9f0e5b97126540eb",
+      "coarseHash": "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a"
+    },
+    "cacheSize": 12,
+    "props": ["chord", "action", "format", "parens", "bold"],
+    "acceptsStringOrArrayChord": true
+  },
+  "attribution": {
+    "targetIndex": 20251,
+    "owners": [["../src/components/BridgeDialog.tsx", 2516]],
+    "candidateOwners": [
+      ["../src/components/BridgeDialog.tsx", 4219],
+      ["../src/components/CoordinatorAgentStatus.tsx", 1655],
+      ["../src/utils/highlightMatch.tsx", 1655],
+      ["../src/components/design-system/FuzzyPicker.tsx", 1655],
+      ["../src/components/GlobalSearchDialog.tsx", 1655],
+      ["../src/components/HistorySearchDialog.tsx", 1655],
+      ["../src/components/QuickOpenDialog.tsx", 1655],
+      ["../src/components/ThinkingToggle.tsx", 1655],
+      ["../src/components/AutoModeOptInDialog.tsx", 48]
+    ],
+    "semanticOwnership": "source-owned-exact"
+  },
+  "sourceOwner": {
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "path": "src/components/BridgeDialog.tsx",
+    "generatedFile": {"chars": 34366, "bytes": 34368, "sha256": "222dfbd34f349617233a8bb4a0d6bb74be8209e07c7d994b9ca727d8077ad880"},
+    "declaration": {"name": "BridgeDialog", "start": 1074, "end": 9249, "chars": 8175, "bytes": 8177, "sha256": "a586e52868b5ea3d303613bb15f13aad829a2832df96ce10745f4f6790e5b796"},
+    "imports": [
+      {"module": "path", "start": 50, "end": 82, "bytes": 32, "sha256": "cd0f5e2c9a0ddc9f91604dd1fbcac24d22b4066263d8cc39f79e9f12be2b98a9"},
+      {"module": "qrcode", "start": 83, "end": 131, "bytes": 48, "sha256": "b06a8820b1a1cd242225eae37957b82278831d59b84285ee8114a88361374c4f"},
+      {"module": "../utils/settings/configSettings.js", "start": 867, "end": 936, "bytes": 69, "sha256": "49568ea92748194eeb74eec16dbf6504f5a0b03ff3013fa6f272a15123d7fb6e"}
+    ],
+    "generatedFragments": {
+      "cache": {"start": 1111, "end": 1128, "bytes": 17, "sha256": "01e0c5f94c6eb66e6f03f11744c3999d2402381f8773f1d499da33cf8677509b"},
+      "configCall": {"start": 3573, "end": 3621, "bytes": 48, "sha256": "e243e00625702bbdc81fa50cbd3916d22001afac63bb331e9b215bfc15634fbf"},
+      "manualFooter": {"start": 8451, "end": 8536, "bytes": 87, "sha256": "b55dd0169c9a38c6dda78f362662374dc521e13643058aaa14ff42a6da08ef61"}
+    },
+    "sourceMap": {
+      "sources": ["BridgeDialog.tsx"],
+      "names": 142,
+      "mappingsBytes": 11020,
+      "mappingsSha256": "c0ec4fa158562e4ad34801298c771eb91f8c5204519dd9f89c0e42d89aa3847f",
+      "authoredContent": {"chars": 5273, "bytes": 5277, "sha256": "80286a92c8fb949ad9efc77bfa0fcd397e32edf9ce94b5ccdb9e9fa11be4be50"},
+      "authoredUpdater": {"start": 3068, "end": 3242, "bytes": 174, "sha256": "f5e9df8113cd6b2de698537c460c654d6cea989a65fcfd4900392a3f31243469"},
+      "authoredFooter": {"start": 5167, "end": 5223, "bytes": 58, "sha256": "a3cb2d5d9f7af67513f91e6960b0bbae92543c850be046cc7af362596be0151d"}
+    }
+  },
+  "sourceDependency": {
+    "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+    "generatedFile": {"chars": 6843, "bytes": 6847, "sha256": "674320359f925e9f4f73f8761f003a0874bb6835eeb07ebb644192e8557d2b26"},
+    "declaration": {"name": "KeyboardShortcutHint", "start": 1316, "end": 2242, "chars": 926, "bytes": 926, "sha256": "3072744959fc4af3adfb66655b0ab1bdd8146e70f728eaf34c072aba73a74179"},
+    "props": {"start": 126, "end": 494, "chars": 368, "bytes": 372, "sha256": "1dc5dd3f6a56187b03a92e13fab8b011582aa04e7411e59d8c6a4efe48030870", "keys": ["shortcut", "action", "parens", "bold"]},
+    "generatedCache": {"start": 1361, "end": 1377, "bytes": 16, "sha256": "7b760b1092cf06d6d2e1ea5cddd4481765d394ad63fad7e1e03b87b3a7e08d19", "size": 9},
+    "sourceMap": {
+      "sources": ["KeyboardShortcutHint.tsx"],
+      "names": 17,
+      "mappingsBytes": 1411,
+      "mappingsSha256": "03a4aaaf71fa391c337fbdfcd7071355c37804aa945a056e3928f5e474fe29d6",
+      "authoredContent": {"chars": 1631, "bytes": 1635, "sha256": "a1b3641495920ba9deb3aefd024234a8e5736f4947fb5f5a1c78786bba1243fc"},
+      "authoredProps": {"start": 75, "end": 438, "chars": 363, "bytes": 367, "sha256": "18618e60abb486c21aca2625a52738a3f81e1c5d8a7f6faab9a855234405c438"}
+    }
+  },
+  "ownerResidues": {
+    "identityFields": ["targetIndex", "literalKind", "value", "start", "end", "baselineOccurrenceCount", "targetOccurrenceNumber", "targetAdded"],
+    "all": {
+      "rows": 55,
+      "jsonBytes": 3294,
+      "sha256": "1287edd42dfb27d2093eedc96832d2f36aa932e57229db7e0c633b2ca8503028",
+      "identities": [
+        [20251,"property","c",12289527,12289528,809,739,false],
+        [20251,"number","96",12289529,12289531,46,50,true],
+        [20251,"property","onDone",12289534,12289540,229,203,false],
+        [20251,"property","useState",12289687,12289695,757,674,false],
+        [20251,"property","useState",12289710,12289718,757,675,false],
+        [20251,"property","useState",12289733,12289741,757,676,false],
+        [20251,"property","basename",12289804,12289812,134,153,true],
+        [20251,"property","useEffect",12289974,12289983,437,297,false],
+        [20251,"property","toString",12290062,12290070,966,989,true],
+        [20251,"property","useEffect",12290207,12290216,437,298,false],
+        [20251,"property","label",12290889,12290894,714,713,false],
+        [20251,"property","createElement",12291523,12291536,8196,7455,false],
+        [20251,"property","createElement",12291632,12291645,8196,7456,false],
+        [20251,"property","createElement",12291737,12291750,8196,7457,false],
+        [20251,"property","createElement",12291832,12291845,8196,7458,false],
+        [20251,"property","createElement",12291934,12291947,8196,7459,false],
+        [20251,"property","createElement",12292065,12292078,8196,7460,false],
+        [20251,"property","createElement",12292205,12292218,8196,7461,false],
+        [20251,"property","createElement",12292339,12292352,8196,7462,false],
+        [20251,"property","createElement",12292761,12292774,8196,7463,false],
+        [20251,"property","createElement",12292894,12292907,8196,7464,false],
+        [20251,"property","chord",12292912,12292917,311,287,false],
+        [20251,"property","action",12292922,12292928,852,780,false],
+        [20251,"string","disconnect",12292929,12292941,3,3,false],
+        [20251,"property","createElement",12292950,12292963,8196,7465,false],
+        [20251,"string","space for QR code",12292971,12292990,1,1,false],
+        [20251,"property","createElement",12293097,12293110,8196,7466,false],
+        [20251,"property","createElement",12293130,12293143,8196,7467,false],
+        [20251,"property","createElement",12293161,12293174,8196,7468,false],
+        [20251,"property","chord",12293179,12293184,311,288,false],
+        [20251,"string","enter",12293186,12293193,115,110,false],
+        [20251,"string","escape",12293194,12293202,122,116,false],
+        [20251,"property","action",12293204,12293210,852,781,false],
+        [20251,"string","close",12293211,12293218,122,133,true],
+        [20251,"number","88",12293350,12293352,63,64,true],
+        [20251,"property","createElement",12293365,12293378,8196,7469,false],
+        [20251,"property","tabIndex",12293404,12293412,83,77,false],
+        [20251,"property","autoFocus",12293416,12293425,72,71,false],
+        [20251,"property","onKeyDown",12293429,12293438,79,74,false],
+        [20251,"number","88",12293525,12293527,63,65,true],
+        [20251,"number","89",12293534,12293536,57,58,true],
+        [20251,"number","89",12293551,12293553,57,59,true],
+        [20251,"number","90",12293567,12293569,87,88,true],
+        [20251,"number","91",12293578,12293580,51,52,true],
+        [20251,"number","92",12293589,12293591,63,64,true],
+        [20251,"number","93",12293601,12293603,61,62,true],
+        [20251,"number","94",12293612,12293614,41,42,true],
+        [20251,"property","createElement",12293627,12293640,8196,7470,false],
+        [20251,"number","90",12293688,12293690,87,89,true],
+        [20251,"number","91",12293696,12293698,51,53,true],
+        [20251,"number","92",12293704,12293706,63,65,true],
+        [20251,"number","93",12293713,12293715,61,63,true],
+        [20251,"number","94",12293721,12293723,41,43,true],
+        [20251,"number","95",12293730,12293732,58,60,true],
+        [20251,"number","95",12293747,12293749,58,61,true]
+      ]
+    },
+    "added": {
+      "rows": 20,
+      "jsonBytes": 1046,
+      "sha256": "be5e7853235dcbc560a1e6bcf2f670c6dc4214009f47aa31bf43b5fdc1babe34",
+      "indexSha256": "81b3868e7e20d2698bd2d34d900d741694b6aec5e2ca1670b32e95924c326133",
+      "identities": [
+        [20251,"number","96",12289529,12289531,46,50,true],
+        [20251,"property","basename",12289804,12289812,134,153,true],
+        [20251,"property","toString",12290062,12290070,966,989,true],
+        [20251,"string","close",12293211,12293218,122,133,true],
+        [20251,"number","88",12293350,12293352,63,64,true],
+        [20251,"number","88",12293525,12293527,63,65,true],
+        [20251,"number","89",12293534,12293536,57,58,true],
+        [20251,"number","89",12293551,12293553,57,59,true],
+        [20251,"number","90",12293567,12293569,87,88,true],
+        [20251,"number","91",12293578,12293580,51,52,true],
+        [20251,"number","92",12293589,12293591,63,64,true],
+        [20251,"number","93",12293601,12293603,61,62,true],
+        [20251,"number","94",12293612,12293614,41,42,true],
+        [20251,"number","90",12293688,12293690,87,89,true],
+        [20251,"number","91",12293696,12293698,51,53,true],
+        [20251,"number","92",12293704,12293706,63,65,true],
+        [20251,"number","93",12293713,12293715,61,63,true],
+        [20251,"number","94",12293721,12293723,41,43,true],
+        [20251,"number","95",12293730,12293732,58,60,true],
+        [20251,"number","95",12293747,12293749,58,61,true]
+      ]
+    }
+  },
+  "coverageEvolution": {
+    "ownerIds": ["owner-src-components-BridgeDialog-tsx"],
+    "provisionalEvidenceIds": ["source-map-attribution", "semantic-test"],
+    "correctedEvidenceIds": [
+      "target119-bridge-dialog-authenticated-whole-unit-proof",
+      "target119-bridge-dialog-config-call-delta-proof",
+      "target119-bridge-dialog-inherited-footer-proof",
+      "target119-bridge-dialog-source-map-owner-proof",
+      "target119-bridge-dialog-source-replay-blocker"
+    ],
+    "postCorrectionStrictIndexSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "replayDecision": {
+    "mode": "static-only",
+    "graphClosed": false,
+    "bridgeTargetCacheSize": 96,
+    "bridgeSourceCacheSize": 87,
+    "keyboardTargetCacheSize": 12,
+    "keyboardSourceCacheSize": 9,
+    "targetKeyboardProp": "chord",
+    "sourceKeyboardProp": "shortcut",
+    "targetFooterMode": "KeyboardShortcutHint-and-Byline",
+    "sourceFooterMode": "manual-text",
+    "sourceReplayHelpers": []
+  }
+}

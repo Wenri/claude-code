@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-query-engine-inherited-class-token-subsequence-proof-v1",
+  "status": "authenticated-static-whole-unit-owner-proof-no-replay",
+  "evidenceIds": [
+    "target118-query-engine-inherited-class-authenticated-units",
+    "target118-query-engine-inherited-class-token-subsequence",
+    "target118-query-engine-inherited-class-source-boundary"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/query-engine-inherited-class-owner-overrides.mjs",
+      "bytes": 1257,
+      "sha256": "04ca7fb1630d7c3e5f9ddb8a40feae79b406f2129e561dba26b4c35297b6c839"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "baseCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "targetCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "targetTree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "baseFile": {
+        "path": "src/QueryEngine.ts",
+        "blob": "84b1b0adabbaf9e100689ad9a47f69524925de0a",
+        "bytes": 48302,
+        "sha256": "85996680c2665a627d61acb4c561f062503ee17e05d5ad0aef51f94418a2bded",
+        "declaration": {
+          "name": "QueryEngine",
+          "characterStart": 7604,
+          "characterEnd": 45387,
+          "byteStart": 7604,
+          "byteEnd": 45419,
+          "bytes": 37815,
+          "sha256": "89d0969e8d0c5870239c204ff0a57799603c1203997c26d7341c8613154a58ac"
+        }
+      },
+      "targetFile": {
+        "path": "src/QueryEngine.ts",
+        "blob": "98c133ccdf9ce3f193ac54658e2e891fc379275d",
+        "bytes": 49058,
+        "sha256": "65a705ce2714cbba8f75704cf79be67c72e127db8803f7991b7b081801f44c12",
+        "declaration": {
+          "name": "QueryEngine",
+          "characterStart": 7804,
+          "characterEnd": 45985,
+          "byteStart": 7804,
+          "byteEnd": 46017,
+          "bytes": 38213,
+          "sha256": "a90368e0c5cfcf4eba156c20c170aecbabd78ec118f0a652af19c76ea7297e99"
+        }
+      }
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20612,
+    "classification": "unresolved",
+    "start": 12893549,
+    "end": 12911965,
+    "bytes": 18416,
+    "tokenCount": 5651,
+    "nodeType": "ClassDeclaration",
+    "sourceHash": "d7f8345ac5d67c418bf0cf80a7cdeff59ae87796c75e9d27b84b719b0935268d",
+    "coarseHash": "2cb29de6685e230c233828a7c1f82899724b4bb99e493b607ee7c6933f9168af"
+  },
+  "targetUnit": {
+    "targetIndex": 20802,
+    "classification": "unresolved",
+    "start": 13011117,
+    "end": 13029600,
+    "bytes": 18483,
+    "tokenCount": 5663,
+    "nodeType": "ClassDeclaration",
+    "sourceHash": "21ec23aab09fde4fcbf0e4f0e05a5ebc8875d335811355f0f238bb8ce588d915",
+    "coarseHash": "5d4d71e2dd73af84e795be262cb89e6c838c56a23fce12711be2dcc754b83da6",
+    "ownerPath": "src/QueryEngine.ts",
+    "declarations": ["QueryEngine"],
+    "residues": [
+      ["property", "constructor", 13011450, 13011461, 1276, 1277],
+      ["property", "isArray", 13013135, 13013142, 953, 956],
+      ["string", "function", 13014297, 13014307, 909, 911],
+      ["property", "level", 13015831, 13015836, 711, 735],
+      ["string", "warn", 13015837, 13015843, 256, 280],
+      ["property", "id", 13016165, 13016167, 1532, 1534],
+      ["property", "toolUseID", 13016170, 13016179, 187, 191],
+      ["property", "toolName", 13016187, 13016195, 280, 281],
+      ["property", "id", 13016784, 13016786, 1532, 1535],
+      ["property", "toolUseID", 13016790, 13016799, 187, 192],
+      ["property", "toolName", 13016808, 13016816, 280, 282],
+      ["property", "max", 13017392, 13017395, 743, 756],
+      ["string", "function", 13019060, 13019070, 909, 912],
+      ["property", "id", 13024527, 13024529, 1532, 1536],
+      ["property", "toolUseID", 13024544, 13024553, 187, 193],
+      ["property", "toolName", 13024573, 13024581, 280, 283]
+    ],
+    "behavior": "The complete authenticated Target117 QueryEngine class canonical token stream is an exact subsequence of the complete Target118 class. Every one of the sixteen strict Target118 residues maps deterministically to an exact raw-equal Target117 predecessor token inside an identical seventeen-token canonical neighborhood. The exact historical Target118 QueryEngine source and packaged source pin the sole class declaration boundary. These rows are inherited whole-class occurrences, not new Target118 behavior, and the proof authorizes no source replay."
+  },
+  "canonicalTokenProof": {
+    "baseline": {
+      "tokens": 5651,
+      "bytes": 28418,
+      "sha256": "6966bf395af28ac14d9e37ca1f5a7f769748603aa4911caba045564e17bc1d75"
+    },
+    "target": {
+      "tokens": 5663,
+      "bytes": 28472,
+      "sha256": "ec193ef129ce957ffaad9217d2b0305fc01d4394e8044b961058578fe706cf57"
+    },
+    "matchedBaselineTokens": 5651,
+    "targetOnlyTokens": [
+      [241, ",", ",", 13012126, 13012127],
+      [242, "ID", "replayUserMessages", 13012127, 13012145],
+      [243, ":", ":", 13012145, 13012146],
+      [244, "ID", "E", 13012146, 13012147],
+      [822, "ID", "L", 13013869, 13013870],
+      [823, ",", ",", 13013870, 13013871],
+      [824, "ID", "agentDefinitions", 13013871, 13013887],
+      [825, ":", ":", 13013887, 13013888],
+      [2233, ",", ",", 13018633, 13018634],
+      [2234, "ID", "theme", 13018634, 13018639],
+      [2235, ":", ":", 13018639, 13018640],
+      [2236, "ID", "Fc", 13018640, 13018642]
+    ],
+    "residuePredecessors": [
+      [58, 58, 12893882, 12893893, "constructor", 8, "cd979d135eb4e931b35562159fbca6f064a1c1c393dba2a8356d32253d9f370c"],
+      [604, 600, 12895544, 12895551, "isArray", 8, "dd4bf0b05eb692b6279f0246f8cde7e1be4ac73a914f5e4b9537d4eb7aa51ebe"],
+      [941, 933, 12896681, 12896691, "\"function\"", 8, "56cac8c9a35198f1a57d136b136932329cb31f1e9386e0b05c6d1f6b4a3ed8c5"],
+      [1327, 1319, 12898215, 12898220, "level", 8, "c4c0fa4ccd8c14b2c39b52ef15f2f65b4e1b15323b037b2be39c657b5c983418"],
+      [1329, 1321, 12898221, 12898227, "\"warn\"", 8, "0d6993244485aa4a17069be529bf7f9d6fd4413b3ef9aa96ea0b4aad40c6f1c3"],
+      [1413, 1405, 12898549, 12898551, "id", 8, "27cc643b9a14d1d0585ee134f59366b9bc119f661094effcd60f220b44daf0ce"],
+      [1417, 1409, 12898554, 12898563, "toolUseID", 8, "a165d43de9e91f27b25506f788ddb2fc2759baace13ac5877dafe1801c171553"],
+      [1423, 1415, 12898571, 12898579, "toolName", 8, "fc88b400687cc5c867fd883e039596f20b5a3fa5bd0a18c9041cc81194ddb327"],
+      [1603, 1595, 12899168, 12899170, "id", 8, "27cc643b9a14d1d0585ee134f59366b9bc119f661094effcd60f220b44daf0ce"],
+      [1607, 1599, 12899174, 12899183, "toolUseID", 8, "a165d43de9e91f27b25506f788ddb2fc2759baace13ac5877dafe1801c171553"],
+      [1613, 1605, 12899192, 12899200, "toolName", 8, "fc88b400687cc5c867fd883e039596f20b5a3fa5bd0a18c9041cc81194ddb327"],
+      [1827, 1819, 12899777, 12899780, "max", 8, "ec8f063a209ccbd8399bc357ebdab42a3ad3776d93ca031fb2464328f5baaf39"],
+      [2351, 2339, 12901424, 12901434, "\"function\"", 8, "56cac8c9a35198f1a57d136b136932329cb31f1e9386e0b05c6d1f6b4a3ed8c5"],
+      [4118, 4106, 12906892, 12906894, "id", 8, "414fe691fbf1ddde6fbc0facffc7915fc96a9ba23134909cbbe0c6b2f57d0034"],
+      [4124, 4112, 12906909, 12906918, "toolUseID", 8, "abbb18e97054dffe8e5c34daefb47cb9158c58e4da6dab42d140cb9925703b05"],
+      [4132, 4120, 12906938, 12906946, "toolName", 8, "498409ce07734ddd2e5ca975e9f2f2a36f90caddca51c0de1719fb316c5bc0b9"]
+    ]
+  },
+  "sourceOwnerProof": {
+    "inheritedSourceIdentifierCounts": {
+      "replayUserMessages": 3,
+      "agentDefinitions": 2,
+      "theme": 4
+    },
+    "sourceReplayHelper": null
+  },
+  "ownerOverride": {
+    "paths": ["src/QueryEngine.ts"],
+    "declarations": ["QueryEngine"],
+    "evidenceIds": [
+      "target118-query-engine-inherited-class-authenticated-units",
+      "target118-query-engine-inherited-class-token-subsequence",
+      "target118-query-engine-inherited-class-source-boundary"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 16,
+    "targetIndicesSha256": "318caecde8180fa49cd5eec7248e5382cffdd8fb67ba908420cd4b48154f2e90",
+    "residueIdentitiesSha256": "ac83f803f7c4ece5d539230e02399319a0c83d70688774860fbe78b8e4d5ec6f"
+  }
+}

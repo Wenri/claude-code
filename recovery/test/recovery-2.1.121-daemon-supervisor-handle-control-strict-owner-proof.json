@@ -1,0 +1,499 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-supervisor-handle-control-row-scoped-strict-owner-v1",
+  "status": "case-owned-row-scoped-static-strict-owner-evidence",
+  "claim": "The existing daemon-supervisor proof authenticates complete u22140 as src/daemon/supervisor.ts#handleControl. Two exact source MACRO.VERSION accesses compile to two identical build-object member expressions, each contributing one VERSION, BUILD_TIME, and GIT_SHA string row. The remaining strict row is the first template quasi of the exact clear-display repaint expression. Raw and postPrune package source are byte-identical and already contain both authored operations. This case admits only those seven strict rows, retains 30 other owner rows and the non-strict added from/join rows, performs no whole-unit override, changes no coverage, and replays no source.",
+  "evidenceIds": [
+    "target121-daemon-supervisor-handle-control-authenticated-unit-lineage",
+    "target121-daemon-supervisor-handle-control-build-macro-lineage",
+    "target121-daemon-supervisor-handle-control-repaint-template-lineage",
+    "target121-daemon-supervisor-handle-control-strict-row-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-handle-control-strict-owner-evidence.mjs",
+      "bytes": 2993,
+      "sha256": "ba910bf050ca7caf949275668295af5eb769ef01d5c2b4b922c2f223662fcc68"
+    }
+  },
+  "dependencyEvidence": {
+    "role": "The existing daemon-supervisor fixture, helper, builder, and test authenticate complete u22140, its corrected source owner, both build-macro mappings, and the repaint-template compiler mapping. This case consumes that proof without modifying it.",
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-owner-overrides.mjs",
+      "bytes": 1641,
+      "sha256": "b6a0ba398a75c8bcc3af63ddc3f510161916a9573b7b47a90df49749949bdee8"
+    },
+    "builder": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/build-daemon-supervisor-owner-proofs.mjs",
+      "bytes": 10524,
+      "sha256": "0af768ecc7f9f3960545d3e31bf433c84fcd1db3d43e4ef69c010d5789c8c8d3"
+    },
+    "fixture": {
+      "path": "recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.json",
+      "bytes": 78567,
+      "sha256": "4be8cd934d5b395a7ea9ef4e55ef0043ef3b35236d7df644d020e7cfa94d31fc"
+    },
+    "test": {
+      "path": "recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.test.mjs",
+      "bytes": 12598,
+      "sha256": "4df7bc061c1f116514a295cf8caa583da641c095d346f6f10c40976aa8aca78f"
+    },
+    "targetUnitDescriptor": {
+      "bytes": 299,
+      "sha256": "82c0b76dce1fa1fd00bd203ad77dcf0f1d7fb382a9073b88c122242e0f5f5bcc"
+    },
+    "expectedBuildMacroRows": 6,
+    "expectedCompilerRows": 1,
+    "correctedOwner": "src/daemon/supervisor.ts"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostPruneSnapshot": {
+      "method": "The report and coverage descriptors plus the supplied u22140 partition digests were frozen before this disjoint case was created. The proof test never reopens either shared mutable artifact.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25396455,
+        "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345989,
+        "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+        "rawBytes": 2968244,
+        "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+      },
+      "coverage": {
+        "count": 1,
+        "rowDescriptor": {
+          "bytes": 786,
+          "sha256": "75e4b74af1d2039b32078fe3fe7815fcc2f4cb3f339cfcc09192a0f9d3298b34"
+        },
+        "ownerPath": "src/daemon/supervisor.ts",
+        "evidenceIds": [
+          "target121-daemon-supervisor-authenticated-target-fragment",
+          "target121-daemon-supervisor-exact-source-owner-test",
+          "target121-daemon-supervisor-compiler-normalization-test",
+          "target121-daemon-supervisor-build-macro-test"
+        ],
+        "ownerAndEvidenceAlreadyCorrect": true
+      },
+      "physicalPartitions": {
+        "owner": {
+          "units": 1,
+          "rows": 37,
+          "identities": {
+            "bytes": 2637,
+            "sha256": "9ffab98fbedcc934b2c3da19781e1c649633dafd542c33f76f8cf60396b963b5"
+          }
+        },
+        "added": {
+          "units": 1,
+          "rows": 9,
+          "identities": {
+            "bytes": 605,
+            "sha256": "022ee47ae85cfbaf0fe79af412cc8a747d979728ad6782fa1b944fa5921c3777"
+          }
+        },
+        "strict": {
+          "units": 1,
+          "rows": 7,
+          "identities": {
+            "bytes": 489,
+            "sha256": "79b6b96cf1372376c76736b99f9e416b03f797316a34683a24f720c157faf6c2"
+          }
+        }
+      }
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "method": "The exact post-daemon-owner report/coverage pair and u22140 projections were captured together. Tests select this pair or the earlier postPrune pair and reject hybrids and unknown descriptors without reopening either mutable shared artifact.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "globalCounts": {
+        "ownerRows": 35634,
+        "addedOwnerRows": 1118,
+        "strictRows": 1275,
+        "coverageRows": 4807,
+        "coverageOwners": 704
+      },
+      "coverageRows": [{
+        "targetIndex": 22140,
+        "start": 13853881,
+        "end": 13860467,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e21fda2a6548de23787ba0fed904318887dbf6e6d567a9e490b122224dcbfb04",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-daemon-supervisor-ts"],
+        "evidenceIds": [
+          "target121-daemon-supervisor-authenticated-target-fragment",
+          "target121-daemon-supervisor-exact-source-owner-test",
+          "target121-daemon-supervisor-compiler-normalization-test",
+          "target121-daemon-supervisor-build-macro-test"
+        ],
+        "behavior": "The authenticated unit is the complete daemon supervisor control-message handler: it validates protocol and schemas and implements ping, nudge, yield, lease, shutdown, list, dispatch, attach, resize, input, signal, permission, and subscription operations."
+      }],
+      "coverageRowsDescriptor": {
+        "bytes": 788,
+        "sha256": "a1f801306cbeddc310e01f86ed2543c1ac20d41ce36a80cff7e6d01a381ab0f5"
+      },
+      "physicalPartitions": {
+        "owner": {
+          "units": 1,
+          "rows": 37,
+          "rowsDescriptor": {
+            "bytes": 15439,
+            "sha256": "5d8b691b4735fbc8e3bb47b6997d7daa4e9907eca957a8c083b3bdf5723fd5c6"
+          },
+          "identities": {
+            "bytes": 2637,
+            "sha256": "9ffab98fbedcc934b2c3da19781e1c649633dafd542c33f76f8cf60396b963b5"
+          }
+        },
+        "added": {
+          "units": 1,
+          "rows": 9,
+          "rowsDescriptor": {
+            "bytes": 39619,
+            "sha256": "7a2aa8f32589791903feb1b75ca9fea1b96b8f4712eb9bd8b39e96d6ffd99ead"
+          },
+          "identities": {
+            "bytes": 605,
+            "sha256": "022ee47ae85cfbaf0fe79af412cc8a747d979728ad6782fa1b944fa5921c3777"
+          }
+        },
+        "strict": {
+          "units": 1,
+          "rows": 7,
+          "rowsDescriptor": {
+            "bytes": 3807,
+            "sha256": "1ba10727dc761630edcc34631debe41dd39e9b0503719db83b70c92c4f04c2b3"
+          },
+          "identities": {
+            "bytes": 489,
+            "sha256": "79b6b96cf1372376c76736b99f9e416b03f797316a34683a24f720c157faf6c2"
+          }
+        }
+      }
+    },
+    "sourceRoots": {
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 22140,
+    "name": "bS5",
+    "declaration": "handleControl",
+    "owner": "src/daemon/supervisor.ts",
+    "classification": "unresolved",
+    "parseStatus": "parsed",
+    "unknownFreeIdentifierCount": 10,
+    "nodeType": "FunctionDeclaration",
+    "start": 13853881,
+    "end": 13860467,
+    "bytes": 6586,
+    "tokenCount": 2431,
+    "sha256": "e21fda2a6548de23787ba0fed904318887dbf6e6d567a9e490b122224dcbfb04",
+    "coarseHash": "5c55c5ceb50f5b4291920551a397209ef9bc6a0967cd98768b271c4ab655bd6f"
+  },
+  "buildIdentity": {
+    "VERSION": "2.1.121",
+    "BUILD_TIME": "2026-04-27T01:32:27Z",
+    "GIT_SHA": "16ffea721a0a39bc787a236dc19fb62307180b75"
+  },
+  "compiledLineage": {
+    "buildMemberExpressions": [
+      {
+        "localStart": 269,
+        "localEnd": 631,
+        "start": 13854150,
+        "end": 13854512,
+        "bytes": 362,
+        "sha256": "ab1462173235d9bec33808648f9b53927b85972f08ef14d8e7505ca9dceef5dc",
+        "strictRowOrdinals": [0, 1, 2]
+      },
+      {
+        "localStart": 1424,
+        "localEnd": 1786,
+        "start": 13855305,
+        "end": 13855667,
+        "bytes": 362,
+        "sha256": "ab1462173235d9bec33808648f9b53927b85972f08ef14d8e7505ca9dceef5dc",
+        "strictRowOrdinals": [3, 4, 5]
+      }
+    ],
+    "buildObjectFields": {
+      "ISSUES_EXPLAINER": "report the issue at https://github.com/anthropics/claude-code/issues",
+      "PACKAGE_URL": "@anthropic-ai/claude-code",
+      "README_URL": "https://code.claude.com/docs/en/overview",
+      "VERSION": "2.1.121",
+      "FEEDBACK_CHANNEL": "https://github.com/anthropics/claude-code/issues",
+      "BUILD_TIME": "2026-04-27T01:32:27Z",
+      "GIT_SHA": "16ffea721a0a39bc787a236dc19fb62307180b75"
+    },
+    "repaintTemplate": {
+      "nodeType": "TemplateLiteral",
+      "localStart": 4834,
+      "localEnd": 4858,
+      "start": 13858715,
+      "end": 13858739,
+      "bytes": 24,
+      "sha256": "f34656c68d2bf208e582025d2b51695b5f77e350d5f0de6cf15bceced75e9569",
+      "raw": "`\n  \\x1B[2m${U}\\x1B[0m\n`",
+      "firstQuasi": {
+        "nodeType": "TemplateElement",
+        "localStart": 4835,
+        "localEnd": 4845,
+        "start": 13858716,
+        "end": 13858726,
+        "bytes": 10,
+        "sha256": "8e9214aa0d72a2fb5675e8f92babc10cb610d3b72ef4fc0ae7510677ecf65baf",
+        "raw": "\n  \\x1B[2m",
+        "cooked": "\n  \u001b[2m"
+      }
+    }
+  },
+  "tokenLineage": {
+    "emptyCoordinatesDescriptor": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "values": [
+      {
+        "label": "VERSION",
+        "value": "2.1.121",
+        "tokenType": "string",
+        "baselineCount": 0,
+        "targetCount": 162,
+        "targetCoordinatesDescriptor": {
+          "bytes": 3101,
+          "sha256": "190c3229579ff183b482fbf1749c9578649beeb6258754387644d53be61719ba"
+        },
+        "selected": [
+          {"ordinal": 153, "start": 13854341, "end": 13854350},
+          {"ordinal": 154, "start": 13855496, "end": 13855505}
+        ]
+      },
+      {
+        "label": "BUILD_TIME",
+        "value": "2026-04-27T01:32:27Z",
+        "tokenType": "string",
+        "baselineCount": 0,
+        "targetCount": 162,
+        "targetCoordinatesDescriptor": {
+          "bytes": 3101,
+          "sha256": "5365f9df9e4cb1b6ddf046487c4751dc6c2963eb0f047b69834ac8ca6a4439e0"
+        },
+        "selected": [
+          {"ordinal": 153, "start": 13854430, "end": 13854452},
+          {"ordinal": 154, "start": 13855585, "end": 13855607}
+        ]
+      },
+      {
+        "label": "GIT_SHA",
+        "value": "16ffea721a0a39bc787a236dc19fb62307180b75",
+        "tokenType": "string",
+        "baselineCount": 0,
+        "targetCount": 162,
+        "targetCoordinatesDescriptor": {
+          "bytes": 3101,
+          "sha256": "2e863502d594aef3a869d4f50e9707650e3794d5f5ac07643a642bffda2f412f"
+        },
+        "selected": [
+          {"ordinal": 153, "start": 13854461, "end": 13854503},
+          {"ordinal": 154, "start": 13855616, "end": 13855658}
+        ]
+      },
+      {
+        "label": "REPAINT_PREFIX",
+        "value": "\n  \u001b[2m",
+        "tokenType": "template",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "targetCoordinatesDescriptor": {
+          "bytes": 21,
+          "sha256": "c66cebd5dbace8c98e5f58f9279b691379c9db5a17c34eca17e7cea6cb8e0ed2"
+        },
+        "selected": [
+          {"ordinal": 1, "start": 13858716, "end": 13858726}
+        ]
+      }
+    ]
+  },
+  "sourceLineage": {
+    "path": "src/daemon/supervisor.ts",
+    "file": {
+      "chars": 71132,
+      "bytes": 71160,
+      "sha256": "980a6ad10a274f9703ef8ed5a664702bee0af1ad6b2d12b90fd187c7baa66979"
+    },
+    "acceptedStates": ["raw", "postPrunePackage"],
+    "declaration": {
+      "name": "handleControl",
+      "kind": "FunctionDeclaration",
+      "start": 41001,
+      "end": 54987,
+      "chars": 13986,
+      "bytes": 14006,
+      "sha256": "4b7eafb7b5d462ba2586c46f9c28bb2b1ba486fb156e9061bea26b6d9383232f"
+    },
+    "macroVersionAccesses": [
+      {
+        "start": 41956,
+        "end": 41969,
+        "chars": 13,
+        "bytes": 13,
+        "sha256": "1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83",
+        "text": "MACRO.VERSION"
+      },
+      {
+        "start": 43971,
+        "end": 43984,
+        "chars": 13,
+        "bytes": 13,
+        "sha256": "1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83",
+        "text": "MACRO.VERSION"
+      }
+    ],
+    "repaint": {
+      "variables": [
+        {
+          "name": "clearDisplay",
+          "start": 49616,
+          "end": 49640,
+          "chars": 24,
+          "bytes": 24,
+          "sha256": "6659f045f57f7e21f9fa0f45e4e2e824fa4e3c02f1607c686d33276d7a28825d",
+          "text": "clearDisplay = '\\x1B[2J'"
+        },
+        {
+          "name": "homeAndEraseLine",
+          "start": 49653,
+          "end": 49687,
+          "chars": 34,
+          "bytes": 34,
+          "sha256": "32be2d2bdd4d3853e54f18ad8135e0b0a5ea136d726a4f9089598da53944900f",
+          "text": "homeAndEraseLine = '\\x1B[H\\x1B[2K'"
+        }
+      ],
+      "template": {
+        "start": 50611,
+        "end": 50664,
+        "chars": 53,
+        "bytes": 53,
+        "sha256": "dc57a867351dbc0ccfadc59063bd13d7a3e769139c373f53d24ac8fb6da3a3c9",
+        "text": "`${clearDisplay}\\x1B[H\\n  \\x1B[2m${message}\\x1B[0m\\n`"
+      }
+    },
+    "decision": "static-row-scoped-build-and-template-evidence-no-replay"
+  },
+  "rowBoundary": {
+    "admittedRows": [
+      [22140, "string", "2.1.121", 13854341, 13854350, 0, 153, true],
+      [22140, "string", "2026-04-27T01:32:27Z", 13854430, 13854452, 0, 153, true],
+      [22140, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13854461, 13854503, 0, 153, true],
+      [22140, "string", "2.1.121", 13855496, 13855505, 0, 154, true],
+      [22140, "string", "2026-04-27T01:32:27Z", 13855585, 13855607, 0, 154, true],
+      [22140, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13855616, 13855658, 0, 154, true],
+      [22140, "string", "\n  \u001b[2m", 13858716, 13858726, 0, 1, true]
+    ],
+    "admittedRowsDescriptor": {
+      "bytes": 489,
+      "sha256": "79b6b96cf1372376c76736b99f9e416b03f797316a34683a24f720c157faf6c2"
+    },
+    "rowDescriptors": [
+      {"bytes": 55, "sha256": "e315a39261504e984823439168a5879d8b73f34d8d2c9c938c0fc0998ce0ddb8"},
+      {"bytes": 68, "sha256": "c4ed432072405c6b7774e24155a4276d9066fb52e3389fba51373e4cfa33afa7"},
+      {"bytes": 88, "sha256": "a2fd63ef9afefbe6cd29541085bf382c18b8197e0fba58939ffa079121609655"},
+      {"bytes": 55, "sha256": "54011ecc5b5a2645fff54b71f31fc37267df937c9ef9b6cccdacfabba9dbec59"},
+      {"bytes": 68, "sha256": "dfe69091578d2c6737817930553aeff797448cb752e60fa8f27f82ac9cd8e6f2"},
+      {"bytes": 88, "sha256": "cfde97c6f9fa02408b40a45b048a5554d7fde3b140adb0c71ef0ac038be5e78b"},
+      {"bytes": 59, "sha256": "b11116f27eec9f5894c2e4bec0c1c7ba4f9865a395bd63af07a7851b255da3a9"}
+    ],
+    "remainingAddedRows": [
+      [22140, "property", "from", 13855973, 13855977, 652, 653, true],
+      [22140, "property", "join", 13857649, 13857653, 2511, 2535, true]
+    ],
+    "selectedProofScope": {
+      "owner": {"units": 1, "rows": 7},
+      "added": {"units": 1, "rows": 7},
+      "strict": {"units": 1, "rows": 7}
+    },
+    "physicalPartitionDelta": {
+      "owner": {"units": 0, "rows": -7},
+      "added": {"units": 0, "rows": -7},
+      "strict": {"units": -1, "rows": -7},
+      "coverage": {"units": 0, "rows": 0}
+    },
+    "postProofProjection": {
+      "owner": {
+        "units": 1,
+        "rows": 30,
+        "identities": {
+          "bytes": 2149,
+          "sha256": "17db9d593ccdc8f2373ef8d8331d1160d556638a2159ca3b650cf80749cc346b"
+        }
+      },
+      "added": {
+        "units": 1,
+        "rows": 2,
+        "identities": {
+          "bytes": 117,
+          "sha256": "8003e0eb50980eb95a1d23f4e75a48a5fc624e89cec8cae57c5859269d3c4e70"
+        }
+      },
+      "strict": {
+        "units": 0,
+        "rows": 0,
+        "identities": {
+          "bytes": 2,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "coverage": {"units": 1, "rows": 1}
+    },
+    "correctedOwnerPaths": ["src/daemon/supervisor.ts"],
+    "wholeUnitOverride": false,
+    "sourceReplay": false,
+    "coverageChanged": false
+  },
+  "summary": {
+    "units": 1,
+    "strictRows": 7,
+    "buildMacroRows": 6,
+    "compilerTemplateRows": 1,
+    "ownerRowsRetained": 30,
+    "addedRowsRetained": 2,
+    "strictUnitsRemoved": 1,
+    "strictRowsRemoved": 7,
+    "wholeUnitOverrides": 0,
+    "sourceReplayHelpers": 0,
+    "coverageRowsChanged": 0
+  }
+}

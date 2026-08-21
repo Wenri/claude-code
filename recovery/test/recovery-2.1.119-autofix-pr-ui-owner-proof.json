@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "The complete authenticated Target119 AutofixPr UI unit is admitted only with its runtime wrapper call, result-state switch, compiler-cache topology, export adapter, module initializer, and command lazy-loader boundary. Exact canonical preservation through Targets120 and 121 authenticates the unit. The packaged source is the stale Target118 inline implementation and cannot be replayed as the extracted Target119 UI.",
+  "ownerBehavior": "The authenticated Target119 AutofixPr UI is a complete compiler-cached unit that delegates once to the separately proved autofix-pr async runtime, projects checking/prInfo progress, handles ok/error/cancelled results, adds the Remote Control view hint, aborts on cleanup/cancel, and renders the confirmation and loading/error states. Its export registration, call adapter, module initializer, and command lazy-loader bind it to src/commands/autofix-pr/autofix-pr.tsx. The packaged source still inlines the stale Target118 runtime and omits the extracted wrapper/result contract, so this is a static whole-unit admission and never a source replay.",
+  "summary": {
+    "units": 1,
+    "allOwnerRows": 113,
+    "addedOwnerRows": 4,
+    "strictRows": 4,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-autofix-pr-ui-authenticated-whole-unit-proof",
+    "target119-autofix-pr-ui-runtime-wrapper-boundary-proof",
+    "target119-autofix-pr-ui-cross-release-stability-proof",
+    "target119-autofix-pr-ui-source-lineage-replay-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {"path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js", "bytes": 13234618, "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"},
+    "targetBundle": {"path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js", "bytes": 13720987, "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"},
+    "targetStructuralLedger": {"path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", "bytes": 2550437, "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"},
+    "targetReport": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"},
+    "laterBundles": [
+      {"version": "2.1.120", "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js", "bytes": 13784743, "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f", "ledgerPath": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", "ledgerBytes": 2490663, "ledgerSha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"},
+      {"version": "2.1.121", "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js", "bytes": 13908188, "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a", "ledgerPath": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", "ledgerBytes": 2540002, "ledgerSha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"}
+    ]
+  },
+  "baselineInlineUnit": {
+    "baselineIndex": 15194,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 9441282,
+    "end": 9446908,
+    "bytes": 5626,
+    "tokenCount": 1766,
+    "sha256": "c3a597f24a36d1c892145945045786a3f1f1141e5baa055b182c670ef9c68215",
+    "coarseHash": "ba74d91fca9a0b79c6ffcd7a1076a5a3eaa5883b6c216380717d7e550d95827b"
+  },
+  "targetUnit": {
+    "targetIndex": 15473,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 9561081,
+    "end": 9562946,
+    "bytes": 1865,
+    "tokenCount": 897,
+    "unknownFreeIdentifierCount": 22,
+    "sha256": "231aa0d771d9dee8c9b6c24aa8453427d222b247fca251301cf725e3b84764ca",
+    "coarseHash": "5ea65c4544a6ad008917e27e4174277b62a98d41f860765e91fa0666da8dc5ea",
+    "canonicalAstBytes": 34255,
+    "canonicalAstSha256": "b87c0ced755f8bc2efd8c670d30cd51480cbb563d06583d5b27d7388bcca62a2",
+    "bodyStatements": {"statements": 15, "jsonBytes": 1634, "sha256": "bd3e6cf321be558d5304b4b30d2e90ddd02b318dcb64e460802f37456fffdc94"}
+  },
+  "uiContract": {
+    "compilerCache": {"size": 20, "identifierOccurrences": 41, "memberOccurrences": 40, "uniqueIndices": 20, "minIndex": 0, "maxIndex": 19, "occurrencesPerIndex": 2},
+    "props": ["onDone", "context", "args"],
+    "initialStateValues": ["checking", null, null],
+    "useRefInitialValue": null,
+    "useEffectCalls": 1,
+    "wrapperCall": {"start": 9561312, "end": 9561390, "bytes": 78, "sha256": "43ea2a5df1078628d4053baaee493454b96abb08e3e620a75205f69f0babcd1b", "controlProperties": ["signal", "onProgress"]},
+    "resultSwitch": {"start": 9561429, "end": 9561612, "bytes": 183, "sha256": "e3e9d386f7cb05cdb01e0ffbbb8132add4712b0937a4c4f386de0434aadc14e3", "cases": ["ok", "error", "cancelled"]},
+    "remoteControlProperty": "isRemoteControl",
+    "remoteControlHint": "\npress ↓ to view",
+    "cancelMessage": "Autofix PR cancelled",
+    "keybinding": "confirm:yes",
+    "keybindingContext": "Confirmation",
+    "dialog": {"title": "Autofix PR", "subtitle": "Monitor and autofix any issues with the current PR", "hideInputGuide": true},
+    "failureShortcut": {"chord": ["escape", "enter"], "action": "close"},
+    "loadingShortcut": {"chord": "escape", "action": "cancel"}
+  },
+  "callerBoundary": {
+    "combined": {"start": 9561058, "end": 9563140, "bytes": 2082, "sha256": "acfeeea6e75eb05c84fb3567f9911415747c2e6db190e0a8efb01393bf5c181b"},
+    "exportRegistration": {"targetIndex": 15472, "start": 9561058, "end": 9561081, "bytes": 23, "tokenCount": 14, "sha256": "c2ca573065baed4b712b1deba50ec4df7d9e0736599683e7f4e368fffe1fda51", "coarseHash": "39c7f00ced2ae6818bdd3f79252b7f318122948bd7b717f80aa8447334c36f0e"},
+    "callAdapter": {"targetIndex": 15474, "start": 9562946, "end": 9563049, "bytes": 103, "tokenCount": 46, "sha256": "9522a719f56ec1f70117d0a66884cce078bfdb71a9c95ad6b7b54049a9e00870", "coarseHash": "9520bac53c1d7609b50c6e56268b7abee2838efd8cba3a77e325a21c13b115e1"},
+    "uiInitializer": {"targetIndex": 15475, "start": 9563049, "end": 9563140, "bytes": 91, "tokenCount": 69, "sha256": "f00d7253a3d6a30ca39d9ada0e6b93c0d789aa874ab982364a91df026be9216b", "coarseHash": "5c92b233ba1f1fd2f3ecf896afe390a735f3d20c3fe9374c017d4706af5e207d", "coreInitializerCall": {"start": 9563105, "end": 9563110, "bytes": 5, "sha256": "58319a0283c2137baeea19fe39901d8df0138f03c48f29c15e4d98876cc68193"}},
+    "commandInitializer": {"targetIndex": 15478, "start": 9563208, "end": 9563536, "bytes": 328, "tokenCount": 110, "sha256": "ce8fa2727c6b509b4cf7af670e3d1c35738e9944c16829cc796c391d4ba283c3", "coarseHash": "6b8e1fc04650c6d0c33100f11919dcc879464ba2c980d3cf2e1c9b3d37d1d9a5"}
+  },
+  "runtimeDependency": {
+    "wrapperUnit": {"targetIndex": 15463, "start": 9554999, "end": 9555096, "bytes": 97, "sha256": "54180605b5e978ec5bdf4ecfdda993e94153c71e58e979dd770e1258e0222ded"},
+    "coreInitializer": {"targetIndex": 15470, "start": 9560703, "end": 9561047, "bytes": 344, "sha256": "28c9a6d2b7ed5d44ba3ea0763b063e9f1efd127fd3e4ad000226505df8b4586a"},
+    "requiredEvidenceId": "target119-autofix-pr-runtime-authenticated-wrapper-core-proof"
+  },
+  "ownerResidues": {
+    "allOwnerRows": {"rows": 113, "jsonBytes": 6579, "sha256": "8d5a4d7072218379d65e19bbf2a929604bf009d7225645183b92819b0de0b9ef"},
+    "addedOwnerRows": {"rows": 4, "jsonBytes": 233, "sha256": "e075b117b83a216f8fa50db2603fd54a17b13f3e42c3ef571cd1ff8a59ccb3d1"},
+    "strictRows": {"rows": 4, "jsonBytes": 233, "sha256": "e075b117b83a216f8fa50db2603fd54a17b13f3e42c3ef571cd1ff8a59ccb3d1"},
+    "rows": [
+      [15473, "property", "prInfo", 9561369, 9561375, 0, 2, true],
+      [15473, "property", "prInfo", 9561380, 9561386, 0, 3, true],
+      [15473, "property", "isRemoteControl", 9561462, 9561477, 0, 3, true],
+      [15473, "string", "\npress ↓ to view", 9561491, 9561512, 0, 1, true]
+    ]
+  },
+  "laterLineage": [
+    {"version": "2.1.120", "targetIndex": 15553, "baselineUnitIndex": 15473, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "start": 9592139, "end": 9594004, "bytes": 1865, "tokenCount": 897, "sha256": "e92f553bf968959eff723b3c2e73b320d2fa50b1290cc73282e8765e8a11e8b8", "coarseHash": "5ea65c4544a6ad008917e27e4174277b62a98d41f860765e91fa0666da8dc5ea"},
+    {"version": "2.1.121", "targetIndex": 15660, "baselineUnitIndex": 15553, "classification": "changed", "pairReason": "unique-coarse-structural-hash", "start": 9654413, "end": 9656278, "bytes": 1865, "tokenCount": 897, "sha256": "6c0df0b412fe5a5032cbf422329f5294df0da43c35b2b4c02c6e067fa3226ad5", "coarseHash": "5ea65c4544a6ad008917e27e4174277b62a98d41f860765e91fa0666da8dc5ea"}
+  ],
+  "sourceReplayBlocker": {
+    "path": "src/commands/autofix-pr/autofix-pr.tsx",
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+    "blob": "9ded9770b7352a07885f70d0b8db4371ef74be9b",
+    "bytes": 17317,
+    "chars": 17299,
+    "sha256": "d0d60e24308ac2919bef828cfe9b4325bc229a27c67e6c373a621317397937a6",
+    "autofixPrDeclaration": {"name": "AutofixPr", "start": 5132, "end": 17060, "bytes": 11938, "chars": 11928, "sha256": "9f24e782d4bb64be6703ff0edb4c6723e54a8b54c6580df6ec0edfac1b854936"},
+    "callDeclaration": {"name": "call", "start": 17062, "end": 17298, "bytes": 236, "chars": 236, "sha256": "cec0ca90aee32ce7216d0590bf51bafde00c48df35447d48a9cc8a2a6127b84d"},
+    "commandFile": {"path": "src/commands/autofix-pr/command.ts", "blob": "e09b63ad87f1e661072a1107696a344c251208e5", "bytes": 717, "sha256": "59fe4d8710546a4de59a6b528e4bb713f765c903a140d31e5e434ed20c390b29", "lazyModule": "./autofix-pr.js"},
+    "missingExtractedUiMarkers": ["freeformPrompt", "prInfo", "isRemoteControl", "\npress ↓ to view"],
+    "staleInlineMarkers": ["tengu_autofix_pr_started", "teleportToRemote", "updatePullRequestSubscription", "registerRemoteAgentTask"],
+    "targetUiAbsentInlineLiterals": ["tengu_autofix_pr_started", "remote session creation failed."],
+    "versionCommits": ["bd846a24e3886322888f02b9f747c132a4a32314", "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05", "6801ead984ba2c3df02bd092ad8b93df096ed8c1", "9f034bb03d575603a850e3c75ce003406094f9cc"]
+  },
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {"phase": "post-u21759", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 382108, "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"}, "sourceCoverageRaw": {"bytes": 3290710, "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"}},
+      {"phase": "post-u21878", "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"}, "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 383456, "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"}, "sourceCoverageRaw": {"bytes": 3297173, "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"}}
+    ]
+  },
+  "latestArtifactProjection": {
+    "phases": ["post-u21759", "post-u21878"],
+    "units": [
+      {
+        "targetIndex": 15473,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {"full": {"rows": 84, "jsonBytes": 35043, "sha256": "627dce31f976187f5b2d7ed95b7bf5095179cf3d2cd81ce38995916a662c42fa"}, "identities": {"rows": 84, "jsonBytes": 4803, "sha256": "4d9bc51e1f46a45651b3356d25425b57a0a8b608cfa2a8e6eb197a0216e74b2e"}},
+          "sourceRuntimeAddedOwnerResidueRows": {"full": {"rows": 4, "jsonBytes": 8261, "sha256": "a210ef7cbf5ce2ba864e7b58c7d8f770e8c1e3da3a13dc5d2ad8faba9e2158ea"}, "identities": {"rows": 4, "jsonBytes": 233, "sha256": "e075b117b83a216f8fa50db2603fd54a17b13f3e42c3ef571cd1ff8a59ccb3d1"}},
+          "rows": {"full": {"rows": 4, "jsonBytes": 8261, "sha256": "a210ef7cbf5ce2ba864e7b58c7d8f770e8c1e3da3a13dc5d2ad8faba9e2158ea"}, "identities": {"rows": 4, "jsonBytes": 233, "sha256": "e075b117b83a216f8fa50db2603fd54a17b13f3e42c3ef571cd1ff8a59ccb3d1"}},
+          "unclassifiedAddedOccurrenceRows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+        },
+        "coverageRows": {"rows": 1, "jsonBytes": 1198, "sha256": "cbdd1222464f22189c075903871ed04ad628a05dbb570ebb6413ba3377f972a2"},
+        "ownerCatalog": [{"id": "owner-src-commands-autofix-pr-autofix-pr-tsx", "path": "src/commands/autofix-pr/autofix-pr.tsx"}]
+      }
+    ]
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-update-entrypoint-static-paired-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-update-entrypoint-authenticated-paired-whole-unit",
+    "target117-update-entrypoint-build-metadata-component-proof",
+    "target117-update-entrypoint-retained-occurrence-proof",
+    "target117-update-entrypoint-source-snapshot-proof"
+  ],
+  "ownerOverride": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/recovered/update-entrypoint-whole-unit-owner-overrides.mjs",
+    "bytes": 1220,
+    "sha256": "5ca83f52d7ca8e18e67e3c9073d0ae20f2f1694ed548c0dfd1c74b40f7d21399"
+  },
+  "buildMetadataComponent": {
+    "path": "recovery/test/recovery-2.1.117-build-metadata-residue-proofs.json",
+    "bytes": 99474,
+    "sha256": "3a714bee033e0f4db1469a9f58c3c575dc0a9290d951657ec3b92673656ef75c",
+    "note": "The shared fixture admits complete macro-only units. This mixed update unit uses those exact macro values only as one component of a full baseline-target whole-unit equivalence proof."
+  },
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "baselineUnit": {
+    "baselineIndex": 20703,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 13014878,
+    "end": 13030804,
+    "tokenCount": 2809,
+    "topDefinitionCount": 1,
+    "bytes": 15926,
+    "sha256": "07c9f8c2524d759ef3ee7371ad4fc419888835ba6b140c9c39021012979016b5",
+    "coarseHash": "b82ff8071640acd49593da4c18e6abb50958ca328e361e4023f814c2c4a7cade"
+  },
+  "targetUnit": {
+    "targetIndex": 20768,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 13025663,
+    "end": 13041589,
+    "tokenCount": 2809,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 5,
+    "bytes": 15926,
+    "sha256": "95699356aa8b06fafbe0d220588bf2d9a4356e08c7398bdecc555eeb17a97925",
+    "coarseHash": "bfe2b3df58e5beb51dd345fbab88c3ed43d14bc0f7c755c022a5dd4b4a669739"
+  },
+  "ownerResidues": {
+    "generatedOwner": "cli/update.ts",
+    "correctedOwner": "src/cli/update.ts",
+    "declaration": "update",
+    "allOwnerRows": 273,
+    "addedOwnerRows": 71,
+    "strictRows": 69,
+    "buildMetadataRows": 69,
+    "retainedOccurrenceShiftRows": 2,
+    "tupleDigests": {
+      "allOwnerRows": {"rows":273,"bytes":19466,"sha256":"0fca2ee7b7cce40c960fd7c9a179a1ebc98f25dc2fd5eb2b00b2ca709f92f8b4"},
+      "addedOwnerRows": {"rows":71,"bytes":4601,"sha256":"3954e872df5a84570e2bf6173e3e11f5ab5ad1c817ec35d7b9c3727053af44bc"},
+      "strictRows": {"rows":69,"bytes":4509,"sha256":"045c1e404e4ac6af28eef91d572fa0a61a0860cbf47a872bd3f023dd2b53247c"},
+      "mapping": "[literalKind,value,target.start,target.end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in report order"
+    },
+    "retainedOccurrenceShifts": [
+      {"literalKind":"string","value":".","baselineOccurrenceCount":681,"targetOccurrenceNumber":685,"start":13031877,"end":13031878,"bytes":1,"sha256":"cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8"},
+      {"literalKind":"string","value":".","baselineOccurrenceCount":681,"targetOccurrenceNumber":686,"start":13037387,"end":13037388,"bytes":1,"sha256":"cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8"}
+    ]
+  },
+  "pairedWholeUnitProof": {
+    "normalization": "Parse each exact unit with Acorn; replace every VERSION, BUILD_TIME, and GIT_SHA property literal value with <BUILD>; omit source positions/raw text; normalize binding/free identifier spellings while preserving every noncomputed runtime property name and all other syntax/literals.",
+    "macroObjectCount": 23,
+    "metadataPropertyCount": 69,
+    "canonicalBytes": 115930,
+    "canonicalSha256": "edf9ca3338bc361073880bc771da00e72c828b59f38b32b5be47213cfde4e308",
+    "baselineValues": {
+      "VERSION": "2.1.116",
+      "BUILD_TIME": "2026-04-20T13:57:26Z",
+      "GIT_SHA": "9e176d0772418b8b88475d39fb86c651a12f4aad"
+    },
+    "targetMetadata": {
+      "VERSION": {
+        "value": "2.1.117",
+        "bytes": 9,
+        "sha256": "472f8ea787fdaab1c699ad6341dd8863ed237974a9057013a5ad4fce73a684c7",
+        "baselineOccurrenceCount": 0,
+        "firstTargetOccurrenceNumber": 110,
+        "starts": [13025925,13027919,13028309,13028866,13029256,13029838,13030228,13031705,13032417,13032825,13033401,13034098,13034519,13035472,13035841,13036515,13037215,13037606,13038011,13038439,13039651,13040371,13041114]
+      },
+      "BUILD_TIME": {
+        "value": "2026-04-21T17:58:52Z",
+        "bytes": 22,
+        "sha256": "891da3969c2cbbc58f26f20fa508592cc2c95e00005251c0d206909bfe31cd6c",
+        "baselineOccurrenceCount": 0,
+        "firstTargetOccurrenceNumber": 110,
+        "starts": [13026014,13028008,13028398,13028955,13029345,13029927,13030317,13031794,13032506,13032914,13033490,13034187,13034608,13035561,13035930,13036604,13037304,13037695,13038100,13038528,13039740,13040460,13041203]
+      },
+      "GIT_SHA": {
+        "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+        "bytes": 42,
+        "sha256": "7eedc5b82f72f4bafa4e38614bf9c9dd7903fb12c80b34da49691981ea0ec2c8",
+        "baselineOccurrenceCount": 0,
+        "firstTargetOccurrenceNumber": 110,
+        "starts": [13026045,13028039,13028429,13028986,13029376,13029958,13030348,13031825,13032537,13032945,13033521,13034218,13034639,13035592,13035961,13036635,13037335,13037726,13038131,13038559,13039771,13040491,13041234]
+      }
+    }
+  },
+  "source": {
+    "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "tree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/cli/update.ts",
+    "blob": "8a748f4d7d67455f0a57306293aab58d653d0329",
+    "bytes": 14849,
+    "chars": 14827,
+    "sha256": "1fcbd1cb25ea89663477e9608590dc2fcd872aa42d255f97599106e3ad056291",
+    "declaration": {"name":"update","start":1065,"end":14826,"bytes":13783,"sha256":"e9357c020085db65369a312a99a7461a630629b77b71ad2bbab842b2f015bc45"},
+    "macroVersionAccesses": {
+      "count": 14,
+      "exact": "MACRO.VERSION",
+      "first": {"start":1171,"end":1184,"bytes":13,"sha256":"1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83"},
+      "last": {"start":13371,"end":13384,"bytes":13,"sha256":"1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83"}
+    },
+    "packagePostimage": {"bytes":14849,"chars":14827,"sha256":"1fcbd1cb25ea89663477e9608590dc2fcd872aa42d255f97599106e3ad056291"}
+  },
+  "sourceReplayBlocker": {
+    "decision": "static paired whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The authenticated Target116 and Target117 runtime update units are already semantically identical outside release build metadata, so source mutation cannot recover any Target117 behavior. The exact source authenticates the update owner and 14 authored MACRO.VERSION accesses; bundling duplicates the macro object into 23 runtime sites. The paired whole-unit proof covers every non-metadata residue without admitting the mixed unit as macro-only."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/update-entrypoint-whole-unit-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_UPDATE_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

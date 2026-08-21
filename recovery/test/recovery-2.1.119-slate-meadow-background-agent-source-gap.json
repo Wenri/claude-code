@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "sourceCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "indicesSha256": "61644b3a3e3fe9c42adf602a3e574b2f527d52e50a05ae30288d98b3846d1a83",
+    "residueIdentitiesSha256": "b27f7bcfdf3a105ae2aa2ac43060b656d49b57b9c83afaf329a2add0be77e838"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "target117Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "builtInAgents": {
+      "path": "src/tools/AgentTool/builtInAgents.ts",
+      "input": {
+        "bytes": 2756,
+        "sha256": "24df97f95532f86108d60176d1c708edf4040bda028ee8f22a52f1bac6acfb22"
+      },
+      "output": {
+        "bytes": 2951,
+        "sha256": "9a58f1c3aee2f2c62620b1b3b1ea90be0f4c5810158efa7064f2b17c1339ef98"
+      }
+    },
+    "backgroundAgent": {
+      "path": "src/tools/AgentTool/built-in/backgroundJobAgent.ts",
+      "input": null,
+      "output": {
+        "bytes": 1954,
+        "sha256": "153311cfb7a786658170cd0922ffd50a99ca91ace33cd490c948cb09c83f2f59"
+      }
+    },
+    "donor": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/backgroundJobAgent.target119.ts",
+      "bytes": 1954,
+      "sha256": "153311cfb7a786658170cd0922ffd50a99ca91ace33cd490c948cb09c83f2f59",
+      "target117Helper": {
+        "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-generated-owner-source-gaps.mjs",
+        "bytes": 19387,
+        "sha256": "1b824b009f42085f787444c90a7f692c8088928dab6a256e68136b35ed68a6fb"
+      }
+    }
+  },
+  "target117DonorUnit": {
+    "index": 19649,
+    "nodeType": "VariableDeclaration",
+    "start": 11942812,
+    "end": 11944672,
+    "bytes": 1860,
+    "sourceHash": "b20865efff9d89848d1d7672879884119d6add275085aadc2fb3481b53bff1bb",
+    "coarseHash": "4c245fe11f29b7edac66af882ff345dbcbfe7218a86905787380fb22fce189fe"
+  },
+  "baselineUnit": {
+    "index": 9661,
+    "nodeType": "FunctionDeclaration",
+    "start": 4868507,
+    "end": 4868800,
+    "bytes": 293,
+    "sourceHash": "71e0ae1bf0fafeb3e771d3a0255f102b41ff48b29ac2220a9a18dd29f2ff255e",
+    "coarseHash": "b49dac89c298b0be294d62821bd2ebe9b668d2f992c4bed7b72f9d7850fe8795"
+  },
+  "targetUnits": [
+    {
+      "index": 9779,
+      "role": "background-agent export registry",
+      "nodeType": "ExpressionStatement",
+      "start": 4917682,
+      "end": 4917713,
+      "bytes": 31,
+      "sourceHash": "8badf04d69a067e04b089f91b11b083df472410a7f9e5fe8f2ffabcb3ad8fe90",
+      "coarseHash": "bb374560133fbd4c7fa7405573061eb6d818c0f86f2c82a07ee88b3361043565"
+    },
+    {
+      "index": 9781,
+      "role": "background-agent definition",
+      "nodeType": "VariableDeclaration",
+      "start": 4917721,
+      "end": 4919581,
+      "bytes": 1860,
+      "sourceHash": "d9754ff12d59218d4e15364d3672c722971fbeda07527a0fdbc762d446d509df",
+      "coarseHash": "4c245fe11f29b7edac66af882ff345dbcbfe7218a86905787380fb22fce189fe"
+    },
+    {
+      "index": 9783,
+      "role": "slate-meadow built-in agent selection",
+      "nodeType": "FunctionDeclaration",
+      "start": 4919630,
+      "end": 4920001,
+      "bytes": 371,
+      "sourceHash": "191eea7fe0b4bcc769eeb4a5723dc18f6d0369dea849a58467cb99b0bb53eb14",
+      "coarseHash": "f82770427f489b0a43becdf2c59a6fa6d22db870f2fea1439e02eecb7d7ae584"
+    }
+  ],
+  "ownerOverride": {
+    "targetIndex": 9783,
+    "paths": [
+      "src/tools/AgentTool/builtInAgents.ts",
+      "src/tools/AgentTool/built-in/backgroundJobAgent.ts"
+    ],
+    "evidenceIds": [
+      "target119-slate-meadow-background-agent-target-fragment",
+      "target119-slate-meadow-background-agent-source-replay-test",
+      "target119-slate-meadow-background-agent-source-ast-test",
+      "target119-slate-meadow-retained-agent-donor-proof"
+    ]
+  },
+  "residueIdentities": [
+    [9783, "string", "tengu_slate_meadow", 4919740, 4919760, 1],
+    [9783, "property", "CLAUDE_AGENT", 4919770, 4919782, 2]
+  ],
+  "sourceDeclarations": [
+    {
+      "path": "src/tools/AgentTool/builtInAgents.ts",
+      "name": "getBuiltInAgents",
+      "charStart": 1175,
+      "charEnd": 2948,
+      "bytes": 1773,
+      "sha256": "c9149d911cc865c38157e526f885a5f52898e0bb8fe0f089bb574ca40cceff7c"
+    },
+    {
+      "path": "src/tools/AgentTool/built-in/backgroundJobAgent.ts",
+      "name": "backgroundJobAgent",
+      "charStart": 0,
+      "charEnd": 1904,
+      "bytes": 1918,
+      "sha256": "5171f6c833cca401aaf8745fb868b5a24a14692894c41dac63f8d50321a4b9c7"
+    }
+  ]
+}

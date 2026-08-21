@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "sourceFile": {
+      "path": "src/utils/agentsFleet.ts",
+      "input": {
+        "bytes": 3660,
+        "sha256": "60d70ee8719145a1df786903fc2fd1ff2a0ee151c9537c1db5799eeefa0a0fda"
+      },
+      "output": {
+        "bytes": 3648,
+        "sha256": "b0157d6a9b1ca7bf97b559faaf45e9e1241ae3a068b3df977b9b8ae62a8cb243"
+      }
+    }
+  },
+  "bundleTokenCounts": {
+    "gb-before-fleet-gate": {
+      "baseline": 0,
+      "target": 1
+    },
+    "tengu_slate_meadow": {
+      "baseline": 2,
+      "target": 4
+    }
+  },
+  "targetUnits": [
+    {
+      "index": 6660,
+      "role": "GrowthBook public export table",
+      "nodeType": "ExpressionStatement",
+      "start": 3073613,
+      "end": 3074427,
+      "bytes": 814,
+      "sourceHash": "e6d41f870a0fac0a241d979e2a5e03e1923a000cb7f92cd0b79ca4a4ce680656",
+      "coarseHash": "51678f66a90af15a88d45d1c66926dbd0022df3b2a4ef7c1393ad3176aba8543"
+    },
+    {
+      "index": 6664,
+      "role": "environment override membership",
+      "nodeType": "FunctionDeclaration",
+      "start": 3074677,
+      "end": 3074729,
+      "bytes": 52,
+      "sourceHash": "8bfacf005af5f9d21c49b3da841e77dac4cbf2adb9253c18974de8effe4640d0",
+      "coarseHash": "bd7e1ab1a54f56bb8c0d42ce11d155809b4d4f6ece4e92ca0fd249dac4e6a0e3"
+    },
+    {
+      "index": 6665,
+      "role": "persisted feature-value membership",
+      "nodeType": "FunctionDeclaration",
+      "start": 3074729,
+      "end": 3074796,
+      "bytes": 67,
+      "sourceHash": "a6bae95fb4a24071d59888f381a2c6ee07c649578cabef24f9f6822323862679",
+      "coarseHash": "b0e8bd3a86e32e19534e979109df1ebe03b40f70971988d71b4c083f700c4a42"
+    },
+    {
+      "index": 6721,
+      "role": "agents-fleet public export table",
+      "nodeType": "ExpressionStatement",
+      "start": 3090279,
+      "end": 3090651,
+      "bytes": 372,
+      "sourceHash": "bf3220adb258f1c7c9e9fec8f71d98c267d4cd11bbb912168f99d1e5b2398bf4",
+      "coarseHash": "c5cbc7e50faa5964b95d7bbd9fb97ee03aa69c9a8a10884ae46ad42541fa65c1"
+    },
+    {
+      "index": 6723,
+      "role": "settings-first fleet and GrowthBook cache hydrator",
+      "nodeType": "FunctionDeclaration",
+      "start": 3090708,
+      "end": 3090951,
+      "bytes": 243,
+      "sourceHash": "b385ad5ada9805957d043af87777a3031aa1698243e73b8916f5e87e755e57e0",
+      "coarseHash": "d8d9879d17bf9eedc67c42b2510ac7d88a54aec65070da3d97ce677a24707453"
+    }
+  ],
+  "targetBindings": [
+    {
+      "exportTableIndex": 6660,
+      "exportName": "initializeGrowthBook",
+      "propertyStart": 3073893,
+      "propertyEnd": 3073920,
+      "localName": "mZ"
+    },
+    {
+      "exportTableIndex": 6660,
+      "exportName": "hasGrowthBookEnvOverride",
+      "propertyStart": 3073921,
+      "propertyEnd": 3073953,
+      "localName": "VK$",
+      "definitionIndex": 6664
+    },
+    {
+      "exportTableIndex": 6660,
+      "exportName": "hasGrowthBookCachedValue",
+      "propertyStart": 3073954,
+      "propertyEnd": 3073986,
+      "localName": "Vr8",
+      "definitionIndex": 6665
+    },
+    {
+      "exportTableIndex": 6721,
+      "exportName": "ensureFleetGateHydrated",
+      "propertyStart": 3090513,
+      "propertyEnd": 3090544,
+      "localName": "Sr8",
+      "definitionIndex": 6723
+    }
+  ],
+  "strictRows": [
+    {
+      "targetIndex": 6723,
+      "ownerPath": "src/utils/agentsFleet.ts",
+      "rejectedOwnerPath": "src/memdir/paths.ts",
+      "evidenceIds": [
+        "target121-agents-fleet-gate-cache-target-fragment",
+        "target121-agents-fleet-gate-cache-source-replay-test",
+        "target121-agents-fleet-gate-cache-source-ast-test"
+      ]
+    }
+  ],
+  "residueIdentities": [
+    [
+      6723,
+      "property",
+      "getSettingsWithErrors",
+      3090749,
+      3090770,
+      2
+    ],
+    [
+      6723,
+      "string",
+      "tengu_slate_meadow",
+      3090866,
+      3090886,
+      3
+    ],
+    [
+      6723,
+      "string",
+      "gb-before-fleet-gate",
+      3090913,
+      3090935,
+      1
+    ]
+  ],
+  "sourceImport": {
+    "path": "src/utils/agentsFleet.ts",
+    "module": "../services/analytics/growthbook.js",
+    "addedName": "hasGrowthBookCachedValue",
+    "removedName": "getGrowthBookConfigOverrides"
+  },
+  "sourceDeclaration": {
+    "path": "src/utils/agentsFleet.ts",
+    "name": "ensureFleetGateHydrated",
+    "charStart": 1649,
+    "charEnd": 2045,
+    "bytes": 396,
+    "sha256": "40d8f7badb9c083654a95a51a64c843d28f14271e80412cb49f5b74acd87b7a3"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "indicesSha256": "c6ceab931d7506ff7e3cfbbf6d8b4e6296be571fc44650b07abf4c0bf0f7d744",
+    "residueIdentitiesSha256": "8d49172bc3bdcb2b63cab25efb088fef9d7e9fb06f2189a55c458163ea25370c"
+  }
+}

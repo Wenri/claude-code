@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "complete-unit-static-exact-source-owner-proof-ready",
+  "criterion": "target119-job-state-name-sync-module-import-boundary-v1",
+  "evidenceIds": [
+    "target119-job-state-name-sync-module-initializer-whole-unit-proof",
+    "target119-job-state-name-sync-watch-consumer-boundary-proof",
+    "target119-job-state-name-sync-exact-authored-source-proof",
+    "target119-job-state-name-sync-false-install-messages-owner-proof",
+    "target119-job-state-name-sync-baseline-stub-lineage-proof",
+    "target119-job-state-name-sync-static-owner-only-proof"
+  ],
+  "inputs": {
+    "bundles": {
+      "2.1.118": {"path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js", "bytes": 13234618, "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"},
+      "2.1.119": {"path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js", "bytes": 13720987, "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"}
+    },
+    "ledger": {"path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", "bytes": 2550437, "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"},
+    "frozenMutableSnapshot": {
+      "report": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24786895, "sha256": "58af453b51adf4c340bc492898ecba0ecf84c5376d0bca769a66f91faf4e55c5"},
+      "coverageGzip": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 372095, "sha256": "f7812bf2a9e618100978c32848173ae1433cf587fdc3b558198df3c05f67e682"},
+      "coverageJson": {"bytes": 3247265, "sha256": "e6bc02c463580bfaf6e47d5ff2746f0acdc2d8956528b3e2e2a441ab8ad42864"},
+      "readPolicy": "descriptor-only-after-snapshot; tests must not reopen mutable report or coverage"
+    },
+    "helper": {"path": "recovery/cases/2.1.118-to-2.1.119/recovered/job-state-name-sync-module-import-owner-overrides.mjs", "bytes": 1654, "sha256": "3d06868bab483d9037af133ecdd9548bc856d59de381e18b8c62227cafb62ca5"}
+  },
+  "snapshotPartition": {
+    "sourceRuntimeOwnerResidueRows": {
+      "rows": [[20882, "string", "fs", 12561815, 12561819, 118, 124, true, ["hooks/notifs/useInstallMessages.tsx"]], [20882, "number", "1", 12561832, 12561833, 23676, 23353, false, ["hooks/notifs/useInstallMessages.tsx"]]],
+      "jsonBytes": 191,
+      "sha256": "8a85526113349abd5ef83a707ab3504889e84fe28306dc5a6a717973c5239e93"
+    },
+    "sourceRuntimeAddedOwnerResidueRows": {
+      "rows": [[20882, "string", "fs", 12561815, 12561819, 118, 124, true, ["hooks/notifs/useInstallMessages.tsx"]]],
+      "jsonBytes": 94,
+      "sha256": "df5ae8da093f75c5e08e3f3dba523e59836f3606bb96a3bdc242a4a9fa50b5fd"
+    },
+    "strictRows": {"rows": [], "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "unclassifiedRows": {"rows": [], "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "coverage": {
+      "matchWrapperJsonBytes": 587,
+      "matchWrapperSha256": "fbc31bc45ba8f17e5392365aa1f0097191d6d702273cd693332560da92f33a5b",
+      "targetIndex": 20882,
+      "target": {"start": 12561757, "end": 12561837, "nodeType": "VariableDeclaration", "sourceHash": "f3580f3600015747afa2fb14e2f3de73a8cb3f4c85b8e34596265c8b8bd5b56a", "classification": "changed"},
+      "staleOwnerPaths": ["src/hooks/notifs/useInstallMessages.tsx"],
+      "evidenceIds": ["source-map-attribution", "semantic-test"]
+    }
+  },
+  "ownerOverride": {
+    "key": "2.1.118-to-2.1.119:20882",
+    "targetIndex": 20882,
+    "paths": ["src/hooks/useJobStateNameSync.ts"],
+    "declarations": ["useJobStateNameSync"]
+  },
+  "runtimeBoundary": {
+    "baseline": {
+      "consumerStub": {"targetIndex": 19974, "nodeType": "FunctionDeclaration", "start": 12101631, "end": 12101708, "bytes": 77, "tokenCount": 35, "sha256": "c7c6c5abc588881e9f7875d91a1521e2646c96a165e8235b0e4ed95234231089", "coarseHash": "b98215a1d470d48196680e82fc12bdad4f53479c7e7f49435959026af94d6681"},
+      "bindings": {"targetIndex": 19975, "nodeType": "VariableDeclaration", "start": 12101708, "end": 12101720, "bytes": 12, "tokenCount": 5, "sha256": "57ad230baa4147d5d69fb9d2c7714398fa10467ca6bf7bdba2e6bc527d172024", "coarseHash": "c01b63c9a83efc2c82e465e2d798fc3c37152b39ff84fb5b2ced94dd86e0163b", "text": "var U54,Lv6;"},
+      "initializer": {"targetIndex": 19976, "nodeType": "VariableDeclaration", "start": 12101720, "end": 12101800, "bytes": 80, "tokenCount": 53, "sha256": "0a8a967f966b116c62c51b846ca3a98de12ba1e43f984b36c2cc26d2a5f8face", "coarseHash": "9430374057a9f1e1813e638ad588dbd7b6c0ef1a8d34c4323b50d3511eaabe19", "canonicalProgram": {"jsonBytes": 1963, "sha256": "d64f954837ac220743e7267574fcc3c2f6c11d785dc69d83612791520959c1b4"}}
+    },
+    "target": {
+      "consumer": {"targetIndex": 20880, "classification": "unresolved", "nodeType": "FunctionDeclaration", "start": 12561229, "end": 12561745, "bytes": 516, "tokenCount": 280, "sha256": "f17cca58db54b91353fa321add47e2029eb17b59960495074b1409c9a05ba131", "coarseHash": "0f7babe859e69cf3a82d4a6060fe804efb98fcb70fd8e18239fc661faa69abb3", "unknownFreeIdentifierCount": 2, "canonicalProgram": {"jsonBytes": 9768, "sha256": "305850e1f3e7a0b791edee76db40d6baf667c6c3815dd9cb939fced4e766276d"}},
+      "bindings": {"targetIndex": 20881, "classification": "moved", "baselineUnitIndex": 20304, "pairReason": "exact-scope-normalized-token-hash", "nodeType": "VariableDeclaration", "start": 12561745, "end": 12561757, "bytes": 12, "tokenCount": 5, "sha256": "36dd54b9413c7581f00dff2ee7ee4d4b41cfab8b43fd9470e169799a3bae84cd", "coarseHash": "c01b63c9a83efc2c82e465e2d798fc3c37152b39ff84fb5b2ced94dd86e0163b", "unknownFreeIdentifierCount": 0, "text": "var n24,dS6;"},
+      "initializer": {"targetIndex": 20882, "classification": "changed", "baselineUnitIndex": 19976, "pairReason": "unique-coarse-structural-hash", "nodeType": "VariableDeclaration", "start": 12561757, "end": 12561837, "bytes": 80, "tokenCount": 53, "sha256": "f3580f3600015747afa2fb14e2f3de73a8cb3f4c85b8e34596265c8b8bd5b56a", "coarseHash": "9430374057a9f1e1813e638ad588dbd7b6c0ef1a8d34c4323b50d3511eaabe19", "unknownFreeIdentifierCount": 2, "canonicalProgram": {"jsonBytes": 1963, "sha256": "d64f954837ac220743e7267574fcc3c2f6c11d785dc69d83612791520959c1b4"},
+        "require": {"module": "fs", "binding": "n24", "assignment": {"start": 12561803, "end": 12561820, "bytes": 17, "sha256": "9bf48490cdcd5efb989431215354bd93406e029bb42175d2c743a45c8c39dbab"}, "call": {"start": 12561807, "end": 12561820, "bytes": 13, "sha256": "7ddd071704fbc8ae3af6ea0aa7c2c2d1204d6c00fd91b4fee0226570bb55e3e4"}, "literal": {"start": 12561815, "end": 12561819, "bytes": 4, "sha256": "feffe4d1829d59a73338197885140782e6bf0db8de497effd476ffa113b018a4"}}
+      },
+      "bindingUses": [
+        {"object": "dS6", "property": "useEffect", "member": {"start": 12561245, "end": 12561258, "bytes": 13, "sha256": "daa83fa0d0da21fd04429abff517d20c79f572825b8db817384eb29c3c9bdd39"}, "call": {"start": 12561245, "end": 12561607, "bytes": 362, "sha256": "06a674b80d52b87eb36e117a52d91092320133414bd29c08f88ab63971a4af37"}},
+        {"object": "n24", "property": "watch", "member": {"start": 12561450, "end": 12561459, "bytes": 9, "sha256": "1ff7ecce5a0367bc26c6cad7b8251a0cd5af5684461636e50b924c2f313ed58e"}, "call": {"start": 12561450, "end": 12561505, "bytes": 55, "sha256": "a2eaff35b0646797e433190953b5c146dd3cd8722d8ecb9d3a72cdc579e501b4"}},
+        {"object": "dS6", "property": "useEffect", "member": {"start": 12561608, "end": 12561621, "bytes": 13, "sha256": "daa83fa0d0da21fd04429abff517d20c79f572825b8db817384eb29c3c9bdd39"}, "call": {"start": 12561608, "end": 12561744, "bytes": 136, "sha256": "f66a88ccd707cba065db6e4bccc5cf4ba2119fcaf44ee1837c21bef4d3a74912"}}
+      ]
+    }
+  },
+  "sourceBoundary": {
+    "baseline": {"commit": "bd846a24e3886322888f02b9f747c132a4a32314", "path": "src/hooks/useJobStateNameSync.ts", "state": "absent"},
+    "target": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "path": "src/hooks/useJobStateNameSync.ts",
+      "blob": "8092754272e870ad02baee0a7968ee3092b94355",
+      "file": {"chars": 2053, "bytes": 2053, "sha256": "8a2f64b8100aa0b19fafcdb6fb2bb54dde9950dbf31908ff668534f5ca87a490"},
+      "imports": [
+        {"module": "fs", "start": 0, "end": 42, "chars": 42, "bytes": 42, "sha256": "2bb963869aee29090dc0bc086de550c26106d5a6e2f4a0026be1a647517499cb", "names": ["watch", "FSWatcher"], "elements": [{"name": "watch", "isTypeOnly": false, "start": 9, "end": 14, "chars": 5, "bytes": 5, "sha256": "baed831623943be39ebf0ef44ae1e9c8fc3eeab51b5f89c113ca410d76a34c1d"}, {"name": "FSWatcher", "isTypeOnly": true, "start": 16, "end": 30, "chars": 14, "bytes": 14, "sha256": "25a2538ccb603014761acea79bc5b620421f3d664bf38032707802958eeed2ba"}]},
+        {"module": "react", "start": 43, "end": 76, "chars": 33, "bytes": 33, "sha256": "5a958a80cfc0d4a40b4d299062a459261f207485401f5d9dc2763dcc1678b0fb", "names": ["useEffect"], "elements": [{"name": "useEffect", "isTypeOnly": false, "start": 52, "end": 61, "chars": 9, "bytes": 9, "sha256": "b6e70b1b405eb57370e5e306072a25c1eb49b94b04e1246eb388a66216efcc81"}]}
+      ],
+      "declaration": {"name": "useJobStateNameSync", "start": 1016, "end": 2052, "chars": 1036, "bytes": 1036, "sha256": "27ac67d5740372da5608440274ee9d68f338334721715325c7d2b58b25644d8c"},
+      "calls": [
+        {"callee": "useEffect", "start": 1095, "end": 1852, "chars": 757, "bytes": 757, "sha256": "6e0eaf66a179e0f0d49a0bb9a77375b572fabdc9b7850b16af3ac221c5cfa7c7"},
+        {"callee": "watch", "start": 1499, "end": 1641, "chars": 142, "bytes": 142, "sha256": "cdde00dc594d17f7ce798169aeb15a0d251ab3907a1beb8aac824ce03808dc79"},
+        {"callee": "useEffect", "start": 1856, "end": 2050, "chars": 194, "bytes": 194, "sha256": "952824222516c1a34577a5376415f225054ea83cdce6e297e9348ff5d50baae9"}
+      ]
+    },
+    "falseOwner": {
+      "path": "src/hooks/notifs/useInstallMessages.tsx",
+      "blob": "08a25da18d40287dde10235b52bee890cd5f4919",
+      "file": {"chars": 3180, "bytes": 3180, "sha256": "0a332836496a1417e7f6d1aa30d24b32c964622df7bf05da0cecd886fafa44bc"},
+      "fsModuleImportCount": 0,
+      "watchCallCount": 0
+    }
+  },
+  "decision": {
+    "mode": "static-exact-source-owner-proof-only",
+    "sourceReplay": false,
+    "sourceFilesChanged": 0,
+    "replayExport": null,
+    "requiredOrder": null,
+    "reason": "The exact Target119 source already materializes the authenticated watch contract. The residue is a false generated owner on a retained initializer; replaying source would add no behavior.",
+    "expectedStrictImpact": {"units": -1, "residues": -1}
+  }
+}

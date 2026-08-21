@@ -1,0 +1,380 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "criterion": "The complete authenticated Target119 AutoCompactDialog is admitted only with its compiler-cache topology, exact selection and warning behavior, chord-aware input guide, apply/cancel adapter, module registration, initializer, and local-jsx loader boundary. The recovered source owns every residue but its input-guide and KeyboardShortcutHint dependency cannot represent the target unit, so it is evidence and never a replay preimage.",
+  "ownerBehavior": "The authenticated Target119 AutoCompactDialog is a complete 49-slot compiler-cached UI unit. It resolves the configured and model-capped window, implements cyclic auto/100k-1M selection, binds Select and Tabs actions, applies or cancels through the autocompact command adapter, and renders the exact warning and configuration states. Its export registration, call adapter, module initializer, and local-jsx command loader bind the unit to src/commands/autocompact/autocompact.tsx. The recovered source is the correct semantic owner for the residues but is not a replay preimage: it renders two ConfigurableShortcutHint children while the target renders three chord-aware KeyboardShortcutHint children, and the packaged KeyboardShortcutHint Props still lacks the target chord API. Admission is static and never authorizes a source replay.",
+  "summary": {
+    "units": 1,
+    "preCorrectionOwnerRows": 229,
+    "preCorrectionAddedOwnerRows": 17,
+    "productionStrictRows": 17,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-autocompact-dialog-authenticated-whole-unit-proof",
+    "target119-autocompact-dialog-caller-loader-boundary-proof",
+    "target119-autocompact-dialog-source-owner-proof",
+    "target119-autocompact-dialog-temporal-evolution-proof",
+    "target119-autocompact-dialog-source-replay-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+    },
+    "laterBundles": [
+      {
+        "version": "2.1.120",
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+        "bytes": 13784743,
+        "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f",
+        "ledgerPath": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+        "ledgerBytes": 2490663,
+        "ledgerSha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+      },
+      {
+        "version": "2.1.121",
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+        "bytes": 13908188,
+        "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a",
+        "ledgerPath": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+        "ledgerBytes": 2540002,
+        "ledgerSha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+      }
+    ]
+  },
+  "baselineAbsence": {
+    "uniqueTargetMarkers": [
+      "Auto-compact Window",
+      "Select auto-compact window: ",
+      "from CLAUDE_CODE_AUTO_COMPACT_WINDOW",
+      "tengu_autocompact_dialog_opened"
+    ],
+    "occurrencesPerMarker": 0
+  },
+  "targetUnit": {
+    "targetIndex": 15690,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 9641305,
+    "end": 9645012,
+    "bytes": 3707,
+    "tokenCount": 1651,
+    "unknownFreeIdentifierCount": 37,
+    "sha256": "bdec55c8da68e398990297aaf8c2e24af514d3680a84c2a3db8bf0167b64ad2f",
+    "coarseHash": "f0b17d5986968246c1ff71c82f7840957df7757a5163d85ff52d6d8e76d7d848",
+    "canonicalAstBytes": 61621,
+    "canonicalAstSha256": "bb7777615c8594e3f91c1cfb547b2f9a0c86d3e9c0973575f1f1444bdaa0bfd2",
+    "bodyStatements": {
+      "statements": 43,
+      "jsonBytes": 4683,
+      "sha256": "192ea3efa42a4c2014836a7fddb217ff7ca31cbd8e1aa2708b321ba35154a0ed"
+    }
+  },
+  "uiContract": {
+    "compilerCache": {
+      "size": 49,
+      "identifierOccurrences": 105,
+      "memberOccurrences": 104,
+      "uniqueIndices": 49,
+      "minIndex": 0,
+      "maxIndex": 48,
+      "indexCountSha256": "b167b3169a78265940640dba1b014e943af4fb9ab2d77e2c5d46eaf0cd9e2097"
+    },
+    "props": ["onDone", "context"],
+    "resolutionProperties": ["window", "configured", "source"],
+    "constants": {
+      "step": 100000,
+      "minimum": 100000,
+      "maximum": 1000000,
+      "modelDefault": 0
+    },
+    "keybindingContexts": ["Select", "Tabs"],
+    "selectActions": ["select:previous", "select:next", "select:accept"],
+    "tabActions": ["tabs:next", "tabs:previous"],
+    "sourceLabels": [
+      "from CLAUDE_CODE_AUTO_COMPACT_WINDOW",
+      "from settings",
+      "auto"
+    ],
+    "selectedAutoLabel": "Auto",
+    "inputGuideStatement": {
+      "statementIndex": 29,
+      "start": 9643183,
+      "end": 9643485,
+      "bytes": 302,
+      "sha256": "446133db9ee58dd7882fc3b615cb730d9de14ecdb3a5f5021b22544396dcc84d"
+    },
+    "inputGuideShortcuts": [
+      {"chord": ["up", "down"], "action": "change"},
+      {"chord": "enter", "action": "apply"},
+      {"chord": "escape", "action": "cancel"}
+    ],
+    "dialog": {
+      "title": "Auto-compact Window",
+      "currentPrefix": "Current setting: ",
+      "environmentWarning": "CLAUDE_CODE_AUTO_COMPACT_WINDOW is set and takes precedence. Unset it to change this setting here.",
+      "disabledWarning": "Auto-compact is currently disabled (see /config)",
+      "overrideWarning": "Overriding auto may result in high token usage, especially when resuming long sessions."
+    }
+  },
+  "keyboardShortcutDependency": {
+    "targetUnit": {
+      "targetIndex": 7948,
+      "classification": "matched",
+      "baselineUnitIndex": 7840,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 3779646,
+      "end": 3780259,
+      "bytes": 613,
+      "tokenCount": 375,
+      "sha256": "a9cc82cdfdfa301fc6b2927347f88713e9b7146fd20a971a9f0e5b97126540eb",
+      "coarseHash": "6f1ab3c858cec9aaf5858d2edbdaca16957cd4fc1d8c5cd1f98d487daa0ffc4a"
+    },
+    "packagedSource": {
+      "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+      "blob": "288d5315d5fb943e5f28a08985deb1c6007b28e4",
+      "bytes": 6847,
+      "chars": 6843,
+      "sha256": "674320359f925e9f4f73f8761f003a0874bb6835eeb07ebb644192e8557d2b26",
+      "props": {
+        "start": 126,
+        "end": 494,
+        "bytes": 372,
+        "chars": 368,
+        "sha256": "1dc5dd3f6a56187b03a92e13fab8b011582aa04e7411e59d8c6a4efe48030870"
+      },
+      "declaration": {
+        "start": 1316,
+        "end": 2242,
+        "bytes": 926,
+        "chars": 926,
+        "sha256": "3072744959fc4af3adfb66655b0ab1bdd8146e70f728eaf34c072aba73a74179"
+      },
+      "requiredProperty": "shortcut",
+      "missingProperty": "chord"
+    }
+  },
+  "callerBoundary": {
+    "combined": {
+      "start": 9641282,
+      "end": 9646015,
+      "bytes": 4733,
+      "sha256": "f0d0ce4550b60d1130c4bb618ce91c59a04e124edd9292fd1b653b9566650f23"
+    },
+    "exportRegistration": {
+      "targetIndex": 15689,
+      "classification": "unresolved",
+      "start": 9641282,
+      "end": 9641305,
+      "bytes": 23,
+      "tokenCount": 14,
+      "sha256": "653f3c2ffbc70896d4a4c8f1a601ad4f0e6fab85e484967440278f0ddc72567b",
+      "coarseHash": "39c7f00ced2ae6818bdd3f79252b7f318122948bd7b717f80aa8447334c36f0e"
+    },
+    "stateSelector": {
+      "targetIndex": 15691,
+      "classification": "moved",
+      "baselineUnitIndex": 19188,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "start": 9645012,
+      "end": 9645055,
+      "bytes": 43,
+      "tokenCount": 11,
+      "sha256": "8bb1454f45263c6a2afe9aa581798fca86a850e42b43d469bf0d42bea609f513",
+      "coarseHash": "2e8c6f748f1dc9f7a400ad0e4db9e1a9efb4d7909ff1fcb744388ebc93f2e91b"
+    },
+    "callAdapter": {
+      "targetIndex": 15692,
+      "classification": "unresolved",
+      "start": 9645055,
+      "end": 9645283,
+      "bytes": 228,
+      "tokenCount": 99,
+      "sha256": "7c40d08b6635b62c69d4ffa2b908a8b83a494c6b3fbbc8330cabfe8250e35c0d",
+      "coarseHash": "3078cf5cb76da30693625749cc38e4b4d80856ab727faab3eb4e0d535d6be185",
+      "applyCall": {"start": 9645151, "end": 9645159, "bytes": 8, "sha256": "db22c26b4babe4cbdbebd7efef573bc69a5d74df89ff804718e207c090336d83"},
+      "dialogCall": {"start": 9645239, "end": 9645281, "bytes": 42, "sha256": "60e9de8e6f34c31f7aa4771357bb63fc32e7fe9d4bfdd39258c72c38fd212b07"},
+      "telemetryCall": {"start": 9645184, "end": 9645238, "bytes": 54, "sha256": "9a1730bdcc6ae04f914727688d0c8f944b0dc3e60a7a44ce012873045abe5cba"}
+    },
+    "uiInitializer": {
+      "targetIndex": 15693,
+      "classification": "unresolved",
+      "start": 9645283,
+      "end": 9645397,
+      "bytes": 114,
+      "tokenCount": 88,
+      "sha256": "cdf7731172c92f37ecf84b49e0997a15396e4306fbf3244ca4ae93aa2914c826",
+      "coarseHash": "d81d78c2c532d4d23f8d44d40beacd256a98232e9567a17e8b3e8b17ead5261e"
+    },
+    "commandInitializer": {
+      "targetIndex": 15696,
+      "classification": "unresolved",
+      "start": 9645437,
+      "end": 9646015,
+      "bytes": 578,
+      "tokenCount": 175,
+      "sha256": "1b15d7a7d632a720f5c69c90c5dbe8250a7284e0e9d4f2c97b3cfcbddb36c585",
+      "coarseHash": "bed946760f5541348c874fe40abebb02e3af5d914c3e8ee46e9168c0a58617cf",
+      "localJsxLoad": {"start": 9645635, "end": 9645676, "bytes": 41, "sha256": "652629bf7b4f559ade87aa8e85ab464e04d2dd04c177c7a85dbb677ee71bcaf9"}
+    },
+    "applyDependency": {
+      "targetIndex": 15685,
+      "classification": "unresolved",
+      "start": 9639953,
+      "end": 9641067,
+      "bytes": 1114,
+      "tokenCount": 307,
+      "sha256": "178ce61a008026ccca2733de7ae461be4a6bbfe9feace3ea25b3ac39ff3b04e3",
+      "coarseHash": "5bc22f3ba9da24a625cc5becb78c37d7e73c2240ea6739f9bad3e53c3eaf2deb"
+    }
+  },
+  "ownerResidues": {
+    "preCorrectionAllOwnerRows": {"rows": 229, "jsonBytes": 13238, "sha256": "b5343b266aa60ddd56eae3f84afc1a6877c172643576d411dac6058de1c31ffa"},
+    "preCorrectionAddedOwnerRows": {"rows": 17, "jsonBytes": 1496, "sha256": "654b728a1f4503c2799664bdf5090156c8f4242187f8910f2f5c8ca83785fd3e"},
+    "preCorrectionOwnerPath": "commands/compact/index.ts",
+    "correctedOwnerPath": "commands/autocompact/autocompact.tsx",
+    "rows": [
+      [15690, "property", "configured", 9641457, 9641467, 4, 6, true],
+      [15690, "string", "from CLAUDE_CODE_AUTO_COMPACT_WINDOW", 9641598, 9641636, 0, 1, true],
+      [15690, "string", "from settings", 9641652, 9641667, 0, 1, true],
+      [15690, "string", " · capped to ", 9642007, 9642023, 0, 2, true],
+      [15690, "string", " by model", 9642031, 9642040, 0, 2, true],
+      [15690, "string", "Auto-compact window unchanged: ", 9642249, 9642280, 0, 1, true],
+      [15690, "string", "Current setting: ", 9643043, 9643060, 0, 1, true],
+      [15690, "string", "Auto-compact window unchanged: ", 9643101, 9643132, 0, 2, true],
+      [15690, "string", "This command configures when auto-compaction happens. The actual threshold is the minimum of this setting and your model's maximum context window.", 9643568, 9643716, 0, 1, true],
+      [15690, "string", "The auto setting picks a window tuned for your model and is", 9643825, 9643886, 0, 1, true],
+      [15690, "string", "strongly recommended", 9643920, 9643942, 0, 1, true],
+      [15690, "string", " for the best cost and performance. You can override it below.", 9643944, 9644008, 0, 1, true],
+      [15690, "string", "Auto-compact is currently disabled (see /config)", 9644054, 9644104, 0, 2, true],
+      [15690, "string", "Overriding auto may result in high token usage, especially when resuming long sessions.", 9644214, 9644303, 0, 2, true],
+      [15690, "string", "CLAUDE_CODE_AUTO_COMPACT_WINDOW is set and takes precedence. Unset it to change this setting here.", 9644409, 9644509, 0, 1, true],
+      [15690, "string", "Select auto-compact window: ", 9644559, 9644589, 0, 1, true],
+      [15690, "string", "Auto-compact Window", 9644894, 9644915, 0, 1, true]
+    ]
+  },
+  "sourceOwner": {
+    "path": "src/commands/autocompact/autocompact.tsx",
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+    "blob": "2fa5fecd1f2cd0ebfcf8b23295577947c13ff457",
+    "bytes": 5485,
+    "chars": 5479,
+    "sha256": "43e1968a06c82e1ecb632f97311e316feb490a050f669a469fe53f7ca93ba72d",
+    "declarations": {
+      "AutoCompactDialog": {"start": 937, "end": 5078, "bytes": 4147, "chars": 4141, "sha256": "ddc452f37da1e682108f5299075a3167a23faa052e5cfa6a4eeecd7e47ef2692"},
+      "call": {"start": 5080, "end": 5478, "bytes": 398, "chars": 398, "sha256": "3138eb8cd5793d5a4fa8b14484d18f7dd2bd5135245d2d1446310325a0c478ce"}
+    },
+    "inputGuide": {"start": 3349, "end": 3782, "bytes": 438, "chars": 433, "sha256": "b5eabff737e776e3bd3a402e86120f0ad19dfa9b313bbc46978477d8e6071f4a"},
+    "shortcutImport": {"module": "../../components/ConfigurableShortcutHint.js", "start": 64, "end": 151, "bytes": 87, "sha256": "18239f7443105f46b7c5546cca0fc4d4777202b85e5abb4961e158f83cdc7106"},
+    "sourceShortcutComponent": "ConfigurableShortcutHint",
+    "sourceShortcutCount": 2,
+    "targetShortcutComponent": "KeyboardShortcutHint",
+    "targetShortcutCount": 3,
+    "commandIndex": {
+      "path": "src/commands/autocompact/index.ts",
+      "blob": "c4d9d001f59c1bf826e1d351e985897f6a9d9092",
+      "bytes": 1115,
+      "chars": 1115,
+      "sha256": "d73a97804802c18db2ad4b1fbce9f3e68ee0e8f6bbe6cc30c090be0a2fbcb92d",
+      "autocompact": {"start": 210, "end": 599, "bytes": 389, "sha256": "9980867d5fd3296425592902829dd992f522edc20bfb283b4d322e01d6584bb3"},
+      "lazyModule": "./autocompact.js"
+    },
+    "noninteractiveDependency": {
+      "path": "src/commands/autocompact/autocompact-noninteractive.ts",
+      "blob": "30e9f5b894fcb0c58f426463ae6c95495d61f5f0",
+      "bytes": 4095,
+      "chars": 4092,
+      "sha256": "e55ffd7e58324c1cb29e7a4b26c6d867b6e49ecae5db20d47c804f3b4340e5f9",
+      "applyDeclaration": {"start": 1657, "end": 3687, "bytes": 2032, "chars": 2030, "sha256": "98f51fa9ba6ef273302bc35db3c4254f354532bace92eaede5b1f6665da51c81"}
+    }
+  },
+  "laterEvolution": [
+    {
+      "version": "2.1.120",
+      "targetIndex": 15774,
+      "classification": "unresolved",
+      "start": 9674306,
+      "end": 9678088,
+      "bytes": 3782,
+      "tokenCount": 1699,
+      "sha256": "67bddaf45927e3798cbad409775dd15dd45fb7594d609ead6692dc07eef1b0bf",
+      "coarseHash": "ff3e0593dd1e25f2ddf67bc572f4ca5152d0401bd68897455e69535a2b1d49d6",
+      "canonicalAstBytes": 63481,
+      "canonicalAstSha256": "a6e5276025ceeb744bc0beb1a5b78491178b970e60d4363771c8b7ff02096cf4"
+    },
+    {
+      "version": "2.1.121",
+      "targetIndex": 15882,
+      "classification": "matched",
+      "baselineUnitIndex": 15774,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "start": 9736729,
+      "end": 9740509,
+      "bytes": 3780,
+      "tokenCount": 1699,
+      "sha256": "57eff74cead41acb2480f99776cef89cf58d576f55b6ab72ebb82f4e3dedd60c",
+      "coarseHash": "ff3e0593dd1e25f2ddf67bc572f4ca5152d0401bd68897455e69535a2b1d49d6",
+      "canonicalAstBytes": 63481,
+      "canonicalAstSha256": "a6e5276025ceeb744bc0beb1a5b78491178b970e60d4363771c8b7ff02096cf4"
+    }
+  ],
+  "replayDecision": {
+    "mode": "static-only",
+    "reason": "The recovered Target119 source is the correct owner and carries every residue, but its two ConfigurableShortcutHint children and function-valued inputGuide are not the authenticated target's three static chord-aware KeyboardShortcutHint children. The packaged KeyboardShortcutHint source requires shortcut and has no chord property, so a bounded UI-only rewrite would not be type- or dependency-closed. No exact Target119 source map or complete donor exists.",
+    "sourceReplayHelpers": []
+  },
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-u21759",
+        "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"},
+        "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 382108, "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"},
+        "sourceCoverageRaw": {"bytes": 3290710, "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"}
+      },
+      {
+        "phase": "post-u21878",
+        "typedAudit": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24991569, "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"},
+        "sourceCoverage": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 383456, "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"},
+        "sourceCoverageRaw": {"bytes": 3297173, "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"}
+      }
+    ]
+  },
+  "latestArtifactProjection": {
+    "phases": ["post-u21759", "post-u21878"],
+    "units": [
+      {
+        "targetIndex": 15690,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {"full": {"rows": 143, "jsonBytes": 59659, "sha256": "ee83579767c321b69226e8b11e117c8abda52d0900b51dd54094f61c2890c476"}, "identities": {"rows": 143, "jsonBytes": 7893, "sha256": "7d785df5c6b62bd9c030e6e03a57eee31990c73ab1b08852092d74b910061253"}},
+          "sourceRuntimeAddedOwnerResidueRows": {"full": {"rows": 1, "jsonBytes": 685, "sha256": "9ba1f89e04663746ea02ba2f79f075094c1081350c85541c32e116970d19f2bb"}, "identities": {"rows": 1, "jsonBytes": 58, "sha256": "bdd8551f4c2693e93873b9fa2bb90d15ff29a82b3a5d6f3f21f2a144aff1ff1f"}},
+          "rows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}},
+          "unclassifiedAddedOccurrenceRows": {"full": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}, "identities": {"rows": 0, "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+        },
+        "coverageRows": {"rows": 1, "jsonBytes": 1446, "sha256": "c91e9f3635fdfa5c82b94768fbb8246649b7c8c2dd09e591bde00b878d7904d5"},
+        "ownerCatalog": [{"id": "owner-src-commands-autocompact-autocompact-tsx", "path": "src/commands/autocompact/autocompact.tsx"}]
+      }
+    ]
+  }
+}

@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-classifier-build-name-filter-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-classifier-authenticated-whole-units",
+    "target121-classifier-build-macro-expansion",
+    "target121-classifier-placeholder-name-runtime-source-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26946668,
+      "sha256": "e73e33d343c8fb084191d78d538efebf87dd4e9902cf6ff8546e65f5ec383de5"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [14165, 14171],
+        "count": 2,
+        "canonicalBytes": 1836,
+        "canonicalSha256": "76cf9a9be5dcdaa1de6457242ae7335db5dac80dcf89a8a1162504d039471a15"
+      }
+    }
+  },
+  "ownerCorrection": {
+    "reportedOwner": "services/autoDream/autoDream.ts",
+    "correctedOwner": "src/jobs/classifier.ts",
+    "reason": "Both target units are the classifier module: u14165 is classifyAndPush, while u14171 initializes IS_RESUME and the placeholder-name regexp consumed by generateJobName. The generated autoDream owner is a coarse attribution collision.",
+    "staleCandidate": {
+      "path": "src/services/autoDream/autoDream.ts",
+      "bytes": 14755,
+      "chars": 14735,
+      "sha256": "c8f149efa77105046f2f999f8ab577313e35352a5aa3acb204b5344ca2902346",
+      "markerCounts": {
+        "tengu_bg_agent_terminal": 0,
+        "MACRO.VERSION": 0,
+        "unspecified|untitled|unnamed": 0
+      }
+    }
+  },
+  "units": [
+    {
+      "target": {
+        "targetIndex": 14165,
+        "classification": "unresolved",
+        "unknownFreeIdentifierCount": 3,
+        "declaration": "classifyAndPush",
+        "nodeType": "FunctionDeclaration",
+        "start": 8874683,
+        "end": 8877828,
+        "tokenCount": 1168,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 19,
+        "bytes": 3145,
+        "sha256": "a472b8aa86e4a72256932be83b4109fe28bc6882f8359cd874b119c2dd8e70df",
+        "coarseHash": "fba3a8494516ea2e54263ab5ed6890a073f5f3b0fff88de74e0568dc67589974",
+        "line": 4400,
+        "column": 1143
+      },
+      "baseline": {
+        "baselineUnitIndex": 14058,
+        "classification": "unmatched-baseline",
+        "nodeType": "FunctionDeclaration",
+        "start": 8814779,
+        "end": 8817702,
+        "tokenCount": 1083,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 19,
+        "bytes": 2923,
+        "sha256": "448ed68891feee75717060bd8e2362fc5ebcace83dbb62293704cfefbf142eb7",
+        "coarseHash": "79ee514b7497cc3e58372165cb35135ea6c94c51d20bb796087a393dd5e86fe2",
+        "line": 4388,
+        "column": 1106
+      },
+      "relation": "direct classifyAndPush predecessor; sixteen of nineteen body statements are alpha-canonically identical, and the three changed statements cover transcript/link state, state persistence/build expansion, and job-name context",
+      "ownerResidues": {
+        "totalRows": 184,
+        "targetAddedRows": 9,
+        "strictRows": 3,
+        "rowIdentities": {
+          "bytes": 9700,
+          "sha256": "aadb28e7e428c69fd4a460a92d3f7f7b5a6fa7b06f02ce4bfc7fcc3947cdc9d6"
+        },
+        "strictIdentities": {
+          "bytes": 185,
+          "sha256": "28951c8e09abdaf7fe43d81181fadcb8068998c88c92719e63afe74800a765a0"
+        },
+        "strictRowsExact": [
+          [14165, "string", "2.1.121", 8877003, 8877012, 55],
+          [14165, "string", "2026-04-27T01:32:27Z", 8877092, 8877114, 55],
+          [14165, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 8877123, 8877165, 55]
+        ],
+        "postDaemonOwner": {
+          "totalRows": 16,
+          "targetAddedRows": 3,
+          "strictRows": 3,
+          "reportedOwner": "jobs/classifier.ts",
+          "rowIdentities": {
+            "bytes": 1034,
+            "sha256": "4f4a631a6178a6f74b18955e90977a4201f288a549f62b882a06177a4b449f17"
+          },
+          "strictIdentities": {
+            "bytes": 185,
+            "sha256": "28951c8e09abdaf7fe43d81181fadcb8068998c88c92719e63afe74800a765a0"
+          },
+          "strictRowsExact": [
+            [14165, "string", "2.1.121", 8877003, 8877012, 55],
+            [14165, "string", "2026-04-27T01:32:27Z", 8877092, 8877114, 55],
+            [14165, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 8877123, 8877165, 55]
+          ]
+        }
+      }
+    },
+    {
+      "target": {
+        "targetIndex": 14171,
+        "classification": "unresolved",
+        "unknownFreeIdentifierCount": 4,
+        "declaration": "classifier module initializer",
+        "nodeType": "VariableDeclaration",
+        "start": 8881129,
+        "end": 8881508,
+        "tokenCount": 152,
+        "topDefinitionCount": 1,
+        "factoryBodyStatementCount": 23,
+        "bytes": 379,
+        "sha256": "c966335d8a732cab59e5eade7687f2590508e1382ff16bb572a2b1a15c15337b",
+        "coarseHash": "59dbea1f627dbf1cdf4e0a67faf5add0f53b93d3020a8010f93b6b15345dd8e2",
+        "line": 4406,
+        "column": 540
+      },
+      "baseline": {
+        "baselineUnitIndex": 14064,
+        "classification": "unmatched-baseline",
+        "nodeType": "VariableDeclaration",
+        "start": 8820985,
+        "end": 8821274,
+        "tokenCount": 140,
+        "topDefinitionCount": 1,
+        "factoryBodyStatementCount": 20,
+        "bytes": 289,
+        "sha256": "7621b90d70a4037859c39ccdce21138571076f0cc29c38519b86668f7d6c55e8",
+        "coarseHash": "27821b206a3271fe59fb59b5da6acb005e156779cfd271f56e1603fed31e0c54",
+        "line": 4394,
+        "column": 522
+      },
+      "relation": "direct classifier module-initializer predecessor; Target121 adds exactly two dependency initializer calls and the placeholder-name regexp assignment",
+      "ownerResidues": {
+        "totalRows": 11,
+        "targetAddedRows": 1,
+        "strictRows": 1,
+        "rowIdentities": {
+          "bytes": 631,
+          "sha256": "2b09b570178f3444ba5629d5ab80d8f8a8c0c23b67a705bc0984ec65c1bed539"
+        },
+        "strictIdentities": {
+          "bytes": 138,
+          "sha256": "d0f2dffcbfc524fab8694177065c13cf5fa3291a2362d79dd2f00a685d8db05d"
+        },
+        "strictRowsExact": [
+          [14171, "regexp", {"flags": "", "pattern": "^(unspecified|untitled|unnamed)\\b|^(unknown|no) (request|task|job|input)\\b"}, 8881429, 8881505, 1]
+        ],
+        "postDaemonOwner": {
+          "totalRows": 1,
+          "targetAddedRows": 1,
+          "strictRows": 1,
+          "reportedOwner": "jobs/classifier.ts",
+          "rowIdentities": {
+            "bytes": 139,
+            "sha256": "ed756d636d6e7ca5bdf452642c9aa95f0622cc83673cfc1341b2af9432375a6e"
+          },
+          "strictIdentities": {
+            "bytes": 138,
+            "sha256": "d0f2dffcbfc524fab8694177065c13cf5fa3291a2362d79dd2f00a685d8db05d"
+          },
+          "strictRowsExact": [
+            [14171, "regexp", {"flags": "", "pattern": "^(unspecified|untitled|unnamed)\\b|^(unknown|no) (request|task|job|input)\\b"}, 8881429, 8881505, 1]
+          ]
+        }
+      }
+    }
+  ],
+  "wholeUnitEvidence": {
+    "u14165": {
+      "rawByteDelta": 222,
+      "tokenDelta": 85,
+      "canonicalization": "Acorn 8.15 AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+      "baselineCanonical": {
+        "bytes": 45562,
+        "sha256": "b5bb2063a4e62d060a45bb028f45ae096e2f7d5e37dfc053427ba26e815e8419"
+      },
+      "targetCanonical": {
+        "bytes": 48832,
+        "sha256": "67c48e3f7df4575e63801dbf8bc028d98bb66b370f38a0e9d72267f1b3617551"
+      },
+      "retainedStatements": {
+        "count": 16,
+        "identityMethod": "[bodyIndex,canonicalSHA256] for every statement except indices 12,15,17; SHA-256 of UTF-8 JSON.stringify",
+        "bytes": 1143,
+        "sha256": "90aa549662145ae1f8c29bf7938d3f8a52af24a89ae294d78f044d890d571106"
+      },
+      "changedStatements": [
+        {
+          "index": 12,
+          "baseline": {"nodeType": "VariableDeclaration", "start": 8815985, "end": 8816261, "bytes": 276, "sha256": "448215710203624ab87f2c6da3ac123c24462cba0e181bf8162410736e766029", "canonicalSha256": "d01520d8e835441fc7a873324f45595ec9d7f06449fa1cfb176372b2a329cd86"},
+          "target": {"nodeType": "VariableDeclaration", "start": 8875889, "end": 8876171, "bytes": 282, "sha256": "9b3d9eed0616ebc41b00cb171c90038ea3c15e51b3b804a1ff6fa009259788ae", "canonicalSha256": "f158de4deff6113ee97aca7ba0cc27d4ab511816ce824d716f288f457412a31c"}
+        },
+        {
+          "index": 15,
+          "baseline": {"nodeType": "ExpressionStatement", "start": 8816517, "end": 8817557, "bytes": 1040, "sha256": "a2052ef44dbc8a43d5ecd7ce1cb2b239b549956b88514f3d78cb20baf5c5dbe4", "canonicalSha256": "180d9ad4263728a6d5f5873d4d2f44ec612fe78aa5be17a0f6b1a4df7cc35e1e"},
+          "target": {"nodeType": "ExpressionStatement", "start": 8876427, "end": 8877594, "bytes": 1167, "sha256": "212fb1ae30067f97006b787fbca13f6e98e00765461f4a21162c5c510dae97ed", "canonicalSha256": "4131d46e99370c29b4aafa92870e0515a53534abe3815b15a2e0f10169da61cc"}
+        },
+        {
+          "index": 17,
+          "baseline": {"nodeType": "IfStatement", "start": 8817576, "end": 8817625, "bytes": 49, "sha256": "ee524c75820029f0cf985a86c31455430b3ff0eb533fcef0f36f42261789c6ea", "canonicalSha256": "a43bbd5f04190886efc8a3498404b25ee93c150792994f927cf0264924396670"},
+          "target": {"nodeType": "IfStatement", "start": 8877613, "end": 8877751, "bytes": 138, "sha256": "32134bb8a3a2721b8a89a45bd623081a21690ecee191ae6632fb18113b9b68ec", "canonicalSha256": "d06bcca19829765bc672748ae20aa6db753dd269b4504506762913f9499e56de"}
+        }
+      ],
+      "buildMacroExpansion": {
+        "baseline": {
+          "nodeType": "MemberExpression",
+          "start": 8816844,
+          "end": 8817206,
+          "bytes": 362,
+          "sha256": "bc6fe3ff7994685a63107f3a0dc18bd654cc258809a0edf9c0799747be4cfaca",
+          "canonicalSha256": "6dd7db892f06b3d208064c9e213f94916112680ece22fdf484d3ccabcb8dbe1e",
+          "version": "2.1.120",
+          "buildTime": "2026-04-24T19:00:49Z",
+          "gitSha": "080f07fb4224786b965b9ea0a35f0cff594f2eb6"
+        },
+        "target": {
+          "nodeType": "MemberExpression",
+          "start": 8876812,
+          "end": 8877174,
+          "bytes": 362,
+          "sha256": "ab1462173235d9bec33808648f9b53927b85972f08ef14d8e7505ca9dceef5dc",
+          "canonicalSha256": "da56249a0a36af4b73e483dd21f1068876d5aab650e1926335eb06f2700a08d2",
+          "version": "2.1.121",
+          "buildTime": "2026-04-27T01:32:27Z",
+          "gitSha": "16ffea721a0a39bc787a236dc19fb62307180b75"
+        },
+        "normalizedCanonical": {
+          "method": "replace VERSION, BUILD_TIME, and GIT_SHA literal values with @build before canonical hashing",
+          "bytes": 1559,
+          "sha256": "a3652267ce1ff1731beeee7a0d3b551ece661607261ef1677791259a79ead232"
+        }
+      },
+      "timelineTruncationGap": {
+        "baseline": {"start": 8817513, "end": 8817527, "bytes": 14, "sha256": "436816f93d8abbe1d11dfdbbdfce1b31fa02d34dee0682462983b91e090cbf7c", "exact": "j.slice(-4000)"},
+        "target": {"start": 8877553, "end": 8877564, "bytes": 11, "sha256": "d19c7b984c991c46ee4e0279f78435b91b40ca25c5606e96e89b06cd6f2b340e", "exact": "rU6(j,4000)"}
+      }
+    },
+    "u14171": {
+      "rawByteDelta": 90,
+      "tokenDelta": 12,
+      "baselineCanonical": {"bytes": 5547, "sha256": "7b5e6d6db7e8e849573a83ead4e2a9a9024ed8160dfdaa408db0ec23a67ddcb4"},
+      "targetCanonical": {"bytes": 6120, "sha256": "96910145edbd26d4a764e3164808540afd3b76ae5002fbd8fbf016f74f409ce1"},
+      "dependencyInitializers": [
+        {"bodyIndex": 18, "nodeType": "ExpressionStatement", "start": 8881238, "end": 8881244, "bytes": 6, "sha256": "0358aef68eae0935343f5760a2b3c8f3619e1e705e454a7ad3ae324bfdfc5c57", "canonicalSha256": "c481ad5f5698ca2cb90ca3c78f572c6952049807e15a58be689a51626d382019", "exact": "KP6();"},
+        {"bodyIndex": 19, "nodeType": "ExpressionStatement", "start": 8881244, "end": 8881249, "bytes": 5, "sha256": "694e2262b48beb5efc0fdf3dfda7bab734f556f88808f0211535696bcfc5577f", "canonicalSha256": "c481ad5f5698ca2cb90ca3c78f572c6952049807e15a58be689a51626d382019", "exact": "xP();"}
+      ],
+      "regexpAssignment": {
+        "bodyIndex": 22,
+        "nodeType": "ExpressionStatement",
+        "start": 8881425,
+        "end": 8881505,
+        "bytes": 80,
+        "sha256": "dc758ad045c7ebf4203750efeb5bc4a9f6f7807ec39e1beeef46778568f0883e",
+        "canonicalSha256": "b5f795a994643e851eaf5d5ae6ae512b8f011211dc94ce5bc2d54eab5b150adb",
+        "exact": "hI1=/^(unspecified|untitled|unnamed)\\b|^(unknown|no) (request|task|job|input)\\b/",
+        "literal": {"start": 8881429, "end": 8881505, "bytes": 76, "sha256": "e07f86c840f86da3da170fc19490e1370d9da72be4f83fd1fa640149bc76c02f"}
+      },
+      "transform": {
+        "operation": "Remove Target121 factory body indices 22 and 18..19, in descending order; no other AST changes are permitted.",
+        "commonCanonical": {"bytes": 5547, "sha256": "7b5e6d6db7e8e849573a83ead4e2a9a9024ed8160dfdaa408db0ec23a67ddcb4"}
+      }
+    }
+  },
+  "sourceState": {
+    "path": "src/jobs/classifier.ts",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "0b8f7a14b977b1c870e7a23fab4f900e2cb92f4e",
+      "bytes": 44182,
+      "chars": 44137,
+      "sha256": "49dae61b280b926fdac23e2974ad53c1a26268d2f036b23bdf78480b812279b3",
+      "classifyAndPush": {"start": 32966, "end": 38952, "chars": 5986, "bytes": 5988, "sha256": "34dce2959120ed887e42a0520735046d0389ed84c8ad612603c916179f5ba3a6", "line": 1042, "endLine": 1231},
+      "generateJobName": {"start": 31274, "end": 32964, "chars": 1690, "bytes": 1690, "sha256": "911a98232ea86fe7fd05bc9b41de818b9a494cbbc56a6eae1eb24bdab119d051", "line": 997, "endLine": 1040},
+      "isResume": {"start": 1239, "end": 1477, "chars": 238, "bytes": 238, "sha256": "c289dc58c99939f9f57ba490116706a77346c451ad79e45f0e078118c8ad83c7", "line": 44, "endLine": 52},
+      "macroVersion": {"start": 37598, "end": 37611, "chars": 13, "bytes": 13, "sha256": "1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83", "line": 1184, "endLine": 1184}
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "44427b0fb7f22ea353eaee82ec6e1cace1728d36",
+      "bytes": 44976,
+      "chars": 44931,
+      "sha256": "9f1360858d173e95add57d14fa308da8db7f2b4acaf190aa56c88b88dd54698f",
+      "classifyAndPush": {"start": 33179, "end": 39746, "chars": 6567, "bytes": 6569, "sha256": "8bafe2d0fb39fdc4219086f157e61dc91b4efd2d7d04cc494a6f74bd65038d78", "line": 1051, "endLine": 1254},
+      "generateJobName": {"start": 31342, "end": 33177, "chars": 1835, "bytes": 1835, "sha256": "abd125b28caa19f535956b72936c0c47df0c5645a434a91798340596d6254f01", "line": 998, "endLine": 1049},
+      "isResume": {"start": 1279, "end": 1517, "chars": 238, "bytes": 238, "sha256": "c289dc58c99939f9f57ba490116706a77346c451ad79e45f0e078118c8ad83c7", "line": 45, "endLine": 53},
+      "macroVersion": {"start": 37901, "end": 37914, "chars": 13, "bytes": 13, "sha256": "1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83", "line": 1195, "endLine": 1195},
+      "candidateGuard": {"start": 32628, "end": 32650, "chars": 22, "bytes": 22, "sha256": "b631b3fd081a42ac53999c6980a8b9c754dc48cd1ecfb36cc844f42b148c7400", "line": 1033, "endLine": 1033, "exact": "if (!candidate) return"},
+      "timelineSlice": {"start": 38809, "end": 38827, "chars": 18, "bytes": 18, "sha256": "8d836bf757b9ff235fe51a1f7578bc91591b2804aa8e80b06377c14c88beaabc", "line": 1225, "exact": "text.slice(-4_000)"},
+      "markerCounts": {"MACRO.VERSION": 1, "unspecified|untitled|unnamed": 0, "hI1": 0}
+    },
+    "gitDonorAudit": {
+      "paths": ["src/jobs/classifier.ts"],
+      "markers": ["unspecified|untitled|unnamed", "hI1"],
+      "result": "no recovered classifier history contains either the placeholder regexp text or its minified identifier"
+    }
+  },
+  "hiddenRuntimeDependency": {
+    "targetUnit": {"targetIndex": 14162, "nodeType": "FunctionDeclaration", "start": 8873013, "end": 8873993, "tokenCount": 395, "bytes": 980, "sha256": "1b786654644b605a48d9e61f30191d8447cf3e14859ee5410bb14e44fa0fad1a", "coarseHash": "20b67f8bd56a7a6c141864b64a5db43c1980cf22ab7fface4676734df34d5ad5", "bodyStatementCount": 6},
+    "baselineUnit": {"baselineUnitIndex": 14055, "nodeType": "FunctionDeclaration", "start": 8813186, "end": 8814089, "tokenCount": 359, "bytes": 903, "sha256": "cc712c789d0881a7900fcd06e8390adbbcefadc233394116101242401f2bc77e", "coarseHash": "d33380012559478651107d6aba6bf1d9ec90cf52c0471399ef6dc92bba03239b"},
+    "targetGuard": {"start": 8873685, "end": 8873748, "bytes": 63, "sha256": "728d1db30cf1c288fa48486d19fc023d8662ef5b02c6655b86ca5b72d453f491", "exact": "if(A=P7(M.text.trim().toLowerCase(),40),!A||hI1.test(A))return;"},
+    "regexpCall": {"start": 8873729, "end": 8873740, "bytes": 11, "sha256": "86c7315925a2c8d7f56634ad69e48ddd993659e5a59d99064482b0073b3dcb5f", "exact": "hI1.test(A)"},
+    "boundary": "u14162 is pinned only as the authenticated consumer of u14171's regexp and is not owned or removed by this proof."
+  },
+  "generatorWiring": {
+    "replayHelper": null,
+    "ownerOverrideExport": "TARGET121_CLASSIFIER_BUILD_NAME_FILTER_OWNER_OVERRIDES"
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 53,
+      "unsupportedResidues": 470,
+      "firstTargetIndices": [14165, 14171],
+      "productionIndexSha256": "cc0d1a43e804f26af625935e690df62683f307b7f95d8970eacafc989fc4c9c7",
+      "productionTupleSha256": "a15cdaacfb0ba9ca0c958a11b18cbddcee3070222d0d4e29e2d398cfb2c3c1c1"
+    },
+    "removes": {
+      "targetIndices": [14165, 14171],
+      "units": 2,
+      "residueCount": 4
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 51,
+      "unsupportedResidues": 466
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "Recovered Target121 jobs/classifier.ts authenticates the corrected owner, classifyAndPush changes, and symbolic MACRO.VERSION, but it omits the Target121 placeholder regexp and its generateJobName use and retains text.slice(-4_000) where the authenticated bundle calls a dedicated truncation helper. The regexp's authored identifier is also unrecoverable, so a partial source replay would invent source and leave another complete-unit semantic gap."
+  }
+}

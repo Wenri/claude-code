@@ -11,9 +11,9 @@ The strict catalog contains 135 obligations: all 51 official release bullets exa
 - Source overlay: 2,709,667 bytes across 290 paths, SHA-256 `623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794`.
 - Target source tree: 2,088 files / 32,357,579 bytes, framed SHA-256 `5b91f7f3ddcdf440a8ef22b7e43eec769402aa54c3f1995ee508adb0c9157882`.
 - Direct adjacent-evidence catalog: 156,609 bytes, SHA-256 `6f3829ac9fd4da733d9bf960f7a4834df789caa246ecc3f50fda281b33a2d1d7`.
-- Obligations: 295,669 bytes, SHA-256 `48d635ccb80481abeab6d0124df4d50202e3fe1182c8ca8828cf34ac80dda2ca`.
-- Canonical correspondence: 1,093,852 bytes, SHA-256 `ec7e649ccc8ed367dc160c0b1301b4627567d0c64a97d6f509fab48c985b889b`.
-- Summary: 4,793 bytes, SHA-256 `9b27df55615e735bfffef2f6d11452489f0999d09e4974718b8deb776e8ddb1b`.
+- Obligations: 295,670 bytes, SHA-256 `77af54135f4ada9f4249c6c302b6987f2743f1bdeb6c1e43030cfad9af299a57`.
+- Canonical correspondence: 1,093,872 bytes, SHA-256 `41cae97af8435dee9a461d707c2e81fe2bbe675080db646d61d85a1a78c87afb`.
+- Summary: 4,793 bytes, SHA-256 `32212d73e7c4ab06364d0888149a6584c6a86b53835ab72810b9987cfb1b053c`.
 
 ## Coverage
 

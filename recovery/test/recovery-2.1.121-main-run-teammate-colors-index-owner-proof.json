@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-main-run-teammate-colors-index-row-scoped-retained-static-owner-v1",
+  "status": "case-owned-row-scoped-static-owner-evidence",
+  "claim": "The u22106 index row at 13815572..13815577 is not a Target121 behavior addition. It is nested in teammateColors:{assignments:new Map,index:0}, a 44-byte runtime fragment retained exactly at all three Target120 and Target121 bundle sites. The complete enclosing run initial-state objects contain 597 identifier-normalized tokens with one exact cross-release digest. The corresponding Target120 and raw Target121 authored main.tsx initialState declarations are themselves byte-identical and omit teammateColors and assignments; the packaged Target121 declaration preserves that omission. With no authenticated authored release donor, replay would invent source. This static case therefore admits only the retained index row, leaves every strict row and all other u22106 rows explicit, and exports no whole-unit override.",
+  "evidenceIds": [
+    "target121-main-run-teammate-colors-index-authenticated-retention",
+    "target121-main-run-teammate-colors-index-source-owner-graph",
+    "target121-main-run-teammate-colors-index-replay-blocker",
+    "target121-main-run-teammate-colors-index-row-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-teammate-colors-index-owner-evidence.mjs",
+      "bytes": 1912,
+      "sha256": "662ef6c32847137299d336bfeacab69e4bba2f74a3e1bf97b7414172a6dc1170"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostDangerousSnapshot": {
+      "method": "The exact report row, u22106 counts, coverage row, and descriptors were copied once before case edits. The proof test never opens the mutable report or coverage artifacts.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      },
+      "u22106Counts": {"owner":199,"added":15,"strict":8,"unclassified":0},
+      "selectedRow": [22106,"property","index",13815572,13815577,296,297,true],
+      "selectedRowDescriptor": {"bytes":57,"sha256":"97e972bf701d00b9d156ac9c59a38e6bee9bf4a85d6e4911e06ccda384494084"},
+      "partitions": {"owner":true,"added":true,"strict":false,"unclassified":false},
+      "coverageRow": {
+        "targetIndex": 22106,
+        "start": 13779080,
+        "end": 13841990,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-main-tsx"],
+        "evidenceIds": ["source-map-attribution","semantic-test"],
+        "behavior": "Compiled target unit is attributed to src/main.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    },
+    "frozenPostPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"},
+      "u22106Counts": {"owner":199,"added":15,"strict":8,"unclassified":0},
+      "selectedRow": [22106,"property","index",13815572,13815577,296,297,true]
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "u22106Counts": {"owner":202,"added":18,"strict":9,"unclassified":0},
+      "selectedRow": [22106,"property","index",13815572,13815577,296,297,true]
+    },
+    "sourceRoots": {
+      "baseline": ".recovery-tmp/semantic-trees/2.1.120/src",
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "package": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "baselineUnit": {
+    "baselineUnitIndex": 22004,
+    "name": "Zh5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "start": 13711458,
+    "end": 13773044,
+    "bytes": 61586,
+    "tokenCount": 16389,
+    "sha256": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0",
+    "coarseHash": "4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0",
+    "line": 18786,
+    "column": 12
+  },
+  "targetUnit": {
+    "targetIndex": 22106,
+    "name": "WS5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 42,
+    "start": 13779080,
+    "end": 13841990,
+    "bytes": 62910,
+    "tokenCount": 16656,
+    "sha256": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+    "coarseHash": "c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1",
+    "line": 18764,
+    "column": 12
+  },
+  "compiledRetention": {
+    "fragmentText": "teammateColors:{assignments:new Map,index:0}",
+    "fragment": {"bytes":44,"sha256":"72d030f10b2470d47fc3e4f8a00ae7942d0500e836108ea2ba0975875b1bda05","tokenCount":12},
+    "allFragmentStarts": {
+      "baseline": [6489954,10700757,13747367],
+      "target": [6506618,10769183,13815536]
+    },
+    "runFragment": {
+      "baseline": {"start":13747367,"end":13747411,"bytes":44,"sha256":"72d030f10b2470d47fc3e4f8a00ae7942d0500e836108ea2ba0975875b1bda05"},
+      "target": {"start":13815536,"end":13815580,"bytes":44,"sha256":"72d030f10b2470d47fc3e4f8a00ae7942d0500e836108ea2ba0975875b1bda05"}
+    },
+    "nestedObject": {
+      "baseline": {"start":13747382,"end":13747411,"bytes":29,"sha256":"2b327b24bfde3f83faee341a05009a637d8a8b8a296548b84fd436115ec16903"},
+      "target": {"start":13815551,"end":13815580,"bytes":29,"sha256":"2b327b24bfde3f83faee341a05009a637d8a8b8a296548b84fd436115ec16903"}
+    },
+    "indexProperty": {
+      "baseline": {"start":13747403,"end":13747410,"bytes":7,"sha256":"3b654d20e0b8ec1e19f67804bbc58bdd4b6cae5ecfb509b23f6170fe3361376a"},
+      "target": {"start":13815572,"end":13815579,"bytes":7,"sha256":"3b654d20e0b8ec1e19f67804bbc58bdd4b6cae5ecfb509b23f6170fe3361376a"}
+    },
+    "completeInitialStateObject": {
+      "baseline": {"start":13745202,"end":13747567,"bytes":2365,"sha256":"5b9f3e4772213c5a7e02ed3a4aa12f83b0a2eb14a35aebb28ccb87933dc51f68"},
+      "target": {"start":13813371,"end":13815736,"bytes":2365,"sha256":"da6062907021a9b4f910e1b51e4669fc3209d3528bc77f7c5def68ee2c66d739"},
+      "identifierNormalizedTokens": {"count":597,"bytes":7451,"sha256":"5d7524035cfcee7c6eefc6b983a21309160a605f42d2e03dfc83aa805b0c85e1"}
+    }
+  },
+  "sourceGraph": {
+    "states": [
+      {
+        "name": "raw-pre-prune",
+        "file": {"bytes":816314,"sha256":"c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"},
+        "run": {"start":50530,"end":238967,"bytes":188609,"sha256":"cd625ff130da4c44f430dc952e22f6ee2b5bf4838b0740c55813b7d676955891"},
+        "initialState": {"start":159696,"end":163857,"bytes":4163,"sha256":"007dcf9ab350c3689ed019df5f2cfcbf7d09ddaebae3ec8bcd68072d761077e0"}
+      },
+      {
+        "name": "raw-post-prune",
+        "file": {"bytes":816431,"sha256":"187faabc7e71e80b8f8868df2375afb1f694695e4e43807296a284107a2dc29a"},
+        "run": {"start":50530,"end":239084,"bytes":188726,"sha256":"4bcd88a753769503d55ebed2672ebc9f0f0b3f53da05f33032ea23b9e636cf3f"},
+        "initialState": {"start":159696,"end":163857,"bytes":4163,"sha256":"007dcf9ab350c3689ed019df5f2cfcbf7d09ddaebae3ec8bcd68072d761077e0"}
+      },
+      {
+        "name": "package-pre-prune",
+        "file": {"bytes":816786,"sha256":"ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"},
+        "run": {"start":50568,"end":239352,"bytes":188956,"sha256":"182548866a9e70349f677944468c6f500b36339fb2e99b92691ca193db6af775"},
+        "initialState": {"start":160101,"end":164242,"bytes":4143,"sha256":"a07785eef29ac2fbcf7a4b07bffe73a609abd0f0d94c3a49f292993ef7238cac"}
+      },
+      {
+        "name": "package-post-prune",
+        "file": {"bytes":816903,"sha256":"75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"},
+        "run": {"start":50568,"end":239469,"bytes":189073,"sha256":"044bac3a6f53bd31c78b2b1b0a7de0ba06a54700ea5c869c6c196da34c453f13"},
+        "initialState": {"start":160101,"end":164242,"bytes":4143,"sha256":"a07785eef29ac2fbcf7a4b07bffe73a609abd0f0d94c3a49f292993ef7238cac"}
+      }
+    ],
+    "baseline": {
+      "file": {"bytes":810851,"sha256":"48f7a1d89e4eecb42c26cde5058408b7a4a251a42d8e6566012d12fbe0502909"},
+      "run": {"start":48731,"end":233504,"bytes":184945,"sha256":"62ebce65db9b38561e56bcf16027666a529113468f966323f49cf0374f18b496"},
+      "initialState": {"start":155288,"end":159449,"bytes":4163,"sha256":"007dcf9ab350c3689ed019df5f2cfcbf7d09ddaebae3ec8bcd68072d761077e0"}
+    },
+    "stableProperties": {
+      "workerSandboxPermissions": {"bytes":79,"sha256":"62a5ec1dbe4af4699b7f9d42e1ec4909f794bb7e34484c03bd0cf8d7bc397d9c"},
+      "pendingWorkerRequest": {"bytes":26,"sha256":"5cc7d4b5c26f7b0ca8b673059c849c095bd441bd5233a6c0481cd78cab1224f3"},
+      "teamContext": {"bytes":118,"sha256":"04467f4897f069e026c751ec6a8551424c6bc401d6935306d80443865c110e54"}
+    },
+    "expectedAbsentInitialStateProperties": ["teammateColors","assignments"],
+    "decision": "retained-compiled-static-proof-source-replay-blocked"
+  },
+  "rowBoundary": {
+    "admitted": [22106,"property","index",13815572,13815577,296,297,true],
+    "descriptor": {"bytes":57,"sha256":"97e972bf701d00b9d156ac9c59a38e6bee9bf4a85d6e4911e06ccda384494084"},
+    "ownerPaths": ["main.tsx"],
+    "ownerSourceMatches": [],
+    "strictRowDelta": 0,
+    "wholeUnitOverride": false
+  },
+  "cumulativeAccounting": {
+    "postDangerousActual": {"owner":199,"added":15,"strict":8},
+    "afterFirstAllowed": {"owner":198,"added":14,"strict":8},
+    "afterSecondAllowed": {"owner":197,"added":13,"strict":8},
+    "afterGrowthbook300": {"owner":196,"added":12,"strict":8},
+    "afterSeparateSessionState": {"owner":195,"added":11,"strict":8},
+    "afterThisIndex": {"owner":194,"added":10,"strict":8},
+    "thisAdmissionDelta": {"owner":-1,"added":-1,"strict":0,"coverage":0}
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "sourceFiles": 0,
+    "wholeUnitOverride": false,
+    "sourceReplay": false,
+    "rawStrictRowsRemoved": 0
+  }
+}

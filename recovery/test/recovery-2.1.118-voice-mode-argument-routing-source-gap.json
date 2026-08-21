@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-voice-mode-argument-routing-bounded-later-donor-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-voice-mode-argument-routing-target-fragment",
+    "target118-voice-mode-argument-routing-source-replay-test",
+    "target118-voice-mode-argument-routing-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-voice-mode-argument-routing-source-gap.mjs",
+      "bytes": 7859,
+      "sha256": "2a0b37c6c707153dc04e99e4ddf8a8ae5a7bc3f09bb91afb5e8bd275afd2d7d8"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/commands/voice/voice.ts",
+        "blob": "f369891bb51e154e89a9d027a1ca04023ad2b299",
+        "bytes": 5264,
+        "sha256": "c762dd43aaa643b005874113036d7f9a488370333ca0fdd5e61aaba2ba4892be"
+      },
+      "declarations": [
+        {
+          "name": "call",
+          "start": 679,
+          "end": 5257,
+          "bytes": 4578,
+          "sha256": "c44396ce24282ea041c99f156cc4e7773feeab0a561fc9c0f97b781aa8f09ee3"
+        }
+      ]
+    },
+    "laterDonorSource": {
+      "commit": "df8ac5e77f4dffca0a8dcd3bae069a591b94d954",
+      "tree": "f7af3692883c2ccae1e1b27aafe01341f0e7d9be",
+      "file": {
+        "path": "src/commands/voice/voice.ts",
+        "blob": "7dc9762d6dc99024a7ff9a058e5a4319179d206a",
+        "bytes": 6306,
+        "sha256": "2c6755401bba9d507c8416e23d56e94b432ccae42df0fcb835332237990bbcae"
+      },
+      "declarations": [
+        {
+          "name": "parseMode",
+          "start": 679,
+          "end": 943,
+          "bytes": 264,
+          "sha256": "4cd74a9c0bc62557beb3df1ccb3f2078ff22efa610271144171582ac71d7ae53"
+        },
+        {
+          "name": "call",
+          "start": 945,
+          "end": 6299,
+          "bytes": 5354,
+          "sha256": "e95aee277e8902ccd4585d30e4db3916ed4bbf5f95a7482288bda1d53a81571f"
+        }
+      ]
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/commands/voice/voice.ts",
+        "bytes": 6306,
+        "sha256": "2c6755401bba9d507c8416e23d56e94b432ccae42df0fcb835332237990bbcae"
+      },
+      "declarations": [
+        {
+          "name": "parseMode",
+          "start": 679,
+          "end": 943,
+          "bytes": 264,
+          "sha256": "4cd74a9c0bc62557beb3df1ccb3f2078ff22efa610271144171582ac71d7ae53"
+        },
+        {
+          "name": "call",
+          "start": 945,
+          "end": 6299,
+          "bytes": 5354,
+          "sha256": "e95aee277e8902ccd4585d30e4db3916ed4bbf5f95a7482288bda1d53a81571f"
+        }
+      ]
+    }
+  },
+  "supportingTargetUnit": {
+    "targetIndex": 17841,
+    "classification": "matched",
+    "start": 11002749,
+    "end": 11002872,
+    "bytes": 123,
+    "tokenCount": 47,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "7c50652bf269e81d46b71c039639b8d853aa6a94f086d7f83ead12ff84815829",
+    "declaration": "parseMode"
+  },
+  "targetUnit": {
+    "targetIndex": 17842,
+    "classification": "changed",
+    "start": 11002872,
+    "end": 11005288,
+    "bytes": 2416,
+    "tokenCount": 667,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "fe2265ef28e32268b82343ce209efc4c207e01051a3e670018304a91828a5b82",
+    "coarseHash": "ec49a1d56608d4bd908bb8739288e12405cd2c7809553ae68a901788f67cac52",
+    "baselineUnitIndex": 17686,
+    "ownerPath": "src/commands/voice/voice.ts",
+    "provisionalOwnerPath": "src/commands/voice/voice.ts",
+    "declarations": [
+      "LANG_HINT_MAX_SHOWS",
+      "call"
+    ],
+    "behavior": "The complete authenticated Target118 voice command accepts hold, tap, and off modes; persists the nested voice enabled/mode state alongside the legacy flag; emits tap-mode telemetry; and returns the mode-specific push-to-talk instruction. The historical Target118 source lacks this exact argument-routing transition, which is restored from the pinned later authored declaration.",
+    "residues": [
+      [
+        "string",
+        "). ",
+        11005273,
+        11005276,
+        4,
+        5
+      ]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/commands/voice/voice.ts"
+    ],
+    "evidenceIds": [
+      "target118-voice-mode-argument-routing-target-fragment",
+      "target118-voice-mode-argument-routing-source-replay-test",
+      "target118-voice-mode-argument-routing-source-ast-test"
+    ],
+    "behavior": "The complete authenticated Target118 voice command accepts hold, tap, and off modes; persists the nested voice enabled/mode state alongside the legacy flag; emits tap-mode telemetry; and returns the mode-specific push-to-talk instruction. The historical Target118 source lacks this exact argument-routing transition, which is restored from the pinned later authored declaration."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "supportingTargetUnits": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "0635fd6e112912d329f3e2d29ff04c3dde3b5f8fcb7508fa670ca58778a650c4",
+    "residueIdentitiesSha256": "35a60b765df26695f130592b3a1705774a7e679cee40ade06d3ecb15d4c0f7fa"
+  }
+}

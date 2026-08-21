@@ -13,6 +13,11 @@ const cases = [
   ['2.1.112-to-2.1.113', '2.1.112', '2.1.113'],
   ['2.1.113-to-2.1.114', '2.1.113', '2.1.114'],
   ['2.1.114-to-2.1.116', '2.1.114', '2.1.116'],
+  ['2.1.116-to-2.1.117', '2.1.116', '2.1.117'],
+  ['2.1.117-to-2.1.118', '2.1.117', '2.1.118'],
+  ['2.1.118-to-2.1.119', '2.1.118', '2.1.119'],
+  ['2.1.119-to-2.1.120', '2.1.119', '2.1.120'],
+  ['2.1.120-to-2.1.121', '2.1.120', '2.1.121'],
 ]
 
 const repositoryRoot = process.cwd()
@@ -40,7 +45,7 @@ function canonical(source, metadata = false) {
     if (token.type.label === 'name') raw = '@id'
     if (metadata) {
       raw = raw
-        .replace(/2\.1\.(?:107|108|109|110|111|112|113|114|115|116)/g, '2.1.VERSION')
+        .replace(/2\.1\.(?:107|108|109|110|111|112|113|114|115|116|117|118|119|120|121)/g, '2.1.VERSION')
         .replace(/20\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z/g, 'BUILD_TIME')
         .replace(/external-build-\d+/g, 'external-build-N')
         .replace(/build[-_ ](?:id[-_ ]?)?\d+/gi, 'build-N')
@@ -135,6 +140,16 @@ const selectedCases = new Set(process.argv.slice(2))
 for (const [caseName, baselineVersion, targetVersion] of cases) {
   if (selectedCases.size > 0 && !selectedCases.has(caseName)) continue
   const caseRoot = path.join('recovery/cases', caseName)
+  const semanticCorrespondencePath = path.join(
+    caseRoot,
+    'semantic/semantic-correspondence.json.gz',
+  )
+  const semanticRegions = fs.existsSync(semanticCorrespondencePath)
+    ? JSON.parse(gunzipSync(fs.readFileSync(semanticCorrespondencePath))).regions
+    : []
+  const semanticByRange = new Map(
+    semanticRegions.map(region => [`${region.start}:${region.end}`, region]),
+  )
   const structural = JSON.parse(
     gunzipSync(fs.readFileSync(path.join(caseRoot, 'structural/generated-delta.json.gz'))),
   )
@@ -177,6 +192,15 @@ for (const [caseName, baselineVersion, targetVersion] of cases) {
     const mappedOwnership = ownership({ row, partitions, initializers, sources })
     row.owners = mappedOwnership.owners
     row.candidateOwners = mappedOwnership.candidates
+    const semanticRegion = semanticByRange.get(`${row.start}:${row.end}`)
+    if (semanticRegion) {
+      row.semanticOwnership = semanticRegion.ownership
+      row.semanticOwners = [
+        ...(semanticRegion.exactSourcePaths ?? []),
+        ...(semanticRegion.highConfidenceSourcePaths ?? []),
+        ...(semanticRegion.candidateSourcePaths ?? []),
+      ].filter((value, index, values) => values.indexOf(value) === index)
+    }
     rows.push(row)
   }
   fs.writeFileSync(

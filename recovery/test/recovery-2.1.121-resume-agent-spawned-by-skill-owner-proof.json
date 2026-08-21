@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-resume-agent-spawned-by-skill-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-resume-agent-spawned-by-skill-authenticated-whole-unit",
+    "target121-resume-agent-spawned-by-skill-runtime-contract",
+    "target121-resume-agent-spawned-by-skill-source-signature-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26946668,
+      "sha256": "e73e33d343c8fb084191d78d538efebf87dd4e9902cf6ff8546e65f5ec383de5"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [13973],
+        "count": 1,
+        "canonicalBytes": 1101,
+        "canonicalSha256": "444fe210a589411954701435320a96a0e635539193841999443b6a067c0aab8f"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 13973,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 3,
+    "reportedOwner": "tools/AgentTool/resumeAgent.ts",
+    "correctedOwner": "src/tools/AgentTool/resumeAgent.ts",
+    "declaration": "resumeAgentBackground",
+    "nodeType": "FunctionDeclaration",
+    "start": 8749307,
+    "end": 8752275,
+    "tokenCount": 969,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 12,
+    "bytes": 2968,
+    "sha256": "b888999468985a27bc4006a94f425002b8dbe6d37f4972c5ae3a33278b92b8ad",
+    "coarseHash": "6dc6a120491c15b02e2339783083f2fd04ca9cb87c5a190b01eaddb9b80414b8",
+    "line": 4162,
+    "column": 4827
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 13871,
+    "classification": "unmatched-baseline",
+    "relation": "direct resumeAgentBackground predecessor authenticated by transcript and metadata recovery, fork-system-prompt reconstruction, permission/tool selection, runAgent parameter assembly, name registration, lifecycle metadata, stream launch, and result shape",
+    "nodeType": "FunctionDeclaration",
+    "start": 8690968,
+    "end": 8693914,
+    "tokenCount": 964,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 12,
+    "bytes": 2946,
+    "sha256": "c378c7ca1fc733f8eae6d11d057dbcbdc271e8a691031d8114851e051ab8d9c9",
+    "coarseHash": "145d4a28e5eaa68c0e490c80faf0cb1ef99803dcc503d40d95f02b5bf8d17874",
+    "line": 4153,
+    "column": 4827
+  },
+  "ownerResidues": {
+    "reportedOwner": "tools/AgentTool/resumeAgent.ts",
+    "correctedOwner": "src/tools/AgentTool/resumeAgent.ts",
+    "totalRows": 27,
+    "targetAddedRows": 1,
+    "strictRows": 1,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {
+      "bytes": 1384,
+      "sha256": "8d61f6b085bdf74a104fcde8779d91adc2cb8a1c127a2489d8d46c60a8c438bc"
+    },
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 55,
+      "sha256": "0c4bf6cf0f167a502d1606a21c8aa19da282124c3cebf86e80485db21974443f"
+    },
+    "strictRowsExact": [
+      [13973, "property", "spawnedBySkill", 8751064, 8751078, 3]
+    ]
+  },
+  "wholeUnitSemanticDelta": {
+    "rawByteDelta": 22,
+    "tokenDelta": 5,
+    "canonicalization": "Acorn 8.15 AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+    "baselineCanonical": {
+      "bytes": 40429,
+      "sha256": "fbdb979e631162b312f1b7d11a173ea9e187031e35a184aa9b213166abc7815e"
+    },
+    "targetCanonical": {
+      "bytes": 40672,
+      "sha256": "d5449abed19002fd9359cac1dc201b90695c68c11a700ee3d20159a1ea6eec01"
+    },
+    "runAgentParameterObject": {
+      "baseline": {
+        "nodeType": "ObjectExpression",
+        "start": 8692592,
+        "end": 8692964,
+        "bytes": 372,
+        "sha256": "71458432c0436380bfb9f7a284c580770fccd5b080082de090e480bc2e0c5de3",
+        "canonicalBytes": 5207,
+        "canonicalSha256": "539212a7cc2c0daac0b8776346aa19f7a3734181707006b20e1ad010403b35d4",
+        "propertyCount": 17
+      },
+      "target": {
+        "nodeType": "ObjectExpression",
+        "start": 8750931,
+        "end": 8751325,
+        "bytes": 394,
+        "sha256": "639dce2a785ad5e1bd2756c8e705509a1f6fca4e41b323b2deda58f52f30b9cc",
+        "canonicalBytes": 5450,
+        "canonicalSha256": "6cbc3ed9885388930471d84cb309da9b72b3c3ca2c6ec7b9097b7141e979b42e",
+        "propertyCount": 18
+      }
+    },
+    "addition": {
+      "path": "function.body[8].declarations[4].init.properties[6]",
+      "nodeType": "Property",
+      "start": 8751064,
+      "end": 8751085,
+      "bytes": 21,
+      "sha256": "f04524219aefa8e8d65f720bfeaee336c178891878da5875e7641138df8bec4f",
+      "canonicalSha256": "2757fac0eb0c99bbb9bb90a9aa1bf318e499ac9387fd399c6bb1e5c3e04f88c9",
+      "exact": "spawnedBySkill:void 0",
+      "key": "spawnedBySkill",
+      "valueType": "UnaryExpression",
+      "valueOperator": "void",
+      "valueArgument": 0
+    },
+    "transform": {
+      "operation": "Remove only Target121 runAgent parameter-object property index 6; no other AST changes are permitted.",
+      "commonCanonical": {
+        "bytes": 40429,
+        "sha256": "fbdb979e631162b312f1b7d11a173ea9e187031e35a184aa9b213166abc7815e"
+      }
+    }
+  },
+  "sourceState": {
+    "path": "src/tools/AgentTool/resumeAgent.ts",
+    "declarationName": "resumeAgentBackground",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "3b277f2f8645fbfc1e439a13689f1727558296de",
+      "bytes": 9893,
+      "chars": 9887,
+      "sha256": "f83d8af63e7459a98003abaab4b597725014fc4455c10c9b1a2222689c7e719e",
+      "declaration": {
+        "start": 1917,
+        "end": 9886,
+        "chars": 7969,
+        "bytes": 7975,
+        "sha256": "e585120a47530fcb24f4e2412252640b742fa93f5d45f15baefddcc30133677a",
+        "line": 42,
+        "endLine": 280
+      }
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "3b277f2f8645fbfc1e439a13689f1727558296de",
+      "bytes": 9893,
+      "chars": 9887,
+      "sha256": "f83d8af63e7459a98003abaab4b597725014fc4455c10c9b1a2222689c7e719e",
+      "declaration": {
+        "start": 1917,
+        "end": 9886,
+        "chars": 7969,
+        "bytes": 7975,
+        "sha256": "e585120a47530fcb24f4e2412252640b742fa93f5d45f15baefddcc30133677a",
+        "line": 42,
+        "endLine": 280
+      }
+    },
+    "declarationRelation": "Target120 and Target121 recovered resumeAgent files and resumeAgentBackground declarations are byte-identical.",
+    "declarationMarkerCounts": {
+      "spawnedBySkill": 0,
+      "querySource": 1,
+      "runAgentParams": 3
+    },
+    "runAgentDependency": {
+      "path": "src/tools/AgentTool/runAgent.ts",
+      "gitBlob": "a17dceced3f2e3b816092cc88b6b1397cecc4c54",
+      "bytes": 38590,
+      "chars": 38562,
+      "sha256": "07dbd8a7700a1e1954a60671522fee72eb7299aa328d90dcf3da82d9327b1234",
+      "declaration": {
+        "name": "runAgent",
+        "start": 9194,
+        "end": 34920,
+        "chars": 25726,
+        "bytes": 25746,
+        "sha256": "90ca6477fef8c5c1b2c0f4ad67b0b29e403731281e366b24b0b13643053d3d0a",
+        "line": 261,
+        "endLine": 941
+      },
+      "parameterType": {
+        "start": 9644,
+        "end": 13025,
+        "chars": 3381,
+        "bytes": 3383,
+        "sha256": "463e61cfed51303923000f20ba288aa9718efd7f713431f1d92f1ba8298b05e2",
+        "line": 286,
+        "endLine": 352
+      },
+      "parameterMemberNames": {
+        "count": 24,
+        "bytes": 390,
+        "sha256": "688b9ff5e09e7c016baf6e6d679423345cfafe923aa8bbbbee8ea2c47f6cfe3d"
+      },
+      "spawnedBySkillOccurrences": 0
+    },
+    "gitDonorAudit": {
+      "marker": "spawnedBySkill",
+      "paths": [
+        "src/tools/AgentTool/resumeAgent.ts",
+        "src/tools/AgentTool/runAgent.ts"
+      ],
+      "result": "no commit in either recovered Target120 or Target121 semantic-tree history contains spawnedBySkill in the resume owner or runAgent dependency path"
+    }
+  },
+  "provenanceGraph": {
+    "baselineBundleOccurrences": 0,
+    "targetBundleOccurrences": 14,
+    "targetSourceOccurrences": 0,
+    "initialAgentToolProducer": {
+      "targetIndex": 13026,
+      "unitStart": 8053208,
+      "unitEnd": 8071208,
+      "unitBytes": 18000,
+      "unitSha256": "aba1f72dd4736702f5acde6677c2a158521d4cb622a47bf6df46b81f1bdc3b81",
+      "start": 8060710,
+      "end": 8060772,
+      "bytes": 62,
+      "sha256": "0f85cb208f5014336d906478babe9ad6903a19b00bca0a3f1eadbd5434c6ad1a",
+      "exact": "spawnedBySkill:M.options.spawnedBySkill??M.options.activeSkill"
+    },
+    "resumeAgentClear": {
+      "targetIndex": 13973,
+      "unitStart": 8749307,
+      "unitEnd": 8752275,
+      "unitBytes": 2968,
+      "unitSha256": "b888999468985a27bc4006a94f425002b8dbe6d37f4972c5ae3a33278b92b8ad",
+      "start": 8751064,
+      "end": 8751085,
+      "bytes": 21,
+      "sha256": "f04524219aefa8e8d65f720bfeaee336c178891878da5875e7641138df8bec4f",
+      "exact": "spawnedBySkill:void 0"
+    },
+    "queryForwarders": {
+      "targetIndex": 14201,
+      "unitStart": 8891516,
+      "unitEnd": 8909182,
+      "unitBytes": 17666,
+      "unitSha256": "6bec08f51c847c01bc053e1062538df60560317f739c264bbc7870fdf224844c",
+      "properties": [
+        [8891632, 8891648, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"],
+        [8896099, 8896115, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"]
+      ]
+    },
+    "runAgentForwarders": {
+      "targetIndex": 14209,
+      "unitStart": 8911653,
+      "unitEnd": 8919205,
+      "unitBytes": 7552,
+      "unitSha256": "75ef6d84a05054fc03ecb54ffd23bae16d1d5f21be72094315037c8e0c63d7f4",
+      "properties": [
+        [8911810, 8911826, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"],
+        [8915521, 8915537, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"],
+        [8917067, 8917083, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"]
+      ]
+    },
+    "boundary": "This proof owns only u13973 occurrence 3. The already-proven u13026 producer and still-independent u14201/u14209 forwarders are pinned only as contract evidence; all other spawnedBySkill residues remain fail-closed obligations."
+  },
+  "generatorWiring": {
+    "replayHelper": null,
+    "ownerOverrideExport": "TARGET121_RESUME_AGENT_SKILL_PROVENANCE_OWNER_OVERRIDES"
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 54,
+      "unsupportedResidues": 471,
+      "firstTargetIndex": 13973,
+      "productionIndexSha256": "936f107f34f8a535665e4dc7d0ddf69d3fc6709dd24e7f098c793f6f25de5d4b",
+      "productionTupleSha256": "7d9df1959b6fc8218e29c379ee961769a847241e64863bc7f17c00374e0777ef"
+    },
+    "removes": {
+      "targetIndices": [13973],
+      "units": 1,
+      "residueCount": 1,
+      "residues": [
+        [13973, "property", "spawnedBySkill", 8751064, 8751078, 3]
+      ]
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 53,
+      "unsupportedResidues": 470
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The recovered Target121 resumeAgentBackground declaration is byte-identical to Target120 and omits spawnedBySkill, while recovered runAgent has no matching parameter member and the query forwarding graph is absent from source. Replaying only spawnedBySkill: undefined would be an unauthenticated and type-incomplete fragment of a fourteen-occurrence runtime contract."
+  }
+}

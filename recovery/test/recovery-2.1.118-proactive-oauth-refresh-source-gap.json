@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-proactive-oauth-refresh-source-replay-v1",
+  "status": "authenticated-bounded-source-replay",
+  "evidenceIds": [
+    "target118-proactive-oauth-refresh-target-fragments",
+    "target118-proactive-oauth-refresh-source-replay-test",
+    "target118-proactive-oauth-refresh-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-proactive-oauth-refresh-source-gap.mjs",
+      "bytes": 8222,
+      "sha256": "d2ce8e36658445911d731cc155444aaa2f01ed61a343f730866406c8781a600a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "files": [
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "blob": "8d9d64e65df552faa904989361ca8d95c3b11e13",
+          "bytes": 46231,
+          "sha256": "a87b0055b4ef461d3265b3572b5c99c91cd020421bee23a3f9240b7f3a829976"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "blob": "4e7dca71f2018801cbab289597d7d16ea6aa1416",
+          "bytes": 27090,
+          "sha256": "97d4700e746bee60ce209da6b582a51a6be4b057f13124bb4cb6cf213c1a3b61"
+        }
+      ]
+    },
+    "recoveredSource": {
+      "files": [
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "bytes": 46305,
+          "sha256": "0797fa8de203e7ca057402d7e0b2b1b5546e8e416731aa82b6f324ee79c4367d",
+          "declarations": [
+            {
+              "kind": "TypeAliasDeclaration",
+              "name": "EnvLessBridgeParams",
+              "characterStart": 4039,
+              "characterEnd": 6450,
+              "byteStart": 4057,
+              "byteEnd": 6478,
+              "bytes": 2421,
+              "sha256": "ac0a9ff9068b833d67ed61591a00fd7233a52e23a30c55f96fbb6593e789e839"
+            },
+            {
+              "kind": "FunctionDeclaration",
+              "name": "initEnvLessBridgeCore",
+              "characterStart": 6725,
+              "characterEnd": 40023,
+              "byteStart": 6753,
+              "byteEnd": 40809,
+              "bytes": 34056,
+              "sha256": "b7a62c0adc581b3fa81055fd2aa8422b21f4c5d16a253cfbd90ba9ac6e64208e"
+            }
+          ]
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "bytes": 27189,
+          "sha256": "a2611636c2f0e44054c622f8c431d9231f455ed9fcff0357f513634d0724f797",
+          "declarations": [
+            {
+              "kind": "FunctionDeclaration",
+              "name": "initReplBridge",
+              "characterStart": 4932,
+              "characterEnd": 25294,
+              "byteStart": 4944,
+              "byteEnd": 25507,
+              "bytes": 20563,
+              "sha256": "6e7cba6447a60364f0424efbb05000b41ec4b5e018251099b5a47c91af715d01"
+            }
+          ]
+        }
+      ]
+    },
+    "transitiveSourceEvidence": {
+      "release": "2.1.121",
+      "directEvidence": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",
+        "bytes": 340038,
+        "sha256": "bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a",
+        "rowId": "H11",
+        "rowSha256": "44bfd8610bb7a9848dc259666795898a5d011930a5bc5c20607450e2c9bb1171"
+      },
+      "obligations": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/obligations.json",
+        "bytes": 410130,
+        "sha256": "9f9524be315e0902e5c83c0b61315c54070f3ba5adabf78307925c1ed58af1ca",
+        "obligationId": "hidden-h11"
+      },
+      "sourceOverlay": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/recovered/source-freeze/source-facing-overlay.patch",
+        "bytes": 2747802,
+        "sha256": "5b201d69885f58a92ca64522b547594021494c950ed046bd3876f396cfab8acb"
+      },
+      "boundaryTest": {
+        "path": "recovery/test/recovery-2.1.121-remote-control-boundary.test.mjs",
+        "bytes": 7075,
+        "sha256": "38baf51fc91274a2e2ce4965f72f5f7cf6ef26ca0760ef5ecf26194b3c7e7f19"
+      },
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "onProactiveRefresh: async () =>",
+          "bytes": 31,
+          "sha256": "5f89242ee288710c7030a0417edf8f4d940decfeca5b5f2244beac513746344b",
+          "count": 1
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "if (onProactiveRefresh) await onProactiveRefresh()",
+          "bytes": 50,
+          "sha256": "ed7de64a0f91a0b3692af037dc6e7bf924dd84c96a24fb557d46f16710e2df82",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "targetUnits": [
+    {
+      "targetIndex": 18793,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 11544433,
+      "end": 11555976,
+      "bytes": 11543,
+      "tokenCount": 3881,
+      "sourceHash": "2972360f558cce1071b74255225f132a64d3653fd148a85c521e32964488661e",
+      "coarseHash": "ad9a2c18716b6140ead3d6c232868c6844cdb969026d37200931f5181ec03d02",
+      "ownerPath": "src/bridge/remoteBridgeCore.ts",
+      "declarations": [
+        "EnvLessBridgeParams",
+        "initEnvLessBridgeCore"
+      ],
+      "behavior": "The authenticated Target118 env-less bridge core retains reattachSessionId and reattachSequenceNum, snapshots the current OAuth token before proactive refresh, awaits the optional onProactiveRefresh callback, and returns the refreshed token with the stale token as a bounded fallback.",
+      "residues": [
+        ["property", "onProactiveRefresh", 11544516, 11544534, 0, 1],
+        ["property", "reattachSessionId", 11544941, 11544958, 0, 1],
+        ["property", "reattachSequenceNum", 11544961, 11544980, 0, 1]
+      ]
+    },
+    {
+      "targetIndex": 18802,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 11557578,
+      "end": 11562127,
+      "bytes": 4549,
+      "tokenCount": 1559,
+      "sourceHash": "26ff75b7359f1d51352313b93c312a0f074c00c0901205b58eb2c79faf190d0c",
+      "coarseHash": "80915b8314d41a34aeadf65c8571a6f7200f389f085afa6161d7d7c5eb495014",
+      "ownerPath": "src/bridge/initReplBridge.ts",
+      "declarations": [
+        "initReplBridge"
+      ],
+      "behavior": "The authenticated Target118 REPL bridge wrapper supplies an onProactiveRefresh callback that awaits checkAndRefreshOAuthTokenIfNeeded before the env-less credential scheduler fetches its replacement OAuth token.",
+      "residues": [
+        ["property", "onProactiveRefresh", 11561436, 11561454, 0, 2]
+      ]
+    }
+  ],
+  "scannerPartition": {
+    "units": 2,
+    "residues": 4,
+    "residueIdentitiesSha256": "34a71ae39a389b4623177a8277ba83e5317e56361e381025c7b66f48a43e2053",
+    "rows": [
+      [18793, "property", "onProactiveRefresh", 11544516, 11544534, 0, 1],
+      [18793, "property", "reattachSessionId", 11544941, 11544958, 0, 1],
+      [18793, "property", "reattachSequenceNum", 11544961, 11544980, 0, 1],
+      [18802, "property", "onProactiveRefresh", 11561436, 11561454, 0, 2]
+    ]
+  },
+  "summary": {
+    "units": 2,
+    "residues": 4,
+    "targetIndicesSha256": "763bc6e6205c4fd2e2eeecdee8347dea8f5652566d99cc3205bfa39fbe33ada5",
+    "residueIdentitiesSha256": "34a71ae39a389b4623177a8277ba83e5317e56361e381025c7b66f48a43e2053"
+  }
+}

@@ -7,7 +7,12 @@
     "targetIsNextPublishedVersion": true,
     "skipped": [],
     "skippedVersionsAbsent": true,
-    "provenance": "evidence/provenance.json"
+    "provenance": "evidence/provenance.json",
+    "predecessorManifest": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/manifest.json",
+      "bytes": 328311,
+      "sha256": "3292422c208ed8a72362fdf8bfe555c8db306586d7cdc00353a48e9d91561c35"
+    }
   },
   "recoveryScope": {
     "platform": "linux-x64",
@@ -4091,7 +4096,6 @@
     "root": "src",
     "baseCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
     "baseGitTree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
-    "baseSourceGitTree": "a404264d155cde23ec7479fc7e69d1edec7d92a9",
     "baseSrcGitTree": "a404264d155cde23ec7479fc7e69d1edec7d92a9",
     "targetGitTree": "bceb0af2f6b5261fab23b9d8fee51cf48f1b2dd2",
     "targetSrcGitTree": "9e807992d428e7e23a0ad96e3a53e286d372afd7",
@@ -7699,23 +7703,23 @@
     "testFileAssertions": [
       {
         "path": "recovery/test/recovery-2.1.119-adjacent-direct-evidence.test.mjs",
-        "bytes": 8552,
-        "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19"
+        "bytes": 9365,
+        "sha256": "3bdcd30bcc12fbb34c080a59b713703fd96bf0fc57452cb3e3a414f8c33f78d7"
       },
       {
         "path": "recovery/test/recovery-2.1.119-background-stop.test.mjs",
-        "bytes": 9880,
-        "sha256": "ffe48c68c1653a4153e552cf41fff3bd3f58f951d8fa67d0a01651a11058a0a8"
+        "bytes": 10238,
+        "sha256": "cc3bd5076077fa26414656108c16d605f9ddc55840c79188cf066b828814823a"
       },
       {
         "path": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs",
-        "bytes": 35270,
-        "sha256": "ed7c20916459b0857213e4ff69a19b5789f8665f4da549847bf838d4790d4047"
+        "bytes": 37338,
+        "sha256": "3b7b3abed447197cb79e1a9a873b4a4f8d5e476a440ef7228b2f4e075ec1e2f8"
       },
       {
         "path": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs",
-        "bytes": 16288,
-        "sha256": "fa42e2079042bc67f3a4696e598ca6eb159e57fa777bf423097ab0b0de54a395"
+        "bytes": 16646,
+        "sha256": "1197a31f69e0ffc113c5d3518be7bbfd378ca3f7970b19d2a20825625cedb237"
       },
       {
         "path": "recovery/test/recovery-2.1.119-official-bullets.test.mjs",
@@ -7840,6 +7844,84 @@
       "id": "2-1-119-source-facing-overlay-and-freeze",
       "confidence": "equivalent",
       "files": [
+        "recovered/agent-detail-relay-owner-overrides.mjs",
+        "recovered/approve-api-key-retained-confirmation-owner-overrides.mjs",
+        "recovered/auto-mode-denials-context-owner-overrides.mjs",
+        "recovered/autocompact-dialog-owner-overrides.mjs",
+        "recovered/autofix-pr-runtime-owner-overrides.mjs",
+        "recovered/autofix-pr-ui-owner-overrides.mjs",
+        "recovered/backgroundJobAgent.target119.ts",
+        "recovered/bridge-dialog-whole-unit-owner-overrides.mjs",
+        "recovered/build-bootstrap-additional-model-costs-source-gap-fixture.mjs",
+        "recovered/build-direct-declaration-owner-proofs.mjs",
+        "recovered/build-later-donor-runtime-source-gap-fixture.mjs",
+        "recovered/build-messages-readonly-skills-context-source-gap-fixture.mjs",
+        "recovered/build-nondaemon-static-owner-proofs.mjs",
+        "recovered/build-pro-trial-start-owner-proofs.mjs",
+        "recovered/build-prompt-input-layout-effect-owner-proof.mjs",
+        "recovered/build-push-notification-config-source-gap-fixture.mjs",
+        "recovered/build-sdk-rate-limit-fetch-error-source-gap-fixture.mjs",
+        "recovered/build-secondary-static-owner-proofs.mjs",
+        "recovered/build-tertiary-declaration-owner-proofs.mjs",
+        "recovered/build-uds-client-owner-proofs.mjs",
+        "recovered/build-uds-registry-source-gap-fixture.mjs",
+        "recovered/cli-bg-module-import-owner-overrides.mjs",
+        "recovered/closed-issue-refresh-inherited-owner-overrides.mjs",
+        "recovered/computer-use-setup-retained-owner-overrides.mjs",
+        "recovered/condensed-logo-trial-badge-owner-overrides.mjs",
+        "recovered/connection-state-offline-threshold-owner-overrides.mjs",
+        "recovered/consolidation-prompt-template-owner-overrides.mjs",
+        "recovered/default-branch-owner-overrides.mjs",
+        "recovered/direct-declaration-owner-overrides.mjs",
+        "recovered/doctor-whole-unit-owner-overrides.mjs",
+        "recovered/first-prompt-entry-owner-overrides.mjs",
+        "recovered/headless-classifier-summary-strict-property-owner-overrides.mjs",
+        "recovered/headless-streaming-strict-residue-owner-overrides.mjs",
+        "recovered/inbound-attachment-schema-inherited-owner-overrides.mjs",
+        "recovered/iterm-copy-file-strict-property-owner-overrides.mjs",
+        "recovered/job-state-name-sync-module-import-owner-overrides.mjs",
+        "recovered/logo-v2-trial-badge-owner-overrides.mjs",
+        "recovered/main-run-build-profile-owner-overrides.mjs",
+        "recovered/mcp-entrypoint-task-registry-strict-property-owner-overrides.mjs",
+        "recovered/migration-session-memory-static-owner-overrides.mjs",
+        "recovered/onboarding-retained-confirmation-owner-overrides.mjs",
+        "recovered/parked-agent-lifecycle-owner-overrides.mjs",
+        "recovered/parse-pr-identifier-strict-property-owner-overrides.mjs",
+        "recovered/pr-url-helper-dedup-owner-overrides.mjs",
+        "recovered/pro-trial-start-owner-overrides.mjs",
+        "recovered/prompt-input-footer-background-exit-owner-overrides.mjs",
+        "recovered/prompt-input-foreground-agents-owner-overrides.mjs",
+        "recovered/prompt-input-layout-effect-owner-overrides.mjs",
+        "recovered/rate-limit-options-usage-label-owner-overrides.mjs",
+        "recovered/read-only-exact-ip-owner-overrides.mjs",
+        "recovered/reconcile-mcp-content-strict-property-owner-overrides.mjs",
+        "recovered/remote-session-action-dispatch-owner-overrides.mjs",
+        "recovered/repl-runtime-evolution-owner-overrides.mjs",
+        "recovered/replay-binary-command-name-validation-source-gap.mjs",
+        "recovered/replay-bootstrap-additional-model-costs-source-gap.mjs",
+        "recovered/replay-datadog-event-catalog-source-gap.mjs",
+        "recovered/replay-entrypoint-routing-source-gap.mjs",
+        "recovered/replay-graceful-shutdown-output-errors-source-gap.mjs",
+        "recovered/replay-hook-background-skip-spill-source-gap.mjs",
+        "recovered/replay-later-donor-runtime-source-gaps.mjs",
+        "recovered/replay-mcp-terminal-error-boundary-source-gap.mjs",
+        "recovered/replay-messages-readonly-skills-context-source-gap.mjs",
+        "recovered/replay-push-notification-config-source-gap.mjs",
+        "recovered/replay-remote-bridge-teardown-disposal-source-gap.mjs",
+        "recovered/replay-repl-scroll-reasons-pro-trial-source-gap.mjs",
+        "recovered/replay-sdk-rate-limit-fetch-error-source-gap.mjs",
+        "recovered/replay-settings-config-release-channel-source-gap.mjs",
+        "recovered/replay-slate-meadow-background-agent-source-gap.mjs",
+        "recovered/replay-status-line-cwd-fast-mode-source-gap.mjs",
+        "recovered/replay-uds-registry-source-gap.mjs",
+        "recovered/resume-return-decision-owner-overrides.mjs",
+        "recovered/sdk-control-inherited-schema-owner-overrides.mjs",
+        "recovered/sdk-initialize-subagent-options-strict-property-owner-overrides.mjs",
+        "recovered/secondary-static-owner-overrides.mjs",
+        "recovered/session-background-hint-retained-owner-overrides.mjs",
+        "recovered/session-storage-assistant-dedup-owner-overrides.mjs",
+        "recovered/session-task-summary-state-owner-overrides.mjs",
+        "recovered/setup-rendezvous-server-strict-property-source-recovery.mjs",
         "recovered/source-facing-overlay.patch",
         "recovered/source-freeze/SHA256SUMS",
         "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -7856,7 +7938,28 @@
         "recovered/source-freeze/source-stat.txt",
         "recovered/source-freeze/source-symlinks.txt",
         "recovered/source-freeze/target-test-files.sha256",
-        "recovered/source-lineage-core.json"
+        "recovered/source-lineage-core.json",
+        "recovered/sse-transport-retained-class-owner-overrides.mjs",
+        "recovered/subagent-status-line-schema-owner-overrides.mjs",
+        "recovered/team-file-lock-options-owner-overrides.mjs",
+        "recovered/tertiary-declaration-owner-overrides.mjs",
+        "recovered/tip-registry-day-window-owner-overrides.mjs",
+        "recovered/transcript-share-build-macro-owner-overrides.mjs",
+        "recovered/uds-client-owner-overrides.mjs",
+        "recovered/ultraplan-choice-module-import-owner-overrides.mjs",
+        "recovered/use-can-use-tool-denial-history-owner-overrides.mjs",
+        "recovered/wake-router-dispatch-timeout-owner-overrides.mjs"
+      ],
+      "explains": [
+        "targetBundle",
+        "officialChangelog"
+      ]
+    },
+    {
+      "id": "2-1-119-semantic-supplement-overlay",
+      "confidence": "equivalent",
+      "files": [
+        "semantic-supplement.patch"
       ],
       "explains": [
         "targetBundle",
@@ -7871,8 +7974,10 @@
         "hidden-obligations.json",
         "semantic/README.md",
         "semantic/adjacent-direct-evidence.json",
+        "semantic/dependency-coverage.json.gz",
         "semantic/obligations.json",
         "semantic/semantic-correspondence.json.gz",
+        "semantic/source-coverage.json.gz",
         "semantic/summary.json"
       ],
       "explains": [
@@ -8026,6 +8131,396 @@
       "sha256": "fc0a0bd9083bffd61bd89c8a92e0f2864eed78c670e92afd3b3d25825c695c91"
     },
     {
+      "path": "recovered/agent-detail-relay-owner-overrides.mjs",
+      "bytes": 1346,
+      "sha256": "cce05903873234073d595b428c7385ad8eb0ef140bd602ffb8af35aaf7c358b8"
+    },
+    {
+      "path": "recovered/approve-api-key-retained-confirmation-owner-overrides.mjs",
+      "bytes": 1541,
+      "sha256": "59a345333077561d4a5f8a807010bce2a3036073e72e0853f2a9e96dab0ca16a"
+    },
+    {
+      "path": "recovered/auto-mode-denials-context-owner-overrides.mjs",
+      "bytes": 1833,
+      "sha256": "7537917a07dad9b8789a0d649c7daa8beec99ad1d7d6d1626296ba936f1c3ed3"
+    },
+    {
+      "path": "recovered/autocompact-dialog-owner-overrides.mjs",
+      "bytes": 1641,
+      "sha256": "e285c181b057a6404b6a095cbf4755dcbbab161b06475189951416fe5df8717d"
+    },
+    {
+      "path": "recovered/autofix-pr-runtime-owner-overrides.mjs",
+      "bytes": 1765,
+      "sha256": "9b9177d0a50be8b2e5e70a527c837f39e2f03d2668d9b5375a76c88e6236389e"
+    },
+    {
+      "path": "recovered/autofix-pr-ui-owner-overrides.mjs",
+      "bytes": 1354,
+      "sha256": "34fbf669902f68d08aceb6ce411d4c8e32682e568b802f41b49f9cf96ba98576"
+    },
+    {
+      "path": "recovered/backgroundJobAgent.target119.ts",
+      "bytes": 1954,
+      "sha256": "153311cfb7a786658170cd0922ffd50a99ca91ace33cd490c948cb09c83f2f59"
+    },
+    {
+      "path": "recovered/bridge-dialog-whole-unit-owner-overrides.mjs",
+      "bytes": 1556,
+      "sha256": "911c505f9acd4988a41a3cd4d37a74452f85dcf2adf63cace98272e5631531ea"
+    },
+    {
+      "path": "recovered/build-bootstrap-additional-model-costs-source-gap-fixture.mjs",
+      "bytes": 10449,
+      "sha256": "9447034010323241e02d3f84e6c4d57fa1efb7607feb495c2dc29b1ddd3e2658"
+    },
+    {
+      "path": "recovered/build-direct-declaration-owner-proofs.mjs",
+      "bytes": 22199,
+      "sha256": "c46a618a3945666e7c1e799682e36dcca3bf0476f70ce9e7450eb960d8b912fb"
+    },
+    {
+      "path": "recovered/build-later-donor-runtime-source-gap-fixture.mjs",
+      "bytes": 7517,
+      "sha256": "bd975d0560668fccb01e2366b0465d4c2cfb61e6dec5ed53a88af3655e528630"
+    },
+    {
+      "path": "recovered/build-messages-readonly-skills-context-source-gap-fixture.mjs",
+      "bytes": 6913,
+      "sha256": "61dd7b5153e780b4518ad1c02ad012cd23bf364f30fe1e3de5e96016bac72858"
+    },
+    {
+      "path": "recovered/build-nondaemon-static-owner-proofs.mjs",
+      "bytes": 26690,
+      "sha256": "85ac4cb02996d6de6d9efb881630078d14aacccd3031e9d255e7f08bd518d6f7"
+    },
+    {
+      "path": "recovered/build-pro-trial-start-owner-proofs.mjs",
+      "bytes": 21336,
+      "sha256": "1aa6ecfb38fcd9646b57ddc40370a7fd7de18e6834e53b7019d6c0fd9ff0d9b9"
+    },
+    {
+      "path": "recovered/build-prompt-input-layout-effect-owner-proof.mjs",
+      "bytes": 17319,
+      "sha256": "54d1061a47c77ce7e1e36d7e84f60b658128903734bcfef139bb6466081fb7eb"
+    },
+    {
+      "path": "recovered/build-push-notification-config-source-gap-fixture.mjs",
+      "bytes": 10271,
+      "sha256": "51d3507267c94972cc0e8c12474fd4288db9170bc31da6d413a789bcb05a8ab4"
+    },
+    {
+      "path": "recovered/build-sdk-rate-limit-fetch-error-source-gap-fixture.mjs",
+      "bytes": 21532,
+      "sha256": "e70c1d3a71b56a06fbe699c540958685fe807c8170c3a1be359b0775cd7e406c"
+    },
+    {
+      "path": "recovered/build-secondary-static-owner-proofs.mjs",
+      "bytes": 18199,
+      "sha256": "23eb51df80af8c6ed8b44fc0be688f6769114a2aa41b53457c3378f410635c94"
+    },
+    {
+      "path": "recovered/build-tertiary-declaration-owner-proofs.mjs",
+      "bytes": 17202,
+      "sha256": "ad660936d2c77b81c72cec9d05908fe3215681688fe9b202ee199d9d8e998c4c"
+    },
+    {
+      "path": "recovered/build-uds-client-owner-proofs.mjs",
+      "bytes": 20546,
+      "sha256": "2cefc23f7855c9f8f01ca30f96bb7c731cd29597416ef163a313f375c1d12b96"
+    },
+    {
+      "path": "recovered/build-uds-registry-source-gap-fixture.mjs",
+      "bytes": 14340,
+      "sha256": "e0988a5c5ef6ffb9852928e4d57ece44016457da2b45daf86242af1bc506839c"
+    },
+    {
+      "path": "recovered/cli-bg-module-import-owner-overrides.mjs",
+      "bytes": 1483,
+      "sha256": "19683fe7c2a9e940a245225a5cd26b256a8a3c2dc733a1943aaa1d218109aced"
+    },
+    {
+      "path": "recovered/closed-issue-refresh-inherited-owner-overrides.mjs",
+      "bytes": 1486,
+      "sha256": "844c25534507b66780852af53cbd8ddf8cdccfe5a2dce0dbc2a2832aaf65b6ab"
+    },
+    {
+      "path": "recovered/computer-use-setup-retained-owner-overrides.mjs",
+      "bytes": 1693,
+      "sha256": "81805249509dafbd8c90bee1e89329982d4657ae161cff0bb2451452bed57d3b"
+    },
+    {
+      "path": "recovered/condensed-logo-trial-badge-owner-overrides.mjs",
+      "bytes": 1895,
+      "sha256": "4382c7afb84ccc7af6647638221fc0ac7bb8c7c7b8928d9d2ada259e9481758f"
+    },
+    {
+      "path": "recovered/connection-state-offline-threshold-owner-overrides.mjs",
+      "bytes": 1715,
+      "sha256": "850f54c4077d075631176b7b0d77ec2ae66130c291de49d3831f9c537bdb8cc9"
+    },
+    {
+      "path": "recovered/consolidation-prompt-template-owner-overrides.mjs",
+      "bytes": 1241,
+      "sha256": "d1c45c929e282d4857f9a05b101f39f57ee5661d502db2b0ee7917d42063beb9"
+    },
+    {
+      "path": "recovered/default-branch-owner-overrides.mjs",
+      "bytes": 1757,
+      "sha256": "53f1b4a5f21c36bc24005ca411e2b22956d0b9882174c3c9fdab7da78c0fa47f"
+    },
+    {
+      "path": "recovered/direct-declaration-owner-overrides.mjs",
+      "bytes": 2115,
+      "sha256": "ec6642e6e09fb2673a59d3aae5e015f15e7340912fe9764d02a1e948dd2c8878"
+    },
+    {
+      "path": "recovered/doctor-whole-unit-owner-overrides.mjs",
+      "bytes": 1466,
+      "sha256": "9b3c6f32eb2549bf385253a32aeaff4fa85a919eb42218efadc2779342df9ff0"
+    },
+    {
+      "path": "recovered/first-prompt-entry-owner-overrides.mjs",
+      "bytes": 1934,
+      "sha256": "6e0d134ec358b43f3cfea3dbf638e5b3c0d515a43459c951b847e3b3a800eff4"
+    },
+    {
+      "path": "recovered/headless-classifier-summary-strict-property-owner-overrides.mjs",
+      "bytes": 2374,
+      "sha256": "66a16d26f1afe5ede891300ff955a391390064a008601a3f62f77c1bef0ced8e"
+    },
+    {
+      "path": "recovered/headless-streaming-strict-residue-owner-overrides.mjs",
+      "bytes": 2404,
+      "sha256": "22ff5f0ea8e5917c768cf56aadd76a021b14b1682503e28c7cc7b54ba27cd253"
+    },
+    {
+      "path": "recovered/inbound-attachment-schema-inherited-owner-overrides.mjs",
+      "bytes": 1227,
+      "sha256": "f176f72aea060b5db832786c8add4e108bc8518517e12dcdcb82c0379d35ba31"
+    },
+    {
+      "path": "recovered/iterm-copy-file-strict-property-owner-overrides.mjs",
+      "bytes": 2561,
+      "sha256": "a657a4c3751440ac770e13c8c90fd0155d074269859f9737a8c2acb4b127731a"
+    },
+    {
+      "path": "recovered/job-state-name-sync-module-import-owner-overrides.mjs",
+      "bytes": 1654,
+      "sha256": "3d06868bab483d9037af133ecdd9548bc856d59de381e18b8c62227cafb62ca5"
+    },
+    {
+      "path": "recovered/logo-v2-trial-badge-owner-overrides.mjs",
+      "bytes": 1547,
+      "sha256": "576e1016e58a6f02cc7131604cae6e99da2d2ab5acc2634619116cb50ac42c79"
+    },
+    {
+      "path": "recovered/main-run-build-profile-owner-overrides.mjs",
+      "bytes": 1742,
+      "sha256": "49b3ef98ee4f0a60485033672764ddc7ed0a0627296a02c78a256ac5641f8ae4"
+    },
+    {
+      "path": "recovered/mcp-entrypoint-task-registry-strict-property-owner-overrides.mjs",
+      "bytes": 2373,
+      "sha256": "78ef9b62c1389482a35474d624f25ac529f991fb4b661d99bf55bd735e7e775f"
+    },
+    {
+      "path": "recovered/migration-session-memory-static-owner-overrides.mjs",
+      "bytes": 2328,
+      "sha256": "eb8a52ab9e229ea7a9d6daec3054b27a470f35d3e1b0749a94c09bf116017ac8"
+    },
+    {
+      "path": "recovered/onboarding-retained-confirmation-owner-overrides.mjs",
+      "bytes": 4023,
+      "sha256": "c8fea395d3a3255653f2107531e26b21f4444921b45ead76fcb03d99a4df495e"
+    },
+    {
+      "path": "recovered/parked-agent-lifecycle-owner-overrides.mjs",
+      "bytes": 1237,
+      "sha256": "a5d5ef397e53a9b538d060d584bd604f10f2ebb36b80294dfbc748dac31fc760"
+    },
+    {
+      "path": "recovered/parse-pr-identifier-strict-property-owner-overrides.mjs",
+      "bytes": 1812,
+      "sha256": "2d4a8da5c200d64f87738e623c2973f43eca98dc995cd35dec5bf2ceb27589eb"
+    },
+    {
+      "path": "recovered/pr-url-helper-dedup-owner-overrides.mjs",
+      "bytes": 1400,
+      "sha256": "631cabb866b537130f56f0f4a4ed35279e1ab75a30973dcc777db43fd470fea0"
+    },
+    {
+      "path": "recovered/pro-trial-start-owner-overrides.mjs",
+      "bytes": 3333,
+      "sha256": "930312d39aea18506bc372a131629c6912ce008bfe15e5896154563c271550a6"
+    },
+    {
+      "path": "recovered/prompt-input-footer-background-exit-owner-overrides.mjs",
+      "bytes": 1753,
+      "sha256": "9c67180ac134ee7f4131e5a01387bc7fcfb9a5268ed816c849546d8cc6e4bd5e"
+    },
+    {
+      "path": "recovered/prompt-input-foreground-agents-owner-overrides.mjs",
+      "bytes": 1749,
+      "sha256": "c5e3374f0d7d764727b8c328db7184cbeab7cfbc8a6d89d843623f58ae7094fb"
+    },
+    {
+      "path": "recovered/prompt-input-layout-effect-owner-overrides.mjs",
+      "bytes": 1526,
+      "sha256": "e3132d9527b0a3107bf53801035967415f92bf04fac466a386cbeb96f6fbc7cc"
+    },
+    {
+      "path": "recovered/rate-limit-options-usage-label-owner-overrides.mjs",
+      "bytes": 1955,
+      "sha256": "a1e9ca45fa90bcd78f85cd846988d42d10e11fc3efd5457bc01de5604fb449c9"
+    },
+    {
+      "path": "recovered/read-only-exact-ip-owner-overrides.mjs",
+      "bytes": 1022,
+      "sha256": "0d3293a581032fe4761763ae0b35e54c62441d9f71422bee73650468caae85d4"
+    },
+    {
+      "path": "recovered/reconcile-mcp-content-strict-property-owner-overrides.mjs",
+      "bytes": 2222,
+      "sha256": "90da75942c14f33345d50c4e4508661973c99f0b35671c9347eaf1e31155bcc7"
+    },
+    {
+      "path": "recovered/remote-session-action-dispatch-owner-overrides.mjs",
+      "bytes": 1718,
+      "sha256": "923dae8c2e1e8d2a04bd144e04ca0448c921c5bb4890b3731415ae30b6c6bc9a"
+    },
+    {
+      "path": "recovered/repl-runtime-evolution-owner-overrides.mjs",
+      "bytes": 2473,
+      "sha256": "8f27e3acc778963d93a7a72d9731c50063ae4238e5463e1deeb8748848d700c3"
+    },
+    {
+      "path": "recovered/replay-binary-command-name-validation-source-gap.mjs",
+      "bytes": 5300,
+      "sha256": "fc48e2917e16dca70da56f2b9f15a7618e6556242cea45d19be7abe1eaa3475e"
+    },
+    {
+      "path": "recovered/replay-bootstrap-additional-model-costs-source-gap.mjs",
+      "bytes": 4366,
+      "sha256": "971fea465509d74c4bb3658464b0491bd948e75eadda578c10f6cd8bb8a6a993"
+    },
+    {
+      "path": "recovered/replay-datadog-event-catalog-source-gap.mjs",
+      "bytes": 8603,
+      "sha256": "70ce7eebdd40082623c33aee66ef754930cce6664b40713d171b6d53d5119189"
+    },
+    {
+      "path": "recovered/replay-entrypoint-routing-source-gap.mjs",
+      "bytes": 12725,
+      "sha256": "cdb5f18267729a94fe073f5b238292473f4533ce1ca4e1064c7d4b22fe52c6ec"
+    },
+    {
+      "path": "recovered/replay-graceful-shutdown-output-errors-source-gap.mjs",
+      "bytes": 8298,
+      "sha256": "c9126ced0558d0783692b05d75ba6a4b9e0e498a5c0c9df80f4db43094aea55f"
+    },
+    {
+      "path": "recovered/replay-hook-background-skip-spill-source-gap.mjs",
+      "bytes": 5439,
+      "sha256": "5c63ff4efb86c87b10c8bf5ca1967708c5d64ffa15539895c0b52fb7335c916b"
+    },
+    {
+      "path": "recovered/replay-later-donor-runtime-source-gaps.mjs",
+      "bytes": 10282,
+      "sha256": "cb5d5a2c2de419bb039ac3a0592e15ffce72228fdd2a53c289e58055290b40c1"
+    },
+    {
+      "path": "recovered/replay-mcp-terminal-error-boundary-source-gap.mjs",
+      "bytes": 4313,
+      "sha256": "48daff2859582535f14b5c9e2ce2458072471474cb4261997d3be6898d6ca422"
+    },
+    {
+      "path": "recovered/replay-messages-readonly-skills-context-source-gap.mjs",
+      "bytes": 5920,
+      "sha256": "c45839b7eb40a553a362dcb496828f643cd4e25939dbf68af42a66d83dc745b6"
+    },
+    {
+      "path": "recovered/replay-push-notification-config-source-gap.mjs",
+      "bytes": 5733,
+      "sha256": "a047f37116d272ab274ec32124d42963be63c58de53c3fd6de4ac4735a938b14"
+    },
+    {
+      "path": "recovered/replay-remote-bridge-teardown-disposal-source-gap.mjs",
+      "bytes": 9375,
+      "sha256": "b92b7bfc391f691e6ef8f1f3adc072fe2417ecd1525a70af2184f684b00166c8"
+    },
+    {
+      "path": "recovered/replay-repl-scroll-reasons-pro-trial-source-gap.mjs",
+      "bytes": 8749,
+      "sha256": "9b62adee8566f099d52a6bb4605ecf6b2c9ce863b4b1dede0f4cb7d2e17ca84d"
+    },
+    {
+      "path": "recovered/replay-sdk-rate-limit-fetch-error-source-gap.mjs",
+      "bytes": 6225,
+      "sha256": "aa1b56c28b14ec58b43f7c4951aa42a6ad76d58ec457a210650187359c5ecf43"
+    },
+    {
+      "path": "recovered/replay-settings-config-release-channel-source-gap.mjs",
+      "bytes": 5352,
+      "sha256": "9778e1b91a2873dc020b7b0a6c79242e2f91a9b2e3020903d3b2d5d9c29b9256"
+    },
+    {
+      "path": "recovered/replay-slate-meadow-background-agent-source-gap.mjs",
+      "bytes": 6470,
+      "sha256": "943ab9933d95163f465dd33d68ad8ef410346187d2f6b8537e5c35c5421ee12d"
+    },
+    {
+      "path": "recovered/replay-status-line-cwd-fast-mode-source-gap.mjs",
+      "bytes": 9961,
+      "sha256": "925fe4a1756de43c4a99a46a69f18bcd862ee7ef7979ea02a3cb27c35682e5c7"
+    },
+    {
+      "path": "recovered/replay-uds-registry-source-gap.mjs",
+      "bytes": 11528,
+      "sha256": "f63c9671686e28f81740c7ff7dbc0dd10f87de00b031e781bb23f0d5f61383c5"
+    },
+    {
+      "path": "recovered/resume-return-decision-owner-overrides.mjs",
+      "bytes": 1459,
+      "sha256": "a87e1615b727a991380e9a564c5a82d36f88f2aa2d7fefe314c9becf5d5067d0"
+    },
+    {
+      "path": "recovered/sdk-control-inherited-schema-owner-overrides.mjs",
+      "bytes": 2111,
+      "sha256": "6712b8a4ff3185ff82a3d43247cf0de63be3e50e8a8f198fcff93bc951a29d96"
+    },
+    {
+      "path": "recovered/sdk-initialize-subagent-options-strict-property-owner-overrides.mjs",
+      "bytes": 2453,
+      "sha256": "4f5d4a1b8de0cfda59a42ce05fdd2566aacbd6ed4270d4adcbe52d106e9d7824"
+    },
+    {
+      "path": "recovered/secondary-static-owner-overrides.mjs",
+      "bytes": 5587,
+      "sha256": "140aa1f87955c4683c6b4b312e32f6b548468cce7a01439123e48eb107346c07"
+    },
+    {
+      "path": "recovered/session-background-hint-retained-owner-overrides.mjs",
+      "bytes": 1646,
+      "sha256": "1b433bdb71dd36a5032e82b7c4b633b496590bec2fc7df92dec7086674fb58ce"
+    },
+    {
+      "path": "recovered/session-storage-assistant-dedup-owner-overrides.mjs",
+      "bytes": 1770,
+      "sha256": "1b161891dcfb6a1c6d5504e8cffebab84c387ed8203079e49d39cf856bfec780"
+    },
+    {
+      "path": "recovered/session-task-summary-state-owner-overrides.mjs",
+      "bytes": 1729,
+      "sha256": "8381bd991352c996bedac3b7f1cb7f738de6f530a81c5abfbea7cb2579f2810f"
+    },
+    {
+      "path": "recovered/setup-rendezvous-server-strict-property-source-recovery.mjs",
+      "bytes": 5889,
+      "sha256": "a10024d010240fd3487ce3394a42a286a788004dd0236623db2c0f88b38f68f4"
+    },
+    {
       "path": "recovered/source-facing-overlay.patch",
       "bytes": 2709667,
       "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794"
@@ -8033,7 +8528,7 @@
     {
       "path": "recovered/source-freeze/SHA256SUMS",
       "bytes": 1244,
-      "sha256": "dba23fc71774b8579ac272b58aaccd2088b0da53309e642323c08c1b609f7899"
+      "sha256": "364f073a3c9e156f1aa04f263c83d58199c4f3d6cecc10b3c1e88c0b0d54dcab"
     },
     {
       "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -8063,7 +8558,7 @@
     {
       "path": "recovered/source-freeze/identity.json",
       "bytes": 2442,
-      "sha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26"
+      "sha256": "c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866"
     },
     {
       "path": "recovered/source-freeze/retained-test-files.sha256",
@@ -8103,17 +8598,72 @@
     {
       "path": "recovered/source-freeze/target-test-files.sha256",
       "bytes": 1019,
-      "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+      "sha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
     },
     {
       "path": "recovered/source-lineage-core.json",
-      "bytes": 109387,
-      "sha256": "4e7782488a464b4b59cd64ef16d2ec432e4e701070183dd9f941aaf759203b18"
+      "bytes": 109388,
+      "sha256": "bdbc53946557cdb3cbe47d49c1b261767985f1fb5d69ef14259a534bb9648a84"
+    },
+    {
+      "path": "recovered/sse-transport-retained-class-owner-overrides.mjs",
+      "bytes": 1734,
+      "sha256": "a45a94a206746c0a7dc034ae2bc1bdb4cd87a0d5fd6f00886c7ee109f1937832"
+    },
+    {
+      "path": "recovered/subagent-status-line-schema-owner-overrides.mjs",
+      "bytes": 1805,
+      "sha256": "8f8e1148362dd7b5ff848b60e1c43d31ea75aca875dd3985544426ef2270a7b2"
+    },
+    {
+      "path": "recovered/team-file-lock-options-owner-overrides.mjs",
+      "bytes": 1073,
+      "sha256": "90ddd476b9ba8d3172698b6a51ef5de5208a8cadcc770a578db23b5ffe17815b"
+    },
+    {
+      "path": "recovered/tertiary-declaration-owner-overrides.mjs",
+      "bytes": 3535,
+      "sha256": "f484e54d9c4752bba0e157325ad32f138f4620ca29afdf9c85cf3e8dff2c68ce"
+    },
+    {
+      "path": "recovered/tip-registry-day-window-owner-overrides.mjs",
+      "bytes": 1732,
+      "sha256": "f96a2aa5802e8919fea735509f114d8f5a480f425f456aee7e6b38a593afa8cb"
+    },
+    {
+      "path": "recovered/transcript-share-build-macro-owner-overrides.mjs",
+      "bytes": 1602,
+      "sha256": "0ca86c1126c8cf5de4fcbf1c50c3dc70e25388b1a22e8d98302f26a5489ab464"
+    },
+    {
+      "path": "recovered/uds-client-owner-overrides.mjs",
+      "bytes": 2901,
+      "sha256": "478639a09922e4c72ef165564f1d82c79695203a1c62e9f92ab5e244537ef25c"
+    },
+    {
+      "path": "recovered/ultraplan-choice-module-import-owner-overrides.mjs",
+      "bytes": 1617,
+      "sha256": "0bf3be11079631a4baf8e3f3c6236e4be2845c58694feda86b23d5dc1c712ef4"
+    },
+    {
+      "path": "recovered/use-can-use-tool-denial-history-owner-overrides.mjs",
+      "bytes": 1550,
+      "sha256": "0c958395553d7a552239af230df7529aae31c4a6970ef57f1efee6ca71b4de42"
+    },
+    {
+      "path": "recovered/wake-router-dispatch-timeout-owner-overrides.mjs",
+      "bytes": 1783,
+      "sha256": "90dd589088294d1621869464ebf5ce6f78a434cfb4f4c9dccd5ce4d0a89f2c85"
+    },
+    {
+      "path": "semantic-supplement.patch",
+      "bytes": 39288,
+      "sha256": "e0f3c04ed23a440be6982b42b9ad9f396c92fb97f34002f3959324f5ed73817e"
     },
     {
       "path": "semantic/README.md",
       "bytes": 3228,
-      "sha256": "97b743cf51b0f6f339db1abe48189b088548848704d150d45bbd55ce062be525"
+      "sha256": "fe83c11795efffce163f117187fa65897270338b284dd03eebed684a7cf06bbf"
     },
     {
       "path": "semantic/adjacent-direct-evidence.json",
@@ -8121,19 +8671,29 @@
       "sha256": "6f3829ac9fd4da733d9bf960f7a4834df789caa246ecc3f50fda281b33a2d1d7"
     },
     {
+      "path": "semantic/dependency-coverage.json.gz",
+      "bytes": 29623,
+      "sha256": "6f9d09b301505dfafe3f1a8744404d3a6b42ee5aeb002e2b9acc32b6d5f899c8"
+    },
+    {
       "path": "semantic/obligations.json",
-      "bytes": 295669,
-      "sha256": "48d635ccb80481abeab6d0124df4d50202e3fe1182c8ca8828cf34ac80dda2ca"
+      "bytes": 295670,
+      "sha256": "77af54135f4ada9f4249c6c302b6987f2743f1bdeb6c1e43030cfad9af299a57"
     },
     {
       "path": "semantic/semantic-correspondence.json.gz",
-      "bytes": 1093852,
-      "sha256": "ec7e649ccc8ed367dc160c0b1301b4627567d0c64a97d6f509fab48c985b889b"
+      "bytes": 1093872,
+      "sha256": "41cae97af8435dee9a461d707c2e81fe2bbe675080db646d61d85a1a78c87afb"
+    },
+    {
+      "path": "semantic/source-coverage.json.gz",
+      "bytes": 383456,
+      "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
     },
     {
       "path": "semantic/summary.json",
       "bytes": 4793,
-      "sha256": "9b27df55615e735bfffef2f6d11452489f0999d09e4974718b8deb776e8ddb1b"
+      "sha256": "32212d73e7c4ab06364d0888149a6584c6a86b53835ab72810b9987cfb1b053c"
     },
     {
       "path": "structural/generated-delta.json.gz",
@@ -8289,18 +8849,18 @@
         },
         "obligations": {
           "path": "semantic/obligations.json",
-          "bytes": 295669,
-          "sha256": "48d635ccb80481abeab6d0124df4d50202e3fe1182c8ca8828cf34ac80dda2ca"
+          "bytes": 295670,
+          "sha256": "77af54135f4ada9f4249c6c302b6987f2743f1bdeb6c1e43030cfad9af299a57"
         },
         "report": {
           "path": "semantic/semantic-correspondence.json.gz",
-          "bytes": 1093852,
-          "sha256": "ec7e649ccc8ed367dc160c0b1301b4627567d0c64a97d6f509fab48c985b889b"
+          "bytes": 1093872,
+          "sha256": "41cae97af8435dee9a461d707c2e81fe2bbe675080db646d61d85a1a78c87afb"
         },
         "summary": {
           "path": "semantic/summary.json",
           "bytes": 4793,
-          "sha256": "9b27df55615e735bfffef2f6d11452489f0999d09e4974718b8deb776e8ddb1b"
+          "sha256": "32212d73e7c4ab06364d0888149a6584c6a86b53835ab72810b9987cfb1b053c"
         }
       },
       "obligationCoverage": {
@@ -8424,8 +8984,8 @@
               "INH-031-first-attempt-request-id",
               "INH-032-env-less-bridge-session-persistence"
             ],
-            "bytes": 8552,
-            "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19",
+            "bytes": 9365,
+            "sha256": "3bdcd30bcc12fbb34c080a59b713703fd96bf0fc57452cb3e3a414f8c33f78d7",
             "witnessInventorySha256": "35dd20e01497ec9c84086985dd968e761a9d053d835e8bfa7cffe9a7dd53f919",
             "authenticatedWitnesses": 199,
             "losslessSemanticGrouping": true
@@ -8527,8 +9087,8 @@
               "INH-014-sdk-permission-rewritten-input",
               "INH-015-model-capability-output-cap"
             ],
-            "bytes": 16288,
-            "sha256": "fa42e2079042bc67f3a4696e598ca6eb159e57fa777bf423097ab0b0de54a395",
+            "bytes": 16646,
+            "sha256": "1197a31f69e0ffc113c5d3518be7bbfd378ca3f7970b19d2a20825625cedb237",
             "witnessInventorySha256": "d98f92dbfbea12141dae541ca733740af8d629acd7cdd4b38a7cb4587f144248",
             "authenticatedWitnesses": 33,
             "losslessSemanticGrouping": true
@@ -8571,8 +9131,8 @@
               "HID-027-cross-session-uds-envelope",
               "HID-029-job-state-name-sync"
             ],
-            "bytes": 35270,
-            "sha256": "ed7c20916459b0857213e4ff69a19b5789f8665f4da549847bf838d4790d4047",
+            "bytes": 37338,
+            "sha256": "3b7b3abed447197cb79e1a9a873b4a4f8d5e476a440ef7228b2f4e075ec1e2f8",
             "witnessInventorySha256": "830ee61e697a8b5d7946309416820ea3d606bb84f468b60c5ac50d161661cefa",
             "authenticatedWitnesses": 94,
             "losslessSemanticGrouping": true
@@ -8629,8 +9189,8 @@
             "obligationIds": [
               "HID-035-background-stop-and-detach"
             ],
-            "bytes": 9880,
-            "sha256": "ffe48c68c1653a4153e552cf41fff3bd3f58f951d8fa67d0a01651a11058a0a8",
+            "bytes": 10238,
+            "sha256": "cc3bd5076077fa26414656108c16d605f9ddc55840c79188cf066b828814823a",
             "witnessInventorySha256": "a9466100f32526bb7d25213f32aaeb68643df2636e8f968f772305c29a64a84f",
             "authenticatedWitnesses": 22,
             "losslessSemanticGrouping": true
@@ -8794,6 +9354,396 @@
         "sha256": "fc0a0bd9083bffd61bd89c8a92e0f2864eed78c670e92afd3b3d25825c695c91"
       },
       {
+        "path": "recovered/agent-detail-relay-owner-overrides.mjs",
+        "bytes": 1346,
+        "sha256": "cce05903873234073d595b428c7385ad8eb0ef140bd602ffb8af35aaf7c358b8"
+      },
+      {
+        "path": "recovered/approve-api-key-retained-confirmation-owner-overrides.mjs",
+        "bytes": 1541,
+        "sha256": "59a345333077561d4a5f8a807010bce2a3036073e72e0853f2a9e96dab0ca16a"
+      },
+      {
+        "path": "recovered/auto-mode-denials-context-owner-overrides.mjs",
+        "bytes": 1833,
+        "sha256": "7537917a07dad9b8789a0d649c7daa8beec99ad1d7d6d1626296ba936f1c3ed3"
+      },
+      {
+        "path": "recovered/autocompact-dialog-owner-overrides.mjs",
+        "bytes": 1641,
+        "sha256": "e285c181b057a6404b6a095cbf4755dcbbab161b06475189951416fe5df8717d"
+      },
+      {
+        "path": "recovered/autofix-pr-runtime-owner-overrides.mjs",
+        "bytes": 1765,
+        "sha256": "9b9177d0a50be8b2e5e70a527c837f39e2f03d2668d9b5375a76c88e6236389e"
+      },
+      {
+        "path": "recovered/autofix-pr-ui-owner-overrides.mjs",
+        "bytes": 1354,
+        "sha256": "34fbf669902f68d08aceb6ce411d4c8e32682e568b802f41b49f9cf96ba98576"
+      },
+      {
+        "path": "recovered/backgroundJobAgent.target119.ts",
+        "bytes": 1954,
+        "sha256": "153311cfb7a786658170cd0922ffd50a99ca91ace33cd490c948cb09c83f2f59"
+      },
+      {
+        "path": "recovered/bridge-dialog-whole-unit-owner-overrides.mjs",
+        "bytes": 1556,
+        "sha256": "911c505f9acd4988a41a3cd4d37a74452f85dcf2adf63cace98272e5631531ea"
+      },
+      {
+        "path": "recovered/build-bootstrap-additional-model-costs-source-gap-fixture.mjs",
+        "bytes": 10449,
+        "sha256": "9447034010323241e02d3f84e6c4d57fa1efb7607feb495c2dc29b1ddd3e2658"
+      },
+      {
+        "path": "recovered/build-direct-declaration-owner-proofs.mjs",
+        "bytes": 22199,
+        "sha256": "c46a618a3945666e7c1e799682e36dcca3bf0476f70ce9e7450eb960d8b912fb"
+      },
+      {
+        "path": "recovered/build-later-donor-runtime-source-gap-fixture.mjs",
+        "bytes": 7517,
+        "sha256": "bd975d0560668fccb01e2366b0465d4c2cfb61e6dec5ed53a88af3655e528630"
+      },
+      {
+        "path": "recovered/build-messages-readonly-skills-context-source-gap-fixture.mjs",
+        "bytes": 6913,
+        "sha256": "61dd7b5153e780b4518ad1c02ad012cd23bf364f30fe1e3de5e96016bac72858"
+      },
+      {
+        "path": "recovered/build-nondaemon-static-owner-proofs.mjs",
+        "bytes": 26690,
+        "sha256": "85ac4cb02996d6de6d9efb881630078d14aacccd3031e9d255e7f08bd518d6f7"
+      },
+      {
+        "path": "recovered/build-pro-trial-start-owner-proofs.mjs",
+        "bytes": 21336,
+        "sha256": "1aa6ecfb38fcd9646b57ddc40370a7fd7de18e6834e53b7019d6c0fd9ff0d9b9"
+      },
+      {
+        "path": "recovered/build-prompt-input-layout-effect-owner-proof.mjs",
+        "bytes": 17319,
+        "sha256": "54d1061a47c77ce7e1e36d7e84f60b658128903734bcfef139bb6466081fb7eb"
+      },
+      {
+        "path": "recovered/build-push-notification-config-source-gap-fixture.mjs",
+        "bytes": 10271,
+        "sha256": "51d3507267c94972cc0e8c12474fd4288db9170bc31da6d413a789bcb05a8ab4"
+      },
+      {
+        "path": "recovered/build-sdk-rate-limit-fetch-error-source-gap-fixture.mjs",
+        "bytes": 21532,
+        "sha256": "e70c1d3a71b56a06fbe699c540958685fe807c8170c3a1be359b0775cd7e406c"
+      },
+      {
+        "path": "recovered/build-secondary-static-owner-proofs.mjs",
+        "bytes": 18199,
+        "sha256": "23eb51df80af8c6ed8b44fc0be688f6769114a2aa41b53457c3378f410635c94"
+      },
+      {
+        "path": "recovered/build-tertiary-declaration-owner-proofs.mjs",
+        "bytes": 17202,
+        "sha256": "ad660936d2c77b81c72cec9d05908fe3215681688fe9b202ee199d9d8e998c4c"
+      },
+      {
+        "path": "recovered/build-uds-client-owner-proofs.mjs",
+        "bytes": 20546,
+        "sha256": "2cefc23f7855c9f8f01ca30f96bb7c731cd29597416ef163a313f375c1d12b96"
+      },
+      {
+        "path": "recovered/build-uds-registry-source-gap-fixture.mjs",
+        "bytes": 14340,
+        "sha256": "e0988a5c5ef6ffb9852928e4d57ece44016457da2b45daf86242af1bc506839c"
+      },
+      {
+        "path": "recovered/cli-bg-module-import-owner-overrides.mjs",
+        "bytes": 1483,
+        "sha256": "19683fe7c2a9e940a245225a5cd26b256a8a3c2dc733a1943aaa1d218109aced"
+      },
+      {
+        "path": "recovered/closed-issue-refresh-inherited-owner-overrides.mjs",
+        "bytes": 1486,
+        "sha256": "844c25534507b66780852af53cbd8ddf8cdccfe5a2dce0dbc2a2832aaf65b6ab"
+      },
+      {
+        "path": "recovered/computer-use-setup-retained-owner-overrides.mjs",
+        "bytes": 1693,
+        "sha256": "81805249509dafbd8c90bee1e89329982d4657ae161cff0bb2451452bed57d3b"
+      },
+      {
+        "path": "recovered/condensed-logo-trial-badge-owner-overrides.mjs",
+        "bytes": 1895,
+        "sha256": "4382c7afb84ccc7af6647638221fc0ac7bb8c7c7b8928d9d2ada259e9481758f"
+      },
+      {
+        "path": "recovered/connection-state-offline-threshold-owner-overrides.mjs",
+        "bytes": 1715,
+        "sha256": "850f54c4077d075631176b7b0d77ec2ae66130c291de49d3831f9c537bdb8cc9"
+      },
+      {
+        "path": "recovered/consolidation-prompt-template-owner-overrides.mjs",
+        "bytes": 1241,
+        "sha256": "d1c45c929e282d4857f9a05b101f39f57ee5661d502db2b0ee7917d42063beb9"
+      },
+      {
+        "path": "recovered/default-branch-owner-overrides.mjs",
+        "bytes": 1757,
+        "sha256": "53f1b4a5f21c36bc24005ca411e2b22956d0b9882174c3c9fdab7da78c0fa47f"
+      },
+      {
+        "path": "recovered/direct-declaration-owner-overrides.mjs",
+        "bytes": 2115,
+        "sha256": "ec6642e6e09fb2673a59d3aae5e015f15e7340912fe9764d02a1e948dd2c8878"
+      },
+      {
+        "path": "recovered/doctor-whole-unit-owner-overrides.mjs",
+        "bytes": 1466,
+        "sha256": "9b3c6f32eb2549bf385253a32aeaff4fa85a919eb42218efadc2779342df9ff0"
+      },
+      {
+        "path": "recovered/first-prompt-entry-owner-overrides.mjs",
+        "bytes": 1934,
+        "sha256": "6e0d134ec358b43f3cfea3dbf638e5b3c0d515a43459c951b847e3b3a800eff4"
+      },
+      {
+        "path": "recovered/headless-classifier-summary-strict-property-owner-overrides.mjs",
+        "bytes": 2374,
+        "sha256": "66a16d26f1afe5ede891300ff955a391390064a008601a3f62f77c1bef0ced8e"
+      },
+      {
+        "path": "recovered/headless-streaming-strict-residue-owner-overrides.mjs",
+        "bytes": 2404,
+        "sha256": "22ff5f0ea8e5917c768cf56aadd76a021b14b1682503e28c7cc7b54ba27cd253"
+      },
+      {
+        "path": "recovered/inbound-attachment-schema-inherited-owner-overrides.mjs",
+        "bytes": 1227,
+        "sha256": "f176f72aea060b5db832786c8add4e108bc8518517e12dcdcb82c0379d35ba31"
+      },
+      {
+        "path": "recovered/iterm-copy-file-strict-property-owner-overrides.mjs",
+        "bytes": 2561,
+        "sha256": "a657a4c3751440ac770e13c8c90fd0155d074269859f9737a8c2acb4b127731a"
+      },
+      {
+        "path": "recovered/job-state-name-sync-module-import-owner-overrides.mjs",
+        "bytes": 1654,
+        "sha256": "3d06868bab483d9037af133ecdd9548bc856d59de381e18b8c62227cafb62ca5"
+      },
+      {
+        "path": "recovered/logo-v2-trial-badge-owner-overrides.mjs",
+        "bytes": 1547,
+        "sha256": "576e1016e58a6f02cc7131604cae6e99da2d2ab5acc2634619116cb50ac42c79"
+      },
+      {
+        "path": "recovered/main-run-build-profile-owner-overrides.mjs",
+        "bytes": 1742,
+        "sha256": "49b3ef98ee4f0a60485033672764ddc7ed0a0627296a02c78a256ac5641f8ae4"
+      },
+      {
+        "path": "recovered/mcp-entrypoint-task-registry-strict-property-owner-overrides.mjs",
+        "bytes": 2373,
+        "sha256": "78ef9b62c1389482a35474d624f25ac529f991fb4b661d99bf55bd735e7e775f"
+      },
+      {
+        "path": "recovered/migration-session-memory-static-owner-overrides.mjs",
+        "bytes": 2328,
+        "sha256": "eb8a52ab9e229ea7a9d6daec3054b27a470f35d3e1b0749a94c09bf116017ac8"
+      },
+      {
+        "path": "recovered/onboarding-retained-confirmation-owner-overrides.mjs",
+        "bytes": 4023,
+        "sha256": "c8fea395d3a3255653f2107531e26b21f4444921b45ead76fcb03d99a4df495e"
+      },
+      {
+        "path": "recovered/parked-agent-lifecycle-owner-overrides.mjs",
+        "bytes": 1237,
+        "sha256": "a5d5ef397e53a9b538d060d584bd604f10f2ebb36b80294dfbc748dac31fc760"
+      },
+      {
+        "path": "recovered/parse-pr-identifier-strict-property-owner-overrides.mjs",
+        "bytes": 1812,
+        "sha256": "2d4a8da5c200d64f87738e623c2973f43eca98dc995cd35dec5bf2ceb27589eb"
+      },
+      {
+        "path": "recovered/pr-url-helper-dedup-owner-overrides.mjs",
+        "bytes": 1400,
+        "sha256": "631cabb866b537130f56f0f4a4ed35279e1ab75a30973dcc777db43fd470fea0"
+      },
+      {
+        "path": "recovered/pro-trial-start-owner-overrides.mjs",
+        "bytes": 3333,
+        "sha256": "930312d39aea18506bc372a131629c6912ce008bfe15e5896154563c271550a6"
+      },
+      {
+        "path": "recovered/prompt-input-footer-background-exit-owner-overrides.mjs",
+        "bytes": 1753,
+        "sha256": "9c67180ac134ee7f4131e5a01387bc7fcfb9a5268ed816c849546d8cc6e4bd5e"
+      },
+      {
+        "path": "recovered/prompt-input-foreground-agents-owner-overrides.mjs",
+        "bytes": 1749,
+        "sha256": "c5e3374f0d7d764727b8c328db7184cbeab7cfbc8a6d89d843623f58ae7094fb"
+      },
+      {
+        "path": "recovered/prompt-input-layout-effect-owner-overrides.mjs",
+        "bytes": 1526,
+        "sha256": "e3132d9527b0a3107bf53801035967415f92bf04fac466a386cbeb96f6fbc7cc"
+      },
+      {
+        "path": "recovered/rate-limit-options-usage-label-owner-overrides.mjs",
+        "bytes": 1955,
+        "sha256": "a1e9ca45fa90bcd78f85cd846988d42d10e11fc3efd5457bc01de5604fb449c9"
+      },
+      {
+        "path": "recovered/read-only-exact-ip-owner-overrides.mjs",
+        "bytes": 1022,
+        "sha256": "0d3293a581032fe4761763ae0b35e54c62441d9f71422bee73650468caae85d4"
+      },
+      {
+        "path": "recovered/reconcile-mcp-content-strict-property-owner-overrides.mjs",
+        "bytes": 2222,
+        "sha256": "90da75942c14f33345d50c4e4508661973c99f0b35671c9347eaf1e31155bcc7"
+      },
+      {
+        "path": "recovered/remote-session-action-dispatch-owner-overrides.mjs",
+        "bytes": 1718,
+        "sha256": "923dae8c2e1e8d2a04bd144e04ca0448c921c5bb4890b3731415ae30b6c6bc9a"
+      },
+      {
+        "path": "recovered/repl-runtime-evolution-owner-overrides.mjs",
+        "bytes": 2473,
+        "sha256": "8f27e3acc778963d93a7a72d9731c50063ae4238e5463e1deeb8748848d700c3"
+      },
+      {
+        "path": "recovered/replay-binary-command-name-validation-source-gap.mjs",
+        "bytes": 5300,
+        "sha256": "fc48e2917e16dca70da56f2b9f15a7618e6556242cea45d19be7abe1eaa3475e"
+      },
+      {
+        "path": "recovered/replay-bootstrap-additional-model-costs-source-gap.mjs",
+        "bytes": 4366,
+        "sha256": "971fea465509d74c4bb3658464b0491bd948e75eadda578c10f6cd8bb8a6a993"
+      },
+      {
+        "path": "recovered/replay-datadog-event-catalog-source-gap.mjs",
+        "bytes": 8603,
+        "sha256": "70ce7eebdd40082623c33aee66ef754930cce6664b40713d171b6d53d5119189"
+      },
+      {
+        "path": "recovered/replay-entrypoint-routing-source-gap.mjs",
+        "bytes": 12725,
+        "sha256": "cdb5f18267729a94fe073f5b238292473f4533ce1ca4e1064c7d4b22fe52c6ec"
+      },
+      {
+        "path": "recovered/replay-graceful-shutdown-output-errors-source-gap.mjs",
+        "bytes": 8298,
+        "sha256": "c9126ced0558d0783692b05d75ba6a4b9e0e498a5c0c9df80f4db43094aea55f"
+      },
+      {
+        "path": "recovered/replay-hook-background-skip-spill-source-gap.mjs",
+        "bytes": 5439,
+        "sha256": "5c63ff4efb86c87b10c8bf5ca1967708c5d64ffa15539895c0b52fb7335c916b"
+      },
+      {
+        "path": "recovered/replay-later-donor-runtime-source-gaps.mjs",
+        "bytes": 10282,
+        "sha256": "cb5d5a2c2de419bb039ac3a0592e15ffce72228fdd2a53c289e58055290b40c1"
+      },
+      {
+        "path": "recovered/replay-mcp-terminal-error-boundary-source-gap.mjs",
+        "bytes": 4313,
+        "sha256": "48daff2859582535f14b5c9e2ce2458072471474cb4261997d3be6898d6ca422"
+      },
+      {
+        "path": "recovered/replay-messages-readonly-skills-context-source-gap.mjs",
+        "bytes": 5920,
+        "sha256": "c45839b7eb40a553a362dcb496828f643cd4e25939dbf68af42a66d83dc745b6"
+      },
+      {
+        "path": "recovered/replay-push-notification-config-source-gap.mjs",
+        "bytes": 5733,
+        "sha256": "a047f37116d272ab274ec32124d42963be63c58de53c3fd6de4ac4735a938b14"
+      },
+      {
+        "path": "recovered/replay-remote-bridge-teardown-disposal-source-gap.mjs",
+        "bytes": 9375,
+        "sha256": "b92b7bfc391f691e6ef8f1f3adc072fe2417ecd1525a70af2184f684b00166c8"
+      },
+      {
+        "path": "recovered/replay-repl-scroll-reasons-pro-trial-source-gap.mjs",
+        "bytes": 8749,
+        "sha256": "9b62adee8566f099d52a6bb4605ecf6b2c9ce863b4b1dede0f4cb7d2e17ca84d"
+      },
+      {
+        "path": "recovered/replay-sdk-rate-limit-fetch-error-source-gap.mjs",
+        "bytes": 6225,
+        "sha256": "aa1b56c28b14ec58b43f7c4951aa42a6ad76d58ec457a210650187359c5ecf43"
+      },
+      {
+        "path": "recovered/replay-settings-config-release-channel-source-gap.mjs",
+        "bytes": 5352,
+        "sha256": "9778e1b91a2873dc020b7b0a6c79242e2f91a9b2e3020903d3b2d5d9c29b9256"
+      },
+      {
+        "path": "recovered/replay-slate-meadow-background-agent-source-gap.mjs",
+        "bytes": 6470,
+        "sha256": "943ab9933d95163f465dd33d68ad8ef410346187d2f6b8537e5c35c5421ee12d"
+      },
+      {
+        "path": "recovered/replay-status-line-cwd-fast-mode-source-gap.mjs",
+        "bytes": 9961,
+        "sha256": "925fe4a1756de43c4a99a46a69f18bcd862ee7ef7979ea02a3cb27c35682e5c7"
+      },
+      {
+        "path": "recovered/replay-uds-registry-source-gap.mjs",
+        "bytes": 11528,
+        "sha256": "f63c9671686e28f81740c7ff7dbc0dd10f87de00b031e781bb23f0d5f61383c5"
+      },
+      {
+        "path": "recovered/resume-return-decision-owner-overrides.mjs",
+        "bytes": 1459,
+        "sha256": "a87e1615b727a991380e9a564c5a82d36f88f2aa2d7fefe314c9becf5d5067d0"
+      },
+      {
+        "path": "recovered/sdk-control-inherited-schema-owner-overrides.mjs",
+        "bytes": 2111,
+        "sha256": "6712b8a4ff3185ff82a3d43247cf0de63be3e50e8a8f198fcff93bc951a29d96"
+      },
+      {
+        "path": "recovered/sdk-initialize-subagent-options-strict-property-owner-overrides.mjs",
+        "bytes": 2453,
+        "sha256": "4f5d4a1b8de0cfda59a42ce05fdd2566aacbd6ed4270d4adcbe52d106e9d7824"
+      },
+      {
+        "path": "recovered/secondary-static-owner-overrides.mjs",
+        "bytes": 5587,
+        "sha256": "140aa1f87955c4683c6b4b312e32f6b548468cce7a01439123e48eb107346c07"
+      },
+      {
+        "path": "recovered/session-background-hint-retained-owner-overrides.mjs",
+        "bytes": 1646,
+        "sha256": "1b433bdb71dd36a5032e82b7c4b633b496590bec2fc7df92dec7086674fb58ce"
+      },
+      {
+        "path": "recovered/session-storage-assistant-dedup-owner-overrides.mjs",
+        "bytes": 1770,
+        "sha256": "1b161891dcfb6a1c6d5504e8cffebab84c387ed8203079e49d39cf856bfec780"
+      },
+      {
+        "path": "recovered/session-task-summary-state-owner-overrides.mjs",
+        "bytes": 1729,
+        "sha256": "8381bd991352c996bedac3b7f1cb7f738de6f530a81c5abfbea7cb2579f2810f"
+      },
+      {
+        "path": "recovered/setup-rendezvous-server-strict-property-source-recovery.mjs",
+        "bytes": 5889,
+        "sha256": "a10024d010240fd3487ce3394a42a286a788004dd0236623db2c0f88b38f68f4"
+      },
+      {
         "path": "recovered/source-facing-overlay.patch",
         "bytes": 2709667,
         "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794"
@@ -8801,7 +9751,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "dba23fc71774b8579ac272b58aaccd2088b0da53309e642323c08c1b609f7899"
+        "sha256": "364f073a3c9e156f1aa04f263c83d58199c4f3d6cecc10b3c1e88c0b0d54dcab"
       },
       {
         "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -8831,7 +9781,7 @@
       {
         "path": "recovered/source-freeze/identity.json",
         "bytes": 2442,
-        "sha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26"
+        "sha256": "c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866"
       },
       {
         "path": "recovered/source-freeze/retained-test-files.sha256",
@@ -8871,17 +9821,72 @@
       {
         "path": "recovered/source-freeze/target-test-files.sha256",
         "bytes": 1019,
-        "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+        "sha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
       },
       {
         "path": "recovered/source-lineage-core.json",
-        "bytes": 109387,
-        "sha256": "4e7782488a464b4b59cd64ef16d2ec432e4e701070183dd9f941aaf759203b18"
+        "bytes": 109388,
+        "sha256": "bdbc53946557cdb3cbe47d49c1b261767985f1fb5d69ef14259a534bb9648a84"
+      },
+      {
+        "path": "recovered/sse-transport-retained-class-owner-overrides.mjs",
+        "bytes": 1734,
+        "sha256": "a45a94a206746c0a7dc034ae2bc1bdb4cd87a0d5fd6f00886c7ee109f1937832"
+      },
+      {
+        "path": "recovered/subagent-status-line-schema-owner-overrides.mjs",
+        "bytes": 1805,
+        "sha256": "8f8e1148362dd7b5ff848b60e1c43d31ea75aca875dd3985544426ef2270a7b2"
+      },
+      {
+        "path": "recovered/team-file-lock-options-owner-overrides.mjs",
+        "bytes": 1073,
+        "sha256": "90ddd476b9ba8d3172698b6a51ef5de5208a8cadcc770a578db23b5ffe17815b"
+      },
+      {
+        "path": "recovered/tertiary-declaration-owner-overrides.mjs",
+        "bytes": 3535,
+        "sha256": "f484e54d9c4752bba0e157325ad32f138f4620ca29afdf9c85cf3e8dff2c68ce"
+      },
+      {
+        "path": "recovered/tip-registry-day-window-owner-overrides.mjs",
+        "bytes": 1732,
+        "sha256": "f96a2aa5802e8919fea735509f114d8f5a480f425f456aee7e6b38a593afa8cb"
+      },
+      {
+        "path": "recovered/transcript-share-build-macro-owner-overrides.mjs",
+        "bytes": 1602,
+        "sha256": "0ca86c1126c8cf5de4fcbf1c50c3dc70e25388b1a22e8d98302f26a5489ab464"
+      },
+      {
+        "path": "recovered/uds-client-owner-overrides.mjs",
+        "bytes": 2901,
+        "sha256": "478639a09922e4c72ef165564f1d82c79695203a1c62e9f92ab5e244537ef25c"
+      },
+      {
+        "path": "recovered/ultraplan-choice-module-import-owner-overrides.mjs",
+        "bytes": 1617,
+        "sha256": "0bf3be11079631a4baf8e3f3c6236e4be2845c58694feda86b23d5dc1c712ef4"
+      },
+      {
+        "path": "recovered/use-can-use-tool-denial-history-owner-overrides.mjs",
+        "bytes": 1550,
+        "sha256": "0c958395553d7a552239af230df7529aae31c4a6970ef57f1efee6ca71b4de42"
+      },
+      {
+        "path": "recovered/wake-router-dispatch-timeout-owner-overrides.mjs",
+        "bytes": 1783,
+        "sha256": "90dd589088294d1621869464ebf5ce6f78a434cfb4f4c9dccd5ce4d0a89f2c85"
+      },
+      {
+        "path": "semantic-supplement.patch",
+        "bytes": 39288,
+        "sha256": "e0f3c04ed23a440be6982b42b9ad9f396c92fb97f34002f3959324f5ed73817e"
       },
       {
         "path": "semantic/README.md",
         "bytes": 3228,
-        "sha256": "97b743cf51b0f6f339db1abe48189b088548848704d150d45bbd55ce062be525"
+        "sha256": "fe83c11795efffce163f117187fa65897270338b284dd03eebed684a7cf06bbf"
       },
       {
         "path": "semantic/adjacent-direct-evidence.json",
@@ -8889,19 +9894,29 @@
         "sha256": "6f3829ac9fd4da733d9bf960f7a4834df789caa246ecc3f50fda281b33a2d1d7"
       },
       {
+        "path": "semantic/dependency-coverage.json.gz",
+        "bytes": 29623,
+        "sha256": "6f9d09b301505dfafe3f1a8744404d3a6b42ee5aeb002e2b9acc32b6d5f899c8"
+      },
+      {
         "path": "semantic/obligations.json",
-        "bytes": 295669,
-        "sha256": "48d635ccb80481abeab6d0124df4d50202e3fe1182c8ca8828cf34ac80dda2ca"
+        "bytes": 295670,
+        "sha256": "77af54135f4ada9f4249c6c302b6987f2743f1bdeb6c1e43030cfad9af299a57"
       },
       {
         "path": "semantic/semantic-correspondence.json.gz",
-        "bytes": 1093852,
-        "sha256": "ec7e649ccc8ed367dc160c0b1301b4627567d0c64a97d6f509fab48c985b889b"
+        "bytes": 1093872,
+        "sha256": "41cae97af8435dee9a461d707c2e81fe2bbe675080db646d61d85a1a78c87afb"
+      },
+      {
+        "path": "semantic/source-coverage.json.gz",
+        "bytes": 383456,
+        "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
       },
       {
         "path": "semantic/summary.json",
         "bytes": 4793,
-        "sha256": "9b27df55615e735bfffef2f6d11452489f0999d09e4974718b8deb776e8ddb1b"
+        "sha256": "32212d73e7c4ab06364d0888149a6584c6a86b53835ab72810b9987cfb1b053c"
       },
       {
         "path": "structural/generated-delta.json.gz",
@@ -8913,7 +9928,7 @@
   "sourceFreeze": {
     "status": "immutable-and-self-verifying",
     "identity": "recovered/source-freeze/identity.json",
-    "identitySha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26",
+    "identitySha256": "c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866",
     "overlay": {
       "path": "recovered/source-facing-overlay.patch",
       "bytes": 2709667,
@@ -8953,7 +9968,7 @@
       {
         "path": "recovered/source-freeze/identity.json",
         "bytes": 2442,
-        "sha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26"
+        "sha256": "c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866"
       },
       {
         "path": "recovered/source-freeze/retained-test-files.sha256",
@@ -8963,7 +9978,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "dba23fc71774b8579ac272b58aaccd2088b0da53309e642323c08c1b609f7899"
+        "sha256": "364f073a3c9e156f1aa04f263c83d58199c4f3d6cecc10b3c1e88c0b0d54dcab"
       },
       {
         "path": "recovered/source-freeze/source-facing-overlay.patch",
@@ -8998,7 +10013,7 @@
       {
         "path": "recovered/source-freeze/target-test-files.sha256",
         "bytes": 1019,
-        "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+        "sha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
       }
     ]
   },
@@ -9064,11 +10079,11 @@
   },
   "finalization": {
     "status": "complete",
-    "sourceFreezeIdentitySha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26",
-    "semanticObligationsSha256": "48d635ccb80481abeab6d0124df4d50202e3fe1182c8ca8828cf34ac80dda2ca",
-    "semanticReportSha256": "ec7e649ccc8ed367dc160c0b1301b4627567d0c64a97d6f509fab48c985b889b",
-    "semanticSummarySha256": "9b27df55615e735bfffef2f6d11452489f0999d09e4974718b8deb776e8ddb1b",
-    "recoveredFiles": 49,
-    "recoveredEdits": 5
+    "sourceFreezeIdentitySha256": "c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866",
+    "semanticObligationsSha256": "77af54135f4ada9f4249c6c302b6987f2743f1bdeb6c1e43030cfad9af299a57",
+    "semanticReportSha256": "41cae97af8435dee9a461d707c2e81fe2bbe675080db646d61d85a1a78c87afb",
+    "semanticSummarySha256": "32212d73e7c4ab06364d0888149a6584c6a86b53835ab72810b9987cfb1b053c",
+    "recoveredFiles": 140,
+    "recoveredEdits": 6
   }
 }

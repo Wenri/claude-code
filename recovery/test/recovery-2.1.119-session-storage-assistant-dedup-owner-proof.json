@@ -1,0 +1,379 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "criterion": "target119-session-storage-retained-assistant-dedup-whole-unit-proof-v1",
+  "status": "authenticated-static-whole-unit-owner-proof",
+  "evidenceIds": [
+    "target119-session-storage-authenticated-initializer-proof",
+    "target119-session-storage-retained-policy-object-proof",
+    "target119-session-storage-assistant-occurrence-order-proof",
+    "target119-session-storage-source-boundary-proof",
+    "target119-session-storage-cross-release-policy-lineage-proof",
+    "target119-session-storage-static-replay-blocker"
+  ],
+  "inputs": {
+    "ownerOverride": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/session-storage-assistant-dedup-owner-overrides.mjs",
+      "bytes": 1770,
+      "sha256": "1b161891dcfb6a1c6d5504e8cffebab84c387ed8203079e49d39cf856bfec780"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "observedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedBytes": 24885507,
+      "observedSha256": "2319a9145bb9f0cdeb441bc44786c045346619c0b51a5a057b8b309c65901a62",
+      "mutableAfterCorrection": true
+    },
+    "observedCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "observedBytes": 360146,
+      "observedSha256": "9ae1bf3f47903ab8090ef3cddcad554fe102565b5c4172fc7f9be86f3fe8d494",
+      "mutableAfterCorrection": true
+    },
+    "priorTarget118PolicyProof": {
+      "path": "recovery/test/recovery-2.1.118-session-storage-entry-policy-owner-proof.json",
+      "bytes": 6481,
+      "sha256": "dfa836abcc9e050273ba5735590f5c4b932eae19228021b8ff78f54e6b79fde6"
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target120Ledger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "target121Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "target121Ledger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    }
+  },
+  "macro": {
+    "baseline": {
+      "VERSION": "2.1.118",
+      "BUILD_TIME": "2026-04-22T21:04:38Z",
+      "GIT_SHA": "ef88b5f0a79aac989f53fd18178939a54a48624a"
+    },
+    "target": {
+      "VERSION": "2.1.119",
+      "BUILD_TIME": "2026-04-23T19:08:52Z",
+      "GIT_SHA": "6f68554839756189e277b8285a18fe47acd9a5a1"
+    }
+  },
+  "moduleBoundary": {
+    "prebinding": {
+      "targetIndex": 18950,
+      "classification": "matched",
+      "nodeType": "VariableDeclaration",
+      "start": 11568403,
+      "end": 11568586,
+      "bytes": 183,
+      "tokenCount": 82,
+      "sha256": "92729818ae16d4cf6dc436cfa50976b9323c75eeb7cc55262a33d37a7f2ed1ac",
+      "coarseHash": "bfac34a99a232cbfa9f61eef38ee34ec561ac8c5997eb6b7b08c85d1e6c6b6a0",
+      "baselineUnitIndex": 18103,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "unknownFreeIdentifierCount": 0,
+      "canonicalAstBytes": 2863,
+      "canonicalAstSha256": "79b432a5014bf520b9e835baba65b6859258a2c48ee19b31f08e37b1679d9dc9"
+    },
+    "declaredPolicyBinding": "HA4"
+  },
+  "baselineUnit": {
+    "targetIndex": 18104,
+    "classification": "unmatched-baseline",
+    "nodeType": "VariableDeclaration",
+    "start": 11163745,
+    "end": 11165468,
+    "bytes": 1723,
+    "tokenCount": 462,
+    "sha256": "66a985d516cedb77507c3cb97c00420c28d4c9a41863b147b559b4ff05fad89b",
+    "coarseHash": "d7ad0e4d492752589fa98d4b819fe31d3f52c45b73719fae26b652ce838abebf",
+    "topDefinitionCount": 1,
+    "canonicalAstBytes": 18020,
+    "canonicalAstSha256": "fe6977d68cdeb9b523c4b772444987495724a065b454aebe3cb39895f59f6a13"
+  },
+  "targetUnit": {
+    "targetIndex": 18951,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 11568586,
+    "end": 11570309,
+    "bytes": 1723,
+    "tokenCount": 462,
+    "sha256": "ccd1739fbaae8de51cfd58a7209cd5209ef935678411166ed9c8f23462d11f4b",
+    "coarseHash": "66f12e9bf4dfc8a9e41a93791fff13eaa3684ce4818d6b6fa43d0b4c60c574ef",
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 9,
+    "canonicalAstBytes": 18020,
+    "canonicalAstSha256": "9db3782efae5e4c913e8bac2b6e783a1262a640e06c8438d6644a7b25f98872e"
+  },
+  "wholeUnitEquivalence": {
+    "replacementCount": 3,
+    "normalizedTargetBytes": 1723,
+    "normalizedTargetSha256": "4db7ab69bbd88b9435e279c55c0c79679845856653b852d37b6655cb05a0f465",
+    "canonicalAstBytes": 18020,
+    "canonicalAstSha256": "fe6977d68cdeb9b523c4b772444987495724a065b454aebe3cb39895f59f6a13",
+    "replacements": [
+      {
+        "name": "VERSION",
+        "baseline": {
+          "start": 11164169,
+          "end": 11164178,
+          "bytes": 9,
+          "sha256": "1561b452b415780e3fec85c12d1a42e93a757d5d1c60a7ab88ffefd2821f7086",
+          "text": "\"2.1.118\""
+        },
+        "target": {
+          "start": 11569010,
+          "end": 11569019,
+          "bytes": 9,
+          "sha256": "e5fe827be54fe4cc163199975233c0200f3fdf628cbcf937d993892e6419e2bb",
+          "text": "\"2.1.119\""
+        }
+      },
+      {
+        "name": "BUILD_TIME",
+        "baseline": {
+          "start": 11164258,
+          "end": 11164280,
+          "bytes": 22,
+          "sha256": "7b3649c2ec0485b6c08201cd7e78657d358d03a34a7220b7a920942f7ae67e57",
+          "text": "\"2026-04-22T21:04:38Z\""
+        },
+        "target": {
+          "start": 11569099,
+          "end": 11569121,
+          "bytes": 22,
+          "sha256": "aec47bcb6bd1f308890012366e6af66cabec88e5077ab491d8af07db09d3a80a",
+          "text": "\"2026-04-23T19:08:52Z\""
+        }
+      },
+      {
+        "name": "GIT_SHA",
+        "baseline": {
+          "start": 11164289,
+          "end": 11164331,
+          "bytes": 42,
+          "sha256": "89040ef93e3d596c15076c19b1b4d9ec704e01df6080d86f4e4d415e23b25c7c",
+          "text": "\"ef88b5f0a79aac989f53fd18178939a54a48624a\""
+        },
+        "target": {
+          "start": 11569130,
+          "end": 11569172,
+          "bytes": 42,
+          "sha256": "9f4ff836d49b6ac36615adca5f948e2f2ead18b8a43c8827e97ae904df689127",
+          "text": "\"6f68554839756189e277b8285a18fe47acd9a5a1\""
+        }
+      }
+    ]
+  },
+  "policy": {
+    "entries": {
+      "user": "dedup-transcript",
+      "assistant": "dedup-transcript",
+      "attachment": "dedup-transcript",
+      "system": "dedup-transcript",
+      "progress": "dedup-transcript",
+      "summary": "always",
+      "custom-title": "always",
+      "ai-title": "always",
+      "last-prompt": "always",
+      "tag": "always",
+      "agent-name": "always",
+      "agent-color": "always",
+      "agent-setting": "always",
+      "pr-link": "always",
+      "file-history-snapshot": "always",
+      "attribution-snapshot": "always",
+      "speculation-accept": "always",
+      "mode": "always",
+      "permission-mode": "always",
+      "worktree-state": "always",
+      "queue-operation": "always",
+      "marble-origami-commit": "always",
+      "marble-origami-snapshot": "always",
+      "content-replacement": "route-by-agent",
+      "fork-context-ref": "route-by-agent"
+    },
+    "baseline": {
+      "start": 11164415,
+      "end": 11165071,
+      "bytes": 656,
+      "sha256": "b89cb30cd4a43b5fef0489754a199283b39e27e66cadf6915f59299e9c132647",
+      "canonicalAstBytes": 4623,
+      "canonicalAstSha256": "6a4cb1f1fb4fe9122d44c7465889b90f054c1604618d5641eda3780bda9ff8a3"
+    },
+    "target": {
+      "start": 11569256,
+      "end": 11569912,
+      "bytes": 656,
+      "sha256": "b89cb30cd4a43b5fef0489754a199283b39e27e66cadf6915f59299e9c132647",
+      "canonicalAstBytes": 4623,
+      "canonicalAstSha256": "6a4cb1f1fb4fe9122d44c7465889b90f054c1604618d5641eda3780bda9ff8a3"
+    },
+    "assistantProperty": {
+      "baselineStart": 11164440,
+      "baselineEnd": 11164468,
+      "targetStart": 11569281,
+      "targetEnd": 11569309,
+      "bytes": 28,
+      "sha256": "874cbcd775ae1ba49207f8223e1c27e7c343db0baa24005991904ef5dddb626d",
+      "text": "assistant:\"dedup-transcript\""
+    }
+  },
+  "ownerResidues": {
+    "generatedOwnerPath": "utils/sessionStorage.ts",
+    "correctedOwnerPath": "src/utils/sessionStorage.ts",
+    "preCorrectionAllOwnerRows": {
+      "rows": 46,
+      "jsonBytes": 2920,
+      "sha256": "5f65614156df0d1cfb0ebea5014f7e4421accd757c00e2adb15256f23fd18b2e"
+    },
+    "preCorrectionAddedOwnerRows": {
+      "rows": 4,
+      "jsonBytes": 271,
+      "sha256": "5a67db58721b054ba445238dfe9cc4a660633dfe7af6c49a48a2e7a9e8a3f1cb"
+    },
+    "preCorrectionRawRows": {
+      "rows": 3,
+      "jsonBytes": 212,
+      "sha256": "7b66fd0695e4720834dfc2cca127bc4b4e42c9b025c382a58a79f662f18530e9"
+    },
+    "rows": [
+      [18951, "string", "2.1.119", 11569010, 11569019, 0, 92, true],
+      [18951, "string", "2026-04-23T19:08:52Z", 11569099, 11569121, 0, 92, true],
+      [18951, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 11569130, 11569172, 0, 92, true],
+      [18951, "property", "assistant", 11569281, 11569290, 2, 13, true]
+    ],
+    "releaseMetadataRows": [0, 1, 2],
+    "retainedOccurrenceOrderRows": [3]
+  },
+  "target119Source": {
+    "path": "src/utils/sessionStorage.ts",
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+    "blob": "865e6fe0ffc4e02ad9393fe355237727fd4ea10d",
+    "chars": 197740,
+    "bytes": 197987,
+    "sha256": "03d3ee455c78e8d79a6c767956f02e84ddc35804445abf61c106be332184fd84",
+    "parseDiagnostics": 0,
+    "projectClass": {
+      "characterStart": 22891,
+      "characterEnd": 56493,
+      "byteStart": 22928,
+      "byteEnd": 56568,
+      "bytes": 33640,
+      "sha256": "1cf0b5cd02075d01f9e1b2f9db6dd5a8b379a722fe428466c0406648173929bc"
+    },
+    "appendEntry": {
+      "characterStart": 46430,
+      "characterEnd": 52991,
+      "byteStart": 46491,
+      "byteEnd": 53066,
+      "bytes": 6575,
+      "sha256": "a4c55d325a0e6cb899d11ab1099746b9e79135e95aab3abd564559258ad5bd1b"
+    },
+    "isTranscriptMessage": {
+      "characterStart": 5582,
+      "characterEnd": 5804,
+      "byteStart": 5588,
+      "byteEnd": 5810,
+      "bytes": 222,
+      "sha256": "ebf7d84e7a78060ee676bce78330471c756464ab95aa8a4be600778f600bab58",
+      "types": ["user", "assistant", "attachment", "system"]
+    },
+    "architecture": {
+      "entryAppendPolicyDeclarationCount": 0,
+      "dedupTranscriptLiteralCount": 0,
+      "contentReplacementTestStart": 49326,
+      "forkContextRefTestStart": 49741,
+      "messageSetDeclarationStart": 50446,
+      "remoteTranscriptGuardStart": 52845
+    }
+  },
+  "laterRuntimeLineage": {
+    "target120Unit": {
+      "targetIndex": 19022,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 11593415,
+      "end": 11595133,
+      "bytes": 1718,
+      "tokenCount": 458,
+      "sha256": "42cde86f82d071acb0d8dfe71f66ccee33474481693f4a60a8a8e06ad2dd45d8",
+      "coarseHash": "45394c61e154f7269fdac6ad220f3de32859768ab7aa9595240cbe38f70dfe3d",
+      "unknownFreeIdentifierCount": 8
+    },
+    "target120Policy": {
+      "start": 11594080,
+      "end": 11594736,
+      "bytes": 656,
+      "sha256": "b89cb30cd4a43b5fef0489754a199283b39e27e66cadf6915f59299e9c132647",
+      "assistantStart": 11594105,
+      "assistantEnd": 11594133
+    },
+    "target121Unit": {
+      "targetIndex": 19158,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 11671033,
+      "end": 11672773,
+      "bytes": 1740,
+      "tokenCount": 462,
+      "sha256": "b6c65e8efc86da66c753e7e97cd7d06380b4861084bb01df1579ab3d7e831316",
+      "coarseHash": "02b4bfb89e4c43b684fbb05074f0257092cdb9a56e8219e0bc325324da05384a",
+      "unknownFreeIdentifierCount": 1
+    },
+    "target121Policy": {
+      "start": 11671698,
+      "end": 11672376,
+      "bytes": 678,
+      "sha256": "2f91b1e391bb84d08c550ad60037382725c9decfe65018e1480b6b5fda2dc075",
+      "assistantStart": 11671723,
+      "assistantEnd": 11671751,
+      "soleAddedEntryText": ",\"frame-link\":\"always\"",
+      "withoutAddedEntryBytes": 656,
+      "withoutAddedEntrySha256": "b89cb30cd4a43b5fef0489754a199283b39e27e66cadf6915f59299e9c132647"
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "bundleRepresentation": "table-driven ENTRY_APPEND_POLICY module initializer",
+    "packagedSourceRepresentation": "explicit Project.appendEntry branch chain with isTranscriptMessage narrowing",
+    "exactTableDrivenAuthoredSourceAvailable": false,
+    "replayHelper": null
+  },
+  "ownerBehavior": "The authenticated Target119 session-storage module initializer is alpha-canonically identical to its Target118 predecessor after replacing only VERSION, BUILD_TIME, and GIT_SHA. Its complete 25-entry append-policy object, including assistant:\"dedup-transcript\", is byte-identical to Target118 and retained unchanged through Target120; Target121 only adds frame-link:\"always\". The apparent target-added assistant property is therefore global occurrence-order drift, not new Target119 behavior. The exact Target119 Project.appendEntry source and isTranscriptMessage guard independently bind assistant messages to the UUID-deduplicated transcript path, but that source uses explicit branches rather than the bundle table, so this is a static whole-unit owner proof and never authorizes a source replay.",
+  "summary": {
+    "units": 1,
+    "preCorrectionOwnerRows": 46,
+    "preCorrectionAddedOwnerRows": 4,
+    "releaseMetadataRows": 3,
+    "retainedOccurrenceOrderRows": 1,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  }
+}

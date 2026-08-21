@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "evidenceIds": [
+    "target117-extra-usage-command-target-fragment",
+    "target117-extra-usage-command-source-declaration-test"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "targetUnit": {
+    "targetIndex": 12311,
+    "classification": "unresolved",
+    "start": 7742134,
+    "end": 7742623,
+    "nodeType": "VariableDeclaration",
+    "tokenCount": 162,
+    "bytes": 489,
+    "sha256": "d591f5b7baa170097453505261455bdb8833a0e16c264cc39f17621e8a2ef636",
+    "coarseHash": "ab74107d83494b97384d2eb50070de3896edcb9c04b09fae5da0193537499eb3"
+  },
+  "residues": [
+    {
+      "literalKind": "property",
+      "value": "requires",
+      "start": 7742310,
+      "end": 7742318,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1,
+      "targetOccurrenceCount": 24,
+      "sourceDeclaration": "extraUsage",
+      "sourceStart": 483,
+      "sourceEnd": 491
+    },
+    {
+      "literalKind": "property",
+      "value": "ink",
+      "start": 7742320,
+      "end": 7742323,
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1,
+      "targetOccurrenceCount": 24,
+      "sourceDeclaration": "extraUsage",
+      "sourceStart": 495,
+      "sourceEnd": 498
+    }
+  ],
+  "source": {
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/commands/extra-usage/index.ts",
+    "blob": "d2ef6ef5715bd320062da393733c76cf24cd10e6",
+    "bytes": 1128,
+    "sha256": "801d797db611fb83098fd3da63473001f6b589f60e26c23315ffbca2ec8b3a10",
+    "imports": [
+      {
+        "module": "../../bootstrap/state.js",
+        "names": ["getIsNonInteractiveSession"],
+        "typeOnly": false
+      },
+      {
+        "module": "../../commands.js",
+        "names": ["Command"],
+        "typeOnly": true
+      },
+      {
+        "module": "../../utils/auth.js",
+        "names": ["isOverageProvisioningAllowed"],
+        "typeOnly": false
+      },
+      {
+        "module": "../../utils/envUtils.js",
+        "names": ["isEnvTruthy"],
+        "typeOnly": false
+      }
+    ],
+    "declarations": [
+      {
+        "name": "isExtraUsageAllowed",
+        "start": 241,
+        "end": 407,
+        "bytes": 166,
+        "sha256": "0fbd571fa201e8236c1b3d89b99d648eb0b947bf56e42cb969aa7835679037ae"
+      },
+      {
+        "name": "extraUsage",
+        "start": 422,
+        "end": 720,
+        "bytes": 298,
+        "sha256": "e1760a595e69f198699cde11590493db667be84a29c4d7180602a273ac5ee393"
+      },
+      {
+        "name": "extraUsageNonInteractive",
+        "start": 735,
+        "end": 1127,
+        "bytes": 392,
+        "sha256": "35f851778b5125c0384cd213630f6037e127c8a2a1facb0d841929196cbaaefc"
+      }
+    ]
+  },
+  "rejectedOwner": "src/tasks/RemoteAgentTask/RemoteAgentTask.tsx",
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "targetIndicesSha256": "2899082d14d072eed597f3a0a6c59414dbb0cc85dbc69e0f9ed0aba310f8792c",
+    "residueIdentitiesSha256": "87a617f24ee03b526497da9b9715d49a3ac54bfcd919732785ed389c8ed3c222"
+  }
+}

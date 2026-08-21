@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-load-initial-messages-deletion-subsequence-proof-v1",
+  "status": "authenticated-static-whole-unit-owner-proof-no-replay",
+  "evidenceIds": [
+    "target118-load-initial-messages-authenticated-units",
+    "target118-load-initial-messages-deletion-subsequence",
+    "target118-load-initial-messages-source-boundary"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/load-initial-messages-inherited-owner-overrides.mjs",
+      "bytes": 1329,
+      "sha256": "fa4c2f18e69c9661531e666b30ae99325cb6efbfcbdd01de78170e0301f4a7a7"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "baseCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "targetCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "targetTree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "baseFile": {
+        "path": "src/cli/print.ts",
+        "blob": "de5e84cc7614cb2b24ad64b447ed7797b6c81c80",
+        "bytes": 218976,
+        "sha256": "e491160d1a4c417756b97fd921955d4af4007b851043381c83cc819beeafc690",
+        "declaration": {
+          "name": "loadInitialMessages",
+          "characterStart": 195494,
+          "characterEnd": 206264,
+          "byteStart": 195646,
+          "byteEnd": 206418,
+          "bytes": 10772,
+          "sha256": "f0cfee0f6960e2857cfd4de63f1bb65929c843e17b15e74ab759e1ee591fb910"
+        }
+      },
+      "targetFile": {
+        "path": "src/cli/print.ts",
+        "blob": "abb0daa1732e1f5b5845c7a0afc52faa3162567c",
+        "bytes": 220728,
+        "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6",
+        "declaration": {
+          "name": "loadInitialMessages",
+          "characterStart": 197246,
+          "characterEnd": 208016,
+          "byteStart": 197398,
+          "byteEnd": 208170,
+          "bytes": 10772,
+          "sha256": "f0cfee0f6960e2857cfd4de63f1bb65929c843e17b15e74ab759e1ee591fb910"
+        }
+      }
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20658,
+    "classification": "matched",
+    "baselineUnitIndex": 20593,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "start": 12973034,
+    "end": 12977546,
+    "bytes": 4512,
+    "tokenCount": 1449,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "ab88e0cbe17737fbb0971e7b63e25034f3aa69a24179120a39394cdfb8d0053a",
+    "coarseHash": "6df3f02824731be6bf98031241b40e54a09127dd1a3dc7c39da5b2026aa6dfb1"
+  },
+  "targetUnit": {
+    "targetIndex": 20848,
+    "classification": "unresolved",
+    "start": 13090657,
+    "end": 13095146,
+    "bytes": 4489,
+    "tokenCount": 1442,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "5039e370615d1a42ca33940d4dc888e68a053e7ab9ddf8c3ff8a9bdd6c8063fb",
+    "coarseHash": "541f90ec97bea8a4199b2e0018b801d229f3bda93aa5cccc59644545c56e3c70",
+    "ownerPath": "src/cli/print.ts",
+    "declarations": ["loadInitialMessages"],
+    "residues": [
+      ["property", "dirname", 13090849, 13090856, 200, 203],
+      ["property", "modified", 13092068, 13092076, 26, 29],
+      ["property", "accessToken", 13093486, 13093497, 196, 205],
+      ["property", "dirname", 13094391, 13094398, 200, 204]
+    ],
+    "behavior": "The complete authenticated Target118 loadInitialMessages canonical token stream is an exact subsequence of Target117, deleting only the seven-token post_turn_summary callback call. Each of the four strict dirname, modified, accessToken, and dirname tokens maps to an exact raw-equal Target117 predecessor inside an identical seventeen-token canonical neighborhood. The Target117 and Target118 historical source declarations are byte-identical, and the packaged declaration remains exact after unrelated case supplements. These are inherited whole-function rows, not new Target118 behavior, and the proof authorizes no replay."
+  },
+  "canonicalTokenProof": {
+    "baseline": {
+      "tokens": 1449,
+      "bytes": 7714,
+      "sha256": "2a06d9f900b93b2a3e73534a8b293b86f42b32dee5c2513edb194086ccd0675c"
+    },
+    "target": {
+      "tokens": 1442,
+      "bytes": 7683,
+      "sha256": "50f5cc0039089d3b9365e8e998ee96b7f78cac57107fc7e10215b90f547d4cca"
+    },
+    "matchedTargetTokens": 1442,
+    "baselineOnlyTokens": [
+      [717, ";", ";", 12975279, 12975280],
+      [718, "ID", "qO4", 12975280, 12975283],
+      [719, "(", "(", 12975283, 12975284],
+      [720, "ID", "Y", 12975284, 12975285],
+      [721, ".", ".", 12975285, 12975286],
+      [722, "ID", "post_turn_summary", 12975286, 12975303],
+      [723, ")", ")", 12975303, 12975304]
+    ],
+    "residuePredecessors": [
+      [83, 83, 12973225, 12973232, "dirname", 8, "4288900e30880383056016b963577db79d19aae39774d98281fc51806230c882"],
+      [509, 509, 12974444, 12974452, "modified", 8, "0b69aa81304a5a0481531358b47412acaf113306ba15d43cb2b01cbce91d1d12"],
+      [920, 927, 12975886, 12975897, "accessToken", 8, "707d6b49698cd1d0252934cb16fb4d95f2c8d8397080bec9eb0b56f625821b4f"],
+      [1218, 1225, 12976791, 12976798, "dirname", 8, "4288900e30880383056016b963577db79d19aae39774d98281fc51806230c882"]
+    ]
+  },
+  "sourceOwnerProof": {
+    "declarationByteIdenticalAcrossHistoricalReleases": true,
+    "packageEnvelopeMode": "exact-declaration-after-unrelated-case-supplements",
+    "sourceReplayHelper": null
+  },
+  "ownerOverride": {
+    "paths": ["src/cli/print.ts"],
+    "declarations": ["loadInitialMessages"],
+    "evidenceIds": [
+      "target118-load-initial-messages-authenticated-units",
+      "target118-load-initial-messages-deletion-subsequence",
+      "target118-load-initial-messages-source-boundary"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "targetIndicesSha256": "666ba740d3790f1a2b5c569872a2f5d455d7eae8d4e3e188b510f83d8aff7601",
+    "residueIdentitiesSha256": "8bb0e2330f4eddd3fbca060b46881dd0ca9c111bd52ce085188f80132ab980d2"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-direct-source-owner-proof",
+  "criterion": "The complete authenticated target unit is the async retry generator, not a message-construction declaration. Its sole target-added residue is the exact overage-disabled response-header key inside a closed control-flow fragment that calls the authenticated fast-mode overage handler, clears fastMode, and continues. The exact historical withRetry and handler declarations reproduce that binding graph; incidental copies of the header key do not qualify.",
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "670c91bed10575c7bce87f25f5ca583f3d53f585dc63eaf184c177c128c9ea4c",
+    "residueIdentitiesSha256": "eea92e527ef73b65ff84bb4508da2fb12c36793a4d9421c60411cc23c69892b7"
+  },
+  "inputs": {
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "source": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "files": [
+        {
+          "path": "src/services/api/withRetry.ts",
+          "blob": "e2be23f67ef2bfe126add974f9585baeedf5cdfb",
+          "bytes": 31315,
+          "sha256": "35c796c543893965b7e1b38c9921d12c3a531f6cb04579da68e4b78b65e714ad"
+        },
+        {
+          "path": "src/utils/fastMode.ts",
+          "blob": "98de3ee675aacbb00af880ee37c675cf5b001c60",
+          "bytes": 17723,
+          "sha256": "3ba4c1aef963c1772bff8ff9b7db2f0a8c40572fd90b82cfb7123e056b71f2b0"
+        }
+      ]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 15126,
+    "start": 9425302,
+    "end": 9428664,
+    "bytes": 3362,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "f0e7408af9147847d5633f58f950c1f4ae2f6f2cd66ef98c2d7fa0c0f11f0383",
+    "coarseHash": "1dd4d41a2d1798d38b90ac359100c8ce66c0cb76dd2239bc689c8909617bedd5",
+    "ownerPath": "src/services/api/withRetry.ts",
+    "provisionalOwnerPath": "src/utils/messages.ts",
+    "behavior": "The authenticated Target118 async retry loop reads the unified overage-disabled reason from an API error, passes it to the fast-mode overage rejection handler, disables fast mode in the retry context, and immediately retries. The exact historical withRetry declaration owns this branch; the provisional utils/messages.ts attribution is rejected.",
+    "residues": [
+      [
+        "string",
+        "anthropic-ratelimit-unified-overage-disabled-reason",
+        9426427,
+        9426480,
+        0,
+        1
+      ]
+    ]
+  },
+  "targetHandlerBinding": {
+    "name": "pkq",
+    "start": 2037211,
+    "end": 2037482,
+    "bytes": 271,
+    "sha256": "20807994a9c6f5b82c0c6cf2c564b356f811a9eacb3ea071ab5351fe098a378b",
+    "requiredStrings": [
+      "Fast mode overage rejection: ",
+      "tengu_fast_mode_overage_rejected",
+      "overage_disabled_reason",
+      "userSettings",
+      "penguinModeOrgEnabled"
+    ]
+  },
+  "sourceDeclarations": {
+    "withRetry": {
+      "path": "src/services/api/withRetry.ts",
+      "name": "withRetry",
+      "bytes": 15130,
+      "sha256": "e3287c0a5ea17175fc1734e8afc76780c1ba6f0ec9f7570207adaad2e7149b32"
+    },
+    "overageBranch": {
+      "path": "src/services/api/withRetry.ts",
+      "bytes": 310,
+      "sha256": "cca365b13b82ced2b755cbbb9791a5aa35661d5013c93608095c49a1dfbecb2e"
+    },
+    "handleFastModeOverageRejection": {
+      "path": "src/utils/fastMode.ts",
+      "name": "handleFastModeOverageRejection",
+      "bytes": 718,
+      "sha256": "b24c3eb8d1a82ea3068ef7e8663fcb303bff623e7cba12c09377417c278a12f9"
+    }
+  },
+  "evidenceIds": [
+    "target118-with-retry-overage-header-target-fragment",
+    "target118-with-retry-overage-header-source-ast-test"
+  ]
+}

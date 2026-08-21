@@ -7,7 +7,12 @@
     "targetIsNextPublishedVersion": true,
     "skipped": [],
     "skippedVersionsAbsent": true,
-    "provenance": "evidence/provenance.json"
+    "provenance": "evidence/provenance.json",
+    "predecessorManifest": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/manifest.json",
+      "bytes": 360450,
+      "sha256": "3e40037dd64d27eda8a0fa16c6a7fcdcef314842050e37b6fae7b57c9d1c2b0d"
+    }
   },
   "recoveryScope": {
     "platform": "linux-x64",
@@ -4427,10 +4432,9 @@
     "root": "src",
     "baseCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
     "baseGitTree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
-    "baseSourceGitTree": "9e807992d428e7e23a0ad96e3a53e286d372afd7",
     "baseSrcGitTree": "9e807992d428e7e23a0ad96e3a53e286d372afd7",
-    "targetCommit": "9ca39e71e1bb5f506119000c7e5237fe716953a8",
-    "targetGitTree": "e2ab560539de7a663aed17e2b881fe3ba08eadcb",
+    "targetCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+    "targetGitTree": "6284c518a191674bf3e42869e05cad35dcaeabf0",
     "targetSrcGitTree": "a80c537f012b1588e3900c998971fec31eefc3ce",
     "patchSet": "2.1.119-to-2.1.120-incremental",
     "patchOrder": [
@@ -6786,6 +6790,9 @@
       "id": "2-1-120-source-facing-overlay-and-freeze",
       "confidence": "equivalent",
       "files": [
+        "recovered/compiler-tail-owner-overrides.mjs",
+        "recovered/daemon-tail-owner-overrides.mjs",
+        "recovered/final-tail-static-overrides.mjs",
         "recovered/source-facing-overlay.patch",
         "recovered/source-freeze/SHA256SUMS",
         "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -6810,13 +6817,26 @@
       ]
     },
     {
+      "id": "2-1-120-semantic-supplement-overlay",
+      "confidence": "equivalent",
+      "files": [
+        "semantic-supplement.patch"
+      ],
+      "explains": [
+        "targetBundle",
+        "officialChangelog"
+      ]
+    },
+    {
       "id": "2-1-120-direct-semantic-correspondence",
       "confidence": "equivalent",
       "files": [
         "semantic/README.md",
+        "semantic/dependency-coverage.json.gz",
         "semantic/direct-evidence.json",
         "semantic/obligations.json",
         "semantic/semantic-correspondence.json.gz",
+        "semantic/source-coverage.json.gz",
         "semantic/summary.json"
       ],
       "explains": [
@@ -6846,8 +6866,8 @@
     },
     {
       "path": "REPORT.md",
-      "bytes": 3433,
-      "sha256": "293269738962adb7c9db0eee1ca2eaefed8523c00175b501d013f1f9bcf7234e"
+      "bytes": 3483,
+      "sha256": "c328fd299b4ed997eccc371c624125e6e262555148c5a0c53bf25cd785b6e4f7"
     },
     {
       "path": "attribution/sources.jsonl.gz",
@@ -6960,6 +6980,21 @@
       "sha256": "073ff86d18138d4368d5ea07bec8de2478bd7c1cd56998dbafc189800ab30b5b"
     },
     {
+      "path": "recovered/compiler-tail-owner-overrides.mjs",
+      "bytes": 1369,
+      "sha256": "0823013ec7bd8ed36aadc7daafcf14c1ef430d370596ada8957cf79efc67ea16"
+    },
+    {
+      "path": "recovered/daemon-tail-owner-overrides.mjs",
+      "bytes": 901,
+      "sha256": "98280cc3030daedc8f8ad0c62d909bca0b1ca679be1be86d644e8a2672b45b7b"
+    },
+    {
+      "path": "recovered/final-tail-static-overrides.mjs",
+      "bytes": 1312,
+      "sha256": "190fdc0677346660319190bf2e47826066c3c490039652efeb5d7bb3ffea5910"
+    },
+    {
       "path": "recovered/source-facing-overlay.patch",
       "bytes": 1817973,
       "sha256": "a3d9bcf357ceac5567626666fbd4da958e612b26ee01e43b8d485dd5f6beaa9e"
@@ -6967,7 +7002,7 @@
     {
       "path": "recovered/source-freeze/SHA256SUMS",
       "bytes": 1244,
-      "sha256": "7abf0e1d5015d234fd5fc602d4500b965da957d4d2dee08cb16454045a21daf4"
+      "sha256": "576ee14c84727e68dddbfb9f8807d2ed8fc00460075130d4086ee342624c3ed5"
     },
     {
       "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -6997,12 +7032,12 @@
     {
       "path": "recovered/source-freeze/identity.json",
       "bytes": 2422,
-      "sha256": "aae9a4b7e4cc9d91f9d6dfe64db06509db83b10b147a2c0066d32c5f42298d02"
+      "sha256": "b798afff7534843d69b3b4663c0bceecba103aecf8b8aabd348042c1843784f4"
     },
     {
       "path": "recovered/source-freeze/retained-test-files.sha256",
       "bytes": 1019,
-      "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+      "sha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
     },
     {
       "path": "recovered/source-freeze/source-facing-overlay.patch",
@@ -7042,12 +7077,22 @@
     {
       "path": "recovered/source-lineage-core.json",
       "bytes": 69848,
-      "sha256": "d2e319b7b9ef396608da36430f2e68dee922709459444bac7b708a4e71f36c6d"
+      "sha256": "17859aeabf6c0de9ef69a51a06e32d1556ea69cd117953884bf02f948f69dd31"
+    },
+    {
+      "path": "semantic-supplement.patch",
+      "bytes": 83938,
+      "sha256": "ee7eb9ab90ded007d9abeabe37f94ac104553ee9ec9bfa2d0723cd08a45f09b9"
     },
     {
       "path": "semantic/README.md",
       "bytes": 1369,
       "sha256": "5480a9d2ca06a93f4c83922cc4045cfabc8b4cadb0f72fbc98e2e884f1712c37"
+    },
+    {
+      "path": "semantic/dependency-coverage.json.gz",
+      "bytes": 22092,
+      "sha256": "84b452cf08ed04653634ba4ca6b842f9858a3b5b7bdb461c35c37ed9f1683bba"
     },
     {
       "path": "semantic/direct-evidence.json",
@@ -7063,6 +7108,11 @@
       "path": "semantic/semantic-correspondence.json.gz",
       "bytes": 728492,
       "sha256": "dd3eac9de213f2003e9c9c91e1136137e77b0e2346e231376749acaa6a7ed30e"
+    },
+    {
+      "path": "semantic/source-coverage.json.gz",
+      "bytes": 284137,
+      "sha256": "2ebcdc2a9839a42cce5b19fcc94e0bbee1995a19fd1b6c59ae83ed2bc31a9543"
     },
     {
       "path": "semantic/summary.json",
@@ -7268,8 +7318,8 @@
       },
       {
         "path": "REPORT.md",
-        "bytes": 3433,
-        "sha256": "293269738962adb7c9db0eee1ca2eaefed8523c00175b501d013f1f9bcf7234e"
+        "bytes": 3483,
+        "sha256": "c328fd299b4ed997eccc371c624125e6e262555148c5a0c53bf25cd785b6e4f7"
       },
       {
         "path": "attribution/sources.jsonl.gz",
@@ -7382,6 +7432,21 @@
         "sha256": "073ff86d18138d4368d5ea07bec8de2478bd7c1cd56998dbafc189800ab30b5b"
       },
       {
+        "path": "recovered/compiler-tail-owner-overrides.mjs",
+        "bytes": 1369,
+        "sha256": "0823013ec7bd8ed36aadc7daafcf14c1ef430d370596ada8957cf79efc67ea16"
+      },
+      {
+        "path": "recovered/daemon-tail-owner-overrides.mjs",
+        "bytes": 901,
+        "sha256": "98280cc3030daedc8f8ad0c62d909bca0b1ca679be1be86d644e8a2672b45b7b"
+      },
+      {
+        "path": "recovered/final-tail-static-overrides.mjs",
+        "bytes": 1312,
+        "sha256": "190fdc0677346660319190bf2e47826066c3c490039652efeb5d7bb3ffea5910"
+      },
+      {
         "path": "recovered/source-facing-overlay.patch",
         "bytes": 1817973,
         "sha256": "a3d9bcf357ceac5567626666fbd4da958e612b26ee01e43b8d485dd5f6beaa9e"
@@ -7389,7 +7454,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "7abf0e1d5015d234fd5fc602d4500b965da957d4d2dee08cb16454045a21daf4"
+        "sha256": "576ee14c84727e68dddbfb9f8807d2ed8fc00460075130d4086ee342624c3ed5"
       },
       {
         "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -7419,12 +7484,12 @@
       {
         "path": "recovered/source-freeze/identity.json",
         "bytes": 2422,
-        "sha256": "aae9a4b7e4cc9d91f9d6dfe64db06509db83b10b147a2c0066d32c5f42298d02"
+        "sha256": "b798afff7534843d69b3b4663c0bceecba103aecf8b8aabd348042c1843784f4"
       },
       {
         "path": "recovered/source-freeze/retained-test-files.sha256",
         "bytes": 1019,
-        "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+        "sha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
       },
       {
         "path": "recovered/source-freeze/source-facing-overlay.patch",
@@ -7464,12 +7529,22 @@
       {
         "path": "recovered/source-lineage-core.json",
         "bytes": 69848,
-        "sha256": "d2e319b7b9ef396608da36430f2e68dee922709459444bac7b708a4e71f36c6d"
+        "sha256": "17859aeabf6c0de9ef69a51a06e32d1556ea69cd117953884bf02f948f69dd31"
+      },
+      {
+        "path": "semantic-supplement.patch",
+        "bytes": 83938,
+        "sha256": "ee7eb9ab90ded007d9abeabe37f94ac104553ee9ec9bfa2d0723cd08a45f09b9"
       },
       {
         "path": "semantic/README.md",
         "bytes": 1369,
         "sha256": "5480a9d2ca06a93f4c83922cc4045cfabc8b4cadb0f72fbc98e2e884f1712c37"
+      },
+      {
+        "path": "semantic/dependency-coverage.json.gz",
+        "bytes": 22092,
+        "sha256": "84b452cf08ed04653634ba4ca6b842f9858a3b5b7bdb461c35c37ed9f1683bba"
       },
       {
         "path": "semantic/direct-evidence.json",
@@ -7485,6 +7560,11 @@
         "path": "semantic/semantic-correspondence.json.gz",
         "bytes": 728492,
         "sha256": "dd3eac9de213f2003e9c9c91e1136137e77b0e2346e231376749acaa6a7ed30e"
+      },
+      {
+        "path": "semantic/source-coverage.json.gz",
+        "bytes": 284137,
+        "sha256": "2ebcdc2a9839a42cce5b19fcc94e0bbee1995a19fd1b6c59ae83ed2bc31a9543"
       },
       {
         "path": "semantic/summary.json",
@@ -7587,7 +7667,7 @@
   "sourceFreeze": {
     "status": "immutable-and-self-verifying",
     "identity": "recovered/source-freeze/identity.json",
-    "identitySha256": "aae9a4b7e4cc9d91f9d6dfe64db06509db83b10b147a2c0066d32c5f42298d02",
+    "identitySha256": "b798afff7534843d69b3b4663c0bceecba103aecf8b8aabd348042c1843784f4",
     "overlay": {
       "path": "recovered/source-facing-overlay.patch",
       "bytes": 1817973,
@@ -7602,7 +7682,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "7abf0e1d5015d234fd5fc602d4500b965da957d4d2dee08cb16454045a21daf4"
+        "sha256": "576ee14c84727e68dddbfb9f8807d2ed8fc00460075130d4086ee342624c3ed5"
       },
       {
         "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -7632,12 +7712,12 @@
       {
         "path": "recovered/source-freeze/identity.json",
         "bytes": 2422,
-        "sha256": "aae9a4b7e4cc9d91f9d6dfe64db06509db83b10b147a2c0066d32c5f42298d02"
+        "sha256": "b798afff7534843d69b3b4663c0bceecba103aecf8b8aabd348042c1843784f4"
       },
       {
         "path": "recovered/source-freeze/retained-test-files.sha256",
         "bytes": 1019,
-        "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+        "sha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
       },
       {
         "path": "recovered/source-freeze/source-facing-overlay.patch",
@@ -7678,11 +7758,11 @@
   },
   "finalization": {
     "status": "complete",
-    "sourceFreezeIdentitySha256": "aae9a4b7e4cc9d91f9d6dfe64db06509db83b10b147a2c0066d32c5f42298d02",
+    "sourceFreezeIdentitySha256": "b798afff7534843d69b3b4663c0bceecba103aecf8b8aabd348042c1843784f4",
     "semanticObligationsSha256": "9b8a477de2cfb7893523126ad20abed1b932b38b64f23b52d84de13c838f0d1b",
     "semanticReportSha256": "dd3eac9de213f2003e9c9c91e1136137e77b0e2346e231376749acaa6a7ed30e",
     "semanticSummarySha256": "1d14ef3df8ad9cc3c7674b0c8a945d27cf9c1fb74e2c2f2e221ad363b73fef26",
-    "recoveredFiles": 47,
-    "recoveredEdits": 5
+    "recoveredFiles": 53,
+    "recoveredEdits": 6
   }
 }

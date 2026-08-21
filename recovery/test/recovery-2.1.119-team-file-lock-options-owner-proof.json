@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-whole-unit-temporal-lock-options-proof",
+  "criterion": "exact-baseline-target-lock-object-delta-plus-matched-live-consumers-v1",
+  "evidenceIds": [
+    "target119-team-file-lock-options-target-fragment",
+    "target119-team-file-lock-options-temporal-lineage",
+    "target119-team-file-lock-options-stale-source-graph-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "source": {
+      "path": "src/utils/swarm/teamHelpers.ts",
+      "bytes": 21385,
+      "sha256": "ae0af4e63ccc5524ce83d88be9ff8ad91009bd652fc070d8c1a09fed15f83714"
+    },
+    "retainedSourceDonor": {
+      "path": "recovery/cases/2.1.104-to-2.1.105/semantic-supplement.patch",
+      "bytes": 1329483,
+      "sha256": "a4b761ee17ae0747c3c29c92415588f11768a1c54d785105e8dbec625b0dc825"
+    }
+  },
+  "baseline": {
+    "unit": {
+      "nodeType": "VariableDeclaration",
+      "start": 8760757,
+      "end": 8761481,
+      "bytes": 724,
+      "sha256": "2e89cae94f9ce31104dd3bf45d9820e14fc949df7d9fe63def4b80f6867b5513"
+    },
+    "lockOptions": {
+      "start": 8761416,
+      "end": 8761478,
+      "bytes": 62,
+      "sha256": "7823259552aed803b476db24aad292d6e0235a83be594bf9ab9446351a8bfe03"
+    }
+  },
+  "target": {
+    "unit": {
+      "targetIndex": 14123,
+      "nodeType": "VariableDeclaration",
+      "start": 8871549,
+      "end": 8872294,
+      "bytes": 745,
+      "sha256": "c0774725efea67909ac3a283e319267bf72aedc72413cba7a177267971e34d3e",
+      "coarseHash": "a49b76ae919be3e32c899440e414a2b63d0f015ccbcf187114f59b4f002a1bf1"
+    },
+    "lockOptions": {
+      "start": 8872208,
+      "end": 8872291,
+      "bytes": 83,
+      "sha256": "29c706079b97721e37f3b32b5c8af63008e34e731336a6a77bc721f37f12052a"
+    },
+    "onCompromisedProperty": {
+      "start": 8872270,
+      "end": 8872290,
+      "bytes": 20,
+      "sha256": "d47b635dd6ffa34ea9fe4253b8f0ddc7e92e5a8a94b4f8a9f247832750fb8443"
+    },
+    "supportingUnits": [
+      {
+        "targetIndex": 14103,
+        "baselineUnitIndex": 13838,
+        "role": "teamDoesNotExistError",
+        "start": 8865998,
+        "end": 8866099,
+        "bytes": 101,
+        "sha256": "582bc5b5c6502131ff1f2dce9d5de70dfeb9cb3188d7105ac88a9fdced85ea13"
+      },
+      {
+        "targetIndex": 14104,
+        "baselineUnitIndex": 13839,
+        "role": "updateTeamFile",
+        "start": 8866099,
+        "end": 8866431,
+        "bytes": 332,
+        "sha256": "43c3f34916035c9de9ec28c6f4fe9afa567764e0469edd69725a288fac8701d0"
+      },
+      {
+        "targetIndex": 14105,
+        "baselineUnitIndex": 13840,
+        "role": "removeTeamMember",
+        "start": 8866431,
+        "end": 8866636,
+        "bytes": 205,
+        "sha256": "b19d82e60920b9a8e47209b93c399f4293141d1856ebb5af5c78d9f43b9597bc"
+      }
+    ]
+  },
+  "source": {
+    "inputSchemaDeclaration": {
+      "start": 922,
+      "end": 1640,
+      "bytes": 718,
+      "sha256": "730e5d58b5693e98b0af1dfdcf8efd784cfe25ddc28d4243514deb6845ca6952"
+    },
+    "requiredAbsentDeclarations": [
+      "TEAM_FILE_LOCK_OPTIONS",
+      "updateTeamFile",
+      "removeTeamMember"
+    ]
+  },
+  "row": {
+    "targetIndex": 14123,
+    "ownerPaths": [
+      "src/utils/swarm/teamHelpers.ts"
+    ],
+    "declarations": [
+      "inputSchema",
+      "TEAM_FILE_LOCK_OPTIONS",
+      "updateTeamFile"
+    ],
+    "residues": [
+      {
+        "kind": "property",
+        "value": "onCompromised",
+        "start": 8872270,
+        "end": 8872283,
+        "baselineCount": 8,
+        "targetOrdinal": 10
+      }
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "b7cfb8cd70f7025f64dc4b79c486c30c9589300bb34732e26a724523f4aabf2b",
+    "residueIdentitiesSha256": "de053aa573c0903500eb47f152e0c3dacdbef4c32f736cb8816087e9915742ab"
+  }
+}

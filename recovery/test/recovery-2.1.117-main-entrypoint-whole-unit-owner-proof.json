@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "summary": {
+    "units": 1,
+    "addedOwnerRows": 17,
+    "retainedCorrespondenceRows": 6,
+    "runtimeAddedRows": 5,
+    "buildMetadataRows": 6,
+    "completeTokenEditHunks": 17,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "baselineUnit": {
+    "baselineIndex": 20720,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 13036753,
+    "end": 13094202,
+    "bytes": 57449,
+    "tokenCount": 15375,
+    "topDefinitionCount": 1,
+    "sha256": "5eedcab727da9a4eb48d70598545dc8c7e0d3f33546e1d64f0b186ab829a7017",
+    "coarseHash": "9ad20b03c8dfcab1cf79441fef59250a214a4386c4fdfc5addef2f305a8b596b"
+  },
+  "targetUnit": {
+    "targetIndex": 20785,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 13047545,
+    "end": 13105982,
+    "bytes": 58437,
+    "tokenCount": 15668,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 56,
+    "sha256": "d6f70b2968f45bdc83518ce679bff9239bcec0cc6e9befda7b0f183d096a87c3",
+    "coarseHash": "37b96d9a2b7bfebfd8f8394bc961c52131ff5a6a829a407df37bd6ca79878664"
+  },
+  "topLevelStatementProof": {
+    "statementCount": 17,
+    "soleChangedStatementIndex": 3,
+    "commonStatementCount": 16,
+    "commonCanonicalHashList": {
+      "bytes": 1073,
+      "sha256": "017b5598bf57121e359313fb31f85201419ad2d1c776654e9048c52c5b6cb9e8"
+    },
+    "baselineChangedStatement": {
+      "start": 13037048,
+      "end": 13079977,
+      "bytes": 42929,
+      "sha256": "567a9391f7d9fde61904009056160930a99be2ad8f63f27938c8a2aa32243d7c"
+    },
+    "targetChangedStatement": {
+      "start": 13047840,
+      "end": 13091757,
+      "bytes": 43917,
+      "sha256": "629c2e56af527957c3d5b84e786b8a4072baa1b526cf840ebca95e2d3ca18fac"
+    }
+  },
+  "normalizedTokenProof": {
+    "normalization": "Parse with Acorn; preserve noncomputed runtime property names and labels, replace every other identifier with @id, and replace only VERSION/BUILD_TIME/GIT_SHA property literal values with <BUILD> before tokenization.",
+    "baselineTokens": 15375,
+    "targetTokens": 15668,
+    "buildMetadataPropertiesPerUnit": 6,
+    "syncRunLength": 12,
+    "maxLookahead": 800,
+    "baselineNormalizedTokenArray": {
+      "bytes": 198669,
+      "sha256": "e17d025343291e75f8dbe2a939a887b25755deb9cee73e2f2da6c71085d01c34"
+    },
+    "editTranscript": {
+      "bytes": 793,
+      "sha256": "c83c22726b59e63328854ab295dd745fa48768c306930d05f7495b9f71d6c379"
+    },
+    "hunks": [
+      {"id": "effective-auto-compact-window", "baselineTokens": [2104, 2104], "targetTokens": [2104, 2131], "baseline": {"start": 13050077, "end": 13050077, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13060870, "end": 13060939, "bytes": 69, "sha256": "240996f29b86d4ae8cb54222b16b3c36a96c9289972c77d39465a1222675481c"}},
+      {"id": "bare-mode-mcp-skip", "baselineTokens": [4592, 4592], "targetTokens": [4619, 4623], "baseline": {"start": 13057544, "end": 13057544, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13068404, "end": 13068410, "bytes": 6, "sha256": "3e3c185496301face99b0afc07a3a0c8de67290af094f4a7fa13b3ea62fdad08"}},
+      {"id": "remote-attach-ui-state", "baselineTokens": [4885, 4886], "targetTokens": [4916, 4948], "baseline": {"start": 13058794, "end": 13058795, "bytes": 1, "sha256": "d03502c43d74a30b936740a9517dc4ea2b2ad7168caa0a774cefe793ce0b33e7"}, "target": {"start": 13069660, "end": 13069740, "bytes": 80, "sha256": "df318ca050cc0d58eb24d1379f202075c70e0d55109c8a33968d017ba4cd225b"}},
+      {"id": "agent-frontmatter-mcp-merge", "baselineTokens": [6484, 6484], "targetTokens": [6546, 6594], "baseline": {"start": 13063210, "end": 13063210, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13074165, "end": 13074327, "bytes": 162, "sha256": "3ac0384fa5674a255557059843f5ae8fbfeb3c6432914dcde16b0385d4767184"}},
+      {"id": "thinking-summary-outer-guard", "baselineTokens": [6976, 6977], "targetTokens": [7086, 7089], "baseline": {"start": 13064365, "end": 13064367, "bytes": 2, "sha256": "73e7b6f86214bc78ee505fb5f7d4fb97cfa99924a67ca3105113c9a3d52f8fef"}, "target": {"start": 13075482, "end": 13075486, "bytes": 4, "sha256": "85b85f6b431285a6ffd3b773c5bccb0a7a0fa2cb3e7dda40eb35b475ad568669"}},
+      {"id": "thinking-summary-settings-default", "baselineTokens": [6990, 6999], "targetTokens": [7102, 7133], "baseline": {"start": 13064432, "end": 13064462, "bytes": 30, "sha256": "0bf5a778c9a5d1050ef3b7fb1ad4ab46e9d08c54863e0c2a2af9b2abd116d89b"}, "target": {"start": 13075551, "end": 13075651, "bytes": 100, "sha256": "1b657c239503e0112f9e2356f7ebc24fd9d957b71a410f7c6b20cad09c162741"}},
+      {"id": "initial-auto-compact-window", "baselineTokens": [7588, 7596], "targetTokens": [7722, 7722], "baseline": {"start": 13066531, "end": 13066567, "bytes": 36, "sha256": "0c30a01576b335b73f34a9de4b6ff20ef7e5dd7ac20e357532b1b1b92039f41d"}, "target": {"start": 13077723, "end": 13077723, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}},
+      {"id": "app-state-subscription", "baselineTokens": [7969, 7969], "targetTokens": [8095, 8099], "baseline": {"start": 13067553, "end": 13067553, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13078709, "end": 13078722, "bytes": 13, "sha256": "cafd97677ad0f8de1a52ffe8a60b25be37c2a23c6c42e11210b8c99bd24fe374"}},
+      {"id": "model-settings-source-telemetry", "baselineTokens": [8187, 8187], "targetTokens": [8317, 8324], "baseline": {"start": 13068460, "end": 13068460, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13079630, "end": 13079659, "bytes": 29, "sha256": "b6980f67197ced6567124e551907263bd61044a8104150fe442094b0152fc7d9"}},
+      {"id": "model-deprecation-fallback", "baselineTokens": [8205, 8205], "targetTokens": [8342, 8344], "baseline": {"start": 13068506, "end": 13068506, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13079705, "end": 13079709, "bytes": 4, "sha256": "7c17bb09b2c1c826900bd3170772b8a1703a4432fa0b95968e4698aa83aecbcd"}},
+      {"id": "bridge-skip-next-archive-default", "baselineTokens": [8731, 8731], "targetTokens": [8870, 8875], "baseline": {"start": 13070283, "end": 13070283, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13081488, "end": 13081517, "bytes": 29, "sha256": "68b6e1a7677e1a18bf4a2207e6b20d68d5e0beb47dd08d437d8f06443cc92bbd"}},
+      {"id": "resume-auto-compact-window", "baselineTokens": [8955, 8963], "targetTokens": [9099, 9099], "baseline": {"start": 13071192, "end": 13071228, "bytes": 36, "sha256": "0c30a01576b335b73f34a9de4b6ff20ef7e5dd7ac20e357532b1b1b92039f41d"}, "target": {"start": 13082427, "end": 13082427, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}},
+      {"id": "strict-mcp-config-effective-gate", "baselineTokens": [9187, 9187], "targetTokens": [9323, 9327], "baseline": {"start": 13071908, "end": 13071908, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13083107, "end": 13083113, "bytes": 6, "sha256": "933ca853a4da91f441eb96917350941cb8f0d9e2543b433815d11dccadbfb480"}},
+      {"id": "resume-dynamic-mcp-config", "baselineTokens": [9482, 9482], "targetTokens": [9622, 9641], "baseline": {"start": 13072814, "end": 13072814, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13084019, "end": 13084089, "bytes": 70, "sha256": "d416c948f24eb8526390136ffddf408d0255c3825b2654fd31b905516949657e"}},
+      {"id": "remote-attach-archive-validation", "baselineTokens": [9952, 9967], "targetTokens": [10111, 10226], "baseline": {"start": 13074199, "end": 13074254, "bytes": 55, "sha256": "e37cc9b8eace7fbea3d76e4f58d732e381eee460650aa909453ac23b7d25085e"}, "target": {"start": 13085474, "end": 13085896, "bytes": 422, "sha256": "6504d612b5ee424baba0cf0bbec4fa6e766075b4f3f72315021157612baad788"}},
+      {"id": "remote-attach-bridge-flags", "baselineTokens": [10333, 10333], "targetTokens": [10592, 10607], "baseline": {"start": 13075342, "end": 13075342, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13086984, "end": 13087053, "bytes": 69, "sha256": "dc1e550209794fd46b86822abbfdcbf77ed1f2e11dc89e3691f210f9b3c4b244"}},
+      {"id": "fork-dynamic-mcp-config", "baselineTokens": [11244, 11244], "targetTokens": [11518, 11537], "baseline": {"start": 13078089, "end": 13078089, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "target": {"start": 13089799, "end": 13089869, "bytes": 70, "sha256": "928750c78415fa94fce89bf2bcf84c01ad2a4bdbd7156d54b927acfe78753fd2"}}
+    ]
+  },
+  "ownerResidues": {
+    "allOwnerRows": {"rows": 231, "bytes": 15712, "sha256": "dd4d408b9cfdce6b3d6ad00b1ac991aeda57ccba4939aa5d1e8513fced8a7cbb"},
+    "addedOwnerRows": {"rows": 17, "bytes": 995, "sha256": "87871e0776e7e72341397ab5c5ad8a0c718addb10b330844b43950385e824d4f"},
+    "legacyStrictRows": {"rows": 6, "bytes": 393, "sha256": "0fd862dc17e88de45d3764b5422440aca4edac94658541a378eb23174fc529d6"},
+    "rows": [
+      ["property", "clear", 13059669, 13059674, 337, 338, true, "retained-correspondence", 13048877],
+      ["property", "allowed", 13065413, 13065420, 61, 62, true, "retained-correspondence", 13054550],
+      ["property", "allowed", 13068153, 13068160, 61, 63, true, "retained-correspondence", 13057292],
+      ["property", "blocked", 13068164, 13068171, 33, 34, true, "retained-correspondence", 13057303],
+      ["string", "agent", 13070903, 13070910, 28, 36, true, "retained-correspondence", 13059949],
+      ["property", "showThinkingSummaries", 13075600, 13075621, 2, 3, true, "runtime-added", null],
+      ["string", "summarized", 13075638, 13075650, 4, 5, true, "runtime-added", null],
+      ["string", "2.1.117", 13075874, 13075883, 0, 133, true, "build-metadata", 13064685],
+      ["string", "2026-04-21T17:58:52Z", 13075963, 13075985, 0, 133, true, "build-metadata", 13064774],
+      ["string", "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387", 13075994, 13076036, 0, 133, true, "build-metadata", 13064805],
+      ["property", "settings_source", 13079630, 13079645, 1, 2, true, "runtime-added", null],
+      ["string", "model", 13079650, 13079657, 26, 28, true, "runtime-added", null],
+      ["property", "replBridgeSkipNextArchive", 13081488, 13081513, 0, 2, true, "runtime-added", null],
+      ["property", "replContexts", 13081819, 13081831, 14, 15, true, "retained-correspondence", 13070585],
+      ["string", "2.1.117", 13091105, 13091114, 0, 134, true, "build-metadata", 13079325],
+      ["string", "2026-04-21T17:58:52Z", 13091194, 13091216, 0, 134, true, "build-metadata", 13079414],
+      ["string", "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387", 13091225, 13091267, 0, 134, true, "build-metadata", 13079445]
+    ]
+  },
+  "sourceReplayBlocker": {
+    "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "tree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/main.tsx",
+    "blob": "08632f6f102557ae26fd1c60b8e4fd7fbde63713",
+    "bytes": 804497,
+    "chars": 804289,
+    "sha256": "896534df5d2d94b4cdfc270a0a4c883eb76d277881ab771974f7c73d1caaaf99",
+    "runDeclaration": {"name": "run", "nodeType": "FunctionDeclaration", "start": 47217, "end": 227455, "bytes": 180410, "sha256": "09fec3057c570264ec78a851bf6d824f83e935bda37b550dc5bc51f43db189ed"},
+    "missingMarkerCounts": {"thinkingDisplay": 0, "showThinkingSummaries": 0, "settings_source": 0, "getSettingsSourceForKey": 0, "replBridgeSkipNextArchive": 0},
+    "mainHistoryRevisions": 21,
+    "historyMissingMarkers": ["settings_source", "getSettingsSourceForKey", "replBridgeSkipNextArchive"],
+    "laterWitnesses": [
+      {"commit": "bd846a24e3886322888f02b9f747c132a4a32314", "blob": "1a6745ef0439cc741c40b2f22635d8b8f1189c23", "bytes": 808444, "sha256": "9edfedd84c9154bdd800ca72cc879049e4c7a8fbf0b185a42adfe874cd3fa0bb", "thinkingDisplay": 3, "showThinkingSummaries": 1},
+      {"commit": "9f034bb03d575603a850e3c75ce003406094f9cc", "blob": "daf2559c35dc20d91bb376631b64fc04f870c2ad", "bytes": 816314, "sha256": "c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33", "thinkingDisplay": 3, "showThinkingSummaries": 1}
+    ],
+    "reason": "The Target117 main source snapshot lacks the retained thinking-display option/application and all three authored markers for the genuine Target117 rows. Later main.tsx witnesses recover thinking-display but also contain post-117 changes, and no reachable main.tsx revision contains settings_source, getSettingsSourceForKey, or replBridgeSkipNextArchive. A partial insertion would therefore overstate whole-unit source recovery."
+  },
+  "ownerOverride": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/recovered/main-entrypoint-whole-unit-owner-overrides.mjs",
+    "bytes": 1180,
+    "sha256": "63f61b71d31afe85302b17f0af9b081e06358a0691dcb5321227af067d1583c1"
+  },
+  "evidenceIds": [
+    "target117-main-entrypoint-authenticated-whole-unit-proof",
+    "target117-main-entrypoint-complete-token-edit-proof",
+    "target117-main-entrypoint-retained-residue-correspondence-proof",
+    "target117-main-entrypoint-source-lineage-replay-blocker"
+  ],
+  "generatorWiring": {
+    "ownerOverrideExport": "TARGET117_MAIN_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES",
+    "replayHelper": null,
+    "admission": "Apply the sole u20785 override only after this static fixture passes against the authenticated bundles and exact source lineage. Do not add a main.tsx replay."
+  }
+}

@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "sourceBlob": {
+    "path": "src/tools/FileEditTool/utils.ts",
+    "gitObject": "717db6c2d9d989958452a8ec26f9e580359ec902"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "replayHelper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-file-edit-unicode-escape-case-source-gap.mjs",
+      "bytes": 10929,
+      "sha256": "c600fd22d107108ae5750a00cefb6ce597ee447fb312f4b73d490a456d40cfb3"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/tools/FileEditTool/utils.ts",
+        "input": {
+          "bytes": 24295,
+          "sha256": "8c6335584c4021f5f76221537fc74c36d8d215e924e3c8f631b9bdd8ec4bee5a"
+        },
+        "output": {
+          "bytes": 25622,
+          "sha256": "72a8c2c6070bd3763d53fdef9389947a44e97faf421104edfd6e9a33d74ec7de"
+        }
+      },
+      {
+        "path": "src/utils/stringUtils.ts",
+        "retained": {
+          "bytes": 6595,
+          "sha256": "e191baf119909a210a9fb1b6f026dd36178eb04d4e05450689bd640ea8305f9c"
+        }
+      }
+    ]
+  },
+  "baselineUnits": [
+    {
+      "index": 10107,
+      "role": "lowercase-only Unicode encoder",
+      "nodeType": "FunctionDeclaration",
+      "start": 5014667,
+      "end": 5014784,
+      "bytes": 117,
+      "tokenCount": 42,
+      "sourceHash": "1518720b3f4fd1f3cdcd9f8ad6cb6701006dd829ffbac63f7e2456bb1941a073",
+      "coarseHash": "8370e8aa1a39718ce52333ecc559d97e8de4084234e98be76d180213e261c505"
+    },
+    {
+      "index": 10109,
+      "role": "lowercase-only Unicode representation preservation",
+      "nodeType": "FunctionDeclaration",
+      "start": 5014832,
+      "end": 5014961,
+      "bytes": 129,
+      "tokenCount": 66,
+      "sourceHash": "d1a4a591e09377f2fdcb8bb56b96d63b671e7c0acf76fb93595dfb6a2152d532",
+      "coarseHash": "5e16b5cf3f5b4c1a7ec136c2d3454d89990a724ac24c005163246e43d9a76c33"
+    },
+    {
+      "index": 10110,
+      "role": "lowercase-only encoded-string lookup",
+      "nodeType": "FunctionDeclaration",
+      "start": 5014961,
+      "end": 5015217,
+      "bytes": 256,
+      "tokenCount": 132,
+      "sourceHash": "a809a179d078303c71e2d994b0c0a1382e48f9d8ae0c5177f0456f20584418b4",
+      "coarseHash": "21d988fccb936953824f6e42a3495c67cd2df2bc65ae0ee841fab7e6128cdcd3"
+    }
+  ],
+  "targetUnits": [
+    {
+      "index": 10152,
+      "sourceDeclaration": "unicodeStringToRegex",
+      "role": "literal Unicode to case-insensitive escaped-Unicode RegExp source",
+      "nodeType": "FunctionDeclaration",
+      "start": 5028340,
+      "end": 5028546,
+      "bytes": 206,
+      "tokenCount": 106,
+      "sourceHash": "d561ae8b2660de507514701575fbb16a0e926d0fa38cf71c45cb8910e61f9c97",
+      "coarseHash": "727e6d2ebccfa2b99172c2c0e37a92a933c0dae640c408beb4d9439108b3629f",
+      "unknownFreeIdentifierCount": 1
+    },
+    {
+      "index": 10154,
+      "sourceDeclaration": "preserveUnicodeRepresentation",
+      "role": "preserve observed per-code-unit escape spelling and dominant hex case",
+      "nodeType": "FunctionDeclaration",
+      "start": 5028594,
+      "end": 5029111,
+      "bytes": 517,
+      "tokenCount": 273,
+      "sourceHash": "60dff290a02f86b4b6e990650545df9ec1b516f906dfb7fb4c1a89d4f933dfc6",
+      "coarseHash": "cc4b1dd24f400784ab0e747eebff4ca0a1b0b6771546a26f44cb4f75ad96a10a",
+      "unknownFreeIdentifierCount": 1
+    },
+    {
+      "index": 10155,
+      "sourceDeclaration": "findActualString",
+      "role": "return the actual matching escaped-Unicode substring",
+      "nodeType": "FunctionDeclaration",
+      "start": 5029111,
+      "end": 5029372,
+      "bytes": 261,
+      "tokenCount": 135,
+      "sourceHash": "7012d11045cdd7002cd20b975d9950087a1e714e96cf8277ef2567a1a4b99d59",
+      "coarseHash": "670077a05d34a3df549851b6f472ce342c3eea779faf84a2cc62547ab915dbea",
+      "unknownFreeIdentifierCount": 1
+    }
+  ],
+  "retainedDependency": {
+    "sourcePath": "src/utils/stringUtils.ts",
+    "sourceDeclaration": "escapeRegExp",
+    "sourceRegion": {
+      "charStart": 209,
+      "charEnd": 314,
+      "bytes": 105,
+      "sha256": "57e2fc40cea63cddfae611368a278ef12a31a69906ef97cc5348120d531ed88e"
+    },
+    "targetUnit": {
+      "index": 919,
+      "baselineUnitIndex": 1070,
+      "classification": "moved",
+      "nodeType": "FunctionDeclaration",
+      "start": 148829,
+      "end": 148891,
+      "bytes": 62,
+      "tokenCount": 16,
+      "sourceHash": "e2a08613f440c99df54d148e6d2268fc046d226d92651b84abfb15b22b73735b",
+      "coarseHash": "c576d4fa7a6e06c467845b2ac85b0b761e4aa0596eeed74048ca8994e110468b"
+    },
+    "moduleInitializer": {
+      "targetIndex": 10148,
+      "start": 5027916,
+      "end": 5027955,
+      "bytes": 39,
+      "sha256": "41bd2d06eb5b05414f9c6e6db39aa7a7e6b9ecfec5839623268b69ccf184e98c",
+      "text": "var KQK=T(()=>{g4();Wq();ag_=new qQK});",
+      "interpretation": "Wq is already retained by the pre-existing countCharInString import; adding escapeRegExp introduces no new module initializer."
+    }
+  },
+  "bundleFragments": [
+    {
+      "name": "targetStrictEscapePrefix",
+      "bundle": "target",
+      "unitIndex": 10152,
+      "start": 5028429,
+      "end": 5028436,
+      "bytes": 7,
+      "sha256": "7aae78f64376c42b6b23c7b40f415273733da108d698e1a6060441900f79c7b8",
+      "text": "\"\\\\\\\\u\""
+    },
+    {
+      "name": "targetPreserveCall",
+      "bundle": "target",
+      "start": 9393332,
+      "end": 9393351,
+      "bytes": 19,
+      "sha256": "a2bb43a2626558658888f3dca16369ef7c0984e4282c73af527a7cf8051d6cdf",
+      "text": "fQK(D,v,ImH(D,v,w))"
+    }
+  ],
+  "bundleCallCounts": {
+    "AQK(": 3,
+    "fQK(": 2,
+    "z2H(": 5
+  },
+  "sourceRegions": {
+    "rawImport": {
+      "charStart": 156,
+      "charEnd": 216,
+      "bytes": 60,
+      "sha256": "43d69d1e5b05ad551657dc737e61eae9ca99d9ac100b97bde84b393456e7e444"
+    },
+    "recoveredImport": {
+      "charStart": 156,
+      "charEnd": 230,
+      "bytes": 74,
+      "sha256": "b6e590d33a810a3c46dec1967722bef8f7c4b517c04bf68bd1ad2e335d3c8492"
+    },
+    "rawDeclarations": [
+      {
+        "name": "encodeUnicodeCharacters",
+        "charStart": 2528,
+        "charEnd": 2721,
+        "bytes": 193,
+        "sha256": "bf846301ae34271caee373a983c45359c7f8fa560265fda45509115dfdef3cf1"
+      },
+      {
+        "name": "preserveUnicodeRepresentation",
+        "charStart": 2877,
+        "charEnd": 3408,
+        "bytes": 531,
+        "sha256": "1148c79091483789ce73301126882a4c80578e7c611564047ad75a7ea749419c"
+      },
+      {
+        "name": "findActualString",
+        "charStart": 3705,
+        "charEnd": 4796,
+        "bytes": 1091,
+        "sha256": "9ce338a13a44da8ca0eed1323776026a84bfac298ec65f79d1b5b1bb8aeac9e5"
+      }
+    ],
+    "recoveredDeclarations": [
+      {
+        "name": "unicodeStringToRegex",
+        "charStart": 2542,
+        "charEnd": 3007,
+        "bytes": 465,
+        "sha256": "fd2145332b5098f45a18b28713ce1bf41b7d27852596287c7e68c53d2ac759fb",
+        "compiledBytes": 334,
+        "compiledSha256": "51671fba3244e01c4a4eb8bc185c8ae2cc20a1f9aa1040563fe0deb3fa242af1"
+      },
+      {
+        "name": "preserveUnicodeRepresentation",
+        "charStart": 3163,
+        "charEnd": 4803,
+        "bytes": 1640,
+        "sha256": "cfcaae7c2436537d75a513d91eca39e332af7d19c7158c50e7d12346fca2ab17",
+        "compiledBytes": 1185,
+        "compiledSha256": "bd7336c4c9757a3cfde197742501613286416d1705dc4f525b3afb5e60a8e05e"
+      },
+      {
+        "name": "findActualString",
+        "charStart": 5100,
+        "charEnd": 6123,
+        "bytes": 1023,
+        "sha256": "c46ef41b82f9b0e14856bbdd1e8dd982578bd50a5f856eda2abc8a3fe8136f5f",
+        "compiledBytes": 675,
+        "compiledSha256": "304778e0b407e6eefd8f6872e754c50285aaf37e829661df24b962799ac605a3"
+      }
+    ]
+  },
+  "wholeUnitProof": {
+    "criterion": "bun-minify-syntax-position-free-alpha-kind-declaration-merge-concat-normalized-ast-v1",
+    "compiler": {
+      "path": ".pixi/envs/default/bin/bun",
+      "version": "1.3.11",
+      "options": {
+        "loader": "ts",
+        "target": "bun",
+        "minifyWhitespace": true,
+        "minifySyntax": true
+      }
+    },
+    "units": [
+      {
+        "sourceDeclaration": "unicodeStringToRegex",
+        "targetIndex": 10152,
+        "canonicalBytes": 3674,
+        "canonicalSha256": "3659df3cf86655e5e1e5eb4e79daac3072ad58ddc8212c038eed6b9a34466f87"
+      },
+      {
+        "sourceDeclaration": "preserveUnicodeRepresentation",
+        "targetIndex": 10154,
+        "canonicalBytes": 9606,
+        "canonicalSha256": "a27e37029cbecb6de10e56df46a087fd8597394a57698c21eea47c900a653b8a"
+      },
+      {
+        "sourceDeclaration": "findActualString",
+        "targetIndex": 10155,
+        "canonicalBytes": 4649,
+        "canonicalSha256": "4e516366d91a1d883bb3a530cf53a8c8397d7fe8ba5766f9bd09eefe92924ee6"
+      }
+    ]
+  },
+  "strictRows": [
+    {
+      "targetIndex": 10152,
+      "literalKind": "string",
+      "value": "\\\\u",
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1,
+      "start": 5028429,
+      "end": 5028436,
+      "sourceHash": "d561ae8b2660de507514701575fbb16a0e926d0fa38cf71c45cb8910e61f9c97",
+      "ownerPath": "src/tools/FileEditTool/utils.ts",
+      "reportedOwnerPaths": [
+        "tools/FileEditTool/utils.ts"
+      ],
+      "declarations": [
+        "unicodeStringToRegex",
+        "preserveUnicodeRepresentation",
+        "findActualString"
+      ],
+      "identitySha256": "79ca43038c85cdd71317f0ced0aa9560e333320379e5b1c0a64d29ddf12a9a71"
+    }
+  ],
+  "strictEvolution": {
+    "before": {
+      "units": 62,
+      "residues": 486,
+      "indices": [10152,11275,12210,12768,13026,13102,13110,13120,13973,14165,14171,14201,14209,14622,16315,16363,16369,17014,17015,17497,17548,18378,18380,18548,18549,18684,18817,18932,19010,19537,19553,19683,19753,19995,20305,20318,20320,20592,20606,20617,20645,20651,20672,20775,20874,20909,20945,20949,21015,21018,21049,21128,21373,21913,21925,21958,21959,21992,22106,22107,22170,22174],
+      "indicesSha256": "521448948f737e05951e06d3d5ff286eed74343c62df6b1d6b15e3e4f31e5647",
+      "residueIdentitiesSha256": "fe1e68f2de8177b14c605dc57e0566a08bf891acadb0b3407cf9e2927ff82867"
+    },
+    "after": {
+      "units": 61,
+      "residues": 485,
+      "indices": [11275,12210,12768,13026,13102,13110,13120,13973,14165,14171,14201,14209,14622,16315,16363,16369,17014,17015,17497,17548,18378,18380,18548,18549,18684,18817,18932,19010,19537,19553,19683,19753,19995,20305,20318,20320,20592,20606,20617,20645,20651,20672,20775,20874,20909,20945,20949,21015,21018,21049,21128,21373,21913,21925,21958,21959,21992,22106,22107,22170,22174],
+      "indicesSha256": "2191faf37ce07cb69c2c7b35719b5d42878b01cd46ac643478231679dbaf5ce4",
+      "residueIdentitiesSha256": "384212b11533867fc51dc9bea326a515ac4f20e2f4cc79464294d7665bf61288"
+    }
+  },
+  "provenance": {
+    "classification": "authentic-source-gap",
+    "sourceNameStatus": "unicodeStringToRegex is an explicit recovered semantic name; no authenticated target source map exposes the upstream private identifier.",
+    "scope": "One source file, one existing named import, and exactly three declarations. Caller files and the retained string utility implementation remain byte-identical."
+  }
+}

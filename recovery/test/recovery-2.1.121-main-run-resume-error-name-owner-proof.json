@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-main-run-cli-resume-error-name-row-scoped-retained-static-owner-v1",
+  "status": "case-owned-row-scoped-static-owner-evidence",
+  "claim": "The u22106 error_name row at 13823208..13823218 is the final property in the CLI-resume failure telemetry catch. That complete Target121 catch and its enclosing try statement are identifier-normalized identical to Target120. Target121 separately adds u7086 reportRenderError, whose error_name property at 3216074 is the only new occurrence and shifts the retained CLI-resume property from occurrence 13 to 14. The exact Target120, raw Target121, and packaged Target121 authored main.tsx catch graphs are also byte-identical, but all omit failure_reason and error_name. Because no authenticated Target121 source transition exists, replay would invent source. This static case admits only the retained ordinal-spill row, preserves every strict row, and exports no whole-unit override.",
+  "evidenceIds": [
+    "target121-main-run-resume-error-name-authenticated-retention",
+    "target121-main-run-resume-error-name-source-owner-graph",
+    "target121-main-run-resume-error-name-replay-blocker",
+    "target121-main-run-resume-error-name-row-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-resume-error-name-owner-evidence.mjs",
+      "bytes": 1983,
+      "sha256": "ddc4c43e1b11450e3636cbf02d0431dd1983feeb38d99ee0a3c282cfec5380a8"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostDangerousSnapshot": {
+      "method": "The row identity, u22106 counts, and shared artifact descriptors are reused from the one immutable snapshot taken before the paired index/error_name case edits. This proof never reopens the report or coverage files.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      },
+      "u22106Counts": {"owner":199,"added":15,"strict":8,"unclassified":0},
+      "selectedRow": [22106,"property","error_name",13823208,13823218,13,14,true],
+      "selectedRowDescriptor": {"bytes":60,"sha256":"d6de0269d7f6c2478d23ee4bdafe94ce38d34ca8d6d42eef2b5e3fe76643d028"},
+      "partitions": {"owner":true,"added":true,"strict":false,"unclassified":false},
+      "coverageRow": {
+        "targetIndex": 22106,
+        "start": 13779080,
+        "end": 13841990,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-main-tsx"],
+        "evidenceIds": ["source-map-attribution","semantic-test"],
+        "behavior": "Compiled target unit is attributed to src/main.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    },
+    "frozenPostPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"},
+      "u22106Counts": {"owner":199,"added":15,"strict":8,"unclassified":0},
+      "selectedRow": [22106,"property","error_name",13823208,13823218,13,14,true]
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "u22106Counts": {"owner":202,"added":18,"strict":9,"unclassified":0},
+      "selectedRow": [22106,"property","error_name",13823208,13823218,13,14,true]
+    },
+    "sourceRoots": {
+      "baseline": ".recovery-tmp/semantic-trees/2.1.120/src",
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "package": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "baselineUnit": {
+    "baselineUnitIndex": 22004,
+    "name": "Zh5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "start": 13711458,
+    "end": 13773044,
+    "bytes": 61586,
+    "tokenCount": 16389,
+    "sha256": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0",
+    "coarseHash": "4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0",
+    "line": 18786,
+    "column": 12
+  },
+  "targetUnit": {
+    "targetIndex": 22106,
+    "name": "WS5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 42,
+    "start": 13779080,
+    "end": 13841990,
+    "bytes": 62910,
+    "tokenCount": 16656,
+    "sha256": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+    "coarseHash": "c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1",
+    "line": 18764,
+    "column": 12
+  },
+  "insertedTargetUnit": {
+    "targetIndex": 7086,
+    "name": "TDK",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 0,
+    "start": 3215848,
+    "end": 3216206,
+    "bytes": 358,
+    "tokenCount": 123,
+    "sha256": "37df8020f451a47adb84593f5dddec273f8dba66702dc4e0173daf047c703bec",
+    "coarseHash": "f321d51a05fddfa8e6cb6f1942f4e4f6f4b774a527e6450a8dc383bf09d37e43",
+    "line": 486,
+    "column": 895
+  },
+  "compiledRetention": {
+    "occurrences": {
+      "baseline": [4382646,5007055,5007143,5007306,5007505,10740522,11792739,12762313,12893300,13635511,13641223,13754232,13755040],
+      "target": [3216074,4397941,5020728,5020816,5020979,5021178,10808948,11873556,12824432,12957155,13702506,13708489,13822400,13823208],
+      "insertedTargetStart": 3216074,
+      "retainedBaselineStart": 13755040,
+      "retainedTargetStart": 13823208
+    },
+    "insertedRenderError": {
+      "unit": {"start":3215848,"end":3216206,"bytes":358,"sha256":"37df8020f451a47adb84593f5dddec273f8dba66702dc4e0173daf047c703bec"},
+      "property": {"start":3216074,"end":3216086,"bytes":12,"sha256":"c40626ee6e2681ac20625e7fb15e573132a26fbc030905b73f15956c1637598c"},
+      "eventObject": {"start":3216073,"end":3216161,"bytes":88,"sha256":"94474cae519f2718a9e2ad86e90fb5e63e9f75542eaf0f21f63348659f01c485"}
+    },
+    "retainedCatch": {
+      "baseline": {"start":13754952,"end":13755118,"bytes":166,"sha256":"7ad31a72146069f40eb40139189ccf948eccf87e9823aafcf2c1141aecec9ed9"},
+      "target": {"start":13823120,"end":13823286,"bytes":166,"sha256":"36474f178126a2d4d4a4420f973524d5de71bef96c9d04b4d394e7b49ee122a2"},
+      "identifierNormalizedTokens": {"count":53,"bytes":726,"sha256":"544c539ed533dcb443a69d73eee2b6aac8cd83b10e3f02e91a6cfa0447f89b3b"}
+    },
+    "retainedTry": {
+      "baseline": {"start":13754374,"end":13755118,"bytes":744,"sha256":"b305cdf8bea3bb9ad63b5ffb69cceb92a1978ef2fc79406289e71f827363ffc4"},
+      "target": {"start":13822542,"end":13823286,"bytes":744,"sha256":"3844c6f36ae36cdbd59e78f9a33307f60c4a2611d62461c89d99bcf3d83ec8eb"},
+      "identifierNormalizedTokens": {"count":228,"bytes":3072,"sha256":"701da2ad7709ff3add168fed7da85ca7aa533d120279bd0a5d9b1a781973920d"}
+    },
+    "telemetryObject": {
+      "baseline": {"start":13754988,"end":13755063,"bytes":75,"sha256":"aae5c47dae40b6bcaa11f5d5d9fd7aaece9f1d4294e78428d5a7dc1f92445edb"},
+      "target": {"start":13823156,"end":13823231,"bytes":75,"sha256":"158334a36cc7296c56efe8c6e4fb8e978826b597e16f23fdf678f5608551dd1a"},
+      "propertyNames": ["entrypoint","success","failure_reason","error_name"]
+    },
+    "errorNameProperty": {
+      "baseline": {"start":13755040,"end":13755062,"bytes":22,"sha256":"75d52b29188d51f1296198c6f1818854e2966d54ffbebb079f97f27f7328549a"},
+      "target": {"start":13823208,"end":13823230,"bytes":22,"sha256":"88a000fc621d8c852f4c5c5e50271d47afd541845179e6d36a497cc2196475d4"}
+    }
+  },
+  "sourceGraph": {
+    "baseline": {
+      "file": {"bytes":810851,"sha256":"48f7a1d89e4eecb42c26cde5058408b7a4a251a42d8e6566012d12fbe0502909"},
+      "try": {"start":189744,"end":191552,"bytes":1808,"sha256":"e1f3db4fefe83060de3992e451a47f7f5bbebb4bfb4182f9a9c698eb6f076d34"},
+      "catch": {"start":191237,"end":191552,"bytes":315,"sha256":"3b5387d66581a7263c81bb28cd9c396a39b0e7467352ea288424df29c9dc4bc9"},
+      "telemetryCall": {"start":191263,"end":191436,"bytes":173,"sha256":"c20cfe9213a3236a016a217149a65a858bd63e33bee48a5114b07e004ad546a3"},
+      "telemetryObject": {"start":191297,"end":191435,"bytes":138,"sha256":"54f80e5ef0d7ad8b1a9ac7253aed3f5f4bafc1e30dc6725290ef428091325d77"}
+    },
+    "states": [
+      {
+        "name": "raw-pre-prune",
+        "file": {"bytes":816314,"sha256":"c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"},
+        "try": {"start":194152,"end":195960,"bytes":1808,"sha256":"e1f3db4fefe83060de3992e451a47f7f5bbebb4bfb4182f9a9c698eb6f076d34"},
+        "catch": {"start":195645,"end":195960,"bytes":315,"sha256":"3b5387d66581a7263c81bb28cd9c396a39b0e7467352ea288424df29c9dc4bc9"},
+        "telemetryCall": {"start":195671,"end":195844,"bytes":173,"sha256":"c20cfe9213a3236a016a217149a65a858bd63e33bee48a5114b07e004ad546a3"},
+        "telemetryObject": {"start":195705,"end":195843,"bytes":138,"sha256":"54f80e5ef0d7ad8b1a9ac7253aed3f5f4bafc1e30dc6725290ef428091325d77"}
+      },
+      {
+        "name": "raw-post-prune",
+        "file": {"bytes":816431,"sha256":"187faabc7e71e80b8f8868df2375afb1f694695e4e43807296a284107a2dc29a"},
+        "try": {"start":194152,"end":195960,"bytes":1808,"sha256":"e1f3db4fefe83060de3992e451a47f7f5bbebb4bfb4182f9a9c698eb6f076d34"},
+        "catch": {"start":195645,"end":195960,"bytes":315,"sha256":"3b5387d66581a7263c81bb28cd9c396a39b0e7467352ea288424df29c9dc4bc9"},
+        "telemetryCall": {"start":195671,"end":195844,"bytes":173,"sha256":"c20cfe9213a3236a016a217149a65a858bd63e33bee48a5114b07e004ad546a3"},
+        "telemetryObject": {"start":195705,"end":195843,"bytes":138,"sha256":"54f80e5ef0d7ad8b1a9ac7253aed3f5f4bafc1e30dc6725290ef428091325d77"}
+      },
+      {
+        "name": "package-pre-prune",
+        "file": {"bytes":816786,"sha256":"ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"},
+        "try": {"start":194537,"end":196345,"bytes":1808,"sha256":"e1f3db4fefe83060de3992e451a47f7f5bbebb4bfb4182f9a9c698eb6f076d34"},
+        "catch": {"start":196030,"end":196345,"bytes":315,"sha256":"3b5387d66581a7263c81bb28cd9c396a39b0e7467352ea288424df29c9dc4bc9"},
+        "telemetryCall": {"start":196056,"end":196229,"bytes":173,"sha256":"c20cfe9213a3236a016a217149a65a858bd63e33bee48a5114b07e004ad546a3"},
+        "telemetryObject": {"start":196090,"end":196228,"bytes":138,"sha256":"54f80e5ef0d7ad8b1a9ac7253aed3f5f4bafc1e30dc6725290ef428091325d77"}
+      },
+      {
+        "name": "package-post-prune",
+        "file": {"bytes":816903,"sha256":"75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"},
+        "try": {"start":194537,"end":196345,"bytes":1808,"sha256":"e1f3db4fefe83060de3992e451a47f7f5bbebb4bfb4182f9a9c698eb6f076d34"},
+        "catch": {"start":196030,"end":196345,"bytes":315,"sha256":"3b5387d66581a7263c81bb28cd9c396a39b0e7467352ea288424df29c9dc4bc9"},
+        "telemetryCall": {"start":196056,"end":196229,"bytes":173,"sha256":"c20cfe9213a3236a016a217149a65a858bd63e33bee48a5114b07e004ad546a3"},
+        "telemetryObject": {"start":196090,"end":196228,"bytes":138,"sha256":"54f80e5ef0d7ad8b1a9ac7253aed3f5f4bafc1e30dc6725290ef428091325d77"}
+      }
+    ],
+    "authoredTelemetryProperties": ["entrypoint","success"],
+    "compiledOnlyRetainedProperties": ["failure_reason","error_name"],
+    "decision": "retained-compiled-static-proof-source-replay-blocked"
+  },
+  "rowBoundary": {
+    "admitted": [22106,"property","error_name",13823208,13823218,13,14,true],
+    "descriptor": {"bytes":60,"sha256":"d6de0269d7f6c2478d23ee4bdafe94ce38d34ca8d6d42eef2b5e3fe76643d028"},
+    "ownerPaths": ["main.tsx"],
+    "ownerSourceMatches": [],
+    "strictRowDelta": 0,
+    "wholeUnitOverride": false
+  },
+  "cumulativeAccounting": {
+    "postDangerousActual": {"owner":199,"added":15,"strict":8},
+    "afterFirstAllowed": {"owner":198,"added":14,"strict":8},
+    "afterSecondAllowed": {"owner":197,"added":13,"strict":8},
+    "afterGrowthbook300": {"owner":196,"added":12,"strict":8},
+    "afterSeparateSessionState": {"owner":195,"added":11,"strict":8},
+    "afterIndex": {"owner":194,"added":10,"strict":8},
+    "afterThisErrorName": {"owner":193,"added":9,"strict":8},
+    "thisAdmissionDelta": {"owner":-1,"added":-1,"strict":0,"coverage":0}
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "sourceFiles": 0,
+    "wholeUnitOverride": false,
+    "sourceReplay": false,
+    "rawStrictRowsRemoved": 0
+  }
+}

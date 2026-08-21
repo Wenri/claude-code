@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-skill-tool-active-skill-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-skill-tool-active-skill-authenticated-whole-unit",
+    "target121-skill-tool-active-skill-telemetry-semantic-boundary",
+    "target121-skill-tool-active-skill-source-type-graph-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26946668,
+      "sha256": "e73e33d343c8fb084191d78d538efebf87dd4e9902cf6ff8546e65f5ec383de5"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [13120],
+        "count": 1,
+        "canonicalBytes": 1022,
+        "canonicalSha256": "0a5a8c3c6af46a0385414dc6290af9f2e8de2ba650f17f900f731749c9caae4f"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 13120,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 2,
+    "reportedOwner": "tools/SkillTool/SkillTool.ts",
+    "correctedOwner": "src/tools/SkillTool/SkillTool.ts",
+    "declaration": "SkillTool",
+    "nodeType": "VariableDeclaration",
+    "start": 8098801,
+    "end": 8105254,
+    "tokenCount": 2157,
+    "topDefinitionCount": 1,
+    "factoryBodyStatementCount": 28,
+    "bytes": 6453,
+    "sha256": "e2d37e5d56e366f4b2097060bd1f3382ffacda971143fed49220a0dfbd6e4b96",
+    "coarseHash": "7ce15a9fa3e942f0ed9604a3ddb9ce14ad395a7b559cf96bf622dc522fdeee01",
+    "line": 3167,
+    "column": 3789
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 13009,
+    "classification": "unmatched-baseline",
+    "relation": "direct SkillTool predecessor authenticated by the same schemas, validation and permission methods, processPromptSlashCommand call, invocation event, message filtering, context modifier, renderers, and safe-property set",
+    "nodeType": "VariableDeclaration",
+    "start": 8036560,
+    "end": 8043154,
+    "tokenCount": 2193,
+    "topDefinitionCount": 1,
+    "factoryBodyStatementCount": 28,
+    "bytes": 6594,
+    "sha256": "7af299c4442c8f334d42c15d1a86f648a93fd41f8db98628a5bfa991c1180b44",
+    "coarseHash": "34c3642f15fd02858661af9efcdd280d42ac88fe0ca0d98e4c6116f7bf6a50cb",
+    "line": 3158,
+    "column": 3910
+  },
+  "ownerResidues": {
+    "reportedOwner": "tools/SkillTool/SkillTool.ts",
+    "correctedOwner": "src/tools/SkillTool/SkillTool.ts",
+    "totalRows": 14,
+    "targetAddedRows": 1,
+    "strictRows": 1,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {
+      "bytes": 887,
+      "sha256": "35aedf6ca59135609536c8a78222756ecb3d246fc58afb4c4655e31924aed2f8"
+    },
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 52,
+      "sha256": "2043508501df189dc4f7c4afe961b3976714827c9fa165b5833e45f1f8d00700"
+    },
+    "strictRowsExact": [
+      [13120, "property", "activeSkill", 8102515, 8102526, 3]
+    ]
+  },
+  "wholeUnitSemanticDelta": {
+    "rawByteDelta": -141,
+    "tokenDelta": -36,
+    "canonicalization": "Acorn 8.15 AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+    "baselineCanonical": {
+      "bytes": 84963,
+      "sha256": "a4451fdd70e5f46dba9d06e22850324d2d126a9390c3a455d1c7536cb5cb155d"
+    },
+    "targetCanonical": {
+      "bytes": 83274,
+      "sha256": "0bccb0cc95e490c577ac4705b4ddc02ee75060cef7f5246263b086e81fe0b32b"
+    },
+    "callBoundary": {
+      "baseline": {
+        "nodeType": "Property",
+        "start": 8040176,
+        "end": 8042263,
+        "bytes": 2087,
+        "sha256": "8cba5d1af04e6cacf2ee5b8348d998abb3051e9d734e8355737cf718dc7b8fae",
+        "canonicalSha256": "e5470ad51fe5653b1b3f251a4913aa948f7871c98e2bd122f1a47920a440afe5",
+        "bodyStatementCount": 8
+      },
+      "target": {
+        "nodeType": "Property",
+        "start": 8102416,
+        "end": 8104363,
+        "bytes": 1947,
+        "sha256": "446fd20805f526c4a3cb137b15ea7c1084794561d544214d580dd8eb89f0b71c",
+        "canonicalSha256": "8b2e4d2dadad892caf4bee424183a59f8f3cf66f62d462a790462cb2c5c84e61",
+        "bodyStatementCount": 10
+      }
+    },
+    "activeSkillAddition": {
+      "path": "SkillTool.call.body[1]",
+      "nodeType": "ExpressionStatement",
+      "start": 8102505,
+      "end": 8102529,
+      "bytes": 24,
+      "sha256": "1c93a14fae24e3736c56b3239cb1b7e8e23ff0730d18152085380655ce691c5e",
+      "canonicalSha256": "b2931de99c799326b52efe24edfe05160a4d26c3cd00b92519606ccf28300d32",
+      "exact": "q.options.activeSkill=f;",
+      "assignment": {
+        "nodeType": "AssignmentExpression",
+        "start": 8102505,
+        "end": 8102528,
+        "bytes": 23,
+        "sha256": "3105721b4cfe8147682bb943f06ac453453da09ecdb530b42ff34ba24006c84e",
+        "canonicalSha256": "a719ce00930bb8866f4a54b6141527b67d3ecbdcbde0d9ffa0ecf8a136e8845c",
+        "exact": "q.options.activeSkill=f"
+      }
+    },
+    "baselineOnlyMarketplaceDeclarator": {
+      "path": "SkillTool.call.body[4].declarations[8]",
+      "nodeType": "VariableDeclarator",
+      "start": 8040712,
+      "end": 8040793,
+      "bytes": 81,
+      "sha256": "62ce5386508da79cd2b09027f977cfdbd012f7d09c25079622e9c6f263d45e1c",
+      "canonicalSha256": "225f03a7b20f00e76edcfc847aa6aea4b456d14e6117474c9b540ded54495fcc",
+      "exact": "Z=O?.type===\"prompt\"&&O.pluginInfo?aq(O.pluginInfo.repository).marketplace:void 0"
+    },
+    "pluginTelemetrySubstitution": {
+      "path": "SkillTool.call invocation metadata final SpreadElement",
+      "baseline": {
+        "nodeType": "SpreadElement",
+        "start": 8041255,
+        "end": 8041519,
+        "bytes": 264,
+        "sha256": "4eabf7858bcf5315fa6ee853db3997c6a8763152b7b78b6d9581cae981bf0155",
+        "canonicalSha256": "0bf7f76f8aead4565b067b4f56d5995c89733b38540cc9c6a257b932f67a9bea",
+        "innerShape": [
+          "property:_PROTO_plugin_name",
+          "spread:_PROTO_marketplace_name",
+          "property:plugin_name",
+          "property:plugin_repository",
+          "spread:plugin-command-fields"
+        ]
+      },
+      "target": {
+        "nodeType": "SpreadElement",
+        "start": 8103441,
+        "end": 8103619,
+        "bytes": 178,
+        "sha256": "d64c3ace4c8c30b3c3e274baf8b8fba5a4627b4db490cb8b9ede5ccbf2e30a1b",
+        "canonicalSha256": "62b6d55a8eadc2f7f13576be7dd3f0196f78d9ee1e354f0ad91a2369ca0bf4b1",
+        "innerShape": [
+          "spread:plugin-command-fields",
+          "property:plugin_name",
+          "property:plugin_repository"
+        ]
+      },
+      "semanticChange": "Target121 removes privileged _PROTO_plugin_name and conditional _PROTO_marketplace_name metadata, removes the now-unused marketplace declarator, and moves the retained plugin-command-field spread before the two redacted plugin fields."
+    },
+    "transform": {
+      "operation": "Remove Target121 call body[1], merge Target121 body[2] declarations into body[0], remove the Target120 marketplace declarator, and remove each side's paired final pluginInfo telemetry spread; no other AST changes are permitted.",
+      "commonCanonical": {
+        "bytes": 80591,
+        "sha256": "7a355f53161e33cfc9c2dab4ebb053d676a18074f34650da543bbba5790c481b"
+      }
+    }
+  },
+  "sourceState": {
+    "path": "src/tools/SkillTool/SkillTool.ts",
+    "declarationName": "SkillTool",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "4375d4acc1f849645ef117073d5440e1468e328d",
+      "bytes": 41303,
+      "chars": 41277,
+      "sha256": "2320873f84b307582a361ff684296e806af601ca1c4422625c51c8e9d52789b4",
+      "declaration": {
+        "start": 13930,
+        "end": 33491,
+        "chars": 19561,
+        "bytes": 19573,
+        "sha256": "10957a0a3e8ac7cc077947c295d9107558e8ce237a4377d9eb6210c5c3fe2bcc",
+        "line": 382,
+        "endLine": 963
+      },
+      "callMethod": {
+        "start": 22835,
+        "end": 32695,
+        "chars": 9860,
+        "bytes": 9864,
+        "sha256": "2e844baba1c34aa52a38a3c821a6ef5aaa2eabb36cc7c23f4a9d76d6a7a14412",
+        "line": 662,
+        "endLine": 935
+      }
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "4375d4acc1f849645ef117073d5440e1468e328d",
+      "bytes": 41303,
+      "chars": 41277,
+      "sha256": "2320873f84b307582a361ff684296e806af601ca1c4422625c51c8e9d52789b4",
+      "declaration": {
+        "start": 13930,
+        "end": 33491,
+        "chars": 19561,
+        "bytes": 19573,
+        "sha256": "10957a0a3e8ac7cc077947c295d9107558e8ce237a4377d9eb6210c5c3fe2bcc",
+        "line": 382,
+        "endLine": 963
+      },
+      "callMethod": {
+        "start": 22835,
+        "end": 32695,
+        "chars": 9860,
+        "bytes": 9864,
+        "sha256": "2e844baba1c34aa52a38a3c821a6ef5aaa2eabb36cc7c23f4a9d76d6a7a14412",
+        "line": 662,
+        "endLine": 935
+      }
+    },
+    "declarationRelation": "Target120 and Target121 recovered SkillTool files, declarations, and call methods are byte-identical.",
+    "callMarkerCounts": {
+      "activeSkill": 0,
+      "_PROTO_plugin_name": 1,
+      "_PROTO_marketplace_name": 1,
+      "buildPluginCommandTelemetryFields": 1,
+      "pluginMarketplace": 3,
+      "processPromptSlashCommand": 3
+    },
+    "toolUseContext": {
+      "path": "src/Tool.ts",
+      "gitBlob": "b4d4a14be5c0f7e6c394472582f7d0c152622e93",
+      "bytes": 32845,
+      "chars": 32785,
+      "sha256": "514e104e5f5ddea0b3b8974b0845aff9efbb4344c63372f58fce79ff798b9739",
+      "declaration": {
+        "name": "ToolUseContext",
+        "start": 5962,
+        "end": 13940,
+        "chars": 7978,
+        "bytes": 7990,
+        "sha256": "31f973bb2749cc2f8907c437571fa78ebc5544b0775eddf2c334fb9154252877",
+        "line": 191,
+        "endLine": 373
+      },
+      "optionsMemberNames": {
+        "count": 21,
+        "bytes": 366,
+        "sha256": "2f9e559d5fd2a41adb5781524b05db63f5c0f8411b5104a342417354327db063"
+      },
+      "activeSkillOccurrences": 0,
+      "spawnedBySkillOccurrences": 0
+    },
+    "gitDonorAudit": {
+      "marker": "activeSkill",
+      "paths": [
+        "src/tools/SkillTool/SkillTool.ts",
+        "src/Tool.ts"
+      ],
+      "result": "no commit in either recovered Target120 or Target121 semantic-tree history contains activeSkill in the owner or ToolUseContext path"
+    }
+  },
+  "provenanceGraph": {
+    "baselineBundleOccurrences": 0,
+    "targetBundleOccurrences": 14,
+    "targetSourceOccurrences": 0,
+    "currentSkillToolProducer": {
+      "targetIndex": 13120,
+      "unitStart": 8098801,
+      "unitEnd": 8105254,
+      "unitBytes": 6453,
+      "unitSha256": "e2d37e5d56e366f4b2097060bd1f3382ffacda971143fed49220a0dfbd6e4b96",
+      "start": 8102505,
+      "end": 8102528,
+      "bytes": 23,
+      "sha256": "3105721b4cfe8147682bb943f06ac453453da09ecdb530b42ff34ba24006c84e",
+      "exact": "q.options.activeSkill=f"
+    },
+    "siblingSlashCommandProducer": {
+      "targetIndex": 13110,
+      "unitStart": 8094697,
+      "unitEnd": 8095529,
+      "unitBytes": 832,
+      "unitSha256": "34862df67f6ad400d745e9197a61af24315e821ee80e46d7bb676224f9dbb313",
+      "start": 8095051,
+      "end": 8095079,
+      "bytes": 28,
+      "sha256": "d454181a9baaa2d518f080f6050a8e7701d382cbe77212379a35401f866bcb4a",
+      "exact": "q.options.activeSkill=H.name"
+    },
+    "downstreamAgentToolConsumer": {
+      "targetIndex": 13026,
+      "unitStart": 8053208,
+      "unitEnd": 8071208,
+      "unitBytes": 18000,
+      "unitSha256": "aba1f72dd4736702f5acde6677c2a158521d4cb622a47bf6df46b81f1bdc3b81",
+      "start": 8060710,
+      "end": 8060772,
+      "bytes": 62,
+      "sha256": "0f85cb208f5014336d906478babe9ad6903a19b00bca0a3f1eadbd5434c6ad1a",
+      "exact": "spawnedBySkill:M.options.spawnedBySkill??M.options.activeSkill"
+    },
+    "boundary": "This proof owns only u13120 occurrence 3. The already-proven u13110 producer and u13026 consumer are pinned only as graph evidence; all other activeSkill residues remain fail-closed obligations."
+  },
+  "generatorWiring": {
+    "replayHelper": null,
+    "ownerOverrideExport": "TARGET121_SKILL_TOOL_ACTIVE_SKILL_OWNER_OVERRIDES"
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 55,
+      "unsupportedResidues": 472,
+      "firstTargetIndex": 13120,
+      "productionTupleSha256": "e94a262792281055c8fcd3736663bb20f973140bd81685354185a45f914a39a8"
+    },
+    "removes": {
+      "targetIndices": [13120],
+      "units": 1,
+      "residueCount": 1,
+      "residues": [
+        [13120, "property", "activeSkill", 8102515, 8102526, 3]
+      ]
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 54,
+      "unsupportedResidues": 471
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The recovered Target121 SkillTool is byte-identical to Target120, preserves the baseline-only privileged plugin telemetry shape, and omits activeSkill; ToolUseContext has no activeSkill member, while both sibling producer and downstream consumer are absent from source. Replaying only the assignment would be unauthenticated, type-incomplete, and would leave the target unit's independent telemetry substitution unexplained."
+  }
+}

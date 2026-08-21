@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "targetIndex": 6497,
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+    "bytes": 13234618,
+    "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+  },
+  "targetUnit": {
+    "start": 2986514,
+    "end": 2989241,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "0bdcfa34bd56ac5b0c6846e5a4e0d88f149ce6de119b9bead8149f21a7c7c811"
+  },
+  "residue": {
+    "literalKind": "property",
+    "value": "session_kind",
+    "start": 2989218,
+    "end": 2989230,
+    "targetOccurrenceNumber": 1,
+    "baselineOccurrenceCount": 0
+  },
+  "sessionKindGetter": {
+    "name": "K7H",
+    "start": 2054117,
+    "end": 2054139,
+    "sha256": "dd3dcf01e0f63ed0790ce0f1fb70b6d3868ce50a0262c32f816a4235bf433f47",
+    "text": "function K7H(){return}",
+    "identifierOffsets": [2054126, 2054160, 2054223, 2985931, 10437941, 11121186],
+    "callOffsets": [2054160, 2054223, 2985931, 10437941, 11121186]
+  },
+  "metadataProducer": {
+    "name": "TR$",
+    "start": 2985770,
+    "end": 2986514,
+    "sha256": "6e200a113e41124ddef51862561a7be93cc083c079584fc8972a9ef0ec8676a1",
+    "requiredFragments": [
+      "f=K7H()",
+      "...f&&{sessionKind:f}"
+    ]
+  },
+  "metadataFormatter": {
+    "name": "C8K",
+    "start": 2986514,
+    "end": 2989241,
+    "sha256": "0bdcfa34bd56ac5b0c6846e5a4e0d88f149ce6de119b9bead8149f21a7c7c811",
+    "identifierOffsets": [2986523, 2999133],
+    "requiredFragments": [
+      "sessionKind:M",
+      "...M&&{session_kind:M}"
+    ]
+  },
+  "historicalSource": {
+    "path": "src/services/analytics/metadata.ts",
+    "bytes": 32617,
+    "sha256": "d034fde16f98ca6d65d843d30900a1b3374050ae65714caaa200abbf849f6fb4"
+  },
+  "evidenceIds": [
+    "target118-session-kind-dce-target-fragment",
+    "target118-session-kind-dce-static-binding-test"
+  ],
+  "category": "statically-disabled-session-kind-telemetry",
+  "reason": "The authenticated Target118 session-kind getter has a single bare return and therefore always yields undefined. The sole metadata producer conditionally adds sessionKind only when that getter is truthy, so the formatter's conditional session_kind property cannot be emitted by the complete internal binding graph."
+}

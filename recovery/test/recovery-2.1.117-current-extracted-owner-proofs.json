@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-current-extracted-owner-direct-declaration-v1",
+  "status": "case-owned-override-ready",
+  "evidenceIds": [
+    "target117-current-extracted-owner-target-fragment",
+    "target117-current-extracted-owner-static-ast"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/current-extracted-owner-overrides.mjs",
+      "bytes": 2042,
+      "sha256": "cb5d1021f855b78b4b0d0516b3db57bb72d0978a6bf84afa1ed134e571a9b54b"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "authenticatedRecoveredSourceCommit": "983f36c6565dec91284019146f24f7a9bd75dd2b"
+  },
+  "summary": {
+    "units": 5,
+    "residues": 12,
+    "recoveredExtractedOwners": 2,
+    "recoveredCorrectedOwners": 3,
+    "ownerOverrides": 5
+  },
+  "targets": [
+    [14883,"changed","VariableDeclaration",9290931,9293799,"7786a99a5074102f603a454deb1d8b9d965add7aec108ceab13afc3177ee75a8"],
+    [15220,"unresolved","FunctionDeclaration",9439396,9442307,"7ddc71736091138c1b84a91813faf90af200567a42779d71ccf49dd2115bd6ab"],
+    [16801,"changed","FunctionDeclaration",10535902,10536951,"89fc338d846fd4e3988be0fbef0196b2b21e63ab175137165ff1fb5d2ed33d56"],
+    [18925,"changed","FunctionDeclaration",11628208,11632406,"350e5f2c2c5b244d6fc6c96a710af8eb7d7390ad48d1a48917ef211576157523"],
+    [19754,"unresolved","VariableDeclaration",11989348,11989572,"20ab9362d3b585797a6ecdc364ad6a9039e9cd91fc9450a255e4478d123713a3"]
+  ],
+  "rows": [
+    {
+      "targetIndex": 14883,
+      "classification": "recovered-extracted",
+      "owner": "src/tools/BashTool/bashPermissions.ts",
+      "declaration": "WRAPPER_VALUE_FLAGS",
+      "declarationNodeType": "VariableDeclaration",
+      "file": ["4a41abaf0cb9e921789c49180aa15dbffab356c0",115151,"481ecf08f97b5308bef940f2af34d2efa6e8cccf7ac3a730797cf45e81ab91f5"],
+      "source": [2321,"66c9826790cbc8508ba3e665e44823fe353e5b121837453a6cc0841c2f70c4af"],
+      "rawDeclaration": null,
+      "semanticIdentities": [["property","env"],["string","--unset"],["property","sudo"],["string","--command-timeout"],["property","strace"],["string","--summary-sort-by"],["property","ltrace"],["property","flock"],["string","--conflict-exit-code"],["property","unshare"],["string","--setgroups"],["property","nsenter"],["string","--target"],["property","exec"],["property","command"]],
+      "residues": [["string","-o",9292944,9292948,20],["string","-u",9292959,9292963,25],["string","-o",9293178,9293182,21],["string","-O",9293183,9293187,8],["string","-S",9293450,9293454,20],["string","-G",9293455,9293459,10],["string","-a",9293509,9293513,30],["string","-S",9293555,9293559,21]]
+    },
+    {
+      "targetIndex": 15220,
+      "classification": "recovered-corrected",
+      "owner": "src/commands/btw/btw.tsx",
+      "declaration": "BtwSideQuestion",
+      "declarationNodeType": "FunctionDeclaration",
+      "file": ["8278eae39d77d4b6868737abeff5c216087ed351",10786,"4f893c589c9ca1a3375b185313130ec17ac3b6d9bc9fa4ac699dfa21f515f085"],
+      "source": [5925,"d8f7e11d161e7ea12372ce5d18e0de6b84dbe958af5ca434a259e72e0cf82988"],
+      "rawDeclaration": [4129,"92383d119abeb23b4caa86a52af3fb343be32f703c7283bb4d3166ea6deea353"],
+      "semanticIdentities": [["property","question"],["property","context"],["property","onDone"],["property","branchAndResume"],["property","extraMessages"],["property","parentController"],["property","onRetry"],["property","retryAt"],["property","scrollBy"],["string","No response received"],["string","Failed to get response"],["string","scroll"],["string","fork"],["string","clear history"],["string","dismiss"]],
+      "residues": [["string","scroll",9442111,9442119,28]]
+    },
+    {
+      "targetIndex": 16801,
+      "classification": "recovered-extracted",
+      "owner": "src/components/skills/SkillsMenu.tsx",
+      "declaration": "SkillRow",
+      "declarationNodeType": "FunctionDeclaration",
+      "file": ["30c732a5ceb92266711c5e9a5b24d84b0a348427",13569,"6a838bc30d84bec36e2a2933eee813b6b3fb68b447c16ab6516121801c262770"],
+      "source": [848,"b5db1030575abc435b073740ed12a68fea9c24a7943efac91ac0bb689afea336"],
+      "rawDeclaration": null,
+      "semanticIdentities": [["property","skill"],["property","lock"],["property","state"],["property","label"],["property","padEnd"],["property","color"],["property","glyph"],["property","source"],["string","suggestion"],["property","name"]],
+      "residues": [["property","skill",10535935,10535940,30]]
+    },
+    {
+      "targetIndex": 18925,
+      "classification": "recovered-corrected",
+      "owner": "src/components/permissions/PowerShellPermissionRequest/PowerShellPermissionRequest.tsx",
+      "declaration": "PowerShellPermissionRequest",
+      "declarationNodeType": "FunctionDeclaration",
+      "file": ["166b87e8c61f1f200a51c037a55ca9ed2776cf09",39229,"b71bafe83f1d7689f7e3a9d7714c9317a1f6f2e277172db29d3d9d7c3196e8f7"],
+      "source": [9220,"a1451ab3080160e85ec63404154836db4271094bb0b522daf02f2447029b08a3"],
+      "rawDeclaration": [8828,"fae18f8b73c49a099eaff71cd8b5f7eb019aee1e93541993dc2aba32531b3bf1"],
+      "semanticIdentities": [["property","toolUseConfirm"],["property","toolUseContext"],["property","onDone"],["property","onReject"],["property","command"],["property","permissionResult"],["property","behavior"],["property","onAllow"],["property","rules"],["property","destination"],["string","localSettings"],["string","tengu_destructive_command_warning"],["string","tool_use_single"],["string","tengu_permission_request_option_selected"],["string","PowerShell command"],["string","ctrl+d"],["string","hide debug info"],["string","-"],["string","warning"],["string","escape"],["string","cancel"],["string","tab"],["string","amend"],["string","ctrl+e"],["string","explain"],["string","show debug info"]],
+      "residues": [["string","-",11631383,11631386,461]]
+    },
+    {
+      "targetIndex": 19754,
+      "classification": "recovered-corrected",
+      "owner": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+      "declaration": "inputToResponse",
+      "declarationNodeType": "VariableDeclaration",
+      "file": ["22708b4543f698f98d41cb0a331eb6bd06db1699",2601,"1da72207a983bf60939be8668f98522382e224aff0d02e5ffadbdc87f771db4f"],
+      "source": [115,"a8f0ff8a94ed8f9934517bb09b92800cf04c486561ecc9e83679fceb6f88d9ea"],
+      "rawDeclaration": [129,"67bd36bb515d59eb34ed4ed32b1b98bc5a1da4185cfbbb22fd6c7f698faa3188"],
+      "semanticIdentities": [["property","y"],["string","yes"],["property","n"],["string","no"],["property","d"],["string","dont_ask_again"]],
+      "residues": [["property","y",11989434,11989435,174]]
+    }
+  ]
+}

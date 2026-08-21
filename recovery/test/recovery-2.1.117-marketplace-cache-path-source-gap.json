@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-marketplace-cache-path-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-marketplace-cache-path-target-fragment",
+    "target116-marketplace-cache-path-baseline-fragment",
+    "target117-marketplace-cache-path-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-marketplace-cache-path-sanitization-source-gap.mjs",
+      "bytes": 5713,
+      "sha256": "37d5de4e1cb00a01c0220c3cec544530d42154716e73c71005acd12c943925b3"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFile": {
+      "path": "src/utils/plugins/marketplaceManager.ts",
+      "blob": "802cf6c845fa452d1fdb3bb2fe8264bc28ef5b7e",
+      "input": {
+        "bytes": 94088,
+        "sha256": "5084bdc593ba7cbb33320f6de1cd200e36cba444ab37479d05ea48c50bc020a0"
+      },
+      "output": {
+        "bytes": 94174,
+        "sha256": "65fd661ac83fb2e90569dd363f88104116faabac99eff72634bd121f79b39231"
+      },
+      "inputDeclaration": {
+        "name": "getCachePathForSource",
+        "nodeType": "FunctionDeclaration",
+        "start": 48194,
+        "end": 48664,
+        "bytes": 470,
+        "sha256": "4937d3e61a724915ab468800d141ec1d8c4e1d4af310a4421759231fcb7f3873"
+      },
+      "outputDeclaration": {
+        "name": "getCachePathForSource",
+        "nodeType": "FunctionDeclaration",
+        "start": 48194,
+        "end": 48750,
+        "bytes": 556,
+        "sha256": "9c71e1cdc2ea57546c095165d179c4b6edf06e567bc2d3311b2314a1bb93feb7"
+      }
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1
+  },
+  "baselineWitness": {
+    "baselineUnit": [
+      13923,
+      "unmatched",
+      "FunctionDeclaration",
+      8783512,
+      8783759,
+      93,
+      "d4541686512ea1e02d3fb2845e3170d2f1e80afa2b3a1fceb79f76a8176a2e6e",
+      "e36c23140c65cc8df9149475c7572956d92d5743bf46145370ad3eed1f2e9371"
+    ],
+    "exactSource": "function rf1(H){return H.source===\"github\"?H.repo.replace(\"/\",\"-\"):H.source===\"npm\"?H.package.replace(\"@\",\"\").replace(\"/\",\"-\"):H.source===\"file\"?a_.basename(H.path).replace(\".json\",\"\"):H.source===\"directory\"?a_.basename(H.path):\"temp_\"+Date.now()}"
+  },
+  "row": {
+    "targetIndex": 13991,
+    "owner": "src/utils/plugins/marketplaceManager.ts",
+    "declarations": [
+      "getCachePathForSource"
+    ],
+    "targetUnit": [
+      13991,
+      "unresolved",
+      "FunctionDeclaration",
+      8804138,
+      8804459,
+      119,
+      "bcdb50f8886e824e41b242066c6597b536a608da15ed7ee6ab9a54397ee3a5f3",
+      "17643444f3ffb33de042c5b46b1702f5371ab31090360104355b47679682e05e"
+    ],
+    "exactSource": "function X31(H){let q=(H.source===\"github\"?H.repo.replaceAll(\"/\",\"-\"):H.source===\"npm\"?H.package.replace(\"@\",\"\").replaceAll(\"/\",\"-\"):H.source===\"file\"?e_.basename(H.path).replace(\".json\",\"\"):H.source===\"directory\"?e_.basename(H.path):\"temp_\"+Date.now()).replace(/[^a-zA-Z0-9\\-_]/g,\"-\");return q===\"\"?\"temp_\"+Date.now():q}",
+    "residues": [
+      [
+        "regexp",
+        {
+          "pattern": "[^a-zA-Z0-9\\-_]",
+          "flags": "g"
+        },
+        8804400,
+        8804418,
+        5,
+        4
+      ]
+    ]
+  }
+}

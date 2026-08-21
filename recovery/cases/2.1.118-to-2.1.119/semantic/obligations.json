@@ -287,8 +287,8 @@
     {
       "id": "adjacent",
       "path": "recovery/test/recovery-2.1.119-adjacent-direct-evidence.test.mjs",
-      "bytes": 8552,
-      "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19",
+      "bytes": 9365,
+      "sha256": "3bdcd30bcc12fbb34c080a59b713703fd96bf0fc57452cb3e3a414f8c33f78d7",
       "evidence": [
         {
           "path": "recovery/cases/2.1.118-to-2.1.119/semantic/adjacent-direct-evidence.json",
@@ -303,14 +303,14 @@
     {
       "id": "hidden",
       "path": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs",
-      "bytes": 16288,
-      "sha256": "fa42e2079042bc67f3a4696e598ca6eb159e57fa777bf423097ab0b0de54a395"
+      "bytes": 16646,
+      "sha256": "1197a31f69e0ffc113c5d3518be7bbfd378ca3f7970b19d2a20825625cedb237"
     },
     {
       "id": "daemon",
       "path": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs",
-      "bytes": 35270,
-      "sha256": "ed7c20916459b0857213e4ff69a19b5789f8665f4da549847bf838d4790d4047"
+      "bytes": 37338,
+      "sha256": "3b7b3abed447197cb79e1a9a873b4a4f8d5e476a440ef7228b2f4e075ec1e2f8"
     },
     {
       "id": "prompts",
@@ -333,8 +333,8 @@
     {
       "id": "background",
       "path": "recovery/test/recovery-2.1.119-background-stop.test.mjs",
-      "bytes": 9880,
-      "sha256": "ffe48c68c1653a4153e552cf41fff3bd3f58f951d8fa67d0a01651a11058a0a8"
+      "bytes": 10238,
+      "sha256": "cc3bd5076077fa26414656108c16d605f9ddc55840c79188cf066b828814823a"
     }
   ],
   "obligations": [

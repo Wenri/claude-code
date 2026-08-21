@@ -1,0 +1,1251 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-agent-tool-skill-provenance-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-agent-tool-authenticated-whole-unit",
+    "target121-agent-tool-prompt-telemetry-and-skill-provenance-ast",
+    "target121-agent-tool-source-and-dependent-graph-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26946668,
+      "sha256": "e73e33d343c8fb084191d78d538efebf87dd4e9902cf6ff8546e65f5ec383de5"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [13026],
+        "count": 1,
+        "canonicalBytes": 925,
+        "canonicalSha256": "3c2d246b570fe9572cedfacfe9db84c2dfdcae614ae21bb7f149021a964df93a"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 13026,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 5,
+    "correctedOwner": "src/tools/AgentTool/AgentTool.tsx",
+    "declaration": "AgentTool",
+    "moduleInitializerCallCount": 49,
+    "nodeType": "VariableDeclaration",
+    "start": 8053208,
+    "end": 8071208,
+    "tokenCount": 5687,
+    "topDefinitionCount": 1,
+    "bytes": 18000,
+    "sha256": "aba1f72dd4736702f5acde6677c2a158521d4cb622a47bf6df46b81f1bdc3b81",
+    "coarseHash": "fb5532e623061769bef95f51ba7b340ecd321ada47f6b121509d549a96696318"
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 12915,
+    "classification": "unmatched-baseline",
+    "relation": "direct semantic predecessor authenticated by the same distinctive AgentTool schema, MCP failure text, selection event, and call pipeline",
+    "moduleInitializerCallCount": 47,
+    "nodeType": "VariableDeclaration",
+    "start": 7990868,
+    "end": 8008695,
+    "tokenCount": 5627,
+    "topDefinitionCount": 1,
+    "bytes": 17827,
+    "sha256": "02521f153fce58db8f351006a5c0550fcf0979cef72c65f388c4bee9c81946b6",
+    "coarseHash": "587d33a8571569d414efe4433ab94edf08a81fb2de5cabe6b3525e00f851a5cd"
+  },
+  "ownerResidues": {
+    "reportedOwner": "tools/AgentTool/AgentTool.tsx",
+    "correctedOwner": "src/tools/AgentTool/AgentTool.tsx",
+    "totalRows": 46,
+    "targetAddedRows": 4,
+    "strictRows": 4,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {
+      "bytes": 2665,
+      "sha256": "31a53f0903e711287864f034955cb0a6a252a7efab6148d4fc67f48420d171df"
+    },
+    "targetAddedRowIdentities": {
+      "bytes": 229,
+      "sha256": "92796de4c662264c5df1c8b6b03abfb9fe3ab7af8cfc8cfe8b99df395c8eaf8f"
+    },
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 225,
+      "sha256": "be450f2b40f7c5cdd3da76b61218344d0ca5f17d305592b5d2fb9cf8f7b9a362"
+    },
+    "rows": [
+      {
+        "literalKind": "property",
+        "value": "agents",
+        "baselineOccurrenceCount": 104,
+        "targetOccurrenceNumber": 24,
+        "targetAdded": false,
+        "start": 8055638,
+        "end": 8055644
+      },
+      {
+        "literalKind": "property",
+        "value": "getToolPermissionContext",
+        "baselineOccurrenceCount": 69,
+        "targetOccurrenceNumber": 10,
+        "targetAdded": false,
+        "start": 8055655,
+        "end": 8055679
+      },
+      {
+        "literalKind": "property",
+        "value": "allowedAgentTypes",
+        "baselineOccurrenceCount": 20,
+        "targetOccurrenceNumber": 2,
+        "targetAdded": false,
+        "start": 8055682,
+        "end": 8055699
+      },
+      {
+        "literalKind": "property",
+        "value": "taskRegistry",
+        "baselineOccurrenceCount": 87,
+        "targetOccurrenceNumber": 26,
+        "targetAdded": false,
+        "start": 8056265,
+        "end": 8056277
+      },
+      {
+        "literalKind": "property",
+        "value": "allowedAgentTypes",
+        "baselineOccurrenceCount": 20,
+        "targetOccurrenceNumber": 3,
+        "targetAdded": false,
+        "start": 8057336,
+        "end": 8057353
+      },
+      {
+        "literalKind": "property",
+        "value": "concat",
+        "baselineOccurrenceCount": 276,
+        "targetOccurrenceNumber": 219,
+        "targetAdded": false,
+        "start": 8058515,
+        "end": 8058521
+      },
+      {
+        "literalKind": "string",
+        "value": ". MCP servers with tools: ",
+        "baselineOccurrenceCount": 1,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8058754,
+        "end": 8058780
+      },
+      {
+        "literalKind": "string",
+        "value": ". Use /mcp to configure and authenticate the required MCP servers.",
+        "baselineOccurrenceCount": 1,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8058813,
+        "end": 8058879
+      },
+      {
+        "literalKind": "property",
+        "value": "markTypeInvoked",
+        "baselineOccurrenceCount": 3,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8058992,
+        "end": 8059007
+      },
+      {
+        "literalKind": "property",
+        "value": "agentLifecycle",
+        "baselineOccurrenceCount": 13,
+        "targetOccurrenceNumber": 3,
+        "targetAdded": false,
+        "start": 8058977,
+        "end": 8058991
+      },
+      {
+        "literalKind": "property",
+        "value": "plugin",
+        "baselineOccurrenceCount": 211,
+        "targetOccurrenceNumber": 65,
+        "targetAdded": false,
+        "start": 8059079,
+        "end": 8059085
+      },
+      {
+        "literalKind": "property",
+        "value": "agent_system_prompt_chars",
+        "baselineOccurrenceCount": 0,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": true,
+        "start": 8059276,
+        "end": 8059301
+      },
+      {
+        "literalKind": "property",
+        "value": "marketplace",
+        "baselineOccurrenceCount": 173,
+        "targetOccurrenceNumber": 39,
+        "targetAdded": false,
+        "start": 8059329,
+        "end": 8059340
+      },
+      {
+        "literalKind": "property",
+        "value": "concat",
+        "baselineOccurrenceCount": 276,
+        "targetOccurrenceNumber": 220,
+        "targetAdded": false,
+        "start": 8060425,
+        "end": 8060431
+      },
+      {
+        "literalKind": "property",
+        "value": "skipReplFilter",
+        "baselineOccurrenceCount": 4,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8060436,
+        "end": 8060450
+      },
+      {
+        "literalKind": "property",
+        "value": "spawnedBySkill",
+        "baselineOccurrenceCount": 0,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": true,
+        "start": 8060710,
+        "end": 8060724
+      },
+      {
+        "literalKind": "property",
+        "value": "spawnedBySkill",
+        "baselineOccurrenceCount": 0,
+        "targetOccurrenceNumber": 2,
+        "targetAdded": true,
+        "start": 8060735,
+        "end": 8060749
+      },
+      {
+        "literalKind": "property",
+        "value": "activeSkill",
+        "baselineOccurrenceCount": 0,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": true,
+        "start": 8060761,
+        "end": 8060772
+      },
+      {
+        "literalKind": "property",
+        "value": "forksParentContext",
+        "baselineOccurrenceCount": 2,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8061024,
+        "end": 8061042
+      },
+      {
+        "literalKind": "string",
+        "value": "turn",
+        "baselineOccurrenceCount": 4,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8061045,
+        "end": 8061051
+      },
+      {
+        "literalKind": "property",
+        "value": "slice",
+        "baselineOccurrenceCount": 1958,
+        "targetOccurrenceNumber": 993,
+        "targetAdded": false,
+        "start": 8061063,
+        "end": 8061068
+      },
+      {
+        "literalKind": "property",
+        "value": "turnStartIndex",
+        "baselineOccurrenceCount": 10,
+        "targetOccurrenceNumber": 2,
+        "targetAdded": false,
+        "start": 8061071,
+        "end": 8061085
+      },
+      {
+        "literalKind": "property",
+        "value": "forksParentContext",
+        "baselineOccurrenceCount": 2,
+        "targetOccurrenceNumber": 2,
+        "targetAdded": false,
+        "start": 8061089,
+        "end": 8061107
+      },
+      {
+        "literalKind": "property",
+        "value": "headCommit",
+        "baselineOccurrenceCount": 11,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8061293,
+        "end": 8061303
+      },
+      {
+        "literalKind": "property",
+        "value": "gitRoot",
+        "baselineOccurrenceCount": 14,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8061306,
+        "end": 8061313
+      },
+      {
+        "literalKind": "property",
+        "value": "hookBased",
+        "baselineOccurrenceCount": 17,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8061317,
+        "end": 8061326
+      },
+      {
+        "literalKind": "property",
+        "value": "taskRegistry",
+        "baselineOccurrenceCount": 87,
+        "targetOccurrenceNumber": 27,
+        "targetAdded": false,
+        "start": 8061788,
+        "end": 8061800
+      },
+      {
+        "literalKind": "property",
+        "value": "registerName",
+        "baselineOccurrenceCount": 5,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": false,
+        "start": 8061856,
+        "end": 8061868
+      },
+      {
+        "literalKind": "property",
+        "value": "agentLifecycle",
+        "baselineOccurrenceCount": 13,
+        "targetOccurrenceNumber": 4,
+        "targetAdded": false,
+        "start": 8061841,
+        "end": 8061855
+      },
+      {
+        "literalKind": "property",
+        "value": "taskRegistry",
+        "baselineOccurrenceCount": 87,
+        "targetOccurrenceNumber": 28,
+        "targetAdded": false,
+        "start": 8062326,
+        "end": 8062338
+      },
+      {
+        "literalKind": "property",
+        "value": "taskRegistry",
+        "baselineOccurrenceCount": 87,
+        "targetOccurrenceNumber": 29,
+        "targetAdded": false,
+        "start": 8063161,
+        "end": 8063173
+      },
+      {
+        "literalKind": "property",
+        "value": "stop",
+        "baselineOccurrenceCount": 42,
+        "targetOccurrenceNumber": 11,
+        "targetAdded": false,
+        "start": 8063444,
+        "end": 8063448
+      },
+      {
+        "literalKind": "property",
+        "value": "createElement",
+        "baselineOccurrenceCount": 8558,
+        "targetOccurrenceNumber": 1898,
+        "targetAdded": false,
+        "start": 8063615,
+        "end": 8063628
+      },
+      {
+        "literalKind": "property",
+        "value": "stop",
+        "baselineOccurrenceCount": 42,
+        "targetOccurrenceNumber": 12,
+        "targetAdded": false,
+        "start": 8064352,
+        "end": 8064356
+      },
+      {
+        "literalKind": "property",
+        "value": "getToolPermissionContext",
+        "baselineOccurrenceCount": 69,
+        "targetOccurrenceNumber": 11,
+        "targetAdded": false,
+        "start": 8064644,
+        "end": 8064668
+      },
+      {
+        "literalKind": "property",
+        "value": "taskRegistry",
+        "baselineOccurrenceCount": 87,
+        "targetOccurrenceNumber": 30,
+        "targetAdded": false,
+        "start": 8064865,
+        "end": 8064877
+      },
+      {
+        "literalKind": "property",
+        "value": "abortSpeculation",
+        "baselineOccurrenceCount": 32,
+        "targetOccurrenceNumber": 11,
+        "targetAdded": false,
+        "start": 8064880,
+        "end": 8064896
+      },
+      {
+        "literalKind": "property",
+        "value": "abortSpeculation",
+        "baselineOccurrenceCount": 32,
+        "targetOccurrenceNumber": 12,
+        "targetAdded": false,
+        "start": 8064899,
+        "end": 8064915
+      },
+      {
+        "literalKind": "property",
+        "value": "taskRegistry",
+        "baselineOccurrenceCount": 87,
+        "targetOccurrenceNumber": 31,
+        "targetAdded": false,
+        "start": 8065363,
+        "end": 8065375
+      },
+      {
+        "literalKind": "property",
+        "value": "abortSpeculation",
+        "baselineOccurrenceCount": 32,
+        "targetOccurrenceNumber": 13,
+        "targetAdded": false,
+        "start": 8065378,
+        "end": 8065394
+      },
+      {
+        "literalKind": "property",
+        "value": "abortSpeculation",
+        "baselineOccurrenceCount": 32,
+        "targetOccurrenceNumber": 14,
+        "targetAdded": false,
+        "start": 8065397,
+        "end": 8065413
+      },
+      {
+        "literalKind": "property",
+        "value": "taskRegistry",
+        "baselineOccurrenceCount": 87,
+        "targetOccurrenceNumber": 32,
+        "targetAdded": false,
+        "start": 8065566,
+        "end": 8065578
+      },
+      {
+        "literalKind": "property",
+        "value": "abortSpeculation",
+        "baselineOccurrenceCount": 32,
+        "targetOccurrenceNumber": 15,
+        "targetAdded": false,
+        "start": 8065581,
+        "end": 8065597
+      },
+      {
+        "literalKind": "property",
+        "value": "abortSpeculation",
+        "baselineOccurrenceCount": 32,
+        "targetOccurrenceNumber": 16,
+        "targetAdded": false,
+        "start": 8065600,
+        "end": 8065616
+      },
+      {
+        "literalKind": "property",
+        "value": "addResponseLength",
+        "baselineOccurrenceCount": 13,
+        "targetOccurrenceNumber": 3,
+        "targetAdded": false,
+        "start": 8066335,
+        "end": 8066352
+      },
+      {
+        "literalKind": "property",
+        "value": "getToolPermissionContext",
+        "baselineOccurrenceCount": 69,
+        "targetOccurrenceNumber": 12,
+        "targetAdded": false,
+        "start": 8067892,
+        "end": 8067916
+      }
+    ]
+  },
+  "semanticDelta": {
+    "baselineTelemetryCall": {
+      "start": 7996667,
+      "end": 7996850,
+      "bytes": 183,
+      "sha256": "f83caff63b56db8f31d77612bdf644c8341e09cf81ca80f80bc18d1dc1f412c9",
+      "exact": "d(\"tengu_agent_tool_selected\",{agent_type:k.agentType,model:R,source:k.source,color:k.color,is_built_in_agent:Dw(k),is_resume:!1,is_async:(_===!0||k.background===!0)&&!rFH,is_fork:v})"
+    },
+    "targetPromptAndPluginHoist": {
+      "start": 8059021,
+      "end": 8059094,
+      "bytes": 73,
+      "sha256": "656672e776049f77789212f9e7930931153ab082f020b623ba947b42afcc3c8c",
+      "exact": "let R=V.getSystemPrompt({toolUseContext:M}),C=rWH(V)?XK(V.plugin):void 0;"
+    },
+    "targetPromptGetter": {
+      "start": 8059025,
+      "end": 8059064,
+      "bytes": 39,
+      "sha256": "4a9df52447fcae4425fc864acc9495b2bd45eea9fdf80f98b45960457e55b9f8",
+      "exact": "R=V.getSystemPrompt({toolUseContext:M})"
+    },
+    "targetPluginContext": {
+      "start": 8059065,
+      "end": 8059093,
+      "bytes": 28,
+      "sha256": "19b418b92f68fcbb80902d23f600b0db83ad5bad1918a50e3e1f408c912a4760",
+      "exact": "C=rWH(V)?XK(V.plugin):void 0"
+    },
+    "targetTelemetryCall": {
+      "start": 8059094,
+      "end": 8059343,
+      "bytes": 249,
+      "sha256": "eb9f9cc324486289464a7f720f49e5a2b0da3b52fae131ac65034cd98aeff19f",
+      "exact": "d(\"tengu_agent_tool_selected\",{agent_type:V.agentType,model:S,source:V.source,color:V.color,is_built_in_agent:Bw(V),is_resume:!1,is_async:(_===!0||V.background===!0)&&!pUH,is_fork:v,agent_system_prompt_chars:R.length,...C&&Ko(C.name,C.marketplace)})"
+    },
+    "targetPromptLengthProperty": {
+      "start": 8059276,
+      "end": 8059310,
+      "bytes": 34,
+      "sha256": "89858f78fff19bae20a387027d6c347227f0df0b809128b075a7cdd2df4f876b",
+      "exact": "agent_system_prompt_chars:R.length"
+    },
+    "targetPluginTelemetrySpread": {
+      "start": 8059311,
+      "end": 8059341,
+      "bytes": 30,
+      "sha256": "bd3d1c59b9e2285ad209e7ed7fbfda19b0f0944be809d4c07e82ef7fb0546035",
+      "exact": "...C&&Ko(C.name,C.marketplace)"
+    },
+    "baselineDeferredPromptDeclaration": {
+      "start": 7997351,
+      "end": 7997471,
+      "bytes": 120,
+      "sha256": "4a69c632870b607e3a7bc76329f306ead33aaf0b0b9a5790da3efbf90da637bb",
+      "exact": "let fH=Array.from(L.toolPermissionContext.additionalWorkingDirectories.keys()),YH=k.getSystemPrompt({toolUseContext:M});"
+    },
+    "baselinePromptEnhancementCall": {
+      "start": 7997563,
+      "end": 7997577,
+      "bytes": 14,
+      "sha256": "abae260a5df36a7f1b7b661d02506dd46ae9aa6c90cc027cdf1d1b7f81ccddb5",
+      "exact": "IY$([YH],R,fH)"
+    },
+    "targetPromptEnhancementCall": {
+      "start": 8060013,
+      "end": 8060026,
+      "bytes": 13,
+      "sha256": "6749499254cbe78291a5c748d8115eeeaec192af4b63204cbeef9ea30e628de6",
+      "exact": "U3$([R],S,OH)"
+    },
+    "baselineRunAgentParams": {
+      "start": 7998123,
+      "end": 7998697,
+      "bytes": 574,
+      "sha256": "caedd90344c3c6b45bc6f0a98d57d757733386e9ceb7bddc9fedaf401fc2ace5",
+      "exact": "{agentDefinition:k,promptMessages:x,toolUseContext:M,canUseTool:D,name:A,isAsync:Q,querySource:M.options.querySource??imH(k.agentType,Dw(k)),model:v?void 0:J,override:v?{systemPrompt:B,replHydration:{kind:\"fork\",log:[...M.getAppState().replContexts[M.agentId??PJH]?.replayLog??[]]}}:C&&!$H&&!O?{systemPrompt:M4(C)}:void 0,availableTools:v?M.options.tools:n,forkContextMessages:v?M.messages:k.forksParentContext===\"turn\"?M.messages.slice(M.turnStartIndex):k.forksParentContext===!0?M.messages:void 0,...v&&{useExactTools:!0},worktreePath:$H?.worktreePath,cwd:O,description:q}"
+    },
+    "targetRunAgentParams": {
+      "start": 8060569,
+      "end": 8061205,
+      "bytes": 636,
+      "sha256": "61798b1b7dcf795c46a09f5bcb4e1364505ec69aa7c4559be73d3b8d4cabb1b2",
+      "exact": "{agentDefinition:V,promptMessages:B,toolUseContext:M,canUseTool:D,name:A,isAsync:c,querySource:M.options.querySource??xpH(V.agentType,Bw(V)),spawnedBySkill:M.options.spawnedBySkill??M.options.activeSkill,model:v?void 0:J,override:v?{systemPrompt:h,replHydration:{kind:\"fork\",log:[...M.getAppState().replContexts[M.agentId??LLH]?.replayLog??[]]}}:b&&!r&&!O?{systemPrompt:V4(b)}:void 0,availableTools:v?M.options.tools:fH,forkContextMessages:v?M.messages:V.forksParentContext===\"turn\"?M.messages.slice(M.turnStartIndex):V.forksParentContext===!0?M.messages:void 0,...v&&{useExactTools:!0},worktreePath:r?.worktreePath,cwd:O,description:q}"
+    },
+    "targetSkillProvenanceProperty": {
+      "start": 8060710,
+      "end": 8060772,
+      "bytes": 62,
+      "sha256": "0f85cb208f5014336d906478babe9ad6903a19b00bca0a3f1eadbd5434c6ad1a",
+      "exact": "spawnedBySkill:M.options.spawnedBySkill??M.options.activeSkill"
+    },
+    "invariants": [
+      "Target121 evaluates selectedAgent.getSystemPrompt before tengu_agent_tool_selected; Target120 logs first and evaluates it only in the non-fork branch.",
+      "Target121 logs agent_system_prompt_chars as the hoisted prompt array length and spreads plugin telemetry only for plugin agents.",
+      "Target121 reuses the same hoisted prompt value in the non-fork environment-enhancement call.",
+      "Target121 passes toolUseContext.options.spawnedBySkill ?? toolUseContext.options.activeSkill as runAgent spawnedBySkill; Target120 has no such property."
+    ]
+  },
+  "retainedDependencies": [
+    {
+      "targetIndex": 9347,
+      "classification": "matched",
+      "baselineUnitIndex": 9299,
+      "unknownFreeIdentifierCount": 0,
+      "nodeType": "FunctionDeclaration",
+      "start": 4379847,
+      "end": 4379955,
+      "tokenCount": 52,
+      "topDefinitionCount": 1,
+      "bytes": 108,
+      "sha256": "88de74be49762938a56b65eb8a07447a2098ff2ee43451c4bc5148f00a2e33b3",
+      "coarseHash": "2ed970997b9a046ba62a722db8556ab1c1502fa41b464d610319a8c5986a7605",
+      "exact": "function XK(H){if(H.includes(\"@\")){let $=H.split(\"@\");return{name:$[0]||\"\",marketplace:$[1]}}return{name:H}}",
+      "baseline": {
+        "index": 9299,
+        "nodeType": "FunctionDeclaration",
+        "start": 4365540,
+        "end": 4365648,
+        "bytes": 108,
+        "sha256": "9810607dc792c561699f5f1f7d995cee4429223dc931cdddbeb28b36e7dabc50",
+        "exact": "function aq(H){if(H.includes(\"@\")){let $=H.split(\"@\");return{name:$[0]||\"\",marketplace:$[1]}}return{name:H}}"
+      }
+    },
+    {
+      "targetIndex": 9439,
+      "classification": "matched",
+      "baselineUnitIndex": 9389,
+      "unknownFreeIdentifierCount": 0,
+      "nodeType": "FunctionDeclaration",
+      "start": 4398889,
+      "end": 4399124,
+      "tokenCount": 72,
+      "topDefinitionCount": 1,
+      "bytes": 235,
+      "sha256": "74c2ab68476115cf3b4bbbc34cf4bb3f0e847bb4071faef0c6a14ae6f5a0f6b1",
+      "coarseHash": "fca0eae66dbd02da678f2d1d3f4d892ef48f9bfd1cea51dc49723992436b1237",
+      "exact": "function hS_(H,$,q=null){let K=yS_(H,$,q),_=K===\"official\"||K===\"default-bundle\";return{plugin_id_hash:NS_(H,$),plugin_scope:K,plugin_name_redacted:_?H:\"third-party\",marketplace_name_redacted:_&&$?$:\"third-party\",is_official_plugin:_}}",
+      "baseline": {
+        "index": 9389,
+        "nodeType": "FunctionDeclaration",
+        "start": 4383594,
+        "end": 4383828,
+        "bytes": 234,
+        "sha256": "0d3fa500b6bb9fa215635b091926fbfb5a11c165ab102b9f343566b3598a88a9",
+        "exact": "function Pb(H,$,q=null){let K=ph1(H,$,q),_=K===\"official\"||K===\"default-bundle\";return{plugin_id_hash:mh1(H,$),plugin_scope:K,plugin_name_redacted:_?H:\"third-party\",marketplace_name_redacted:_&&$?$:\"third-party\",is_official_plugin:_}}"
+      }
+    },
+    {
+      "targetIndex": 9440,
+      "classification": "unresolved",
+      "baselineUnitIndex": null,
+      "unknownFreeIdentifierCount": 1,
+      "nodeType": "FunctionDeclaration",
+      "start": 4399124,
+      "end": 4399225,
+      "tokenCount": 38,
+      "topDefinitionCount": 1,
+      "bytes": 101,
+      "sha256": "57e6f4c000954cd48b13bba8a25995900bf1003ae740d3a5ed5cad2143452ef3",
+      "coarseHash": "d2d220ceee65c8fe7b94b748fd35dd4dddccaa16e85cce791288092c0a494f20",
+      "exact": "function Ko(H,$,q=null){return{_PROTO_plugin_name:H,...$&&{_PROTO_marketplace_name:$},...hS_(H,$,q)}}"
+    },
+    {
+      "targetIndex": 9915,
+      "classification": "matched",
+      "baselineUnitIndex": 9862,
+      "unknownFreeIdentifierCount": 0,
+      "nodeType": "FunctionDeclaration",
+      "start": 4965572,
+      "end": 4965615,
+      "tokenCount": 13,
+      "topDefinitionCount": 1,
+      "bytes": 43,
+      "sha256": "6e23ca637ed90e5111ac349a4578172354b36530fcc8d5144884be101f46ba5b",
+      "coarseHash": "5b7874af127c95939afdd7d6478b4a59e75a2f3b14683be36cffa3404b417072",
+      "exact": "function rWH(H){return H.source===\"plugin\"}",
+      "baseline": {
+        "index": 9862,
+        "nodeType": "FunctionDeclaration",
+        "start": 4949967,
+        "end": 4950010,
+        "bytes": 43,
+        "sha256": "de8ab2f6af58ea8a0697e5889938937ea97d898c07fde9080444a073d6272116",
+        "exact": "function p1$(H){return H.source===\"plugin\"}"
+      }
+    }
+  ],
+  "skillProvenanceGraph": {
+    "propertyOccurrenceCounts": {
+      "spawnedBySkill": 14,
+      "activeSkill": 14
+    },
+    "units": [
+      {
+        "targetIndex": 13026,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 8053208,
+        "end": 8071208,
+        "bytes": 18000,
+        "sha256": "aba1f72dd4736702f5acde6677c2a158521d4cb622a47bf6df46b81f1bdc3b81",
+        "reportedOwners": [
+          "tools/AgentTool/AgentTool.tsx"
+        ],
+        "occurrences": [
+          {
+            "property": "spawnedBySkill",
+            "start": 8060710,
+            "end": 8060724,
+            "targetOccurrenceNumber": 1
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 8060735,
+            "end": 8060749,
+            "targetOccurrenceNumber": 2
+          },
+          {
+            "property": "activeSkill",
+            "start": 8060761,
+            "end": 8060772,
+            "targetOccurrenceNumber": 1
+          }
+        ]
+      },
+      {
+        "targetIndex": 13110,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 8094697,
+        "end": 8095529,
+        "bytes": 832,
+        "sha256": "34862df67f6ad400d745e9197a61af24315e821ee80e46d7bb676224f9dbb313",
+        "reportedOwners": [
+          "utils/processUserInput/processSlashCommand.tsx"
+        ],
+        "occurrences": [
+          {
+            "property": "activeSkill",
+            "start": 8095061,
+            "end": 8095072,
+            "targetOccurrenceNumber": 2
+          }
+        ]
+      },
+      {
+        "targetIndex": 13120,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 8098801,
+        "end": 8105254,
+        "bytes": 6453,
+        "sha256": "e2d37e5d56e366f4b2097060bd1f3382ffacda971143fed49220a0dfbd6e4b96",
+        "reportedOwners": [
+          "tools/SkillTool/SkillTool.ts"
+        ],
+        "occurrences": [
+          {
+            "property": "activeSkill",
+            "start": 8102515,
+            "end": 8102526,
+            "targetOccurrenceNumber": 3
+          }
+        ]
+      },
+      {
+        "targetIndex": 13973,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 8749307,
+        "end": 8752275,
+        "bytes": 2968,
+        "sha256": "b888999468985a27bc4006a94f425002b8dbe6d37f4972c5ae3a33278b92b8ad",
+        "reportedOwners": [
+          "tools/AgentTool/resumeAgent.ts"
+        ],
+        "occurrences": [
+          {
+            "property": "spawnedBySkill",
+            "start": 8751064,
+            "end": 8751078,
+            "targetOccurrenceNumber": 3
+          }
+        ]
+      },
+      {
+        "targetIndex": 14201,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 8891516,
+        "end": 8909182,
+        "bytes": 17666,
+        "sha256": "6bec08f51c847c01bc053e1062538df60560317f739c264bbc7870fdf224844c",
+        "reportedOwners": [
+          "query.ts"
+        ],
+        "occurrences": [
+          {
+            "property": "spawnedBySkill",
+            "start": 8891632,
+            "end": 8891646,
+            "targetOccurrenceNumber": 4
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 8896099,
+            "end": 8896113,
+            "targetOccurrenceNumber": 5
+          },
+          {
+            "property": "activeSkill",
+            "start": 8896116,
+            "end": 8896127,
+            "targetOccurrenceNumber": 4
+          },
+          {
+            "property": "activeSkill",
+            "start": 8896138,
+            "end": 8896149,
+            "targetOccurrenceNumber": 5
+          }
+        ]
+      },
+      {
+        "targetIndex": 14209,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 8911653,
+        "end": 8919205,
+        "bytes": 7552,
+        "sha256": "75ef6d84a05054fc03ecb54ffd23bae16d1d5f21be72094315037c8e0c63d7f4",
+        "reportedOwners": [
+          "tools/AgentTool/runAgent.ts"
+        ],
+        "occurrences": [
+          {
+            "property": "spawnedBySkill",
+            "start": 8911810,
+            "end": 8911824,
+            "targetOccurrenceNumber": 6
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 8915521,
+            "end": 8915535,
+            "targetOccurrenceNumber": 7
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 8917067,
+            "end": 8917081,
+            "targetOccurrenceNumber": 8
+          }
+        ]
+      },
+      {
+        "targetIndex": 18932,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11527537,
+        "end": 11529057,
+        "bytes": 1520,
+        "sha256": "983a08c61a8b15868febc6d26cb163edb74caa295d1e402059681dfc0325c402",
+      "reportedOwners": [
+        "commands/remote-setup/index.ts"
+      ],
+      "postDaemonOwnerReportedOwners": [
+        "commands/fork/fork.ts"
+      ],
+      "occurrences": [
+          {
+            "property": "spawnedBySkill",
+            "start": 11528623,
+            "end": 11528637,
+            "targetOccurrenceNumber": 9
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 11528648,
+            "end": 11528662,
+            "targetOccurrenceNumber": 10
+          },
+          {
+            "property": "activeSkill",
+            "start": 11528674,
+            "end": 11528685,
+            "targetOccurrenceNumber": 6
+          }
+        ]
+      },
+      {
+        "targetIndex": 19537,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11857089,
+        "end": 11880059,
+        "bytes": 22970,
+        "sha256": "bb7118482634277258c63c74e61dddfa3090edbfb507b766f981eceb1626e56e",
+        "reportedOwners": [
+          "services/api/claude.ts"
+        ],
+        "occurrences": [
+          {
+            "property": "spawnedBySkill",
+            "start": 11867203,
+            "end": 11867217,
+            "targetOccurrenceNumber": 11
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 11870657,
+            "end": 11870671,
+            "targetOccurrenceNumber": 12
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 11875999,
+            "end": 11876013,
+            "targetOccurrenceNumber": 13
+          },
+          {
+            "property": "spawnedBySkill",
+            "start": 11877138,
+            "end": 11877152,
+            "targetOccurrenceNumber": 14
+          },
+          {
+            "property": "activeSkill",
+            "start": 11867220,
+            "end": 11867231,
+            "targetOccurrenceNumber": 7
+          },
+          {
+            "property": "activeSkill",
+            "start": 11870674,
+            "end": 11870685,
+            "targetOccurrenceNumber": 8
+          },
+          {
+            "property": "activeSkill",
+            "start": 11876016,
+            "end": 11876027,
+            "targetOccurrenceNumber": 9
+          },
+          {
+            "property": "activeSkill",
+            "start": 11877155,
+            "end": 11877166,
+            "targetOccurrenceNumber": 10
+          }
+        ]
+      },
+      {
+        "targetIndex": 20775,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12518538,
+        "end": 12520613,
+        "bytes": 2075,
+        "sha256": "e4b5f9d005699236742515036428f5233ec45cadb1c0d596eda0283b6003e32d",
+        "reportedOwners": [
+          "utils/handlePromptSubmit.ts"
+        ],
+        "occurrences": [
+          {
+            "property": "activeSkill",
+            "start": 12520389,
+            "end": 12520400,
+            "targetOccurrenceNumber": 11
+          }
+        ]
+      },
+      {
+        "targetIndex": 21373,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12808080,
+        "end": 12870870,
+        "bytes": 62790,
+        "sha256": "9ec5b2c56ed51834e6b5daad46cd908af0a5f0bd706ab4b89ad27854cd2e5ee9",
+        "reportedOwners": [
+          "screens/REPL.tsx"
+        ],
+        "occurrences": [
+          {
+            "property": "activeSkill",
+            "start": 12836700,
+            "end": 12836711,
+            "targetOccurrenceNumber": 12
+          }
+        ]
+      },
+      {
+        "targetIndex": 21925,
+        "classification": "unresolved",
+        "nodeType": "ClassDeclaration",
+        "start": 13614493,
+        "end": 13633240,
+        "bytes": 18747,
+        "sha256": "b50a3d63b4a326c0e0cdc40cb78fc2b6e3a637fff64c051a41a0c331e97d9e36",
+        "reportedOwners": [
+          "QueryEngine.ts"
+        ],
+        "occurrences": [
+          {
+            "property": "activeSkill",
+            "start": 13621674,
+            "end": 13621685,
+            "targetOccurrenceNumber": 13
+          },
+          {
+            "property": "activeSkill",
+            "start": 13622391,
+            "end": 13622402,
+            "targetOccurrenceNumber": 14
+          }
+        ]
+      }
+    ],
+    "boundary": "Only u13026 is admitted by this fixture. The other graph units remain independent fail-closed strict obligations."
+  },
+  "sourceState": {
+    "target120": {
+      "path": "src/tools/AgentTool/AgentTool.tsx",
+      "bytes": 234284,
+      "sha256": "86dd8c768d8ccabaab49c56104754bfc0d618a7906a890771cdb2454815a04a8",
+      "chars": 234223,
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "0f6a8bfcfb7253ba1b3010aed927610909092e89",
+      "declaration": {
+        "name": "AgentTool",
+        "kind": "VariableStatement",
+        "start": 12239,
+        "end": 69413,
+        "chars": 57174,
+        "bytes": 57229,
+        "sha256": "b2f1830760f2ff7130e46ddf7b940f2a72f4a49be79f61745376c5e7e07e090d"
+      }
+    },
+    "target121": {
+      "path": "src/tools/AgentTool/AgentTool.tsx",
+      "bytes": 234637,
+      "sha256": "ba2652cc9a221f39753b4e5bb86aee1c05c2351ab77d8aaffcb8f59dacf3f4f4",
+      "chars": 234576,
+      "gitCommit": "20b342d7c85c64574522f644a2013acb8fa2b501",
+      "gitBlob": "b090bd68ea561b88cf9b462437e58a7ca08d341f",
+      "declaration": {
+        "name": "AgentTool",
+        "kind": "VariableStatement",
+        "start": 12239,
+        "end": 69766,
+        "chars": 57527,
+        "bytes": 57582,
+        "sha256": "fc10c355494654be8a104e7236531574d192e1c92ae9fbce7b9416c55faa5f08"
+      },
+      "anchors": {
+        "telemetryCall": {
+          "start": 23328,
+          "end": 23987,
+          "chars": 659,
+          "bytes": 659,
+          "sha256": "e08f6a5a1eb94e46f7be319fddb27f476796d2d0f6641ef1508cd4d6750ee199"
+        },
+        "deferredPromptDeclaration": {
+          "start": 27969,
+          "end": 28056,
+          "chars": 87,
+          "bytes": 87,
+          "sha256": "d0419b36db9df59d4d0ce8a52b063a24baa05c1597777e244f49978c055748cc"
+        },
+        "runAgentParamsDeclaration": {
+          "start": 32055,
+          "end": 33967,
+          "chars": 1912,
+          "bytes": 1912,
+          "sha256": "746e29cfca7da507eaba34697400f81e3eb483bc650b12cf3549631cef4387a8"
+        }
+      }
+    },
+    "sourceCoveredTarget121Markers": [
+      "kind: 'background_hint'",
+      "toolUseContext.options.forwardSubagentText",
+      "kind: 'clear'"
+    ],
+    "sourceGapMarkers": [
+      "agent_system_prompt_chars",
+      "spawnedBySkill",
+      "activeSkill"
+    ],
+    "missingAgentToolImports": [
+      "parsePluginIdentifier",
+      "isPluginAgent",
+      "target-added raw plugin telemetry wrapper"
+    ],
+    "dependencies": [
+      {
+        "path": "src/utils/plugins/pluginIdentifier.ts",
+        "fileBytes": 3928,
+        "fileChars": 3926,
+        "fileSha256": "98b3a140e49dbc2215dce0a474546c9ff8549c6146abe4c75e44ac35edefc578",
+        "declaration": "parsePluginIdentifier",
+        "declarationDescriptor": {
+          "start": 1519,
+          "end": 1755,
+          "chars": 236,
+          "bytes": 236,
+          "sha256": "db50b5e0cbabc9cd09a170b54fe2d07b18d4f5bbb9cd71ef1e87d8df6a5d7354"
+        }
+      },
+      {
+        "path": "src/utils/telemetry/pluginTelemetry.ts",
+        "fileBytes": 10491,
+        "fileChars": 10469,
+        "fileSha256": "b73fa59400f84724c89cc7e46c331fcb370341ffd4b411d06f5236255faa13d3",
+        "declaration": "buildPluginTelemetryFields",
+        "declarationDescriptor": {
+          "start": 4565,
+          "end": 5973,
+          "chars": 1408,
+          "bytes": 1410,
+          "sha256": "9c2902eab0db32217217c0236c3f371d7f52ee524bb28bd0bfc766b39b2c7451"
+        }
+      },
+      {
+        "path": "src/utils/telemetry/pluginTelemetry.ts",
+        "fileBytes": 10491,
+        "fileChars": 10469,
+        "fileSha256": "b73fa59400f84724c89cc7e46c331fcb370341ffd4b411d06f5236255faa13d3",
+        "declaration": "buildPluginCommandTelemetryFields",
+        "declarationDescriptor": {
+          "start": 6306,
+          "end": 6705,
+          "chars": 399,
+          "bytes": 399,
+          "sha256": "64b34f97d8de038642b6e10c0e3cc916d307d707693d3cd645521548e79782e0"
+        }
+      },
+      {
+        "path": "src/tools/AgentTool/loadAgentsDir.ts",
+        "fileBytes": 27440,
+        "fileChars": 27434,
+        "fileSha256": "08fd1d8b3b235ca9a4908e11e9a8ddd70734b87c9e3ddf3c7fc6e9c406ac3cc5",
+        "declaration": "isPluginAgent",
+        "declarationDescriptor": {
+          "start": 7893,
+          "end": 8022,
+          "chars": 129,
+          "bytes": 129,
+          "sha256": "80906e0db27d076d37849efc823b37c9e859f84033f774873572198322c7ad10"
+        }
+      }
+    ],
+    "gitDonorAudit": {
+      "path": "src/tools/AgentTool/AgentTool.tsx",
+      "markers": [
+        "agent_system_prompt_chars",
+        "spawnedBySkill",
+        "activeSkill"
+      ],
+      "result": "no commit in --all history contains any marker"
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reasons": [
+      "The recovered AgentTool declaration contains authentic Target121 source-covered evolution but omits all four strict target properties.",
+      "The recovered full source tree contains neither spawnedBySkill nor activeSkill, while the authenticated bundle carries 28 occurrences across eleven unresolved units.",
+      "The target AgentTool plugin telemetry branch depends on target-added unresolved u9440, whose raw-field wrapper is absent from recovered pluginTelemetry.ts.",
+      "No repository-history donor contains any of the three strict source markers, so a partial transform would invent imports, types, producers, and helper identity."
+    ]
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 58,
+      "unsupportedResidues": 479,
+      "firstTargetIndex": 13026,
+      "reportOrderSevenFieldSha256": "c954ed6f6a6142173870a5292251dd9ca8076ddeb036f273f096e0471dfdaa6c"
+    },
+    "removes": {
+      "targetIndices": [
+        13026
+      ],
+      "residues": [
+        [
+          13026,
+          "property",
+          "agent_system_prompt_chars",
+          8059276,
+          8059301,
+          1
+        ],
+        [
+          13026,
+          "property",
+          "spawnedBySkill",
+          8060710,
+          8060724,
+          1
+        ],
+        [
+          13026,
+          "property",
+          "spawnedBySkill",
+          8060735,
+          8060749,
+          2
+        ],
+        [
+          13026,
+          "property",
+          "activeSkill",
+          8060761,
+          8060772,
+          1
+        ]
+      ],
+      "units": 1,
+      "residueCount": 4
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 57,
+      "unsupportedResidues": 475
+    }
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/agent-tool-skill-provenance-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_AGENT_TOOL_SKILL_PROVENANCE_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

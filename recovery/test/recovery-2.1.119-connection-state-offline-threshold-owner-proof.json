@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "complete-unit-static-exact-source-owner-proof-ready",
+  "criterion": "target119-connection-state-offline-threshold-boundary-v1",
+  "evidenceIds": [
+    "target119-connection-state-offline-constants-whole-unit-proof",
+    "target119-connection-state-offline-class-consumer-boundary-proof",
+    "target119-connection-state-exact-authored-source-proof",
+    "target119-connection-state-false-session-background-hint-owner-proof",
+    "target119-connection-state-cross-release-lineage-proof",
+    "target119-connection-state-static-owner-only-proof"
+  ],
+  "inputs": {
+    "bundles": {
+      "2.1.119": {"path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js", "bytes": 13720987, "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"},
+      "2.1.120": {"path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js", "bytes": 13784743, "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+      "2.1.121": {"path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js", "bytes": 13908188, "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"}
+    },
+    "ledgers": {
+      "2.1.118-to-2.1.119": {"path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz", "bytes": 2550437, "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"},
+      "2.1.119-to-2.1.120": {"path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz", "bytes": 2490663, "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"},
+      "2.1.120-to-2.1.121": {"path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz", "bytes": 2540002, "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"}
+    },
+    "frozenMutableSnapshot": {
+      "report": {"path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json", "bytes": 24786895, "sha256": "58af453b51adf4c340bc492898ecba0ecf84c5376d0bca769a66f91faf4e55c5"},
+      "coverageGzip": {"path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz", "bytes": 372095, "sha256": "f7812bf2a9e618100978c32848173ae1433cf587fdc3b558198df3c05f67e682"},
+      "coverageJson": {"bytes": 3247265, "sha256": "e6bc02c463580bfaf6e47d5ff2746f0acdc2d8956528b3e2e2a441ab8ad42864"},
+      "readPolicy": "descriptor-only-after-snapshot; tests must not reopen mutable report or coverage"
+    },
+    "helper": {"path": "recovery/cases/2.1.118-to-2.1.119/recovered/connection-state-offline-threshold-owner-overrides.mjs", "bytes": 1715, "sha256": "850f54c4077d075631176b7b0d77ec2ae66130c291de49d3831f9c537bdb8cc9"}
+  },
+  "snapshotPartition": {
+    "sourceRuntimeOwnerResidueRows": {
+      "rows": [[20809, "number", "60000", 12533072, 12533077, 75, 90, true, ["components/SessionBackgroundHint.tsx"]]],
+      "jsonBytes": 96,
+      "sha256": "ede832d72b0a84d89e4bef4127e06629473a784ded34f68c1f23b2771431e77b"
+    },
+    "sourceRuntimeAddedOwnerResidueRows": {
+      "rows": [[20809, "number", "60000", 12533072, 12533077, 75, 90, true, ["components/SessionBackgroundHint.tsx"]]],
+      "jsonBytes": 96,
+      "sha256": "ede832d72b0a84d89e4bef4127e06629473a784ded34f68c1f23b2771431e77b"
+    },
+    "strictRows": {"rows": [], "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "unclassifiedRows": {"rows": [], "jsonBytes": 2, "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "coverage": {
+      "rows": 1,
+      "jsonBytes": 560,
+      "sha256": "401c2eb99365677239f098fbdd8ebc2c3650587acc539a6c39c8be4aaaf8866d",
+      "targetIndex": 20809,
+      "target": {"start": 12533064, "end": 12533084, "nodeType": "VariableDeclaration", "sourceHash": "fe5cbbdb6a95ed84e3d2700e03c6b8889879e42843e677357eae1280f4e6ad87", "classification": "unresolved"},
+      "staleOwnerPaths": ["src/components/SessionBackgroundHint.tsx"],
+      "evidenceIds": ["source-map-attribution", "semantic-test"]
+    }
+  },
+  "ownerOverride": {
+    "key": "2.1.118-to-2.1.119:20809",
+    "targetIndex": 20809,
+    "paths": ["src/services/api/connectionState.ts"],
+    "declarations": ["OFFLINE_FAILURE_WINDOW_MS", "OFFLINE_FAILURE_THRESHOLD", "ConnectionLifecycleTracker"]
+  },
+  "runtimeBoundary": {
+    "consumerClass": {
+      "targetIndex": 20808,
+      "classification": "unresolved",
+      "nodeType": "ClassDeclaration",
+      "start": 12530703,
+      "end": 12533064,
+      "bytes": 2361,
+      "tokenCount": 789,
+      "sha256": "42771a11096f3bae8acfb6666ea374b3eb7a1c3f669499fb1f7c28b6b9d57ea6",
+      "coarseHash": "f796a30fa63b85d08170fa1c21fa5eafc5ca40efccdf38d80b88216b1fb9f5a3",
+      "unknownFreeIdentifierCount": 2
+    },
+    "constants": {
+      "targetIndex": 20809,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 12533064,
+      "end": 12533084,
+      "bytes": 20,
+      "tokenCount": 9,
+      "sha256": "fe5cbbdb6a95ed84e3d2700e03c6b8889879e42843e677357eae1280f4e6ad87",
+      "coarseHash": "6ca404ea917768141a42049b0c6c158311f540f69e685810208f483b509e321c",
+      "unknownFreeIdentifierCount": 0,
+      "canonicalProgram": {"jsonBytes": 326, "sha256": "5a4cee75cc50c88e12c37cd31f136e9af7c1cc927a863d62e1a47d42d1e7e520"},
+      "declarations": [
+        {"binding": "pL5", "declaration": {"start": 12533068, "end": 12533077, "bytes": 9, "sha256": "e6e900dbc27257384dee856ca108f4af06120422493e2aee435c79894f557a0b"}, "initializer": {"value": 60000, "start": 12533072, "end": 12533077, "bytes": 5, "sha256": "d55d01d0341ed0ba2cd99b322e8c5b609254f47d10c7cd12b99b4922effeba44"}},
+        {"binding": "BL5", "declaration": {"start": 12533078, "end": 12533083, "bytes": 5, "sha256": "f8b45a5131ac8d0a178c7e9aa6c1441238adf8a3367aa9068bfa5df00a213ddc"}, "initializer": {"value": 2, "start": 12533082, "end": 12533083, "bytes": 1, "sha256": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"}}
+      ]
+    },
+    "bindingUses": [
+      {"binding": "pL5", "identifier": {"start": 12532657, "end": 12532660, "bytes": 3, "sha256": "7e27dee15d3dfd4c23d2266ab8c3bdfa53169ac69d1631ee49c29a7b5748df49"}, "expression": {"start": 12532650, "end": 12532660, "bytes": 10, "sha256": "0839583033e4ab092d7417536e057af67d7abf2a959c07acc7e606e876c8f6a9"}},
+      {"binding": "BL5", "identifier": {"start": 12532772, "end": 12532775, "bytes": 3, "sha256": "7791a6a21608e5297f90abc15376bb5c0b8dd93e8750a97cd7175bbeb4bb1fcb"}, "expression": {"start": 12532711, "end": 12532775, "bytes": 64, "sha256": "7d2e237ef84405249733a2072eb07ba336abb6c2cd107c0cd50268d716e860b4"}}
+    ]
+  },
+  "sourceBoundary": {
+    "baseline": {"commit": "bd846a24e3886322888f02b9f747c132a4a32314", "path": "src/services/api/connectionState.ts", "state": "absent"},
+    "target": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "path": "src/services/api/connectionState.ts",
+      "blob": "1fd20ed2b93e0d5d6a2b31127f97d69e9adb3f30",
+      "file": {"chars": 6040, "bytes": 6040, "sha256": "225a57c87bbb36460d1fc8329b2ba8dfc0e20081b533a3858b98263c23462946"},
+      "constantStatements": [
+        {"start": 110, "end": 150, "chars": 40, "bytes": 40, "sha256": "adf08616701f442e2206f0e225c5b1c2048aa925fb4e876544a2e9b47e98db6f", "declarations": [{"name": "OFFLINE_FAILURE_WINDOW_MS", "start": 116, "end": 150, "chars": 34, "bytes": 34, "sha256": "b3cf9cc1b5fc8583dfbdd20839a318202ba28056f5b79037987e37c8b256bf11", "initializer": {"value": "60000", "start": 144, "end": 150, "chars": 6, "bytes": 6, "sha256": "af336673280ce1e644d36fdca7618850da4652abf7f84fbb2afb3be48489301c"}}]},
+        {"start": 151, "end": 186, "chars": 35, "bytes": 35, "sha256": "1110cde020ec93d4816d932e652bcef906d5050e9e300df55e0d595606f2b626", "declarations": [{"name": "OFFLINE_FAILURE_THRESHOLD", "start": 157, "end": 186, "chars": 29, "bytes": 29, "sha256": "3f95f0d9b8a3714edd1544ef5c5cf4b6c0c67e783aef681ed75c8b81ad7395ab", "initializer": {"value": "2", "start": 185, "end": 186, "chars": 1, "bytes": 1, "sha256": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"}}]}
+      ],
+      "classDeclaration": {"start": 1564, "end": 6039, "chars": 4475, "bytes": 4475, "sha256": "022615526be30c3e691b90a2bc99246a475ce0b39ef5fdacd31ab1b2553dc40b"},
+      "bindingUses": [
+        {"name": "OFFLINE_FAILURE_WINDOW_MS", "identifier": {"start": 5300, "end": 5325, "chars": 25, "bytes": 25, "sha256": "884cb4bbb1c639f466b32e345b5362b9f96fad3a9f6b1f8133948698b03097c4"}, "expression": {"start": 5281, "end": 5325, "chars": 44, "bytes": 44, "sha256": "6bdf51c911f1e43f3bf3d240a9f72ae9002d784c2d810baf6dfe3175a11032ac"}},
+        {"name": "OFFLINE_FAILURE_THRESHOLD", "identifier": {"start": 5533, "end": 5558, "chars": 25, "bytes": 25, "sha256": "736a20cf9bb2f9c073377194ac5cd82528a525e0961f8a92eebfc8bd98753b6d"}, "expression": {"start": 5422, "end": 5558, "chars": 136, "bytes": 136, "sha256": "345c34cf63f8535ead14f035eb14854fec1a5a2db0366377b570ce2fed476a9c"}}
+      ]
+    },
+    "exactLaterSource": [
+      {"version": "2.1.120", "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1", "blob": "1fd20ed2b93e0d5d6a2b31127f97d69e9adb3f30"},
+      {"version": "2.1.121", "commit": "9f034bb03d575603a850e3c75ce003406094f9cc", "blob": "1fd20ed2b93e0d5d6a2b31127f97d69e9adb3f30"}
+    ],
+    "falseOwner": {
+      "path": "src/components/SessionBackgroundHint.tsx",
+      "file": {"chars": 13154, "bytes": 13154, "sha256": "e1922c40a002b4e03c5553ffa529feba51a4bab95494b6f176b29da567be83ec"},
+      "windowLiteralCount": 0,
+      "offlineFailureIdentifierCount": 0
+    }
+  },
+  "crossReleaseLineage": [
+    {"case": "2.1.119-to-2.1.120", "version": "2.1.120", "targetIndex": 20896, "baselineUnitIndex": 20809, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "VariableDeclaration", "start": 12571041, "end": 12571061, "bytes": 20, "tokenCount": 9, "sha256": "7dce113edfbb373139d14e0273a7bda0892ea58d66d7e1a3f1d9f1fba978e330", "coarseHash": "6ca404ea917768141a42049b0c6c158311f540f69e685810208f483b509e321c", "unknownFreeIdentifierCount": 0, "canonicalProgram": {"jsonBytes": 326, "sha256": "5a4cee75cc50c88e12c37cd31f136e9af7c1cc927a863d62e1a47d42d1e7e520"}},
+    {"case": "2.1.120-to-2.1.121", "version": "2.1.121", "targetIndex": 20991, "baselineUnitIndex": 20896, "classification": "matched", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "VariableDeclaration", "start": 12632018, "end": 12632038, "bytes": 20, "tokenCount": 9, "sha256": "9bfd6b09e9ffc5f35ac96bff38d6b6a4de388a29aaf1e1ac0331a33dde10d718", "coarseHash": "6ca404ea917768141a42049b0c6c158311f540f69e685810208f483b509e321c", "unknownFreeIdentifierCount": 0, "canonicalProgram": {"jsonBytes": 326, "sha256": "5a4cee75cc50c88e12c37cd31f136e9af7c1cc927a863d62e1a47d42d1e7e520"}}
+  ],
+  "decision": {
+    "mode": "static-exact-source-owner-proof-only",
+    "sourceReplay": false,
+    "sourceFilesChanged": 0,
+    "replayExport": null,
+    "requiredOrder": null,
+    "reason": "The exact Target119 source already contains both authenticated constants and their only class uses. Only the generated coverage owner is false; rewriting source would add no behavior.",
+    "expectedStrictImpact": {"units": -1, "residues": -1}
+  }
+}

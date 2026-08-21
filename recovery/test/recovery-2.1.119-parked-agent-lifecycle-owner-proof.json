@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "criterion": "authenticated-parked-agent-lifecycle-static-semantic-owner-v1",
+  "status": "case-owned-static-semantic-proof-no-source-replay",
+  "evidenceIds": [
+    "target119-parked-agent-lifecycle-target-fragments",
+    "target119-parked-agent-lifecycle-forward-lineage",
+    "target119-parked-agent-lifecycle-source-semantic-equivalence"
+  ],
+  "inputs": {
+    "bundles": {
+      "118": {
+        "artifact": "2.1.118-linux-x64/cli.inner.js",
+        "bytes": 13234618,
+        "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+      },
+      "119": {
+        "artifact": "2.1.119-linux-x64/cli.inner.js",
+        "bytes": 13720987,
+        "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+      },
+      "120": {
+        "artifact": "2.1.120-linux-x64/cli.inner.js",
+        "bytes": 13784743,
+        "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+      },
+      "121": {
+        "artifact": "2.1.121-linux-x64/cli.inner.js",
+        "bytes": 13908188,
+        "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+      }
+    },
+    "structural": {
+      "119": {
+        "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+        "bytes": 2550437,
+        "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+      },
+      "120": {
+        "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+        "bytes": 2490663,
+        "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+      },
+      "121": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+        "bytes": 2540002,
+        "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+      }
+    },
+    "sourceCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "sourceFiles": [
+      {
+        "path": "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+        "gitObject": "89cadecfe4173ba43a70196161cf32acf6c172d0",
+        "bytes": 85196,
+        "sha256": "62ea45bf7d52442eebb1a1580c73d4231184fdac0229d784c5aa3316e54e988a"
+      },
+      {
+        "path": "src/hooks/useWakeRouter.ts",
+        "gitObject": "8c6ae719fff7233ba627f236978f48513a0e217d",
+        "bytes": 3786,
+        "sha256": "8d37eaea92ebd07f2551978804141c699c221ac24a384b05fc6b3c35331c8722"
+      },
+      {
+        "path": "src/Task.ts",
+        "gitObject": "196caf365197d1b2dc8f45fb3b334e86ddf202e7",
+        "bytes": 3152,
+        "sha256": "fe0aa6b5c1a116d374b87ee6c3dd8a4c59b4f57fb7cd1a2cf00262ec048644c5"
+      }
+    ]
+  },
+  "target": {
+    "units": [
+      {
+        "targetIndex": 14966,
+        "role": "agent lifecycle classifier",
+        "nodeType": "FunctionDeclaration",
+        "start": 9319783,
+        "end": 9319982,
+        "bytes": 199,
+        "tokenCount": 72,
+        "sha256": "af6359484c74b0607d0016a57724f64c44b2dc3f89827813a19e922f58669446",
+        "coarseHash": "0525fb4a84569e390625fb743ca62b4bd177f45bbb867451e78e18f4687d9282"
+      },
+      {
+        "targetIndex": 14967,
+        "role": "parked agent predicate",
+        "nodeType": "FunctionDeclaration",
+        "start": 9319982,
+        "end": 9320023,
+        "bytes": 41,
+        "tokenCount": 14,
+        "sha256": "d1129670824e6066d41cdd4f25128a27b206ac8e933e585490b41271c75d2583",
+        "coarseHash": "50ed39f4e6de39f72a8d9b871e38fded6ff6e592a90d6d2a8a83228540b18a9b"
+      }
+    ],
+    "adjacentOwnerUnits": [
+      {
+        "targetIndex": 14964,
+        "role": "getAgentKeepaliveReasons",
+        "start": 9319641,
+        "end": 9319692,
+        "sha256": "7a7ce4af8a51f1343b745d523db148ad23a6cb3b58ee6dcb2ce35ce1348d5454",
+        "coarseHash": "d794498a1f512cf04709c968f31392294fbc2f3571270280551b5f2d8ca80e47"
+      },
+      {
+        "targetIndex": 14965,
+        "role": "computeEvictAfter",
+        "start": 9319692,
+        "end": 9319783,
+        "sha256": "89ad06eaa75222a40d252371166371c55f1bb2f1bf335d5449abb0687b7e77fa",
+        "coarseHash": "4e7382776045fcc9c9568337feedff1d79e496415e9cbf3aff0b8cc607fc2655"
+      },
+      {
+        "targetIndex": 14968,
+        "role": "isLocalAgentTask",
+        "start": 9320023,
+        "end": 9320111,
+        "sha256": "f9b1cab792828ba5b6776a4833c17bd8f646a262b5b26bc0258b090e517b2a5c",
+        "coarseHash": "5bde079e0ae6bd388ab6d887fab40d7252bb0732122b397fade4fb038738ef95"
+      },
+      {
+        "targetIndex": 19036,
+        "role": "isTerminalTaskStatus",
+        "start": 11602245,
+        "end": 11602311,
+        "sha256": "dc1c025e5f6f1b07d957021c263839a4605b642fedb388a26636b5a1f218bf40",
+        "coarseHash": "5025e9094a25de298252547d772c2276981141e3a767663b55a9a83d32a4220a"
+      }
+    ],
+    "consumer": {
+      "targetIndex": 20690,
+      "role": "selectWakeDispatches",
+      "start": 12488823,
+      "end": 12489265,
+      "sha256": "7e354ba9494942be20ec32c8923ab11d07a706eaaedc05d68bee1432e23d255f",
+      "coarseHash": "5c95b49f657dff98696043524714eff73bf85a1e56843e57e07923afc010aa83",
+      "parkedCall": {
+        "start": 12489015,
+        "end": 12489030,
+        "bytes": 15,
+        "sha256": "1285e894d522c9afc01a08c3f964902c1e25a757d3b1aaa36f77bd26e9af8d1c"
+      }
+    }
+  },
+  "forwardLineage": [
+    {
+      "version": "2.1.120",
+      "lifecycle": {
+        "targetIndex": 15044,
+        "baselineUnitIndex": 14966,
+        "start": 9350664,
+        "end": 9350863,
+        "sha256": "c780551ad7d1d62ca7d170d21ee346bae1fe3f9e80c26bdc52b982f9282e7aa3",
+        "coarseHash": "0525fb4a84569e390625fb743ca62b4bd177f45bbb867451e78e18f4687d9282"
+      },
+      "parked": {
+        "targetIndex": 15045,
+        "baselineUnitIndex": 14967,
+        "start": 9350863,
+        "end": 9350904,
+        "sha256": "1c4e55bbd7475a199df7b4aabb9f5291013c4f69f39641f99ca9a674eb050175",
+        "coarseHash": "50ed39f4e6de39f72a8d9b871e38fded6ff6e592a90d6d2a8a83228540b18a9b"
+      },
+      "consumer": {
+        "targetIndex": 20777,
+        "baselineUnitIndex": 20690,
+        "start": 12526670,
+        "end": 12527112,
+        "sha256": "a6e051429b46b758ef157ee86a21c403e9bd804e92467294fa9609e9c4668cba",
+        "coarseHash": "5c95b49f657dff98696043524714eff73bf85a1e56843e57e07923afc010aa83"
+      },
+      "parkedCall": {
+        "start": 12526862,
+        "end": 12526877,
+        "bytes": 15,
+        "sha256": "fa7c6a5e3fae63c867a10a1ec059510f855f5a7bff2931448eceba2d5b0ab220"
+      }
+    },
+    {
+      "version": "2.1.121",
+      "lifecycle": {
+        "targetIndex": 15150,
+        "baselineUnitIndex": 15044,
+        "start": 9412550,
+        "end": 9412749,
+        "sha256": "e852df8b9adc8784fed40f8e970080daf1cc6b547e64e4ff78cb0010e509777a",
+        "coarseHash": "0525fb4a84569e390625fb743ca62b4bd177f45bbb867451e78e18f4687d9282"
+      },
+      "parked": {
+        "targetIndex": 15151,
+        "baselineUnitIndex": 15045,
+        "start": 9412749,
+        "end": 9412790,
+        "sha256": "cc6eb2f968b7bf9e64612be8aa0dd31720234fe98c837aba4fda9627751aa314",
+        "coarseHash": "50ed39f4e6de39f72a8d9b871e38fded6ff6e592a90d6d2a8a83228540b18a9b"
+      },
+      "consumer": {
+        "targetIndex": 20784,
+        "baselineUnitIndex": 20777,
+        "start": 12521571,
+        "end": 12522013,
+        "sha256": "2885cdfebf3c3a06b552624832d261006f5179a8e3759d89656d216b0764f8b1",
+        "coarseHash": "5c95b49f657dff98696043524714eff73bf85a1e56843e57e07923afc010aa83"
+      },
+      "parkedCall": {
+        "start": 12521763,
+        "end": 12521778,
+        "bytes": 15,
+        "sha256": "9ea82d60980f9f7d8ee75fc0c1b8d2101c4f41c029f41113cdcdd4c5538edd12"
+      }
+    }
+  ],
+  "source": {
+    "declarations": [
+      {
+        "path": "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+        "name": "isLocalAgentTask",
+        "start": 7145,
+        "end": 7326,
+        "bytes": 181,
+        "sha256": "1a664de25845b143afa1d60a783fa681d92c9b31c6d670f76afe56dc8acb40cd"
+      },
+      {
+        "path": "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+        "name": "getAgentKeepaliveReasons",
+        "start": 7745,
+        "end": 7886,
+        "bytes": 141,
+        "sha256": "85105132ffb14632b729e2965dcb79f08728a4068e7232c4de8ce06873714c3b"
+      },
+      {
+        "path": "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+        "name": "computeEvictAfter",
+        "start": 7888,
+        "end": 8146,
+        "bytes": 258,
+        "sha256": "182266cfa212d02b053588db4e8be3c93cbbb82fff49056f55efb0327360b1a4"
+      },
+      {
+        "path": "src/hooks/useWakeRouter.ts",
+        "name": "selectWakeDispatches",
+        "start": 877,
+        "end": 2151,
+        "bytes": 1274,
+        "sha256": "1adb59b494f0cd6875fef44793d6606b9508dc7ca184ae984f23079f7e3537ca"
+      },
+      {
+        "path": "src/Task.ts",
+        "name": "isTerminalTaskStatus",
+        "start": 667,
+        "end": 814,
+        "bytes": 147,
+        "sha256": "2683e6a2ad895f89b7d2ce10bf0a2c3623584837e8b1a962b4e003e1b00565c9"
+      }
+    ],
+    "inlineParkedRejection": {
+      "path": "src/hooks/useWakeRouter.ts",
+      "start": 1460,
+      "end": 1618,
+      "bytes": 158,
+      "sha256": "18a607fb0a1c975688d106ea99e1e8b5bbf32ebc621440fa97c73f60fa05b00f"
+    },
+    "replayHelper": null,
+    "privateHelperNamesAuthenticated": false
+  },
+  "rows": [
+    {
+      "targetIndex": 14966,
+      "ownerPath": "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+      "residues": [
+        { "kind": "string", "value": "parked", "start": 9319902, "end": 9319910, "baselineCount": 0, "targetOrdinal": 1 },
+        { "kind": "string", "value": "evicting", "start": 9319958, "end": 9319968, "baselineCount": 0, "targetOrdinal": 1 }
+      ]
+    },
+    {
+      "targetIndex": 14967,
+      "ownerPath": "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+      "residues": [
+        { "kind": "string", "value": "parked", "start": 9320014, "end": 9320022, "baselineCount": 0, "targetOrdinal": 2 }
+      ]
+    }
+  ],
+  "summary": {
+    "units": 2,
+    "residues": 3,
+    "targetIndicesSha256": "66ec95c25d30fd25e1b76d7f1ab84bb2fb0c0d7d50929776891dd0bcece7682a",
+    "residueIdentitiesSha256": "93429159788c9be4f54660614b4ce9bb925af9123b127be85885d7487744ff8c"
+  },
+  "provenance": {
+    "classification": "static-semantic-owner-proof",
+    "reasonNoReplay": "The target's private helper names are minified and no authenticated source map exposes upstream spellings. The recovered source already expresses the only live parked-agent consumer condition inline, so adding guessed helpers would duplicate behavior rather than recover a missing runtime path."
+  }
+}

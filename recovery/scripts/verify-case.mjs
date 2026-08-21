@@ -4,9 +4,49 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { isDeepStrictEqual } from 'node:util'
 import { summarizeSourceMap } from '../lib/source-map.mjs'
 import { exactTextInsertion } from '../lib/exact-text-insertion.mjs'
 import { exactOrderedTextEdits } from '../lib/exact-text-edits.mjs'
+
+const PROTECTED_PREDECESSOR_EDGES = new Map([
+  [
+    '2.1.118-to-2.1.119',
+    {
+      baseline: '2.1.118',
+      target: '2.1.119',
+      predecessorCase: '2.1.117-to-2.1.118',
+      predecessorBaseline: '2.1.117',
+      predecessorManifest:
+        'recovery/cases/2.1.117-to-2.1.118/manifest.json',
+      predecessorKind: 'legacy-lineage-verifier',
+    },
+  ],
+  [
+    '2.1.119-to-2.1.120',
+    {
+      baseline: '2.1.119',
+      target: '2.1.120',
+      predecessorCase: '2.1.118-to-2.1.119',
+      predecessorBaseline: '2.1.118',
+      predecessorManifest:
+        'recovery/cases/2.1.118-to-2.1.119/manifest.json',
+      predecessorKind: 'finalized-source-freeze',
+    },
+  ],
+  [
+    '2.1.120-to-2.1.121',
+    {
+      baseline: '2.1.120',
+      target: '2.1.121',
+      predecessorCase: '2.1.119-to-2.1.120',
+      predecessorBaseline: '2.1.119',
+      predecessorManifest:
+        'recovery/cases/2.1.119-to-2.1.120/manifest.json',
+      predecessorKind: 'finalized-source-freeze',
+    },
+  ],
+])
 
 function parseArguments(argv) {
   const result = {}
@@ -31,6 +71,195 @@ function sha256(value) {
 function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, got ${actual}`)
+  }
+}
+
+function assertDeepEqual(actual, expected, label) {
+  if (!isDeepStrictEqual(actual, expected)) {
+    throw new Error(`${label}: values differ`)
+  }
+}
+
+function assertReleaseAdjacency(manifest, baseline, target, label) {
+  const adjacency = manifest?.releaseAdjacency
+  if (
+    adjacency?.baseline !== baseline ||
+    adjacency?.target !== target ||
+    adjacency?.targetIsNextPublishedVersion !== true ||
+    adjacency?.skippedVersionsAbsent !== true ||
+    !isDeepStrictEqual(adjacency?.skipped, [])
+  ) {
+    throw new Error(
+      `${label}: expected adjacent ${baseline} -> ${target} with no skipped versions`,
+    )
+  }
+}
+
+function assertSourceTreeIdentity(identity, label) {
+  if (
+    !identity ||
+    typeof identity !== 'object' ||
+    Array.isArray(identity) ||
+    !Number.isSafeInteger(identity.files) ||
+    identity.files < 0 ||
+    !Number.isSafeInteger(identity.bytes) ||
+    identity.bytes < 0 ||
+    !/^[a-f0-9]{64}$/.test(identity.manifestSha256)
+  ) {
+    throw new Error(`${label}: invalid source-tree identity`)
+  }
+}
+
+function validateRepositoryRelativePath(relative, label) {
+  if (typeof relative !== 'string') {
+    throw new Error(`${label}: path must be a string`)
+  }
+  const parts = relative.split('/')
+  if (
+    relative.length === 0 ||
+    relative.includes('\0') ||
+    path.isAbsolute(relative) ||
+    relative.includes('\\') ||
+    path.posix.normalize(relative) !== relative ||
+    parts.includes('') ||
+    parts.includes('.') ||
+    parts.includes('..')
+  ) {
+    throw new Error(`${label}: unsafe repository-relative path ${relative}`)
+  }
+  return parts
+}
+
+function bindRealDirectoryRoot(directory, label) {
+  const unresolvedRoot = path.resolve(directory)
+  let rootStatus
+  try {
+    rootStatus = fs.lstatSync(unresolvedRoot)
+  } catch (error) {
+    throw new Error(`${label}: root is not accessible`, { cause: error })
+  }
+  if (rootStatus.isSymbolicLink() || !rootStatus.isDirectory()) {
+    throw new Error(`${label}: root must be a real directory`)
+  }
+  const root = fs.realpathSync(unresolvedRoot)
+  const resolvedStatus = fs.lstatSync(root)
+  const unresolvedAfterResolution = fs.lstatSync(unresolvedRoot)
+  if (
+    resolvedStatus.isSymbolicLink() ||
+    !resolvedStatus.isDirectory() ||
+    unresolvedAfterResolution.isSymbolicLink() ||
+    !unresolvedAfterResolution.isDirectory() ||
+    resolvedStatus.dev !== rootStatus.dev ||
+    resolvedStatus.ino !== rootStatus.ino ||
+    unresolvedAfterResolution.dev !== rootStatus.dev ||
+    unresolvedAfterResolution.ino !== rootStatus.ino
+  ) {
+    throw new Error(`${label}: root changed while resolving`)
+  }
+  return {
+    device: rootStatus.dev,
+    inode: rootStatus.ino,
+    root,
+    unresolvedRoot,
+  }
+}
+
+function assertRealDirectoryRoot(binding, label) {
+  const status = fs.lstatSync(binding.unresolvedRoot)
+  if (
+    status.isSymbolicLink() ||
+    !status.isDirectory() ||
+    status.dev !== binding.device ||
+    status.ino !== binding.inode ||
+    fs.realpathSync(binding.unresolvedRoot) !== binding.root
+  ) {
+    throw new Error(`${label}: root changed while reading`)
+  }
+}
+
+function safeRepositoryFile(repositoryRoot, relative, label) {
+  const rootBinding = bindRealDirectoryRoot(repositoryRoot, label)
+  const root = rootBinding.root
+  const parts = validateRepositoryRelativePath(relative, label)
+  let filename = root
+  let finalStatus
+  for (let index = 0; index < parts.length; index += 1) {
+    filename = path.join(filename, parts[index])
+    let status
+    try {
+      status = fs.lstatSync(filename)
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error(`${label}: missing path component ${relative}`)
+      }
+      throw error
+    }
+    if (status.isSymbolicLink()) {
+      throw new Error(`${label}: symlink path component ${relative}`)
+    }
+    const finalComponent = index === parts.length - 1
+    if (!finalComponent && !status.isDirectory()) {
+      throw new Error(`${label}: non-directory path component ${relative}`)
+    }
+    if (finalComponent && !status.isFile()) {
+      throw new Error(`${label}: expected a regular file at ${relative}`)
+    }
+    if (finalComponent) finalStatus = status
+  }
+  const realFilename = fs.realpathSync(filename)
+  if (!realFilename.startsWith(`${root}${path.sep}`)) {
+    throw new Error(`${label}: path escaped repository root`)
+  }
+  assertRealDirectoryRoot(rootBinding, label)
+  return {
+    device: finalStatus.dev,
+    filename,
+    inode: finalStatus.ino,
+    realFilename,
+    root,
+    rootDevice: rootBinding.device,
+    rootInode: rootBinding.inode,
+    unresolvedRoot: rootBinding.unresolvedRoot,
+  }
+}
+
+function readRepositoryFile(repositoryRoot, relative, label) {
+  const before = safeRepositoryFile(repositoryRoot, relative, label)
+  let descriptor
+  try {
+    descriptor = fs.openSync(
+      before.filename,
+      fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW,
+    )
+    const status = fs.fstatSync(descriptor)
+    if (!status.isFile()) {
+      throw new Error(`${label}: expected a regular file at ${relative}`)
+    }
+    assertEqual(status.dev, before.device, `${label} device identity`)
+    assertEqual(status.ino, before.inode, `${label} inode identity`)
+    const value = fs.readFileSync(descriptor)
+    const after = safeRepositoryFile(before.unresolvedRoot, relative, label)
+    assertEqual(
+      after.realFilename,
+      before.realFilename,
+      `${label} path identity`,
+    )
+    assertEqual(after.device, status.dev, `${label} final device identity`)
+    assertEqual(after.inode, status.ino, `${label} final inode identity`)
+    assertEqual(after.root, before.root, `${label} root path identity`)
+    assertEqual(
+      after.rootDevice,
+      before.rootDevice,
+      `${label} root device identity`,
+    )
+    assertEqual(
+      after.rootInode,
+      before.rootInode,
+      `${label} root inode identity`,
+    )
+    return { ...after, value }
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor)
   }
 }
 
@@ -534,14 +763,202 @@ export function verifyTarget(manifest, files) {
   }
 }
 
+export function verifyPredecessorManifest(
+  manifest,
+  manifestPath,
+  repositoryRoot,
+) {
+  const edge = PROTECTED_PREDECESSOR_EDGES.get(manifest?.case)
+  if (!edge) return null
+
+  assertEqual(manifest.schemaVersion, 4, 'current manifest schemaVersion')
+  assertReleaseAdjacency(
+    manifest,
+    edge.baseline,
+    edge.target,
+    'current release adjacency',
+  )
+
+  const predecessorDescriptor =
+    manifest.releaseAdjacency.predecessorManifest
+  if (
+    !predecessorDescriptor ||
+    typeof predecessorDescriptor !== 'object' ||
+    Array.isArray(predecessorDescriptor)
+  ) {
+    throw new Error(
+      `${manifest.case} requires releaseAdjacency.predecessorManifest`,
+    )
+  }
+  assertDeepEqual(
+    Object.keys(predecessorDescriptor).sort(),
+    ['bytes', 'path', 'sha256'],
+    'predecessor manifest descriptor fields',
+  )
+  validateRepositoryRelativePath(
+    predecessorDescriptor.path,
+    'predecessor manifest',
+  )
+  assertEqual(
+    predecessorDescriptor.path,
+    edge.predecessorManifest,
+    'predecessor manifest path',
+  )
+  if (
+    !Number.isSafeInteger(predecessorDescriptor.bytes) ||
+    predecessorDescriptor.bytes <= 0
+  ) {
+    throw new Error('predecessor manifest bytes must be a positive safe integer')
+  }
+  if (!/^[a-f0-9]{64}$/.test(predecessorDescriptor.sha256)) {
+    throw new Error('predecessor manifest sha256 must be lowercase hexadecimal')
+  }
+
+  const predecessorFile = readRepositoryFile(
+    repositoryRoot,
+    predecessorDescriptor.path,
+    'predecessor manifest',
+  )
+  const currentManifestFilename = fs.realpathSync(path.resolve(manifestPath))
+  if (predecessorFile.realFilename === currentManifestFilename) {
+    throw new Error('predecessor manifest must differ from the current manifest')
+  }
+  assertEqual(
+    predecessorFile.value.length,
+    predecessorDescriptor.bytes,
+    'predecessor manifest byte length',
+  )
+  const predecessorSha256 = sha256(predecessorFile.value)
+  assertEqual(
+    predecessorSha256,
+    predecessorDescriptor.sha256,
+    'predecessor manifest sha256',
+  )
+
+  let predecessor
+  try {
+    predecessor = JSON.parse(predecessorFile.value.toString('utf8'))
+  } catch (error) {
+    throw new Error(`predecessor manifest JSON: ${error.message}`)
+  }
+  assertEqual(predecessor.schemaVersion, 4, 'predecessor manifest schemaVersion')
+  assertEqual(
+    predecessor.case,
+    edge.predecessorCase,
+    'predecessor case identity',
+  )
+  assertReleaseAdjacency(
+    predecessor,
+    edge.predecessorBaseline,
+    edge.baseline,
+    'predecessor release adjacency',
+  )
+  assertEqual(
+    predecessor.releaseAdjacency.target,
+    manifest.releaseAdjacency.baseline,
+    'predecessor release target/current baseline',
+  )
+
+  if (edge.predecessorKind === 'legacy-lineage-verifier') {
+    const lineage = predecessor.sourceLineage
+    if (
+      lineage?.verifierResult?.status !== 'source-lineage-verified' ||
+      lineage?.verifierResult?.byteComparison !== 'exact' ||
+      lineage?.testResult?.base?.fail !== 0 ||
+      lineage?.testResult?.appliedTarget?.fail !== 0
+    ) {
+      throw new Error('predecessor source-lineage verification status is incomplete')
+    }
+  } else {
+    if (
+      predecessor.finalization?.status !== 'complete' ||
+      predecessor.sourceFreeze?.status !== 'immutable-and-self-verifying' ||
+      predecessor.recoveryScope?.allSemanticObligationsVerified !== true ||
+      predecessor.recoveryScope?.sourceClosurePending !== false ||
+      predecessor.recoveryScope?.semanticClosurePending !== false
+    ) {
+      throw new Error('predecessor finalization/source-freeze status is incomplete')
+    }
+    const lineageRelative =
+      `recovery/cases/${edge.predecessorCase}/` +
+      'recovered/source-lineage-core.json'
+    const lineageFile = readRepositoryFile(
+      repositoryRoot,
+      lineageRelative,
+      'predecessor source-lineage core',
+    )
+    let predecessorCoreLineage
+    try {
+      predecessorCoreLineage = JSON.parse(lineageFile.value.toString('utf8'))
+    } catch (error) {
+      throw new Error(`predecessor source-lineage core JSON: ${error.message}`)
+    }
+    assertDeepEqual(
+      predecessor.sourceLineage,
+      predecessorCoreLineage,
+      'predecessor embedded source lineage',
+    )
+  }
+
+  const appliedSourceTree = predecessor.sourceOracle?.appliedSourceTree
+  assertEqual(
+    appliedSourceTree?.patchSet,
+    `cumulative-2.1.89-through-${edge.baseline}-source-facing-overlays`,
+    'predecessor cumulative source patch set',
+  )
+  if (
+    !Array.isArray(appliedSourceTree.files) ||
+    appliedSourceTree.files.length === 0 ||
+    appliedSourceTree.fileCount !== appliedSourceTree.files.length
+  ) {
+    throw new Error('predecessor cumulative source file count is invalid')
+  }
+  normalizeAppliedSourceTree(repositoryRoot, appliedSourceTree)
+  const appliedPaths = appliedSourceTree.files.map(entry => entry.path)
+  assertDeepEqual(
+    appliedPaths,
+    [...appliedPaths].sort((left, right) => left.localeCompare(right)),
+    'predecessor cumulative source path ordering',
+  )
+  assertSourceTreeIdentity(
+    predecessor.sourceLineage?.base,
+    'predecessor base lineage',
+  )
+  assertSourceTreeIdentity(
+    predecessor.sourceLineage?.target,
+    'predecessor target lineage',
+  )
+  assertSourceTreeIdentity(
+    manifest.sourceLineage?.base,
+    'current base lineage',
+  )
+  assertDeepEqual(
+    predecessor.sourceLineage?.target,
+    manifest.sourceLineage?.base,
+    'predecessor target/current base lineage',
+  )
+
+  return {
+    status: 'predecessor-manifest-verified',
+    case: predecessor.case,
+    releaseTarget: predecessor.releaseAdjacency.target,
+    path: predecessorDescriptor.path,
+    bytes: predecessorFile.value.length,
+    sha256: predecessorSha256,
+  }
+}
+
 function safeCaseFile(caseRoot, relative, label) {
   if (typeof relative !== 'string') {
     throw new Error(`${label}: path must be a string`)
   }
   const parts = relative.split('/')
   if (
+    relative.length === 0 ||
+    relative.includes('\0') ||
     path.isAbsolute(relative) ||
     relative.includes('\\') ||
+    path.posix.normalize(relative) !== relative ||
     parts.length === 0 ||
     parts.includes('') ||
     parts.includes('.') ||
@@ -549,11 +966,94 @@ function safeCaseFile(caseRoot, relative, label) {
   ) {
     throw new Error(`${label}: unsafe case-relative path ${relative}`)
   }
-  const filename = path.resolve(caseRoot, ...parts)
-  if (!filename.startsWith(`${path.resolve(caseRoot)}${path.sep}`)) {
+  const rootBinding = bindRealDirectoryRoot(caseRoot, label)
+  const root = rootBinding.root
+  let filename = root
+  let finalStatus
+  for (let index = 0; index < parts.length; index += 1) {
+    filename = path.join(filename, parts[index])
+    let status
+    try {
+      status = fs.lstatSync(filename)
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error(`${label}: missing path component ${relative}`)
+      }
+      throw error
+    }
+    if (status.isSymbolicLink()) {
+      throw new Error(`${label}: symlink path component ${relative}`)
+    }
+    const finalComponent = index === parts.length - 1
+    if (!finalComponent && !status.isDirectory()) {
+      throw new Error(`${label}: non-directory path component ${relative}`)
+    }
+    if (finalComponent && !status.isFile()) {
+      throw new Error(`${label}: expected a regular file at ${relative}`)
+    }
+    if (finalComponent) finalStatus = status
+  }
+  const realFilename = fs.realpathSync(filename)
+  const relativeRealFilename = path.relative(root, realFilename)
+  if (
+    relativeRealFilename.length === 0 ||
+    path.isAbsolute(relativeRealFilename) ||
+    relativeRealFilename === '..' ||
+    relativeRealFilename.startsWith(`..${path.sep}`)
+  ) {
     throw new Error(`${label}: path escaped case directory`)
   }
-  return filename
+  assertRealDirectoryRoot(rootBinding, label)
+  return {
+    device: finalStatus.dev,
+    filename,
+    inode: finalStatus.ino,
+    realFilename,
+    root,
+    rootDevice: rootBinding.device,
+    rootInode: rootBinding.inode,
+    unresolvedRoot: rootBinding.unresolvedRoot,
+  }
+}
+
+function readCaseFile(caseRoot, relative, label) {
+  const before = safeCaseFile(caseRoot, relative, label)
+  let descriptor
+  try {
+    descriptor = fs.openSync(
+      before.filename,
+      fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW,
+    )
+    const status = fs.fstatSync(descriptor)
+    if (!status.isFile()) {
+      throw new Error(`${label}: expected a regular file at ${relative}`)
+    }
+    assertEqual(status.dev, before.device, `${label} device identity`)
+    assertEqual(status.ino, before.inode, `${label} inode identity`)
+    const value = fs.readFileSync(descriptor)
+    const after = safeCaseFile(before.unresolvedRoot, relative, label)
+    assertEqual(
+      after.realFilename,
+      before.realFilename,
+      `${label} path identity`,
+    )
+    assertEqual(after.device, status.dev, `${label} final device identity`)
+    assertEqual(after.inode, status.ino, `${label} final inode identity`)
+    assertEqual(after.root, before.root, `${label} root path identity`)
+    assertEqual(
+      after.rootDevice,
+      before.rootDevice,
+      `${label} root device identity`,
+    )
+    assertEqual(
+      after.rootInode,
+      before.rootInode,
+      `${label} root inode identity`,
+    )
+    return { ...after, value }
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor)
+  }
 }
 
 function verifyRecoveryLedger(manifest, manifestPath) {
@@ -602,8 +1102,8 @@ function verifyRecoveryLedger(manifest, manifestPath) {
     }
 
     for (const relative of edit.files) {
-      const filename = safeCaseFile(caseRoot, relative, edit.id)
-      const value = fs.readFileSync(filename)
+      const caseFile = readCaseFile(caseRoot, relative, edit.id)
+      const value = caseFile.value
       const assertion = fileAssertions.get(relative)
       if (!assertion) {
         throw new Error(`${edit.id}: ${relative} has no hash assertion`)
@@ -618,7 +1118,7 @@ function verifyRecoveryLedger(manifest, manifestPath) {
       }
       files.set(relative, {
         edit: edit.id,
-        path: filename,
+        path: caseFile.filename,
         bytes: value.length,
         sha256: sha256(value),
       })
@@ -659,7 +1159,7 @@ function verifyRecoveryLedger(manifest, manifestPath) {
   }
 }
 
-function verifyGeneratedRecoveryFiles(manifest, manifestPath) {
+export function verifyGeneratedRecoveryFiles(manifest, manifestPath) {
   const generated = manifest.generatedRecovery
   if (!generated || typeof generated !== 'object') {
     throw new Error('Case has no generatedRecovery ledger')
@@ -684,12 +1184,12 @@ function verifyGeneratedRecoveryFiles(manifest, manifestPath) {
       )
     }
     seen.add(assertion.path)
-    const filename = safeCaseFile(
+    const caseFile = readCaseFile(
       caseRoot,
       assertion.path,
       'generated recovery',
     )
-    const value = fs.readFileSync(filename)
+    const value = caseFile.value
     assertEqual(
       value.length,
       assertion.bytes,
@@ -722,6 +1222,11 @@ function main() {
     throw new Error('Both --case and --repo are required')
   }
   const manifest = JSON.parse(fs.readFileSync(args.case, 'utf8'))
+  const predecessorManifest = verifyPredecessorManifest(
+    manifest,
+    args.case,
+    path.resolve(args.repo),
+  )
   const files = {}
   const artifacts = manifest.artifacts.map(artifact => {
     const filename = resolveArtifact(artifact, args)
@@ -754,6 +1259,7 @@ function main() {
       {
         case: manifest.case,
         status: 'evidence-verified',
+        ...(predecessorManifest === null ? {} : { predecessorManifest }),
         recoveryScope: manifest.recoveryScope,
         artifacts,
         baseline,

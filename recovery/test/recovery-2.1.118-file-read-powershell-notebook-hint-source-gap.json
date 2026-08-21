@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-bounded-source-replay",
+  "criterion": "The complete authenticated Target118 FileReadTool declaration binds its oversized-notebook hint to the exact Bash/PowerShell shell-name constants through the compiled isBashToolEnabled gate. The raw Target118 semantic source retains only the Bash half. This fixture restores the missing alternate branch in that exact owner declaration and pins every target-only PowerShell residue; incidental copies elsewhere are not evidence.",
+  "summary": {
+    "units": 1,
+    "residues": 5,
+    "targetIndicesSha256": "e57aa587e81fed59eacf853432372c86f5b9b6253a4e5f5cc691fe32ba625873",
+    "residueIdentitiesSha256": "54b228f8a04d6e5327a8c892ce244dcc13e73af4db6d09ae5a83f7a94832d0f5"
+  },
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-file-read-powershell-notebook-hint-source-gap.mjs",
+      "bytes": 6871,
+      "sha256": "8d9f424d258d046f03e7b4da189325b3fbf53e3f1f78f6b11dab02b8387df606"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/tools/FileReadTool/FileReadTool.ts",
+        "blob": "a480743ad58997a095b59f4a7c0b15d1f3450640",
+        "bytes": 39333,
+        "sha256": "9a8f121b3742deeca4b9867724811e445f6970bd6116eea86e45a8be38c665b9"
+      },
+      "shellGateFile": {
+        "path": "src/utils/shell/shellToolUtils.ts",
+        "blob": "338b01494bfad36932e54b305202364fcea6929a",
+        "bytes": 1673,
+        "sha256": "e7d2877fcc51544488ec522efe682b8f544b31c1351264ee877c242e5ebd0354"
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/tools/FileReadTool/FileReadTool.ts",
+        "bytes": 40020,
+        "sha256": "06af42c952e6578caf2a26210886af4f954824600a842804f8cbc41a8cff6864"
+      }
+    }
+  },
+  "targetBindings": [
+    {
+      "role": "isBashToolEnabled",
+      "name": "P5",
+      "start": 4140396,
+      "end": 4140419,
+      "bytes": 23,
+      "sha256": "fd93dad1331414fb79e63db546671d2abe1b3bf002dbe9cff13688581e021b46",
+      "text": "function P5(){return!0}"
+    },
+    {
+      "role": "bashToolName",
+      "name": "zq",
+      "value": "Bash",
+      "start": 3037400,
+      "end": 3037413,
+      "bytes": 13,
+      "sha256": "91cae84bbee3686b94d90eb2150abb5caf6a47121cd39006f7d5acbae4f47a14",
+      "text": "var zq=\"Bash\""
+    },
+    {
+      "role": "powerShellToolName",
+      "name": "nq",
+      "value": "PowerShell",
+      "start": 3042077,
+      "end": 3042096,
+      "bytes": 19,
+      "sha256": "48b92e8ba2acda4c393e8c0bb9c0c1cfb07086a31626d7876f8254dbc7979a1b",
+      "text": "var nq=\"PowerShell\""
+    }
+  ],
+  "targetUnit": {
+    "targetIndex": 14262,
+    "start": 8969221,
+    "end": 8973415,
+    "bytes": 4194,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "62d742cfdbb955e3efaca55dbd962f4030c04cb4c3722a72532328db8b297ae3",
+    "coarseHash": "56ed78ee907ee0cbf209fcf366bbc86cb9307f0d722cba96d177f1ce27be0853",
+    "ownerPath": "src/tools/FileReadTool/FileReadTool.ts",
+    "provisionalOwnerPath": "src/tools/FileReadTool/FileReadTool.ts",
+    "behavior": "Target118 FileReadTool selects the oversized-notebook read hint through isBashToolEnabled: Bash receives the existing jq commands, while PowerShell receives exact Get-Content and ConvertFrom-Json commands for leading cells, a bounded cell range, the cell count, and code-cell sources.",
+    "residues": [
+      [
+        "string",
+        " to read specific portions:\n  Get-Content \"",
+        8969651,
+        8969694,
+        0,
+        1
+      ],
+      [
+        "string",
+        "\" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Select-Object -First 20\n  Get-Content \"",
+        8969698,
+        8969798,
+        0,
+        1
+      ],
+      [
+        "string",
+        "\" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Select-Object -Skip 100 -First 20 # Cells 100-120\n  (Get-Content \"",
+        8969802,
+        8969929,
+        0,
+        1
+      ],
+      [
+        "string",
+        "\" | ConvertFrom-Json).cells.Count # Count total cells\n  Get-Content \"",
+        8969933,
+        8970002,
+        0,
+        1
+      ],
+      [
+        "string",
+        "\" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Where-Object cell_type -eq code | Select-Object -ExpandProperty source",
+        8970006,
+        8970137,
+        0,
+        1
+      ]
+    ]
+  },
+  "sourceContract": {
+    "imports": [
+      {
+        "module": "../../utils/shell/shellToolUtils.js",
+        "binding": "isBashToolEnabled",
+        "bytes": 71,
+        "sha256": "23caa3b65b73ab755162d827713b4a04e0b9ddfb69faa6ad6363e1ed34c21685"
+      },
+      {
+        "module": "../PowerShellTool/toolName.js",
+        "binding": "POWERSHELL_TOOL_NAME",
+        "bytes": 68,
+        "sha256": "590286ee1a8d1871c4d7ad34fec90ec4ff618a2d0618e8722f3269ccedffacf6"
+      }
+    ],
+    "callInner": {
+      "name": "callInner",
+      "bytes": 9288,
+      "sha256": "867b0aca316262bcd0b441fbf9ce7918af75ae7265b1376f94526a2fcc0cbbb6"
+    },
+    "readHintDeclaration": {
+      "name": "readHint",
+      "bytes": 939,
+      "sha256": "2c1bda044c8b329aa95afb2a08e9fa4201551304def921a5ec35a2cb77ff74b6"
+    },
+    "bashHint": "Use Bash with jq to read specific portions:\n  cat \"C:/tmp/example.ipynb\" | jq '.cells[:20]' # First 20 cells\n  cat \"C:/tmp/example.ipynb\" | jq '.cells[100:120]' # Cells 100-120\n  cat \"C:/tmp/example.ipynb\" | jq '.cells | length' # Count total cells\n  cat \"C:/tmp/example.ipynb\" | jq '.cells[] | select(.cell_type==\"code\") | .source' # All code sources",
+    "powerShellHint": "Use PowerShell to read specific portions:\n  Get-Content \"C:/tmp/example.ipynb\" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Select-Object -First 20\n  Get-Content \"C:/tmp/example.ipynb\" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Select-Object -Skip 100 -First 20 # Cells 100-120\n  (Get-Content \"C:/tmp/example.ipynb\" | ConvertFrom-Json).cells.Count # Count total cells\n  Get-Content \"C:/tmp/example.ipynb\" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Where-Object cell_type -eq code | Select-Object -ExpandProperty source"
+  },
+  "evidenceIds": [
+    "target118-file-read-powershell-notebook-hint-target-fragment",
+    "target118-file-read-powershell-notebook-hint-source-replay-test",
+    "target118-file-read-powershell-notebook-hint-source-ast-test"
+  ]
+}

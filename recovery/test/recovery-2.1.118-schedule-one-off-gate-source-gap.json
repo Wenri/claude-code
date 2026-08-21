@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+  "status": "authenticated-schedule-one-off-gate-source-replay",
+  "evidenceIds": [
+    "target118-schedule-one-off-gate-target-fragment",
+    "target118-schedule-one-off-gate-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourcePreimage": {
+      "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+      "bytes": 23033,
+      "sha256": "db76c4d1f3b3e4556653ca0bae6197e14fe366083129835c496d45e0166a4364"
+    },
+    "sourcePostimage": {
+      "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+      "bytes": 23624,
+      "sha256": "fd40510f09f2bf37127ade428ab9a7f113ea90831f377ab488b516ebceae8cb9"
+    }
+  },
+  "summary": {
+    "units": 2,
+    "residues": 30,
+    "indicesSha256": "5a9a4b7612d6212ca623bd2addf6e4a0b0e504a557359dab51116ef08496e9ee",
+    "residueIdentitiesSha256": "5fa8adf633764aac0e66c2fb25cd734674f77aecac6dc0b2687111534ae740d2"
+  },
+  "sourceMarkers": {
+    "option": "oneOffEnabled: boolean",
+    "gate": "'tengu_mocha_barista'",
+    "enabledIntro": "oneOffEnabled ? ', either on a recurring cron schedule or once at a specific time' : ' on a recurring cron schedule'",
+    "disabledRequired": "oneOffEnabled ? \"- Exactly ONE of:",
+    "invocation": "        oneOffEnabled,"
+  },
+  "rows": [
+    {
+      "targetIndex": 20566,
+      "ownerPath": "src/skills/bundled/scheduleRemoteAgents.ts",
+      "behavior": "Target118 gates every one-off schedule instruction in buildPrompt behind tengu_mocha_barista while retaining recurring-only prompt text when disabled.",
+      "target": {
+        "start": 12472008,
+        "end": 12483046,
+        "bytes": 11038,
+        "nodeType": "FunctionDeclaration",
+        "structuralClass": "unresolved",
+        "sourceHash": "a9774052ae4e1dc39a281471e25c76361854da6c0253e7e930e15b01e60c6b6a"
+      },
+      "residues": [
+        {
+          "literalKind": "property",
+          "value": "oneOffEnabled",
+          "start": 12472066,
+          "end": 12472079,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": ", either on a recurring cron schedule or once at a specific time",
+          "start": 12473015,
+          "end": 12473081,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": " on a recurring cron schedule",
+          "start": 12473082,
+          "end": 12473113,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "For a one-time run, replace `\"cron_expression\": \"CRON_EXPR\"` with `\"run_once_at\": \"YYYY-MM-DDTHH:MM:SSZ\"` (RFC3339 UTC, must be in the future). Everything else is identical.\n\n",
+          "start": 12474669,
+          "end": 12474848,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "- Exactly ONE of:\n  - `cron_expression` (string) — 5-field cron in UTC. **Minimum interval is 1 hour.**\n  - `run_once_at` (string) — RFC3339 UTC timestamp. Must be in the future. Fires once, then auto-disables.",
+          "start": 12476372,
+          "end": 12476596,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "- `cron_expression` (string) — 5-field cron in UTC. **Minimum interval is 1 hour.**",
+          "start": 12476597,
+          "end": 12476687,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": ", `run_once_at`",
+          "start": 12477122,
+          "end": 12477139,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": " and `run_once_at` timestamps",
+          "start": 12477388,
+          "end": 12477419,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": " For one-time runs, the same conversion applies — \"run this at 3pm\" → `\"run_once_at\": \"YYYY-MM-DDTHH:00:00Z\"` with their 3pm converted to UTC.",
+          "start": 12477580,
+          "end": 12477734,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "\n### Current Time (for one-off runs)\n\nWhen /schedule was invoked it was **",
+          "start": 12478066,
+          "end": 12478140,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "** UTC. Treat this as an approximate anchor only — the conversation may have been running for a while since then.\n\n**Before computing any `run_once_at` value, you MUST re-check the current time** by running `date -u +%Y-%m-%dT%H:%M:%SZ` via the Bash tool. Do not guess or infer today's date from conversation context. Resolve relative requests (\"tomorrow at 9am\", \"in 3 hours\", \"next Monday\") against the freshly fetched time, then echo the resolved local time AND the UTC timestamp back to the user for confirmation before creating the routine. If the resolved time is already in the past, ask the user to clarify rather than silently rolling forward.\n",
+          "start": 12478162,
+          "end": 12478824,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": " If they want a one-time run (e.g., \"once at 3pm\", \"tomorrow morning\", \"remind me to check X later\"), use `run_once_at` instead of `cron_expression` — same timezone conversion applies. **First re-check the current time with `date -u` via Bash** (the reference time above may be stale in a long conversation), resolve the relative phrase against that fresh value, and confirm the resulting absolute timestamp with the user.",
+          "start": 12479659,
+          "end": 12480088,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "- When listing routines, `ended_reason: \"run_once_fired\"` means a one-shot already ran (shows as \"Ran\" in the web UI). The user can re-arm it by updating with a new `run_once_at`.\n",
+          "start": 12481790,
+          "end": 12481973,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "# Schedule Remote Agents\n\nYou are helping the user schedule, update, list, or run **remote** Claude Code agents. These are NOT local cron jobs — each routine spawns a fully isolated remote session (CCR) in Anthropic's cloud infrastructure",
+          "start": 12472768,
+          "end": 12473011,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": ". The agent runs in a sandboxed environment with its own git checkout, tools, and optional MCP connections.\n\n## First Step\n\n",
+          "start": 12473114,
+          "end": 12473238,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "\"}}\n        ],\n        \"allowed_tools\": [\"Bash\", \"Read\", \"Write\", \"Edit\", \"Glob\", \"Grep\"]\n      },\n      \"events\": [\n        {\"data\": {\n          \"uuid\": \"<lowercase v4 uuid>\",\n          \"session_id\": \"\",\n          \"type\": \"user\",\n          \"parent_tool_use_id\": null,\n          \"message\": {\"content\": \"PROMPT_HERE\", \"role\": \"user\"}\n        }}\n      ]\n    }\n  }\n}\n```\n\n",
+          "start": 12474293,
+          "end": 12474665,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "Generate a fresh lowercase UUID for `events[].data.uuid` yourself.\n\n## Available MCP Connectors\n\nThese are the user's currently connected claude.ai MCP connectors:\n\n",
+          "start": 12474852,
+          "end": 12475019,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "\n\n## API Field Reference\n\n### Create Routine — Required Fields\n- `name` (string) — A descriptive name\n",
+          "start": 12476254,
+          "end": 12476368,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "\n- `job_config` (object) — Session configuration (see structure above)\n\n### Create Routine — Optional Fields\n- `enabled` (boolean, default: true)\n- `mcp_connections` (array) — MCP servers to attach:\n  ```json\n  [{\"connector_uuid\": \"uuid\", \"name\": \"server-name\", \"url\": \"https://...\"}]\n  ```\n\n### Update Routine — Optional Fields\nAll fields optional (partial update):\n- `name`, `cron_expression`",
+          "start": 12476688,
+          "end": 12477118,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": ", `enabled`, `job_config`\n- `mcp_connections` — Replace MCP connections\n- `clear_mcp_connections` (boolean) — Remove all MCP connections\n\n### Cron Expression Examples\n\nThe user's local timezone is **",
+          "start": 12477143,
+          "end": 12477360,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "**. Cron expressions",
+          "start": 12477364,
+          "end": 12477384,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": " are always in UTC. When the user says a local time, convert it to UTC but confirm with them: \"9am ",
+          "start": 12477423,
+          "end": 12477522,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": " = Xam UTC, so the cron would be `0 X * * 1-5`.\"",
+          "start": 12477526,
+          "end": 12477576,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "\n\n- `0 9 * * 1-5` — Every weekday at 9am **UTC**\n- `0 */2 * * *` — Every 2 hours\n- `0 0 * * *` — Daily at midnight **UTC**\n- `30 14 * * 1` — Every Monday at 2:30pm **UTC**\n- `0 8 1 * *` — First of every month at 8am **UTC**\n\nMinimum interval is 1 hour. `*/30 * * * *` will be rejected.\n",
+          "start": 12477738,
+          "end": 12478061,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "\n## Workflow\n\n### CREATE a new routine:\n\n1. **Understand the goal** — Ask what they want the remote agent to do. What repo(s)? What task? Remind them that the agent runs remotely — it won't have access to their local machine, local files, or local environment variables.\n2. **Craft the prompt** — Help them write an effective agent prompt. Good prompts are:\n   - Specific about what to do and what success looks like\n   - Clear about which files/areas to focus on\n   - Explicit about what actions to take (open PRs, commit, just analyze, etc.)\n3. **Set the schedule** — Ask when and how often. The user's timezone is ",
+          "start": 12478829,
+          "end": 12479466,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": " = Xam UTC.\"",
+          "start": 12479643,
+          "end": 12479655,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "\n4. **Choose the model** — Default to `claude-sonnet-4-6`. Tell the user which model you're defaulting to and ask if they want a different one.\n5. **Validate connections** — Infer what services the agent will need from the user's description. For example, if they say \"check Datadog and Slack me errors,\" the agent needs both Datadog and Slack MCP connectors. Cross-reference with the connectors list above. If any are missing, warn the user and link them to https://claude.ai/customize/connectors to connect first.",
+          "start": 12480092,
+          "end": 12480619,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "` with `action: \"create\"` and show the result. The response includes the routine ID. Always output a link at the end: `https://claude.ai/code/routines/{ROUTINE_ID}`\n\n### UPDATE a routine:\n\n1. List routines first so they can pick one\n2. Ask what they want to change\n3. Show current vs proposed value\n4. Confirm and update\n\n### LIST routines:\n\n1. Fetch and display in a readable format\n2. Show: name, schedule (human-readable), enabled/disabled, next run, repo(s)\n\n### RUN NOW:\n\n1. List routines if they haven't specified which one\n2. Confirm which routine\n3. Execute and confirm\n\n## Important Notes\n\n- These are REMOTE agents — they run in Anthropic's cloud, not on the user's machine. They cannot access local files, local services, or local environment variables.\n- Always convert cron to human-readable when displaying\n",
+          "start": 12480955,
+          "end": 12481786,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "literalKind": "string",
+          "value": "- Default to `enabled: true` unless user says otherwise\n- Accept GitHub URLs in any format (https://github.com/org/repo, org/repo, etc.) and normalize to the full HTTPS URL (without .git suffix)\n- The prompt is the most important part — spend time getting it right. The remote agent starts with zero context, so the prompt must be self-contained.\n- To delete a routine, direct users to https://claude.ai/code/routines\n",
+          "start": 12481977,
+          "end": 12482402,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 20567,
+      "ownerPath": "src/skills/bundled/scheduleRemoteAgents.ts",
+      "behavior": "Target118 samples tengu_mocha_barista for each schedule invocation and passes the result into the one-off-aware prompt builder.",
+      "target": {
+        "start": 12483046,
+        "end": 12486930,
+        "bytes": 3884,
+        "nodeType": "FunctionDeclaration",
+        "structuralClass": "unresolved",
+        "sourceHash": "198bbed615b155b9c7e577842f16a8d032d7951f9323ded776364738a0488eb5"
+      },
+      "residues": [
+        {
+          "literalKind": "property",
+          "value": "oneOffEnabled",
+          "start": 12486785,
+          "end": 12486798,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 2
+        }
+      ]
+    }
+  ]
+}

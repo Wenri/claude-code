@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-ultrareview-handler-static-owner-and-closed-replay-v1",
+  "status": "case-owned-static-inherited-owner-proof-with-graph-closed-carry-forward-replay",
+  "claim": "Target121 u22067 is src/cli/handlers/ultrareview.ts::ultrareviewHandler, not the adjacent agents.ts source-map candidate. It is an exact identifier-renamed counterpart of Target120 u21966, and all 13 production-owner rows occupy identical local AST paths and byte spans. The pristine source contains each of those 13 semantics. The complete compiled handler additionally consumes a no-op task registry from paired producer u17315; the exact two-owner producer/consumer replay is closed, transactional, idempotent, and rejects unknown source states.",
+  "evidenceIds": [
+    "target121-ultrareview-handler-authenticated-whole-function",
+    "target121-ultrareview-handler-exact-alpha-predecessor",
+    "target121-ultrareview-handler-thirteen-local-invariants",
+    "target121-ultrareview-handler-exact-source-owner",
+    "target121-ultrareview-task-registry-closed-replay-graph"
+  ],
+  "inputs": {
+    "baselineBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js","bytes":13784743,"sha256":"c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+    "targetBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js","bytes":13908188,"sha256":"783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"},
+    "structuralLedger": {"path":"recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz","bytes":2540002,"sha256":"185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"},
+    "typedReportSnapshots": {
+      "preReplay": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25717702,"sha256":"f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"},
+      "postReplay": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25395103,"sha256":"87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de"},
+      "postDangerous": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25390987,"sha256":"42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7","projection":"postReplay"},
+      "postPrune": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4","projection":"postDangerous"},
+      "postDaemonOwner": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3","projection":"postPrune"}
+    },
+    "sourceCoverageSnapshots": {
+      "preReplay": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":344669,"sha256":"dafa823f59585697d7f696805d929a9427bc090b7bb33fa228c1a9e5d9e3ff43","rawBytes":2963227,"rawSha256":"a7956794d1f4c4613b3fb9917a7d827500b98b8195fec505ed373930cad1adb5"},
+      "postReplay": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"},
+      "postDangerous": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592","projection":"postReplay"},
+      "postPrune": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06","projection":"postDangerous"},
+      "postDaemonOwner": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f","projection":"postPrune"}
+    },
+    "evolutionCompatibility": {"preReplay":["preReplay"],"postReplay":["postReplay"],"postDangerous":["postDangerous"],"postPrune":["postPrune"],"postDaemonOwner":["postDaemonOwner"]}
+  },
+  "targetUnit": {
+    "targetIndex": 22067,
+    "classification": "changed",
+    "baselineUnitIndex": 21966,
+    "pairReason": "unique-coarse-structural-hash",
+    "unknownFreeIdentifierCount": 1,
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "start": 13749863,
+    "end": 13751019,
+    "bytes": 1156,
+    "tokenCount": 397,
+    "topDefinitionCount": 1,
+    "parameterCount": 2,
+    "bodyStatementCount": 12,
+    "sha256": "5d92abbb22af0a97fbd912892ce22493a0b6b0a34d129cf87358377087030fce",
+    "coarseHash": "ebcf48c50d3676ab59f0db71b5e8c00468b1f1f3690084ef1faa40ea25048266",
+    "line": 18622,
+    "column": 6538
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 21966,
+    "relation": "structural-ledger unique-coarse pair with exact complete-unit identifier canonicalization",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "start": 13682206,
+    "end": 13683362,
+    "bytes": 1156,
+    "tokenCount": 397,
+    "topDefinitionCount": 1,
+    "parameterCount": 2,
+    "bodyStatementCount": 12,
+    "sha256": "88f3c393fcc2fa9e7e618ec875efa48159d0844cd3f250e7ee5165e86691c3e6",
+    "coarseHash": "ebcf48c50d3676ab59f0db71b5e8c00468b1f1f3690084ef1faa40ea25048266",
+    "line": 18643,
+    "column": 6179
+  },
+  "adjacentCohesion": {
+    "decision": "keep the owner override scoped to u22067; immediate neighbors are exact matched boundaries and later helpers are dependency evidence only",
+    "left": {"targetIndex":22066,"baselineUnitIndex":21965,"classification":"matched","pairReason":"exact-scope-normalized-token-hash","nodeType":"ExpressionStatement","start":13749826,"end":13749863,"tokenCount":14,"sha256":"ef316801099ed749bac70d1506488276497758997f0504235283ac3bfe85b917","coarseHash":"828ff5a94bd3f709be3ba217502621750a986b3ff5d1a0a8f29ad3dabff96045"},
+    "right": {"targetIndex":22068,"baselineUnitIndex":21967,"classification":"matched","pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":13751019,"end":13751163,"tokenCount":58,"sha256":"69ff2be04df7ca20110796a0c690177798f1ac10d456faaa83842cc86aff6434","coarseHash":"08391737a421ba8bc1772098cbcc3f5b39ec2dbcac3952fddc2497a6aee71b39"},
+    "nextHelper": {"targetIndex":22069,"baselineUnitIndex":21968,"classification":"matched","pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":13751163,"end":13751937,"tokenCount":284,"sha256":"3affd9baecb019572ab94f2fa88f1aba074b0a0052f20a05fb1b6e275cb193d4","coarseHash":"800ebaad6a8483398ce92d6aea431755a88d483a23269de05511bf6e58ccc821"}
+  },
+  "ownerResidues": {
+    "reportedOwner": "cli/handlers/agents.ts",
+    "reportedCoverageOwner": "src/cli/handlers/agents.ts",
+    "correctedOwner": "src/cli/handlers/ultrareview.ts",
+    "declarations": ["ultrareviewHandler"],
+    "totalRows": 56,
+    "targetAddedRows": 13,
+    "strictRows": 0,
+    "rowIdentities": {"bytes":3147,"sha256":"587e61e987987ab871d3ce9ad6967959fc1b10a18520958bc632d78eeccc008a"},
+    "ownerIdentities": {"bytes":4827,"sha256":"7ad340c615bb4a17f6a201df40c7eed2067a408c88d9d4cf2823b620203812b8"},
+    "targetAddedIdentities": {"bytes":699,"sha256":"41e22987f2ddd70da2ad3c435ac5055ae59c608062e361b601893492b57cda23"},
+    "strictIdentities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    "targetAddedRowsExact": [
+      ["property","timeout",13750097,13750104,400,406,true],
+      ["property","isFinite",13750115,13750123,66,67,true],
+      ["property","context",13750195,13750202,611,613,true],
+      ["property","abortController",13750204,13750219,289,290,true],
+      ["property","status",13750247,13750253,1805,1814,true],
+      ["property","status",13750276,13750282,1805,1815,true],
+      ["string","message",13750381,13750390,164,166,true],
+      ["property","message",13750397,13750404,3515,3539,true],
+      ["property","body",13750407,13750411,577,581,true],
+      ["property","message",13750425,13750432,3515,3540,true],
+      ["property","signal",13750742,13750748,603,605,true],
+      ["number","60",13750751,13750753,241,247,true],
+      ["number","1",13750902,13750903,24555,24601,true]
+    ]
+  },
+  "wholeUnitEquivalence": {
+    "canonicalization": "Acorn AST with position/raw fields removed; binding/reference Identifier.name becomes @id while noncomputed runtime property/member names remain exact",
+    "baselineCanonical": {"bytes":14939,"sha256":"bd5aa3be2a90e5b6949152c8221f27c822f360c81318f048f2d10cc1b798f80e"},
+    "targetCanonical": {"bytes":14939,"sha256":"bd5aa3be2a90e5b6949152c8221f27c822f360c81318f048f2d10cc1b798f80e"},
+    "identifierNormalizedTokens": {
+      "baseline": {"count":397,"bytes":5413,"sha256":"c03e6cf7408aee15d1a14489f07e8dad81522abac47ad83f53c6d7c375c67332"},
+      "target": {"count":397,"bytes":5413,"sha256":"c03e6cf7408aee15d1a14489f07e8dad81522abac47ad83f53c6d7c375c67332"}
+    },
+    "localInvariantNodes": [
+      {"kind":"property","value":"timeout","localStart":234,"localEnd":241,"nodeType":"Identifier","path":"body.body.3.declarations.0.init.arguments.0.property"},
+      {"kind":"property","value":"isFinite","localStart":252,"localEnd":260,"nodeType":"Identifier","path":"body.body.3.declarations.1.init.test.left.callee.property"},
+      {"kind":"property","value":"context","localStart":332,"localEnd":339,"nodeType":"Identifier","path":"body.body.3.declarations.3.init.argument.arguments.1.properties.2.key"},
+      {"kind":"property","value":"abortController","localStart":341,"localEnd":356,"nodeType":"Identifier","path":"body.body.3.declarations.3.init.argument.arguments.1.properties.2.value.properties.0.key"},
+      {"kind":"property","value":"status","localStart":384,"localEnd":390,"nodeType":"Identifier","path":"body.body.4.test.left.property"},
+      {"kind":"property","value":"status","localStart":413,"localEnd":419,"nodeType":"Identifier","path":"body.body.4.consequent.body.0.declarations.0.init.test.left.left.property"},
+      {"kind":"string","value":"message","localStart":518,"localEnd":527,"nodeType":"Literal","path":"body.body.4.consequent.body.1.argument.arguments.0.expressions.0.test.left"},
+      {"kind":"property","value":"message","localStart":534,"localEnd":541,"nodeType":"Identifier","path":"body.body.4.consequent.body.1.argument.arguments.0.expressions.0.consequent.property"},
+      {"kind":"property","value":"body","localStart":544,"localEnd":548,"nodeType":"Identifier","path":"body.body.4.consequent.body.1.argument.arguments.0.expressions.0.alternate.property"},
+      {"kind":"property","value":"message","localStart":562,"localEnd":569,"nodeType":"Identifier","path":"body.body.5.expression.expressions.0.arguments.0.property"},
+      {"kind":"property","value":"signal","localStart":879,"localEnd":885,"nodeType":"Identifier","path":"body.body.7.block.body.0.expression.right.argument.arguments.1.property"},
+      {"kind":"number","value":"60","localStart":888,"localEnd":890,"nodeType":"Literal","path":"body.body.7.block.body.0.expression.right.argument.arguments.2.left.right"},
+      {"kind":"number","value":"1","localStart":1039,"localEnd":1040,"nodeType":"Literal","path":"body.body.9.consequent.expression.expressions.1.arguments.0.consequent"}
+    ]
+  },
+  "sourceState": {
+    "path": "src/cli/handlers/ultrareview.ts",
+    "declaration": "ultrareviewHandler",
+    "baseline": {"path":".recovery-tmp/semantic-trees/2.1.120/src/cli/handlers/ultrareview.ts","selectedPath":"src/cli/handlers/ultrareview.ts","commit":"6801ead984ba2c3df02bd092ad8b93df096ed8c1","blob":"b7b86c1c7e4682ec906980f1a9feb8ae61648211","bytes":8140,"chars":8120,"sha256":"c43e445e1044b2e35697a00950651a728e59e8c2c8d6fa6f75797ebdba84e77b"},
+    "target": {"path":".recovery-tmp/semantic-trees/2.1.121/src/cli/handlers/ultrareview.ts","selectedPath":"src/cli/handlers/ultrareview.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"b7b86c1c7e4682ec906980f1a9feb8ae61648211","bytes":8140,"chars":8120,"sha256":"c43e445e1044b2e35697a00950651a728e59e8c2c8d6fa6f75797ebdba84e77b"},
+    "function": {"nodeType":"FunctionDeclaration","start":5885,"end":8119,"chars":2234,"bytes":2240,"sha256":"f0fde1f2c3f0f8cd3f07d4ba9f4f476229fe6024a128fe7e7a02deaddb178f65","line":182,"column":1,"parameterCount":2,"bodyStatementCount":22},
+    "launchCall": {"start":6627,"end":6744,"chars":117,"bytes":117,"sha256":"2ff897baf0023a18a66db9d4aa30ef00b92abfbaba95fe25c9d85285b3b7f9b5"},
+    "contextProperty": {"start":6710,"end":6738,"chars":28,"bytes":28,"sha256":"9f96a821dcacfa4f3a94837dfb5aa104f603a0d592d0f1555e7e772a2d77ae05","exact":"context: { abortController }","propertyNames":["abortController"]},
+    "residueSemanticCounts": {"property:timeout":1,"property:isFinite":1,"property:context":1,"property:abortController":1,"property:status":2,"string:message":1,"property:message":2,"property:body":1,"property:signal":1,"number:60":1,"number:1":1},
+    "replayGapCounts": {"NOOP_TASK_REGISTRY":0,"taskRegistry":0},
+    "replayedTarget": {
+      "selectedPath": "src/cli/handlers/ultrareview.ts",
+      "bytes": 8241,
+      "chars": 8221,
+      "sha256": "a0860b36f5cc8616664201479ed23548cecd8376f65e26b355f46041b1793dbd",
+      "function": {"nodeType":"FunctionDeclaration","start":5952,"end":8220,"chars":2268,"bytes":2274,"sha256":"b3d9d55dcd1a449a1c81fab7b649ae1dd49ceebd9e64b8c29ac679017df75dfa","line":183,"column":1,"parameterCount":2,"bodyStatementCount":22},
+      "launchCall": {"start":6694,"end":6845,"chars":151,"bytes":151,"sha256":"7826af868c8028f1573e22f394893e71f279faa74d33c609a120898993d73e2b","line":205,"column":26},
+      "contextProperty": {"start":6777,"end":6839,"chars":62,"bytes":62,"sha256":"de5f9e3c514318daa6c9641581514b62e6038fe534c89b8cc6608da40625cb3b","exact":"context: { abortController, taskRegistry: NOOP_TASK_REGISTRY }","propertyNames":["abortController","taskRegistry"]},
+      "replayGapCounts": {"NOOP_TASK_REGISTRY":2,"taskRegistry":1}
+    }
+  },
+  "compiledReplayGraph": {
+    "producer": {
+      "target": {"targetIndex":17315,"baselineUnitIndex":17195,"classification":"changed","pairReason":"unique-coarse-structural-hash","unknownFreeIdentifierCount":1,"nodeType":"VariableDeclaration","start":10769320,"end":10769451,"bytes":131,"tokenCount":61,"sha256":"711f511c70ddeadd088880f8526e7b103a455e4fc7b27534827edb57260e8b10","coarseHash":"9c59d87f7a5fcc74d34e72471f3ab0eba898ab451f692011946be3cda2834698","binding":"ycH"},
+      "baseline": {"baselineUnitIndex":17195,"nodeType":"VariableDeclaration","start":10700894,"end":10701025,"bytes":131,"tokenCount":61,"sha256":"94b81a41ce48162a0f5e3d97ba9b3376db674d2b709f400ddad02beb3795c8d6","coarseHash":"9c59d87f7a5fcc74d34e72471f3ab0eba898ab451f692011946be3cda2834698","binding":"CdH"},
+      "objectExpression": {"localStart":19,"localEnd":128,"bytes":109,"sha256":"cbaecd30f458640d119180b20cc478fae84ccbc3368a4115615f756cdf4b4b40","propertyNames":["register","update","remove","evictTerminal","applyOffsetsAndEvict","get","all"]}
+    },
+    "consumer": {
+      "callPath": "body.0.body.body.3.declarations.3.init.argument",
+      "localStart": 290,
+      "localEnd": 378,
+      "optionPropertyNames": ["confirm","skipTaskRegistration","context"],
+      "contextPropertyNames": ["abortController","taskRegistry"],
+      "baseline": {"call":{"bytes":88,"sha256":"8c5474b9627700ca2291221019bf5d31ba0c715adddfecb8f605c4d0a0146aae"},"context":{"bytes":44,"sha256":"38efe5985e990e380a0556b18b4ae2d8a9a5cad7e398b072beff9f3a19a4330f"},"taskRegistry":{"localStart":359,"localEnd":375,"bytes":16,"sha256":"78dd2f0cb83d5462b32b79d430b93978e9399a7c485226a146b731941efaf569","binding":"CdH"}},
+      "target": {"call":{"bytes":88,"sha256":"e8ddab9c09c6f93dab428ec31cfe0e7255c52d7c6b05964144a8d955000c271e"},"context":{"bytes":44,"sha256":"00e1657e7ebeae8b29869993a9edeb22ce27fc4f2252bf36b985d9a67977f21f"},"taskRegistry":{"localStart":359,"localEnd":375,"bytes":16,"sha256":"bc5c20cca8604b6e3beb32273bb089a58cb211e96901fe1e97c23f2e66f7bcf4","binding":"ycH"}}
+    }
+  },
+  "sourceReplayGraph": {
+    "decision": "carry the inherited behavior forward only as an exact two-owner graph; never replay the handler consumer without its framework producer",
+    "reason": "Both authenticated bundles bind launchUltrareview.context.taskRegistry to the exact seven-method no-op object. The pristine package source lacks the producer export and consumer import/property. Adding both pinned nodes closes the only missing binding edge; the exact pre/post descriptors make the replay transactional, idempotent, and fail-closed.",
+    "owners": [
+      {"ownerPath":"src/utils/task/framework.ts","role":"producer","preimage":{"bytes":11807,"sha256":"8c7929a94c67c282682097307d9bbcaa2cda19b9b3285916f929dab5afba938b"},"postimage":{"bytes":12009,"sha256":"b577b57a19d8ed7306361cab71efd5b5a30d5ed8c1032dc413be160027aea5e9"}},
+      {"ownerPath":"src/cli/handlers/ultrareview.ts","role":"consumer","preimage":{"bytes":8140,"sha256":"c43e445e1044b2e35697a00950651a728e59e8c2c8d6fa6f75797ebdba84e77b"},"postimage":{"bytes":8241,"sha256":"a0860b36f5cc8616664201479ed23548cecd8376f65e26b355f46041b1793dbd"}}
+    ],
+    "postimageAst": {
+      "producerDeclaration": {"nodeType":"VariableDeclaration","start":3512,"end":3699,"chars":187,"bytes":187,"sha256":"09488c1d11976a89055f1d2491f31ae3ad24c5fe23f15aec5ad1610605e33877","line":127,"column":14},
+      "consumerImport": {"nodeType":"ImportDeclaration","start":867,"end":933,"chars":66,"bytes":66,"sha256":"4c9ea25b15b287c8f0183db36bbe60391f12c1670e8c241116677c90fe7035b0","line":14,"column":1},
+      "consumerFunction": {"nodeType":"FunctionDeclaration","start":5952,"end":8220,"chars":2268,"bytes":2274,"sha256":"b3d9d55dcd1a449a1c81fab7b649ae1dd49ceebd9e64b8c29ac679017df75dfa","line":183,"column":1}
+    }
+  },
+  "sourceCoverageClaim": {
+    "row": {"targetIndex":22067,"start":13749863,"end":13751019,"nodeType":"FunctionDeclaration","sourceHash":"5d92abbb22af0a97fbd912892ce22493a0b6b0a34d129cf87358377087030fce","structuralClass":"changed","disposition":"source-runtime-covered","ownerIds":["owner-src-cli-handlers-agents-ts"],"evidenceIds":["target121-focused-residue-target-fragment","target121-focused-residue-static-ast","target121-focused-residue-semantic-test"],"behavior":"The authenticated complete target unit has 13 typed residues proved as paired-local-invariant; the focused fixture pins its conservative source-map and coverage-owner union."},
+    "rowCanonical": {"bytes":609,"sha256":"62e0d7382de3ea557d6d4911141bcd83d43486bbcf9ea32edd7ad0b606b31214"},
+    "reportedOwner": {"id":"owner-src-cli-handlers-agents-ts","path":"src/cli/handlers/agents.ts"}
+  },
+  "postReplay": {
+    "ownerResidues": {
+      "reportedOwner": null,
+      "reportedCoverageOwner": "src/cli/handlers/ultrareview.ts",
+      "correctedOwner": "src/cli/handlers/ultrareview.ts",
+      "declarations": ["ultrareviewHandler"],
+      "totalRows": 0,
+      "targetAddedRows": 0,
+      "strictRows": 0,
+      "rowIdentities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+      "ownerIdentities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+      "targetAddedIdentities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+      "strictIdentities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+      "targetAddedRowsExact": []
+    },
+    "partitionDelta": {"removedOwnerRows":56,"removedAddedOwnerRows":13,"removedStrictRows":0},
+    "sourceCoverageClaim": {
+      "row": {"targetIndex":22067,"start":13749863,"end":13751019,"nodeType":"FunctionDeclaration","sourceHash":"5d92abbb22af0a97fbd912892ce22493a0b6b0a34d129cf87358377087030fce","structuralClass":"changed","disposition":"source-runtime-covered","ownerIds":["owner-src-cli-handlers-ultrareview-ts"],"evidenceIds":["target121-ultrareview-handler-authenticated-whole-function","target121-ultrareview-handler-exact-alpha-predecessor","target121-ultrareview-handler-thirteen-local-invariants","target121-ultrareview-handler-exact-source-owner","target121-ultrareview-task-registry-closed-replay-graph"],"behavior":"The authenticated Target121 Ultrareview handler is a complete identifier-renamed counterpart of paired Target120 u21966. All 13 targetAdded timeout, isFinite, context, abortController, status, message, body, signal, 60, and 1 rows occupy the same local AST paths and byte spans in both functions, so they are retained semantics whose reported agents.ts owner is adjacency bleed. The exact authored ultrareviewHandler contains the same 13 semantic occurrences. Its compiled launch context also consumes the exact no-op task registry produced by paired unit u17315; the bounded carry-forward replay is graph-closed across src/utils/task/framework.ts and src/cli/handlers/ultrareview.ts and refuses unknown source states."},
+      "rowCanonical": {"bytes":1318,"sha256":"079b397649ba9c2bd26aea5469746352d83604f7b392429641ba693d8bda6f18"},
+      "reportedOwner": {"id":"owner-src-cli-handlers-ultrareview-ts","path":"src/cli/handlers/ultrareview.ts"}
+    }
+  },
+  "postDangerous": {
+    "ownerResidueProjection": "postReplay",
+    "sourceCoverageProjection": "postReplay"
+  },
+  "postPrune": {
+    "ownerResidueProjection": "postDangerous",
+    "sourceCoverageProjection": "postDangerous"
+  },
+  "postDaemonOwner": {
+    "ownerResidues": {
+      "reportedOwner": "cli/handlers/ultrareview.ts",
+      "reportedCoverageOwner": "src/cli/handlers/ultrareview.ts",
+      "correctedOwner": "src/cli/handlers/ultrareview.ts",
+      "declarations": ["ultrareviewHandler"],
+      "totalRows": 1,
+      "targetAddedRows": 0,
+      "strictRows": 0,
+      "rowIdentities": {"bytes":59,"sha256":"09651611e5d4b34811c8000a35d754937cd246454316946a55dacb2439c4238d"},
+      "ownerIdentities": {"bytes":94,"sha256":"005b539c179f198d75d6d22de5ae496aceab6a95d422bac036bd3b5b78eb2115"},
+      "targetAddedIdentities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+      "strictIdentities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+      "targetAddedRowsExact": []
+    },
+    "sourceCoverageProjection": "postPrune"
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/ultrareview-handler-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_ULTRAREVIEW_HANDLER_OWNER_OVERRIDES",
+    "evidenceExport": "TARGET121_ULTRAREVIEW_HANDLER_EVIDENCE_IDS",
+    "replayExport": "applyTarget121UltrareviewTaskRegistrySourceRecovery",
+    "replaySpecExport": "TARGET121_ULTRAREVIEW_TASK_REGISTRY_REPLAY",
+    "expectedAddedOwnerImpact": {"units":-1,"residues":-13},
+    "expectedRawStrictImpact": {"units":0,"residues":0}
+  }
+}

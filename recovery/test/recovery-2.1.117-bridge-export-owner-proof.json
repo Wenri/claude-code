@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-bridge-export-declaration-to-property-proof-v1",
+  "status": "case-owned-override-ready",
+  "evidenceIds": [
+    "target117-bridge-export-target-fragment",
+    "target117-bridge-export-source-declaration-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/bridge-export-owner-overrides.mjs",
+      "bytes": 1016,
+      "sha256": "f58b787a084956e901fa151c37328a12f5e322fb126904684cc08644cd538745"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871"
+  },
+  "summary": {
+    "units": 1,
+    "closureUnits": 2,
+    "residues": 1,
+    "rawDirectOwners": 1,
+    "declarationToPropertyRepresentations": 1,
+    "ownerOverrides": 1
+  },
+  "row": {
+    "targetIndex": 10755,
+    "kind": "raw-direct-declaration-export",
+    "owner": "src/bridge/bridgeEnabled.ts",
+    "declarations": [
+      "getBridgeAuthDebugInfo"
+    ],
+    "sourceWitness": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "blob": "7c96e0e298c0dcd4d63cd788da02280bda50d0bf",
+      "file": {
+        "bytes": 10168,
+        "sha256": "aa352b48b4a1f0807afc7c321f4066a941d5560b5bf57efabde15ce52791eab7"
+      },
+      "declaration": {
+        "name": "getBridgeAuthDebugInfo",
+        "nodeType": "FunctionDeclaration",
+        "start": 4108,
+        "end": 5772,
+        "bytes": 1664,
+        "sha256": "037301caa51c3a0c1618d43939fb3d55fc0e05735af94be29d9d0db1b6cd98d6"
+      }
+    },
+    "targetClosure": [
+      [
+        10755,
+        "unresolved",
+        "ExpressionStatement",
+        6273367,
+        6273796,
+        98,
+        "658580a1534f69ac4c907e5c226428727336cbe943f6c5ec184d4edc74efadc5",
+        "3f044a6e7f2783c04142160360441152ac3b5f8eab8f37b6bddc2c25a1a3ff5d"
+      ],
+      [
+        10760,
+        "unresolved",
+        "FunctionDeclaration",
+        6274695,
+        6275781,
+        290,
+        "618a0b1d32fcfda2ce6c68589a756ab97985f4a4351975c28d012ab36196e8cb",
+        "448864e58b4d2f92fb109b94358fe2da3644410e73f679fcaef025345778fc46"
+      ]
+    ],
+    "semanticStrings": [
+      "CLAUDE_CODE_USE_BEDROCK",
+      "CLAUDE_CODE_USE_VERTEX",
+      "CLAUDE_CODE_USE_FOUNDRY",
+      "CLAUDE_CODE_USE_ANTHROPIC_AWS",
+      "CLAUDE_CODE_USE_MANTLE",
+      "[debug] Remote Control auth state:",
+      "  oauthAccount.organizationUuid=",
+      "  CLAUDE_CODE_OAUTH_TOKEN=",
+      "\n[debug] failed to collect auth state: "
+    ],
+    "residues": [
+      [
+        "property",
+        "getBridgeAuthDebugInfo",
+        6273654,
+        6273676,
+        1,
+        0
+      ]
+    ]
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "status": "authenticated-moved-matched-static-ownerless-coverage-strict-number-proof",
+  "criterion": "unique-moved-pair-global-ordinal-source-constant-fold-and-runtime-caller-v1",
+  "claim": "Target121 u22160 is the unique moved, exact-scope-normalized structural pair of Target120 u19487. Both complete declarations initialize their third binding to 10485760, and the paired logger implementations use that binding twice. The authenticated Target121 source commit declares DAEMON_LOG_ROTATION_BYTES as 10 * 1024 * 1024, uses it in both createDaemonLogger rotation thresholds, and reaches that logger from runDaemon; raw and postPrune source preserve the complete graph. Target120 recovered source omits the logger cluster even though its authenticated bundle contains the predecessor, so no historical source claim is made. The strict row is target-wide ordinal spill at occurrence eleven beyond the baseline total of ten. This case admits only that row, leaves the moved alpha-equivalent coverage row ownerless, performs no generator override, and replays no source.",
+  "evidenceIds": [
+    "target121-daemon-main-log-rotation-authenticated-pairing",
+    "target121-daemon-main-log-rotation-ordinal-lineage",
+    "target121-daemon-main-log-rotation-source-constant-fold",
+    "target121-daemon-main-log-rotation-runtime-caller-graph",
+    "target121-daemon-main-log-rotation-static-no-wiring"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-main-log-rotation-strict-number-owner-evidence.mjs",
+      "bytes": 3040,
+      "sha256": "e50b4abba880aeda3a8dabf8368c19f995793ecd22dde329119ce7d04ba7a539"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostPruneSnapshot": {
+      "method": "The report, coverage, all-owner row, and selected identity were frozen before this disjoint case was written. Proof tests do not reopen the mutable report, coverage, or all-owner input.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25396455,
+        "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345989,
+        "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+        "rawBytes": 2968244,
+        "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+      },
+      "allOwnerInput": {
+        "path": ".recovery-tmp/generator-inputs/2.1.120-to-2.1.121.all-owners.json",
+        "bytes": 9491480,
+        "sha256": "a22f33e74ad03338d787b31eab6227af8aa8bad3ab4882f53dbdfb5813d63709"
+      },
+      "reportRow": {
+        "baselineOccurrenceCount": 10,
+        "literalKind": "number",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 11,
+        "value": "10485760",
+        "target": {"start": 13869300, "end": 13869308},
+        "structural": {
+          "index": 22160,
+          "classification": "moved",
+          "sourceHash": "62b7e43f05c1cfba362e6b798cca77c27c834a62b2f31bff2137da3dd8f544ee"
+        },
+        "disposition": "alpha-equivalent",
+        "ownerPaths": [],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/entrypoints/cli.tsx", "../src/main.tsx"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      },
+      "reportRowDescriptor": {
+        "bytes": 497,
+        "sha256": "b8815de35a616ad37ec3d3b52e24ff554636e570e009473640f0ae43e0066b70"
+      },
+      "coverageRow": {
+        "targetIndex": 22160,
+        "start": 13869284,
+        "end": 13869309,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "62b7e43f05c1cfba362e6b798cca77c27c834a62b2f31bff2137da3dd8f544ee",
+        "structuralClass": "moved",
+        "disposition": "alpha-equivalent",
+        "ownerIds": [],
+        "evidenceIds": ["structural-pairing"]
+      },
+      "coverageRowDescriptor": {
+        "bytes": 276,
+        "sha256": "1ac3761d8e2ae6ac3e0795152941d6ae02436e4bd348a36a787eefd2130ac1de"
+      },
+      "allOwnerRow": {
+        "targetIndex": 22160,
+        "start": 13869284,
+        "end": 13869309,
+        "sourceHash": "62b7e43f05c1cfba362e6b798cca77c27c834a62b2f31bff2137da3dd8f544ee",
+        "coarseHash": "2c1764858eaf65192075dc53b522c0fd87875c864c5cb1de8d1df3b7caaa6b87",
+        "structuralClass": "moved",
+        "nodeType": "VariableDeclaration",
+        "alphaByCoarse": false,
+        "metadataEquivalent": false,
+        "owners": [],
+        "candidateOwners": [
+          {"source": "../src/main.tsx", "score": 25},
+          {"source": "../src/entrypoints/cli.tsx", "score": 25}
+        ],
+        "prefix": "var vb4,rMH,Tb4=10485760;",
+        "semanticOwnership": "source-candidate",
+        "semanticOwners": ["src/entrypoints/cli.tsx", "src/main.tsx"]
+      },
+      "allOwnerRowDescriptor": {
+        "bytes": 580,
+        "sha256": "91faccd06532880a0d029a158c1f9d66bdaed9c4dc8b4e669820d9771bc89120"
+      }
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "method": "The exact post-daemon-owner report/coverage pair and u22160 projections were captured together. Tests select this pair or the earlier postPrune pair and reject hybrids and unknown descriptors without reopening the mutable report or coverage artifacts.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "globalCounts": {
+        "ownerRows": 35634,
+        "addedOwnerRows": 1118,
+        "strictRows": 1275,
+        "coverageRows": 4807,
+        "coverageOwners": 704
+      },
+      "unitCounts": {
+        "ownerRows": 0,
+        "addedOwnerRows": 0,
+        "strictRows": 1,
+        "coverageRows": 1
+      },
+      "emptyPartitionDescriptor": {
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "strictRows": [{
+        "baselineOccurrenceCount": 10,
+        "literalKind": "number",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 11,
+        "value": "10485760",
+        "target": {"start": 13869300, "end": 13869308},
+        "structural": {
+          "index": 22160,
+          "classification": "moved",
+          "sourceHash": "62b7e43f05c1cfba362e6b798cca77c27c834a62b2f31bff2137da3dd8f544ee"
+        },
+        "disposition": "alpha-equivalent",
+        "ownerPaths": [],
+        "ownerSourceMatches": [],
+        "candidates": ["../src/entrypoints/cli.tsx", "../src/main.tsx"],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }],
+      "strictRowsDescriptor": {
+        "bytes": 499,
+        "sha256": "26ff70755dbf08436eb360b458b724f816fbb6b16ff1bf325b455a626137faf5"
+      },
+      "strictIdentities": [
+        [22160, "number", "10485760", 13869300, 13869308, 10, 11, true]
+      ],
+      "strictIdentitiesDescriptor": {
+        "bytes": 58,
+        "sha256": "daae6a3ccb7c90bf1eb0867c9fc5f5d303d08b72d238def1f3feeb09ae610b79"
+      },
+      "coverageRows": [{
+        "targetIndex": 22160,
+        "start": 13869284,
+        "end": 13869309,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "62b7e43f05c1cfba362e6b798cca77c27c834a62b2f31bff2137da3dd8f544ee",
+        "structuralClass": "moved",
+        "disposition": "alpha-equivalent",
+        "ownerIds": [],
+        "evidenceIds": ["structural-pairing"]
+      }],
+      "coverageRowsDescriptor": {
+        "bytes": 278,
+        "sha256": "4ffa1d320a67b31879f758323e942a1caf1bbf7ced09dee287bc2c7577261483"
+      }
+    },
+    "sourceRoots": {
+      "baseline": ".recovery-tmp/semantic-trees/2.1.120/src",
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "rowBoundary": {
+    "admitted": [22160, "number", "10485760", 13869300, 13869308, 10, 11, true],
+    "admittedDescriptor": {
+      "bytes": 56,
+      "sha256": "3310c16c56e037568fd3b64aad32aa3f71318a812ac23064de22f886f3101ec0"
+    },
+    "partitionSnapshot": {
+      "productionStrict": {"units": 1, "rows": 1},
+      "owner": {"units": 0, "rows": 0},
+      "addedOwner": {"units": 0, "rows": 0},
+      "unclassifiedAdded": {"units": 0, "rows": 0},
+      "coverage": {"units": 1, "rows": 1},
+      "allOwner": {"units": 1, "rows": 1}
+    },
+    "postProofProjection": {
+      "productionStrict": {"units": 0, "rows": 0},
+      "owner": {"units": 0, "rows": 0},
+      "addedOwner": {"units": 0, "rows": 0},
+      "unclassifiedAdded": {"units": 0, "rows": 0},
+      "coverage": {"units": 1, "rows": 1},
+      "allOwner": {"units": 1, "rows": 1}
+    },
+    "physicalPartitionDelta": {
+      "productionStrict": {"units": -1, "rows": -1},
+      "owner": {"units": 0, "rows": 0},
+      "addedOwner": {"units": 0, "rows": 0},
+      "unclassifiedAdded": {"units": 0, "rows": 0},
+      "coverage": {"units": 0, "rows": 0},
+      "allOwner": {"units": 0, "rows": 0}
+    },
+    "beforeOwnerPaths": [],
+    "staticProofOwnerPaths": ["src/daemon/main.ts"],
+    "wholeUnitOverride": false,
+    "coverageGeneratorWiringAuthorized": false,
+    "synthesizedCorrectionAccepted": false,
+    "sourceReplay": false
+  },
+  "structuralPair": {
+    "classification": "moved",
+    "baselineUnitIndex": 19487,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "moveEvidence": "unique-exact-structural-hash",
+    "unknownFreeIdentifierCount": 0,
+    "baseline": {
+      "index": 19487,
+      "nameBindings": ["KO4", "jOH", "qO4"],
+      "numberBinding": "qO4",
+      "nodeType": "VariableDeclaration",
+      "parseStatus": "parsed",
+      "start": 11851066,
+      "end": 11851091,
+      "bytes": 25,
+      "tokenCount": 9,
+      "topDefinitionCount": 3,
+      "sha256": "19b8039b0302c3c34be98b6ce08c91e9b2e64cb3b0f9be1cea87520719b2e8ea",
+      "coarseHash": "2c1764858eaf65192075dc53b522c0fd87875c864c5cb1de8d1df3b7caaa6b87",
+      "text": "var KO4,jOH,qO4=10485760;"
+    },
+    "target": {
+      "index": 22160,
+      "nameBindings": ["vb4", "rMH", "Tb4"],
+      "numberBinding": "Tb4",
+      "nodeType": "VariableDeclaration",
+      "parseStatus": "parsed",
+      "start": 13869284,
+      "end": 13869309,
+      "bytes": 25,
+      "tokenCount": 9,
+      "topDefinitionCount": 3,
+      "sha256": "62b7e43f05c1cfba362e6b798cca77c27c834a62b2f31bff2137da3dd8f544ee",
+      "coarseHash": "2c1764858eaf65192075dc53b522c0fd87875c864c5cb1de8d1df3b7caaa6b87",
+      "text": "var vb4,rMH,Tb4=10485760;"
+    },
+    "canonicalAst": {
+      "method": "Acorn AST with offsets/raw removed and every Identifier name replaced by @id",
+      "bytes": 387,
+      "sha256": "537a9083bb0a77d8c689958677783775d50d6e7eb5aef86597428df6b12a1d01"
+    },
+    "normalizedTokenShape": {
+      "method": "[token-label,value] rows with identifier values replaced by @id",
+      "bytes": 120,
+      "sha256": "3bdd9fefcbee88d527700e73a17d83804974a3d6e94e4efd248b1de55b90cc53"
+    }
+  },
+  "numberOccurrenceLineage": {
+    "value": "10485760",
+    "baseline": {
+      "count": 10,
+      "coordinatesDescriptor": {
+        "bytes": 187,
+        "sha256": "7873a4fa11b6b3f91225b448a3705a025df23601b918e5b73902924b280d96d2"
+      },
+      "pairedUnitCoordinate": [11851082, 11851090],
+      "pairedUnitOrdinal": 7
+    },
+    "target": {
+      "count": 11,
+      "coordinatesDescriptor": {
+        "bytes": 203,
+        "sha256": "1e2e2098625bce6c3d39fd58428316a537fe1ef883d963a600e27e315a27a4cc"
+      },
+      "selectedCoordinate": [13869300, 13869308],
+      "selectedOrdinal": 11
+    },
+    "globalOrdinalDelta": 1,
+    "decision": "retained-paired-unit-global-occurrence-ordinal-spill"
+  },
+  "compiledRuntimeGraph": {
+    "baseline": {
+      "logger": {
+        "index": 19483,
+        "name": "_O4",
+        "nodeType": "FunctionDeclaration",
+        "start": 11850270,
+        "end": 11850737,
+        "bytes": 467,
+        "tokenCount": 251,
+        "sha256": "bfd813ad8f38c553b419cbd2d73f6e9202c849f4f61b9ba2a4888f27ef81fc4d",
+        "numberBindingReferences": [
+          {"localStart": 105, "localEnd": 108, "start": 11850375, "end": 11850378},
+          {"localStart": 282, "localEnd": 285, "start": 11850552, "end": 11850555}
+        ]
+      },
+      "adjacentUnits": [
+        {"index": 19484, "name": "Ph6", "role": "openDaemonLog", "start": 11850737, "end": 11850826, "bytes": 89, "tokenCount": 38, "sha256": "2dbc57bcf757f52b29cf453d5cce243eb1c02bc437df91714f4b30a4245841ad"},
+        {"index": 19485, "name": "Wh6", "role": "closeDaemonLog", "start": 11850826, "end": 11850882, "bytes": 56, "tokenCount": 27, "sha256": "cdb6e3af084adaaf4809ca05f4285fea7eb084647e82b52fb8aa46c21a1e90d0"},
+        {"index": 19486, "name": "Gh6", "role": "rotateDaemonLog", "start": 11850882, "end": 11851066, "bytes": 184, "tokenCount": 94, "sha256": "66c26fae3f3d4158bd28daa3cc84688a25cbe015e6c0cc2a75c20996222894a8"},
+        {"index": 19488, "name": "AO4", "role": "moduleInitializer", "start": 11851091, "end": 11851163, "bytes": 72, "tokenCount": 33, "sha256": "f9ae3e305b838c11226be865bc3f0635441f330412024357645f309c44a1a2fc"}
+      ]
+    },
+    "target": {
+      "logger": {
+        "index": 22156,
+        "name": "Vb4",
+        "sourceDeclaration": "createDaemonLogger",
+        "nodeType": "FunctionDeclaration",
+        "start": 13868484,
+        "end": 13868955,
+        "bytes": 471,
+        "tokenCount": 254,
+        "sha256": "e78fc18cc3c45f695d87d629912cce8d13769c23bc4e72d817cc8adffca24e7f",
+        "numberBindingReferences": [
+          {"localStart": 105, "localEnd": 108, "start": 13868589, "end": 13868592},
+          {"localStart": 286, "localEnd": 289, "start": 13868770, "end": 13868773}
+        ]
+      },
+      "adjacentUnits": [
+        {"index": 22157, "name": "Xu6", "role": "openDaemonLog", "classification": "moved", "baselineUnitIndex": 19484, "start": 13868955, "end": 13869044, "bytes": 89, "tokenCount": 38, "sha256": "792ad9dd5ba9c5c8e52df97674dd4fcaa58e6061300acd5aabfce04d11dbd896"},
+        {"index": 22158, "name": "Ju6", "role": "closeDaemonLog", "classification": "moved", "baselineUnitIndex": 19485, "start": 13869044, "end": 13869100, "bytes": 56, "tokenCount": 27, "sha256": "c36bf3e7e188f54c96a1f434a7cdc59569933af7bf7d2414bfd07b5df29f4321"},
+        {"index": 22159, "name": "Lu6", "role": "rotateDaemonLog", "classification": "moved", "baselineUnitIndex": 19486, "start": 13869100, "end": 13869284, "bytes": 184, "tokenCount": 94, "sha256": "3a92b52a6b1d6490a20d84c1fb8d64858376ff445e767706217c87abf2fb223d"},
+        {"index": 22161, "name": "kb4", "role": "moduleInitializer", "classification": "unresolved", "start": 13869309, "end": 13869386, "bytes": 77, "tokenCount": 37, "sha256": "34bbaebf216ef4f6fcf94e03a6246c7ca5defc7e329fbebcf379975b17225ffb"}
+      ],
+      "caller": {
+        "index": 22174,
+        "name": "bb4",
+        "sourceDeclaration": "runDaemon",
+        "nodeType": "FunctionDeclaration",
+        "start": 13875503,
+        "end": 13881181,
+        "bytes": 5678,
+        "tokenCount": 1748,
+        "sha256": "dd114539f480b0a7035caa1a759814734f6a474e0104a6dc2b97fe6c5c2e3b32",
+        "loggerReference": {"localStart": 162, "localEnd": 165, "start": 13875665, "end": 13875668}
+      }
+    }
+  },
+  "sourceLineage": {
+    "path": "src/daemon/main.ts",
+    "baseline": {
+      "version": "2.1.120",
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "f5df17bc235869a6571aa9a1bdda991ad300c0db",
+      "file": {
+        "chars": 37340,
+        "bytes": 37394,
+        "sha256": "1f4d1627b1c62d358e21aa5810f65ec9b413e47e0fe6f8f1761f9be537e0c1fc"
+      },
+      "constantDeclarations": 0,
+      "loggerDeclarations": 0,
+      "limitation": "Authenticated Target120 bundle contains the complete predecessor logger cluster, but the recovered Target120 source tree omits it. The paired bundle unit, not recovered baseline source, proves retention."
+    },
+    "targetCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+    "targetGitBlob": "258b2e28658ba44e476651e804948df583755b92",
+    "states": [
+      {
+        "name": "raw",
+        "file": {
+          "chars": 51292,
+          "bytes": 51364,
+          "sha256": "e63ff7e680a226f93c6953a0a6a096e8846982cc9f5fd705a5809ad7a7a6155a"
+        },
+        "constant": {
+          "statement": {"start": 8670, "end": 8720, "chars": 50, "bytes": 50, "sha256": "ca9ba0739cc3d65243003b983a330b4371c083e8df4ca0291590ff63e7a766ea"},
+          "declaration": {"start": 8676, "end": 8720, "chars": 44, "bytes": 44, "sha256": "ebce164135005ed26591eb7bc17a85ba418107eacfe7bdb92da386b710e9184c"},
+          "initializer": {"start": 8704, "end": 8720, "chars": 16, "bytes": 16, "sha256": "70d9640750baf5bd08a7182f188cc0f699663de7ac2356e06757cdb9b8b10439", "text": "10 * 1024 * 1024"}
+        },
+        "constantReferences": [[8676, 8701], [9733, 9758], [10124, 10149]],
+        "functions": [
+          {"name": "openDaemonLog", "start": 8818, "end": 9103, "chars": 285, "bytes": 285, "sha256": "39f34cb9385a0cfc9a6f2b05f812c3ac64d391e25c7f053c82fe025510c14c67"},
+          {"name": "closeDaemonLog", "start": 9105, "end": 9221, "chars": 116, "bytes": 116, "sha256": "45adc4c9ad78783991f7452c5610c3f9b47806f955448a2432a42e0ffd21e21d"},
+          {"name": "rotateDaemonLog", "start": 9223, "end": 9528, "chars": 305, "bytes": 305, "sha256": "5a011808ba5832bd2b82a792fea523bfcae31d0a43fa0284e088a078d3e7abaf"},
+          {"name": "createDaemonLogger", "start": 9530, "end": 10906, "chars": 1376, "bytes": 1376, "sha256": "6eeb82757a277c238e7d2e16cca3842dbef3ef9ed3587f923786bd10be35019a"}
+        ],
+        "runDaemon": {"start": 21700, "end": 36387, "chars": 14687, "bytes": 14727, "sha256": "a4a778bec5594efc40973b83307fd8be8211558f65c467dca5394a080af6112c"},
+        "createLoggerCall": {"start": 22194, "end": 22229, "chars": 35, "bytes": 35, "sha256": "75f3f6d365d056a6ff1f903410f6729f21a50fc93ead98a7b988a77dbb9d2807"}
+      },
+      {
+        "name": "postPrunePackage",
+        "file": {
+          "chars": 50964,
+          "bytes": 51036,
+          "sha256": "cb91eacf512342a4b70e01cb135eba59e621124795856eb5b4ea4762e2c5bc7c"
+        },
+        "constant": {
+          "statement": {"start": 8704, "end": 8754, "chars": 50, "bytes": 50, "sha256": "ca9ba0739cc3d65243003b983a330b4371c083e8df4ca0291590ff63e7a766ea"},
+          "declaration": {"start": 8710, "end": 8754, "chars": 44, "bytes": 44, "sha256": "ebce164135005ed26591eb7bc17a85ba418107eacfe7bdb92da386b710e9184c"},
+          "initializer": {"start": 8738, "end": 8754, "chars": 16, "bytes": 16, "sha256": "70d9640750baf5bd08a7182f188cc0f699663de7ac2356e06757cdb9b8b10439", "text": "10 * 1024 * 1024"}
+        },
+        "constantReferences": [[8710, 8735], [9767, 9792], [10158, 10183]],
+        "functions": [
+          {"name": "openDaemonLog", "start": 8852, "end": 9137, "chars": 285, "bytes": 285, "sha256": "39f34cb9385a0cfc9a6f2b05f812c3ac64d391e25c7f053c82fe025510c14c67"},
+          {"name": "closeDaemonLog", "start": 9139, "end": 9255, "chars": 116, "bytes": 116, "sha256": "45adc4c9ad78783991f7452c5610c3f9b47806f955448a2432a42e0ffd21e21d"},
+          {"name": "rotateDaemonLog", "start": 9257, "end": 9562, "chars": 305, "bytes": 305, "sha256": "5a011808ba5832bd2b82a792fea523bfcae31d0a43fa0284e088a078d3e7abaf"},
+          {"name": "createDaemonLogger", "start": 9564, "end": 10940, "chars": 1376, "bytes": 1376, "sha256": "6eeb82757a277c238e7d2e16cca3842dbef3ef9ed3587f923786bd10be35019a"}
+        ],
+        "runDaemon": {"start": 21372, "end": 36059, "chars": 14687, "bytes": 14727, "sha256": "a4a778bec5594efc40973b83307fd8be8211558f65c467dca5394a080af6112c"},
+        "createLoggerCall": {"start": 21866, "end": 21901, "chars": 35, "bytes": 35, "sha256": "75f3f6d365d056a6ff1f903410f6729f21a50fc93ead98a7b988a77dbb9d2807"}
+      }
+    ],
+    "callCountsInsideCreateDaemonLogger": {
+      "openDaemonLog": 3,
+      "closeDaemonLog": 3,
+      "rotateDaemonLog": 3
+    },
+    "runDaemonCreateLoggerCallCount": 1,
+    "constantFold": {
+      "sourceExpression": "10 * 1024 * 1024",
+      "evaluatedValue": 10485760,
+      "compiledValue": "10485760"
+    },
+    "decision": "authenticated-target-source-owner-with-moved-static-coverage-no-wiring"
+  },
+  "impact": {
+    "provenUnits": 1,
+    "provenStrictResidues": 1,
+    "strictUnitsRemoved": 1,
+    "strictRowsRemoved": 1,
+    "ownerRowsRemoved": 0,
+    "addedOwnerRowsRemoved": 0,
+    "coverageRowsChanged": 0,
+    "allOwnerRowsChanged": 0,
+    "synthesizedCoverageCorrections": 0,
+    "synthesizedOwnerRows": 0,
+    "productionRuntime": true,
+    "constantFold": true,
+    "macroOnly": false
+  }
+}

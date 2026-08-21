@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-source-gap-replay",
+  "targetIndex": 17047,
+  "evidenceIds": [
+    "target118-theme-picker-state-target-fragment",
+    "target118-theme-picker-state-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourcePreimage": {
+      "path": "src/commands/theme/theme.tsx",
+      "bytes": 5451,
+      "sha256": "79acfbbd3f0c4ca440e3826ebbed736c3e5e2664a97d334596fd34decedce41b"
+    },
+    "sourcePostimage": {
+      "path": "src/commands/theme/theme.tsx",
+      "bytes": 5732,
+      "sha256": "2a4d365a87f4aa1b81c50de7ad3e2637c7bb7b997f8d7a15e610b63ed7712c5f"
+    }
+  },
+  "target": {
+    "start": 10682277,
+    "end": 10683513,
+    "bytes": 1236,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "27fc7f08db1c361d740658eeb4642c8e88e7f43d57791d92d8aafb2381667147",
+    "structuralClass": "unresolved"
+  },
+  "residues": [
+    [
+      "property",
+      "customThemes",
+      10682334,
+      10682346,
+      0,
+      7
+    ],
+    [
+      "string",
+      "editor",
+      10682482,
+      10682490,
+      0,
+      1
+    ],
+    [
+      "string",
+      "editor",
+      10683159,
+      10683167,
+      0,
+      2
+    ]
+  ],
+  "targetMarkers": [
+    "{kind:\"picker\"}",
+    "z.kind===\"editor\"",
+    "{kind:\"editor\",initial:j}",
+    "QDH(L.slug)",
+    "J4H(j)"
+  ],
+  "sourceMarkers": [
+    "type ThemePickerState =",
+    "{ kind: 'picker' }",
+    "{ kind: 'editor'; initial: CustomTheme | undefined }",
+    "toCustomThemeSetting(customTheme.slug)",
+    "fromCustomThemeSetting(setting)",
+    "setState({ kind: 'editor', initial })"
+  ]
+}

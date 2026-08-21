@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-collapsed-shell-label-source-replay",
+  "evidenceIds": [
+    "target118-collapsed-shell-label-target-fragment",
+    "target118-collapsed-shell-label-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceInput": {
+      "path": "src/components/messages/CollapsedReadSearchContent.tsx",
+      "bytes": 78078,
+      "sha256": "8fc2cf894d4800c3bcc385815ea28a333b21d55c19db73a3d2813bfe5ab7093d"
+    },
+    "sourceOutput": {
+      "path": "src/components/messages/CollapsedReadSearchContent.tsx",
+      "bytes": 78079,
+      "sha256": "642347a5cce7f7dd9d388eafb90e0486227a6059d45b9bff761550b0b79f4cae"
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "indicesSha256": "72c71c688d3d7c08e85cb12b00090bc596489d980d1af1dbba83a89868c24663",
+    "residueIdentitiesSha256": "d4b93323d01f4ba2d77d79c6b9f5438e04276406bcbca85e58db6bbd0decebd0"
+  },
+  "row": {
+    "targetIndex": 12587,
+    "ownerPath": "src/components/messages/CollapsedReadSearchContent.tsx",
+    "behavior": "The authenticated Target118 collapsed tool group labels Bash and PowerShell activity as shell commands; the historical source is recovered from the stale bash label to the exact target shell label inside CollapsedReadSearchContent.",
+    "target": {
+      "start": 7847639,
+      "end": 7856019,
+      "bytes": 8380,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "8472ae745331afc2e8fd1744414f223f36b728282ca71c3214fdee8f643e7f8f",
+      "structuralClass": "unresolved"
+    },
+    "residues": [
+      [
+        "string",
+        " shell",
+        7853912,
+        7853920,
+        0,
+        1
+      ]
+    ],
+    "targetMarkers": [
+      "powershell_progress",
+      "bash_progress",
+      " shell",
+      "command",
+      "commands"
+    ],
+    "sourceProof": {
+      "declaration": "CollapsedReadSearchContent",
+      "before": {
+        "start": 5468,
+        "end": 19984,
+        "bytes": 14516,
+        "sha256": "8f737e0f45460823779ce4db16098c73013b214c5f9a1a804db727554d270e08"
+      },
+      "after": {
+        "start": 5468,
+        "end": 19985,
+        "bytes": 14517,
+        "sha256": "68b9e1afef27520f3412b23a556a132576e14125ea7845e420a5126a7f39e4d4"
+      },
+      "invariantMarkers": [
+        "data?.type !== 'bash_progress' && data?.type !== 'powershell_progress'",
+        "<Text key=\"bash\">",
+        "{bashCount === 1 ? 'command' : 'commands'}"
+      ],
+      "beforeMarker": "</Text> bash{' '}",
+      "afterMarker": "</Text> shell{' '}"
+    }
+  }
+}

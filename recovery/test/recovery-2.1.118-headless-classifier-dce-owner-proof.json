@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "release": "2.1.118",
+  "targetIndex": 20835,
+  "classification": "static-compiler-dce-owner-proof",
+  "owner": {
+    "path": "src/cli/print.ts",
+    "declaration": "runHeadless"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "version": "2.1.117",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "version": "2.1.118",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/cli/print.ts",
+        "blob": "abb0daa1732e1f5b5845c7a0afc52faa3162567c",
+        "bytes": 220728,
+        "sha256": "119c6cd287e2c7e4329c3aae28fe056a7b0b558742485c30726753b75b84acc6"
+      },
+      "declaration": {
+        "name": "runHeadless",
+        "characterStart": 17622,
+        "characterEnd": 37479,
+        "bytes": 19867,
+        "sha256": "36fd36153043d424ab2ac223d8ea22d4f6d26b68d89b12a4490d57e896ccd69f"
+      },
+      "permissionCallback": {
+        "bytes": 375,
+        "sha256": "47433d07ae4920c57978a226911307981a6c23c358f2658d13757ee3ec5f1574"
+      }
+    }
+  },
+  "units": {
+    "baseline": {
+      "index": 20645,
+      "nodeType": "FunctionDeclaration",
+      "start": 12919103,
+      "end": 12925500,
+      "bytes": 6397,
+      "tokenCount": 1850,
+      "sha256": "160096a4f227864aa742e2d550e411970b2ee901edaaa506d9d23e78eb15a243"
+    },
+    "target": {
+      "index": 20835,
+      "nodeType": "FunctionDeclaration",
+      "start": 13036787,
+      "end": 13043216,
+      "bytes": 6429,
+      "tokenCount": 1852,
+      "sha256": "0bdb83e0ed1b4a1c7bccdb8de7932e90378065159c26178187fadb19da565baf"
+    }
+  },
+  "transition": {
+    "baselineTelemetry": {
+      "start": 12919360,
+      "end": 12919439,
+      "bytes": 79,
+      "sha256": "63e00bae2272b8896db3062a6a772fb06913c2fffdfacf2047d296c624b0f0bf"
+    },
+    "targetTelemetry": {
+      "start": 13037044,
+      "end": 13037123,
+      "bytes": 79,
+      "sha256": "603edde260ec4f47919901caadca6829bf15fdea5666755c06e0626c298324de"
+    },
+    "telemetryCanonical": {
+      "bytes": 1000,
+      "sha256": "c44e6141bec3f43452b75e4707c5a0d34388d2da1dfcf9b6eeafc45244e1588a"
+    },
+    "baselinePermissionSequence": {
+      "start": 12923813,
+      "end": 12923889,
+      "bytes": 76,
+      "sha256": "6767faf481334d3f37b4332f00d545a2c3873bd06957c3c2a01e4547b6ac1025"
+    },
+    "targetPermissionSequence": {
+      "start": 13041497,
+      "end": 13041605,
+      "bytes": 108,
+      "sha256": "cb057ef02a182e180ba7516aa49c074e0a216129ef3bba0c0aecdcc65f1c7570"
+    },
+    "completeUnitWithoutClassifierExpression": {
+      "bytes": 72059,
+      "sha256": "7bafb9e93fed524b3eba22a99b8772ab3900b8e9bc16244fce87493626f783af"
+    },
+    "targetNullBinding": {
+      "name": "X55",
+      "start": 13099766,
+      "end": 13099774,
+      "bytes": 8,
+      "sha256": "926e318ebc115528736527adf50e488aea89ce685cb07215661615915fc1efa5",
+      "identifierCount": 2,
+      "writeCount": 0
+    }
+  },
+  "residues": {
+    "unitCount": 1,
+    "rowCount": 3,
+    "sha256": "51e1d5017b4af2ade6b2ef174c7668d0167b041d8256e4ca762f597723948af8",
+    "rows": [
+      {
+        "literalKind": "property",
+        "value": "event",
+        "start": 13037061,
+        "end": 13037066,
+        "baselineOccurrenceCount": 183,
+        "targetOccurrenceNumber": 184,
+        "targetAdded": true
+      },
+      {
+        "literalKind": "property",
+        "value": "durationMs",
+        "start": 13037077,
+        "end": 13037087,
+        "baselineOccurrenceCount": 114,
+        "targetOccurrenceNumber": 115,
+        "targetAdded": true
+      },
+      {
+        "literalKind": "property",
+        "value": "runClassifierSummaryForBlocked",
+        "start": 13041557,
+        "end": 13041587,
+        "baselineOccurrenceCount": 0,
+        "targetOccurrenceNumber": 1,
+        "targetAdded": true
+      }
+    ]
+  }
+}

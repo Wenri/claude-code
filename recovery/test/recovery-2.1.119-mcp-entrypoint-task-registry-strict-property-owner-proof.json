@@ -1,0 +1,563 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-static-retained-strict-property-and-build-macro-owner-proof",
+  "criterion": "target118-lineage-complete-unit-three-macro-normalization-retained-local-occurrence-source-state-v1",
+  "evidenceIds": [
+    "target119-mcp-entrypoint-target118-lineage-proof",
+    "target119-mcp-entrypoint-complete-unit-macro-normalization-proof",
+    "target119-mcp-entrypoint-task-registry-retained-occurrence-proof",
+    "target119-mcp-entrypoint-build-macro-partition-proof",
+    "target119-mcp-entrypoint-export-wrapper-boundary-proof",
+    "target119-mcp-entrypoint-byte-identical-source-state-proof",
+    "target119-mcp-entrypoint-static-no-replay-proof"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-u21759",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 382108,
+          "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3290710,
+          "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"
+        }
+      },
+      {
+        "phase": "post-u21878",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 383456,
+          "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3297173,
+          "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"
+        }
+      }
+    ]
+  },
+  "inputs": {
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "target118ProofContracts": {
+      "helper": {
+        "path": "recovery/cases/2.1.117-to-2.1.118/recovered/mcp-entrypoint-build-context-owner-overrides.mjs",
+        "bytes": 1333,
+        "sha256": "8e73cd137af63831e3858ba22d1e7f8c8d9ea89b44b01893819a7754e8a4fca9"
+      },
+      "fixture": {
+        "path": "recovery/test/recovery-2.1.118-mcp-entrypoint-build-context-owner-proof.json",
+        "bytes": 7212,
+        "sha256": "db0c0eaaed4a510f61e0b14283890f1e5130c22f28db35248eb8081ee9a05150"
+      },
+      "test": {
+        "path": "recovery/test/recovery-2.1.118-mcp-entrypoint-build-context-owner-proof.test.mjs",
+        "bytes": 15238,
+        "sha256": "b899e8e09331704acf203fdf269ab721074bf2a34b104887257ede5cfefe42b9"
+      }
+    },
+    "sourceCommits": {
+      "baseline": {
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+        "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0"
+      },
+      "target": {
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92"
+      }
+    }
+  },
+  "snapshotPartitions": {
+    "ownerDescriptor": {
+      "rows": 33,
+      "jsonBytes": 13708,
+      "sha256": "9c057758583245d047087858986057bc341868c42c51974acb4adf2f6e694aa4"
+    },
+    "ownerTupleDescriptor": {
+      "rows": 33,
+      "jsonBytes": 6580,
+      "sha256": "225b6049263cc57a953c6bd704cd7124371bdfdfc9e2e6d823824973fa258780"
+    },
+    "ownerValueSequence": [
+      "ISSUES_EXPLAINER",
+      "report the issue at https://github.com/anthropics/claude-code/issues",
+      "PACKAGE_URL",
+      "@anthropic-ai/claude-code",
+      "README_URL",
+      "https://code.claude.com/docs/en/overview",
+      "2.1.119",
+      "FEEDBACK_CHANNEL",
+      "https://github.com/anthropics/claude-code/issues",
+      "BUILD_TIME",
+      "2026-04-23T19:08:52Z",
+      "GIT_SHA",
+      "6f68554839756189e277b8285a18fe47acd9a5a1",
+      "params",
+      "arguments",
+      "toolPermissionContext",
+      "getEffortValue",
+      "getAutoCompactWindow",
+      "getFastMode",
+      "1",
+      "getCacheBreakerPhrase",
+      "setToolPermissionContext",
+      "taskRegistry",
+      "sessionHooksRegistry",
+      "setClassifierApprovals",
+      "setWebBrowserSlice",
+      "agentLifecycle",
+      "teammateColors",
+      "addResponseLength",
+      "resetResponseLength",
+      "getFileHistoryState",
+      "applyFileHistoryOp",
+      "applyAttributionOp"
+    ],
+    "addedDescriptor": {
+      "rows": 7,
+      "jsonBytes": 77518,
+      "sha256": "72cd14de8aa4054952017e7a135dfb583a9c66b76ebcb1f58f5fb188e25777bc"
+    },
+    "addedTupleDescriptor": {
+      "rows": 7,
+      "jsonBytes": 1349,
+      "sha256": "0e4e6420728a554e40b459cd5b46c458505cd012b01e9aacdd371a7c26df6d44"
+    },
+    "strictDescriptor": {
+      "rows": 4,
+      "jsonBytes": 2090,
+      "sha256": "f30577190bfc29b38b5c8cb786e55619fca7e4fc6b7a3601705722ab3376b235"
+    },
+    "strictTupleDescriptor": {
+      "rows": 4,
+      "jsonBytes": 790,
+      "sha256": "36c4aa5216660fa7daf5332b52e4306c65068a22e1ccac0bd9aa4ecd2b6d0550"
+    },
+    "tupleSchema": [
+      "value",
+      "literalKind",
+      "targetAdded",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber",
+      "target.start",
+      "target.end",
+      "structural.index",
+      "structural.classification",
+      "structural.sourceHash",
+      "disposition",
+      "ownerPaths"
+    ],
+    "addedTuples": [
+      ["2.1.119", "string", true, 0, 130, 13588102, 13588111, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["2026-04-23T19:08:52Z", "string", true, 0, 130, 13588191, 13588213, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["6f68554839756189e277b8285a18fe47acd9a5a1", "string", true, 0, 130, 13588222, 13588264, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["params", "property", true, 314, 346, 13588587, 13588593, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["arguments", "property", true, 31, 35, 13588602, 13588611, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["1", "number", true, 23676, 24347, 13589098, 13589099, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["taskRegistry", "property", true, 85, 86, 13589167, 13589179, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]]
+    ],
+    "strictTuples": [
+      ["2.1.119", "string", true, 0, 130, 13588102, 13588111, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["2026-04-23T19:08:52Z", "string", true, 0, 130, 13588191, 13588213, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["6f68554839756189e277b8285a18fe47acd9a5a1", "string", true, 0, 130, 13588222, 13588264, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]],
+      ["taskRegistry", "property", true, 85, 86, 13589167, 13589179, 21776, "unresolved", "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212", "source-runtime-covered", ["entrypoints/mcp.ts"]]
+    ],
+    "strictPartition": {
+      "buildMacroTupleIndexes": [0, 1, 2],
+      "retainedLocalOccurrenceTupleIndexes": [3]
+    },
+    "coverageTargetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 524,
+      "sha256": "54f9c51dbf2a5b7a3fe25dd0bbb5fea9d2138f228dd2d3879f02647c7375191d"
+    },
+    "coverageTarget": [
+      {
+        "targetIndex": 21776,
+        "start": 13587830,
+        "end": 13589978,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-entrypoints-mcp-ts"],
+        "evidenceIds": ["source-map-attribution", "semantic-test"],
+        "behavior": "Compiled target unit is attributed to src/entrypoints/mcp.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ],
+    "postU21878Coverage": {
+      "coverageTargetDescriptor": {
+        "rows": 1,
+        "jsonBytes": 1894,
+        "sha256": "6d0e6c66ee09331fb3fc619d1358c93972982f1edb224f5de1f357e3d5a311a3"
+      },
+      "coverageTarget": [
+        {
+          "targetIndex": 21776,
+          "start": 13587830,
+          "end": 13589978,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-entrypoints-mcp-ts"],
+          "evidenceIds": [
+            "target119-mcp-entrypoint-target118-lineage-proof",
+            "target119-mcp-entrypoint-complete-unit-macro-normalization-proof",
+            "target119-mcp-entrypoint-task-registry-retained-occurrence-proof",
+            "target119-mcp-entrypoint-build-macro-partition-proof",
+            "target119-mcp-entrypoint-export-wrapper-boundary-proof",
+            "target119-mcp-entrypoint-byte-identical-source-state-proof",
+            "target119-mcp-entrypoint-static-no-replay-proof"
+          ],
+          "behavior": "Target119 u21776 is the complete generated createMCPServer successor of authenticated Target118 u20870. Both units have 679 tokens and become byte-for-byte identical canonical streams after separately normalizing only VERSION, BUILD_TIME, and GIT_SHA. The three corresponding strict string rows are therefore inlined Target119 build identity, not source additions. The remaining strict taskRegistry property is retained at canonical token index 385 in both units with the same 17-token neighborhood and alpha-identical property AST; its report ordinal changes from Target118 global occurrence 85 to Target119 occurrence 86 only because of bundle-global drift. Matched u21774/u20868 exports createMCPServer beside startMCPServer, and matched u21775/u20869 is the wrapper that invokes it. Exact historical, raw, and fresh-package src/entrypoints/mcp.ts are byte-identical across Target118 and Target119 and contain one MACRO.VERSION access in startMCPServer, while omitting the generated task-context fields carried by both compiled units. This is static complete-unit, predecessor, build-macro, export, wrapper, and source-state evidence only; no source replay is authorized."
+        }
+      ]
+    },
+    "dependencyCoverageDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ownerCatalogDescriptor": {
+      "rows": 1,
+      "jsonBytes": 71,
+      "sha256": "d2e465fcb232e224a11f88a1402986bce6dc062e323ace9d45171672ab71d2e8"
+    },
+    "ownerCatalog": [
+      {
+        "id": "owner-src-entrypoints-mcp-ts",
+        "path": "src/entrypoints/mcp.ts"
+      }
+    ]
+  },
+  "units": {
+    "baselineCreateServer": {
+      "release": "2.1.118",
+      "index": 20870,
+      "role": "authenticated createMCPServer predecessor",
+      "nodeType": "FunctionDeclaration",
+      "start": 13106226,
+      "end": 13108375,
+      "bytes": 2149,
+      "tokenCount": 679,
+      "bodyStatements": 3,
+      "sha256": "5581590b95db872bbc692424ab36e1a6aee8417c04957751864e788295806d1a",
+      "coarseHash": "c6a4affadf001c7b904a757677780582a3fce820a4ac18c9f1f30123fb0dfc84"
+    },
+    "targetCreateServer": {
+      "release": "2.1.119",
+      "index": 21776,
+      "role": "createMCPServer strict-property owner",
+      "classification": "unresolved",
+      "manualPredecessorUnitIndex": 20870,
+      "nodeType": "FunctionDeclaration",
+      "start": 13587830,
+      "end": 13589978,
+      "bytes": 2148,
+      "tokenCount": 679,
+      "bodyStatements": 3,
+      "sha256": "6d4f564e95b204ed6578196b84e80a1e821ea73d83156d8c91348ce13363e212",
+      "coarseHash": "603dc39e9510ceed850590cdf2da8dfb191f76dc66683744ce95de7b16a8b802",
+      "unknownFreeIdentifierCount": 1
+    },
+    "exportBinding": {
+      "baseline": {
+        "index": 20868,
+        "nodeType": "ExpressionStatement",
+        "start": 13106093,
+        "end": 13106150,
+        "bytes": 57,
+        "tokenCount": 21,
+        "sha256": "7a4342c7b52d82cb1191914345a4c5e6ddee54325c656632dc116596721442cb"
+      },
+      "target": {
+        "index": 21774,
+        "classification": "matched",
+        "baselineUnitIndex": 20868,
+        "pairReason": "exact-scope-normalized-token-hash",
+        "nodeType": "ExpressionStatement",
+        "start": 13587697,
+        "end": 13587754,
+        "bytes": 57,
+        "tokenCount": 21,
+        "sha256": "431a8d394545aa419e4db99028a62e2ab0853d22637b84fed084a80cdcf02246",
+        "coarseHash": "0aec9ecef771cd1bc5b5e082811a2812c3486f2783c71da0c585547f9fdd04cd",
+        "unknownFreeIdentifierCount": 0
+      },
+      "canonical": {
+        "jsonBytes": 859,
+        "sha256": "2141293ad72399781102e2ec842ca75265e0daf036576b8d4e30c9110d319c11"
+      },
+      "requiredProperties": ["startMCPServer", "createMCPServer"]
+    },
+    "startWrapper": {
+      "baseline": {
+        "index": 20869,
+        "nodeType": "FunctionDeclaration",
+        "start": 13106150,
+        "end": 13106226,
+        "bytes": 76,
+        "tokenCount": 39,
+        "sha256": "e22f5ab871d89348285e42d93dcc10d06c5a6ba5b1440d7b1d371881a65a5874"
+      },
+      "target": {
+        "index": 21775,
+        "classification": "matched",
+        "baselineUnitIndex": 20869,
+        "pairReason": "exact-scope-normalized-token-hash",
+        "nodeType": "FunctionDeclaration",
+        "start": 13587754,
+        "end": 13587830,
+        "bytes": 76,
+        "tokenCount": 39,
+        "sha256": "8df94ea7687ab6406993d56eea62d9870a4e8dbfc7da5339d201963f3a4a58dd",
+        "coarseHash": "51028f4f7b403d89ad1735a1f647833af8dffcca15ada48d3fc62ded0fe9623a",
+        "unknownFreeIdentifierCount": 0
+      },
+      "canonical": {
+        "jsonBytes": 1317,
+        "sha256": "21e7f8589d9e0015ce986c433b197f4148de94a2ad668e6dcf2a2dcbb5b28282"
+      }
+    }
+  },
+  "completeUnitProof": {
+    "normalizations": [
+      "bundle-local identifier names",
+      "VERSION exact semantic-version literal",
+      "BUILD_TIME exact ISO timestamp literal",
+      "GIT_SHA exact forty-hex literal"
+    ],
+    "normalizedToken": "BUILD_MACRO",
+    "macroTokenIndices": [50, 58, 62],
+    "normalizedCanonicalTokenStream": {
+      "tokens": 679,
+      "jsonBytes": 3417,
+      "sha256": "797747ea5ce6e5bdb612482e2c2b42a9c35d13961191e81d1cca016a6029dd02"
+    },
+    "normalizedCanonicalAst": {
+      "jsonBytes": 25885,
+      "sha256": "6fa8519842a064b4a1cab210563ff4a2447bc453b763c5bc064f65305f0c465f"
+    },
+    "alphaOnlyDifferences": [
+      {
+        "path": "$.body.0.body.body.1.declarations.1.init.arguments.0.properties.1.value.object.properties.3.value.value",
+        "left": "2.1.118",
+        "right": "2.1.119"
+      },
+      {
+        "path": "$.body.0.body.body.1.declarations.1.init.arguments.0.properties.1.value.object.properties.5.value.value",
+        "left": "2026-04-22T21:04:38Z",
+        "right": "2026-04-23T19:08:52Z"
+      },
+      {
+        "path": "$.body.0.body.body.1.declarations.1.init.arguments.0.properties.1.value.object.properties.6.value.value",
+        "left": "ef88b5f0a79aac989f53fd18178939a54a48624a",
+        "right": "6f68554839756189e277b8285a18fe47acd9a5a1"
+      }
+    ]
+  },
+  "buildMacroProof": {
+    "VERSION": {
+      "tokenIndex": 50,
+      "baselineValue": "2.1.118",
+      "targetValue": "2.1.119",
+      "baselineLiteral": {"start": 13106499, "end": 13106508, "bytes": 9, "sha256": "1561b452b415780e3fec85c12d1a42e93a757d5d1c60a7ab88ffefd2821f7086"},
+      "targetLiteral": {"start": 13588102, "end": 13588111, "bytes": 9, "sha256": "e5fe827be54fe4cc163199975233c0200f3fdf628cbcf937d993892e6419e2bb"}
+    },
+    "BUILD_TIME": {
+      "tokenIndex": 58,
+      "baselineValue": "2026-04-22T21:04:38Z",
+      "targetValue": "2026-04-23T19:08:52Z",
+      "baselineLiteral": {"start": 13106588, "end": 13106610, "bytes": 22, "sha256": "7b3649c2ec0485b6c08201cd7e78657d358d03a34a7220b7a920942f7ae67e57"},
+      "targetLiteral": {"start": 13588191, "end": 13588213, "bytes": 22, "sha256": "aec47bcb6bd1f308890012366e6af66cabec88e5077ab491d8af07db09d3a80a"}
+    },
+    "GIT_SHA": {
+      "tokenIndex": 62,
+      "baselineValue": "ef88b5f0a79aac989f53fd18178939a54a48624a",
+      "targetValue": "6f68554839756189e277b8285a18fe47acd9a5a1",
+      "baselineLiteral": {"start": 13106619, "end": 13106661, "bytes": 42, "sha256": "89040ef93e3d596c15076c19b1b4d9ec704e01df6080d86f4e4d415e23b25c7c"},
+      "targetLiteral": {"start": 13588222, "end": 13588264, "bytes": 42, "sha256": "9f4ff836d49b6ac36615adca5f948e2f2ead18b8a43c8827e97ae904df689127"}
+    }
+  },
+  "taskRegistryProof": {
+    "classification": "retained-local-occurrence-global-ordinal-spill",
+    "baselineGlobalOccurrenceNumber": 85,
+    "targetGlobalOccurrenceNumber": 86,
+    "baseline": {
+      "tokenIndex": 385,
+      "start": 13107564,
+      "end": 13107576,
+      "property": {
+        "start": 13107564,
+        "end": 13107580,
+        "bytes": 16,
+        "sha256": "f15965de101d81b9f0d189664c70cbaaa1b9124bdb94d0b89b2a5fcbaeb666a9"
+      }
+    },
+    "target": {
+      "tokenIndex": 385,
+      "start": 13589167,
+      "end": 13589179,
+      "property": {
+        "start": 13589167,
+        "end": 13589183,
+        "bytes": 16,
+        "sha256": "8ef09a2f562e034c74246fa688eacb0a6f05bb8e4ade3d5f0333432b3e270582"
+      }
+    },
+    "canonicalProperty": {
+      "jsonBytes": 176,
+      "sha256": "7b2e573f5c06485bd0bd57f85748c968bd7d001fb44fe1ae1bda30bb290be436"
+    },
+    "canonicalNeighborhood": {
+      "radius": 8,
+      "tokens": 17,
+      "jsonBytes": 76,
+      "sha256": "dd29398a7fa395b1975c51386584f64b2db0e59e26fd5116c7a3f0d40eacdef1"
+    }
+  },
+  "sourceGraph": {
+    "sourcePath": "src/entrypoints/mcp.ts",
+    "file": {
+      "bytes": 6331,
+      "sha256": "f41f8ea5a047f9fa1cfc59e834b0ba2dc09e4f14dacaf3e838ae7abdf91f0399",
+      "gitBlobSha1": "5117323959a459b72e74c05062e85b0c1c283b94"
+    },
+    "declaration": {
+      "name": "startMCPServer",
+      "characterStart": 1335,
+      "characterEnd": 6330,
+      "byteStart": 1335,
+      "byteEnd": 6330,
+      "bytes": 4995,
+      "sha256": "dbfb7e1afc18d87f7bb8e122053461993d1b855d913bbd7c449dea9146af8260"
+    },
+    "states": [
+      {"name": "baseline-historical", "path": ".recovery-tmp/semantic-trees/2.1.118/src/entrypoints/mcp.ts"},
+      {"name": "target-historical", "path": ".recovery-tmp/semantic-trees/2.1.119/src/entrypoints/mcp.ts"},
+      {"name": "selected-target", "path": "src/entrypoints/mcp.ts"}
+    ],
+    "exports": ["startMCPServer"],
+    "nestedFunctions": ["runServer"],
+    "markerCounts": {
+      "MACRO": 1,
+      "VERSION": 1,
+      "BUILD_TIME": 0,
+      "GIT_SHA": 0,
+      "taskRegistry": 0,
+      "sessionHooksRegistry": 0,
+      "getEffortValue": 0,
+      "getAutoCompactWindow": 0,
+      "getFastMode": 0,
+      "getCacheBreakerPhrase": 0,
+      "setToolPermissionContext": 0,
+      "addResponseLength": 0,
+      "resetResponseLength": 0,
+      "getFileHistoryState": 0,
+      "applyFileHistoryOp": 0,
+      "applyAttributionOp": 0,
+      "setResponseLength": 1,
+      "updateFileHistoryState": 1,
+      "updateAttributionState": 1
+    },
+    "directIdentifierCalls": [
+      "String",
+      "createAbortController",
+      "createAssistantMessage",
+      "createFileStateCacheWithSizeLimit",
+      "findToolByName",
+      "getDefaultAppState",
+      "getEmptyToolPermissionContext",
+      "getErrorParts",
+      "getMainLoopModel",
+      "getTools",
+      "jsonStringify",
+      "logError",
+      "runServer",
+      "setCwd",
+      "zodToJsonSchema"
+    ],
+    "runtimeDependencyBindings": [
+      ["createAbortController", "../utils/abortController.js"],
+      ["createAssistantMessage", "../utils/messages.js"],
+      ["createFileStateCacheWithSizeLimit", "../utils/fileStateCache.js"],
+      ["findToolByName", "../Tool.js"],
+      ["getDefaultAppState", "src/state/AppStateStore.js"],
+      ["getEmptyToolPermissionContext", "../Tool.js"],
+      ["getErrorParts", "../utils/toolErrors.js"],
+      ["getMainLoopModel", "../utils/model/model.js"],
+      ["getTools", "../tools.js"],
+      ["jsonStringify", "../utils/slowOperations.js"],
+      ["logError", "../utils/log.js"],
+      ["setCwd", "../utils/Shell.js"],
+      ["zodToJsonSchema", "../utils/zodToJsonSchema.js"]
+    ],
+    "sourceGap": {
+      "compiledTaskRegistryPresent": true,
+      "sourceTaskRegistryPresent": false,
+      "compiledBuildIdentityFields": ["VERSION", "BUILD_TIME", "GIT_SHA"],
+      "sourceBuildIdentityAccess": "MACRO.VERSION",
+      "replayForbidden": true
+    }
+  },
+  "override": {
+    "key": "2.1.118-to-2.1.119:21776",
+    "targetIndex": 21776,
+    "ownerPaths": ["src/entrypoints/mcp.ts"],
+    "declarations": ["startMCPServer"],
+    "dependencyTargetIndices": [21774, 21775]
+  },
+  "replayDisposition": {
+    "mode": "static-only",
+    "sourceReplayAuthorized": false,
+    "replayHelper": null,
+    "reason": "The complete compiled predecessor proves taskRegistry is retained, while exact Target119 source omits the generated task-context fields. Replaying source would remove authenticated compiled behavior and is forbidden."
+  },
+  "wiringRecipe": {
+    "ownerOverrideExport": "TARGET119_MCP_ENTRYPOINT_TASK_REGISTRY_STRICT_PROPERTY_OWNER_OVERRIDES",
+    "dependencyExport": "TARGET119_MCP_ENTRYPOINT_TASK_REGISTRY_DEPENDENCY_TARGET_INDICES",
+    "evidenceExport": "TARGET119_MCP_ENTRYPOINT_TASK_REGISTRY_EVIDENCE_IDS",
+    "ownerOverrideSpread": "...TARGET119_MCP_ENTRYPOINT_TASK_REGISTRY_STRICT_PROPERTY_OWNER_OVERRIDES",
+    "replayExport": null
+  },
+  "postWiring": {
+    "expectedImpact": {
+      "productionStrictRowsChanged": 0,
+      "ownerPathsChanged": 0,
+      "coverageRowsEvidenceStrengthened": 1,
+      "sourceReplayFiles": 0
+    }
+  }
+}

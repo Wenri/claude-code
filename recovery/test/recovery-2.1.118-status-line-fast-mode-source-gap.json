@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-status-line-fast-mode-source-replay-v1",
+  "status": "authenticated-bounded-source-replay",
+  "evidenceIds": [
+    "target118-status-line-fast-mode-target-fragment",
+    "target118-status-line-fast-mode-source-replay-test",
+    "target118-status-line-fast-mode-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-status-line-fast-mode-source-gap.mjs",
+      "bytes": 10542,
+      "sha256": "75ec0f189c2c44e2cfb6e7193aae4a3c4ecb9d56b04060bb7bcacc459d38ddf5"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "buildMetadataEvidence": {
+      "fixture": {
+        "path": "recovery/test/recovery-2.1.118-build-metadata-residue-proofs.json",
+        "bytes": 95108,
+        "sha256": "f5e5fdd7bfd2894b91e0a86fa41a276b147ddec8f5ec1214415f13f96fa99cf3"
+      },
+      "test": {
+        "path": "recovery/test/recovery-late-build-metadata-residue-proofs.test.mjs",
+        "bytes": 11182,
+        "sha256": "4079090826ca686d227379414ee76d516d6a1c4e8e5acdde61f112d02a5413f7"
+      },
+      "macro": {
+        "VERSION": "2.1.118",
+        "BUILD_TIME": "2026-04-22T21:04:38Z",
+        "GIT_SHA": "ef88b5f0a79aac989f53fd18178939a54a48624a"
+      }
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/components/StatusLine.tsx",
+        "blob": "be857259eed54d597ed1f8733f5fed546c40d002",
+        "bytes": 49993,
+        "sha256": "66c15151918f041373474774b07de5660c893cb3b766a633da57c61573f02078",
+        "declarations": [
+          {
+            "name": "buildStatusLineCommandInput",
+            "characterStart": 2488,
+            "characterEnd": 5583,
+            "byteStart": 2488,
+            "byteEnd": 5583,
+            "bytes": 3095,
+            "sha256": "6f4775dd980cab67171771f0efe263dd259c18f5f962505ecbdb5d6eb50ac1ad"
+          },
+          {
+            "name": "StatusLineInner",
+            "characterStart": 5980,
+            "characterEnd": 13872,
+            "byteStart": 5980,
+            "byteEnd": 13887,
+            "bytes": 7907,
+            "sha256": "ab918c68e8aa32bf5563ba394b8f42dfdbb59acb777ff1e0527485390f253233"
+          }
+        ]
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/components/StatusLine.tsx",
+        "bytes": 50434,
+        "sha256": "26c4ff027b197d706e454f0e2e159f6eb2d91757074e32b4f11d0656b30bfa7d",
+        "declarations": [
+          {
+            "name": "buildStatusLineCommandInput",
+            "characterStart": 2488,
+            "characterEnd": 5655,
+            "byteStart": 2488,
+            "byteEnd": 5655,
+            "bytes": 3167,
+            "sha256": "8e2f269d08723dc93c2ce5f826a1db2672b8bac9fc526b0634338a6284d3f6ed"
+          },
+          {
+            "name": "StatusLineInner",
+            "characterStart": 6052,
+            "characterEnd": 14313,
+            "byteStart": 6052,
+            "byteEnd": 14328,
+            "bytes": 8276,
+            "sha256": "79793a020f6813bc20b4a0715b05db6cf404bfbe1bc6fb08bc00254decc76d43"
+          }
+        ]
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 19485,
+    "classification": "unresolved",
+    "start": 11888667,
+    "end": 11890229,
+    "bytes": 1562,
+    "tokenCount": 458,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "791bc8f762b4ead8b68752c7c8521276423d33627b927063c77f81867802879d",
+    "coarseHash": "c6111a6d3cf1706a179a3ea1f440e930b596375646da5c4ec0008c5172fcd62d",
+    "ownerPath": "src/components/StatusLine.tsx",
+    "declarations": [
+      "buildStatusLineCommandInput",
+      "StatusLineInner"
+    ],
+    "behavior": "The authenticated Target118 status-line input builder carries the AppState fast-mode boolean into fast_mode and uses one caller-sampled cwd consistently for the top-level hook input, workspace.current_dir, and git-worktree lookup. The bounded replay restores the selector/ref/change-trigger/caller chain and the complete buildStatusLineCommandInput declaration without importing later effort or thinking fields.",
+    "residues": [
+      ["string", "2.1.118", 11889427, 11889436, 0, 102],
+      ["string", "2026-04-22T21:04:38Z", 11889516, 11889538, 0, 102],
+      ["string", "ef88b5f0a79aac989f53fd18178939a54a48624a", 11889547, 11889589, 0, 102],
+      ["property", "fast_mode", 11889932, 11889941, 0, 1]
+    ]
+  },
+  "supportingTargetUnit": {
+    "targetIndex": 19487,
+    "role": "fast-mode selector/ref/change trigger and single-cwd caller",
+    "classification": "unresolved",
+    "start": 11890270,
+    "end": 11893116,
+    "bytes": 2846,
+    "tokenCount": 1139,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "6e2492a3361ca5dad77bed377d6a3e5a6d9bc0045f518fdaa8b4a15d25447c86",
+    "coarseHash": "b2ca217a5691878ef409454551da40581f57be45a9b060389327ea7ce82f822d"
+  },
+  "scannerPartition": {
+    "units": 1,
+    "residues": 4,
+    "unsupportedResidues": 1,
+    "residueIdentitiesSha256": "e6a31d7b3f9fc235cc29d4272aa8bcafe9e60715b3782a1f972f952f9c7d47e5",
+    "unsupportedResidueIdentitiesSha256": "2212863219b84fbda4580162990b34d7c2edd074c4db18d915388b1923701371",
+    "rows": [
+      [19485, "string", "2.1.118", 11889427, 11889436, 0, 102],
+      [19485, "string", "2026-04-22T21:04:38Z", 11889516, 11889538, 0, 102],
+      [19485, "string", "ef88b5f0a79aac989f53fd18178939a54a48624a", 11889547, 11889589, 0, 102],
+      [19485, "property", "fast_mode", 11889932, 11889941, 0, 1]
+    ],
+    "strictUnsupportedRows": [
+      [19485, "property", "fast_mode", 11889932, 11889941, 0, 1]
+    ],
+    "rawTargetSlices": [
+      "\"2.1.118\"",
+      "\"2026-04-22T21:04:38Z\"",
+      "\"ef88b5f0a79aac989f53fd18178939a54a48624a\"",
+      "fast_mode"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "scannerResidues": 4,
+    "targetIndicesSha256": "bc1ec5033089c41b4aed0e2d3ae2439160ed4202f38cb93d32bf8f183924e149",
+    "residueIdentitiesSha256": "2212863219b84fbda4580162990b34d7c2edd074c4db18d915388b1923701371"
+  }
+}

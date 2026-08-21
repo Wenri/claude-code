@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "claim": "Authenticated cohesive replay of automatic rename provenance and reminder suppression across producer u17014 and consumer u17015.",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26727987,
+      "sha256": "1c604096d1eab53d44b512007943072a63de1fbc04bd177f5a907c10542d337a"
+    },
+    "sourceFile": {
+      "path": "src/commands/rename/rename.ts",
+      "input": {
+        "bytes": 3779,
+        "sha256": "f953d225b55aacbaab611c90562e790c41d28d5cc4b49a1af8d4af172935037b"
+      },
+      "output": {
+        "bytes": 3892,
+        "sha256": "e7b1c4d61f87c6bc215b4c9857cd6bb20bc03315c4b70d1a16438ade682800ae"
+      }
+    },
+    "dependencyFile": {
+      "path": "src/daemon/jobs.ts",
+      "bytes": 13527,
+      "sha256": "c1545c61e03d395cf2d29a2d06f5d06807903aed6529d75cd07861c651e16eba"
+    }
+  },
+  "sourceProvenance": {
+    "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "path": "src/commands/rename/rename.ts",
+    "gitObject": "432b02211b4f7aee376c351c2c0c36e2a5119df2"
+  },
+  "baselineUnits": [
+    {
+      "index": 16881,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 10551956,
+      "end": 10552872,
+      "tokenCount": 332,
+      "sourceHash": "04b0d4277afe7f0911aafb175cc3f8adfe7b4ae85cd1df1bb2958643779d3134",
+      "coarseHash": "b7dd8a9849b0927ff40a9e7d589ba80696aef522d94817dab6ebc98b9daa02f5",
+      "bytes": 916,
+      "bodyStatementCount": 11
+    },
+    {
+      "index": 16882,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 10552872,
+      "end": 10553005,
+      "tokenCount": 58,
+      "sourceHash": "7da9d1fc953d67c68a48a7312e021749e970eeb83b379559b34dbfbbc31c556a",
+      "coarseHash": "e68de7574b1d79d38438578a697138c06a2d205232e3ac797f06cfce274dd297",
+      "bytes": 133,
+      "bodyStatementCount": 2
+    }
+  ],
+  "targetUnits": [
+    {
+      "index": 17014,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 10623197,
+      "end": 10624138,
+      "tokenCount": 342,
+      "sourceHash": "5774365fa7892585c1c81ea37315b89c3d53cc01deb98ba0ad0f6b2b7f086eb1",
+      "coarseHash": "15ec6d9f2712e36c38b88e4641510a02519c61ee8690bacbda4983507dc48878",
+      "bytes": 941,
+      "bodyStatementCount": 11
+    },
+    {
+      "index": 17015,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 10624138,
+      "end": 10624289,
+      "tokenCount": 65,
+      "sourceHash": "b73510a10e8876eb4409980d86dc810840e8dce39ae1597b250260b1dc160572",
+      "coarseHash": "87a2a6e49b8d117599ff7f0ab9af27ef401ed5ed676c8f228fe415ad90af6945",
+      "bytes": 151,
+      "bodyStatementCount": 2
+    }
+  ],
+  "rows": {
+    "17014": {
+      "strict": {
+        "count": 1,
+        "canonicalBytes": 114,
+        "canonicalSha256": "5d8fe8fcda51826bb72dd29472dc6d322ed2f59a350bb804e690819862f3387f",
+        "tuples": [[17014, "property", "isGenerated", 10624123, 10624134, 0, 1, true, "source-runtime-covered", ["commands/rename/rename.ts"]]]
+      },
+      "addedOwner": {
+        "count": 1,
+        "canonicalBytes": 114,
+        "canonicalSha256": "5d8fe8fcda51826bb72dd29472dc6d322ed2f59a350bb804e690819862f3387f",
+        "tuples": [[17014, "property", "isGenerated", 10624123, 10624134, 0, 1, true, "source-runtime-covered", ["commands/rename/rename.ts"]]]
+      },
+      "owner": {
+        "count": 7,
+        "canonicalBytes": 823,
+        "canonicalSha256": "d7058fc3b893d16402588439427561d3daa1ffab98e75ff88c87c46ef2eee65c",
+        "tuples": [
+          [17014, "property", "resolve", 10623651, 10623658, 1068, 626, false, "source-runtime-covered", ["commands/rename/rename.ts"]],
+          [17014, "property", "updateBridgeSessionTitle", 10623692, 10623716, 3, 2, false, "source-runtime-covered", ["commands/rename/rename.ts"]],
+          [17014, "number", "0", 10623770, 10623771, 45766, 36601, false, "source-runtime-covered", ["commands/rename/rename.ts"]],
+          [17014, "property", "resolve", 10623964, 10623971, 1068, 627, false, "source-runtime-covered", ["commands/rename/rename.ts"]],
+          [17014, "property", "updateSessionTitle", 10624004, 10624022, 2, 2, false, "source-runtime-covered", ["commands/rename/rename.ts"]],
+          [17014, "string", "user", 10624057, 10624063, 447, 268, false, "source-runtime-covered", ["commands/rename/rename.ts"]],
+          [17014, "property", "isGenerated", 10624123, 10624134, 0, 1, true, "source-runtime-covered", ["commands/rename/rename.ts"]]
+        ]
+      }
+    },
+    "17015": {
+      "strict": {
+        "count": 1,
+        "canonicalBytes": 114,
+        "canonicalSha256": "3a11eb420b9c0778bdc29bc8bf419c7b58bcf773c3bbd8bee49e823e407dabcd",
+        "tuples": [[17015, "property", "isGenerated", 10624188, 10624199, 0, 2, true, "source-runtime-covered", ["commands/rename/rename.ts"]]]
+      },
+      "addedOwner": {
+        "count": 1,
+        "canonicalBytes": 114,
+        "canonicalSha256": "3a11eb420b9c0778bdc29bc8bf419c7b58bcf773c3bbd8bee49e823e407dabcd",
+        "tuples": [[17015, "property", "isGenerated", 10624188, 10624199, 0, 2, true, "source-runtime-covered", ["commands/rename/rename.ts"]]]
+      },
+      "owner": {
+        "count": 2,
+        "canonicalBytes": 226,
+        "canonicalSha256": "0ab7c388cc8359921431e7e49cf706235503db5929a62b98037ead94fa95ebb9",
+        "tuples": [
+          [17015, "property", "isGenerated", 10624188, 10624199, 0, 2, true, "source-runtime-covered", ["commands/rename/rename.ts"]],
+          [17015, "number", "0", 10624280, 10624281, 45766, 36602, false, "source-runtime-covered", ["commands/rename/rename.ts"]]
+        ]
+      }
+    }
+  },
+  "bundleDelta": {
+    "baselinePerform": [
+      {"statementIndex": 1, "nodeType": "VariableDeclaration", "start": 10552098, "end": 10552104, "bytes": 6, "sha256": "af0b2e52c05da041e560fddf13c578bb844adb8833733c8ce9ba5b87d525de92", "text": "let q;"},
+      {"statementIndex": 2, "nodeType": "IfStatement", "start": 10552104, "end": 10552305, "bytes": 201, "sha256": "93959504ad9e77a4ddae16c4b1ce892457f51349a68467adfc806ff60b9b6699", "text": "if(!H||H.trim()===\"\"){let Y=await WdH(L3($.messages),$.abortController.signal);if(!Y)return{message:\"Could not generate a name: no conversation context yet. Usage: /rename <name>\"};q=Y}else q=H.trim();"},
+      {"statementIndex": 10, "nodeType": "ReturnStatement", "start": 10552791, "end": 10552871, "bytes": 80, "sha256": "a0bdd43582e569da92f61fed02376cd55074a0aba90232c4a5d8163944b01466", "text": "return await VYH(K,q),await LV(q),{message:`Session renamed to: ${q}`,newName:q}"}
+    ],
+    "targetPerform": [
+      {"statementIndex": 1, "nodeType": "VariableDeclaration", "start": 10623339, "end": 10623365, "bytes": 26, "sha256": "82be68521e551a933f093b15969e8fee20156696f935f0c364cc1ecd5f976bda", "text": "let q=!H||H.trim()===\"\",K;"},
+      {"statementIndex": 2, "nodeType": "IfStatement", "start": 10623365, "end": 10623550, "bytes": 185, "sha256": "2f07a75784e3c6aa70e17f7702f86823c1bde1a6deccdcd42bd325c34e36ec26", "text": "if(q){let O=await XcH(DO($.messages),$.abortController.signal);if(!O)return{message:\"Could not generate a name: no conversation context yet. Usage: /rename <name>\"};K=O}else K=H.trim();"},
+      {"statementIndex": 10, "nodeType": "ReturnStatement", "start": 10624036, "end": 10624137, "bytes": 101, "sha256": "6f4df976a52bcec2ed0fa9d7552a891b8b3428a1c9336beb3b90d54433879227", "text": "return await N3H(_,K,\"user\"),await nV(K),{message:`Session renamed to: ${K}`,newName:K,isGenerated:q}"}
+    ],
+    "baselineCall": [
+      {"statementIndex": 0, "nodeType": "VariableDeclaration", "start": 10552898, "end": 10552938, "bytes": 40, "sha256": "ce467e4cc7ccc6ab548600bcff4425372aa179257da96ebb56fde510817c0072", "text": "let{message:K,newName:_}=await yA8(q,$);"},
+      {"statementIndex": 1, "nodeType": "ReturnStatement", "start": 10552938, "end": 10553004, "bytes": 66, "sha256": "e1157c482e4d472df0c332d51ed3785074d2f4a1af357e9dd82e7f63cfd9b63e", "text": "return H(K,{display:\"system\",metaMessages:_?[NA8(_)]:void 0}),null"}
+    ],
+    "targetCall": [
+      {"statementIndex": 0, "nodeType": "VariableDeclaration", "start": 10624164, "end": 10624218, "bytes": 54, "sha256": "ae55ea0ecbb60d08bd8ffb4e904baa920cb0c544087a6201a73d3ae9bf0a749c", "text": "let{message:K,newName:_,isGenerated:A}=await Ez8(q,$);"},
+      {"statementIndex": 1, "nodeType": "ReturnStatement", "start": 10624218, "end": 10624288, "bytes": 70, "sha256": "628bd2a956e536ffbe3a63229a2280c6bbf5c73dec4be2eac54be042450d0344", "text": "return H(K,{display:\"system\",metaMessages:_&&!A?[yz8(_)]:void 0}),null"}
+    ],
+    "deltaNormalization": {
+      "baseline": [
+        {"bytes": 12259, "sha256": "1164f87c39a89fbe53295add6a15278c9d4dbd867e03e91e1c7de99781609ae7"},
+        {"bytes": 1887, "sha256": "b5f3f8fb3bba4d484563860c51ca04da108ed7773bffdf2417349b2f7119842d"}
+      ],
+      "targetBefore": [
+        {"bytes": 12563, "sha256": "754d2e20ef763d95400c7a9906387b06dade70375f944b43656f089f8beb8696"},
+        {"bytes": 2207, "sha256": "382815070a3da94eeff1da9f43153ed6969ea3e47e4dc25e44c53de0695a12ce"}
+      ],
+      "targetAfter": [
+        {"bytes": 12259, "sha256": "1164f87c39a89fbe53295add6a15278c9d4dbd867e03e91e1c7de99781609ae7"},
+        {"bytes": 1887, "sha256": "b5f3f8fb3bba4d484563860c51ca04da108ed7773bffdf2417349b2f7119842d"}
+      ]
+    }
+  },
+  "sourceRegions": {
+    "rawPerformRename": {"name": "performRename", "charStart": 1006, "charEnd": 3424, "bytes": 2420, "sha256": "e2bb17330b59098cae171862a51d3f64904d7872991bff8ab838cc1cfc6741c4"},
+    "rawCall": {"name": "call", "charStart": 3426, "charEnd": 3776, "bytes": 350, "sha256": "62704462f807d15384db115ad03ae06374f32d7f0576b2ab486aad11ac4bc7ce"},
+    "recoveredPerformRename": {"name": "performRename", "charStart": 1006, "charEnd": 3502, "bytes": 2498, "sha256": "25aab9efa7b41db4bd588cc6771372d415112d0f7ee8eb1756d6ac6aa8d513d1"},
+    "recoveredCall": {"name": "call", "charStart": 3504, "charEnd": 3889, "bytes": 385, "sha256": "202bffd15a97b86d0798e53e1450393f5a4287a4151c056f6299f6579d80788d"},
+    "renameJobImport": {"name": "renameJob import", "charStart": 273, "charEnd": 321, "bytes": 48, "sha256": "1de04f8d2e4d520b7d2e476093d03cf999f6198c0cf3e7afe98a9028f724f865"},
+    "recoveredTransforms": [
+      {"name": "generated gate", "charStart": 1426, "charEnd": 1473, "bytes": 47, "sha256": "0ec8cb84e097b76a510c33f78eef6d15ff29a5874eccb771e59bd04476529ab8"},
+      {"name": "explicit origin", "charStart": 3350, "charEnd": 3387, "bytes": 37, "sha256": "1cd51f81ead41f2647a32755e173cc0ed98f21e2a3c1de84258d4b671dc13e81"},
+      {"name": "success result", "charStart": 3433, "charEnd": 3500, "bytes": 67, "sha256": "f4a994a3243864f12ca3e8bbd68ea10060b9c0b43a6df4fead1dc2c087ecf5be"},
+      {"name": "consumer destructure", "charStart": 3660, "charEnd": 3730, "bytes": 70, "sha256": "48578aafa43c71aa651f1a658f8769dd0735075f83416184cb44a25a665d065a"},
+      {"name": "reminder gate", "charStart": 3798, "charEnd": 3867, "bytes": 69, "sha256": "65adbf47dd2e6e1500c6d7b73009a321fb450ff6623ab0d57c4165369200234b"}
+    ]
+  },
+  "dependency": {
+    "renameJob": {"name": "renameJob", "charStart": 9519, "charEnd": 10158, "bytes": 639, "sha256": "9c31cfb158b2a001de998dce8076ad7e85dc0ece2c6dec030a6a752764c5cc58"}
+  },
+  "wholeUnitProof": {
+    "compiler": {
+      "path": ".pixi/envs/default/bin/bun",
+      "version": "1.3.11",
+      "options": {"loader": "ts", "target": "bun", "minifyWhitespace": true, "minifySyntax": true}
+    },
+    "proofSource": {"bytes": 2870, "sha256": "e8a46db8c10946b23e5e4c98f671a3a6bf7dad6f7b5a84d971a7a2e0828b171c"},
+    "compiled": {"bytes": 1758, "sha256": "9fb47ae2b5c784412b070fad2803a8de9e74b9a97f89e3889cf17e78287b6b71"},
+    "normalizedCanonical": {"bytes": 13595, "sha256": "63223ee92262352b0325e10dc3374bc3964f58c250b6423571a3427e96d1ba10"},
+    "normalizations": [
+      "strip source positions/raw token spellings and shorthand flags",
+      "alpha-normalize private identifiers while retaining public property keys and literals",
+      "normalize variable declaration kind and split coalesced declarators",
+      "expand top-level sequence expressions into ordered statements",
+      "collapse bundled getRuntimeCapabilities().remote getter to the emitted getter call",
+      "collapse authenticated dynamic-import bootstrap wrappers to their final named-export callback"
+    ]
+  },
+  "expectedStrictEvolution": {
+    "before": {"units": 45, "residues": 426},
+    "after": {"units": 43, "residues": 424},
+    "removedIndices": [17014, 17015],
+    "removedAddedOwnerRows": 2
+  }
+}

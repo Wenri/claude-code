@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-bash-validation-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-bash-validation-target-fragment",
+    "target117-bash-validation-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-bash-validation-source-gaps.mjs",
+      "bytes": 13051,
+      "sha256": "c0d87f6e2409a29577d43dd9454386c066ce73deac0f9def8fe35dc852f812f4"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFiles": [
+      {
+        "path": "src/tools/BashTool/sedValidation.ts",
+        "blob": "d6507dbbe7ea9ad1707eb11ffc5524842b784787",
+        "input": {
+          "bytes": 21518,
+          "sha256": "a58dbb92c8a2e47f27af13cc910f02bb73236fb8262e2454677e3f64f908377f"
+        },
+        "output": {
+          "bytes": 23871,
+          "sha256": "79fa99e4dda57850c4e24abd5480b477195e0c9ff57dd86d730e92509b65820e"
+        },
+        "declarations": [
+          {
+            "name": "sedCommandIsAllowedByAllowlist",
+            "nodeType": "FunctionDeclaration",
+            "start": 8397,
+            "end": 11032,
+            "bytes": 2635,
+            "sha256": "4fe4f0dc6a0557eefa24dd66dc7fd74dd0801613c4f4a32613982612d87a051b"
+          },
+          {
+            "name": "extractInPlaceSedExpression",
+            "nodeType": "FunctionDeclaration",
+            "start": 6893,
+            "end": 7990,
+            "bytes": 1097,
+            "sha256": "2f67e911144f6794d986551c67659c1fc415e7de66c1e98e8297c9a9767380ab"
+          }
+        ]
+      },
+      {
+        "path": "src/tools/BashTool/readOnlyValidation.ts",
+        "blob": "a2838cb899ba2de0ec76185d35fc4abdc8981eff",
+        "input": {
+          "bytes": 72817,
+          "sha256": "a79c3c5b1c2e6c2d427dee1d75915ecc01620cead09ed871b3f08212391192c6"
+        },
+        "output": {
+          "bytes": 74164,
+          "sha256": "e8d233285754a276b85cd51e3c312bc6ba811d85e1b1788ca7fc562b7e243d1a"
+        },
+        "declarations": [
+          {
+            "name": "isCommandReadOnly",
+            "nodeType": "FunctionDeclaration",
+            "start": 60577,
+            "end": 64819,
+            "bytes": 4244,
+            "sha256": "d3901ea8ef949ec2e9900ff827b1628417570c72729b5fc0f510732a1b3f6179"
+          },
+          {
+            "name": "COMMAND_ALLOWLIST",
+            "nodeType": "VariableDeclaration",
+            "start": 6625,
+            "end": 36557,
+            "bytes": 29986,
+            "sha256": "43889067a991afc9c05c2ebfcb2b57d7906f3b8e19be8dbf158dfd547f1ea203"
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "units": 4,
+    "residues": 15,
+    "recoveredFiles": 2,
+    "sedPolicyUnits": 2,
+    "findPolicyUnits": 1,
+    "testPolicyUnits": 1,
+    "ownerOverrides": 4
+  },
+  "rows": [
+    {
+      "targetIndex": 10848,
+      "owner": "src/tools/BashTool/sedValidation.ts",
+      "declarations": [
+        "sedCommandIsAllowedByAllowlist",
+        "extractInPlaceSedExpression"
+      ],
+      "targetUnit": [
+        10848,
+        "unresolved",
+        "FunctionDeclaration",
+        6304605,
+        6305468,
+        314,
+        "344abeadf81e64d0f1767b10684cec4d8a7c9676dfc931f0e9c6a67805aadf33",
+        "3b27ef34cc660dcb5d8e26aa79545353fc75387a8796c0fc0d7fee518da1059e"
+      ],
+      "residues": [
+        ["regexp", {"flags": "", "pattern": "^[sy][^a-zA-Z0-9]"}, 6304943, 6304962, 1, 0],
+        ["regexp", {"flags": "", "pattern": "^[\\\\$:={]"}, 6304983, 6304994, 1, 0],
+        ["regexp", {"flags": "", "pattern": "^\\d+[ \\t]*[,!~=aAcCdDegGhHiIlnNpPqQrRsStTwWxyz]"}, 6305015, 6305064, 1, 0],
+        ["regexp", {"flags": "", "pattern": "^[aAcCdDgGhHiIlnNpPqQtTwWxz=]([\\s\\\\;]|$)"}, 6305085, 6305127, 1, 0],
+        ["regexp", {"flags": "", "pattern": "^[rR]([\\s\\\\;/]|\\.{1,2}\\/|$)"}, 6305148, 6305177, 1, 0],
+        ["regexp", {"flags": "", "pattern": "^\\/(?:[^/\\\\]|\\\\.)*\\/[IMim]*[ \\t]*([aAcCdDgGhHiIlnNpPqQtTwWxz=]([\\s\\\\;]|$)|[rR]([\\s\\\\;/]|\\.{1,2}\\/|$)|[sy][^a-zA-Z0-9]|[,!~])"}, 6305198, 6305324, 1, 0],
+        ["regexp", {"flags": "", "pattern": "^(\\.{1,2}\\/)+"}, 6305358, 6305373, 1, 0]
+      ]
+    },
+    {
+      "targetIndex": 10850,
+      "owner": "src/tools/BashTool/sedValidation.ts",
+      "declarations": ["extractInPlaceSedExpression"],
+      "targetUnit": [
+        10850,
+        "unresolved",
+        "FunctionDeclaration",
+        6305812,
+        6306338,
+        240,
+        "65081deba61e145f2fb2a03015219af0eeb184f30704deeeb5c18cd72df2db7d",
+        "ed7cb769fac6a0f730291325f2fa2ca42a7cf0211deb786ce1a2d8ad5575232d"
+      ],
+      "residues": [
+        ["regexp", {"flags": "", "pattern": "^-[Er]+i$"}, 6305942, 6305953, 1, 0],
+        ["regexp", {"flags": "", "pattern": "^-[Er]+i$"}, 6306253, 6306264, 2, 0]
+      ]
+    },
+    {
+      "targetIndex": 10878,
+      "owner": "src/tools/BashTool/readOnlyValidation.ts",
+      "declarations": ["isCommandReadOnly"],
+      "targetUnit": [
+        10878,
+        "unresolved",
+        "FunctionDeclaration",
+        6325926,
+        6326444,
+        195,
+        "60150247e81922ccad32a60d058c98593144dc2af669f87d880ce27329052ff6",
+        "f4d5c6815720b8367f4fca10e6a70e064d0c66d77c92ae3c16c2f8ee7a0c43fb"
+      ],
+      "residues": [
+        ["regexp", {"flags": "g", "pattern": "['\"\\\\]"}, 6326144, 6326153, 1, 0],
+        ["regexp", {"flags": "", "pattern": "-delete\\b|-exec\\b|-execdir\\b|-ok\\b|-okdir\\b|-fprint0?\\b|-fls\\b|-fprintf\\b"}, 6326161, 6326236, 1, 0]
+      ]
+    },
+    {
+      "targetIndex": 10885,
+      "owner": "src/tools/BashTool/readOnlyValidation.ts",
+      "declarations": ["COMMAND_ALLOWLIST"],
+      "targetUnit": [
+        10885,
+        "unresolved",
+        "VariableDeclaration",
+        6328759,
+        6345767,
+        4421,
+        "57958bbeabd7133028b19e18b4f5304510aa2da57e68f075fda265f59ec4c53d",
+        "963216942baf703ba096bdaa61a842d71c17c22176bf39b60085661cb2ded559"
+      ],
+      "residues": [
+        ["string", "-nt", 6342252, 6342257, 1, 0],
+        ["string", "-ot", 6342267, 6342272, 1, 0],
+        ["string", "-ef", 6342282, 6342287, 1, 0],
+        ["regexp", {"flags": "", "pattern": "\\["}, 6342402, 6342406, 19, 18]
+      ]
+    }
+  ]
+}

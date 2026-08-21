@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-bundled-skills-root-direct-source-owner-proof-v1",
+  "status": "authenticated-direct-source-owner-proof",
+  "evidenceIds": [
+    "target118-bundled-skills-root-target-fragment",
+    "target118-bundled-skills-root-source-ast-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/bundled-skills-root-owner-overrides.mjs",
+      "bytes": 950,
+      "sha256": "14daf0b67ee33b02c8e43aef1013b2d63e7daeab3d11c991e4cafdbce7c8a392"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "buildMetadataProof": {
+      "path": "recovery/test/recovery-2.1.118-build-metadata-residue-proofs.json",
+      "bytes": 95108,
+      "sha256": "f5e5fdd7bfd2894b91e0a86fa41a276b147ddec8f5ec1214415f13f96fa99cf3"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/utils/permissions/filesystem.ts",
+        "blob": "013435e3de05b6a26ac762b8ee663c1fda37ec12",
+        "bytes": 63379,
+        "sha256": "369a4d8783b1bb3e069be778ba0ec419d10d7f656a606e963ab0777685481815"
+      },
+      "declaration": {
+        "name": "getBundledSkillsRoot",
+        "characterStart": 14550,
+        "characterEnd": 14758,
+        "byteStart": 14554,
+        "byteEnd": 14762,
+        "bytes": 208,
+        "sha256": "0c9a0f0559d6788a597a65d1348cd6413628443de9b4542cced4d6c422bd70f8"
+      }
+    }
+  },
+  "macro": {
+    "VERSION": "2.1.118",
+    "BUILD_TIME": "2026-04-22T21:04:38Z",
+    "GIT_SHA": "ef88b5f0a79aac989f53fd18178939a54a48624a"
+  },
+  "targetUnit": {
+    "targetIndex": 18171,
+    "classification": "unresolved",
+    "start": 11192995,
+    "end": 11194237,
+    "bytes": 1242,
+    "tokenCount": 421,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "760200e0248c6c637fa7443f6b82fc1226f9bf8e88cbcb85aa4bb9bf6e0382ab",
+    "coarseHash": "75da5267d4572c41aeba1a86d9a125510e590c951e697cd667cbb8fa0338c77a",
+    "ownerPath": "src/utils/permissions/filesystem.ts",
+    "provisionalOwnerPath": "src/utils/permissions/filesystem.ts",
+    "declarations": [
+      "getBundledSkillsRoot"
+    ],
+    "behavior": "The authenticated Target118 bundled-skills root initializer is the exact compiled form of src/utils/permissions/filesystem.ts#getBundledSkillsRoot: it creates a 16-byte cryptographic nonce, hex-encodes it, and joins the Claude temp root, bundled-skills segment, build VERSION, and nonce. The randomBytes property is a direct namespace-import compilation of the pinned named source import, not a missing runtime behavior.",
+    "residues": [
+      ["property", "randomBytes", 11193535, 11193546, 33, 34]
+    ]
+  },
+  "targetBinding": {
+    "start": 11193507,
+    "end": 11193971,
+    "bytes": 464,
+    "sha256": "c31022aefa38fe0e3df9559738d1ca98f694f3a3b0222b64852888d7297170bb"
+  },
+  "scannerPartition": {
+    "units": 1,
+    "residues": 4,
+    "residueIdentitiesSha256": "e990b838256c3fb6bb73e611cd6a33b29ca5c746cef6ae5afd710809ee552640",
+    "rows": [
+      [18171, "property", "randomBytes", 11193535, 11193546, 33, 34],
+      [18171, "string", "2.1.118", 11193795, 11193804, 0, 83],
+      [18171, "string", "2026-04-22T21:04:38Z", 11193884, 11193906, 0, 83],
+      [18171, "string", "ef88b5f0a79aac989f53fd18178939a54a48624a", 11193915, 11193957, 0, 83]
+    ],
+    "strictUnsupportedRows": [
+      [18171, "property", "randomBytes", 11193535, 11193546, 33, 34]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/utils/permissions/filesystem.ts"
+    ],
+    "evidenceIds": [
+      "target118-bundled-skills-root-target-fragment",
+      "target118-bundled-skills-root-source-ast-test"
+    ],
+    "behavior": "The authenticated Target118 bundled-skills root initializer is the exact compiled form of src/utils/permissions/filesystem.ts#getBundledSkillsRoot: it creates a 16-byte cryptographic nonce, hex-encodes it, and joins the Claude temp root, bundled-skills segment, build VERSION, and nonce. The randomBytes property is a direct namespace-import compilation of the pinned named source import, not a missing runtime behavior."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "scannerResidues": 4,
+    "targetIndicesSha256": "869b7202f4d81256a833cb0681a68ab85c4902de95ae13a84780021ef9d8ccfd",
+    "residueIdentitiesSha256": "a49ca4a38a8e09382e3d3ceefd8bf33a5e2dff1f951957d459cee6516a8eec9e"
+  }
+}

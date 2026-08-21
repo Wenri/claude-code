@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "status": "case-owned-replay-ready",
+  "summary": {
+    "strictUnits": 2,
+    "strictResidues": 2,
+    "recoveredFiles": 3,
+    "contextFiles": 2,
+    "authenticatedTargetUnits": 7,
+    "authenticatedBaselineUnits": 4,
+    "authenticatedTargetCalls": 4,
+    "ownerOverrides": 2
+  },
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-permission-confirmation-panel-source-gaps.mjs",
+      "bytes": 16985,
+      "sha256": "b63b5cb95f7594425419be08272e6e5fd6a15e80b2ac013fc3aff49e6325e28f"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f"
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 16972,
+      "literalKind": "property",
+      "value": "onConfirm",
+      "start": 10632058,
+      "end": 10632067,
+      "baselineOccurrenceCount": 5,
+      "targetOccurrenceNumber": 12,
+      "owner": "src/components/permissions/rules/RemoveWorkspaceDirectory.tsx",
+      "ownerSourceMatchCount": 0
+    },
+    {
+      "targetIndex": 16982,
+      "literalKind": "property",
+      "value": "onConfirm",
+      "start": 10636425,
+      "end": 10636434,
+      "baselineOccurrenceCount": 5,
+      "targetOccurrenceNumber": 13,
+      "owner": "src/components/permissions/rules/PermissionRuleList.tsx",
+      "ownerSourceMatchCount": 0
+    }
+  ],
+  "literalOccurrenceCounts": {
+    "property:onConfirm": {
+      "baseline": 5,
+      "target": 30
+    }
+  },
+  "targetUnits": [
+    {
+      "index": 10792,
+      "role": "ConfirmationButtons",
+      "nodeType": "FunctionDeclaration",
+      "start": 6283534,
+      "end": 6284252,
+      "bytes": 718,
+      "tokenCount": 438,
+      "sha256": "0d51bb63916c5cc5f7297fd9883b70b00ca46d6b0fc7a4c70fcaf8e972e80a64",
+      "coarseHash": "442ab5372f93e36a59be2fcf0abc4a51794fbcedbb947c19fd1569040113c048"
+    },
+    {
+      "index": 12356,
+      "role": "Panel",
+      "nodeType": "FunctionDeclaration",
+      "start": 7762345,
+      "end": 7762740,
+      "bytes": 395,
+      "tokenCount": 229,
+      "sha256": "06c381497029c24918a7d8ba7bfa2b86f8282b338befda88c5a3302d4675e02a",
+      "coarseHash": "1aa2ea30fcc8284a989f9336496f02fdc861aa1818e8ef6f5f8f850bff8958d4"
+    },
+    {
+      "index": 12358,
+      "role": "Panel module initializer",
+      "nodeType": "VariableDeclaration",
+      "start": 7762752,
+      "end": 7762808,
+      "bytes": 56,
+      "tokenCount": 41,
+      "sha256": "470ee7c523ae86e6262c50f37e8dac5c9c974fb1ed015675877ccbf3d6539cb7",
+      "coarseHash": "6479fc5e7d5da46a80e0eccf797c8ba3d29944b092086020cc3acf421fdd92d6"
+    },
+    {
+      "index": 16972,
+      "role": "RemoveWorkspaceDirectory",
+      "nodeType": "FunctionDeclaration",
+      "start": 10631397,
+      "end": 10632310,
+      "bytes": 913,
+      "tokenCount": 434,
+      "sha256": "340a8c86e781aa8d032cbec6a58054a9169bd3120446d5ce99cc197d7074518d",
+      "coarseHash": "934939b1260854f094d978f5c4134b67d37a79d98beaae4259191a817d0a0e1a"
+    },
+    {
+      "index": 16974,
+      "role": "RemoveWorkspaceDirectory module initializer",
+      "nodeType": "VariableDeclaration",
+      "start": 10632321,
+      "end": 10632385,
+      "bytes": 64,
+      "tokenCount": 49,
+      "sha256": "e6a047d0df510f435fcc443b30c5a487a4a51f2cecff082f70f9dac4d1fff8b5",
+      "coarseHash": "32ed0c3a98b4f7c2cb72d19ecad625f4b196d80712e325ad23d364cc46688585"
+    },
+    {
+      "index": 16982,
+      "role": "PermissionRuleList RuleDetails",
+      "nodeType": "FunctionDeclaration",
+      "start": 10634487,
+      "end": 10636820,
+      "bytes": 2333,
+      "tokenCount": 1095,
+      "sha256": "7463bb12c11c42595c5944792a543c3a43980ceedcefcc86d5a8fdad5a1ef909",
+      "coarseHash": "1aad2ecd0bf8a96000f7592424271f86464707c57f4805572b6790da73c34045"
+    },
+    {
+      "index": 16993,
+      "role": "PermissionRuleList module initializer",
+      "nodeType": "VariableDeclaration",
+      "start": 10649654,
+      "end": 10649851,
+      "bytes": 197,
+      "tokenCount": 148,
+      "sha256": "4bc08c0fe7a8e087654254ffc94fb1f9f54d119c4a4971d1fed6f91bbeecc92b",
+      "coarseHash": "21ae120952f2bc242bc9ec3c07d56992c852536195b9b2cc555a02f8adf58339"
+    }
+  ],
+  "baselineUnits": [
+    {
+      "index": 16904,
+      "role": "RemoveWorkspaceDirectory",
+      "nodeType": "FunctionDeclaration",
+      "start": 10610459,
+      "end": 10611620,
+      "bytes": 1161,
+      "tokenCount": 569,
+      "sha256": "15c7e8103ebed19a8a3b750b698d83bb80f4b1686aff11a3473fa5fd759a232f",
+      "coarseHash": "c10347f89ebf4f0e894f96b2f9184be781367f9871f32d9d690a6993b89cc3d1"
+    },
+    {
+      "index": 16906,
+      "role": "RemoveWorkspaceDirectory module initializer",
+      "nodeType": "VariableDeclaration",
+      "start": 10611631,
+      "end": 10611695,
+      "bytes": 64,
+      "tokenCount": 49,
+      "sha256": "71b4a6722f880fcedfc86c275be08831f1e68a74560b7845c292e620b385d495",
+      "coarseHash": "32ed0c3a98b4f7c2cb72d19ecad625f4b196d80712e325ad23d364cc46688585"
+    },
+    {
+      "index": 16914,
+      "role": "PermissionRuleList RuleDetails",
+      "nodeType": "FunctionDeclaration",
+      "start": 10613797,
+      "end": 10616571,
+      "bytes": 2774,
+      "tokenCount": 1293,
+      "sha256": "b10a92c14345bc484141820c27f4fed0a92ff78a18c9518ae7b6c003b5913b71",
+      "coarseHash": "0dee93345b32db9adfdb2e73e432f69acde212e2aa34c1ba124e4cc4a10ad68f"
+    },
+    {
+      "index": 16925,
+      "role": "PermissionRuleList module initializer",
+      "nodeType": "VariableDeclaration",
+      "start": 10629404,
+      "end": 10629591,
+      "bytes": 187,
+      "tokenCount": 140,
+      "sha256": "9ebc3e3ced359597f37bc84973a59b0c0f25c9c647aa87290da751f45d74425f",
+      "coarseHash": "9011459a31d33d4280fa9ab09a53f0cf4096117c14ad6750b94411055f35bb94"
+    }
+  ],
+  "targetCalls": [
+    {
+      "ownerIndex": 16972,
+      "role": "ConfirmationButtons",
+      "start": 10632037,
+      "end": 10632082,
+      "bytes": 45,
+      "sha256": "d65aa27f11ff72f4e778b3e8728cdc28ade9a16caf2523425dc369564a94e10b",
+      "text": "jg.createElement(m_,{onConfirm:Y,onCancel:_})"
+    },
+    {
+      "ownerIndex": 16982,
+      "role": "KeyboardShortcutHint",
+      "start": 10635373,
+      "end": 10635426,
+      "bytes": 53,
+      "sha256": "a396fab7164cedf17de2b4f256f4f573dd231450ff05f5090b7d33c3d97ec74e",
+      "text": "g6.createElement(K$,{chord:\"escape\",action:\"cancel\"})"
+    },
+    {
+      "ownerIndex": 16982,
+      "role": "Panel",
+      "start": 10635787,
+      "end": 10635853,
+      "bytes": 66,
+      "sha256": "21dc4719382fb1c0bac4955f1405cb3a091b37470f1496c53e8078047676ceef",
+      "text": "g6.createElement(RO,{color:\"permission\",title:\"Rule details\"},w,T)"
+    },
+    {
+      "ownerIndex": 16982,
+      "role": "ConfirmationButtons",
+      "start": 10636404,
+      "end": 10636449,
+      "bytes": 45,
+      "sha256": "04e0b246fdecdc8da5614e5bccbe3212c6c9b2acca14316d43ca8b5f527d043a",
+      "text": "g6.createElement(m_,{onConfirm:K,onCancel:_})"
+    }
+  ],
+  "retainedBaselineCall": {
+    "ownerIndex": 16914,
+    "role": "KeyboardShortcutHint",
+    "start": 10614683,
+    "end": 10614736,
+    "bytes": 53,
+    "sha256": "a21202eddfab18c4833f8e2794d7fe55e198eb6ae058b0b64683772ee7504f02",
+    "text": "C6.createElement(H$,{chord:\"escape\",action:\"cancel\"})"
+  },
+  "sourceFiles": [
+    {
+      "path": "src/components/permissions/rules/RemoveWorkspaceDirectory.tsx",
+      "blob": "7174df1ff4178af7414d97c0f52d5d18937d7112",
+      "raw": {
+        "bytes": 9757,
+        "sha256": "55b51b18b0360b2369c29ad90908c430b6e2a9645df2cb5b049f0cfcadc8f8f5"
+      },
+      "rawDeclaration": {
+        "start": 641,
+        "end": 2880,
+        "bytes": 2239,
+        "sha256": "8bd9c4c794c1477bc477d0160e515bd97b1b13c1c391bcc60b9cdef39ff76ce8"
+      },
+      "postimage": {
+        "bytes": 9226,
+        "sha256": "ae977aae83cc55ac63a13144b2561d42d30111dca58e0de6995a7494f76e4ffd"
+      },
+      "postDeclaration": {
+        "start": 640,
+        "end": 2349,
+        "bytes": 1709,
+        "sha256": "78e187a16bcf3820db0966c7162e03153615e5d0ec3136840ac0edc53aa59a18"
+      }
+    },
+    {
+      "path": "src/components/permissions/rules/PermissionRuleList.tsx",
+      "blob": "494d1821626248cf787264d8084af646b5cf057b",
+      "raw": {
+        "bytes": 118930,
+        "sha256": "0dac9eff8f525e6ee17e53203454cf7f74906b9a944e245dfa95cb5ca18baee1"
+      },
+      "rawDeclaration": {
+        "start": 3248,
+        "end": 7621,
+        "bytes": 4373,
+        "sha256": "1ad5eb506ef60acfb4ebd24f3b145c6c86edc90b0db4badc40445fa70c021231"
+      },
+      "postimage": {
+        "bytes": 118487,
+        "sha256": "c528df72caaa8fd4d71c0bc5d4a59a6cea1739618b282610ca5be9a0a16b0202"
+      },
+      "postDeclaration": {
+        "start": 3454,
+        "end": 7178,
+        "bytes": 3724,
+        "sha256": "3bf8745f178a58a4d18c01e8929dc48e0b7f0ee1f2cbc4f6296fda2663c867b9"
+      }
+    },
+    {
+      "path": "src/components/design-system/Panel.tsx",
+      "raw": null,
+      "postimage": {
+        "bytes": 577,
+        "sha256": "98ea603561d20f5453e8248ef01417bb7f2500efbce8f6865d50457370a7e868"
+      },
+      "postDeclaration": {
+        "start": 208,
+        "end": 576,
+        "bytes": 368,
+        "sha256": "41224c18541386c23c78141bfd9184d24c94f084206c5d1bd53bc2b759241ba3"
+      },
+      "authoredIdentity": "inferred",
+      "runtimeIdentity": "authenticated",
+      "inferenceBoundary": "The target bundle proves the component contract, default React import, Ink Box/Text dependencies, and separate module initializer; no source map, reachable git tree, or donor source authenticates the authored path, symbol, type spelling, or formatting."
+    }
+  ],
+  "contexts": [
+    {
+      "path": "src/components/ConfirmationButtons.tsx",
+      "bytes": 843,
+      "sha256": "44e0c7df811030d27ed88eb313cac012fbdd2ed6a5baab03d9751070806f9960"
+    },
+    {
+      "path": "src/components/design-system/KeyboardShortcutHint.tsx",
+      "bytes": 14022,
+      "sha256": "003a5fcb34e20f2a8966397d29b42a1a3edbd9773707c1fa81314d5197b52335",
+      "provenance": "retained-chord-aware-compatibility-materialization"
+    }
+  ],
+  "wiring": {
+    "requiredOrder": [
+      "applyTarget117ConfirmationSourceRecovery({ sourceRoot })",
+      "applyTarget117PluginEmptyStateSourceRecovery({ sourceRoot })",
+      "applyTarget117HookEmptyStateSourceRecovery({ sourceRoot })",
+      "applyTarget117PermissionConfirmationPanelSourceRecovery({ sourceRoot })"
+    ],
+    "ownerOverrideExport": "TARGET117_PERMISSION_CONFIRMATION_OWNER_OVERRIDES",
+    "replayExport": "applyTarget117PermissionConfirmationPanelSourceRecovery"
+  }
+}

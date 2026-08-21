@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-background-work-state-direct-source-owner-proof-v1",
+  "status": "authenticated-direct-source-owner-proof",
+  "evidenceIds": [
+    "target118-background-work-state-target-fragment",
+    "target118-background-work-state-source-ast-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/background-work-state-owner-overrides.mjs",
+      "bytes": 987,
+      "sha256": "7626a95240e22bad82b7cc065e0d375f5a3f32a3e3a5aae21e07eb0756cfaf4c"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/utils/backgroundWorkState.ts",
+        "blob": "9fc798f329ada80d303192fb77e8679b2956e18a",
+        "bytes": 383,
+        "sha256": "559d5f5f43940f00ff6580b6a3ad3285779a02a70f958ab4ecf495064de488a1"
+      },
+      "typeDeclaration": {
+        "name": "BackgroundWorkState",
+        "characterStart": 0,
+        "characterEnd": 88,
+        "byteStart": 0,
+        "byteEnd": 88,
+        "bytes": 88,
+        "sha256": "cdb56208fff125626c3b130d0296af71cda3c430bfa6340055e99b405c212ba1"
+      },
+      "stateDeclaration": {
+        "name": "backgroundWorkState",
+        "characterStart": 90,
+        "characterEnd": 178,
+        "byteStart": 90,
+        "byteEnd": 178,
+        "bytes": 88,
+        "sha256": "e8717303d9bc78da4ea6d73bcdbd4b1e231a9e55b6839f78cd9f31eb3f6ee67c"
+      },
+      "setterDeclaration": {
+        "name": "setBackgroundWorkState",
+        "characterStart": 180,
+        "characterEnd": 286,
+        "byteStart": 180,
+        "byteEnd": 286,
+        "bytes": 106,
+        "sha256": "09a959d49be45994dbc33c2dabd34ba11977734f58726812507976e6386fc47c"
+      },
+      "getterDeclaration": {
+        "name": "getBackgroundWorkState",
+        "characterStart": 288,
+        "characterEnd": 382,
+        "byteStart": 288,
+        "byteEnd": 382,
+        "bytes": 94,
+        "sha256": "c74fb91a1cb0cc93e28fd4e6efb2c464aa56a37b8ba57a909366331f819d985e"
+      }
+    },
+    "rejectedProvisionalOwner": {
+      "path": "src/components/permissions/WorkerPendingPermission.tsx",
+      "blob": "bff845d2c75b9e24382a820eb2233d39ded209b4",
+      "bytes": 9365,
+      "sha256": "2560a3b78574e0d19503ff48b538bc83afb0e9d5c553792b1207da18e96e8c89"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 18713,
+    "classification": "unresolved",
+    "start": 11500045,
+    "end": 11500094,
+    "bytes": 49,
+    "tokenCount": 28,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "cd7d876e4b953bf13d3f681b6524cacb3e03242cf65bdf75c11950a33a55476a",
+    "coarseHash": "380190f53c223e607ddb1671b258a469265457140213f24bbbb50f373832787d",
+    "ownerPath": "src/utils/backgroundWorkState.ts",
+    "provisionalOwnerPath": "src/components/permissions/WorkerPendingPermission.tsx",
+    "declarations": [
+      "BackgroundWorkState",
+      "backgroundWorkState",
+      "setBackgroundWorkState",
+      "getBackgroundWorkState"
+    ],
+    "behavior": "The authenticated Target118 background-work state initializer is the exact compiled form of src/utils/backgroundWorkState.ts#backgroundWorkState: it initializes the shared tasks, queued, and kinds snapshot consumed through the module setter/getter. The provisional WorkerPendingPermission owner contains neither this state binding nor its accessors.",
+    "residues": [
+      ["property", "queued", 11500073, 11500079, 0, 2],
+      ["property", "kinds", 11500082, 11500087, 0, 3]
+    ]
+  },
+  "targetBinding": {
+    "start": 11500045,
+    "end": 11500094,
+    "bytes": 49,
+    "sha256": "cd7d876e4b953bf13d3f681b6524cacb3e03242cf65bdf75c11950a33a55476a"
+  },
+  "scannerPartition": {
+    "units": 1,
+    "residues": 2,
+    "residueIdentitiesSha256": "89a8105917d3a0da5180a6c86145c4fd958f6ed5819a952625878be2c1f7680a",
+    "rows": [
+      [18713, "property", "queued", 11500073, 11500079, 0, 2],
+      [18713, "property", "kinds", 11500082, 11500087, 0, 3]
+    ],
+    "strictUnsupportedRows": [
+      [18713, "property", "queued", 11500073, 11500079, 0, 2],
+      [18713, "property", "kinds", 11500082, 11500087, 0, 3]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/utils/backgroundWorkState.ts"
+    ],
+    "evidenceIds": [
+      "target118-background-work-state-target-fragment",
+      "target118-background-work-state-source-ast-test"
+    ],
+    "behavior": "The authenticated Target118 background-work state initializer is the exact compiled form of src/utils/backgroundWorkState.ts#backgroundWorkState: it initializes the shared tasks, queued, and kinds snapshot consumed through the module setter/getter. The provisional WorkerPendingPermission owner contains neither this state binding nor its accessors."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "scannerResidues": 2,
+    "targetIndicesSha256": "15ac5eb2c7ce297e012b717a37de9eff0a21acc5e3dfe302c15a6cdbd5f8b7ad",
+    "residueIdentitiesSha256": "89a8105917d3a0da5180a6c86145c4fd958f6ed5819a952625878be2c1f7680a"
+  }
+}

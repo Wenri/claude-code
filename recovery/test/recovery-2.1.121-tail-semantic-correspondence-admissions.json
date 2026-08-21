@@ -1,0 +1,653 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "criterion": "strict-semantic-correspondence-residue-containment-v1",
+  "status": "generator-ready-fail-closed",
+  "inputs": {
+    "classification": {
+      "path": "recovery/test/recovery-2.1.121-tail-residue-classification.json",
+      "bytes": 12892,
+      "sha256": "46b1f52dabba93d0506dead02d21995b92d1dfbeaf7e373d12df3f9c11a37300"
+    },
+    "semanticCorrespondence": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/semantic-correspondence.json.gz",
+      "bytes": 776241,
+      "sha256": "b1be6a21300967dd861b1bda0624b4353cf692968a68414b28b8ee1a72660867"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "targetBundle": {
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    }
+  },
+  "evidenceIds": [
+    "target2-1-121-tail-semantic-correspondence-authenticated-residue-test",
+    "target2-1-121-tail-semantic-correspondence-catalog-binding-test",
+    "target2-1-121-tail-semantic-correspondence-source-ast-test",
+    "target2-1-121-tail-semantic-correspondence-strict-containment-test"
+  ],
+  "summary": {
+    "candidateWitnessUnits": 33,
+    "candidateWitnessObligations": 28,
+    "candidateWitnessTests": 21,
+    "admittedResidues": 33,
+    "admittedUnits": 18,
+    "buildMetadataResidues": 27,
+    "sourceSemanticResidues": 6,
+    "completelyDischargedUnits": 0,
+    "retainedSupplementUnits": 97,
+    "retainedSupplementResidues": 1315
+  },
+  "candidateWitnessUnits": [
+    6786,
+    7556,
+    12699,
+    12768,
+    13026,
+    13120,
+    14165,
+    14171,
+    14201,
+    14209,
+    16363,
+    16369,
+    19537,
+    19553,
+    19577,
+    19597,
+    19683,
+    19753,
+    20592,
+    20606,
+    20945,
+    20949,
+    21373,
+    21925,
+    21958,
+    21959,
+    21992,
+    22106,
+    22119,
+    22140,
+    22151,
+    22174,
+    22207
+  ],
+  "admittedUnits": [
+    14165,
+    16363,
+    16369,
+    19553,
+    19577,
+    19597,
+    19683,
+    19753,
+    20945,
+    20949,
+    21959,
+    21992,
+    22106,
+    22119,
+    22140,
+    22151,
+    22174,
+    22207
+  ],
+  "witnessedButStrictlyUnadmittedUnits": [
+    6786,
+    7556,
+    12699,
+    12768,
+    13026,
+    13120,
+    14171,
+    14201,
+    14209,
+    19537,
+    20592,
+    20606,
+    21373,
+    21925,
+    21958
+  ],
+  "groups": [
+    {
+      "obligationId": "hidden-h13",
+      "behavior": "H13: The exact release version marker authenticates the target artifact; B01-B39 provide the one-to-one source-semantic decomposition.",
+      "disposition": "compiler-build-metadata",
+      "sourcePaths": [
+        "src/services/mcp/types.ts"
+      ],
+      "testIds": [
+        "adjacent",
+        "hidden-obligations"
+      ],
+      "catalogBinding": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",
+        "sha256": "bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a",
+        "rawId": "H13",
+        "rowSha256": "2b8c0be120775c293b67315f0e288e9fca8afba8bbdd79b06f79e0f1fc2428f3"
+      },
+      "rows": [
+        {
+          "targetIndex": 14165,
+          "sourceHash": "a472b8aa86e4a72256932be83b4109fe28bc6882f8359cd874b119c2dd8e70df",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 8877003,
+          "end": 8877012,
+          "witnessRange": {
+            "start": 8876995,
+            "end": 8877012
+          }
+        },
+        {
+          "targetIndex": 16363,
+          "sourceHash": "e36859f263166d05219da4b0ba76c8b9a38460eb4a44cb27569a6d2cfe48aa79",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 10157570,
+          "end": 10157579,
+          "witnessRange": {
+            "start": 10157562,
+            "end": 10157579
+          }
+        },
+        {
+          "targetIndex": 16369,
+          "sourceHash": "e965560fd99b5102e92ebd4cda217c8c8393811ec3c5ad0d0d40dbbee4c8ca0a",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 10160564,
+          "end": 10160573,
+          "witnessRange": {
+            "start": 10160556,
+            "end": 10160573
+          }
+        },
+        {
+          "targetIndex": 16369,
+          "sourceHash": "e965560fd99b5102e92ebd4cda217c8c8393811ec3c5ad0d0d40dbbee4c8ca0a",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 10161035,
+          "end": 10161044,
+          "witnessRange": {
+            "start": 10161027,
+            "end": 10161044
+          }
+        },
+        {
+          "targetIndex": 19553,
+          "sourceHash": "a1bf4f05cb1f3ee0ff877bcee46aa9ea9e3159275e0a58e8a7d108e402dac330",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 11886387,
+          "end": 11886396,
+          "witnessRange": {
+            "start": 11886379,
+            "end": 11886396
+          }
+        },
+        {
+          "targetIndex": 19577,
+          "sourceHash": "e11f2bf56195a2d1db7aaeeb281e0404b9c2d3fe6ad6dc744253ef30126b68a1",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 11898719,
+          "end": 11898728,
+          "witnessRange": {
+            "start": 11898711,
+            "end": 11898728
+          }
+        },
+        {
+          "targetIndex": 19597,
+          "sourceHash": "f6e85a0265024a4ff3b5722a9968c173ca2fec8f9f3893c64af6bb3ed4a674c9",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 11908651,
+          "end": 11908660,
+          "witnessRange": {
+            "start": 11908643,
+            "end": 11908660
+          }
+        },
+        {
+          "targetIndex": 19597,
+          "sourceHash": "f6e85a0265024a4ff3b5722a9968c173ca2fec8f9f3893c64af6bb3ed4a674c9",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 11910741,
+          "end": 11910750,
+          "witnessRange": {
+            "start": 11910733,
+            "end": 11910750
+          }
+        },
+        {
+          "targetIndex": 19597,
+          "sourceHash": "f6e85a0265024a4ff3b5722a9968c173ca2fec8f9f3893c64af6bb3ed4a674c9",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 11911358,
+          "end": 11911367,
+          "witnessRange": {
+            "start": 11911350,
+            "end": 11911367
+          }
+        },
+        {
+          "targetIndex": 19597,
+          "sourceHash": "f6e85a0265024a4ff3b5722a9968c173ca2fec8f9f3893c64af6bb3ed4a674c9",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 11916709,
+          "end": 11916718,
+          "witnessRange": {
+            "start": 11916701,
+            "end": 11916718
+          }
+        },
+        {
+          "targetIndex": 19753,
+          "sourceHash": "5dbc4ffa562cd55ad33a2d08dbc7fcbdf2cb2f85a451e4bba2933a71d5f20f74",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 11999343,
+          "end": 11999352,
+          "witnessRange": {
+            "start": 11999335,
+            "end": 11999352
+          }
+        },
+        {
+          "targetIndex": 20945,
+          "sourceHash": "ebc949207c23e7fcf98731ec1cfa3762aa722aafbe193e7423887b050be25b1c",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 12573271,
+          "end": 12573280,
+          "witnessRange": {
+            "start": 12573263,
+            "end": 12573280
+          }
+        },
+        {
+          "targetIndex": 20949,
+          "sourceHash": "24a5915ed3ddf7d30d8b271b87fbe2669c52d0c6488be4a53ab02df83dda9f28",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 12603010,
+          "end": 12603019,
+          "witnessRange": {
+            "start": 12603002,
+            "end": 12603019
+          }
+        },
+        {
+          "targetIndex": 20949,
+          "sourceHash": "24a5915ed3ddf7d30d8b271b87fbe2669c52d0c6488be4a53ab02df83dda9f28",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 12603521,
+          "end": 12603530,
+          "witnessRange": {
+            "start": 12603513,
+            "end": 12603530
+          }
+        },
+        {
+          "targetIndex": 21959,
+          "sourceHash": "8683f4849285a9c3aaee14e258324575d20377528c6ff47b3187b824fc674021",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13670787,
+          "end": 13670796,
+          "witnessRange": {
+            "start": 13670779,
+            "end": 13670796
+          }
+        },
+        {
+          "targetIndex": 21959,
+          "sourceHash": "8683f4849285a9c3aaee14e258324575d20377528c6ff47b3187b824fc674021",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13671169,
+          "end": 13671178,
+          "witnessRange": {
+            "start": 13671161,
+            "end": 13671178
+          }
+        },
+        {
+          "targetIndex": 21992,
+          "sourceHash": "ad560b5a80843114630a92f361fdf4472b8f5de0b5a713e319e68171e897478a",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13715324,
+          "end": 13715333,
+          "witnessRange": {
+            "start": 13715316,
+            "end": 13715333
+          }
+        },
+        {
+          "targetIndex": 22106,
+          "sourceHash": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13808731,
+          "end": 13808740,
+          "witnessRange": {
+            "start": 13808723,
+            "end": 13808740
+          }
+        },
+        {
+          "targetIndex": 22106,
+          "sourceHash": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13825108,
+          "end": 13825117,
+          "witnessRange": {
+            "start": 13825100,
+            "end": 13825117
+          }
+        },
+        {
+          "targetIndex": 22119,
+          "sourceHash": "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13848266,
+          "end": 13848275,
+          "witnessRange": {
+            "start": 13848258,
+            "end": 13848275
+          }
+        },
+        {
+          "targetIndex": 22140,
+          "sourceHash": "e21fda2a6548de23787ba0fed904318887dbf6e6d567a9e490b122224dcbfb04",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13854341,
+          "end": 13854350,
+          "witnessRange": {
+            "start": 13854333,
+            "end": 13854350
+          }
+        },
+        {
+          "targetIndex": 22140,
+          "sourceHash": "e21fda2a6548de23787ba0fed904318887dbf6e6d567a9e490b122224dcbfb04",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13855496,
+          "end": 13855505,
+          "witnessRange": {
+            "start": 13855488,
+            "end": 13855505
+          }
+        },
+        {
+          "targetIndex": 22151,
+          "sourceHash": "c297101ebf74a02d6dd3a71b7b212f6a7eb4004cd96baa8fdcc9ab8975c36825",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13863741,
+          "end": 13863750,
+          "witnessRange": {
+            "start": 13863733,
+            "end": 13863750
+          }
+        },
+        {
+          "targetIndex": 22174,
+          "sourceHash": "dd114539f480b0a7035caa1a759814734f6a474e0104a6dc2b97fe6c5c2e3b32",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13875946,
+          "end": 13875955,
+          "witnessRange": {
+            "start": 13875938,
+            "end": 13875955
+          }
+        },
+        {
+          "targetIndex": 22174,
+          "sourceHash": "dd114539f480b0a7035caa1a759814734f6a474e0104a6dc2b97fe6c5c2e3b32",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13877608,
+          "end": 13877617,
+          "witnessRange": {
+            "start": 13877600,
+            "end": 13877617
+          }
+        },
+        {
+          "targetIndex": 22207,
+          "sourceHash": "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13897011,
+          "end": 13897020,
+          "witnessRange": {
+            "start": 13897003,
+            "end": 13897020
+          }
+        },
+        {
+          "targetIndex": 22207,
+          "sourceHash": "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8",
+          "literalKind": "string",
+          "value": "2.1.121",
+          "start": 13897448,
+          "end": 13897457,
+          "witnessRange": {
+            "start": 13897440,
+            "end": 13897457
+          }
+        }
+      ]
+    },
+    {
+      "obligationId": "hidden-h11",
+      "behavior": "H11: Exact target-only endpoint, reattach, MCP-control, immediate-dispatch, and remote-session witnesses localize the SDK allowlist, env-less token refresh, reactive system init, bridge controls, model guard, and permission no-op paths.",
+      "disposition": "source-runtime-covered",
+      "sourcePaths": [
+        "src/bridge/bridgeEnabled.ts",
+        "src/bridge/bridgeMessaging.ts",
+        "src/bridge/envLessBridgeConfig.ts",
+        "src/bridge/initReplBridge.ts",
+        "src/bridge/remoteBridgeCore.ts",
+        "src/bridge/replBridge.ts",
+        "src/cli/print.ts",
+        "src/cli/transports/transportUtils.ts",
+        "src/commands/bridge/bridge.tsx",
+        "src/commands/model/model.tsx",
+        "src/components/PromptInput/PromptInput.tsx",
+        "src/constants/oauth.ts",
+        "src/hooks/useReplBridge.tsx",
+        "src/main.tsx",
+        "src/screens/REPL.tsx",
+        "src/services/mcp/MCPConnectionManager.tsx",
+        "src/utils/handlePromptSubmit.ts"
+      ],
+      "testIds": [
+        "adjacent",
+        "daemon-service",
+        "hidden-obligations",
+        "remote-control-boundary",
+        "remote-ux-and-branch"
+      ],
+      "catalogBinding": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",
+        "sha256": "bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a",
+        "rawId": "H11",
+        "rowSha256": "44bfd8610bb7a9848dc259666795898a5d011930a5bc5c20607450e2c9bb1171"
+      },
+      "rows": [
+        {
+          "targetIndex": 14165,
+          "sourceHash": "a472b8aa86e4a72256932be83b4109fe28bc6882f8359cd874b119c2dd8e70df",
+          "literalKind": "property",
+          "value": "bridgeSessionSeq",
+          "start": 8877262,
+          "end": 8877278,
+          "witnessRange": {
+            "start": 8877262,
+            "end": 8877278
+          }
+        },
+        {
+          "targetIndex": 14165,
+          "sourceHash": "a472b8aa86e4a72256932be83b4109fe28bc6882f8359cd874b119c2dd8e70df",
+          "literalKind": "property",
+          "value": "bridgeSessionSeq",
+          "start": 8877282,
+          "end": 8877298,
+          "witnessRange": {
+            "start": 8877282,
+            "end": 8877298
+          }
+        },
+        {
+          "targetIndex": 19597,
+          "sourceHash": "f6e85a0265024a4ff3b5722a9968c173ca2fec8f9f3893c64af6bb3ed4a674c9",
+          "literalKind": "property",
+          "value": "bridgeSessionSeq",
+          "start": 11918915,
+          "end": 11918931,
+          "witnessRange": {
+            "start": 11918915,
+            "end": 11918931
+          }
+        }
+      ]
+    },
+    {
+      "obligationId": "daemon-d03",
+      "behavior": "D03: Target-only restart-orphan copy and expanded action telemetry bind background ownership recovery and Fleet UX.",
+      "disposition": "source-runtime-covered",
+      "sourcePaths": [
+        "src/cli/bg.ts",
+        "src/cli/handlers/templateJobs.ts",
+        "src/commands/exit/exit-noninteractive.ts",
+        "src/commands/exit/exit.tsx",
+        "src/commands/exit/index.ts",
+        "src/commands/stop/stop.tsx",
+        "src/components/BackgroundExitDialog.tsx",
+        "src/components/ExitFlow.tsx",
+        "src/components/FleetView.tsx",
+        "src/daemon/hub.tsx",
+        "src/daemon/jobs.ts",
+        "src/state/onChangeAppState.ts",
+        "src/utils/agentsFleet.ts",
+        "src/utils/conversationRecovery.ts",
+        "src/utils/sessionRestore.ts"
+      ],
+      "testIds": [
+        "adjacent",
+        "daemon-service"
+      ],
+      "catalogBinding": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",
+        "sha256": "bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a",
+        "rawId": "D03",
+        "rowSha256": "4f948a124a8f7164bd0589f2dafafacf0e0305249f45b160a6eadf8f7102a653"
+      },
+      "rows": [
+        {
+          "targetIndex": 19683,
+          "sourceHash": "b0bb2a9a4203ea98b46a17d8dd7c28ca636a9ebdd3604f55d4c29dd26172f1f8",
+          "literalKind": "property",
+          "value": "running_background_tasks",
+          "start": 11977172,
+          "end": 11977196,
+          "witnessRange": {
+            "start": 11977172,
+            "end": 11977196
+          }
+        }
+      ]
+    },
+    {
+      "obligationId": "official-2-1-121-b31",
+      "behavior": "B31: target normalized statements 28645-28646 filter mcp__ rules while restoring/reporting session_allow_rules; 28741/28748 coalesce and round-trip internal_metadata; 40561 applies internal state after external state on resume Structured I/O retains both external and internal worker metadata through the typed restored state used by remote-session rule recovery.",
+      "disposition": "source-runtime-covered",
+      "sourcePaths": [
+        "src/cli/print.ts",
+        "src/cli/remoteIO.ts",
+        "src/cli/structuredIO.ts",
+        "src/cli/transports/ccrClient.ts",
+        "src/state/onChangeAppState.ts",
+        "src/utils/sessionState.ts"
+      ],
+      "testIds": [
+        "adjacent",
+        "official-runtime-settings-cluster"
+      ],
+      "catalogBinding": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",
+        "sha256": "bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a",
+        "rawId": "B31",
+        "rowSha256": "8f9cd354942a7249dd1ddd064ad9f07ade2084d202e4b60e1048118821bd3290"
+      },
+      "rows": [
+        {
+          "targetIndex": 19683,
+          "sourceHash": "b0bb2a9a4203ea98b46a17d8dd7c28ca636a9ebdd3604f55d4c29dd26172f1f8",
+          "literalKind": "property",
+          "value": "session_allow_rules",
+          "start": 11977396,
+          "end": 11977415,
+          "witnessRange": {
+            "start": 11977396,
+            "end": 11977415
+          }
+        }
+      ]
+    },
+    {
+      "obligationId": "official-2-1-121-b36",
+      "behavior": "B36: The changed scroll-container count and bounded dialog wrapper prevent usage content clipping when no-flicker mode is disabled.",
+      "disposition": "source-runtime-covered",
+      "sourcePaths": [
+        "src/components/FullscreenLayout.tsx"
+      ],
+      "testIds": [
+        "adjacent",
+        "dialog-overflow"
+      ],
+      "catalogBinding": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",
+        "sha256": "bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a",
+        "rawId": "B36",
+        "rowSha256": "b9d17d7ff9e5b0a1ef19e815d6ff5487858330e33a47d81b8319fe63f117b54c"
+      },
+      "rows": [
+        {
+          "targetIndex": 20945,
+          "sourceHash": "ebc949207c23e7fcf98731ec1cfa3762aa722aafbe193e7423887b050be25b1c",
+          "literalKind": "property",
+          "value": "stickyScroll",
+          "start": 12595319,
+          "end": 12595331,
+          "witnessRange": {
+            "start": 12595319,
+            "end": 12595331
+          }
+        }
+      ]
+    }
+  ]
+}

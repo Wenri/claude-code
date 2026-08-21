@@ -2,6 +2,254 @@ import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
+import { TARGET117_GENERATED_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-generated-owner-source-gaps.mjs'
+import { TARGET117_HISTORICAL_GAP_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-historical-owner-source-gaps.mjs'
+import { TARGET117_CONFIRMATION_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-confirmation-source-gaps.mjs'
+import { TARGET117_CURRENT_EXTRACTED_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/current-extracted-owner-overrides.mjs'
+import { TARGET117_TAIL_EXTRACTED_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/tail-extracted-owner-overrides.mjs'
+import { TARGET117_REPL_BRIDGE_SKIP_ARCHIVE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-repl-bridge-skip-archive-source-gap.mjs'
+import { TARGET117_DIRECT_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/direct-static-owner-overrides.mjs'
+import { TARGET117_RETAINED_FULLSCREEN_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-retained-fullscreen-interaction-source-gaps.mjs'
+import { TARGET117_VIRTUAL_LIST_STABILITY_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-virtual-list-stability-source-gaps.mjs'
+import { TARGET117_BRIDGE_EXPORT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/bridge-export-owner-overrides.mjs'
+import { TARGET117_BASH_VALIDATION_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-bash-validation-source-gaps.mjs'
+import { TARGET117_RUNTIME_CAPABILITIES_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-runtime-capabilities-source-gap.mjs'
+import { TARGET117_COMMAND_ARGUMENT_BANG_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-command-argument-bang-escaping-source-gap.mjs'
+import { TARGET117_DUMP_PROMPTS_IN_FLIGHT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-dump-prompts-in-flight-source-gap.mjs'
+import { TARGET117_PLUGIN_DEPENDENCY_MARKETPLACE_WORDING_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-dependency-marketplace-wording-source-gap.mjs'
+import { TARGET117_MARKETPLACE_CACHE_PATH_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-marketplace-cache-path-sanitization-source-gap.mjs'
+import { TARGET117_CCD_SESSION_RATING_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-ccd-session-rating-telemetry-source-gap.mjs'
+import { TARGET117_HEADLESS_STREAMING_TEST_EXPORT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-headless-streaming-test-export-source-gap.mjs'
+import { TARGET117_FORK_BOILERPLATE_MESSAGE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-fork-boilerplate-message-source-gap.mjs'
+import { TARGET117_OAUTH_ENV_ACCOUNT_METADATA_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-oauth-env-account-metadata-source-gap.mjs'
+import { TARGET117_TERMINAL_TOKENIZER_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-terminal-tokenizer-string-controls-source-gap.mjs'
+import { TARGET117_EXTRA_USAGE_COMMAND_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/extra-usage-command-owner-overrides.mjs'
+import { TARGET117_PLUGIN_COMMAND_POLICY_WORDING_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-command-policy-wording-source-gap.mjs'
+import { TARGET117_PROCESS_SLASH_COMMAND_DCE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/process-slash-command-dce-owner-overrides.mjs'
+import { TARGET117_SCHEDULE_ROUTINE_REPO_WORDING_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-schedule-routine-repo-wording-source-gap.mjs'
+import { TARGET117_SEARCH_BOX_PREFIX_COLOR_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-search-box-prefix-color-source-gap.mjs'
+import { TARGET117_BRIDGE_DIALOG_MEMO_CACHE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/bridge-dialog-memo-cache-owner-overrides.mjs'
+import { TARGET117_MCP_CLIENT_MIXED_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/mcp-client-mixed-owner-overrides.mjs'
+import { TARGET117_TRUNCATED_COUNT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-source-gap.mjs'
+import { TARGET117_TRUNCATED_COUNT_CONSUMER_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-consumers-source-gap.mjs'
+import { TARGET117_TRUNCATED_COUNT_SECONDARY_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-secondary-consumers-source-gap.mjs'
+import { TARGET117_FALLBACK_TRUNCATED_COUNT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-fallback-truncated-count-source-gap.mjs'
+import { TARGET117_INBOUND_CLIENT_PLATFORM_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-inbound-client-platform-source-gap.mjs'
+import { TARGET117_SDK_CLIENT_PLATFORM_SCHEMA_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-sdk-client-platform-schema-source-gap.mjs'
+import { TARGET117_QUERY_CLIENT_PLATFORM_ROUTING_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-query-client-platform-routing-source-gap.mjs'
+import { TARGET117_PLUGIN_EMPTY_STATE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-empty-state-source-gap.mjs'
+import { TARGET117_HOOK_EMPTY_STATE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-hook-empty-state-source-gaps.mjs'
+import { TARGET117_SKILLS_EMPTY_STATE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-skills-empty-state-source-gap.mjs'
+import { TARGET117_WORKER_PENDING_PERMISSION_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/worker-pending-permission-owner-overrides.mjs'
+import { TARGET117_PERMISSION_CONFIRMATION_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-permission-confirmation-panel-source-gaps.mjs'
+import { TARGET117_AGENTS_MENU_DELETE_CONFIRMATION_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/agents-menu-delete-confirmation-owner-overrides.mjs'
+import { TARGET117_DAEMON_PROTOCOL_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-daemon-protocol-source-gap.mjs'
+import { TARGET117_BACKGROUND_EXIT_DIALOG_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/background-exit-dialog-owner-overrides.mjs'
+import { TARGET117_FORK_SPAWN_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/fork-spawn-owner-overrides.mjs'
+import { TARGET117_RESUGGEST_SLASH_TEMPLATE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/resuggest-slash-template-owner-overrides.mjs'
+import { TARGET117_FORK_GATE_SEMANTIC_EVOLUTION_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/fork-gate-semantic-evolution-overrides.mjs'
+import { TARGET117_TRANSCRIPT_LEARN_MORE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/transcript-learn-more-owner-overrides.mjs'
+import { TARGET117_AGENT_MCP_CONFIG_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/agent-mcp-config-owner-overrides.mjs'
+import { TARGET117_REPL_WHOLE_UNIT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/repl-whole-unit-owner-overrides.mjs'
+import { TARGET117_THIRD_PARTY_MODEL_UPGRADE_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/third-party-model-upgrade-owner-overrides.mjs'
+import { TARGET117_QUERY_ENGINE_CLIENT_PLATFORM_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-query-engine-client-platform-source-gap.mjs'
+import { TARGET117_HEADLESS_STREAMING_WHOLE_UNIT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/headless-streaming-whole-unit-owner-overrides.mjs'
+import { TARGET117_MCP_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/mcp-entrypoint-whole-unit-owner-overrides.mjs'
+import { TARGET117_UPDATE_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/update-entrypoint-whole-unit-owner-overrides.mjs'
+import { TARGET117_CLI_BRIDGE_AUTH_DEBUG_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-cli-bridge-auth-debug-source-gap.mjs'
+import { TARGET117_MAIN_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES } from './recovery/cases/2.1.116-to-2.1.117/recovered/main-entrypoint-whole-unit-owner-overrides.mjs'
+import { TARGET117_SETTINGS_SYNC_KEYSET_DCE_CORRECTIONS } from './recovery/cases/2.1.116-to-2.1.117/recovered/settings-sync-keyset-dce-overrides.mjs'
+import { TARGET118_SESSIONS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-sessions-owner-source-gap.mjs'
+import { TARGET118_STRICT_TRANSITIVE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-strict-transitive-source-gaps.mjs'
+import { TARGET118_OAUTH_PROFILE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-oauth-profile-source-gap.mjs'
+import { TARGET118_ERROR_TELEMETRY_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-error-telemetry-source-gap.mjs'
+import { TARGET118_DIRECT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/direct-owner-overrides.mjs'
+import { TARGET118_SECONDARY_DIRECT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/secondary-direct-owner-overrides.mjs'
+import { TARGET118_SECONDARY_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/secondary-static-owner-overrides.mjs'
+import { TARGET118_THEME_PICKER_STATE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-theme-picker-state-source-gap.mjs'
+import { TARGET118_SCHEDULE_ONE_OFF_GATE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-schedule-one-off-gate-source-gap.mjs'
+import { TARGET118_TERTIARY_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/tertiary-static-owner-overrides.mjs'
+import { TARGET118_QUATERNARY_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/quaternary-static-owner-overrides.mjs'
+import { TARGET118_QUINARY_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/quinary-static-owner-overrides.mjs'
+import { TARGET118_WIF_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/wif-static-owner-overrides.mjs'
+import { TARGET118_COMMAND_ALIAS_SELECTION_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-command-alias-selection-source-gap.mjs'
+import { TARGET118_COLLAPSED_SHELL_LABEL_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-collapsed-shell-label-source-gap.mjs'
+import { TARGET118_SESSION_MEMORY_LAST_MESSAGE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-session-memory-last-message-source-gap.mjs'
+import { TARGET118_MCP_TOOL_HOOK_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-mcp-tool-hook-source-gaps.mjs'
+import { TARGET118_MCP_CLIENT_ACCESSOR_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-mcp-client-accessor-source-gap.mjs'
+import { TARGET118_PARSER_STREAMING_TAIL_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-parser-streaming-tail-source-gap.mjs'
+import { TARGET118_WSL_FINGERPRINT_PROPERTY_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/wsl-fingerprint-property-owner-overrides.mjs'
+import { TARGET118_CACHE_DIAGNOSIS_SCHEMA_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/cache-diagnosis-schema-owner-overrides.mjs'
+import { TARGET118_CODE_SESSION_COMPAT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-code-session-compat-source-gap.mjs'
+import { TARGET118_FRAME_URLS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-frame-urls-state-source-gap.mjs'
+import { TARGET118_SKILL_AUTHOR_BYLINE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-skill-author-byline-source-gap.mjs'
+import { TARGET118_TASK_STOP_OWNER_NOTIFICATION_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-task-stop-owner-notification-source-gap.mjs'
+import { TARGET118_RESUME_PERSISTED_COUNT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/resume-persisted-count-owner-overrides.mjs'
+import { TARGET118_STANDALONE_IN_PROCESS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-standalone-in-process-runner-source-gap.mjs'
+import { TARGET118_FILE_READ_POWERSHELL_HINT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-file-read-powershell-notebook-hint-source-gap.mjs'
+import { TARGET118_WITH_RETRY_OVERAGE_HEADER_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/with-retry-overage-header-owner-overrides.mjs'
+import { TARGET118_AUTOFIX_PR_COMMAND_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/autofix-pr-command-owner-overrides.mjs'
+import { TARGET118_SEARCH_BOX_DIM_RANGE_CURSOR_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-search-box-dim-range-cursor-source-gap.mjs'
+import { TARGET118_DAEMON_PATHS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/daemon-paths-owner-overrides.mjs'
+import { TARGET118_WARM_RESUME_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/warm-resume-static-owner-overrides.mjs'
+import { TARGET118_WARM_RESUME_SESSION_KIND_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-warm-resume-session-kind-source-gap.mjs'
+import { TARGET118_VIRTUAL_SCROLL_APPEND_SNAPSHOT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-virtual-scroll-append-snapshot-source-gap.mjs'
+import { TARGET118_TUI_RELAUNCH_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/tui-relaunch-static-owner-overrides.mjs'
+import { TARGET118_TUI_TELEMETRY_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-tui-telemetry-source-gap.mjs'
+import { TARGET118_FAST_COMMAND_THIN_CLIENT_DISPATCH_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-fast-command-thin-client-dispatch-source-gap.mjs'
+import { TARGET118_EFFORT_COMMAND_THIN_CLIENT_DISPATCH_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-effort-command-thin-client-dispatch-source-gap.mjs'
+import { TARGET118_PUSH_NOTIFICATION_TIP_RELEVANCE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/push-notification-tip-relevance-owner-overrides.mjs'
+import { TARGET118_VOICE_MODE_ARGUMENT_ROUTING_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-voice-mode-argument-routing-source-gap.mjs'
+import { TARGET118_FORK_NAME_REGISTRATION_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/fork-name-registration-owner-overrides.mjs'
+import { TARGET118_SESSION_STORAGE_ENTRY_POLICY_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/session-storage-entry-policy-owner-overrides.mjs'
+import { TARGET118_BUNDLED_SKILLS_ROOT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/bundled-skills-root-owner-overrides.mjs'
+import { TARGET118_STRUCTURED_OUTPUT_ALWAYS_LOAD_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-structured-output-always-load-source-gap.mjs'
+import { TARGET118_BACKGROUND_WORK_STATE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/background-work-state-owner-overrides.mjs'
+import { TARGET118_CCR_TRANSCRIPT_PERSISTENCE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/ccr-transcript-persistence-owner-overrides.mjs'
+import { TARGET118_BRIDGE_CLIENT_PRESENCE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/bridge-client-presence-owner-overrides.mjs'
+import { TARGET118_CODE_SESSION_GIT_CONTEXT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-code-session-git-context-source-gap.mjs'
+import { TARGET118_PROACTIVE_OAUTH_REFRESH_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-proactive-oauth-refresh-source-gap.mjs'
+import { TARGET118_RESTORE_CODE_DIFF_STATS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-restore-code-diff-stats-source-gap.mjs'
+import { TARGET118_STATUS_LINE_FAST_MODE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-status-line-fast-mode-source-gap.mjs'
+import { TARGET118_PROMPT_INPUT_RUNTIME_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/prompt-input-runtime-owner-overrides.mjs'
+import { TARGET118_PLUGIN_THEME_COUNT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/plugin-theme-count-owner-overrides.mjs'
+import { TARGET118_TRANSCRIPT_SHARE_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/transcript-share-static-owner-overrides.mjs'
+import { TARGET118_FEEDBACK_SURVEY_MESSAGE_WRAP_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-feedback-survey-message-wrap-source-gap.mjs'
+import { TARGET118_AWAY_SUMMARY_RUNTIME_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/away-summary-runtime-owner-overrides.mjs'
+import { TARGET118_SDK_CONTROL_INTERACTIONS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-sdk-control-interactions-source-gap.mjs'
+import { TARGET118_REPL_RUNTIME_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/repl-runtime-owner-overrides.mjs'
+import { TARGET118_BOOTSTRAP_COSTS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-bootstrap-additional-model-costs-source-gap.mjs'
+import { TARGET118_BEDROCK_MODEL_PROBE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/bedrock-model-probe-owner-overrides.mjs'
+import { TARGET118_VERTEX_MODEL_PROBE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/vertex-model-probe-owner-overrides.mjs'
+import { TARGET118_SETUP_PROXY_AUTH_SCOPE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/setup-proxy-auth-scope-owner-overrides.mjs'
+import { TARGET118_QUERY_ENGINE_INHERITED_CLASS_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/query-engine-inherited-class-owner-overrides.mjs'
+import { TARGET118_HEADLESS_CLASSIFIER_DCE_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/headless-classifier-dce-owner-overrides.mjs'
+import { TARGET118_HEADLESS_STREAMING_INHERITED_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/headless-streaming-inherited-owner-overrides.mjs'
+import { TARGET118_LOAD_INITIAL_MESSAGES_INHERITED_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/load-initial-messages-inherited-owner-overrides.mjs'
+import { TARGET118_MCP_ENTRYPOINT_BUILD_CONTEXT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/mcp-entrypoint-build-context-owner-overrides.mjs'
+import { TARGET118_UPDATE_ENTRYPOINT_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/update-entrypoint-owner-overrides.mjs'
+import { TARGET118_MAIN_ENTRYPOINT_INHERITED_OWNER_OVERRIDES } from './recovery/cases/2.1.117-to-2.1.118/recovered/main-entrypoint-inherited-owner-overrides.mjs'
+import { TARGET119_BOOTSTRAP_COSTS_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-bootstrap-additional-model-costs-source-gap.mjs'
+import { TARGET119_LATER_DONOR_RUNTIME_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-later-donor-runtime-source-gaps.mjs'
+import { TARGET119_DIRECT_DECLARATION_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/direct-declaration-owner-overrides.mjs'
+import { TARGET119_PRO_TRIAL_START_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/pro-trial-start-owner-overrides.mjs'
+import { TARGET119_SDK_RATE_LIMIT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-sdk-rate-limit-fetch-error-source-gap.mjs'
+import { TARGET119_SECONDARY_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/secondary-static-owner-overrides.mjs'
+import { TARGET119_UDS_CLIENT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/uds-client-owner-overrides.mjs'
+import { TARGET119_UDS_REGISTRY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-uds-registry-source-gap.mjs'
+import { TARGET119_TERTIARY_DECLARATION_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/tertiary-declaration-owner-overrides.mjs'
+import { TARGET119_PUSH_NOTIFICATION_CONFIG_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-push-notification-config-source-gap.mjs'
+import { TARGET119_ENTRYPOINT_ROUTING_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-entrypoint-routing-source-gap.mjs'
+import { TARGET119_FIRST_PROMPT_ENTRY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/first-prompt-entry-owner-overrides.mjs'
+import { TARGET119_DEFAULT_BRANCH_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/default-branch-owner-overrides.mjs'
+import { TARGET119_DATADOG_EVENT_CATALOG_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-datadog-event-catalog-source-gap.mjs'
+import { TARGET119_SLATE_MEADOW_BACKGROUND_AGENT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-slate-meadow-background-agent-source-gap.mjs'
+import { TARGET119_GRACEFUL_SHUTDOWN_OUTPUT_ERRORS_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-graceful-shutdown-output-errors-source-gap.mjs'
+import { TARGET119_READ_ONLY_EXACT_IP_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/read-only-exact-ip-owner-overrides.mjs'
+import { TARGET119_PR_URL_HELPER_DEDUP_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/pr-url-helper-dedup-owner-overrides.mjs'
+import { TARGET119_CONSOLIDATION_PROMPT_TEMPLATE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/consolidation-prompt-template-owner-overrides.mjs'
+import { TARGET119_TEAM_FILE_LOCK_OPTIONS_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/team-file-lock-options-owner-overrides.mjs'
+import { TARGET119_MCP_TERMINAL_ERROR_BOUNDARY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-mcp-terminal-error-boundary-source-gap.mjs'
+import { TARGET119_PARKED_AGENT_LIFECYCLE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/parked-agent-lifecycle-owner-overrides.mjs'
+import { TARGET119_MESSAGES_CONTEXT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-messages-readonly-skills-context-source-gap.mjs'
+import { TARGET119_AGENT_DETAIL_RELAY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/agent-detail-relay-owner-overrides.mjs'
+import { TARGET119_MIGRATION_SESSION_MEMORY_STATIC_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/migration-session-memory-static-owner-overrides.mjs'
+import { TARGET119_BINARY_COMMAND_VALIDATION_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-binary-command-name-validation-source-gap.mjs'
+import { TARGET119_AUTOFIX_PR_RUNTIME_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/autofix-pr-runtime-owner-overrides.mjs'
+import { TARGET119_AUTOFIX_PR_UI_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/autofix-pr-ui-owner-overrides.mjs'
+import { TARGET119_AUTOCOMPACT_DIALOG_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/autocompact-dialog-owner-overrides.mjs'
+import { TARGET119_DOCTOR_WHOLE_UNIT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/doctor-whole-unit-owner-overrides.mjs'
+import { TARGET119_CONDENSED_LOGO_TRIAL_BADGE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/condensed-logo-trial-badge-owner-overrides.mjs'
+import { TARGET119_LOGO_V2_TRIAL_BADGE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/logo-v2-trial-badge-owner-overrides.mjs'
+import { TARGET119_AUTO_MODE_DENIALS_CONTEXT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/auto-mode-denials-context-owner-overrides.mjs'
+import { TARGET119_RATE_LIMIT_OPTIONS_USAGE_LABEL_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/rate-limit-options-usage-label-owner-overrides.mjs'
+import { TARGET119_SETTINGS_CONFIG_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-settings-config-release-channel-source-gap.mjs'
+import { TARGET119_SESSION_STORAGE_ASSISTANT_DEDUP_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/session-storage-assistant-dedup-owner-overrides.mjs'
+import { TARGET119_HOOK_BACKGROUND_SKIP_SPILL_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-hook-background-skip-spill-source-gap.mjs'
+import { TARGET119_INBOUND_ATTACHMENT_SCHEMA_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/inbound-attachment-schema-inherited-owner-overrides.mjs'
+import { TARGET119_RESUME_RETURN_DECISION_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/resume-return-decision-owner-overrides.mjs'
+import { TARGET119_CLOSED_ISSUE_REFRESH_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/closed-issue-refresh-inherited-owner-overrides.mjs'
+import { TARGET119_SSE_TRANSPORT_RETAINED_CLASS_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/sse-transport-retained-class-owner-overrides.mjs'
+import { TARGET119_REMOTE_BRIDGE_TEARDOWN_DISPOSAL_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-remote-bridge-teardown-disposal-source-gap.mjs'
+import { TARGET119_BRIDGE_DIALOG_WHOLE_UNIT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/bridge-dialog-whole-unit-owner-overrides.mjs'
+import { TARGET119_SUBAGENT_STATUS_LINE_SCHEMA_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/subagent-status-line-schema-owner-overrides.mjs'
+import { TARGET119_STATUS_LINE_CWD_FAST_MODE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-status-line-cwd-fast-mode-source-gap.mjs'
+import { TARGET119_PROMPT_INPUT_FOOTER_BACKGROUND_EXIT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/prompt-input-footer-background-exit-owner-overrides.mjs'
+import { TARGET119_PROMPT_INPUT_FOREGROUND_AGENTS_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/prompt-input-foreground-agents-owner-overrides.mjs'
+import { TARGET119_PROMPT_INPUT_LAYOUT_EFFECT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/prompt-input-layout-effect-owner-overrides.mjs'
+import { TARGET119_REMOTE_SESSION_ACTION_DISPATCH_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/remote-session-action-dispatch-owner-overrides.mjs'
+import { TARGET119_USE_CAN_USE_TOOL_DENIAL_HISTORY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/use-can-use-tool-denial-history-owner-overrides.mjs'
+import { TARGET119_WAKE_ROUTER_DISPATCH_TIMEOUT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/wake-router-dispatch-timeout-owner-overrides.mjs'
+import { TARGET119_CLI_BG_MODULE_IMPORT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/cli-bg-module-import-owner-overrides.mjs'
+import { TARGET119_SESSION_BACKGROUND_HINT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/session-background-hint-retained-owner-overrides.mjs'
+import { TARGET119_ULTRAPLAN_CHOICE_MODULE_IMPORT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/ultraplan-choice-module-import-owner-overrides.mjs'
+import { TARGET119_CONNECTION_STATE_OFFLINE_THRESHOLD_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/connection-state-offline-threshold-owner-overrides.mjs'
+import { TARGET119_TRANSCRIPT_SHARE_BUILD_MACRO_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/transcript-share-build-macro-owner-overrides.mjs'
+import { TARGET119_JOB_STATE_NAME_SYNC_MODULE_IMPORT_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/job-state-name-sync-module-import-owner-overrides.mjs'
+import { TARGET119_TIP_REGISTRY_DAY_WINDOW_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/tip-registry-day-window-owner-overrides.mjs'
+import { TARGET119_SDK_CONTROL_INHERITED_SCHEMA_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/sdk-control-inherited-schema-owner-overrides.mjs'
+import { TARGET119_SESSION_TASK_SUMMARY_STATE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/session-task-summary-state-owner-overrides.mjs'
+import { TARGET119_REPL_RUNTIME_EVOLUTION_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/repl-runtime-evolution-owner-overrides.mjs'
+import { TARGET119_PARSE_PR_IDENTIFIER_STRICT_PROPERTY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/parse-pr-identifier-strict-property-owner-overrides.mjs'
+import { TARGET119_SETUP_RENDEZVOUS_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/setup-rendezvous-server-strict-property-source-recovery.mjs'
+import { TARGET119_HEADLESS_CLASSIFIER_SUMMARY_STRICT_PROPERTY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/headless-classifier-summary-strict-property-owner-overrides.mjs'
+import { TARGET119_HEADLESS_STREAMING_STRICT_RESIDUE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/headless-streaming-strict-residue-owner-overrides.mjs'
+import { TARGET119_SDK_INITIALIZE_SUBAGENT_OPTIONS_STRICT_PROPERTY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/sdk-initialize-subagent-options-strict-property-owner-overrides.mjs'
+import { TARGET119_RECONCILE_MCP_CONTENT_STRICT_PROPERTY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/reconcile-mcp-content-strict-property-owner-overrides.mjs'
+import { TARGET119_MCP_ENTRYPOINT_TASK_REGISTRY_STRICT_PROPERTY_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/mcp-entrypoint-task-registry-strict-property-owner-overrides.mjs'
+import { TARGET119_MAIN_RUN_BUILD_PROFILE_OWNER_OVERRIDES } from './recovery/cases/2.1.118-to-2.1.119/recovered/main-run-build-profile-owner-overrides.mjs'
+import { TARGET120_DAEMON_TAIL_OWNER_BEHAVIORS, TARGET120_DAEMON_TAIL_OWNER_OVERRIDES } from './recovery/cases/2.1.119-to-2.1.120/recovered/daemon-tail-owner-overrides.mjs'
+import { TARGET120_COMPILER_TAIL_OWNER_BEHAVIORS, TARGET120_COMPILER_TAIL_OWNER_OVERRIDES } from './recovery/cases/2.1.119-to-2.1.120/recovered/compiler-tail-owner-overrides.mjs'
+import { TARGET120_FINAL_TAIL_DEPENDENCY_CORRECTIONS, TARGET120_FINAL_TAIL_EVIDENCE_IDS, TARGET120_FINAL_TAIL_OWNER_BEHAVIORS, TARGET120_FINAL_TAIL_OWNER_OVERRIDES } from './recovery/cases/2.1.119-to-2.1.120/recovered/final-tail-static-overrides.mjs'
+import { TARGET121_EXTRA_USAGE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/extra-usage-owner-overrides.mjs'
+import { TARGET121_PTY_WORKER_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/pty-worker-owner-overrides.mjs'
+import { TARGET121_USAGE_CONTRIBUTORS_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/usage-contributors-owner-overrides.mjs'
+import { TARGET121_DAEMON_SUPERVISOR_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-owner-overrides.mjs'
+import { TARGET121_DAEMON_MAIN_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-main-owner-overrides.mjs'
+import { TARGET121_DAEMON_SPARE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-spare-owner-overrides.mjs'
+import { TARGET121_BOOTSTRAP_STATE_EXPORT_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-bootstrap-state-export-source-gap.mjs'
+import { TARGET121_GROWTHBOOK_EXPERIMENT_CACHE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-growthbook-experiment-cache-source-gap.mjs'
+import { TARGET121_AGENTS_FLEET_GATE_CACHE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-agents-fleet-gate-cache-source-gap.mjs'
+import { TARGET121_DATADOG_EVENT_CATALOG_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-datadog-event-catalog-source-gap.mjs'
+import { TARGET121_INK_FRAME_TIMING_LIVE_COUNTS_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-ink-frame-timing-live-counts-source-gap.mjs'
+import { TARGET121_MEMORY_WRITE_VISUAL_ROWS_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-memory-write-survey-visual-row-truncation-source-gap.mjs'
+import { TARGET121_COWORK_MEMORY_ENTRYPOINT_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-claudemd-cowork-memory-default-entrypoint-source-gap.mjs'
+import { TARGET121_FILE_EDIT_UNICODE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-file-edit-unicode-escape-case-source-gap.mjs'
+import { TARGET121_INTERNAL_REPO_URL_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-internal-repo-url-validation-source-gap.mjs'
+import { TARGET121_RELAUNCH_PIN_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-relaunch-current-binary-pin-source-gap.mjs'
+import { TARGET121_DIAGNOSTICS_HINT_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-diagnostics-inline-expand-hint-source-gap.mjs'
+import { TARGET121_AGENT_TOOL_SKILL_PROVENANCE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/agent-tool-skill-provenance-owner-overrides.mjs'
+import { TARGET121_SLASH_COMMAND_CONTENT_TELEMETRY_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/slash-command-content-telemetry-owner-overrides.mjs'
+import { TARGET121_SLASH_COMMAND_ACTIVE_SKILL_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/slash-command-active-skill-owner-overrides.mjs'
+import { TARGET121_SKILL_TOOL_ACTIVE_SKILL_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/skill-tool-active-skill-owner-overrides.mjs'
+import { TARGET121_RESUME_AGENT_SKILL_PROVENANCE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/resume-agent-spawned-by-skill-owner-overrides.mjs'
+import { TARGET121_CLASSIFIER_BUILD_NAME_FILTER_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/classifier-build-name-filter-owner-overrides.mjs'
+import { TARGET121_QUERY_RUN_AGENT_RUNTIME_STATE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/query-run-agent-runtime-state-owner-overrides.mjs'
+import { TARGET121_POWERSHELL_UNC_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-powershell-resolved-unc-normalization-source-gap.mjs'
+import { TARGET121_DAEMON_SERVICE_EXECUTABLE_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-service-executable-owner-overrides.mjs'
+import { TARGET121_DAEMON_STATUS_DOCTOR_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-status-doctor-owner-overrides.mjs'
+import { TARGET121_RENAME_GENERATED_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-rename-generated-session-name-source-gap.mjs'
+import { TARGET121_ASYNC_AGENT_KILL_ALL_SHORTCUT_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/async-agent-detail-kill-all-shortcut-owner-overrides.mjs'
+import { TARGET121_BACKGROUND_TASKS_KILL_ALL_SHORTCUT_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/background-tasks-kill-all-shortcut-owner-overrides.mjs'
+import { TARGET121_DAEMON_STATUS_PROC_START_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs'
+import { TARGET121_DAEMON_HUB_STATUS_READER_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-hub-status-reader-proc-start-source-gap.mjs'
+import { TARGET121_FORK_SPAWNED_BY_SKILL_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/fork-spawned-by-skill-owner-overrides.mjs'
+import { TARGET121_QUERY_MODEL_SKILL_ATTRIBUTION_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/query-model-skill-attribution-owner-overrides.mjs'
+import { TARGET121_HANDLE_PROMPT_SUBMIT_ACTIVE_SKILL_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/handle-prompt-submit-active-skill-owner-overrides.mjs'
+import { TARGET121_REPL_RUNTIME_SOURCE_GAP_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/repl-runtime-source-gap-owner-overrides.mjs'
+import { TARGET121_QUERY_ENGINE_ACTIVE_SKILL_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/query-engine-active-skill-owner-overrides.mjs'
+import { TARGET121_FLEETVIEW_PR_POLL_DELAY_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/fleetview-pr-poll-delay-owner-overrides.mjs'
+import { TARGET121_FLEET_VIEW_FRAME_CHILD_ROW_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/fleet-view-frame-child-row-owner-overrides.mjs'
+import { TARGET121_FLEET_VIEW_RUNTIME_STATUS_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/fleet-view-runtime-status-owner-overrides.mjs'
+import { TARGET121_SESSION_STATE_INTERNAL_METADATA_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/session-state-internal-metadata-owner-overrides.mjs'
+import { TARGET121_REMOTE_IO_INTERNAL_METADATA_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/remote-io-internal-metadata-owner-overrides.mjs'
+import { TARGET121_HEADLESS_RESTORED_TASK_CLEAR_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/headless-restored-task-clear-owner-overrides.mjs'
+import { TARGET121_AGENTS_HANDLER_GROUPS_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/agents-handler-groups-owner-overrides.mjs'
+import { TARGET121_ULTRAREVIEW_HANDLER_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/ultrareview-handler-owner-overrides.mjs'
+import { TARGET121_MEMORY_WRITE_SURVEY_HOOK_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/memory-write-survey-hook-owner-overrides.mjs'
+import { TARGET121_DAEMON_SPARE_EXPORT_BINDING_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-spare-export-binding-owner-overrides.mjs'
+import { TARGET121_DAEMON_WORKER_CONFIG_RUN_DAEMON_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-worker-config-run-daemon-owner-overrides.mjs'
+import { TARGET121_DAEMON_CLI_PARSE_KIND_ARGS_EXPORT_OWNER_OVERRIDES } from './recovery/cases/2.1.120-to-2.1.121/recovered/daemon-cli-parse-kind-args-export-owner-overrides.mjs'
 
 const repositoryRoot = process.cwd()
 
@@ -14,6 +262,11 @@ const cases = [
   ['2.1.112-to-2.1.113', '2.1.113', 'd88405d4b4b7ce6e066e1d67e7fc421b54d685f0'],
   ['2.1.113-to-2.1.114', '2.1.114', 'f7d9656548fd1e7849a9e243d9950dbb7307690c'],
   ['2.1.114-to-2.1.116', '2.1.116', 'e08046f528857203cbdede147bcab8b8b8021bf7'],
+  ['2.1.116-to-2.1.117', '2.1.117', 'ff0339d35906735273ae3130a187bb8e30581871'],
+  ['2.1.117-to-2.1.118', '2.1.118', 'bd846a24e3886322888f02b9f747c132a4a32314'],
+  ['2.1.118-to-2.1.119', '2.1.119', '351cd4d13f70a564dc2d90f59ab0093dc6fc7b05'],
+  ['2.1.119-to-2.1.120', '2.1.120', '6801ead984ba2c3df02bd092ad8b93df096ed8c1'],
+  ['2.1.120-to-2.1.121', '2.1.121', '11890981447ee2cea3407c608f4411e43e5fe72a'],
 ]
 
 // The 2.1.116 source map coalesces the vendored Anthropic SDK workload-
@@ -39,6 +292,12 @@ const forcedDependencyRows = new Map([
     '2.1.114-to-2.1.116',
     new Set(Array.from({ length: 29 }, (_, offset) => 4603 + offset)),
   ],
+  [
+    '2.1.119-to-2.1.120',
+    new Set(
+      Object.keys(TARGET120_FINAL_TAIL_DEPENDENCY_CORRECTIONS).map(Number),
+    ),
+  ],
 ])
 
 const forcedDependencyAttributions = new Map([
@@ -51,6 +310,12 @@ const forcedDependencyAttributions = new Map([
   ['2.1.112-to-2.1.113:10184', '../node_modules/@ant/computer-use-swift/js/index.js'],
   ['2.1.112-to-2.1.113:13269', '../vendor/audio-capture-src/index.ts'],
   ['2.1.112-to-2.1.113:15317', '../node_modules/asciichart/asciichart.js'],
+  ...Object.keys(TARGET120_FINAL_TAIL_DEPENDENCY_CORRECTIONS).map(
+    targetIndex => [
+      `2.1.119-to-2.1.120:${targetIndex}`,
+      '../node_modules/@anthropic-ai/claude-agent-sdk/sdk.mjs',
+    ],
+  ),
 ])
 
 const forcedDependencyEvidence = new Map([
@@ -58,6 +323,16 @@ const forcedDependencyEvidence = new Map([
   ['2.1.112-to-2.1.113:10184', 'case113-dependency-wrapper-target-fragment'],
   ['2.1.112-to-2.1.113:13269', 'case113-audio-capture-vendor-runtime-target-fragment'],
   ['2.1.112-to-2.1.113:15317', 'case113-dependency-wrapper-target-fragment'],
+  ...Object.entries(TARGET120_FINAL_TAIL_EVIDENCE_IDS).flatMap(
+    ([targetIndex, evidenceIds]) => {
+      const evidenceId = evidenceIds.find(id =>
+        id.startsWith('target120-agent-sdk-query-'),
+      )
+      return evidenceId === undefined
+        ? []
+        : [[`2.1.119-to-2.1.120:${targetIndex}`, evidenceId]]
+    },
+  ),
 ])
 
 // Some late deltas evolve an owner introduced by an earlier recovery case,
@@ -303,6 +578,9 @@ const specialOwners = new Map([
   ['2.1.112-to-2.1.113:16130', 'src/commands/release-notes/index.ts'],
   ['2.1.114-to-2.1.116:16264', 'src/commands/release-notes/index.ts'],
   ['2.1.114-to-2.1.116:16271', 'src/commands/release-notes/index.ts'],
+  ['2.1.116-to-2.1.117:16333', 'src/commands/release-notes/release-notes.tsx'],
+  ['2.1.116-to-2.1.117:17441', 'src/commands/advisor/advisor.tsx'],
+  ['2.1.116-to-2.1.117:17447', 'src/commands/advisor/advisor.tsx'],
 ])
 
 // Source-map partitions are only localization clues.  These target-fragment
@@ -1208,7 +1486,1879 @@ const case113RemoteBundleMigrationOwners =
     ]
   })
 
+const target120TailSupplementFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.120-tail-supplement-replay.json',
+    ),
+    'utf8',
+  ),
+)
+
+const target118SessionKindDceFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.118-session-kind-dce.json',
+    ),
+    'utf8',
+  ),
+)
+
 const ownerOverrides = new Map([
+  ...TARGET117_GENERATED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_HISTORICAL_GAP_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_CONFIRMATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_CURRENT_EXTRACTED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_TAIL_EXTRACTED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_REPL_BRIDGE_SKIP_ARCHIVE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_DIRECT_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_RETAINED_FULLSCREEN_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_VIRTUAL_LIST_STABILITY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_BRIDGE_EXPORT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_BASH_VALIDATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_RUNTIME_CAPABILITIES_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_COMMAND_ARGUMENT_BANG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_DUMP_PROMPTS_IN_FLIGHT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_PLUGIN_DEPENDENCY_MARKETPLACE_WORDING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_MARKETPLACE_CACHE_PATH_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_CCD_SESSION_RATING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_FORK_BOILERPLATE_MESSAGE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_OAUTH_ENV_ACCOUNT_METADATA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_TERMINAL_TOKENIZER_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_EXTRA_USAGE_COMMAND_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_PLUGIN_COMMAND_POLICY_WORDING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_PROCESS_SLASH_COMMAND_DCE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_SCHEDULE_ROUTINE_REPO_WORDING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_SEARCH_BOX_PREFIX_COLOR_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_BRIDGE_DIALOG_MEMO_CACHE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_MCP_CLIENT_MIXED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_HEADLESS_STREAMING_TEST_EXPORT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_TRUNCATED_COUNT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_TRUNCATED_COUNT_CONSUMER_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_TRUNCATED_COUNT_SECONDARY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_FALLBACK_TRUNCATED_COUNT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_INBOUND_CLIENT_PLATFORM_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_SDK_CLIENT_PLATFORM_SCHEMA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_QUERY_CLIENT_PLATFORM_ROUTING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_PLUGIN_EMPTY_STATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_HOOK_EMPTY_STATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_SKILLS_EMPTY_STATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_WORKER_PENDING_PERMISSION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET117_PERMISSION_CONFIRMATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_AGENTS_MENU_DELETE_CONFIRMATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_DAEMON_PROTOCOL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_BACKGROUND_EXIT_DIALOG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_FORK_SPAWN_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_RESUGGEST_SLASH_TEMPLATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_FORK_GATE_SEMANTIC_EVOLUTION_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_TRANSCRIPT_LEARN_MORE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_AGENT_MCP_CONFIG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_REPL_WHOLE_UNIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_THIRD_PARTY_MODEL_UPGRADE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_QUERY_ENGINE_CLIENT_PLATFORM_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_HEADLESS_STREAMING_WHOLE_UNIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_MCP_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_UPDATE_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_CLI_BRIDGE_AUTH_DEBUG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET117_MAIN_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_SESSIONS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_STRICT_TRANSITIVE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_OAUTH_PROFILE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_ERROR_TELEMETRY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_DIRECT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_SECONDARY_DIRECT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_SECONDARY_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_THEME_PICKER_STATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_TERTIARY_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_QUATERNARY_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_QUINARY_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_WIF_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_COMMAND_ALIAS_SELECTION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_COLLAPSED_SHELL_LABEL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_SESSION_MEMORY_LAST_MESSAGE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_MCP_TOOL_HOOK_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_MCP_CLIENT_ACCESSOR_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_PARSER_STREAMING_TAIL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_WSL_FINGERPRINT_PROPERTY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_CACHE_DIAGNOSIS_SCHEMA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_CODE_SESSION_COMPAT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_FRAME_URLS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_SKILL_AUTHOR_BYLINE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_TASK_STOP_OWNER_NOTIFICATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_RESUME_PERSISTED_COUNT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_STANDALONE_IN_PROCESS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET118_FILE_READ_POWERSHELL_HINT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_WITH_RETRY_OVERAGE_HEADER_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_AUTOFIX_PR_COMMAND_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_SEARCH_BOX_DIM_RANGE_CURSOR_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_DAEMON_PATHS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_WARM_RESUME_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_WARM_RESUME_SESSION_KIND_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_VIRTUAL_SCROLL_APPEND_SNAPSHOT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_TUI_RELAUNCH_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_TUI_TELEMETRY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_FAST_COMMAND_THIN_CLIENT_DISPATCH_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_EFFORT_COMMAND_THIN_CLIENT_DISPATCH_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_PUSH_NOTIFICATION_TIP_RELEVANCE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_VOICE_MODE_ARGUMENT_ROUTING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_FORK_NAME_REGISTRATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_SESSION_STORAGE_ENTRY_POLICY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_BUNDLED_SKILLS_ROOT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_STRUCTURED_OUTPUT_ALWAYS_LOAD_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_BACKGROUND_WORK_STATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_CCR_TRANSCRIPT_PERSISTENCE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_BRIDGE_CLIENT_PRESENCE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_CODE_SESSION_GIT_CONTEXT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_PROACTIVE_OAUTH_REFRESH_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_RESTORE_CODE_DIFF_STATS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_STATUS_LINE_FAST_MODE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_PROMPT_INPUT_RUNTIME_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_PLUGIN_THEME_COUNT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_TRANSCRIPT_SHARE_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_FEEDBACK_SURVEY_MESSAGE_WRAP_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_AWAY_SUMMARY_RUNTIME_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_SDK_CONTROL_INTERACTIONS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_REPL_RUNTIME_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_BOOTSTRAP_COSTS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_BEDROCK_MODEL_PROBE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_VERTEX_MODEL_PROBE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_SETUP_PROXY_AUTH_SCOPE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_QUERY_ENGINE_INHERITED_CLASS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_HEADLESS_CLASSIFIER_DCE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_HEADLESS_STREAMING_INHERITED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_LOAD_INITIAL_MESSAGES_INHERITED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_MCP_ENTRYPOINT_BUILD_CONTEXT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_UPDATE_ENTRYPOINT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET118_MAIN_ENTRYPOINT_INHERITED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_BOOTSTRAP_COSTS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_LATER_DONOR_RUNTIME_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_DIRECT_DECLARATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_PRO_TRIAL_START_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_SDK_RATE_LIMIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_SECONDARY_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_UDS_CLIENT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_UDS_REGISTRY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_TERTIARY_DECLARATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_PUSH_NOTIFICATION_CONFIG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_ENTRYPOINT_ROUTING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_FIRST_PROMPT_ENTRY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_DEFAULT_BRANCH_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_DATADOG_EVENT_CATALOG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET119_SLATE_MEADOW_BACKGROUND_AGENT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_GRACEFUL_SHUTDOWN_OUTPUT_ERRORS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_MCP_TERMINAL_ERROR_BOUNDARY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_PARKED_AGENT_LIFECYCLE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_MESSAGES_CONTEXT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_AGENT_DETAIL_RELAY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_MIGRATION_SESSION_MEMORY_STATIC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_BINARY_COMMAND_VALIDATION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_AUTOFIX_PR_RUNTIME_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_AUTOFIX_PR_UI_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_AUTOCOMPACT_DIALOG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_DOCTOR_WHOLE_UNIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_CONDENSED_LOGO_TRIAL_BADGE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_LOGO_V2_TRIAL_BADGE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_AUTO_MODE_DENIALS_CONTEXT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_RATE_LIMIT_OPTIONS_USAGE_LABEL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SETTINGS_CONFIG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SESSION_STORAGE_ASSISTANT_DEDUP_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_HOOK_BACKGROUND_SKIP_SPILL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_INBOUND_ATTACHMENT_SCHEMA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_RESUME_RETURN_DECISION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_CLOSED_ISSUE_REFRESH_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SSE_TRANSPORT_RETAINED_CLASS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_REMOTE_BRIDGE_TEARDOWN_DISPOSAL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_BRIDGE_DIALOG_WHOLE_UNIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SUBAGENT_STATUS_LINE_SCHEMA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_STATUS_LINE_CWD_FAST_MODE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_PROMPT_INPUT_FOOTER_BACKGROUND_EXIT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_PROMPT_INPUT_FOREGROUND_AGENTS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_PROMPT_INPUT_LAYOUT_EFFECT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_REMOTE_SESSION_ACTION_DISPATCH_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_USE_CAN_USE_TOOL_DENIAL_HISTORY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_WAKE_ROUTER_DISPATCH_TIMEOUT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_CLI_BG_MODULE_IMPORT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SESSION_BACKGROUND_HINT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_ULTRAPLAN_CHOICE_MODULE_IMPORT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_CONNECTION_STATE_OFFLINE_THRESHOLD_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_TRANSCRIPT_SHARE_BUILD_MACRO_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_JOB_STATE_NAME_SYNC_MODULE_IMPORT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_TIP_REGISTRY_DAY_WINDOW_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SDK_CONTROL_INHERITED_SCHEMA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SESSION_TASK_SUMMARY_STATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_REPL_RUNTIME_EVOLUTION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_PARSE_PR_IDENTIFIER_STRICT_PROPERTY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SETUP_RENDEZVOUS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_HEADLESS_CLASSIFIER_SUMMARY_STRICT_PROPERTY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_HEADLESS_STREAMING_STRICT_RESIDUE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_SDK_INITIALIZE_SUBAGENT_OPTIONS_STRICT_PROPERTY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_RECONCILE_MCP_CONTENT_STRICT_PROPERTY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_MCP_ENTRYPOINT_TASK_REGISTRY_STRICT_PROPERTY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_MAIN_RUN_BUILD_PROFILE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_READ_ONLY_EXACT_IP_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_PR_URL_HELPER_DEDUP_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_CONSOLIDATION_PROMPT_TEMPLATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET119_TEAM_FILE_LOCK_OPTIONS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...Object.entries(TARGET120_DAEMON_TAIL_OWNER_OVERRIDES).map(
+    ([targetIndex, paths]) => [
+      `2.1.119-to-2.1.120:${targetIndex}`,
+      {
+        paths: [...paths],
+        evidenceIds: [
+          'target2-1-120-daemon-tail-authenticated-target-fragment-test',
+          'target2-1-120-daemon-tail-source-ast-test',
+          'target2-1-120-daemon-tail-compiler-normalization-test',
+        ],
+        behavior: TARGET120_DAEMON_TAIL_OWNER_BEHAVIORS[targetIndex],
+      },
+    ],
+  ),
+  ...Object.entries(TARGET120_COMPILER_TAIL_OWNER_OVERRIDES).map(
+    ([targetIndex, paths]) => [
+      `2.1.119-to-2.1.120:${targetIndex}`,
+      {
+        paths: [...paths],
+        evidenceIds: [
+          'target2-1-120-compiler-tail-authenticated-target-fragment-test',
+          'target2-1-120-compiler-tail-source-ast-test',
+          'target2-1-120-compiler-tail-normalization-and-dce-test',
+        ],
+        behavior: TARGET120_COMPILER_TAIL_OWNER_BEHAVIORS[targetIndex],
+      },
+    ],
+  ),
+  ...Object.entries(TARGET120_FINAL_TAIL_OWNER_OVERRIDES).map(
+    ([targetIndex, paths]) => [
+      `2.1.119-to-2.1.120:${targetIndex}`,
+      {
+        paths: [...paths],
+        evidenceIds: [...TARGET120_FINAL_TAIL_EVIDENCE_IDS[targetIndex]],
+        behavior: TARGET120_FINAL_TAIL_OWNER_BEHAVIORS[targetIndex],
+      },
+    ],
+  ),
+  ...TARGET121_EXTRA_USAGE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_PTY_WORKER_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_USAGE_CONTRIBUTORS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_DAEMON_SUPERVISOR_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_DAEMON_MAIN_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_DAEMON_SPARE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_BOOTSTRAP_STATE_EXPORT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_GROWTHBOOK_EXPERIMENT_CACHE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_AGENTS_FLEET_GATE_CACHE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_DATADOG_EVENT_CATALOG_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_INK_FRAME_TIMING_LIVE_COUNTS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
+  ...TARGET121_MEMORY_WRITE_VISUAL_ROWS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_COWORK_MEMORY_ENTRYPOINT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_FILE_EDIT_UNICODE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_INTERNAL_REPO_URL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_RELAUNCH_PIN_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DIAGNOSTICS_HINT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_AGENT_TOOL_SKILL_PROVENANCE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_SLASH_COMMAND_CONTENT_TELEMETRY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_SLASH_COMMAND_ACTIVE_SKILL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_SKILL_TOOL_ACTIVE_SKILL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_RESUME_AGENT_SKILL_PROVENANCE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_CLASSIFIER_BUILD_NAME_FILTER_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_QUERY_RUN_AGENT_RUNTIME_STATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_POWERSHELL_UNC_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DAEMON_SERVICE_EXECUTABLE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DAEMON_STATUS_DOCTOR_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_RENAME_GENERATED_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_ASYNC_AGENT_KILL_ALL_SHORTCUT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_BACKGROUND_TASKS_KILL_ALL_SHORTCUT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DAEMON_STATUS_PROC_START_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DAEMON_HUB_STATUS_READER_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_FORK_SPAWNED_BY_SKILL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_QUERY_MODEL_SKILL_ATTRIBUTION_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_HANDLE_PROMPT_SUBMIT_ACTIVE_SKILL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_REPL_RUNTIME_SOURCE_GAP_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_QUERY_ENGINE_ACTIVE_SKILL_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_FLEETVIEW_PR_POLL_DELAY_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_FLEET_VIEW_FRAME_CHILD_ROW_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_FLEET_VIEW_RUNTIME_STATUS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_SESSION_STATE_INTERNAL_METADATA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_REMOTE_IO_INTERNAL_METADATA_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_HEADLESS_RESTORED_TASK_CLEAR_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_AGENTS_HANDLER_GROUPS_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DAEMON_SPARE_EXPORT_BINDING_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DAEMON_WORKER_CONFIG_RUN_DAEMON_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_DAEMON_CLI_PARSE_KIND_ARGS_EXPORT_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...TARGET121_MEMORY_WRITE_SURVEY_HOOK_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+  ...target120TailSupplementFixture.rows.map(row => {
+      return [
+        `${target120TailSupplementFixture.case}:${row.targetIndex}`,
+        {
+          paths: [row.ownerPath],
+          evidenceIds: [...row.evidenceIds],
+          behavior: row.behavior,
+        },
+      ]
+    }),
   ...case108LiteralOwnerCorrections,
   ...case108TargetAddedResidueOwners,
   ...case111ResidueCandidateOwners,
@@ -5496,9 +7646,50 @@ const ownerOverrides = new Map([
     ],
     behavior: 'The headless print owner retains target116 isolation, direct MCP/read-file control, startup timing, and message rating while registering the target110 addSessionMirror API over the target97 coordinated transcript writer.',
   }],
+  // Bounded source replays must take precedence over the provisional
+  // owner-residue representation fixture when a deeper audit proves that the
+  // historical source omitted executable behavior rather than merely spelling
+  // it differently. Both schedule units are replayed and evidenced atomically.
+  ...TARGET118_SCHEDULE_ONE_OFF_GATE_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      {
+        paths: [...paths],
+        evidenceIds: [...evidenceIds],
+        behavior,
+      },
+    ],
+  ),
 ])
 
+// The generic focused-residue fixture predates the exact Ultrareview audit
+// and conservatively attributed u22067 to the adjacent agents handler. Keep
+// the supersession scoped to this authenticated correction rather than
+// changing precedence for every historical focused proof.
+const focusedOwnerSupersessions = new Map(
+  TARGET121_ULTRAREVIEW_HANDLER_OWNER_OVERRIDES.map(
+    ({ key, paths, evidenceIds, behavior }) => [
+      key,
+      { paths: [...paths], evidenceIds: [...evidenceIds], behavior },
+    ],
+  ),
+)
+
 const dceOverrides = new Map([
+  ...TARGET117_SETTINGS_SYNC_KEYSET_DCE_CORRECTIONS.map(
+    ({ key, category, reason, evidenceIds }) => [
+      key,
+      { category, reason, evidenceIds: [...evidenceIds] },
+    ],
+  ),
+  [
+    `${target118SessionKindDceFixture.case}:${target118SessionKindDceFixture.targetIndex}`,
+    {
+      category: target118SessionKindDceFixture.category,
+      reason: target118SessionKindDceFixture.reason,
+      evidenceIds: [...target118SessionKindDceFixture.evidenceIds],
+    },
+  ],
   ...case113FirstHalfStrictTailDormant.map(row => [
     `2.1.112-to-2.1.113:${row.targetIndex}`,
     {
@@ -5739,6 +7930,387 @@ const typedResidueStaticOverrides = new Map([
   ['2.1.111-to-2.1.112:17074', 'The only target-added owner-local values are generated package VERSION and BUILD_TIME constants embedded by the bundler; all authored side-query literals are inherited with target occurrence counts no greater than baseline.'],
 ])
 
+const lateBuildMetadataRows = new Set()
+const lateExactOwnerCorrections = new Map()
+const lateFocusedResidueProofs = new Map()
+const target117StrictAlternateOwners = new Map()
+const target117PairedLocalProofs = new Map()
+const lateOwnerResidueRepresentations = new Map()
+const lateCompilerResidueProofs = new Map()
+const target119TransitiveOwnerProofs = new Map()
+const target119BindingOwnerProofs = new Map()
+const target119DaemonClusterProofs = new Map()
+const target119NondaemonStaticProofs = new Map()
+const lateTailGeneratorEvidence = new Map()
+for (const version of ['2.1.117', '2.1.118', '2.1.119', '2.1.120', '2.1.121']) {
+  const fixture = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        repositoryRoot,
+        'recovery',
+        'test',
+        `recovery-${version}-build-metadata-residue-proofs.json`,
+      ),
+      'utf8',
+    ),
+  )
+  for (const row of fixture.rows) {
+    const key = `${fixture.case}:${row.targetIndex}`
+    lateBuildMetadataRows.add(key)
+    typedResidueStaticOverrides.set(
+      key,
+      `Every target-added owner-local residue in this complete unit is an authenticated bundler-inlined ${version} VERSION, BUILD_TIME, or GIT_SHA value. The shared fail-closed fixture re-runs the typed residue scanner and proves the unit has no other owner-local target-added residue.`,
+    )
+  }
+
+  const ownerFixture = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        repositoryRoot,
+        'recovery',
+        'test',
+        `recovery-${version}-exact-owner-correction-proofs.json`,
+      ),
+      'utf8',
+    ),
+  )
+  if (ownerFixture.case !== fixture.case) {
+    throw new Error(`${version} exact owner-correction fixture case differs`)
+  }
+  for (const row of ownerFixture.rows) {
+    const key = `${ownerFixture.case}:${row.targetIndex}`
+    if (lateExactOwnerCorrections.has(key)) {
+      throw new Error(`${key} has duplicate exact owner corrections`)
+    }
+    lateExactOwnerCorrections.set(key, row)
+  }
+
+  if (version === '2.1.120' || version === '2.1.121') {
+    const focusedFixture = JSON.parse(
+      fs.readFileSync(
+        path.join(
+          repositoryRoot,
+          'recovery',
+          'test',
+          `recovery-${version}-focused-residue-proofs.json`,
+        ),
+        'utf8',
+      ),
+    )
+    if (focusedFixture.case !== fixture.case) {
+      throw new Error(`${version} focused residue fixture case differs`)
+    }
+    for (const row of focusedFixture.rows) {
+      const key = `${focusedFixture.case}:${row.targetIndex}`
+      if (lateFocusedResidueProofs.has(key)) {
+        throw new Error(`${key} has duplicate focused residue proofs`)
+      }
+      lateFocusedResidueProofs.set(key, { row, version })
+    }
+  }
+}
+
+const target117StrictAlternateFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.117-strict-alternate-owner-proofs.json',
+    ),
+    'utf8',
+  ),
+)
+if (target117StrictAlternateFixture.case !== '2.1.116-to-2.1.117') {
+  throw new Error('target117 strict alternate-owner fixture case differs')
+}
+for (const row of target117StrictAlternateFixture.rows) {
+  const key = `${target117StrictAlternateFixture.case}:${row.targetIndex}`
+  if (target117StrictAlternateOwners.has(key)) {
+    throw new Error(`${key} has duplicate strict alternate-owner proofs`)
+  }
+  target117StrictAlternateOwners.set(key, row)
+}
+
+const target117PairedLocalFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.117-paired-local-residue-proofs.json',
+    ),
+    'utf8',
+  ),
+)
+if (target117PairedLocalFixture.case !== '2.1.116-to-2.1.117') {
+  throw new Error('target117 paired-local fixture case differs')
+}
+for (const row of target117PairedLocalFixture.rows) {
+  const key = `${target117PairedLocalFixture.case}:${row.targetIndex}`
+  if (target117PairedLocalProofs.has(key)) {
+    throw new Error(`${key} has duplicate paired-local proofs`)
+  }
+  target117PairedLocalProofs.set(key, row)
+}
+
+for (const key of target117StrictAlternateOwners.keys()) {
+  if (
+    target117PairedLocalProofs.has(key) ||
+    lateExactOwnerCorrections.has(key) ||
+    lateFocusedResidueProofs.has(key)
+  ) {
+    throw new Error(`${key} occurs in overlapping late owner-proof classes`)
+  }
+}
+for (const key of target117PairedLocalProofs.keys()) {
+  if (
+    lateExactOwnerCorrections.has(key) ||
+    lateFocusedResidueProofs.has(key)
+  ) {
+    throw new Error(`${key} occurs in overlapping late residue-proof classes`)
+  }
+}
+
+for (const version of ['2.1.118', '2.1.119']) {
+  const fixture = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        repositoryRoot,
+        'recovery',
+        'test',
+        `recovery-${version}-owner-residue-analysis.json`,
+      ),
+      'utf8',
+    ),
+  )
+  const normalizeProofPath = value =>
+    value.startsWith('src/') ? value : `src/${value}`
+  for (const row of fixture.analysis.sourceValueRepresentations) {
+    const key = `${fixture.case}:${row.targetIndex}`
+    const paths = [
+      ...new Set(
+        row.residueProofs.flatMap(item =>
+          (item.proof.sourcePaths ?? []).map(normalizeProofPath),
+        ),
+      ),
+    ].sort()
+    if (paths.length === 0 || lateOwnerResidueRepresentations.has(key)) {
+      throw new Error(`${key} has invalid late source-value representation`)
+    }
+    lateOwnerResidueRepresentations.set(key, { row, paths, version })
+  }
+  for (const proof of fixture.policy.compilerRepresentationProofs) {
+    const key = `${fixture.case}:${proof.targetIndex}`
+    const paths = proof.sourceFiles.map(item => normalizeProofPath(item.path))
+    if (paths.length === 0 || lateCompilerResidueProofs.has(key)) {
+      throw new Error(`${key} has invalid late compiler representation`)
+    }
+    lateCompilerResidueProofs.set(key, { proof, paths, version })
+  }
+  if (version === '2.1.119') {
+    const dependencyIndices = new Set(
+      fixture.analysis.dependencyBuildInputGaps.map(row => row.targetIndex),
+    )
+    if (
+      dependencyIndices.size !==
+      fixture.analysis.categories['dependency-build-input-gap'].units
+    ) {
+      throw new Error('target119 dependency build-input fixture differs')
+    }
+    forcedDependencyRows.set(fixture.case, dependencyIndices)
+    for (const targetIndex of dependencyIndices) {
+      const key = `${fixture.case}:${targetIndex}`
+      forcedDependencyAttributions.set(
+        key,
+        '../node_modules/@anthropic-ai/claude-agent-sdk/sdk.mjs',
+      )
+      forcedDependencyEvidence.set(
+        key,
+        'target119-agent-sdk-build-input-target-fragment',
+      )
+    }
+  }
+}
+
+for (const key of [
+  ...lateOwnerResidueRepresentations.keys(),
+  ...lateCompilerResidueProofs.keys(),
+]) {
+  if (
+    lateBuildMetadataRows.has(key) ||
+    lateExactOwnerCorrections.has(key) ||
+    lateFocusedResidueProofs.has(key) ||
+    target117StrictAlternateOwners.has(key) ||
+    target117PairedLocalProofs.has(key)
+  ) {
+    throw new Error(`${key} occurs in overlapping late semantic proof classes`)
+  }
+}
+
+const target119TransitiveOwnerFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.119-transitive-owner-proofs.json',
+    ),
+    'utf8',
+  ),
+)
+if (target119TransitiveOwnerFixture.case !== '2.1.118-to-2.1.119') {
+  throw new Error('target119 transitive-owner fixture case differs')
+}
+for (const row of target119TransitiveOwnerFixture.rows) {
+  const key = `${target119TransitiveOwnerFixture.case}:${row.targetIndex}`
+  if (target119TransitiveOwnerProofs.has(key)) {
+    throw new Error(`${key} has duplicate target119 transitive-owner proofs`)
+  }
+  target119TransitiveOwnerProofs.set(key, row)
+}
+for (const key of target119TransitiveOwnerProofs.keys()) {
+  if (
+    lateBuildMetadataRows.has(key) ||
+    lateExactOwnerCorrections.has(key) ||
+    lateFocusedResidueProofs.has(key) ||
+    target117StrictAlternateOwners.has(key) ||
+    target117PairedLocalProofs.has(key) ||
+    lateOwnerResidueRepresentations.has(key) ||
+    lateCompilerResidueProofs.has(key)
+  ) {
+    throw new Error(`${key} occurs in overlapping target119 semantic proof classes`)
+  }
+}
+
+const target119BindingOwnerFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.119-binding-owner-proofs.json',
+    ),
+    'utf8',
+  ),
+)
+if (target119BindingOwnerFixture.case !== '2.1.118-to-2.1.119') {
+  throw new Error('target119 binding-owner fixture case differs')
+}
+for (const row of target119BindingOwnerFixture.rows) {
+  const key = `${target119BindingOwnerFixture.case}:${row.targetIndex}`
+  if (
+    target119BindingOwnerProofs.has(key) ||
+    target119TransitiveOwnerProofs.has(key) ||
+    lateOwnerResidueRepresentations.has(key) ||
+    lateCompilerResidueProofs.has(key) ||
+    lateExactOwnerCorrections.has(key) ||
+    lateBuildMetadataRows.has(key)
+  ) {
+    throw new Error(`${key} has overlapping target119 binding-owner proof`)
+  }
+  target119BindingOwnerProofs.set(key, row)
+}
+
+const target119DaemonClusterFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.119-daemon-cluster-residue-proofs.json',
+    ),
+    'utf8',
+  ),
+)
+if (target119DaemonClusterFixture.case !== '2.1.118-to-2.1.119') {
+  throw new Error('target119 daemon-cluster fixture case differs')
+}
+for (const row of target119DaemonClusterFixture.rows) {
+  const key = `${target119DaemonClusterFixture.case}:${row.targetIndex}`
+  if (
+    target119DaemonClusterProofs.has(key) ||
+    target119BindingOwnerProofs.has(key) ||
+    target119TransitiveOwnerProofs.has(key) ||
+    lateOwnerResidueRepresentations.has(key) ||
+    lateCompilerResidueProofs.has(key) ||
+    lateExactOwnerCorrections.has(key) ||
+    lateBuildMetadataRows.has(key)
+  ) {
+    throw new Error(`${key} has overlapping target119 daemon-cluster proof`)
+  }
+  target119DaemonClusterProofs.set(key, row)
+}
+
+const target119NondaemonStaticFixture = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      repositoryRoot,
+      'recovery',
+      'test',
+      'recovery-2.1.119-nondaemon-static-owner-proofs.json',
+    ),
+    'utf8',
+  ),
+)
+if (target119NondaemonStaticFixture.case !== '2.1.118-to-2.1.119') {
+  throw new Error('target119 non-daemon static-owner fixture case differs')
+}
+for (const row of target119NondaemonStaticFixture.ownerOverrides) {
+  const key = `${target119NondaemonStaticFixture.case}:${row.targetIndex}`
+  if (
+    target119NondaemonStaticProofs.has(key) ||
+    target119DaemonClusterProofs.has(key) ||
+    target119BindingOwnerProofs.has(key) ||
+    target119TransitiveOwnerProofs.has(key) ||
+    lateOwnerResidueRepresentations.has(key) ||
+    lateCompilerResidueProofs.has(key) ||
+    lateExactOwnerCorrections.has(key) ||
+    lateBuildMetadataRows.has(key)
+  ) {
+    throw new Error(`${key} has overlapping target119 non-daemon static proof`)
+  }
+  target119NondaemonStaticProofs.set(key, row)
+}
+
+for (const version of ['2.1.120', '2.1.121']) {
+  const fixture = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        repositoryRoot,
+        'recovery',
+        'test',
+        `recovery-${version}-tail-generator-evidence.json`,
+      ),
+      'utf8',
+    ),
+  )
+  for (const row of [...fixture.transitiveRows, ...fixture.compilerRows]) {
+    const key = `${fixture.case}:${row.targetIndex}`
+    if (lateTailGeneratorEvidence.has(key)) {
+      throw new Error(`${key} has duplicate late tail generator evidence`)
+    }
+    lateTailGeneratorEvidence.set(key, { row, version })
+  }
+}
+
+for (const key of lateTailGeneratorEvidence.keys()) {
+  if (
+    lateBuildMetadataRows.has(key) ||
+    lateExactOwnerCorrections.has(key) ||
+    lateFocusedResidueProofs.has(key) ||
+    target117StrictAlternateOwners.has(key) ||
+    target117PairedLocalProofs.has(key) ||
+    lateOwnerResidueRepresentations.has(key) ||
+    lateCompilerResidueProofs.has(key) ||
+    target119TransitiveOwnerProofs.has(key) ||
+    target119BindingOwnerProofs.has(key) ||
+    target119NondaemonStaticProofs.has(key)
+  ) {
+    throw new Error(`${key} occurs in overlapping late tail proof classes`)
+  }
+}
+
 function normalizeSource(source) {
   if (typeof source !== 'string') return null
   const marker = source.lastIndexOf('/src/')
@@ -5863,6 +8435,10 @@ for (const [caseName, targetVersion, targetCommit] of cases) {
     const attributed = sourceRow.owners.length > 0
       ? sourceRow.owners
       : sourceRow.candidateOwners
+    const semanticAttributed = (sourceRow.semanticOwners ?? []).map(source => ({
+      source: source.startsWith('src/') ? `../${source}` : source,
+      score: 0,
+    }))
     // A complete top-level unit whose token stream occurs in the baseline
     // after only identifier and build-metadata normalization is executable
     // alpha equivalence, not a source recovery obligation. Keep dependency
@@ -5985,11 +8561,265 @@ for (const [caseName, targetVersion, targetCommit] of cases) {
               'The target 2.1.108 REPL unit is recovered in the sealed persistent VM owner, including prompt/schema construction, tool wrappers and hooks, convenience helpers, cross-realm cloning, replay/hydration, timeouts, progress, and dynamic registered-tool propagation.',
           }
         : undefined
-    const override = ownerOverrides.get(key) ?? replOverride
+    const exactOwnerCorrection = lateExactOwnerCorrections.get(key)
+    const focusedResidueProof = lateFocusedResidueProofs.get(key)
+    const focusedOwnerSupersession = focusedOwnerSupersessions.get(key)
+    const strictAlternateOwner = target117StrictAlternateOwners.get(key)
+    const pairedLocalProof = target117PairedLocalProofs.get(key)
+    const ownerResidueRepresentation = lateOwnerResidueRepresentations.get(key)
+    const compilerResidueProof = lateCompilerResidueProofs.get(key)
+    const target119TransitiveOwnerProof = target119TransitiveOwnerProofs.get(key)
+    const target119BindingOwnerProof = target119BindingOwnerProofs.get(key)
+    const target119DaemonClusterProof = target119DaemonClusterProofs.get(key)
+    const target119NondaemonStaticProof = target119NondaemonStaticProofs.get(key)
+    const tailGeneratorEvidence = lateTailGeneratorEvidence.get(key)
+    const boundedScheduleOneOffReplay =
+      TARGET118_SCHEDULE_ONE_OFF_GATE_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedTertiaryStaticOwner =
+      TARGET118_TERTIARY_STATIC_OWNER_OVERRIDES.find(row => row.key === key)
+    const boundedQuaternaryStaticOwner =
+      TARGET118_QUATERNARY_STATIC_OWNER_OVERRIDES.find(row => row.key === key)
+    const boundedQuinaryStaticOwner =
+      TARGET118_QUINARY_STATIC_OWNER_OVERRIDES.find(row => row.key === key)
+    const boundedCommandAliasReplay =
+      TARGET118_COMMAND_ALIAS_SELECTION_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedCollapsedShellLabelReplay =
+      TARGET118_COLLAPSED_SHELL_LABEL_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedSessionMemoryLastMessageReplay =
+      TARGET118_SESSION_MEMORY_LAST_MESSAGE_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedTarget119DirectDeclaration =
+      TARGET119_DIRECT_DECLARATION_OWNER_OVERRIDES.find(row => row.key === key)
+    const boundedTarget119LaterDonorRuntime =
+      TARGET119_LATER_DONOR_RUNTIME_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedTarget119ProTrialStart =
+      TARGET119_PRO_TRIAL_START_OWNER_OVERRIDES.find(row => row.key === key)
+    const boundedTarget119SdkRateLimit =
+      TARGET119_SDK_RATE_LIMIT_OWNER_OVERRIDES.find(row => row.key === key)
+    const boundedTarget117DumpPromptsReplay =
+      TARGET117_DUMP_PROMPTS_IN_FLIGHT_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedTarget117PluginMarketplaceReplay =
+      TARGET117_PLUGIN_DEPENDENCY_MARKETPLACE_WORDING_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedTarget117MarketplaceCachePathReplay =
+      TARGET117_MARKETPLACE_CACHE_PATH_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedTarget117CcdSessionRatingReplay =
+      TARGET117_CCD_SESSION_RATING_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const boundedTarget117ForkBoilerplateReplay =
+      TARGET117_FORK_BOILERPLATE_MESSAGE_OWNER_OVERRIDES.find(
+        row => row.key === key,
+      )
+    const override = boundedTarget117DumpPromptsReplay
+      ? {
+          paths: [...boundedTarget117DumpPromptsReplay.paths],
+          evidenceIds: [...boundedTarget117DumpPromptsReplay.evidenceIds],
+          behavior: boundedTarget117DumpPromptsReplay.behavior,
+        }
+      : boundedTarget117PluginMarketplaceReplay
+      ? {
+          paths: [...boundedTarget117PluginMarketplaceReplay.paths],
+          evidenceIds: [...boundedTarget117PluginMarketplaceReplay.evidenceIds],
+          behavior: boundedTarget117PluginMarketplaceReplay.behavior,
+        }
+      : boundedTarget117MarketplaceCachePathReplay
+      ? {
+          paths: [...boundedTarget117MarketplaceCachePathReplay.paths],
+          evidenceIds: [...boundedTarget117MarketplaceCachePathReplay.evidenceIds],
+          behavior: boundedTarget117MarketplaceCachePathReplay.behavior,
+        }
+      : boundedTarget117CcdSessionRatingReplay
+      ? {
+          paths: [...boundedTarget117CcdSessionRatingReplay.paths],
+          evidenceIds: [...boundedTarget117CcdSessionRatingReplay.evidenceIds],
+          behavior: boundedTarget117CcdSessionRatingReplay.behavior,
+        }
+      : boundedTarget117ForkBoilerplateReplay
+      ? {
+          paths: [...boundedTarget117ForkBoilerplateReplay.paths],
+          evidenceIds: [...boundedTarget117ForkBoilerplateReplay.evidenceIds],
+          behavior: boundedTarget117ForkBoilerplateReplay.behavior,
+        }
+      : boundedScheduleOneOffReplay
+      ? {
+          paths: [...boundedScheduleOneOffReplay.paths],
+          evidenceIds: [...boundedScheduleOneOffReplay.evidenceIds],
+          behavior: boundedScheduleOneOffReplay.behavior,
+        }
+      : boundedCommandAliasReplay
+      ? {
+          paths: [...boundedCommandAliasReplay.paths],
+          evidenceIds: [...boundedCommandAliasReplay.evidenceIds],
+          behavior: boundedCommandAliasReplay.behavior,
+        }
+      : boundedCollapsedShellLabelReplay
+      ? {
+          paths: [...boundedCollapsedShellLabelReplay.paths],
+          evidenceIds: [...boundedCollapsedShellLabelReplay.evidenceIds],
+          behavior: boundedCollapsedShellLabelReplay.behavior,
+        }
+      : boundedSessionMemoryLastMessageReplay
+      ? {
+          paths: [...boundedSessionMemoryLastMessageReplay.paths],
+          evidenceIds: [...boundedSessionMemoryLastMessageReplay.evidenceIds],
+          behavior: boundedSessionMemoryLastMessageReplay.behavior,
+        }
+      : boundedTertiaryStaticOwner
+      ? {
+          paths: [...boundedTertiaryStaticOwner.paths],
+          evidenceIds: [...boundedTertiaryStaticOwner.evidenceIds],
+          behavior: boundedTertiaryStaticOwner.behavior,
+        }
+      : boundedQuaternaryStaticOwner
+      ? {
+          paths: [...boundedQuaternaryStaticOwner.paths],
+          evidenceIds: [...boundedQuaternaryStaticOwner.evidenceIds],
+          behavior: boundedQuaternaryStaticOwner.behavior,
+        }
+      : boundedQuinaryStaticOwner
+      ? {
+          paths: [...boundedQuinaryStaticOwner.paths],
+          evidenceIds: [...boundedQuinaryStaticOwner.evidenceIds],
+          behavior: boundedQuinaryStaticOwner.behavior,
+        }
+      : boundedTarget119DirectDeclaration
+      ? {
+          paths: [...boundedTarget119DirectDeclaration.paths],
+          evidenceIds: [...boundedTarget119DirectDeclaration.evidenceIds],
+          behavior: boundedTarget119DirectDeclaration.behavior,
+        }
+      : boundedTarget119LaterDonorRuntime
+      ? {
+          paths: [...boundedTarget119LaterDonorRuntime.paths],
+          evidenceIds: [...boundedTarget119LaterDonorRuntime.evidenceIds],
+          behavior: boundedTarget119LaterDonorRuntime.behavior,
+        }
+      : boundedTarget119ProTrialStart
+      ? {
+          paths: [...boundedTarget119ProTrialStart.paths],
+          evidenceIds: [...boundedTarget119ProTrialStart.evidenceIds],
+          behavior: boundedTarget119ProTrialStart.behavior,
+        }
+      : boundedTarget119SdkRateLimit
+      ? {
+          paths: [...boundedTarget119SdkRateLimit.paths],
+          evidenceIds: [...boundedTarget119SdkRateLimit.evidenceIds],
+          behavior: boundedTarget119SdkRateLimit.behavior,
+        }
+      : focusedOwnerSupersession
+      ? focusedOwnerSupersession
+      : focusedResidueProof
+      ? {
+          paths: [
+            ...new Set([
+              ...focusedResidueProof.row.sourceMapOwners,
+              ...focusedResidueProof.row.coverageOwners,
+            ]),
+          ].sort(),
+          evidenceIds: [
+            `target${focusedResidueProof.version.slice(4)}-focused-residue-target-fragment`,
+            `target${focusedResidueProof.version.slice(4)}-focused-residue-static-ast`,
+            `target${focusedResidueProof.version.slice(4)}-focused-residue-semantic-test`,
+          ],
+          behavior: `The authenticated complete target unit has ${focusedResidueProof.row.residues.length} typed residue${focusedResidueProof.row.residues.length === 1 ? '' : 's'} proved as ${focusedResidueProof.row.category}; the focused fixture pins its conservative source-map and coverage-owner union.`,
+        }
+      : strictAlternateOwner
+      ? {
+          paths: [strictAlternateOwner.semanticOwner],
+          evidenceIds: [...target117StrictAlternateFixture.evidenceIds],
+          behavior: strictAlternateOwner.behavior,
+        }
+      : pairedLocalProof
+      ? {
+          paths: [...pairedLocalProof.ownerPaths],
+          evidenceIds: [
+            'target117-paired-local-residue-static-ast',
+            'target117-paired-local-residue-semantic-test',
+          ],
+          behavior: `The exact unique-coarse baseline/target pair retains identical nonzero unit-local AST multiplicity for all ${pairedLocalProof.residues.length} globally shifted typed residue${pairedLocalProof.residues.length === 1 ? '' : 's'}; the authenticated fixture pins every ordinal, range, pair hash, and source owner.`,
+        }
+      : ownerResidueRepresentation
+      ? {
+          paths: ownerResidueRepresentation.paths,
+          evidenceIds: [
+            `target${ownerResidueRepresentation.version.slice(4)}-owner-residue-target-fragment`,
+            `target${ownerResidueRepresentation.version.slice(4)}-owner-residue-semantic-test`,
+          ],
+          behavior: `Every typed residue in the complete authenticated target unit is represented by the row-scoped ${ownerResidueRepresentation.row.residueProofs[0].proof.method} proof and its pinned source owner${ownerResidueRepresentation.paths.length === 1 ? '' : 's'}; unrelated global text matches are rejected.`,
+        }
+      : compilerResidueProof
+      ? {
+          paths: compilerResidueProof.paths,
+          evidenceIds: [
+            `target${compilerResidueProof.version.slice(4)}-owner-residue-static-ast`,
+            `target${compilerResidueProof.version.slice(4)}-owner-residue-semantic-test`,
+          ],
+          behavior: `The complete authenticated target unit is the pinned ${compilerResidueProof.proof.method} of the exact historical source file${compilerResidueProof.paths.length === 1 ? '' : 's'}; its residue identities and target slice are fail-closed in the case fixture.`,
+        }
+      : target119TransitiveOwnerProof
+      ? {
+          paths: [target119TransitiveOwnerProof.ownerPath],
+          evidenceIds: [...target119TransitiveOwnerFixture.evidenceIds],
+          behavior: target119TransitiveOwnerProof.behavior,
+        }
+      : target119BindingOwnerProof
+      ? {
+          paths: [target119BindingOwnerProof.ownerPath],
+          evidenceIds: [...target119BindingOwnerFixture.evidenceIds],
+          behavior: target119BindingOwnerProof.behavior,
+        }
+      : target119DaemonClusterProof
+      ? {
+          paths: [...target119DaemonClusterProof.ownerPaths],
+          evidenceIds: [...target119DaemonClusterFixture.evidenceIds],
+          behavior: target119DaemonClusterProof.behavior,
+        }
+      : target119NondaemonStaticProof
+      ? {
+          paths: [...target119NondaemonStaticProof.paths],
+          evidenceIds: [...target119NondaemonStaticProof.evidenceIds],
+          behavior: target119NondaemonStaticProof.behavior,
+        }
+      : tailGeneratorEvidence
+      ? {
+          paths: [...tailGeneratorEvidence.row.ownerPaths],
+          evidenceIds: [...tailGeneratorEvidence.row.evidenceIds],
+          behavior: tailGeneratorEvidence.row.behavior,
+        }
+      : exactOwnerCorrection
+      ? {
+          paths: [
+            ...new Set([
+              ...exactOwnerCorrection.currentOwnerPaths,
+              exactOwnerCorrection.correctedOwner,
+            ]),
+          ],
+          evidenceIds: [
+            'late-exact-owner-correction-target-fragment',
+            'late-exact-owner-correction-semantic-test',
+          ],
+          behavior: `The authenticated coalesced target unit retains its existing attributed owners and adds ${exactOwnerCorrection.correctedOwner}, the sole source-map candidate containing every previously unsupported owner-local typed residue; the fail-closed cross-release proof verifies the complete owner union.`,
+        }
+      : ownerOverrides.get(key) ?? replOverride
     const special = specialOwners.get(key)
     let chosenPaths = override?.paths ?? (special ? [special] : [])
     if (chosenPaths.length === 0) {
-      for (const item of attributed) {
+      for (const item of [...attributed, ...semanticAttributed]) {
         const candidate = normalizeSource(item.source)
         if (
           candidate &&
@@ -6009,6 +8839,7 @@ for (const [caseName, targetVersion, targetCommit] of cases) {
 
     for (const chosen of chosenPaths) ownerPaths.add(chosen)
     const typedResidueStaticReason = typedResidueStaticOverrides.get(key)
+    const lateBuildMetadata = lateBuildMetadataRows.has(key)
     rows.push({
       ...base,
       disposition: 'source-runtime-covered',
@@ -6020,6 +8851,12 @@ for (const [caseName, targetVersion, targetCommit] of cases) {
               ? ['target-fragment', 'semantic-test']
               : ['source-map-attribution', 'semantic-test'])),
           ...(typedResidueStaticReason ? ['typed-residue-static-ast'] : []),
+          ...(lateBuildMetadata
+            ? [
+                'late-build-metadata-static-ast',
+                'late-build-metadata-semantic-test',
+              ]
+            : []),
         ],
       ...(typedResidueStaticReason ? { reason: typedResidueStaticReason } : {}),
       behavior: override?.behavior ?? (special
@@ -6615,6 +9452,5096 @@ for (const [caseName, targetVersion, targetCommit] of cases) {
       kind: 'static-ast',
       detail: 'Per-row reason records a direct target/baseline AST audit of owner-local typed residues caused by imported/inlined state, compiler cache slots, or generated build identity rather than missing authored runtime behavior.',
     },
+    {
+      id: 'late-build-metadata-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-late-build-metadata-residue-proofs.test.mjs',
+      detail: 'The authenticated cross-release fixture pins complete structural units whose entire target-added owner-local residue set consists only of bundler-inlined VERSION, BUILD_TIME, and GIT_SHA values inside exact generated macro objects.',
+    },
+    {
+      id: 'late-build-metadata-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-late-build-metadata-residue-proofs.test.mjs',
+      detail: 'The source-root-aware test re-runs the production typed residue scanner, authenticates every bundle coordinate and unit slice, and rejects any macro-classified unit containing another owner-local target-added residue.',
+    },
+    {
+      id: 'late-exact-owner-correction-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-late-exact-owner-correction-proofs.test.mjs',
+      detail: 'The cross-release fixture authenticates each complete target unit and every typed target-added residue while pinning the full source-map candidate universe and its unique qualified owner.',
+    },
+    {
+      id: 'late-exact-owner-correction-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-late-exact-owner-correction-proofs.test.mjs',
+      detail: 'The source-root-aware test reruns the production scanner and proves the corrected exact owner contains every target-added owner-local residue, leaving no unsupported residue in the complete unit.',
+    },
+    {
+      id: 'target117-generated-owner-source-gap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-generated-owner-source-gaps.test.mjs',
+      detail: 'The authenticated target117 fixture pins the six generated command/agent units, their exact target-only residue anchors, and the false nearest-owner counterexamples by structural range and SHA-256.',
+    },
+    {
+      id: 'target117-generated-owner-source-gap-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-generated-owner-source-gaps.test.mjs',
+      detail: 'The source-root-aware test verifies the idempotent nine-file target117 replay, exact temporal boundaries, recovered owner anchors, and complete typed-residue closure for the six corrected owners.',
+    },
+    {
+      id: 'target117-historical-owner-gap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-historical-owner-gap-proofs.test.mjs',
+      detail: 'The authenticated target117 fixture pins all twenty bounded historical source gaps, 66 typed residues, exact target fragments, and the later-release patch inputs used for temporally bounded reconstruction.',
+    },
+    {
+      id: 'target117-historical-owner-gap-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-historical-owner-gap-proofs.test.mjs',
+      detail: 'The source-root-aware test verifies the fail-closed seventeen-file target117 replay, exact recovered source identities, temporal exclusions, idempotence, and complete residue closure.',
+    },
+    {
+      id: 'target117-confirmation-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-confirmation-source-proofs.test.mjs',
+      detail: 'The authenticated target117 fixture pins all twenty confirmation units, sixty typed residues, the generic ConfirmationButtons component, and the temporally bounded Console OAuth declarations.',
+    },
+    {
+      id: 'target117-confirmation-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-confirmation-source-proofs.test.mjs',
+      detail: 'The source-root-aware test verifies the exact two-file confirmation replay, authenticated declaration slices, excluded later evolution, and complete residue closure.',
+    },
+    {
+      id: 'target117-confirmation-legacy-select-equivalence-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-confirmation-source-proofs.test.mjs',
+      detail: 'The static AST proof binds each remaining target117 generic confirmation call to the exact historical Select owner implementing the same labels, focus, order, and callbacks.',
+    },
+    {
+      id: 'target117-current-extracted-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-current-extracted-owner-proofs.test.mjs',
+      detail: 'The target117 fixture pins the five complete compiled units and all twelve target-added residue ranges whose exact owners were preserved or later extracted in the recovered cumulative source.',
+    },
+    {
+      id: 'target117-current-extracted-owner-static-ast',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-current-extracted-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test verifies the exact owner blobs, named declarations, residue multiplicities, and raw-boundary classification for all five corrected target117 owners.',
+    },
+    {
+      id: 'target117-tail-extracted-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-tail-extracted-owner-proofs.test.mjs',
+      detail: 'The authenticated target117 fixture pins twelve complete units and all thirty-two typed residues in the recovered team-artifact, fork, and context-hint declaration clusters.',
+    },
+    {
+      id: 'target117-tail-extracted-owner-declaration-closure-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-tail-extracted-owner-proofs.test.mjs',
+      detail: 'The source-root-aware test verifies exact recovered file and named-declaration identities plus the declaration-local data flow that owns every target117 residue.',
+    },
+    {
+      id: 'target117-repl-bridge-skip-archive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-repl-bridge-skip-archive-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete default-state unit and exact replBridgeSkipNextArchive residue while rejecting the later consumer-only owner.',
+    },
+    {
+      id: 'target117-repl-bridge-skip-archive-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-repl-bridge-skip-archive-source-gap.test.mjs',
+      detail: 'The source-root-aware test verifies the bounded AppStateStore type/default recovery against raw and packaged Target117 states with exact idempotence.',
+    },
+    {
+      id: 'target117-direct-static-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-direct-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target117 fixture pins five complete units, all seven target-added residue identities, and their bounded declaration ranges.',
+    },
+    {
+      id: 'target117-direct-static-owner-source-declaration-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-direct-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware declaration test verifies exact context, fork, message, rename, and headless owners while rejecting the post-117 environment-order collision.',
+    },
+    {
+      id: 'target117-retained-fullscreen-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-retained-fullscreen-interaction-source-gaps.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete retained fullscreen coordinator and prompt-selection units plus all five exact residue identities.',
+    },
+    {
+      id: 'target117-retained-fullscreen-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-retained-fullscreen-interaction-source-gaps.test.mjs',
+      detail: 'The source-root-aware test replays only the pinned Target116 fullscreen interaction hunks into Target117 and proves exact raw/recovered idempotence and owner declarations.',
+    },
+    {
+      id: 'target117-virtual-list-stability-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-virtual-list-stability-source-gaps.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the virtual-scroll cache and stable-message-key units, all nineteen target-added residue identities, and their exact bundle ranges.',
+    },
+    {
+      id: 'target117-virtual-list-stability-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-virtual-list-stability-source-gaps.test.mjs',
+      detail: 'The source-root-aware test replays the bounded append-identity and UUID-key reconciliation declarations, verifies raw and recovered states, and proves fail-closed idempotence.',
+    },
+    {
+      id: 'target117-bridge-export-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-bridge-export-owner-proof.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the export-registry unit, the added getBridgeAuthDebugInfo property, and the complete referenced implementation unit.',
+    },
+    {
+      id: 'target117-bridge-export-source-declaration-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-bridge-export-owner-proof.test.mjs',
+      detail: 'The source-root-aware test binds the compiled export-registry property to the exact raw Target117 getBridgeAuthDebugInfo declaration and its distinctive bridge-auth semantics.',
+    },
+    {
+      id: 'target117-bash-validation-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-bash-validation-source-gaps.test.mjs',
+      detail: 'The authenticated Target117 fixture pins four complete Bash validation units, all fifteen target-added residue identities, and their exact bundle ranges and hashes.',
+    },
+    {
+      id: 'target117-bash-validation-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-bash-validation-source-gaps.test.mjs',
+      detail: 'The source-root-aware test replays the bounded sed and read-only validation declarations, verifies imports and behavior, and proves exact raw/recovered idempotence.',
+    },
+    {
+      id: 'target117-runtime-capabilities-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-runtime-capabilities-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins four complete bootstrap capability units, all ten target-added residue identities, and their exact bundle ranges and hashes.',
+    },
+    {
+      id: 'target117-runtime-capabilities-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-runtime-capabilities-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the bounded runtime-capabilities type, defaults, exports, and remote-mode accessors while preserving the cumulative transport bridge and proving idempotence.',
+    },
+    {
+      id: 'target117-command-argument-bang-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-command-argument-bang-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the command-argument substitution unit and all six exact bang-escaping residue identities, ranges, ordinals, and target slice hash.',
+    },
+    {
+      id: 'target117-command-argument-bang-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-command-argument-bang-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the bounded bang-escaping transform and its plugin-command and skill call sites, then proves raw/recovered idempotence and rejects the coarse memoryAge owner.',
+    },
+    {
+      id: 'target117-dump-prompts-in-flight-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-dump-prompts-in-flight-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the dump admission and finally-release units, their dumpInFlight residues, and exact target slices.',
+    },
+    {
+      id: 'target116-dump-prompts-without-in-flight-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-dump-prompts-in-flight-source-gap.test.mjs',
+      detail: 'The authenticated Target116 contrast pins the predecessor dump implementation without the in-flight guard, bounding the new Target117 behavior.',
+    },
+    {
+      id: 'target117-dump-prompts-in-flight-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-dump-prompts-in-flight-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the per-session dumpInFlight guard and finally release into dumpPrompts.ts, executes admission behavior, and proves exact idempotence.',
+    },
+    {
+      id: 'target117-plugin-dependency-marketplace-wording-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-plugin-dependency-marketplace-wording-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete marketplace dependency-policy unit and the exact newly introduced error wording residue and ordinal.',
+    },
+    {
+      id: 'target117-plugin-dependency-marketplace-wording-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-plugin-dependency-marketplace-wording-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the bounded comes-from to is-from wording correction, executes the discriminated-union failure branch, and proves exact idempotence.',
+    },
+    {
+      id: 'target117-marketplace-cache-path-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-marketplace-cache-path-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete cache-path factory, the exact sanitizing regexp residue, and the all-slash and empty-name fallback branches.',
+    },
+    {
+      id: 'target116-marketplace-cache-path-baseline-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-marketplace-cache-path-source-gap.test.mjs',
+      detail: 'The authenticated Target116 contrast pins the predecessor first-slash-only implementation without portable-name sanitization or empty-name fallback.',
+    },
+    {
+      id: 'target117-marketplace-cache-path-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-marketplace-cache-path-source-gap.test.mjs',
+      detail: 'The source-root-aware executable test replays and proves all-slash replacement, portable cache-name sanitization, empty-name fallback, exact idempotence, and mutation rejection.',
+    },
+    {
+      id: 'target117-ccd-session-rating-target-module-and-call-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-ccd-session-rating-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete CCD session rating notification handler, its allowed-event initializer, the paired print call path, and all three exact residue occurrences.',
+    },
+    {
+      id: 'target116-ccd-session-rating-module-absence-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-ccd-session-rating-source-gap.test.mjs',
+      detail: 'The authenticated Target116 boundary proof establishes that the CCD session rating module and print integration did not exist before Target117.',
+    },
+    {
+      id: 'target117-ccd-session-rating-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-ccd-session-rating-source-gap.test.mjs',
+      detail: 'The source-root-aware test creates the bounded CCD session MCP owner, wires it after VSCode MCP setup, executes allowlist and normalization behavior, and proves exact idempotence and mixed-state rejection.',
+    },
+    {
+      id: 'target117-fork-boilerplate-message-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-fork-boilerplate-message-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete fork-boilerplate regexp unit, both cooked and raw regexp residues, and the adjacent renderer witness.',
+    },
+    {
+      id: 'target116-fork-boilerplate-message-absence-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-fork-boilerplate-message-source-gap.test.mjs',
+      detail: 'The static boundary proof authenticates the Target116 absence and Target117 introduction of the fork-boilerplate message component.',
+    },
+    {
+      id: 'target117-fork-boilerplate-message-dispatcher-source-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-fork-boilerplate-message-source-gap.test.mjs',
+      detail: 'The source AST proof binds the recovered component to the exact historical UserText dispatcher and fork XML and figure constants.',
+    },
+    {
+      id: 'target117-fork-boilerplate-message-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-fork-boilerplate-message-source-gap.test.mjs',
+      detail: 'The source-root-aware test creates only the authenticated fork-boilerplate component, executes its strip-and-render behavior, and proves absent/exact idempotence.',
+    },
+    {
+      id: 'target117-oauth-env-account-metadata-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-oauth-env-account-metadata-source-gap.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete OAuth token loader and its four exact environment-account metadata residues by target range and structural hash.',
+    },
+    {
+      id: 'target117-oauth-env-account-metadata-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-oauth-env-account-metadata-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the bounded CLAUDE_CODE_SUBSCRIPTION_TYPE account metadata into getClaudeAIOAuthTokens, executes raw and recovered modes, and proves exact idempotence.',
+    },
+    {
+      id: 'target117-terminal-tokenizer-string-controls-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-terminal-tokenizer-string-controls-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete tokenizer unit and all seven PM, SOS, BEL, CAN/SUB, DEL, control-preservation, and X10 string-state residue identities.',
+    },
+    {
+      id: 'target117-terminal-tokenizer-string-controls-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-terminal-tokenizer-string-controls-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact Target117 tokenizer state machine, executes its control-sequence behavior, proves idempotence, and excludes the later Target118 forOutput and x10Mouse guards.',
+    },
+    {
+      id: 'target117-extra-usage-command-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-extra-usage-command-owner-proof.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete extra-usage command initializer and both exact requires.ink capability residues by range, ordinal, and target hash.',
+    },
+    {
+      id: 'target117-extra-usage-command-source-declaration-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-extra-usage-command-owner-proof.test.mjs',
+      detail: 'The source-root-aware AST proof binds the local JSX and non-interactive command descriptors plus shared eligibility declaration to commands/extra-usage/index.ts and rejects RemoteAgentTask.',
+    },
+    {
+      id: 'target117-plugin-command-policy-wording-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-plugin-command-policy-wording-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete installPluginOp and updatePluginOp units and their exact marketplace and organization-policy wording residues.',
+    },
+    {
+      id: 'target117-plugin-command-policy-wording-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-plugin-command-policy-wording-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays only the two authenticated policy messages in services/plugins/pluginOperations.ts, executes both branches, proves idempotence, and rejects the coincidental utility-layer string.',
+    },
+    {
+      id: 'target117-process-slash-command-dce-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-process-slash-command-dce-owner-proof.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete processSlashCommand unit, its mcp-template-unmatched residue, and the always-false local binding and conditional ranges that dominate it.',
+    },
+    {
+      id: 'target117-process-slash-command-source-declaration-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-process-slash-command-dce-owner-proof.test.mjs',
+      detail: 'The source-root-aware AST proof binds the reachable invalid-command telemetry path to processSlashCommand.tsx and proves the target-only alternative has no writes and is unreachable.',
+    },
+    {
+      id: 'target117-schedule-routine-repo-wording-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-schedule-routine-repo-wording-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete schedule skill registration unit and its exact no-web-setup routine wording residue.',
+    },
+    {
+      id: 'target117-schedule-routine-repo-wording-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-schedule-routine-repo-wording-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays only the authenticated routine wording in scheduleRemoteAgents.ts, executes the guarded repository branch, and proves exact idempotence.',
+    },
+    {
+      id: 'target117-search-box-prefix-color-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-search-box-prefix-color-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete SearchBox component and companion query renderer, including the exact prefixColor residue and binding.',
+    },
+    {
+      id: 'target117-search-box-prefix-color-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-search-box-prefix-color-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact Target117 SearchBox postimage, proves the bounded donor derivation and render behavior, rejects LanguagePicker, and verifies idempotence.',
+    },
+    {
+      id: 'target117-bridge-dialog-authenticated-memo-cache-closure',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-bridge-dialog-memo-cache-owner-proof.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete BridgeDialog unit, its sole added cache-arity residue, and every computed memo-cache slot access from zero through ninety-five.',
+    },
+    {
+      id: 'target117-bridge-dialog-source-compiler-cache-owner-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-bridge-dialog-memo-cache-owner-proof.test.mjs',
+      detail: 'The source AST proof binds the residue to BridgeDialog compiler-runtime allocation metadata and verifies the exact historical source cache independently closes every slot from zero through eighty-six.',
+    },
+    {
+      id: 'target117-mcp-client-authenticated-mixed-unit-test',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-mcp-client-mixed-owner-proof.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete MCP client initializer and all four build-metadata and ensureConnectedClient export residues.',
+    },
+    {
+      id: 'target117-mcp-client-build-metadata-object-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-mcp-client-mixed-owner-proof.test.mjs',
+      detail: 'The proof binds the version, build time, and Git SHA residues to the exact authenticated build-metadata object in the complete target unit.',
+    },
+    {
+      id: 'target117-mcp-client-ensure-connected-companion-test',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-mcp-client-mixed-owner-proof.test.mjs',
+      detail: 'The export-table binding resolves to the exact matched ensureConnectedClient companion unit with SDK bypass, reconnection, state guard, and telemetry-safe failure flow.',
+    },
+    {
+      id: 'target117-mcp-client-source-declaration-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-mcp-client-mixed-owner-proof.test.mjs',
+      detail: 'The source-root-aware AST proof binds the companion behavior to the exact historical services/mcp/client.ts declaration without treating the mixed initializer as blanket metadata.',
+    },
+    {
+      id: 'target117-headless-streaming-test-export-target-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-headless-streaming-test-export-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the test-only export-table property, its exact runHeadlessStreaming binding, and the separate streaming implementation boundary that remains unadmitted.',
+    },
+    {
+      id: 'target116-headless-streaming-test-export-absence-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-headless-streaming-test-export-source-gap.test.mjs',
+      detail: 'The authenticated Target116 boundary proves that the test-only alias is absent while the underlying streaming declaration already exists.',
+    },
+    {
+      id: 'target117-headless-streaming-test-export-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-headless-streaming-test-export-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact _runHeadlessStreamingForTesting alias, proves its binding and idempotence, and explicitly excludes the unsupported streaming function body.',
+    },
+    {
+      id: 'target117-truncated-count-complete-target-module-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete TruncatedCount module, formatter, bounded caller, exact structural ranges, and every selected residue identity.',
+    },
+    {
+      id: 'target117-truncated-count-117-through-121-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-source-gap.test.mjs',
+      detail: 'The cross-release proof authenticates the component and formatter lineage from Target117 through Target121 and rejects incidental source-map candidates.',
+    },
+    {
+      id: 'target117-truncated-count-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-source-gap.test.mjs',
+      detail: 'The source-root-aware test creates the exact shared component, rewires the bounded rejected-edit caller, executes formatter behavior, and proves exact idempotence and mixed-state rejection.',
+    },
+    {
+      id: 'target117-truncated-count-consumers-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-consumers-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins all four complete TruncatedCount consumer units, their exact shared limit, caller wiring, cache shapes, and residue identities.',
+    },
+    {
+      id: 'target117-truncated-count-consumers-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-consumers-source-gap.test.mjs',
+      detail: 'The source-root-aware test atomically recovers all four consumers after the shared component, executes their distinct verbose guards, and rejects mixed or drifted states.',
+    },
+    {
+      id: 'target117-truncated-count-consumers-temporal-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-consumers-source-gap.test.mjs',
+      detail: 'The temporal proof bounds the recovered consumer declarations and dispatcher dependency to the authenticated Target117 behavior without importing later release changes.',
+    },
+    {
+      id: 'target117-truncated-count-secondary-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-secondary-consumers-source-gap.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete ModelPicker, UsageContributors, and IDE consumer units and their exact TruncatedCount call shapes.',
+    },
+    {
+      id: 'target117-truncated-count-secondary-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-secondary-consumers-source-gap.test.mjs',
+      detail: 'The source-root-aware test recovers the three secondary consumers atomically after the shared component and executes their distinct truncation guards.',
+    },
+    {
+      id: 'target117-truncated-count-secondary-exact-owner-correction-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-truncated-count-secondary-consumers-source-gap.test.mjs',
+      detail: 'The exact source-AST proof corrects UsageContributors ownership and rejects the stale OverageCreditUpsell attribution while bounding all three declarations.',
+    },
+    {
+      id: 'target117-fallback-truncated-count-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-fallback-truncated-count-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete fallback renderer, its exact expandable TruncatedCount call, and the single target-added property residue.',
+    },
+    {
+      id: 'target117-fallback-truncated-count-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-fallback-truncated-count-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact fallback renderer after the shared TruncatedCount recovery, executes its verbose and omitted-line behavior, and proves idempotent fail-closed composition.',
+    },
+    {
+      id: 'target117-inbound-client-platform-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-inbound-client-platform-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the complete inbound-message extractor and the exact client_platform property residue and binding.',
+    },
+    {
+      id: 'target117-inbound-client-platform-later-donor-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-inbound-client-platform-source-gap.test.mjs',
+      detail: 'The bounded later-donor proof isolates the client-platform type guard and return field while excluding unrelated later bridge behavior.',
+    },
+    {
+      id: 'target117-inbound-client-platform-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-inbound-client-platform-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact guarded clientPlatform extraction, executes accepted and rejected input shapes, and proves exact idempotence.',
+    },
+    {
+      id: 'target117-sdk-client-platform-schema-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-sdk-client-platform-schema-source-gap.test.mjs',
+      detail: 'The authenticated Target117 fixture pins the SDK user-message schema unit and exact optional client_platform property shape and description.',
+    },
+    {
+      id: 'target117-sdk-client-platform-schema-later-donor-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-sdk-client-platform-schema-source-gap.test.mjs',
+      detail: 'The bounded later-donor proof isolates the client_platform schema property and authenticates its unchanged structural lineage through Target121.',
+    },
+    {
+      id: 'target117-sdk-client-platform-schema-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-sdk-client-platform-schema-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays only the optional client_platform schema member, validates its AST and runtime contract, and proves exact idempotence.',
+    },
+    {
+      id: 'target117-query-routing-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-query-client-platform-routing-source-gap.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete query loop, auxiliary dump-prompts gate, and exact messageClientPlatform forwarding residue.',
+    },
+    {
+      id: 'target117-query-routing-shared-classifier-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-query-client-platform-routing-source-gap.test.mjs',
+      detail: 'The source and target AST proof binds query routing to the shared classifyQuerySource declaration and excludes unrelated platform occurrences.',
+    },
+    {
+      id: 'target117-query-routing-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-query-client-platform-routing-source-gap.test.mjs',
+      detail: 'The atomic fail-closed replay exports and imports the classifier, suppresses auxiliary dump-prompts requests, forwards client platform metadata, and proves exact dual-state behavior.',
+    },
+    {
+      id: 'target117-plugin-empty-state-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-plugin-empty-state-source-gap.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete seven-arm EmptyStateMessage unit and its exact default shared-component branch.',
+    },
+    {
+      id: 'target117-shared-empty-state-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-plugin-empty-state-source-gap.test.mjs',
+      detail: 'The authenticated target unit proves the shared EmptyState children and hint runtime consumed by the plugin empty-state renderer.',
+    },
+    {
+      id: 'target117-plugin-project-installed-dependency-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-plugin-empty-state-source-gap.test.mjs',
+      detail: 'The authenticated producer proof binds allPlugins installation checks, global-only target-plugin gating, project reclassification, and the widened reason union that makes the new branch reachable.',
+    },
+    {
+      id: 'target117-plugin-empty-state-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-plugin-empty-state-source-gap.test.mjs',
+      detail: 'The atomic replay restores the coupled plugin-state producer, reason type, and shared EmptyState renderer, labels the no-sourcemap component path as bounded inference, and proves runtime reachability and idempotence.',
+    },
+    {
+      id: 'target117-hook-empty-state-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-hook-empty-state-source-gaps.test.mjs',
+      detail: 'The authenticated Target117 proof pins both complete hook-selection empty-state units, their exact cache layouts, shared EmptyState branches, and keyboard input-guide consumers.',
+    },
+    {
+      id: 'target117-retained-keyboard-shortcut-contract-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-hook-empty-state-source-gaps.test.mjs',
+      detail: 'The retained target proof binds the escape/go-back helper calls to the chord-aware KeyboardShortcutHint contract already authenticated in the Target117 bundle lineage.',
+    },
+    {
+      id: 'target117-hook-empty-state-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-hook-empty-state-source-gaps.test.mjs',
+      detail: 'The ordered replay requires the shared EmptyState context, atomically restores both hook screens plus retained keyboard compatibility, and proves exact behavior, idempotence, and drift rejection.',
+    },
+    {
+      id: 'target117-hook-empty-state-owner-correction-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-hook-empty-state-source-gaps.test.mjs',
+      detail: 'The source AST proof binds u17078 to SelectHookMode and corrects u17083 to the distinct SelectMatcherMode declaration while pinning their imported shared component graph.',
+    },
+    {
+      id: 'target117-skills-empty-state-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-skills-empty-state-source-gap.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete SkillsMenu unit, exact zero-skills EmptyState call, cache initializer, and target-added shared-component residue.',
+    },
+    {
+      id: 'target117-skills-empty-state-bounded-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-skills-empty-state-source-gap.test.mjs',
+      detail: 'The ordered source replay requires the recovered shared EmptyState context, changes only the zero-skills branch, and proves exact behavior, idempotence, and drift rejection without claiming the virtual list.',
+    },
+    {
+      id: 'target117-permission-confirmation-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-permission-confirmation-panel-source-gaps.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete RemoveWorkspaceDirectory and RuleDetails units plus their exact ConfirmationButtons, Panel, and keyboard call boundaries.',
+    },
+    {
+      id: 'target117-panel-runtime-and-module-boundary-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-permission-confirmation-panel-source-gaps.test.mjs',
+      detail: 'The target fragment proves the recovered Panel runtime and module boundary while explicitly marking the authored path, symbol, type, and formatting as bounded inference.',
+    },
+    {
+      id: 'target117-permission-confirmation-panel-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-permission-confirmation-panel-source-gaps.test.mjs',
+      detail: 'The ordered atomic replay requires exact ConfirmationButtons and chord-aware keyboard contexts, restores both permission views and Panel, and rejects mixed or drifted states before writing.',
+    },
+    {
+      id: 'target117-agents-menu-authenticated-delete-confirmation-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-agents-menu-delete-confirmation-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 AgentsMenu delete-confirmation branch, exact ConfirmationButtons call, labels, callbacks, and all six strict residues.',
+    },
+    {
+      id: 'target117-agents-menu-delete-confirmation-cache-closure',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-agents-menu-delete-confirmation-owner-proof.test.mjs',
+      detail: 'The compiler proof closes the exact 0..216 memo-cache allocation and proves the three numeric residues are slots removed with the legacy Select adapter.',
+    },
+    {
+      id: 'target117-agents-menu-historical-attribution-and-stale-source-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-agents-menu-delete-confirmation-owner-proof.test.mjs',
+      detail: 'The source-aware proof binds ten historical AgentsMenu anchors while rejecting the stale generated source as a replay donor.',
+    },
+    {
+      id: 'target117-daemon-protocol-authenticated-complete-schema-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-daemon-protocol-source-gap.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete daemon protocol module and all five runtime schema fingerprints, including procStart and attachId.',
+    },
+    {
+      id: 'target117-daemon-protocol-bounded-target118-source-derivation',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-daemon-protocol-source-gap.test.mjs',
+      detail: 'The source AST proof derives the Target117 protocol module from the pinned Target118 donor by removing exactly the later cliVersion and respawn-stale additions.',
+    },
+    {
+      id: 'target117-daemon-protocol-fail-closed-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-daemon-protocol-source-gap.test.mjs',
+      detail: 'The bounded absent-file replay materializes the exact five-schema Target117 protocol source, proves runtime parity and idempotence, and rejects drift or unsafe paths.',
+    },
+    {
+      id: 'target117-background-exit-dialog-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-background-exit-dialog-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 BackgroundExitDialog unit, all four strict residues, and the exact TruncatedCount and ConfirmationButtons substitutions.',
+    },
+    {
+      id: 'target117-background-exit-dialog-target118-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-background-exit-dialog-owner-proof.test.mjs',
+      detail: 'Exact Target118 structural pairing authenticates the BackgroundExitDialog symbol and source module while the compiler-cache proof accounts for the remaining numeric residues.',
+    },
+    {
+      id: 'target117-background-exit-dialog-stale-source-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-background-exit-dialog-owner-proof.test.mjs',
+      detail: 'The source-aware test proves the recovered Target117 caller and type graph is still stale, so this lane closes only the authenticated whole-unit owner and deliberately blocks an unsafe source replay.',
+    },
+    {
+      id: 'target117-fork-spawn-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-fork-spawn-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 spawnFork unit, all twenty-three owner residues, and the exact lifecycle name-registration call.',
+    },
+    {
+      id: 'target117-fork-spawn-target118-temporal-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-fork-spawn-owner-proof.test.mjs',
+      detail: 'The temporal proof derives the Target117 fork behavior from its exact Target118 successor while excluding the later command-name metadata addition.',
+    },
+    {
+      id: 'target117-fork-spawn-stale-lifecycle-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-fork-spawn-owner-proof.test.mjs',
+      detail: 'The source-aware proof binds the fork command owner but pins the stale ToolUseContext and agent-lifecycle graph, deliberately blocking a partial source replay.',
+    },
+    {
+      id: 'target117-command-suggestion-resuggest-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-resuggest-slash-template-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete applyCommandSuggestion unit and its bounded return-value, reSuggest, and partial slash-template changes over the retained Target116 core.',
+    },
+    {
+      id: 'target117-typeahead-slash-template-authenticated-whole-unit',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-resuggest-slash-template-owner-proof.test.mjs',
+      detail: 'The whole-unit proof pins useTypeahead index-completion and both Tab and Enter re-suggestion consumers, together with the retained Target118 runtime lineage.',
+    },
+    {
+      id: 'target117-resuggest-stale-four-file-source-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-resuggest-slash-template-owner-proof.test.mjs',
+      detail: 'The source-aware test pins all four stale suggestion files and deliberately blocks a partial replay that would omit the validator, metadata, and slash-template type graph.',
+    },
+    {
+      id: 'target117-fork-gate-authenticated-resolver-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-fork-gate-semantic-evolution-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 fork-source resolver, its sole rollout residue, and the adjacent owner, adapter, telemetry, and dependency units.',
+    },
+    {
+      id: 'target117-fork-gate-exact-through-target120-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-fork-gate-semantic-evolution-proof.test.mjs',
+      detail: 'The cross-ledger proof establishes exact normalized resolver identity from Target117 through Target120 and exhaustive equivalence with the historical source boolean for every gate combination.',
+    },
+    {
+      id: 'target117-fork-gate-target121-priority-evolution-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-fork-gate-semantic-evolution-proof.test.mjs',
+      detail: 'The semantic-evolution proof identifies Target121\'s later priority reorder and fail-closes against using that later source as a replay for Target117.',
+    },
+    {
+      id: 'target117-transcript-learn-more-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-transcript-learn-more-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 TranscriptSharePrompt unit and isolates the learn-more control as its sole bounded change from Target116.',
+    },
+    {
+      id: 'target117-learn-more-link-authenticated-runtime-dependency',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-transcript-learn-more-owner-proof.test.mjs',
+      detail: 'The whole-unit proof binds TranscriptSharePrompt to the authenticated shared clickable learn-more runtime helper and its exact forward lineage.',
+    },
+    {
+      id: 'target117-transcript-learn-more-source-identity-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-transcript-learn-more-owner-proof.test.mjs',
+      detail: 'The source-identity proof rejects a guessed helper path or authored symbol and deliberately admits the target behavior only as a static whole-unit owner proof.',
+    },
+    {
+      id: 'target117-agent-mcp-config-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-agent-mcp-config-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 mergeMainAgentMcpServers unit, including policy filtering, blocked-name reporting, and merge precedence.',
+    },
+    {
+      id: 'target117-agent-mcp-config-exact-source-declaration',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-agent-mcp-config-owner-proof.test.mjs',
+      detail: 'The exact source declaration and import graph reproduce every target residue and the full agent-scoped MCP configuration behavior.',
+    },
+    {
+      id: 'target117-agent-mcp-config-positional-owner-correction',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-agent-mcp-config-owner-proof.test.mjs',
+      detail: 'The source-aware proof corrects the positional dialog attribution to services/mcp/agentConfig.ts and rejects the false owner.',
+    },
+    {
+      id: 'target117-repl-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-repl-whole-unit-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 REPL unit, all eleven typed rows, and its remote/client transport deltas.',
+    },
+    {
+      id: 'target117-repl-retained-result-dedup-equivalence',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-repl-whole-unit-owner-proof.test.mjs',
+      detail: 'Exact baseline-to-target object and call AST equivalence proves both strict resultDedup rows are retained REPL behavior rather than source gaps.',
+    },
+    {
+      id: 'target117-repl-temporally-mixed-source-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-repl-whole-unit-owner-proof.test.mjs',
+      detail: 'The temporal source audit binds REPL ownership while deliberately rejecting a replay from later sources that mix Target118 and Target119 evolution.',
+    },
+    {
+      id: 'target117-third-party-model-upgrade-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-third-party-model-upgrade-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 ThirdPartyModelUpgradeDialog unit and its exact ConfirmationButtons substitution.',
+    },
+    {
+      id: 'target117-third-party-model-upgrade-confirmation-substitution',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-third-party-model-upgrade-owner-proof.test.mjs',
+      detail: 'The bounded whole-unit AST proof isolates the legacy Select to ConfirmationButtons control replacement and its confirm/cancel callbacks.',
+    },
+    {
+      id: 'target117-third-party-model-upgrade-absent-source-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-third-party-model-upgrade-owner-proof.test.mjs',
+      detail: 'The temporal source audit proves the Target117 owner and caller graph are absent and rejects a misleading later-donor source replay.',
+    },
+    {
+      id: 'target117-query-engine-client-platform-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-query-engine-client-platform-source-gap.test.mjs',
+      detail: 'The authenticated whole-unit comparison pins both exact client-platform insertions in QueryEngine and every retained target residue identity.',
+    },
+    {
+      id: 'target117-query-engine-client-platform-type-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-query-engine-client-platform-source-gap.test.mjs',
+      detail: 'The typed source proof couples QueryEngine submit options and both ProcessUserInputContext values to the matching ToolUseContext client-platform field.',
+    },
+    {
+      id: 'target117-query-engine-client-platform-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-query-engine-client-platform-source-gap.test.mjs',
+      detail: 'The atomic two-file replay supports exact raw and historical-owner states, validates both outputs before writing, and rejects mixed or mutated inputs.',
+    },
+    {
+      id: 'target117-headless-streaming-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-headless-streaming-whole-unit-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 headless-streaming unit, its exact typed residue partition, and the ultrareview replay branch.',
+    },
+    {
+      id: 'target117-headless-streaming-ultrareview-replay-source-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-headless-streaming-whole-unit-owner-proof.test.mjs',
+      detail: 'The source proof binds the two launched-replay messages, their persistence and emission calls, and their XML constants to runHeadlessStreaming.',
+    },
+    {
+      id: 'target117-headless-streaming-retained-control-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-headless-streaming-whole-unit-owner-proof.test.mjs',
+      detail: 'Exact baseline-to-target AST evidence proves the retained task-registry and synthetic side-question contracts represented by the remaining rows.',
+    },
+    {
+      id: 'target117-headless-streaming-source-snapshot-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-headless-streaming-whole-unit-owner-proof.test.mjs',
+      detail: 'The source-snapshot audit proves the launched replay is already present while the surrounding control graph remains stale, deliberately blocking a dishonest whole-function replay.',
+    },
+    {
+      id: 'target117-mcp-entrypoint-authenticated-paired-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-mcp-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target116 and Target117 MCP entrypoint units and their exact normalized whole-unit identity.',
+    },
+    {
+      id: 'target117-mcp-entrypoint-build-metadata-component-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-mcp-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'The component proof isolates VERSION, BUILD_TIME, and GIT_SHA as exact release build-metadata expansions rather than runtime source gaps.',
+    },
+    {
+      id: 'target117-mcp-entrypoint-retained-tool-context-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-mcp-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'Exact paired AST evidence proves the retained params, taskRegistry, and agentLifecycle ToolUseContext contracts represented by the non-metadata rows.',
+    },
+    {
+      id: 'target117-mcp-entrypoint-source-snapshot-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-mcp-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'The source audit binds startMCPServer ownership while proving its ToolUseContext snapshot is incomplete, deliberately blocking an unsafe replay.',
+    },
+    {
+      id: 'target117-update-entrypoint-authenticated-paired-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-update-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target116 and Target117 update entrypoint units and their exact normalized whole-unit identity.',
+    },
+    {
+      id: 'target117-update-entrypoint-build-metadata-component-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-update-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'The component proof accounts for all 23 embedded VERSION, BUILD_TIME, and GIT_SHA objects as exact release build metadata.',
+    },
+    {
+      id: 'target117-update-entrypoint-retained-occurrence-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-update-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'Exact paired-unit AST evidence proves the remaining dot residues are retained global occurrence shifts, not authored source gaps.',
+    },
+    {
+      id: 'target117-update-entrypoint-source-snapshot-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-update-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'The historical source proof binds the complete update owner and its authored MACRO.VERSION accesses while preserving the static-only boundary.',
+    },
+    {
+      id: 'target117-cli-bridge-auth-debug-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-cli-bridge-auth-debug-source-gap.test.mjs',
+      detail: 'The authenticated paired-unit proof pins the complete Target117 CLI entrypoint, both bridge-auth diagnostic suffixes, and every selected residue.',
+    },
+    {
+      id: 'target117-cli-bridge-auth-debug-exact-dependency-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-cli-bridge-auth-debug-source-gap.test.mjs',
+      detail: 'The exact dependency proof binds getBridgeAuthDebugInfo to the retained bridgeEnabled implementation used by both recovered error exits.',
+    },
+    {
+      id: 'target117-cli-bridge-auth-debug-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-cli-bridge-auth-debug-source-gap.test.mjs',
+      detail: 'The bounded CLI replay adds the authenticated dynamic import and two diagnostic suffix calls, proves idempotence, and rejects source drift.',
+    },
+    {
+      id: 'target117-cli-respawn-dead-dce-paired-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-cli-bridge-auth-debug-source-gap.test.mjs',
+      detail: 'Paired whole-unit analysis proves the separate respawn structural delta is dominated by a constant-false branch and does not represent live missing source.',
+    },
+    {
+      id: 'target117-main-entrypoint-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-main-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target116 and Target117 main run units and all seventeen exact added-owner residues.',
+    },
+    {
+      id: 'target117-main-entrypoint-complete-token-edit-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-main-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'A complete deterministic seventeen-hunk normalized-token reconstruction accounts for every Target117 run-unit change.',
+    },
+    {
+      id: 'target117-main-entrypoint-retained-residue-correspondence-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-main-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'Exact paired-token correspondence classifies retained occurrence shifts separately from genuine runtime and release-metadata changes.',
+    },
+    {
+      id: 'target117-main-entrypoint-source-lineage-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-main-entrypoint-whole-unit-owner-proof.test.mjs',
+      detail: 'Historical source lineage proves the recovered main snapshot omits a wider retained contract and blocks a misleading partial source replay.',
+    },
+    {
+      id: 'target117-settings-sync-keyset-dce-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-settings-sync-keyset-dce-proof.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete settings-sync keyset allocation, both exact string residues, its binding declaration, and the sole parent initializer call.',
+    },
+    {
+      id: 'target117-settings-sync-keyset-dce-static-binding-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-settings-sync-keyset-dce-proof.test.mjs',
+      detail: 'Complete bundle binding analysis proves the private array and Set are never read, returned, passed, exported, or written after allocation, so the two values cannot affect runtime behavior.',
+    },
+    {
+      id: 'target117-worker-pending-permission-target-fragment-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-worker-pending-permission-owner-proof.test.mjs',
+      detail: 'The authenticated Target117 proof pins the complete pending-permission component and its exact leading-space approval text residue.',
+    },
+    {
+      id: 'target117-worker-pending-permission-source-jsx-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-worker-pending-permission-owner-proof.test.mjs',
+      detail: 'The source JSX proof binds WorkerPendingPermission and proves its explicit one-space expression plus adjacent literal compile to the exact target string.',
+    },
+    {
+      id: 'target118-sessions-owner-source-gap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-sessions-owner-source-gap.test.mjs',
+      detail: 'The authenticated target118 fixture pins the complete SessionsWebSocket class unit and all 110 typed residue ranges and ordinals while rejecting the coarse PromptInput attribution.',
+    },
+    {
+      id: 'target118-mcp-client-accessor-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-mcp-client-accessor-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete bootstrap export registry, all seven exact property residues, and the setter, getter, interactive lifecycle, headless setup, and hook-fallback target units.',
+    },
+    {
+      id: 'target118-mcp-client-accessor-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-mcp-client-accessor-source-gap.test.mjs',
+      detail: 'The atomic replay restores the MCP-client accessor across bootstrap state, AppState cleanup, headless combined clients, and execMcpToolHook fallback, validates four pinned postimages, and proves idempotence.',
+    },
+    {
+      id: 'target118-mcp-client-accessor-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-mcp-client-accessor-source-gap.test.mjs',
+      detail: 'The source AST and executable proof binds the existing parent, cache, and prompt-index functions plus the recovered accessor lifecycle to bootstrap/state.ts without treating export-table property syntax as missing behavior.',
+    },
+    {
+      id: 'target118-parser-streaming-tail-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-parser-streaming-tail-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete Parser class, all fourteen typed residue identities, the exact Target117 predecessor, and the structurally identical Target119 continuation.',
+    },
+    {
+      id: 'target118-parser-streaming-tail-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-parser-streaming-tail-source-gap.test.mjs',
+      detail: 'The fail-closed replay restores the exact Parser forOutput constructor, bounded streaming grapheme tail, flush/reset behavior, BEL handling, and split-surrogate continuation semantics in the historical source owner.',
+    },
+    {
+      id: 'target118-parser-streaming-tail-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-parser-streaming-tail-source-gap.test.mjs',
+      detail: 'The source AST and executable proof binds the recovered class to ink/termio/parser.ts, verifies its ZWJ and regional-indicator bounds, and rejects the coarse sgr.ts attribution.',
+    },
+    {
+      id: 'target118-wsl-fingerprint-property-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-wsl-fingerprint-property-owner-proof.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete settings-change detector unit, both wslWindowsFile property residues, and the exact generated fingerprint helper binding.',
+    },
+    {
+      id: 'target118-wsl-fingerprint-property-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-wsl-fingerprint-property-owner-proof.test.mjs',
+      detail: 'The historical source AST pins startMdmPoll and getWslWindowsManagedSettingsFingerprint, including both snapshot sites and the full managed-settings fingerprint algorithm.',
+    },
+    {
+      id: 'target118-wsl-fingerprint-property-compiler-equivalence-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-wsl-fingerprint-property-owner-proof.test.mjs',
+      detail: 'The proof establishes that generated wslWindowsFile and source wslFiles are local object labels whose values call the same exact fingerprint implementation alongside identical mdm, hkcu, and wslInherits fields.',
+    },
+    {
+      id: 'target118-cache-diagnosis-schema-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-cache-diagnosis-schema-owner-proof.test.mjs',
+      detail: 'The authenticated Target117/118 fragments pin the complete persistent prompt-cache schemas and prove that cacheDiagnosis with a false default is the sole schema-field addition.',
+    },
+    {
+      id: 'target118-cache-diagnosis-schema-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-cache-diagnosis-schema-owner-proof.test.mjs',
+      detail: 'The exact historical source transition adds cacheDiagnosis to PreviousState, PromptStateSnapshot, initialization, comparison, pending changes, state updates, diagnostics, and telemetry in promptCacheBreakDetection.ts.',
+    },
+    {
+      id: 'target118-cache-diagnosis-schema-transition-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-cache-diagnosis-schema-owner-proof.test.mjs',
+      detail: 'The transition proof pairs the generated schema addition with the exact authored state-field evolution and rejects the coarse buddy/companion.ts source-map attribution.',
+    },
+    {
+      id: 'target118-code-session-compat-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-code-session-compat-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins all three complete code-session compatibility units and their six exact wire-shape residues.',
+    },
+    {
+      id: 'target118-code-session-compat-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-code-session-compat-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact legacy and current code-session wire shapes in teleport/api.ts and proves atomic idempotent behavior.',
+    },
+    {
+      id: 'target118-code-session-compat-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-code-session-compat-source-gap.test.mjs',
+      detail: 'The source AST proof binds updated_at, last_event_at, prompt compatibility, and response-shape handling to the exact teleport API declarations.',
+    },
+    {
+      id: 'target118-frame-urls-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-frame-urls-state-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins the default-state, conversation-clear, and entrypoint frameUrls empty-map writes and their exact cross-release occurrence lineage.',
+    },
+    {
+      id: 'target118-frame-urls-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-frame-urls-state-source-gap.test.mjs',
+      detail: 'The source-root-aware replay restores the typed AppState field and all three fresh-empty-map initialization and reset sites atomically and idempotently.',
+    },
+    {
+      id: 'target118-frame-urls-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-frame-urls-state-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof binds the recovered field to AppState, getDefaultAppState, clearConversation, and the main initialState while leaving unrelated main-unit residues unadmitted.',
+    },
+    {
+      id: 'target118-skill-author-byline-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-skill-author-byline-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete SkillTool message unit, the author byline residue, and its exact forward lineage.',
+    },
+    {
+      id: 'target118-skill-author-byline-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-skill-author-byline-source-gap.test.mjs',
+      detail: 'The fail-closed source replay restores slash normalization, legacy command display, and the conditional team-artifact author byline in SkillTool UI.',
+    },
+    {
+      id: 'target118-skill-author-byline-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-skill-author-byline-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof binds the recovered byline behavior to renderToolUseMessage and getTeamArtifactAuthor.',
+    },
+    {
+      id: 'target118-task-stop-owner-notification-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-task-stop-owner-notification-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins the shared agent formatter, stopped-task owner notification helper, and stopTask call path with the exact stopper residues.',
+    },
+    {
+      id: 'target118-task-stop-owner-notification-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-task-stop-owner-notification-source-gap.test.mjs',
+      detail: 'The fail-closed replay restores stopper identity formatting and owner-directed next-priority task notifications with exact idempotence.',
+    },
+    {
+      id: 'target118-task-stop-owner-notification-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-task-stop-owner-notification-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof binds the recovered formatter, notification helper, ownership guard, and caller identity flow to tasks/stopTask.ts.',
+    },
+    {
+      id: 'target118-resume-persisted-count-target-binding',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-resume-persisted-count-owner-proof.test.mjs',
+      detail: 'The authenticated Target118 proof binds the resume caller argument to runAgent\'s resumePersistedCount parameter and the exact persisted-prefix suffix behavior.',
+    },
+    {
+      id: 'target118-resume-persisted-count-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-resume-persisted-count-owner-proof.test.mjs',
+      detail: 'The TypeScript AST proof follows the resumed message count through slicing and sidechain-parent selection in runAgent.ts.',
+    },
+    {
+      id: 'target118-resume-persisted-count-source-transition-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-resume-persisted-count-owner-proof.test.mjs',
+      detail: 'The cross-release transition test authenticates the exact historical caller addition and source declaration that preserve only newly resumed messages.',
+    },
+    {
+      id: 'target118-standalone-in-process-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-standalone-in-process-runner-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins standalone runner behavior, its autofix-pr callsite, the supporting poller, and every selected residue identity.',
+    },
+    {
+      id: 'target118-standalone-in-process-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-standalone-in-process-runner-source-gap.test.mjs',
+      detail: 'The atomic source replay adds standalone suppression across runner notifications and shutdown polling and passes standalone true only from autofix-pr.',
+    },
+    {
+      id: 'target118-standalone-in-process-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-standalone-in-process-runner-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof binds the standalone parameter, every guarded notification path, the poller state, and the sole authentic callsite.',
+    },
+    {
+      id: 'target118-file-read-powershell-notebook-hint-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-file-read-powershell-notebook-hint-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete FileReadTool notebook branch, the Bash/PowerShell gate, and all exact PowerShell hint residues.',
+    },
+    {
+      id: 'target118-file-read-powershell-notebook-hint-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-file-read-powershell-notebook-hint-source-gap.test.mjs',
+      detail: 'The fail-closed replay restores the shell-sensitive oversized-notebook guidance and proves both Bash and PowerShell runtime branches and idempotence.',
+    },
+    {
+      id: 'target118-file-read-powershell-notebook-hint-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-file-read-powershell-notebook-hint-source-gap.test.mjs',
+      detail: 'The source AST proof binds isBashToolEnabled and the exact jq and PowerShell command templates to FileReadTool.',
+    },
+    {
+      id: 'target118-with-retry-overage-header-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-with-retry-overage-header-owner-proof.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete async retry loop and its overage-disabled header residue.',
+    },
+    {
+      id: 'target118-with-retry-overage-header-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-with-retry-overage-header-owner-proof.test.mjs',
+      detail: 'The source AST proof binds the fast-mode overage rejection, retry-context reset, and immediate retry to services/api/withRetry.ts and rejects utils/messages.ts.',
+    },
+    {
+      id: 'target118-autofix-pr-command-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-autofix-pr-command-owner-proof.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete autofix-pr command registration and both exact command residues.',
+    },
+    {
+      id: 'target118-autofix-pr-command-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-autofix-pr-command-owner-proof.test.mjs',
+      detail: 'The source AST proof binds the local-JSX command, policy gates, hidden getter, lazy loader, and user-facing name to commands/autofix-pr/command.ts.',
+    },
+    {
+      id: 'target118-search-box-dim-range-cursor-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-search-box-dim-range-cursor-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete SearchBox and companion renderer units and the exact dimRange residue and cursor partition behavior.',
+    },
+    {
+      id: 'target118-search-box-dim-range-cursor-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-search-box-dim-range-cursor-source-gap.test.mjs',
+      detail: 'The source replay accepts the exact raw or inherited SearchBox state, restores the authenticated dim-range and custom-cursor behavior, and proves exact postimage idempotence and drift rejection.',
+    },
+    {
+      id: 'target118-search-box-dim-range-cursor-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-search-box-dim-range-cursor-source-gap.test.mjs',
+      detail: 'The source AST proof binds dimRange and cursorChar to SearchBox and renderSearchBoxQuery and rejects LanguagePicker as a coarse neighboring attribution.',
+    },
+    {
+      id: 'target118-daemon-paths-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-daemon-paths-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete daemon-directory and pipe-key units and all exact daemon, pipe.key, and exclusive-write residues.',
+    },
+    {
+      id: 'target118-daemon-paths-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-daemon-paths-owner-proofs.test.mjs',
+      detail: 'The source AST proof binds getDaemonDir and getPipeKey to src/daemon/paths.ts and rejects McpParsingWarnings as a coarse attribution.',
+    },
+    {
+      id: 'target118-warm-resume-static-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-warm-resume-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete isEligibleLog and WarmResume variant initializer units and both strict residue identities.',
+    },
+    {
+      id: 'target118-warm-resume-static-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-warm-resume-static-owner-proofs.test.mjs',
+      detail: 'The source AST proof binds the exact historical WarmResumeHint isEligibleLog and VARIANTS declarations and rejects the provisional LogoV2 owner.',
+    },
+    {
+      id: 'target118-warm-resume-session-kind-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-warm-resume-session-kind-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete launch-eligibility function, its shared envSessionKind binding, and the exact session-kind guard.',
+    },
+    {
+      id: 'target118-warm-resume-session-kind-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-warm-resume-session-kind-source-gap.test.mjs',
+      detail: 'The bounded two-file replay exports the existing envSessionKind helper, wires it into WarmResumeHint, and proves every eligibility branch, idempotence, and drift rejection.',
+    },
+    {
+      id: 'target118-warm-resume-session-kind-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-warm-resume-session-kind-source-gap.test.mjs',
+      detail: 'The static proof binds the recovered guard to the exact shared concurrentSessions implementation rather than inventing a new wrapper.',
+    },
+    {
+      id: 'target118-virtual-scroll-append-snapshot-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-virtual-scroll-append-snapshot-source-gap.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete useVirtualScroll unit and the exact len, first, and last append-snapshot residues.',
+    },
+    {
+      id: 'target118-virtual-scroll-append-snapshot-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-virtual-scroll-append-snapshot-source-gap.test.mjs',
+      detail: 'The replay restores append-only cache short-circuiting and executes initial, append, replacement, and truncation scenarios with exact postimage and fail-closed checks.',
+    },
+    {
+      id: 'target118-virtual-scroll-append-snapshot-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-virtual-scroll-append-snapshot-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof binds the snapshot and garbage-collection control flow to useVirtualScroll and its item-key cache.',
+    },
+    {
+      id: 'target118-tui-relaunch-static-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-tui-relaunch-static-owner-proofs.test.mjs',
+      detail: 'The authenticated proof pins the complete relaunch function and TUI renderer-domain initializer and all three strict residues.',
+    },
+    {
+      id: 'target118-tui-relaunch-static-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-tui-relaunch-static-owner-proofs.test.mjs',
+      detail: 'The source AST proof binds relaunch and RENDERERS to their exact historical declarations and rejects the provisional theme attribution.',
+    },
+    {
+      id: 'target118-tui-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-tui-telemetry-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete TUI command telemetry unit plus the supporting scroll-policy initializer and accessor units.',
+    },
+    {
+      id: 'target118-tui-telemetry-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-tui-telemetry-source-gap.test.mjs',
+      detail: 'The replay restores renderer transition, session age, bounce, and scroll-policy telemetry with exact output and fail-closed state checks.',
+    },
+    {
+      id: 'target118-tui-telemetry-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-tui-telemetry-source-gap.test.mjs',
+      detail: 'The AST proof binds the TUI command to the exact getScrollConfig declaration and every recovered telemetry field.',
+    },
+    {
+      id: 'target118-fast-command-thin-client-dispatch-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-fast-command-thin-client-dispatch-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 fast command descriptor and its exact control-request dispatch property.',
+    },
+    {
+      id: 'target118-fast-command-thin-client-dispatch-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-fast-command-thin-client-dispatch-source-gap.test.mjs',
+      detail: 'The bounded replay adds only the authenticated thin-client dispatch mode and proves exact output, idempotence, and drift rejection.',
+    },
+    {
+      id: 'target118-fast-command-thin-client-dispatch-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-fast-command-thin-client-dispatch-source-gap.test.mjs',
+      detail: 'The AST proof binds the command descriptor to commands/fast/index.ts and rejects the neighboring fast.tsx implementation.',
+    },
+    {
+      id: 'target118-effort-command-thin-client-dispatch-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-effort-command-thin-client-dispatch-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 effort command descriptor, both strict residues, and its exact control-request dispatch property.',
+    },
+    {
+      id: 'target118-effort-command-thin-client-dispatch-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-effort-command-thin-client-dispatch-source-gap.test.mjs',
+      detail: 'The bounded replay adds only the thin-client dispatch property to the exact effort command descriptor, proves idempotence, and rejects source drift.',
+    },
+    {
+      id: 'target118-effort-command-thin-client-dispatch-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-effort-command-thin-client-dispatch-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof binds thinClientDispatch to commands/effort/index.ts and rejects the neighboring effort UI module as the coarse false owner.',
+    },
+    {
+      id: 'target118-push-notification-tip-relevance-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-push-notification-tip-relevance-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 push-notification tip relevance unit and its exact notification-permission residue.',
+    },
+    {
+      id: 'target118-push-notification-tip-relevance-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-push-notification-tip-relevance-owner-proof.test.mjs',
+      detail: 'The source AST proof binds isPushNotificationTipRelevant to services/tips/tipRegistry.ts and rejects RemoteCallout as the provisional false owner.',
+    },
+    {
+      id: 'target118-voice-mode-argument-routing-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-voice-mode-argument-routing-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 voice command, its strict mode residue, and the supporting parseMode unit.',
+    },
+    {
+      id: 'target118-voice-mode-argument-routing-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-voice-mode-argument-routing-source-gap.test.mjs',
+      detail: 'The bounded later-donor replay restores hold, tap, and off routing, nested settings, telemetry, and instructions with exact idempotent postimages.',
+    },
+    {
+      id: 'target118-voice-mode-argument-routing-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-voice-mode-argument-routing-source-gap.test.mjs',
+      detail: 'The TypeScript AST and executable matrix bind parseMode and the complete argument-aware voice command to commands/voice/voice.ts.',
+    },
+    {
+      id: 'target118-fork-name-registration-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-fork-name-registration-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 fork-spawn unit, its exact registerName call, and the matched agent-lifecycle implementation.',
+    },
+    {
+      id: 'target118-fork-name-registration-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-fork-name-registration-owner-proof.test.mjs',
+      detail: 'The source AST proof binds spawnFork and its historical cloned agentNameRegistry update to the extracted lifecycle registration call.',
+    },
+    {
+      id: 'target118-fork-name-registration-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-fork-name-registration-owner-proof.test.mjs',
+      detail: 'The executable transition proof establishes state equivalence between historical inline name registration and the authenticated Target118 lifecycle helper.',
+    },
+    {
+      id: 'target118-session-storage-entry-policy-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-session-storage-entry-policy-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete ENTRY_APPEND_POLICY object, appendEntry switch, and exact route-by-agent residue partition.',
+    },
+    {
+      id: 'target118-session-storage-entry-policy-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-session-storage-entry-policy-owner-proof.test.mjs',
+      detail: 'The source AST proof binds content-replacement and fork-context-ref routing to src/utils/sessionStorage.ts and rejects incidental owners.',
+    },
+    {
+      id: 'target118-session-storage-entry-policy-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-session-storage-entry-policy-owner-proof.test.mjs',
+      detail: 'State-equivalence tests prove the target policy table and historical appendEntry branches choose identical agent or session transcript routes.',
+    },
+    {
+      id: 'target118-bundled-skills-root-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-bundled-skills-root-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete bundled-skills root initializer and its exact randomBytes, version, and directory residues.',
+    },
+    {
+      id: 'target118-bundled-skills-root-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-bundled-skills-root-owner-proof.test.mjs',
+      detail: 'The exact source AST binds getBundledSkillsRoot and its crypto import to utils/permissions/filesystem.ts, rejecting the positional owner.',
+    },
+    {
+      id: 'target118-structured-output-always-load-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-structured-output-always-load-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete structured-output tool factory and its exact alwaysLoad residue.',
+    },
+    {
+      id: 'target118-structured-output-always-load-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-structured-output-always-load-source-gap.test.mjs',
+      detail: 'The bounded replay adds only alwaysLoad to createStructuredOutputTool and proves exact idempotence and drift rejection.',
+    },
+    {
+      id: 'target118-structured-output-always-load-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-structured-output-always-load-source-gap.test.mjs',
+      detail: 'The source AST binds the recovered property to the existing ToolSearch deferred-tool guard and exact hookHelpers owner.',
+    },
+    {
+      id: 'target118-background-work-state-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-background-work-state-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 background-work state initializer and both queued and kinds residues.',
+    },
+    {
+      id: 'target118-background-work-state-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-background-work-state-owner-proof.test.mjs',
+      detail: 'The exact source AST binds the state initializer and setter/getter graph to utils/backgroundWorkState.ts and rejects the positional component owner.',
+    },
+    {
+      id: 'target118-ccr-transcript-persistence-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-ccr-transcript-persistence-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete useLogMessages hook, its CCR transcript suppression guard, and the runtime-capability producer and transport installation graph.',
+    },
+    {
+      id: 'target118-ccr-transcript-persistence-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-ccr-transcript-persistence-owner-proof.test.mjs',
+      detail: 'Historical source AST and an executable capability truth table prove remote.kind ccr is exactly the recovered representation of transcriptSource ccr-api.',
+    },
+    {
+      id: 'target118-bridge-client-presence-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-bridge-client-presence-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete client-presence pulse unit, its session endpoint and headers, plus the adjacent setup, cleanup, and client-ID state.',
+    },
+    {
+      id: 'target118-bridge-client-presence-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-bridge-client-presence-owner-proof.test.mjs',
+      detail: 'Exact historical source AST binds throttle, authentication, presence payload, failure logging, and rejection suppression to bridge/clientPresence.ts.',
+    },
+    {
+      id: 'target118-code-session-git-context-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-code-session-git-context-source-gap.test.mjs',
+      detail: 'The authenticated cross-release proof pins createCodeSession, its GitSessionContext construction, and the exact config source/outcome assignments.',
+    },
+    {
+      id: 'target118-code-session-git-context-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-code-session-git-context-source-gap.test.mjs',
+      detail: 'The two-file replay atomically restores the later-donor Git context implementation and code-session callsite, is idempotent, and rejects mixed states.',
+    },
+    {
+      id: 'target118-code-session-git-context-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-code-session-git-context-source-gap.test.mjs',
+      detail: 'Exact source AST and executable behavior prove branch reuse, source/outcome derivation, and the inherited Target117-through-Target119 compiled contract.',
+    },
+    {
+      id: 'target118-proactive-oauth-refresh-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-proactive-oauth-refresh-source-gap.test.mjs',
+      detail: 'The authenticated proof pins both Target118 bridge units, the proactive refresh callback contract and caller, and all four exact residue identities.',
+    },
+    {
+      id: 'target118-proactive-oauth-refresh-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-proactive-oauth-refresh-source-gap.test.mjs',
+      detail: 'The two-file replay restores only the callback type, binding, scheduler invocation, and awaited REPL bridge caller while rejecting partial states.',
+    },
+    {
+      id: 'target118-proactive-oauth-refresh-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-proactive-oauth-refresh-source-gap.test.mjs',
+      detail: 'Source AST and executable stale-token, fresh-token, and failure scenarios prove the bounded callback semantics without importing unrelated later-source changes.',
+    },
+    {
+      id: 'target118-restore-code-diff-stats-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-restore-code-diff-stats-source-gap.test.mjs',
+      detail: 'The authenticated proof pins RestoreCodeConfirmation, the shared diff-stat renderer, and both exact restore-message residues.',
+    },
+    {
+      id: 'target118-restore-code-diff-stats-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-restore-code-diff-stats-source-gap.test.mjs',
+      detail: 'The bounded MessageSelector replay restores explicit added/removed props, zero suppression, conditional spacing, and exact idempotent output.',
+    },
+    {
+      id: 'target118-restore-code-diff-stats-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-restore-code-diff-stats-source-gap.test.mjs',
+      detail: 'Source AST and executable count/file matrices prove the recovered local helper and caller match the authenticated target contract.',
+    },
+    {
+      id: 'target118-status-line-fast-mode-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-status-line-fast-mode-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 status-line builder and caller chain, including fast_mode and the single sampled cwd flow.',
+    },
+    {
+      id: 'target118-status-line-fast-mode-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-status-line-fast-mode-source-gap.test.mjs',
+      detail: 'The bounded StatusLine replay restores fast-mode selection, change tracking, hook input propagation, and one consistent cwd while rejecting drift and later-release fields.',
+    },
+    {
+      id: 'target118-status-line-fast-mode-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-status-line-fast-mode-source-gap.test.mjs',
+      detail: 'Exact source AST and executable scenarios prove the recovered builder and caller reproduce the authenticated Target118 fast-mode and workspace semantics.',
+    },
+    {
+      id: 'target118-prompt-input-runtime-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-prompt-input-runtime-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 PromptInput unit, its predecessor, and all eight exact residue identities and handler contexts.',
+    },
+    {
+      id: 'target118-prompt-input-runtime-source-lineage-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-prompt-input-runtime-owner-proof.test.mjs',
+      detail: 'Exact historical source lineage binds the paste-expansion transition and retained input-handler semantics to PromptInput.',
+    },
+    {
+      id: 'target118-prompt-input-runtime-compiler-normalization-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-prompt-input-runtime-owner-proof.test.mjs',
+      detail: 'Complete-unit normalization proves the compiled Vim polarity and padded Label forms are equivalent to the authenticated source transition.',
+    },
+    {
+      id: 'target118-plugin-theme-count-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-plugin-theme-count-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 and Target118 plugin-management units and both target theme_count telemetry paths.',
+    },
+    {
+      id: 'target118-plugin-theme-count-complete-semantic-delta',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-plugin-theme-count-owner-proof.test.mjs',
+      detail: 'A complete three-edit AST delta isolates the synchronous theme loader and success/failure theme_count fields and proves Target119 retention.',
+    },
+    {
+      id: 'target118-plugin-theme-count-source-lineage-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-plugin-theme-count-owner-proof.test.mjs',
+      detail: 'Exact source lineage proves the recovered asynchronous no-argument loader cannot reproduce the authenticated synchronous call graph, deliberately blocking partial replay.',
+    },
+    {
+      id: 'target118-transcript-share-authenticated-paired-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-transcript-share-static-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins complete Target117 and Target118 submitTranscriptShare units and all four exact target-added residues.',
+    },
+    {
+      id: 'target118-transcript-share-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-transcript-share-static-owner-proof.test.mjs',
+      detail: 'Exact TypeScript AST binds the stat size destructure, size guard, transcript read, and generated version field to submitTranscriptShare.',
+    },
+    {
+      id: 'target118-transcript-share-build-metadata-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-transcript-share-static-owner-proof.test.mjs',
+      detail: 'Whole-unit canonical equality proves the paired units differ only by exact release build identity and bundle-local names.',
+    },
+    {
+      id: 'target118-feedback-survey-message-wrap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-feedback-survey-message-wrap-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the exact retained wrap contract in both Target117 and Target118 FeedbackSurveyView units and the sole strict residue.',
+    },
+    {
+      id: 'target118-feedback-survey-message-wrap-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-feedback-survey-message-wrap-source-gap.test.mjs',
+      detail: 'The bounded replay adds wrap="wrap" to the unique bold message child in either exact raw or strict-transitive source state and rejects drift.',
+    },
+    {
+      id: 'target118-feedback-survey-message-wrap-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-feedback-survey-message-wrap-source-gap.test.mjs',
+      detail: 'Exact TSX AST proves the recovered FeedbackSurveyView message child carries bold and wrap props with the message expression unchanged.',
+    },
+    {
+      id: 'target118-away-summary-runtime-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-away-summary-runtime-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 and Target118 useAwaySummary units, all five strict residues, and the exact result-contract fragments.',
+    },
+    {
+      id: 'target118-away-summary-runtime-result-contract-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-away-summary-runtime-owner-proof.test.mjs',
+      detail: 'Complete token normalization proves the only unit delta is the nullable-string to discriminated-result guard and text extraction.',
+    },
+    {
+      id: 'target118-away-summary-runtime-owner-lineage-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-away-summary-runtime-owner-proof.test.mjs',
+      detail: 'Exact Target118 and Target119 source ASTs bind the result guard, recap formatting, force gate, cache timing, and later retention to hooks/useAwaySummary.ts.',
+    },
+    {
+      id: 'target118-away-summary-runtime-source-replay-blocker',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-away-summary-runtime-owner-proof.test.mjs',
+      detail: 'Pinned source generations prove neither the old Target118 blur-timer graph nor the later background-trigger graph is an honest complete Target118 replay postimage.',
+    },
+    {
+      id: 'target118-sdk-control-interactions-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-sdk-control-interactions-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete retained Target117 and Target118 SDK-control initializer contexts and all four exact Target118 residues.',
+    },
+    {
+      id: 'target118-sdk-control-interactions-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-sdk-control-interactions-source-gap.test.mjs',
+      detail: 'The bounded replay restores the six host-interaction schemas and all three request-union branches atomically, idempotently, and fail closed.',
+    },
+    {
+      id: 'target118-sdk-control-interactions-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-sdk-control-interactions-source-gap.test.mjs',
+      detail: 'Exact source and complete-unit AST proofs bind MCP calls, user dialogs, and message ratings to the recovered SDK control schema owner.',
+    },
+    {
+      id: 'target118-repl-runtime-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-repl-runtime-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 and Target118 REPL units and every one of the Target118 unit’s 326 owner-residue rows.',
+    },
+    {
+      id: 'target118-repl-runtime-complete-transition',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-repl-runtime-owner-proof.test.mjs',
+      detail: 'The exact twenty-hunk normalized-token transition accounts for the complete REPL evolution and isolates the transcript-source additions from retained runtime forms.',
+    },
+    {
+      id: 'target118-repl-runtime-source-boundary',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-repl-runtime-owner-proof.test.mjs',
+      detail: 'Pinned historical source declarations and their exact transition authenticate src/screens/REPL.tsx as the complete Target118 unit owner.',
+    },
+    {
+      id: 'target118-repl-runtime-source-replay-blocker',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-repl-runtime-owner-proof.test.mjs',
+      detail: 'The historical source boundary omits the authenticated transcript-source and modal-keyboard tuple, deliberately blocking a partial source replay.',
+    },
+    {
+      id: 'target118-bootstrap-additional-model-costs-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-bootstrap-additional-model-costs-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete compiler-identical Target117 and Target118 bootstrap schema units and all four exact number residues.',
+    },
+    {
+      id: 'target118-bootstrap-additional-model-costs-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-bootstrap-additional-model-costs-source-gap.test.mjs',
+      detail: 'The bounded replay restores the exact authenticated additional_model_costs schema block atomically, idempotently, and fail closed.',
+    },
+    {
+      id: 'target118-bootstrap-additional-model-costs-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-bootstrap-additional-model-costs-source-gap.test.mjs',
+      detail: 'Exact source and complete-unit AST evidence proves every wire-format cost field and runtime transform belongs to bootstrapResponseSchema.',
+    },
+    {
+      id: 'target118-bedrock-model-probe-authenticated-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-bedrock-model-probe-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete alpha-equivalent Target117 and Target118 model-probe units and the sole strict timeout residue.',
+    },
+    {
+      id: 'target118-bedrock-model-probe-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-bedrock-model-probe-owner-proof.test.mjs',
+      detail: 'Exact TypeScript AST binds the region, timeout, credentials, proxy, one-token request, and 429 availability contract to probeBedrockModel.',
+    },
+    {
+      id: 'target118-vertex-model-probe-authenticated-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-vertex-model-probe-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete alpha-equivalent Target117 and Target118 Vertex model-probe units and the sole strict timeout residue.',
+    },
+    {
+      id: 'target118-vertex-model-probe-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-vertex-model-probe-owner-proof.test.mjs',
+      detail: 'Exact TypeScript AST binds the authentication, project, region, proxy, retry, timeout, one-token request, and 429 availability contract to probeVertexModel.',
+    },
+    {
+      id: 'target118-setup-proxy-auth-scope-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-setup-proxy-auth-scope-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target117 and Target118 setup units and the exact proxy-helper project/local scope fragment containing the retained projectSettings residue.',
+    },
+    {
+      id: 'target118-setup-proxy-auth-scope-alpha-equivalence',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-setup-proxy-auth-scope-owner-proof.test.mjs',
+      detail: 'Complete-unit conservative AST normalization proves the Target117 and Target118 setup implementations are alpha-equivalent.',
+    },
+    {
+      id: 'target118-setup-proxy-auth-scope-source-boundary',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-setup-proxy-auth-scope-owner-proof.test.mjs',
+      detail: 'The historical setup.ts boundary authenticates the owner while proving the compiled proxy-helper fragment has no complete source replay donor.',
+    },
+    {
+      id: 'target118-query-engine-inherited-class-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-query-engine-inherited-class-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 and Target118 QueryEngine classes and every exact strict residue.',
+    },
+    {
+      id: 'target118-query-engine-inherited-class-token-subsequence',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-query-engine-inherited-class-owner-proof.test.mjs',
+      detail: 'Canonical token alignment proves the complete predecessor class is an exact subsequence and maps every strict row to an inherited token in an identical neighborhood.',
+    },
+    {
+      id: 'target118-query-engine-inherited-class-source-boundary',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-query-engine-inherited-class-owner-proof.test.mjs',
+      detail: 'Exact historical and packaged QueryEngine source AST authenticates the class owner while deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target118-headless-classifier-dce-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-headless-classifier-dce-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target117 and Target118 runHeadless units, startup telemetry, permission callback, and exact residue rows.',
+    },
+    {
+      id: 'target118-headless-classifier-dce-transition-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-headless-classifier-dce-owner-proof.test.mjs',
+      detail: 'Removing only the classifier expression makes both complete runHeadless units alpha-identical, while event and durationMs remain exact predecessor syntax.',
+    },
+    {
+      id: 'target118-headless-classifier-dce-null-binding-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-headless-classifier-dce-owner-proof.test.mjs',
+      detail: 'Whole-bundle AST proves the optional classifier module binding is initialized to null, read once, and never assigned, making the property access a no-op.',
+    },
+    {
+      id: 'target118-headless-classifier-dce-source-boundary',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-headless-classifier-dce-owner-proof.test.mjs',
+      detail: 'Historical and packaged print.ts implement the exact notify-only callback resulting from the dead optional expression and authorize no classifier replay.',
+    },
+    {
+      id: 'target118-headless-streaming-inherited-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-headless-streaming-inherited-owner-proof.test.mjs',
+      detail: 'The proof pins the complete authenticated Target117 and Target118 runHeadlessStreaming function units and all twelve added-owner residue identities.',
+    },
+    {
+      id: 'target118-headless-streaming-inherited-token-predecessors',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-headless-streaming-inherited-owner-proof.test.mjs',
+      detail: 'Each residue maps to one unique raw-equal Target117 predecessor inside an identical sixty-one-token canonical neighborhood.',
+    },
+    {
+      id: 'target118-headless-streaming-inherited-source-boundary',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-headless-streaming-inherited-owner-proof.test.mjs',
+      detail: 'Exact historical and packaged print.ts declarations authenticate the owner and prove that replaying the omitted retained task-registry graph would be incomplete.',
+    },
+    {
+      id: 'target118-load-initial-messages-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-load-initial-messages-inherited-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target117 and Target118 loadInitialMessages units and all four strict residue identities.',
+    },
+    {
+      id: 'target118-load-initial-messages-deletion-subsequence',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-load-initial-messages-inherited-owner-proof.test.mjs',
+      detail: 'Canonical token alignment proves Target118 deletes only the post-turn-summary call and maps every strict row to an exact inherited predecessor context.',
+    },
+    {
+      id: 'target118-load-initial-messages-source-boundary',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-load-initial-messages-inherited-owner-proof.test.mjs',
+      detail: 'Historical and packaged print.ts declarations are exact for loadInitialMessages and require no source replay.',
+    },
+    {
+      id: 'target118-mcp-entrypoint-build-context-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-mcp-entrypoint-build-context-owner-proof.test.mjs',
+      detail: 'The proof pins both complete 679-token MCP entrypoint units and all seven owner-added rows atomically.',
+    },
+    {
+      id: 'target118-mcp-entrypoint-build-context-macro-normalization',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-mcp-entrypoint-build-context-owner-proof.test.mjs',
+      detail: 'Whole-unit token normalization accounts for exactly VERSION, BUILD_TIME, and GIT_SHA while mapping the other four rows to exact predecessor contexts.',
+    },
+    {
+      id: 'target118-mcp-entrypoint-build-context-source-transition',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-mcp-entrypoint-build-context-owner-proof.test.mjs',
+      detail: 'The historical source transition adds only the authenticated setReplContext no-op, and packaged startMCPServer is the exact Target118 declaration.',
+    },
+    {
+      id: 'target118-update-entrypoint-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs',
+      detail: 'The proof pins the complete authenticated Target117 and Target118 update units and all seventy-two owner-added rows atomically.',
+    },
+    {
+      id: 'target118-update-entrypoint-build-metadata-normalization',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs',
+      detail: 'Exactly twenty-three VERSION, BUILD_TIME, and GIT_SHA triples are normalized and mapped across the complete units.',
+    },
+    {
+      id: 'target118-update-entrypoint-inherited-residue-contexts',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs',
+      detail: 'The catch token and both dot tokens map to raw-equal Target117 predecessors inside identical seventeen-token canonical neighborhoods.',
+    },
+    {
+      id: 'target118-update-entrypoint-source-transition',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-update-entrypoint-owner-proof.test.mjs',
+      detail: 'Exact historical source proves the isEnvTruthy import, DISABLE_UPDATES guard, and Homebrew latest-tip additions and the packaged Target118 postimage.',
+    },
+    {
+      id: 'target118-main-entrypoint-inherited-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-main-entrypoint-inherited-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target117 and Target118 main entrypoint units and all twenty-three owner-added rows.',
+    },
+    {
+      id: 'target118-main-entrypoint-inherited-token-predecessors',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-main-entrypoint-inherited-owner-proof.test.mjs',
+      detail: 'Sixteen retained rows map to unique raw-equal Target117 predecessors in identical sixty-one-token canonical neighborhoods.',
+    },
+    {
+      id: 'target118-main-entrypoint-build-macro-normalization',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-main-entrypoint-inherited-owner-proof.test.mjs',
+      detail: 'Exact macro normalization accounts for both VERSION, BUILD_TIME, and GIT_SHA expansion triples.',
+    },
+    {
+      id: 'target118-main-entrypoint-plugin-tag-source-transition',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-main-entrypoint-inherited-owner-proof.test.mjs',
+      detail: 'The historical source transition authenticates the bounded pluginTagHandler integration while the prior proof blocks incomplete replay of unrelated retained context.',
+    },
+    {
+      id: 'target118-sessions-owner-source-gap-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-sessions-owner-source-gap.test.mjs',
+      detail: 'The source-root-aware test verifies the exact historical remote/SessionsWebSocket.ts class descriptor and surface, corrected coverage owner, and no-op idempotent replay.',
+    },
+    {
+      id: 'target118-strict-transitive-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-strict-transitive-owner-proofs.test.mjs',
+      detail: 'The authenticated target118 fixture pins all 65 corrected complete units, 283 residue identities, exact target ranges, and bounded historical owner reconstruction inputs.',
+    },
+    {
+      id: 'target118-strict-transitive-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-strict-transitive-owner-proofs.test.mjs',
+      detail: 'The source-root-aware test verifies every exact declaration, resource, module, compiler representation, and the seven fail-closed source replays with second-pass idempotence.',
+    },
+    {
+      id: 'target118-oauth-profile-source-gap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-oauth-profile-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins nine complete OAuth/profile units and all fifty-three target-added residue identities, ranges, ordinals, and target slice hashes.',
+    },
+    {
+      id: 'target118-oauth-profile-source-gap-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-oauth-profile-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact two-file Target119 source recovery into Target118, verifies onboarding/trial persistence declarations, and proves raw/recovered idempotence.',
+    },
+    {
+      id: 'target118-error-telemetry-source-gap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-error-telemetry-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete sanitizer, stack-parser, and safe-error metadata units plus all fourteen exact residue ranges and ordinals.',
+    },
+    {
+      id: 'target118-error-telemetry-source-gap-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-error-telemetry-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the bounded crash-metadata helpers and handler call sites, executes redaction and stack parsing, and proves pinned idempotence.',
+    },
+    {
+      id: 'target118-direct-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-direct-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 fixture pins four complete target units and all nine exact residue ranges for the theme, context, IDE onboarding, and away-summary declarations.',
+    },
+    {
+      id: 'target118-direct-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-direct-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test verifies exact historical file descriptors and declaration-scoped markers for all four corrected owners as one atomic correction set.',
+    },
+    {
+      id: 'target118-secondary-direct-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-secondary-direct-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 fixture pins three complete target units and all nine exact residue identities, ranges, ordinals, and target slice hashes.',
+    },
+    {
+      id: 'target118-secondary-direct-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-secondary-direct-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test verifies the historical plan-instruction, marketplace-management, and plugin-component declarations and their exact source descriptors as one atomic proof set.',
+    },
+    {
+      id: 'target118-secondary-static-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-secondary-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 fixture pins three complete target units and their exact unlink, eligibility, and system-prompt residue identities and target slices.',
+    },
+    {
+      id: 'target118-secondary-static-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-secondary-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test verifies the exact Shell executor, passes command export, and system-prompt declarations and historical source descriptors as one atomic proof set.',
+    },
+    {
+      id: 'target118-theme-picker-state-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-theme-picker-state-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete theme-picker state unit, all three target-added residue identities, and its exact picker/editor transition fragments.',
+    },
+    {
+      id: 'target118-theme-picker-state-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-theme-picker-state-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the discriminated picker/editor state and custom-theme conversion graph into the exact historical source preimage and proves idempotent AST-valid output.',
+    },
+    {
+      id: 'target118-schedule-one-off-gate-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-schedule-one-off-gate-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete schedule prompt and invocation units and all thirty exact one-off-gate residue identities, ranges, ordinals, and target slices.',
+    },
+    {
+      id: 'target118-schedule-one-off-gate-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-schedule-one-off-gate-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the bounded tengu_mocha_barista prompt gate, executes enabled and recurring-only prompt behavior, and proves exact idempotence.',
+    },
+    {
+      id: 'target118-tertiary-static-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-tertiary-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 fixture pins four complete target units and the exact marketplace validation, WIF binding, remote-color binding, and referral eligibility residue identities.',
+    },
+    {
+      id: 'target118-tertiary-static-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-tertiary-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test proves the folded validation string, both dynamic-import bindings and calls, and the guest-passes eligibility binding and return inside exact historical declarations.',
+    },
+    {
+      id: 'target118-quaternary-static-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-quaternary-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 fixture pins ten complete units and all eleven exact module-state, binding, JSX, memo-cache, named-import, and constant-fold residue identities.',
+    },
+    {
+      id: 'target118-quaternary-static-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-quaternary-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test binds every residue to its exact historical declaration and proves the bounded module-state-object, JSX-key, React-cache, named-import, and string-length compiler lowerings.',
+    },
+    {
+      id: 'target118-quinary-static-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-quinary-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 fixture pins both exact module export registries, their four bound runtime declarations, and the common plan-template prefix extracted into a shared module literal.',
+    },
+    {
+      id: 'target118-quinary-static-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-quinary-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test proves four exported declarations and their generated bindings plus the exact two-source-template to two-target-reference common-prefix lowering.',
+    },
+    {
+      id: 'target118-wif-static-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-wif-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete workload-identity export registry, both target-added export properties, and their exact compiled function declarations.',
+    },
+    {
+      id: 'target118-wif-static-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-wif-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test proves withCredentialsLock and getWIFAuthType in services/api/workloadIdentity.ts and rejects the coarse utils/model/model.ts attribution.',
+    },
+    {
+      id: 'target118-command-alias-selection-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-command-alias-selection-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins both complete command-selection units and the two exact matchedAlias runtime property sites.',
+    },
+    {
+      id: 'target118-command-alias-selection-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-command-alias-selection-source-gap.test.mjs',
+      detail: 'The source-root-aware test atomically replays the typed suggestion payload and guarded alias selection, executes valid and spoofed alias paths, and proves exact idempotence.',
+    },
+    {
+      id: 'target118-collapsed-shell-label-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-collapsed-shell-label-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete CollapsedReadSearchContent function and the exact shell-label residue within its Bash and PowerShell activity renderer.',
+    },
+    {
+      id: 'target118-collapsed-shell-label-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-collapsed-shell-label-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays only the stale bash-to-shell label, verifies the surrounding JSX and progress-message declaration graph, and proves exact idempotence and mutation rejection.',
+    },
+    {
+      id: 'target118-session-memory-last-message-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-session-memory-last-message-source-gap.test.mjs',
+      detail: 'The authenticated Target118 fixture pins the complete session-memory extraction hook and its exact Array.prototype.at property residue before usage telemetry is recorded.',
+    },
+    {
+      id: 'target118-session-memory-last-message-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-session-memory-last-message-source-gap.test.mjs',
+      detail: 'The source-root-aware test replaces only the stale length-index expression with the authenticated at(-1) call, verifies the complete extraction declaration, and proves exact idempotence and mutation rejection.',
+    },
+    {
+      id: 'target118-mcp-tool-hook-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-mcp-tool-hook-source-gaps.test.mjs',
+      detail: 'The authenticated Target118 fixture pins four complete hook declarations and all six MCP-tool identity, display, label, and value residues by exact range and structural hash.',
+    },
+    {
+      id: 'target118-mcp-tool-hook-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.118-mcp-tool-hook-source-gaps.test.mjs',
+      detail: 'The source-root-aware test atomically replays MCP-tool equality and display behavior into hooksSettings and ViewHookMode, executes all branches, and proves exact idempotence and mixed-state rejection.',
+    },
+    {
+      id: 'target117-strict-alternate-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.117-strict-alternate-owner-proofs.test.mjs',
+      detail: 'The authenticated target117 fixture pins each complete target unit, every typed residue ordinal and range, and the unique declaration-local alternate owner while rejecting unrelated text-only candidates.',
+    },
+    {
+      id: 'target117-strict-alternate-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-strict-alternate-owner-proofs.test.mjs',
+      detail: 'The dual-root source AST test proves all eleven corrected owners, runtime imports, declaration-local residue roles, temporal identities, and the all-or-nothing coverage correction.',
+    },
+    {
+      id: 'target117-paired-local-residue-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.117-paired-local-residue-proofs.test.mjs',
+      detail: 'The authenticated target117 proof pins unique-coarse baseline and target unit pairs whose globally shifted residues retain identical nonzero unit-local AST multiplicity.',
+    },
+    {
+      id: 'target117-paired-local-residue-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.117-paired-local-residue-proofs.test.mjs',
+      detail: 'The source-root-aware paired-unit test verifies exact target ordinals, ranges, local AST counts, structural hashes, and owner availability for every admitted complete unit.',
+    },
+    ...['118', '119'].flatMap(version => [
+      {
+        id: `target${version}-owner-residue-target-fragment`,
+        kind: 'target-fragment',
+        path: 'recovery/test/recovery-late-owner-residue-analysis.test.mjs',
+        detail: `The target${version} fixture authenticates every represented complete unit and residue while binding each proof to an exact owner, sole alternate attribution candidate, or reviewed semantic obligation.`,
+      },
+      {
+        id: `target${version}-owner-residue-static-ast`,
+        kind: 'static-ast',
+        path: 'recovery/test/recovery-late-owner-residue-analysis.test.mjs',
+        detail: `The target${version} fixture pins the complete compiler-normalized target slice and exact historical source inputs for each bounded compiler representation.`,
+      },
+      {
+        id: `target${version}-owner-residue-semantic-test`,
+        kind: 'semantic-test',
+        path: 'recovery/test/recovery-late-owner-residue-analysis.test.mjs',
+        detail: `The target${version} dynamic test replays the production scanner and checks complete-unit partitions, source descriptors, obligation test witnesses, and fail-closed supplement/dependency gaps.`,
+      },
+    ]),
+    {
+      id: 'target119-agent-sdk-build-input-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-late-owner-residue-analysis.test.mjs',
+      detail: 'The authenticated target119 fixture pins all 82 embedded Claude Agent SDK, MCP, and session-store runtime units and 1,430 typed residues as an external dependency build-input interval rather than misattributed first-party source.',
+    },
+    {
+      id: 'target119-transitive-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-transitive-owner-proofs.test.mjs',
+      detail: 'The authenticated target119 fixture pins all 200 corrected complete units, 1,588 target-added residues, exact target ranges and hashes, and the sole common historical source owner for every non-macro residue.',
+    },
+    {
+      id: 'target119-transitive-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-transitive-owner-proofs.test.mjs',
+      detail: 'The source-root-aware test verifies 59 exact target119 source files, 165 declaration-local proofs, 24 file-scoped AST proofs, eight resource proofs, corrected coverage ownership, and authenticated residue closure while rejecting three incomplete owner changes.',
+    },
+    {
+      id: 'target119-binding-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-binding-owner-proofs.test.mjs',
+      detail: 'The authenticated target119 fixture pins three complete units and all ten typed residues whose original source owners use TypeScript binding elements or build macros that the generic residue scanner cannot count directly.',
+    },
+    {
+      id: 'target119-binding-owner-static-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-binding-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test verifies constraint, OAuth helper, cancellation, and connection-summary bindings in the exact original owners and rejects misleading alternate whole-owner moves that create new unmatched residues.',
+    },
+    {
+      id: 'target119-daemon-cluster-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-daemon-cluster-residue-proofs.test.mjs',
+      detail: 'The authenticated Target119 fixture pins all 191 complete compiled units and 3,143 typed residues in the classifier, daemon bootstrap, hub, background CLI, supervisor, and FleetView intervals.',
+    },
+    {
+      id: 'target119-daemon-cluster-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-daemon-cluster-residue-proofs.test.mjs',
+      detail: 'The source-root-aware cluster test verifies the exact recovered multi-file source descriptors, complete target slices, frozen group boundaries, and row-scoped coverage ownership.',
+    },
+    {
+      id: 'target119-daemon-fleet-query-runtime-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs',
+      detail: 'The existing authenticated runtime suite executes daemon authentication, scheduling, UDS, hub mutation, fleet rendering, classifier, context, deduplication, and connection lifecycle behavior.',
+    },
+    {
+      id: 'target119-bootstrap-additional-model-costs-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-bootstrap-additional-model-costs-source-gap.test.mjs',
+      detail: 'The authenticated Target119 fixture pins the complete bootstrap additional-model-costs unit and all eleven exact schema, wire, and runtime-transform residue identities.',
+    },
+    {
+      id: 'target119-bootstrap-additional-model-costs-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-bootstrap-additional-model-costs-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays only the authenticated additional_model_costs schema and transform block into the exact historical bootstrap source and proves idempotence.',
+    },
+    {
+      id: 'target119-later-donor-runtime-source-gap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-later-donor-runtime-source-gaps.test.mjs',
+      detail: 'The authenticated Target119 fixture pins the complete environment, Agent tool, and shell-command units and their three exact target-added residue identities.',
+    },
+    {
+      id: 'target119-later-donor-runtime-source-gap-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-later-donor-runtime-source-gaps.test.mjs',
+      detail: 'The source-root-aware test replays only bounded runtime declarations authenticated in Target119 and later donor source, rejecting unrelated later-file evolution and proving exact idempotence.',
+    },
+    {
+      id: 'target119-direct-declaration-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-direct-declaration-owner-proofs.test.mjs',
+      detail: 'The authenticated Target119 fixture pins three complete background, away-summary, and job-state synchronization units and all fifty-one exact residue identities and target slices.',
+    },
+    {
+      id: 'target119-direct-declaration-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-direct-declaration-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test verifies each unique declaration owner, forty-eight declaration-local residues, and the rm, join, and watch named-import call lowerings.',
+    },
+    {
+      id: 'target119-pro-trial-start-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-pro-trial-start-owner-proofs.test.mjs',
+      detail: 'The authenticated Target119 fixture pins the live ProTrialStartScreen named-export binding, the complete screen declaration, the bounded showSetupScreens consumer edge, and all thirty-eight exact residue identities across those three units.',
+    },
+    {
+      id: 'target119-pro-trial-start-owner-source-compiler-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-pro-trial-start-owner-proofs.test.mjs',
+      detail: 'The source-root-aware proof authenticates the exported screen declaration, JSX and memo-cache lowering, module initializer/getter binding, and the conditional dynamic-import/render consumer in interactiveHelpers.tsx while excluding unrelated startup and build-metadata rows.',
+    },
+    {
+      id: 'target119-sdk-rate-limit-fetch-error-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-sdk-rate-limit-fetch-error-source-gap.test.mjs',
+      detail: 'The authenticated Target119 fixture pins the complete SDK schema and extra-usage access units and all twenty-two exact source-authored residue identities and target slices.',
+    },
+    {
+      id: 'target119-sdk-rate-limit-fetch-error-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-sdk-rate-limit-fetch-error-source-gap.test.mjs',
+      detail: 'The source-root-aware test atomically replaces the obsolete org_service_zero_credit_limit reason with the authenticated fetch_error reason in both the SDK schema and one-million-token access switch, rejecting mixed states and proving idempotence.',
+    },
+    {
+      id: 'target119-secondary-static-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-secondary-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target119 fixture pins seven complete units and all ten named-import, build-metadata, and typeof-minification residue identities and target slices.',
+    },
+    {
+      id: 'target119-secondary-static-owner-source-compiler-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-secondary-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware proof binds every residue to its already-correct named declaration and exact named-import, build-metadata, or typeof-undefined compiler representation.',
+    },
+    {
+      id: 'target119-uds-client-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-uds-client-owner-proofs.test.mjs',
+      detail: 'The authenticated Target119 fixture pins the complete UDS module window, three complete target units, and all four connect, procStart, sessionKind, and sessionStatus residue identities.',
+    },
+    {
+      id: 'target119-uds-client-owner-source-binding-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-uds-client-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST proof binds probeSocket, listAllLiveSessions, and the closed live-session validators to src/utils/udsClient.ts and rejects the coarse utils/fileHistory.ts attribution.',
+    },
+    {
+      id: 'target119-uds-registry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-uds-registry-source-gap.test.mjs',
+      detail: 'The authenticated Target119 fixture pins the complete readRegistry unit and all eighteen exact parser, nullish-default, and registry-field residues.',
+    },
+    {
+      id: 'target119-uds-registry-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-uds-registry-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the bounded readRegistry implementation in utils/udsClient.ts, proves raw and recovered semantics and idempotence, and rejects partial or mutated states.',
+    },
+    {
+      id: 'target119-tertiary-declaration-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-tertiary-declaration-owner-proofs.test.mjs',
+      detail: 'The authenticated Target119 fixture pins six complete units and all nine exact pull-request cache, Pro trial, exit-flow, and MCP retry-delay residue identities and target slices.',
+    },
+    {
+      id: 'target119-tertiary-declaration-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-tertiary-declaration-owner-proofs.test.mjs',
+      detail: 'The source-root-aware proof searches the complete historical source universe and requires one sole top-level declaration that represents every residue in each corrected unit.',
+    },
+    {
+      id: 'target119-push-notification-config-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-push-notification-config-source-gap.test.mjs',
+      detail: 'The authenticated Target119 fixture pins both complete push-notification eligibility units and the exact settings-backed agentPushNotifEnabled residues.',
+    },
+    {
+      id: 'target119-push-notification-config-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-push-notification-config-source-gap.test.mjs',
+      detail: 'The atomic source replay replaces both stale direct config reads with the settings-backed getConfigValue contract, validates exact postimages, and proves idempotence and partial-state rejection.',
+    },
+    {
+      id: 'target119-entrypoint-routing-complete-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-entrypoint-routing-source-gap.test.mjs',
+      detail: 'The authenticated Target119 proof pins the complete entrypoint catalog and GrowthBook attribute units, all three target-added residue identities, and the exact bootstrap and startup call graph.',
+    },
+    {
+      id: 'target119-entrypoint-routing-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-entrypoint-routing-source-gap.test.mjs',
+      detail: 'The four-file source replay restores validated entrypoint routing, startup session classification, bootstrap state, and GrowthBook consumption atomically and proves behavioral parity and idempotence.',
+    },
+    {
+      id: 'target119-entrypoint-routing-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-entrypoint-routing-source-gap.test.mjs',
+      detail: 'The source and compiler proof binds every recovered declaration and call site, and reproduces the authenticated external-build releaseChannel lowering as an undefined guarded spread while retaining the live entrypoint attribute.',
+    },
+    {
+      id: 'target119-first-prompt-entry-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-first-prompt-entry-owner-proof.test.mjs',
+      detail: 'The authenticated Target119 proof pins the complete parsed-entry prompt helper, its regex initializer, and both commandFallback properties plus the bash-input regexp residue.',
+    },
+    {
+      id: 'target119-first-prompt-entry-exact-source-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-first-prompt-entry-owner-proof.test.mjs',
+      detail: 'The source-root-aware test proves sessionStoragePortable is the sole TypeScript owner with the complete prompt state-machine surface, rejects windowsPaths, and executes the target helper against the recovered source behavior.',
+    },
+    {
+      id: 'target119-first-prompt-entry-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-first-prompt-entry-owner-proof.test.mjs',
+      detail: 'The static proof pins the exact extractFirstPromptFromHead, command-name, and skip-pattern declarations and binds every target residue to the source state machine.',
+    },
+    {
+      id: 'target119-default-branch-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-default-branch-owner-proof.test.mjs',
+      detail: 'The authenticated Target119 proof pins the complete git initializer unit, the exact default-branch resolver, and the origin-prefix, master, and show-ref residue identities.',
+    },
+    {
+      id: 'target119-default-branch-source-transition-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-default-branch-owner-proof.test.mjs',
+      detail: 'The executable transition proof compares the target command-backed resolver to the recovered filesystem-backed resolver across symref, main, master, and fallback states.',
+    },
+    {
+      id: 'target119-default-branch-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-default-branch-owner-proof.test.mjs',
+      detail: 'The static proof pins git.ts#getDefaultBranch and gitFilesystem.ts#computeDefaultBranch and verifies their ordered cached delegation, origin HEAD validation, ref existence checks, and main fallback.',
+    },
+    {
+      id: 'target119-datadog-event-catalog-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-datadog-event-catalog-source-gap.test.mjs',
+      detail: 'The authenticated Target119 proof pins the complete 85-event Datadog initializer, its live allowlist consumer, and all 30 background and daemon event residues.',
+    },
+    {
+      id: 'target119-datadog-event-catalog-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-datadog-event-catalog-source-gap.test.mjs',
+      detail: 'The bounded replay restores the exact Target119 event and searchable-tag catalogs, proves idempotence, and rejects any unknown source state.',
+    },
+    {
+      id: 'target119-datadog-event-catalog-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-datadog-event-catalog-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof pins both catalog declarations and their live trackDatadogEvent allowlist and tag-selection consumers.',
+    },
+    {
+      id: 'target119-slate-meadow-background-agent-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-slate-meadow-background-agent-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 built-in selection function, its background-agent export and definition units, and both slate-meadow residues.',
+    },
+    {
+      id: 'target119-slate-meadow-background-agent-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-slate-meadow-background-agent-source-gap.test.mjs',
+      detail: 'The atomic replay reuses the exact earlier recovered agent definition, adds only the Target119 feature gate and alias import, and proves idempotence and mixed-state rejection.',
+    },
+    {
+      id: 'target119-slate-meadow-background-agent-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-slate-meadow-background-agent-source-gap.test.mjs',
+      detail: 'The static proof binds the CLAUDE_AGENT alias, tengu_slate_meadow gate, and list insertion to getBuiltInAgents and the recovered backgroundJobAgent declaration.',
+    },
+    {
+      id: 'target119-slate-meadow-retained-agent-donor-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-slate-meadow-background-agent-source-gap.test.mjs',
+      detail: 'The lineage proof pins the byte-identical Target117 recovered source donor and the coarse-equivalent Target117 and Target119 compiled agent-definition units.',
+    },
+    {
+      id: 'target119-graceful-shutdown-output-errors-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-graceful-shutdown-output-errors-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 shutdown initializer, both strict residues, and the retained daemon SIGHUP branch inherited from Target118.',
+    },
+    {
+      id: 'target119-graceful-shutdown-output-errors-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-graceful-shutdown-output-errors-source-gap.test.mjs',
+      detail: 'The atomic replay centralizes output-error ownership across gracefulShutdown, process, and print, proves EPIPE/EIO behavior, idempotence, and mixed-state rejection.',
+    },
+    {
+      id: 'target119-graceful-shutdown-output-errors-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-graceful-shutdown-output-errors-source-gap.test.mjs',
+      detail: 'The TypeScript AST proof binds the daemon SIGHUP guard and stdout error callback to setupGracefulShutdown and verifies print no longer installs a competing local handler.',
+    },
+    {
+      id: 'target119-process-output-error-handler-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-graceful-shutdown-output-errors-source-gap.test.mjs',
+      detail: 'The authenticated supporting target unit proves the new process output handler destroys EPIPE and EIO streams and forwards only stdout failures to its callback.',
+    },
+    {
+      id: 'target119-mcp-terminal-error-boundary-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-mcp-terminal-error-boundary-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 MCP terminal-error predicate and its exact terminated word-boundary residue.',
+    },
+    {
+      id: 'target119-mcp-terminal-error-boundary-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-mcp-terminal-error-boundary-source-gap.test.mjs',
+      detail: 'The bounded replay atomically updates the predicate signature, AbortError behavior, word-boundary test, and sole Error-valued caller with exact idempotence and drift rejection.',
+    },
+    {
+      id: 'target119-mcp-terminal-error-boundary-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-mcp-terminal-error-boundary-source-gap.test.mjs',
+      detail: 'The TypeScript AST and executable matrix prove the recovered source predicate is equivalent to the authenticated target across abort, network, SSE, exact-word, substring, and unrelated errors.',
+    },
+    {
+      id: 'target119-parked-agent-lifecycle-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-parked-agent-lifecycle-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins both complete lifecycle units, their LocalAgentTask neighbors, and the sole live wake-router parked-predicate consumer.',
+    },
+    {
+      id: 'target119-parked-agent-lifecycle-forward-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-parked-agent-lifecycle-owner-proof.test.mjs',
+      detail: 'Exact normalized structural lineage proves the lifecycle classifier, parked predicate, and wake consumer remain unchanged through Target121.',
+    },
+    {
+      id: 'target119-parked-agent-lifecycle-source-semantic-equivalence',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-parked-agent-lifecycle-owner-proof.test.mjs',
+      detail: 'The source AST and exhaustive state matrix bind LocalAgentTask keepalive/eviction fields to the inline wake-router condition without inventing private helper names.',
+    },
+    {
+      id: 'target119-messages-context-target-fragments',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-messages-readonly-skills-context-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete read-only tool formatter and attachment dispatcher plus all fifteen exact owner-residue ranges.',
+    },
+    {
+      id: 'target119-messages-context-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-messages-readonly-skills-context-source-gap.test.mjs',
+      detail: 'The atomic one-file replay restores both embedded tool labels and the post-compaction invoked-skills warning with exact idempotence and drift rejection.',
+    },
+    {
+      id: 'target119-messages-context-runtime-parity-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-messages-readonly-skills-context-source-gap.test.mjs',
+      detail: 'Executable parity tests compare every allowlist branch and the exact invoked-skills template output against the authenticated Target119 units.',
+    },
+    {
+      id: 'target119-agent-detail-relay-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-agent-detail-relay-owner-proofs.test.mjs',
+      detail: 'The authenticated proof pins the complete AgentDetail tool renderer, the paired upstream-relay module initializer, and all four exact residue ranges.',
+    },
+    {
+      id: 'target119-agent-detail-relay-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-agent-detail-relay-owner-proofs.test.mjs',
+      detail: 'Exact source AST and executable branch scenarios bind wildcard, empty, unavailable, and invalid tool rendering to AgentDetail and reject agentFileUtils.',
+    },
+    {
+      id: 'target119-agent-detail-relay-compiler-normalization-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-agent-detail-relay-owner-proofs.test.mjs',
+      detail: 'The compiler-lineage proof binds the authored node:net import to the exact coarse-identical Target118/119 require("net") initializers.',
+    },
+    {
+      id: 'target119-migration-session-memory-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-migration-session-memory-static-owner-proofs.test.mjs',
+      detail: 'The authenticated proof pins both migration functions and the complete session-memory initializer against their unique coarse-identical Target118 predecessors.',
+    },
+    {
+      id: 'target119-migration-session-memory-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-migration-session-memory-static-owner-proofs.test.mjs',
+      detail: 'Exact TypeScript declarations bind the bypass and Sonnet migrations to their true owners, reject the stale Opus attribution, and bind extraction telemetry to SessionMemory.',
+    },
+    {
+      id: 'target119-migration-session-memory-retained-compiler-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-migration-session-memory-static-owner-proofs.test.mjs',
+      detail: 'Paired-unit and executable evidence prove the strict zeros are global occurrence shifts and messages[length-1] is equivalent to the authenticated Array.at(-1) lowering.',
+    },
+    {
+      id: 'target119-binary-command-validation-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-binary-command-validation-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete binary-validation function and platform-pattern initializer plus their exact string and regexp residues.',
+    },
+    {
+      id: 'target119-binary-command-validation-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-binary-command-validation-source-gap.test.mjs',
+      detail: 'The bounded replay restores the exact later-donor platform import, safe-name patterns, and pre-cache rejection guard with idempotent fail-closed output.',
+    },
+    {
+      id: 'target119-binary-command-validation-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-binary-command-validation-source-gap.test.mjs',
+      detail: 'The source AST and executable platform matrices prove unsafe names are rejected before cache or PATH lookup and preserve Windows and Unix command syntax.',
+    },
+    {
+      id: 'target119-autofix-pr-runtime-authenticated-wrapper-core-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-runtime-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 autofix-pr async wrapper/core pair, all 182 owner rows, and all 18 target-added runtime residues.',
+    },
+    {
+      id: 'target119-autofix-pr-runtime-ui-consumer-module-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-runtime-owner-proof.test.mjs',
+      detail: 'Exact module-initializer and UI callsite evidence binds the extracted runtime pair to the public autofix-pr command implementation boundary.',
+    },
+    {
+      id: 'target119-autofix-pr-runtime-cross-release-stability-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-runtime-owner-proof.test.mjs',
+      detail: 'Canonical whole-unit AST equality proves the complete wrapper/core runtime is retained through Target120 and Target121.',
+    },
+    {
+      id: 'target119-autofix-pr-runtime-source-lineage-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-runtime-owner-proof.test.mjs',
+      detail: 'Historical source snapshots and executable fixture checks prove the public command owner remains stale and no authenticated complete replay donor exists, deliberately blocking a partial source rewrite.',
+    },
+    {
+      id: 'target119-autofix-pr-ui-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-ui-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 AutofixPr UI unit, its full compiler-cache layout, and all four target-added UI residues.',
+    },
+    {
+      id: 'target119-autofix-pr-ui-runtime-wrapper-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-ui-owner-proof.test.mjs',
+      detail: 'Exact adapter, initializer, lazy-loader, and wrapper-result evidence binds the UI to the separately proved autofix-pr runtime and public command owner.',
+    },
+    {
+      id: 'target119-autofix-pr-ui-cross-release-stability-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-ui-owner-proof.test.mjs',
+      detail: 'Canonical whole-unit comparison proves the complete AutofixPr UI semantics are preserved in Target120 and Target121.',
+    },
+    {
+      id: 'target119-autofix-pr-ui-source-lineage-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-autofix-pr-ui-owner-proof.test.mjs',
+      detail: 'Source lineage proves the packaged owner remains the stale inline Target118 implementation and cannot honestly reproduce the extracted runtime/result UI, blocking a partial replay.',
+    },
+    {
+      id: 'target119-autocompact-dialog-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-autocompact-dialog-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete 49-slot AutoCompactDialog unit and every one of its seventeen target-added runtime residues.',
+    },
+    {
+      id: 'target119-autocompact-dialog-caller-loader-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-autocompact-dialog-owner-proof.test.mjs',
+      detail: 'Exact export, adapter, initializer, and local-JSX loader evidence binds the dialog to the autocompact command implementation boundary.',
+    },
+    {
+      id: 'target119-autocompact-dialog-source-owner-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-autocompact-dialog-owner-proof.test.mjs',
+      detail: 'The focused source proof authenticates the packaged autocompact declaration as the owner of the model-window selection, warning, and apply/cancel semantics.',
+    },
+    {
+      id: 'target119-autocompact-dialog-temporal-evolution-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-autocompact-dialog-owner-proof.test.mjs',
+      detail: 'Whole-unit temporal comparison isolates the Target119 chord-aware shortcut evolution and complete compiler-cache layout.',
+    },
+    {
+      id: 'target119-autocompact-dialog-source-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-autocompact-dialog-owner-proof.test.mjs',
+      detail: 'Exact dependency and type evidence proves the packaged shortcut component lacks the target chord API, deliberately blocking a partial source replay.',
+    },
+    {
+      id: 'target119-doctor-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-doctor-whole-unit-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target118 and Target119 Doctor units and every exact owner-residue identity and target slice.',
+    },
+    {
+      id: 'target119-doctor-release-channel-delta-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-doctor-whole-unit-owner-proof.test.mjs',
+      detail: 'Complete-unit AST comparison isolates the exact release metadata and rc-to-slow channel rendering delta while preserving all other Doctor statements.',
+    },
+    {
+      id: 'target119-doctor-background-server-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-doctor-whole-unit-owner-proof.test.mjs',
+      detail: 'Authenticated BackgroundServer, daemon-gate, status, and Doctor initializer evidence binds the added child to the Doctor implementation boundary.',
+    },
+    {
+      id: 'target119-doctor-export-initializer-lineage-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-doctor-whole-unit-owner-proof.test.mjs',
+      detail: 'The focused proof validates the exact Doctor export, module initializer, runtime dependencies, and cross-release lineage.',
+    },
+    {
+      id: 'target119-doctor-retained-occurrence-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-doctor-whole-unit-owner-proof.test.mjs',
+      detail: 'Exact AST-path evidence proves the Node and tree residue rows are retained Doctor syntax rather than newly introduced behavior.',
+    },
+    {
+      id: 'target119-doctor-source-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-doctor-whole-unit-owner-proof.test.mjs',
+      detail: 'Pinned Target119 and Target120 source states prove neither is an exact donor for the authenticated Target119 unit, deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target119-condensed-logo-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-condensed-logo-trial-badge-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete 57-slot CondensedLogo unit, predecessor, exact trial-badge block, and sole strict expired residue.',
+    },
+    {
+      id: 'target119-condensed-logo-trial-badge-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-condensed-logo-trial-badge-owner-proof.test.mjs',
+      detail: 'Complete-unit AST evidence isolates the trial-state lookup, formatted badge, width reservation, and active-versus-expired billing layouts.',
+    },
+    {
+      id: 'target119-condensed-logo-path-layout-delta-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-condensed-logo-trial-badge-owner-proof.test.mjs',
+      detail: 'The normalized whole-unit comparison proves the filtered agent/cwd layout change is the only companion runtime delta.',
+    },
+    {
+      id: 'target119-condensed-logo-pro-trial-dependency-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-condensed-logo-trial-badge-owner-proof.test.mjs',
+      detail: 'Authenticated pro-trial source and runtime helpers bind the trial state and badge formatter dependencies to CondensedLogo.',
+    },
+    {
+      id: 'target119-condensed-logo-runtime-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-condensed-logo-trial-badge-owner-proof.test.mjs',
+      detail: 'Adjacent initializer, selectors, unique logo markers, and Target120/121 canonical identity authenticate the runtime lineage and owner boundary.',
+    },
+    {
+      id: 'target119-condensed-logo-source-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-condensed-logo-trial-badge-owner-proof.test.mjs',
+      detail: 'Pinned source snapshots omit the authenticated trial contract and therefore deliberately block a partial or later-source replay.',
+    },
+    {
+      id: 'target119-logo-v2-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-logo-v2-trial-badge-owner-proof.test.mjs',
+      detail: 'The proof pins the complete 131-slot LogoV2 unit, its predecessor, and all five added-owner rows.',
+    },
+    {
+      id: 'target119-logo-v2-trial-badge-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-logo-v2-trial-badge-owner-proof.test.mjs',
+      detail: 'Whole-unit AST evidence isolates the pro-trial lookup, formatted badge, active-versus-expired styling, and both billing layouts.',
+    },
+    {
+      id: 'target119-logo-v2-path-and-theme-delta-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-logo-v2-trial-badge-owner-proof.test.mjs',
+      detail: 'The normalized predecessor comparison proves the companion config-backed theme and filtered path-segment changes exactly.',
+    },
+    {
+      id: 'target119-logo-v2-pro-trial-dependency-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-logo-v2-trial-badge-owner-proof.test.mjs',
+      detail: 'Authenticated pro-trial runtime helpers bind billingType and expired semantics to LogoV2.',
+    },
+    {
+      id: 'target119-logo-v2-runtime-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-logo-v2-trial-badge-owner-proof.test.mjs',
+      detail: 'Adjacent initializer and cross-release canonical evidence authenticate the LogoV2 runtime lineage and owner boundary.',
+    },
+    {
+      id: 'target119-logo-v2-source-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-logo-v2-trial-badge-owner-proof.test.mjs',
+      detail: 'Pinned source through Target121 omits the complete trial and filtered-path contracts, deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target119-auto-mode-denials-provider-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-auto-mode-denials-context-owner-proof.test.mjs',
+      detail: 'The proof pins the complete provider unit and its sole ref-backed removeDenial property delta.',
+    },
+    {
+      id: 'target119-auto-mode-denials-context-default-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-auto-mode-denials-context-owner-proof.test.mjs',
+      detail: 'Complete initializer AST proves the matching no-op context default is the sole companion delta.',
+    },
+    {
+      id: 'target119-auto-mode-denials-module-and-app-boundary-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-auto-mode-denials-context-owner-proof.test.mjs',
+      detail: 'The exact hook, module initializer, and App provider wrapper bind both units to autoModeDenials.ts.',
+    },
+    {
+      id: 'target119-auto-mode-denials-runtime-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-auto-mode-denials-context-owner-proof.test.mjs',
+      detail: 'Target120 and Target121 complete-unit identity proves the context removal contract persists unchanged.',
+    },
+    {
+      id: 'target119-auto-mode-denials-source-graph-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-auto-mode-denials-context-owner-proof.test.mjs',
+      detail: 'Pinned Target119 and Target121 source graphs are each incomplete donors, deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target119-rate-limit-options-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-rate-limit-options-usage-label-owner-proof.test.mjs',
+      detail: 'The proof pins the complete 28-slot Target119 RateLimitOptionsMenu unit, predecessor, and every added-owner row.',
+    },
+    {
+      id: 'target119-rate-limit-options-usage-label-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-rate-limit-options-usage-label-owner-proof.test.mjs',
+      detail: 'Whole-unit AST evidence isolates usage-based billing detection and its request, add-funds, switch, and stop-label behavior.',
+    },
+    {
+      id: 'target119-rate-limit-options-retained-overage-row-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-rate-limit-options-usage-label-owner-proof.test.mjs',
+      detail: 'The overage residue is proven to be an exact retained predecessor token rather than a new Target119 semantic delta.',
+    },
+    {
+      id: 'target119-rate-limit-options-module-boundary-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-rate-limit-options-usage-label-owner-proof.test.mjs',
+      detail: 'The export, caller, bindings, and initializer evidence bind the complete unit to RateLimitOptionsMenu without an adjacent dependency claim.',
+    },
+    {
+      id: 'target119-rate-limit-options-runtime-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-rate-limit-options-usage-label-owner-proof.test.mjs',
+      detail: 'Target120 and Target121 canonical identity proves that the authenticated usage-label runtime persists unchanged.',
+    },
+    {
+      id: 'target119-rate-limit-options-source-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-rate-limit-options-usage-label-owner-proof.test.mjs',
+      detail: 'Pinned source and later reconstruction states are not exact complete-unit donors, deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target119-settings-config-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-settings-config-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 Config unit, its predecessor, all owner rows, and every strict target slice.',
+    },
+    {
+      id: 'target119-settings-config-release-channel-display-source-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-settings-config-source-gap.test.mjs',
+      detail: 'The bounded replay restores exactly the two same-release rc-to-slow display expressions and leaves the inline source-map tail byte-identical.',
+    },
+    {
+      id: 'target119-settings-config-left-arrow-source-correspondence-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-settings-config-source-gap.test.mjs',
+      detail: 'Exact source and bundle representations bind the left-arrow agents setting and change summary to the Config declaration.',
+    },
+    {
+      id: 'target119-settings-config-build-macro-expansion-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-settings-config-source-gap.test.mjs',
+      detail: 'The proof ties both authenticated build-metadata objects to symbolic MACRO.VERSION source reads without treating expansion as missing source.',
+    },
+    {
+      id: 'target119-settings-config-caller-module-boundary-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-settings-config-source-gap.test.mjs',
+      detail: 'The Config initializer and Settings caller authenticate the complete source-module boundary and reject positional owner attribution.',
+    },
+    {
+      id: 'target119-session-storage-authenticated-initializer-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-session-storage-assistant-dedup-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target119 session-storage initializer and its Target118 predecessor, including every added-owner row.',
+    },
+    {
+      id: 'target119-session-storage-retained-policy-object-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-storage-assistant-dedup-owner-proof.test.mjs',
+      detail: 'Canonical AST evidence proves the complete append-policy object, including assistant deduplication, is retained byte-for-byte across the release boundary.',
+    },
+    {
+      id: 'target119-session-storage-assistant-occurrence-order-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-storage-assistant-dedup-owner-proof.test.mjs',
+      detail: 'The assistant property residue is authenticated as global occurrence-order drift rather than new Target119 behavior.',
+    },
+    {
+      id: 'target119-session-storage-source-boundary-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-session-storage-assistant-dedup-owner-proof.test.mjs',
+      detail: 'Exact Project.appendEntry and isTranscriptMessage declarations bind the compiled policy to src/utils/sessionStorage.ts.',
+    },
+    {
+      id: 'target119-session-storage-cross-release-policy-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-storage-assistant-dedup-owner-proof.test.mjs',
+      detail: 'Cross-release whole-unit evidence proves the assistant policy persists through Target120 and isolates the later Target121 frame-link addition.',
+    },
+    {
+      id: 'target119-session-storage-static-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-session-storage-assistant-dedup-owner-proof.test.mjs',
+      detail: 'The historical source uses an explicit-branch architecture, so the proof deliberately admits no policy-table source replay.',
+    },
+    {
+      id: 'target119-hook-background-skip-spill-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-hook-background-skip-spill-source-gap.test.mjs',
+      detail: 'The proof pins the complete executeInBackground target and predecessor units and isolates skipSpill as their sole semantic delta.',
+    },
+    {
+      id: 'target119-hook-background-skip-spill-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-hook-background-skip-spill-source-gap.test.mjs',
+      detail: 'The bounded fail-closed replay adds skipSpill to the sole registered background ShellCommand call and preserves the surrounding hook lifecycle.',
+    },
+    {
+      id: 'target119-hook-background-skip-spill-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-hook-background-skip-spill-source-gap.test.mjs',
+      detail: 'Source AST and complete-unit normalization prove the replay exactly reproduces the authenticated Target119 call contract.',
+    },
+    {
+      id: 'target119-inbound-attachment-schema-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-inbound-attachment-schema-inherited-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target118 and Target119 inbound-attachment schema initializers, including nullable image metadata.',
+    },
+    {
+      id: 'target119-inbound-attachment-schema-token-identity',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-inbound-attachment-schema-inherited-owner-proof.test.mjs',
+      detail: 'Token identity proves the nullish residue is inherited runtime syntax rather than a Target119 addition.',
+    },
+    {
+      id: 'target119-inbound-attachment-schema-source-boundary',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-inbound-attachment-schema-inherited-owner-proof.test.mjs',
+      detail: 'Historical source lineage binds the owner while proving the older schema gap predates Target119 and must not be replayed at this boundary.',
+    },
+    {
+      id: 'target119-resume-return-decision-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-resume-return-decision-owner-proof.test.mjs',
+      detail: 'The proof pins the complete resume-return decision helper, all owner rows, and its exact release-stable control flow.',
+    },
+    {
+      id: 'target119-resume-return-decision-runtime-dependency-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-resume-return-decision-owner-proof.test.mjs',
+      detail: 'Whole-unit and caller evidence binds the flag, dismissal, parsing, message-age, and token-estimator dependencies to the decision helper.',
+    },
+    {
+      id: 'target119-resume-return-decision-cross-release-owner-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-resume-return-decision-owner-proof.test.mjs',
+      detail: 'Canonical identity through Target121 and the later named source declaration authenticate src/utils/resumeReturn.ts as the owner boundary.',
+    },
+    {
+      id: 'target119-resume-return-decision-source-graph-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-resume-return-decision-owner-proof.test.mjs',
+      detail: 'The Target119 package lacks the owner, dialog, config, and REPL action graph, so the proof deliberately blocks any partial replay.',
+    },
+    {
+      id: 'target119-closed-issue-refresh-authenticated-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-closed-issue-refresh-inherited-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target118 through Target121 refreshClosedIssues units and every apparent Target119 addition.',
+    },
+    {
+      id: 'target119-closed-issue-refresh-token-identity',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-closed-issue-refresh-inherited-owner-proof.test.mjs',
+      detail: 'All four complete 390-token units are alpha-token identical, proving the Target119 rows are occurrence-order drift in retained behavior.',
+    },
+    {
+      id: 'target119-closed-issue-refresh-source-owner-lineage',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-closed-issue-refresh-inherited-owner-proof.test.mjs',
+      detail: 'The exact later source declaration and its unique GitHub-query/cache/config contract authenticate ClosedIssueNotice.tsx and reject TokenWarning attribution.',
+    },
+    {
+      id: 'target119-closed-issue-refresh-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-closed-issue-refresh-inherited-owner-proof.test.mjs',
+      detail: 'The Target119 source tree lacks the module and its caller/config graph, so the static proof deliberately authorizes no later-source replay.',
+    },
+    {
+      id: 'target119-sse-transport-authenticated-whole-class-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-sse-transport-retained-class-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target118 and Target119 SSETransport class units, their bindings, caller, and initializer.',
+    },
+    {
+      id: 'target119-sse-transport-cross-release-alpha-equivalence-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sse-transport-retained-class-owner-proof.test.mjs',
+      detail: 'Complete-class alpha equivalence proves the Target119 runtime is retained exactly from Target118 and persists through Target121.',
+    },
+    {
+      id: 'target119-sse-transport-residue-occurrence-order-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sse-transport-retained-class-owner-proof.test.mjs',
+      detail: 'The constructor, done, and dispose residues occur at identical relative offsets and bytes in the predecessor class and are occurrence-order drift.',
+    },
+    {
+      id: 'target119-sse-transport-runtime-caller-boundary-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-sse-transport-retained-class-owner-proof.test.mjs',
+      detail: 'Prebinding, constructor, createV2ReplTransport caller, and module-initializer evidence bind the complete runtime boundary.',
+    },
+    {
+      id: 'target119-sse-transport-source-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sse-transport-retained-class-owner-proof.test.mjs',
+      detail: 'Stable authored source lineage authenticates src/cli/transports/SSETransport.ts as the owner rather than the provisional positional path.',
+    },
+    {
+      id: 'target119-sse-transport-static-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-sse-transport-retained-class-owner-proof.test.mjs',
+      detail: 'The source omits the authenticated Symbol.dispose member and imports an absent Transport module, so the proof deliberately blocks replay.',
+    },
+    {
+      id: 'target119-remote-bridge-teardown-disposal-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-remote-bridge-teardown-disposal-source-gap.test.mjs',
+      detail: 'Complete Target118 and Target119 bridge units retain the bounded teardown and async-disposal behavior while Target119 adds only flush.',
+    },
+    {
+      id: 'target119-remote-bridge-teardown-disposal-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-remote-bridge-teardown-disposal-source-gap.test.mjs',
+      detail: 'The exact one-file replay is idempotent and fail-closed and executes the shared-deadline teardown scenarios.',
+    },
+    {
+      id: 'target119-remote-bridge-teardown-disposal-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-remote-bridge-teardown-disposal-source-gap.test.mjs',
+      detail: 'TypeScript AST evidence binds the shared deadline, both unregister exits, direct teardown, computed async disposer, and existing imports.',
+    },
+    {
+      id: 'target119-bridge-dialog-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs',
+      detail: 'Pins the complete authenticated Target119 u20251 bytes, token ledger, 96-slot cache topology, and exact 55-row owner-residue partition.',
+    },
+    {
+      id: 'target119-bridge-dialog-config-call-delta-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs',
+      detail: 'Proves the normalized Target118 and Target119 token streams are identical except Tt1 becoming the remoteControlAtStartup false argument pair at token 626, the sole net-three-token delta.',
+    },
+    {
+      id: 'target119-bridge-dialog-inherited-footer-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs',
+      detail: 'Pins the inherited c96 basename, QR toString, and chord-aware KeyboardShortcutHint footer in Target118 and Target119 together with its Target120 and Target121 lineage.',
+    },
+    {
+      id: 'target119-bridge-dialog-source-map-owner-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs',
+      detail: 'Binds the sole generated owner candidate to the exact historical BridgeDialog declaration, path and qrcode imports, config call, inline source map, and authored source names.',
+    },
+    {
+      id: 'target119-bridge-dialog-source-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-bridge-dialog-whole-unit-owner-proof.test.mjs',
+      detail: 'Rejects replay because BridgeDialog is a c87 manual-footer source and KeyboardShortcutHint exposes shortcut with c9 rather than the authenticated chord-aware c12 graph.',
+    },
+    {
+      id: 'target119-subagent-status-line-schema-whole-initializer-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-subagent-status-line-schema-owner-proof.test.mjs',
+      detail: 'The proof pins the complete Target118 and Target119 schema initializers and every owner residue at exact bundle offsets.',
+    },
+    {
+      id: 'target119-subagent-status-line-retained-residue-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-subagent-status-line-schema-owner-proof.test.mjs',
+      detail: 'Canonical AST and relative-offset evidence prove the apparent id addition is retained occurrence-order drift.',
+    },
+    {
+      id: 'target119-subagent-status-line-runtime-caller-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-subagent-status-line-schema-owner-proof.test.mjs',
+      detail: 'The adjacent executeSubagentStatusLine caller binds safeParse output to the returned decoration map.',
+    },
+    {
+      id: 'target119-subagent-status-line-later-source-owner-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-subagent-status-line-schema-owner-proof.test.mjs',
+      detail: 'The first authored donor authenticates src/utils/subagentStatusLine.ts and its schema declaration as the owner boundary.',
+    },
+    {
+      id: 'target119-subagent-status-line-temporal-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-subagent-status-line-schema-owner-proof.test.mjs',
+      detail: 'Target120 and Target121 evidence isolates later caller expansion and CoordinatorAgentStatus integration from the Target119 runtime.',
+    },
+    {
+      id: 'target119-subagent-status-line-static-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-subagent-status-line-schema-owner-proof.test.mjs',
+      detail: 'The Target119 source lacks the owner and the later donor has a larger dependency graph, so the proof authorizes no replay.',
+    },
+    {
+      id: 'target119-status-line-cwd-fast-mode-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-status-line-cwd-fast-mode-source-gap.test.mjs',
+      detail: 'Complete Target118 and Target119 builder/caller units pin the inherited fast-mode and single-sampled-cwd contract plus Target119-only fields.',
+    },
+    {
+      id: 'target119-status-line-cwd-fast-mode-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-status-line-cwd-fast-mode-source-gap.test.mjs',
+      detail: 'The exact one-file replay is idempotent, root-bounded, fail closed, and preserves effort, thinking, and rate-limit behavior.',
+    },
+    {
+      id: 'target119-status-line-cwd-fast-mode-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-status-line-cwd-fast-mode-source-gap.test.mjs',
+      detail: 'TypeScript AST and executable parity bind the builder parameters, fast-mode selector/ref/change trigger, cwd sample, worktree call, and complete target result.',
+    },
+    {
+      id: 'target119-prompt-input-footer-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-footer-background-exit-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 PromptInputFooterLeftSide units, their exact one-tail evolution, and every Target119 owner residue.',
+    },
+    {
+      id: 'target119-prompt-input-footer-background-exit-action-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-footer-background-exit-owner-proof.test.mjs',
+      detail: 'Proves the exact background-session detach versus foreground exit action and its isBgSession dependency.',
+    },
+    {
+      id: 'target119-prompt-input-footer-retained-cache-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-footer-background-exit-owner-proof.test.mjs',
+      detail: 'Pins the unchanged 31-slot cache topology and proves the apparent slot-30 additions are retained compiler metadata.',
+    },
+    {
+      id: 'target119-prompt-input-footer-caller-dependency-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-footer-background-exit-owner-proof.test.mjs',
+      detail: 'Binds the complete 19-prop PromptInputFooterLeftSide caller contract including isInputEmpty and the exact initializer boundary.',
+    },
+    {
+      id: 'target119-prompt-input-footer-source-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-footer-background-exit-owner-proof.test.mjs',
+      detail: 'Historical source and module lineage authenticate PromptInputFooterLeftSide.tsx as the sole owner rather than positional neighbors.',
+    },
+    {
+      id: 'target119-prompt-input-footer-static-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-footer-background-exit-owner-proof.test.mjs',
+      detail: 'The Target119 source is a stale 29-slot snapshot and the next source adds later stop-session and worktree behavior, so neither state is a valid replay donor.',
+    },
+    {
+      id: 'target119-prompt-input-foreground-agents-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 ModeIndicator units, the sole 60-token insertion, and every one of the 69 typed owner residues.',
+    },
+    {
+      id: 'target119-prompt-input-foreground-agents-source-delta-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs',
+      detail: 'Pins the exact 18-insertion/3-deletion historical source delta that adds the two dependency imports, prop plumbing, cache slots, and foreground-agents branch.',
+    },
+    {
+      id: 'target119-prompt-input-foreground-agents-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs',
+      detail: 'Exhaustively verifies the five branch gates and pending-aware label while proving all fifteen scanner-added rows are retained from the complete Target118 unit.',
+    },
+    {
+      id: 'target119-prompt-input-foreground-agents-source-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-foreground-agents-owner-proof.test.mjs',
+      detail: 'Rejects whole-unit replay because the authenticated runtime uses chord and the inherited 12-slot shortcut component while recovered source exposes shortcut with 9 slots and a stale inline source map.',
+    },
+    {
+      id: 'target119-prompt-input-layout-effect-authenticated-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-layout-effect-owner-proof.test.mjs',
+      detail: 'Pins the complete authenticated Target118 and Target119 PromptInput units, their exact normalized eight-hunk evolution, and every Target119 owner and added-owner residue.',
+    },
+    {
+      id: 'target119-prompt-input-layout-effect-inherited-hook-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-layout-effect-owner-proof.test.mjs',
+      detail: 'Pins the unique useLayoutEffect statement in Targets117, 118, and 119, proves identical alpha-canonical AST and 35-token context, and executes the generation-zero, redraw, and missing-instance branches.',
+    },
+    {
+      id: 'target119-prompt-input-layout-effect-source-replay-blocker',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-prompt-input-layout-effect-owner-proof.test.mjs',
+      detail: 'Pins the exact Target117-Target119 PromptInput source declarations and proves all omit the compiled layout effect, redraw dependency, clear-input generation state, and action registration, blocking isolated source replay.',
+    },
+    {
+      id: 'target119-remote-session-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-remote-session-action-dispatch-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 useRemoteSession units and every owner residue in the action-dispatch evolution.',
+    },
+    {
+      id: 'target119-remote-session-action-residue-partition-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-remote-session-action-dispatch-owner-proof.test.mjs',
+      detail: 'Proves remove is retained global-occurrence drift while clear is the genuine Target119 preflight teardown action.',
+    },
+    {
+      id: 'target119-remote-session-preflight-clear-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-remote-session-action-dispatch-owner-proof.test.mjs',
+      detail: 'Verifies the preflight failure path disconnects and clears connection, task, and in-progress tool-use state.',
+    },
+    {
+      id: 'target119-remote-session-dispatch-caller-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-remote-session-action-dispatch-owner-proof.test.mjs',
+      detail: 'Binds the canonical add/remove/clear dispatcher shared by the hook and tool context to the authenticated caller boundary.',
+    },
+    {
+      id: 'target119-remote-session-cross-release-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-remote-session-action-dispatch-owner-proof.test.mjs',
+      detail: 'Pins the Target119 useRemoteSession unit as canonically unchanged through Targets120 and 121.',
+    },
+    {
+      id: 'target119-remote-session-source-graph-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-remote-session-action-dispatch-owner-proof.test.mjs',
+      detail: 'Rejects replay because each available authored source leaves part of the hook, action type, preflight, or caller graph stale.',
+    },
+    {
+      id: 'target119-use-can-use-tool-denial-history-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 useCanUseTool units, all fifteen typed owner rows, the exact input-key helper, and the persistent Target120/121 lineage.',
+    },
+    {
+      id: 'target119-use-can-use-tool-denial-history-historical-source-delta-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs',
+      detail: 'Pins the exact historical useCanUseTool and autoModeDenials source deltas that author input identity, lookup, telemetry, and identity removal.',
+    },
+    {
+      id: 'target119-use-can-use-tool-denial-history-semantic-contract-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs',
+      detail: 'Exhaustively verifies command-only Bash identity, full-input identity for other tools, exact previous-denial matching, and allow-only telemetry/removal.',
+    },
+    {
+      id: 'target119-use-can-use-tool-denial-history-source-topology-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs',
+      detail: 'Rejects replay because authenticated runtime uses a provider/context graph while Target119 source uses module-global storage, App has no provider, and the inline source map is stale.',
+    },
+    {
+      id: 'target119-wake-router-dispatch-timeout-authenticated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs',
+      detail: 'Pins the complete authenticated u20694 two-declarator statement, its one-row owner-residue partition, and the six contiguous wake-router module units that consume and initialize both bindings.',
+    },
+    {
+      id: 'target119-wake-router-dispatch-timeout-historical-source-file-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs',
+      detail: 'Proves src/hooks/useWakeRouter.ts is absent at the Target118 source commit, wholly added at Target119, byte-exact in the recovered package, and structurally retained through Target121.',
+    },
+    {
+      id: 'target119-wake-router-dispatch-timeout-source-ast-owner-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs',
+      detail: 'Binds WAKE_DISPATCH_TIMEOUT_MS, releaseTimedOutDispatch, useWakeRouter, their imports, and the timer/callback/cleanup AST to the exact historical useWakeRouter source file.',
+    },
+    {
+      id: 'target119-wake-router-dispatch-timeout-semantic-contract-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs',
+      detail: 'Executes a bounded timer/reservation model proving timeout and normal completion both release only the selected agent reservation while completion also clears its timer.',
+    },
+    {
+      id: 'target119-wake-router-dispatch-timeout-incidental-literal-rejection',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-wake-router-dispatch-timeout-owner-proof.test.mjs',
+      detail: 'Rejects the provisional handlePromptSubmit owner and all other 60000 source matches unless the same file owns the diagnostic, release callback, timer argument, and cleanup graph.',
+    },
+    {
+      id: 'target119-cli-bg-module-initializer-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-cli-bg-module-import-owner-proof.test.mjs',
+      detail: 'Pins the complete Target119 cli/bg module initializer and both exact imported-module residues.',
+    },
+    {
+      id: 'target119-cli-bg-import-to-open-agents-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-cli-bg-module-import-owner-proof.test.mjs',
+      detail: 'Binds the initializer imports to the adjacent openAgentsFromForeground randomUUID and rm consumers.',
+    },
+    {
+      id: 'target119-cli-bg-authored-source-import-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-cli-bg-module-import-owner-proof.test.mjs',
+      detail: 'Authenticates the new Target119 src/cli/bg.ts source and its exact crypto and fs/promises named imports.',
+    },
+    {
+      id: 'target119-cli-bg-false-session-restore-owner-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-cli-bg-module-import-owner-proof.test.mjs',
+      detail: 'Rejects the positional sessionRestore owner, whose retained source has only a type-only crypto import and no fs/promises import.',
+    },
+    {
+      id: 'target119-cli-bg-cross-release-initializer-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-cli-bg-module-import-owner-proof.test.mjs',
+      detail: 'Proves the complete initializer persists through Targets120 and 121 under minifier alpha-renaming.',
+    },
+    {
+      id: 'target119-cli-bg-static-owner-only-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-cli-bg-module-import-owner-proof.test.mjs',
+      detail: 'Confines the correction to static owner evidence and authorizes no source replay or package mutation.',
+    },
+    {
+      id: 'target119-session-background-hint-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-session-background-hint-retained-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 SessionBackgroundHint units, their identical cache topology, and their byte-length, token-count, and alpha-normalized equivalence.',
+    },
+    {
+      id: 'target119-session-background-hint-retained-residue-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-background-hint-retained-owner-proof.test.mjs',
+      detail: 'Proves keyCase, lower, chord, and format occur in byte-identical local subtrees in both releases and are only global occurrence-ordinal drift.',
+    },
+    {
+      id: 'target119-session-background-hint-keyboard-runtime-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-background-hint-retained-owner-proof.test.mjs',
+      detail: 'Authenticates the retained chord-and-format KeyboardShortcutHint runtime and the exact three-property caller boundary in both releases.',
+    },
+    {
+      id: 'target119-session-background-hint-cross-release-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-background-hint-retained-owner-proof.test.mjs',
+      detail: 'Pins the complete SessionBackgroundHint runtime lineage through Targets120 and 121 independently of minifier renaming.',
+    },
+    {
+      id: 'target119-session-background-hint-stale-source-graph-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-session-background-hint-retained-owner-proof.test.mjs',
+      detail: 'Shows the Target119 authored caller and shortcut dependency are both stale while the later source changes unrelated lifecycle semantics, blocking a graph-incomplete replay.',
+    },
+    {
+      id: 'target119-session-background-hint-static-owner-only-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-session-background-hint-retained-owner-proof.test.mjs',
+      detail: 'Confines the correction to authenticated static owner evidence and authorizes no package or source mutation.',
+    },
+    {
+      id: 'target119-ultraplan-choice-module-initializer-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-ultraplan-choice-module-import-owner-proof.test.mjs',
+      detail: 'Pins the complete Target119 UltraplanChoice module initializer, its Target118 predecessor, and both exact imported-module residue identities.',
+    },
+    {
+      id: 'target119-ultraplan-choice-import-consumer-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-ultraplan-choice-module-import-owner-proof.test.mjs',
+      detail: 'Binds the fs/promises and path initializer bindings exclusively to stat, writeFile, and join calls in the retained UltraplanChoiceDialog runtime.',
+    },
+    {
+      id: 'target119-ultraplan-choice-authored-source-import-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-ultraplan-choice-module-import-owner-proof.test.mjs',
+      detail: 'Authenticates the newly authored Target119 UltraplanChoiceDialog source, its named imports, and all three exact call sites.',
+    },
+    {
+      id: 'target119-ultraplan-choice-false-session-background-hint-owner-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-ultraplan-choice-module-import-owner-proof.test.mjs',
+      detail: 'Rejects the positional SessionBackgroundHint attribution because that source owns neither imported module nor any corresponding consumer.',
+    },
+    {
+      id: 'target119-ultraplan-choice-retained-runtime-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-ultraplan-choice-module-import-owner-proof.test.mjs',
+      detail: 'Proves the complete initializer and consumer boundary persist through Targets120 and 121 under normalized module-binding names.',
+    },
+    {
+      id: 'target119-ultraplan-choice-static-owner-only-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-ultraplan-choice-module-import-owner-proof.test.mjs',
+      detail: 'Confines the correction to exact-source static owner evidence and authorizes no replay or package mutation.',
+    },
+    {
+      id: 'target119-connection-state-offline-constants-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-connection-state-offline-threshold-owner-proof.test.mjs',
+      detail: 'Pins the complete Target119 two-constant initializer and its sole 60000 owner-residue identity.',
+    },
+    {
+      id: 'target119-connection-state-offline-class-consumer-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-connection-state-offline-threshold-owner-proof.test.mjs',
+      detail: 'Binds the failure-window and threshold constants to their unique filter and offline-transition comparisons in ConnectionLifecycleTracker.',
+    },
+    {
+      id: 'target119-connection-state-exact-authored-source-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-connection-state-offline-threshold-owner-proof.test.mjs',
+      detail: 'Authenticates the newly added Target119 connectionState source, both named declarations, and their exact class uses.',
+    },
+    {
+      id: 'target119-connection-state-false-session-background-hint-owner-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-connection-state-offline-threshold-owner-proof.test.mjs',
+      detail: 'Rejects the positional SessionBackgroundHint attribution because that source owns neither the lifecycle constants nor their consumer.',
+    },
+    {
+      id: 'target119-connection-state-cross-release-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-connection-state-offline-threshold-owner-proof.test.mjs',
+      detail: 'Proves the exact source blob and matched constant initializer persist through Targets120 and 121.',
+    },
+    {
+      id: 'target119-connection-state-static-owner-only-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-connection-state-offline-threshold-owner-proof.test.mjs',
+      detail: 'Confines the correction to exact-source static owner evidence and authorizes no source or package replay.',
+    },
+    {
+      id: 'target119-transcript-share-authenticated-paired-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 submitTranscriptShare function units and proves their canonical ASTs differ only in bundle-local identifiers and exact build identity.',
+    },
+    {
+      id: 'target119-transcript-share-historical-source-file-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs',
+      detail: 'Pins one byte-identical submitTranscriptShare source blob across the authenticated Target118, Target119, and Target120 source commits and the recovered Target119 package tree.',
+    },
+    {
+      id: 'target119-transcript-share-source-ast-owner-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs',
+      detail: 'Binds the unique submitTranscriptShare declaration, fs/promises stat/readFile imports, size guard, transcript-share endpoint, and sole MACRO.VERSION access to the exact historical source file.',
+    },
+    {
+      id: 'target119-transcript-share-build-macro-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs',
+      detail: 'Proves VERSION, BUILD_TIME, and GIT_SHA are the only semantic differences between the paired complete compiled units and exactly match the Target119 build identity.',
+    },
+    {
+      id: 'target119-transcript-share-complete-unit-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-transcript-share-build-macro-owner-proof.test.mjs',
+      detail: 'Pins the complete 28-row owner partition, nine owner-added rows, three production-strict build rows, and atomic provisional-or-corrected coverage state.',
+    },
+    {
+      id: 'target119-job-state-name-sync-module-initializer-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-job-state-name-sync-module-import-owner-proof.test.mjs',
+      detail: 'Pins the complete Target119 fs module initializer, its Target118 predecessor, and the sole exact added fs residue.',
+    },
+    {
+      id: 'target119-job-state-name-sync-watch-consumer-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-job-state-name-sync-module-import-owner-proof.test.mjs',
+      detail: 'Binds the initializer exclusively to the adjacent useJobStateNameSync watch call and its paired React useEffect binding.',
+    },
+    {
+      id: 'target119-job-state-name-sync-exact-authored-source-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-job-state-name-sync-module-import-owner-proof.test.mjs',
+      detail: 'Authenticates the newly authored Target119 hook source, its fs imports, and the complete state.json watch synchronization contract.',
+    },
+    {
+      id: 'target119-job-state-name-sync-false-install-messages-owner-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-job-state-name-sync-module-import-owner-proof.test.mjs',
+      detail: 'Rejects the positional useInstallMessages attribution because that source owns neither an fs import nor a watch call.',
+    },
+    {
+      id: 'target119-job-state-name-sync-baseline-stub-lineage-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-job-state-name-sync-module-import-owner-proof.test.mjs',
+      detail: 'Distinguishes the retained Target118 initializer beside an inert two-effect stub from the newly authored Target119 hook boundary.',
+    },
+    {
+      id: 'target119-job-state-name-sync-static-owner-only-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-job-state-name-sync-module-import-owner-proof.test.mjs',
+      detail: 'Confines the correction to exact-source static owner evidence and authorizes no source or package replay.',
+    },
+    {
+      id: 'target119-tip-registry-day-window-authenticated-paired-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 externalTips initialization units, their unique coarse pairing, and their property-preserving identifier-normalized AST equality.',
+    },
+    {
+      id: 'target119-tip-registry-day-window-historical-source-file-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs',
+      detail: 'Pins the byte-identical Target118 and Target119 historical tipRegistry source blob and the exact externalTips declaration retained by the supplemented package source.',
+    },
+    {
+      id: 'target119-tip-registry-day-window-source-ast-constant-fold-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs',
+      detail: 'Binds exactly two ordered source divisor ASTs to the plan-mode and opusplan reminder tip objects, evaluates each source arithmetic tree to 86400000, and pins their direct dependencies.',
+    },
+    {
+      id: 'target119-tip-registry-day-window-occurrence-shift-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs',
+      detail: 'Proves the two literals remain at identical offsets inside paired complete units while three earlier target occurrences shift only their global ordinals from 19/20 to 22/23.',
+    },
+    {
+      id: 'target119-tip-registry-day-window-complete-unit-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-tip-registry-day-window-owner-proof.test.mjs',
+      detail: 'Pins the complete three-row owner partition, two-row owner-added and owner-supplement-strict partitions, direct eligible source row, and atomic provisional-or-corrected coverage state.',
+    },
+    {
+      id: 'target119-sdk-control-inherited-schema-authenticated-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118/Target119 SDK control initializer token streams and the exact four-hunk normalized diff.',
+    },
+    {
+      id: 'target119-sdk-control-inherited-schema-predecessor-replay-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs',
+      detail: 'Pins the exact Target118 source-gap replay fixture and its six complete MCP-call, user-dialog, and message-rating schema contracts inherited by Target119.',
+    },
+    {
+      id: 'target119-sdk-control-forward-subagent-runtime-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs',
+      detail: 'Pins all sixteen forwardSubagentText occurrences across eight complete Target119 generated units, including the sole SDK schema endpoint in u20928.',
+    },
+    {
+      id: 'target119-sdk-control-source-replay-blocker',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs',
+      detail: 'Pins exact historical/package Target119 controlSchemas bytes and proves they lack both the forwardSubagentText runtime graph and the inherited replay declarations, blocking a partial one-file replay.',
+    },
+    {
+      id: 'target119-sdk-control-inherited-schema-complete-unit-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-sdk-control-inherited-schema-owner-proof.test.mjs',
+      detail: 'Pins the complete 61-row owner partition digest, exact seven-row owner-added partition, and atomic provisional-or-corrected coverage state.',
+    },
+    {
+      id: 'target119-session-task-summary-state-authenticated-paired-class',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 generated classes and their exact five-hunk identifier-normalized token diff.',
+    },
+    {
+      id: 'target119-session-task-summary-state-historical-source-delta',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs',
+      detail: 'Pins both authenticated sessionState.ts blobs and their exact five-hunk Target118-to-Target119 Git diff.',
+    },
+    {
+      id: 'target119-session-task-summary-state-source-ast-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs',
+      detail: 'Pins hasTaskSummary and both notification functions and proves the closed source-level task-summary state transitions.',
+    },
+    {
+      id: 'target119-session-task-summary-state-adjacency-rejection',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs',
+      detail: 'Pins adjacent u20935/u20937 and proves neither is a strict task-summary owner or part of this standalone class.',
+    },
+    {
+      id: 'target119-session-task-summary-state-complete-unit-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-session-task-summary-state-owner-proof.test.mjs',
+      detail: 'Pins all provisional and corrected owner-residue partitions and accepts only atomic provisional or exact corrected coverage state.',
+    },
+    {
+      id: 'target119-repl-runtime-authenticated-complete-transition',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs',
+      detail: 'Pins complete Target118/Target119 REPL units and their exact thirty-eight-hunk identifier-normalized transition.',
+    },
+    {
+      id: 'target119-repl-runtime-scroll-reason-source-replay',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs',
+      detail: 'Replays the reason parameter, diagnostic, and all six exact reason-bearing REPL call sites without importing the inherited cursor-ref optimization.',
+    },
+    {
+      id: 'target119-repl-runtime-pro-trial-source-replay',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs',
+      detail: 'Replays the exact existing shouldAutoOpenProTrialExpired dependency import and guarded one-shot command dispatch through onSubmitRef.',
+    },
+    {
+      id: 'target119-pro-trial-command-enable-transition',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs',
+      detail: 'Pins the complete u17689-to-u18089 descriptor transition and replays its sole false-to-true isEnabled change in the true command owner.',
+    },
+    {
+      id: 'target119-repl-runtime-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs',
+      detail: 'Pins both preimages, both postimages, and the existing pro-trial service, command registry, ScrollBox, config, debug, and message-predicate dependencies.',
+    },
+    {
+      id: 'target119-repl-runtime-adjacency-rejection',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs',
+      detail: 'Pins u21166/u21168/u21169 and proves none has an added or production-strict residue requiring a wider REPL cluster.',
+    },
+    {
+      id: 'target119-repl-runtime-complete-unit-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-repl-runtime-evolution-owner-proof.test.mjs',
+      detail: 'Pins all 326 owner rows, all 52 added-owner rows, all thirteen strict identities, both coverage corrections, idempotence, and rejection of mixed graph states.',
+    },
+    {
+      id: 'target119-parse-pr-identifier-export-binding-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-parse-pr-identifier-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the complete Target119 u21367 module export binding and its sole added parsePrIdentifier property beside the retained ResumeConversation export.',
+    },
+    {
+      id: 'target119-parse-pr-identifier-adjacent-implementation-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-parse-pr-identifier-strict-property-owner-proof.test.mjs',
+      detail: 'Binds the export arrow directly to adjacent u21368 and pins that complete function as the implementation dependency excluded from the one-unit correction.',
+    },
+    {
+      id: 'target119-parse-pr-identifier-exact-source-ast-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-parse-pr-identifier-strict-property-owner-proof.test.mjs',
+      detail: 'Authenticates src/screens/ResumeConversation.tsx as the exact source owner of parsePrIdentifier and its named module export.',
+    },
+    {
+      id: 'target119-parse-pr-identifier-multi-host-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-parse-pr-identifier-strict-property-owner-proof.test.mjs',
+      detail: 'Verifies the Target119 pull, pull-requests, and merge_requests parsing contract and distinguishes it from the Target118 GitHub-only predecessor.',
+    },
+    {
+      id: 'target119-parse-pr-identifier-static-no-replay-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-parse-pr-identifier-strict-property-owner-proof.test.mjs',
+      detail: 'Confines recovery to the generated export-binding owner correction and authorizes no source or package replay.',
+    },
+    {
+      id: 'target119-setup-rendezvous-authenticated-whole-unit-delta-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-setup-rendezvous-server-strict-property-source-gap.test.mjs',
+      detail: 'Pins the complete Target119 setup function and its sole 126-byte daemon-gate delta from the authenticated Target118 predecessor.',
+    },
+    {
+      id: 'target119-setup-rendezvous-manual-predecessor-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-setup-rendezvous-server-strict-property-source-gap.test.mjs',
+      detail: 'Proves the manually paired Target118 setup function becomes canonically identical after deleting only the rendezvous gate.',
+    },
+    {
+      id: 'target119-setup-rendezvous-export-implementation-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-setup-rendezvous-server-strict-property-source-gap.test.mjs',
+      detail: 'Authenticates the rendezvous export, initializer, implementation, and setup call as one exact dependency graph.',
+    },
+    {
+      id: 'target119-setup-rendezvous-source-gap-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-setup-rendezvous-server-strict-property-source-gap.test.mjs',
+      detail: 'Replays only the missing setup.ts import and daemon gate, with exact pre/post states, idempotence, and drift rejection.',
+    },
+    {
+      id: 'target119-setup-rendezvous-daemon-gate-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-setup-rendezvous-server-strict-property-source-gap.test.mjs',
+      detail: 'Verifies the daemon-enabled branch starts the rendezvous server while disabled and failure paths preserve setup behavior.',
+    },
+    {
+      id: 'target119-setup-rendezvous-static-owner-union-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-setup-rendezvous-server-strict-property-source-gap.test.mjs',
+      detail: 'Pins src/setup.ts and src/daemon/rendezvous.ts as the complete source-owner union and excludes unrelated positional candidates.',
+    },
+    {
+      id: 'target119-headless-classifier-complete-unit-predecessor-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-headless-classifier-summary-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 runHeadless units and their exact two unrelated top-level deltas around an otherwise identical permission/classifier sequence.',
+    },
+    {
+      id: 'target119-headless-classifier-strict-property-ordinal-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-classifier-summary-strict-property-owner-proof.test.mjs',
+      detail: 'Proves the strict runClassifierSummaryForBlocked property is the retained runHeadless call shifted by the newly live taskSummary namespace export.',
+    },
+    {
+      id: 'target119-headless-classifier-live-module-binding-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-classifier-summary-strict-property-owner-proof.test.mjs',
+      detail: 'Authenticates the Target119 initializer assignment that replaces the Target118 null binding and makes the classifier namespace live.',
+    },
+    {
+      id: 'target119-headless-classifier-export-implementation-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-classifier-summary-strict-property-owner-proof.test.mjs',
+      detail: 'Binds the namespace property through its export and initializer to the complete runClassifierSummaryForBlocked implementation and reachable dependency units.',
+    },
+    {
+      id: 'target119-headless-classifier-exact-source-call-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-classifier-summary-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the exact cli/print.ts import, onPermissionPrompt callback, classifier call, callback handoff, and taskSummary implementation source graph.',
+    },
+    {
+      id: 'target119-headless-classifier-static-no-replay-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-headless-classifier-summary-strict-property-owner-proof.test.mjs',
+      detail: 'Confines recovery to static ownership because the live classifier graph crosses six value imports and five external module initializers; no partial source replay is authorized.',
+    },
+    {
+      id: 'target119-headless-streaming-complete-unit-predecessor-diff-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-headless-streaming-strict-residue-owner-proof.test.mjs',
+      detail: 'Pins complete Target118 and Target119 runHeadlessStreaming units and the exact thirteen-hunk normalized edit script between them.',
+    },
+    {
+      id: 'target119-headless-streaming-production-strict-partition-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-streaming-strict-residue-owner-proof.test.mjs',
+      detail: 'Partitions all fifteen strict rows into seven target-unit deltas and eight retained predecessor contexts with exact identities and neighborhoods.',
+    },
+    {
+      id: 'target119-headless-streaming-build-version-macro-source-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-streaming-strict-residue-owner-proof.test.mjs',
+      detail: 'Authenticates both VERSION/BUILD_TIME/GIT_SHA triples as compile-time macro expansions in the complete streaming function.',
+    },
+    {
+      id: 'target119-headless-streaming-inherited-control-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-streaming-strict-residue-owner-proof.test.mjs',
+      detail: 'Pins the retained callback, synthetic-response, message-rating, and sentiment/cleared contracts to unique Target118 predecessor contexts.',
+    },
+    {
+      id: 'target119-headless-streaming-caller-schema-source-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-headless-streaming-strict-residue-owner-proof.test.mjs',
+      detail: 'Authenticates the runHeadless caller, SDK control-schema dependency, and exact cli/print.ts source fragments that bound the streaming owner graph.',
+    },
+    {
+      id: 'target119-headless-streaming-static-no-replay-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-headless-streaming-strict-residue-owner-proof.test.mjs',
+      detail: 'Rejects partial source recovery because no exact source state jointly closes pluginSource, synthetic, and message-rating behavior across twenty free identifiers and dynamic bridges.',
+    },
+    {
+      id: 'target119-sdk-initialize-subagent-options-complete-unit-predecessor-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-sdk-initialize-subagent-options-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the complete Target119 handleInitializeRequest unit, its Target118 predecessor, and the exact two-hunk option-transfer and aliases-field delta.',
+    },
+    {
+      id: 'target119-sdk-initialize-subagent-options-six-row-strict-partition-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-initialize-subagent-options-strict-property-owner-proof.test.mjs',
+      detail: 'Authenticates all six strict rows as three retained appendSubagentSystemPrompt properties and three newly transferred forwardSubagentText properties.',
+    },
+    {
+      id: 'target119-sdk-initialize-subagent-options-inherited-append-prompt-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-initialize-subagent-options-strict-property-owner-proof.test.mjs',
+      detail: 'Proves each appendSubagentSystemPrompt row is byte-identical at the same canonical-token position in the Target118 predecessor.',
+    },
+    {
+      id: 'target119-sdk-initialize-subagent-options-forward-transfer-diff-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-initialize-subagent-options-strict-property-owner-proof.test.mjs',
+      detail: 'Binds all three forwardSubagentText rows to the sole new seventeen-token initialize-option transfer statement.',
+    },
+    {
+      id: 'target119-sdk-initialize-subagent-options-schema-streaming-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-initialize-subagent-options-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the initialize schema endpoint, handleInitializeRequest transfer, and runHeadlessStreaming consumer as one authenticated compiled graph.',
+    },
+    {
+      id: 'target119-sdk-initialize-subagent-options-exact-source-gap-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-sdk-initialize-subagent-options-strict-property-owner-proof.test.mjs',
+      detail: 'Authenticates cli/print.ts as the owner while proving historical and packaged Target119 source omit both compiled subagent option transfers.',
+    },
+    {
+      id: 'target119-sdk-initialize-subagent-options-static-no-replay-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-sdk-initialize-subagent-options-strict-property-owner-proof.test.mjs',
+      detail: 'Confines recovery to static ownership because later source remains incomplete and the declaration crosses twenty-three direct identifier-call dependencies.',
+    },
+    {
+      id: 'target119-reconcile-mcp-content-complete-unit-manual-predecessor-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-reconcile-mcp-content-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the complete Target119 reconcileMcpServers function and its manually authenticated Target118 predecessor.',
+    },
+    {
+      id: 'target119-reconcile-mcp-content-four-row-strict-partition-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-reconcile-mcp-content-strict-property-owner-proof.test.mjs',
+      detail: 'Proves the two cmds and two res rows are genuine successor additions rather than retained local occurrences.',
+    },
+    {
+      id: 'target119-reconcile-mcp-content-matched-caller-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-reconcile-mcp-content-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the exact matched handleMcpSetServers caller on both sides of the complete reconcileMcpServers unit boundary.',
+    },
+    {
+      id: 'target119-reconcile-mcp-content-exact-source-command-resource-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-reconcile-mcp-content-strict-property-owner-proof.test.mjs',
+      detail: 'Authenticates the complete cli/print.ts command and resource fetch, projection, reconciliation, and AppState update graph.',
+    },
+    {
+      id: 'target119-reconcile-mcp-content-imported-runtime-dependency-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-reconcile-mcp-content-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the imported MCP client, cache, transport, policy, collection, and state-update dependencies reached by the owner.',
+    },
+    {
+      id: 'target119-reconcile-mcp-content-static-no-replay-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-reconcile-mcp-content-strict-property-owner-proof.test.mjs',
+      detail: 'Proves historical, raw, and packaged Target119 source already contain the complete graph, authorizing evidence only and no replay.',
+    },
+    {
+      id: 'target119-mcp-entrypoint-target118-lineage-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-mcp-entrypoint-task-registry-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 MCP entrypoint units and their exact predecessor lineage.',
+    },
+    {
+      id: 'target119-mcp-entrypoint-complete-unit-macro-normalization-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-mcp-entrypoint-task-registry-strict-property-owner-proof.test.mjs',
+      detail: 'Proves the complete units become identical after normalizing only the three build macros.',
+    },
+    {
+      id: 'target119-mcp-entrypoint-task-registry-retained-occurrence-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-mcp-entrypoint-task-registry-strict-property-owner-proof.test.mjs',
+      detail: 'Authenticates taskRegistry at the same canonical token and AST position in both complete units.',
+    },
+    {
+      id: 'target119-mcp-entrypoint-build-macro-partition-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-mcp-entrypoint-task-registry-strict-property-owner-proof.test.mjs',
+      detail: 'Separates the VERSION, BUILD_TIME, and GIT_SHA strict rows from the retained taskRegistry occurrence.',
+    },
+    {
+      id: 'target119-mcp-entrypoint-export-wrapper-boundary-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-mcp-entrypoint-task-registry-strict-property-owner-proof.test.mjs',
+      detail: 'Pins the matched export and wrapper dependencies surrounding the complete MCP entrypoint unit.',
+    },
+    {
+      id: 'target119-mcp-entrypoint-byte-identical-source-state-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-mcp-entrypoint-task-registry-strict-property-owner-proof.test.mjs',
+      detail: 'Authenticates byte-identical historical, raw, and packaged MCP entrypoint source states.',
+    },
+    {
+      id: 'target119-mcp-entrypoint-static-no-replay-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-mcp-entrypoint-task-registry-strict-property-owner-proof.test.mjs',
+      detail: 'Confines the correction to static complete-unit ownership and authorizes no source replay.',
+    },
+    {
+      id: 'target119-main-run-authenticated-complete-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-main-run-build-profile-owner-proof.test.mjs',
+      detail: 'Pins the complete Target118 and Target119 main run declarations as the authenticated owner boundary.',
+    },
+    {
+      id: 'target119-main-run-canonical-predecessor-windows',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-main-run-build-profile-owner-proof.test.mjs',
+      detail: 'Authenticates unique Target118 predecessor windows for fifty-four of the fifty-nine added-owner rows.',
+    },
+    {
+      id: 'target119-main-run-build-macro-normalization',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-main-run-build-profile-owner-proof.test.mjs',
+      detail: 'Separates the two VERSION, BUILD_TIME, and GIT_SHA triplets as build-profile normalization.',
+    },
+    {
+      id: 'target119-main-run-source-ccr-ccshare-graph',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-main-run-build-profile-owner-proof.test.mjs',
+      detail: 'Pins the exact CCR and ccshare/file-resume source graph for the five lower-context rows.',
+    },
+    {
+      id: 'target119-main-run-strict-residue-partition',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-main-run-build-profile-owner-proof.test.mjs',
+      detail: 'Partitions all twenty-two strict rows and proves only parseCcshareId is newly materialized by the target build profile.',
+    },
+    {
+      id: 'target119-read-only-exact-ip-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-read-only-exact-ip-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 read-only initializer, its uniquely coarse-identical Target118 predecessor, and their byte-identical argv tuple and ip guard.',
+    },
+    {
+      id: 'target119-read-only-exact-ip-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-read-only-exact-ip-owner-proof.test.mjs',
+      detail: 'The TypeScript AST proof binds /^ip addr$/ to READONLY_COMMAND_REGEXES and its isCommandReadOnly consumer in the exact historical owner source.',
+    },
+    {
+      id: 'target119-read-only-exact-ip-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-read-only-exact-ip-owner-proof.test.mjs',
+      detail: 'The executable proof verifies the exact ip addr allowlist guard and rejects prefixes, suffixes, and trailing arguments while identifying the scanner row as occurrence drift.',
+    },
+    {
+      id: 'target119-pr-url-helper-dedup-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-pr-url-helper-dedup-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins both complete PR URL helper units, the service initializer regex, and the PrBadge call into their single coalesced runtime binding.',
+    },
+    {
+      id: 'target119-pr-url-helper-dedup-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-pr-url-helper-dedup-owner-proof.test.mjs',
+      detail: 'The TypeScript AST proof authenticates both exact declaration pairs in utils/prStatus and PrBadge and admits them together rather than claiming a false sole owner.',
+    },
+    {
+      id: 'target119-pr-url-helper-dedup-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-pr-url-helper-dedup-owner-proof.test.mjs',
+      detail: 'Executable URL parsing and template matrices prove both source declaration pairs are behaviorally identical to the one authenticated target helper binding.',
+    },
+    {
+      id: 'target119-consolidation-prompt-template-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-consolidation-prompt-template-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 consolidation function, its disabled append helpers, and the byte-identical summary suffix already present in Target118.',
+    },
+    {
+      id: 'target119-consolidation-prompt-template-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-consolidation-prompt-template-owner-proof.test.mjs',
+      detail: 'The TypeScript AST proof binds the suffix to buildConsolidationPrompt immediately after RECONCILE_MEMORIES_AGAINST_CLAUDE_MD and identifies the compiler-created template-quasi boundary.',
+    },
+    {
+      id: 'target119-consolidation-prompt-template-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-consolidation-prompt-template-owner-proof.test.mjs',
+      detail: 'Executable prompt matrices prove the exact source function and authenticated target function are identical when the pinned build-only append helpers take their disabled branches.',
+    },
+    {
+      id: 'target119-team-file-lock-options-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-team-file-lock-options-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target119 teamHelpers initializer, the exact lock options object, and the no-op compromise callback residue.',
+    },
+    {
+      id: 'target119-team-file-lock-options-temporal-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.119-team-file-lock-options-owner-proof.test.mjs',
+      detail: 'The temporal proof shows Target118 owns the identical base retry object and exact matched update/remove consumers, while Target119 adds only the callback.',
+    },
+    {
+      id: 'target119-team-file-lock-options-stale-source-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-team-file-lock-options-owner-proof.test.mjs',
+      detail: 'The source-aware test binds the current input schema and authenticated retained lock graph, pins the current source as stale, and deliberately blocks a partial replay.',
+    },
+    {
+      id: 'target119-nondaemon-declaration-owner-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.119-nondaemon-static-owner-proofs.test.mjs',
+      detail: 'The authenticated Target119 fixture pins twenty-four complete non-daemon units, all 527 typed residues, exact target slices, and only explicit compiler/build transformations.',
+    },
+    {
+      id: 'target119-nondaemon-declaration-owner-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.119-nondaemon-static-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST test requires a unique rare-file winner and unique top-level declaration whose authored residues contain every non-compiler identity, rejecting generic target-text attribution.',
+    },
+    ...target120TailSupplementFixture.evidenceIds.map(id => ({
+      id,
+      kind: id.includes('-authenticated-')
+        ? 'target-fragment'
+        : id.includes('-pinned-source-preimage-')
+          ? 'static-ast'
+          : 'semantic-test',
+      path: 'recovery/test/recovery-2.1.120-tail-supplement-replay.test.mjs',
+      detail: id.includes('-authenticated-')
+        ? 'The authenticated target120 replay fixture pins the complete target unit, exact target-added residue, and bounded recovered behavior.'
+        : id.includes('-pinned-source-preimage-')
+          ? 'The replay fixture pins the exact historical source preimage and recovered postimage for this bounded Target120 supplement cluster.'
+          : 'The source-root-aware test applies the bounded Target120 supplement and proves exact second-pass idempotence and recovered source behavior.',
+    })),
+    {
+      id: 'target2-1-120-daemon-tail-authenticated-target-fragment-test',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.120-daemon-tail-owner-proofs.test.mjs',
+      detail: 'The authenticated Target120 fixture pins four complete daemon and background-attach units and all ninety target-added residue identities and target slices.',
+    },
+    {
+      id: 'target2-1-120-daemon-tail-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.120-daemon-tail-owner-proofs.test.mjs',
+      detail: 'The source-root-aware test verifies exact daemon client, background attach, supervisor, and daemon-main declarations and seventy-two authored source-AST residues.',
+    },
+    {
+      id: 'target2-1-120-daemon-tail-compiler-normalization-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.120-daemon-tail-owner-proofs.test.mjs',
+      detail: 'The static proof binds the remaining eighteen residues to exact build-metadata expansion, constant concatenation, and template-segmentation compiler representations.',
+    },
+    {
+      id: 'target2-1-120-compiler-tail-authenticated-target-fragment-test',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.120-compiler-tail-owner-proofs.test.mjs',
+      detail: 'The authenticated Target120 fixture pins six complete compiler-tail units and all thirty exact target-added residue identities and target slices.',
+    },
+    {
+      id: 'target2-1-120-compiler-tail-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.120-compiler-tail-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST proof binds each unit to its exact plugin schema, query, Doctor, session-storage, FleetView, or system-init declaration owner.',
+    },
+    {
+      id: 'target2-1-120-compiler-tail-normalization-and-dce-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.120-compiler-tail-owner-proofs.test.mjs',
+      detail: 'The static proof authenticates the bounded regexp, build-metadata, control-table, and dead-feature-guard compiler representations without admitting the excluded Fleet and survey source gaps.',
+    },
+    {
+      id: 'target118-session-kind-dce-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.118-session-kind-dce.test.mjs',
+      detail: 'The authenticated Target118 proof pins the complete metadata formatter unit, its sole session_kind residue, the metadata producer, and the exact session-kind getter binding.',
+    },
+    {
+      id: 'target118-session-kind-dce-static-binding-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.118-session-kind-dce.test.mjs',
+      detail: 'Complete-bundle AST binding analysis proves the session-kind getter has only a bare return and that the sole metadata producer conditionally forwards only its always-undefined result, making session_kind emission unreachable.',
+    },
+    {
+      id: 'target120-agent-sdk-query-build-input-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.120-final-tail-static-proofs.test.mjs',
+      detail: 'The authenticated target comparison pins the complete bundled @anthropic-ai/claude-agent-sdk Query predecessor and target modules, including SDK initialization and submit-feedback controls, and excludes the coarse first-party bridge attribution.',
+    },
+    {
+      id: 'target2-1-120-final-tail-authenticated-target-fragment-test',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.120-final-tail-static-proofs.test.mjs',
+      detail: 'The authenticated proof pins the complete Target120 CLI-entry unit and all thirteen typed residue identities by exact target coordinates and structural hash.',
+    },
+    {
+      id: 'target2-1-120-final-tail-exact-source-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.120-final-tail-static-proofs.test.mjs',
+      detail: 'The source-root-aware proof binds the CLI-entry behavior to src/main.tsx and rejects the provisional coarse owner.',
+    },
+    {
+      id: 'target2-1-120-final-tail-forward-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.120-final-tail-static-proofs.test.mjs',
+      detail: 'Pinned cumulative-forward source AST authenticates the later-extracted deep-link, agent-selection, resume-telemetry, state, version-registration, and ultrareview surfaces that remain Target120 behavior.',
+    },
+    {
+      id: 'target2-1-120-final-tail-compiler-lineage-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.120-final-tail-static-proofs.test.mjs',
+      detail: 'The static compiler-lineage proof accounts for the remaining build-metadata and lowering residues without treating them as missing authored source.',
+    },
+    {
+      id: 'target121-bootstrap-state-export-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-bootstrap-state-export-source-gap.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the complete bootstrap export table, the three exact thinking-override and start-time property residues, and their generated function bindings.',
+    },
+    {
+      id: 'target121-bootstrap-state-export-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-bootstrap-state-export-source-gap.test.mjs',
+      detail: 'The bounded replay restores resetStartTime beside the exact bootstrap cwd-state accessors, verifies raw and recovered source states, and proves idempotent target/source behavior.',
+    },
+    {
+      id: 'target121-bootstrap-state-export-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-bootstrap-state-export-source-gap.test.mjs',
+      detail: 'The source AST proof binds resetStartTime and both thinking-type override accessors to their exact STATE assignments and Map operations.',
+    },
+    {
+      id: 'target121-growthbook-experiment-cache-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-growthbook-experiment-cache-source-gap.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the experiment-cache helpers, persisted fallback, atomic sorted cache writes, and warm-resume registration consumer.',
+    },
+    {
+      id: 'target121-growthbook-experiment-cache-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-growthbook-experiment-cache-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact GrowthBook experiment cache across growthbook, config, and WarmResumeHint, executes live and persisted fallback behavior, and proves idempotence.',
+    },
+    {
+      id: 'target121-growthbook-experiment-cache-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-growthbook-experiment-cache-source-gap.test.mjs',
+      detail: 'The source AST proof binds both target units to the recovered GrowthBook declarations and their exact configuration and UI consumer graph while rejecting the coarse event-logger owner.',
+    },
+    {
+      id: 'target121-agents-fleet-gate-cache-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-agents-fleet-gate-cache-source-gap.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the complete agents-fleet hydration unit, its three exact residues, and the GrowthBook cache helper binding.',
+    },
+    {
+      id: 'target121-agents-fleet-gate-cache-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-agents-fleet-gate-cache-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the persisted experiment-cache check and executes the settings, environment, cache, initialization, timeout, and rejection paths.',
+    },
+    {
+      id: 'target121-agents-fleet-gate-cache-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-agents-fleet-gate-cache-source-gap.test.mjs',
+      detail: 'The source AST proof binds the exact agentsFleet hydrator and accounts for the generated dynamic-import getSettingsWithErrors property normalization.',
+    },
+    {
+      id: 'target121-datadog-event-catalog-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-datadog-event-catalog-source-gap.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the complete Datadog event and tag-field catalogs, their exact Target120 delta, and every selected residue identity.',
+    },
+    {
+      id: 'target121-datadog-event-catalog-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-datadog-event-catalog-source-gap.test.mjs',
+      detail: 'The bounded replay restores the exact 110-event allowlist and 23 tag fields, removes retired entries, exercises filtering behavior, and proves idempotence.',
+    },
+    {
+      id: 'target121-datadog-event-catalog-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-datadog-event-catalog-source-gap.test.mjs',
+      detail: 'The source AST proof binds the recovered catalogs to the live trackDatadogEvent membership and tag-selection consumers.',
+    },
+    {
+      id: 'target121-ink-frame-live-count-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-ink-frame-timing-live-counts-source-gap.test.mjs',
+      detail: 'The authenticated Target121 proof pins the Fiber and DOM counters, their complete Ink unit, the gated onRender callsite, and every selected residue identity.',
+    },
+    {
+      id: 'target121-ink-frame-live-count-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-ink-frame-timing-live-counts-source-gap.test.mjs',
+      detail: 'The source-root-aware test replays the exact cycle-safe Fiber and DOM walkers into ink.tsx, proves the one gated callsite, and rejects drift or coarse ownership.',
+    },
+    {
+      id: 'target121-ink-frame-live-count-source-runtime-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-ink-frame-timing-live-counts-source-gap.test.mjs',
+      detail: 'Executable tests prove child, sibling, alternate, and childNodes traversal, cycle deduplication, and lazy disabled-gate behavior against the authenticated target.',
+    },
+    {
+      id: 'target121-memory-write-visual-row-target-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-memory-write-visual-row-truncation-source-gap.test.mjs',
+      detail: 'The authenticated Target121 proof pins both complete memory-write visual-row truncators, their helper units, deferred consumer boundaries, and every selected residue identity.',
+    },
+    {
+      id: 'target121-memory-write-visual-row-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-memory-write-visual-row-truncation-source-gap.test.mjs',
+      detail: 'The fail-closed replay restores ANSI-aware text and hunk truncation in memdir/memoryWriteSurvey.ts and proves exact idempotence without admitting deferred hook or UI consumers.',
+    },
+    {
+      id: 'target121-memory-write-visual-row-runtime-parity-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-memory-write-visual-row-truncation-source-gap.test.mjs',
+      detail: 'Executable source/target parity tests prove row counts, diff-gutter width, separators, partial-line slicing, and exact hiddenRows results.',
+    },
+    {
+      id: 'target121-cowork-memory-entrypoint-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-claudemd-cowork-memory-default-entrypoint-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target120 and Target121 getMemoryFiles units and isolates the one nested Cowork default-entrypoint guard.',
+    },
+    {
+      id: 'target121-cowork-memory-entrypoint-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-claudemd-cowork-memory-default-entrypoint-source-gap.test.mjs',
+      detail: 'The bounded replay inserts only the Cowork skip-default-entrypoint guard and proves exact output, idempotence, drift rejection, and scanner isolation.',
+    },
+    {
+      id: 'target121-cowork-memory-entrypoint-runtime-parity-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-claudemd-cowork-memory-default-entrypoint-source-gap.test.mjs',
+      detail: 'The AST and executable proof shows every getMemoryFiles branch remains identical except the exact environment-controlled AutoMem default entrypoint read.',
+    },
+    {
+      id: 'target121-file-edit-unicode-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-file-edit-unicode-escape-case-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Unicode-regex builder and its preserve/find consumers, including the exact target-added escaped-Unicode residue.',
+    },
+    {
+      id: 'target121-file-edit-unicode-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-file-edit-unicode-escape-case-source-gap.test.mjs',
+      detail: 'The bounded replay restores the three-declaration FileEditTool Unicode flow, proves exact output and idempotence, and fails closed on drift.',
+    },
+    {
+      id: 'target121-file-edit-unicode-runtime-parity-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-file-edit-unicode-escape-case-source-gap.test.mjs',
+      detail: 'AST and executable parity prove case-insensitive escaped-Unicode matching, preservation of known spellings, and dominant-case encoding for new code units.',
+    },
+    {
+      id: 'target121-internal-repo-url-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-internal-repo-url-validation-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete strict internal-repository URL predicate, its four regex residues, and the sole live consumer.',
+    },
+    {
+      id: 'target121-internal-repo-url-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-internal-repo-url-validation-source-gap.test.mjs',
+      detail: 'The bounded replay restores transport validation, traversal rejection, normalization, and exact repository-boundary matching with idempotent fail-closed output.',
+    },
+    {
+      id: 'target121-internal-repo-url-runtime-parity-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-internal-repo-url-validation-source-gap.test.mjs',
+      detail: 'Compiled AST and executable spoof/traversal matrices prove the recovered source is equivalent to the authenticated target predicate.',
+    },
+    {
+      id: 'target121-relaunch-pin-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-relaunch-current-binary-pin-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete relaunch predicate and launcher units, their pinToCurrentBinary residue, and all three live pinned-binary callers.',
+    },
+    {
+      id: 'target121-relaunch-pin-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-relaunch-current-binary-pin-source-gap.test.mjs',
+      detail: 'The bounded relaunch replay is byte-exact, idempotent, symlink-safe, and fails closed on every unrecognized source state.',
+    },
+    {
+      id: 'target121-relaunch-pin-runtime-parity-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-relaunch-current-binary-pin-source-gap.test.mjs',
+      detail: 'Compiled AST and executable branch matrices prove stable-symlink relaunch behavior and the exact current-binary bypass used by daemon and PTY children.',
+    },
+    {
+      id: 'target121-diagnostics-inline-expand-hint-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-diagnostics-inline-expand-hint-source-gap.test.mjs',
+      detail: 'The authenticated whole-unit comparison pins the cache contraction, transcript-aware expansion gate, and literal compact diagnostics hint.',
+    },
+    {
+      id: 'target121-diagnostics-inline-expand-hint-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-diagnostics-inline-expand-hint-source-gap.test.mjs',
+      detail: 'The bounded replay removes the stale component import, restores the exact cache layout and summary JSX, and fails closed on drift.',
+    },
+    {
+      id: 'target121-diagnostics-inline-expand-hint-runtime-parity-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-diagnostics-inline-expand-hint-source-gap.test.mjs',
+      detail: 'Compiled AST and executable rendering matrices prove parity for empty, summary, verbose, transcript, and memoized diagnostics states.',
+    },
+    {
+      id: 'target121-agent-tool-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-agent-tool-skill-provenance-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete AgentTool unit, all 46 owner residues, and the exact prompt-length and skill-provenance additions.',
+    },
+    {
+      id: 'target121-agent-tool-prompt-telemetry-and-skill-provenance-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-agent-tool-skill-provenance-owner-proof.test.mjs',
+      detail: 'Whole-unit AST evidence binds prompt-length telemetry and spawnedBySkill with activeSkill fallback to the authenticated AgentTool runtime.',
+    },
+    {
+      id: 'target121-agent-tool-source-and-dependent-graph-gap',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-agent-tool-skill-provenance-owner-proof.test.mjs',
+      detail: 'The temporal source audit proves the wider provenance type and producer graph is absent across recovered and historical source, deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target121-slash-command-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-slash-command-content-telemetry-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target120 and Target121 processSlashCommand units, both telemetry insertions, both removed plugin assignment blocks, and every owner residue.',
+    },
+    {
+      id: 'target121-slash-command-content-telemetry-ast-substitution',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-slash-command-content-telemetry-owner-proof.test.mjs',
+      detail: 'A complete four-edit AST substitution proves that both command_content_chars spreads exactly replace the two removed plugin-name and marketplace-name blocks.',
+    },
+    {
+      id: 'target121-slash-command-source-lineage-replay-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-slash-command-content-telemetry-owner-proof.test.mjs',
+      detail: 'Historical source lineage and the executable focused proof bind processSlashCommand ownership while showing no source donor contains the complete Target121 four-edit state, deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target121-slash-command-active-skill-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-slash-command-active-skill-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete prompt-slash-command unit and its exact activeSkill assignment after retained invoked-skill registration.',
+    },
+    {
+      id: 'target121-slash-command-active-skill-producer-consumer-contract',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-slash-command-active-skill-owner-proof.test.mjs',
+      detail: 'Whole-unit AST evidence binds the activeSkill producer to the separately authenticated AgentTool spawnedBySkill fallback consumer.',
+    },
+    {
+      id: 'target121-slash-command-active-skill-source-type-graph-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-slash-command-active-skill-owner-proof.test.mjs',
+      detail: 'Exact source and ToolUseContext audits prove the complete activeSkill type and producer graph is absent, deliberately blocking an isolated type-incomplete replay.',
+    },
+    {
+      id: 'target121-skill-tool-active-skill-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-skill-tool-active-skill-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target120 and Target121 SkillTool units, the activeSkill assignment, and every owner residue.',
+    },
+    {
+      id: 'target121-skill-tool-active-skill-telemetry-semantic-boundary',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-skill-tool-active-skill-owner-proof.test.mjs',
+      detail: 'Complete-unit AST evidence isolates activeSkill assignment while accounting for the paired plugin telemetry substitution and declaration regrouping.',
+    },
+    {
+      id: 'target121-skill-tool-active-skill-source-type-graph-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-skill-tool-active-skill-owner-proof.test.mjs',
+      detail: 'Exact source and ToolUseContext audits prove the complete activeSkill type and provenance graph is absent, deliberately blocking an isolated replay.',
+    },
+    {
+      id: 'target121-resume-agent-spawned-by-skill-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-resume-agent-spawned-by-skill-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete resumeAgentBackground unit and its exact spawnedBySkill undefined reset.',
+    },
+    {
+      id: 'target121-resume-agent-spawned-by-skill-runtime-contract',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-resume-agent-spawned-by-skill-owner-proof.test.mjs',
+      detail: 'Complete-unit AST evidence binds the resume reset to the authenticated initial producer and downstream provenance forwarders.',
+    },
+    {
+      id: 'target121-resume-agent-spawned-by-skill-source-signature-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-resume-agent-spawned-by-skill-owner-proof.test.mjs',
+      detail: 'Exact recovered source and runAgent signature audits prove the provenance field is absent from the type graph, deliberately blocking an isolated replay.',
+    },
+    {
+      id: 'target121-classifier-authenticated-whole-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-classifier-build-name-filter-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete classifyAndPush and classifier-initializer units, all owner rows, and the adjacent generateJobName consumer.',
+    },
+    {
+      id: 'target121-classifier-build-macro-expansion',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-classifier-build-name-filter-owner-proof.test.mjs',
+      detail: 'Exact macro normalization binds the compiled version, build-time, and git-SHA object to symbolic MACRO metadata in jobs/classifier.ts.',
+    },
+    {
+      id: 'target121-classifier-placeholder-name-runtime-source-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-classifier-build-name-filter-owner-proof.test.mjs',
+      detail: 'The placeholder-name regexp and adjacent generateJobName rejection path authenticate the classifier boundary while exact source lineage blocks a partial replay.',
+    },
+    {
+      id: 'target121-query-run-agent-authenticated-whole-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-query-run-agent-runtime-state-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete queryLoop and runAgent units, their predecessors, and every exact residue in the coupled provenance/state transition.',
+    },
+    {
+      id: 'target121-spawned-by-skill-forwarding-contract',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-query-run-agent-runtime-state-owner-proof.test.mjs',
+      detail: 'Complete-unit AST equivalence proves spawnedBySkill is forwarded through the runAgent parameter, child context, query call, and model options together with activeSkill.',
+    },
+    {
+      id: 'target121-query-compact-tracking-source-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-query-run-agent-runtime-state-owner-proof.test.mjs',
+      detail: 'Exact recovered source lineage authenticates both owners while proving compactTracking and the skill-provenance contract are absent, deliberately blocking a partial replay.',
+    },
+    {
+      id: 'target121-powershell-resolved-unc-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-powershell-resolved-unc-normalization-source-gap.test.mjs',
+      detail: 'The authenticated proof pins the complete Target120 and Target121 PowerShell permission units and every exact owner-residue range.',
+    },
+    {
+      id: 'target121-powershell-resolved-unc-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-powershell-resolved-unc-normalization-source-gap.test.mjs',
+      detail: 'The bounded replay restores the slash-drive provider guard and Windows resolved-argument UNC guard idempotently and fail closed.',
+    },
+    {
+      id: 'target121-powershell-resolved-unc-runtime-parity-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-powershell-resolved-unc-normalization-source-gap.test.mjs',
+      detail: 'Exact AST and executable parity cover slash drives, URLs, mixed UNC separators, platform gating, and retained vulnerable-path behavior.',
+    },
+    {
+      id: 'target121-daemon-service-executable-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-service-executable-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete serviceExecutableIsMissing target unit, exact access residue, and daemonMain consumer.',
+    },
+    {
+      id: 'target121-daemon-service-executable-retained-source-declaration',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-service-executable-owner-proof.test.mjs',
+      detail: 'Byte-identical Target120 and Target121 service.ts declarations authenticate the authored owner and full systemd ExecStart parsing contract.',
+    },
+    {
+      id: 'target121-daemon-service-executable-new-main-reachability',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-service-executable-owner-proof.test.mjs',
+      detail: 'Exact daemonMain import and regeneration-branch call evidence proves the retained source export becomes newly reachable only in Target121.',
+    },
+    {
+      id: 'target121-daemon-service-executable-stale-owner-correction',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-service-executable-owner-proof.test.mjs',
+      detail: 'The focused owner proof rejects the positional McpParsingWarnings attribution and binds namespace-lowered access to daemon/service.ts.',
+    },
+    {
+      id: 'target121-daemon-status-doctor-authenticated-whole-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-doctor-owner-proof.test.mjs',
+      detail: 'The proof pins the complete daemon-status producer and Doctor consumer units, their predecessors, and all owner-added rows.',
+    },
+    {
+      id: 'target121-daemon-status-lease-contract-evolution',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-doctor-owner-proof.test.mjs',
+      detail: 'Complete-unit and source evidence isolates the lease-client status evolution while documenting the stricter recovered-source validation.',
+    },
+    {
+      id: 'target121-doctor-status-consumer-contract',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-doctor-owner-proof.test.mjs',
+      detail: 'The exact Doctor declarations bind the daemon-status result to supervisor, roster, reachability, service, and configured-worker rendering.',
+    },
+    {
+      id: 'target121-daemon-status-build-macro-expansion',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-doctor-owner-proof.test.mjs',
+      detail: 'Authenticated AST proof accounts for all nine strict VERSION, BUILD_TIME, and GIT_SHA compiler expansions across both units.',
+    },
+    {
+      id: 'target121-rename-generated-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-rename-generated-session-name-source-gap.test.mjs',
+      detail: 'The proof pins both complete rename-command target units, their predecessors, exact deltas, and every strict residue identity.',
+    },
+    {
+      id: 'target121-rename-generated-source-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-rename-generated-session-name-source-gap.test.mjs',
+      detail: 'The bounded replay restores the generated-name result contract, explicit rename origin, and consumer reminder gate idempotently and fail closed.',
+    },
+    {
+      id: 'target121-rename-generated-runtime-parity-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-rename-generated-session-name-source-gap.test.mjs',
+      detail: 'Compiled AST and executable parity cover explicit, generated, whitespace, no-context, and teammate rename paths with the authenticated daemon dependency.',
+    },
+    {
+      id: 'target121-async-agent-detail-kill-all-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-async-agent-detail-kill-all-shortcut-owner-proof.test.mjs',
+      detail: 'The complete-unit proof pins the optional kill-all shortcut, its cached running-only KeyboardShortcutHint, and the exact Target120 predecessor reduction.',
+    },
+    {
+      id: 'target121-async-agent-detail-kill-all-source-owner-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-async-agent-detail-kill-all-shortcut-owner-proof.test.mjs',
+      detail: 'Mapped-source and declaration evidence binds the unit to AsyncAgentDetailDialog while proving the available authored snapshot predates the retained keyguard and cannot be replayed alone.',
+    },
+    {
+      id: 'target121-async-agent-detail-kill-all-caller-boundary-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-async-agent-detail-kill-all-shortcut-owner-proof.test.mjs',
+      detail: 'The caller-boundary proof authenticates BackgroundTasksDialog u17548 as the producer that supplies the shortcut only when more than one local agent is running.',
+    },
+    {
+      id: 'target121-background-tasks-kill-all-whole-unit-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-background-tasks-kill-all-shortcut-owner-proof.test.mjs',
+      detail: 'The complete-unit proof pins the greater-than-one running-agent guard, detail prop, nested list action, and exact Target120 predecessor reduction.',
+    },
+    {
+      id: 'target121-background-tasks-kill-all-source-owner-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-background-tasks-kill-all-shortcut-owner-proof.test.mjs',
+      detail: 'Mapped-source and declaration evidence binds the unit to BackgroundTasksDialog while proving the available source omits retained behavior and cannot be replayed alone.',
+    },
+    {
+      id: 'target121-background-tasks-kill-all-caller-graph-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-background-tasks-kill-all-shortcut-owner-proof.test.mjs',
+      detail: 'Three authenticated upstream calls and the retained onBack boundary pin the complete BackgroundTasksDialog caller graph.',
+    },
+    {
+      id: 'target121-background-tasks-kill-all-u17497-contract-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-background-tasks-kill-all-shortcut-owner-proof.test.mjs',
+      detail: 'The proof composes the producer with the separately authenticated u17497 AsyncAgentDetailDialog shortcut consumer without overclaiming source replay.',
+    },
+    {
+      id: 'target121-daemon-status-writer-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.test.mjs',
+      detail: 'The proof pins the complete Target121 writeDaemonStatus unit, its adjacent structural boundary, and exact Target120 predecessor.',
+    },
+    {
+      id: 'target121-daemon-status-writer-source-replay',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.test.mjs',
+      detail: 'The exact two-anchor replay replaces the old atomic writer with the direct best-effort writer and adds only the retained process-start import.',
+    },
+    {
+      id: 'target121-daemon-status-writer-runtime-parity',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.test.mjs',
+      detail: 'Compiled AST and runtime parity prove defined and undefined birth-token output and swallowed write failures match the target.',
+    },
+    {
+      id: 'target121-current-process-start-token-retained-dependency',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.test.mjs',
+      detail: 'The unchanged genericProcessUtils declaration and matched target unit authenticate getCurrentProcessStartToken as a retained dependency.',
+    },
+    {
+      id: 'target121-daemon-hub-status-reader-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.test.mjs',
+      detail: 'Pins the complete Target121 daemon status reader, its exact Target120 predecessor, the adjacent structural boundary, and both supervisorProcStart residue identities.',
+    },
+    {
+      id: 'target121-daemon-hub-status-reader-source-replay',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.test.mjs',
+      detail: 'The fail-closed replay adds only the retained parser and process-token imports, optional status field, complete reader, and matched caller catch anchor.',
+    },
+    {
+      id: 'target121-daemon-hub-status-reader-runtime-parity',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.test.mjs',
+      detail: 'Executable parity covers malformed status, dead and reused PIDs, missing legacy process tokens, live workers, and read failures.',
+    },
+    {
+      id: 'target121-process-start-token-match-retained-dependency',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.test.mjs',
+      detail: 'The unchanged genericProcessUtils declaration and target binding authenticate processStartTokenMatches as a retained dependency.',
+    },
+    {
+      id: 'target121-safe-json-parser-retained-dependency',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-hub-status-reader-proc-start-source-gap.test.mjs',
+      detail: 'The unchanged safeParseJSON declaration and target binding authenticate the fail-closed status parser dependency.',
+    },
+    {
+      id: 'target121-fork-spawned-by-skill-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-fork-spawned-by-skill-owner-proof.test.mjs',
+      detail: 'The authenticated proof pins the complete Target121 spawnFork unit, its exact Target120 predecessor, and all three skill-provenance residue identities.',
+    },
+    {
+      id: 'target121-fork-spawned-by-skill-exact-property-insertion',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-fork-spawned-by-skill-owner-proof.test.mjs',
+      detail: 'Removing only the spawnedBySkill fallback property from the runAgent parameter object makes the complete identifier-normalized and alpha-canonical target unit identical to its predecessor.',
+    },
+    {
+      id: 'target121-fork-spawned-by-skill-source-type-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-fork-spawned-by-skill-owner-proof.test.mjs',
+      detail: 'Byte-identical Target120, Target121, and packaged fork sources plus the missing ToolUseContext members authenticate the owner while deliberately blocking an isolated source replay.',
+    },
+    {
+      id: 'target121-query-model-skill-attribution-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-query-model-skill-attribution-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 queryModel unit, its unmatched Target120 predecessor, and every exact skill-attribution residue identity.',
+    },
+    {
+      id: 'target121-query-model-skill-attribution-four-call-graph',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-query-model-skill-attribution-owner-proof.test.mjs',
+      detail: 'Authenticates the four assistant-message attribution spreads and the helper mapping querySource, spawnedBySkill, and activeSkill to agent, skill, and plugin metadata.',
+    },
+    {
+      id: 'target121-query-model-skill-attribution-source-type-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-query-model-skill-attribution-owner-proof.test.mjs',
+      detail: 'Proves recovered claude.ts and the wider source tree omit the helper, all four spreads, and both provenance fields, blocking a type-incomplete partial replay.',
+    },
+    {
+      id: 'target121-handle-prompt-submit-active-skill-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-handle-prompt-submit-active-skill-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 executeUserInput unit, its unmatched Target120 predecessor, and the sole exact activeSkill residue identity.',
+    },
+    {
+      id: 'target121-handle-prompt-submit-active-skill-mutable-context-graph',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-handle-prompt-submit-active-skill-owner-proof.test.mjs',
+      detail: 'Authenticates the cached mutable ToolUseContext, processUserInput carrier, final onQuery argument, and the adjacent provenance producer and consumer graph.',
+    },
+    {
+      id: 'target121-handle-prompt-submit-active-skill-source-type-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-handle-prompt-submit-active-skill-owner-proof.test.mjs',
+      detail: 'Proves recovered source omits the cached flow, argument, parameter, and ToolUseContext fields, blocking an isolated type-incomplete replay.',
+    },
+    {
+      id: 'target121-repl-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-repl-runtime-source-gap-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 REPL unit, its Target120 predecessor, and all eight retained or runtime-gap residue identities.',
+    },
+    {
+      id: 'target121-repl-retained-layout-effect-owner',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-repl-runtime-source-gap-owner-proof.test.mjs',
+      detail: 'Authenticates both retained useLayoutEffect calls in the exact REPL source and distinguishes their global occurrence drift from the six true runtime source gaps.',
+    },
+    {
+      id: 'target121-repl-active-skill-survey-prompt-source-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-repl-runtime-source-gap-owner-proof.test.mjs',
+      detail: 'Pins activeSkill forwarding, consolidated survey-state selection, and PromptInput message-summary properties while proving the available source graph is too stale for a partial replay.',
+    },
+    {
+      id: 'target121-query-engine-active-skill-authenticated-whole-class',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-query-engine-active-skill-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 QueryEngine class, its unmatched Target120 predecessor, and both exact activeSkill residue identities.',
+    },
+    {
+      id: 'target121-query-engine-active-skill-exact-capture-restore',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-query-engine-active-skill-owner-proof.test.mjs',
+      detail: 'Removing only the activeSkill capture declarator and replacement-context restore property makes the complete canonical class and normalized token stream identical to its predecessor.',
+    },
+    {
+      id: 'target121-query-engine-active-skill-source-type-graph-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-query-engine-active-skill-owner-proof.test.mjs',
+      detail: 'Proves the raw and packaged QueryEngine, ProcessUserInputContext, and ToolUseContext source graph omits both nodes and blocks a type-incomplete partial replay.',
+    },
+    {
+      id: 'target121-fleetview-pr-poll-delay-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-fleetview-pr-poll-delay-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 adaptive PR refresh-delay helper and its exact structural insertion between unchanged FleetView module anchors.',
+    },
+    {
+      id: 'target121-fleetview-pr-poll-delay-exact-call-graph',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-fleetview-pr-poll-delay-owner-proof.test.mjs',
+      detail: 'Authenticates the sole FleetView call, terminal-focus and last-interaction dependencies, timestamp ref, focus reset, PR gate, and module initializer boundary.',
+    },
+    {
+      id: 'target121-fleetview-pr-poll-delay-source-gap-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-fleetview-pr-poll-delay-owner-proof.test.mjs',
+      detail: 'Proves the raw and packaged FleetView source retain the older unconditional PR fetch and omit the helper and its dependency graph, blocking a partial replay.',
+    },
+    {
+      id: 'target121-fleet-view-frame-row-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-fleet-view-frame-child-row-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 child-row decorator, its Target120 predecessor, and the exact atomic frame-child branch.',
+    },
+    {
+      id: 'target121-fleet-view-frame-row-consumer-boundary',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-fleet-view-frame-child-row-owner-proof.test.mjs',
+      detail: 'Authenticates the two exact FleetView call sites and adjacent compiled helper bindings that consume the decorated child-row contract.',
+    },
+    {
+      id: 'target121-fleet-view-frame-schema-source-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-fleet-view-frame-child-row-owner-proof.test.mjs',
+      detail: 'Binds the pr-or-frame daemon schema while proving the exact FleetView source remains PR-only and blocks a graph-incomplete partial replay.',
+    },
+    {
+      id: 'target121-fleet-view-authenticated-runtime-whole-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-fleet-view-runtime-status-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 FleetView runtime and directly rendered job-status component as one authenticated module boundary.',
+    },
+    {
+      id: 'target121-fleet-view-job-status-call-boundary',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-fleet-view-runtime-status-owner-proof.test.mjs',
+      detail: 'Authenticates the exact FleetView call that passes the focused job into the complete status/detail component under their shared initializer.',
+    },
+    {
+      id: 'target121-fleet-view-build-metadata-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-fleet-view-runtime-status-owner-proof.test.mjs',
+      detail: 'Proves the status unit is its Target120 predecessor after normalizing only the two exact VERSION, BUILD_TIME, and GIT_SHA triplets.',
+    },
+    {
+      id: 'target121-fleet-view-source-architecture-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-fleet-view-runtime-status-owner-proof.test.mjs',
+      detail: 'Proves the exact FleetView source retains legacy inline detail UI and lacks the compiled status component boundary, blocking a partial source replay.',
+    },
+    {
+      id: 'target121-session-state-manager-authenticated-whole-class',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 SessionStateManager class and its exact unmatched Target120 predecessor.',
+    },
+    {
+      id: 'target121-session-state-internal-metadata-callback-delta',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.test.mjs',
+      detail: 'Proves the complete class delta is exactly one onInternalMetadataChanged field and one forwarding method.',
+    },
+    {
+      id: 'target121-session-state-internal-metadata-consumer-graph',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.test.mjs',
+      detail: 'Authenticates background-task and rule publishers, the CCR metadata sink, and restored-task cleanup consumers.',
+    },
+    {
+      id: 'target121-session-state-manager-source-architecture-gap',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.test.mjs',
+      detail: 'Proves the available sessionState and StructuredIO source retains a superseded process-global architecture and blocks an isolated replay.',
+    },
+    {
+      id: 'target121-remote-io-authenticated-whole-initializer',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-remote-io-internal-metadata-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 RemoteIO initializer, its exact adjacent Target120 predecessor, and the matched right-hand module boundary.',
+    },
+    {
+      id: 'target121-remote-io-exact-internal-metadata-callback-delta',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-remote-io-internal-metadata-owner-proof.test.mjs',
+      detail: 'Proves the complete initializer delta is exactly the per-instance onInternalMetadataChanged callback assignment to the CCR client.',
+    },
+    {
+      id: 'target121-remote-io-source-owner-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-remote-io-internal-metadata-owner-proof.test.mjs',
+      detail: 'Authenticates cli/remoteIO.ts as the owner through its exact Target120-to-Target121 listener import and callback transition.',
+    },
+    {
+      id: 'target121-remote-io-source-architecture-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-remote-io-internal-metadata-owner-proof.test.mjs',
+      detail: 'Proves recovered source retains a process-global listener and lacks the compiled per-instance SessionStateManager and StructuredIO graph, blocking partial replay.',
+    },
+    {
+      id: 'target121-headless-authenticated-whole-runner',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-headless-restored-task-clear-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 runHeadless function, its unmatched Target120 predecessor, and the exact matched left-hand boundary.',
+    },
+    {
+      id: 'target121-headless-restored-task-recovery-block',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-headless-restored-task-clear-owner-proof.test.mjs',
+      detail: 'Proves the complete function delta is one contiguous restart-recovery block that reports orphaned tasks and clears their restored state.',
+    },
+    {
+      id: 'target121-headless-internal-metadata-clear-consumer',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-headless-restored-task-clear-owner-proof.test.mjs',
+      detail: 'Authenticates the exact per-instance notifyInternalMetadataChanged call and its empty running_background_tasks payload against the SessionStateManager dependency proof.',
+    },
+    {
+      id: 'target121-headless-source-architecture-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-headless-restored-task-clear-owner-proof.test.mjs',
+      detail: 'Proves print.ts contains the equivalent global notifier block while the compiled per-instance session-state architecture remains unavailable for replay.',
+    },
+    {
+      id: 'target121-agents-handler-authenticated-whole-function',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-agents-handler-groups-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 agentsHandler function and its exact Target120 structural predecessor.',
+    },
+    {
+      id: 'target121-agents-handler-exact-alpha-pair',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-agents-handler-groups-owner-proof.test.mjs',
+      detail: 'Proves the paired functions have equal byte length, token count, identifier-normalized tokens, canonical AST, and statement shape.',
+    },
+    {
+      id: 'target121-agents-handler-groups-local-invariant',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-agents-handler-groups-owner-proof.test.mjs',
+      detail: 'Proves all nine targetAdded property rows retain their exact baseline-local spans, including the strict groups key.',
+    },
+    {
+      id: 'target121-agents-handler-source-semantic-owner',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-agents-handler-groups-owner-proof.test.mjs',
+      detail: 'Authenticates the byte-identical Target120 and Target121 agents.ts source as the semantic owner and proves no replay is warranted.',
+    },
+    {
+      id: 'target121-daemon-spare-export-binding-proof',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 daemon spare export table and all four exact strict property identities.',
+    },
+    {
+      id: 'target121-daemon-spare-adjacent-implementation-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.test.mjs',
+      detail: 'Binds each generated export arrow to its exact adjacent spawn, run, reap, or claim implementation unit.',
+    },
+    {
+      id: 'target121-daemon-spare-split-source-graph-proof',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.test.mjs',
+      detail: 'Authenticates daemon/spare.ts as the generated module owner and pins the recovered supervisor claim path as the compiled claimSpare support graph.',
+    },
+    {
+      id: 'target121-daemon-spare-metadata-ambiguity-rejection',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.test.mjs',
+      detail: 'Rejects the generic metadata-equivalent classification by proving the same normalized table shape matches nineteen unrelated Target120 modules with none of the spare behavior markers.',
+    },
+    {
+      id: 'target121-daemon-spare-static-no-replay-proof',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-export-binding-owner-proof.test.mjs',
+      detail: 'Confines recovery to the generated export-table owner correction and authorizes no duplicate source replay.',
+    },
+    {
+      id: 'target121-daemon-worker-config-authenticated-complete-units',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 extracted worker-manager and runDaemon caller units and their exact residue partitions.',
+    },
+    {
+      id: 'target121-daemon-worker-config-baseline-inline-lineage',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs',
+      detail: 'Proves the extracted Target121 lifecycle is the canonical successor of the complete inline Target120 runDaemon worker-management graph.',
+    },
+    {
+      id: 'target121-daemon-worker-config-source-ast-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs',
+      detail: 'Authenticates src/daemon/main.ts::runDaemon as the exact source owner of both compiled units and rejects provisional src/main.tsx attribution.',
+    },
+    {
+      id: 'target121-daemon-worker-config-shared-call-graph-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs',
+      detail: 'Pins the auth manager, workerCount, OAuth consumer, watcher disposal, reload draining, and shutdown calls shared by the two units.',
+    },
+    {
+      id: 'target121-daemon-run-build-macro-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs',
+      detail: 'Separates the six VERSION, BUILD_TIME, and GIT_SHA substitutions from the twelve worker-manager strict rows.',
+    },
+    {
+      id: 'target121-daemon-worker-config-static-no-replay-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-worker-config-run-daemon-owner-proof.test.mjs',
+      detail: 'Proves raw and packaged runDaemon already author the full lifecycle, authorizing a static owner correction and no source replay.',
+    },
+    {
+      id: 'target121-daemon-cli-parse-kind-args-authenticated-export-binding',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.test.mjs',
+      detail: 'Pins the complete generated daemon CLI export table and binds parseKindArgs and both handlers to their exact implementation units.',
+    },
+    {
+      id: 'target121-daemon-cli-parse-kind-args-authored-source-evolution',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.test.mjs',
+      detail: 'Authenticates the Target121 daemon/cli.ts parser signature and export evolution against the exact Target120 source and compiled table.',
+    },
+    {
+      id: 'target121-daemon-cli-parse-kind-args-runtime-importer-graph',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.test.mjs',
+      detail: 'Pins handleCliKind calling parseKindArgs and daemon main importing the CLI namespace to invoke both exported handlers.',
+    },
+    {
+      id: 'target121-daemon-cli-parse-kind-args-normalized-ambiguity-rejection',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.test.mjs',
+      detail: 'Rejects generic alpha equivalence by proving twenty-seven unrelated Target120 export tables share the same normalized three-property shape.',
+    },
+    {
+      id: 'target121-daemon-cli-parse-kind-args-nonmatched-override-no-replay',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-cli-parse-kind-args-export-owner-proof.test.mjs',
+      detail: 'Authorizes one unresolved nonmatched owner correction while proving raw and packaged source already contain the complete graph and require no replay.',
+    },
+    {
+      id: 'target121-ultrareview-handler-authenticated-whole-function',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 Ultrareview handler and its exact adjacent matched boundaries.',
+    },
+    {
+      id: 'target121-ultrareview-handler-exact-alpha-predecessor',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.test.mjs',
+      detail: 'Proves the complete handler is an identifier-renamed counterpart of Target120 u21966.',
+    },
+    {
+      id: 'target121-ultrareview-handler-thirteen-local-invariants',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.test.mjs',
+      detail: 'Pins all thirteen owner residues to identical baseline-local AST paths and byte spans.',
+    },
+    {
+      id: 'target121-ultrareview-handler-exact-source-owner',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.test.mjs',
+      detail: 'Authenticates src/cli/handlers/ultrareview.ts as the exact owner and rejects the adjacent agents.ts attribution.',
+    },
+    {
+      id: 'target121-ultrareview-task-registry-closed-replay-graph',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-ultrareview-handler-owner-proof.test.mjs',
+      detail: 'Verifies the two-owner task-registry producer and Ultrareview consumer replay transaction, idempotence, runtime context, and mixed-state rejection.',
+    },
+    {
+      id: 'target121-memory-write-survey-hook-authenticated-whole-unit',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-memory-write-survey-hook-owner-proof.test.mjs',
+      detail: 'Pins the complete Target121 useMemoryWriteSurvey hook, its direct Target120 predecessor, and the exact width and post-reject deltas.',
+    },
+    {
+      id: 'target121-memory-write-survey-hook-width-and-reject-graph',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-memory-write-survey-hook-owner-proof.test.mjs',
+      detail: 'Authenticates terminal-width row counting, postReject state, setter and timer references, and the downstream hook-object consumer boundary.',
+    },
+    {
+      id: 'target121-memory-write-survey-hook-source-gap-blocker',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-memory-write-survey-hook-owner-proof.test.mjs',
+      detail: 'Proves the raw and packaged hook source remains byte-identical to the stale one-argument line counter and blocks a partial replay.',
+    },
+    {
+      id: 'target121-extra-usage-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-extra-usage-owner-proofs.test.mjs',
+      detail: 'The authenticated Target121 fixture pins fourteen complete extra-usage API and dialog units and all 358 typed residue identities, ranges, source hashes, and target slices.',
+    },
+    {
+      id: 'target121-extra-usage-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-extra-usage-owner-proofs.test.mjs',
+      detail: 'The source-root-aware proof binds the live API requests and dialog state machine to exact declarations in services/api/extraUsage.ts and commands/extra-usage/ExtraUsageDialog.tsx, rejecting the coarse RemoteAgentTask attribution.',
+    },
+    {
+      id: 'target121-extra-usage-disabled-mock-binding-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-extra-usage-owner-proofs.test.mjs',
+      detail: 'Complete-bundle binding analysis proves every target-only mock branch and preset consumer is dominated by the unique extra-usage mock getter whose exact implementation always returns null.',
+    },
+    {
+      id: 'target121-extra-usage-compiler-lineage-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-extra-usage-owner-proofs.test.mjs',
+      detail: 'The compiler-lineage proof accounts for React memo-cache, JSX, property, import, and build normalization residues within the exact authenticated owners without inventing source behavior.',
+    },
+    {
+      id: 'target121-pty-worker-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-pty-worker-owner-proofs.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the three complete PTY worker and supervisor units and all 125 exact residue identities, ranges, and target slices.',
+    },
+    {
+      id: 'target121-pty-worker-exact-source-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-pty-worker-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST proof binds runPtyHost to daemon/ptyHost.ts and the pinned worker launcher, default spawn path, and BackgroundHandle to daemon/supervisor.ts, rejecting chromeNativeHost.ts.',
+    },
+    {
+      id: 'target121-pty-worker-compiler-normalization-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-pty-worker-owner-proofs.test.mjs',
+      detail: 'The bounded compiler proof accounts for seven name, property, import, and class-lowering residues inside the exact PTY declarations.',
+    },
+    {
+      id: 'target121-pty-worker-build-macro-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-pty-worker-owner-proofs.test.mjs',
+      detail: 'The build-macro proof authenticates fifteen version, build-time, and commit literals within the exact target units without treating them as missing source.',
+    },
+    {
+      id: 'target121-usage-contributors-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-usage-contributors-owner-proofs.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the three complete usage-contributor units and all twenty-nine exact target residue identities, ranges, and slices.',
+    },
+    {
+      id: 'target121-usage-contributors-exact-source-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-usage-contributors-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST proof binds accumulator creation, record attribution, and final statistics to components/Settings/UsageContributors.tsx and rejects the coarse Overage UI owner.',
+    },
+    {
+      id: 'target121-usage-contributors-compiler-normalization-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-usage-contributors-owner-proofs.test.mjs',
+      detail: 'The bounded compiler proof maps the six longCtxCost and longCtxCount abbreviations to exact longContextCost and longContextCount source declarations.',
+    },
+    {
+      id: 'target121-daemon-supervisor-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the three complete control-server and background-supervisor units and all 184 exact residue identities, ranges, and target slices.',
+    },
+    {
+      id: 'target121-daemon-supervisor-exact-source-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST proof binds startControlServer, handleControl, and runBackgroundSupervisor to daemon/supervisor.ts and rejects the coarse main.tsx attribution.',
+    },
+    {
+      id: 'target121-daemon-supervisor-compiler-normalization-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.test.mjs',
+      detail: 'The bounded compiler proof accounts for eleven import, API, property, and ANSI-fragment normalizations within the exact supervisor declarations.',
+    },
+    {
+      id: 'target121-daemon-supervisor-build-macro-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.test.mjs',
+      detail: 'The build-macro proof authenticates nine version and build-time residues inside the exact target units without treating them as missing source.',
+    },
+    {
+      id: 'target121-daemon-main-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-main-owner-proofs.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the complete daemon CLI dispatcher and status unit and all 111 exact residue identities, ranges, and target slices.',
+    },
+    {
+      id: 'target121-daemon-main-exact-source-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-main-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST proof binds the daemonMain dispatcher and its inlined showStatus path to daemon/main.ts and rejects the coarse main.tsx attribution.',
+    },
+    {
+      id: 'target121-daemon-main-compiler-normalization-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-main-owner-proofs.test.mjs',
+      detail: 'The bounded compiler proof accounts for three conditional and nested-template fragment normalizations within the exact daemon declarations.',
+    },
+    {
+      id: 'target121-daemon-main-build-macro-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-main-owner-proofs.test.mjs',
+      detail: 'The build-macro proof authenticates six version and build-time residues inside the exact target unit without treating them as missing source.',
+    },
+    {
+      id: 'target121-daemon-spare-authenticated-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-owner-proofs.test.mjs',
+      detail: 'The authenticated Target121 fixture pins the complete spawnSpare unit and all seventeen exact target residue identities, ranges, and slices.',
+    },
+    {
+      id: 'target121-daemon-spare-exact-source-owner-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-owner-proofs.test.mjs',
+      detail: 'The source-root-aware AST proof binds the complete spare-daemon spawn lifecycle to daemon/spare.ts and rejects the coarse main.tsx attribution.',
+    },
+    {
+      id: 'target121-daemon-spare-build-macro-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.121-daemon-spare-owner-proofs.test.mjs',
+      detail: 'The build-macro proof authenticates the version, build-time, and commit triple inside the exact target unit without treating it as missing source.',
+    },
+    ...['120', '121'].flatMap(version => [
+      {
+        id: `target2-1-${version}-tail-authenticated-target-occurrence-test`,
+        kind: 'target-fragment',
+        path: `recovery/test/recovery-2.1.${version}-tail-generator-evidence.test.mjs`,
+        detail: `The authenticated target${version} fixture pins every admitted complete unit and target-added residue by exact range, ordinal, source hash, and bundle identity.`,
+      },
+      {
+        id: `target2-1-${version}-tail-compiler-source-ast-test`,
+        kind: 'semantic-test',
+        path: `recovery/test/recovery-2.1.${version}-tail-generator-evidence.test.mjs`,
+        detail: `The target${version} source-root-aware test verifies each bounded compiler normalization against exact historical source descriptors and target markers.`,
+      },
+      {
+        id: `target2-1-${version}-tail-transitive-source-ast-test`,
+        kind: 'semantic-test',
+        path: `recovery/test/recovery-2.1.${version}-tail-generator-evidence.test.mjs`,
+        detail: `The target${version} source-root-aware test proves every transitive residue in the exact declared owner and rejects incomplete or incidental global matches.`,
+      },
+    ]),
+    ...['120', '121'].flatMap(version => [
+      {
+        id: `target${version}-focused-residue-target-fragment`,
+        kind: 'target-fragment',
+        path: `recovery/test/recovery-2.1.${version}-focused-residue-proofs.test.mjs`,
+        detail: `The target${version} fixture pins complete authenticated structural units and every admitted typed residue by exact bundle coordinates and hashes.`,
+      },
+      {
+        id: `target${version}-focused-residue-static-ast`,
+        kind: 'static-ast',
+        path: `recovery/test/recovery-2.1.${version}-focused-residue-proofs.test.mjs`,
+        detail: `The target${version} AST proof classifies compiler lowering, paired-local invariants, direct representations, and exact owner coverage without admitting any excluded unsupported unit.`,
+      },
+      {
+        id: `target${version}-focused-residue-semantic-test`,
+        kind: 'semantic-test',
+        path: `recovery/test/recovery-2.1.${version}-focused-residue-proofs.test.mjs`,
+        detail: `The target${version} source-root-aware test verifies exact historical owners, semantic-correspondence witnesses, runtime imports, and the full macro/exact/focused/excluded partition.`,
+      },
+    ]),
     {
       id: 'target-fragment',
       kind: 'target-fragment',

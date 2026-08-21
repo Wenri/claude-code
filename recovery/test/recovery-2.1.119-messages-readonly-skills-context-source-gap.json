@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "criterion": "authenticated-messages-readonly-skills-context-source-replay-v1",
+  "status": "case-owned-atomic-one-file-source-replay",
+  "evidenceIds": [
+    "target119-messages-context-target-fragments",
+    "target119-messages-context-source-replay-test",
+    "target119-messages-context-runtime-parity-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "sourceGitObject": "271c867aff51e1b945079b8cac2fc6b2ec5fd572",
+    "sourcePreimage": {
+      "path": "src/utils/messages.ts",
+      "bytes": 199665,
+      "sha256": "babd856114a8e0130dcd08cb5d60cda3a34c335d346f175b2fec2fc9482dd290"
+    },
+    "sourcePostimage": {
+      "path": "src/utils/messages.ts",
+      "bytes": 200217,
+      "sha256": "fda27f770a6e4ca1662ecabe1980d09ad4dffd84aaa6a8abee4fb199bda55cc1"
+    }
+  },
+  "sourceDeclarations": {
+    "preimage": [
+      {
+        "name": "getReadOnlyToolNames",
+        "start": 117731,
+        "end": 118491,
+        "bytes": 760,
+        "sha256": "1bf1cb3d690832a2e95ba86cfd6acca271bf15c5545a18c747710ffd30b80e3e"
+      },
+      {
+        "name": "normalizeAttachmentForAPI",
+        "start": 127908,
+        "end": 159973,
+        "bytes": 32083,
+        "sha256": "d48c550936e4991c478c8b9f461dca0feb1b78b720a2fb2460843a30adb1c225"
+      }
+    ],
+    "postimage": [
+      {
+        "name": "getReadOnlyToolNames",
+        "start": 117731,
+        "end": 118564,
+        "bytes": 833,
+        "sha256": "7cbb0503bcddcdb4fb17309f04f6e59b8451ad9168b59c06663094984c7eb3f9"
+      },
+      {
+        "name": "normalizeAttachmentForAPI",
+        "start": 127981,
+        "end": 160523,
+        "bytes": 32562,
+        "sha256": "fb237727bf3b6942e460736d77da8f6c2ff5a60a1f04729de71ee390ab04b166"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "targetIndex": 15344,
+      "role": "read-only tool-name formatter",
+      "ownerPath": "src/utils/messages.ts",
+      "declarations": [
+        "getReadOnlyToolNames"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 9496819,
+        "end": 9496995,
+        "bytes": 176,
+        "tokenCount": 95,
+        "sourceHash": "21de244bb6a5f008910934ce5c59a5d621569fceb9e2690d42db8350b0786f03",
+        "coarseHash": "2e90a1c8f5091d9ac82cc9a9f79dc4ff173a727696a0cee79d4ed82bb549cf46"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "`find`/",
+          "start": 9496860,
+          "end": 9496869,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "`grep`/",
+          "start": 9496877,
+          "end": 9496886,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "property",
+          "value": "allowedTools",
+          "start": 9496906,
+          "end": 9496918,
+          "baselineCount": 60,
+          "targetOrdinal": 33
+        }
+      ]
+    },
+    {
+      "targetIndex": 15351,
+      "role": "attachment normalization dispatcher",
+      "ownerPath": "src/utils/messages.ts",
+      "declarations": [
+        "normalizeAttachmentForAPI"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 9503744,
+        "end": 9514776,
+        "bytes": 11032,
+        "tokenCount": 2330,
+        "sourceHash": "b62f369ef7025e34001ca09998935f87dccf1b6a100fd873a6e1c42c602312d5",
+        "coarseHash": "cb98f560321ff6a1cf314ca01146d0fc82cf1401fa2d005185bf0dbc9b4f08ed"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "The following skills were invoked EARLIER in this session (before the conversation was compacted), not on the current turn. They are shown here for context only so you remain aware of their guidelines.\n\nIMPORTANT: Do NOT re-execute these skills or perform their one-time setup actions (e.g., scheduling, creating files) again. The \"## Input\" sections below reflect the original arguments from when each skill was first invoked — they are NOT the user's current message. Only continue to apply ongoing behavioral guidelines from these skills where still relevant.\n\n",
+          "start": 9505512,
+          "end": 9506081,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "<synthesis:",
+          "start": 9507563,
+          "end": 9507576,
+          "baselineCount": 4,
+          "targetOrdinal": 3
+        },
+        {
+          "kind": "string",
+          "value": "Retrieved for possible relevance — use only if it actually applies to what the user asked.\n\n",
+          "start": 9507611,
+          "end": 9507708,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "The following deferred tools are now available via ",
+          "start": 9512206,
+          "end": 9512257,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": ". Their schemas are NOT loaded — calling them directly will fail with InputValidationError. Use ",
+          "start": 9512262,
+          "end": 9512363,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": " with query \"select:<name>[,<name>...]\" to load tool schemas before calling them:\n",
+          "start": 9512368,
+          "end": 9512450,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "The following deferred tools are no longer available (their MCP server disconnected). Do not search for them — ",
+          "start": 9512513,
+          "end": 9512629,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": " will return no match:\n",
+          "start": 9512634,
+          "end": 9512657,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "When you launch multiple agents for independent work, send them in a single message with multiple tool uses so they run concurrently.",
+          "start": 9513138,
+          "end": 9513273,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "You have completed implementing the plan. Please call the \"\" tool directly (NOT the ",
+          "start": 9514299,
+          "end": 9514383,
+          "baselineCount": 1,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "string",
+          "value": "pen_mode_enter",
+          "start": 9514630,
+          "end": 9514646,
+          "baselineCount": 2,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "string",
+          "value": "pen_mode_exit",
+          "start": 9514647,
+          "end": 9514662,
+          "baselineCount": 2,
+          "targetOrdinal": 2
+        }
+      ]
+    }
+  ],
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:15344",
+      "targetIndex": 15344,
+      "paths": [
+        "src/utils/messages.ts"
+      ],
+      "evidenceIds": [
+        "target119-messages-context-target-fragments",
+        "target119-messages-context-source-replay-test",
+        "target119-messages-context-runtime-parity-test"
+      ],
+      "behavior": "The authenticated read-only-tool formatter labels embedded find/grep shell aliases with their Glob/Grep tool identities, preserves the ordinary tool allowlist branch, and is replayed exactly in src/utils/messages.ts."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:15351",
+      "targetIndex": 15351,
+      "paths": [
+        "src/utils/messages.ts"
+      ],
+      "evidenceIds": [
+        "target119-messages-context-target-fragments",
+        "target119-messages-context-source-replay-test",
+        "target119-messages-context-runtime-parity-test"
+      ],
+      "behavior": "The authenticated attachment normalizer preserves invoked-skill content after compaction while warning that the invocation and one-time setup are historical; the exact source branch and target runtime output are replayed and tested together."
+    }
+  ],
+  "summary": {
+    "units": 2,
+    "residues": 15,
+    "targetIndicesSha256": "28f0cf50689337230c610c7cc72c62f872f2c0f5397210c484d877752542834a",
+    "residueIdentitiesSha256": "36f38d373885e967cdc2ea014127f5224e62358c99b83ac183a5c1674c44a385"
+  }
+}

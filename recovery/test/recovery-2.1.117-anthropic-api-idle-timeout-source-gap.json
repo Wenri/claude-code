@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-anthropic-api-idle-timeout-evolution-aware-source-replay-v2",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-anthropic-api-idle-timeout-target-function",
+    "target116-anthropic-api-idle-timeout-baseline-function",
+    "target117-anthropic-api-idle-timeout-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-anthropic-api-idle-timeout-source-gap.mjs",
+      "bytes": 5376,
+      "sha256": "201238eb254ab63b097f083a00f783d2bcb70b13f6754c7db288ef1903ad9a4c"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFile": {
+      "path": "src/utils/proxy.ts",
+      "blob": "bd31269ce19096c7159b62efd695fa03455d14ab",
+      "input": {
+        "bytes": 13676,
+        "sha256": "878aaf385b5d89ef67c247966153d743e6223ec8910a7aa1b3718b9ffedf5022"
+      },
+      "rawOutput": {
+        "bytes": 13876,
+        "sha256": "b37aca971d5141249901bc4e08fd2531f80a8c15c40d68768bf444a472bab3db"
+      },
+      "historicalInput": {
+        "bytes": 17623,
+        "sha256": "406c2f9d59ffecae1aa213630ad16b22b14d15f1cb2cb7d8dbe9b73451da1a9c"
+      },
+      "output": {
+        "bytes": 17823,
+        "sha256": "d61a6601e5f496958bd1cddef5b1a976604ebdd4da2240df9979e63b0f70faf5"
+      },
+      "inputDeclaration": {
+        "name": "getProxyFetchOptions",
+        "nodeType": "FunctionDeclaration",
+        "start": 9252,
+        "end": 10467,
+        "bytes": 1215,
+        "sha256": "0f473b3a060615cc070b137cd3f77703ac6b084fe02c97f8edf0d2668c0a0e9a"
+      },
+      "outputDeclaration": {
+        "name": "getProxyFetchOptions",
+        "nodeType": "FunctionDeclaration",
+        "start": 13197,
+        "end": 14612,
+        "bytes": 1415,
+        "sha256": "7fa2a9a846add40dd77bb69205cb2671c5184fb443d6137754dc76a2af75a94a"
+      },
+      "rawOutputDeclaration": {
+        "name": "getProxyFetchOptions",
+        "nodeType": "FunctionDeclaration",
+        "start": 9252,
+        "end": 10667,
+        "bytes": 1415,
+        "sha256": "7fa2a9a846add40dd77bb69205cb2671c5184fb443d6137754dc76a2af75a94a"
+      },
+      "historicalInputDeclaration": {
+        "name": "getProxyFetchOptions",
+        "nodeType": "FunctionDeclaration",
+        "start": 13197,
+        "end": 14412,
+        "bytes": 1215,
+        "sha256": "0f473b3a060615cc070b137cd3f77703ac6b084fe02c97f8edf0d2668c0a0e9a"
+      }
+    },
+    "requiredReplayOrder": [
+      "applyTarget117HistoricalOwnerSourceGapRecovery",
+      "applyTarget117AnthropicApiIdleTimeoutSourceRecovery"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 0,
+    "behaviorWitnessUnits": 1,
+    "acceptedPreimageStates": 2
+  },
+  "baselineWitness": {
+    "baselineUnit": [
+      3263,
+      "unmatched-baseline",
+      "FunctionDeclaration",
+      1641947,
+      1642324,
+      155,
+      "7284794f992b442ef9bdac6c576adc74ce4da15705e0552dd6fc49a69d6af556",
+      "ca2db90b86f2ff34ab3e5f60e0ae40c1691ce3400b1b2a385a583f7f688dc9b7"
+    ],
+    "exactSource": "function kp(H){let $={...OZ8&&{keepalive:!1},...H?.forAnthropicAPI&&typeof Bun<\"u\"&&{timeout:!1}};if(H?.forAnthropicAPI){let K=process.env.ANTHROPIC_UNIX_SOCKET;if(K&&typeof Bun<\"u\")return{...$,unix:K}}let q=ZS();if(q){if(typeof Bun<\"u\"){let K=v4q();return{...$,proxy:K?{url:q,headers:{\"Proxy-Authorization\":K}}:q,...hX$()}}return{...$,dispatcher:d2$(q)}}return{...$,...hX$()}}"
+  },
+  "row": {
+    "targetIndex": 3266,
+    "owner": "src/utils/proxy.ts",
+    "declarations": [
+      "getProxyFetchOptions"
+    ],
+    "targetUnit": [
+      3266,
+      "unresolved",
+      "FunctionDeclaration",
+      1642658,
+      1643119,
+      189,
+      "129974ee46d071bf6fce7442aab3d2e31abfb161cb0d83184cb235bcb9ad8b6b",
+      "4c7fc3da7f8f7f9e00bda282282cb59fa9dcef7aef151e5e66d2cb2f625808ad"
+    ],
+    "exactSource": "function mp(H){let $={...w08&&{keepalive:!1},...H?.forAnthropicAPI&&typeof Bun<\"u\"&&!VH(process.env.API_FORCE_IDLE_TIMEOUT)&&{timeout:!1}};if(H?.forAnthropicAPI){let K=process.env.ANTHROPIC_UNIX_SOCKET;if(K&&typeof Bun<\"u\")return{...$,unix:K}}let q=mI();if(q){if(typeof Bun<\"u\"){if(H?.url&&Wa(H.url))return{...$,...QlH()};let K=U_q();return{...$,proxy:K?{url:q,headers:{\"Proxy-Authorization\":K}}:q,...QlH()}}return{...$,dispatcher:d2$(q)}}return{...$,...QlH()}}",
+    "residue": [
+      "property",
+      "API_FORCE_IDLE_TIMEOUT",
+      1642758,
+      1642780,
+      1,
+      0
+    ]
+  }
+}

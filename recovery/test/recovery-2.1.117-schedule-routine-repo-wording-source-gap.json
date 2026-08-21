@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-schedule-routine-repository-wording-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-schedule-routine-repo-wording-target-fragment",
+    "target117-schedule-routine-repo-wording-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-schedule-routine-repo-wording-source-gap.mjs",
+      "bytes": 4745,
+      "sha256": "a4dd1c81b1d074dece9a28ef63accc381a00c1baba0e91f00b0e7991eb0930c7"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "sourceFile": {
+      "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+      "blob": "266ae1636963b9cbec8e7b57717d55e2d466ddae",
+      "input": {
+        "bytes": 20343,
+        "sha256": "a56e4851d911623452908a4ece4e070f192bddae3a62dd73c69b16badac32527"
+      },
+      "output": {
+        "bytes": 20343,
+        "sha256": "2c910d2554429acdb001bbf3e22369a2fd38f0ed1be4101a086d728d16108444"
+      },
+      "declaration": {
+        "name": "registerScheduleRemoteAgentsSkill",
+        "input": {
+          "start": 15106,
+          "end": 20254,
+          "bytes": 5148,
+          "sha256": "d10355a671e12e780d00bc51104291e1af16438381d74f9362b7ed3907782a7c"
+        },
+        "output": {
+          "start": 15106,
+          "end": 20254,
+          "bytes": 5148,
+          "sha256": "a2147217158f85f42e00a37a3010a150821e63fd4ca37b931c8e5fd715cc4472"
+        }
+      }
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "replacements": 1,
+    "ownerOverrides": 1
+  },
+  "row": {
+    "targetIndex": 20368,
+    "owner": "src/skills/bundled/scheduleRemoteAgents.ts",
+    "declarations": ["registerScheduleRemoteAgentsSkill"],
+    "targetUnit": [
+      20368,
+      "unresolved",
+      "FunctionDeclaration",
+      12376402,
+      12378983,
+      493,
+      "eadfc70f77852403a5c2f3fa4e86e4c423f1fc8ec394b9a9d93da6faa34b9b5d",
+      "e82f680993b42347152e17ea54cfbce363458f7b7d96d1d9aa342f8b5669271e"
+    ],
+    "residue": [
+      "string",
+      " — install at https://claude.ai/code/onboarding?magic=github-app-setup if your routine needs this repo.",
+      12378338,
+      12378446,
+      1,
+      0
+    ]
+  }
+}

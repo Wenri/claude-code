@@ -1,0 +1,440 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-query-run-agent-runtime-state-static-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target121-query-run-agent-authenticated-whole-units",
+    "target121-spawned-by-skill-forwarding-contract",
+    "target121-query-compact-tracking-source-gap"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26835556,
+      "sha256": "7ef8bfa1ffe09424d8a3c51644d70f0149d5c10dbddbf437f023792d7908c546"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "coverageProjection": {
+        "targetIndices": [14201, 14209],
+        "count": 2,
+        "canonicalBytes": 1965,
+        "canonicalSha256": "aa1ffd1825823900e3f14f8916f4ad2730ca83c6ee5b36e352b401c9ce674a38"
+      }
+    }
+  },
+  "ownerCorrections": [
+    {
+      "targetIndex": 14201,
+      "reportedOwner": "query.ts",
+      "correctedOwner": "src/query.ts",
+      "declarations": ["QueryParams", "State", "queryLoop"]
+    },
+    {
+      "targetIndex": 14209,
+      "reportedOwner": "tools/AgentTool/runAgent.ts",
+      "correctedOwner": "src/tools/AgentTool/runAgent.ts",
+      "declarations": ["runAgent"]
+    }
+  ],
+  "units": [
+    {
+      "target": {
+        "targetIndex": 14201,
+        "classification": "unresolved",
+        "unknownFreeIdentifierCount": 6,
+        "declaration": "queryLoop",
+        "nodeType": "FunctionDeclaration",
+        "start": 8891516,
+        "end": 8909182,
+        "tokenCount": 5593,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 3,
+        "bytes": 17666,
+        "sha256": "6bec08f51c847c01bc053e1062538df60560317f739c264bbc7870fdf224844c",
+        "coarseHash": "e77691dfcf6a5d51c45bbcf7dbee822cf92bf78f657f458a9957b7e5a034aa86",
+        "line": 4410,
+        "column": 134
+      },
+      "baseline": {
+        "baselineUnitIndex": 14093,
+        "classification": "unmatched-baseline",
+        "nodeType": "FunctionDeclaration",
+        "start": 8831137,
+        "end": 8848139,
+        "tokenCount": 5419,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 3,
+        "bytes": 17002,
+        "sha256": "c23aa028b6fd87afc6b726640b24466f5bfb2e2d3d46c649adef042e1fcabaf9",
+        "coarseHash": "3d476612c9a5af903ebc3f2a83e8b4f123f1a6b6d1d02f7315d66a9b58e0196a",
+        "line": 4394,
+        "column": 10674
+      },
+      "relation": "direct queryLoop predecessor: identical two-parameter async-generator shape, identical three-statement body skeleton, exact unchanged budget-tracker statement, and alpha-identical initial state after removing spawnedBySkill and restoring compactTracking to autoCompactTracking",
+      "ownerResidues": {
+        "totalRows": 30,
+        "targetAddedRows": 12,
+        "strictRows": 12,
+        "rowIdentities": {
+          "bytes": 1662,
+          "sha256": "02612c0b7e9151842538d55c6631c62d638b43418433c3cb1190ea68f3285fb3"
+        },
+        "addedIdentities": {
+          "bytes": 579,
+          "sha256": "c006fe2926aee42f25e4fe8cacc4fd3aaf15f4c7504d537127a083501a871880"
+        },
+        "strictIdentities": {
+          "bytes": 651,
+          "sha256": "32d9cf0f85ec695d942ac9def901fa153edb26c9b4322064a426168596dd21f2"
+        },
+        "strictRowsExact": [
+          [14201, "property", "spawnedBySkill", 8891632, 8891646, 4],
+          [14201, "property", "compactTracking", 8891801, 8891816, 1],
+          [14201, "property", "compactTracking", 8892095, 8892110, 2],
+          [14201, "property", "spawnedBySkill", 8896099, 8896113, 5],
+          [14201, "property", "activeSkill", 8896116, 8896127, 4],
+          [14201, "property", "activeSkill", 8896138, 8896149, 5],
+          [14201, "property", "compactTracking", 8900917, 8900932, 3],
+          [14201, "property", "compactTracking", 8901547, 8901562, 4],
+          [14201, "property", "compactTracking", 8902050, 8902065, 5],
+          [14201, "property", "compactTracking", 8902668, 8902683, 6],
+          [14201, "property", "compactTracking", 8903572, 8903587, 7],
+          [14201, "property", "compactTracking", 8908982, 8908997, 8]
+        ]
+      }
+    },
+    {
+      "target": {
+        "targetIndex": 14209,
+        "classification": "unresolved",
+        "unknownFreeIdentifierCount": 3,
+        "declaration": "runAgent",
+        "nodeType": "FunctionDeclaration",
+        "start": 8911653,
+        "end": 8919205,
+        "tokenCount": 2565,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 21,
+        "bytes": 7552,
+        "sha256": "75ef6d84a05054fc03ecb54ffd23bae16d1d5f21be72094315037c8e0c63d7f4",
+        "coarseHash": "1dacba495d4806f165d236213fcc5b97ee583149e9ebbc61740b943711e3da65",
+        "line": 4410,
+        "column": 20271
+      },
+      "baseline": {
+        "baselineUnitIndex": 14101,
+        "classification": "unmatched-baseline",
+        "nodeType": "FunctionDeclaration",
+        "start": 8850604,
+        "end": 8858100,
+        "tokenCount": 2553,
+        "topDefinitionCount": 1,
+        "bodyStatementCount": 21,
+        "bytes": 7496,
+        "sha256": "8986537a463d378164b20faeb1e4e53aa6b1fbf70b45ed5c9254226add3e36e1",
+        "coarseHash": "b6bd959ab1ac892dfa1218288fe50160dc6b2c61fdbeb70b7686a9763237b600",
+        "line": 4394,
+        "column": 30141
+      },
+      "relation": "direct runAgent predecessor: nineteen of twenty-one body statements are alpha-identical, while the other two and the parameter pattern become exactly identical after deleting the three spawnedBySkill properties",
+      "ownerResidues": {
+        "totalRows": 81,
+        "targetAddedRows": 3,
+        "strictRows": 3,
+        "rowIdentities": {
+          "bytes": 4376,
+          "sha256": "ff3e84bfd68318072828a6557b073b4064def27b5ff91ecbf3c0a05fae9c1d4b"
+        },
+        "addedIdentities": {
+          "bytes": 145,
+          "sha256": "6e4577edf9448ec2a7e40da677980a255cf521553fdb81aeba7b21c042a17357"
+        },
+        "strictIdentities": {
+          "bytes": 163,
+          "sha256": "482d026cf46f7512e17d82ec889aad577e8a6a68c50a93b80ec7b937f34224d0"
+        },
+        "strictRowsExact": [
+          [14209, "property", "spawnedBySkill", 8911810, 8911824, 6],
+          [14209, "property", "spawnedBySkill", 8915521, 8915535, 7],
+          [14209, "property", "spawnedBySkill", 8917067, 8917081, 8]
+        ]
+      }
+    }
+  ],
+  "wholeUnitEvidence": {
+    "canonicalization": "Acorn 8.15 AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+    "u14201": {
+      "rawByteDelta": 664,
+      "tokenDelta": 174,
+      "baselineCanonical": {
+        "bytes": 223533,
+        "sha256": "6102be0f84d6311dd62f5fdcef1465719b4bf736619f8e49371e4250eaa7d1f4"
+      },
+      "targetCanonical": {
+        "bytes": 231339,
+        "sha256": "d1891086741f788755225820179306958f0589d6c51c727a246403044e91a773"
+      },
+      "initialStateStatement": {
+        "baseline": {
+          "bodyIndex": 0,
+          "nodeType": "VariableDeclaration",
+          "start": 8831161,
+          "end": 8831614,
+          "bytes": 453,
+          "sha256": "b8d18652ca7df476ad430ff0017ff162a6e0cbe4a84cb06e164cbbc341317345",
+          "canonical": {
+            "bytes": 5300,
+            "sha256": "d54b680503896ce7728bdf3827b0bdd73577fbb76ad969f3188910f9e8c1bfce"
+          }
+        },
+        "target": {
+          "bodyIndex": 0,
+          "nodeType": "VariableDeclaration",
+          "start": 8891540,
+          "end": 8892006,
+          "bytes": 466,
+          "sha256": "37ec06edebc0286ffad7d01f27cf5310fcb3047ce548dfdea2e8d4711a3f431f",
+          "canonical": {
+            "bytes": 5475,
+            "sha256": "f2b6c2ca21d39b329be32201dfc946171a3f356ffa50985141eabdc35c8d1f44"
+          }
+        },
+        "normalization": "delete the noncomputed spawnedBySkill Property and rename the noncomputed compactTracking Property key to autoCompactTracking",
+        "normalizedCanonical": {
+          "bytes": 5300,
+          "sha256": "d54b680503896ce7728bdf3827b0bdd73577fbb76ad969f3188910f9e8c1bfce"
+        }
+      },
+      "unchangedBudgetTrackerStatement": {
+        "bodyIndex": 1,
+        "canonical": {
+          "bytes": 595,
+          "sha256": "0b3987b695d89bf11d3bc24ed5cfdde63c53639761560465c3c2f27c1bb44ed5"
+        }
+      },
+      "callModelOptions": {
+        "baseline": {
+          "nodeType": "ObjectExpression",
+          "start": 8835176,
+          "end": 8836226,
+          "bytes": 1050,
+          "sha256": "660303ddbfc76f57011439fac318754470d11af13a8ce88d3d9d034ed7189ae8",
+          "canonical": {
+            "bytes": 13041,
+            "sha256": "99875f4001f75b6c0de72e9f3131c267b9dd4bdd4ee542e8086fb43b2b36a159"
+          }
+        },
+        "target": {
+          "nodeType": "ObjectExpression",
+          "start": 8895658,
+          "end": 8896867,
+          "bytes": 1209,
+          "sha256": "59a4b1810cc141ca3d0a253c1bb73c1a9476c566b7fdadd315b7e5500d534af5",
+          "canonical": {
+            "bytes": 15014,
+            "sha256": "c47d0d78bde1f3188046a04d2090644885e2574db8829c1034619e490cd7b520"
+          }
+        },
+        "normalization": "delete spawnedBySkill, activeSkill, and source-authenticated userSystemPrompt Properties from Target121",
+        "normalizedCanonical": {
+          "bytes": 13041,
+          "sha256": "99875f4001f75b6c0de72e9f3131c267b9dd4bdd4ee542e8086fb43b2b36a159"
+        },
+        "skillContext": {
+          "start": 8896099,
+          "end": 8896149,
+          "bytes": 50,
+          "sha256": "72321ac73eb543ee8838364d9feab3b99e1a1cbbb36f8ff631728715c1da9160",
+          "exact": "spawnedBySkill:Y,activeSkill:P.options.activeSkill"
+        }
+      },
+      "strictPropertyContexts": [
+        [8891632, 8891648, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"],
+        [8891801, 8891823, 22, "31289d4271b8ffc0b400fec34f4d57e8bb8b2556bb8438c457d47e913bfc031c", "compactTracking:void 0"],
+        [8892095, 8892112, 17, "927fd1fa837e689fc7680fa4b2ac619e14ef0dbc4f00eda29517b551d617a57d", "compactTracking:W"],
+        [8896099, 8896115, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"],
+        [8896116, 8896149, 33, "27dafb5f4e4831eb54b83fb5af1aa028c8a39093e2aa3108e8af3a764a3c2f78", "activeSkill:P.options.activeSkill"],
+        [8896128, 8896149, 21, "4bbdf25d30f6f018a680265254102ab2b8ac95814e823388d4d83961a290d027", "P.options.activeSkill"],
+        [8900917, 8900934, 17, "b57f9c3ecfd5909367ad74fe56b2758ae1a22fa8b32ab11c030e9c799c8251b7", "compactTracking:h"],
+        [8901547, 8901564, 17, "b57f9c3ecfd5909367ad74fe56b2758ae1a22fa8b32ab11c030e9c799c8251b7", "compactTracking:h"],
+        [8902050, 8902067, 17, "b57f9c3ecfd5909367ad74fe56b2758ae1a22fa8b32ab11c030e9c799c8251b7", "compactTracking:h"],
+        [8902668, 8902685, 17, "b57f9c3ecfd5909367ad74fe56b2758ae1a22fa8b32ab11c030e9c799c8251b7", "compactTracking:h"],
+        [8903572, 8903589, 17, "b57f9c3ecfd5909367ad74fe56b2758ae1a22fa8b32ab11c030e9c799c8251b7", "compactTracking:h"],
+        [8908982, 8908999, 17, "b57f9c3ecfd5909367ad74fe56b2758ae1a22fa8b32ab11c030e9c799c8251b7", "compactTracking:h"]
+      ]
+    },
+    "u14209": {
+      "rawByteDelta": 56,
+      "tokenDelta": 12,
+      "baselineCanonical": {
+        "bytes": 102997,
+        "sha256": "1b6769fe175d86d7ace0d00a898d0e2b66d378c03131ba519f774be0a92e712f"
+      },
+      "targetCanonical": {
+        "bytes": 103534,
+        "sha256": "2433496d68947bd2e03c09bd9c4d81c142b43992dcae91b5363d6f65bae095d7"
+      },
+      "retainedStatements": {
+        "count": 19,
+        "excludedIndices": [12, 20],
+        "identityMethod": "[bodyIndex,canonicalSHA256] using the fixture canonicalizer",
+        "bytes": 1359,
+        "sha256": "6080cfd0f31da969bf7c93429f30945afe70b6682a5c764eba1bfc415f00d4fa"
+      },
+      "changedStatements": [
+        {
+          "bodyIndex": 12,
+          "baseline": {"start": 8854119, "end": 8855073, "bytes": 954, "sha256": "ee4229493471dd9820cbb3b5d2fc82dce3d5bcb708a3cea81b8cf6e10068c1e3", "canonicalSha256": "3e8697aa5cd8f5e940f4ed33d7df8468e05a10fad694759c68870d3f65a97d9c"},
+          "target": {"start": 8915189, "end": 8916161, "bytes": 972, "sha256": "2cfb6f2a95138f750518cffc8e848819684f417d7e21c57881321ee1293fe7b5", "canonicalSha256": "9ea79a491b70f22edd6560b3a363f0d86244bd3b4bfea956950794e44b8baded"}
+        },
+        {
+          "bodyIndex": 20,
+          "baseline": {"start": 8855848, "end": 8858099, "bytes": 2251, "sha256": "c3b5d6306863d961d47dc4a808781d11ef760fd1dfad2d7d79d106f322f559b8", "canonicalSha256": "c7129da1f50de1d683907fb1ea0d74736171f6cf6e0a958caffb084ce40ddc50"},
+          "target": {"start": 8916936, "end": 8919204, "bytes": 2268, "sha256": "7233d91e2370924c2bf38aa02314dde360378b5bbd9c86a8e113e78e4d3cea01", "canonicalSha256": "11e7c9048cc374e67230a26477782e5cd9f7cc2b0bca83972b3e72213850ff59"}
+        }
+      ],
+      "contractFragments": {
+        "baselineParameter": {"start": 8850622, "end": 8851028, "bytes": 406, "sha256": "0f6ad6ac208bff862c07eaa3549f4c4eeb70794ecf07e2a72056f51037341293"},
+        "targetParameter": {"start": 8911671, "end": 8912094, "bytes": 423, "sha256": "a82eba54fb9046cd3e98517b9067212959708fc44a65f86163b1f3a15c5da2c0"},
+        "baselineAgentOptions": {"start": 8854235, "end": 8854766, "bytes": 531, "sha256": "446010a6bbfefd8cf58630a7f3cdc1baebbb59e57f91aee0f36eca6328a66dc1"},
+        "targetAgentOptions": {"start": 8915305, "end": 8915853, "bytes": 548, "sha256": "c6bd1687edda9290eb5b39ba8aa4b9252714c855b9ad4870d3789beb425b9fac"},
+        "baselineQueryParams": {"start": 8855875, "end": 8856002, "bytes": 127, "sha256": "370ac8dde0990a28157ad559deff9e831899b6606c9b4732c6cdc304b0be35b8"},
+        "targetQueryParams": {"start": 8916963, "end": 8917107, "bytes": 144, "sha256": "8557de24ca7d48fe85f417b274a7d5462e557df582da6605e2d6c18264f10d72"},
+        "targetProperties": [
+          [8911810, 8911826, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"],
+          [8915521, 8915537, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"],
+          [8917067, 8917083, 16, "34de60a2487a307f4a519c6119521f9bc609098d3dd3732d89c426804cbe5d49", "spawnedBySkill:Y"]
+        ]
+      },
+      "transform": {
+        "operation": "delete every noncomputed Property whose key is spawnedBySkill from the Target121 function parameter and object expressions; exactly three Properties must be deleted",
+        "normalizedCanonical": {
+          "bytes": 102997,
+          "sha256": "1b6769fe175d86d7ace0d00a898d0e2b66d378c03131ba519f774be0a92e712f"
+        }
+      }
+    }
+  },
+  "sourceState": {
+    "queryPath": "src/query.ts",
+    "runAgentPath": "src/tools/AgentTool/runAgent.ts",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "query": {
+        "gitBlob": "4cb48af71c421ccf4de82ea0bccb832f5d2c0c1d",
+        "bytes": 74778,
+        "chars": 74648,
+        "sha256": "c942b265f87fa617f1305b6bf971b40eaaff232b552e90a828b5a0bd363c3bbc",
+        "QueryParams": {"start": 8939, "end": 9658, "chars": 719, "bytes": 719, "sha256": "36a4a2b09647d76c98548e740ef3e00971a7ad07cdbdc48b388805edca9ad130", "line": 250, "endLine": 268},
+        "State": {"start": 9733, "end": 10310, "chars": 577, "bytes": 577, "sha256": "750d692583f3e935ef43cf57b1593879e5cc6dade0b162f57516bc5c6e540f6f", "line": 273, "endLine": 286},
+        "query": {"start": 10312, "end": 11015, "chars": 703, "bytes": 703, "sha256": "75f059870ca2665787310f95a5900f4e2585685ba02308d24a116cd7ef119b50", "line": 288, "endLine": 308},
+        "queryLoop": {"start": 11017, "end": 74647, "chars": 63630, "bytes": 63758, "sha256": "d37f5e1921f7046f703830be266f8adc0177b1f9d1ad16a7a18d58b7e8247084", "line": 310, "endLine": 1927},
+        "autoCompactTrackingPositions": [9805, 11907, 13859, 15604, 48735, 50586, 53223, 54262, 56040, 57622, 74296],
+        "autoCompactTrackingPositionDigest": {"bytes": 66, "sha256": "b4bdea1af0566135b2eaa3ede9816748d5c70bad4c87dcd283c06c48ddbd2503"}
+      },
+      "runAgent": {
+        "gitBlob": "98db8f5307c8e13d8989f4b8bc82ff3381164663",
+        "bytes": 38076,
+        "chars": 38048,
+        "sha256": "0722ae21b7c6dfe8032ab7e367ad2f356c1e491ffc55bc0e3a4ede5014a83a85",
+        "import": {"start": 660, "end": 698, "chars": 38, "bytes": 38, "sha256": "c0a80c36502f3a905d4df240f088fc7045ecd2f3a25eb4e6aafa3267bf31305b", "line": 15, "endLine": 15, "exact": "import { query } from '../../query.js'"},
+        "declaration": {"start": 9105, "end": 34406, "chars": 25301, "bytes": 25321, "sha256": "b45e8f099929b1b0f632d9e6b850dbfb588ebeaa4a660cf46053cb071319b051", "line": 257, "endLine": 926},
+        "queryCall": {"start": 30352, "end": 30656, "chars": 304, "bytes": 304, "sha256": "f8660f63f9fa29ffebfd9566615ef270a6f07fb0307e31a34e921a8716857d5d", "line": 806, "endLine": 815}
+      }
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "query": {
+        "gitBlob": "f15b3a73cb548b5162052d9855df25bd273fc827",
+        "bytes": 81109,
+        "chars": 80979,
+        "sha256": "d2a38199b778f856e6883eb05121f37860a35affb315aae404c87e7fe3d231c2",
+        "QueryParams": {"start": 9582, "end": 10301, "chars": 719, "bytes": 719, "sha256": "36a4a2b09647d76c98548e740ef3e00971a7ad07cdbdc48b388805edca9ad130", "line": 272, "endLine": 290},
+        "State": {"start": 10376, "end": 10953, "chars": 577, "bytes": 577, "sha256": "750d692583f3e935ef43cf57b1593879e5cc6dade0b162f57516bc5c6e540f6f", "line": 295, "endLine": 308},
+        "query": {"start": 10955, "end": 11658, "chars": 703, "bytes": 703, "sha256": "75f059870ca2665787310f95a5900f4e2585685ba02308d24a116cd7ef119b50", "line": 310, "endLine": 330},
+        "queryLoop": {"start": 11660, "end": 80978, "chars": 69318, "bytes": 69446, "sha256": "66d9e09f6dcf67de786ba77846bbccf437bfeb45c0a387fae809a49bd0b67359", "line": 332, "endLine": 2106},
+        "autoCompactTrackingPositions": [10448, 12550, 14502, 16247, 51721, 53551, 57044, 58083, 59635, 61580, 63162, 80627],
+        "autoCompactTrackingPositionDigest": {"bytes": 73, "sha256": "dcd7dffa0e546cd6342c7e2d27de4c85be803a1404dc13c1082cf27254ce2a96"}
+      },
+      "runAgent": {
+        "gitBlob": "a17dceced3f2e3b816092cc88b6b1397cecc4c54",
+        "bytes": 38590,
+        "chars": 38562,
+        "sha256": "07dbd8a7700a1e1954a60671522fee72eb7299aa328d90dcf3da82d9327b1234",
+        "import": {"start": 660, "end": 698, "chars": 38, "bytes": 38, "sha256": "c0a80c36502f3a905d4df240f088fc7045ecd2f3a25eb4e6aafa3267bf31305b", "line": 15, "endLine": 15, "exact": "import { query } from '../../query.js'"},
+        "declaration": {"start": 9194, "end": 34920, "chars": 25726, "bytes": 25746, "sha256": "90ca6477fef8c5c1b2c0f4ad67b0b29e403731281e366b24b0b13643053d3d0a", "line": 261, "endLine": 941},
+        "queryCall": {"start": 30875, "end": 31179, "chars": 304, "bytes": 304, "sha256": "f8660f63f9fa29ffebfd9566615ef270a6f07fb0307e31a34e921a8716857d5d", "line": 821, "endLine": 830}
+      },
+      "markerCounts": {
+        "query": {"spawnedBySkill": 0, "activeSkill": 0, "compactTracking": 0, "autoCompactTracking": 12},
+        "runAgent": {"spawnedBySkill": 0, "activeSkill": 0, "compactTracking": 0, "autoCompactTracking": 0}
+      }
+    },
+    "gitDonorAudit": {
+      "paths": ["src/query.ts", "src/tools/AgentTool/runAgent.ts"],
+      "markers": ["spawnedBySkill", "compactTracking", "activeSkill"],
+      "result": "no recovered Target120/121 history contains any of the missing runtime field spellings in these owners"
+    }
+  },
+  "provenanceBoundary": {
+    "initialProducer": {"targetIndex": 13026, "start": 8060710, "end": 8060772, "bytes": 62, "sha256": "0f85cb208f5014336d906478babe9ad6903a19b00bca0a3f1eadbd5434c6ad1a", "exact": "spawnedBySkill:M.options.spawnedBySkill??M.options.activeSkill"},
+    "resumeClear": {"targetIndex": 13973, "start": 8751064, "end": 8751085, "bytes": 21, "sha256": "f04524219aefa8e8d65f720bfeaee336c178891878da5875e7641138df8bec4f", "exact": "spawnedBySkill:void 0"},
+    "owned": "u14209 receives and forwards spawnedBySkill into child options and u14201; u14201 receives it and forwards it with activeSkill into model options while carrying compactTracking loop state.",
+    "excluded": "The already-admitted u13026 producer and u13973 resume clear are dependency evidence only. Later services/api/claude.ts and other spawnedBySkill/activeSkill consumers remain independent fail-closed strict obligations."
+  },
+  "generatorWiring": {
+    "replayHelper": null,
+    "ownerOverrideExport": "TARGET121_QUERY_RUN_AGENT_RUNTIME_STATE_OWNER_OVERRIDES"
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 51,
+      "unsupportedResidues": 460,
+      "firstTargetIndices": [14201, 14209],
+      "productionIndexSha256": "c0996a44ceaaae0c6cc62871295c1c9ec037434cd3d29cb3d69b9554f70c0d4a",
+      "productionTupleSha256": "820117a73b2ab3a97a45c0d7046edb56e5d3b91d9878ede4e0168ca7366f283c"
+    },
+    "removes": {
+      "targetIndices": [14201, 14209],
+      "units": 2,
+      "residueCount": 15
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 49,
+      "unsupportedResidues": 445
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static complete-unit owner proof only; no replay helper and no source writes",
+    "reason": "Recovered QueryParams, State, query, and runAgent's query call are byte-identical across Target120 and Target121 and omit the new spawnedBySkill contract; recovered Target121 query.ts also retains autoCompactTracking at twelve sites where the authenticated runtime owns compactTracking and contains neither activeSkill nor spawnedBySkill. The missing ToolUseContext/options/type graph extends through already-proven producers and still-strict downstream consumers, so replaying isolated properties would be type-incomplete and unauthenticated."
+  }
+}

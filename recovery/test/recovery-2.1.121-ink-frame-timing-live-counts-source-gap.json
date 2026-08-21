@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "sourceBlob": {
+    "path": "src/ink/ink.tsx",
+    "gitObject": "bda6c0b9961e54e7434b02580d76d8b469bf1258"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "replayHelper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-ink-frame-timing-live-counts-source-gap.mjs",
+      "bytes": 7073,
+      "sha256": "0aaff1352a0eea7c4dfa607b349f181cc143fe572c61c1ddaacbbb5d7711226d"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/ink/ink.tsx",
+        "input": {
+          "bytes": 253824,
+          "sha256": "6bd97cd24debcb445718cb1971e4e7d302cf48d49e1aa1588f73dd48bef0ee6a"
+        },
+        "output": {
+          "bytes": 254861,
+          "sha256": "defb762d8161a903fcd48bac590db61f18a3025c74d576b4da66f75ebf75f13b"
+        }
+      }
+    ]
+  },
+  "baselineUnits": [
+    {
+      "index": 7520,
+      "role": "Ink class before live DOM and Fiber phase counts",
+      "nodeType": "ClassDeclaration",
+      "start": 3514005,
+      "end": 3533567,
+      "bytes": 19562,
+      "tokenCount": 6506,
+      "sourceHash": "cbcbfa33b253c38804b0945d51d2f33a02a8f4f69c06bba1d6136f817bd436f3",
+      "coarseHash": "9909e9740171fd3d1eef6af62dd05ffcce22bc7e91e889f3fff6c256c35e95bf"
+    }
+  ],
+  "targetUnits": [
+    {
+      "index": 7458,
+      "role": "cycle-safe live Fiber graph counter",
+      "nodeType": "FunctionDeclaration",
+      "start": 3477422,
+      "end": 3477642,
+      "bytes": 220,
+      "tokenCount": 112,
+      "sourceHash": "0af2109b06a05efc8da43a78358eb2efb1ee1e4b08a09d7bb0072b30209e022c",
+      "coarseHash": "4ca5ae72f1cde8c30b5a77374ae6bc0e4296435f2a318c2f99c1cfe2bc8e99d5"
+    },
+    {
+      "index": 7459,
+      "role": "dependent live Ink DOM graph counter",
+      "nodeType": "FunctionDeclaration",
+      "start": 3477642,
+      "end": 3477788,
+      "bytes": 146,
+      "tokenCount": 71,
+      "sourceHash": "9cc36690e68189728e5cf3ed998150378ca5e5b1432a88a3b5964ff9526a9d59",
+      "coarseHash": "160eb8a802af485ed99bd11c1f2a7e915ba7a4bf71f2752efee7a34967f26353"
+    },
+    {
+      "index": 7556,
+      "role": "Ink class with lazily gated live DOM and Fiber phase counts",
+      "nodeType": "ClassDeclaration",
+      "start": 3525141,
+      "end": 3544840,
+      "bytes": 19699,
+      "tokenCount": 6544,
+      "sourceHash": "e9c5b3fcb4fc05c18e354d62fbf1fc9e7eef449872ba79b1e82f8f1790488602",
+      "coarseHash": "ca9efd3af014c062f671708b2d4a67164a59a00db3a0a3961b31cfc07747300d"
+    }
+  ],
+  "targetFragments": [
+    {
+      "name": "fiberCounter",
+      "unitIndex": 7458,
+      "start": 3477422,
+      "end": 3477642,
+      "bytes": 220,
+      "sha256": "0af2109b06a05efc8da43a78358eb2efb1ee1e4b08a09d7bb0072b30209e022c",
+      "text": "function fLK(H){if(!H)return 0;let $=new Set,q=[H];while(q.length>0){let K=q.pop();if($.has(K))continue;if($.add(K),K.child)q.push(K.child);if(K.sibling)q.push(K.sibling);if(K.alternate)q.push(K.alternate)}return $.size}"
+    },
+    {
+      "name": "domCounter",
+      "unitIndex": 7459,
+      "start": 3477642,
+      "end": 3477788,
+      "bytes": 146,
+      "sha256": "9cc36690e68189728e5cf3ed998150378ca5e5b1432a88a3b5964ff9526a9d59",
+      "text": "function YLK(H){if(!H)return 0;let $=0,q=[H];while(q.length>0){let K=q.pop();if($++,\"childNodes\"in K)for(let _ of K.childNodes)q.push(_)}return $}"
+    },
+    {
+      "name": "gatedPhaseSpread",
+      "unitIndex": 7556,
+      "start": 3534184,
+      "end": 3534295,
+      "bytes": 111,
+      "sha256": "542c143b66196a5ccdb641ddc2a34506fe895a3bb052b9273ca7f5ed8fd27aa2",
+      "text": "...process.env.CLAUDE_CODE_FRAME_TIMING_LOG&&{domLive:YLK(this.rootNode),fiberLive:fLK(this.container.current)}"
+    }
+  ],
+  "strictRows": [
+    {
+      "targetIndex": 7458,
+      "ownerPath": "src/ink/ink.tsx",
+      "reportedOwnerPaths": [
+        "ink/log-update.ts"
+      ],
+      "declarations": [
+        "countFiberNodes"
+      ],
+      "evidenceIds": [
+        "target121-ink-frame-live-count-target-unit-proof",
+        "target121-ink-frame-live-count-source-replay-test",
+        "target121-ink-frame-live-count-source-runtime-test"
+      ]
+    },
+    {
+      "targetIndex": 7556,
+      "ownerPath": "src/ink/ink.tsx",
+      "reportedOwnerPaths": [
+        "ink/ink.tsx"
+      ],
+      "declarations": [
+        "Ink",
+        "countDOMNodes",
+        "countFiberNodes"
+      ],
+      "evidenceIds": [
+        "target121-ink-frame-live-count-target-unit-proof",
+        "target121-ink-frame-live-count-source-replay-test",
+        "target121-ink-frame-live-count-source-runtime-test"
+      ]
+    }
+  ],
+  "dependentRows": [
+    {
+      "targetIndex": 7459,
+      "ownerPath": "src/ink/ink.tsx",
+      "reportedOwnerPaths": [
+        "ink/log-update.ts"
+      ],
+      "declarations": [
+        "countDOMNodes"
+      ]
+    }
+  ],
+  "typedResidueSummaries": [
+    {
+      "targetIndex": 7458,
+      "rowCount": 10,
+      "targetAddedCount": 4,
+      "identitiesSha256": "73ef32298a0d6689de8039a0b6131ac88d6ab4b380d4eb5e0d0b4a9e966d58dd"
+    },
+    {
+      "targetIndex": 7459,
+      "rowCount": 3,
+      "targetAddedCount": 0,
+      "identitiesSha256": "084dd5e0bd04656c409335b610d475fbfba6c41f7980603a4242904c660f2c93"
+    },
+    {
+      "targetIndex": 7556,
+      "rowCount": 55,
+      "targetAddedCount": 2,
+      "identitiesSha256": "84463fd3b958e98f08134be62268b55b7e578111a77525aa89f8d777fd93d382"
+    }
+  ],
+  "targetAddedResidues": [
+    [7458, "property", "sibling", 115, 116, 3477567, 3477574],
+    [7458, "property", "sibling", 115, 117, 3477584, 3477591],
+    [7458, "property", "alternate", 85, 86, 3477598, 3477607],
+    [7458, "property", "alternate", 85, 87, 3477617, 3477626],
+    [7556, "property", "domLive", 0, 1, 3534230, 3534237],
+    [7556, "property", "fiberLive", 0, 1, 3534257, 3534266]
+  ],
+  "sourceDeclarations": [
+    {
+      "path": "src/ink/ink.tsx",
+      "name": "FiberNode",
+      "charStart": 3992,
+      "charEnd": 4100,
+      "bytes": 108,
+      "sha256": "d46a1afac37631fc1c6b30dd9fb0b6f31a04053ed2fe62d2690d42d56f519774"
+    },
+    {
+      "path": "src/ink/ink.tsx",
+      "name": "countFiberNodes",
+      "charStart": 4102,
+      "charEnd": 4528,
+      "bytes": 426,
+      "sha256": "9e7ba8596d6ce9048c20d383892449db0d058faee727832dedd55ab12c7383ae"
+    },
+    {
+      "path": "src/ink/ink.tsx",
+      "name": "countDOMNodes",
+      "charStart": 4530,
+      "charEnd": 4847,
+      "bytes": 317,
+      "sha256": "5bfdebd11f365bc87320aef17063a257a3ee79c172833bfa52411b8ca53a0db6"
+    },
+    {
+      "path": "src/ink/ink.tsx",
+      "name": "Ink",
+      "charStart": 5093,
+      "charEnd": 76985,
+      "bytes": 72079,
+      "sha256": "0dcc7fe6871fee0f3525ff6e25b91ea3c31d44ffbb82f8c96e7d7680570c9923"
+    }
+  ],
+  "sourceGate": {
+    "path": "src/ink/ink.tsx",
+    "charStart": 39830,
+    "charEnd": 40000,
+    "bytes": 170,
+    "sha256": "73d359bdf487ddeeea9cddbf743cbfc6d7b976c3d899c0d0f8e23e27463329b5"
+  },
+  "summary": {
+    "strictUnits": 2,
+    "dependentUnits": 1,
+    "ownerResidues": 65,
+    "targetAddedResidues": 6,
+    "strictIndicesSha256": "a32cfbee861b16c7a76ffdaaa8782a418fdbe14e8f0ad17ec5aca8adf1cd704b",
+    "targetAddedResiduesSha256": "18239bbfcc969fdcf41b62dc28d19092ead528011c9a69e6d16f8a4eb3fd66ed"
+  }
+}

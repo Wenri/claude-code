@@ -212,8 +212,8 @@
     {
       "id": "adjacent",
       "path": "recovery/test/recovery-2.1.121-direct-evidence.test.mjs",
-      "bytes": 8974,
-      "sha256": "6afcd9dc34d4027a19478206630d0e96155bdd0690be4d222707d54f0f8756a3",
+      "bytes": 9811,
+      "sha256": "42ab6a027653eae552ce701906a3d156ff7b36e222159bb3fe0d7f711a465e4f",
       "evidence": [
         {
           "path": "recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json",

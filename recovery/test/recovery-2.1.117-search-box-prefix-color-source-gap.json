@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-search-box-prefix-color-bounded-donor-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-search-box-prefix-color-target-fragment",
+    "target117-search-box-prefix-color-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-search-box-prefix-color-source-gap.mjs",
+      "bytes": 4471,
+      "sha256": "aac0822148cd823841960ea4e932b1ca7dd5faef1c5d4db2c71783af50fde783"
+    },
+    "donor": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/SearchBox.target117.tsx",
+      "bytes": 3630,
+      "sha256": "ab7cb597e9c70452afcbd6dc6f8156503f43bdb34d849deabf587cf210f2dd25"
+    },
+    "baseDonor": {
+      "path": "src/components/SearchBox.tsx",
+      "blob": "9afbeb104a464af4dc2f30327eb7d01a5508760d",
+      "bytes": 3544,
+      "sha256": "0cd393ba0638c25c2794ec3cccce31447e19819d45dfdc60584f41d2598be335"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "sourceFile": {
+      "path": "src/components/SearchBox.tsx",
+      "blob": "96338a76b6c991307149717250a3114b0498131f",
+      "input": {
+        "bytes": 9421,
+        "sha256": "ee45b2a89f0e04b3894aecbe61e0f73d1f24893aba5bafeb2f1c3594edee81b1"
+      },
+      "output": {
+        "bytes": 3630,
+        "sha256": "ab7cb597e9c70452afcbd6dc6f8156503f43bdb34d849deabf587cf210f2dd25"
+      },
+      "inputDeclaration": {
+        "name": "SearchBox",
+        "start": 322,
+        "end": 2328,
+        "bytes": 2006,
+        "sha256": "8fb5e287f60c81aaecbf40363982cc80ea6ff6f168317d3f7a5a1bf3432594a4"
+      },
+      "outputDeclarations": [
+        {
+          "name": "renderSearchBoxQuery",
+          "start": 673,
+          "end": 1735,
+          "bytes": 1062,
+          "sha256": "c866f0063784b34553b70c56a6b350eabf2950900519571fc178083ab8594fe4"
+        },
+        {
+          "name": "SearchBox",
+          "start": 1737,
+          "end": 3625,
+          "bytes": 1888,
+          "sha256": "ddf5f112f3097406b9ee23a0def2a48e81246bcc1f11b3a71df569d359af580e"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "units": 1,
+    "companionUnits": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1
+  },
+  "row": {
+    "targetIndex": 15456,
+    "owner": "src/components/SearchBox.tsx",
+    "rejectedOwner": "src/components/LanguagePicker.tsx",
+    "declarations": ["SearchBox", "renderSearchBoxQuery"],
+    "targetUnit": [
+      15456,
+      "unresolved",
+      "FunctionDeclaration",
+      9531246,
+      9533021,
+      990,
+      "8dc5e6f799d1a7f9da1c632755fcf8221d7c2275da5ccc49d7a66a29f48fb3c6",
+      "2356c664633cd94b6bbc48d311ee8514a33730db90095cbcfb739a7bb01cf8f0"
+    ],
+    "residue": ["property", "prefixColor", 9531402, 9531413, 1, 0]
+  },
+  "companionTargetUnit": [
+    15457,
+    "changed",
+    "FunctionDeclaration",
+    9533021,
+    9533396,
+    230,
+    "f0c6693f20a771f8b31e1a6d9b6625d8e06360930b84d7cdabe6c7a47daea0f9",
+    "917c0971cc227a5835d3e7d615d8a85e547aa915d6274ae97e49861a996a9b4b"
+  ]
+}

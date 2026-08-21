@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "static-complete-unit-proof",
+  "criterion": "The complete Target119 useCanUseTool unit, its exact Target118 predecessor, denial input-key helper, runtime context provider, historical source delta, and persistent Target120/121 descendants must agree on one allow-only denial-history contract. Replay is forbidden unless the authenticated context-provider topology exists in source.",
+  "summary": "u20652 is useCanUseTool. Its two strict properties are the context lookup/removal edge of one complete denial-history evolution, not isolated source text. Historical source authors equivalent behavior with module-global functions, while the authenticated runtime uses a provider/context topology absent from every Target119 source file, so ownership is admitted statically and replay remains blocked.",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target120StructuralLedger": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "target121Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "target121StructuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "allOwners": {
+      "path": ".recovery-tmp/generator-inputs/2.1.118-to-2.1.119.all-owners.json",
+      "bytes": 10041641,
+      "sha256": "b6f39561b683e547ddbfc55bf34ea86103c5bf93df827192205b23a7db744b16"
+    },
+    "targetReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionSha256": "2bd6f8c8a720a2b187a0dbcbed0368a184e00df216a323b84abfc010a52655fd",
+      "mutableAfterCorrection": true
+    },
+    "contextProviderProof": {
+      "path": "recovery/test/recovery-2.1.119-auto-mode-denials-context-owner-proof.json",
+      "bytes": 14747,
+      "sha256": "23caca0bb84aa844d783e533d2623c8e158e1c838f7a48f5130cec83bde0ffd1"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19722,
+    "classification": "matched",
+    "baselineUnitIndex": 19528,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "nodeType": "FunctionDeclaration",
+    "start": 12007204,
+    "end": 12009489,
+    "bytes": 2285,
+    "tokenCount": 787,
+    "unknownFreeIdentifierCount": 0,
+    "sha256": "eeb60eb7d16cbfb2f7e5d82a50124e0736ca47d32e450bdce7a41f8f688500c2",
+    "coarseHash": "a383802d6dbe404c83cdaefe921e9fe65bcf74c793a96f63e714117dfe276f57"
+  },
+  "targetUnit": {
+    "targetIndex": 20652,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12469953,
+    "end": 12472627,
+    "bytes": 2674,
+    "tokenCount": 966,
+    "unknownFreeIdentifierCount": 7,
+    "sha256": "46bfac751fb59cef725c3be3a49e3d2e6bf2da7a5c93b34573a7484d0c4a5c6d",
+    "coarseHash": "8ff085ec6baa0001009477f7caa64064637c6d7c9c8ad7aa780c37f1677ef2aa"
+  },
+  "inputKeyHelper": {
+    "targetIndex": 20651,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12469891,
+    "end": 12469953,
+    "bytes": 62,
+    "tokenCount": 29,
+    "sha256": "017ea0cdd4094612666b34b2ed0747e3f173e4dbd405f0f66a612fc10ce93cc2",
+    "coarseHash": "1ebff682edf27e91e57d0a1f7c9a71f582fdbbae95fc8a259bdb7a01a786dfb7",
+    "text": "function SP4(H,$){return H===Mq?yH({command:$.command}):yH($)}"
+  },
+  "normalizedDelta": {
+    "normalization": "Identifier references are replaced by structural top/local/free identity; non-reference property names and every other token remain exact.",
+    "baseline": {
+      "tokens": 787,
+      "jsonBytes": 11858,
+      "sha256": "f6ba2456a8f59345f1abf0b2acff70f0508e85643da01263e284f2efd3ed76c5"
+    },
+    "target": {
+      "tokens": 966,
+      "jsonBytes": 14487,
+      "sha256": "b0c5887a802400bf4f098d3327aa0d47749aae03a389014c6a215e868b993bb6"
+    },
+    "lcsTokens": 784,
+    "deletedTokens": 3,
+    "insertedTokens": 182,
+    "changedRuns": 14,
+    "editScriptJsonBytes": 2127,
+    "editScriptSha256": "8e078c47cab664f9c7bb77e80c52673385dd39a2bb17cc66fd1f14b1708237bd"
+  },
+  "persistentRuntime": [
+    {
+      "version": "2.1.120",
+      "targetIndex": 20739,
+      "classification": "changed",
+      "baselineUnitIndex": 20652,
+      "pairReason": "unique-coarse-structural-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 12507685,
+      "end": 12510359,
+      "bytes": 2674,
+      "tokenCount": 966,
+      "sha256": "def5a7f9dccd99bebe2e0798b142ef782e57137327f1586660464f81f4eb6891",
+      "coarseHash": "8ff085ec6baa0001009477f7caa64064637c6d7c9c8ad7aa780c37f1677ef2aa"
+    },
+    {
+      "version": "2.1.121",
+      "targetIndex": 20746,
+      "classification": "matched",
+      "baselineUnitIndex": 20739,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 12502557,
+      "end": 12505231,
+      "bytes": 2674,
+      "tokenCount": 966,
+      "sha256": "54ffa65c16f52f71f556cc53ca46c110c86b0925b0facbe6e9bfdcfa7b0495c2",
+      "coarseHash": "8ff085ec6baa0001009477f7caa64064637c6d7c9c8ad7aa780c37f1677ef2aa"
+    }
+  ],
+  "attribution": {
+    "targetIndex": 20652,
+    "owner": {
+      "source": "../src/hooks/useCanUseTool.tsx",
+      "score": 875
+    },
+    "candidateOwners": [
+      ["../src/hooks/useCanUseTool.tsx", 2601],
+      ["../src/hooks/toolPermission/handlers/interactiveHandler.ts", 1314],
+      ["../src/hooks/toolPermission/handlers/swarmWorkerHandler.ts", 1314],
+      ["../src/utils/userPromptKeywords.ts", 412]
+    ],
+    "semanticOwnership": "source-owned-exact",
+    "ownerPath": "src/hooks/useCanUseTool.tsx",
+    "declaration": "useCanUseTool"
+  },
+  "ownerResidues": {
+    "identityFields": [
+      "targetIndex",
+      "literalKind",
+      "value",
+      "start",
+      "end",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber",
+      "targetAdded"
+    ],
+    "all": {
+      "rows": 15,
+      "jsonBytes": 918,
+      "sha256": "123e9cc6d08f55c06b1ed786860ff385c5639d32f33ed15a67855ea54ddee223",
+      "identities": [
+        [20652, "property", "c", 12469981, 12469982, 809, 761, false],
+        [20652, "number", "6", 12469983, 12469984, 1515, 1441, false],
+        [20652, "property", "recordDenial", 12469987, 12469999, 3, 3, false],
+        [20652, "property", "getDenials", 12470002, 12470012, 4, 5, true],
+        [20652, "property", "removeDenial", 12470015, 12470027, 0, 3, true],
+        [20652, "number", "4", 12470084, 12470085, 2359, 2286, false],
+        [20652, "property", "setClassifierApprovals", 12470118, 12470140, 12, 7, false],
+        [20652, "property", "length", 12470164, 12470170, 10183, 9970, false],
+        [20652, "property", "createElement", 12471314, 12471327, 8196, 7723, false],
+        [20652, "property", "Fragment", 12471331, 12471339, 276, 262, false],
+        [20652, "property", "createElement", 12471348, 12471361, 8196, 7724, false],
+        [20652, "property", "createElement", 12471441, 12471454, 8196, 7725, false],
+        [20652, "number", "4", 12472594, 12472595, 2359, 2287, false],
+        [20652, "number", "5", 12472601, 12472602, 1926, 1833, false],
+        [20652, "number", "5", 12472615, 12472616, 1926, 1834, false]
+      ]
+    },
+    "added": {
+      "rows": 2,
+      "jsonBytes": 121,
+      "sha256": "9bcc0ad9b601392517e9da5050c366f3bf0baecdb6666f09c3a347f9213c6218",
+      "identities": [
+        [20652, "property", "getDenials", 12470002, 12470012, 4, 5, true],
+        [20652, "property", "removeDenial", 12470015, 12470027, 0, 3, true]
+      ]
+    },
+    "strict": {
+      "rows": 2,
+      "jsonBytes": 121,
+      "sha256": "9bcc0ad9b601392517e9da5050c366f3bf0baecdb6666f09c3a347f9213c6218",
+      "identities": [
+        [20652, "property", "getDenials", 12470002, 12470012, 4, 5, true],
+        [20652, "property", "removeDenial", 12470015, 12470027, 0, 3, true]
+      ]
+    }
+  },
+  "sourceGraph": {
+    "baselineCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "targetCommit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "useCanUseTool": {
+      "path": "src/hooks/useCanUseTool.tsx",
+      "baselineBlob": "1eb77d56acfe08262ecdfa0e1c5af2431d6d8a77",
+      "targetBlob": "c3e7b758e48f39fec99b8f41fa0b78e47202d8b7",
+      "baselineFile": {
+        "chars": 40205,
+        "bytes": 40206,
+        "sha256": "3689b30326118e94bb53a8cc1fa1761d1c0b1bff6489162f1dd0771ec8b8b953"
+      },
+      "targetFile": {
+        "chars": 41027,
+        "bytes": 41028,
+        "sha256": "8d99333ad73b59ff2a45e9c3a79ff38434d1c27a4990d1819ce35e982e239082"
+      },
+      "baselineDeclaration": {
+        "start": 2203,
+        "end": 9452,
+        "chars": 7249,
+        "bytes": 7250,
+        "sha256": "9e8f7fee8ffad2499ba0b6810264cc101a1b9e8e8cb18c6e0b98586966f30967"
+      },
+      "targetDeclaration": {
+        "start": 2245,
+        "end": 10273,
+        "chars": 8028,
+        "bytes": 8029,
+        "sha256": "b8c639866fd310c22f9b112879566842a040f1a0e78b73fa7a6da4628c5bf961"
+      },
+      "functionalDiff": {
+        "gitArgs": ["diff", "--ignore-space-at-eol", "--unified=0"],
+        "chars": 1750,
+        "bytes": 1750,
+        "sha256": "8c9349f01f4c8b3a434174389e60e2e9139c3cc6dd988f04b06f89abb818e867",
+        "insertions": 20,
+        "deletions": 3
+      },
+      "inlineSourceMap": {
+        "unchangedAcrossDelta": true,
+        "rawBytes": 22861,
+        "rawSha256": "7dbd7fd4579ce6a9cdcad9cfd1019854147212ef1b4b85c07b2694033581b085",
+        "base64Chars": 30484,
+        "base64Sha256": "89900da52f6f3b5fbc97a46d3ab99ae75896a965ea52d243cafc88309d6d420a",
+        "sources": ["useCanUseTool.tsx"],
+        "names": 118,
+        "mappingsBytes": 6821,
+        "mappingsSha256": "b9b88ff6401b233b007af0e990fc82ae70f625731049c25aed8520c2fd744ffc",
+        "authoredContent": {
+          "chars": 13732,
+          "bytes": 13737,
+          "sha256": "829c080d1506c75049e8214a430ca80cf41de741cfde5e85e78055da41a51008"
+        },
+        "missingMarkers": ["getAutoModeDenials", "removeAutoModeDenial", "tengu_auto_mode_subsequent_approval"]
+      }
+    },
+    "autoModeDenials": {
+      "path": "src/utils/autoModeDenials.ts",
+      "baselineBlob": "667a69eade911b2d13aa9ae2d994cf122489141b",
+      "targetBlob": "aa85d060f3dccd334be70deabfe48b42dab66a7d",
+      "baselineFile": {
+        "chars": 720,
+        "bytes": 720,
+        "sha256": "72ce26009461386d285da613c0dd1331b4698c298473797dfe2b46b2c3f5cb25"
+      },
+      "targetFile": {
+        "chars": 945,
+        "bytes": 945,
+        "sha256": "8312bc29b8c236c74a5111088a5afdb1d64e0084f15fd0b606e5f23b5cb08fa7"
+      },
+      "diff": {
+        "bytes": 537,
+        "sha256": "37264590853d24da2ff52637d1d24ce3ec1317307250c6838fa8e976e818d937",
+        "insertions": 6,
+        "deletions": 0
+      },
+      "requiredMarkers": ["let DENIALS", "inputKey: string", "getAutoModeDenials", "removeAutoModeDenial"],
+      "missingRuntimeMarkers": ["AutoModeDenialsProvider", "useAutoModeDenials", "removeDenial:"]
+    },
+    "app": {
+      "path": "src/components/App.tsx",
+      "baselineBlob": "69ca9686d6cc2566aba148e5ab882e77826cf1e1",
+      "targetBlob": "69ca9686d6cc2566aba148e5ab882e77826cf1e1",
+      "file": {
+        "chars": 5204,
+        "bytes": 5204,
+        "sha256": "01bc49b40975f9626baf381b42c1083fa06456bc955b1d7051dac81d77811785"
+      },
+      "providerOccurrences": 0
+    },
+    "packageFilesEqualTargetCommit": true
+  },
+  "semanticContract": {
+    "compiledContextHook": {
+      "start": 10832398,
+      "end": 10832463,
+      "bytes": 65,
+      "sha256": "9e9d6530c4b1d5f61bef214768d38f193e9a06d89030e06ee5fa7588265f9c2e",
+      "text": "function zQH(){return D3H.useContext(pH4)}var mH4,D3H,pH4,pe1=20;"
+    },
+    "compiledMarkers": [
+      "{recordDenial:K,getDenials:_,removeDenial:A}=zQH()",
+      "let L=_();if(L.length>0){let P=SP4(z.name,Y);X=L.find((Z)=>Z.toolName===z.name&&Z.inputKey===P)}",
+      "inputKey:SP4(z.name,Y)",
+      "tengu_auto_mode_subsequent_approval",
+      "msSinceDeny:Date.now()-L.timestamp",
+      "allowReasonType:P.decisionReason?.type"
+    ],
+    "baselineMissingMarkers": ["getDenials", "removeDenial", "inputKey", "tengu_auto_mode_subsequent_approval"],
+    "inputIdentity": {
+      "bash": "JSON string of the command-only object",
+      "other": "JSON string of the complete tool input"
+    },
+    "previousDenialMatch": ["toolName", "inputKey"],
+    "recordedFields": ["toolName", "display", "inputKey", "reason", "timestamp"],
+    "continuation": {
+      "trigger": "an exact previous denial exists and the later decision is allow",
+      "event": "tengu_auto_mode_subsequent_approval",
+      "eventFields": ["toolName", "msSinceDeny", "allowReasonType"],
+      "removal": "the exact previous denial object is removed",
+      "nonAllowBehavior": "no telemetry and no removal"
+    }
+  },
+  "replayDecision": {
+    "mode": "static-only",
+    "graphClosed": false,
+    "compiledStorage": "AutoModeDenialsProvider/useAutoModeDenials context with ref-backed identity removal",
+    "sourceStorage": "module-global DENIALS with direct get/remove imports",
+    "sourceAppProviderOccurrences": 0,
+    "inlineSourceMapTracksDelta": false,
+    "sourceReplayHelpers": []
+  },
+  "coverageEvolution": {
+    "ownerIds": ["owner-src-hooks-useCanUseTool-tsx"],
+    "provisionalEvidenceIds": ["source-map-attribution", "semantic-test"],
+    "correctedEvidenceIds": [
+      "target119-use-can-use-tool-denial-history-authenticated-whole-unit-proof",
+      "target119-use-can-use-tool-denial-history-historical-source-delta-proof",
+      "target119-use-can-use-tool-denial-history-semantic-contract-test",
+      "target119-use-can-use-tool-denial-history-source-topology-replay-blocker"
+    ],
+    "postCorrectionStrictIndexSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "ownerBehavior": "The complete authenticated Target119 useCanUseTool unit extends its exact Target118 predecessor with denial input identity, context-backed denial lookup, inputKey recording, and one allow-only subsequent-approval telemetry/removal continuation. The two scanner-added properties are an indivisible part of that complete unit. Historical Target119 source independently authors the same behavioral contract through direct module-global get/remove functions, but the authenticated runtime instead consumes AutoModeDenialsProvider/useAutoModeDenials. Target119 source has no provider or context hook and carries an unchanged stale inline map, so the proof is static and cannot authorize source replay.",
+  "evidenceIds": [
+    "target119-use-can-use-tool-denial-history-authenticated-whole-unit-proof",
+    "target119-use-can-use-tool-denial-history-historical-source-delta-proof",
+    "target119-use-can-use-tool-denial-history-semantic-contract-test",
+    "target119-use-can-use-tool-denial-history-source-topology-replay-blocker"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-use-can-use-tool-denial-history-authenticated-whole-unit-proof",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs",
+      "detail": "Pins the complete Target118 and Target119 useCanUseTool units, all fifteen typed owner rows, the exact input-key helper, and the persistent Target120/121 lineage."
+    },
+    {
+      "id": "target119-use-can-use-tool-denial-history-historical-source-delta-proof",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs",
+      "detail": "Pins the exact historical useCanUseTool and autoModeDenials source deltas that author input identity, lookup, telemetry, and identity removal."
+    },
+    {
+      "id": "target119-use-can-use-tool-denial-history-semantic-contract-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs",
+      "detail": "Exhaustively verifies command-only Bash identity, full-input identity for other tools, exact previous-denial matching, and allow-only telemetry/removal."
+    },
+    {
+      "id": "target119-use-can-use-tool-denial-history-source-topology-replay-blocker",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-use-can-use-tool-denial-history-owner-proof.test.mjs",
+      "detail": "Rejects replay because authenticated runtime uses a provider/context graph while Target119 source uses module-global storage, App has no provider, and the inline source map is stale."
+    }
+  ]
+}

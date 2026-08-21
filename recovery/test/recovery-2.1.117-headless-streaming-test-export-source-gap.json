@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-headless-streaming-test-export-exact-source-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-headless-streaming-test-export-target-units",
+    "target116-headless-streaming-test-export-absence-test",
+    "target117-headless-streaming-test-export-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-headless-streaming-test-export-source-gap.mjs",
+      "bytes": 6135,
+      "sha256": "7c6fb954784ae648d43fa43d6ba80e055cdd126d277f9123c3119d7d422a9b1b"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFile": {
+      "path": "src/cli/print.ts",
+      "blob": "de5e84cc7614cb2b24ad64b447ed7797b6c81c80",
+      "input": {
+        "bytes": 218976,
+        "sha256": "e491160d1a4c417756b97fd921955d4af4007b851043381c83cc819beeafc690"
+      },
+      "rawPostimage": {
+        "bytes": 219044,
+        "sha256": "1b06b16d05e0688983254ef25ec5eeb1ae596e1ee8159aa8751a335e71ddb1e8"
+      },
+      "streamingDeclaration": {
+        "name": "runHeadlessStreaming",
+        "nodeType": "FunctionDeclaration",
+        "start": 37044,
+        "end": 170990,
+        "bytes": 134070,
+        "sha256": "9d151478e5fd4fb1810d5cccf03a795bc287581e2c0702b1ac4a524635dc0e97"
+      },
+      "exportDeclaration": {
+        "exported": "_runHeadlessStreamingForTesting",
+        "local": "runHeadlessStreaming",
+        "nodeType": "ExportDeclaration",
+        "start": 218817,
+        "end": 218883,
+        "bytes": 66,
+        "sha256": "1acc1439d856de68d96c0e36f60e0d9f431be506ea84f9e8ff0cd4711f73f032"
+      }
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "behaviorWitnessUnits": 1
+  },
+  "baselineAbsence": {
+    "property": "_runHeadlessStreamingForTesting",
+    "propertyOccurrences": 0,
+    "baselineExportUnit": [
+      20571,
+      "unmatched-baseline",
+      "ExpressionStatement",
+      12907682,
+      12908068,
+      91,
+      "c4d82127b85c0c2d70db9103145e3c8c9bcc4606b510d590f7c66634fa529e14",
+      "0d25a90d7bd14f02b1a4883f2760486f83bec14d0815effeca740a6008e60485"
+    ],
+    "exactSource": "W$(gY4,{waitForPendingMcpBeforeFirstCommand:()=>RY4,runHeadless:()=>HK5,removeInterruptedMessage:()=>uY4,reconcileMcpServers:()=>FY4,loadInitialMessages:()=>mY4,kickOffBackgroundPluginInstall:()=>hY4,joinPromptValues:()=>SY4,handleOrphanedPermissionResponse:()=>pY4,handleMcpSetServers:()=>BY4,getCanUseToolFn:()=>CY4,createCanUseToolWithPermissionPrompt:()=>bY4,canBatchWith:()=>IY4});"
+  },
+  "row": {
+    "targetIndex": 20636,
+    "owner": "src/cli/print.ts",
+    "declarations": [
+      "runHeadlessStreaming",
+      "_runHeadlessStreamingForTesting"
+    ],
+    "targetUnit": [
+      20636,
+      "unresolved",
+      "ExpressionStatement",
+      12917535,
+      12917961,
+      98,
+      "611b3d7aa06d0a1be17c918f72b52d5684369fc4931414e5bea65225cd2f75a5",
+      "8c8ff72c8862987e852bedfe578022655dbb0b139c67da674f8b79fecde2954e"
+    ],
+    "exactSource": "G$(iO4,{waitForPendingMcpBeforeFirstCommand:()=>BO4,runHeadless:()=>C7A,removeInterruptedMessage:()=>dO4,reconcileMcpServers:()=>nO4,loadInitialMessages:()=>QO4,kickOffBackgroundPluginInstall:()=>xO4,joinPromptValues:()=>uO4,handleOrphanedPermissionResponse:()=>cO4,handleMcpSetServers:()=>lO4,getCanUseToolFn:()=>UO4,createCanUseToolWithPermissionPrompt:()=>FO4,canBatchWith:()=>mO4,_runHeadlessStreamingForTesting:()=>pO4});",
+    "residue": [
+      "property",
+      "_runHeadlessStreamingForTesting",
+      12917919,
+      12917950,
+      1,
+      0
+    ]
+  },
+  "behaviorWitness": {
+    "streamingTargetUnit": [
+      20646,
+      "unresolved",
+      "FunctionDeclaration",
+      12925500,
+      12964719,
+      14480,
+      "85933cd8848eb3080cb343677b650e46999e6da295e7522a99f17b7a6514cc20",
+      "e018767cd451488a08b505e345d6c67849e8db4d711ecfc30ea744c8aa490aa7"
+    ],
+    "minifiedName": "pO4"
+  }
+}

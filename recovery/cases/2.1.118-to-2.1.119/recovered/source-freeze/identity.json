@@ -45,7 +45,7 @@
       "failed": 0,
       "files": 8,
       "manifest": "target-test-files.sha256",
-      "manifestSha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+      "manifestSha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
     },
     "retainedTests": {
       "passed": 21,
@@ -66,8 +66,8 @@
       },
       "test": {
         "path": "recovery/test/recovery-2.1.119-adjacent-direct-evidence.test.mjs",
-        "bytes": 8552,
-        "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19"
+        "bytes": 9365,
+        "sha256": "3bdcd30bcc12fbb34c080a59b713703fd96bf0fc57452cb3e3a414f8c33f78d7"
       },
       "manifest": "adjacent-direct-evidence.sha256",
       "manifestSha256": "06747ed35fabf72add98b4817b4dd7512af7d494ad0656e57462e1b92e1e9707"

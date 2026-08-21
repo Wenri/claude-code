@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "status": "authenticated-complete-unit-lineage-and-compiler-normalization-proof",
+  "criterion": "complete-target-unit-plus-unique-predecessor-plus-exact-source-lineage-v1",
+  "evidenceIds": [
+    "target118-prompt-input-runtime-authenticated-target-fragment",
+    "target118-prompt-input-runtime-source-lineage-test",
+    "target118-prompt-input-runtime-compiler-normalization-test"
+  ],
+  "inputs": {
+    "overrideModule": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/prompt-input-runtime-owner-overrides.mjs",
+      "bytes": 1164,
+      "sha256": "b223fee646ece8afb7561d1ffadc3038af7c34e360b91afec7024144be217eaa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructural": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineCoverage": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/semantic/source-coverage.json.gz",
+      "bytes": 305285,
+      "sha256": "d49db979e8134fdc622de91a855c79e6cfe5da66b983d01e85315dc5fc99c846"
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/semantic/source-coverage.json.gz",
+      "bytes": 296389,
+      "sha256": "26ac494605cfcab6f7141c2ad42cb4b6f0acc9347778be1c9625e1c01c5bd696"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "baselineOwnerProof": {
+      "fixture": {
+        "path": "recovery/test/recovery-2.1.117-retained-fullscreen-interaction-source-gaps.json",
+        "bytes": 7149,
+        "sha256": "94c072f38ab70c42214c9e55b9ca79d94b767876661bf9622758bf56eb5b0690"
+      },
+      "test": {
+        "path": "recovery/test/recovery-2.1.117-retained-fullscreen-interaction-source-gaps.test.mjs",
+        "bytes": 18162,
+        "sha256": "e7d13bd237166266a01362b993ce9bc8f34f7e46bfd9902dabb64d85eba65ef9"
+      }
+    }
+  },
+  "sourceLineage": {
+    "baseline": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "file": {
+        "path": "src/components/PromptInput/PromptInput.tsx",
+        "blob": "a037fc01bc968e3f47321f8253cb27f77b30c5a8",
+        "bytes": 356470,
+        "sha256": "3a865cec943842f8fed60bc506ffb6ca7a0a4d57b139bbcd63df1a8817e70211",
+        "declaration": {
+          "name": "PromptInput",
+          "kind": "FunctionDeclaration",
+          "characterStart": 11962,
+          "characterEnd": 99483,
+          "byteStart": 11964,
+          "byteEnd": 99675,
+          "bytes": 87711,
+          "sha256": "d6f427d6329dfd5179a32ddaa63789acdd81be7d4b9e32ef839f7c656e83d2eb"
+        }
+      }
+    },
+    "target": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/components/PromptInput/PromptInput.tsx",
+        "blob": "ac8f8822fc56d16202b626c4cf8ff2c789d75eba",
+        "bytes": 358261,
+        "sha256": "2c315a9684c719e46cdbbf405cd4fb0f6d4d1b8e8ff7eb0a9db4e7736c4deb19",
+        "declaration": {
+          "name": "PromptInput",
+          "kind": "FunctionDeclaration",
+          "characterStart": 11990,
+          "characterEnd": 101274,
+          "byteStart": 11992,
+          "byteEnd": 101466,
+          "bytes": 89474,
+          "sha256": "2e47e87d3101a5a7c79a79debd39a81ee0adcc8c6c4f427a5361356c974246e7"
+        }
+      },
+      "diff": {
+        "args": ["diff", "--unified=0", "ff0339d35906735273ae3130a187bb8e30581871", "bd846a24e3886322888f02b9f747c132a4a32314", "--", "src/components/PromptInput/PromptInput.tsx"],
+        "bytes": 4880,
+        "sha256": "97abb7544e322da4e9a4501d569a20c4921f082eaf154ed0935089bcab9d3297",
+        "insertions": 49,
+        "deletions": 2
+      }
+    },
+    "supporting": [
+      {
+        "path": "src/components/design-system/Label.tsx",
+        "blob": "e7a786c970d2bca6d1b9236cd6376c0f7e46f8c1",
+        "bytes": 649,
+        "sha256": "c3b047db1b4b2c9741c19fa1c7a22e04ffe4f783f49f80f19c9687daec04dbbe",
+        "declaration": {"name":"Label","kind":"FunctionDeclaration","characterStart":118,"characterEnd":648,"byteStart":118,"byteEnd":648,"bytes":530,"sha256":"21ef5330693fc626e7eb42860476897d9a5c03e08722530867e49a8ac2a91b7b"}
+      },
+      {
+        "path": "src/types/textInputTypes.ts",
+        "blob": "b44102ecef9c65fb47ae8543914f25ace1a3e2e6",
+        "bytes": 11655,
+        "sha256": "c99d194c692940ed21ced2fa115a0a0eaef6042d8ded2300d7bffdc807da9525",
+        "declaration": {"name":"VimMode","kind":"TypeAliasDeclaration","characterStart":5641,"characterEnd":5709,"byteStart":5643,"byteEnd":5711,"bytes":68,"sha256":"6ca139f9eba80294caf2d3fa8e0f26bd0d00d25a2a754cd85c65afba9496faaf"}
+      }
+    ]
+  },
+  "baselineUnit": {
+    "targetIndex": 19389,
+    "nodeType": "FunctionDeclaration",
+    "start": 11823758,
+    "end": 11852137,
+    "bytes": 28379,
+    "tokenCount": 11797,
+    "sourceHash": "ebe6cf765a6ca2c9c31be77499f8b4d257d91dd00584dbf5be9f1ef8449bd41d",
+    "coarseHash": "9cf76d03354024cd7eef101ba1d79e08429e0dcb4b08e3fd0a44f80342700395"
+  },
+  "targetUnit": {
+    "targetIndex": 19583,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 11923400,
+    "end": 11951768,
+    "bytes": 28368,
+    "tokenCount": 11806,
+    "sourceHash": "fb702497d2df121b0d23066ffe84e68aa4979739365148bb1bd6226e3774ad9e",
+    "coarseHash": "fd869b0adcaab000dfeb485b368da3cadc926646112832a36221401f7fe872e6",
+    "ownerPath": "src/components/PromptInput/PromptInput.tsx",
+    "declarations": ["PromptInput"],
+    "behavior": "The complete authenticated Target118 PromptInput unit is the uniquely retained Target117 PromptInput runtime plus the exact Target118 paste-expansion transition and compiler-normalized Vim/Label render forms. Its delete, backspace, NORMAL, j, and l literals remain in the paired input handler; the NORMAL polarity is equivalent over the compiled INSERT/NORMAL domain; and Label padded rendering is equivalent to the predecessor inverseText wrapper with one space on each side.",
+    "residues": [
+      ["string","NORMAL",11924246,11924254,17,20],
+      ["string","delete",11935764,11935772,53,56],
+      ["string","backspace",11935841,11935852,28,29],
+      ["string","delete",11935864,11935872,53,57],
+      ["string","NORMAL",11936052,11936060,17,21],
+      ["string","j",11936074,11936077,17,19],
+      ["string","l",11936170,11936173,19,20],
+      ["property","padded",11950081,11950087,0,8]
+    ]
+  },
+  "normalizedUnitProof": {
+    "normalization": "One Acorn token per line: every identifier is ID; number and string values are JSON encoded after their token label; regexp values use /pattern/flags after their token label; every other token is its label",
+    "baseline": {"tokens":11797,"bytes":37248,"sha256":"a9e1b0cdfbdebcd672a3e86c35e85deeecc3d68ebaa19f3763612c456d25ead5"},
+    "target": {"tokens":11806,"bytes":37222,"sha256":"db3fca7d6d3badee986ccb5fe820fff7ec54a4584063038b4449672c3bab5567"},
+    "diff": {"format":"diff --label baseline --label target -U 0","bytes":490,"sha256":"58b1f3116885f658d9b5c95f11c286ef33f2d78a0044ac61547c63320da63a2e","hunks":9}
+  },
+  "semanticRepresentations": {
+    "vimOverlayPolarity": {
+      "baseline": {"start":11824594,"end":11824614,"text":"A$H()&&$H===\"INSERT\"","sha256":"a0786b382b69b35d2aedf3bc2b1ba3f96192f53414c194e52eac65ccaf32979e"},
+      "target": {"start":11924234,"end":11924254,"text":"Q$H()&&HH!==\"NORMAL\"","sha256":"837e931c2f1fcbfd37749de3f2476518e140f05e9b0b288bd0716cf3d587d4d6"},
+      "compiledModes": ["INSERT", "NORMAL"]
+    },
+    "retainedInputHandler": [
+      {"target":["string","delete",11935764,11935772,53,56],"baseline":{"start":11836126,"end":11836134}},
+      {"target":["string","backspace",11935841,11935852,28,29],"baseline":{"start":11836204,"end":11836215}},
+      {"target":["string","delete",11935864,11935872,53,57],"baseline":{"start":11836227,"end":11836235}},
+      {"target":["string","NORMAL",11936052,11936060,17,21],"baseline":{"start":11836417,"end":11836425}},
+      {"target":["string","j",11936074,11936077,17,19],"baseline":{"start":11836439,"end":11836442}},
+      {"target":["string","l",11936170,11936173,19,20],"baseline":{"start":11836535,"end":11836538}}
+    ],
+    "paddedLabel": {
+      "baseline": {"start":11850391,"end":11850475,"text":"mq.createElement(k,{backgroundColor:QW.bgColor,color:\"inverseText\"},\" \",QW.text,\" \")","sha256":"083ec2418d4fc3d03ce66bd0741df007037bcd12574e6088816fb972c01ddaf7"},
+      "target": {"start":11950043,"end":11950100,"text":"mq.createElement(dO,{color:eG.bgColor,padded:!0},eG.text)","sha256":"2511edc566d75a478a098d2e4acb4c116e96c53b9b427deb231273c71b5dcf36"}
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 8,
+    "targetIndicesSha256": "58fd3d4f985b2f9903284e9acf81f9849a0c53a61e1799c2917976b7c57e25e8",
+    "residueIdentitiesSha256": "9b33ea5a5468ba31e1940154b65272bf8d3a4b33dca1b682bccb2169185a1086"
+  }
+}

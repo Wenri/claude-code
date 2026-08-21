@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-task-stop-owner-notification-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-task-stop-owner-notification-target-fragment",
+    "target118-task-stop-owner-notification-source-replay-test",
+    "target118-task-stop-owner-notification-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-task-stop-owner-notification-source-gap.mjs",
+      "bytes": 7867,
+      "sha256": "162a41682065416386ef09215adea51caad0ad5ce509fb9ed7a0a0e44b4af5b5"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "path": "src/tasks/stopTask.ts",
+      "blob": "c2cd768fcfbdd1e0fdddcc008cb0287d9c7bd147",
+      "bytes": 2894,
+      "sha256": "258617890f599896b62520f0687872f229d897fa6c52c408dd1f7780471c2863"
+    },
+    "cumulativeDonor": {
+      "commit": "983f36c6565dec91284019146f24f7a9bd75dd2b",
+      "path": "src/tasks/stopTask.ts",
+      "blob": "d4b34209c8fc05ac9f9db1074bc122e0023315fd",
+      "bytes": 4644,
+      "sha256": "47acad782eeb2a2b4d7465db1b3e6df716cf42b525c936efff0d3ba2501d4c6f"
+    },
+    "postimage": {
+      "path": "src/tasks/stopTask.ts",
+      "bytes": 4832,
+      "sha256": "d2219655fd05785f5e8aae29969b0c886eca3c74f0396f1ce6c4130c0eb2738a",
+      "declarations": {
+        "formatAgentId": [708, 807, 99, "cca33a67c82705da1c28da9d68dc3c3fc99bf2c45472835ad25e30a23d7029e5"],
+        "enqueueTaskStoppedNotification": [809, 1645, 836, "ee039dae8918f64b8cd764e895b438a23262e9b6939c7bc1ea29b51360643de0"],
+        "canCallerStopTask": [1647, 1851, 204, "ef2c009e9a825adb8d521a9a5782f8b68b212fa35cbdf00b8f67650d9b1a92ec"],
+        "stopTask": [2615, 4827, 2212, "9f6f6eb3175915cf2f66428cd74fad8cc4d7cba7d1daeb5fd00c9255a5af8f8c"]
+      }
+    }
+  },
+  "baselineUnits": [
+    {
+      "index": 13128,
+      "role": "Target117 main-session owner notification helper",
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 8362469,
+      "end": 8362785,
+      "bytes": 316,
+      "sourceHash": "54a9ac18fd7d76822ac4bdd2d99bc6b6d6059f4a365e0906c9f85555f40aea57"
+    },
+    {
+      "index": 13137,
+      "role": "Target117 stopTask call path",
+      "classification": "matched",
+      "nodeType": "FunctionDeclaration",
+      "start": 8363891,
+      "end": 8364754,
+      "bytes": 863,
+      "sourceHash": "dec4b1a7da746ef9c640851e35c3e56adb5596c18af1c92cf320f1918eec35ae"
+    }
+  ],
+  "targetUnits": [
+    {
+      "index": 13224,
+      "role": "Target118 shared agent identity formatter",
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 8401180,
+      "end": 8401221,
+      "bytes": 41,
+      "sourceHash": "1afc5d5177504aba3e4095979a67bafef2919ec60bef8fce1d9b1433337c3a18"
+    },
+    {
+      "index": 13227,
+      "role": "Target118 generic stopper-to-owner notification helper",
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 8401625,
+      "end": 8401955,
+      "bytes": 330,
+      "sourceHash": "53fe0db8d0d6358e9bffd4daf131beeadec6c0e43f0c349882c67bcc1abf8ad8"
+    },
+    {
+      "index": 13233,
+      "role": "Target118 stopTask ownership and notification call path",
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 8402898,
+      "end": 8403750,
+      "bytes": 852,
+      "sourceHash": "33460f013f55cca72bdd25d2191affc08a6102ca4064a57923be736a86ef0a5d"
+    }
+  ],
+  "strictOwnerUnit": {
+    "targetIndex": 13227,
+    "ownerResidues": 29,
+    "targetAddedResidues": [
+      ["property", "stopperAgentId", 8401695, 8401709, 1],
+      ["string", "\" was stopped by ", 8401728, 8401745, 1]
+    ]
+  },
+  "runtime": {
+    "ownerAgentId": "a-owner0000000001",
+    "stopperAgentId": "a-stopper00000001",
+    "taskId": "task-42",
+    "toolUseId": "tool-7",
+    "description": "compile docs",
+    "mode": "task-notification",
+    "priority": "next"
+  },
+  "summary": {
+    "ownerOverrides": 1,
+    "recoveredFiles": 1,
+    "strictUnits": 1,
+    "strictResidues": 29,
+    "targetAddedResidues": 2
+  }
+}

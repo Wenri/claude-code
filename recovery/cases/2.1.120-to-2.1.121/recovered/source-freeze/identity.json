@@ -41,12 +41,13 @@
       "reviewed": true
     },
     "targetTests": {
-      "tests": 121,
-      "passed": 121,
+      "tests": 480,
+      "passed": 466,
       "failed": 0,
-      "files": 33,
+      "skipped": 14,
+      "files": 103,
       "manifest": "target-test-files.sha256",
-      "manifestSha256": "0b3a9273b97d29fd59751283573b4acc13df81c86f135e1744ef3f9310dd312e"
+      "manifestSha256": "b1283de943d0c771a4e26865eba9705aded39ee6f0184cf73d6b6a0a6d9d749e"
     },
     "retainedTests": {
       "files": 9,
@@ -65,8 +66,8 @@
       },
       "test": {
         "path": "recovery/test/recovery-2.1.121-direct-evidence.test.mjs",
-        "bytes": 8974,
-        "sha256": "6afcd9dc34d4027a19478206630d0e96155bdd0690be4d222707d54f0f8756a3"
+        "bytes": 9811,
+        "sha256": "42ab6a027653eae552ce701906a3d156ff7b36e222159bb3fe0d7f711a465e4f"
       },
       "manifest": "adjacent-direct-evidence.sha256",
       "manifestSha256": "ccd2fa11257f39c351bcbd839d1ecaebe7273649369aeec085e1ded782024301"

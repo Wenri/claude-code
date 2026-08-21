@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-direct-source-owner-proof",
+  "criterion": "The complete authenticated target variable binds both residues inside the autofix-pr command registration object together with its command type, subscriber/policy gates, hidden getter, lazy loader, and user-facing name. The exact historical command.ts declaration reproduces that whole object. A generic messages module or an incidental autofix-pr string occurrence cannot satisfy the complete-unit proof.",
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "targetIndicesSha256": "d1c64f1efd05abb70f03677ce84ad40139b2470e473e2196e1846a0656546c61",
+    "residueIdentitiesSha256": "4cfce17222a48dfd63b1bea8c7267a9f83331e0b065d1e0c712aa35c5a6d8f89"
+  },
+  "inputs": {
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "source": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/commands/autofix-pr/command.ts",
+        "blob": "e09b63ad87f1e661072a1107696a344c251208e5",
+        "bytes": 717,
+        "sha256": "59fe4d8710546a4de59a6b528e4bb713f765c903a140d31e5e434ed20c390b29"
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 15199,
+    "start": 9448219,
+    "end": 9448592,
+    "bytes": 373,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "0d353785bab41c109514718ee8d777dc654ace834b631d565894e330b8fa5e86",
+    "coarseHash": "6fc4cd9d6d25f0400292e688265df5fcba9a053c4af97b90108d824dc298efa0",
+    "ownerPath": "src/commands/autofix-pr/command.ts",
+    "provisionalOwnerPath": "src/utils/messages.ts",
+    "behavior": "The authenticated Target118 command registration declares the autofix-pr local-JSX command, its monitoring description, subscriber and remote-session policy gates, hidden getter, lazy module loader, and user-facing name. The exact historical command.ts object owns the complete declaration; the provisional utils/messages.ts attribution is rejected.",
+    "residues": [
+      [
+        "string",
+        "Monitor and autofix any issues with the current PR",
+        9448296,
+        9448348,
+        0,
+        1
+      ],
+      [
+        "string",
+        "autofix-pr",
+        9448567,
+        9448579,
+        0,
+        1
+      ]
+    ]
+  },
+  "sourceDeclaration": {
+    "path": "src/commands/autofix-pr/command.ts",
+    "name": "autofixPrCommand",
+    "bytes": 503,
+    "sha256": "ec91af12080f35bcaecc6cad52891db8287406cd8f9bb74af813c030063bd602"
+  },
+  "commandContract": {
+    "type": "local-jsx",
+    "name": "autofix-pr",
+    "description": "Monitor and autofix any issues with the current PR",
+    "policy": "allow_remote_sessions",
+    "lazyModule": "./autofix-pr.js",
+    "requiredProperties": [
+      "type",
+      "name",
+      "description",
+      "argumentHint",
+      "isEnabled",
+      "isHidden",
+      "load",
+      "userFacingName"
+    ]
+  },
+  "evidenceIds": [
+    "target118-autofix-pr-command-target-fragment",
+    "target118-autofix-pr-command-source-ast-test"
+  ]
+}

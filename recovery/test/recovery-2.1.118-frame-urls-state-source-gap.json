@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-frame-urls-state-and-reset-replay-v1",
+  "status": "case-owned-replay-ready",
+  "sourceCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+  "sourceTree": "a404264d155cde23ec7479fc7e69d1edec7d92a9",
+  "evidenceIds": [
+    "target118-frame-urls-target-fragments",
+    "target118-frame-urls-source-replay-test",
+    "target118-frame-urls-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-frame-urls-state-source-gap.mjs",
+      "bytes": 7866,
+      "sha256": "d1b25fca03f6e80bcb338aa5df8578123fefcd889a1532f35bacefbfdb5b70ea"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/state/AppStateStore.ts",
+        "blob": "06ffd23d52715393bdb101e1d840046d57bc06e1",
+        "input": { "bytes": 22641, "sha256": "32c9cac2ebfd936b3f1f32d1446dc86a1dabc9b6f9f183140c3e46b62f74590e" },
+        "output": { "bytes": 22696, "sha256": "4ea37feff50e29f64370335a599105dbe04e2baf78b13c3bd5400e4ba4041089" }
+      },
+      {
+        "path": "src/commands/clear/conversation.ts",
+        "blob": "1ecda06b63559b5cf30401ec2b31f8a8370f950f",
+        "input": { "bytes": 9573, "sha256": "74ff4d4eb9631b9fff5fb4e33da893c88679a1c48a73c8ec6887020a863b375f" },
+        "output": { "bytes": 9596, "sha256": "30cfd69eb471eebafa04da3c5787ebf5f9d7ed1280008507ac9202d4832392d7" }
+      },
+      {
+        "path": "src/main.tsx",
+        "blob": "1a6745ef0439cc741c40b2f22635d8b8f1189c23",
+        "input": { "bytes": 808444, "sha256": "9edfedd84c9154bdd800ca72cc879049e4c7a8fbf0b185a42adfe874cd3fa0bb" },
+        "output": { "bytes": 808465, "sha256": "263874a2733f298f2c41359da8a398f78984e33d4f790861081bde852cf67ef6" }
+      }
+    ]
+  },
+  "targetUnits": [
+    {
+      "targetIndex": 11049,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 6409170,
+      "end": 6411351,
+      "bytes": 2181,
+      "sha256": "befac02204111c45d286aa7e84e0de89555b99105899c0788d47b52bbbb5e007",
+      "ownerPath": "src/state/AppStateStore.ts",
+      "residue": ["property", "frameUrls", 6410664, 6410673, 1]
+    },
+    {
+      "targetIndex": 15311,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 9491995,
+      "end": 9493710,
+      "bytes": 1715,
+      "sha256": "0660f6f49c7f3f13ebafba55d8a5da106bf932b42f84e68241dbb4c325f2852e",
+      "ownerPath": "src/commands/clear/conversation.ts",
+      "residue": ["property", "frameUrls", 9493232, 9493241, 2]
+    }
+  ],
+  "supportingTargetUnit": {
+    "targetIndex": 20972,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 13166596,
+    "end": 13226366,
+    "bytes": 59770,
+    "sha256": "24cabb3ede118da6eacd67a7ccf9ed6a8d292e25367f0043ffcad1fbe1427a46",
+    "ownerPath": "src/main.tsx",
+    "residue": ["property", "frameUrls", 13201425, 13201434, 3],
+    "coverageBoundary": "supporting-source-replay-only; this fixture does not admit the other strict residues in the large main unit"
+  },
+  "bundleOccurrenceLineage": [
+    { "version": "2.1.117", "bytes": 13114118, "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661", "offsets": [] },
+    { "version": "2.1.118", "bytes": 13234618, "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa", "offsets": [6410664, 9493232, 13201425] },
+    { "version": "2.1.119", "bytes": 13720987, "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef", "offsets": [6465089, 9608175, 13683342] },
+    { "version": "2.1.120", "bytes": 13784743, "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f", "offsets": [6489316, 9641157, 13746598] },
+    { "version": "2.1.121", "bytes": 13908188, "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a", "offsets": [6505980, 9703514, 13814767] }
+  ],
+  "sourceSemantics": {
+    "type": "AppState.frameUrls is Record<string, string>",
+    "default": "getDefaultAppState initializes frameUrls to a fresh empty object",
+    "clear": "clearConversation resets frameUrls to a fresh empty object",
+    "entrypoint": "main interactive initial state initializes frameUrls to a fresh empty object",
+    "sourceOccurrenceCount": 4
+  }
+}

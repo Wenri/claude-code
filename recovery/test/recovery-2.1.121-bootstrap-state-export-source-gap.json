@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "sourceFile": {
+      "path": "src/bootstrap/state.ts",
+      "input": {
+        "bytes": 62819,
+        "sha256": "d378bea8bf7a12640104a55a0462418ad946b4db48d6d505856a9fd45d4ffff8"
+      },
+      "output": {
+        "bytes": 62894,
+        "sha256": "14e13db421cec2e5dbc5b21d515ec08f08534d949b82b15f496e4fdb26240f30"
+      }
+    }
+  },
+  "row": {
+    "targetIndex": 370,
+    "nodeType": "ExpressionStatement",
+    "start": 26149,
+    "end": 33358,
+    "bytes": 7209,
+    "sourceHash": "984bf5273d5f20fa5fb3eef27da081decdb32b9d5ece15ad242b0cd0fbb9f5b7",
+    "coarseHash": "6119278d90ed09e6a6db047089a1491b110c5b9245c93c15fc4648f69a92746a",
+    "targetSliceSha256": "984bf5273d5f20fa5fb3eef27da081decdb32b9d5ece15ad242b0cd0fbb9f5b7",
+    "ownerPath": "src/bootstrap/state.ts",
+    "evidenceIds": [
+      "target121-bootstrap-state-export-target-fragment",
+      "target121-bootstrap-state-export-source-replay-test",
+      "target121-bootstrap-state-export-source-ast-test"
+    ],
+    "residueIdentities": [
+      [
+        370,
+        "property",
+        "setThinkingTypeOverride",
+        26350,
+        26373,
+        1
+      ],
+      [
+        370,
+        "property",
+        "resetStartTime",
+        28697,
+        28711,
+        1
+      ],
+      [
+        370,
+        "property",
+        "getThinkingTypeOverride",
+        30072,
+        30095,
+        1
+      ]
+    ]
+  },
+  "targetBindings": [
+    {
+      "exportName": "setThinkingTypeOverride",
+      "propertyStart": 26350,
+      "propertyEnd": 26381,
+      "localName": "CL8",
+      "definition": {
+        "start": 49617,
+        "end": 49669,
+        "bytes": 52,
+        "sha256": "403470e2301c62166763bd0c2ecb90072dfacbc199cce06a22d57cab326e36e7"
+      }
+    },
+    {
+      "exportName": "resetStartTime",
+      "propertyStart": 28697,
+      "propertyEnd": 28719,
+      "localName": "tX8",
+      "definition": {
+        "start": 36800,
+        "end": 36839,
+        "bytes": 39,
+        "sha256": "396faa5b8eeefe4867c90e67eb9579120cae55f6a3338db346340b8230d877b8"
+      }
+    },
+    {
+      "exportName": "getThinkingTypeOverride",
+      "propertyStart": 30072,
+      "propertyEnd": 30103,
+      "localName": "RL8",
+      "definition": {
+        "start": 49562,
+        "end": 49617,
+        "bytes": 55,
+        "sha256": "56ef2cffdd6ab9dca106a8c6b6f7690a77be4a59b083678217285f4bc23cea87"
+      }
+    }
+  ],
+  "sourceDeclarations": [
+    {
+      "name": "resetStartTime",
+      "charStart": 24304,
+      "charEnd": 24377,
+      "bytes": 73,
+      "sha256": "aeb066f8ddb9c14301c18ee1aa81b6a05281d5993b3e5c72162c2522a068429a"
+    },
+    {
+      "name": "getThinkingTypeOverride",
+      "charStart": 61730,
+      "charEnd": 61877,
+      "bytes": 147,
+      "sha256": "707d627a97e0a2dfd2bda0ab335c71af9fbe9a9eae2649924b8bba6bba8ffc29"
+    },
+    {
+      "name": "setThinkingTypeOverride",
+      "charStart": 61879,
+      "charEnd": 62027,
+      "bytes": 148,
+      "sha256": "66e5592521a8561172b99ab5d98971859be34b0343a2a117beb08fe06e353327"
+    }
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "indicesSha256": "218cc50e134c5d346f30fc6d557a03321c8d2b755c64019277ecce2242a1602f",
+    "residueIdentitiesSha256": "ccff9069041afbd6eed1ea5745fcd39274ebe5f004fe3e82f3cc51e9c1bb5826"
+  }
+}

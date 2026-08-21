@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-tui-telemetry-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target118-tui-telemetry-target-fragment",
+    "target118-tui-telemetry-source-replay-test",
+    "target118-tui-telemetry-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-tui-telemetry-source-gap.mjs",
+      "bytes": 7635,
+      "sha256": "7c4585067a538b90d19ff0e6d317403163308ca528c3f6ad3aab88a16b0e5b56"
+    },
+    "donor": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/scroll-config.target118.ts",
+      "bytes": 1597,
+      "sha256": "f124ec3dcded6b0e92483807eff02426a4d7877ccf5a5938b78dd69bd9380f6f"
+    },
+    "inheritedEvidence": {
+      "path": "recovery/test/recovery-2.1.116-four-live-residue-gaps-semantic.test.mjs",
+      "bytes": 18024,
+      "sha256": "718fc866639d82de73d3290e85ef863b87ed7d1a8be24949d313c295d4988bb9"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/commands/tui/tui.ts",
+        "blob": "90912e5676a7ab05e8500627bbcf57e6bd35be33",
+        "bytes": 1637,
+        "sha256": "ce292e2fa81f332d3d3bb7e73787b4a0501e582cb0d460dcc19158c6ac9b8960"
+      },
+      "declaration": {
+        "name": "call",
+        "start": 397,
+        "end": 1636,
+        "bytes": 1239,
+        "sha256": "78be62b12a5d0aca526061219cdf22bb9a8090c5fe5b24242f53d8457fcd55a7"
+      }
+    },
+    "recoveredSource": {
+      "files": [
+        {
+          "path": "src/commands/tui/tui.ts",
+          "bytes": 2075,
+          "sha256": "323721e22848f85155df9b73166cb1da53a708a6f1713abeb0a1fd531e8866f2"
+        },
+        {
+          "path": "src/ink/scroll-config.ts",
+          "bytes": 1597,
+          "sha256": "f124ec3dcded6b0e92483807eff02426a4d7877ccf5a5938b78dd69bd9380f6f"
+        }
+      ],
+      "declarations": [
+        {
+          "path": "src/commands/tui/tui.ts",
+          "name": "call",
+          "start": 458,
+          "end": 2074,
+          "bytes": 1616,
+          "sha256": "8546b33b052fb77de3777cae1929f2ad6bc1166fcda83a6264bf0f5e835918f1"
+        },
+        {
+          "path": "src/ink/scroll-config.ts",
+          "name": "getScrollConfig",
+          "start": 544,
+          "end": 1231,
+          "bytes": 687,
+          "sha256": "afd3a13b760e4eef5d15aa4d575f7513877459cb569ad109a85e5bd6a91ff6f0"
+        },
+        {
+          "path": "src/ink/scroll-config.ts",
+          "name": "readScrollSpeedBase",
+          "start": 1233,
+          "end": 1596,
+          "bytes": 363,
+          "sha256": "96694a924352e08ce2eb63363874eee75f116eb5f375e854a6de303987bb85f2"
+        }
+      ]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 17058,
+    "classification": "unresolved",
+    "start": 10685090,
+    "end": 10686009,
+    "bytes": 919,
+    "tokenCount": 288,
+    "nodeType": "VariableDeclaration",
+    "sourceHash": "f56adb2b284bedaf1266aa7deba0202707d2e8dcc61252006f291b914a5c069b",
+    "coarseHash": "26df6f6eefbf3cc0a0e50612bbf17594eace64c3f159b56bdeec13b867c014f5",
+    "ownerPaths": [
+      "src/commands/tui/tui.ts",
+      "src/ink/scroll-config.ts"
+    ],
+    "provisionalOwnerPath": "src/commands/theme/index.ts",
+    "declarations": [
+      "call",
+      "getScrollConfig"
+    ],
+    "behavior": "The authenticated Target118 TUI command records renderer transition, session age, fullscreen-to-default bounce, and the shared scroll-policy snapshot before relaunching. The recovered command consumes the inherited getScrollConfig declaration that owns the exact decay, base, and xterm.js values.",
+    "residues": [
+      [
+        "property",
+        "bounce",
+        10685707,
+        10685713,
+        0,
+        1
+      ],
+      [
+        "property",
+        "scroll_decay_curve",
+        10685786,
+        10685804,
+        0,
+        1
+      ],
+      [
+        "property",
+        "scroll_base",
+        10685821,
+        10685832,
+        0,
+        1
+      ],
+      [
+        "property",
+        "base",
+        10685835,
+        10685839,
+        15,
+        20
+      ],
+      [
+        "property",
+        "scroll_xtermjs",
+        10685840,
+        10685854,
+        0,
+        1
+      ],
+      [
+        "property",
+        "xtermJs",
+        10685857,
+        10685864,
+        1,
+        2
+      ],
+      [
+        "property",
+        "CLAUDE_CODE_TUI_JUST_SWITCHED",
+        10685900,
+        10685929,
+        4,
+        5
+      ]
+    ]
+  },
+  "supportingTargetUnits": [
+    {
+      "targetIndex": 7322,
+      "classification": "matched",
+      "start": 3434807,
+      "end": 3435182,
+      "bytes": 375,
+      "tokenCount": 116,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "15d7511add355c39edf6642861f8f168595091169c6eb64a1936dff4a0bc175f",
+      "coarseHash": "c49c1a92dbb3e28dba1fa6b4b89adcc2f25af176015aa0dd67415429b8e9ef6d"
+    },
+    {
+      "targetIndex": 7323,
+      "classification": "matched",
+      "start": 3435182,
+      "end": 3435358,
+      "bytes": 176,
+      "tokenCount": 71,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "7a3168ce344494fc7a3183caa879ded9981406822d21d8915b6d53752cbd8081",
+      "coarseHash": "059a14aca1653d44f1dd3421e8caae5462d0841b5e734a1e2655071d0196c8a9"
+    }
+  ],
+  "ownerOverride": {
+    "paths": [
+      "src/commands/tui/tui.ts",
+      "src/ink/scroll-config.ts"
+    ],
+    "evidenceIds": [
+      "target118-tui-telemetry-target-fragment",
+      "target118-tui-telemetry-source-replay-test",
+      "target118-tui-telemetry-source-ast-test"
+    ],
+    "behavior": "The authenticated Target118 TUI command records renderer transition, session age, fullscreen-to-default bounce, and the shared scroll-policy snapshot before relaunching. The recovered command consumes the inherited getScrollConfig declaration that owns the exact decay, base, and xterm.js values."
+  },
+  "summary": {
+    "units": 1,
+    "supportingUnits": 2,
+    "residues": 7,
+    "recoveredFiles": 2,
+    "ownerOverrides": 1,
+    "targetIndicesSha256": "dea602f33afe70d440c7ad33589eeee38494891d8b144a4e199588aac1b8bc49",
+    "residueIdentitiesSha256": "9bab89ba3c9cb693f6520ef9ddb26538ed3cef780a8de21fda4a5425ab9d63b3"
+  }
+}

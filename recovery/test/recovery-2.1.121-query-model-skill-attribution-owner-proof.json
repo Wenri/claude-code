@@ -1,0 +1,587 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-query-model-skill-attribution-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "claim": "Target121 u19537 is the complete src/services/api/claude.ts::queryModel consumer. Four assistant-message construction paths add the same attribution spread, passing options.querySource, options.spawnedBySkill, and options.activeSkill into an authenticated helper that derives attributionAgent, attributionSkill, and attributionPlugin. Exact normalized-token lineage binds the complete target unit to unmatched Target120 u19397. Recovered Target121 and fresh-package claude.ts omit all four spreads, the helper, and both Options members, while the wider source tree omits the two provenance fields, so ownership is static and no partial replay is admitted.",
+  "evidenceIds": [
+    "target121-query-model-skill-attribution-authenticated-whole-unit",
+    "target121-query-model-skill-attribution-four-call-graph",
+    "target121-query-model-skill-attribution-source-type-graph-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReportSnapshots": {
+      "provisional": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 26646291,
+        "sha256": "75c93caebd73e5cfa9d977c81874b0f4eb617866b973f872b3ec909b8ce113e4"
+      },
+      "postFocusedBatch": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25717702,
+        "sha256": "f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"
+      },
+      "postDaemonOwner": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3",
+        "projection": "postFocusedBatch"
+      }
+    },
+    "sourceCoverageEvolution": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+      "acceptedStates": [
+        {
+          "name": "pre-u19537-integration",
+          "compressed": {
+            "bytes": 338328,
+            "sha256": "92f9bd2e3df5ac77e21cae2fd383791d47d23ada0e0b707e89a908374300c92b"
+          },
+          "raw": {
+            "bytes": 2941074,
+            "sha256": "58591548d86a6d0f88222ea472ddf8d09d336a92f372b5b0825f23e78e0d36a2"
+          },
+          "rowCanonical": {
+            "bytes": 530,
+            "sha256": "2e32baa6e0b0044e56e14235715248c3479dc12bc5573ccd7f7992ae8241f218"
+          },
+          "row": {
+            "targetIndex": 19537,
+            "start": 11857089,
+            "end": 11880059,
+            "nodeType": "FunctionDeclaration",
+            "sourceHash": "bb7118482634277258c63c74e61dddfa3090edbfb507b766f981eceb1626e56e",
+            "structuralClass": "unresolved",
+            "disposition": "source-runtime-covered",
+            "ownerIds": ["owner-src-services-api-claude-ts"],
+            "evidenceIds": ["source-map-attribution", "semantic-test"],
+            "behavior": "Compiled target unit is attributed to src/services/api/claude.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+          }
+        },
+        {
+          "name": "post-u19537-integration",
+          "compressed": {
+            "bytes": 338902,
+            "sha256": "b26a5908b24c85aaa6ad34cd4da8cca0be4affcf100922e7397c2b79e877cea9"
+          },
+          "raw": {
+            "bytes": 2942879,
+            "sha256": "2efc389746daeed6eba289a64ece7e98aa48621e4ab0fdfbae17dd2d1f2260a6"
+          },
+          "rowCanonical": {
+            "bytes": 1152,
+            "sha256": "8dde89c7b9307bb1d3f7773abca31ba7c6c265b489bc666f75b71aa77b91159c"
+          },
+          "row": {
+            "targetIndex": 19537,
+            "start": 11857089,
+            "end": 11880059,
+            "nodeType": "FunctionDeclaration",
+            "sourceHash": "bb7118482634277258c63c74e61dddfa3090edbfb507b766f981eceb1626e56e",
+            "structuralClass": "unresolved",
+            "disposition": "source-runtime-covered",
+            "ownerIds": ["owner-src-services-api-claude-ts"],
+            "evidenceIds": [
+              "target121-query-model-skill-attribution-authenticated-whole-unit",
+              "target121-query-model-skill-attribution-four-call-graph",
+              "target121-query-model-skill-attribution-source-type-graph-blocker"
+            ],
+            "behavior": "The authenticated Target121 queryModel unit spreads skill-attribution metadata into four assistant-message construction paths by passing options.querySource, options.spawnedBySkill, and options.activeSkill to the authenticated attribution helper. That helper attributes built-in and custom agents to their spawning skill and plugin, and attributes main-thread requests to the active skill. Recovered Target121 and fresh-package claude.ts omit all four calls, the helper, and both Options members, while the wider recovered source tree omits both provenance fields, so this is a static complete-unit owner proof and never a partial source replay."
+          }
+        },
+        {
+          "name": "post-u20775-integration",
+          "compressed": {
+            "bytes": 339584,
+            "sha256": "5d0df0f05882a63ddd9b92bc158e6f7c75426c9ec6409eab5436ff5d55710105"
+          },
+          "raw": {
+            "bytes": 2944902,
+            "sha256": "7cef059481675bf3ebf3068a8d12b3a49fc6058ec5c4181fb96601067f8868db"
+          },
+          "rowCanonical": {
+            "bytes": 1152,
+            "sha256": "8dde89c7b9307bb1d3f7773abca31ba7c6c265b489bc666f75b71aa77b91159c"
+          },
+          "row": {
+            "targetIndex": 19537,
+            "start": 11857089,
+            "end": 11880059,
+            "nodeType": "FunctionDeclaration",
+            "sourceHash": "bb7118482634277258c63c74e61dddfa3090edbfb507b766f981eceb1626e56e",
+            "structuralClass": "unresolved",
+            "disposition": "source-runtime-covered",
+            "ownerIds": ["owner-src-services-api-claude-ts"],
+            "evidenceIds": [
+              "target121-query-model-skill-attribution-authenticated-whole-unit",
+              "target121-query-model-skill-attribution-four-call-graph",
+              "target121-query-model-skill-attribution-source-type-graph-blocker"
+            ],
+            "behavior": "The authenticated Target121 queryModel unit spreads skill-attribution metadata into four assistant-message construction paths by passing options.querySource, options.spawnedBySkill, and options.activeSkill to the authenticated attribution helper. That helper attributes built-in and custom agents to their spawning skill and plugin, and attributes main-thread requests to the active skill. Recovered Target121 and fresh-package claude.ts omit all four calls, the helper, and both Options members, while the wider recovered source tree omits both provenance fields, so this is a static complete-unit owner proof and never a partial source replay."
+          }
+        },
+        {
+          "name": "postFocusedBatch",
+          "compressed": {
+            "bytes": 343532,
+            "sha256": "7a51d49cdd7cb9b26b883ea0f0b1242573cd1ed4a0ba25a91ac1bc98dbc1eabd"
+          },
+          "raw": {
+            "bytes": 2958647,
+            "sha256": "92bf969f261a3c716fb8e8a4fa50b879a1a407bf35a51cfca5971afc67c9555b"
+          },
+          "projection": "post-u19537-integration"
+        },
+        {
+          "name": "postDaemonOwner",
+          "compressed": {
+            "bytes": 347677,
+            "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83"
+          },
+          "raw": {
+            "bytes": 2974761,
+            "sha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+          },
+          "projection": "post-u19537-integration"
+        }
+      ]
+    },
+    "evolutionCompatibility": {
+      "provisional": [
+        "pre-u19537-integration",
+        "post-u19537-integration",
+        "post-u20775-integration"
+      ],
+      "postFocusedBatch": ["postFocusedBatch"],
+      "postDaemonOwner": ["postDaemonOwner"]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 19537,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 22,
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "generator": true,
+    "start": 11857089,
+    "end": 11880059,
+    "bytes": 22970,
+    "tokenCount": 7401,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 45,
+    "sha256": "bb7118482634277258c63c74e61dddfa3090edbfb507b766f981eceb1626e56e",
+    "coarseHash": "a229d0ccab5383c6afbc0bfb5bcb69960693b647b46e6f95c8b9b6a9704bc689",
+    "line": 8911,
+    "column": 8229
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 19397,
+    "classification": "unmatched-baseline",
+    "relation": "direct queryModel predecessor authenticated by module position, complete-unit normalized-token alignment, retained behavioral anchors, and recovered queryModel declaration lineage",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "generator": true,
+    "start": 11776948,
+    "end": 11798916,
+    "bytes": 21968,
+    "tokenCount": 7148,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 45,
+    "sha256": "6374c8a63affecaf75996f431523ae21f6f8290338c1edda75fc1b973e7bb21b",
+    "coarseHash": "6ab24d260dacb876033f2ac41bb1325050c17c6537dd5fb39c60a4522b1fa15e",
+    "line": 8900,
+    "column": 8210
+  },
+  "ownerResidues": {
+    "reportedOwner": "services/api/claude.ts",
+    "correctedOwner": "src/services/api/claude.ts",
+    "declarations": ["Options", "queryModel"],
+    "totalRows": 17,
+    "targetAddedRows": 8,
+    "strictRows": 8,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "rowIdentities": {
+      "bytes": 979,
+      "sha256": "250804dd98749ac17b01aa5071624c7fc5eb2836759797dd1637689ddd75aa1c"
+    },
+    "ownerIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded,ownerPaths,ownerSourceMatches] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "ownerIdentities": {
+      "bytes": 1489,
+      "sha256": "e6bc6a6b594117f3596b2266f8e566f9a45d376a9e2b31d0a11d39a73ffeb3c0"
+    },
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 442,
+      "sha256": "c74f45d5fe0d9c5483e8dcb6009296ba48d4a26ca59b122a184dd04a7590d331"
+    },
+    "strictRowsExact": [
+      [19537, "property", "spawnedBySkill", 11867203, 11867217, 11],
+      [19537, "property", "activeSkill", 11867220, 11867231, 7],
+      [19537, "property", "spawnedBySkill", 11870657, 11870671, 12],
+      [19537, "property", "activeSkill", 11870674, 11870685, 8],
+      [19537, "property", "spawnedBySkill", 11875999, 11876013, 13],
+      [19537, "property", "activeSkill", 11876016, 11876027, 9],
+      [19537, "property", "spawnedBySkill", 11877138, 11877152, 14],
+      [19537, "property", "activeSkill", 11877155, 11877166, 10]
+    ]
+  },
+  "wholeUnitLineage": {
+    "rawByteDelta": 1002,
+    "tokenDelta": 253,
+    "canonicalization": "Acorn AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+    "baselineCanonical": {
+      "bytes": 283300,
+      "sha256": "11e700e764c3130444159efc9e9879df62c90109edfc61a1c54c9efa064c49c7"
+    },
+    "targetCanonical": {
+      "bytes": 293896,
+      "sha256": "41a76c495e0026ed2f739ea7d8adf8e0bd02912524ad299d7fc0158a8c55379d"
+    },
+    "targetWithoutSkillAttributionCanonical": {
+      "bytes": 291416,
+      "sha256": "b19a8f4cdf442da58e12f2781c38ff54181dd4691e762b15df79d612182ad255"
+    },
+    "identifierNormalizedTokens": {
+      "method": "Acorn tokens serialized as [type.label,value], with every name-token value replaced by @id and absent values represented as null",
+      "baseline": {
+        "count": 7148,
+        "bytes": 96421,
+        "sha256": "ec8a068e47ebb67391668428c5655854d0a4dbdbd998d692154953fd634ca07a"
+      },
+      "target": {
+        "count": 7401,
+        "bytes": 99970,
+        "sha256": "1cfe1c7781dc42ff4eab43023879a4154a8aaed32aefa8fdc0c5a295c6e1ad9b"
+      },
+      "skillAttributionInsertions": {
+        "count": 64,
+        "bytes": 825,
+        "sha256": "3d74a5463b6880449eed88a6f7a8ebf96ede1aa92af4634a06b4fd42c5673573"
+      },
+      "oneInsertion": {
+        "count": 16,
+        "bytes": 207,
+        "sha256": "1c944e263c460b0e584ac0114b0a6cf36534ce32ba58b158e9f1ef23c9a98e1b"
+      },
+      "targetWithoutSkillAttribution": {
+        "count": 7337,
+        "bytes": 99146,
+        "sha256": "ad4ffb3946dcbec7de4ff1799a15ad7b5ade63264b69f0e8185575e986c0b2ca"
+      }
+    },
+    "myersAlignment": {
+      "method": "Deterministic Myers shortest edit script over identifier-normalized tokens; deletion wins ties",
+      "full": {
+        "editDistance": 257,
+        "equalTokens": 7146,
+        "deletedTokens": 2,
+        "insertedTokens": 255,
+        "runCount": 61,
+        "runsBytes": 534,
+        "runsSha256": "983e9ccb6e352a584565c4d65fc64185e35bd4ece17792883aa83443f199db65"
+      },
+      "withoutSkillAttribution": {
+        "editDistance": 193,
+        "equalTokens": 7146,
+        "deletedTokens": 2,
+        "insertedTokens": 191,
+        "runCount": 45,
+        "runsBytes": 397,
+        "runsSha256": "770a90fcb4471cc809c460a8e14dd7f553aac31070ee0eadf94ad98eb924ff14"
+      }
+    },
+    "retainedBehavioralAnchors": [
+      "tengu-off-switch",
+      "query_tool_schema_build_start",
+      "Non-streaming fallback also failed",
+      "tengu_api_before_normalize"
+    ]
+  },
+  "skillAttributionGraph": {
+    "spreadNode": {
+      "nodeType": "SpreadElement",
+      "bytes": 52,
+      "sha256": "06684abdf9f1752dfaf23e4d669d154b11564db620f28603c6bb234d26170a6b",
+      "canonicalBytes": 619,
+      "canonicalSha256": "b985cd9c7a3dd969458f6c8cce977aac495423d3e8da9a44e2954bfcc87433b2",
+      "exact": "...KJ$(A.querySource,A.spawnedBySkill,A.activeSkill)",
+      "withCommaBytes": 53,
+      "withCommaSha256": "d5f6c94537c8fe3552635b2c5207097c0efdaad1eb1f1f363ba0c9dff68c8e16",
+      "withCommaExact": "...KJ$(A.querySource,A.spawnedBySkill,A.activeSkill),",
+      "argumentCount": 3,
+      "argumentProperties": ["querySource", "spawnedBySkill", "activeSkill"]
+    },
+    "sites": [
+      {
+        "role": "partial-sdk-abort-assistant-message",
+        "path": "body.body.40.block.body.7.declarations.0.init.body.body.3.argument.properties.2",
+        "localStart": 10091,
+        "localEnd": 10143,
+        "start": 11867180,
+        "end": 11867232,
+        "withCommaEnd": 11867233,
+        "callStart": 11867183,
+        "callEnd": 11867232
+      },
+      {
+        "role": "streaming-content-block-assistant-message",
+        "path": "body.body.40.block.body.8.block.body.1.body.body.5.cases.3.consequent.0.body.3.declarations.0.init.properties.2",
+        "localStart": 13545,
+        "localEnd": 13597,
+        "start": 11870634,
+        "end": 11870686,
+        "withCommaEnd": 11870687,
+        "callStart": 11870637,
+        "callEnd": 11870686
+      },
+      {
+        "role": "primary-nonstreaming-assistant-message",
+        "path": "body.body.40.block.body.8.handler.body.body.14.declarations.0.init.properties.2",
+        "localStart": 18887,
+        "localEnd": 18939,
+        "start": 11875976,
+        "end": 11876028,
+        "withCommaEnd": 11876029,
+        "callStart": 11875979,
+        "callEnd": 11876028
+      },
+      {
+        "role": "fallback-nonstreaming-assistant-message",
+        "path": "body.body.40.handler.body.body.1.consequent.body.3.block.body.3.declarations.0.init.properties.2",
+        "localStart": 20026,
+        "localEnd": 20078,
+        "start": 11877115,
+        "end": 11877167,
+        "withCommaEnd": 11877168,
+        "callStart": 11877118,
+        "callEnd": 11877167
+      }
+    ],
+    "attributionHelper": {
+      "targetIndex": 19494,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 11846969,
+      "end": 11847353,
+      "bytes": 384,
+      "tokenCount": 135,
+      "bodyStatementCount": 5,
+      "sha256": "1ed9ba284c3f34775888906b45b2e71d18d399519b82c9d299cfceb8dd7cc9c4",
+      "coarseHash": "38492e68e4d1873504ef84d0ed66685fb4a3f0674309e2bd182d82946071efe2",
+      "unknownFreeIdentifierCount": 4,
+      "canonicalBytes": 4876,
+      "canonicalSha256": "de8418981a52d0e80ab53225abac52ecdf24d62c484c96b5ad189a7e7e14ea78",
+      "exact": "function KJ$(H,$,q){if(!H)return{};if(H.startsWith(\"agent:builtin:\"))return{attributionAgent:H.slice(14),attributionSkill:$,attributionPlugin:$?p9$($):void 0};if(H.startsWith(\"agent:custom:\")){let K=H.slice(13);return{attributionAgent:K,attributionSkill:$,attributionPlugin:($?p9$($):void 0)??p9$(K)}}if(cAH(H)===\"main\"&&q)return{attributionSkill:q,attributionPlugin:p9$(q)};return{}}"
+    },
+    "bundleOccurrenceCounts": {
+      "baseline": {
+        "spawnedBySkill": 0,
+        "activeSkill": 0,
+        "attributionAgent": 0,
+        "attributionSkill": 0,
+        "attributionPlugin": 0
+      },
+      "target": {
+        "spawnedBySkill": 14,
+        "activeSkill": 14,
+        "attributionAgent": 8,
+        "attributionSkill": 9,
+        "attributionPlugin": 8
+      }
+    },
+    "boundary": "This lane owns only u19537 spawnedBySkill occurrences 11-14 and activeSkill occurrences 7-10. The attribution helper u19494 and upstream AgentTool/query/runAgent/fork units are exact dependency evidence and remain independently owned."
+  },
+  "sourceCoverageClaim": {
+    "owner": {
+      "id": "owner-src-services-api-claude-ts",
+      "path": "src/services/api/claude.ts"
+    }
+  },
+  "sourceState": {
+    "path": "src/services/api/claude.ts",
+    "declarationName": "queryModel",
+    "optionsName": "Options",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "315c73299c236acbcbd2e60f40296ed6671a33bd",
+      "bytes": 138350,
+      "chars": 138295,
+      "sha256": "51dc4bf05fff788e94ad9a9891947ac83ae4bc192e58fded39ee121c5b59f562",
+      "queryModel": {
+        "name": "queryModel",
+        "start": 33604,
+        "end": 120301,
+        "chars": 86697,
+        "bytes": 86726,
+        "sha256": "781eaff72bf61a0582d66d5ecba0b2f599e5453fc9d06ccecd3d2df44f5c6096",
+        "line": 1095,
+        "endLine": 3262,
+        "parameterCount": 6,
+        "bodyStatementCount": 107
+      },
+      "options": {
+        "name": "Options",
+        "start": 21044,
+        "end": 22435,
+        "chars": 1391,
+        "bytes": 1393,
+        "sha256": "8aa453347252764ead070867b7aee95e5b8dc5467b88756cd0c3de25a7cfddfe",
+        "line": 686,
+        "endLine": 723,
+        "memberCount": 29,
+        "memberNames": {
+          "bytes": 501,
+          "sha256": "9bb006e3c8e5cc84ef7cb38bae4911a3d3edf62a834193656690bf37a18474de"
+        }
+      }
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "62d466786e62e6cbbe7b492e833cd7994ca8617c",
+      "bytes": 142378,
+      "chars": 142321,
+      "sha256": "a6db48c343fc3cdbcae9a018c4110cd9c70b41363be894b3459b54d803731d60",
+      "queryModel": {
+        "name": "queryModel",
+        "start": 34486,
+        "end": 124327,
+        "chars": 89841,
+        "bytes": 89872,
+        "sha256": "4d6eae31d54a629bece1e85ce19288c1a4af67525da1d47614fb40ad2d4e8c9e",
+        "line": 1124,
+        "endLine": 3363,
+        "parameterCount": 6,
+        "bodyStatementCount": 109
+      },
+      "options": {
+        "name": "Options",
+        "start": 21201,
+        "end": 22697,
+        "chars": 1496,
+        "bytes": 1498,
+        "sha256": "bd56df6d90d07c381e66c4b3733d83fdaf9e16314f3a9ba1ef13a6e8b681bb07",
+        "line": 692,
+        "endLine": 731,
+        "memberCount": 30,
+        "memberNames": {
+          "bytes": 520,
+          "sha256": "149baa536edab5b4993f7d08b11a0062cea872f1d88515ed902dc31e49e29268"
+        }
+      }
+    },
+    "freshPackage": {
+      "defaultSourceRoot": "/tmp/target121-daemon-reader-final.lc1acm/2.1.121/src",
+      "bytes": 142378,
+      "chars": 142321,
+      "sha256": "a6db48c343fc3cdbcae9a018c4110cd9c70b41363be894b3459b54d803731d60",
+      "queryModel": {
+        "name": "queryModel",
+        "start": 34486,
+        "end": 124327,
+        "chars": 89841,
+        "bytes": 89872,
+        "sha256": "4d6eae31d54a629bece1e85ce19288c1a4af67525da1d47614fb40ad2d4e8c9e",
+        "line": 1124,
+        "endLine": 3363,
+        "parameterCount": 6,
+        "bodyStatementCount": 109
+      },
+      "options": {
+        "name": "Options",
+        "start": 21201,
+        "end": 22697,
+        "chars": 1496,
+        "bytes": 1498,
+        "sha256": "bd56df6d90d07c381e66c4b3733d83fdaf9e16314f3a9ba1ef13a6e8b681bb07",
+        "line": 692,
+        "endLine": 731,
+        "memberCount": 30,
+        "memberNames": {
+          "bytes": 520,
+          "sha256": "149baa536edab5b4993f7d08b11a0062cea872f1d88515ed902dc31e49e29268"
+        }
+      }
+    },
+    "declarationMarkerCounts": {
+      "spawnedBySkill": 0,
+      "activeSkill": 0,
+      "attributionSkill": 0
+    },
+    "sourceRootMarkerCounts": {
+      "spawnedBySkill": 0,
+      "activeSkill": 0
+    },
+    "toolUseContext": {
+      "path": "src/Tool.ts",
+      "bytes": 32845,
+      "chars": 32785,
+      "sha256": "514e104e5f5ddea0b3b8974b0845aff9efbb4344c63372f58fce79ff798b9739",
+      "optionsType": {
+        "start": 6004,
+        "end": 7353,
+        "chars": 1349,
+        "bytes": 1349,
+        "sha256": "dc9ca6ee7aa8bddafd7f853f3d12ad51de761eee7ce2a11124789fd7b2340fb3",
+        "line": 192,
+        "endLine": 223,
+        "memberCount": 21,
+        "memberNames": {
+          "bytes": 366,
+          "sha256": "2f9e559d5fd2a41adb5781524b05db63f5c0f8411b5104a342417354327db063"
+        }
+      }
+    }
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/query-model-skill-attribution-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_QUERY_MODEL_SKILL_ATTRIBUTION_OWNER_OVERRIDES",
+    "replayHelper": null
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 38,
+      "unsupportedResidues": 416
+    },
+    "removes": {
+      "targetIndices": [19537],
+      "units": 1,
+      "residueCount": 8,
+      "residues": [
+        [19537, "property", "spawnedBySkill", 11867203, 11867217, 11],
+        [19537, "property", "activeSkill", 11867220, 11867231, 7],
+        [19537, "property", "spawnedBySkill", 11870657, 11870671, 12],
+        [19537, "property", "activeSkill", 11870674, 11870685, 8],
+        [19537, "property", "spawnedBySkill", 11875999, 11876013, 13],
+        [19537, "property", "activeSkill", 11876016, 11876027, 9],
+        [19537, "property", "spawnedBySkill", 11877138, 11877152, 14],
+        [19537, "property", "activeSkill", 11877155, 11877166, 10]
+      ]
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 37,
+      "unsupportedResidues": 408
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "Recovered Target121 and fresh-package claude.ts omit the four attribution spreads, the attribution helper, and spawnedBySkill/activeSkill members in Options; ToolUseContext.options and the complete recovered source root omit both provenance fields as well. Replaying only the four consumer calls would invent unresolved helper and type dependencies inside a wider producer/forwarder contract."
+  }
+}

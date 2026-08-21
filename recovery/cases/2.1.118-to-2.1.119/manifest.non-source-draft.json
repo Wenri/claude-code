@@ -367,7 +367,7 @@
         "failed": 0,
         "files": 8,
         "manifest": "target-test-files.sha256",
-        "manifestSha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+        "manifestSha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
       },
       "retainedTests": {
         "passed": 21,
@@ -388,8 +388,8 @@
         },
         "test": {
           "path": "recovery/test/recovery-2.1.119-adjacent-direct-evidence.test.mjs",
-          "bytes": 8552,
-          "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19"
+          "bytes": 9365,
+          "sha256": "3bdcd30bcc12fbb34c080a59b713703fd96bf0fc57452cb3e3a414f8c33f78d7"
         },
         "manifest": "adjacent-direct-evidence.sha256",
         "manifestSha256": "06747ed35fabf72add98b4817b4dd7512af7d494ad0656e57462e1b92e1e9707"
@@ -651,8 +651,8 @@
               "INH-031-first-attempt-request-id",
               "INH-032-env-less-bridge-session-persistence"
             ],
-            "bytes": 8552,
-            "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19",
+            "bytes": 9365,
+            "sha256": "3bdcd30bcc12fbb34c080a59b713703fd96bf0fc57452cb3e3a414f8c33f78d7",
             "witnessInventorySha256": "35dd20e01497ec9c84086985dd968e761a9d053d835e8bfa7cffe9a7dd53f919",
             "authenticatedWitnesses": 199,
             "losslessSemanticGrouping": true
@@ -754,8 +754,8 @@
               "INH-014-sdk-permission-rewritten-input",
               "INH-015-model-capability-output-cap"
             ],
-            "bytes": 16288,
-            "sha256": "fa42e2079042bc67f3a4696e598ca6eb159e57fa777bf423097ab0b0de54a395",
+            "bytes": 16646,
+            "sha256": "1197a31f69e0ffc113c5d3518be7bbfd378ca3f7970b19d2a20825625cedb237",
             "witnessInventorySha256": "d98f92dbfbea12141dae541ca733740af8d629acd7cdd4b38a7cb4587f144248",
             "authenticatedWitnesses": 33,
             "losslessSemanticGrouping": true
@@ -798,8 +798,8 @@
               "HID-027-cross-session-uds-envelope",
               "HID-029-job-state-name-sync"
             ],
-            "bytes": 35270,
-            "sha256": "ed7c20916459b0857213e4ff69a19b5789f8665f4da549847bf838d4790d4047",
+            "bytes": 37338,
+            "sha256": "3b7b3abed447197cb79e1a9a873b4a4f8d5e476a440ef7228b2f4e075ec1e2f8",
             "witnessInventorySha256": "830ee61e697a8b5d7946309416820ea3d606bb84f468b60c5ac50d161661cefa",
             "authenticatedWitnesses": 94,
             "losslessSemanticGrouping": true
@@ -856,8 +856,8 @@
             "obligationIds": [
               "HID-035-background-stop-and-detach"
             ],
-            "bytes": 9880,
-            "sha256": "ffe48c68c1653a4153e552cf41fff3bd3f58f951d8fa67d0a01651a11058a0a8",
+            "bytes": 10238,
+            "sha256": "cc3bd5076077fa26414656108c16d605f9ddc55840c79188cf066b828814823a",
             "witnessInventorySha256": "a9466100f32526bb7d25213f32aaeb68643df2636e8f968f772305c29a64a84f",
             "authenticatedWitnesses": 22,
             "losslessSemanticGrouping": true
@@ -945,7 +945,7 @@
   "sourceFreeze": {
     "status": "immutable-and-verified",
     "identity": "recovered/source-freeze/identity.json",
-    "identitySha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26",
+    "identitySha256": "c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866",
     "overlay": {
       "path": "recovered/source-facing-overlay.patch",
       "bytes": 2709667,
@@ -985,7 +985,7 @@
       {
         "path": "recovered/source-freeze/identity.json",
         "bytes": 2442,
-        "sha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26"
+        "sha256": "c09e68d719fc865e48bec591c8006cd4a243bbc65ead567b4807caeee2fdc866"
       },
       {
         "path": "recovered/source-freeze/retained-test-files.sha256",
@@ -995,7 +995,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "dba23fc71774b8579ac272b58aaccd2088b0da53309e642323c08c1b609f7899"
+        "sha256": "364f073a3c9e156f1aa04f263c83d58199c4f3d6cecc10b3c1e88c0b0d54dcab"
       },
       {
         "path": "recovered/source-freeze/source-facing-overlay.patch",
@@ -1030,7 +1030,7 @@
       {
         "path": "recovered/source-freeze/target-test-files.sha256",
         "bytes": 1019,
-        "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+        "sha256": "7b36a756c2eb60caf0026117ea98bd7526d9a16ba06244adbceaa52a575fc145"
       }
     ]
   },

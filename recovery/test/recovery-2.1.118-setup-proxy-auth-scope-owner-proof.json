@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-setup-proxy-auth-scope-retained-unit-proof-v1",
+  "status": "authenticated-static-whole-unit-proof",
+  "evidenceIds": [
+    "target118-setup-proxy-auth-scope-authenticated-units",
+    "target118-setup-proxy-auth-scope-alpha-equivalence",
+    "target118-setup-proxy-auth-scope-source-boundary"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/setup-proxy-auth-scope-owner-overrides.mjs",
+      "bytes": 1153,
+      "sha256": "57a30821dab0c14daf09cc227655746255019ca2ed9a44532aee5060473bf72a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineStructuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/setup.ts",
+        "blob": "985e8577a6bd69992cd6ad7827e3d3d9e294527d",
+        "bytes": 20646,
+        "sha256": "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35"
+      },
+      "declaration": {
+        "name": "setup",
+        "characterStart": 2347,
+        "characterEnd": 20615,
+        "byteStart": 2347,
+        "byteEnd": 20645,
+        "bytes": 18298,
+        "sha256": "868fa31caa2a0c7f8653c08e0590e7c066174d6d50b86d62304ddc32664547a9"
+      }
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20578,
+    "start": 12860875,
+    "end": 12865298,
+    "bytes": 4423,
+    "tokenCount": 1228,
+    "sourceHash": "7c3a76903c0a19f493348fee9111cd7fe594059b4086e6b41569175eba80f385",
+    "coarseHash": "a50bd33649e809a50fc6848459eca134b8b8673a1308cdf0215f2b831fd2bd75"
+  },
+  "targetUnit": {
+    "targetIndex": 20779,
+    "classification": "changed",
+    "baselineUnitIndex": 20578,
+    "pairReason": "unique-coarse-structural-hash",
+    "start": 12985742,
+    "end": 12990165,
+    "bytes": 4423,
+    "tokenCount": 1228,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "03c20e9dcb5b56ed44eae6b5684aad98cc3cf70a0501c2e87fd5f8031eda220c",
+    "coarseHash": "a50bd33649e809a50fc6848459eca134b8b8673a1308cdf0215f2b831fd2bd75",
+    "ownerPath": "src/setup.ts",
+    "declarations": ["setup"],
+    "residues": [
+      ["string", "projectSettings", 12988868, 12988885, 80, 81]
+    ]
+  },
+  "canonicalUnit": {
+    "bytes": 46780,
+    "sha256": "b72c23be61a7f5453359900c174a1d603a87436592c33f3a062940672650dfc9"
+  },
+  "proxyAuthFragments": {
+    "baseline": {
+      "start": 12863929,
+      "end": 12864101,
+      "bytes": 172,
+      "sha256": "688d4cf5ef535f01127b7815753bd27ff12f2d0702e1252f460cdb3b7adcccd7"
+    },
+    "target": {
+      "start": 12988796,
+      "end": 12988968,
+      "bytes": 172,
+      "sha256": "e84f285e8e01862dccd96f71deb4de29c37620e3f26dc7ad9eeb3be2f77f8551"
+    },
+    "scopeValues": ["projectSettings", "localSettings"]
+  },
+  "sourceReplayBlocker": {
+    "absentDeclarationValues": [
+      "proxyAuthHelper",
+      "projectSettings",
+      "localSettings",
+      "fromProjectOrLocal"
+    ],
+    "replayHelper": null
+  },
+  "ownerOverride": {
+    "paths": ["src/setup.ts"],
+    "declarations": ["setup"],
+    "evidenceIds": [
+      "target118-setup-proxy-auth-scope-authenticated-units",
+      "target118-setup-proxy-auth-scope-alpha-equivalence",
+      "target118-setup-proxy-auth-scope-source-boundary"
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "67ded1d21c53d6cdd7efd15039b9065477e3b27111ac5937faeb70fa78194992",
+    "residueIdentitiesSha256": "d15e741185932c6ffe8e1883e2900321fb6308d997affb606ff0b647c40e6a07"
+  }
+}

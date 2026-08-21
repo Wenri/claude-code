@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-ccr-transcript-persistence-static-semantic-owner-proof-v1",
+  "status": "authenticated-static-semantic-owner-proof-no-source-replay",
+  "evidenceIds": [
+    "target118-ccr-transcript-persistence-target-fragments",
+    "target118-ccr-transcript-persistence-source-ast-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/ccr-transcript-persistence-owner-overrides.mjs",
+      "bytes": 973,
+      "sha256": "74b334b09b6e0e63bface2642c0107729f3a4acd850c06b7aee0e92f8973a828"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "semanticObligations": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/semantic/obligations.json",
+      "bytes": 111434,
+      "sha256": "2f7627a7413fd7362b374d823928f85e0fd665f531125f0b342fcb269ebeb04f"
+    },
+    "runtimeWitness": {
+      "id": "recovery-2-1-118-runtime-session",
+      "path": "recovery/test/recovery-2.1.118-runtime-session.test.mjs",
+      "bytes": 22226,
+      "sha256": "1e463969f9bb90232e06dcb8ca5c805365443c502cc19d6d332a40db77c3de5a"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "files": [
+        {
+          "path": "src/hooks/useLogMessages.ts",
+          "blob": "8df62ab735d0607c0cdac4a3386e9da1f2077f5b",
+          "bytes": 5837,
+          "sha256": "a6308221632bd3b2d21f9654dc92fcf6f3f6e64b1347516907285ce4b84e16a0"
+        },
+        {
+          "path": "src/bootstrap/state.ts",
+          "blob": "363024d9401e6524faac5a2fab174f1f95621215",
+          "bytes": 59526,
+          "sha256": "7e7a2ffc49d5ea805023bda9346d2eba9bab8e9edce04dfdc9cdd51b4f0e28cf"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "blob": "8ae789d1cff727c7e022fca832b5fbb4d040a7fd",
+          "bytes": 899836,
+          "sha256": "48b033cc2eba7de0382b139e21a36192c6796ba91eb2aecee9742f6982a94e90"
+        }
+      ],
+      "declarations": [
+        {
+          "path": "src/hooks/useLogMessages.ts",
+          "name": "useLogMessages",
+          "characterStart": 685,
+          "characterEnd": 5826,
+          "byteStart": 685,
+          "byteEnd": 5836,
+          "bytes": 5151,
+          "sha256": "59f132f5eb722ce5e9aa6f05f8c7eb2d8caea94f28258ac1268767e890f2a4b6"
+        },
+        {
+          "path": "src/bootstrap/state.ts",
+          "name": "ActiveRemoteControlTransport",
+          "characterStart": 1736,
+          "characterEnd": 1945,
+          "byteStart": 1738,
+          "byteEnd": 1947,
+          "bytes": 209,
+          "sha256": "fbe56c4f6efd74d4951261ccad1eacd657b08ba8393e7403f1baf5484d3a1c00"
+        },
+        {
+          "path": "src/bootstrap/state.ts",
+          "name": "getRuntimeCapabilities",
+          "characterStart": 42115,
+          "characterEnd": 42377,
+          "byteStart": 42151,
+          "byteEnd": 42413,
+          "bytes": 262,
+          "sha256": "ec0ca2723c7edf01f2faa181dd9b181bc7ef1f9de0cbe222fee2f2e9f91f78d2"
+        },
+        {
+          "path": "src/bootstrap/state.ts",
+          "name": "setActiveRemoteControlTransport",
+          "characterStart": 42379,
+          "characterEnd": 42538,
+          "byteStart": 42415,
+          "byteEnd": 42574,
+          "bytes": 159,
+          "sha256": "142a38f9522e68c279b6d7d37fb69dfa4bc6d54a40bb530dd987344978044d99"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "name": "activeRemote",
+          "characterStart": 79186,
+          "characterEnd": 79296,
+          "byteStart": 79328,
+          "byteEnd": 79438,
+          "bytes": 110,
+          "sha256": "46193977be9b351040536839ffececfd18ac67e21c33f84e0e8daaea3c6f1130"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "name": "activeRemoteControlTransport",
+          "characterStart": 79306,
+          "characterEnd": 80165,
+          "byteStart": 79448,
+          "byteEnd": 80307,
+          "bytes": 859,
+          "sha256": "7316b009e0a22acfa893a8915b5ae2babe1a0f4bb7c644bed0e2e06427652689"
+        }
+      ],
+      "transportEffect": {
+        "path": "src/screens/REPL.tsx",
+        "characterStart": 80169,
+        "characterEnd": 80347,
+        "byteStart": 80311,
+        "byteEnd": 80489,
+        "bytes": 178,
+        "sha256": "fa15cdd920080a0821efb98c1698bb1482ef29f565d22a5df9a63ebd17783a64"
+      }
+    },
+    "rejectedProvisionalOwner": {
+      "path": "src/components/permissions/WorkerPendingPermission.tsx",
+      "blob": "bff845d2c75b9e24382a820eb2233d39ded209b4",
+      "bytes": 9365,
+      "sha256": "2560a3b78574e0d19503ff48b538bc83afb0e9d5c553792b1207da18e96e8c89"
+    }
+  },
+  "semanticObligation": {
+    "id": "ccr-transcript-persistence",
+    "classification": "source-localized-adjacent",
+    "testIds": [
+      "recovery-2-1-118-runtime-session"
+    ],
+    "sourcePaths": [
+      "src/hooks/useLogMessages.ts",
+      "src/screens/REPL.tsx"
+    ]
+  },
+  "targetUnit": {
+    "targetIndex": 18721,
+    "classification": "unresolved",
+    "start": 11504052,
+    "end": 11504970,
+    "bytes": 918,
+    "tokenCount": 465,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "e609b1c8b47b137ed3196245bf885b6f9d5dcfa2ac9812080191b594164b5480",
+    "coarseHash": "4ac89d3a5c86439fb801beb4a8eae9e9ab81a27d84880c8849088f603df4bdf5",
+    "ownerPath": "src/hooks/useLogMessages.ts",
+    "provisionalOwnerPath": "src/components/permissions/WorkerPendingPermission.tsx",
+    "declarations": [
+      "useLogMessages"
+    ],
+    "behavior": "The authenticated Target118 useLogMessages hook suppresses local transcript persistence when runtime capabilities identify the active transport as CCR. The target producer encodes that invariant as transcriptSource === \"ccr-api\"; the recovered source exposes the same state as remote?.kind === \"ccr\" and installs the exact CCR transport from REPL. The provisional WorkerPendingPermission owner is unrelated.",
+    "residues": [
+      ["property", "transcriptSource", 11504285, 11504301, 1, 2],
+      ["string", "ccr-api", 11504304, 11504313, 0, 1]
+    ]
+  },
+  "targetFragments": {
+    "capabilityGetter": {
+      "structuralIndex": 564,
+      "start": 46472,
+      "end": 46502,
+      "bytes": 30,
+      "sha256": "e461f51830b3c3695c11ea48eb8bb1a03acd487b728400b4f21d9c5574e3215c"
+    },
+    "capabilitySetter": {
+      "structuralIndex": 565,
+      "start": 46502,
+      "end": 46528,
+      "bytes": 26,
+      "sha256": "e58d14faf28d2ab5c5d43fc47e4af6074b50fe8dbe356f24c34ad65742d0c6e7"
+    },
+    "defaultCapabilities": {
+      "structuralIndex": 603,
+      "start": 48625,
+      "end": 48722,
+      "bytes": 97,
+      "sha256": "81f8b49d3c2ddef3ef0cb4b256b1af7d3599ff324fcf510c98914832c62a9b0e"
+    },
+    "ccrProducer": {
+      "structuralIndex": 20268,
+      "start": 12240331,
+      "end": 12240543,
+      "bytes": 212,
+      "sha256": "19fcaf8fb377055455fe8a9d2aa4595b8d6476777d6323b4c4daaa75d3560ad1"
+    },
+    "persistenceGuard": {
+      "structuralIndex": 18721,
+      "start": 11504276,
+      "end": 11504321,
+      "bytes": 45,
+      "sha256": "a28218ced6662e36edc46c42c823a774593bbeb197800d736e2fb354869e9a71"
+    }
+  },
+  "semanticInvariant": {
+    "statement": "For every supported active-transport state, the target predicate transcriptSource === 'ccr-api' and the recovered-source predicate remote?.kind === 'ccr' have identical truth values.",
+    "truthTable": [
+      {
+        "remoteKind": null,
+        "targetTranscriptSource": "local-jsonl",
+        "targetSkipsPersistence": false,
+        "sourceSkipsPersistence": false
+      },
+      {
+        "remoteKind": "ccr",
+        "targetTranscriptSource": "ccr-api",
+        "targetSkipsPersistence": true,
+        "sourceSkipsPersistence": true
+      },
+      {
+        "remoteKind": "direct",
+        "targetTranscriptSource": "local-jsonl",
+        "targetSkipsPersistence": false,
+        "sourceSkipsPersistence": false
+      },
+      {
+        "remoteKind": "ssh",
+        "targetTranscriptSource": "local-jsonl",
+        "targetSkipsPersistence": false,
+        "sourceSkipsPersistence": false
+      }
+    ]
+  },
+  "scannerPartition": {
+    "units": 1,
+    "residues": 2,
+    "residueIdentitiesSha256": "fe5fe6e4194b9bc4f77eaa535a006afcc7afb4831effd0f2bcc29e01579249fc",
+    "rows": [
+      [18721, "property", "transcriptSource", 11504285, 11504301, 1, 2],
+      [18721, "string", "ccr-api", 11504304, 11504313, 0, 1]
+    ],
+    "strictUnsupportedRows": [
+      [18721, "property", "transcriptSource", 11504285, 11504301, 1, 2],
+      [18721, "string", "ccr-api", 11504304, 11504313, 0, 1]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/hooks/useLogMessages.ts"
+    ],
+    "evidenceIds": [
+      "target118-ccr-transcript-persistence-target-fragments",
+      "target118-ccr-transcript-persistence-source-ast-test"
+    ],
+    "behavior": "The authenticated Target118 useLogMessages hook suppresses local transcript persistence when runtime capabilities identify the active transport as CCR. The target producer encodes that invariant as transcriptSource === \"ccr-api\"; the recovered source exposes the same state as remote?.kind === \"ccr\" and installs the exact CCR transport from REPL. The provisional WorkerPendingPermission owner is unrelated."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "scannerResidues": 2,
+    "targetIndicesSha256": "f0a6d994d96a94c8a206c2d50812e2f20bef6c3bf0469110d8bdbcefa45c2acd",
+    "residueIdentitiesSha256": "fe5fe6e4194b9bc4f77eaa535a006afcc7afb4831effd0f2bcc29e01579249fc"
+  }
+}

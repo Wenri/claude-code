@@ -1,0 +1,2614 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-inherited-runtime-proof-source-replay-blocked",
+  "criterion": "Admit Target119 u20509 only when the complete PromptInput unit and all residue partitions are pinned, the local useLayoutEffect statement is exact inherited runtime from the immediate Target118 predecessor, and every authenticated authored source state is proven to omit the larger clear-input redraw graph.",
+  "ownerBehavior": "PromptInput keeps a clear-input generation counter whose layout effect asks the active Ink instance to force a redraw after a committed clear. The exact statement and its 35-token neighborhood persist from Target117 through Target119. The Target119 useLayoutEffect residue is therefore global occurrence-order drift, not a Target119 addition. Authored source omits the state, effect, Ink instances dependency, callback increment, and chat:clearInput registration, so this proof is static and authorizes no source mutation.",
+  "summary": {
+    "units": 1,
+    "ownerRows": 208,
+    "addedOwnerRows": 14,
+    "productionStrictRowsBeforeCorrection": 1,
+    "productionStrictRowsAfterCorrection": 0,
+    "ownerOverrides": 1,
+    "sourceReplayHelpers": 0
+  },
+  "evidenceIds": [
+    "target119-prompt-input-layout-effect-authenticated-unit-proof",
+    "target119-prompt-input-layout-effect-inherited-hook-proof",
+    "target119-prompt-input-layout-effect-source-replay-blocker"
+  ],
+  "evidenceCatalog": [
+    {
+      "id": "target119-prompt-input-layout-effect-authenticated-unit-proof",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.119-prompt-input-layout-effect-owner-proof.test.mjs",
+      "detail": "Pins the complete authenticated Target118 and Target119 PromptInput units, their exact normalized eight-hunk evolution, and every Target119 owner and added-owner residue."
+    },
+    {
+      "id": "target119-prompt-input-layout-effect-inherited-hook-proof",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.119-prompt-input-layout-effect-owner-proof.test.mjs",
+      "detail": "Pins the unique useLayoutEffect statement in Targets117, 118, and 119, proves identical alpha-canonical AST and 35-token context, and executes the generation-zero, redraw, and missing-instance branches."
+    },
+    {
+      "id": "target119-prompt-input-layout-effect-source-replay-blocker",
+      "kind": "static-ast",
+      "path": "recovery/test/recovery-2.1.119-prompt-input-layout-effect-owner-proof.test.mjs",
+      "detail": "Pins the exact Target117-Target119 PromptInput source declarations and proves all omit the compiled layout effect, redraw dependency, clear-input generation state, and action registration, blocking isolated source replay."
+    }
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/prompt-input-layout-effect-owner-overrides.mjs",
+      "bytes": 1526,
+      "sha256": "e3132d9527b0a3107bf53801035967415f92bf04fac466a386cbeb96f6fbc7cc"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "observedPreCorrectionSha256": "2bd6f8c8a720a2b187a0dbcbed0368a184e00df216a323b84abfc010a52655fd",
+      "mutableAfterCorrection": true
+    },
+    "packagedSource": {
+      "path": ".recovery-tmp/semantic-trees/2.1.119/src/components/PromptInput/PromptInput.tsx",
+      "file": {
+        "bytes": 360058,
+        "sha256": "5be9a872682a2f3c82d587e1a0e1e90bd73a6f9f9bcf2df162b3fccc2105d905"
+      },
+      "declaration": {
+        "characterStart": 12160,
+        "characterEnd": 103069,
+        "bytes": 91101,
+        "sha256": "e1f52208cf5a311011f4d4ad770e382a420b25d60eb478491931f92d0efaf99d"
+      },
+      "useLayoutEffectAstOccurrences": 0,
+      "useLayoutEffectTextOccurrences": 0,
+      "missingCompiledMarkers": [
+        "useLayoutEffect",
+        "forceRedraw",
+        "chat:clearInput"
+      ]
+    }
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/components/PromptInput/PromptInput.tsx"
+    ],
+    "declarations": [
+      "PromptInput"
+    ]
+  },
+  "units": {
+    "supportingTarget117": {
+      "version": "2.1.117",
+      "index": 19389,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 11823758,
+      "end": 11852137,
+      "tokenCount": 11797,
+      "sourceHash": "ebe6cf765a6ca2c9c31be77499f8b4d257d91dd00584dbf5be9f1ef8449bd41d",
+      "bundle": {
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+        "bytes": 13114118,
+        "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+      },
+      "normalized": {
+        "bytes": 37248,
+        "sha256": "a9e1b0cdfbdebcd672a3e86c35e85deeecc3d68ebaa19f3763612c456d25ead5"
+      },
+      "hook": {
+        "property": {
+          "start": 11840189,
+          "end": 11840204
+        },
+        "statement": {
+          "start": 11840186,
+          "end": 11840272,
+          "bytes": 86,
+          "sha256": "3a0c5e9956a492386b2dbcb78e6430858ee241be5de1c6a42cf3e8db87d86214",
+          "text": "o6.useLayoutEffect(()=>{if(qk===0)return;T5.get(process.stdout)?.forceRedraw()},[qk]);"
+        },
+        "alphaCanonical": {
+          "bytes": 1373,
+          "sha256": "5414f5706fc2577079f6dc8094ee9f2977f762d3625e16d229e823dbde4a61d1"
+        },
+        "tokenIndex": 7109,
+        "context": {
+          "tokens": 35,
+          "bytes": 106,
+          "sha256": "f3706ed121974271590ac13ec0109d9879ed402400301b88a4f5956619bfc78a",
+          "text": ")\n,\n[\nID\n,\nID\n]\n=\nID\n.\nID\n(\nnum:0\n)\n;\nID\n.\nID\n(\n(\n)\n=>\n{\nif\n(\nID\n==/!=/===/!==\nnum:0\n)\nreturn\n;\nID\n.\nID\n(\n"
+        }
+      }
+    },
+    "baseline": {
+      "version": "2.1.118",
+      "index": 19583,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 11923400,
+      "end": 11951768,
+      "tokenCount": 11806,
+      "sourceHash": "fb702497d2df121b0d23066ffe84e68aa4979739365148bb1bd6226e3774ad9e",
+      "coarseHash": "fd869b0adcaab000dfeb485b368da3cadc926646112832a36221401f7fe872e6",
+      "bundle": {
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+        "bytes": 13234618,
+        "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+      },
+      "normalized": {
+        "bytes": 37222,
+        "sha256": "db3fca7d6d3badee986ccb5fe820fff7ec54a4584063038b4449672c3bab5567"
+      },
+      "hook": {
+        "property": {
+          "start": 11939823,
+          "end": 11939838
+        },
+        "statement": {
+          "start": 11939820,
+          "end": 11939906,
+          "bytes": 86,
+          "sha256": "c18dc986abbfda84fd65ae6784a3e0379cc321ca422248813b8ded3f7242cd62",
+          "text": "o6.useLayoutEffect(()=>{if(Av===0)return;GA.get(process.stdout)?.forceRedraw()},[Av]);"
+        },
+        "alphaCanonical": {
+          "bytes": 1373,
+          "sha256": "5414f5706fc2577079f6dc8094ee9f2977f762d3625e16d229e823dbde4a61d1"
+        },
+        "tokenIndex": 7109,
+        "context": {
+          "tokens": 35,
+          "bytes": 106,
+          "sha256": "f3706ed121974271590ac13ec0109d9879ed402400301b88a4f5956619bfc78a",
+          "text": ")\n,\n[\nID\n,\nID\n]\n=\nID\n.\nID\n(\nnum:0\n)\n;\nID\n.\nID\n(\n(\n)\n=>\n{\nif\n(\nID\n==/!=/===/!==\nnum:0\n)\nreturn\n;\nID\n.\nID\n(\n"
+        }
+      }
+    },
+    "target": {
+      "version": "2.1.119",
+      "index": 20509,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 12383150,
+      "end": 12412273,
+      "tokenCount": 12011,
+      "sourceHash": "b040ac224eaeecbe9bf76fe21ece1178643b7dec7fe941779c678160e481e423",
+      "coarseHash": "b7ad17e5a9d28f7bace6e2b8376966fb385d44db4ed6e02633ddfea877243071",
+      "bundle": {
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+        "bytes": 13720987,
+        "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+      },
+      "normalized": {
+        "bytes": 38109,
+        "sha256": "148720226c2753847758dc4cfa7bdaaf41c8a23038f58b7a63a4f0af32482f43"
+      },
+      "hook": {
+        "property": {
+          "start": 12399601,
+          "end": 12399616
+        },
+        "statement": {
+          "start": 12399598,
+          "end": 12399684,
+          "bytes": 86,
+          "sha256": "284fc793ac13d79f1b1e7b6c40f2ec8923a744f472b7f2894ac25d9f4c3e348b",
+          "text": "Kq.useLayoutEffect(()=>{if(xE===0)return;K5.get(process.stdout)?.forceRedraw()},[xE]);"
+        },
+        "alphaCanonical": {
+          "bytes": 1373,
+          "sha256": "5414f5706fc2577079f6dc8094ee9f2977f762d3625e16d229e823dbde4a61d1"
+        },
+        "tokenIndex": 7121,
+        "context": {
+          "tokens": 35,
+          "bytes": 106,
+          "sha256": "f3706ed121974271590ac13ec0109d9879ed402400301b88a4f5956619bfc78a",
+          "text": ")\n,\n[\nID\n,\nID\n]\n=\nID\n.\nID\n(\nnum:0\n)\n;\nID\n.\nID\n(\n(\n)\n=>\n{\nif\n(\nID\n==/!=/===/!==\nnum:0\n)\nreturn\n;\nID\n.\nID\n(\n"
+        }
+      }
+    }
+  },
+  "normalizedUnitEvolution": {
+    "baselineTokenIndexAtHook": 7109,
+    "targetTokenIndexAtHook": 7121,
+    "tokenIndexShiftBeforeHook": 12,
+    "diff": {
+      "hunks": 8,
+      "bytes": 1547,
+      "sha256": "a9a5479b1422beddba1c7ca80846e7cc6058a515befe9646de8036f0196fac46",
+      "text": "--- target118\n+++ target119\n@@ -5127,0 +5128,12 @@\n+(\n+)\n+&&\n+ID\n+==/!=/===/!==\n+string:\"NORMAL\"\n+)\n+return\n+;\n+if\n+(\n+ID\n@@ -5990 +6002 @@\n-string:\"\\r\"\n+regexp:/\\r\\n|\\r/g\n@@ -7239 +7251 @@\n-string:\"Model and effort switching in remote sessions is coming soon — set at session creation for now\"\n+string:\"Fast mode switching in remote sessions is coming soon — set at session creation for now\"\n@@ -7272 +7284,17 @@\n-return\n+{\n+ID\n+(\n+{\n+ID\n+:\n+string:\"remote-model-picker-unavailable\"\n+,\n+ID\n+:\n+string:\"Model picker shows local options in remote sessions — use /model <name> instead\"\n+,\n+ID\n+:\n+string:\"medium\"\n+}\n+)\n@@ -7273,0 +7302,2 @@\n+return\n+}\n@@ -7785,0 +7816,122 @@\n+ID\n+=\n+ID\n+(\n+)\n+;\n+if\n+(\n+ID\n+&&\n+ID\n+(\n+)\n+&&\n+ID\n+==/!=/===/!==\n+string:\"bubble\"\n+)\n+{\n+ID\n+ID\n+=\n+ID\n+;\n+ID\n+.\n+ID\n+(\n+{\n+ID\n+:\n+string:\"set_permission_mode\"\n+,\n+ID\n+:\n+ID\n+}\n+)\n+.\n+catch\n+(\n+(\n+ID\n+)\n+=>\n+{\n+ID\n+(\n+`\n+template\n+${\n+ID\n+(\n+ID\n+)\n+}\n+template\n+`\n+)\n+,\n+ID\n+(\n+(\n+ID\n+)\n+=>\n+{\n+if\n+(\n+ID\n+.\n+ID\n+.\n+ID\n+==/!=/===/!==\n+ID\n+)\n+return\n+ID\n+;\n+return\n+{\n+...\n+ID\n+,\n+ID\n+:\n+ID\n+}\n+}\n+)\n+,\n+ID\n+(\n+{\n+ID\n+:\n+string:\"remote-permission-mode-rejected\"\n+,\n+ID\n+:\n+`\n+template\n+${\n+ID\n+}\n+template\n+`\n+,\n+ID\n+:\n+string:\"warning\"\n+,\n+ID\n+:\n+string:\"immediate\"\n+}\n+)\n+}\n+)\n+}\n+ID\n@@ -7912,0 +8065,2 @@\n+,\n+ID\n@@ -7935,0 +8090,51 @@\n+)\n+;\n+ID\n+ID\n+=\n+ID\n+(\n+)\n+;\n+if\n+(\n+ID\n+&&\n+ID\n+(\n+)\n+)\n+ID\n+.\n+ID\n+(\n+{\n+ID\n+:\n+string:\"set_permission_mode\"\n+,\n+ID\n+:\n+string:\"auto\"\n+}\n+)\n+.\n+catch\n+(\n+(\n+ID\n+)\n+=>\n+ID\n+(\n+`\n+template\n+${\n+ID\n+(\n+ID\n+)\n+}\n+template\n+`\n+)\n"
+    }
+  },
+  "hookLineage": {
+    "alphaCanonical": {
+      "bytes": 1373,
+      "sha256": "5414f5706fc2577079f6dc8094ee9f2977f762d3625e16d229e823dbde4a61d1"
+    },
+    "context": {
+      "tokens": 35,
+      "bytes": 106,
+      "sha256": "f3706ed121974271590ac13ec0109d9879ed402400301b88a4f5956619bfc78a",
+      "text": ")\n,\n[\nID\n,\nID\n]\n=\nID\n.\nID\n(\nnum:0\n)\n;\nID\n.\nID\n(\n(\n)\n=>\n{\nif\n(\nID\n==/!=/===/!==\nnum:0\n)\nreturn\n;\nID\n.\nID\n(\n"
+    },
+    "runtimeIdentifiers": {
+      "react": "Kq",
+      "generation": "xE",
+      "instances": "K5",
+      "process": "process"
+    }
+  },
+  "sourceLineage": {
+    "path": "src/components/PromptInput/PromptInput.tsx",
+    "snapshots": [
+      {
+        "version": "2.1.117",
+        "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+        "blob": "a037fc01bc968e3f47321f8253cb27f77b30c5a8",
+        "file": {
+          "bytes": 356470,
+          "sha256": "3a865cec943842f8fed60bc506ffb6ca7a0a4d57b139bbcd63df1a8817e70211"
+        },
+        "declaration": {
+          "characterStart": 11962,
+          "characterEnd": 99483,
+          "bytes": 87711,
+          "sha256": "d6f427d6329dfd5179a32ddaa63789acdd81be7d4b9e32ef839f7c656e83d2eb"
+        },
+        "useLayoutEffectAstOccurrences": 0,
+        "useLayoutEffectTextOccurrences": 0,
+        "missingCompiledMarkers": [
+          "useLayoutEffect",
+          "forceRedraw",
+          "chat:clearInput"
+        ]
+      },
+      {
+        "version": "2.1.118",
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+        "blob": "ac8f8822fc56d16202b626c4cf8ff2c789d75eba",
+        "file": {
+          "bytes": 358261,
+          "sha256": "2c315a9684c719e46cdbbf405cd4fb0f6d4d1b8e8ff7eb0a9db4e7736c4deb19"
+        },
+        "declaration": {
+          "characterStart": 11990,
+          "characterEnd": 101274,
+          "bytes": 89474,
+          "sha256": "2e47e87d3101a5a7c79a79debd39a81ee0adcc8c6c4f427a5361356c974246e7"
+        },
+        "useLayoutEffectAstOccurrences": 0,
+        "useLayoutEffectTextOccurrences": 0,
+        "missingCompiledMarkers": [
+          "useLayoutEffect",
+          "forceRedraw",
+          "chat:clearInput"
+        ]
+      },
+      {
+        "version": "2.1.119",
+        "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+        "blob": "8a472d3c2a9ea4004e8be7fcf2b3fa6ba0bbd26f",
+        "file": {
+          "bytes": 360058,
+          "sha256": "5be9a872682a2f3c82d587e1a0e1e90bd73a6f9f9bcf2df162b3fccc2105d905"
+        },
+        "declaration": {
+          "characterStart": 12160,
+          "characterEnd": 103069,
+          "bytes": 91101,
+          "sha256": "e1f52208cf5a311011f4d4ad770e382a420b25d60eb478491931f92d0efaf99d"
+        },
+        "useLayoutEffectAstOccurrences": 0,
+        "useLayoutEffectTextOccurrences": 0,
+        "missingCompiledMarkers": [
+          "useLayoutEffect",
+          "forceRedraw",
+          "chat:clearInput"
+        ]
+      }
+    ],
+    "packaged": {
+      "file": {
+        "bytes": 360058,
+        "sha256": "5be9a872682a2f3c82d587e1a0e1e90bd73a6f9f9bcf2df162b3fccc2105d905"
+      },
+      "declaration": {
+        "characterStart": 12160,
+        "characterEnd": 103069,
+        "bytes": 91101,
+        "sha256": "e1f52208cf5a311011f4d4ad770e382a420b25d60eb478491931f92d0efaf99d"
+      },
+      "useLayoutEffectAstOccurrences": 0,
+      "useLayoutEffectTextOccurrences": 0,
+      "missingCompiledMarkers": [
+        "useLayoutEffect",
+        "forceRedraw",
+        "chat:clearInput"
+      ]
+    },
+    "sourceDiff118To119": {
+      "insertions": 60,
+      "deletions": 13,
+      "bytes": 7438,
+      "sha256": "a32bc83f60bd62d861c9e5fc38b08f7a7bab575b174f9511fbe32ca014a71cfd"
+    },
+    "replayBlocker": "No authenticated Target117, Target118, or Target119 authored PromptInput declaration contains useLayoutEffect, forceRedraw, or chat:clearInput. The compiled hook depends on a state/setter pair and the clear-input callback increment, while the source action map omits the callback entirely. Replaying only the residue would be graph-incomplete, and no exact authored donor authenticates the full graph."
+  },
+  "residues": {
+    "identityFields": [
+      "targetIndex",
+      "literalKind",
+      "value",
+      "start",
+      "end",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber",
+      "targetAdded"
+    ],
+    "allOwner": {
+      "rows": 208,
+      "canonicalBytes": 13170,
+      "canonicalSha256": "b36add421ea02c9dde69a411b73562b3a0352c458639d97676a86da4f1e05ef9",
+      "identities": [
+        [
+          20509,
+          "property",
+          "setToolPermissionContext",
+          12383211,
+          12383235,
+          22,
+          13,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "stashedPrompt",
+          12383344,
+          12383357,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "setStashedPrompt",
+          12383360,
+          12383376,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "onShowMessageSelector",
+          12383393,
+          12383414,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "onMessageActionsEnter",
+          12383417,
+          12383438,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "showBashesDialog",
+          12383491,
+          12383507,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "setShowBashesDialog",
+          12383510,
+          12383529,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "getToolUseContext",
+          12383562,
+          12383579,
+          8,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "onAgentSubmit",
+          12383593,
+          12383606,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "onDismissSideQuestion",
+          12383609,
+          12383630,
+          1,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "isSideQuestionVisible",
+          12383633,
+          12383654,
+          1,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "onInputOverlayActiveChange",
+          12383657,
+          12383683,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "initialVimMode",
+          12383686,
+          12383700,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "onVimModeChange",
+          12383703,
+          12383718,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "hasSuppressedDialogs",
+          12383721,
+          12383741,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "isLocalJSXCommandActive",
+          12383744,
+          12383767,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "insertTextRef",
+          12383773,
+          12383786,
+          4,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "voiceInterimRange",
+          12383789,
+          12383806,
+          2,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "sessionEnvVars",
+          12383809,
+          12383823,
+          34,
+          17,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12383870,
+          12383878,
+          757,
+          696,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "INSERT",
+          12383882,
+          12383890,
+          18,
+          17,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12383895,
+          12383904,
+          437,
+          315,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12383939,
+          12383947,
+          757,
+          697,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12383961,
+          12383969,
+          757,
+          698,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "NORMAL",
+          12383995,
+          12384003,
+          21,
+          20,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12384007,
+          12384016,
+          437,
+          316,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12384067,
+          12384075,
+          757,
+          699,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12384091,
+          12384099,
+          757,
+          700,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12384122,
+          12384130,
+          757,
+          701,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12384146,
+          12384154,
+          757,
+          702,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "submit",
+          12384336,
+          12384342,
+          4,
+          3,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12385380,
+          12385387,
+          184,
+          131,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12385440,
+          12385447,
+          184,
+          132,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "historyMatch",
+          12385549,
+          12385561,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "handleKeyDown",
+          12385587,
+          12385600,
+          33,
+          30,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12385766,
+          12385774,
+          757,
+          703,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12385790,
+          12385798,
+          757,
+          704,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12385814,
+          12385822,
+          757,
+          705,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "taskDecorations",
+          12385878,
+          12385893,
+          12,
+          11,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12386093,
+          12386100,
+          184,
+          133,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12386176,
+          12386183,
+          184,
+          134,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12386245,
+          12386254,
+          437,
+          317,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386422,
+          12386430,
+          757,
+          706,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386446,
+          12386454,
+          757,
+          707,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12386481,
+          12386490,
+          437,
+          318,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386558,
+          12386566,
+          757,
+          708,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386582,
+          12386590,
+          757,
+          709,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386606,
+          12386614,
+          757,
+          710,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386630,
+          12386638,
+          757,
+          711,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386654,
+          12386662,
+          757,
+          712,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386678,
+          12386686,
+          757,
+          713,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386702,
+          12386710,
+          757,
+          714,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386726,
+          12386734,
+          757,
+          715,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12386750,
+          12386758,
+          757,
+          716,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12386787,
+          12386796,
+          437,
+          319,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12386884,
+          12386891,
+          184,
+          135,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12386970,
+          12386977,
+          184,
+          136,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12387059,
+          12387066,
+          184,
+          137,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12387273,
+          12387280,
+          184,
+          138,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12387390,
+          12387397,
+          184,
+          139,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12387564,
+          12387573,
+          437,
+          320,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "suggestion",
+          12387994,
+          12388004,
+          89,
+          85,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "logOutcomeAtSubmission",
+          12388024,
+          12388046,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "markShown",
+          12388050,
+          12388059,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388115,
+          12388122,
+          184,
+          140,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388194,
+          12388201,
+          184,
+          141,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388297,
+          12388304,
+          184,
+          142,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388353,
+          12388360,
+          184,
+          143,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388394,
+          12388401,
+          184,
+          144,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388426,
+          12388433,
+          184,
+          145,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388537,
+          12388544,
+          184,
+          146,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useSyncExternalStore",
+          12388564,
+          12388584,
+          32,
+          26,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388600,
+          12388607,
+          184,
+          147,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12388669,
+          12388676,
+          184,
+          148,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12389069,
+          12389076,
+          184,
+          149,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12389232,
+          12389241,
+          437,
+          321,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12389376,
+          12389383,
+          184,
+          150,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "addNotification",
+          12390450,
+          12390465,
+          52,
+          25,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "removeNotification",
+          12390469,
+          12390487,
+          12,
+          7,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12390500,
+          12390509,
+          437,
+          322,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12390701,
+          12390710,
+          437,
+          323,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12390929,
+          12390938,
+          437,
+          324,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12391233,
+          12391242,
+          437,
+          325,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12391469,
+          12391482,
+          8196,
+          7681,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12391513,
+          12391526,
+          8196,
+          7682,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "pushToBuffer",
+          12391680,
+          12391692,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "undo",
+          12391696,
+          12391700,
+          6,
+          6,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "canUndo",
+          12391704,
+          12391711,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "dismissSearchHint",
+          12392429,
+          12392446,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "historyIndex",
+          12392450,
+          12392462,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12392518,
+          12392527,
+          437,
+          326,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12392846,
+          12392854,
+          757,
+          717,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "handleKeyDown",
+          12394521,
+          12394534,
+          33,
+          31,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "sessionEnvVars",
+          12394747,
+          12394761,
+          34,
+          18,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "defaultPrevented",
+          12394820,
+          12394836,
+          14,
+          13,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "didStopImmediatePropagation",
+          12394841,
+          12394868,
+          8,
+          7,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "defaultPrevented",
+          12394891,
+          12394907,
+          14,
+          14,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "didStopImmediatePropagation",
+          12394912,
+          12394939,
+          8,
+          8,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12395046,
+          12395059,
+          8196,
+          7683,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12395104,
+          12395117,
+          8196,
+          7684,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12395190,
+          12395203,
+          8196,
+          7685,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "escape",
+          12395319,
+          12395327,
+          122,
+          122,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "NORMAL",
+          12395358,
+          12395366,
+          21,
+          21,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "return",
+          12395444,
+          12395452,
+          97,
+          95,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "escape",
+          12395500,
+          12395508,
+          122,
+          123,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "backspace",
+          12395520,
+          12395531,
+          29,
+          29,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "delete",
+          12395543,
+          12395551,
+          57,
+          62,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "backspace",
+          12395620,
+          12395631,
+          29,
+          30,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "delete",
+          12395643,
+          12395651,
+          57,
+          63,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "NORMAL",
+          12395830,
+          12395838,
+          21,
+          22,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "j",
+          12395852,
+          12395855,
+          20,
+          19,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "preventDefault",
+          12395866,
+          12395880,
+          266,
+          255,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "k",
+          12395900,
+          12395903,
+          29,
+          27,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "preventDefault",
+          12395914,
+          12395928,
+          266,
+          256,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "l",
+          12395948,
+          12395951,
+          20,
+          20,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "preventDefault",
+          12395962,
+          12395976,
+          266,
+          257,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "h",
+          12395996,
+          12395999,
+          35,
+          34,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "preventDefault",
+          12396010,
+          12396024,
+          266,
+          258,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "preventDefault",
+          12396062,
+          12396076,
+          266,
+          259,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12396679,
+          12396686,
+          184,
+          151,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12396746,
+          12396755,
+          437,
+          327,
+          false
+        ],
+        [
+          20509,
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "\\r\\n|\\r"
+          },
+          12397272,
+          12397282,
+          2,
+          4,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "useState",
+          12399586,
+          12399594,
+          757,
+          718,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useLayoutEffect",
+          12399601,
+          12399616,
+          26,
+          28,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "forceRedraw",
+          12399663,
+          12399674,
+          3,
+          3,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "get",
+          12399642,
+          12399645,
+          2070,
+          2146,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "stdout",
+          12399654,
+          12399660,
+          590,
+          581,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "shift_tab",
+          12401821,
+          12401832,
+          1,
+          1,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "auto_opt_in",
+          12402305,
+          12402318,
+          1,
+          1,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12403160,
+          12403169,
+          437,
+          328,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12403304,
+          12403311,
+          184,
+          152,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "chat:clearInput",
+          12403392,
+          12403409,
+          3,
+          3,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "hasSelection",
+          12403625,
+          12403637,
+          10,
+          8,
+          false
+        ],
+        [
+          20509,
+          "string",
+          "dismissed",
+          12405105,
+          12405116,
+          7,
+          3,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12405299,
+          12405308,
+          437,
+          329,
+          false
+        ],
+        [
+          20509,
+          "number",
+          "10000",
+          12405424,
+          12405427,
+          120,
+          124,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "rows",
+          12405458,
+          12405462,
+          91,
+          110,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "get",
+          12405850,
+          12405853,
+          2070,
+          2147,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "row",
+          12405927,
+          12405930,
+          110,
+          98,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "y",
+          12405934,
+          12405935,
+          174,
+          169,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "row",
+          12405940,
+          12405943,
+          110,
+          99,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "y",
+          12405947,
+          12405948,
+          174,
+          170,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "row",
+          12405953,
+          12405956,
+          110,
+          100,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "y",
+          12405961,
+          12405962,
+          174,
+          171,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "row",
+          12405977,
+          12405980,
+          110,
+          101,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "y",
+          12405985,
+          12405986,
+          174,
+          172,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "y",
+          12406131,
+          12406132,
+          174,
+          173,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "x",
+          12406161,
+          12406162,
+          171,
+          171,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "row",
+          12406186,
+          12406189,
+          110,
+          102,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "col",
+          12406193,
+          12406196,
+          78,
+          77,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "row",
+          12406227,
+          12406230,
+          110,
+          103,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "col",
+          12406234,
+          12406237,
+          78,
+          78,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useEffect",
+          12406339,
+          12406348,
+          437,
+          330,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "setHandler",
+          12406364,
+          12406374,
+          4,
+          3,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "setHandler",
+          12406410,
+          12406420,
+          4,
+          4,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12406501,
+          12406508,
+          184,
+          153,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12406873,
+          12406886,
+          8196,
+          7686,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12407032,
+          12407039,
+          184,
+          154,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12407074,
+          12407087,
+          8196,
+          7687,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12407130,
+          12407143,
+          8196,
+          7688,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12407361,
+          12407374,
+          8196,
+          7689,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12407437,
+          12407444,
+          184,
+          155,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12407479,
+          12407492,
+          8196,
+          7690,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12407535,
+          12407548,
+          8196,
+          7691,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12407920,
+          12407933,
+          8196,
+          7692,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12408096,
+          12408103,
+          184,
+          156,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12408138,
+          12408151,
+          8196,
+          7693,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12408194,
+          12408207,
+          8196,
+          7694,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "useMemo",
+          12408345,
+          12408352,
+          184,
+          157,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12408363,
+          12408376,
+          8196,
+          7695,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12408461,
+          12408474,
+          8196,
+          7696,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12408615,
+          12408628,
+          8196,
+          7697,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12408736,
+          12408749,
+          8196,
+          7698,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "onKeyDownBefore",
+          12408807,
+          12408822,
+          2,
+          2,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12409667,
+          12409680,
+          8196,
+          7699,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12409848,
+          12409861,
+          8196,
+          7700,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12409944,
+          12409957,
+          8196,
+          7701,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410005,
+          12410018,
+          8196,
+          7702,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410068,
+          12410081,
+          8196,
+          7703,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410141,
+          12410154,
+          8196,
+          7704,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "tabIndex",
+          12410158,
+          12410166,
+          83,
+          80,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "autoFocus",
+          12410169,
+          12410178,
+          72,
+          74,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "onKeyDown",
+          12410182,
+          12410191,
+          79,
+          78,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410207,
+          12410220,
+          8196,
+          7705,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410237,
+          12410250,
+          8196,
+          7706,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410283,
+          12410296,
+          8196,
+          7707,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410349,
+          12410362,
+          8196,
+          7708,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410396,
+          12410409,
+          8196,
+          7709,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "Fragment",
+          12410413,
+          12410421,
+          276,
+          260,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410430,
+          12410443,
+          8196,
+          7710,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410476,
+          12410489,
+          8196,
+          7711,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "Fragment",
+          12410493,
+          12410501,
+          276,
+          261,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410556,
+          12410569,
+          8196,
+          7712,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "padded",
+          12410591,
+          12410597,
+          8,
+          8,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410651,
+          12410664,
+          8196,
+          7713,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410705,
+          12410718,
+          8196,
+          7714,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410789,
+          12410802,
+          8196,
+          7715,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "ref",
+          12410806,
+          12410809,
+          224,
+          235,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "tabIndex",
+          12410837,
+          12410845,
+          83,
+          81,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410869,
+          12410882,
+          8196,
+          7716,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12410910,
+          12410923,
+          8196,
+          7717,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12411129,
+          12411142,
+          8196,
+          7718,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12411213,
+          12411226,
+          8196,
+          7719,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "ref",
+          12411230,
+          12411233,
+          224,
+          236,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "tabIndex",
+          12411261,
+          12411269,
+          83,
+          82,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12411293,
+          12411306,
+          8196,
+          7720,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12411917,
+          12411930,
+          8196,
+          7721,
+          false
+        ],
+        [
+          20509,
+          "property",
+          "createElement",
+          12412116,
+          12412129,
+          8196,
+          7722,
+          false
+        ]
+      ]
+    },
+    "addedOwner": {
+      "rows": 14,
+      "canonicalBytes": 828,
+      "canonicalSha256": "b14f458432ac863e930b639a1491d79f4239ccedf501680548daf6bd864b4d05",
+      "identities": [
+        [
+          20509,
+          "string",
+          "escape",
+          12395500,
+          12395508,
+          122,
+          123,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "delete",
+          12395543,
+          12395551,
+          57,
+          62,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "backspace",
+          12395620,
+          12395631,
+          29,
+          30,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "delete",
+          12395643,
+          12395651,
+          57,
+          63,
+          true
+        ],
+        [
+          20509,
+          "string",
+          "NORMAL",
+          12395830,
+          12395838,
+          21,
+          22,
+          true
+        ],
+        [
+          20509,
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "\\r\\n|\\r"
+          },
+          12397272,
+          12397282,
+          2,
+          4,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "useLayoutEffect",
+          12399601,
+          12399616,
+          26,
+          28,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "get",
+          12399642,
+          12399645,
+          2070,
+          2146,
+          true
+        ],
+        [
+          20509,
+          "number",
+          "10000",
+          12405424,
+          12405427,
+          120,
+          124,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "rows",
+          12405458,
+          12405462,
+          91,
+          110,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "get",
+          12405850,
+          12405853,
+          2070,
+          2147,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "autoFocus",
+          12410169,
+          12410178,
+          72,
+          74,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "ref",
+          12410806,
+          12410809,
+          224,
+          235,
+          true
+        ],
+        [
+          20509,
+          "property",
+          "ref",
+          12411230,
+          12411233,
+          224,
+          236,
+          true
+        ]
+      ]
+    },
+    "productionStrict": {
+      "rows": 1,
+      "canonicalBytes": 67,
+      "canonicalSha256": "983dc178169151420ab7b039b90718e5f8c480cc94240b5a6cc7b65955b80392",
+      "identities": [
+        [
+          20509,
+          "property",
+          "useLayoutEffect",
+          12399601,
+          12399616,
+          26,
+          28,
+          true
+        ]
+      ]
+    }
+  }
+}

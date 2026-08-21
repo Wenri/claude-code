@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "case-owned-static-inherited-whole-unit-proof-source-replay-blocked",
+  "claim": "Target119 refreshClosedIssues is complete-unit identical to its Target118 predecessor and later runtime, while only later source authenticates the owner path.",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "target120Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "target121Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+    },
+    "override": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/closed-issue-refresh-inherited-owner-overrides.mjs",
+      "bytes": 1486,
+      "sha256": "844c25534507b66780852af53cbd8ddf8cdccfe5a2dce0dbc2a2832aaf65b6ab"
+    }
+  },
+  "units": {
+    "baseline": {
+      "index": 19205,
+      "start": 11781408,
+      "end": 11782355,
+      "bytes": 947,
+      "tokenCount": 390,
+      "sourceHash": "8ae69186e3829ea652d063bc73d80afaca0ee7304d093e5990b69aae14b19e10",
+      "coarseHash": "d6dbca5b32682fc6950e2c56f310c167f3a56aaec8e35af0ed03b5404dcde805"
+    },
+    "target": {
+      "index": 20137,
+      "start": 12242495,
+      "end": 12243442,
+      "bytes": 947,
+      "tokenCount": 390,
+      "sourceHash": "b67fc1ac554df08fda155f40a82b90b8a67a73dfb4d8f87cacf277ddb4a6a53b",
+      "coarseHash": "d6dbca5b32682fc6950e2c56f310c167f3a56aaec8e35af0ed03b5404dcde805"
+    },
+    "target120": {
+      "start": 12279151,
+      "end": 12280098,
+      "bytes": 947,
+      "tokenCount": 390,
+      "sourceHash": "d2021c9df33ea250c28e9b34c4d240a42cf101da5734b393912239ff665a25d7"
+    },
+    "target121": {
+      "start": 12273265,
+      "end": 12274212,
+      "bytes": 947,
+      "tokenCount": 390,
+      "sourceHash": "359ff7817e8a49e58ea63d011e09218c5698b5b6f6a1b5c0b715c3dcf49e1e15"
+    }
+  },
+  "canonicalTokenProof": {
+    "tokens": 390,
+    "bytes": 2080,
+    "sha256": "dbf7e8f8d755713b6028fce250c437bc6b002b2f4ffbaa16841ac05b862068aa"
+  },
+  "rows": {
+    "addedOwner": {
+      "count": 12,
+      "canonicalBytes": 709,
+      "canonicalSha256": "ae8b3d4c14e3b5a30e5a8ba12d2556b59b0936609b12e67ca2ac0324480b2a0e",
+      "tuples": [
+        [20137, "property", "code", 12242650, 12242654, 1464, 1495, true],
+        [20137, "string", "gh", 12242667, 12242671, 25, 26, true],
+        [20137, "string", "list", 12242681, 12242687, 94, 106, true],
+        [20137, "property", "preserveOutputOnError", 12242859, 12242880, 37, 40, true],
+        [20137, "string", "COMPLETED", 12242957, 12242968, 10, 11, true],
+        [20137, "property", "title", 12242997, 12243002, 461, 479, true],
+        [20137, "property", "title", 12243005, 12243010, 461, 480, true],
+        [20137, "property", "mkdir", 12243087, 12243092, 137, 159, true],
+        [20137, "property", "dirname", 12243097, 12243104, 206, 207, true],
+        [20137, "property", "recursive", 12243109, 12243118, 170, 203, true],
+        [20137, "property", "writeFile", 12243134, 12243143, 120, 127, true],
+        [20137, "string", "utf-8", 12243162, 12243169, 257, 262, true]
+      ]
+    },
+    "owner": {
+      "count": 46,
+      "canonicalBytes": 2775,
+      "canonicalSha256": "a44c04811aa9eb80a3d6a485236f3739feae7e8e578cea1bc3fe0cc408005803"
+    },
+    "correctedOwner": {
+      "count": 53,
+      "canonicalBytes": 3177,
+      "canonicalSha256": "8cd88be888a21ac73a69cf56288758e6a738d8f57b5e82b15912ffb6d2785236"
+    }
+  },
+  "sourceLineage": {
+    "authenticatedCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+    "path": "src/components/ClosedIssueNotice.tsx",
+    "blob": "1f9fb23e5736392349c9b3edeb87f688126f2bcb",
+    "bytes": 6446,
+    "sha256": "e9ca4cd0cb5234fe299808cbec409869d16cbd3abca9ec15f0827dd36dea5fb6",
+    "declaration": "refreshClosedIssues",
+    "target119Commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+    "target119ModuleAbsent": true,
+    "target119Notifications": {
+      "bytes": 48104,
+      "sha256": "68ccfdfe2911d12d87b985d15c5c35f531611002efe8aa5bd1e32597b0b37a91"
+    },
+    "target119Config": {
+      "bytes": 66083,
+      "sha256": "2e2d669d31705ec09f6de3c3f56a9d9d469e74a287695f1f5dc49ef5cdbf823e"
+    },
+    "falseOwner": "src/components/TokenWarning.tsx"
+  },
+  "evidenceIds": [
+    "target119-closed-issue-refresh-authenticated-units",
+    "target119-closed-issue-refresh-token-identity",
+    "target119-closed-issue-refresh-source-owner-lineage",
+    "target119-closed-issue-refresh-replay-blocker"
+  ],
+  "ownerOverride": {
+    "paths": ["src/components/ClosedIssueNotice.tsx"],
+    "declarations": ["refreshClosedIssues"],
+    "evidenceIds": [
+      "target119-closed-issue-refresh-authenticated-units",
+      "target119-closed-issue-refresh-token-identity",
+      "target119-closed-issue-refresh-source-owner-lineage",
+      "target119-closed-issue-refresh-replay-blocker"
+    ]
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "sourceBlob": {
+    "path": "src/components/DiagnosticsDisplay.tsx",
+    "gitObject": "6e8a8b8b338a0d06af634836c68a0874d82dfd43"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "replayHelper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-diagnostics-inline-expand-hint-source-gap.mjs",
+      "bytes": 6204,
+      "sha256": "40c135894d40d209d0bd4b42ec8024b9cbf1d6c08e524dcdfabbea52eb00674c"
+    },
+    "sourceFile": {
+      "path": "src/components/DiagnosticsDisplay.tsx",
+      "input": {
+        "bytes": 13293,
+        "sha256": "c65601ba61913c24fd243485ff83ee7371b8a788034d03a2cd9c76b2c587cef2"
+      },
+      "output": {
+        "bytes": 13098,
+        "sha256": "d7ad8b70536e1df5254f3715215eba47e307a2292a1f20a9eb36952b0a9cd1e2"
+      }
+    }
+  },
+  "baselineUnit": {
+    "index": 12657,
+    "sourceDeclaration": "DiagnosticsDisplay",
+    "role": "verbose-only diagnostics display with cached CtrlOToExpand child",
+    "nodeType": "FunctionDeclaration",
+    "start": 7882163,
+    "end": 7883061,
+    "bytes": 898,
+    "tokenCount": 471,
+    "sourceHash": "8879bd1fa641f33b1fdb6c1716a6a9381d5cffe60d411c9185445821f4aab053",
+    "coarseHash": "2a3b2e71c6a4f90f726e35cbd8a9feab7ec7451f204532126f3af8d780fe3e98"
+  },
+  "targetUnit": {
+    "index": 12768,
+    "sourceDeclaration": "DiagnosticsDisplay",
+    "role": "transcript-aware diagnostics display with inline expansion hint",
+    "nodeType": "FunctionDeclaration",
+    "start": 7944504,
+    "end": 7945327,
+    "bytes": 823,
+    "tokenCount": 430,
+    "sourceHash": "c171ff46092d011b96898375338a040ca51307337024be92abd22103d0c90752",
+    "coarseHash": "78cf77dc348aeab817ae3e74fa1c77010810899dcf11161400d392e01f41c237",
+    "unknownFreeIdentifierCount": 2
+  },
+  "moduleInitializers": {
+    "baseline": {
+      "index": 12656,
+      "nodeType": "VariableDeclaration",
+      "start": 7882131,
+      "end": 7882163,
+      "bytes": 32,
+      "tokenCount": 23,
+      "sourceHash": "ccfdfd8a987c86d3d04a9214b676719431c201c860101a057e9bf3f5d8b4d593",
+      "coarseHash": "e61a1ebdb1a836148b98685b2ea7ba4880019e5142f2155abdd31a3b55821bc5"
+    },
+    "target": {
+      "index": 12767,
+      "nodeType": "VariableDeclaration",
+      "start": 7944472,
+      "end": 7944504,
+      "bytes": 32,
+      "tokenCount": 23,
+      "sourceHash": "274963e6911062bc30389534283cce7f73eb21f9dd1848f63ad5c8c2637c25cf",
+      "coarseHash": "e61a1ebdb1a836148b98685b2ea7ba4880019e5142f2155abdd31a3b55821bc5"
+    }
+  },
+  "bundleFragments": [
+    {
+      "name": "baselineCache",
+      "bundle": "baseline",
+      "start": 7882185,
+      "end": 7882194,
+      "bytes": 9,
+      "sha256": "b5c0e96247e368657f34ffc3267fa366c2b49ed66dc15f7c543e85f71cefa753",
+      "text": "VX7.c(14)"
+    },
+    {
+      "name": "targetCache",
+      "bundle": "target",
+      "start": 7944526,
+      "end": 7944535,
+      "bytes": 9,
+      "sha256": "c1dd8fc6fa6723d174cc03d540619ecd19c23a93cf71f78fce2701cbb48091d6",
+      "text": "NL7.c(13)"
+    },
+    {
+      "name": "baselineProps",
+      "bundle": "baseline",
+      "start": 7882195,
+      "end": 7882219,
+      "bytes": 24,
+      "sha256": "b795e22ddd1d2ec5a7cc7dc8705ed582c75cdfaec3fa3a1b446fa44d9dfc57bc",
+      "text": "{attachment:q,verbose:K}"
+    },
+    {
+      "name": "targetProps",
+      "bundle": "target",
+      "start": 7944536,
+      "end": 7944579,
+      "bytes": 43,
+      "sha256": "b69bdd43ffba1082bd76d6f4d2aafcece04a187a9ce3614ee74af69dc23dd0be",
+      "text": "{attachment:q,verbose:K,isTranscriptMode:_}"
+    },
+    {
+      "name": "baselineGate",
+      "bundle": "baseline",
+      "start": 7882361,
+      "end": 7882367,
+      "bytes": 6,
+      "sha256": "e578d7b01b7511a19e624fdc39f610e7fdf7643426cfbc851a253bf5fcd9e001",
+      "text": "if(K){"
+    },
+    {
+      "name": "targetGate",
+      "bundle": "target",
+      "start": 7944721,
+      "end": 7944730,
+      "bytes": 9,
+      "sha256": "e11dd1ac5fd3835d81cef82f55203aeeaccb95805a8256180d67d5cf3cb8acdf",
+      "text": "if(K||_){"
+    },
+    {
+      "name": "baselineCachedComponent",
+      "bundle": "baseline",
+      "start": 7882697,
+      "end": 7882802,
+      "bytes": 105,
+      "sha256": "e85a696533274a139e1f585e8174a6ec70bcc1c89f271c39b8d15bae2c75bedd",
+      "text": "if($[8]===Symbol.for(\"react.memo_cache_sentinel\"))M=SS.default.createElement(zw,null),$[8]=M;else M=$[8];"
+    },
+    {
+      "name": "targetInlineHintToken",
+      "bundle": "target",
+      "start": 7945242,
+      "end": 7945263,
+      "bytes": 21,
+      "sha256": "b9b9e22bf30b7ec42bd18a3188b269e362eae426895bdd2e6d9b4dbffaaa1ae6",
+      "text": "\" (ctrl+o to expand)\""
+    }
+  ],
+  "strictRows": [
+    {
+      "targetIndex": 12768,
+      "literalKind": "string",
+      "value": " (ctrl+o to expand)",
+      "targetOccurrenceNumber": 1,
+      "start": 7945242,
+      "end": 7945263,
+      "ownerPath": "src/components/DiagnosticsDisplay.tsx",
+      "declarations": ["DiagnosticsDisplay"]
+    }
+  ],
+  "strictRowsIdentitySha256": "cbcaaab72ef640398ea03bfe730ab60cbae97fd32b6e009a2dac6dde259bb0b7",
+  "residueSets": {
+    "ownerRows": {
+      "count": 13,
+      "identitySha256": "380572b4eb732d86afb7ff46cdc46f830bfb3c04b654b3177fc11c41581e59c6"
+    },
+    "targetAddedOwnerRows": {
+      "count": 1,
+      "identitySha256": "642a5b4fa23d7b86879cc8bb3e77db2000a5a25ec97e8e08167278c09c56721e"
+    }
+  },
+  "sourceLineage": {
+    "baseline": {
+      "commit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitObject": "6eb3ad8ddd4936c11fc5fa7630cb714a44ec6e87",
+      "bytes": 13220,
+      "sha256": "7fe0d89812f700cd663595e88995e072a0fa01bf257dcccc3ecc05793d5b5228"
+    },
+    "targetRaw": {
+      "commit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitObject": "6e8a8b8b338a0d06af634836c68a0874d82dfd43",
+      "bytes": 13293,
+      "sha256": "c65601ba61913c24fd243485ff83ee7371b8a788034d03a2cd9c76b2c587cef2"
+    },
+    "finding": "The recovered Target121 source adds isTranscriptMode but retains Target120's CtrlOToExpand import, 14-slot cache, and cached component. No later source blob contains the authenticated inline hint; the bounded postimage is inferred from the complete target unit."
+  },
+  "sourceRegions": {
+    "baselineDeclaration": {
+      "charStart": 608,
+      "charEnd": 2214,
+      "bytes": 1606,
+      "sha256": "f615afe8ff982d2e9d794d3e2e231cb3ba30736eef5abbaa1c4b100c0dad95c2"
+    },
+    "rawImport": {
+      "charStart": 329,
+      "charEnd": 381,
+      "bytes": 52,
+      "sha256": "670744058868e49b07ff506fd2dbc6774a4f70d4b845845d6a17ecc5d0185e0a"
+    },
+    "rawDeclaration": {
+      "charStart": 637,
+      "charEnd": 2286,
+      "bytes": 1649,
+      "sha256": "b19a74442e9ae82b66b604484a2ab505549bfabad3dde9fd0614c9349d4c5eb1"
+    },
+    "rawCache": {
+      "charStart": 680,
+      "charEnd": 697,
+      "bytes": 17,
+      "sha256": "7f885acfab198e9126cf4a88a9c2f0373a7b9b9c68a9ed9659ea66ba669ac267"
+    },
+    "rawSummary": {
+      "charStart": 1736,
+      "charEnd": 2280,
+      "bytes": 544,
+      "sha256": "46bb86fb00f665bcdfd441f7b2194faf8368f482845921ad71f2a5e8cfb92047"
+    },
+    "recoveredDeclaration": {
+      "charStart": 585,
+      "charEnd": 2091,
+      "bytes": 1506,
+      "sha256": "4f5691623936a37a65af2e0972708addb93e940aabf41879f0faf486f31afcb8"
+    },
+    "recoveredCache": {
+      "charStart": 628,
+      "charEnd": 645,
+      "bytes": 17,
+      "sha256": "0c69c1a78fdf745cafc11e9937e0d18fd208c7960390b9b0e7cc6189ff9ba04d"
+    },
+    "recoveredSummary": {
+      "charStart": 1684,
+      "charEnd": 2085,
+      "bytes": 401,
+      "sha256": "1c877836498c38f68316b2c3911393348f475fd12f3f6ba072cbaf3160380bd2"
+    },
+    "recoveredHint": {
+      "charStart": 1893,
+      "charEnd": 1912,
+      "bytes": 19,
+      "sha256": "9e2b2ab2a030630355af38444578936738e87c893298c4904cf3bc860a735de8"
+    },
+    "sourceMapTail": {
+      "rawCharStart": 3288,
+      "recoveredCharStart": 3093,
+      "bytes": 10005,
+      "sha256": "aaa21775185d66ab6bb5c14ba1e6821621b3b81f9a2992aeaa6d0ecff3f9c6cd"
+    }
+  },
+  "wholeUnitProof": {
+    "criterion": "typescript-react-classic-bun-minify-position-free-alpha-kind-sequence-property-normalized-ast-v1",
+    "typescript": {
+      "path": ".pixi/envs/default/lib/node_modules/typescript/lib/typescript.js",
+      "version": "6.0.2",
+      "options": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "jsx": "React",
+        "removeComments": true,
+        "alwaysStrict": false
+      }
+    },
+    "compiler": {
+      "path": ".pixi/envs/default/bin/bun",
+      "version": "1.3.11",
+      "options": {
+        "loader": "js",
+        "target": "bun",
+        "minifyWhitespace": true,
+        "minifySyntax": true
+      }
+    },
+    "compiledBytes": 1072,
+    "compiledSha256": "788a438057169600c066e04bcd288c6a6c8c3ff6a9ba1c92e02aa91c0961f928",
+    "canonicalBytes": 16074,
+    "canonicalSha256": "ccdf3a3b42b67c9be6565a25c24f6a86f8be619f335df424ecf0cecf5f766588"
+  },
+  "strictEvolution": {
+    "before": {
+      "units": 59,
+      "residues": 480,
+      "indices": [12768, 13026, 13102, 13110, 13120, 13973, 14165, 14171, 14201, 14209, 14622, 16315, 16363, 16369, 17014, 17015, 17497, 17548, 18378, 18380, 18548, 18549, 18684, 18817, 18932, 19010, 19537, 19553, 19683, 19753, 19995, 20305, 20318, 20320, 20592, 20606, 20617, 20645, 20651, 20672, 20775, 20874, 20909, 20945, 20949, 21015, 21018, 21049, 21128, 21373, 21913, 21925, 21958, 21959, 21992, 22106, 22107, 22170, 22174],
+      "indicesSha256": "8068b536c01dc34a3a9f791b9b1ffbd9dd22ec229351794366293fbcb707c3e3"
+    },
+    "after": {
+      "units": 58,
+      "residues": 479,
+      "indices": [13026, 13102, 13110, 13120, 13973, 14165, 14171, 14201, 14209, 14622, 16315, 16363, 16369, 17014, 17015, 17497, 17548, 18378, 18380, 18548, 18549, 18684, 18817, 18932, 19010, 19537, 19553, 19683, 19753, 19995, 20305, 20318, 20320, 20592, 20606, 20617, 20645, 20651, 20672, 20775, 20874, 20909, 20945, 20949, 21015, 21018, 21049, 21128, 21373, 21913, 21925, 21958, 21959, 21992, 22106, 22107, 22170, 22174],
+      "indicesSha256": "47a21199567648cc992fa34a31598b5d30b5a133c4b2bd1deabf34f3cfce87d8"
+    }
+  }
+}

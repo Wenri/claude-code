@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-coalesced-pr-url-helper-owner-proof",
+  "criterion": "single-target-binding-plus-two-source-declaration-pairs-v1",
+  "evidenceIds": [
+    "target119-pr-url-helper-dedup-target-fragment",
+    "target119-pr-url-helper-dedup-source-ast-test",
+    "target119-pr-url-helper-dedup-semantic-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/prStatus.ts",
+        "bytes": 12275,
+        "sha256": "0c6aae10ef5f29a4d4b2bcf24d05a5a2ad9dc80908d4dfe22ff2bd5fffcd8d79"
+      },
+      {
+        "path": "src/components/PrBadge.tsx",
+        "bytes": 8650,
+        "sha256": "23ba67ffdc0581f8683c392238ba5ab8fddb859e4a07e42c6a8190c2d4aec5cb"
+      }
+    ]
+  },
+  "target": {
+    "units": [
+      {
+        "targetIndex": 12727,
+        "nodeType": "FunctionDeclaration",
+        "start": 7903259,
+        "end": 7903374,
+        "bytes": 115,
+        "sha256": "38ba31e1774088da66b771048968d30eba72d3ecb660788c6fa3b9b8fe6fb667",
+        "coarseHash": "14657c3fd4a30792804470121da93f65b32bdb98c6c9e404e16b2fb2007c91d5",
+        "binding": "AX7"
+      },
+      {
+        "targetIndex": 12728,
+        "nodeType": "FunctionDeclaration",
+        "start": 7903374,
+        "end": 7903589,
+        "bytes": 215,
+        "sha256": "07618a69d30de56e354380f9dacd13f62f8f7fbd85da36b4513cb865ecd40e41",
+        "coarseHash": "653382751af639cd32e87d5937b75e320e4e8e6c087507576b1463a3f2795e58",
+        "binding": "fX7"
+      }
+    ],
+    "supportingUnits": [
+      {
+        "targetIndex": 12739,
+        "nodeType": "VariableDeclaration",
+        "start": 7907353,
+        "end": 7908308,
+        "bytes": 955,
+        "sha256": "f61143ab461b4532d9bcba0c1282b5295f94feabc63d8fe6980ff55d998190d6",
+        "coarseHash": "925ae2d2c25f65e652924eeda4c4cd14748ea3fdf28cd0bae12d0d6b348bf9b4"
+      },
+      {
+        "targetIndex": 12740,
+        "nodeType": "FunctionDeclaration",
+        "start": 7908308,
+        "end": 7909257,
+        "bytes": 949,
+        "sha256": "ad30234ce4e738fd42a976d31c249bd90126043f12178855320531ca8fbb1dda",
+        "coarseHash": "03d62c51ad2ae4e6f012febb53c9c8d4ecfedfa6af5a5077f05cf8fd71050537"
+      }
+    ],
+    "regexFragment": {
+      "start": 7908228,
+      "end": 7908287,
+      "bytes": 59,
+      "sha256": "96cecc760c7d45c0d542092164367ae3a75ef7f639dfad2641ab7683097117f9"
+    },
+    "consumerCall": {
+      "start": 7908428,
+      "end": 7908436,
+      "bytes": 8,
+      "sha256": "69584caaeb1851002565e3cc018655b984218e8176a7055d435a4ee8ff9b3793"
+    }
+  },
+  "source": {
+    "declarations": [
+      {
+        "path": "src/utils/prStatus.ts",
+        "name": "PR_URL",
+        "start": 4000,
+        "end": 4076,
+        "bytes": 76,
+        "sha256": "febe91452c2704274b411bce85a6f7f0bddca28dba9a79ac1d97e986d7e4bdaa"
+      },
+      {
+        "path": "src/utils/prStatus.ts",
+        "name": "parsePrUrl",
+        "start": 4186,
+        "end": 4421,
+        "bytes": 235,
+        "sha256": "d0899972ec7d59645e75d2853524d075b7308815c4dab1ddf6213ccc9ae9141a"
+      },
+      {
+        "path": "src/utils/prStatus.ts",
+        "name": "formatPrUrl",
+        "start": 4423,
+        "end": 4796,
+        "bytes": 373,
+        "sha256": "0c06ea5f726927aedd7bbf5b27336cfb29cbc08e187083807486034dd23ffd94"
+      },
+      {
+        "path": "src/components/PrBadge.tsx",
+        "name": "PrBadge",
+        "start": 346,
+        "end": 1977,
+        "bytes": 1631,
+        "sha256": "4d25af0bfcce5f93f6f7697a44c3bcb5e4a2726f133d1ebb3dbd5f4227b554e8"
+      },
+      {
+        "path": "src/components/PrBadge.tsx",
+        "name": "PR_URL_PATTERN",
+        "start": 1979,
+        "end": 2064,
+        "bytes": 85,
+        "sha256": "f8b5b58eddf33df93b9889403ea16af87acba292b34360acd0eabe15ecf14153"
+      },
+      {
+        "path": "src/components/PrBadge.tsx",
+        "name": "parsePrUrl",
+        "start": 2066,
+        "end": 2378,
+        "bytes": 312,
+        "sha256": "ff219edad0cbcd06b9436eed69728b52d9c512051ea8b07c0d390f4ed3c7fefc"
+      },
+      {
+        "path": "src/components/PrBadge.tsx",
+        "name": "applyPrUrlTemplate",
+        "start": 2380,
+        "end": 2764,
+        "bytes": 384,
+        "sha256": "7b57d6832bc7ef1629ecbf0461d99ad771bcc271cd316f0d52bd4730ce07ec57"
+      }
+    ],
+    "regexFragments": [
+      {
+        "path": "src/utils/prStatus.ts",
+        "start": 4017,
+        "end": 4076,
+        "bytes": 59,
+        "sha256": "96cecc760c7d45c0d542092164367ae3a75ef7f639dfad2641ab7683097117f9"
+      },
+      {
+        "path": "src/components/PrBadge.tsx",
+        "start": 2004,
+        "end": 2063,
+        "bytes": 59,
+        "sha256": "96cecc760c7d45c0d542092164367ae3a75ef7f639dfad2641ab7683097117f9"
+      }
+    ]
+  },
+  "row": {
+    "ownerPaths": [
+      "src/utils/prStatus.ts",
+      "src/components/PrBadge.tsx"
+    ],
+    "residues": [
+      {"targetIndex":12727,"kind":"property","value":"num","start":7903356,"end":7903359,"baselineCount":18,"targetOrdinal":19},
+      {"targetIndex":12728,"kind":"string","value":"{host}","start":7903455,"end":7903463,"baselineCount":0,"targetOrdinal":1},
+      {"targetIndex":12728,"kind":"string","value":"{owner}","start":7903483,"end":7903492,"baselineCount":0,"targetOrdinal":1},
+      {"targetIndex":12728,"kind":"string","value":"{repo}","start":7903513,"end":7903521,"baselineCount":0,"targetOrdinal":1},
+      {"targetIndex":12728,"kind":"string","value":"{number}","start":7903541,"end":7903551,"baselineCount":0,"targetOrdinal":1},
+      {"targetIndex":12728,"kind":"property","value":"num","start":7903561,"end":7903564,"baselineCount":18,"targetOrdinal":20},
+      {"targetIndex":12728,"kind":"string","value":"{url}","start":7903578,"end":7903585,"baselineCount":0,"targetOrdinal":1}
+    ]
+  },
+  "summary": {
+    "units": 2,
+    "residues": 7,
+    "targetIndicesSha256": "a7f6fcf6c1b5dfc080b7a2ce247d12c030b5636b134fb15a621c8f83585b7f0c",
+    "residueIdentitiesSha256": "b808c659e2fb7ecd87ec6c381653425a858648067f6932667b0a3fa19f253a09"
+  }
+}

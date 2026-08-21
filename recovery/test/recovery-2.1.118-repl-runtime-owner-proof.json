@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "criterion": "target118-repl-complete-normalized-transition-v1",
+  "status": "case-owned-static-whole-unit-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target118-repl-runtime-authenticated-whole-unit",
+    "target118-repl-runtime-complete-transition",
+    "target118-repl-runtime-source-boundary",
+    "target118-repl-runtime-source-replay-blocker"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/repl-runtime-owner-overrides.mjs",
+      "bytes": 1256,
+      "sha256": "b0a2cb2768d3c2718c7536629ae755e6fd1026eca6b9b961a76f840253577b09"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "baselineProofFixture": {
+      "path": "recovery/test/recovery-2.1.117-repl-whole-unit-owner-proof.json",
+      "bytes": 16961,
+      "sha256": "95c52f9e48938d1acc33d7fa7233d7afa77426d599bfd24b5156a52be1c1c99c"
+    },
+    "baselineProofTest": {
+      "path": "recovery/test/recovery-2.1.117-repl-whole-unit-owner-proof.test.mjs",
+      "bytes": 22175,
+      "sha256": "a7386ab129cc949867e474cda6bf39ba17502c936010e524bd901a0b844c7369"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 20069,
+    "nodeType": "FunctionDeclaration",
+    "start": 12125567,
+    "end": 12183587,
+    "bytes": 58020,
+    "tokens": 22385,
+    "sha256": "b40c4e59bb013c26732f6e24eea40f367c2f5a611099042e02682bf457a71052",
+    "coarseHash": "b0d8d81f93516157db41d409c78041d22b34da13f4f48714003a352dec12430d"
+  },
+  "targetUnit": {
+    "targetIndex": 20268,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12230186,
+    "end": 12288910,
+    "bytes": 58724,
+    "tokens": 22641,
+    "sha256": "4525480a9ed17be377e86f448c9779759182775cd0428376776a34a1945ced3c",
+    "coarseHash": "5b8ecc267c496cbf3f2c635fe1a3ab952379fbbb91b4626c21372ccd50cd3c47",
+    "ownerPath": "src/screens/REPL.tsx",
+    "declarations": ["REPL"],
+    "behavior": "The complete authenticated Target118 REPL unit evolves the already-proved Target117 REPL through one exact twenty-hunk normalized transition. Its retained debounce cancel, background-ID reducer, session dirname, transcript focus/capture, preventDefault, handler, and tabIndex rows remain inside the same complete unit, while the new ccr-api/local-jsonl transcript-source effect is the only strict-value family added within the unit. Exact historical REPL declarations authenticate the owner, but no recovered source generation contains this complete runtime tuple, so the lane is admitted statically without a partial replay.",
+    "residues": [
+      ["property", "cancel", 12238360, 12238366, 94, 112],
+      ["string", "add", 12238724, 12238729, 38, 39],
+      ["string", "ccr-api", 12240416, 12240425, 0, 2],
+      ["string", "local-jsonl", 12240426, 12240439, 1, 2],
+      ["property", "remote", 12240455, 12240461, 14, 16],
+      ["property", "transcriptSource", 12240471, 12240487, 1, 3],
+      ["property", "remote", 12240504, 12240510, 14, 17],
+      ["property", "transcriptSource", 12240514, 12240530, 1, 4],
+      ["property", "dirname", 12244924, 12244931, 200, 201],
+      ["property", "focus", 12274135, 12274140, 104, 112],
+      ["property", "activeElement", 12274156, 12274169, 29, 30],
+      ["property", "preventDefault", 12274314, 12274328, 256, 262],
+      ["property", "preventDefault", 12274536, 12274550, 256, 263],
+      ["property", "preventDefault", 12274599, 12274613, 256, 264],
+      ["property", "preventDefault", 12274646, 12274660, 256, 265],
+      ["property", "handleKeyDown", 12275819, 12275832, 32, 33],
+      ["property", "onKeyDownCapture", 12276121, 12276137, 3, 4],
+      ["property", "tabIndex", 12277140, 12277148, 81, 82]
+    ]
+  },
+  "normalizedTransition": {
+    "normalization": "One Acorn token per line: identifiers are ID; string and number values retain their JSON values; regexp values use /pattern/flags; all other tokens use their labels",
+    "baseline": {
+      "tokens": 22385,
+      "bytes": 66745,
+      "sha256": "7f25ca51a18a8de76aace9833a4a96e43ad010b6c14438136ba074e5bdfe439d"
+    },
+    "target": {
+      "tokens": 22641,
+      "bytes": 67497,
+      "sha256": "57d0428d6a9f18b097319508d62081129954b8b00fe67c846b308bcfce56dbd8"
+    },
+    "diff": {
+      "format": "diff --label baseline --label target -U 0",
+      "bytes": 1508,
+      "sha256": "73467960b3963c50f243598a49fb0aea7693d8522783e00d5c60cb11b9ea042a",
+      "hunks": 20,
+      "addedTokenLines": 260,
+      "removedTokenLines": 4
+    }
+  },
+  "withinUnitSemanticCounts": {
+    "baseline": {
+      "cancel": 2,
+      "add": 1,
+      "ccr-api": 0,
+      "local-jsonl": 0,
+      "remote": 2,
+      "transcriptSource": 0,
+      "dirname": 1,
+      "focus": 1,
+      "activeElement": 1,
+      "preventDefault": 4,
+      "handleKeyDown": 2,
+      "onKeyDownCapture": 1,
+      "tabIndex": 1
+    },
+    "target": {
+      "cancel": 2,
+      "add": 1,
+      "ccr-api": 1,
+      "local-jsonl": 1,
+      "remote": 2,
+      "transcriptSource": 2,
+      "dirname": 1,
+      "focus": 1,
+      "activeElement": 1,
+      "preventDefault": 4,
+      "handleKeyDown": 2,
+      "onKeyDownCapture": 1,
+      "tabIndex": 1
+    }
+  },
+  "targetSemanticFragments": {
+    "debounceCancel": {
+      "start": 12238334,
+      "end": 12238368,
+      "bytes": 34,
+      "sha256": "f9b8abb0839d93de3565be4425ba01ea2ddd184857d1be257450d719076f188b"
+    },
+    "backgroundIdReducer": {
+      "start": 12238702,
+      "end": 12238730,
+      "bytes": 28,
+      "sha256": "4a9ae47472f9f9eaf085b9a79a8a658635e908698e8859d5365e207b7c47d48c"
+    },
+    "runtimeCapabilities": {
+      "start": 12240331,
+      "end": 12240542,
+      "bytes": 211,
+      "sha256": "05dcb18fd9aa50efb6c0479b8a73a38fc9c644342148e3503eab739dc95f30db"
+    },
+    "resumeDirectory": {
+      "start": 12244898,
+      "end": 12244950,
+      "bytes": 52,
+      "sha256": "568cff5b83bf5f9770be0932790ffc07a3136a21243c4a709bce8eae5a85d7b2"
+    },
+    "transcriptFocus": {
+      "start": 12274062,
+      "end": 12274194,
+      "bytes": 132,
+      "sha256": "8ceed3af018e72b9a8525a2262e52548b2bffdbc0e0fa7451605caf3a6a642d3"
+    },
+    "keyCaptureWrapper": {
+      "start": 12276030,
+      "end": 12276160,
+      "bytes": 130,
+      "sha256": "b61e3d95d3018f945494fddc91b80a085b3f4059d199f534ad186a23534208a9"
+    },
+    "focusSentinel": {
+      "start": 12277113,
+      "end": 12277166,
+      "bytes": 53,
+      "sha256": "dc51fbee41aecb65fde2a5ea71f6ea7c21d1e60cd7d779f5ab48da3ed3ca16c7"
+    }
+  },
+  "sourceLineage": {
+    "baseline": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "path": "src/screens/REPL.tsx",
+      "blob": "d8afe19de1c2b158eb186986d746f2efe57408cb",
+      "bytes": 898203,
+      "sha256": "f774113480082afc6b5b7fc3d3c656ee2eb4d9e683b20ec51acd685bf99cacaf",
+      "declaration": {
+        "name": "REPL",
+        "start": 36849,
+        "end": 259981,
+        "bytes": 223476,
+        "sha256": "f767ebdb2f7848a72583c568ea9f3cd3aa912b1bd96e98f355f95a808fad756b"
+      }
+    },
+    "target": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "path": "src/screens/REPL.tsx",
+      "blob": "8ae789d1cff727c7e022fca832b5fbb4d040a7fd",
+      "bytes": 899836,
+      "sha256": "48b033cc2eba7de0382b139e21a36192c6796ba91eb2aecee9742f6982a94e90",
+      "declaration": {
+        "name": "REPL",
+        "start": 37192,
+        "end": 261614,
+        "bytes": 224766,
+        "sha256": "32166878073bb0b266f6b9b05a62cf926b2a8840c60398085ce7ee0e1c5d3781"
+      }
+    },
+    "diff": {
+      "args": ["diff", "--unified=0", "ff0339d35906735273ae3130a187bb8e30581871", "bd846a24e3886322888f02b9f747c132a4a32314", "--", "src/screens/REPL.tsx"],
+      "bytes": 3695,
+      "sha256": "cd5a5130e7b1cd4e004fac45fa5190e6d6f5855a9941034fcd617a57050b5b5b",
+      "hunks": 15,
+      "insertions": 41,
+      "deletions": 7
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The authenticated Target117 bundle already contains runtime fields absent from its exact source snapshot, while the Target118 bundle adds transcript-source and modal-keyboard behavior not represented by the exact Target118 source transition. Rewriting only the visible historical diff would therefore leave a temporally mixed REPL and overstate source completeness."
+  },
+  "ownerOverride": {
+    "paths": ["src/screens/REPL.tsx"],
+    "declarations": ["REPL"]
+  },
+  "summary": {
+    "units": 1,
+    "strictResidues": 18,
+    "completeOwnerRows": 326,
+    "targetIndicesSha256": "5277125b2c4d4e51203d4ea89852d1d8677fc5446551c76a4e7c9588e1fdf63f",
+    "strictResidueIdentitiesSha256": "fd0ea7bc393fb7e03d7df1d902d647c95b5c7d32f82690e1e15ded4ac04c482c",
+    "completeOwnerRowsBytes": 19403,
+    "completeOwnerRowsSha256": "1bde1883e8b52089351a62ec172c6efd021e98e3b047c4f6ffef5a79c610b716"
+  }
+}

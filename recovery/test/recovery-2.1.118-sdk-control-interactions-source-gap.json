@@ -1,0 +1,363 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "status": "authenticated-inherited-complete-unit-source-gap-replay",
+  "criterion": "complete-target-unit-retained-predecessor-context-plus-bounded-source-replay-v1",
+  "evidenceIds": [
+    "target118-sdk-control-interactions-target-fragment",
+    "target118-sdk-control-interactions-source-replay-test",
+    "target118-sdk-control-interactions-source-ast-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-sdk-control-interactions-source-gap.mjs",
+      "bytes": 9827,
+      "sha256": "4d0f1b6bc24b6220bde4810a1db37f21ce3bc6bb9304c794f667aa1c8f974111"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructural": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "targetCoverage": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/semantic/source-coverage.json.gz"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    }
+  },
+  "sourceLineage": {
+    "baseline": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "file": {
+        "path": "src/entrypoints/sdk/controlSchemas.ts",
+        "blob": "b333b7413dea884a609ed6c1beb880be205e5a1f",
+        "bytes": 23314,
+        "sha256": "509ac00e0f126c94f413dbe9e53255dd919e48914406c1dcca3b2b7753de05db",
+        "requestInnerDeclaration": {
+          "name": "SDKControlRequestInnerSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 19798,
+          "characterEnd": 20951,
+          "byteStart": 19814,
+          "byteEnd": 20967,
+          "bytes": 1153,
+          "sha256": "3e2bd86254242c91b74065f2b78c5c92b265a3aec793e3df89d47f66488bebb9"
+        }
+      }
+    },
+    "target": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/entrypoints/sdk/controlSchemas.ts",
+        "blob": "7938f194f1eb73373e03d715e87e2f45fa008f9d",
+        "bytes": 25038,
+        "sha256": "63f570cbd1a1b6bb2d179ec2e4a38229666c65d24ce8ffc0ca920b6bdedf0675",
+        "requestInnerDeclaration": {
+          "name": "SDKControlRequestInnerSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 21398,
+          "characterEnd": 22635,
+          "byteStart": 21414,
+          "byteEnd": 22651,
+          "bytes": 1237,
+          "sha256": "a591299958836dabb3802de9beb8a98c7e19aa6b8d5f7b8d29fa73ee2f193da0"
+        }
+      },
+      "diff": {
+        "args": [
+          "diff",
+          "--unified=0",
+          "ff0339d35906735273ae3130a187bb8e30581871",
+          "bd846a24e3886322888f02b9f747c132a4a32314",
+          "--",
+          "src/entrypoints/sdk/controlSchemas.ts"
+        ],
+        "bytes": 2581,
+        "sha256": "20d6a6f59fdc5698fa744b21a4f5d2ff9db8fad65dc05c1e24b62a172321be8c",
+        "insertions": 45,
+        "deletions": 0
+      }
+    }
+  },
+  "recoveredDonors": [
+    {
+      "role": "message-rating-schema-declarations",
+      "commit": "4aead9fbb7e82a15615eb60dc9511defd61f1380",
+      "tree": "44120dcc48b659bd4d9e1fcb06b3b8ec62dd632e",
+      "file": {
+        "path": "src/entrypoints/sdk/controlSchemas.ts",
+        "blob": "0450781815b8b0e5a68dd40821b286cffad0b653",
+        "bytes": 31255,
+        "sha256": "277b59ac7081287f83b3b3968cf784754cea8b1e6e1d6755234d68103b5147aa"
+      },
+      "declarations": [
+        {
+          "name": "SDKControlMessageRatedRequestSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 26136,
+          "characterEnd": 27077,
+          "byteStart": 26158,
+          "byteEnd": 27099,
+          "bytes": 941,
+          "sha256": "d891cc36bed3168d00b8e9164b4c0bdb7ed2aa8b907fee8caa76649c55fae3db"
+        },
+        {
+          "name": "SDKControlMessageRatedResponseSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 27092,
+          "characterEnd": 27221,
+          "byteStart": 27114,
+          "byteEnd": 27243,
+          "bytes": 129,
+          "sha256": "8932e8db8b8589ea1a314bc8aab17699a1203ae2fd8e6f371babca66a918471f"
+        }
+      ]
+    },
+    {
+      "role": "mcp-call-and-user-dialog-schema-declarations",
+      "commit": "20b342d7c85c64574522f644a2013acb8fa2b501",
+      "tree": "7fa79e4ae23b55c0d98e8b0e957518e0ed34a1bb",
+      "file": {
+        "path": "src/entrypoints/sdk/controlSchemas.ts",
+        "blob": "1d6c1de8cd93f73cd6f73fb9b3a1726d49b45fcb",
+        "bytes": 35719,
+        "sha256": "b5c241c3d26fd1a0397d70a90c665bcfe314a5fd4baf0b5ba43215e2e7f9a6ad"
+      },
+      "declarations": [
+        {
+          "name": "SDKControlMcpCallRequestSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 11031,
+          "characterEnd": 12034,
+          "byteStart": 11033,
+          "byteEnd": 12040,
+          "bytes": 1007,
+          "sha256": "4f37936c29406c3c8a3500732ad1c884c82955a579a9e4e02782555e743d09f6"
+        },
+        {
+          "name": "SDKControlMcpCallResponseSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 12049,
+          "characterEnd": 12559,
+          "byteStart": 12055,
+          "byteEnd": 12567,
+          "bytes": 512,
+          "sha256": "a6461b2d2deba88f1b5dbc076ba5cd8c6c42ff0c2569b93b9261eced844109cf"
+        },
+        {
+          "name": "SDKControlRequestUserDialogRequestSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 26568,
+          "characterEnd": 27445,
+          "byteStart": 26594,
+          "byteEnd": 27473,
+          "bytes": 879,
+          "sha256": "a21787c514cba7e78173f0744d284acdbcdb21811d0a117023585b516d99c523"
+        },
+        {
+          "name": "SDKControlRequestUserDialogResponseSchema",
+          "kind": "VariableDeclaration",
+          "characterStart": 27460,
+          "characterEnd": 27917,
+          "byteStart": 27488,
+          "byteEnd": 27945,
+          "bytes": 457,
+          "sha256": "d1105c8f5c026b0553f8958ec7659d81b06bbdfdf459669fe81163b919d45fca"
+        }
+      ]
+    }
+  ],
+  "baselineUnit": {
+    "targetIndex": 19832,
+    "nodeType": "VariableDeclaration",
+    "start": 12024708,
+    "end": 12042441,
+    "bytes": 17733,
+    "tokenCount": 3989,
+    "sourceHash": "e5f87b1fe049beb72d73bc19e789f505c9228b626ed52d08e20a78587b71d999",
+    "coarseHash": "79c94d5f154542a7dbfbf66f485017d82ec4b43666c4f84878433d426507014e"
+  },
+  "targetUnit": {
+    "targetIndex": 20022,
+    "classification": "unresolved",
+    "nodeType": "VariableDeclaration",
+    "start": 12127198,
+    "end": 12145739,
+    "bytes": 18541,
+    "tokenCount": 4108,
+    "sourceHash": "a633d2f93a05f67334bbd4f904b146af363034047056bc4039f22a6e97377fb3",
+    "coarseHash": "38501f677eb77a0d0f0abb98673ad9e2fe4ad411c154d3344df6ddaf7c4ec662",
+    "ownerPath": "src/entrypoints/sdk/controlSchemas.ts",
+    "declarations": [
+      "SDKControlMcpCallRequestSchema",
+      "SDKControlMcpCallResponseSchema",
+      "SDKControlRequestUserDialogRequestSchema",
+      "SDKControlRequestUserDialogResponseSchema",
+      "SDKControlMessageRatedRequestSchema",
+      "SDKControlMessageRatedResponseSchema",
+      "SDKControlRequestInnerSchema"
+    ],
+    "behavior": "The authenticated Target118 SDK control initializer owns three complete host-interaction contracts: direct MCP calls and results, tool-driven user dialogs with completed/cancelled responses, and per-message ratings with tool_use/assistant_text surfaces. The bounded replay restores all six schemas and their three request-union branches atomically in controlSchemas.ts; it never admits incidental occurrences from unrelated tool or payload sources.",
+    "residues": [
+      ["property", "tool", 12135452, 12135456, 160, 165],
+      ["property", "payload", 12142568, 12142575, 64, 70],
+      ["string", "cancelled", 12143022, 12143033, 34, 38],
+      ["string", "tool_use", 12143954, 12143964, 165, 170]
+    ]
+  },
+  "normalizedUnitProof": {
+    "normalization": "One Acorn token per line: every identifier is ID; number and string values are JSON encoded after their token label; regexp values use /pattern/flags after their token label; every other token is its label",
+    "baseline": {
+      "tokens": 3989,
+      "bytes": 18927,
+      "sha256": "1bba2617930886867a6de11b2ee75be64bbdde2f529014d66ccad05214ebac71"
+    },
+    "target": {
+      "tokens": 4108,
+      "bytes": 19804,
+      "sha256": "697199d0f27f35fea7f1e1fbc7c4ab620aa65e1c66f1b3a20a3caca4a25f7be5"
+    },
+    "diff": {
+      "format": "diff --label baseline --label target -U1",
+      "bytes": 1320,
+      "sha256": "f50f32c0dbb434807e9d2d108c9cd3adbb6e99d6604df51e5b95723de924d696",
+      "hunks": 4
+    }
+  },
+  "retainedResidueContexts": [
+    {
+      "targetResidue": ["property", "tool", 12135452, 12135456, 160, 165],
+      "baseline": {"start": 12032166, "end": 12032170, "tokenIndex": 1777},
+      "targetTokenIndex": 1888,
+      "radiusProofs": [
+        {"radius": 6, "sha256": "c57592efae806c6f7efb4e57f45fb4b93259c318e023ead576aba65ac7d3deab"},
+        {"radius": 8, "sha256": "f86258299f92a34c983584da1e3d7430026bda7c3a750619fa8d8bdfc370bc5e"},
+        {"radius": 10, "sha256": "ea5d380187562b4c48473e6fde72062c72c86ff7e27ef4fef8baac90a76837f0"},
+        {"radius": 12, "sha256": "539fc4d900a1c87598375ba83cb08942411a4f13972a081c94b74eac509c24b8"}
+      ]
+    },
+    {
+      "targetResidue": ["property", "payload", 12142568, 12142575, 64, 70],
+      "baseline": {"start": 12039282, "end": 12039289, "tokenIndex": 3196},
+      "targetTokenIndex": 3307,
+      "radiusProofs": [
+        {"radius": 6, "sha256": "cd79914de3737cbf0bb229841f7df143b4d0b0f428bb3bbcb4b18e7938526d9b"},
+        {"radius": 8, "sha256": "7d7928012a6109ead637967436e8ebd69021168a938d3a8e7e25628b12357d48"},
+        {"radius": 10, "sha256": "338aa21c5b9cfc99c2411b88c419afeb0c8e1ce5a44eb9fa354ecedc68be66ac"},
+        {"radius": 12, "sha256": "f55431b22d22827583ff95d185640398b55b5f1fb83c5da4d76ff545c964755a"}
+      ]
+    },
+    {
+      "targetResidue": ["string", "cancelled", 12143022, 12143033, 34, 38],
+      "baseline": {"start": 12039736, "end": 12039747, "tokenIndex": 3261},
+      "targetTokenIndex": 3372,
+      "radiusProofs": [
+        {"radius": 6, "sha256": "66ec925f7647c6b19c01993c95f3f2aed94358fe25b79f84f9cd0bf67176e50e"},
+        {"radius": 8, "sha256": "b8c3ee9ace83bfae719bfa85e5a0f7101a6dab824bb5ff55b4a252eda487fc84"},
+        {"radius": 10, "sha256": "10034c66ce7d132db184801200f51572c4405f95a5c144b4765e313bae2ad382"},
+        {"radius": 12, "sha256": "3ac6ba2bf433887ed0b15eb2d37ead10373744b000e739f8a2687579bc106826"}
+      ]
+    },
+    {
+      "targetResidue": ["string", "tool_use", 12143954, 12143964, 165, 170],
+      "baseline": {"start": 12040668, "end": 12040678, "tokenIndex": 3410},
+      "targetTokenIndex": 3521,
+      "radiusProofs": [
+        {"radius": 6, "sha256": "ff62f71961fdc8d8efb7a29386005ca03bccfb3e4daa5c11fe003adf89a77c69"},
+        {"radius": 8, "sha256": "ba6233d4711840992a42a119f47700a228b143c82238bac445fd9d3087c1f478"},
+        {"radius": 10, "sha256": "b2e04935dde65a0a6f0efa002ae68735677f68b2970da84d29c395611f9e86cf"},
+        {"radius": 12, "sha256": "6392c9237fdcfaeea73265b6860ee6ae8b2abaf0b19dc88aab243c74e691ecdf"}
+      ]
+    }
+  ],
+  "sourceReplay": {
+    "input": {
+      "path": "src/entrypoints/sdk/controlSchemas.ts",
+      "bytes": 25038,
+      "sha256": "63f570cbd1a1b6bb2d179ec2e4a38229666c65d24ce8ffc0ca920b6bdedf0675"
+    },
+    "output": {
+      "path": "src/entrypoints/sdk/controlSchemas.ts",
+      "bytes": 29182,
+      "sha256": "70d63798fc510a4b908a01631945c0401d32bc2a16ede78250e8e0ce6a770fd6",
+      "declarations": [
+        {"name":"SDKControlMcpCallRequestSchema","kind":"VariableDeclaration","characterStart":8250,"characterEnd":9253,"byteStart":8250,"byteEnd":9257,"bytes":1007,"sha256":"4f37936c29406c3c8a3500732ad1c884c82955a579a9e4e02782555e743d09f6"},
+        {"name":"SDKControlMcpCallResponseSchema","kind":"VariableDeclaration","characterStart":9268,"characterEnd":9778,"byteStart":9272,"byteEnd":9784,"bytes":512,"sha256":"a6461b2d2deba88f1b5dbc076ba5cd8c6c42ff0c2569b93b9261eced844109cf"},
+        {"name":"SDKControlRequestUserDialogRequestSchema","kind":"VariableDeclaration","characterStart":21837,"characterEnd":22714,"byteStart":21859,"byteEnd":22738,"bytes":879,"sha256":"a21787c514cba7e78173f0744d284acdbcdb21811d0a117023585b516d99c523"},
+        {"name":"SDKControlRequestUserDialogResponseSchema","kind":"VariableDeclaration","characterStart":22729,"characterEnd":23186,"byteStart":22753,"byteEnd":23210,"bytes":457,"sha256":"d1105c8f5c026b0553f8958ec7659d81b06bbdfdf459669fe81163b919d45fca"},
+        {"name":"SDKControlMessageRatedRequestSchema","kind":"VariableDeclaration","characterStart":24107,"characterEnd":25048,"byteStart":24131,"byteEnd":25072,"bytes":941,"sha256":"d891cc36bed3168d00b8e9164b4c0bdb7ed2aa8b907fee8caa76649c55fae3db"},
+        {"name":"SDKControlMessageRatedResponseSchema","kind":"VariableDeclaration","characterStart":25063,"characterEnd":25192,"byteStart":25087,"byteEnd":25216,"bytes":129,"sha256":"8932e8db8b8589ea1a314bc8aab17699a1203ae2fd8e6f371babca66a918471f"},
+        {"name":"SDKControlRequestInnerSchema","kind":"VariableDeclaration","characterStart":25405,"characterEnd":26771,"byteStart":25429,"byteEnd":26795,"bytes":1366,"sha256":"1938ee44c53577c05af5447d15e8f168aae0ef6587b6ea199ed57a4fda694169"}
+      ]
+    },
+    "requestUnionBranches": [
+      "SDKControlMcpCallRequestSchema",
+      "SDKControlRequestUserDialogRequestSchema",
+      "SDKControlMessageRatedRequestSchema"
+    ],
+    "contracts": [
+      {"name":"SDKControlMcpCallRequestSchema","properties":["subtype","tool","arguments"],"literals":["mcp_call"]},
+      {"name":"SDKControlMcpCallResponseSchema","properties":["content","structuredContent","_meta"],"literals":[]},
+      {"name":"SDKControlRequestUserDialogRequestSchema","properties":["subtype","dialog_kind","payload","tool_use_id"],"literals":["request_user_dialog"]},
+      {"name":"SDKControlRequestUserDialogResponseSchema","properties":["behavior","result"],"literals":["completed","cancelled"]},
+      {"name":"SDKControlMessageRatedRequestSchema","properties":["subtype","messageUuid","sentiment","surface","cleared"],"literals":["message_rated","positive","negative","tool_use","assistant_text"]},
+      {"name":"SDKControlMessageRatedResponseSchema","properties":[],"literals":[]}
+    ]
+  },
+  "coverageStates": {
+    "provisional": {
+      "evidenceIds": ["source-map-attribution", "semantic-test"],
+      "behavior": "Compiled target unit is attributed to src/entrypoints/sdk/controlSchemas.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+    },
+    "corrected": {
+      "evidenceIds": [
+        "target118-sdk-control-interactions-target-fragment",
+        "target118-sdk-control-interactions-source-replay-test",
+        "target118-sdk-control-interactions-source-ast-test"
+      ],
+      "behavior": "The authenticated Target118 SDK control initializer owns three complete host-interaction contracts: direct MCP calls and results, tool-driven user dialogs with completed/cancelled responses, and per-message ratings with tool_use/assistant_text surfaces. The bounded replay restores all six schemas and their three request-union branches atomically in controlSchemas.ts; it never admits incidental occurrences from unrelated tool or payload sources."
+    }
+  },
+  "ownerAnalysisSnapshot": {
+    "targetIndex": 20022,
+    "ownerPaths": ["entrypoints/sdk/controlSchemas.ts"],
+    "target": {
+      "classification": "unresolved",
+      "start": 12127198,
+      "end": 12145739,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "a633d2f93a05f67334bbd4f904b146af363034047056bc4039f22a6e97377fb3"
+    },
+    "residues": 4,
+    "unsupportedResidues": 4,
+    "residueIdentitiesSha256": "1594b91e40d9b9919ba9a8013737e0aba6452610bbe35632a57dc8de34c0b8d8",
+    "unsupportedResidueIdentitiesSha256": "1594b91e40d9b9919ba9a8013737e0aba6452610bbe35632a57dc8de34c0b8d8",
+    "rowScopedEvidence": {
+      "obligationIds": ["custom-plan-mode-instructions", "remote-color-sync", "remote-controls-and-cost"],
+      "sourcePaths": ["src/bridge/bridgeMessaging.ts", "src/bridge/remoteBridgeCore.ts", "src/cli/print.ts", "src/entrypoints/sdk/controlSchemas.ts", "src/utils/teleport.tsx"],
+      "testIds": ["recovery-2-1-118-auth-settings", "recovery-2-1-118-runtime-session"]
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "targetIndicesSha256": "ac02b154aced93c1e686344854fad84027231648ea3695c84b0833025c9dd1e0",
+    "residueIdentitiesSha256": "1594b91e40d9b9919ba9a8013737e0aba6452610bbe35632a57dc8de34c0b8d8"
+  }
+}

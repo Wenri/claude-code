@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-caller-parameter-source-transition",
+  "evidenceIds": [
+    "target118-resume-persisted-count-target-binding",
+    "target118-resume-persisted-count-source-ast-test",
+    "target118-resume-persisted-count-source-transition-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "baselineSources": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "files": [
+        {
+          "path": "src/tools/AgentTool/runAgent.ts",
+          "blob": "e2cb942e72c58a9059f54080311ee61744433e0c",
+          "bytes": 35768,
+          "sha256": "7a99609b319cb1d1d1f593fdc4ac281a7512e99f29c4c31ea3e52cb681f9c622"
+        },
+        {
+          "path": "src/tools/AgentTool/resumeAgent.ts",
+          "blob": "a688bca0c1fa7a778d8554a5fce97cd06142d7e8",
+          "bytes": 9339,
+          "sha256": "3bb835c4ad5bce70eeaa82b803bbc19bce8059a3155e1474fa2ec3b4515d453e"
+        }
+      ]
+    },
+    "targetSources": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "files": [
+        {
+          "path": "src/tools/AgentTool/runAgent.ts",
+          "blob": "17f96d6afd33eb7a485b1b1c50ff164e570823e5",
+          "bytes": 37676,
+          "sha256": "d50db0821936ea792c7581f6b9b02f1ac0d3d7be99a52126aef98512e894fd62"
+        },
+        {
+          "path": "src/tools/AgentTool/resumeAgent.ts",
+          "blob": "3b277f2f8645fbfc1e439a13689f1727558296de",
+          "bytes": 9893,
+          "sha256": "f83d8af63e7459a98003abaab4b597725014fc4455c10c9b1a2222689c7e719e"
+        }
+      ]
+    }
+  },
+  "targetCallerUnit": {
+    "targetIndex": 13623,
+    "start": 8595087,
+    "end": 8598033,
+    "bytes": 2946,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "c5919833813146ded5913596b2c457ad4d04ef9501aa737a724c248bc0f6c42b",
+    "propertyStart": 8596936,
+    "propertyEnd": 8596956
+  },
+  "targetUnit": {
+    "targetIndex": 13759,
+    "start": 8710331,
+    "end": 8717829,
+    "bytes": 7498,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "b8ff8a43d2ea8e1a2a5e797df3db7bc30697cb16a2c5ebd38357c04ac4c419fa",
+    "residues": [
+      ["property", "resumePersistedCount", 8710732, 8710752, 0, 2]
+    ]
+  },
+  "sourceDeclarations": {
+    "baseline": {
+      "runAgent": {
+        "path": "src/tools/AgentTool/runAgent.ts",
+        "start": 8673,
+        "end": 32098,
+        "bytes": 23445,
+        "sha256": "6c61b1f468e51e5e81accbcbabf45411ca1a6cc2ca78fa44ec9e553e882af64c"
+      },
+      "resumeAgentBackground": {
+        "path": "src/tools/AgentTool/resumeAgent.ts",
+        "start": 1917,
+        "end": 9332,
+        "bytes": 7421,
+        "sha256": "d58b31653ded5c613515feb4422bd2c6257f2abbd6a6cbd807f642be074f15a5"
+      }
+    },
+    "target": {
+      "runAgent": {
+        "path": "src/tools/AgentTool/runAgent.ts",
+        "start": 8778,
+        "end": 34006,
+        "bytes": 25248,
+        "sha256": "9b8758d5a0949d3b5113ad07c9da0ed476105801b19648954b1b31c5285a855a"
+      },
+      "resumeAgentBackground": {
+        "path": "src/tools/AgentTool/resumeAgent.ts",
+        "start": 1917,
+        "end": 9886,
+        "bytes": 7975,
+        "sha256": "e585120a47530fcb24f4e2412252640b742fa93f5d45f15baefddcc30133677a"
+      }
+    }
+  },
+  "transition": {
+    "field": "resumePersistedCount",
+    "callerDeclaration": "resumeAgentBackground",
+    "ownerDeclaration": "runAgent",
+    "ownerPath": "src/tools/AgentTool/runAgent.ts",
+    "callerPath": "src/tools/AgentTool/resumeAgent.ts",
+    "countExpression": "resumedMessages.length",
+    "suffixExpression": "initialMessages.slice(resumePersistedCount)",
+    "parentExpression": "initialMessages[resumePersistedCount - 1]?.uuid ?? null"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "indicesSha256": "ad7afb915893975d9cb09f314c139681b155c222f55f62ba5b5878d82aaff47e",
+    "residueIdentitiesSha256": "3fa8c22489788c4b512fdbaa514d4ac9bba9e32a958c1d797548f3b2db73c89c"
+  }
+}

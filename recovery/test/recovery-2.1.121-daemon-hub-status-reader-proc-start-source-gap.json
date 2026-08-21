@@ -1,0 +1,494 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "status": "case-owned-bounded-source-replay",
+  "claim": "Target121 u18380 is the complete daemon hub status reader owned by src/daemon/hub.tsx::DaemonWorkerStatus/readDaemonWorkerStatus, not the stale generated commands/bridge/index.ts owner. Relative to its authenticated Target120 predecessor, it removes a redundant errno branch and validates the optional supervisorProcStart birth token after the live-PID probe. The recovered source instead has an older broad JSON.parse reader and an unguarded loadDaemonHubData call. A four-anchor replay restores the exact type, safe parser and token-match imports, complete reader, and inherited fail-closed caller while retaining exact matched dependencies. The separately recovered u18378 writer is pinned as the producer and is not claimed by this lane.",
+  "expectedStrictEvolution": {
+    "before": { "units": 40, "residues": 421 },
+    "after": { "units": 39, "residues": 419 },
+    "removedIndices": [18380],
+    "removedAddedOwnerRows": 2
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReportSnapshot": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 26701094,
+      "sha256": "d8dc22dd2d06864a16d2859f1b849ad5b244cdd0fc2e61b53cff69aa3e2f9787"
+    },
+    "sourceCoverageSnapshot": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+      "bytes": 337762,
+      "sha256": "5e23db46c270ac8e2855ddc6e01300cb52a7eaf12417205ff6013c034d99b174",
+      "rawBytes": 2939258,
+      "rawSha256": "da3d6d6a7b86a3982efcb36c8c499f481f2d01cb516de493c9069bfafacfb6dc"
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f",
+        "projection": {
+          "targetIndices": [18380],
+          "count": 1,
+          "canonicalBytes": 1090,
+          "canonicalSha256": "55e005b935dfe1c78a1e3d63fdcd46278050d30c5eaf8c4f066a402b59b13004"
+        }
+      }
+    },
+    "dependencyCoverage": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/dependency-coverage.json.gz",
+      "bytes": 24061,
+      "sha256": "86577929a9e409a02341911f25f738b8942a589c9576a9d8b3faa3829f5314d3",
+      "rawBytes": 163676,
+      "rawSha256": "59190705b49830a6d7441a399e50a2717da9bc1e3ef6e9204e1aaf8b18838e50"
+    },
+    "sourceFile": {
+      "path": "src/daemon/hub.tsx",
+      "input": {
+        "bytes": 34360,
+        "chars": 34275,
+        "sha256": "37012eadad08ae7c1ede58917cb847b3a9536c888650d9370b1572782787bcc1"
+      },
+      "output": {
+        "bytes": 34901,
+        "chars": 34816,
+        "sha256": "b58e0e85331175a947f36e7ebd832a9cb4f36d01574d85d7058be96f57ebb330"
+      }
+    },
+    "jsonDependency": {
+      "path": "src/utils/json.ts",
+      "bytes": 9543,
+      "chars": 9535,
+      "sha256": "ea90868b93822646e623d67d1b279fd5f1f089b416c4ddeff7af7b03437d569a"
+    },
+    "processDependency": {
+      "path": "src/utils/genericProcessUtils.ts",
+      "bytes": 8420,
+      "chars": 8418,
+      "sha256": "c19fe63b4e585b3a4d065085669d480f80ec27b838c87360fcd8e5051d176a68"
+    },
+    "producerReplayModule": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs",
+      "bytes": 6780,
+      "sha256": "10aee9141b009335f5891ef9fb0d3b9b20504a4bbdbdddc11cb86e5eaffee9e7"
+    },
+    "producerFixture": {
+      "path": "recovery/test/recovery-2.1.121-daemon-status-supervisor-proc-start-source-gap.json",
+      "bytes": 13231,
+      "sha256": "ecb979016d34ba60cfe514979d1419dcc382f5c2f0a9ea90c681c2185cf75e4a"
+    }
+  },
+  "sourceProvenance": {
+    "commit": "e0b9b78140547e7c882f672595aaeda963b18f59",
+    "tree": "e9e25ec682e056bf9c8103464dd3b56893db8384",
+    "path": "src/daemon/hub.tsx",
+    "gitObject": "b0a9261f86976fe83ea1f73e2bcb65858141765a",
+    "jsonPath": "src/utils/json.ts",
+    "jsonGitObject": "2791f9e87198b1e3bb4ef6fe0d859f9f3db78fa8",
+    "processPath": "src/utils/genericProcessUtils.ts",
+    "processGitObject": "724552ece75864d12fe498523d527bc07dd6442a"
+  },
+  "units": {
+    "baseline": {
+      "index": 18265,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 11173702,
+      "end": 11174030,
+      "tokenCount": 118,
+      "bodyStatementCount": 8,
+      "sourceHash": "359fb000791a823c9a5ec19f74bf5b60ad6ae6afc07378832940bd1e18fe3f82",
+      "coarseHash": "448458debfb5748527848f2a020759660985e58f8390266e2e96e80342364917"
+    },
+    "target": {
+      "index": 18380,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "start": 11244377,
+      "end": 11244801,
+      "tokenCount": 138,
+      "bodyStatementCount": 10,
+      "sourceHash": "14c79be90627c669f46ebd752a7dea5e8b0741a127bc34256945377230c6455b",
+      "coarseHash": "b192aa1e2a18116fb779e238855c8e47444491f2f02821fcb5ad56d3f6a831dc"
+    },
+    "baselinePrevious": {
+      "index": 18264,
+      "start": 11173646,
+      "end": 11173702,
+      "tokenCount": 22,
+      "sourceHash": "c8600939e22147a1ecd23fb8c5d70538ab69586bd6b469ce66fc3b6ff0b55701"
+    },
+    "targetPrevious": {
+      "index": 18379,
+      "start": 11244320,
+      "end": 11244377,
+      "tokenCount": 22,
+      "sourceHash": "a7d1ac338423b24af3d888d7275056ba6d0ae8e18b1ece5d8c482c559fc87d19",
+      "coarseHash": "b1dbeb5ba1b76a42fde0bc6cbd54a8ec649c333aac6dd78b80e1ec2ac5a25d77",
+      "baselineUnitIndex": 18264
+    },
+    "safeParser": {
+      "index": 2566,
+      "nodeType": "VariableDeclaration",
+      "start": 1038209,
+      "end": 1038533,
+      "tokenCount": 162,
+      "sourceHash": "a23d56e288d2ad007e2cb5911ab85db6578386124bc253ab2129edd64877a8d4",
+      "coarseHash": "63d64228ec4fc226f61bdf87ddb8568825483c9d40e891b70b6ebc515bf14afc",
+      "baselineUnitIndex": 2542
+    },
+    "processStartTokenAsync": {
+      "index": 4729,
+      "nodeType": "FunctionDeclaration",
+      "start": 2118582,
+      "end": 2118824,
+      "tokenCount": 97,
+      "sourceHash": "c064e3a9c8cf1aea1b446f2e8507543ba15cba5660b2340aee408b5bb917ebe7",
+      "coarseHash": "ddb627ccd33f467c2a9521c56adb56a8c67b50022d0f632a7d2ce441c27d616b",
+      "baselineUnitIndex": 4705
+    },
+    "processStartTokenMatches": {
+      "index": 4730,
+      "nodeType": "FunctionDeclaration",
+      "start": 2118824,
+      "end": 2118913,
+      "tokenCount": 39,
+      "sourceHash": "516ef99bb86b8300754cffc06d3d7b42cb4f18a6fb7b65add95389755a4bd947",
+      "coarseHash": "019a397438e910e9cfff589d61506c87e8b1a9e634324a663ec5bef6900726fe",
+      "baselineUnitIndex": 4706
+    },
+    "caller": {
+      "index": 18700,
+      "nodeType": "FunctionDeclaration",
+      "start": 11440169,
+      "end": 11440536,
+      "tokenCount": 165,
+      "sourceHash": "3762ae48db5305f0df97bd7baeef06719618d6ac96dfd3eeb949004a73e79c0f",
+      "coarseHash": "a6c0bea9b2cdef836f4bb9f591f762fa5d7ba66a6533f8e5ca36ce7bd3316c98",
+      "baselineUnitIndex": 18582
+    },
+    "producer": {
+      "index": 18378,
+      "nodeType": "FunctionDeclaration",
+      "start": 11244167,
+      "end": 11244320,
+      "tokenCount": 59,
+      "sourceHash": "f688318d50d4158445d3666df36bf12fa5bde30f014b9a823778b4c55f2f92d6",
+      "coarseHash": "00362c3582332caafda7927be499602b0c56adf12182b4bf1a4b17ecc8d45a4c"
+    }
+  },
+  "bundleRegions": {
+    "baselineReadTry": {
+      "statementIndex": 1,
+      "start": 11173729,
+      "end": 11173809,
+      "bytes": 80,
+      "sha256": "8f326ce7af7f70a9fb627120de42b4a4690bf74ab2a6a03617dab783ba85c5fe",
+      "nodeType": "TryStatement"
+    },
+    "targetReadTry": {
+      "statementIndex": 1,
+      "start": 11244404,
+      "end": 11244461,
+      "bytes": 57,
+      "sha256": "4f9fcd743dce02f1576005c70f910cc0ce9b4f4d276ca4d23ee58e0e7d2f978c",
+      "nodeType": "TryStatement"
+    },
+    "targetReadFileCall": {
+      "start": 11244416,
+      "end": 11244442,
+      "bytes": 26,
+      "sha256": "769ed8ce89545742fb4db315d3d564cee4a2abedee697490e9b45eeaa0f854f1",
+      "nodeType": "CallExpression",
+      "exact": "xY8.readFile(Cy6(),\"utf8\")"
+    },
+    "targetSafeParseCall": {
+      "start": 11244467,
+      "end": 11244475,
+      "bytes": 8,
+      "sha256": "359b8e38b202836feab9809e65d595cf246de82681f22b2f2441a0662d6d3d8d",
+      "nodeType": "CallExpression",
+      "exact": "T7(H,!1)"
+    },
+    "targetProcStartDeclaration": {
+      "statementIndex": 7,
+      "start": 11244673,
+      "end": 11244748,
+      "bytes": 75,
+      "sha256": "da66d5a820de919020583e610c34ded1468da1d64783ef4e3f15a4131778bd16",
+      "nodeType": "VariableDeclaration"
+    },
+    "targetProcStartConditional": {
+      "start": 11244679,
+      "end": 11244747,
+      "bytes": 68,
+      "sha256": "0454c1c5ea150535034724f23c1ec815b0d61e4c19ceaa7aaa20e87581c54867",
+      "nodeType": "ConditionalExpression"
+    },
+    "targetProcStartMemberOne": {
+      "start": 11244686,
+      "end": 11244707,
+      "bytes": 21,
+      "sha256": "8081e48274b7e6d3c25986739006e43c67796e560237456fa5de88abda3a9495",
+      "nodeType": "MemberExpression"
+    },
+    "targetProcStartMemberTwo": {
+      "start": 11244719,
+      "end": 11244740,
+      "bytes": 21,
+      "sha256": "8081e48274b7e6d3c25986739006e43c67796e560237456fa5de88abda3a9495",
+      "nodeType": "MemberExpression"
+    },
+    "targetMatchIf": {
+      "statementIndex": 8,
+      "start": 11244748,
+      "end": 11244792,
+      "bytes": 44,
+      "sha256": "864a8553ffc433b64f2029da95cb7ba409e0258f1e6d2a3318f96bc1dc4e04ec",
+      "nodeType": "IfStatement"
+    },
+    "targetMatchCall": {
+      "start": 11244758,
+      "end": 11244779,
+      "bytes": 21,
+      "sha256": "4ed05773e1a14e6d98c97d5761aa1fa08916d4e3207717e8e3a59aa90ce1dc4f",
+      "nodeType": "CallExpression",
+      "exact": "bZ(q.supervisorPid,K)"
+    },
+    "targetCallerCall": {
+      "start": 11440292,
+      "end": 11440313,
+      "bytes": 21,
+      "sha256": "fbcb81e1b443cb1b92f02667b962c2b4f1d4444eaa187dcde4ab8c52d839553c",
+      "nodeType": "CallExpression",
+      "exact": "q54().catch(()=>null)"
+    },
+    "targetCallerInnerCall": {
+      "start": 11440292,
+      "end": 11440297,
+      "bytes": 5,
+      "sha256": "d24bfaefc9b32fc6c2284faf9bc551587f71f522ed257785b26f6ed828bb49c6",
+      "nodeType": "CallExpression",
+      "exact": "q54()"
+    },
+    "safeParserAssignment": {
+      "start": 1038293,
+      "end": 1038426,
+      "bytes": 133,
+      "sha256": "be57e8163cf5e302d0fc84de4945b96bafc607852e5a3b598feeb1a50feec29f",
+      "nodeType": "AssignmentExpression"
+    },
+    "producerProperty": {
+      "start": 11244222,
+      "end": 11244246,
+      "bytes": 24,
+      "sha256": "eeba529a0197688581e70dff6eaff3a93163fb13008998c90a2074d72e378d48",
+      "nodeType": "Property",
+      "exact": "supervisorProcStart:an()"
+    }
+  },
+  "sourceEvidence": {
+    "inputDebugImport": {
+      "charStart": 598, "charEnd": 649, "byteStart": 598, "byteEnd": 649,
+      "bytes": 51, "sha256": "ca888caa721cbb05cfb067de3925d79f6c144c86a2c10dcf66eb79257f30fa31"
+    },
+    "outputGenericImport": {
+      "charStart": 650, "charEnd": 724, "byteStart": 650, "byteEnd": 724,
+      "bytes": 74, "sha256": "41c67ae4963a01f608a0f4df6bd32dd6a8a3659cf6191fffbecfb918a81918c5"
+    },
+    "outputJsonImport": {
+      "charStart": 725, "charEnd": 773, "byteStart": 725, "byteEnd": 773,
+      "bytes": 48, "sha256": "7468d7da4d6704ba11c896311d5e79a41b95e639cd0cf7f386a4a387ff91206d"
+    },
+    "inputType": {
+      "charStart": 1991, "charEnd": 2106, "byteStart": 1991, "byteEnd": 2106,
+      "bytes": 115, "sha256": "d6478ace83b12bcccd095c65dbd335449807c17364a9688fcd61a8a59448334d"
+    },
+    "outputType": {
+      "charStart": 2115, "charEnd": 2261, "byteStart": 2115, "byteEnd": 2261,
+      "bytes": 146, "sha256": "57a9ab5c50b8827bbc878a155b6fc2a33f0a8c5e9dd10996858f2716522585ba"
+    },
+    "inputReader": {
+      "charStart": 2692, "charEnd": 3210, "byteStart": 2692, "byteEnd": 3210,
+      "bytes": 518, "sha256": "c10098efb70f125eb8b8c6546800d27239eb7d564559e37d67df1b560f347e60"
+    },
+    "outputReader": {
+      "charStart": 2847, "charEnd": 3733, "byteStart": 2847, "byteEnd": 3733,
+      "bytes": 886, "sha256": "0eedba639c802cb3bf5a81b4c5655f5456619c52821842724cd352ca25510966"
+    },
+    "inputCaller": {
+      "charStart": 3212, "charEnd": 4243, "byteStart": 3212, "byteEnd": 4243,
+      "bytes": 1031, "sha256": "2e16e0aaecd4b2a86856ef6b17aed259abf499d104139f8a724ce77de41bf98b"
+    },
+    "outputCaller": {
+      "charStart": 3735, "charEnd": 4784, "byteStart": 3735, "byteEnd": 4784,
+      "bytes": 1049, "sha256": "61fae9cd5744d11d4e071f321ccebb19ef7e92b1b7db152e5d457df12b455f41"
+    },
+    "inputCallerCall": {
+      "charStart": 3760, "charEnd": 3784, "byteStart": 3760, "byteEnd": 3784,
+      "bytes": 24, "sha256": "5242948b8b810f34e401db6bf8b49147c80fce937fb0ea4e2de023bbc7a5db48"
+    },
+    "outputCallerCall": {
+      "charStart": 4283, "charEnd": 4325, "byteStart": 4283, "byteEnd": 4325,
+      "bytes": 42, "sha256": "862a15c57eb74d1933da84a8520d9ea84e053e2b4ded117d7d446663037d740c"
+    },
+    "safeParseJSON": {
+      "charStart": 1897, "charEnd": 2330, "byteStart": 1903, "byteEnd": 2336,
+      "bytes": 433, "sha256": "82346909401dedccc46c2ada52a0a9a963d88eba87d8f6ac7a65734b837abc92"
+    },
+    "getProcessStartTokenAsync": {
+      "charStart": 1778, "charEnd": 2447, "byteStart": 1780, "byteEnd": 2449,
+      "bytes": 669, "sha256": "4603a6c17123686d8b6ba7d5634750640df5e41022b29aed12498019c0771709"
+    },
+    "processStartTokenMatches": {
+      "charStart": 2524, "charEnd": 2791, "byteStart": 2526, "byteEnd": 2793,
+      "bytes": 267, "sha256": "51f1d3aaf0f13eaddbe06d36833b8ff333bf679d015c80a1c9a7c73ff06c6167"
+    }
+  },
+  "wholeUnitProof": {
+    "compiler": {
+      "path": ".pixi/envs/default/bin/bun",
+      "version": "1.3.11",
+      "options": {
+        "loader": "tsx",
+        "target": "bun",
+        "minifyWhitespace": true,
+        "minifySyntax": true
+      }
+    },
+    "candidateDeclaration": {
+      "bytes": 886,
+      "sha256": "0eedba639c802cb3bf5a81b4c5655f5456619c52821842724cd352ca25510966"
+    },
+    "compiledDeclaration": {
+      "bytes": 601,
+      "sha256": "a2e72bfb5031c343a35780e967e8308746419e4faf0f8a8e170a4e8df9d72981",
+      "tokenCount": 136
+    },
+    "targetCanonical": {
+      "bytes": 5273,
+      "sha256": "8dd7421bb07c4140a0ce7d57fca64b8ffb8804ca5d968085ab375a044bbde863"
+    },
+    "baselineAfterReversingDelta": {
+      "bytes": 4230,
+      "sha256": "72a5bf8b1c4939ef326d85baba9a50c059be98957fc247a08d81eb8f87717d42"
+    },
+    "callerSource": {
+      "bytes": 42,
+      "sha256": "862a15c57eb74d1933da84a8520d9ea84e053e2b4ded117d7d446663037d740c"
+    },
+    "compiledCaller": {
+      "bytes": 41,
+      "sha256": "90ff7bda4754d027eacd6f419b84ed271786bd279d6e364a110e6033e72cad45",
+      "tokenCount": 12
+    },
+    "callerCanonical": {
+      "bytes": 432,
+      "sha256": "032564b06ec1f8b4d515004a516427dc877685b033cb27c0104c1361b79b2b6e"
+    },
+    "normalizations": [
+      "strip source positions, raw token spellings, and shorthand flags",
+      "alpha-normalize private identifiers while retaining public property and member keys",
+      "normalize variable declaration kind across isolated and whole-bundle minification",
+      "normalize the whole-bundle fs namespace readFile member to the isolated imported binding",
+      "reverse only target reader body statements 7 and 8 and restore the baseline read-catch clause for predecessor identity"
+    ]
+  },
+  "rows": {
+    "productionStrict": {
+      "count": 2,
+      "canonicalBytes": 243,
+      "canonicalSha256": "dde28fa3a2e3b4de485428f1f7be62a4507d1af7713a96644d5277758d02942a",
+      "tuples": [
+        [18380, "property", "supervisorProcStart", 11244688, 11244707, 0, 2, true, "source-runtime-covered", ["commands/bridge/index.ts"]],
+        [18380, "property", "supervisorProcStart", 11244721, 11244740, 0, 3, true, "source-runtime-covered", ["commands/bridge/index.ts"]]
+      ]
+    },
+    "addedOwner": {
+      "count": 2,
+      "canonicalBytes": 243,
+      "canonicalSha256": "dde28fa3a2e3b4de485428f1f7be62a4507d1af7713a96644d5277758d02942a"
+    },
+    "owner": {
+      "count": 17,
+      "canonicalBytes": 1943,
+      "canonicalSha256": "5aa94975cdb77bf6dc8e729e4a2014073780540f516f0a066e3905d2039bb73d"
+    },
+    "recoveredOwner": {
+      "count": 1,
+      "canonicalBytes": 105,
+      "canonicalSha256": "584429e75787b221be8d9584b8567d14dfd494a569546241b707a53755f7a5ab",
+      "tuples": [
+        [18380, "property", "readFile", 11244420, 11244428, 216, 171, false, "source-runtime-covered", ["daemon/hub.tsx"]]
+      ]
+    },
+    "typedReportRows": { "count": 0 },
+    "postDaemonOwner": {
+      "productionStrict": {
+        "count": 2,
+        "canonicalBytes": 223,
+        "canonicalSha256": "4dacc2756d470599490c913ada5aaa16e5f2338f58dd7fef23809993137e7e65",
+        "tuples": [
+          [18380, "property", "supervisorProcStart", 11244688, 11244707, 0, 2, true, "source-runtime-covered", ["daemon/hub.tsx"]],
+          [18380, "property", "supervisorProcStart", 11244721, 11244740, 0, 3, true, "source-runtime-covered", ["daemon/hub.tsx"]]
+        ]
+      },
+      "addedOwner": {
+        "count": 2,
+        "canonicalBytes": 223,
+        "canonicalSha256": "4dacc2756d470599490c913ada5aaa16e5f2338f58dd7fef23809993137e7e65"
+      },
+      "owner": {
+        "count": 3,
+        "canonicalBytes": 329,
+        "canonicalSha256": "eec99108383b27a4593c5c7c9217c02dc22eb6cb9733de2d48038a21bccadc57"
+      }
+    }
+  },
+  "coverage": {
+    "staleOwner": {
+      "targetIndex": 18380,
+      "start": 11244377,
+      "end": 11244801,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "14c79be90627c669f46ebd752a7dea5e8b0741a127bc34256945377230c6455b",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": ["owner-src-commands-bridge-index-ts"],
+      "evidenceIds": ["source-map-attribution", "semantic-test"]
+    },
+    "recoveredOwnerIds": ["owner-src-daemon-hub-tsx"],
+    "postDaemonOwner": {
+      "ownerIds": ["owner-src-daemon-hub-tsx"],
+      "evidenceIds": [
+        "target121-daemon-hub-status-reader-authenticated-whole-unit",
+        "target121-daemon-hub-status-reader-source-replay",
+        "target121-daemon-hub-status-reader-runtime-parity",
+        "target121-process-start-token-match-retained-dependency",
+        "target121-safe-json-parser-retained-dependency"
+      ]
+    }
+  }
+}

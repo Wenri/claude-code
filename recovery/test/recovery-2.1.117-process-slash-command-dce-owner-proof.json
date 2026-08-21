@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-process-slash-command-target-only-dce-v1",
+  "evidenceIds": [
+    "target117-process-slash-command-dce-target-fragment",
+    "target117-process-slash-command-source-declaration-test"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "targetUnit": {
+    "targetIndex": 12657,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 7893511,
+    "end": 7897097,
+    "tokenCount": 1357,
+    "bytes": 3586,
+    "sha256": "18a3ff79252dc05665c08038d40c33b11a8265c93e4625cfe1cd90b8c2134ae9",
+    "coarseHash": "1cdbf33e7f3ab409268d8d3effff7aa53f8e448fead9de3b2c5dadcacd471115"
+  },
+  "residue": {
+    "literalKind": "string",
+    "value": "mcp-template-unmatched",
+    "start": 7894405,
+    "end": 7894429,
+    "baselineOccurrenceCount": 0,
+    "targetOccurrenceNumber": 1,
+    "targetOccurrenceCount": 1
+  },
+  "deadBinding": {
+    "minifiedName": "j",
+    "identifierRanges": [
+      [7893808, 7893809],
+      [7893946, 7893947],
+      [7894403, 7894404]
+    ],
+    "initializer": "!1",
+    "writesAfterDeclaration": 0
+  },
+  "source": {
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "rawTargetSourceTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/utils/processUserInput/processSlashCommand.tsx",
+    "blob": "4a8894eb8383f237da68a510e048ce1e53f181a0",
+    "bytes": 146223,
+    "sha256": "41a2966dcebcfa9b4db6d3d55cd79373ecd7b86f9d9eac2da11bfd5a6d77b8d9",
+    "declaration": {
+      "name": "processSlashCommand",
+      "start": 14406,
+      "end": 24963,
+      "bytes": 10557,
+      "sha256": "0cefed97aee451097340e2fcc47c4ceecfcdffe620ab7c6eff9ce07635fc8b1f"
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "sourceFiles": 1,
+    "sourceReplays": 0,
+    "ownerOverrides": 1
+  }
+}

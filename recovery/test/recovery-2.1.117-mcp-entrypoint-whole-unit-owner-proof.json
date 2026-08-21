@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-mcp-entrypoint-static-paired-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-mcp-entrypoint-authenticated-paired-whole-unit",
+    "target117-mcp-entrypoint-build-metadata-component-proof",
+    "target117-mcp-entrypoint-retained-tool-context-contract-proof",
+    "target117-mcp-entrypoint-source-snapshot-blocker"
+  ],
+  "ownerOverride": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/recovered/mcp-entrypoint-whole-unit-owner-overrides.mjs",
+    "bytes": 1251,
+    "sha256": "4de2162675435a4f0b826f203fba94fcab1474af2b8f414890f534f555c2549c"
+  },
+  "buildMetadataComponent": {
+    "path": "recovery/test/recovery-2.1.117-build-metadata-residue-proofs.json",
+    "bytes": 99474,
+    "sha256": "3a714bee033e0f4db1469a9f58c3c575dc0a9290d951657ec3b92673656ef75c",
+    "note": "The shared build-metadata fixture intentionally admits only complete macro-only units. This mixed unit reuses its authenticated macro values as one component of a complete paired whole-unit proof."
+  },
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "baselineUnit": {
+    "baselineIndex": 20615,
+    "classification": "unmatched-baseline",
+    "nodeType": "FunctionDeclaration",
+    "start": 12978009,
+    "end": 12980158,
+    "tokenCount": 679,
+    "topDefinitionCount": 1,
+    "bytes": 2149,
+    "sha256": "9a67219d69b714c532e7cca9e70cb43ee9006523812a239abf622658b6fbd482",
+    "coarseHash": "565025e1080591d19c17ea65dd2d46316b1d5c9257e1ad96321aac83d5638b75"
+  },
+  "targetUnit": {
+    "targetIndex": 20680,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "start": 12988617,
+    "end": 12990766,
+    "tokenCount": 679,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 1,
+    "bytes": 2149,
+    "sha256": "fbdff4ec7ee175dd690589303dd147da595ec8c7649ba73156afd0adced4d1b6",
+    "coarseHash": "d6d79fd7ef1435c14a8a8f04f99b8ae101bcbcf7ee01d3eb789052847d6d9a24"
+  },
+  "ownerResidues": {
+    "generatedOwner": "entrypoints/mcp.ts",
+    "correctedOwner": "src/entrypoints/mcp.ts",
+    "declaration": "startMCPServer",
+    "allOwnerRows": 34,
+    "addedOwnerRows": 6,
+    "strictRows": 5,
+    "buildMetadataRows": 3,
+    "retainedToolContextRows": 2,
+    "retainedOccurrenceShiftRows": 1,
+    "tupleDigests": {
+      "allOwnerRows": {"rows":34,"bytes":2219,"sha256":"809844939ca1eb2452316c2c1e9fa97b7c66232553d2f7abbf8986f40cecb8ef"},
+      "addedOwnerRows": {"rows":6,"bytes":366,"sha256":"8f20768c02d87c1ae25898df8e1dfe299c367dbb90ab8cbd398160238b5c8558"},
+      "strictRows": {"rows":5,"bytes":313,"sha256":"f314f7bb0080615ff40b3faef5fc8591404ca4536c734efa336135830b5d5a89"},
+      "mapping": "[literalKind,value,target.start,target.end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in report order"
+    },
+    "rows": [
+      {"literalKind":"string","value":"2.1.117","baselineOccurrenceCount":0,"targetOccurrenceNumber":109,"start":12988890,"end":12988899,"bytes":9,"sha256":"472f8ea787fdaab1c699ad6341dd8863ed237974a9057013a5ad4fce73a684c7","semanticClass":"build-metadata","strict":true},
+      {"literalKind":"string","value":"2026-04-21T17:58:52Z","baselineOccurrenceCount":0,"targetOccurrenceNumber":109,"start":12988979,"end":12989001,"bytes":22,"sha256":"891da3969c2cbbc58f26f20fa508592cc2c95e00005251c0d206909bfe31cd6c","semanticClass":"build-metadata","strict":true},
+      {"literalKind":"string","value":"5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387","baselineOccurrenceCount":0,"targetOccurrenceNumber":109,"start":12989010,"end":12989052,"bytes":42,"sha256":"7eedc5b82f72f4bafa4e38614bf9c9dd7903fb12c80b34da49691981ea0ec2c8","semanticClass":"build-metadata","strict":true},
+      {"literalKind":"property","value":"params","baselineOccurrenceCount":313,"targetOccurrenceNumber":314,"start":12989375,"end":12989381,"bytes":6,"sha256":"a20b52fae57cc7a99c9651f1b573950fd211823e3ace3bb9c273c06430f24cd3","semanticClass":"retained-occurrence-shift","strict":false},
+      {"literalKind":"property","value":"taskRegistry","baselineOccurrenceCount":80,"targetOccurrenceNumber":83,"start":12989955,"end":12989967,"bytes":12,"sha256":"2c70c982d16a83d632f22c6bd2d3efc1df3923781367ea83b613c223b86ebb9c","semanticClass":"retained-tool-context","strict":true},
+      {"literalKind":"property","value":"agentLifecycle","baselineOccurrenceCount":11,"targetOccurrenceNumber":12,"start":12990072,"end":12990086,"bytes":14,"sha256":"5119c065337dcb87db698be541871924c7016b4d59d1af926364ccc4abdf83e3","semanticClass":"retained-tool-context","strict":true}
+    ]
+  },
+  "pairedWholeUnitProof": {
+    "normalization": "Parse each exact unit with Acorn; replace only the VERSION, BUILD_TIME, and GIT_SHA property literal values with <BUILD>; omit source positions/raw text; normalize binding/free identifier spellings while preserving every noncomputed runtime property name and all other syntax/literals.",
+    "canonicalBytes": 25876,
+    "canonicalSha256": "0a54c3d2dec02afeac19f29cb1615d38ec172e6d239afb169a65758d5b80d574",
+    "metadata": {
+      "baseline": [
+        {"name":"VERSION","start":12978274,"end":12978291,"bytes":17,"sha256":"443939b5152e8a07e861b5100f4ad6613b6be091230b0dc7623667d419ab43be","value":"2.1.116"},
+        {"name":"BUILD_TIME","start":12978360,"end":12978393,"bytes":33,"sha256":"3b65780aa00dbe2d68469f86a31fad561817b414183bade60b3793e3f911f0d2","value":"2026-04-20T13:57:26Z"},
+        {"name":"GIT_SHA","start":12978394,"end":12978444,"bytes":50,"sha256":"ac4415b5acceb2af598e56b12ff64ae44e6feb7f80bab9c280466a9658075639","value":"9e176d0772418b8b88475d39fb86c651a12f4aad"}
+      ],
+      "target": [
+        {"name":"VERSION","start":12988882,"end":12988899,"bytes":17,"sha256":"187091d65c60a6a84d6bec65337c8b9f3c404b3887567c1a81fbfccc2dab22b8","value":"2.1.117"},
+        {"name":"BUILD_TIME","start":12988968,"end":12989001,"bytes":33,"sha256":"0c456afd854841a4f64b5b045806aad26858788ad3882db6e03076bab75aaead","value":"2026-04-21T17:58:52Z"},
+        {"name":"GIT_SHA","start":12989002,"end":12989052,"bytes":50,"sha256":"8d704fa83d329c3774e98f6b90f78fdb5a478d951e188c476844a14412a073df","value":"5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387"}
+      ]
+    },
+    "params": {
+      "baseline": {"start":12978767,"end":12978794,"bytes":27,"sha256":"06733e643ba736e98eae44de498f732d02c63f75569521879e4741ee25c703e1"},
+      "target": {"start":12989375,"end":12989402,"bytes":27,"sha256":"06733e643ba736e98eae44de498f732d02c63f75569521879e4741ee25c703e1"}
+    },
+    "toolUseContext": {
+      "keys": ["abortController","options","getAppState","setAppState","getToolPermissionContext","getEffortValue","getAutoCompactWindow","getFastMode","getCacheBreakerPhrase","setToolPermissionContext","taskRegistry","sessionHooksRegistry","setClassifierApprovals","setReplContext","setWebBrowserSlice","agentLifecycle","teammateColors","messages","turnStartIndex","readFileState","setInProgressToolUseIDs","addResponseLength","resetResponseLength","getFileHistoryState","applyFileHistoryOp","applyAttributionOp"],
+      "baseline": {"start":12978875,"end":12979715,"bytes":840,"sha256":"3e6cd3783700b9929718dcd8217f3903cd7b38a33efe29212c65a3955e60fa7f"},
+      "target": {"start":12989483,"end":12990323,"bytes":840,"sha256":"c6c61ba8fa5017a7881cdaa37439c675e94929781e08b1770b6c85d9998a093d"},
+      "canonicalBytes": 9727,
+      "canonicalSha256": "c72ef5da321e86e6e07251131d970548f9c13249ef0440d92c6b3281bca1fe41",
+      "properties": {
+        "baseline": [
+          {"name":"taskRegistry","start":12979347,"end":12979363,"bytes":16,"sha256":"6a473a816cbea5da01e3857e9c690a035950157680c9b613db7464ec7cf8a05e"},
+          {"name":"agentLifecycle","start":12979464,"end":12979482,"bytes":18,"sha256":"468e22fe35063453c33af5df2961163bda771039c77f07f6f4b482af912d0d79"}
+        ],
+        "target": [
+          {"name":"taskRegistry","start":12989955,"end":12989971,"bytes":16,"sha256":"8fbd93623d6e56c9d5a7270efad573faf46e421885e7378e476bf417a415f791"},
+          {"name":"agentLifecycle","start":12990072,"end":12990090,"bytes":18,"sha256":"8a600642ede17e22aff4bdf7d05b6dd79744da9eaa6fe4b7da62b131364ee285"}
+        ]
+      }
+    }
+  },
+  "source": {
+    "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "tree": "c9e15117699a700016fee35a941dc3896208819f",
+    "path": "src/entrypoints/mcp.ts",
+    "blob": "eee7ea227b7b3b01fe4e17d0471c43d922c2585b",
+    "bytes": 6297,
+    "chars": 6297,
+    "sha256": "43aa760305dfe0d436b3424c2e73183311d075a85db0fba981695ae13cf96fe9",
+    "declaration": {"name":"startMCPServer","start":1335,"end":6296,"bytes":4961,"sha256":"2e1cf224939094ae643e0e77fde48243196497186d3f7a170e76b4d6926cab3e"},
+    "macroVersion": {"start":1840,"end":1853,"bytes":13,"sha256":"1c8884ef2e9a9431c2f7c8c7b3655102d9f3fd272dea6f217682bd5a2b77de83","exact":"MACRO.VERSION"},
+    "toolUseContext": {
+      "start":3989,
+      "end":4754,
+      "bytes":765,
+      "sha256":"fb7bd67a4e4655da189b411339b4e7c32ac652459162968f51bf6e53dd8ad2bd",
+      "keys":["abortController","options","getAppState","setAppState","messages","turnStartIndex","readFileState","setInProgressToolUseIDs","setResponseLength","updateFileHistoryState","updateAttributionState"],
+      "requiredRuntimePropertiesAbsent":["getToolPermissionContext","taskRegistry","agentLifecycle","sessionHooksRegistry","teammateColors"]
+    },
+    "packagePostimage": {"bytes":6297,"chars":6297,"sha256":"43aa760305dfe0d436b3424c2e73183311d075a85db0fba981695ae13cf96fe9"}
+  },
+  "sourceReplayBlocker": {
+    "decision": "static paired whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "The exact Target116 and Target117 runtime units already share the complete ToolUseContext contract. Target117 source proves the startMCPServer owner and build-time MACRO.VERSION use, but its ToolUseContext object is an older snapshot lacking taskRegistry, agentLifecycle, and other retained runtime fields. Replaying only the two strict properties would not be graph-closed, and no later source is needed to prove the unchanged runtime unit."
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/mcp-entrypoint-whole-unit-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_MCP_ENTRYPOINT_WHOLE_UNIT_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-headless-restored-task-clear-static-whole-function-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "claim": "Target121 u21958 is src/cli/print.ts::runHeadless. Removing exactly one contiguous 330-byte restart-recovery IfStatement makes its complete AST and all 1854 retained identifier-normalized tokens identical to unmatched Target120 u21857; exact u21957-to-u21856 pairing closes the left boundary. The block's final call clears restored running_background_tasks through the compiled per-instance SessionStateManager, while Target121 print.ts authenticates the same block and payload through its process-global notifier. The u21128 proof pins both the consumer and the missing source architecture, so ownership is static and replay is rejected.",
+  "evidenceIds": [
+    "target121-headless-authenticated-whole-runner",
+    "target121-headless-restored-task-recovery-block",
+    "target121-headless-internal-metadata-clear-consumer",
+    "target121-headless-source-architecture-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js","bytes":13784743,"sha256":"c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"},
+    "targetBundle": {"path":".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js","bytes":13908188,"sha256":"783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"},
+    "structuralLedger": {"path":"recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz","bytes":2540002,"sha256":"185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"},
+    "typedReportSnapshots": {
+      "postFocusedBatch": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25717702,"sha256":"f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"},
+      "postTail": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25717702,"sha256":"f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a","projection":"postFocusedBatch"},
+      "postReplay": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25395103,"sha256":"87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de","projection":"postTail"},
+      "postDangerous": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25390987,"sha256":"42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7","projection":"postReplay"},
+      "postPrune": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4","projection":"postDangerous"},
+      "postDaemonOwner": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3","projection":"postPrune"}
+    },
+    "sourceCoverageSnapshots": {
+      "postFocusedBatch": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":343532,"sha256":"7a51d49cdd7cb9b26b883ea0f0b1242573cd1ed4a0ba25a91ac1bc98dbc1eabd","rawBytes":2958647,"rawSha256":"92bf969f261a3c716fb8e8a4fa50b879a1a407bf35a51cfca5971afc67c9555b"},
+      "postTail": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":344669,"sha256":"dafa823f59585697d7f696805d929a9427bc090b7bb33fa228c1a9e5d9e3ff43","rawBytes":2963227,"rawSha256":"a7956794d1f4c4613b3fb9917a7d827500b98b8195fec505ed373930cad1adb5"},
+      "postReplay": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"},
+      "postDangerous": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345319,"sha256":"c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2","rawBytes":2965690,"rawSha256":"d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592","projection":"postReplay"},
+      "postPrune": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06","projection":"postDangerous"},
+      "postDaemonOwner": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f","projection":"postPrune"}
+    },
+    "evolutionCompatibility": {"postFocusedBatch":["postFocusedBatch"],"postTail":["postTail"],"postReplay":["postReplay"],"postDangerous":["postDangerous"],"postPrune":["postPrune"],"postDaemonOwner":["postDaemonOwner"]},
+    "sessionStateDependencyFixture": {"path":"recovery/test/recovery-2.1.121-session-state-internal-metadata-owner-proof.json","bytes":10687,"sha256":"6119576dc873597ab386d20e10f7d5688b7534ad376b6c35dacc8f64b9525397"}
+  },
+  "targetUnit": {"targetIndex":21958,"classification":"unresolved","unknownFreeIdentifierCount":4,"nodeType":"FunctionDeclaration","parseStatus":"parsed","start":13640484,"end":13647265,"bytes":6781,"tokenCount":1939,"topDefinitionCount":1,"bodyStatementCount":32,"parameterCount":9,"sha256":"7592310a99662497dbf346f77b9339bdd79d9fa20ccf491d2965ce44983587e1","coarseHash":"82ea7ce4e08263a6111cb7716535c5e1762e3999bf29b0a0333585797971274d","line":18554,"column":527},
+  "baselineSemanticCounterpart": {"baselineUnitIndex":21857,"classification":"unmatched-baseline","relation":"the unit immediately after exact-paired baseline u21856, corresponding to target u21958 immediately after exact-paired target u21957; complete function AST and normalized-token lineage is exact after the sole recovery block is removed","nodeType":"FunctionDeclaration","parseStatus":"parsed","start":13575131,"end":13581582,"bytes":6451,"tokenCount":1854,"topDefinitionCount":1,"bodyStatementCount":31,"parameterCount":9,"sha256":"edd2ffe3aca126a94bd43d5595d01a8e729a79d3e63071310264531236f0f717","coarseHash":"c19cbf68f6bcf904ff0d3c867fc4ea73d75361bd0b18d7000717a3e799d0d156","line":18575,"column":527},
+  "leftBoundary": {"targetIndex":21957,"baselineUnitIndex":21856,"classification":"matched","pairReason":"exact-scope-normalized-token-hash","nodeType":"FunctionDeclaration","start":13640358,"end":13640484,"tokenCount":62,"sha256":"266b35956fae52537e72da71d5aaca0e9ed87e7fb3c7ad5b9e9773d2daf17bfc","coarseHash":"0b12e74db4a7bdde75851678d1f41d81be8a30998181d02cbd72bc6e0c4a320c"},
+  "ownerResidues": {
+    "reportedOwner": "cli/print.ts",
+    "correctedOwner": "src/cli/print.ts",
+    "declarations": ["runHeadless"],
+    "totalRows": 21,
+    "targetAddedRows": 1,
+    "strictRows": 1,
+    "rowIdentities": {"bytes":1583,"sha256":"44b70a2c0462d735d44fac9510b2c694a474e9cd81f6c801a0c71fe9eb2f2116"},
+    "ownerIdentities": {"bytes":2003,"sha256":"0f3b90bfb170ec696abb80bc523089cd28de96aeed5b99d40a47de4380d2ec82"},
+    "targetAddedIdentities": {"bytes":73,"sha256":"45f2005d0081525e36721baec4fbc06a6a3c9bf4b1963672d65fccff04065e12"},
+    "targetAddedRowsExact": [["property","notifyInternalMetadataChanged",13645655,13645684,0,4,true]],
+    "strictIdentities": {"bytes":72,"sha256":"9fcd900b7a9ae4be3d5ce1ca3cbc9974e4b96dddc0518df840414ea96080ee65"},
+    "strictRowsExact": [[21958,"property","notifyInternalMetadataChanged",13645655,13645684,4]]
+  },
+  "wholeUnitLineage": {
+    "rawByteDelta": 330,
+    "tokenDelta": 85,
+    "baselineCanonical": {"bytes":75205,"sha256":"d7205493b4b02fe4e80ac209dbf27e6c20029472c054e19376b08bf0e3261210"},
+    "targetCanonical": {"bytes":78793,"sha256":"1b0479604f4d28425fe13d4e38ad148cad2895669c7adc0a9da7171207ca4813"},
+    "targetWithoutRecoveryBlockCanonical": {"bytes":75205,"sha256":"d7205493b4b02fe4e80ac209dbf27e6c20029472c054e19376b08bf0e3261210"},
+    "identifierNormalizedTokens": {
+      "baseline": {"count":1854,"bytes":26006,"sha256":"c3d5fc77092398225a1a3c2c0e1c9f75c22ddce5fdfcece818352cc6cae8202c"},
+      "target": {"count":1939,"bytes":27127,"sha256":"859dcd0e3b2e6c5bf694487127da58bde0adea3eff09fa203217c10ff10259ad"},
+      "recoveryBlock": {"count":85,"bytes":1122,"sha256":"e4c0c6a0277d4343d795ec411af19292b8e9e33f82bc1808af2918c9fb6068c6"},
+      "targetWithoutRecoveryBlock": {"count":1854,"bytes":26006,"sha256":"c3d5fc77092398225a1a3c2c0e1c9f75c22ddce5fdfcece818352cc6cae8202c"}
+    },
+    "alignment": {"runs":[["=",1409],["+",85],["=",445]],"runsDescriptor":{"bytes":31,"sha256":"a65784f20e93ae587742ec5beda3eefa34506eccad5c091e33ab450850282f01"}},
+    "recoveryBlock": {"nodeType":"IfStatement","path":"body.body.24","statementIndex":24,"start":13645386,"end":13645716,"localStart":4902,"localEnd":5232,"bytes":330,"sha256":"a4aae971fd680d71e66f5584c5937db1504674116a6806fe0372786836c23e0e","canonicalBytes":3587,"canonicalSha256":"fd3cd488585085fb6496deae0545d76062f01a33df010e9b8ba8a82643b86166","exact":"if(hH(process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN)){let F=(await O.restoredWorkerState)?.internal?.running_background_tasks;if(F&&F.length>0)y(`[print.ts] ${F.length} orphaned background task(s) after restart`),w.push($8({content:Zv4(F),isMeta:!0})),O.sessionState.notifyInternalMetadataChanged({running_background_tasks:[]})}"},
+    "clearCall": {"nodeType":"CallExpression","path":"body.body.24.consequent.body.1.consequent.expression.expressions.2","start":13645640,"end":13645715,"localStart":5156,"localEnd":5231,"bytes":75,"sha256":"d16787f42af3ea7da6b571349e9e83f59905d49f50865ba6c3ae4f65bc75b48b","canonicalBytes":607,"canonicalSha256":"1af6363d43ffce411ee915cc3696bdc41692e9ebdbc9fa29cdb84888fed4537c","exact":"O.sessionState.notifyInternalMetadataChanged({running_background_tasks:[]})"},
+    "previousStatement": {"nodeType":"IfStatement","start":13645305,"end":13645386,"localStart":4821,"localEnd":4902,"bytes":81,"sha256":"80ffbe0660fa45bd0a5278096fdd47763e7e4fc5a4ed7dd6eeddf2c85301cba6","exact":"if(Y.permissionPromptToolName)Z=Z.filter((C)=>!l9(C,Y.permissionPromptToolName));"},
+    "nextStatement": {"nodeType":"ExpressionStatement","start":13645716,"end":13645785,"localStart":5232,"localEnd":5301,"bytes":69,"sha256":"fbdb79711d6c9a86c0256f9a95260ea466abe881a868179fb27c664fe02a152e","exact":"JP(\"after_loadInitialMessages\"),await DR$(),JP(\"after_modelStrings\");"}
+  },
+  "sourceState": {
+    "path": "src/cli/print.ts",
+    "functionName": "runHeadless",
+    "baseline": {"path":".recovery-tmp/semantic-trees/2.1.120/src/cli/print.ts","selectedPath":"src/cli/print.ts","commit":"6801ead984ba2c3df02bd092ad8b93df096ed8c1","blob":"6cc8626632d742e2b7e651a69abc3acffc8b6ab4","bytes":231398,"chars":231238,"sha256":"85fa5a224dc8c255478d080c03ee132784b94e02c6959c6129723530023c6ed3","runHeadless":{"nodeType":"FunctionDeclaration","start":18114,"end":38179,"chars":20065,"bytes":20075,"sha256":"c3f5841405e5d994849e22ef59177034d95d8fdc79c738458a9d9124f2cc2e4e","line":509,"column":1,"parameterCount":9,"bodyStatementCount":53}},
+    "target": {"path":".recovery-tmp/semantic-trees/2.1.121/src/cli/print.ts","selectedPath":"src/cli/print.ts","commit":"9f034bb03d575603a850e3c75ce003406094f9cc","blob":"aa21a37e2211339c97c1c035bca34c7817ed10ea","bytes":248102,"chars":247934,"sha256":"0b838a6f74645f962c29709e71824310bf08f8a327727c2af577c58d75e4f3f0","runHeadless":{"nodeType":"FunctionDeclaration","start":20894,"end":42011,"chars":21117,"bytes":21127,"sha256":"9c2877e31d9d15f81c94309a4fc68b4bd09396067e47ab389a4ab18e253efac8","line":589,"column":1,"parameterCount":9,"bodyStatementCount":54}},
+    "recoveryBlock": {"nodeType":"IfStatement","statementIndex":39,"start":35533,"end":36430,"chars":897,"bytes":897,"sha256":"1c86b2d98028c0505bb7ca84df9f4526da0c07abdcaa76ac72f8762391ff265f","line":993,"column":3},
+    "clearCall": {"nodeType":"CallExpression","start":36350,"end":36420,"chars":70,"bytes":70,"sha256":"6234ef27df054b3f54ae3cd75c2f74f4a90d67d758b0e76996a5d963d1efb060","line":1015,"column":7,"exact":"notifySessionInternalMetadataChanged({ running_background_tasks: [] })"},
+    "baselineOccurrenceCounts": {"orphanedBackgroundTaskReminder":0,"notifySessionInternalMetadataChanged":0},
+    "targetOccurrenceCounts": {"orphanedBackgroundTaskReminder":1,"notifySessionInternalMetadataChanged":2,"thisSessionState":0}
+  },
+  "dependencyProof": {"fixtureTargetIndex":21128,"runtimeConsumerRole":"headless-restored-task-clear","sourceArchitectureDecision":"static complete-class owner proof only; no replay helper and no source writes","requiredStructuredIOConstructorParameters":2},
+  "sourceReplayBlocker": {"decision":"static complete-function owner proof only; no replay helper and no source writes","reason":"Recovered Target121 print.ts proves the complete recovery behavior and empty-array clear payload, but calls a process-global notifier and contains no this.sessionState graph. The compiled function calls the per-instance SessionStateManager on StructuredIO, while the u21128 dependency proves recovered StructuredIO and sessionState.ts omit that manager. Replaying only the compiled clear call would create a mixed global/per-instance graph."},
+  "sourceCoverageClaim": {
+    "row": {"targetIndex":21958,"start":13640484,"end":13647265,"nodeType":"FunctionDeclaration","sourceHash":"7592310a99662497dbf346f77b9339bdd79d9fa20ccf491d2965ce44983587e1","structuralClass":"unresolved","disposition":"source-runtime-covered","ownerIds":["owner-src-cli-print-ts"],"evidenceIds":["source-map-attribution","semantic-test"],"behavior":"Compiled target unit is attributed to src/cli/print.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."},
+    "rowCanonical": {"bytes":510,"sha256":"00fc3b38f80d7c6ef7a458d11862e0074a7bad057bbd22277ed5e09b23a0d827"},
+    "owner": {"id":"owner-src-cli-print-ts","path":"src/cli/print.ts"}
+  },
+  "postTail": {
+    "ownerResidueProjection": "postFocusedBatch",
+    "sourceCoverageClaim": {
+      "row": {"targetIndex":21958,"start":13640484,"end":13647265,"nodeType":"FunctionDeclaration","sourceHash":"7592310a99662497dbf346f77b9339bdd79d9fa20ccf491d2965ce44983587e1","structuralClass":"unresolved","disposition":"source-runtime-covered","ownerIds":["owner-src-cli-print-ts"],"evidenceIds":["target121-headless-authenticated-whole-runner","target121-headless-restored-task-recovery-block","target121-headless-internal-metadata-clear-consumer","target121-headless-source-architecture-blocker"],"behavior":"The authenticated Target121 runHeadless function is exactly its adjacent unmatched Target120 predecessor after removing one contiguous restart-recovery block. That block reads restoredWorkerState.internal.running_background_tasks, emits the orphaned-task reminder, and clears the restored list through sessionState.notifyInternalMetadataChanged. Target121 print.ts independently authenticates the same recovery block and empty-array payload through notifySessionInternalMetadataChanged, while the u21128 proof pins the compiled per-instance consumer and proves recovered sessionState.ts/StructuredIO retain the process-global architecture. This is a static complete-function owner proof; no isolated per-instance source replay is admitted."},
+      "rowCanonical": {"bytes":1244,"sha256":"8bb8dccfe03aac153060fd978a094bc88c8fcef21b724b94d5b915a8fb73e6b6"},
+      "owner": {"id":"owner-src-cli-print-ts","path":"src/cli/print.ts"}
+    }
+  },
+  "postReplay": {"ownerResidueProjection":"postTail","sourceCoverageProjection":"postTail"},
+  "postDangerous": {"ownerResidueProjection":"postReplay","sourceCoverageProjection":"postReplay"},
+  "postPrune": {"ownerResidueProjection":"postDangerous","sourceCoverageProjection":"postDangerous"},
+  "postDaemonOwner": {"ownerResidueProjection":"postPrune","sourceCoverageProjection":"postPrune"},
+  "generatorWiring": {"ownerOverrideModule":"recovery/cases/2.1.120-to-2.1.121/recovered/headless-restored-task-clear-owner-overrides.mjs","ownerOverrideExport":"TARGET121_HEADLESS_RESTORED_TASK_CLEAR_OWNER_OVERRIDES","evidenceExport":"TARGET121_HEADLESS_RESTORED_TASK_CLEAR_EVIDENCE_IDS","replayHelper":null,"expectedAddedOwnerImpact":{"units":-1,"residues":-1},"expectedRawStrictImpact":{"units":-1,"residues":-1}}
+}

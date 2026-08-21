@@ -1,0 +1,427 @@
+import assert from 'node:assert/strict'
+import crypto from 'node:crypto'
+import { spawnSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
+import test from 'node:test'
+import { pathToFileURL } from 'node:url'
+import { gunzipSync } from 'node:zlib'
+import { tokenizer } from '../node_modules/acorn/dist/acorn.mjs'
+import {
+  TARGET118_HEADLESS_STREAMING_INHERITED_EVIDENCE_IDS,
+  TARGET118_HEADLESS_STREAMING_INHERITED_OWNER_OVERRIDES,
+} from '../cases/2.1.117-to-2.1.118/recovered/headless-streaming-inherited-owner-overrides.mjs'
+
+const root = process.cwd()
+const caseName = '2.1.117-to-2.1.118'
+const selectedCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
+const selected = !selectedCase || selectedCase === caseName
+const fixturePath = path.join(
+  root,
+  'recovery/test/recovery-2.1.118-headless-streaming-inherited-owner-proof.json',
+)
+const fixtureBytes = fs.readFileSync(fixturePath)
+const fixture = JSON.parse(fixtureBytes)
+const FIXTURE_SHA256 =
+  '56835ff48de8d98385d3d38e9ccf5f497c6b18c6aa4fd9fc8502fafa21059c2d'
+const targetBundlePath =
+  process.env.CLAUDE_CODE_2_1_118_BUNDLE ??
+  path.join(
+    root,
+    '.recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js',
+  )
+const baselineBundlePath =
+  process.env.CLAUDE_CODE_2_1_117_BUNDLE ??
+  path.join(
+    root,
+    '.recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js',
+  )
+const sourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ??
+    path.join(root, '.recovery-tmp/semantic-trees/2.1.118/src'),
+)
+
+const sha256 = value =>
+  crypto.createHash('sha256').update(value).digest('hex')
+const descriptor = value => ({ bytes: value.length, sha256: sha256(value) })
+const digest = value => sha256(Buffer.from(JSON.stringify(value)))
+
+function readPinned(input, base = root) {
+  const value = fs.readFileSync(path.join(base, input.path))
+  assert.deepEqual(descriptor(value), {
+    bytes: input.bytes,
+    sha256: input.sha256,
+  })
+  return value
+}
+
+function gitFile(commit, input) {
+  const result = spawnSync('git', ['show', `${commit}:${input.path}`], {
+    cwd: root,
+    encoding: null,
+  })
+  assert.equal(result.status, 0, result.stderr?.toString())
+  assert.deepEqual(descriptor(result.stdout), {
+    bytes: input.bytes,
+    sha256: input.sha256,
+  })
+  const blob = spawnSync('git', ['rev-parse', `${commit}:${input.path}`], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+  assert.equal(blob.status, 0, blob.stderr)
+  assert.equal(blob.stdout.trim(), input.blob)
+  return result.stdout
+}
+
+function canonicalToken(token) {
+  if (token.type.label === 'name') return 'ID'
+  if (token.type.label === 'string') {
+    return `S:${JSON.stringify(token.value)}`
+  }
+  if (token.type.label === 'num') return `N:${token.value}`
+  if (token.type.label === 'regexp') {
+    return `R:${token.value.pattern}/${token.value.flags}`
+  }
+  return token.type.label
+}
+
+function tokens(source, offset) {
+  const output = []
+  const stream = tokenizer(source, { ecmaVersion: 'latest' })
+  while (true) {
+    const token = stream.getToken()
+    if (token.type.label === 'eof') break
+    output.push({
+      canonical: canonicalToken(token),
+      raw: source.slice(token.start, token.end),
+      start: offset + token.start,
+      end: offset + token.end,
+    })
+  }
+  return output
+}
+
+function structuralUnit(input, targetIndex) {
+  const compressed = readPinned(input)
+  const value = JSON.parse(gunzipSync(compressed))
+  let match
+  const visit = current => {
+    if (match || !current || typeof current !== 'object') return
+    if (current.target?.index === targetIndex) {
+      match = current.target
+      return
+    }
+    for (const child of Object.values(current)) {
+      if (Array.isArray(child)) {
+        for (const item of child) visit(item)
+      }
+    }
+  }
+  visit(value)
+  assert.ok(match, `missing structural unit ${targetIndex}`)
+  return match
+}
+
+let typescriptPromise
+function loadTypeScript() {
+  typescriptPromise ??= import(
+    pathToFileURL(
+      path.join(
+        root,
+        '.pixi/envs/default/lib/node_modules/typescript/lib/typescript.js',
+      ),
+    ).href
+  ).then(imported => imported.default ?? imported)
+  return typescriptPromise
+}
+
+async function functionDeclaration(input, bytes) {
+  const ts = await loadTypeScript()
+  const source = bytes.toString('utf8')
+  const sourceFile = ts.createSourceFile(
+    input.path,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  )
+  assert.equal(sourceFile.parseDiagnostics.length, 0)
+  const matches = []
+  const visit = node => {
+    if (
+      ts.isFunctionDeclaration(node) &&
+      node.name?.text === input.declaration.name
+    ) {
+      matches.push(node)
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
+  assert.equal(matches.length, 1)
+  const declaration = matches[0]
+  const characterStart = declaration.getStart(sourceFile)
+  const characterEnd = declaration.end
+  const byteStart = Buffer.byteLength(source.slice(0, characterStart))
+  const byteEnd = Buffer.byteLength(source.slice(0, characterEnd))
+  const { name: _name, ...expectedDeclaration } = input.declaration
+  assert.deepEqual(
+    {
+      characterStart,
+      characterEnd,
+      byteStart,
+      byteEnd,
+      ...descriptor(bytes.subarray(byteStart, byteEnd)),
+    },
+    expectedDeclaration,
+  )
+  return source.slice(characterStart, characterEnd)
+}
+
+function countOccurrences(source, needle) {
+  let count = 0
+  let offset = 0
+  while (true) {
+    const next = source.indexOf(needle, offset)
+    if (next < 0) return count
+    count += 1
+    offset = next + needle.length
+  }
+}
+
+test('Target118 headless-streaming inherited fixture and override are frozen', {
+  skip: !selected,
+}, () => {
+  assert.equal(sha256(fixtureBytes), FIXTURE_SHA256)
+  readPinned(fixture.inputs.override)
+  assert.equal(fixture.schemaVersion, 1)
+  assert.equal(fixture.case, caseName)
+  assert.equal(
+    fixture.status,
+    'authenticated-static-whole-unit-owner-proof-no-replay',
+  )
+  assert.deepEqual(
+    TARGET118_HEADLESS_STREAMING_INHERITED_EVIDENCE_IDS,
+    fixture.ownerOverride.evidenceIds,
+  )
+  assert.deepEqual(
+    TARGET118_HEADLESS_STREAMING_INHERITED_OWNER_OVERRIDES.map(row => ({
+      key: row.key,
+      targetIndex: row.targetIndex,
+      paths: [...row.paths],
+      declarations: [...row.declarations],
+      evidenceIds: [...row.evidenceIds],
+      behavior: row.behavior,
+    })),
+    [
+      {
+        key: `${caseName}:${fixture.targetUnit.targetIndex}`,
+        targetIndex: fixture.targetUnit.targetIndex,
+        paths: fixture.ownerOverride.paths,
+        declarations: fixture.ownerOverride.declarations,
+        evidenceIds: fixture.ownerOverride.evidenceIds,
+        behavior: fixture.targetUnit.behavior,
+      },
+    ],
+  )
+  assert.equal(
+    digest([fixture.targetUnit.targetIndex]),
+    fixture.summary.targetIndicesSha256,
+  )
+  assert.equal(
+    digest(fixture.targetUnit.residues),
+    fixture.summary.residueIdentitiesSha256,
+  )
+  assert.equal(fixture.targetUnit.residues.length, fixture.summary.residues)
+})
+
+test('all twelve Target118 residues have unique exact Target117 token predecessors', {
+  skip: !selected,
+}, () => {
+  const baselineBundle = fs.readFileSync(baselineBundlePath)
+  const targetBundle = fs.readFileSync(targetBundlePath)
+  assert.deepEqual(descriptor(baselineBundle), {
+    bytes: fixture.inputs.baselineBundle.bytes,
+    sha256: fixture.inputs.baselineBundle.sha256,
+  })
+  assert.deepEqual(descriptor(targetBundle), {
+    bytes: fixture.inputs.targetBundle.bytes,
+    sha256: fixture.inputs.targetBundle.sha256,
+  })
+  for (const [input, actual] of [
+    [fixture.baselineUnit, structuralUnit(
+      fixture.inputs.baselineStructuralLedger,
+      fixture.baselineUnit.targetIndex,
+    )],
+    [fixture.targetUnit, structuralUnit(
+      fixture.inputs.targetStructuralLedger,
+      fixture.targetUnit.targetIndex,
+    )],
+  ]) {
+    assert.deepEqual(
+      {
+        index: actual.index,
+        nodeType: actual.nodeType,
+        start: actual.start,
+        end: actual.end,
+        tokenCount: actual.tokenCount,
+        sourceHash: actual.sourceHash,
+        coarseHash: actual.coarseHash,
+      },
+      {
+        index: input.targetIndex,
+        nodeType: input.nodeType,
+        start: input.start,
+        end: input.end,
+        tokenCount: input.tokenCount,
+        sourceHash: input.sourceHash,
+        coarseHash: input.coarseHash,
+      },
+    )
+  }
+  const baselineBytes = baselineBundle.subarray(
+    fixture.baselineUnit.start,
+    fixture.baselineUnit.end,
+  )
+  const targetBytes = targetBundle.subarray(
+    fixture.targetUnit.start,
+    fixture.targetUnit.end,
+  )
+  assert.deepEqual(descriptor(baselineBytes), {
+    bytes: fixture.baselineUnit.bytes,
+    sha256: fixture.baselineUnit.sourceHash,
+  })
+  assert.deepEqual(descriptor(targetBytes), {
+    bytes: fixture.targetUnit.bytes,
+    sha256: fixture.targetUnit.sourceHash,
+  })
+  const baselineTokens = tokens(
+    baselineBytes.toString('utf8'),
+    fixture.baselineUnit.start,
+  )
+  const targetTokens = tokens(
+    targetBytes.toString('utf8'),
+    fixture.targetUnit.start,
+  )
+  for (const [actual, expected] of [
+    [baselineTokens, fixture.canonicalTokenProof.baseline],
+    [targetTokens, fixture.canonicalTokenProof.target],
+  ]) {
+    assert.equal(actual.length, expected.tokens)
+    assert.deepEqual(
+      descriptor(Buffer.from(JSON.stringify(actual.map(row => row.canonical)))),
+      { bytes: expected.bytes, sha256: expected.sha256 },
+    )
+  }
+  const radius = fixture.canonicalTokenProof.neighborhoodRadius
+  assert.equal(
+    fixture.canonicalTokenProof.residuePredecessors.length,
+    fixture.targetUnit.residues.length,
+  )
+  for (const [index, row] of fixture.targetUnit.residues.entries()) {
+    const proof = fixture.canonicalTokenProof.residuePredecessors[index]
+    const targetToken = targetTokens[proof.targetTokenIndex]
+    const baselineToken = baselineTokens[proof.baselineTokenIndex]
+    assert.deepEqual(
+      [targetToken.start, targetToken.end, targetToken.raw, targetToken.canonical],
+      proof.target,
+    )
+    assert.deepEqual(
+      [
+        baselineToken.start,
+        baselineToken.end,
+        baselineToken.raw,
+        baselineToken.canonical,
+      ],
+      proof.baseline,
+    )
+    assert.deepEqual([targetToken.start, targetToken.end], [row[2], row[3]])
+    assert.equal(targetToken.raw, baselineToken.raw)
+    const targetContext = targetTokens
+      .slice(proof.targetTokenIndex - radius, proof.targetTokenIndex + radius + 1)
+      .map(token => token.canonical)
+    const baselineContext = baselineTokens
+      .slice(
+        proof.baselineTokenIndex - radius,
+        proof.baselineTokenIndex + radius + 1,
+      )
+      .map(token => token.canonical)
+    assert.deepEqual(targetContext, baselineContext)
+    assert.equal(digest(targetContext), proof.canonicalNeighborhoodSha256)
+    const candidates = []
+    for (
+      let baselineIndex = radius;
+      baselineIndex < baselineTokens.length - radius;
+      baselineIndex += 1
+    ) {
+      const candidate = baselineTokens[baselineIndex]
+      if (
+        candidate.raw === targetToken.raw &&
+        candidate.canonical === targetToken.canonical &&
+        digest(
+          baselineTokens
+            .slice(baselineIndex - radius, baselineIndex + radius + 1)
+            .map(token => token.canonical),
+        ) === proof.canonicalNeighborhoodSha256
+      ) {
+        candidates.push(baselineIndex)
+      }
+    }
+    assert.deepEqual(candidates, [proof.baselineTokenIndex])
+  }
+})
+
+test('the frozen Target117 proof authenticates the retained task-registry graph', {
+  skip: !selected,
+}, () => {
+  const prior = JSON.parse(readPinned(fixture.inputs.target117WholeUnitProof))
+  assert.equal(prior.case, '2.1.116-to-2.1.117')
+  assert.equal(prior.targetUnit.targetIndex, fixture.baselineUnit.targetIndex)
+  assert.equal(prior.targetUnit.sha256, fixture.baselineUnit.sourceHash)
+  assert.equal(prior.ownerResidues.correctedOwner, 'src/cli/print.ts')
+  assert.equal(prior.ownerResidues.declaration, 'runHeadlessStreaming')
+  assert.deepEqual(prior.retainedGeneratedContracts.withinUnitCounts.target, {
+    taskRegistry: 2,
+    synthetic: 1,
+  })
+  assert.equal(prior.sourceReplayBlocker.decision.includes('no replay'), true)
+})
+
+test('exact Target118 source states pin the declaration and block replay', {
+  skip: !selected,
+}, async () => {
+  const historical = fixture.inputs.historicalSource
+  const historicalBytes = gitFile(historical.commit, historical.file)
+  const historicalDeclaration = await functionDeclaration(
+    historical.file,
+    historicalBytes,
+  )
+  const selectedBytes = fs.readFileSync(
+    path.join(
+      sourceRoot,
+      path.relative('src', fixture.inputs.historicalSource.file.path),
+    ),
+  )
+  const selectedDescriptor = descriptor(selectedBytes)
+  const selectedInput =
+    selectedDescriptor.sha256 === historical.file.sha256
+      ? historical.file
+      : fixture.inputs.packagedSource.file
+  assert.deepEqual(selectedDescriptor, {
+    bytes: selectedInput.bytes,
+    sha256: selectedInput.sha256,
+  })
+  const selectedDeclaration = await functionDeclaration(
+    selectedInput,
+    selectedBytes,
+  )
+  for (const declaration of [historicalDeclaration, selectedDeclaration]) {
+    for (const [marker, count] of Object.entries(
+      fixture.sourceReplayBlocker.declarationMarkers,
+    )) {
+      assert.equal(countOccurrences(declaration, marker), count, marker)
+    }
+    assert.equal(declaration.includes('taskRegistry'), false)
+  }
+  assert.equal(fixture.sourceReplayBlocker.replayHelper, null)
+})

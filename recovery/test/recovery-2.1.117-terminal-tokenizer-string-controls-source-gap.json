@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-terminal-tokenizer-string-controls-source-gap-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-terminal-tokenizer-string-controls-target-fragment",
+    "target117-terminal-tokenizer-string-controls-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-terminal-tokenizer-string-controls-source-gap.mjs",
+      "bytes": 9891,
+      "sha256": "6628ad53cdad676c72e9553e3405aaef8e1ed8168d17729e0f5c87d5b10295be"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "rawTargetSourceCommit": "ff0339d35906735273ae3130a187bb8e30581871",
+    "sourceFile": {
+      "path": "src/ink/termio/tokenize.ts",
+      "blob": "68a0d113c596772512a2149a5b58edb0b235d9cf",
+      "input": {
+        "bytes": 9284,
+        "sha256": "227dfde6faa53250aa1c71a407ebb4b5cceaddb6f99ab52fb6ea33c749ba1735"
+      },
+      "output": {
+        "bytes": 11167,
+        "sha256": "079d4a9254c835d4f081454d2ca732a91ab33334184a93faffdf2f5418a96067"
+      },
+      "rawDeclaration": {
+        "name": "tokenize",
+        "nodeType": "FunctionDeclaration",
+        "start": 2430,
+        "end": 9262,
+        "bytes": 6851,
+        "sha256": "c1ebc4f661494a2405f14f3ab8f1d3aa794e41a878ec0be3d5af46313597bfc1"
+      },
+      "outputDeclaration": {
+        "name": "tokenize",
+        "nodeType": "FunctionDeclaration",
+        "start": 2515,
+        "end": 11145,
+        "bytes": 8649,
+        "sha256": "3ca03d5b090f089a7f8c270a9625e48fff30bb63b691ce8737cad051ae88e351"
+      },
+      "outputSentinelDeclaration": {
+        "name": "INCOMPLETE_X10_MOUSE_RE",
+        "nodeType": "VariableDeclaration",
+        "start": 1220,
+        "end": 1278,
+        "bytes": 58,
+        "sha256": "54bcd263ead5995aa8c5d6e027d54dad6064c5ba627acf103f96e6e30a343af7"
+      }
+    },
+    "sourceDependencies": [
+      {
+        "path": "src/ink/termio/ansi.ts",
+        "blob": "c6e8effe7589c7c852a13002794f93ae3f64cee6",
+        "bytes": 1490,
+        "sha256": "aaec4c43878bc28293f96583ebe4211c8de92afc76191cc788a8bddf695a4644"
+      },
+      {
+        "path": "src/ink/termio/csi.ts",
+        "blob": "4b5c5d7fce0a067905e5a0abc3dcbc2b55cbbc9d",
+        "bytes": 8822,
+        "sha256": "70a1c45c4ec2ee84c25b701b4f546d150a7e2af271db2996bc79e56574ca8ed7"
+      }
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 7,
+    "targetOnlyStringResidues": 3,
+    "importedControlReferences": 4,
+    "recoveredFiles": 1,
+    "replacements": 8,
+    "ownerOverrides": 1
+  },
+  "row": {
+    "targetIndex": 6828,
+    "reportedOwner": "src/ink/colorize.ts",
+    "owner": "src/ink/termio/tokenize.ts",
+    "declarations": [
+      "tokenize"
+    ],
+    "targetUnit": [
+      6828,
+      "unresolved",
+      "FunctionDeclaration",
+      3090890,
+      3093137,
+      1169,
+      "593511357e5676299a21cd0d8d17c8ed8f89d877a71d122176194f04cde05fda",
+      "858550886ac22a115d3ef3264addc9d3b1ac86431e3aa1863d9eae518a88239b"
+    ],
+    "residues": [
+      [
+        "property",
+        "PM",
+        3091631,
+        3091633,
+        2,
+        1
+      ],
+      [
+        "property",
+        "SOS",
+        3091666,
+        3091669,
+        2,
+        1
+      ],
+      [
+        "string",
+        "sos",
+        3091687,
+        3091692,
+        1,
+        0
+      ],
+      [
+        "string",
+        "sos",
+        3092755,
+        3092760,
+        2,
+        0
+      ],
+      [
+        "property",
+        "CAN",
+        3092925,
+        3092928,
+        2,
+        1
+      ],
+      [
+        "property",
+        "SUB",
+        3092937,
+        3092940,
+        2,
+        1
+      ],
+      [
+        "string",
+        "sos",
+        3092708,
+        3092713,
+        3,
+        0
+      ]
+    ],
+    "temporalBoundary": {
+      "target117Parameters": [
+        "input",
+        "initialState",
+        "initialBuffer",
+        "flush",
+        "x10Mouse"
+      ],
+      "excludedTarget118Parameter": "forOutput",
+      "target117RecognizesStringStatesWithX10Mouse": true
+    }
+  }
+}

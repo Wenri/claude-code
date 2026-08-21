@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "summary": {
+    "units": 3,
+    "residues": 6,
+    "indicesSha256": "a7abc3d8be6b30710aaad488a0e1d87d4102b66b35207116a9c3996a308bee0b",
+    "residueIdentitiesSha256": "c7739e2c6056478d811c2a7fc70c6521e84c6b170b15d6ed319a0d56d5abfdd8"
+  },
+  "inputs": {
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "forwardBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "forwardStructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "rawSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "path": "src/utils/teleport/api.ts",
+      "bytes": 14317,
+      "sha256": "8fa33fa3d473cef5419ac669b1d291a11b6755fbf6ebe99b8864628147fef783"
+    },
+    "donorSource": {
+      "commit": "351cd4d13f70a564dc2d90f59ab0093dc6fc7b05",
+      "path": "src/utils/teleport/api.ts",
+      "bytes": 16610,
+      "sha256": "244698823bc01b08a375611c49286c1cdacbdc43a0f0234b336b071927cd5445"
+    },
+    "recoveredSource": {
+      "path": "src/utils/teleport/api.ts",
+      "bytes": 15537,
+      "sha256": "169402ef911b81571d7f6c6d0a2b2b1df6dc14ff427f617151ea1ae0aec618be"
+    }
+  },
+  "targetUnits": [
+    {
+      "index": 10809,
+      "nodeType": "FunctionDeclaration",
+      "start": 6294366,
+      "end": 6294795,
+      "bytes": 429,
+      "sourceHash": "f3bc0f7ef5549d93951ed13f3fb7ea81068641e00c727c567618e542307d19e4",
+      "coarseHash": "51593ecd8280713c2ed696d953352ff7c0f5c7666ef95b77e5e127f1cc2300f5",
+      "tokenCount": 121,
+      "ownerPath": "src/utils/teleport/api.ts",
+      "evidenceIds": [
+        "target118-code-session-compat-target-fragment",
+        "target118-code-session-compat-source-replay-test",
+        "target118-code-session-compat-source-ast-test"
+      ],
+      "behavior": "The authenticated Target118 converter normalizes CCR code-session status, update time, and config into the legacy SessionResource shape.",
+      "residues": [
+        [
+          "string",
+          "updated_at",
+          6294579,
+          6294591,
+          0,
+          1
+        ],
+        [
+          "property",
+          "last_event_at",
+          6294611,
+          6294624,
+          0,
+          1
+        ],
+        [
+          "property",
+          "custom_system_prompt",
+          6294741,
+          6294761,
+          0,
+          1
+        ],
+        [
+          "property",
+          "append_system_prompt",
+          6294767,
+          6294787,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "index": 10811,
+      "nodeType": "FunctionDeclaration",
+      "start": 6295171,
+      "end": 6295833,
+      "bytes": 662,
+      "sourceHash": "87c1ed0820005a055cf8b863bfa4d2b2fe1c924600aa8be4537255bf41e3497d",
+      "coarseHash": "99cfdd5e1e00b9c266887a6aefb0e877f1244d8d41a26cd16f4828f2e550b430",
+      "tokenCount": 264,
+      "ownerPath": "src/utils/teleport/api.ts",
+      "evidenceIds": [
+        "target118-code-session-compat-target-fragment",
+        "target118-code-session-compat-source-replay-test",
+        "target118-code-session-compat-source-ast-test"
+      ],
+      "behavior": "The authenticated Target118 list request consumes /v1/code/sessions and converts CCR config/worker fields before building CodeSession rows.",
+      "residues": [
+        [
+          "property",
+          "last_event_at",
+          6295780,
+          6295793,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "index": 10813,
+      "nodeType": "FunctionDeclaration",
+      "start": 6295985,
+      "end": 6296526,
+      "bytes": 541,
+      "sourceHash": "019f66f2e0f79810ee262f44875ad64e2a5901fd89e9e7af6fb48ca3cb9c30cc",
+      "coarseHash": "33fce76d8ccba7bcf9c61f396aa4240f838d246421a6a05d299a0effc60bfae8",
+      "tokenCount": 186,
+      "ownerPath": "src/utils/teleport/api.ts",
+      "evidenceIds": [
+        "target118-code-session-compat-target-fragment",
+        "target118-code-session-compat-source-replay-test",
+        "target118-code-session-compat-source-ast-test"
+      ],
+      "behavior": "The authenticated Target118 single-session request unwraps response_shape or session and converts the CCR payload into SessionResource.",
+      "residues": [
+        [
+          "property",
+          "response_shape",
+          6296432,
+          6296446,
+          0,
+          1
+        ]
+      ]
+    }
+  ],
+  "forwardLineage": [
+    {
+      "target118Index": 10809,
+      "target119": {
+        "index": 10935,
+        "nodeType": "FunctionDeclaration",
+        "start": 6347800,
+        "end": 6348229,
+        "bytes": 429,
+        "sourceHash": "9e6940e47ac412df9237ea8ccb4618f08f1d880b6f0ecd501e5f8c6ab658f25b",
+        "coarseHash": "51593ecd8280713c2ed696d953352ff7c0f5c7666ef95b77e5e127f1cc2300f5",
+        "tokenCount": 121
+      },
+      "structuralPair": {
+        "classification": "matched",
+        "baselineUnitIndex": 10809,
+        "pairReason": "exact-scope-normalized-token-hash"
+      }
+    },
+    {
+      "target118Index": 10811,
+      "target119": {
+        "index": 10937,
+        "nodeType": "FunctionDeclaration",
+        "start": 6348616,
+        "end": 6349278,
+        "bytes": 662,
+        "sourceHash": "91c027ab79d635a3178b55515f73da4f86e77d10cc906568129a2a3847d1a7e9",
+        "coarseHash": "99cfdd5e1e00b9c266887a6aefb0e877f1244d8d41a26cd16f4828f2e550b430",
+        "tokenCount": 264
+      },
+      "structuralPair": {
+        "classification": "matched",
+        "baselineUnitIndex": 10811,
+        "pairReason": "exact-scope-normalized-token-hash"
+      }
+    },
+    {
+      "target118Index": 10813,
+      "target119": {
+        "index": 10939,
+        "nodeType": "FunctionDeclaration",
+        "start": 6349430,
+        "end": 6349977,
+        "bytes": 547,
+        "sourceHash": "a711809e198e0eb2250d4463cb3e625edf27aafcc8006b18d39e53372c320918",
+        "coarseHash": "5eb49ee17925f19534266804e6ec088fd01b619ae170c8f181daea85a8cd57fb",
+        "tokenCount": 190
+      },
+      "structuralPair": null
+    }
+  ],
+  "sourceSections": [
+    {
+      "recovered": {
+        "declaration": "ccrSessionToResource",
+        "start": 4383,
+        "end": 5129,
+        "bytes": 746,
+        "sha256": "abf1826a2beddbbda4a5c33ca4a6c1c06fd50f18c03eb08e7674ef76d2fa64a1"
+      },
+      "donor": {
+        "declaration": "ccrSessionToResource",
+        "start": 4423,
+        "end": 5169,
+        "bytes": 746,
+        "sha256": "abf1826a2beddbbda4a5c33ca4a6c1c06fd50f18c03eb08e7674ef76d2fa64a1"
+      }
+    },
+    {
+      "recovered": {
+        "declaration": "fetchCodeSessionsFromSessionsAPI",
+        "start": 6650,
+        "end": 8581,
+        "bytes": 1931,
+        "sha256": "6c62538c3dcba9a2a92d44899d727b1715e2cb41366927004e272e4943a95449"
+      },
+      "donor": {
+        "declaration": "fetchCodeSessionsFromSessionsAPI",
+        "start": 6734,
+        "end": 8665,
+        "bytes": 1931,
+        "sha256": "6c62538c3dcba9a2a92d44899d727b1715e2cb41366927004e272e4943a95449"
+      }
+    },
+    {
+      "recovered": {
+        "declaration": "fetchSession",
+        "start": 10063,
+        "end": 11355,
+        "bytes": 1292,
+        "sha256": "098dece33fef6534413a9d597df622ec00d90a655875fcc0d3a5388e81f46875"
+      },
+      "donor": {
+        "declaration": "fetchSession",
+        "start": 10147,
+        "end": 11514,
+        "bytes": 1367,
+        "sha256": "d38cd3f6dedf9157d66de13b8d6f07b116c6c11bb7504ce978b9bb2c09e6b2ac"
+      }
+    }
+  ],
+  "evidenceIds": [
+    "target118-code-session-compat-target-fragment",
+    "target118-code-session-compat-source-replay-test",
+    "target118-code-session-compat-source-ast-test"
+  ],
+  "sourceContract": {
+    "sourcePath": "src/utils/teleport/api.ts",
+    "declarations": [
+      "ccrSessionToResource",
+      "fetchCodeSessionsFromSessionsAPI",
+      "fetchSession"
+    ],
+    "endpoint": "/v1/code/sessions",
+    "legacyEndpoint": "/v1/sessions",
+    "responseAlternatives": [
+      "response_shape",
+      "session"
+    ],
+    "defaultStatus": "idle",
+    "archivedStatus": "archived",
+    "defaultTitle": "Untitled"
+  }
+}

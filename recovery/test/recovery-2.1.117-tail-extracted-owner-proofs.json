@@ -1,0 +1,1095 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-tail-extracted-owner-declaration-closure-v1",
+  "status": "case-owned-override-ready",
+  "evidenceIds": [
+    "target117-tail-extracted-owner-target-fragment",
+    "target117-tail-extracted-owner-declaration-closure-test"
+  ],
+  "inputs": {
+    "helpers": [
+      {
+        "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-generated-owner-source-gaps.mjs",
+        "bytes": 19387,
+        "sha256": "1b824b009f42085f787444c90a7f692c8088928dab6a256e68136b35ed68a6fb"
+      },
+      {
+        "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-historical-owner-source-gaps.mjs",
+        "bytes": 36748,
+        "sha256": "7045e7401eeb1f43d8f727e3a2fc7e0f37c3cc69bc01136dc29f862615f9b12e"
+      },
+      {
+        "path": "recovery/cases/2.1.116-to-2.1.117/recovered/tail-extracted-owner-overrides.mjs",
+        "bytes": 3675,
+        "sha256": "2c30ccf1e6dbc961868d9732aad6b113b2866fb1b96e83ddaf2c32260064e1c4"
+      }
+    ],
+    "baselineBundle": {
+      "artifact": "2.1.116-linux-x64/cli.inner.js",
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "targetSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "rawTree": {
+        "files": 1957,
+        "bytes": 30993723,
+        "manifestSha256": "135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee"
+      },
+      "generatedAndHistoricalTree": {
+        "files": 1968,
+        "bytes": 31073648,
+        "manifestSha256": "5eb49c365f39597300f5c1ff061c2b0ad152aa534ab9ec240016be576b75cb93"
+      }
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/teamArtifacts.ts",
+        "bytes": 5531,
+        "sha256": "7a8c4eeb1a89ca1a4d33e494b5f52bbd723cfa8e599e5257069412610e23fc35"
+      },
+      {
+        "path": "src/commands/fork/fork.ts",
+        "bytes": 6480,
+        "sha256": "c618b48cc2e75030886c1b7957d2c0cc46271ab8b5887a279700c36b261cc1ff"
+      },
+      {
+        "path": "src/commands/fork/index.ts",
+        "bytes": 402,
+        "sha256": "05fa1d580380b7b1aa340307a568facc41c487cd5e7211e756bc81a496202d0b"
+      },
+      {
+        "path": "src/services/compact/contextHint.ts",
+        "bytes": 7625,
+        "sha256": "945f0f5418c481b693c1f350b85ceb167462d00fe77b7ab2482e1c7e77a34ab5"
+      }
+    ]
+  },
+  "summary": {
+    "units": 12,
+    "residues": 32,
+    "teamArtifactUnits": 6,
+    "forkUnits": 2,
+    "contextHintUnits": 4,
+    "recoveredSourceFiles": 4,
+    "authenticatedDeclarations": 13,
+    "ownerOverrides": 12
+  },
+  "targets": [
+    [
+      12585,
+      "unresolved",
+      "FunctionDeclaration",
+      7879347,
+      7879494,
+      "1866f6c3d99c0f5a29b7d75218dc7899aa76875514295c27d3fef254b2a99089"
+    ],
+    [
+      12586,
+      "unresolved",
+      "FunctionDeclaration",
+      7879494,
+      7879754,
+      "b245cb5d67918b494c74c88aed244771a9d70f0c39900e074af5ff20cc610e41"
+    ],
+    [
+      12587,
+      "unresolved",
+      "FunctionDeclaration",
+      7879754,
+      7879944,
+      "afa475ec0666c6a4018dde0cf127e8e71b62e82b6cef6e303868ac6cdd94e22f"
+    ],
+    [
+      12588,
+      "unresolved",
+      "FunctionDeclaration",
+      7879944,
+      7880078,
+      "baa36e8cf9164caab626d520dd77cbc49142e7525b19c94e5902068a9b21cad9"
+    ],
+    [
+      12589,
+      "unresolved",
+      "FunctionDeclaration",
+      7880078,
+      7880342,
+      "22ac76f86302863be6ce58d4668614eacfb03c47178cae23cd243554ad382221"
+    ],
+    [
+      12591,
+      "unresolved",
+      "VariableDeclaration",
+      7880368,
+      7881029,
+      "399d4322c7068731371f3e1b9bd8e5192be6a9a3e5d5b33a56c9dd83d75f6a0a"
+    ],
+    [
+      17727,
+      "unresolved",
+      "FunctionDeclaration",
+      10947275,
+      10947441,
+      "fcc916ebd02576176961f9db35f54c2c2cf93ba48a169effb3973dee0960c05e"
+    ],
+    [
+      17736,
+      "unresolved",
+      "VariableDeclaration",
+      10947973,
+      10948197,
+      "f5e8298d443bc47f35d4193f7b97a01704fb5906cc8b6485c33fba28b7a90887"
+    ],
+    [
+      18282,
+      "unresolved",
+      "FunctionDeclaration",
+      11247427,
+      11247569,
+      "dd869f01129511d89b5e1b8366cfadd36377521ba5c54e5c4149223bdbe44aaa"
+    ],
+    [
+      18283,
+      "unresolved",
+      "FunctionDeclaration",
+      11247569,
+      11248291,
+      "03a896706d3543a6eae3235125ee9db72044e26afa9fb5d8e63fb9e1729df0fc"
+    ],
+    [
+      18284,
+      "unresolved",
+      "FunctionDeclaration",
+      11248291,
+      11248788,
+      "535b1f8c012a221cb4082d3b6c13123a30440118c7e3ad33c9d3fe6983ad05b9"
+    ],
+    [
+      18285,
+      "unresolved",
+      "FunctionDeclaration",
+      11248788,
+      11249683,
+      "2f94194284956e6ac459158fd2767d22bd18eb3b74070f0101754fb2f1b8145b"
+    ]
+  ],
+  "rows": [
+    {
+      "targetIndex": 12585,
+      "owner": "src/utils/teamArtifacts.ts",
+      "reportedOwner": "src/tools/AgentTool/AgentTool.tsx",
+      "declarations": [
+        {
+          "name": "getUnseenTeamArtifacts",
+          "nodeType": "FunctionDeclaration",
+          "start": 3263,
+          "end": 3567,
+          "bytes": 304,
+          "sha256": "4da4d0ddca06ad2c34ef4285e9fbff093ace575d4329911be0524d31c7a5bbad"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "property",
+          "seenTeamArtifactPaths"
+        ],
+        [
+          "property",
+          "length"
+        ],
+        [
+          "property",
+          "filter"
+        ],
+        [
+          "property",
+          "has"
+        ],
+        [
+          "property",
+          "path"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "seenTeamArtifactPaths",
+          7879430,
+          7879451,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 12586,
+      "owner": "src/utils/teamArtifacts.ts",
+      "reportedOwner": "src/tools/AgentTool/AgentTool.tsx",
+      "declarations": [
+        {
+          "name": "markTeamArtifactsSeen",
+          "nodeType": "FunctionDeclaration",
+          "start": 3569,
+          "end": 4237,
+          "bytes": 668,
+          "sha256": "c36c90ecc67ced0acd204b28c2cbec803f66d37b3728e423d816274f45108ee1"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "property",
+          "seenTeamArtifactPaths"
+        ],
+        [
+          "property",
+          "map"
+        ],
+        [
+          "property",
+          "path"
+        ],
+        [
+          "property",
+          "filter"
+        ],
+        [
+          "property",
+          "has"
+        ],
+        [
+          "property",
+          "slice"
+        ],
+        [
+          "property",
+          "length"
+        ],
+        [
+          "property",
+          "every"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "seenTeamArtifactPaths",
+          7879582,
+          7879603,
+          2
+        ],
+        [
+          "property",
+          "seenTeamArtifactPaths",
+          7879727,
+          7879748,
+          3
+        ]
+      ]
+    },
+    {
+      "targetIndex": 12587,
+      "owner": "src/utils/teamArtifacts.ts",
+      "reportedOwner": "src/tools/AgentTool/AgentTool.tsx",
+      "declarations": [
+        {
+          "name": "logTeamArtifactTipShown",
+          "nodeType": "FunctionDeclaration",
+          "start": 4239,
+          "end": 4632,
+          "bytes": 393,
+          "sha256": "c6fae1ad2a2dd81686fa02a1056e6399d2497a2a2db45a0fa1322e04a7c86a14"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "tengu_team_artifact_tip_shown"
+        ],
+        [
+          "property",
+          "skill"
+        ],
+        [
+          "property",
+          "command"
+        ],
+        [
+          "property",
+          "kind"
+        ],
+        [
+          "property",
+          "skill_count"
+        ],
+        [
+          "property",
+          "command_count"
+        ],
+        [
+          "property",
+          "overflow_count"
+        ],
+        [
+          "property",
+          "length"
+        ],
+        [
+          "property",
+          "max"
+        ]
+      ],
+      "residues": [
+        [
+          "string",
+          "tengu_team_artifact_tip_shown",
+          7879825,
+          7879856,
+          1
+        ],
+        [
+          "property",
+          "overflow_count",
+          7879902,
+          7879916,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 12588,
+      "owner": "src/utils/teamArtifacts.ts",
+      "reportedOwner": "src/tools/AgentTool/AgentTool.tsx",
+      "declarations": [
+        {
+          "name": "getTeamArtifactAnalyticsMetadata",
+          "nodeType": "FunctionDeclaration",
+          "start": 4634,
+          "end": 4949,
+          "bytes": 315,
+          "sha256": "7bca42c8ccea5b8005fa9c46e2917967041b15a1d354b51226bbeaf8b9eb826e"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "projectSettings"
+        ],
+        [
+          "property",
+          "via_team_tip"
+        ],
+        [
+          "property",
+          "seenTeamArtifactPaths"
+        ],
+        [
+          "property",
+          "some"
+        ],
+        [
+          "property",
+          "name"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "via_team_tip",
+          7880003,
+          7880015,
+          1
+        ],
+        [
+          "property",
+          "seenTeamArtifactPaths",
+          7880022,
+          7880043,
+          4
+        ]
+      ]
+    },
+    {
+      "targetIndex": 12589,
+      "owner": "src/utils/teamArtifacts.ts",
+      "reportedOwner": "src/tools/AgentTool/AgentTool.tsx",
+      "declarations": [
+        {
+          "name": "formatTeamArtifactTip",
+          "nodeType": "FunctionDeclaration",
+          "start": 4951,
+          "end": 5530,
+          "bytes": 579,
+          "sha256": "c409f7dbde0430e199ede394d3aff6d1f0a753b355ac98f3c30a49c62153b679"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "a teammate"
+        ],
+        [
+          "string",
+          ", plus "
+        ],
+        [
+          "string",
+          "New from your team: "
+        ],
+        [
+          "property",
+          "length"
+        ],
+        [
+          "property",
+          "slice"
+        ],
+        [
+          "property",
+          "map"
+        ],
+        [
+          "property",
+          "name"
+        ],
+        [
+          "property",
+          "author"
+        ],
+        [
+          "property",
+          "join"
+        ],
+        [
+          "property",
+          "at"
+        ]
+      ],
+      "residues": [
+        [
+          "string",
+          "a teammate",
+          7880178,
+          7880190,
+          1
+        ],
+        [
+          "string",
+          ", plus ",
+          7880319,
+          7880326,
+          1
+        ],
+        [
+          "string",
+          "New from your team: ",
+          7880288,
+          7880308,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 12591,
+      "owner": "src/utils/teamArtifacts.ts",
+      "reportedOwner": "src/tools/AgentTool/AgentTool.tsx",
+      "declarations": [
+        {
+          "name": "TEAM_ARTIFACT_DIRECTORIES",
+          "nodeType": "VariableDeclaration",
+          "start": 445,
+          "end": 511,
+          "bytes": 66,
+          "sha256": "ff834625fb86ca5920c6a005b476bd458f235ddc1871c58f9b38903125954d1e"
+        },
+        {
+          "name": "getTeamArtifacts",
+          "nodeType": "VariableDeclaration",
+          "start": 1585,
+          "end": 2924,
+          "bytes": 1339,
+          "sha256": "7b3165757977aa743c55d8247785d03e25a17b36eda4aa19e116fc7f588b129c"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          ".claude/skills"
+        ],
+        [
+          "string",
+          ".claude/commands"
+        ],
+        [
+          "string",
+          "core.quotePath=false"
+        ],
+        [
+          "string",
+          "--since=7.days"
+        ],
+        [
+          "string",
+          "--diff-filter=A"
+        ],
+        [
+          "string",
+          "--format=COMMIT%x00%an%x00%ae"
+        ],
+        [
+          "string",
+          "COMMIT\u0000"
+        ],
+        [
+          "property",
+          "stdout"
+        ],
+        [
+          "property",
+          "code"
+        ],
+        [
+          "property",
+          "cwd"
+        ],
+        [
+          "property",
+          "timeout"
+        ],
+        [
+          "property",
+          "toLowerCase"
+        ],
+        [
+          "property",
+          "split"
+        ],
+        [
+          "property",
+          "startsWith"
+        ]
+      ],
+      "residues": [
+        [
+          "string",
+          ".claude/skills",
+          7880424,
+          7880440,
+          1
+        ],
+        [
+          "string",
+          ".claude/commands",
+          7880441,
+          7880459,
+          2
+        ],
+        [
+          "string",
+          "core.quotePath=false",
+          7880566,
+          7880588,
+          1
+        ],
+        [
+          "string",
+          "--since=7.days",
+          7880595,
+          7880611,
+          1
+        ],
+        [
+          "string",
+          "--diff-filter=A",
+          7880612,
+          7880629,
+          1
+        ],
+        [
+          "string",
+          "--format=COMMIT%x00%an%x00%ae",
+          7880644,
+          7880675,
+          1
+        ],
+        [
+          "string",
+          "COMMIT\u0000",
+          7880828,
+          7880840,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17727,
+      "owner": "src/commands/fork/fork.ts",
+      "reportedOwner": "src/commands/remote-setup/index.ts",
+      "declarations": [
+        {
+          "name": "getForkName",
+          "nodeType": "FunctionDeclaration",
+          "start": 1336,
+          "end": 1627,
+          "bytes": 291,
+          "sha256": "0c2b5295996db262ac71f2d44b9cd9fea923d801a54f3113519be867ba5d5d8a"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "regexp",
+          {
+            "pattern": "[^a-z0-9-]",
+            "flags": "g"
+          }
+        ],
+        [
+          "string",
+          "-"
+        ],
+        [
+          "string",
+          "fork"
+        ],
+        [
+          "property",
+          "trim"
+        ],
+        [
+          "property",
+          "split"
+        ],
+        [
+          "property",
+          "slice"
+        ],
+        [
+          "property",
+          "join"
+        ],
+        [
+          "property",
+          "toLowerCase"
+        ],
+        [
+          "property",
+          "replace"
+        ]
+      ],
+      "residues": [
+        [
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "[^a-z0-9-]"
+          },
+          10947363,
+          10947376,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17736,
+      "owner": "src/commands/fork/index.ts",
+      "reportedOwner": "src/commands/remote-setup/index.ts",
+      "declarations": [
+        {
+          "name": "fork",
+          "nodeType": "VariableDeclaration",
+          "start": 134,
+          "end": 380,
+          "bytes": 246,
+          "sha256": "ee8677becb2447b4b5134ece0cb93cb49f9c7a035df49451d9a25b6c219a81c2"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "local-jsx"
+        ],
+        [
+          "string",
+          "fork"
+        ],
+        [
+          "string",
+          "Spawn a background agent that inherits the full conversation"
+        ],
+        [
+          "string",
+          "<directive>"
+        ],
+        [
+          "property",
+          "type"
+        ],
+        [
+          "property",
+          "name"
+        ],
+        [
+          "property",
+          "description"
+        ],
+        [
+          "property",
+          "argumentHint"
+        ],
+        [
+          "property",
+          "isEnabled"
+        ],
+        [
+          "property",
+          "load"
+        ]
+      ],
+      "residues": [
+        [
+          "string",
+          "Spawn a background agent that inherits the full conversation",
+          10948040,
+          10948102,
+          1
+        ],
+        [
+          "string",
+          "<directive>",
+          10948116,
+          10948129,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 18282,
+      "owner": "src/services/compact/contextHint.ts",
+      "reportedOwner": "src/services/compact/apiMicrocompact.ts",
+      "declarations": [
+        {
+          "name": "persistHintToolResult",
+          "nodeType": "FunctionDeclaration",
+          "start": 1253,
+          "end": 1640,
+          "bytes": 387,
+          "sha256": "8ffc80b3be19d0ed1514796ccee34b3eeed590bb964d16c4bbcb8affd3f164db"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "Tool result saved to: "
+        ],
+        [
+          "string",
+          "\n\nUse "
+        ],
+        [
+          "property",
+          "filepath"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "filepath",
+          11247533,
+          11247541,
+          26
+        ],
+        [
+          "string",
+          "Tool result saved to: ",
+          11247507,
+          11247529,
+          1
+        ],
+        [
+          "string",
+          "\n\nUse ",
+          11247542,
+          11247548,
+          2
+        ]
+      ]
+    },
+    {
+      "targetIndex": 18283,
+      "owner": "src/services/compact/contextHint.ts",
+      "reportedOwner": "src/services/compact/apiMicrocompact.ts",
+      "declarations": [
+        {
+          "name": "applyHintEdits",
+          "nodeType": "FunctionDeclaration",
+          "start": 1642,
+          "end": 2593,
+          "bytes": 951,
+          "sha256": "89f42873531476d2ecaf69ddf8803da21ae4463b37fef6cbc5c340495eb2c6b0"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "property",
+          "persist"
+        ],
+        [
+          "property",
+          "tokensSaved"
+        ],
+        [
+          "property",
+          "clearedContent"
+        ],
+        [
+          "property",
+          "messages"
+        ],
+        [
+          "property",
+          "keepRecent"
+        ],
+        [
+          "property",
+          "clearedIds"
+        ],
+        [
+          "property",
+          "applied"
+        ],
+        [
+          "property",
+          "mcApplied"
+        ],
+        [
+          "property",
+          "mcTokensSaved"
+        ],
+        [
+          "property",
+          "preCompactTokenEstimate"
+        ],
+        [
+          "property",
+          "postCompactTokenEstimate"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "persist",
+          11247931,
+          11247938,
+          2
+        ],
+        [
+          "property",
+          "clearedContent",
+          11248125,
+          11248139,
+          2
+        ],
+        [
+          "property",
+          "clearedContent",
+          11248143,
+          11248157,
+          3
+        ],
+        [
+          "property",
+          "tokensSaved",
+          11248221,
+          11248232,
+          8
+        ]
+      ]
+    },
+    {
+      "targetIndex": 18284,
+      "owner": "src/services/compact/contextHint.ts",
+      "reportedOwner": "src/services/compact/apiMicrocompact.ts",
+      "declarations": [
+        {
+          "name": "handleHintReject",
+          "nodeType": "FunctionDeclaration",
+          "start": 2595,
+          "end": 3335,
+          "bytes": 740,
+          "sha256": "c8674f5efb7fbbacc3b6950293a9628daa695f1f5ae8cb3f972098c564b9e2c5"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "property",
+          "tokensSaved"
+        ],
+        [
+          "property",
+          "clearedContent"
+        ],
+        [
+          "property",
+          "requestId"
+        ],
+        [
+          "property",
+          "preCompactTokenEstimate"
+        ],
+        [
+          "property",
+          "postCompactTokenEstimate"
+        ],
+        [
+          "property",
+          "mcApplied"
+        ],
+        [
+          "property",
+          "mcTokensSaved"
+        ],
+        [
+          "property",
+          "messages"
+        ],
+        [
+          "property",
+          "clearedIds"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "tokensSaved",
+          11248491,
+          11248502,
+          9
+        ],
+        [
+          "property",
+          "clearedContent",
+          11248713,
+          11248727,
+          4
+        ],
+        [
+          "property",
+          "clearedContent",
+          11248730,
+          11248744,
+          5
+        ]
+      ]
+    },
+    {
+      "targetIndex": 18285,
+      "owner": "src/services/compact/contextHint.ts",
+      "reportedOwner": "src/services/compact/apiMicrocompact.ts",
+      "declarations": [
+        {
+          "name": "createContextHintController",
+          "nodeType": "FunctionDeclaration",
+          "start": 4958,
+          "end": 7624,
+          "bytes": 2666,
+          "sha256": "e3a58ad80b8485414c1e77676b9ff1f7e7642d569b279021de1f392d7e6738c9"
+        }
+      ],
+      "semanticIdentities": [
+        [
+          "string",
+          "repl_main_thread"
+        ],
+        [
+          "property",
+          "includeFirstPartyBetas"
+        ],
+        [
+          "property",
+          "querySource"
+        ],
+        [
+          "property",
+          "startsWith"
+        ],
+        [
+          "property",
+          "active"
+        ],
+        [
+          "property",
+          "buildRequestParams"
+        ],
+        [
+          "property",
+          "betaHeader"
+        ],
+        [
+          "property",
+          "body"
+        ],
+        [
+          "property",
+          "context_hint"
+        ],
+        [
+          "property",
+          "enabled"
+        ],
+        [
+          "property",
+          "onRequestError"
+        ],
+        [
+          "property",
+          "classifyStreamError"
+        ],
+        [
+          "property",
+          "onStreamFallback"
+        ],
+        [
+          "property",
+          "strip"
+        ],
+        [
+          "property",
+          "messages"
+        ],
+        [
+          "property",
+          "clearedIds"
+        ],
+        [
+          "property",
+          "clearedContent"
+        ]
+      ],
+      "residues": [
+        [
+          "property",
+          "tokensSaved",
+          11249047,
+          11249058,
+          10
+        ],
+        [
+          "property",
+          "clearedContent",
+          11249326,
+          11249340,
+          6
+        ]
+      ]
+    }
+  ]
+}

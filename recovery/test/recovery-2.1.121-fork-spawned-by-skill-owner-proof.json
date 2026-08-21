@@ -1,0 +1,497 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-fork-spawned-by-skill-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "claim": "Target121 u18932 is src/commands/fork/fork.ts::spawnFork, not the generated src/commands/remote-setup/index.ts owner. Relative to the exact Target120 predecessor, the complete authenticated unit adds only spawnedBySkill: context.options.spawnedBySkill ?? context.options.activeSkill to the runAgent parameter object. The recovered Target120, Target121, and fresh-package fork.ts files are byte-identical and omit the field, and current ToolUseContext.options omits both required members, so this lane admits a static complete-unit owner proof but no partial source replay.",
+  "evidenceIds": [
+    "target121-fork-spawned-by-skill-authenticated-whole-unit",
+    "target121-fork-spawned-by-skill-exact-property-insertion",
+    "target121-fork-spawned-by-skill-source-type-graph-blocker"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReportSnapshots": {
+      "preCorrection": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 26701094,
+        "sha256": "d8dc22dd2d06864a16d2859f1b849ad5b244cdd0fc2e61b53cff69aa3e2f9787"
+      },
+      "postCorrection": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 26646291,
+        "sha256": "75c93caebd73e5cfa9d977c81874b0f4eb617866b973f872b3ec909b8ce113e4"
+      },
+      "postFocusedBatch": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25717702,
+        "sha256": "f5adc51ba2c3e18561fda6059c2e7791b0bab6d71a6e561a358e1cb0abbffc1a"
+      },
+      "postDaemonOwner": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3",
+        "projection": "postFocusedBatch"
+      }
+    },
+    "sourceCoverageSnapshots": {
+      "preCorrection": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 337762,
+        "sha256": "5e23db46c270ac8e2855ddc6e01300cb52a7eaf12417205ff6013c034d99b174",
+        "rawBytes": 2939258,
+        "rawSha256": "da3d6d6a7b86a3982efcb36c8c499f481f2d01cb516de493c9069bfafacfb6dc"
+      },
+      "postCorrection": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 338328,
+        "sha256": "92f9bd2e3df5ac77e21cae2fd383791d47d23ada0e0b707e89a908374300c92b",
+        "rawBytes": 2941074,
+        "rawSha256": "58591548d86a6d0f88222ea472ddf8d09d336a92f372b5b0825f23e78e0d36a2"
+      },
+      "postU20775": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 339584,
+        "sha256": "5d0df0f05882a63ddd9b92bc158e6f7c75426c9ec6409eab5436ff5d55710105",
+        "rawBytes": 2944902,
+        "rawSha256": "7cef059481675bf3ebf3068a8d12b3a49fc6058ec5c4181fb96601067f8868db"
+      },
+      "postFocusedBatch": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 343532,
+        "sha256": "7a51d49cdd7cb9b26b883ea0f0b1242573cd1ed4a0ba25a91ac1bc98dbc1eabd",
+        "rawBytes": 2958647,
+        "rawSha256": "92bf969f261a3c716fb8e8a4fa50b879a1a407bf35a51cfca5971afc67c9555b"
+      },
+      "postDaemonOwner": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f",
+        "projection": "postCorrection"
+      }
+    },
+    "evolutionCompatibility": {
+      "preCorrection": ["preCorrection"],
+      "postCorrection": ["postCorrection", "postU20775"],
+      "postFocusedBatch": ["postFocusedBatch"],
+      "postDaemonOwner": ["postDaemonOwner"]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 18932,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 1,
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 11527537,
+    "end": 11529057,
+    "bytes": 1520,
+    "tokenCount": 526,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 6,
+    "sha256": "983a08c61a8b15868febc6d26cb163edb74caa295d1e402059681dfc0325c402",
+    "coarseHash": "145dbe0b7054e86765aec7c491b3a46c9a9947a57ab536f3ced472c7cf144069",
+    "line": 7794,
+    "column": 7131
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 18796,
+    "classification": "unmatched-baseline",
+    "relation": "direct spawnFork predecessor; after identifier normalization, Target121 is the exact Target120 token sequence with one property insertion",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 11450364,
+    "end": 11451821,
+    "bytes": 1457,
+    "tokenCount": 512,
+    "topDefinitionCount": 1,
+    "bodyStatementCount": 6,
+    "sha256": "d00b391e0568e00ced6ef27e5364036596f0a94fab5d64da1ce584c0b9b8a47b",
+    "coarseHash": "c386d7970da5ee5f35ebc11a9ca0c01dfbf6bf43d39e39b5c3ad75ad1a36bda7",
+    "line": 7782,
+    "column": 5920
+  },
+  "ownerResidues": {
+    "generatedOwnerSource": "src/commands/remote-setup/index.ts",
+    "correctedOwner": "src/commands/fork/fork.ts",
+    "declaration": "spawnFork",
+    "targetAddedRows": 3,
+    "strictRows": 3,
+    "rowIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "states": {
+      "preCorrection": {
+        "reportedOwner": "commands/remote-setup/index.ts",
+        "totalRows": 102,
+        "rowIdentities": {
+          "bytes": 5702,
+          "sha256": "174d1b081ffa38fc238de19777dbe11697e688d9a4d7caf789402d6394abb5cf"
+        }
+      },
+      "postCorrection": {
+        "reportedOwner": "commands/fork/fork.ts",
+        "totalRows": 9,
+        "rowIdentities": {
+          "bytes": 510,
+          "sha256": "f7588c86a5eb81aed064e123f28ccfb73d7588795cade32b3f6941ff07e6249c"
+        },
+        "ownerIdentityMethod": "[literalKind,value,start,end,baselineOccurrenceCount,targetOccurrenceNumber,targetAdded,ownerPaths,ownerSourceMatches] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+        "ownerIdentities": {
+          "bytes": 771,
+          "sha256": "d5aca9c12c2aca47a8d01b32ac390b6ec6ec0ff359003b61360eb8b4b4c8d7cd"
+        }
+      },
+      "postFocusedBatch": {
+        "projection": "postCorrection"
+      },
+      "postDaemonOwner": {
+        "projection": "postCorrection"
+      }
+    },
+    "strictIdentityMethod": "[targetIndex,literalKind,value,start,end,targetOccurrenceNumber] in typed-report order; SHA-256 of UTF-8 JSON.stringify",
+    "strictIdentities": {
+      "bytes": 167,
+      "sha256": "71fd74266272424fcc807d84b8c35ed22269d25644637f698d7c3486f671f310"
+    },
+    "strictRowsExact": [
+      [18932, "property", "spawnedBySkill", 11528623, 11528637, 9],
+      [18932, "property", "spawnedBySkill", 11528648, 11528662, 10],
+      [18932, "property", "activeSkill", 11528674, 11528685, 6]
+    ]
+  },
+  "wholeUnitSemanticDelta": {
+    "rawByteDelta": 63,
+    "tokenDelta": 14,
+    "canonicalization": "Acorn 8.15 AST with start/end/raw removed; Identifier.name becomes @id except noncomputed non-shorthand Property keys, noncomputed MemberExpression properties, and noncomputed MethodDefinition keys",
+    "baselineCanonical": {
+      "bytes": 20731,
+      "sha256": "a2dc0e94a0ebb7343f3fb1cbce5858c6e580ea57caea98e1cfc6534e43f47344"
+    },
+    "targetCanonical": {
+      "bytes": 21500,
+      "sha256": "1a9b01f89ff4c6822115f6b8765abdcb1f872f873e2e48f5bce81999b21ac565"
+    },
+    "identifierNormalizedTokens": {
+      "method": "Acorn tokens serialized as [type.label,value], with every name-token value replaced by @id and absent values represented as null",
+      "baseline": {
+        "count": 512,
+        "bytes": 6517,
+        "sha256": "2e35e743e3b4cfad9eaefe2caa35904b5a0ea05a87ae3047c5319ca20644fdd9"
+      },
+      "target": {
+        "count": 526,
+        "bytes": 6700,
+        "sha256": "87b1a6e8eeedb424a48f5bef0aa6d91b29c4218344b1a394e633828aa06fe319"
+      },
+      "insertion": {
+        "count": 14,
+        "localStart": 1086,
+        "localEnd": 1149,
+        "start": 11528623,
+        "end": 11528686,
+        "bytes": 184,
+        "sha256": "185ac725278ea6a16303d887f02d4263dcbce8916d814b566e284f5b210a863c"
+      },
+      "targetWithoutInsertion": {
+        "count": 512,
+        "bytes": 6517,
+        "sha256": "2e35e743e3b4cfad9eaefe2caa35904b5a0ea05a87ae3047c5319ca20644fdd9"
+      }
+    },
+    "runAgentParameterObject": {
+      "baseline": {
+        "nodeType": "ObjectExpression",
+        "start": 11451279,
+        "end": 11451665,
+        "bytes": 386,
+        "sha256": "8f79760fa6575bd368ad94bf94dedefb18d1796fffa13c723496a710513fee5f",
+        "canonicalBytes": 5306,
+        "canonicalSha256": "224575f4445c63a280fe95cb0089f62533cdd1e84524c21303dcfef0a126e982",
+        "propertyCount": 15
+      },
+      "target": {
+        "nodeType": "ObjectExpression",
+        "start": 11528452,
+        "end": 11528901,
+        "bytes": 449,
+        "sha256": "c06130f71eb57efbf1a9d6cab1a7f1b5d9a0d7094b6dcf57c444f8ede45adfd7",
+        "canonicalBytes": 6075,
+        "canonicalSha256": "ba13e804a38e1b608b137b3b6417c836559c914b61ee45b109e3916aa7493f9e",
+        "propertyCount": 16
+      }
+    },
+    "addition": {
+      "path": "function.body[5].argument.expressions[0].arguments[1].body.arguments[0].properties[2].value.body.arguments[0].properties[7]",
+      "propertyIndex": 7,
+      "nodeType": "Property",
+      "localStart": 1086,
+      "localEnd": 1148,
+      "start": 11528623,
+      "end": 11528685,
+      "bytes": 62,
+      "sha256": "30e41c3d7882864178280f3afe03e6224620e196a60f4384dca973f5306919fb",
+      "canonicalBytes": 768,
+      "canonicalSha256": "799290bbf124cc0a37eb33aac0783455aaa40d957c8cddee480fea64ac5d414c",
+      "exact": "spawnedBySkill:$.options.spawnedBySkill??$.options.activeSkill",
+      "withComma": {
+        "start": 11528623,
+        "end": 11528686,
+        "bytes": 63,
+        "sha256": "285a371cd3b25cbaae504740701ed88eef050a4c3a00b01f64ec061ea754f920",
+        "exact": "spawnedBySkill:$.options.spawnedBySkill??$.options.activeSkill,"
+      },
+      "key": "spawnedBySkill",
+      "valueType": "LogicalExpression",
+      "operator": "??"
+    },
+    "transform": {
+      "operation": "Remove only Target121 runAgent parameter-object property index 7; no other AST changes are permitted.",
+      "commonCanonical": {
+        "bytes": 20731,
+        "sha256": "a2dc0e94a0ebb7343f3fb1cbce5858c6e580ea57caea98e1cfc6534e43f47344"
+      }
+    }
+  },
+  "sourceCoverageClaim": {
+    "states": {
+      "preCorrection": {
+        "rowCanonical": {
+          "bytes": 546,
+          "sha256": "e25db76c576d5217953d22b70fe0d733a0b6557cc09192413958d12efd7b5d21"
+        },
+        "row": {
+          "targetIndex": 18932,
+          "start": 11527537,
+          "end": 11529057,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "983a08c61a8b15868febc6d26cb163edb74caa295d1e402059681dfc0325c402",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-commands-remote-setup-index-ts"],
+          "evidenceIds": ["source-map-attribution", "semantic-test"],
+          "behavior": "Compiled target unit is attributed to src/commands/remote-setup/index.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+        },
+        "owner": {
+          "id": "owner-src-commands-remote-setup-index-ts",
+          "path": "src/commands/remote-setup/index.ts"
+        }
+      },
+      "postCorrection": {
+        "rowCanonical": {
+          "bytes": 1054,
+          "sha256": "5b1504e6c5c384ef3bb411b725f338139e742e25df66da9a36ae41fb45b52e08"
+        },
+        "row": {
+          "targetIndex": 18932,
+          "start": 11527537,
+          "end": 11529057,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "983a08c61a8b15868febc6d26cb163edb74caa295d1e402059681dfc0325c402",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-commands-fork-fork-ts"],
+          "evidenceIds": [
+            "target121-fork-spawned-by-skill-authenticated-whole-unit",
+            "target121-fork-spawned-by-skill-exact-property-insertion",
+            "target121-fork-spawned-by-skill-source-type-graph-blocker"
+          ],
+          "behavior": "The authenticated Target121 spawnFork unit forwards context.options.spawnedBySkill with context.options.activeSkill as the fallback into runAgent. Removing exactly that property makes the complete identifier-normalized and alpha-canonical unit identical to its Target120 predecessor. The generated remote-setup owner is false, while recovered Target120, Target121, and fresh-package fork.ts are byte-identical and both spawnFork plus ToolUseContext.options omit the provenance graph, so this is a static whole-unit owner proof and never an isolated source replay."
+        },
+        "owner": {
+          "id": "owner-src-commands-fork-fork-ts",
+          "path": "src/commands/fork/fork.ts"
+        }
+      },
+      "postU20775": {
+        "rowCanonical": {
+          "bytes": 1054,
+          "sha256": "5b1504e6c5c384ef3bb411b725f338139e742e25df66da9a36ae41fb45b52e08"
+        },
+        "row": {
+          "targetIndex": 18932,
+          "start": 11527537,
+          "end": 11529057,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "983a08c61a8b15868febc6d26cb163edb74caa295d1e402059681dfc0325c402",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-commands-fork-fork-ts"],
+          "evidenceIds": [
+            "target121-fork-spawned-by-skill-authenticated-whole-unit",
+            "target121-fork-spawned-by-skill-exact-property-insertion",
+            "target121-fork-spawned-by-skill-source-type-graph-blocker"
+          ],
+          "behavior": "The authenticated Target121 spawnFork unit forwards context.options.spawnedBySkill with context.options.activeSkill as the fallback into runAgent. Removing exactly that property makes the complete identifier-normalized and alpha-canonical unit identical to its Target120 predecessor. The generated remote-setup owner is false, while recovered Target120, Target121, and fresh-package fork.ts are byte-identical and both spawnFork plus ToolUseContext.options omit the provenance graph, so this is a static whole-unit owner proof and never an isolated source replay."
+        },
+        "owner": {
+          "id": "owner-src-commands-fork-fork-ts",
+          "path": "src/commands/fork/fork.ts"
+        }
+      },
+      "postFocusedBatch": {
+        "projection": "postCorrection"
+      },
+      "postDaemonOwner": {
+        "projection": "postCorrection"
+      }
+    },
+    "correction": "The generated source-coverage owner is false: remote-setup/index.ts is only the web-setup command descriptor, while exact whole-unit lineage and the recovered declaration bind u18932 to src/commands/fork/fork.ts::spawnFork."
+  },
+  "sourceState": {
+    "path": "src/commands/fork/fork.ts",
+    "declarationName": "spawnFork",
+    "target120": {
+      "gitCommit": "6801ead984ba2c3df02bd092ad8b93df096ed8c1",
+      "gitBlob": "d75d5b6976c40755976cf903fb728822ba13b489",
+      "bytes": 6480,
+      "chars": 6478,
+      "sha256": "c618b48cc2e75030886c1b7957d2c0cc46271ab8b5887a279700c36b261cc1ff",
+      "declaration": {
+        "name": "spawnFork",
+        "start": 2574,
+        "end": 5887,
+        "chars": 3313,
+        "bytes": 3315,
+        "sha256": "33fbb8609cfc860a6170099895224bfa6c27c1f1f32337e08d4ad0c094ee4f08",
+        "line": 71,
+        "endLine": 179
+      }
+    },
+    "target121": {
+      "gitCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+      "gitBlob": "d75d5b6976c40755976cf903fb728822ba13b489",
+      "bytes": 6480,
+      "chars": 6478,
+      "sha256": "c618b48cc2e75030886c1b7957d2c0cc46271ab8b5887a279700c36b261cc1ff",
+      "declaration": {
+        "name": "spawnFork",
+        "start": 2574,
+        "end": 5887,
+        "chars": 3313,
+        "bytes": 3315,
+        "sha256": "33fbb8609cfc860a6170099895224bfa6c27c1f1f32337e08d4ad0c094ee4f08",
+        "line": 71,
+        "endLine": 179
+      }
+    },
+    "freshPackage": {
+      "defaultSourceRoot": "/tmp/target121-daemon-reader-final.lc1acm/2.1.121/src",
+      "bytes": 6480,
+      "chars": 6478,
+      "sha256": "c618b48cc2e75030886c1b7957d2c0cc46271ab8b5887a279700c36b261cc1ff",
+      "declaration": {
+        "name": "spawnFork",
+        "start": 2574,
+        "end": 5887,
+        "chars": 3313,
+        "bytes": 3315,
+        "sha256": "33fbb8609cfc860a6170099895224bfa6c27c1f1f32337e08d4ad0c094ee4f08",
+        "line": 71,
+        "endLine": 179
+      }
+    },
+    "declarationRelation": "Recovered Target120, recovered Target121, and the fresh Target121 package have byte-identical fork.ts and spawnFork declarations.",
+    "declarationMarkerCounts": {
+      "spawnedBySkill": 0,
+      "activeSkill": 0,
+      "querySource": 1,
+      "runAgent": 1
+    },
+    "generatedOwnerSource": {
+      "path": "src/commands/remote-setup/index.ts",
+      "bytes": 693,
+      "chars": 693,
+      "sha256": "bc0caa650a24411d8d2a4f2d82504c37027f6eef5a9b487fca21a458a44210f3",
+      "markerCounts": {
+        "spawnFork": 0,
+        "spawnedBySkill": 0,
+        "activeSkill": 0
+      }
+    },
+    "toolUseContext": {
+      "path": "src/Tool.ts",
+      "bytes": 32845,
+      "chars": 32785,
+      "sha256": "514e104e5f5ddea0b3b8974b0845aff9efbb4344c63372f58fce79ff798b9739",
+      "declaration": {
+        "name": "ToolUseContext",
+        "start": 5962,
+        "end": 13940,
+        "chars": 7978,
+        "bytes": 7990,
+        "sha256": "31f973bb2749cc2f8907c437571fa78ebc5544b0775eddf2c334fb9154252877",
+        "line": 191,
+        "endLine": 373
+      },
+      "optionsType": {
+        "start": 6004,
+        "end": 7353,
+        "chars": 1349,
+        "bytes": 1349,
+        "sha256": "dc9ca6ee7aa8bddafd7f853f3d12ad51de761eee7ce2a11124789fd7b2340fb3",
+        "line": 192,
+        "endLine": 223,
+        "memberCount": 21,
+        "memberNames": {
+          "bytes": 366,
+          "sha256": "2f9e559d5fd2a41adb5781524b05db63f5c0f8411b5104a342417354327db063"
+        }
+      },
+      "markerCounts": {
+        "spawnedBySkill": 0,
+        "activeSkill": 0
+      }
+    },
+    "sourceRootMarkerCounts": {
+      "spawnedBySkill": 0,
+      "activeSkill": 0
+    }
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/fork-spawned-by-skill-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_FORK_SPAWNED_BY_SKILL_OWNER_OVERRIDES",
+    "replayHelper": null
+  },
+  "strictEvolution": {
+    "before": {
+      "unsupportedUnits": 39,
+      "unsupportedResidues": 419
+    },
+    "removes": {
+      "targetIndices": [18932],
+      "units": 1,
+      "residueCount": 3,
+      "residues": [
+        [18932, "property", "spawnedBySkill", 11528623, 11528637, 9],
+        [18932, "property", "spawnedBySkill", 11528648, 11528662, 10],
+        [18932, "property", "activeSkill", 11528674, 11528685, 6]
+      ]
+    },
+    "predictedAfter": {
+      "unsupportedUnits": 38,
+      "unsupportedResidues": 416
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no replay helper and no source writes",
+    "reason": "Recovered Target120, recovered Target121, and fresh-package fork.ts are byte-identical and omit the property, current ToolUseContext.options contains neither spawnedBySkill nor activeSkill, and neither marker exists anywhere in the current raw or fresh Target121 source root. Replaying the isolated runAgent property would therefore invent a type-incomplete fragment of a wider skill-provenance contract."
+  }
+}

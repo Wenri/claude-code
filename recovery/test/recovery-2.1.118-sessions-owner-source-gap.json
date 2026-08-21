@@ -1,0 +1,1147 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-complete-class-exact-source-owner-v1",
+  "status": "case-owned-owner-replay-ready",
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "sourceTree": {
+      "files": 2022,
+      "bytes": 31570676,
+      "manifestSha256": "c91ebcc114cbe577e4ffe43801e6014ade8e26d27271f57b0af1ce8ce9ff3d59"
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 110,
+    "uniqueResidueIdentities": 62,
+    "exactSourceDeclarations": 1,
+    "rejectedCoarseOwners": 1
+  },
+  "replay": {
+    "helper": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/replay-sessions-owner-source-gap.mjs",
+      "bytes": 4980,
+      "sha256": "afa31849f0186eb4fb5289b5d0a937e4ffe0f4d1e32945dc9b2f96effffc1297"
+    },
+    "ownerOverride": {
+      "key": "2.1.117-to-2.1.118:19589",
+      "targetIndex": 19589,
+      "paths": [
+        "src/remote/SessionsWebSocket.ts"
+      ],
+      "evidenceIds": [
+        "target118-sessions-owner-source-gap-target-fragment",
+        "target118-sessions-owner-source-gap-source-ast-test"
+      ],
+      "behavior": "The complete target118 SessionsWebSocket class is owned by the exact historical remote/SessionsWebSocket.ts class declaration; the provisional PromptInput owner is a coarse insertion neighbor."
+    },
+    "sourceFile": {
+      "path": "src/remote/SessionsWebSocket.ts",
+      "bytes": 11946,
+      "sha256": "5d87121a7d82ac40696423ce49ff158a044b10476633c84351f71924f9097258",
+      "file": {
+        "bytes": 11946,
+        "sha256": "5d87121a7d82ac40696423ce49ff158a044b10476633c84351f71924f9097258"
+      },
+      "declaration": {
+        "kind": "ClassDeclaration",
+        "name": "SessionsWebSocket",
+        "start": 1936,
+        "end": 11945,
+        "bytes": 10009,
+        "sha256": "b414f87113bbf8d20673f3ba042e9f6047fb8f66152614931b27e977477b479b"
+      },
+      "surface": {
+        "fields": [
+          "sessionId",
+          "orgUuid",
+          "getAccessToken",
+          "callbacks",
+          "state",
+          "abortController",
+          "reconnectAttempts",
+          "reconnectTimer",
+          "livenessTimer",
+          "lastSequenceNum",
+          "onLivenessTimeout"
+        ],
+        "methods": [
+          "constructor",
+          "connect",
+          "readStream",
+          "handleFrame",
+          "handleStreamEnd",
+          "resetLivenessTimer",
+          "clearLivenessTimer",
+          "sendEvent",
+          "sendControlResponse",
+          "sendControlRequest",
+          "isConnected",
+          "close",
+          "reconnect",
+          "authHeaders"
+        ]
+      }
+    }
+  },
+  "proof": {
+    "targetIndex": 19589,
+    "target": {
+      "classification": "unresolved",
+      "nodeType": "ClassDeclaration",
+      "start": 11952991,
+      "end": 11958568,
+      "bytes": 5577,
+      "tokenCount": 1610,
+      "sourceHash": "06bd04ac1ca678e28a328eebce0d3513774dd66936698ef217d0e0b719dbdda6",
+      "coarseHash": "ae8946c2a4cf47a4021a2b6e35e60c5793e5fbfd2de02d51ebda8bedf396e751"
+    },
+    "targetClassSurface": {
+      "fields": [
+        "sessionId",
+        "orgUuid",
+        "getAccessToken",
+        "callbacks",
+        "state",
+        "abortController",
+        "reconnectAttempts",
+        "reconnectTimer",
+        "livenessTimer",
+        "lastSequenceNum",
+        "onLivenessTimeout"
+      ],
+      "methods": [
+        "constructor",
+        "connect",
+        "readStream",
+        "handleFrame",
+        "handleStreamEnd",
+        "resetLivenessTimer",
+        "clearLivenessTimer",
+        "sendEvent",
+        "sendControlResponse",
+        "sendControlRequest",
+        "isConnected",
+        "close",
+        "reconnect",
+        "authHeaders"
+      ]
+    },
+    "provisionalOwnerPaths": [
+      "components/PromptInput/PromptInput.tsx"
+    ],
+    "candidateUniverse": [
+      "src/components/PromptInput/PromptInput.tsx",
+      "src/remote/RemoteSessionManager.ts",
+      "src/remote/SessionsWebSocket.ts"
+    ],
+    "residues": [
+      {
+        "kind": "string",
+        "value": "idle",
+        "identitySha256": "86b601cded41f85e786b8fba02fe6dd6d64cab9dc6be0b974b4295e15261c025",
+        "start": 11953050,
+        "end": 11953056,
+        "baselineCount": 110,
+        "targetOrdinal": 123
+      },
+      {
+        "kind": "property",
+        "value": "livenessTimer",
+        "identitySha256": "bd2e7b6ea069cb78425bff29fc9a26aeb76da1b42ff122edb24978dc9f8ff7b2",
+        "start": 11953118,
+        "end": 11953131,
+        "baselineCount": 6,
+        "targetOrdinal": 7
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11953137,
+        "end": 11953152,
+        "baselineCount": 11,
+        "targetOrdinal": 12
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Already connecting/connected",
+        "identitySha256": "2d37ef083ebbd0324561ed5da6522becebf9e98c4ae11f980783202ada0cd0d5",
+        "start": 11953321,
+        "end": 11953370,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "/v1/code/sessions/",
+        "identitySha256": "0cc994baae91ff780aed8eea5a9eba458537522ba50dca7e81efd5eb8fc76c4b",
+        "start": 11953438,
+        "end": 11953456,
+        "baselineCount": 4,
+        "targetOrdinal": 11
+      },
+      {
+        "kind": "string",
+        "value": "/events/stream",
+        "identitySha256": "a7370580ea5c5e0ffe483c1b4e2cfa2c99d8218d7bc5e39e25c9d8cfe392938f",
+        "start": 11953473,
+        "end": 11953487,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11953498,
+        "end": 11953513,
+        "baselineCount": 11,
+        "targetOrdinal": 13
+      },
+      {
+        "kind": "string",
+        "value": "from_sequence_num",
+        "identitySha256": "b3110ef1a640ef4a23c853dab3379564ddef0995815cf37a51524ae7772f4ffe",
+        "start": 11953535,
+        "end": 11953554,
+        "baselineCount": 1,
+        "targetOrdinal": 2
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11953567,
+        "end": 11953582,
+        "baselineCount": 11,
+        "targetOrdinal": 14
+      },
+      {
+        "kind": "property",
+        "value": "authHeaders",
+        "identitySha256": "2d408a8b893bffc4cfe26800daa6a3888fb58c7935d165caa24924df10b0a3f7",
+        "start": 11953600,
+        "end": 11953611,
+        "baselineCount": 7,
+        "targetOrdinal": 8
+      },
+      {
+        "kind": "property",
+        "value": "Accept",
+        "identitySha256": "255bb64b4643c813ed37472198f882652690e7e0068ee5a5dc296a277af52a9f",
+        "start": 11953614,
+        "end": 11953620,
+        "baselineCount": 17,
+        "targetOrdinal": 18
+      },
+      {
+        "kind": "string",
+        "value": "text/event-stream",
+        "identitySha256": "7c868f4fd46f281619554ff8a3ffa8d95617c4774d034730c0c6b001f18c9763",
+        "start": 11953621,
+        "end": 11953640,
+        "baselineCount": 8,
+        "targetOrdinal": 9
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11953650,
+        "end": 11953665,
+        "baselineCount": 11,
+        "targetOrdinal": 15
+      },
+      {
+        "kind": "string",
+        "value": "Last-Event-ID",
+        "identitySha256": "0f0a31b9f73eb46af809446df35b385aabd6140e381665987cb037b631835d1b",
+        "start": 11953670,
+        "end": 11953685,
+        "baselineCount": 2,
+        "targetOrdinal": 3
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11953699,
+        "end": 11953714,
+        "baselineCount": 11,
+        "targetOrdinal": 16
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11953788,
+        "end": 11953803,
+        "baselineCount": 11,
+        "targetOrdinal": 17
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Connecting to ",
+        "identitySha256": "b9e8b9d3fb4d0fbcc40075adfd3cd03b2fe67dc179d7cc3f720f81a4f0d27421",
+        "start": 11953719,
+        "end": 11953752,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": " (from_sequence_num=",
+        "identitySha256": "92984f76804197c167844f2a9cb5400c436e73e01beb47950cbb176b336acc3c",
+        "start": 11953761,
+        "end": 11953781,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "readStream",
+        "identitySha256": "1ba684ef380f22ef19dab0723df2b08103f3c0bea178bfc7d87e5e9a6762511b",
+        "start": 11953854,
+        "end": 11953864,
+        "baselineCount": 2,
+        "targetOrdinal": 3
+      },
+      {
+        "kind": "property",
+        "value": "readStream",
+        "identitySha256": "1ba684ef380f22ef19dab0723df2b08103f3c0bea178bfc7d87e5e9a6762511b",
+        "start": 11953897,
+        "end": 11953907,
+        "baselineCount": 2,
+        "targetOrdinal": 4
+      },
+      {
+        "kind": "string",
+        "value": "GET",
+        "identitySha256": "c2f818ac7da49d880f63581261e70a7075e2e7b8a5c38adea1c611c595decf63",
+        "start": 11953954,
+        "end": 11953959,
+        "baselineCount": 93,
+        "targetOrdinal": 94
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Connect error: ",
+        "identitySha256": "c6da855fcbbdc5126b7c476be5ccfd0ee4b6cf3b419984663bbd3311bd25e9b1",
+        "start": 11954047,
+        "end": 11954081,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "handleStreamEnd",
+        "identitySha256": "341ad0b73f1c9d19cb9c4c6e2f39da306752b46dd27a9b6aed569f699a334d69",
+        "start": 11954145,
+        "end": 11954160,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "ok",
+        "identitySha256": "004c7a37d37b964c36ea8e6779f0a7105518058f30326958ffda57fb4fe640b2",
+        "start": 11954176,
+        "end": 11954178,
+        "baselineCount": 265,
+        "targetOrdinal": 302
+      },
+      {
+        "kind": "property",
+        "value": "body",
+        "identitySha256": "2b6ffc986c0d8e48a0849ac47330c515ddf1bee1d00a05552dba832c7d5eaa8e",
+        "start": 11954183,
+        "end": 11954187,
+        "baselineCount": 536,
+        "targetOrdinal": 552
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] HTTP ",
+        "identitySha256": "0e70ecfc47b46bbad71dc840f11d6490902dc5f984bb5c90f6835d8d49bf77af",
+        "start": 11954195,
+        "end": 11954219,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": " on SSE connect",
+        "identitySha256": "035a2136812734589e9ce31e440c2c5408778f92caf1c4702d06e6332e9f3810",
+        "start": 11954230,
+        "end": 11954245,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "cancel",
+        "identitySha256": "200b4de0afa023b0601ce6ae0882e2d180654233028edc1ba34d155ae1ba72dc",
+        "start": 11954272,
+        "end": 11954278,
+        "baselineCount": 94,
+        "targetOrdinal": 110
+      },
+      {
+        "kind": "property",
+        "value": "body",
+        "identitySha256": "2b6ffc986c0d8e48a0849ac47330c515ddf1bee1d00a05552dba832c7d5eaa8e",
+        "start": 11954266,
+        "end": 11954270,
+        "baselineCount": 536,
+        "targetOrdinal": 553
+      },
+      {
+        "kind": "property",
+        "value": "handleStreamEnd",
+        "identitySha256": "341ad0b73f1c9d19cb9c4c6e2f39da306752b46dd27a9b6aed569f699a334d69",
+        "start": 11954359,
+        "end": 11954374,
+        "baselineCount": 0,
+        "targetOrdinal": 2
+      },
+      {
+        "kind": "property",
+        "value": "resetLivenessTimer",
+        "identitySha256": "0333e36b56fd102aaa96cf90ae2c074f8007540c360270babb2fb3480deac6c6",
+        "start": 11954437,
+        "end": 11954455,
+        "baselineCount": 3,
+        "targetOrdinal": 4
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Connected",
+        "identitySha256": "93175b99dc750d3e2d7a039f7fcfbf4b514cddc1906a18fd819a816678ad9d49",
+        "start": 11954460,
+        "end": 11954490,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "getReader",
+        "identitySha256": "d477ea81a43926fc7f54ad2cd553493a24c931b8e06576487167219dd2035d13",
+        "start": 11954536,
+        "end": 11954545,
+        "baselineCount": 13,
+        "targetOrdinal": 14
+      },
+      {
+        "kind": "property",
+        "value": "body",
+        "identitySha256": "2b6ffc986c0d8e48a0849ac47330c515ddf1bee1d00a05552dba832c7d5eaa8e",
+        "start": 11954531,
+        "end": 11954535,
+        "baselineCount": 536,
+        "targetOrdinal": 554
+      },
+      {
+        "kind": "property",
+        "value": "frames",
+        "identitySha256": "1a0199dc89c685600d3c17a70213ba555d2d33354ef195981e0093e9364ae553",
+        "start": 11954654,
+        "end": 11954660,
+        "baselineCount": 16,
+        "targetOrdinal": 17
+      },
+      {
+        "kind": "property",
+        "value": "resetLivenessTimer",
+        "identitySha256": "0333e36b56fd102aaa96cf90ae2c074f8007540c360270babb2fb3480deac6c6",
+        "start": 11954710,
+        "end": 11954728,
+        "baselineCount": 3,
+        "targetOrdinal": 5
+      },
+      {
+        "kind": "property",
+        "value": "handleFrame",
+        "identitySha256": "f912e0eb018a4d932a4d9f50314178af3fab3d69c8d48a882abea1cf5172d59e",
+        "start": 11954752,
+        "end": 11954763,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Stream read error: ",
+        "identitySha256": "4b470b20210029b3b119c8fccb0282a824cda70c89f89bf3c0bc100a9d9b2aab",
+        "start": 11954825,
+        "end": 11954863,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "releaseLock",
+        "identitySha256": "6e64c1d692f4ec5e51fcc1221698a46bad5266b790d6a931714da4877c9b3221",
+        "start": 11954900,
+        "end": 11954911,
+        "baselineCount": 10,
+        "targetOrdinal": 11
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Stream ended",
+        "identitySha256": "bdbde7789dbd8e841d55d5f59f1c93e638bb83cef70d1c05319aeec7ac9a265a",
+        "start": 11954937,
+        "end": 11954970,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "handleStreamEnd",
+        "identitySha256": "341ad0b73f1c9d19cb9c4c6e2f39da306752b46dd27a9b6aed569f699a334d69",
+        "start": 11954977,
+        "end": 11954992,
+        "baselineCount": 0,
+        "targetOrdinal": 3
+      },
+      {
+        "kind": "property",
+        "value": "handleFrame",
+        "identitySha256": "f912e0eb018a4d932a4d9f50314178af3fab3d69c8d48a882abea1cf5172d59e",
+        "start": 11954995,
+        "end": 11955006,
+        "baselineCount": 0,
+        "targetOrdinal": 2
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Failed to parse ",
+        "identitySha256": "cad16f19569e27a3cda78f1581f4dbe027d6cd1240abcd853505cc84fb5ada8e",
+        "start": 11955051,
+        "end": 11955086,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": " frame: ",
+        "identitySha256": "ce8ce7021a6c4b825e608a74581792d2eeb745a355559561ef6cf15b09512362",
+        "start": 11955090,
+        "end": 11955098,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "sequence_num",
+        "identitySha256": "c593914f816fed1158cb7eba3cafa6e1d7705876180f03fc8b584f31abed35d7",
+        "start": 11955178,
+        "end": 11955190,
+        "baselineCount": 1,
+        "targetOrdinal": 3
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11955217,
+        "end": 11955232,
+        "baselineCount": 11,
+        "targetOrdinal": 18
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11955238,
+        "end": 11955253,
+        "baselineCount": 11,
+        "targetOrdinal": 19
+      },
+      {
+        "kind": "property",
+        "value": "payload",
+        "identitySha256": "d1ed7a7b2b626477cd9779d0fff3000801a662d97de3bc402e7f3cdd85c33f08",
+        "start": 11955265,
+        "end": 11955272,
+        "baselineCount": 64,
+        "targetOrdinal": 65
+      },
+      {
+        "kind": "property",
+        "value": "payload",
+        "identitySha256": "d1ed7a7b2b626477cd9779d0fff3000801a662d97de3bc402e7f3cdd85c33f08",
+        "start": 11955301,
+        "end": 11955308,
+        "baselineCount": 64,
+        "targetOrdinal": 66
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Dropping client_event with no payload.type (event_type=",
+        "identitySha256": "caf50a423a93a84db62782abecb7792222eae9c7687a6c97aaa5c32d2ae36721",
+        "start": 11955318,
+        "end": 11955392,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "client_event",
+        "identitySha256": "931409c825677c8f99e4b56abadbc13b99e1da77c59b1f71a8347af402161954",
+        "start": 11955131,
+        "end": 11955145,
+        "baselineCount": 1,
+        "targetOrdinal": 2
+      },
+      {
+        "kind": "property",
+        "value": "payload",
+        "identitySha256": "d1ed7a7b2b626477cd9779d0fff3000801a662d97de3bc402e7f3cdd85c33f08",
+        "start": 11955458,
+        "end": 11955465,
+        "baselineCount": 64,
+        "targetOrdinal": 67
+      },
+      {
+        "kind": "property",
+        "value": "payload",
+        "identitySha256": "d1ed7a7b2b626477cd9779d0fff3000801a662d97de3bc402e7f3cdd85c33f08",
+        "start": 11955494,
+        "end": 11955501,
+        "baselineCount": 64,
+        "targetOrdinal": 68
+      },
+      {
+        "kind": "string",
+        "value": "ephemeral_event",
+        "identitySha256": "6e405b6521b74b81c9920de530b664e234fad86b09dc253c4170f2c42d96daf2",
+        "start": 11955422,
+        "end": 11955439,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "session_update",
+        "identitySha256": "e2e7f38acb413bcf97ba735d7ef438d0133033bf4f61547e01d6a26ff97f9f82",
+        "start": 11955514,
+        "end": 11955530,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "delivery_update",
+        "identitySha256": "e3d43ebbd3b25462a9fe66108064e6e419ced50f3d6eb48d0b12b9751f240a85",
+        "start": 11955535,
+        "end": 11955552,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Ignoring ",
+        "identitySha256": "592a83fbea8f9c876fe0743949a70db126212aba50e54865724f5974c8113c64",
+        "start": 11955581,
+        "end": 11955609,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": " frame",
+        "identitySha256": "7acbe180ea63c9b00f4458be7350ca80e4a69fd8aa8fe17fc706fc1700f2f87f",
+        "start": 11955613,
+        "end": 11955619,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "catch_up_truncated",
+        "identitySha256": "3b2113d436cd0235bd3aa9df3efec45d36ce94e32542b461489c8131de23a702",
+        "start": 11955557,
+        "end": 11955577,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Unknown SSE event type '",
+        "identitySha256": "a52048d5f6d2db6f5bf257511c3010f91b738604ad662e4e7ab12675be4c863a",
+        "start": 11955640,
+        "end": 11955683,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "handleStreamEnd",
+        "identitySha256": "341ad0b73f1c9d19cb9c4c6e2f39da306752b46dd27a9b6aed569f699a334d69",
+        "start": 11955714,
+        "end": 11955729,
+        "baselineCount": 0,
+        "targetOrdinal": 4
+      },
+      {
+        "kind": "property",
+        "value": "clearLivenessTimer",
+        "identitySha256": "fba265e495f6e9d57c7b05e35efe04f6d8f736e845a2f1b4153470079badba27",
+        "start": 11955740,
+        "end": 11955758,
+        "baselineCount": 4,
+        "targetOrdinal": 5
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Reconnect budget exhausted (",
+        "identitySha256": "ee3c9fb6b1423bd72ef1f2e03b3d2f1355ba3c181ab11ab48540d2cac0fcd69e",
+        "start": 11955851,
+        "end": 11955898,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "), closing",
+        "identitySha256": "c9774426cf3b55a5f1411e010bafd3c316b2b52aa1205beb6fcb99c3996a55bf",
+        "start": 11955904,
+        "end": 11955914,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "idle",
+        "identitySha256": "86b601cded41f85e786b8fba02fe6dd6d64cab9dc6be0b974b4295e15261c025",
+        "start": 11956007,
+        "end": 11956013,
+        "baselineCount": 110,
+        "targetOrdinal": 124
+      },
+      {
+        "kind": "property",
+        "value": "lastSequenceNum",
+        "identitySha256": "e64cd9d72e1e321e7d5f3b570ccd5225d4ab870074498dd7da5ae37fd95a9cfe",
+        "start": 11956181,
+        "end": 11956196,
+        "baselineCount": 11,
+        "targetOrdinal": 20
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Reconnecting in ",
+        "identitySha256": "cedda0085f135996ed7696b86bf98cf1d3a17cffc19582b53b366c858c96990b",
+        "start": 11956071,
+        "end": 11956106,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": ", from_sequence_num=",
+        "identitySha256": "ce94b527de464183f2d513f6522dc4c4052d32450df1a0625169300b5ee7c329",
+        "start": 11956154,
+        "end": 11956174,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "onLivenessTimeout",
+        "identitySha256": "4ce58cc75390c0456f9d14029fb6226a249b1c458e84d64cbd868c07c1cb153d",
+        "start": 11956315,
+        "end": 11956332,
+        "baselineCount": 2,
+        "targetOrdinal": 3
+      },
+      {
+        "kind": "property",
+        "value": "livenessTimer",
+        "identitySha256": "bd2e7b6ea069cb78425bff29fc9a26aeb76da1b42ff122edb24978dc9f8ff7b2",
+        "start": 11956343,
+        "end": 11956356,
+        "baselineCount": 6,
+        "targetOrdinal": 8
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Liveness timeout, reconnecting",
+        "identitySha256": "d3cd4cf32db834e91d20ecd2ab80197024356a9b900c3f1f45856f8d27bbdcb9",
+        "start": 11956364,
+        "end": 11956415,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "handleStreamEnd",
+        "identitySha256": "341ad0b73f1c9d19cb9c4c6e2f39da306752b46dd27a9b6aed569f699a334d69",
+        "start": 11956493,
+        "end": 11956508,
+        "baselineCount": 0,
+        "targetOrdinal": 5
+      },
+      {
+        "kind": "property",
+        "value": "resetLivenessTimer",
+        "identitySha256": "0333e36b56fd102aaa96cf90ae2c074f8007540c360270babb2fb3480deac6c6",
+        "start": 11956512,
+        "end": 11956530,
+        "baselineCount": 3,
+        "targetOrdinal": 6
+      },
+      {
+        "kind": "property",
+        "value": "clearLivenessTimer",
+        "identitySha256": "fba265e495f6e9d57c7b05e35efe04f6d8f736e845a2f1b4153470079badba27",
+        "start": 11956538,
+        "end": 11956556,
+        "baselineCount": 4,
+        "targetOrdinal": 6
+      },
+      {
+        "kind": "property",
+        "value": "livenessTimer",
+        "identitySha256": "bd2e7b6ea069cb78425bff29fc9a26aeb76da1b42ff122edb24978dc9f8ff7b2",
+        "start": 11956564,
+        "end": 11956577,
+        "baselineCount": 6,
+        "targetOrdinal": 9
+      },
+      {
+        "kind": "property",
+        "value": "onLivenessTimeout",
+        "identitySha256": "4ce58cc75390c0456f9d14029fb6226a249b1c458e84d64cbd868c07c1cb153d",
+        "start": 11956594,
+        "end": 11956611,
+        "baselineCount": 2,
+        "targetOrdinal": 4
+      },
+      {
+        "kind": "property",
+        "value": "clearLivenessTimer",
+        "identitySha256": "fba265e495f6e9d57c7b05e35efe04f6d8f736e845a2f1b4153470079badba27",
+        "start": 11956617,
+        "end": 11956635,
+        "baselineCount": 4,
+        "targetOrdinal": 7
+      },
+      {
+        "kind": "property",
+        "value": "livenessTimer",
+        "identitySha256": "bd2e7b6ea069cb78425bff29fc9a26aeb76da1b42ff122edb24978dc9f8ff7b2",
+        "start": 11956646,
+        "end": 11956659,
+        "baselineCount": 6,
+        "targetOrdinal": 10
+      },
+      {
+        "kind": "property",
+        "value": "livenessTimer",
+        "identitySha256": "bd2e7b6ea069cb78425bff29fc9a26aeb76da1b42ff122edb24978dc9f8ff7b2",
+        "start": 11956678,
+        "end": 11956691,
+        "baselineCount": 6,
+        "targetOrdinal": 11
+      },
+      {
+        "kind": "property",
+        "value": "livenessTimer",
+        "identitySha256": "bd2e7b6ea069cb78425bff29fc9a26aeb76da1b42ff122edb24978dc9f8ff7b2",
+        "start": 11956698,
+        "end": 11956711,
+        "baselineCount": 6,
+        "targetOrdinal": 12
+      },
+      {
+        "kind": "property",
+        "value": "sendEvent",
+        "identitySha256": "0bf84c90a247be6e26aafb901c40f7bf4ca5640fd9d94fa68089f23a2f66e70e",
+        "start": 11956723,
+        "end": 11956732,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Cannot send: closed",
+        "identitySha256": "2bb983a7f1360721bc5557a01d3c7d5a5b00259e6de5d116d3cef19ba08506bc",
+        "start": 11956770,
+        "end": 11956810,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "warn",
+        "identitySha256": "bbe19535f2708a9ac72aef31544aa35271d36ee54f1d33d459aa57109bfe91e6",
+        "start": 11956818,
+        "end": 11956824,
+        "baselineCount": 256,
+        "targetOrdinal": 257
+      },
+      {
+        "kind": "string",
+        "value": "/v1/code/sessions/",
+        "identitySha256": "0cc994baae91ff780aed8eea5a9eba458537522ba50dca7e81efd5eb8fc76c4b",
+        "start": 11956859,
+        "end": 11956877,
+        "baselineCount": 4,
+        "targetOrdinal": 12
+      },
+      {
+        "kind": "property",
+        "value": "payload",
+        "identitySha256": "d1ed7a7b2b626477cd9779d0fff3000801a662d97de3bc402e7f3cdd85c33f08",
+        "start": 11956941,
+        "end": 11956948,
+        "baselineCount": 64,
+        "targetOrdinal": 69
+      },
+      {
+        "kind": "string",
+        "value": "POST",
+        "identitySha256": "2b7cc9c36d967723211b1a4ca407079f2d260fb34c1a5ea18bf15365879fb337",
+        "start": 11956986,
+        "end": 11956992,
+        "baselineCount": 90,
+        "targetOrdinal": 91
+      },
+      {
+        "kind": "property",
+        "value": "authHeaders",
+        "identitySha256": "2d408a8b893bffc4cfe26800daa6a3888fb58c7935d165caa24924df10b0a3f7",
+        "start": 11957006,
+        "end": 11957017,
+        "baselineCount": 7,
+        "targetOrdinal": 9
+      },
+      {
+        "kind": "property",
+        "value": "body",
+        "identitySha256": "2b6ffc986c0d8e48a0849ac47330c515ddf1bee1d00a05552dba832c7d5eaa8e",
+        "start": 11957020,
+        "end": 11957024,
+        "baselineCount": 536,
+        "targetOrdinal": 555
+      },
+      {
+        "kind": "property",
+        "value": "ok",
+        "identitySha256": "004c7a37d37b964c36ea8e6779f0a7105518058f30326958ffda57fb4fe640b2",
+        "start": 11957088,
+        "end": 11957090,
+        "baselineCount": 265,
+        "targetOrdinal": 303
+      },
+      {
+        "kind": "property",
+        "value": "cancel",
+        "identitySha256": "200b4de0afa023b0601ce6ae0882e2d180654233028edc1ba34d155ae1ba72dc",
+        "start": 11957106,
+        "end": 11957112,
+        "baselineCount": 94,
+        "targetOrdinal": 111
+      },
+      {
+        "kind": "property",
+        "value": "body",
+        "identitySha256": "2b6ffc986c0d8e48a0849ac47330c515ddf1bee1d00a05552dba832c7d5eaa8e",
+        "start": 11957100,
+        "end": 11957104,
+        "baselineCount": 536,
+        "targetOrdinal": 556
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] POST /events returned ",
+        "identitySha256": "d62eac35bc0e1360cc5ecafce2d4a38cccc2a20c19dba1e54efda8b1b7ab205c",
+        "start": 11957118,
+        "end": 11957159,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "warn",
+        "identitySha256": "bbe19535f2708a9ac72aef31544aa35271d36ee54f1d33d459aa57109bfe91e6",
+        "start": 11957179,
+        "end": 11957185,
+        "baselineCount": 256,
+        "targetOrdinal": 258
+      },
+      {
+        "kind": "property",
+        "value": "json",
+        "identitySha256": "78ea08f96db86ce2cae520a9fd9258bd520c252a6efcdc1b1192ce078830354e",
+        "start": 11957208,
+        "end": 11957212,
+        "baselineCount": 55,
+        "targetOrdinal": 57
+      },
+      {
+        "kind": "property",
+        "value": "sequence_num",
+        "identitySha256": "c593914f816fed1158cb7eba3cafa6e1d7705876180f03fc8b584f31abed35d7",
+        "start": 11957251,
+        "end": 11957263,
+        "baselineCount": 1,
+        "targetOrdinal": 4
+      },
+      {
+        "kind": "property",
+        "value": "sequence_num",
+        "identitySha256": "c593914f816fed1158cb7eba3cafa6e1d7705876180f03fc8b584f31abed35d7",
+        "start": 11957280,
+        "end": 11957292,
+        "baselineCount": 1,
+        "targetOrdinal": 5
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] POST /events failed: ",
+        "identitySha256": "c9d080fe37ddba3d8be2414e1be9dc307712a0a75f2b976830b1066cd222a3b6",
+        "start": 11957326,
+        "end": 11957366,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "warn",
+        "identitySha256": "bbe19535f2708a9ac72aef31544aa35271d36ee54f1d33d459aa57109bfe91e6",
+        "start": 11957383,
+        "end": 11957389,
+        "baselineCount": 256,
+        "targetOrdinal": 259
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Sending control_response",
+        "identitySha256": "e9e4d4b0186f114b60cd8afae6a4cce020d9f39c2d5ef0a04eff352d73242473",
+        "start": 11957423,
+        "end": 11957468,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "sendEvent",
+        "identitySha256": "0bf84c90a247be6e26aafb901c40f7bf4ca5640fd9d94fa68089f23a2f66e70e",
+        "start": 11957475,
+        "end": 11957484,
+        "baselineCount": 0,
+        "targetOrdinal": 2
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Cannot send control_request: closed",
+        "identitySha256": "d586be0a387694296f3f92cb3e290e6ca4ac32eae2201e355c85b0104a12642a",
+        "start": 11957571,
+        "end": 11957627,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "string",
+        "value": "warn",
+        "identitySha256": "bbe19535f2708a9ac72aef31544aa35271d36ee54f1d33d459aa57109bfe91e6",
+        "start": 11957635,
+        "end": 11957641,
+        "baselineCount": 256,
+        "targetOrdinal": 260
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Sending control_request: ",
+        "identitySha256": "5cdeded67805b0917fc08494a3f01a6b978e2d0630ba5422c0a3ec13f7b01864",
+        "start": 11957754,
+        "end": 11957798,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "sendEvent",
+        "identitySha256": "0bf84c90a247be6e26aafb901c40f7bf4ca5640fd9d94fa68089f23a2f66e70e",
+        "start": 11957818,
+        "end": 11957827,
+        "baselineCount": 0,
+        "targetOrdinal": 3
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Closing",
+        "identitySha256": "c85d72e48725e39d2aa5df1923fde01d95f96767598bf98fbaab1e4fefa7422c",
+        "start": 11957892,
+        "end": 11957920,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "clearLivenessTimer",
+        "identitySha256": "fba265e495f6e9d57c7b05e35efe04f6d8f736e845a2f1b4153470079badba27",
+        "start": 11957947,
+        "end": 11957965,
+        "baselineCount": 4,
+        "targetOrdinal": 8
+      },
+      {
+        "kind": "string",
+        "value": "[SessionsV2Client] Force reconnect",
+        "identitySha256": "c274bd7a6cd91c63354266320844b87b52e910a6db422c8ea2d5278967c56d37",
+        "start": 11958120,
+        "end": 11958156,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      },
+      {
+        "kind": "property",
+        "value": "clearLivenessTimer",
+        "identitySha256": "fba265e495f6e9d57c7b05e35efe04f6d8f736e845a2f1b4153470079badba27",
+        "start": 11958188,
+        "end": 11958206,
+        "baselineCount": 4,
+        "targetOrdinal": 9
+      },
+      {
+        "kind": "string",
+        "value": "idle",
+        "identitySha256": "86b601cded41f85e786b8fba02fe6dd6d64cab9dc6be0b974b4295e15261c025",
+        "start": 11958355,
+        "end": 11958361,
+        "baselineCount": 110,
+        "targetOrdinal": 125
+      },
+      {
+        "kind": "property",
+        "value": "authHeaders",
+        "identitySha256": "2d408a8b893bffc4cfe26800daa6a3888fb58c7935d165caa24924df10b0a3f7",
+        "start": 11958377,
+        "end": 11958388,
+        "baselineCount": 7,
+        "targetOrdinal": 10
+      }
+    ],
+    "residueIdentitiesSha256": "94705ef24cb7fad3955f165f71e64d490bc1b8bf18772dae79b4e6169812f52a"
+  }
+}

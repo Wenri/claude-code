@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-local-property-name-equivalence",
+  "evidenceIds": [
+    "target118-wsl-fingerprint-property-target-fragment",
+    "target118-wsl-fingerprint-property-source-ast-test",
+    "target118-wsl-fingerprint-property-compiler-equivalence-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "sourcePath": "src/utils/settings/changeDetector.ts",
+        "bytes": 16718,
+        "sha256": "f37738b555e5b69c58bf8c0ef56e8cca4be7bb430a73d9b0e8c8db2bad0f87c5"
+      },
+      {
+        "sourcePath": "src/utils/settings/mdm/settings.ts",
+        "bytes": 14858,
+        "sha256": "9f1eea18a3dd9af85192a0b9c08af705401916cf7aeccdf22232ae9ab8491617"
+      }
+    ]
+  },
+  "targetUnit": {
+    "targetIndex": 8094,
+    "start": 3860408,
+    "end": 3862916,
+    "bytes": 2508,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "281d0e4cdacaeb8d116f5908b4d79837e97192937ea4d678e68f1a3cc5e12227",
+    "residues": [
+      ["property", "wslWindowsFile", 3862322, 3862336, 0, 1],
+      ["property", "wslWindowsFile", 3862513, 3862527, 0, 2]
+    ]
+  },
+  "targetFingerprintHelper": {
+    "name": "O28",
+    "start": 1090044,
+    "end": 1090460,
+    "bytes": 416,
+    "sha256": "81c23707e3c9f24f985c0dbb886c1dd8185fa655c9919c81973d8115c8ff138e"
+  },
+  "sourceProof": {
+    "ownerPath": "src/utils/settings/changeDetector.ts",
+    "ownerDeclaration": {
+      "name": "startMdmPoll",
+      "start": 12840,
+      "end": 14289,
+      "bytes": 1449,
+      "sha256": "38f34f21815dd07bc4a00e18baffb011ba6e5168250a27e4392151dd468b910b"
+    },
+    "helperPath": "src/utils/settings/mdm/settings.ts",
+    "helperDeclaration": {
+      "name": "getWslWindowsManagedSettingsFingerprint",
+      "start": 13873,
+      "end": 14823,
+      "bytes": 950,
+      "sha256": "a0cc8273f74715157751fdbd93e9a5ca4ed15357948bab7307b4d241bc9c6310"
+    },
+    "targetSnapshotKey": "wslWindowsFile",
+    "sourceSnapshotKey": "wslFiles",
+    "commonSnapshotKeys": ["mdm", "hkcu", "wslInherits"],
+    "targetHelperBinding": "O28",
+    "sourceHelperBinding": "getWslWindowsManagedSettingsFingerprint"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "indicesSha256": "251257154b5c1e9162ab2f40ce55bd7a6f80e65afcf37083d4d0b9507705d72a",
+    "residueIdentitiesSha256": "b19cca588e5e0ac34daf7ba8bea5d81da9aea59dbcc63759aa260ccb8d2fe6c5"
+  }
+}

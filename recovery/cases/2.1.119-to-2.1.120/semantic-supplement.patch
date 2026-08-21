@@ -1,0 +1,1872 @@
+diff --git a/src/bootstrap/state.ts b/src/bootstrap/state.ts
+index c0082fd..9c19f08 100644
+--- a/src/bootstrap/state.ts
++++ b/src/bootstrap/state.ts
+@@ -91,2 +91,3 @@ type State = {
+   kairosActive: boolean
++  fridayFundayDisabledForSession: boolean
+   // When true, ensureToolResultPairing throws on mismatch instead of
+@@ -335,2 +336,3 @@ function getInitialState(): State {
+     kairosActive: false,
++    fridayFundayDisabledForSession: false,
+     strictToolResultPairing: false,
+@@ -1166,2 +1168,10 @@ export function setKairosActive(value: boolean): void {
+ 
++export function getFridayFundayDisabledForSession(): boolean {
++  return STATE.fridayFundayDisabledForSession
++}
++
++export function setFridayFundayDisabledForSession(): void {
++  STATE.fridayFundayDisabledForSession = true
++}
++
+ export function getStrictToolResultPairing(): boolean {
+diff --git a/src/cli/handlers/ultrareview.ts b/src/cli/handlers/ultrareview.ts
+index b7b86c1..b6d733d 100644
+--- a/src/cli/handlers/ultrareview.ts
++++ b/src/cli/handlers/ultrareview.ts
+@@ -13,2 +13,3 @@ import { exitWithError } from '../../utils/process.js'
+ import { sleep } from '../../utils/sleep.js'
++import { NOOP_TASK_REGISTRY } from '../../utils/task/framework.js'
+ import { isTransientNetworkError } from '../../utils/teleport/api.js'
+@@ -206,3 +207,3 @@ export async function ultrareviewHandler(
+     skipTaskRegistration: true,
+-    context: { abortController },
++    context: { abortController, taskRegistry: NOOP_TASK_REGISTRY },
+   })
+diff --git a/src/cli/print.ts b/src/cli/print.ts
+index 6cc8626..6807ef2 100644
+--- a/src/cli/print.ts
++++ b/src/cli/print.ts
+@@ -2,2 +2,3 @@
+ import { feature } from 'bun:bundle'
++import { APIError } from '@anthropic-ai/sdk'
+ import { readFile, stat } from 'fs/promises'
+@@ -220,2 +221,3 @@ import {
+   setSessionSkillAllowlist,
++  getTotalAPIDuration,
+ } from 'src/bootstrap/state.js'
+@@ -253,2 +255,4 @@ import {
+   reconnectMcpServerImpl,
++  callMCPToolWithUrlElicitationRetry,
++  McpAuthError,
+ } from 'src/services/mcp/client.js'
+@@ -274,2 +278,4 @@ import {
+   ElicitationCompleteNotificationSchema,
++  ErrorCode,
++  McpError,
+ } from '@modelcontextprotocol/sdk/types.js'
+@@ -278,3 +284,5 @@ import {
+   getMcpPrefix,
++  mcpInfoFromString,
+ } from 'src/services/mcp/mcpStringUtils.js'
++import { normalizeNameForMCP } from 'src/services/mcp/normalization.js'
+ import {
+@@ -392,2 +400,4 @@ import { initializeGrowthBook } from '../services/analytics/growthbook.js'
+ import { errorMessage, toError } from '../utils/errors.js'
++import { classifyAPIError } from '../services/api/errors.js'
++import { classifyToolError } from '../services/tools/toolExecution.js'
+ import { sleep } from '../utils/sleep.js'
+@@ -499,2 +509,64 @@ export function canBatchWith(
+ 
++function getSdkCrashMetadata(error: unknown): {
++  error_name: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
++  api_error_status?: number
++  cause_name?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
++} {
++  const isApiError = error instanceof APIError
++  const errorName = isApiError
++    ? classifyAPIError(error)
++    : classifyToolError(error)
++  const apiErrorStatus =
++    isApiError && typeof error.status === 'number' ? error.status : undefined
++  const causeName =
++    error instanceof Error && error.cause !== undefined
++      ? classifyToolError(error.cause)
++      : undefined
++  return {
++    error_name:
++      errorName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++    api_error_status: apiErrorStatus,
++    cause_name:
++      causeName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++  }
++}
++
++function getUrlElicitationUrls(error: McpError): string[] {
++  const data = error.data
++  if (data === null || typeof data !== 'object') return []
++  const elicitations = (data as Record<string, unknown>).elicitations
++  if (!Array.isArray(elicitations)) return []
++  return elicitations.flatMap(value => {
++    if (value === null || typeof value !== 'object') return []
++    const elicitation = value as Record<string, unknown>
++    return elicitation.mode === 'url' &&
++      typeof elicitation.url === 'string' &&
++      typeof elicitation.elicitationId === 'string' &&
++      typeof elicitation.message === 'string'
++      ? [elicitation.url]
++      : []
++  })
++}
++
++function markMcpServerNeedsAuth(
++  serverName: string,
++  setAppState: (f: (prev: AppState) => AppState) => void,
++): void {
++  setAppState(prevState => {
++    const existingClientIndex = prevState.mcp.clients.findIndex(
++      client => client.name === serverName,
++    )
++    if (existingClientIndex === -1) return prevState
++    const existingClient = prevState.mcp.clients[existingClientIndex]
++    if (!existingClient || existingClient.type !== 'connected') return prevState
++    const clients = [...prevState.mcp.clients]
++    clients[existingClientIndex] = {
++      name: serverName,
++      type: 'needs-auth',
++      config: existingClient.config,
++    }
++    return { ...prevState, mcp: { ...prevState.mcp, clients } }
++  })
++}
++
+ function isSyntheticSessionTitleInput(text: string): boolean {
+@@ -1096,2 +1168,4 @@ function runHeadlessStreaming(
+   let running = false
++  let sdkResultStartedAt: number | undefined
++  let sdkResultTerminalLogged = false
+   let runPhase:
+@@ -1106,2 +1180,3 @@ function runHeadlessStreaming(
+   let abortController: AbortController | undefined
++  const controlRequestAbortController = createAbortController(500)
+   // Same queue sendRequest() enqueues to — one FIFO for everything.
+@@ -1127,2 +1202,3 @@ function runHeadlessStreaming(
+     }
++    controlRequestAbortController.abort()
+     void gracefulShutdown(0)
+@@ -1134,2 +1210,20 @@ function runHeadlessStreaming(
+   registerCleanup(async () => {
++    if (
++      sdkResultStartedAt &&
++      !abortController?.signal.aborted &&
++      !sdkResultTerminalLogged
++    ) {
++      logEvent('tengu_sdk_result', {
++        subtype:
++          'terminated' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++        is_error: true,
++        duration_ms: Date.now() - sdkResultStartedAt,
++        run_phase:
++          runPhase ??
++          ('init' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS),
++        exit_code: process.exitCode,
++      })
++      sdkResultTerminalLogged = true
++      sdkResultStartedAt = undefined
++    }
+     const bg: Record<string, number> = {}
+@@ -2294,2 +2388,7 @@ function runHeadlessStreaming(
+           await runWithWorkload(cmd.workload ?? options.workload, async () => {
++            let sawSdkRetry = false
++            let sawSdkCompact = false
++            let sdkRetryStatus = 0
++            const sdkApiDurationStart = getTotalAPIDuration()
++            sdkResultStartedAt = Date.now()
+             for await (const message of ask({
+@@ -2367,3 +2466,36 @@ function runHeadlessStreaming(
+ 
++              if (message.type === 'system') {
++                if (message.subtype === 'api_retry') {
++                  sawSdkRetry = true
++                  sdkRetryStatus = Math.max(
++                    sdkRetryStatus,
++                    message.error_status ?? 0,
++                  )
++                }
++                if (message.subtype === 'compact_boundary') {
++                  sawSdkCompact = true
++                }
++              }
++
+               if (message.type === 'result') {
++                if (sdkResultStartedAt !== undefined) {
++                  logEvent('tengu_sdk_result', {
++                    subtype:
++                      message.subtype as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++                    is_error: message.is_error,
++                    num_turns: message.num_turns,
++                    duration_ms: message.duration_ms,
++                    duration_api_ms:
++                      getTotalAPIDuration() - sdkApiDurationStart,
++                    saw_retry: sawSdkRetry,
++                    saw_compact: sawSdkCompact,
++                    retry_status: sawSdkRetry ? sdkRetryStatus : undefined,
++                    api_error_status:
++                      message.subtype === 'success'
++                        ? (message as { api_error_status?: number })
++                            .api_error_status
++                        : undefined,
++                  })
++                  sdkResultStartedAt = undefined
++                }
+                 // Flush pending SDK events so they appear before result on the stream.
+@@ -2582,2 +2714,16 @@ function runHeadlessStreaming(
+     } catch (error) {
++      logEvent('tengu_sdk_session_crash', getSdkCrashMetadata(error))
++      if (!sdkResultTerminalLogged) {
++        logEvent('tengu_sdk_result', {
++          subtype:
++            'error_during_execution' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++          is_error: true,
++          num_turns: 0,
++          duration_ms: 0,
++          duration_api_ms: 0,
++          saw_retry: false,
++          saw_compact: false,
++        })
++        sdkResultTerminalLogged = true
++      }
+       // Emit error result message before shutting down
+@@ -2830,3 +2976,12 @@ function runHeadlessStreaming(
+         if (suggestionState.inflightPromise) {
+-          await Promise.race([suggestionState.inflightPromise, sleep(5000)])
++          const suggestionAbortTimer = setTimeout(
++            controller => controller?.abort(),
++            30_000,
++            suggestionState.abortController,
++          )
++          try {
++            await suggestionState.inflightPromise
++          } finally {
++            clearTimeout(suggestionAbortTimer)
++          }
+         }
+@@ -3019,2 +3174,3 @@ function runHeadlessStreaming(
+           }
++          controlRequestAbortController.abort()
+           suggestionState.abortController?.abort()
+@@ -3128,2 +3284,109 @@ function runHeadlessStreaming(
+           })
++        } else if (message.request.subtype === 'mcp_call') {
++          const { tool, arguments: args } = message.request
++          const mcpInfo = mcpInfoFromString(tool)
++          if (!mcpInfo || !mcpInfo.toolName) {
++            sendControlResponseError(
++              message,
++              `Not a fully-qualified MCP tool name: ${tool}`,
++            )
++          } else {
++            const connectedClient = [
++              ...getAppState().mcp.clients,
++              ...sdkClients,
++              ...dynamicMcpState.clients,
++            ].find(
++              client =>
++                client.type === 'connected' &&
++                normalizeNameForMCP(client.name) === mcpInfo.serverName,
++            )
++            if (!connectedClient || connectedClient.type !== 'connected') {
++              sendControlResponseError(
++                message,
++                `MCP server not connected: ${mcpInfo.serverName}`,
++              )
++            } else if (connectedClient.config.type === 'sdk') {
++              sendControlResponseError(
++                message,
++                'mcp_call does not support SDK MCP servers. ' +
++                  `SDK servers are caller-provided — invoke ${mcpInfo.serverName} directly.`,
++              )
++            } else {
++              const actualToolName =
++                [
++                  ...getAppState().mcp.tools,
++                  ...dynamicMcpState.tools,
++                ].find(candidate => toolMatchesName(candidate, tool))?.mcpInfo
++                  ?.toolName ?? mcpInfo.toolName
++
++              void (async () => {
++                if (controlRequestAbortController.signal.aborted) return
++                const callAbortController = createAbortController()
++                const onParentAbort = () =>
++                  callAbortController.abort(
++                    controlRequestAbortController.signal.reason,
++                  )
++                controlRequestAbortController.signal.addEventListener(
++                  'abort',
++                  onParentAbort,
++                  { once: true },
++                )
++                try {
++                  const result = await callMCPToolWithUrlElicitationRetry({
++                    client: connectedClient,
++                    clientConnection: connectedClient,
++                    tool: actualToolName,
++                    args: args ?? {},
++                    signal: callAbortController.signal,
++                    setAppState,
++                    handleElicitation: async () => ({ action: 'cancel' }),
++                  })
++                  if (controlRequestAbortController.signal.aborted) return
++                  if (result.urlElicitationDeclined) {
++                    sendControlResponseError(
++                      message,
++                      `URL elicitation required (open URL, then retry mcp_call): ${result.urlElicitationDeclined.url}` +
++                        (typeof result.content === 'string'
++                          ? ` — ${result.content}`
++                          : ''),
++                    )
++                  } else {
++                    sendControlResponseSuccess(message, {
++                      content: result.content,
++                      structuredContent: result.structuredContent,
++                      _meta: result._meta,
++                    })
++                  }
++                } catch (error) {
++                  if (controlRequestAbortController.signal.aborted) return
++                  if (error instanceof McpAuthError) {
++                    markMcpServerNeedsAuth(error.serverName, setAppState)
++                  }
++                  let messageText =
++                    error instanceof Error ? error.message : String(error)
++                  if (
++                    error instanceof Error &&
++                    error.name === 'McpSessionExpiredError'
++                  ) {
++                    messageText = `MCP session expired for ${mcpInfo.serverName} — send mcp_reconnect and retry mcp_call: ${messageText}`
++                  } else if (
++                    error instanceof McpError &&
++                    error.code === ErrorCode.UrlElicitationRequired
++                  ) {
++                    const urls = getUrlElicitationUrls(error)
++                    messageText =
++                      urls.length > 0
++                        ? `URL elicitation required (open URL, then retry mcp_call): ${urls.join(', ')} — ${messageText}`
++                        : `URL elicitation required (no URL in error data): ${messageText}`
++                  }
++                  sendControlResponseError(message, messageText)
++                } finally {
++                  controlRequestAbortController.signal.removeEventListener(
++                    'abort',
++                    onParentAbort,
++                  )
++                }
++              })()
++            }
++          }
+         } else if (message.request.subtype === 'get_context_usage') {
+@@ -4459,2 +4722,3 @@ function runHeadlessStreaming(
+     inputClosed = true
++    controlRequestAbortController.abort()
+     cronScheduler?.stop()
+@@ -4462,5 +4726,14 @@ function runHeadlessStreaming(
+       // If a push-suggestion is in-flight, wait for it to emit before closing
+-      // the output stream (5 s safety timeout to prevent hanging).
++      // the output stream (30 s safety timeout to prevent hanging).
+       if (suggestionState.inflightPromise) {
+-        await Promise.race([suggestionState.inflightPromise, sleep(5000)])
++        const suggestionAbortTimer = setTimeout(
++          controller => controller?.abort(),
++          30_000,
++          suggestionState.abortController,
++        )
++        try {
++          await suggestionState.inflightPromise
++        } finally {
++          clearTimeout(suggestionAbortTimer)
++        }
+       }
+diff --git a/src/cli/transports/ccrClient.ts b/src/cli/transports/ccrClient.ts
+index 81f9a35..adc9d99 100644
+--- a/src/cli/transports/ccrClient.ts
++++ b/src/cli/transports/ccrClient.ts
+@@ -48,2 +48,13 @@ function alwaysValidStatus(): boolean {
+ 
++function hasStatusCategory(
++  value: unknown,
++): value is { status_category: string } {
++  return (
++    value !== null &&
++    typeof value === 'object' &&
++    'status_category' in value &&
++    typeof value.status_category === 'string'
++  )
++}
++
+ export type CCRInitFailReason =
+@@ -666,7 +677,4 @@ export class CCRClient {
+     const externalMetadata =
+-      postTurnSummary !== null &&
+-      typeof postTurnSummary === 'object' &&
+-      typeof (postTurnSummary as Record<string, unknown>).status_category ===
+-        'string' &&
+-      (postTurnSummary as Record<string, unknown>).status_category === 'blocked'
++      hasStatusCategory(postTurnSummary) &&
++      postTurnSummary.status_category === 'blocked'
+         ? {
+diff --git a/src/components/FeedbackSurvey/FeedbackSurvey.tsx b/src/components/FeedbackSurvey/FeedbackSurvey.tsx
+index dc3e712..df98dc5 100644
+--- a/src/components/FeedbackSurvey/FeedbackSurvey.tsx
++++ b/src/components/FeedbackSurvey/FeedbackSurvey.tsx
+@@ -4,2 +4,6 @@ import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEve
+ import { Box, Text } from '../../ink.js';
++import { useAppState } from '../../state/AppState.js';
++import { useKeybindingPreDispatch } from '../../keybindings/useKeybinding.js';
++import { truncateToLines } from '../../utils/stringUtils.js';
++import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
+ import { FeedbackSurveyView, isValidResponseInput } from './FeedbackSurveyView.js';
+@@ -10,5 +14,6 @@ import type { FeedbackSurveyResponse } from './utils.js';
+ type Props = {
+-  state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
++  state: 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
+   lastResponse: FeedbackSurveyResponse | null;
+   handleSelect: (selected: FeedbackSurveyResponse) => void;
++  handleUndo: () => void;
+   handleTranscriptSelect?: (selected: TranscriptShareResponse) => void;
+@@ -18,5 +23,10 @@ type Props = {
+   message?: string;
++  memoryEvaluation?: MemorySurveyEvaluation;
++  showNotSure?: boolean;
++};
++type MemorySurveyEvaluation = {
++  memory_impact_summary?: string | null;
+ };
+ export function FeedbackSurvey(t0) {
+-  const $ = _c(16);
++  const $ = _c(17);
+   const {
+@@ -25,2 +35,3 @@ export function FeedbackSurvey(t0) {
+     handleSelect,
++    handleUndo,
+     handleTranscriptSelect,
+@@ -29,3 +40,5 @@ export function FeedbackSurvey(t0) {
+     onRequestFeedback,
+-    message
++    message,
++    memoryEvaluation,
++    showNotSure = false
+   } = t0;
+@@ -34,2 +47,5 @@ export function FeedbackSurvey(t0) {
+   }
++  if (state === 'pending') {
++    return <FeedbackSurveyPending lastResponse={lastResponse} onUndo={handleUndo} />;
++  }
+   if (state === "thanks") {
+@@ -72,3 +88,3 @@ export function FeedbackSurvey(t0) {
+     }
+-    if (inputValue && !["1", "2", "3"].includes(inputValue)) {
++    if (inputValue && !['y', 'n', 'd'].includes(inputValue.toLowerCase())) {
+       return null;
+@@ -87,8 +103,11 @@ export function FeedbackSurvey(t0) {
+   }
+-  if (inputValue && !isValidResponseInput(inputValue)) {
++  if (inputValue && !isValidResponseInput(inputValue, showNotSure)) {
+     return null;
+   }
++  if (memoryEvaluation) {
++    return <MemorySurveyView evaluation={memoryEvaluation} onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} />;
++  }
+   let t1;
+-  if ($[11] !== handleSelect || $[12] !== inputValue || $[13] !== message || $[14] !== setInputValue) {
+-    t1 = <FeedbackSurveyView onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} message={message} />;
++  if ($[11] !== handleSelect || $[12] !== inputValue || $[13] !== message || $[14] !== setInputValue || $[15] !== showNotSure) {
++    t1 = <FeedbackSurveyView onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} message={message} showNotSure={showNotSure} />;
+     $[11] = handleSelect;
+@@ -97,5 +116,6 @@ export function FeedbackSurvey(t0) {
+     $[14] = setInputValue;
+-    $[15] = t1;
++    $[15] = showNotSure;
++    $[16] = t1;
+   } else {
+-    t1 = $[15];
++    t1 = $[16];
+   }
+@@ -103,2 +123,41 @@ export function FeedbackSurvey(t0) {
+ }
++const RESPONSE_LABELS: Partial<Record<FeedbackSurveyResponse, string>> = {
++  bad: 'Bad',
++  fine: 'Fine',
++  good: 'Good',
++  not_sure: 'Unsure'
++};
++function FeedbackSurveyPending({
++  lastResponse,
++  onUndo
++}: {
++  lastResponse: FeedbackSurveyResponse | null;
++  onUndo: () => void;
++}) {
++  useKeybindingPreDispatch((_input, key) => {
++    if (key.escape) {
++      onUndo();
++      return true;
++    }
++  });
++  const responseLabel = lastResponse && lastResponse !== 'dismissed' ? RESPONSE_LABELS[lastResponse] ?? '' : '';
++  return <Box marginTop={1}><Text dimColor>Feedback: <Text color="text">{responseLabel}</Text> {' · ' }<KeyboardShortcutHint chord="escape" action="undo" /></Text></Box>;
++}
++function MemorySurveyView({
++  evaluation,
++  onSelect,
++  inputValue,
++  setInputValue
++}: {
++  evaluation: MemorySurveyEvaluation;
++  onSelect: (selected: FeedbackSurveyResponse) => void;
++  inputValue: string;
++  setInputValue: (value: string) => void;
++}) {
++  const verbose = useAppState(state_0 => state_0.verbose);
++  const rawSummary = evaluation.memory_impact_summary?.trim();
++  const summary = rawSummary && !verbose ? truncateToLines(rawSummary, 4) : rawSummary;
++  const prompt = summary ? <>{summary} <Text dimColor>Did this help? (optional)</Text></> : 'Did this help? (optional)';
++  return <FeedbackSurveyView onSelect={onSelect} inputValue={inputValue} setInputValue={setInputValue} message={prompt} messageBold={false} showNotSure={true} />;
++}
+ type ThanksProps = {
+@@ -143,2 +202,3 @@ function FeedbackSurveyThanks(t0) {
+       once: true,
++      mountDelayMs: 0,
+       onDigit: t2
+diff --git a/src/components/FeedbackSurvey/FeedbackSurveyView.tsx b/src/components/FeedbackSurvey/FeedbackSurveyView.tsx
+index a2f3757..0e358ff 100644
+--- a/src/components/FeedbackSurvey/FeedbackSurveyView.tsx
++++ b/src/components/FeedbackSurvey/FeedbackSurveyView.tsx
+@@ -1,15 +1,23 @@
+-import { c as _c } from "react/compiler-runtime";
+-import React from 'react';
+-import { Box, Text } from '../../ink.js';
+-import { useDebouncedDigitInput } from './useDebouncedDigitInput.js';
+-import type { FeedbackSurveyResponse } from './utils.js';
++import React from 'react'
++import { Box, Text } from '../../ink.js'
++import {
++  SurveyOptions,
++  type SurveyOption,
++} from './SurveyOptions.js'
++import { useDebouncedDigitInput } from './useDebouncedDigitInput.js'
++import type { FeedbackSurveyResponse } from './utils.js'
++
+ type Props = {
+-  onSelect: (option: FeedbackSurveyResponse) => void;
+-  inputValue: string;
+-  setInputValue: (value: string) => void;
+-  message?: string;
+-};
+-const RESPONSE_INPUTS = ['0', '1', '2', '3'] as const;
+-type ResponseInput = (typeof RESPONSE_INPUTS)[number];
+-const inputToResponse: Record<ResponseInput, FeedbackSurveyResponse> = {
++  onSelect: (option: FeedbackSurveyResponse) => void
++  inputValue: string
++  setInputValue: (value: string) => void
++  message?: React.ReactNode
++  messageBold?: boolean
++  mountDelayMs?: number
++  showNotSure?: boolean
++}
++
++type ResponseInput = '0' | '1' | '2' | '3' | '4'
++
++const INPUT_TO_RESPONSE: Record<ResponseInput, FeedbackSurveyResponse> = {
+   '0': 'dismissed',
+@@ -17,92 +25,71 @@ const inputToResponse: Record<ResponseInput, FeedbackSurveyResponse> = {
+   '2': 'fine',
+-  '3': 'good'
+-} as const;
+-export const isValidResponseInput = (input: string): input is ResponseInput => (RESPONSE_INPUTS as readonly string[]).includes(input);
+-const DEFAULT_MESSAGE = 'How is Claude doing this session? (optional)';
+-export function FeedbackSurveyView(t0) {
+-  const $ = _c(15);
+-  const {
+-    onSelect,
++  '3': 'good',
++  '4': 'not_sure',
++}
++
++const RESPONSE_OPTIONS: ReadonlyArray<SurveyOption<ResponseInput>> = [
++  { key: '1', label: 'Bad' },
++  { key: '2', label: 'Fine' },
++  { key: '3', label: 'Good' },
++]
++const NOT_SURE_OPTION: SurveyOption<ResponseInput> = {
++  key: '4',
++  label: 'Unsure',
++}
++const DISMISS_OPTION: SurveyOption<ResponseInput> = {
++  key: '0',
++  label: 'Dismiss',
++}
++const OPTION_WIDTH = 10
++const DEFAULT_MESSAGE = 'How is Claude doing this session? (optional)'
++
++export function isValidResponseInput(
++  input: string,
++  showNotSure = false,
++): input is ResponseInput {
++  if (input === '4') return showNotSure
++  return input === '0' || input === '1' || input === '2' || input === '3'
++}
++
++export function FeedbackSurveyView({
++  onSelect,
++  inputValue,
++  setInputValue,
++  message = DEFAULT_MESSAGE,
++  messageBold = true,
++  mountDelayMs,
++  showNotSure = false,
++}: Props): React.ReactNode {
++  const options = showNotSure
++    ? [...RESPONSE_OPTIONS, NOT_SURE_OPTION, DISMISS_OPTION]
++    : [...RESPONSE_OPTIONS, DISMISS_OPTION]
++
++  useDebouncedDigitInput<ResponseInput>({
+     inputValue,
+     setInputValue,
+-    message: t1
+-  } = t0;
+-  const message = t1 === undefined ? DEFAULT_MESSAGE : t1;
+-  let t2;
+-  if ($[0] !== onSelect) {
+-    t2 = digit => onSelect(inputToResponse[digit]);
+-    $[0] = onSelect;
+-    $[1] = t2;
+-  } else {
+-    t2 = $[1];
+-  }
+-  let t3;
+-  if ($[2] !== inputValue || $[3] !== setInputValue || $[4] !== t2) {
+-    t3 = {
+-      inputValue,
+-      setInputValue,
+-      isValidDigit: isValidResponseInput,
+-      onDigit: t2
+-    };
+-    $[2] = inputValue;
+-    $[3] = setInputValue;
+-    $[4] = t2;
+-    $[5] = t3;
+-  } else {
+-    t3 = $[5];
+-  }
+-  useDebouncedDigitInput(t3);
+-  let t4;
+-  if ($[6] === Symbol.for("react.memo_cache_sentinel")) {
+-    t4 = <Text color="ansi:cyan">● </Text>;
+-    $[6] = t4;
+-  } else {
+-    t4 = $[6];
+-  }
+-  let t5;
+-  if ($[7] !== message) {
+-    t5 = <Box>{t4}<Text bold={true}>{message}</Text></Box>;
+-    $[7] = message;
+-    $[8] = t5;
+-  } else {
+-    t5 = $[8];
+-  }
+-  let t6;
+-  if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
+-    t6 = <Box width={10}><Text><Text color="ansi:cyan">1</Text>: Bad</Text></Box>;
+-    $[9] = t6;
+-  } else {
+-    t6 = $[9];
+-  }
+-  let t7;
+-  if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
+-    t7 = <Box width={10}><Text><Text color="ansi:cyan">2</Text>: Fine</Text></Box>;
+-    $[10] = t7;
+-  } else {
+-    t7 = $[10];
+-  }
+-  let t8;
+-  if ($[11] === Symbol.for("react.memo_cache_sentinel")) {
+-    t8 = <Box width={10}><Text><Text color="ansi:cyan">3</Text>: Good</Text></Box>;
+-    $[11] = t8;
+-  } else {
+-    t8 = $[11];
+-  }
+-  let t9;
+-  if ($[12] === Symbol.for("react.memo_cache_sentinel")) {
+-    t9 = <Box marginLeft={2}>{t6}{t7}{t8}<Box><Text><Text color="ansi:cyan">0</Text>: Dismiss</Text></Box></Box>;
+-    $[12] = t9;
+-  } else {
+-    t9 = $[12];
+-  }
+-  let t10;
+-  if ($[13] !== t5) {
+-    t10 = <Box flexDirection="column" marginTop={1}>{t5}{t9}</Box>;
+-    $[13] = t5;
+-    $[14] = t10;
+-  } else {
+-    t10 = $[14];
+-  }
+-  return t10;
++    isValidDigit: digit => isValidResponseInput(digit, showNotSure),
++    onDigit: digit => onSelect(INPUT_TO_RESPONSE[digit]),
++    mountDelayMs,
++  })
++
++  return (
++    <Box flexDirection="column" marginTop={1}>
++      <Box>
++        <Box minWidth={2}>
++          <Text color="ansi:cyan">●</Text>
++        </Box>
++        <Text bold={messageBold} wrap="wrap">
++          {message}
++        </Text>
++      </Box>
++      <SurveyOptions
++        options={options}
++        optionWidth={OPTION_WIDTH}
++        onSelect={digit => {
++          setInputValue('')
++          onSelect(INPUT_TO_RESPONSE[digit])
++        }}
++      />
++    </Box>
++  )
+ }
+-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsIkJveCIsIlRleHQiLCJ1c2VEZWJvdW5jZWREaWdpdElucHV0IiwiRmVlZGJhY2tTdXJ2ZXlSZXNwb25zZSIsIlByb3BzIiwib25TZWxlY3QiLCJvcHRpb24iLCJpbnB1dFZhbHVlIiwic2V0SW5wdXRWYWx1ZSIsInZhbHVlIiwibWVzc2FnZSIsIlJFU1BPTlNFX0lOUFVUUyIsImNvbnN0IiwiUmVzcG9uc2VJbnB1dCIsImlucHV0VG9SZXNwb25zZSIsIlJlY29yZCIsImlzVmFsaWRSZXNwb25zZUlucHV0IiwiaW5wdXQiLCJpbmNsdWRlcyIsIkRFRkFVTFRfTUVTU0FHRSIsIkZlZWRiYWNrU3VydmV5VmlldyIsInQwIiwiJCIsIl9jIiwidDEiLCJ1bmRlZmluZWQiLCJ0MiIsImRpZ2l0IiwidDMiLCJpc1ZhbGlkRGlnaXQiLCJvbkRpZ2l0IiwidDQiLCJTeW1ib2wiLCJmb3IiLCJ0NSIsInQ2IiwidDciLCJ0OCIsInQ5IiwidDEwIl0sInNvdXJjZXMiOlsiRmVlZGJhY2tTdXJ2ZXlWaWV3LnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgUmVhY3QgZnJvbSAncmVhY3QnXG5pbXBvcnQgeyBCb3gsIFRleHQgfSBmcm9tICcuLi8uLi9pbmsuanMnXG5pbXBvcnQgeyB1c2VEZWJvdW5jZWREaWdpdElucHV0IH0gZnJvbSAnLi91c2VEZWJvdW5jZWREaWdpdElucHV0LmpzJ1xuaW1wb3J0IHR5cGUgeyBGZWVkYmFja1N1cnZleVJlc3BvbnNlIH0gZnJvbSAnLi91dGlscy5qcydcblxudHlwZSBQcm9wcyA9IHtcbiAgb25TZWxlY3Q6IChvcHRpb246IEZlZWRiYWNrU3VydmV5UmVzcG9uc2UpID0+IHZvaWRcbiAgaW5wdXRWYWx1ZTogc3RyaW5nXG4gIHNldElucHV0VmFsdWU6ICh2YWx1ZTogc3RyaW5nKSA9PiB2b2lkXG4gIG1lc3NhZ2U/OiBzdHJpbmdcbn1cblxuY29uc3QgUkVTUE9OU0VfSU5QVVRTID0gWycwJywgJzEnLCAnMicsICczJ10gYXMgY29uc3RcbnR5cGUgUmVzcG9uc2VJbnB1dCA9ICh0eXBlb2YgUkVTUE9OU0VfSU5QVVRTKVtudW1iZXJdXG5cbmNvbnN0IGlucHV0VG9SZXNwb25zZTogUmVjb3JkPFJlc3BvbnNlSW5wdXQsIEZlZWRiYWNrU3VydmV5UmVzcG9uc2U+ID0ge1xuICAnMCc6ICdkaXNtaXNzZWQnLFxuICAnMSc6ICdiYWQnLFxuICAnMic6ICdmaW5lJyxcbiAgJzMnOiAnZ29vZCcsXG59IGFzIGNvbnN0XG5cbmV4cG9ydCBjb25zdCBpc1ZhbGlkUmVzcG9uc2VJbnB1dCA9IChpbnB1dDogc3RyaW5nKTogaW5wdXQgaXMgUmVzcG9uc2VJbnB1dCA9PlxuICAoUkVTUE9OU0VfSU5QVVRTIGFzIHJlYWRvbmx5IHN0cmluZ1tdKS5pbmNsdWRlcyhpbnB1dClcblxuY29uc3QgREVGQVVMVF9NRVNTQUdFID0gJ0hvdyBpcyBDbGF1ZGUgZG9pbmcgdGhpcyBzZXNzaW9uPyAob3B0aW9uYWwpJ1xuXG5leHBvcnQgZnVuY3Rpb24gRmVlZGJhY2tTdXJ2ZXlWaWV3KHtcbiAgb25TZWxlY3QsXG4gIGlucHV0VmFsdWUsXG4gIHNldElucHV0VmFsdWUsXG4gIG1lc3NhZ2UgPSBERUZBVUxUX01FU1NBR0UsXG59OiBQcm9wcyk6IFJlYWN0LlJlYWN0Tm9kZSB7XG4gIHVzZURlYm91bmNlZERpZ2l0SW5wdXQoe1xuICAgIGlucHV0VmFsdWUsXG4gICAgc2V0SW5wdXRWYWx1ZSxcbiAgICBpc1ZhbGlkRGlnaXQ6IGlzVmFsaWRSZXNwb25zZUlucHV0LFxuICAgIG9uRGlnaXQ6IGRpZ2l0ID0+IG9uU2VsZWN0KGlucHV0VG9SZXNwb25zZVtkaWdpdF0pLFxuICB9KVxuXG4gIHJldHVybiAoXG4gICAgPEJveCBmbGV4RGlyZWN0aW9uPVwiY29sdW1uXCIgbWFyZ2luVG9wPXsxfT5cbiAgICAgIDxCb3g+XG4gICAgICAgIDxUZXh0IGNvbG9yPVwiYW5zaTpjeWFuXCI+4pePIDwvVGV4dD5cbiAgICAgICAgPFRleHQgYm9sZD57bWVzc2FnZX08L1RleHQ+XG4gICAgICA8L0JveD5cblxuICAgICAgPEJveCBtYXJnaW5MZWZ0PXsyfT5cbiAgICAgICAgPEJveCB3aWR0aD17MTB9PlxuICAgICAgICAgIDxUZXh0PlxuICAgICAgICAgICAgPFRleHQgY29sb3I9XCJhbnNpOmN5YW5cIj4xPC9UZXh0PjogQmFkXG4gICAgICAgICAgPC9UZXh0PlxuICAgICAgICA8L0JveD5cbiAgICAgICAgPEJveCB3aWR0aD17MTB9PlxuICAgICAgICAgIDxUZXh0PlxuICAgICAgICAgICAgPFRleHQgY29sb3I9XCJhbnNpOmN5YW5cIj4yPC9UZXh0PjogRmluZVxuICAgICAgICAgIDwvVGV4dD5cbiAgICAgICAgPC9Cb3g+XG4gICAgICAgIDxCb3ggd2lkdGg9ezEwfT5cbiAgICAgICAgICA8VGV4dD5cbiAgICAgICAgICAgIDxUZXh0IGNvbG9yPVwiYW5zaTpjeWFuXCI+MzwvVGV4dD46IEdvb2RcbiAgICAgICAgICA8L1RleHQ+XG4gICAgICAgIDwvQm94PlxuICAgICAgICA8Qm94PlxuICAgICAgICAgIDxUZXh0PlxuICAgICAgICAgICAgPFRleHQgY29sb3I9XCJhbnNpOmN5YW5cIj4wPC9UZXh0PjogRGlzbWlzc1xuICAgICAgICAgIDwvVGV4dD5cbiAgICAgICAgPC9Cb3g+XG4gICAgICA8L0JveD5cbiAgICA8L0JveD5cbiAgKVxufVxuIl0sIm1hcHBpbmdzIjoiO0FBQUEsT0FBT0EsS0FBSyxNQUFNLE9BQU87QUFDekIsU0FBU0MsR0FBRyxFQUFFQyxJQUFJLFFBQVEsY0FBYztBQUN4QyxTQUFTQyxzQkFBc0IsUUFBUSw2QkFBNkI7QUFDcEUsY0FBY0Msc0JBQXNCLFFBQVEsWUFBWTtBQUV4RCxLQUFLQyxLQUFLLEdBQUc7RUFDWEMsUUFBUSxFQUFFLENBQUNDLE1BQU0sRUFBRUgsc0JBQXNCLEVBQUUsR0FBRyxJQUFJO0VBQ2xESSxVQUFVLEVBQUUsTUFBTTtFQUNsQkMsYUFBYSxFQUFFLENBQUNDLEtBQUssRUFBRSxNQUFNLEVBQUUsR0FB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
+\ No newline at end of file
+diff --git a/src/components/FeedbackSurvey/MemoryWriteSurvey.tsx b/src/components/FeedbackSurvey/MemoryWriteSurvey.tsx
+index dba6d93..d05feb7 100644
+--- a/src/components/FeedbackSurvey/MemoryWriteSurvey.tsx
++++ b/src/components/FeedbackSurvey/MemoryWriteSurvey.tsx
+@@ -4,3 +4,3 @@ import * as React from 'react'
+ import { useTerminalSize } from '../../hooks/useTerminalSize.js'
+-import { Box, Button, Text } from '../../ink.js'
++import { Box, Text } from '../../ink.js'
+ import { stringWidth } from '../../ink/stringWidth.js'
+@@ -10,2 +10,6 @@ import { Divider } from '../design-system/Divider.js'
+ import { StructuredDiffList } from '../StructuredDiffList.js'
++import {
++  SurveyOptions,
++  type SurveyOption,
++} from './SurveyOptions.js'
+ import { useDebouncedDigitInput } from './useDebouncedDigitInput.js'
+@@ -18,2 +22,7 @@ const INPUT_TO_OUTCOME: Record<ResponseInput, MemoryWriteSurveyOutcome> = {
+ }
++const SURVEY_OPTIONS: ReadonlyArray<SurveyOption<ResponseInput>> = [
++  { key: '1', label: 'Keep' },
++  { key: '2', label: 'Undo' },
++]
++const OPTION_WIDTH = 10
+ 
+@@ -85,2 +94,4 @@ export function MemoryWriteSurvey({
+       <SurveyOptions
++        options={SURVEY_OPTIONS}
++        optionWidth={OPTION_WIDTH}
+         onSelect={digit => {
+@@ -139,32 +150,2 @@ function MemoryWriteContent({
+ 
+-function SurveyOptions({
+-  onSelect,
+-}: {
+-  onSelect: (digit: ResponseInput) => void
+-}): React.ReactNode {
+-  const options: ReadonlyArray<{ key: ResponseInput; label: string }> = [
+-    { key: '1', label: 'Keep' },
+-    { key: '2', label: 'Undo' },
+-  ]
+-  return (
+-    <Box marginLeft={2}>
+-      {options.map(({ key, label }) => (
+-        <Box key={key} width={10}>
+-          <Button tabIndex={-1} onAction={() => onSelect(key)}>
+-            {({ hovered }) => (
+-              <Box
+-                backgroundColor={
+-                  hovered ? 'userMessageBackgroundHover' : undefined
+-                }
+-              >
+-                <Text color="ansi:cyan">{key}</Text>: {label}
+-              </Box>
+-            )}
+-          </Button>
+-        </Box>
+-      ))}
+-    </Box>
+-  )
+-}
+-
+ function TruncatedLines({ count }: { count: number }): React.ReactNode {
+diff --git a/src/components/FeedbackSurvey/SurveyOptions.tsx b/src/components/FeedbackSurvey/SurveyOptions.tsx
+new file mode 100644
+index 0000000..a93c063
+--- /dev/null
++++ b/src/components/FeedbackSurvey/SurveyOptions.tsx
+@@ -0,0 +1,39 @@
++import React from 'react'
++import { Box, Button, Text } from '../../ink.js'
++
++export type SurveyOption<TKey extends string> = {
++  key: TKey
++  label: string
++}
++
++export function SurveyOptions<TKey extends string>({
++  options,
++  optionWidth,
++  onSelect,
++  marginTop,
++}: {
++  options: ReadonlyArray<SurveyOption<TKey>>
++  optionWidth?: number
++  onSelect: (key: TKey) => void
++  marginTop?: number
++}): React.ReactNode {
++  return (
++    <Box marginLeft={2} marginTop={marginTop}>
++      {options.map(({ key, label }) => (
++        <Box key={key} width={optionWidth}>
++          <Button tabIndex={-1} onAction={() => onSelect(key)}>
++            {({ hovered }) => (
++              <Box
++                backgroundColor={
++                  hovered ? 'userMessageBackgroundHover' : undefined
++                }
++              >
++                <Text color="ansi:cyan">{key}</Text>: {label}
++              </Box>
++            )}
++          </Button>
++        </Box>
++      ))}
++    </Box>
++  )
++}
+diff --git a/src/components/FeedbackSurvey/useFeedbackSurvey.tsx b/src/components/FeedbackSurvey/useFeedbackSurvey.tsx
+index eee2e25..b732343 100644
+--- a/src/components/FeedbackSurvey/useFeedbackSurvey.tsx
++++ b/src/components/FeedbackSurvey/useFeedbackSurvey.tsx
+@@ -43,5 +43,6 @@ const DEFAULT_TRANSCRIPT_ASK_CONFIG: TranscriptAskConfig = {
+ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submitCount: number, surveyType: FeedbackSurveyType = 'session', hasActivePrompt: boolean = false, otherSurveyActive: boolean = false): {
+-  state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
++  state: 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
+   lastResponse: FeedbackSurveyResponse | null;
+-  handleSelect: (selected: FeedbackSurveyResponse) => boolean;
++  handleSelect: (selected: FeedbackSurveyResponse) => void;
++  handleUndo: () => void;
+   handleTranscriptSelect: (selected: TranscriptShareResponse) => void;
+@@ -189,2 +190,3 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
+     handleSelect,
++    handleUndo,
+     handleTranscriptSelect
+@@ -296,2 +298,3 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
+     handleSelect,
++    handleUndo,
+     handleTranscriptSelect
+diff --git a/src/components/FeedbackSurvey/useMemorySurvey.tsx b/src/components/FeedbackSurvey/useMemorySurvey.tsx
+index f311215..cf4db79 100644
+--- a/src/components/FeedbackSurvey/useMemorySurvey.tsx
++++ b/src/components/FeedbackSurvey/useMemorySurvey.tsx
+@@ -1,2 +1,2 @@
+-import { useCallback, useEffect, useMemo, useRef } from 'react';
++import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+ import { isFeedbackSurveyDisabled } from 'src/services/analytics/config.js';
+@@ -17,2 +17,12 @@ import { useSurveyState } from './useSurveyState.js';
+ import type { FeedbackSurveyResponse } from './utils.js';
++import { useAppState } from '../../state/AppState.js';
++type MemorySurveyEvaluation = {
++  classification: string;
++  evidence_type?: string;
++  memory_impact_summary?: string | null;
++};
++type LastMemoryEvaluation = {
++  assistantUuid: string;
++  evaluation: MemorySurveyEvaluation;
++};
+ const HIDE_THANKS_AFTER_MS = 3000;
+@@ -20,3 +30,3 @@ const MEMORY_SURVEY_GATE = 'tengu_dunwich_bell';
+ const MEMORY_SURVEY_EVENT = 'tengu_memory_survey_event';
+-const SURVEY_PROBABILITY = 0.2;
++const MEMORY_SURVEY_PROBABILITY_GATE = 'tengu_velvet_moth';
+ const TRANSCRIPT_SHARE_TRIGGER = 'memory_survey';
+@@ -46,2 +56,11 @@ function hasMemoryFileRead(messages: Message[]): boolean {
+ }
++function getMemorySurveyProbability(): number {
++  return getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_PROBABILITY_GATE, DEFAULT_SURVEY_PROBABILITY);
++}
++function isValidMemorySurveyClassification(classification: string): boolean {
++  return classification === 'helped' || classification === 'harmed' || classification === 'neutral';
++}
++function isMemorySurveyEligible(): boolean {
++  return getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_GATE, false) && isAutoMemoryEnabled() && !isFeedbackSurveyDisabled() && isPolicyAllowed('allow_product_feedback') && !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY);
++}
+ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActivePrompt = false, {
+@@ -53,5 +72,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+ } = {}): {
+-  state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
++  state: 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
+   lastResponse: FeedbackSurveyResponse | null;
++  evaluation: MemorySurveyEvaluation | null;
+   handleSelect: (selected: FeedbackSurveyResponse) => void;
++  handleUndo: () => void;
+   handleTranscriptSelect: (selected: TranscriptShareResponse) => void;
+@@ -66,6 +87,14 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+   messagesRef.current = messages;
++  const lastMemoryEvaluation = useAppState(state_0 => (state_0 as unknown as {
++    lastMemoryEvaluation?: LastMemoryEvaluation;
++  }).lastMemoryEvaluation);
++  const [evaluation, setEvaluation] = useState<MemorySurveyEvaluation | null>(null);
++  const evaluationRef = useRef<MemorySurveyEvaluation | null>(null);
+   const onOpen = useCallback((appearanceId: string) => {
++    const currentEvaluation = evaluationRef.current;
+     logEvent(MEMORY_SURVEY_EVENT, {
+       event_type: 'appeared' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-      appearance_id: appearanceId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
++      appearance_id: appearanceId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++      judge_classification: currentEvaluation?.classification as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++      judge_evidence_type: currentEvaluation?.evidence_type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+     });
+@@ -78,2 +107,3 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+   const onSelect = useCallback((appearanceId_0: string, selected: FeedbackSurveyResponse) => {
++    const currentEvaluation = evaluationRef.current;
+     logEvent(MEMORY_SURVEY_EVENT, {
+@@ -81,3 +111,5 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+       appearance_id: appearanceId_0 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-      response: selected as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
++      response: selected as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++      judge_classification: currentEvaluation?.classification as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++      judge_evidence_type: currentEvaluation?.evidence_type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+     });
+@@ -145,2 +177,3 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+     handleSelect,
++    handleUndo,
+     handleTranscriptSelect
+@@ -157,32 +190,55 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+   useEffect(() => {
+-    if (!enabled) return;
+-
+-    // /clear resets messages but REPL stays mounted — reset refs so a memory
+-    // read from the previous conversation doesn't leak into the new one.
+     if (messages.length === 0) {
+-      memoryReadSeen.current = false;
+-      seenAssistantUuids.current.clear();
++      evaluationRef.current = null;
++      setEvaluation(null);
+       return;
+     }
+-    if (state !== 'closed' || isLoading || hasActivePrompt) {
++    if (state !== 'closed' || isLoading || hasActivePrompt || otherSurveyActive) {
+       return;
+     }
+-    if (otherSurveyActive) {
++    if (!enabled || !MEMORY_SURVEY_JUDGE_ENABLED || !isMemorySurveyEligible()) {
+       return;
+     }
+-
+-    // 3P default: survey off (no GrowthBook on Bedrock/Vertex/Foundry).
+-    if (!getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_GATE, false)) {
++    if (!lastAssistant || !lastMemoryEvaluation) {
+       return;
+     }
+-    if (!isAutoMemoryEnabled()) {
++    if (lastMemoryEvaluation.assistantUuid !== lastAssistant.uuid) {
+       return;
+     }
+-    if (isFeedbackSurveyDisabled()) {
++    if (seenAssistantUuids.current.has(lastAssistant.uuid)) {
+       return;
+     }
+-    if (!isPolicyAllowed('allow_product_feedback')) {
++    seenAssistantUuids.current.add(lastAssistant.uuid);
++    const nextEvaluation = lastMemoryEvaluation.evaluation;
++    if (!isValidMemorySurveyClassification(nextEvaluation.classification)) {
++      return;
++    }
++    if (!memoryReadSeen.current) {
++      memoryReadSeen.current = hasMemoryFileRead(messagesRef.current);
++    }
++    if (!memoryReadSeen.current) {
++      return;
++    }
++    if (nextEvaluation.classification !== 'harmed' && !MEMORY_SURVEY_FORCE_SHOW && Math.random() >= getMemorySurveyProbability()) {
++      return;
++    }
++    evaluationRef.current = nextEvaluation;
++    setEvaluation(nextEvaluation);
++    open();
++  }, [enabled, otherSurveyActive, state, isLoading, hasActivePrompt, lastAssistant, lastMemoryEvaluation, messages.length, open]);
++  useEffect(() => {
++    // /clear resets messages but REPL stays mounted — reset refs so a memory
++    // read from the previous conversation doesn't leak into the new one.
++    if (messages.length === 0) {
++      memoryReadSeen.current = false;
++      seenAssistantUuids.current.clear();
++      return;
++    }
++    if (state !== 'closed' || isLoading || hasActivePrompt) {
++      return;
++    }
++    if (otherSurveyActive) {
+       return;
+     }
+-    if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY)) {
++    if (!enabled || MEMORY_SURVEY_JUDGE_ENABLED || !isMemorySurveyEligible()) {
+       return;
+@@ -207,3 +263,3 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+     }
+-    if (Math.random() < SURVEY_PROBABILITY) {
++    if (Math.random() < getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_PROBABILITY_GATE, 0.2)) {
+       open();
+@@ -214,3 +270,5 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
+     lastResponse,
++    evaluation,
+     handleSelect,
++    handleUndo,
+     handleTranscriptSelect
+diff --git a/src/components/FeedbackSurvey/usePostCompactSurvey.tsx b/src/components/FeedbackSurvey/usePostCompactSurvey.tsx
+index b33281a..4f996a3 100644
+--- a/src/components/FeedbackSurvey/usePostCompactSurvey.tsx
++++ b/src/components/FeedbackSurvey/usePostCompactSurvey.tsx
+@@ -32,3 +32,3 @@ function hasMessageAfterBoundary(messages: Message[], boundaryUuid: string): boo
+ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
+-  const $ = _c(23);
++  const $ = _c(24);
+   const hasActivePrompt = t0 === undefined ? false : t0;
+@@ -73,3 +73,4 @@ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
+     open,
+-    handleSelect
++    handleSelect,
++    handleUndo
+   } = useSurveyState(t5);
+@@ -156,3 +157,3 @@ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
+   let t11;
+-  if ($[19] !== handleSelect || $[20] !== lastResponse || $[21] !== state) {
++  if ($[19] !== handleSelect || $[20] !== handleUndo || $[21] !== lastResponse || $[22] !== state) {
+     t11 = {
+@@ -160,10 +161,12 @@ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
+       lastResponse,
+-      handleSelect
++      handleSelect,
++      handleUndo
+     };
+     $[19] = handleSelect;
+-    $[20] = lastResponse;
+-    $[21] = state;
+-    $[22] = t11;
++    $[20] = handleUndo;
++    $[21] = lastResponse;
++    $[22] = state;
++    $[23] = t11;
+   } else {
+-    t11 = $[22];
++    t11 = $[23];
+   }
+diff --git a/src/components/FeedbackSurvey/useSurveyState.tsx b/src/components/FeedbackSurvey/useSurveyState.tsx
+index b009983..0970787 100644
+--- a/src/components/FeedbackSurvey/useSurveyState.tsx
++++ b/src/components/FeedbackSurvey/useSurveyState.tsx
+@@ -4,3 +4,4 @@ import type { TranscriptShareResponse } from './TranscriptSharePrompt.js';
+ import type { FeedbackSurveyResponse } from './utils.js';
+-type SurveyState = 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
++type SurveyState = 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
++const SUBMIT_DELAY_MS = 3000;
+ type UseSurveyStateOptions = {
+@@ -26,3 +27,4 @@ export function useSurveyState({
+   open: () => void;
+-  handleSelect: (selected: FeedbackSurveyResponse) => boolean;
++  handleSelect: (selected: FeedbackSurveyResponse) => void;
++  handleUndo: () => void;
+   handleTranscriptSelect: (selected: TranscriptShareResponse) => void;
+@@ -33,2 +35,8 @@ export function useSurveyState({
+   const lastResponseRef = useRef<FeedbackSurveyResponse | null>(null);
++  const pendingSubmitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
++  useEffect(() => () => {
++    if (pendingSubmitTimer.current) {
++      clearTimeout(pendingSubmitTimer.current);
++    }
++  }, []);
+   const showThanksThenClose = useCallback(() => {
+@@ -57,6 +65,4 @@ export function useSurveyState({
+   }, [otherSurveyActive, state]);
+-  const handleSelect = useCallback((selected: FeedbackSurveyResponse): boolean => {
+-    setLastResponse(selected);
+-    lastResponseRef.current = selected;
+-    // Always fire the survey response event first
++  const processSelection = useCallback((selected: FeedbackSurveyResponse) => {
++    pendingSubmitTimer.current = null;
+     void onSelect(appearanceId.current, selected);
+@@ -68,3 +74,2 @@ export function useSurveyState({
+       onTranscriptPromptShown?.(appearanceId.current, selected);
+-      return true;
+     } else {
+@@ -72,4 +77,22 @@ export function useSurveyState({
+     }
+-    return false;
+   }, [showThanksThenClose, onSelect, shouldShowTranscriptPrompt, onTranscriptPromptShown]);
++  const handleSelect = useCallback((selected: FeedbackSurveyResponse) => {
++    setLastResponse(selected);
++    lastResponseRef.current = selected;
++    if (selected === 'dismissed') {
++      processSelection(selected);
++      return;
++    }
++    setState('pending');
++    pendingSubmitTimer.current = setTimeout(processSelection, SUBMIT_DELAY_MS, selected);
++  }, [processSelection]);
++  const handleUndo = useCallback(() => {
++    if (pendingSubmitTimer.current) {
++      clearTimeout(pendingSubmitTimer.current);
++    }
++    pendingSubmitTimer.current = null;
++    setLastResponse(null);
++    lastResponseRef.current = null;
++    setState('open');
++  }, []);
+   const handleTranscriptSelect = useCallback((selected_0: TranscriptShareResponse) => {
+@@ -103,2 +126,3 @@ export function useSurveyState({
+     handleSelect,
++    handleUndo,
+     handleTranscriptSelect
+diff --git a/src/components/FleetView.tsx b/src/components/FleetView.tsx
+index bf0710e..3176e65 100644
+--- a/src/components/FleetView.tsx
++++ b/src/components/FleetView.tsx
+@@ -1120,2 +1120,16 @@ export function FleetView({
+   const [activeCwd, setActiveCwd] = useState(rootCwd)
++  const jobOrigins = [...(jobs ?? []), ...pendingJobs]
++    .map(job => spawnOrigin(job.state))
++    .sort()
++    .join('\x00')
++  const availableRepositories = useMemo(() => {
++    const next = { ...repositories }
++    for (const origin of jobOrigins ? jobOrigins.split('\x00') : []) {
++      const name = basename(origin)
++      if (name && !/\s/.test(name) && next[name] === undefined) {
++        next[name] = origin
++      }
++    }
++    return next
++  }, [jobOrigins, repositories])
+   const [showAllSuggestions, setShowAllSuggestions] = useState(false)
+@@ -1352,4 +1366,6 @@ export function FleetView({
+     () =>
+-      prTargetJob ? null : parseDispatch(query, templates, repositories, routines),
+-    [prTargetJob, query, repositories, routines, templates],
++      prTargetJob
++        ? null
++        : parseDispatch(query, templates, availableRepositories, routines),
++    [prTargetJob, query, availableRepositories, routines, templates],
+   )
+@@ -1363,3 +1379,3 @@ export function FleetView({
+         routines,
+-        repositories,
++        availableRepositories,
+         skills,
+@@ -1371,3 +1387,3 @@ export function FleetView({
+       query,
+-      repositories,
++      availableRepositories,
+       routines,
+@@ -1416,2 +1432,3 @@ export function FleetView({
+   )
++  const footerState = { canPin }
+   useLayoutEffect(() => {
+@@ -1444,3 +1461,7 @@ export function FleetView({
+   useEffect(() => {
+-    const tagged = extractRepoCwd(query, repositories, templates)
++    const tagged = extractRepoCwd(
++      query,
++      availableRepositories,
++      templates,
++    )
+     const next =
+@@ -1453,3 +1474,10 @@ export function FleetView({
+     setActiveCwd(current => (current === next ? current : next))
+-  }, [query, repositories, rootCwd, selected, selectedHeader, templates])
++  }, [
++    availableRepositories,
++    query,
++    rootCwd,
++    selected,
++    selectedHeader,
++    templates,
++  ])
+ 
+@@ -2166,3 +2194,3 @@ export function FleetView({
+         <Text dimColor>
+-          enter attach · space peek · l logs · r respawn · x stop/rm{canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · ctrl+s group
++          enter attach · space peek · l logs · r respawn · x stop/rm{footerState.canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · ctrl+s group
+         </Text>
+@@ -2232,2 +2260,3 @@ export function FleetView({
+             })
++            const rowState = { attaching: attachingJobId === job.id }
+             return (
+@@ -2244,3 +2273,5 @@ export function FleetView({
+                 </Text>
+-                {selectedRow && job.state.detail ? (
++                {selectedRow &&
++                !rowState.attaching &&
++                job.state.detail ? (
+                   <Text dimColor>    {job.state.detail}</Text>
+@@ -2348,3 +2379,3 @@ export function FleetView({
+                 ? 'enter send/attach · ! bash · ctrl+x delete · esc/space back'
+-                : `↑↓ move · enter attach/dispatch · space peek · tab complete · l logs · r respawn · ctrl+x stop/delete · ctrl+r rename${canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · esc exit`}
++                : `↑↓ move · enter attach/dispatch · space peek · tab complete · l logs · r respawn · ctrl+x stop/delete · ctrl+r rename${footerState.canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · esc exit`}
+       </Text>
+diff --git a/src/daemon/cli.ts b/src/daemon/cli.ts
+index f1b43c7..f0b55ed 100644
+--- a/src/daemon/cli.ts
++++ b/src/daemon/cli.ts
+@@ -89,3 +89,5 @@ async function requireInstalledService(): Promise<void> {
+   if (!(await isDaemonServiceInstalled())) {
+-    fail('daemon service is not installed — run `claude daemon install` first')
++    fail(
++      'daemon service is not installed (service install is disabled in this version; the daemon runs on demand)',
++    )
+   }
+diff --git a/src/daemon/hub.tsx b/src/daemon/hub.tsx
+index 5a8d7bd..d5ebff3 100644
+--- a/src/daemon/hub.tsx
++++ b/src/daemon/hub.tsx
+@@ -152,3 +152,6 @@ function daemonStatus(data: HubData, message: string | null): string {
+   if (!data.serviceSupported) return 'not supported on this platform'
+-  if (!data.lock) return data.serviceInstalled ? 'installed · not running' : 'not installed'
++  if (!data.lock)
++    return data.serviceInstalled
++      ? 'installed · not running'
++      : 'not installed (runs on demand)'
+   const pieces = [
+diff --git a/src/daemon/main.ts b/src/daemon/main.ts
+index f5df17b..7211572 100644
+--- a/src/daemon/main.ts
++++ b/src/daemon/main.ts
+@@ -498,2 +498,3 @@ class ManagedWorker {
+         exit_code: code ?? undefined,
++        uptime_ms: uptime,
+         worker_kind: this.kind,
+@@ -515,2 +516,3 @@ class ManagedWorker {
+         exit_code: code ?? undefined,
++        uptime_ms: uptime,
+         worker_kind: this.kind,
+@@ -605,5 +607,9 @@ async function runDaemon(options: {
+   if (running) {
++    const recovery =
++      process.platform === 'win32'
++        ? `Stop it with \`taskkill /PID ${running.pid}\`, then retry.`
++        : 'Run `claude daemon stop` to stop it, then retry.'
+     log(
+       'supervisor',
+-      `another daemon is already running (pid=${running.pid}, version=${running.version}) — exiting`,
++      `another daemon is already running (pid=${running.pid}, version=${running.version}). ${recovery}`,
+     )
+diff --git a/src/daemon/supervisor.ts b/src/daemon/supervisor.ts
+index c58cab7..20b9dff 100644
+--- a/src/daemon/supervisor.ts
++++ b/src/daemon/supervisor.ts
+@@ -1655,6 +1655,16 @@ async function reapOrphanedPtySockets(
+   if (process.platform === 'win32') return
+-  const entries = await readdir(getPtyDir()).catch(() => [])
++  const ptyDir = getPtyDir()
++  const entries = await readdir(ptyDir).catch(() => [])
++  const sockets = new Set(entries.filter(entry => entry.endsWith('.sock')))
+   let reaped = 0
+   for (const entry of entries) {
+-    if (!entry.endsWith('.sock')) continue
++    if (!entry.endsWith('.sock')) {
++      if (
++        entry.endsWith('.sock.err') &&
++        !sockets.has(entry.slice(0, -4))
++      ) {
++        void unlink(join(ptyDir, entry)).catch(() => {})
++      }
++      continue
++    }
+     const short = entry.slice(0, -5)
+diff --git a/src/entrypoints/mcp.ts b/src/entrypoints/mcp.ts
+index 5117323..c0d426f 100644
+--- a/src/entrypoints/mcp.ts
++++ b/src/entrypoints/mcp.ts
+@@ -111,3 +111,3 @@ export async function startMCPServer(
+       // call arguments.
+-      const toolUseContext: ToolUseContext = {
++      const toolUseContext = {
+         abortController: createAbortController(),
+@@ -127,2 +127,3 @@ export async function startMCPServer(
+         setAppState: () => {},
++        getEffortValue: () => undefined,
+         setReplContext: () => {},
+@@ -135,3 +136,3 @@ export async function startMCPServer(
+         updateAttributionState: () => {},
+-      }
++      } as unknown as ToolUseContext
+ 
+diff --git a/src/jobs/classifier.ts b/src/jobs/classifier.ts
+index 0b8f7a1..079ef5c 100644
+--- a/src/jobs/classifier.ts
++++ b/src/jobs/classifier.ts
+@@ -526,2 +526,3 @@ export async function classify(
+   engine: ClassifierEngine,
++  surfaces: Set<string> = new Set(),
+ ): Promise<ClassifiedState | null> {
+@@ -618,2 +619,4 @@ export async function classify(
+     path,
++    engine,
++    ...surfaceFlags(surfaces),
+     branch:
+@@ -701,3 +704,13 @@ export function captureLatestAsk(
+ 
+-function emitDispatch(state: ClassifierJobState, template: string): void {
++function surfaceFlags(surfaces: Set<string>): Record<string, boolean> {
++  const flags: Record<string, boolean> = {}
++  for (const surface of surfaces) flags[`surface_${surface}`] = true
++  return flags
++}
++
++function emitDispatch(
++  state: ClassifierJobState,
++  template: string,
++  surfaces: Set<string>,
++): void {
+   if (!isBgSession() || state.dispatchEmitted) return
+@@ -709,2 +722,3 @@ function emitDispatch(state: ClassifierJobState, template: string): void {
+     intentLength: state.capturedIntent.length,
++    ...surfaceFlags(surfaces),
+   })
+@@ -1049,5 +1063,6 @@ export async function classifyAndPush(
+   engine: ClassifierEngine,
++  surfaces: Set<string> = new Set(),
+   midturn = false,
+ ): Promise<void> {
+-  emitDispatch(state, template)
++  emitDispatch(state, template, surfaces)
+   if (state.inFlight) {
+@@ -1093,2 +1108,3 @@ export async function classifyAndPush(
+           engine,
++          surfaces,
+         )
+@@ -1152,2 +1168,3 @@ export async function classifyAndPush(
+         classifySource: classified.source,
++        ...surfaceFlags(surfaces),
+       })
+@@ -1239,2 +1256,3 @@ export function classifyAndPushDebounced(
+   engine: ClassifierEngine,
++  surfaces: Set<string> = new Set(),
+ ): void {
+@@ -1272,2 +1290,3 @@ export function classifyAndPushDebounced(
+     engine,
++    surfaces,
+     true,
+diff --git a/src/moreright/useMoreRight.tsx b/src/moreright/useMoreRight.tsx
+index 59961ac..581581c 100644
+--- a/src/moreright/useMoreRight.tsx
++++ b/src/moreright/useMoreRight.tsx
+@@ -14,2 +14,3 @@ export function useMoreRight(_args: {
+   setToolJSX: (args: M) => void;
++  resultDedupState?: M;
+ }): {
+@@ -17,3 +18,5 @@ export function useMoreRight(_args: {
+   onTurnComplete: (all: M[], aborted: boolean) => Promise<void>;
++  onSessionRestored: (all: M[]) => Promise<void>;
+   render: () => null;
++  ownsInput: boolean;
+ } {
+@@ -22,3 +25,5 @@ export function useMoreRight(_args: {
+     onTurnComplete: async () => {},
+-    render: () => null
++    onSessionRestored: async () => {},
++    render: () => null,
++    ownsInput: false
+   };
+diff --git a/src/query/stopHooks.ts b/src/query/stopHooks.ts
+index 1d9392e..7c7a13c 100644
+--- a/src/query/stopHooks.ts
++++ b/src/query/stopHooks.ts
+@@ -146,4 +146,7 @@ export async function* handleStopHooks(
+ 
+-  const classifierSinks = taskSummaryModule
+-    ? taskSummaryModule.sinksFor(taskSummaryModule.detectSurfaces())
++  const classifierSurfaces = taskSummaryModule
++    ? taskSummaryModule.detectSurfaces()
++    : null
++  const classifierSinks = classifierSurfaces
++    ? taskSummaryModule!.sinksFor(classifierSurfaces)
+     : null
+@@ -221,2 +224,3 @@ export async function* handleStopHooks(
+         classifierEngine,
++        classifierSurfaces!,
+       )
+diff --git a/src/screens/REPL.tsx b/src/screens/REPL.tsx
+index e1e7ad8..7157a42 100644
+--- a/src/screens/REPL.tsx
++++ b/src/screens/REPL.tsx
+@@ -316,2 +316,47 @@ const EMPTY_MCP_CLIENTS: MCPServerConnection[] = [];
+ 
++function getActiveSurvey(states) {
++  if (states.memoryWrite !== 'closed') return 'memoryWrite';
++  if (states.postCompact !== 'closed') return 'postCompact';
++  if (states.memory !== 'closed') return 'memory';
++  if (states.feedback !== 'closed') return 'feedback';
++  if (states.frustration !== 'closed') return 'frustration';
++  return null;
++}
++
++function ActiveSurvey(t0) {
++  const {
++    memoryWriteSurvey,
++    postCompactSurvey,
++    memorySurvey,
++    feedbackSurvey,
++    frustrationDetection,
++    inputValue,
++    setInputValue,
++    handleSurveyRequestFeedback,
++    feedbackOnRequestFeedback
++  } = t0;
++  const activeSurvey = getActiveSurvey({
++    memoryWrite: memoryWriteSurvey.state,
++    postCompact: postCompactSurvey.state,
++    memory: memorySurvey.state,
++    feedback: feedbackSurvey.state,
++    frustration: frustrationDetection.state
++  });
++  switch (activeSurvey) {
++    case 'memoryWrite':
++      if (!memoryWriteSurvey.record) return null;
++      return <MemoryWriteSurvey record={memoryWriteSurvey.record} summary={memoryWriteSurvey.summary} lineCount={memoryWriteSurvey.lineCount} summaryLineThreshold={memoryWriteSurvey.summaryLineThreshold} countdownSec={memoryWriteSurvey.countdownSec} onOutcome={memoryWriteSurvey.handleOutcome} inputValue={inputValue} setInputValue={setInputValue} />;
++    case 'postCompact':
++      return <FeedbackSurvey state={postCompactSurvey.state} lastResponse={postCompactSurvey.lastResponse} handleSelect={postCompactSurvey.handleSelect} handleUndo={postCompactSurvey.handleUndo} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} />;
++    case 'memory':
++      return <FeedbackSurvey state={memorySurvey.state} lastResponse={memorySurvey.lastResponse} handleSelect={memorySurvey.handleSelect} handleUndo={memorySurvey.handleUndo} handleTranscriptSelect={memorySurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} message="How well did Claude use its memory? (optional)" memoryEvaluation={memorySurvey.evaluation ?? undefined} showNotSure={true} />;
++    case 'feedback':
++      return <FeedbackSurvey state={feedbackSurvey.state} lastResponse={feedbackSurvey.lastResponse} handleSelect={feedbackSurvey.handleSelect} handleUndo={feedbackSurvey.handleUndo} handleTranscriptSelect={feedbackSurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={feedbackOnRequestFeedback} />;
++    case 'frustration':
++      return <FeedbackSurvey state={frustrationDetection.state} lastResponse={null} handleSelect={() => {}} handleUndo={() => {}} handleTranscriptSelect={frustrationDetection.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} />;
++    default:
++      return null;
++  }
++}
++
+ // Stable stub for useAssistantHistory's non-KAIROS branch — avoids a new
+@@ -1779,3 +1824,5 @@ export function REPL({
+     onTurnComplete: mrOnTurnComplete,
+-    render: mrRender
++    onSessionRestored: mrOnSessionRestored,
++    render: mrRender,
++    ownsInput: mrOwnsInput
+   } = useMoreRight({
+@@ -1785,3 +1832,4 @@ export function REPL({
+     setInputValue,
+-    setToolJSX
++    setToolJSX,
++    resultDedupState: resultDedupStateRef.current
+   });
+@@ -1833,5 +1881,5 @@ export function REPL({
+       didAutoRunIssueRef.current = false;
+-      const showedTranscriptPrompt = feedbackSurveyOriginal.handleSelect(selected);
+-      // Auto-run /issue for "bad" if transcript prompt wasn't shown
+-      if (selected === 'bad' && !showedTranscriptPrompt && shouldAutoRunIssue('feedback_survey_bad')) {
++      feedbackSurveyOriginal.handleSelect(selected);
++      // Auto-run /issue for "bad" responses.
++      if (selected === 'bad' && shouldAutoRunIssue('feedback_survey_bad')) {
+         setAutoRunIssueReason('feedback_survey_bad');
+@@ -2116,2 +2164,3 @@ export function REPL({
+       restoreSessionCronTasks(initialMessages);
++      void mrOnSessionRestored(initialMessages);
+     }
+@@ -3883,2 +3932,3 @@ export function REPL({
+     setMessages(prev.slice(0, messageIndex));
++    void mrOnSessionRestored(prev.slice(0, messageIndex));
+     // Careful, this has to happen after setMessages
+@@ -3919,3 +3969,3 @@ export function REPL({
+     }));
+-  }, [setMessages, setAppState]);
++  }, [setMessages, setAppState, mrOnSessionRestored]);
+ 
+@@ -4103,3 +4153,3 @@ export function REPL({
+     executeQueuedInput,
+-    hasActiveLocalJsxUI: isShowingLocalJSXCommand,
++    hasActiveLocalJsxUI: isShowingLocalJSXCommand || mrOwnsInput,
+     queryGuard
+@@ -4613,3 +4663,3 @@ export function REPL({
+   useBackgroundTaskNavigation({
+-    onOpenBackgroundTasks: isShowingLocalJSXCommand ? undefined : () => setShowBashesDialog(true)
++    onOpenBackgroundTasks: isShowingLocalJSXCommand || mrOwnsInput ? undefined : () => setShowBashesDialog(true)
+   });
+@@ -5138,5 +5188,3 @@ export function REPL({
+                       {autoRunIssueReason && <AutoRunIssueNotification onRun={handleAutoRunIssue} onCancel={handleCancelAutoRunIssue} reason={getAutoRunIssueReasonText(autoRunIssueReason)} />}
+-                      {memoryWriteSurvey.state !== 'closed' && memoryWriteSurvey.record ? <MemoryWriteSurvey record={memoryWriteSurvey.record} summary={memoryWriteSurvey.summary} lineCount={memoryWriteSurvey.lineCount} summaryLineThreshold={memoryWriteSurvey.summaryLineThreshold} countdownSec={memoryWriteSurvey.countdownSec} onOutcome={memoryWriteSurvey.handleOutcome} inputValue={inputValue} setInputValue={setInputValue} /> : postCompactSurvey.state !== 'closed' ? <FeedbackSurvey state={postCompactSurvey.state} lastResponse={postCompactSurvey.lastResponse} handleSelect={postCompactSurvey.handleSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} /> : memorySurvey.state !== 'closed' ? <FeedbackSurvey state={memorySurvey.state} lastResponse={memorySurvey.lastResponse} handleSelect={memorySurvey.handleSelect} handleTranscriptSelect={memorySurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} message="How well did Claude use its memory? (optional)" /> : <FeedbackSurvey state={feedbackSurvey.state} lastResponse={feedbackSurvey.lastResponse} handleSelect={feedbackSurvey.handleSelect} handleTranscriptSelect={feedbackSurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={didAutoRunIssueRef.current ? undefined : handleSurveyRequestFeedback} />}
+-                      {/* Frustration-triggered transcript sharing prompt */}
+-                      {memoryWriteSurvey.state === 'closed' && postCompactSurvey.state === 'closed' && memorySurvey.state === 'closed' && feedbackSurvey.state === 'closed' && frustrationDetection.state !== 'closed' && <FeedbackSurvey state={frustrationDetection.state} lastResponse={null} handleSelect={() => {}} handleTranscriptSelect={frustrationDetection.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} />}
++                      <ActiveSurvey memoryWriteSurvey={memoryWriteSurvey} postCompactSurvey={postCompactSurvey} memorySurvey={memorySurvey} feedbackSurvey={feedbackSurvey} frustrationDetection={frustrationDetection} inputValue={inputValue} setInputValue={setInputValue} handleSurveyRequestFeedback={handleSurveyRequestFeedback} feedbackOnRequestFeedback={didAutoRunIssueRef.current ? undefined : handleSurveyRequestFeedback} />
+                       {/* Skill improvement survey - appears when improvements detected (ant-only) */}
+diff --git a/src/services/analytics/metadata.ts b/src/services/analytics/metadata.ts
+index b83e96a..97df8c3 100644
+--- a/src/services/analytics/metadata.ts
++++ b/src/services/analytics/metadata.ts
+@@ -10,3 +10,7 @@ import { extname } from 'path'
+ import memoize from 'lodash-es/memoize.js'
+-import { env, getHostPlatformForAnalytics } from '../../utils/env.js'
++import {
++  env,
++  getHostPlatformForAnalytics,
++  getShellForAnalytics,
++} from '../../utils/env.js'
+ import { envDynamic } from '../../utils/envDynamic.js'
+@@ -422,2 +426,3 @@ export type EnvContext = {
+   terminal: string | null
++  shell: string
+   packageManagers: string
+@@ -590,2 +595,3 @@ const buildEnvContext = memoize(async (): Promise<EnvContext> => {
+     terminal: envDynamic.terminal,
++    shell: getShellForAnalytics(),
+     packageManagers: packageManagers.join(','),
+diff --git a/src/skills/bundled/claude-api/shared/managed-agents-api-reference.md b/src/skills/bundled/claude-api/shared/managed-agents-api-reference.md
+index b043608..825959c 100644
+--- a/src/skills/bundled/claude-api/shared/managed-agents-api-reference.md
++++ b/src/skills/bundled/claude-api/shared/managed-agents-api-reference.md
+@@ -330,3 +330,3 @@ Managed Agents endpoints have per-organization request-per-minute (RPM) limits,
+ |---|---|---|---|
+-| Create operations (Agents, Sessions, Vaults) | organization | 60 | — |
++| Create operations (Agents, Sessions, Vaults) | organization | 300 | — |
+ | All other operations (Agents, Sessions, Vaults) | organization | 600 | — |
+diff --git a/src/tools/ExitWorktreeTool/ExitWorktreeTool.ts b/src/tools/ExitWorktreeTool/ExitWorktreeTool.ts
+index 6dcb247..2fe8c26 100644
+--- a/src/tools/ExitWorktreeTool/ExitWorktreeTool.ts
++++ b/src/tools/ExitWorktreeTool/ExitWorktreeTool.ts
+@@ -12,2 +12,3 @@ import { buildTool, type ToolDef } from '../../Tool.js'
+ import { count } from '../../utils/array.js'
++import { hasCwdOverride } from '../../utils/cwd.js'
+ import { clearMemoryFileCaches } from '../../utils/claudemd.js'
+@@ -163,4 +164,6 @@ export const ExitWorktreeTool: Tool<InputSchema, Output> = buildTool({
+   },
+-  userFacingName() {
+-    return 'Exiting worktree'
++  userFacingName(input) {
++    return input?.action === 'remove'
++      ? 'Cleaning up worktree'
++      : 'Exiting worktree'
+   },
+@@ -174,2 +177,11 @@ export const ExitWorktreeTool: Tool<InputSchema, Output> = buildTool({
+   async validateInput(input) {
++    if (hasCwdOverride()) {
++      return {
++        result: false,
++        message:
++          'ExitWorktree cannot be called from a subagent with a cwd override (isolation: "worktree" or explicit cwd) — it would mutate the parent session\'s process-wide working directory. This agent is already isolated; use Bash with `cd` for directory changes within it.',
++        errorCode: 5,
++      }
++    }
++
+     // Scope guard: getCurrentWorktreeSession() is null unless EnterWorktree
+diff --git a/src/utils/Shell.ts b/src/utils/Shell.ts
+index 7b19c6d..c556d97 100644
+--- a/src/utils/Shell.ts
++++ b/src/utils/Shell.ts
+@@ -14,2 +14,3 @@ import { generateTaskId } from '../Task.js'
+ import { pwd } from './cwd.js'
++import { classifyShellExecutable } from './env.js'
+ import { logForDebugging } from './debug.js'
+@@ -149,32 +150,2 @@ export const getShellConfig = memoize(getShellConfigImpl)
+ 
+-const KNOWN_SHELL_EXECUTABLES = new Set([
+-  'zsh',
+-  'bash',
+-  'fish',
+-  'sh',
+-  'dash',
+-  'ash',
+-  'ksh',
+-  'tcsh',
+-  'csh',
+-  'nu',
+-  'nushell',
+-  'pwsh',
+-  'powershell',
+-  'cmd',
+-  'elvish',
+-  'xonsh',
+-  'ion',
+-])
+-
+-export function classifyShellExecutable(shellPath?: string): string {
+-  if (!shellPath) return 'none'
+-  const executable = shellPath
+-    .split(/[/\\]/)
+-    .pop()!
+-    .toLowerCase()
+-    .replace(/\.exe$/, '')
+-  return KNOWN_SHELL_EXECUTABLES.has(executable) ? executable : 'other'
+-}
+-
+ export async function getExecutorShell(): Promise<string> {
+diff --git a/src/utils/cwd.ts b/src/utils/cwd.ts
+index c4d1600..57ef309 100644
+--- a/src/utils/cwd.ts
++++ b/src/utils/cwd.ts
+@@ -15,2 +15,7 @@ export function runWithCwdOverride<T>(cwd: string, fn: () => T): T {
+ 
++/** Whether the current async context has an explicit working-directory override. */
++export function hasCwdOverride(): boolean {
++  return cwdOverrideStorage.getStore() !== undefined
++}
++
+ /**
+diff --git a/src/utils/env.ts b/src/utils/env.ts
+index 0dfdc80..8fbb563 100644
+--- a/src/utils/env.ts
++++ b/src/utils/env.ts
+@@ -39,2 +39,6 @@ const hasInternetAccess = memoize(async (): Promise<boolean> => {
+ 
++async function probeInternalNetworkAccess(): Promise<null> {
++  return null
++}
++
+ async function isCommandAvailable(command: string): Promise<boolean> {
+@@ -317,2 +321,3 @@ export const env = {
+   hasInternetAccess,
++  probeInternalNetworkAccess,
+   isCI: isEnvTruthy(process.env.CI),
+@@ -347 +352,37 @@ export function getHostPlatformForAnalytics(): Platform {
+ }
++
++const KNOWN_SHELL_EXECUTABLES = new Set([
++  'zsh',
++  'bash',
++  'fish',
++  'sh',
++  'dash',
++  'ash',
++  'ksh',
++  'tcsh',
++  'csh',
++  'nu',
++  'nushell',
++  'pwsh',
++  'powershell',
++  'cmd',
++  'elvish',
++  'xonsh',
++  'ion',
++])
++
++export function classifyShellExecutable(shellPath?: string): string {
++  if (!shellPath) return 'none'
++  const executable = shellPath
++    .split(/[/\\]/)
++    .pop()!
++    .toLowerCase()
++    .replace(/\.exe$/, '')
++  return KNOWN_SHELL_EXECUTABLES.has(executable) ? executable : 'other'
++}
++
++export function getShellForAnalytics(): string {
++  return classifyShellExecutable(
++    process.env.SHELL || process.env.COMSPEC || '',
++  )
++}
+diff --git a/src/utils/managedEnvConstants.ts b/src/utils/managedEnvConstants.ts
+index d1c0d0e..beb816b 100644
+--- a/src/utils/managedEnvConstants.ts
++++ b/src/utils/managedEnvConstants.ts
+@@ -156,2 +156,3 @@ export const SAFE_ENV_VARS = new Set([
+   'CLAUDE_CODE_USE_FOUNDRY',
++  'CLAUDE_CODE_USE_POWERSHELL_TOOL',
+   'CLAUDE_CODE_USE_VERTEX',
+diff --git a/src/utils/plugins/refresh.ts b/src/utils/plugins/refresh.ts
+index 8e537f0..7145c72 100644
+--- a/src/utils/plugins/refresh.ts
++++ b/src/utils/plugins/refresh.ts
+@@ -29,2 +29,3 @@ import { errorMessage } from '../errors.js'
+ import { logError } from '../log.js'
++import { createSignal } from '../signal.js'
+ import { clearAllCaches } from './cacheUtils.js'
+@@ -38,2 +39,5 @@ import { loadAllPlugins } from './pluginLoader.js'
+ 
++const pluginsChanged = createSignal()
++export const onPluginsChanged = pluginsChanged.subscribe
++
+ type SetAppState = (updater: (prev: AppState) => AppState) => void
+@@ -177,2 +181,4 @@ export async function refreshActivePlugins(
+ 
++  pluginsChanged.emit()
++
+   logForDebugging(
+diff --git a/src/utils/skills/skillChangeDetector.ts b/src/utils/skills/skillChangeDetector.ts
+index 3f82837..105dd84 100644
+--- a/src/utils/skills/skillChangeDetector.ts
++++ b/src/utils/skills/skillChangeDetector.ts
+@@ -1,3 +1,2 @@
+ import chokidar, { type FSWatcher } from 'chokidar'
+-import * as platformPath from 'path'
+ import { getAdditionalDirectoriesForClaudeMd } from '../../bootstrap/state.js'
+@@ -22,2 +21,3 @@ import { getFsImplementation } from '../fsOperations.js'
+ import { executeConfigChangeHooks, hasBlockingResult } from '../hooks.js'
++import { onPluginsChanged } from '../plugins/refresh.js'
+ import { createSignal } from '../signal.js'
+@@ -64,13 +64,3 @@ const USE_POLLING = typeof Bun !== 'undefined'
+ 
+-let watcher: FSWatcher | null = null
+-let reloadTimer: ReturnType<typeof setTimeout> | null = null
+-const pendingChangedPaths = new Set<string>()
+-let initialized = false
+-let disposed = false
+-let dynamicSkillsCallbackRegistered = false
+-let unregisterCleanup: (() => void) | null = null
+-const skillsChanged = createSignal()
+-
+-// Test overrides for timing constants
+-let testOverrides: {
++export type SkillChangeDetectorOptions = {
+   stabilityThreshold?: number
+@@ -80,3 +70,24 @@ let testOverrides: {
+   chokidarInterval?: number
+-} | null = null
++}
++
++export function createSkillChangeDetector(
++  options?: SkillChangeDetectorOptions,
++) {
++  const stabilityThreshold =
++    options?.stabilityThreshold ?? FILE_STABILITY_THRESHOLD_MS
++  const pollInterval =
++    options?.pollInterval ?? FILE_STABILITY_POLL_INTERVAL_MS
++  const reloadDebounce = options?.reloadDebounce ?? RELOAD_DEBOUNCE_MS
++  const chokidarInterval = options?.chokidarInterval ?? POLLING_INTERVAL_MS
++  const skillsChanged = createSignal()
++  const unsubscribePluginChanges = onPluginsChanged(() =>
++    skillsChanged.emit(),
++  )
++  let watcher: FSWatcher | null = null
++  let reloadTimer: ReturnType<typeof setTimeout> | null = null
++  const pendingChangedPaths = new Set<string>()
++  let initialized = false
++  let disposed = false
++  let unsubscribeDynamicSkills: (() => void) | null = null
++  let unregisterCleanup: (() => void) | null = null
+ 
+@@ -85,3 +96,3 @@ let testOverrides: {
+  */
+-export async function initialize(): Promise<void> {
++async function initialize(): Promise<void> {
+   if (initialized || disposed) return
+@@ -90,5 +101,4 @@ export async function initialize(): Promise<void> {
+   // Register callback for when dynamic skills are loaded (only once)
+-  if (!dynamicSkillsCallbackRegistered) {
+-    dynamicSkillsCallbackRegistered = true
+-    onDynamicSkillsLoaded(() => {
++  if (!unsubscribeDynamicSkills) {
++    unsubscribeDynamicSkills = onDynamicSkillsLoaded(() => {
+       // Clear memoization caches so new skills are picked up
+@@ -115,6 +125,4 @@ export async function initialize(): Promise<void> {
+     awaitWriteFinish: {
+-      stabilityThreshold:
+-        testOverrides?.stabilityThreshold ?? FILE_STABILITY_THRESHOLD_MS,
+-      pollInterval:
+-        testOverrides?.pollInterval ?? FILE_STABILITY_POLL_INTERVAL_MS,
++      stabilityThreshold,
++      pollInterval,
+     },
+@@ -125,3 +133,3 @@ export async function initialize(): Promise<void> {
+       // Ignore .git directories
+-      return path.split(platformPath.sep).some(dir => dir === '.git')
++      return path.split(/[/\\]/).some(dir => dir === '.git')
+     },
+@@ -129,3 +137,3 @@ export async function initialize(): Promise<void> {
+     usePolling: USE_POLLING,
+-    interval: testOverrides?.chokidarInterval ?? POLLING_INTERVAL_MS,
++    interval: chokidarInterval,
+     atomic: true,
+@@ -142,6 +150,10 @@ export async function initialize(): Promise<void> {
+ 
+-  // Register cleanup to properly dispose of the file watcher during graceful shutdown
+-  unregisterCleanup = registerCleanup(async () => {
+-    await dispose()
++  // Do not resolve initialization until chokidar has completed its initial scan.
++  const initializedWatcher = watcher
++  await new Promise<void>(resolve => {
++    initializedWatcher.once('ready', resolve)
+   })
++
++  // Register cleanup to properly dispose of the file watcher during graceful shutdown
++  unregisterCleanup = registerCleanup(dispose)
+ }
+@@ -151,3 +163,3 @@ export async function initialize(): Promise<void> {
+  */
+-export function dispose(): Promise<void> {
++function dispose(): Promise<void> {
+   disposed = true
+@@ -157,2 +169,6 @@ export function dispose(): Promise<void> {
+   }
++  if (unsubscribeDynamicSkills) {
++    unsubscribeDynamicSkills()
++    unsubscribeDynamicSkills = null
++  }
+   let closePromise: Promise<void> = Promise.resolve()
+@@ -167,2 +183,3 @@ export function dispose(): Promise<void> {
+   pendingChangedPaths.clear()
++  unsubscribePluginChanges()
+   skillsChanged.clear()
+@@ -174,3 +191,3 @@ export function dispose(): Promise<void> {
+  */
+-export const subscribe = skillsChanged.subscribe
++const subscribe = skillsChanged.subscribe
+ 
+@@ -283,35 +300,13 @@ function scheduleReload(changedPath: string): void {
+     skillsChanged.emit()
+-  }, testOverrides?.reloadDebounce ?? RELOAD_DEBOUNCE_MS)
++  }, reloadDebounce)
+ }
+ 
+-/**
+- * Reset internal state for testing purposes only.
+- */
+-export async function resetForTesting(overrides?: {
+-  stabilityThreshold?: number
+-  pollInterval?: number
+-  reloadDebounce?: number
+-  chokidarInterval?: number
+-}): Promise<void> {
+-  // Clean up existing watcher if present to avoid resource leaks
+-  if (watcher) {
+-    await watcher.close()
+-    watcher = null
++  return {
++    initialize,
++    dispose,
++    [Symbol.asyncDispose]: dispose,
++    subscribe,
+   }
+-  if (reloadTimer) {
+-    clearTimeout(reloadTimer)
+-    reloadTimer = null
+-  }
+-  pendingChangedPaths.clear()
+-  skillsChanged.clear()
+-  initialized = false
+-  disposed = false
+-  testOverrides = overrides ?? null
+ }
+ 
+-export const skillChangeDetector = {
+-  initialize,
+-  dispose,
+-  subscribe,
+-  resetForTesting,
+-}
++export const skillChangeDetector = createSkillChangeDetector()
+diff --git a/src/utils/task/framework.ts b/src/utils/task/framework.ts
+index 548e976..b0b39b5 100644
+--- a/src/utils/task/framework.ts
++++ b/src/utils/task/framework.ts
+@@ -126,2 +126,16 @@ export function updateTaskState<T extends TaskState>(
+ 
++export const NOOP_TASK_REGISTRY = {
++  register() {},
++  update() {},
++  remove() {},
++  evictTerminal() {},
++  applyOffsetsAndEvict() {},
++  get() {
++    return undefined
++  },
++  all() {
++    return {}
++  },
++}
++
+ /**

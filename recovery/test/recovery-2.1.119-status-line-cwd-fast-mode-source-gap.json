@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "bounded-inherited-source-replay",
+  "criterion": "The replay must restore the complete inherited fast-mode and single-sampled-cwd call chain while preserving every Target119-only effort, thinking, and rate-limit field.",
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/replay-status-line-cwd-fast-mode-source-gap.mjs",
+      "bytes": 9961,
+      "sha256": "925fe4a1756de43c4a99a46a69f18bcd862ee7ef7979ea02a3cb27c35682e5c7"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "rawSource": {
+      "commit": "351cd4d",
+      "tree": "a170b91ca41c13ff37d217eee2a01378f1a97c92",
+      "blob": "78c7aceccda8220b22f3ab14ccaaf572e2aef6e0",
+      "file": {
+        "path": "src/components/StatusLine.tsx",
+        "bytes": 51111,
+        "sha256": "ff74e7b0a8dcab4f5ad6ef187fd0cf1c79ca0b402c2f329841573081d0defd18",
+        "declarations": [
+          {
+            "name": "buildStatusLineCommandInput",
+            "characterStart": 2589,
+            "characterEnd": 5947,
+            "byteStart": 2589,
+            "byteEnd": 5947,
+            "bytes": 3358,
+            "sha256": "2803e1b9d53ffa246e9aaa84172e2a6134ec0b4182bb7c8d9334d87c297fbd1d"
+          },
+          {
+            "name": "StatusLineInner",
+            "characterStart": 6344,
+            "characterEnd": 14990,
+            "byteStart": 6344,
+            "byteEnd": 15005,
+            "bytes": 8661,
+            "sha256": "a1a90260bf846c51fa7ef45d1b3a31a50e9c1dec9fcffa1437f68bd01fbc84d5"
+          }
+        ]
+      }
+    },
+    "recoveredSource": {
+      "file": {
+        "path": "src/components/StatusLine.tsx",
+        "bytes": 51552,
+        "sha256": "69b224cbd42ebabc2036ab8294af7488d8adc00293d58867a656961acbd17dff",
+        "declarations": [
+          {
+            "name": "buildStatusLineCommandInput",
+            "characterStart": 2589,
+            "characterEnd": 6019,
+            "byteStart": 2589,
+            "byteEnd": 6019,
+            "bytes": 3430,
+            "sha256": "a2e2407459cbcd1acff210684ebcc6e45baa150a112b7a75ded4c5babafe0257"
+          },
+          {
+            "name": "StatusLineInner",
+            "characterStart": 6416,
+            "characterEnd": 15431,
+            "byteStart": 6416,
+            "byteEnd": 15446,
+            "bytes": 9030,
+            "sha256": "d45a9fc085d7c340518e43f6f01a551af0522f7da31920c5fc578ab821a4afae"
+          }
+        ]
+      }
+    }
+  },
+  "units": {
+    "targetBuilder": {
+      "index": 20416,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 12349782,
+      "end": 12351409,
+      "bytes": 1627,
+      "tokenCount": 494,
+      "sourceHash": "8467ae9acba1b4e56e90ac5870d9d6046f3cff597cd2c198d10645463545b81f",
+      "coarseHash": "6a52a2e6098c5dcab79a487e75fb6c4afdf360f859e12013a675291d41db3d0a"
+    },
+    "targetCaller": {
+      "index": 20418,
+      "role": "fast-mode selector/ref/change trigger and single-cwd caller",
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 12351450,
+      "end": 12354588,
+      "bytes": 3138,
+      "tokenCount": 1249,
+      "sourceHash": "bb787a90bc4b066999da9bb85784f5d0b8cd765d722325a0cc480993dbb80769",
+      "coarseHash": "8612471cbfb860c8218eeb6795db9adea139a522023a66ec5038efbca720b33b"
+    },
+    "target118Builder": {
+      "index": 19485,
+      "start": 11888667,
+      "end": 11890229,
+      "bytes": 1562,
+      "tokenCount": 458,
+      "sourceHash": "791bc8f762b4ead8b68752c7c8521276423d33627b927063c77f81867802879d"
+    },
+    "target118Caller": {
+      "index": 19487,
+      "start": 11890270,
+      "end": 11893116,
+      "bytes": 2846,
+      "tokenCount": 1139,
+      "sourceHash": "6e2492a3361ca5dad77bed377d6a3e5a6d9bc0045f518fdaa8b4a15d25447c86"
+    }
+  },
+  "rows": {
+    "owner": {
+      "count": 15,
+      "canonicalBytes": 1113,
+      "canonicalSha256": "ef6e61b891e241f5dacef4717982dac5d0bcce5d76dafda974c1313d79cf260f"
+    },
+    "addedOwner": {
+      "count": 4,
+      "canonicalBytes": 271,
+      "canonicalSha256": "305bb5195e0dc990ed848bc966e1f3803a40da5cf968d339c96dd613c05b7bb2",
+      "tuples": [
+        [20416, "property", "cwd", 12350207, 12350210, 321, 364, true],
+        [20416, "string", "2.1.119", 12350546, 12350555, 0, 121, true],
+        [20416, "string", "2026-04-23T19:08:52Z", 12350635, 12350657, 0, 121, true],
+        [20416, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 12350666, 12350708, 0, 121, true]
+      ]
+    },
+    "rawScanner": {
+      "count": 3,
+      "canonicalBytes": 215,
+      "canonicalSha256": "be0f4ac8bd1771e82f5cbf988895008609e61a32766f88a23baed64e9fc9cb45",
+      "tuples": [
+        [20416, "string", "2.1.119", 12350546, 12350555, 0, 121, true],
+        [20416, "string", "2026-04-23T19:08:52Z", 12350635, 12350657, 0, 121, true],
+        [20416, "string", "6f68554839756189e277b8285a18fe47acd9a5a1", 12350666, 12350708, 0, 121, true]
+      ]
+    }
+  },
+  "contract": {
+    "inheritedFromTarget118": [
+      "fast_mode from AppState fastMode",
+      "one cwd sample shared by top-level cwd, workspace.current_dir, and getGitWorktreeName",
+      "fastMode ref and previous-state change trigger"
+    ],
+    "target119OnlyPreserved": [
+      "effort level",
+      "thinking enabled",
+      "five-hour and seven-day rate limits"
+    ],
+    "buildMetadata": {
+      "VERSION": "2.1.119",
+      "BUILD_TIME": "2026-04-23T19:08:52Z",
+      "GIT_SHA": "6f68554839756189e277b8285a18fe47acd9a5a1"
+    }
+  },
+  "evidenceIds": [
+    "target119-status-line-cwd-fast-mode-target-fragment",
+    "target119-status-line-cwd-fast-mode-source-replay-test",
+    "target119-status-line-cwd-fast-mode-source-ast-test"
+  ],
+  "expectedImpact": {
+    "strictUnitsRemoved": 1,
+    "strictResiduesRemoved": 4,
+    "sourceFilesReplayed": 1
+  }
+}

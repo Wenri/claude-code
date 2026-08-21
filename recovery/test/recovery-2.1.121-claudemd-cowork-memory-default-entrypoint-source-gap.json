@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "versions": {
+    "baseline": "2.1.120",
+    "target": "2.1.121"
+  },
+  "sourceCommit": "11890981447ee2cea3407c608f4411e43e5fe72a",
+  "sourceBlob": {
+    "path": "src/utils/claudemd.ts",
+    "gitObject": "5ea8ab6d7d44127714fdbf8660b09ab5226ad5ff"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "replayHelper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-claudemd-cowork-memory-default-entrypoint-source-gap.mjs",
+      "bytes": 6032,
+      "sha256": "6b17f1b42310b1de92c82133efeab6746480f848f43d6e306befb841a4a0b7f7"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/claudemd.ts",
+        "input": {
+          "bytes": 46391,
+          "sha256": "538a13353c2333d462c2ba460176af23da2b6b5bf4c628567ca208633c70a81d"
+        },
+        "output": {
+          "bytes": 46492,
+          "sha256": "21db5542fa371e0d69e7e85dfbf81f8f185167d372d69e318f611eb9a9f01c64"
+        }
+      }
+    ]
+  },
+  "baselineUnit": {
+    "index": 9161,
+    "role": "getMemoryFiles module initializer before the Cowork default-entrypoint skip gate",
+    "nodeType": "VariableDeclaration",
+    "start": 4338345,
+    "end": 4341642,
+    "bytes": 3297,
+    "tokenCount": 1327,
+    "sourceHash": "3aa3524194d3c48bf178665ddc4c1085c638049a1044de4e69f808ca781ea29a",
+    "coarseHash": "cab4813b0a0d7fa04e07e2e8830427aa6f312b5bcd4ba7648084f1f6fc97b1a2"
+  },
+  "targetUnit": {
+    "index": 9209,
+    "role": "getMemoryFiles module initializer with the Cowork default-entrypoint skip gate",
+    "nodeType": "VariableDeclaration",
+    "start": 4352589,
+    "end": 4355949,
+    "bytes": 3360,
+    "tokenCount": 1338,
+    "sourceHash": "31ef72cc12291c192e4b322cec24bf45c230ea07cb521de02689c6c248f3b151",
+    "coarseHash": "680016f6df974219e1d36d4b759d97e479ec97ccdb8bdd616eaf13839954526d",
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 3
+  },
+  "bundleFragments": [
+    {
+      "name": "baselineAutoMemBranch",
+      "bundle": "baseline",
+      "unitIndex": 9161,
+      "start": 4340910,
+      "end": 4341014,
+      "bytes": 104,
+      "sha256": "601dc1ba1e30674749ffd799661a740c41813d8aa4840e056de52ca7fefd554e",
+      "text": "if(z9()){let{info:L}=await PEK(ORH(),\"AutoMem\");if(L){let P=kL(L.path);if(!K.has(P))K.add(P),q.push(L)}}"
+    },
+    {
+      "name": "targetAutoMemBranch",
+      "bundle": "target",
+      "unitIndex": 9209,
+      "start": 4355154,
+      "end": 4355321,
+      "bytes": 167,
+      "sha256": "015bb3c5e0ee7d7dc6eed57d77fbfa57a1ee0be680de81722cb07022164cba2b",
+      "text": "if(P9()){if(!process.env.CLAUDE_COWORK_MEMORY_SKIP_DEFAULT_ENTRYPOINT){let{info:L}=await rhK(aRH(),\"AutoMem\");if(L){let P=dL(L.path);if(!K.has(P))K.add(P),q.push(L)}}}"
+    },
+    {
+      "name": "targetSkipGuard",
+      "bundle": "target",
+      "unitIndex": 9209,
+      "start": 4355163,
+      "end": 4355320,
+      "bytes": 157,
+      "sha256": "36cbb42e62d701a379dc7c035e2e165cf3b1c3f0960910ed9afcb98a90baf933"
+    },
+    {
+      "name": "targetSkipCondition",
+      "bundle": "target",
+      "unitIndex": 9209,
+      "start": 4355166,
+      "end": 4355223,
+      "bytes": 57,
+      "sha256": "04485de8adcad0923708e663243673b2950fee95022801e2cd8f31a07c1ad9a2",
+      "text": "!process.env.CLAUDE_COWORK_MEMORY_SKIP_DEFAULT_ENTRYPOINT"
+    }
+  ],
+  "sourceRegions": {
+    "rawAnchor": {
+      "charStart": 30227,
+      "charEnd": 30720,
+      "bytes": 493,
+      "sha256": "2225f1a85046aa402d286e448f15d4941a647204b989fd92e453eef1b5495295"
+    },
+    "recoveredAnchor": {
+      "charStart": 30227,
+      "charEnd": 30821,
+      "bytes": 594,
+      "sha256": "3eda84dbd2c7cb56c3a13bf63b7b01e998ed508c503787bc8bebd88211306174"
+    },
+    "rawDeclaration": {
+      "name": "getMemoryFiles",
+      "charStart": 23803,
+      "charEnd": 33781,
+      "bytes": 9986,
+      "sha256": "375cb09a937fdfb09d340ecb3cb1102d917bfb595fca7828e5e7bcfbc64e683e"
+    },
+    "recoveredDeclaration": {
+      "name": "getMemoryFiles",
+      "charStart": 23803,
+      "charEnd": 33882,
+      "bytes": 10087,
+      "sha256": "b5163b2cd4f9504bcf57ff92ee781c3b6f3c87ab62fa5924bff97ced04c3786c"
+    },
+    "recoveredGuard": {
+      "charStart": 30343,
+      "charEnd": 30815,
+      "bytes": 472,
+      "sha256": "b6acbf2d033b263c664e6a7ba584357355d61c2897d29483a591dadd4ff11ef6"
+    },
+    "recoveredCondition": {
+      "charStart": 30347,
+      "charEnd": 30404,
+      "bytes": 57,
+      "sha256": "04485de8adcad0923708e663243673b2950fee95022801e2cd8f31a07c1ad9a2"
+    }
+  },
+  "wholeUnitProof": {
+    "criterion": "position-free-property-preserving-identifier-agnostic-ast-v1",
+    "operation": "unwrap the unique target skip guard and compare complete baseline/target units",
+    "canonicalBytes": 47728,
+    "canonicalSha256": "b434102e116f8b64616c15fe8d6bd48654ad27e3a9161dcf99216aa2e5c26450"
+  },
+  "strictRows": [
+    {
+      "targetIndex": 9209,
+      "literalKind": "property",
+      "value": "CLAUDE_COWORK_MEMORY_SKIP_DEFAULT_ENTRYPOINT",
+      "baselineOccurrenceCount": 0,
+      "targetOccurrenceNumber": 1,
+      "start": 4355179,
+      "end": 4355223,
+      "sourceHash": "31ef72cc12291c192e4b322cec24bf45c230ea07cb521de02689c6c248f3b151",
+      "ownerPath": "src/utils/claudemd.ts",
+      "reportedOwnerPaths": [
+        "utils/claudemd.ts"
+      ],
+      "declarations": [
+        "getMemoryFiles"
+      ],
+      "identitySha256": "b0fa2af3bc94214bfab77553c51013efb1094a2e29b90b1ac26d345c453b0896"
+    }
+  ],
+  "strictEvolution": {
+    "before": {
+      "units": 63,
+      "residues": 487,
+      "indices": [
+        9209,
+        10152,
+        11275,
+        12210,
+        12768,
+        13026,
+        13102,
+        13110,
+        13120,
+        13973,
+        14165,
+        14171,
+        14201,
+        14209,
+        14622,
+        16315,
+        16363,
+        16369,
+        17014,
+        17015,
+        17497,
+        17548,
+        18378,
+        18380,
+        18548,
+        18549,
+        18684,
+        18817,
+        18932,
+        19010,
+        19537,
+        19553,
+        19683,
+        19753,
+        19995,
+        20305,
+        20318,
+        20320,
+        20592,
+        20606,
+        20617,
+        20645,
+        20651,
+        20672,
+        20775,
+        20874,
+        20909,
+        20945,
+        20949,
+        21015,
+        21018,
+        21049,
+        21128,
+        21373,
+        21913,
+        21925,
+        21958,
+        21959,
+        21992,
+        22106,
+        22107,
+        22170,
+        22174
+      ],
+      "indicesSha256": "815e4f79caa20b9f00624fa5b317e394220a54b7dbb45cf6423aaf39481057ce",
+      "residuesSha256": "d22a11f153ae4c442dfe37e1dbd8e8063aa15be452038665d308b5262800493d"
+    },
+    "after": {
+      "units": 62,
+      "residues": 486,
+      "indices": [
+        10152,
+        11275,
+        12210,
+        12768,
+        13026,
+        13102,
+        13110,
+        13120,
+        13973,
+        14165,
+        14171,
+        14201,
+        14209,
+        14622,
+        16315,
+        16363,
+        16369,
+        17014,
+        17015,
+        17497,
+        17548,
+        18378,
+        18380,
+        18548,
+        18549,
+        18684,
+        18817,
+        18932,
+        19010,
+        19537,
+        19553,
+        19683,
+        19753,
+        19995,
+        20305,
+        20318,
+        20320,
+        20592,
+        20606,
+        20617,
+        20645,
+        20651,
+        20672,
+        20775,
+        20874,
+        20909,
+        20945,
+        20949,
+        21015,
+        21018,
+        21049,
+        21128,
+        21373,
+        21913,
+        21925,
+        21958,
+        21959,
+        21992,
+        22106,
+        22107,
+        22170,
+        22174
+      ],
+      "indicesSha256": "521448948f737e05951e06d3d5ff286eed74343c62df6b1d6b15e3e4f31e5647"
+    }
+  },
+  "summary": {
+    "strictUnits": 1,
+    "ownerResidues": 1,
+    "targetAddedResidues": 1,
+    "replayFiles": 1
+  }
+}

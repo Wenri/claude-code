@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "criterion": "target117-fallback-truncated-count-bounded-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target117-fallback-truncated-count-target-unit-proof",
+    "target117-fallback-truncated-count-source-replay-test"
+  ],
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.116-to-2.1.117/recovered/replay-fallback-truncated-count-source-gap.mjs",
+      "bytes": 9556,
+      "sha256": "e61c85239d19469b96ef411a64c73982cfc84031c3808bd1871ffdfe856741b6"
+    },
+    "baselineBundle": [
+      "2.1.116-linux-x64/cli.inner.js",
+      13102272,
+      "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    ],
+    "targetBundle": [
+      "2.1.117-linux-x64/cli.inner.js",
+      13114118,
+      "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    ],
+    "structuralLedger": [
+      "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+      2392225,
+      "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    ],
+    "rawSource": {
+      "commit": "ff0339d35906735273ae3130a187bb8e30581871",
+      "tree": "c9e15117699a700016fee35a941dc3896208819f",
+      "path": "src/components/FallbackToolUseErrorMessage.tsx",
+      "blob": "12d3b399a10bb9603d2fdc83669f411db28d9cfa",
+      "bytes": 12623,
+      "sha256": "4a52f0ae2724251af9ba40190b9e372c5c4db5c16caa098041dd8133c4e2479f",
+      "declaration": [729, 3376, 2647, "3b19e62a6afde85605b946c6d52ab28deda34f8e536d3e361d0fe3141a710642"]
+    },
+    "postimage": {
+      "path": "src/components/FallbackToolUseErrorMessage.tsx",
+      "bytes": 12272,
+      "sha256": "4b59214f28121cc05755909b935f686fe6272c33e690e08b6607874255d0788a",
+      "declaration": [708, 3027, 2319, "bbd3cb2267228716838d7c5a9bae0dd545cf33c8c9f439564be63f05fb3daf56"],
+      "jsx": [2477, 2531, 54, "481da9ee7773226f63803c089d3fc2c1a9131a4aa9539fda652efc3c5b1183dc"]
+    },
+    "truncatedCount": {
+      "path": "src/components/TruncatedCount.tsx",
+      "bytes": 681,
+      "sha256": "d1cfad7aa51c6e23a2acbc26858c6d711b872d86380fdeed594e8caf05338672"
+    }
+  },
+  "target117": {
+    "unit": [
+      12023,
+      "unresolved",
+      "FunctionDeclaration",
+      7610176,
+      7611269,
+      642,
+      "f23e9038a53ee646696fa4814e253d230bdf72dc895e629144310f7405e72a73",
+      "467c5a25e286dca9de4616531b0ab02a62595cf48baa081af55b0e66aed5bbb4"
+    ],
+    "truncatedCountCall": [7610930, 7610975, 45, "41ea89b811575ba9bb1be607a31440d2beed8b1eae6241db908ba6bd6de1a9e6"],
+    "residue": ["property", "expandable", 7610960, 7610970, 2, 0]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "recoveredFiles": 1,
+    "ownerOverrides": 1,
+    "requiredPriorReplays": [
+      "applyTarget117TruncatedCountSourceRecovery"
+    ]
+  }
+}

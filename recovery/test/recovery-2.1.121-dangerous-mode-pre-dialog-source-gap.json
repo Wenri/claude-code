@@ -1,0 +1,292 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-dangerous-mode-pre-dialog-two-unit-source-replay-v1",
+  "status": "case-owned-bounded-call-callee-source-replay",
+  "claim": "Target121 adds one pre-dialog settings snapshot in complete u22106, passes it through the sole logTenguInit call, and destructures it in complete u22107. Target120 and both accepted recovered source states omit the whole graph. Because the u22107 binding is otherwise unused and the u22106 property has exactly one same-binding definition, neither row is meaningful alone. This replay restores the exact source import, snapshot, caller property, typed callee binding, and no other u22106 residue.",
+  "evidenceIds": [
+    "target121-dangerous-mode-pre-dialog-authenticated-units",
+    "target121-dangerous-mode-pre-dialog-call-callee-graph",
+    "target121-dangerous-mode-pre-dialog-source-replay",
+    "target121-dangerous-mode-pre-dialog-two-row-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-dangerous-mode-pre-dialog-source-gap.mjs",
+      "bytes": 7306,
+      "sha256": "8c37ab84b0b4891f0cbbd0c26b37e4da2b553e88f95d724dfb64587b2d89bd96"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenBeforeEdits": {
+      "method": "Descriptors were calculated from chmod-0444 private copies before this case helper or fixture was created.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25395103,
+        "sha256": "87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      }
+    },
+    "frozenAfterReplay": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7",
+        "projection": "frozenBeforeEdits excluding rowBoundary.admitted"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592",
+        "projection": "frozenBeforeEdits"
+      }
+    },
+    "frozenPostPrune": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25396455,
+        "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4",
+        "projection": "frozenAfterReplay plus unrelated post-prune owner corrections"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345989,
+        "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+        "rawBytes": 2968244,
+        "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06",
+        "projection": "frozenAfterReplay plus unrelated post-prune coverage corrections"
+      }
+    },
+    "frozenPostDaemonOwner": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3","projection":"frozenPostPrune with exact daemon-owner physical scanner semantics"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f","projection":"frozenPostPrune with daemon owner evidence"}
+    },
+    "evolutionCompatibility": {
+      "preDangerous": ["preDangerous"],
+      "postDangerous": ["postDangerous"],
+      "postPrune": ["postPrune"],
+      "postDaemonOwner": ["postDaemonOwner"]
+    },
+    "sourceFile": {
+      "path": "src/main.tsx",
+      "auditedPackageSourceRoot": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPruneAuditedPackageSourceRoot": "/tmp/target121-prune-final.QAqOlk/2.1.121/src",
+      "acceptedStates": {
+        "preViewModeReplay": {
+          "input": {
+            "file": {"bytes":816314,"sha256":"c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"},
+            "run": {"start":50530,"end":238967,"bytes":188609,"sha256":"cd625ff130da4c44f430dc952e22f6ee2b5bf4838b0740c55813b7d676955891"},
+            "logTenguInit": {"start":238968,"end":242713,"bytes":3745,"sha256":"8bd4f2990cd2c3f7b447e7083677435b00f5a899172a903bf2e5d769aff93fd8"}
+          },
+          "output": {
+            "file": {"bytes":816570,"sha256":"da0d35f71b4c91a298bdc121a2b0a2bfd57a60641f2a6c1990541037c81c1ea7"},
+            "run": {"start":50568,"end":239136,"bytes":188740,"sha256":"0e1119b6324107484c3eee370cf28e79491f5d3a3a2853fadba50238a2366170"},
+            "logTenguInit": {"start":239137,"end":242969,"bytes":3832,"sha256":"bc466386e4792b028fcc1ce4a52d7cd9597dee03a5fd4b9c1ab6a793b30149ea"},
+            "importSpecifier": {"start":11992,"end":12028,"bytes":36,"sha256":"57020524fa040f64746e411a5a34cc44ef5c3c503f635ab5b47cf287ec0a5167"},
+            "snapshot": {"start":130060,"end":130136,"bytes":76,"sha256":"804b4d9c0fea724fb5ab8756210db2bb389f58592361c41125d667b83a8e45dc"},
+            "callProperty": {"start":145312,"end":145347,"bytes":35,"sha256":"39cea5aab4e6bfa6a3acf71f05e29dcf2060e33f5dad5306762fa293deae71f8"},
+            "calleeBinding": {"start":239514,"end":239549,"bytes":35,"sha256":"39cea5aab4e6bfa6a3acf71f05e29dcf2060e33f5dad5306762fa293deae71f8"},
+            "calleeType": {"start":240172,"end":240217,"bytes":45,"sha256":"db6962abec3a25220dcb5ee142c4bdbba6fa6b7473d86fb8cbbcd2088392bbab"}
+          }
+        },
+        "postViewModeReplay": {
+          "input": {
+            "file": {"bytes":816530,"sha256":"13589f838f55a46b5eeaa551acd450ee5bdcd1fcd8e71578039e6a03d77d54c9"},
+            "run": {"start":50530,"end":239183,"bytes":188825,"sha256":"927d72ca12ffb99029fa491601321e807090df1181e29b678b042130451a4c80"},
+            "logTenguInit": {"start":239184,"end":242929,"bytes":3745,"sha256":"8bd4f2990cd2c3f7b447e7083677435b00f5a899172a903bf2e5d769aff93fd8"}
+          },
+          "output": {
+            "file": {"bytes":816786,"sha256":"ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"},
+            "run": {"start":50568,"end":239352,"bytes":188956,"sha256":"182548866a9e70349f677944468c6f500b36339fb2e99b92691ca193db6af775"},
+            "logTenguInit": {"start":239353,"end":243185,"bytes":3832,"sha256":"bc466386e4792b028fcc1ce4a52d7cd9597dee03a5fd4b9c1ab6a793b30149ea"},
+            "importSpecifier": {"start":11992,"end":12028,"bytes":36,"sha256":"57020524fa040f64746e411a5a34cc44ef5c3c503f635ab5b47cf287ec0a5167"},
+            "snapshot": {"start":130296,"end":130372,"bytes":76,"sha256":"804b4d9c0fea724fb5ab8756210db2bb389f58592361c41125d667b83a8e45dc"},
+            "callProperty": {"start":145548,"end":145583,"bytes":35,"sha256":"39cea5aab4e6bfa6a3acf71f05e29dcf2060e33f5dad5306762fa293deae71f8"},
+            "calleeBinding": {"start":239730,"end":239765,"bytes":35,"sha256":"39cea5aab4e6bfa6a3acf71f05e29dcf2060e33f5dad5306762fa293deae71f8"},
+            "calleeType": {"start":240388,"end":240433,"bytes":45,"sha256":"db6962abec3a25220dcb5ee142c4bdbba6fa6b7473d86fb8cbbcd2088392bbab"}
+          }
+        }
+      },
+      "postPruneSourceState": {
+        "output": {
+          "file": {"bytes":816903,"sha256":"75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"},
+          "run": {"start":50568,"end":239469,"bytes":189073,"sha256":"044bac3a6f53bd31c78b2b1b0a7de0ba06a54700ea5c869c6c196da34c453f13"},
+          "logTenguInit": {"start":239470,"end":243302,"bytes":3832,"sha256":"bc466386e4792b028fcc1ce4a52d7cd9597dee03a5fd4b9c1ab6a793b30149ea"},
+          "importSpecifier": {"start":11992,"end":12028,"bytes":36,"sha256":"57020524fa040f64746e411a5a34cc44ef5c3c503f635ab5b47cf287ec0a5167"},
+          "snapshot": {"start":130296,"end":130372,"bytes":76,"sha256":"804b4d9c0fea724fb5ab8756210db2bb389f58592361c41125d667b83a8e45dc"},
+          "callProperty": {"start":145548,"end":145583,"bytes":35,"sha256":"39cea5aab4e6bfa6a3acf71f05e29dcf2060e33f5dad5306762fa293deae71f8"},
+          "calleeBinding": {"start":239847,"end":239882,"bytes":35,"sha256":"39cea5aab4e6bfa6a3acf71f05e29dcf2060e33f5dad5306762fa293deae71f8"},
+          "calleeType": {"start":240505,"end":240550,"bytes":45,"sha256":"db6962abec3a25220dcb5ee142c4bdbba6fa6b7473d86fb8cbbcd2088392bbab"}
+        },
+        "projection": "postViewModeReplay.output plus the unrelated plugin-prune source replay"
+      }
+    }
+  },
+  "baselineUnits": {
+    "run": {"baselineUnitIndex":22004,"name":"Zh5","nodeType":"FunctionDeclaration","parseStatus":"parsed","async":true,"start":13711458,"end":13773044,"bytes":61586,"tokenCount":16389,"topDefinitionCount":1,"sha256":"779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0","coarseHash":"4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0","line":18786,"column":12},
+    "logTenguInit": {"baselineUnitIndex":22005,"name":"Th5","nodeType":"FunctionDeclaration","parseStatus":"parsed","async":true,"start":13773044,"end":13774231,"bytes":1187,"tokenCount":302,"topDefinitionCount":1,"sha256":"e68ab90e22911df74d29ac44e9e2c456ed64b166f99a1ccb8ed88f0618ec2b1e","coarseHash":"94c02ce83f9d5d1a15c4333076a82e7808f9c22659322e0ec6d0283ed935f400","line":18809,"column":19888}
+  },
+  "targetUnits": {
+    "run": {"targetIndex":22106,"name":"WS5","nodeType":"FunctionDeclaration","parseStatus":"parsed","classification":"unresolved","unknownFreeIdentifierCount":42,"async":true,"start":13779080,"end":13841990,"bytes":62910,"tokenCount":16656,"topDefinitionCount":1,"sha256":"75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b","coarseHash":"c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1","line":18764,"column":12},
+    "logTenguInit": {"targetIndex":22107,"name":"GS5","nodeType":"FunctionDeclaration","parseStatus":"parsed","classification":"unresolved","unknownFreeIdentifierCount":1,"async":true,"start":13841990,"end":13843224,"bytes":1234,"tokenCount":313,"topDefinitionCount":1,"sha256":"26562dbb45c5d3e67885bb67a06790b1c4c6f9a766fe368ea78472c4e164c464","coarseHash":"f3927d3b1a7d24bfa6f4fc7acbcc6d410426c334f8b8bd4aac8382f4b705af09","line":18787,"column":20666}
+  },
+  "settingsReaderUnit": {"targetIndex":2780,"baselineUnitIndex":2756,"name":"oe","nodeType":"FunctionDeclaration","classification":"matched","pairReason":"exact-scope-normalized-token-hash","start":1167331,"end":1167577,"bytes":246,"tokenCount":38,"sha256":"7ec4ffc38110b0c32294bdddd93427c65b4a40c8bb9b5d7be089773f2ac9a23f"},
+  "compiledGraph": {
+    "baseline": {"runPropertyCount":0,"calleePropertyCount":0},
+    "target": {
+      "runProperty": {"localStart":30356,"localEnd":30394,"start":13809436,"end":13809474,"bytes":38,"sha256":"62948b8fb7402db796f541cd69d8dd081e2572c25e19f22477374d8852da570a","text":"skipDangerousModePromptSetPreDialog:tf","normalizedTokens":{"count":3,"bytes":42,"sha256":"53639656ed62ede28627103c2c95c340c4856b77ad1fec50728b53e8d32ceaac"}},
+      "runCall": {"callee":"GS5","localStart":29882,"localEnd":30577,"start":13808962,"end":13809657,"bytes":695,"sha256":"9c788962acecfb2732d6b3733838414331002496e233c2843ff211d383928177"},
+      "snapshotDefinition": {"localStart":25965,"localEnd":25972,"start":13805045,"end":13805052,"bytes":7,"sha256":"d0377a55f7e19e30cfeeb0cd9fe92fee6011b5a62d7a9deeb4994af9ef644910","text":"tf=oe()","initializerType":"CallExpression","initializerCallee":"oe","normalizedTokens":{"count":5,"bytes":63,"sha256":"a8b7dca4bacb26cd05ec131640950e4a65edcc1ab59baab38db90f13dd720acf"}},
+      "calleeProperty": {"localStart":331,"localEnd":368,"start":13842321,"end":13842358,"bytes":37,"sha256":"70a73fe6d62bfe14822c59a05a66cb8fe327bf5ff6c47c00d66ab5c99efdb74a","text":"skipDangerousModePromptSetPreDialog:P","normalizedTokens":{"count":3,"bytes":42,"sha256":"53639656ed62ede28627103c2c95c340c4856b77ad1fec50728b53e8d32ceaac"}},
+      "calleeBoundOccurrences": [{"localStart":367,"localEnd":368,"start":13842357,"end":13842358,"bytes":1,"sha256":"5c62e091b8c0565f1bafad0dad5934276143ae2ccef7a5381e8ada5b1a8d26d2","parentType":"Property"}]
+    }
+  },
+  "reportSnapshot": {
+    "global": {
+      "ownerRows": {"count":35667,"fullRows":{"bytes":14875593,"sha256":"5c6d2f332c06ad7f63292a77fcc8758431b01fce30bc3d127e6597cbfa97bf45"},"identities":{"bytes":2020236,"sha256":"73be619880f4e30044fd12fc9fddfbb115d3af1b8358c49a7f3c97dbc6882e56"}},
+      "addedRows": {"count":1153,"fullRows":{"bytes":2432096,"sha256":"76556431dc67d1cdf46d8a48a3ca92ca66f7a44bb9798060eb3fc663038311d6"},"identities":{"bytes":68240,"sha256":"b44040b8485a415689a67a2a9141be84983fbceb5d6815929144fb93f967277a"}},
+      "strictRows": {"count":1230,"fullRows":{"bytes":955667,"sha256":"2d355b72cce50462608f25ef4b9c8d5f69f74815a8a723221cef3ba7ce3d6196"},"identities":{"bytes":72691,"sha256":"81963b3dab5d82e1a76e43f813e0501231ee9ba4ed64e8de5a129e451dc60ac4"}}
+    },
+    "u22106": {
+      "ownerRows": {"count":200,"fullRows":{"bytes":81503,"sha256":"e139fe25f96b30824aac915f0387fd3b2d0208872b87b6c2394b4307a163b4fc"},"identities":{"bytes":13503,"sha256":"f56b5605e396a33063b5ce1cdbf54723cdfefbcb4de1c87dccb13d2878029b0b"}},
+      "addedRows": {"count":16,"fullRows":{"bytes":13710,"sha256":"858bcd9dbd8cf2f42990a260470d47d742a3b52813950d118e661f0a8075c89f"},"identities":{"bytes":966,"sha256":"2176929407d288662a742d65eb11807019d843c08256643f182e217d1520f1f1"}},
+      "strictRows": {"count":9,"fullRows":{"bytes":4548,"sha256":"4418da70a455e83e5e8d3dc3328eea4b5d7be81636fb8d05d5e9b2b52e073746"},"identities":{"bytes":587,"sha256":"70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"}}
+    },
+    "u22107": {
+      "ownerRows": {"count":3,"fullRows":{"bytes":1236,"sha256":"32e85b31df449ee4d4a8d6639b5de1cd34d86dd8982debbb24ee33355e1af139"},"identities":{"bytes":216,"sha256":"f2cd831808251f9388fb7a7ba60117a4fbe7008cfceba29b8126acf37f304413"}},
+      "addedRows": {"count":1,"fullRows":{"bytes":518,"sha256":"760b5a41f08f832b609114b2f6c9334c3828167d0647d5bc96dd3eb896f2c7ff"},"identities":{"bytes":79,"sha256":"327ee2fc493c52891d36b013d35119791fe439b0020d094469636aa726506c27"}},
+      "strictRows": {"count":1,"fullRows":{"bytes":518,"sha256":"760b5a41f08f832b609114b2f6c9334c3828167d0647d5bc96dd3eb896f2c7ff"},"identities":{"bytes":78,"sha256":"887fd2e5bb68bad977357770018476b8e0aa4c186ceb2ae8a19698971c682d29"}}
+    }
+  },
+  "postDaemonOwner": {
+    "reportSnapshot": {
+      "global": {
+        "ownerRows": {"count":35634,"fullRows":{"bytes":14865856,"sha256":"4d8820a77ad333a1c03fcf68a37b016d01941e51d78dbd8e507a4052b4de2e10"},"identities":{"bytes":2018461,"sha256":"6e3a98f55b04d772df49e58f090f52e86b48438d455710a0f39cab8294c8aedb"}},
+        "addedRows": {"count":1118,"fullRows":{"bytes":2332218,"sha256":"f05b578b9022979131f1b3b691547974a8b6207d9bd34af0cf77a93fb0452392"},"identities":{"bytes":66365,"sha256":"44884befaa210acb2b2dd5897fee9fc365a70f61538e3060ac418b60434811fd"}},
+        "strictRows": {"count":1275,"fullRows":{"bytes":1058510,"sha256":"f166bb306cdc3b7266b69c13f7e50b119c8bb75d5d0e8e4fafa9acd08398d0e4"},"identities":{"bytes":75278,"sha256":"eaa0350168a5672c733f4c0c1c6a6ff32d1a2fe188b1e2585d722fd11f75d574"}}
+      },
+      "u22106": {
+        "ownerRows": {"count":202,"fullRows":{"bytes":82282,"sha256":"12667e8e660ac9d2922044a635480cabfaebf9c4dfab21c4c1c9e70e73d2d9a6"},"identities":{"bytes":13602,"sha256":"34c010ba52ab4f198005aa949999c1a9fa505e13a36b8dbf86ae1aa2f41a5b26"}},
+        "addedRows": {"count":18,"fullRows":{"bytes":15716,"sha256":"593670e825fbcc41f6d3f61292701a24d95b4f8382ee73fea180f5e92ba37326"},"identities":{"bytes":1065,"sha256":"3c8e691f746c6a26d6174ba0a97caf0c142ac35fefae4cae1827cb8bbd79437f"}},
+        "strictRows": {"count":9,"fullRows":{"bytes":4548,"sha256":"4418da70a455e83e5e8d3dc3328eea4b5d7be81636fb8d05d5e9b2b52e073746"},"identities":{"bytes":587,"sha256":"70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"}}
+      },
+      "u22107Projection": "reportSnapshot.u22107"
+    },
+    "restoredViewModeRowsExact": [["property","viewMode",13792763,13792771,3,4,true],["string","focus",13792780,13792787,16,17,true]],
+    "coverageProjection": "preDangerous"
+  },
+  "postDangerous": {
+    "reportSnapshot": {
+      "global": {
+        "ownerRows": {"count":35665,"fullRows":{"bytes":14874757,"sha256":"9eb44fb82868cf6e7debebdb2b6d1eaa7b67c2cbe4bd8c6696129a4360d0a9ca"},"identities":{"bytes":2020080,"sha256":"93b1ab54a2189a4f6d48f149ed75985e5228844d6813a9df0b4278488f34bdaf"}},
+        "addedRows": {"count":1151,"fullRows":{"bytes":2431062,"sha256":"ca052e4d25e209446d2b9647035e351d7cdf187172cc6b8417863ad0b27763f6"},"identities":{"bytes":68084,"sha256":"b5da293752be6d6442d1b8e7c1e5ff42d08c4dd95b8fdff174976ff495e6559b"}},
+        "strictRows": {"count":1228,"fullRows":{"bytes":954633,"sha256":"8c2e4cebfdb698f1f97cb86f483171a67dc05661bceaa0b08a6c4fd87e41097c"},"identities":{"bytes":72537,"sha256":"444664955cccf2aa5552c0351bb6753670e1703d5fd50c4c2cf8231484820e21"}}
+      },
+      "u22106": {
+        "ownerRows": {"count":199,"fullRows":{"bytes":81085,"sha256":"13cace3be55665334e303e43c341e5859b589845e474f80cbe5d1e143867e76c"},"identities":{"bytes":13425,"sha256":"f00a23d93b511d06d290bd4f9b3ae4fe1d4043f168a5271d647ca430a5eb8562"}},
+        "addedRows": {"count":15,"fullRows":{"bytes":13193,"sha256":"bd2b89b6f681184cad0d7216e2e5aeb23f9408261f66d6bfa95e9cab865b77ba"},"identities":{"bytes":888,"sha256":"20432f175c6adaa772965d5cfb4771182166021aa931b502893fd98fe1988d38"}},
+        "strictRows": {"count":8,"fullRows":{"bytes":4031,"sha256":"59c0f3f3dabcc32279a43bb2564f5ddbacff960557ae688dd16eb6db8f32cfca"},"identities":{"bytes":510,"sha256":"2aecbae5c355ac1faa832d5bdff219e003fab8da75f91fd8466b496cf477f378"}}
+      },
+      "u22107": {
+        "ownerRows": {"count":2,"fullRows":{"bytes":818,"sha256":"c5d1084740d2211deb8f91b7e6c4a3743c0b74edf76392dd189530ed6a4541e3"},"identities":{"bytes":138,"sha256":"18ec43429c5dfe71e3d73869dc594d325bd30eb96d00edd8e74130e1a9a558e6"}},
+        "addedRows": {"count":0,"fullRows":{"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},"identities":{"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}},
+        "strictRows": {"count":0,"fullRows":{"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},"identities":{"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}}
+      }
+    },
+    "removedRowsExact": [
+      [22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true],
+      [22107,"property","skipDangerousModePromptSetPreDialog",13842321,13842356,0,2,true]
+    ],
+    "coverageProjection": "preDangerous"
+  },
+  "postPrune": {
+    "reportSnapshotProjection": "postDangerous locals with an exact post-prune global partition",
+    "global": {
+      "ownerRows": {"count":35669,"fullRows":{"bytes":14876363,"sha256":"6212d411a900e3db47bb692fc9245b3e90eb25d9e49de63751c8f507e273e61d"},"identities":{"bytes":2020298,"sha256":"ba29d3218610a29d1887cf7a1c6fcce9713fc1120f9ec126d6392fe8265a39b3"}},
+      "addedRows": {"count":1155,"fullRows":{"bytes":2433180,"sha256":"ca44dbdfeb7faa13a3533a36992eb04bca5564f53e0ea2557c3f8eaad9b816e5"},"identities":{"bytes":68302,"sha256":"ce39dce222ccf6fe75d2cb4ba4070e9113d258e909cfcd90d5cbdbcbe18a00c1"}},
+      "strictRows": {"count":1228,"fullRows":{"bytes":954725,"sha256":"365d07b0be5d34e45aeb63fb8db8d413aac15041c669b366141d45bb224e0ff1"},"identities":{"bytes":72537,"sha256":"444664955cccf2aa5552c0351bb6753670e1703d5fd50c4c2cf8231484820e21"}}
+    },
+    "coverageProjection": "postDangerous selected rows with unrelated corrected coverage rows"
+  },
+  "rowBoundary": {
+    "admitted": [
+      [22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true],
+      [22107,"property","skipDangerousModePromptSetPreDialog",13842321,13842356,0,2,true]
+    ],
+    "priorViewModeAdmission": [
+      [22106,"property","viewMode",13792763,13792771,3,4,true],
+      [22106,"string","focus",13792780,13792787,16,17,true]
+    ],
+    "priorFirstAllowedAdmission": [22106,"property","allowed",13797608,13797615,65,68,true],
+    "remainingU22106AddedAfterThisReplay": [
+      ["property","allowed",13797608,13797615,65,68,true],
+      ["property","allowed",13800348,13800355,65,69,true],
+      ["number","300",13802998,13803001,60,67,true],
+      ["string","2.1.121",13808731,13808740,0,150,true],
+      ["string","2026-04-27T01:32:27Z",13808820,13808842,0,150,true],
+      ["string","16ffea721a0a39bc787a236dc19fb62307180b75",13808851,13808893,0,150,true],
+      ["property","sessionState",13812452,13812464,28,30,true],
+      ["property","index",13815572,13815577,296,297,true],
+      ["property","isAbsolute",13822198,13822208,74,75,true],
+      ["property","error_name",13823208,13823218,13,14,true],
+      ["string","2.1.121",13825108,13825117,0,151,true],
+      ["string","2026-04-27T01:32:27Z",13825197,13825219,0,151,true],
+      ["string","16ffea721a0a39bc787a236dc19fb62307180b75",13825228,13825270,0,151,true],
+      ["property","pluginPruneHandler",13837077,13837095,0,2,true],
+      ["property","createSubcommandRoot",13840517,13840537,23,24,true]
+    ],
+    "remainingProductionAfterPriorAdmissionsAndThisReplay": ["allowed","300","sessionState","index","isAbsolute","error_name","pluginPruneHandler","createSubcommandRoot"],
+    "separateBuildMacros": ["2.1.121","2026-04-27T01:32:27Z","16ffea721a0a39bc787a236dc19fb62307180b75"]
+  },
+  "predictedImpact": {
+    "thisReplayAgainstFrozenSnapshot": {
+      "ownerRowDelta": -2,
+      "addedRowDelta": -2,
+      "strictRowDelta": -2,
+      "coverageRowDelta": 0,
+      "global": {"ownerRows":35665,"addedRows":1151,"strictRows":1228,"coverageRows":4807},
+      "u22106": {"ownerRows":199,"addedRows":15,"strictRows":8,"coverageRows":1},
+      "u22107": {"ownerRows":2,"addedRows":0,"strictRows":0,"coverageRows":1}
+    },
+    "cumulativeAfterFirstAllowedStaticAdmission": {
+      "note": "The prior first-allowed proof removes one owner-added row but zero raw strict rows.",
+      "global": {"ownerRows":35664,"addedRows":1150,"strictRows":1228,"coverageRows":4807},
+      "u22106": {"ownerRows":198,"addedRows":14,"strictRows":8,"coverageRows":1},
+      "u22107": {"ownerRows":2,"addedRows":0,"strictRows":0,"coverageRows":1},
+      "remainingU22106ProductionRows": 8,
+      "separateU22106BuildMacroRows": 6
+    }
+  },
+  "coverageSnapshot": {
+    "globalRowCount": 4807,
+    "selectedRowsDescriptor": {"bytes":1007,"sha256":"ad3363fe125ec0288cf360df988bb60f9521485696774d8cd22d9d54d4bd72d3"},
+    "rows": [
+      {"targetIndex":22106,"start":13779080,"end":13841990,"nodeType":"FunctionDeclaration","sourceHash":"75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b","structuralClass":"unresolved","disposition":"source-runtime-covered","ownerIds":["owner-src-main-tsx"],"evidenceIds":["source-map-attribution","semantic-test"],"behavior":"Compiled target unit is attributed to src/main.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."},
+      {"targetIndex":22107,"start":13841990,"end":13843224,"nodeType":"FunctionDeclaration","sourceHash":"26562dbb45c5d3e67885bb67a06790b1c4c6f9a766fe368ea78472c4e164c464","structuralClass":"unresolved","disposition":"source-runtime-covered","ownerIds":["owner-src-main-tsx"],"evidenceIds":["source-map-attribution","semantic-test"],"behavior":"Compiled target unit is attributed to src/main.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."}
+    ]
+  }
+}

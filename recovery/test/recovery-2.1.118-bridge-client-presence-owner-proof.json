@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "criterion": "target118-bridge-client-presence-direct-source-owner-proof-v1",
+  "status": "authenticated-direct-source-owner-proof",
+  "evidenceIds": [
+    "target118-bridge-client-presence-target-fragment",
+    "target118-bridge-client-presence-source-ast-test"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/bridge-client-presence-owner-overrides.mjs",
+      "bytes": 1069,
+      "sha256": "bafa789f1a75242076378717d66913f4054f199a295f8b2113be745a3adbb7ff"
+    },
+    "targetBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetStructuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "ownerAnalysis": {
+      "path": "recovery/test/recovery-2.1.118-owner-residue-analysis.json",
+      "bytes": 243390,
+      "sha256": "fd00e94db1387273b1252c2dad06f24aeb30d396a81dba0084aeb0d490521daa"
+    },
+    "historicalSource": {
+      "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+      "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+      "file": {
+        "path": "src/bridge/clientPresence.ts",
+        "blob": "17b817695404f8f3c30c8d3a1e227b7cc9bf40d5",
+        "bytes": 2813,
+        "sha256": "2add49bdfd99fdb8e2d609c10ec9335659b29b0d8d228c691b1e1dc7e3fee7b7"
+      },
+      "declarations": [
+        {
+          "name": "PRESENCE_THROTTLE_MS",
+          "characterStart": 491,
+          "characterEnd": 519,
+          "byteStart": 491,
+          "byteEnd": 519,
+          "bytes": 28,
+          "sha256": "f0a76ddad900ce15cddcffc32ae12df22848a69deb305e23ab4724a0fb0b2f55"
+        },
+        {
+          "name": "clientId",
+          "characterStart": 526,
+          "characterEnd": 549,
+          "byteStart": 526,
+          "byteEnd": 549,
+          "bytes": 23,
+          "sha256": "57ef6cca8d9415dfc6161a2b2326a9f9b008337ef2b51fec091df65f2d02e2f7"
+        },
+        {
+          "name": "setupBridgeClientPresence",
+          "characterStart": 853,
+          "characterEnd": 1664,
+          "byteStart": 853,
+          "byteEnd": 1666,
+          "bytes": 813,
+          "sha256": "4daaee49414061350433f232c828f17fe32b8ce174f63da16fa23c72b06d98bb"
+        },
+        {
+          "name": "cleanupBridgeClientPresence",
+          "characterStart": 1666,
+          "characterEnd": 1906,
+          "byteStart": 1668,
+          "byteEnd": 1908,
+          "bytes": 240,
+          "sha256": "8fc3fd56d0b59b76b8a0d9aa761b5f4e3b9170a758f467d7b32ad81d8e9fbda3"
+        },
+        {
+          "name": "pulseBridgeClientPresence",
+          "characterStart": 1908,
+          "characterEnd": 2808,
+          "byteStart": 1910,
+          "byteEnd": 2812,
+          "bytes": 902,
+          "sha256": "bc02a6fec5ad178fcf16859bcdd1fcba144d920b066cef94d92552bd5d5ee531"
+        }
+      ]
+    },
+    "rejectedProvisionalOwner": {
+      "path": "src/bridge/bridgePermissionCallbacks.ts",
+      "blob": "feaee663b730ccefb5352a9d2b598b8bc5f44684",
+      "bytes": 1411,
+      "sha256": "9317103dbae16052c588257474356879dd600e8c25f176af0ec5546ea4678990"
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 18737,
+    "classification": "unresolved",
+    "start": 11507727,
+    "end": 11508195,
+    "bytes": 468,
+    "tokenCount": 165,
+    "nodeType": "FunctionDeclaration",
+    "sourceHash": "2249bb04a73e3dba328dfae1468d9a5d8ce773ab97c2e01ef4c2c76c2167975a",
+    "coarseHash": "7e5c419020ee96f525d8d5652dc118065e1044c4460fd7a03a8073d7e29eb4d7",
+    "ownerPath": "src/bridge/clientPresence.ts",
+    "provisionalOwnerPath": "src/bridge/bridgePermissionCallbacks.ts",
+    "declarations": [
+      "setupBridgeClientPresence",
+      "cleanupBridgeClientPresence",
+      "pulseBridgeClientPresence"
+    ],
+    "behavior": "The authenticated Target118 presence-pulse unit is the exact compiled form of src/bridge/clientPresence.ts#pulseBridgeClientPresence: it throttles pulses, preserves connected_at, posts client_id to the session presence endpoint with authenticated Anthropic headers, logs HTTP failures, and swallows transport rejection. The adjacent setup, cleanup, state, and random client ID form one pinned owner cluster; bridgePermissionCallbacks is unrelated.",
+    "residues": [
+      ["string", "/v1/code/sessions/", 11507853, 11507871, 4, 9],
+      ["string", "/client/presence", 11507887, 11507903, 1, 2],
+      ["property", "client_id", 11507950, 11507959, 35, 36],
+      ["string", "anthropic-client-platform", 11508049, 11508076, 1, 3]
+    ]
+  },
+  "supportingTargetUnits": [
+    {
+      "targetIndex": 18735,
+      "role": "setupBridgeClientPresence",
+      "classification": "matched",
+      "start": 11507332,
+      "end": 11507660,
+      "bytes": 328,
+      "tokenCount": 123,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "216f23e5226f8616853d44b3aa5563dc30f6c88d0a844726f45abc8a457d89bd",
+      "coarseHash": "9e80beec0ba1368264db2554a20740b578ff054730b4ff6b52e3d9aebea79807"
+    },
+    {
+      "targetIndex": 18736,
+      "role": "cleanupBridgeClientPresence",
+      "classification": "matched",
+      "start": 11507660,
+      "end": 11507727,
+      "bytes": 67,
+      "tokenCount": 31,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "2788c40b3e4f33ccb678dde792fd7683a6b9c85ccc6d5f0df1fe931581e5faa4",
+      "coarseHash": "74c6e391b80080a2920060942240ae81b08e5adcac1601c8682fc6cae70d2e0d"
+    },
+    {
+      "targetIndex": 18738,
+      "role": "presence state",
+      "classification": "matched",
+      "start": 11508195,
+      "end": 11508254,
+      "bytes": 59,
+      "tokenCount": 27,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "a8aabad00ad794b89d6f90d870a477a8aa8877b270488169b45547e4d384901e",
+      "coarseHash": "295fc89a71063f144db75a50b2896c474eda3ac8f3f96c70b196c1f9194d5688"
+    },
+    {
+      "targetIndex": 18739,
+      "role": "random client ID initializer",
+      "classification": "unresolved",
+      "start": 11508254,
+      "end": 11508328,
+      "bytes": 74,
+      "tokenCount": 47,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "2d3e973d8c4aa175afefc97033787c59d2206cbbe1dc0e67f204af89e12ef88a",
+      "coarseHash": "4f27ece4dad9c7102444946cb7898f57ac6289ef741b2e3065ec074aba1dbe77"
+    }
+  ],
+  "scannerPartition": {
+    "units": 1,
+    "residues": 4,
+    "residueIdentitiesSha256": "f90ea9f0ce3567cb2000d2df85277b18ff0601a312ceaa1796b000ab4f4a6795",
+    "rows": [
+      [18737, "string", "/v1/code/sessions/", 11507853, 11507871, 4, 9],
+      [18737, "string", "/client/presence", 11507887, 11507903, 1, 2],
+      [18737, "property", "client_id", 11507950, 11507959, 35, 36],
+      [18737, "string", "anthropic-client-platform", 11508049, 11508076, 1, 3]
+    ],
+    "rawTargetSlices": [
+      "/v1/code/sessions/",
+      "/client/presence",
+      "client_id",
+      "\"anthropic-client-platform\""
+    ],
+    "strictUnsupportedRows": [
+      [18737, "string", "/v1/code/sessions/", 11507853, 11507871, 4, 9],
+      [18737, "string", "/client/presence", 11507887, 11507903, 1, 2],
+      [18737, "property", "client_id", 11507950, 11507959, 35, 36],
+      [18737, "string", "anthropic-client-platform", 11508049, 11508076, 1, 3]
+    ]
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/bridge/clientPresence.ts"
+    ],
+    "evidenceIds": [
+      "target118-bridge-client-presence-target-fragment",
+      "target118-bridge-client-presence-source-ast-test"
+    ],
+    "behavior": "The authenticated Target118 presence-pulse unit is the exact compiled form of src/bridge/clientPresence.ts#pulseBridgeClientPresence: it throttles pulses, preserves connected_at, posts client_id to the session presence endpoint with authenticated Anthropic headers, logs HTTP failures, and swallows transport rejection. The adjacent setup, cleanup, state, and random client ID form one pinned owner cluster; bridgePermissionCallbacks is unrelated."
+  },
+  "summary": {
+    "units": 1,
+    "residues": 4,
+    "scannerResidues": 4,
+    "targetIndicesSha256": "485c72fc69d12731744901a964221df72f2b88ead1aaa13ff8942b37f6ed6ae7",
+    "residueIdentitiesSha256": "f90ea9f0ce3567cb2000d2df85277b18ff0601a312ceaa1796b000ab4f4a6795"
+  }
+}

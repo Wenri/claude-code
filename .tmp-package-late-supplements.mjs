@@ -6,6 +6,113 @@ import { replayTarget111EvidenceGaps } from './recovery/test/replay-target111-ev
 import { replayTarget111MatrixExtras } from './recovery/test/replay-target111-matrix-extras.mjs'
 import { replayTarget113FirstHalfStrictTail } from './recovery/test/replay-target113-first-half-strict-tail.mjs'
 import { buildTarget113SecondHalfHistoricalCandidate } from './recovery/test/recovery-2.1.113-second-half-replay-helper.mjs'
+import { applyTarget117GeneratedOwnerRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-generated-owner-source-gaps.mjs'
+import { applyTarget117HistoricalOwnerSourceGapRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-historical-owner-source-gaps.mjs'
+import { applyTarget117QueryEngineClientPlatformSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-query-engine-client-platform-source-gap.mjs'
+import { applyTarget117ConfirmationSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-confirmation-source-gaps.mjs'
+import { applyTarget117ReplBridgeSkipArchiveSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-repl-bridge-skip-archive-source-gap.mjs'
+import { applyTarget117RetainedFullscreenInteractionSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-retained-fullscreen-interaction-source-gaps.mjs'
+import { applyTarget117VirtualListStabilitySourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-virtual-list-stability-source-gaps.mjs'
+import { applyTarget117BashValidationSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-bash-validation-source-gaps.mjs'
+import { applyTarget117RuntimeCapabilitiesSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-runtime-capabilities-source-gap.mjs'
+import { applyTarget117CommandArgumentBangSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-command-argument-bang-escaping-source-gap.mjs'
+import { applyTarget117DumpPromptsInFlightSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-dump-prompts-in-flight-source-gap.mjs'
+import { applyTarget117PluginDependencyMarketplaceWordingSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-dependency-marketplace-wording-source-gap.mjs'
+import { applyTarget117MarketplaceCachePathSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-marketplace-cache-path-sanitization-source-gap.mjs'
+import { applyTarget117CcdSessionRatingTelemetrySourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-ccd-session-rating-telemetry-source-gap.mjs'
+import { applyTarget117HeadlessStreamingTestExportSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-headless-streaming-test-export-source-gap.mjs'
+import { applyTarget117ForkBoilerplateMessageSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-fork-boilerplate-message-source-gap.mjs'
+import { applyTarget117AnthropicApiIdleTimeoutSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-anthropic-api-idle-timeout-source-gap.mjs'
+import { applyTarget117BridgeWorktreeCleanupSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-bridge-worktree-cleanup-source-gap.mjs'
+import { applyTarget117OauthEnvAccountMetadataSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-oauth-env-account-metadata-source-gap.mjs'
+import { applyTarget117TerminalTokenizerStringControlsSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-terminal-tokenizer-string-controls-source-gap.mjs'
+import { applyTarget117PluginCommandPolicyWordingSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-command-policy-wording-source-gap.mjs'
+import { applyTarget117ScheduleRoutineRepoWordingSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-schedule-routine-repo-wording-source-gap.mjs'
+import { applyTarget117SearchBoxPrefixColorSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-search-box-prefix-color-source-gap.mjs'
+import { applyTarget117TruncatedCountSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-source-gap.mjs'
+import { applyTarget117TruncatedCountConsumerSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-consumers-source-gap.mjs'
+import { applyTarget117TruncatedCountSecondaryConsumerSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-truncated-count-secondary-consumers-source-gap.mjs'
+import { applyTarget117FallbackTruncatedCountSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-fallback-truncated-count-source-gap.mjs'
+import { applyTarget117InboundClientPlatformSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-inbound-client-platform-source-gap.mjs'
+import { applyTarget117SdkClientPlatformSchemaSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-sdk-client-platform-schema-source-gap.mjs'
+import { applyTarget117QueryClientPlatformRoutingSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-query-client-platform-routing-source-gap.mjs'
+import { applyTarget117PluginEmptyStateSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-plugin-empty-state-source-gap.mjs'
+import { applyTarget117HookEmptyStateSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-hook-empty-state-source-gaps.mjs'
+import { applyTarget117SkillsEmptyStateSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-skills-empty-state-source-gap.mjs'
+import { applyTarget117PermissionConfirmationPanelSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-permission-confirmation-panel-source-gaps.mjs'
+import { applyTarget117DaemonProtocolSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-daemon-protocol-source-gap.mjs'
+import { applyTarget117CliBridgeAuthDebugSourceRecovery } from './recovery/cases/2.1.116-to-2.1.117/recovered/replay-cli-bridge-auth-debug-source-gap.mjs'
+import { applyTarget118SessionsOwnerReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-sessions-owner-source-gap.mjs'
+import { applyTarget118StrictTransitiveSourceGapReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-strict-transitive-source-gaps.mjs'
+import { applyTarget118OAuthProfileReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-oauth-profile-source-gap.mjs'
+import { applyTarget118ErrorTelemetryReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-error-telemetry-source-gap.mjs'
+import { applyTarget118ThemePickerStateReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-theme-picker-state-source-gap.mjs'
+import { applyTarget118ScheduleOneOffGateReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-schedule-one-off-gate-source-gap.mjs'
+import { applyTarget118CommandAliasSelectionReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-command-alias-selection-source-gap.mjs'
+import { applyTarget118CollapsedShellLabelReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-collapsed-shell-label-source-gap.mjs'
+import { applyTarget118SessionMemoryLastMessageReplay } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-session-memory-last-message-source-gap.mjs'
+import { applyTarget118McpToolHookSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-mcp-tool-hook-source-gaps.mjs'
+import { applyTarget118McpClientAccessorSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-mcp-client-accessor-source-gap.mjs'
+import { applyTarget118ParserStreamingTailSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-parser-streaming-tail-source-gap.mjs'
+import { applyTarget118CodeSessionCompatSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-code-session-compat-source-gap.mjs'
+import { applyTarget118FrameUrlsStateSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-frame-urls-state-source-gap.mjs'
+import { applyTarget118SkillAuthorBylineSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-skill-author-byline-source-gap.mjs'
+import { applyTarget118TaskStopOwnerNotificationSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-task-stop-owner-notification-source-gap.mjs'
+import { applyTarget118StandaloneInProcessSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-standalone-in-process-runner-source-gap.mjs'
+import { applyTarget118FileReadPowerShellHintSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-file-read-powershell-notebook-hint-source-gap.mjs'
+import { applyTarget118SearchBoxDimRangeCursorSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-search-box-dim-range-cursor-source-gap.mjs'
+import { applyTarget118WarmResumeSessionKindSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-warm-resume-session-kind-source-gap.mjs'
+import { applyTarget118VirtualScrollAppendSnapshotSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-virtual-scroll-append-snapshot-source-gap.mjs'
+import { applyTarget118TuiTelemetrySourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-tui-telemetry-source-gap.mjs'
+import { applyTarget118FastCommandThinClientDispatchSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-fast-command-thin-client-dispatch-source-gap.mjs'
+import { applyTarget118EffortCommandThinClientDispatchSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-effort-command-thin-client-dispatch-source-gap.mjs'
+import { applyTarget118VoiceModeArgumentRoutingSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-voice-mode-argument-routing-source-gap.mjs'
+import { applyTarget118StructuredOutputAlwaysLoadSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-structured-output-always-load-source-gap.mjs'
+import { applyTarget118CodeSessionGitContextSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-code-session-git-context-source-gap.mjs'
+import { applyTarget118ProactiveOAuthRefreshSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-proactive-oauth-refresh-source-gap.mjs'
+import { applyTarget118RestoreCodeDiffStatsSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-restore-code-diff-stats-source-gap.mjs'
+import { applyTarget118StatusLineFastModeSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-status-line-fast-mode-source-gap.mjs'
+import { applyTarget118FeedbackSurveyMessageWrapSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-feedback-survey-message-wrap-source-gap.mjs'
+import { applyTarget118SdkControlInteractionsSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-sdk-control-interactions-source-gap.mjs'
+import { applyTarget118BootstrapCostsSourceRecovery } from './recovery/cases/2.1.117-to-2.1.118/recovered/replay-bootstrap-additional-model-costs-source-gap.mjs'
+import { applyTarget119BootstrapCostsReplay } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-bootstrap-additional-model-costs-source-gap.mjs'
+import { applyTarget119LaterDonorRuntimeReplay } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-later-donor-runtime-source-gaps.mjs'
+import { applyTarget119SdkRateLimitReplay } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-sdk-rate-limit-fetch-error-source-gap.mjs'
+import { applyTarget119UdsRegistryReplay } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-uds-registry-source-gap.mjs'
+import { applyTarget119PushNotificationConfigReplay } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-push-notification-config-source-gap.mjs'
+import { applyTarget119EntrypointRoutingSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-entrypoint-routing-source-gap.mjs'
+import { applyTarget119DatadogEventCatalogSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-datadog-event-catalog-source-gap.mjs'
+import { applyTarget119SlateMeadowBackgroundAgentSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-slate-meadow-background-agent-source-gap.mjs'
+import { applyTarget119GracefulShutdownOutputErrorsSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-graceful-shutdown-output-errors-source-gap.mjs'
+import { applyTarget119McpTerminalErrorBoundarySourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-mcp-terminal-error-boundary-source-gap.mjs'
+import { applyTarget119MessagesContextSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-messages-readonly-skills-context-source-gap.mjs'
+import { applyTarget119BinaryCommandValidationSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-binary-command-name-validation-source-gap.mjs'
+import { applyTarget119SettingsConfigReleaseChannelSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-settings-config-release-channel-source-gap.mjs'
+import { applyTarget119HookBackgroundSkipSpillSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-hook-background-skip-spill-source-gap.mjs'
+import { applyTarget119RemoteBridgeTeardownDisposalSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-remote-bridge-teardown-disposal-source-gap.mjs'
+import { applyTarget119StatusLineCwdFastModeSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-status-line-cwd-fast-mode-source-gap.mjs'
+import { applyTarget119ReplProTrialSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/replay-repl-scroll-reasons-pro-trial-source-gap.mjs'
+import { applyTarget119SetupRendezvousSourceRecovery } from './recovery/cases/2.1.118-to-2.1.119/recovered/setup-rendezvous-server-strict-property-source-recovery.mjs'
+import { replayTarget120TailSupplements } from './recovery/test/replay-target120-tail-supplements.mjs'
+import { applyTarget121BootstrapStateExportSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-bootstrap-state-export-source-gap.mjs'
+import { applyTarget121GrowthBookExperimentCacheSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-growthbook-experiment-cache-source-gap.mjs'
+import { applyTarget121AgentsFleetGateCacheSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-agents-fleet-gate-cache-source-gap.mjs'
+import { applyTarget121DatadogEventCatalogSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-datadog-event-catalog-source-gap.mjs'
+import { applyTarget121InkFrameTimingLiveCountsSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-ink-frame-timing-live-counts-source-gap.mjs'
+import { applyTarget121MemoryWriteVisualRowsSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-memory-write-survey-visual-row-truncation-source-gap.mjs'
+import { applyTarget121CoworkMemoryEntrypointSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-claudemd-cowork-memory-default-entrypoint-source-gap.mjs'
+import { applyTarget121FileEditUnicodeSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-file-edit-unicode-escape-case-source-gap.mjs'
+import { applyTarget121InternalRepoUrlSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-internal-repo-url-validation-source-gap.mjs'
+import { applyTarget121RelaunchPinSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-relaunch-current-binary-pin-source-gap.mjs'
+import { applyTarget121DiagnosticsHintSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-diagnostics-inline-expand-hint-source-gap.mjs'
+import { applyTarget121PowerShellUncSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-powershell-resolved-unc-normalization-source-gap.mjs'
+import { applyTarget121RenameGeneratedSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-rename-generated-session-name-source-gap.mjs'
+import { applyTarget121DaemonStatusProcStartSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs'
+import { applyTarget121DaemonHubStatusReaderSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-hub-status-reader-proc-start-source-gap.mjs'
+import { applyTarget121UltrareviewTaskRegistrySourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/ultrareview-handler-owner-overrides.mjs'
+import { applyTarget121MainRunViewModeSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-main-run-view-mode-source-gap.mjs'
+import { applyTarget121DangerousModePreDialogSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-dangerous-mode-pre-dialog-source-gap.mjs'
+import { applyTarget121PluginPruneCommandSourceRecovery } from './recovery/cases/2.1.120-to-2.1.121/recovered/replay-plugin-prune-command-source-gap.mjs'
 
 const repositoryRoot = process.cwd()
 const extractedClaudeApiRoot = '/tmp/recovery-semantic-late-b'
@@ -823,6 +930,11 @@ function withTargetWorktree(targetCommit, mutate) {
         ['d88405d4b4b7ce6e066e1d67e7fc421b54d685f0', '2.1.113'],
         ['f7d9656548fd1e7849a9e243d9950dbb7307690c', '2.1.114'],
         ['e08046f528857203cbdede147bcab8b8b8021bf7', '2.1.116'],
+        ['ff0339d35906735273ae3130a187bb8e30581871', '2.1.117'],
+        ['bd846a24e3886322888f02b9f747c132a4a32314', '2.1.118'],
+        ['351cd4d13f70a564dc2d90f59ab0093dc6fc7b05', '2.1.119'],
+        ['6801ead984ba2c3df02bd092ad8b93df096ed8c1', '2.1.120'],
+        ['11890981447ee2cea3407c608f4411e43e5fe72a', '2.1.121'],
       ]).get(targetCommit)}`,
     )
   ) {
@@ -13347,5 +13459,336 @@ import * as path from 'path'`,
         currentQueryHelpers.slice(currentExtractorStart, currentExtractorEnd) +
         historicalQueryHelpers.slice(historicalExtractorEnd),
     )
+  }),
+])
+
+writeCase('2.1.116-to-2.1.117', [
+  withTargetWorktree('ff0339d35906735273ae3130a187bb8e30581871', tree => {
+    applyTarget117GeneratedOwnerRecovery({ sourceRoot: path.join(tree, 'src') })
+    applyTarget117OauthEnvAccountMetadataSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117TerminalTokenizerStringControlsSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117PluginCommandPolicyWordingSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117ScheduleRoutineRepoWordingSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117SearchBoxPrefixColorSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117TruncatedCountSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117TruncatedCountConsumerSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117TruncatedCountSecondaryConsumerSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117FallbackTruncatedCountSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117InboundClientPlatformSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117SdkClientPlatformSchemaSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117QueryClientPlatformRoutingSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117PluginEmptyStateSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117SkillsEmptyStateSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117HookEmptyStateSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117BashValidationSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117RuntimeCapabilitiesSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117CommandArgumentBangSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117DumpPromptsInFlightSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117PluginDependencyMarketplaceWordingSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117MarketplaceCachePathSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117CcdSessionRatingTelemetrySourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117HeadlessStreamingTestExportSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117ForkBoilerplateMessageSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117BridgeWorktreeCleanupSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117VirtualListStabilitySourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117RetainedFullscreenInteractionSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117HistoricalOwnerSourceGapRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117QueryEngineClientPlatformSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117AnthropicApiIdleTimeoutSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117ConfirmationSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117PermissionConfirmationPanelSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117DaemonProtocolSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117ReplBridgeSkipArchiveSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117CliBridgeAuthDebugSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+  }),
+])
+
+writeCase('2.1.117-to-2.1.118', [
+  withTargetWorktree('bd846a24e3886322888f02b9f747c132a4a32314', tree => {
+    applyTarget118SessionsOwnerReplay({ sourceRoot: path.join(tree, 'src') })
+    applyTarget118StrictTransitiveSourceGapReplay({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118FeedbackSurveyMessageWrapSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118OAuthProfileReplay({ sourceRoot: path.join(tree, 'src') })
+    applyTarget118ErrorTelemetryReplay({ sourceRoot: path.join(tree, 'src') })
+    applyTarget118ThemePickerStateReplay({ sourceRoot: path.join(tree, 'src') })
+    applyTarget118ScheduleOneOffGateReplay({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118CommandAliasSelectionReplay({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118CollapsedShellLabelReplay({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118SessionMemoryLastMessageReplay({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118McpToolHookSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118McpClientAccessorSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118ParserStreamingTailSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118CodeSessionCompatSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118FrameUrlsStateSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118SkillAuthorBylineSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118TaskStopOwnerNotificationSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118StandaloneInProcessSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118FileReadPowerShellHintSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118SearchBoxDimRangeCursorSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118WarmResumeSessionKindSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118VirtualScrollAppendSnapshotSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118TuiTelemetrySourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118FastCommandThinClientDispatchSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118EffortCommandThinClientDispatchSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118VoiceModeArgumentRoutingSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118StructuredOutputAlwaysLoadSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118CodeSessionGitContextSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118ProactiveOAuthRefreshSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118RestoreCodeDiffStatsSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118StatusLineFastModeSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118SdkControlInteractionsSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget118BootstrapCostsSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget117BridgeWorktreeCleanupSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+  }),
+])
+
+writeCase('2.1.118-to-2.1.119', [
+  withTargetWorktree('351cd4d13f70a564dc2d90f59ab0093dc6fc7b05', tree => {
+    applyTarget119BootstrapCostsReplay({ sourceRoot: path.join(tree, 'src') })
+    applyTarget119LaterDonorRuntimeReplay({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119SdkRateLimitReplay({ sourceRoot: path.join(tree, 'src') })
+    applyTarget119UdsRegistryReplay({ sourceRoot: path.join(tree, 'src') })
+    applyTarget119PushNotificationConfigReplay({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119EntrypointRoutingSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119DatadogEventCatalogSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119SlateMeadowBackgroundAgentSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119GracefulShutdownOutputErrorsSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119McpTerminalErrorBoundarySourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119MessagesContextSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119BinaryCommandValidationSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119SettingsConfigReleaseChannelSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119HookBackgroundSkipSpillSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119RemoteBridgeTeardownDisposalSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119StatusLineCwdFastModeSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119ReplProTrialSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget119SetupRendezvousSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+  }),
+])
+
+writeCase('2.1.119-to-2.1.120', [
+  withTargetWorktree('6801ead984ba2c3df02bd092ad8b93df096ed8c1', tree => {
+    replayTarget120TailSupplements({ sourceRoot: path.join(tree, 'src') })
+  }),
+])
+
+writeCase('2.1.120-to-2.1.121', [
+  withTargetWorktree('11890981447ee2cea3407c608f4411e43e5fe72a', tree => {
+    applyTarget121BootstrapStateExportSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121GrowthBookExperimentCacheSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121AgentsFleetGateCacheSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121DatadogEventCatalogSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121InkFrameTimingLiveCountsSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121MemoryWriteVisualRowsSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121CoworkMemoryEntrypointSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121FileEditUnicodeSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121InternalRepoUrlSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121RelaunchPinSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121DiagnosticsHintSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121PowerShellUncSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121RenameGeneratedSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121DaemonStatusProcStartSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121DaemonHubStatusReaderSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121UltrareviewTaskRegistrySourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121MainRunViewModeSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121DangerousModePreDialogSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
+    applyTarget121PluginPruneCommandSourceRecovery({
+      sourceRoot: path.join(tree, 'src'),
+    })
   }),
 ])

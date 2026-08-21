@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "bounded-push-notification-config-source-replay-ready",
+  "criterion": "authenticated-settings-backed-config-getter-and-two-source-declaration-replay-v1",
+  "evidenceIds": [
+    "target119-push-notification-config-target-fragment",
+    "target119-push-notification-config-source-replay-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/hooks/useRemoteControlIdleUpsell.tsx",
+        "input": {
+          "bytes": 4957,
+          "sha256": "25f7072d1373d44655336353f8cfdbc0a280eb50b5bdb1789b42d8d597fbf34d"
+        },
+        "output": {
+          "bytes": 5050,
+          "sha256": "f9fc79a6d3578c143760553b54224c50c66ac639aabfbe060b416ed9330da2b3"
+        },
+        "importAnchor": "} from '../utils/config.js'\n",
+        "importText": "import { getConfigValue } from '../utils/settings/configSettings.js'\n"
+      },
+      {
+        "path": "src/services/tips/tipRegistry.ts",
+        "input": {
+          "bytes": 25930,
+          "sha256": "cd02a4e52bab668e3da047ba569937e78b0779d12f94ac0ca501aa5b335727b5"
+        },
+        "output": {
+          "bytes": 26026,
+          "sha256": "a6b00668635103783f14d7179216447c3f29cc8b1e276634b11c0a9a344083f0"
+        },
+        "importAnchor": "} from '../../utils/config.js'\n",
+        "importText": "import { getConfigValue } from '../../utils/settings/configSettings.js'\n"
+      }
+    ]
+  },
+  "targetConfigGetter": {
+    "name": "T5",
+    "start": 3137212,
+    "end": 3137474,
+    "bytes": 262,
+    "sha256": "5b14082bcc9f6df7c5cb821628aef64eed2ebbd0c5145252810d27e014af7249",
+    "requiredMarkers": [
+      "source:\"legacyGlobalConfig\"",
+      "source:\"default\"",
+      "return{value:"
+    ]
+  },
+  "summary": {
+    "units": 2,
+    "residues": 2,
+    "targetIndicesSha256": "955ac8fdabe3a7c6abb2b598c5fe0f205c509b4e851b10bc8acd9035bcc8d541",
+    "residueIdentitiesSha256": "c9dc78843bd16509746d369d204c0b4193c8b8248442d88a97d807b5ed14497e"
+  },
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:18156",
+      "targetIndex": 18156,
+      "paths": [
+        "src/hooks/useRemoteControlIdleUpsell.tsx"
+      ],
+      "evidenceIds": [
+        "target119-push-notification-config-target-fragment",
+        "target119-push-notification-config-source-replay-test"
+      ],
+      "behavior": "The complete authenticated Target119 unit is the recovered shouldShowPushNotificationIdleUpsell declaration: it gates the idle push-notification upsell on bridge availability, the feature flag, prior remote-control use, the settings-backed agentPushNotifEnabled value, and the impression cap; the provisional RemoteCallout owner is rejected."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:18157",
+      "targetIndex": 18157,
+      "paths": [
+        "src/services/tips/tipRegistry.ts"
+      ],
+      "evidenceIds": [
+        "target119-push-notification-config-target-fragment",
+        "target119-push-notification-config-source-replay-test"
+      ],
+      "behavior": "The complete authenticated Target119 unit is the recovered isPushNotificationTipRelevant declaration: it gates the tip on bridge availability, the feature flag, prior remote-control use, and the settings-backed agentPushNotifEnabled value; the provisional RemoteCallout owner is rejected."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 18156,
+      "ownerPath": "src/hooks/useRemoteControlIdleUpsell.tsx",
+      "priorOwnerPaths": [
+        "src/components/RemoteCallout.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11133012,
+        "end": 11133149,
+        "bytes": 137,
+        "sourceHash": "6806ac93ba644051901a4ff684c2767d07a2b348c23b77ab3a0cb2af6436ef18",
+        "requiredMarkers": [
+          "T5(\"agentPushNotifEnabled\",!1).value",
+          "P5H()"
+        ]
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "shouldShowPushNotificationIdleUpsell",
+        "start": 1615,
+        "end": 2099,
+        "bytes": 484,
+        "sha256": "356aef4c3649017b541ae802da11616e3c6a09d5e8cba3e1be09d2821ebf0e12",
+        "requiredMarkers": [
+          "getConfigValue('agentPushNotifEnabled', false).value !== true",
+          "'tengu_kairos_push_notifications'"
+        ]
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "agentPushNotifEnabled",
+          "start": 11133070,
+          "end": 11133093,
+          "baselineCount": 6,
+          "targetOrdinal": 11
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the recovered shouldShowPushNotificationIdleUpsell declaration: it gates the idle push-notification upsell on bridge availability, the feature flag, prior remote-control use, the settings-backed agentPushNotifEnabled value, and the impression cap; the provisional RemoteCallout owner is rejected."
+    },
+    {
+      "targetIndex": 18157,
+      "ownerPath": "src/services/tips/tipRegistry.ts",
+      "priorOwnerPaths": [
+        "src/components/RemoteCallout.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11133149,
+        "end": 11133233,
+        "bytes": 84,
+        "sourceHash": "15c1275e443e9db79ae9748cf5995a7a9f8d29c4e61be6f85923bc73502ee88e",
+        "requiredMarkers": [
+          "T5(\"agentPushNotifEnabled\",!1).value",
+          "P5H()"
+        ]
+      },
+      "declaration": {
+        "kind": "FunctionDeclaration",
+        "name": "isPushNotificationTipRelevant",
+        "start": 4040,
+        "end": 4467,
+        "bytes": 427,
+        "sha256": "334b060d975abc824a5e37fbbfdab46f7fd2f9b80aa059edb45caf3b601b2202",
+        "requiredMarkers": [
+          "getConfigValue('agentPushNotifEnabled', false).value !== true",
+          "'tengu_kairos_push_notifications'"
+        ]
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "agentPushNotifEnabled",
+          "start": 11133194,
+          "end": 11133217,
+          "baselineCount": 6,
+          "targetOrdinal": 12
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the recovered isPushNotificationTipRelevant declaration: it gates the tip on bridge availability, the feature flag, prior remote-control use, and the settings-backed agentPushNotifEnabled value; the provisional RemoteCallout owner is rejected."
+    }
+  ]
+}

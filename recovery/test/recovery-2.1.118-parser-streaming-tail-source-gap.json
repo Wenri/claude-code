@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "summary": {
+    "units": 1,
+    "residues": 14,
+    "indicesSha256": "e8e550f2d046a5baeaea8abbd7977ff9ffd29ffc499949d2ebc38185afe164dc",
+    "residueIdentitiesSha256": "214000000911bc8acf07adb281c85197f65de4c60833d18e84e478c11ec57062"
+  },
+  "inputs": {
+    "sourceCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "bundles": [
+      {
+        "version": "2.1.117",
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+        "bytes": 13114118,
+        "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+      },
+      {
+        "version": "2.1.118",
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+        "bytes": 13234618,
+        "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+      },
+      {
+        "version": "2.1.119",
+        "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+        "bytes": 13720987,
+        "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+      }
+    ],
+    "structuralLedgers": [
+      {
+        "version": "2.1.117",
+        "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+        "bytes": 2392225,
+        "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+      },
+      {
+        "version": "2.1.118",
+        "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+        "bytes": 2429007,
+        "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+      },
+      {
+        "version": "2.1.119",
+        "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+        "bytes": 2550437,
+        "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+      }
+    ],
+    "sourceFile": {
+      "path": "src/ink/termio/parser.ts",
+      "input": {
+        "bytes": 11830,
+        "sha256": "fc3a931b54107b28bb0fa85a9e4535291322d8b98b6e2004b1635b65b472ff05"
+      },
+      "output": {
+        "bytes": 13799,
+        "sha256": "308ffee875beb4ba029a27588eaa609b5410f289a568a63602fbc727b0b01135"
+      },
+      "inputDeclaration": {
+        "start": 8636,
+        "end": 11829,
+        "bytes": 3193,
+        "sha256": "da777adaea6afc173355a6574d1f6e75a9cbc1a8d6a98541550277d6359becf3"
+      },
+      "outputDeclaration": {
+        "start": 8636,
+        "end": 13798,
+        "bytes": 5162,
+        "sha256": "0ef13cb1be8cb53b68b646d689783c0d45eb32ec05fe8dc8ac3faa446de69182"
+      }
+    }
+  },
+  "temporalUnits": [
+    {
+      "version": "2.1.117",
+      "index": 7321,
+      "nodeType": "ClassDeclaration",
+      "start": 3445752,
+      "end": 3447088,
+      "bytes": 1336,
+      "sourceHash": "2f5dc96c49973ebc8f2fb2b6a03ffd764a789d8f0bf246258e428b18304237ac",
+      "coarseHash": "2f669bfe03e5641a0693250939c2bcb448c8d4b9d074c309402b1f10d43fd85a"
+    },
+    {
+      "version": "2.1.118",
+      "index": 7401,
+      "nodeType": "ClassDeclaration",
+      "start": 3485941,
+      "end": 3488132,
+      "bytes": 2191,
+      "sourceHash": "08fc53aa41a892f70c0af081d3f6c3ff5dca7b09e0c58587d4348390359476a9",
+      "coarseHash": "cd02fa386da3aa62b771534f748bc40e8cc6c3ae5c0aaedcfc3740bdd4fe94d6"
+    },
+    {
+      "version": "2.1.119",
+      "index": 7509,
+      "nodeType": "ClassDeclaration",
+      "start": 3525665,
+      "end": 3527856,
+      "bytes": 2191,
+      "sourceHash": "3a7bbce748623f5600540c31980db8820f50045a4348b33fe425f627973d5fa0",
+      "coarseHash": "cd02fa386da3aa62b771534f748bc40e8cc6c3ae5c0aaedcfc3740bdd4fe94d6"
+    }
+  ],
+  "row": {
+    "targetIndex": 7401,
+    "ownerPath": "src/ink/termio/parser.ts",
+    "rejectedOwnerPath": "src/ink/termio/sgr.ts",
+    "evidenceIds": [
+      "target118-parser-streaming-tail-target-fragment",
+      "target118-parser-streaming-tail-source-replay-test",
+      "target118-parser-streaming-tail-source-ast-test"
+    ],
+    "residues": [
+      ["property", "forOutput", 3485961, 3485970, 0, 2],
+      ["property", "forOutput", 3485999, 3486008, 0, 3],
+      ["property", "forOutput", 3486012, 3486021, 0, 4],
+      ["property", "forOutput", 3486046, 3486055, 0, 5],
+      ["property", "forOutput", 3486061, 3486070, 0, 6],
+      ["property", "forOutput", 3486438, 3486447, 0, 7],
+      ["property", "processText", 3486530, 3486541, 2, 3],
+      ["property", "processText", 3486621, 3486632, 2, 4],
+      ["property", "holdTail", 3486712, 3486720, 0, 1],
+      ["property", "holdTail", 3486969, 3486977, 0, 2],
+      ["property", "graphemes", 3486995, 3487004, 3, 4],
+      ["property", "holdTail", 3487033, 3487041, 0, 3],
+      ["number", "127462", 3487402, 3487408, 2, 3],
+      ["number", "127487", 3487413, 3487419, 2, 3]
+    ]
+  },
+  "sourceContract": {
+    "className": "Parser",
+    "fields": ["tokenizer", "forOutput", "tail", "style", "inLink", "linkUrl"],
+    "methods": ["constructor", "flush", "reset", "feed", "processText", "holdTail", "processSequence"],
+    "bounds": {
+      "tailCodeUnits": 64,
+      "zeroWidthJoiner": 8205,
+      "regionalIndicatorStart": 127462,
+      "regionalIndicatorEnd": 127487
+    }
+  }
+}
