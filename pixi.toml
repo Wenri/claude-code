@@ -6,10 +6,11 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
-# Build claude-dispatch: a custom glibc ld.so that loads Claude Code (the kernel
+# Build rtld-dispatch: a custom glibc ld.so that loads Claude Code (the kernel
 # execs it, so /proc/self/exe is correct). Build tree: loader/.build/.
 build-loader = "make -C loader"
-# Build + install it to ~/.local/bin/claude-dispatch and print the launcher.
+# Build + install it as ~/.local/bin/<prog>.rtld (default claude.rtld) and print
+# the launcher.
 install-loader = "make -C loader install"
 
 [dependencies]
