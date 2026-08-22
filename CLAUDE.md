@@ -2,6 +2,46 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git history layout (rewritten 2026-08-22)
+
+`main` is a **linear, per-version history**: for each published release there is a
+`Claude Code 2.1.V` commit whose `src/` tree is byte-identical to that version's
+recovered source, immediately followed by a `recovery: authenticate <case>` commit
+carrying that release's evidence, ending with a `recovery: finalize tooling…` tip
+(62 commits: 31 source + 30 evidence + tip). Each evidence commit is a
+**period-accurate snapshot** — era source, era tooling, era manifests — which is what
+makes its frozen tests meaningful: they were authored against that era's source, so
+they only verify against it. The five carrier releases (2.1.121–2.1.126) instead pair
+their *finalized* evidence with era source, reproducing the sealed-head configuration
+their release wrappers expect.
+
+The tip keeps the selective cumulative `src` merge (not 2.1.126's era tree)
+deliberately: it is the 2.1.126 tree **plus 18 semantic-supplement-recovered files**
+(`utils/sandbox/seccomp.ts`, `buddy/*`, `commands/loops/*`, `skills/bundled/verify/*`, …)
+that exist in no single era tree, and are guarded by
+`recovery/test/cumulative-2.1.126-merged-source-retention.test.mjs`.
+
+Evidence was **re-pinned, not regenerated**: commit references were remapped to the new
+lineage and the dependent hash chain re-sealed (freeze `*.sha256` test/evidence manifests
+→ `identity.verification.*` → `SHA256SUMS` → manifest `fileAssertions`/`identitySha256`
+→ `releaseAdjacency.predecessorManifest` chain → carrier pins). All content-addressed
+evidence — bundles, exact deltas, structural ledgers, attribution, readable diffs,
+overlay/supplement patches, and every `*SrcGitTree` — is byte-unchanged. Note the era
+schema stores the **src** tree in `baseGitTree` (the whole-tree/src-tree split came
+later), so re-pinning is schema-aware. Pre-rewrite history is preserved at tags
+`backup/pre-rewrite` and `backup/pre-cleanup-2026-08-22`; keep them, because some frozen
+byte-pinned catalogs still reference the old commits.
+
+Verification status on this history: cross-case pin sweep green (30 cases, 28 tree-summary
++ 21 semantic-lineage links, 5 carrier heads, plus the sanctioned 2.1.118→119 legacy-tree
+anomaly); all 90 repo-local evidence gates green; 24 of 30 cases green under the full
+`verify-complete-recovery` gate; genesis (2.1.88→89) partial because the withheld 2.1.88
+npm tarball is unavailable. The five carrier releases cannot complete their release
+wrappers here for two reasons independent of the source: the local pixi env has drifted
+from the pinned toolchain (`libcrypto.so.3` differs, which blocks them on the pre-rewrite
+history too), and those wrappers assert a frozen `git diff --check` over the *original*
+commit pair's full trees, which splitting source from evidence necessarily changes.
+
 ## What this repository is
 
 This is an **archival mirror of Claude Code's leaked source** (the TypeScript/TSX
