@@ -107,7 +107,25 @@ is the pixi workspace:
 - `pixi run <cmd>` — run a tool in the default env (e.g. `pixi run bun`, `pixi run node`, `pixi run tsc`).
   bun + nodejs share the default env, but only because they share **icu 75**: bun pins it,
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
-- Run the version-specific top-level verifier named by each case runbook in a
+- `pixi run npm --prefix recovery ci --ignore-scripts` — install the recovery
+  tooling's pinned deps (acorn + eslint-scope, exact per
+  `recovery/package-lock.json`; lifecycle scripts stay disabled). Needed once
+  before the recovery tests/scripts.
+- `pixi run npm --prefix recovery test` — the full focused suite
+  (`node --test test/*.test.mjs`, ~1,235 files). Single test:
+  `pixi run node --test recovery/test/<file>.test.mjs`. Tests that need the
+  published bundles read env vars like `CLAUDE_CODE_2_1_126_BUNDLE` (paths to
+  authenticated local artifacts, conventionally under git-ignored
+  `.recovery-tmp/`) and skip those assertions when unset. Note: the frozen
+  per-case semantic tests assert against each release's era source tree, so they
+  are green at that release's recovery commit — not against the selective
+  cumulative `main` tip; run them via the case verifiers/worktrees, not as a
+  flat sweep of the shared checkout.
+- `pixi run npm --prefix recovery run audit:source` — rebuild the cross-case
+  source-reproduction gap audit (`recovery/source-reproduction-gaps.json`, the
+  data behind `recovery/SOURCE_REPRODUCTION_AUDIT.md`).
+- Run the version-specific top-level verifier named by each case runbook
+  (`recovery/scripts/verify-<version>-recovery.mjs`) in a
   disposable release-local carrier. For 2.1.121–2.1.126, that wrapper pins the
   proof-carrier commit and manifest, creates a private clone, and materializes
   the exact manifest target `src` before invoking nested gates. It invokes
@@ -127,7 +145,11 @@ generated headers are further **trimmed to only the macros/headers that reach `l
 regenerate from an upstream tarball with `loader/glibc/prune-glibc.sh` (full build → capture the
 rtld module list + generated headers → strace a reduced build → assemble the read-closure tree →
 harvest-and-trim PREBUILT).
-`.pixi/`, `loader/.build/`, and `loader/target/` are git-ignored.
+Maintained recovery tooling lives only in `recovery/scripts/` + `recovery/test/`;
+`recovery/scripts/verify-all-source-pins.mjs` sweeps every case's git source-pins
+and the cross-case source chain (git-only, no artifacts). `.pixi/`,
+`loader/.build/`, `loader/target/`, `recovery/node_modules/`, and `.recovery-tmp/`
+(local authenticated bundles/artifacts) are git-ignored.
 
 ## Architecture of the leaked source (`src/`)
 
