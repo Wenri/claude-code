@@ -118,7 +118,7 @@ configuration, and original authored text remains unobservable.
 
 A few things layered on top of the mirror ARE maintained here:
 
-- `loader/` — `rtld-dispatch`, a **custom glibc `ld.so`** that loads Claude Code (and other WSL1-hostile CLIs) *in place*, preserving `/proc/self/exe`; the main thing built here.
+- `loader/` — `rtld-dispatch`, a freestanding **Linux x86-64 ELF launcher** that maps Claude Code and its installed dynamic linker in place, preserving `/proc/self/exe`; the main thing built here.
 - `recovery/` — hash-pinned tooling for comparing later published bundles
   with authenticated adjacent releases and a matching source-map oracle. The
   2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98,
@@ -131,7 +131,7 @@ A few things layered on top of the mirror ARE maintained here:
   separately guarded selective cumulative merge. Each case manifest and its
   verifiers are the evidence contract; each case runbook records the complete
   reproducible procedure.
-- [`wsl1-exec`](https://github.com/Wenri/wsl1-exec) — **moved out entirely** (2026-07, full history preserved; Apache-2.0): the standalone repo for `wsl1-exec.so`, conventionally a sibling checkout at `../wsl1-exec`. A generic `LD_PRELOAD` `exec*` shim that retries an `ENOEXEC`-failed exec via the target's `PT_INTERP`. All sources live in its `src/`: the WSL1 `execve` **and `posix_spawn`/`posix_spawnp`** (`wsl1-exec.c`) and the `readlink`/`realpath` `/proc/self/exe` hooks (`wsl1-selfexe.c`, via `getauxval(AT_EXECFN)` — no env marker, per-process, so nothing to inherit/clean up) are ours; the `exec*` family (`src/exec-variants.c`) is **[termux-exec](https://github.com/termux-play-store/termux-exec)/bionic-derived** (Apache-2.0 — SPDX tag + attribution + local changes in its header; adapted, no longer synced) — `posix_spawn` retries at the parent (glibc returns the child's exec errno) — plus unrelated **`mmap`/`mmap64` fixes** (`wsl1-mmap.c`): the empty-file-map bogus `ENOEXEC` (rattler/pixi-build) and the `MAP_FIXED_NOREPLACE`-rejected-with-`EOPNOTSUPP` case (retry without the flag) — both libc-`mmap` only, so neither reaches agy's tcmalloc (still `patch_agy_wsl1.py`). Complements `loader/`: universal and one-line to enable, and the hooks keep `/proc/self/exe` correct **for libc readers** (Node/libuv) — but raw-syscall readers (Go `os.Executable()`), `readlinkat`, and static binaries still see the interpreter, so `loader/` remains the fix for those. Supersedes its own old `claude-preload.so`/`claude-dispatch`.
+- [`wsl1-exec`](https://github.com/Wenri/wsl1-exec) — **moved out entirely** (2026-07, full history preserved; Apache-2.0): the standalone repo for `wsl1-exec.so`, conventionally a sibling checkout at `../wsl1-exec`. A generic `LD_PRELOAD` `exec*` shim that retries an `ENOEXEC`-failed exec via the target's `PT_INTERP`. All sources live in its `src/`: the WSL1 `execve` **and `posix_spawn`/`posix_spawnp`** (`wsl1-exec.c`) and the `readlink`/`realpath` `/proc/self/exe` hooks (`wsl1-selfexe.c`, via `getauxval(AT_EXECFN)` — no env marker, per-process, so nothing to inherit/clean up) are ours; the `exec*` family (`src/exec-variants.c`) is **[termux-exec](https://github.com/termux-play-store/termux-exec)/bionic-derived** (Apache-2.0 — SPDX tag + attribution + local changes in its header; adapted, no longer synced) — `posix_spawn` retries at the parent (glibc returns the child's exec errno) — plus unrelated **`mmap`/`mmap64` fixes** (`wsl1-mmap.c`): the empty-file-map bogus `ENOEXEC` (rattler/pixi-build) and the `MAP_FIXED_NOREPLACE`-rejected-with-`EOPNOTSUPP` case (retry without the flag) — both libc-`mmap` only, so neither reaches agy's tcmalloc (still `patch_agy_wsl1.py`). Complements `loader/`: universal and one-line to enable, and the hooks keep `/proc/self/exe` correct **for libc readers** (Node/libuv) — but raw-syscall readers (Go `os.Executable()`) and `readlinkat` still see the interpreter, so `loader/` remains the fix for dynamically linked programs using those paths. The loader does not support static binaries. Supersedes its own old `claude-preload.so`/`claude-dispatch`.
 - `pixi.toml` / `pixi.lock` — a pixi dev environment used to build them.
 
 ## Commands
@@ -140,8 +140,9 @@ There is **no full-tree build / lint / test for `src/`**. The recovery gate
 syntax-builds changed files and runs focused semantic tests. The real tooling
 is the pixi workspace:
 
-- `pixi install` — materialize the default env (gcc, make, rust, bison, patchelf, … + bun/nodejs/typescript).
-- `pixi run build-loader` — build the custom `ld.so` (`loader/`); output in `loader/.build/`.
+- `pixi install` — materialize the default env (Python 3, gcc/binutils, make, patchelf, … + bun/nodejs/typescript).
+- `pixi run build-loader` — build the ELF launcher (`loader/`); output is `loader/.build/rtld-dispatch`.
+- `make -C loader test` — run loader smoke and runtime tests.
 - `pixi run install-loader` — build + install `~/.local/bin/claude.rtld` and print the launcher
   (`make -C loader install PROGS="claude agy"` to install a loader for several programs).
 - `pixi run <cmd>` — run a tool in the default env (e.g. `pixi run bun`, `pixi run node`, `pixi run tsc`).
@@ -174,22 +175,14 @@ is the pixi workspace:
   `recovery/test/cumulative-2.1.126-merged-source-retention.test.mjs` instead of
   pretending to be the frozen 2.1.126 source tree.
 
-The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —
-diffable/greppable/auditable against upstream), **rtld-minimal** (~1 MB): only what the loader
-build reads to produce `librtld.os` + `ld.map` — the dynamic linker's own code, the ~120 libc
-modules `ld.so` embeds, their build machinery, and `PREBUILT/` generated headers. It builds
-*nothing but* ld.so's pieces (`make elf/subdir_lib`, ~2 min, no full libc). The `PREBUILT/`
-generated headers are further **trimmed to only the macros/headers that reach `librtld.os`**
-(harvested via `gcc -H`/`-dU`: e.g. `first-versions.h` 13219 defines → ~4, PREBUILT ~2.8 MB →
-~17 KB), gated on `librtld.os` staying byte-identical. Tree `loader/glibc/glibc-2.42-rtld/`;
-regenerate from an upstream tarball with `loader/glibc/prune-glibc.sh` (full build → capture the
-rtld module list + generated headers → strace a reduced build → assemble the read-closure tree →
-harvest-and-trim PREBUILT).
+The loader build compiles `loader/main.c` into a freestanding static PIE and
+checks its ELF startup requirements. It does not download or build glibc.
 Maintained recovery tooling lives only in `recovery/scripts/` + `recovery/test/`;
 `recovery/scripts/verify-all-source-pins.mjs` sweeps every case's git source-pins
-and the cross-case source chain (git-only, no artifacts). `.pixi/`,
-`loader/.build/`, `loader/target/`, `recovery/node_modules/`, and `.recovery-tmp/`
-(local authenticated bundles/artifacts) are git-ignored.
+and the cross-case source chain (git-only, no artifacts). `.pixi/`, `loader/.build/`,
+`recovery/node_modules/`, and `.recovery-tmp/` (local authenticated bundles/artifacts)
+are git-ignored. See the loader section below for
+the runtime mapping design and tests.
 
 ## Architecture of the leaked source (`src/`)
 
@@ -220,62 +213,85 @@ README's directory diagram is partial/idealized — trust the actual tree.
 
 ## `loader/`
 
-`rtld-dispatch` — a **custom glibc `ld.so`** that loads a WSL1-hostile, dynamically
-linked program *in place*, fixing the "Exec format error" + grep/find/rg breakage
-under the WSL1 launch workaround (upstream issue anthropics/claude-code#38788); see
-the root `README.md` for the rationale. The kernel execs it (it *is* a dynamic
-linker), so `/proc/self/exe` — hence `CLAUDE_CODE_EXECPATH` — genuinely is the loader,
-not a separate linker. No preload, no readlink hook, no `execve`; subagents work
-automatically.
+`rtld-dispatch` is a freestanding Linux x86-64 ELF launcher intended to address
+WSL1's "Exec format error" and the broken tool dispatch caused by launching
+Claude Code directly through `ld.so` (anthropics/claude-code#38788). The kernel
+executes the launcher, so `/proc/self/exe` remains its installed path throughout
+program execution. The implementation is `loader/main.c`; there is no glibc
+source, Rust crate, or custom glibc build.
 
-It's **generic**: a ~2-line hook in glibc's `dl_main` calls our `claude_dispatch`,
-which derives the program to load from the loader's *own* install name (`/proc/self/exe`),
-in two shapes: **launcher** — strip a trailing **`.rtld`** (`claude.rtld` → `claude`,
-`agy.rtld` → `agy`, installed next to the target); or **transparent** — installed *under*
-the target's own name with the real binary moved to **`<name>.real`** (loads `<name>.real`).
-`argv[0]` is forwarded to the target unless we were invoked under our own name, so claude's
-bundled-tool dispatch (`ugrep`/`rg`/`bfs` via `argv[0]`) still works. (`agy` = Google's
-Antigravity CLI, which *also* needs `loader/patch_agy_wsl1.py` — see below.)
+The installed name selects the target:
 
-The transparent shape is for programs spawned by a **fixed path** (so a `.rtld` launcher
-can't be interposed) that *also* read `/proc/self/exe` to locate themselves — the
-motivating case is Antigravity's Go `language_server_linux_x64` (the IDE's node server
-execs it directly; it uses `os.Executable()` to find `GeminiDir`). Being kernel-exec'd,
-`/proc/self/exe` stays `<name>`, so execPath resolves correctly. Install/refresh it with
-`loader/transparent_shim.sh <binary>` (idempotent; also runs `patch_agy_wsl1.py`; **re-run
-after each Antigravity upgrade**).
+- `<name>.rtld` loads the sibling `<name>`, replacing `argv[0]` with the target
+  name only when the supplied name matches the launcher's own basename.
+- `<name>` beside `<name>.real` loads that real program and preserves `argv[0]`.
 
-The whole build is **driven by cargo** (nix-ld's `build.rs` shape, where they
-cc-build nolibc — we build glibc instead). `cargo build` (`build.rs`):
-1. configures the vendored glibc source tree **in place** (`loader/glibc/glibc-2.42-rtld/` — the
-   rtld-minimal closure from `prune-glibc.sh`, `rtld.c` hook pre-applied; glibc builds out of
-   tree so the checked-in tree stays git-clean) and pre-populates its `PREBUILT/` headers;
-2. applies `loader/glibc/rtld-dispatch.patch` — ~2 lines in `elf/rtld.c` (the `dl_main`
-   hook). **`rtld.c` only — no `elf/Makefile` change**; the final link is ours;
-3. `configure` + `make`, **tolerating the one expected failure**: glibc's final `ld.so`
-   link errors on the undefined `claude_dispatch` (that link is ours). We can't target
-   `librtld.os`/`ld.map` directly — from a clean tree glibc's recursive make exposes no
-   rule for those prefixed paths ("No rule to make target"). So we run the full make;
-   `librtld.os` + `ld.map` are built before the failing link, and build.rs gates on both;
-4. emits glibc's `-shared` ld.so recipe + `librtld.os` as cargo link-args, so cargo's
-   own link produces the `ld.so`: rtld supplies `_start` + the libc subset (our
-   `no_std` hook resolves only `memcpy`/`memset`/`memcmp` against it), `-shared` +
-   `--version-script` export the GLIBC_PRIVATE interface the loaded libc binds to.
-   `.cargo/config.toml` selects gcc/bfd (rust-lld rejects the version script +
-   `-z nomark-plt`) and sets `RUSTC_BOOTSTRAP=1` to enable, on stable rustc, the
-   `lang_items` feature (for nix-ld's `eh_personality` lang item) and `-Z plt=yes`
-   (nix-ld parity). We keep `relocation-model=pic` (not nix-ld's `pie` — our output
-   is a `-shared` symbol-exporting ld.so, where pie codegen would mis-assume preemption).
+Aliases such as `ugrep`, `rg`, and `bfs` pass through unchanged. Self-execution
+through `/proc/self/exe` re-enters the named launcher and finds the same target.
+`loader/transparent_shim.sh <binary>` installs the second form for fixed-path
+programs such as Antigravity's Go `language_server_linux_x64`; it also applies
+`patch_agy_wsl1.py` when needed. Re-run after an application upgrade replaces the
+binary.
 
-The heavy glibc build is cached in `loader/.build/` (only reruns when the patch /
-tarball change). The one step that can't fold into `build.rs` (it runs before the
-link): the `Makefile` `install` target does `patchelf --remove-rpath` on
-`target/release/rtld-dispatch` — the conda gcc injects a `DT_RPATH` that rtld asserts
-against — then installs a copy as each `<prog>.rtld` (`make install PROGS="claude agy"`).
-**Mandatory.** The built binary is glibc-derived (**LGPL**); only
-the patch + Rust source live here. `loader/.build/` & `target/` are git-ignored.
+For named launchers, `main.c` performs the kernel-style startup mapping:
 
-`loader/patch_agy_wsl1.py` is unrelated to the ld.so build — it's a standalone binary
+1. Read the target ELF's `PT_INTERP` to locate its installed dynamic linker.
+2. Validate and map the target's and linker's `PT_LOAD` segments, including BSS,
+   alignment, and memory permissions.
+3. Update `AT_PHDR`, `AT_PHENT`, `AT_PHNUM`, `AT_ENTRY`, `AT_BASE`, and `AT_EXECFN`
+   in the original startup stack; retain the environment and remaining auxiliary
+   vector entries, including randomness, vDSO, and hardware capabilities.
+4. Jump to the installed linker's entry point, without executing it through
+   `execve`. It performs relocation, dependency loading, TLS setup, and startup in
+   the same process.
+
+The launcher uses raw syscalls and public ELF structures. It does not rely on
+symbol offsets, `GLIBC_PRIVATE`, or a glibc version check. The selected linker
+must still match its runtime libraries, and the target must support those
+libraries. A glibc update does not require rebuilding the launcher just to embed
+that glibc release.
+
+The unrenamed launcher also supports `rtld-dispatch PROGRAM [ARGS...]` and
+`rtld-dispatch --verify PROGRAM`. This mode inspects the target's interpreter,
+maps only that interpreter, and enters its direct-invocation path. The interpreter
+loads the explicit target with the correct `$ORIGIN`. Other `ld.so` command-line
+options are not exposed. Named launchers are required for transparent self-exec.
+
+`make -C loader` compiles `main.c` with `-nostdlib -static-pie`, strips the result,
+removes compiler-injected RPATH with patchelf, and checks the result's ELF startup
+requirements. The output is `loader/.build/rtld-dispatch`. Requirements are
+gcc/binutils, make, patchelf, and Python 3. `CC`, `CFLAGS`, and `LDFLAGS` provide
+build overrides; use `make -B` when changing them.
+`make -C loader install PROGS="claude agy"` installs named copies;
+`make -C loader clean` removes build outputs. Prefix commands with `pixi run` to
+use the bundled toolchain. Builds replace the output atomically, leaving already
+installed launchers unchanged; rerun installation to update them. Installation
+and transparent shim refresh use copies when hardlinks cannot cross filesystems.
+
+`make -C loader test` runs the smoke and runtime suites. They exercise PIE and
+non-PIE programs, executable identity, argument aliases, self-exec, BSS, TLS,
+pthreads, constructors, `dlopen`, `$ORIGIN`, and malformed ELF rejection. Test an
+alternate installed runtime without rebuilding the launcher using:
+
+```bash
+python3 loader/tests/runtime.py loader/.build/rtld-dispatch \
+  --interpreter /path/to/runtime/ld-linux-x86-64.so.2 \
+  --library-path /path/to/runtime/lib
+```
+
+Use `--cc` with a compiler/sysroot targeting that runtime or older when necessary.
+The same launcher binary passed all 46 runtime checks with glibc 2.31, 2.35,
+2.39, and 2.42. The first two used prebuilt Ubuntu packages, 2.39 used the host
+runtime, and 2.42 used a locally built runtime. Bun 1.3.11 startup and self-exec
+passed with named launchers and transparent shims; install and refresh were
+checked across filesystems too.
+The launcher supports dynamic Linux x86-64 ELF only, rejects executable stacks
+and privileged launcher startup, and does not provide setuid execution semantics.
+The mapping implementation still needs WSL1 application validation. The launcher
+is original WTFPL code and does not bundle or link against glibc; the installed
+linker and runtime keep their own licenses (see `loader/NOTICE`).
+
+`loader/patch_agy_wsl1.py` is unrelated to the launcher build — it's a standalone binary
 patcher for **Antigravity CLI (`agy`)**, which bundles Google tcmalloc. tcmalloc
 reserves arenas with `MAP_FIXED_NOREPLACE` (a Linux 4.17+ flag) that WSL1's 4.4 kernel
 *rejects*, so it aborts at startup. The script clears that flag bit from tcmalloc's

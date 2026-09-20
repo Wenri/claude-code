@@ -1,14 +1,14 @@
-# rtld-dispatch — run Claude Code (and friends) on WSL1 (a custom `ld.so`)
+# rtld-dispatch — run Claude Code (and friends) on WSL1
 
-`rtld-dispatch` is a **custom glibc dynamic linker** that makes Claude Code work
-on **WSL1**, where the CLI otherwise dies with `Exec format error` and — via the
-common `ld-linux` workaround — breaks every `grep`/`find`/`rg` tool call.
+`rtld-dispatch` is a small Linux x86-64 **ELF launcher** designed to run Claude
+Code on **WSL1** while keeping its bundled search tools and self-launches working.
+It maps the program and its installed dynamic linker into the current process.
+The linker handles dependencies, relocations, TLS, and program startup.
 
-It lives in [`loader/`](./loader/): a ~2-line patch to glibc's `dl_main` plus a
-small `no_std` Rust dispatch object, building a drop-in `ld.so`. It fixes the
-upstream issue [anthropics/claude-code#38788](https://github.com/anthropics/claude-code/issues/38788).
-It's **generic** — install it as `claude.rtld` to run `claude`, `agy.rtld` to run
-Google's Antigravity CLI, etc. (`agy` also needs a one-off binary patch, see
+The implementation lives in [`loader/main.c`](./loader/main.c). It uses Linux
+syscalls and standard ELF headers, with no glibc source, bundled libc, private
+linker offsets, or glibc version detection. Install it as `claude.rtld` to run
+`claude`, or `agy.rtld` to run Google's Antigravity CLI (`agy` also needs
 [`loader/patch_agy_wsl1.py`](./loader/patch_agy_wsl1.py)).
 
 > This repository is also an archival mirror of Claude Code's leaked source under
@@ -19,92 +19,140 @@ Google's Antigravity CLI, etc. (`agy` also needs a one-off binary patch, see
 ## The problem
 
 1. On **WSL1**, Claude Code `>= 2.1.83` won't exec: `cannot execute binary file:
-   Exec format error`.
-2. The community workaround launches it through the dynamic linker
-   (`ld-linux … claude`). But claude multiplexes its bundled search tools
-   (`ugrep`/`rg`/`bfs`) off `argv[0]`, and the shims it injects run
-   `"$CLAUDE_CODE_EXECPATH" -G …`. Under the linker launch, `/proc/self/exe` —
-   hence `CLAUDE_CODE_EXECPATH` — is the **linker**, so the shim runs
-   `ld.so -G …` and dies with `-G: cannot open shared object file`.
+   Exec format error` ([upstream issue](https://github.com/anthropics/claude-code/issues/38788)).
+2. Launching it through `ld-linux … claude` gets past that error, but Claude
+   multiplexes its bundled search tools (`ugrep`/`rg`/`bfs`) using `argv[0]`.
+   Its tool shims use `CLAUDE_CODE_EXECPATH`, derived from `/proc/self/exe`, which
+   now identifies the linker. A shim then runs `ld.so -G …` and fails with
+   `-G: cannot open shared object file`.
 
-## The fix — be the linker
+## How it works
 
-A dynamic linker (`ld.so`) is itself a kernel-executable ELF. `rtld-dispatch`
-**is** a custom glibc `ld.so`: the kernel execs *it*, so `/proc/self/exe` — hence
-`CLAUDE_CODE_EXECPATH` — genuinely is the loader, never a separate linker.
+The kernel executes `rtld-dispatch`, so `/proc/self/exe` identifies the launcher.
+It selects the real program using its own installed filename:
 
-A tiny hook in glibc's `dl_main` (the "run as a program" path) calls our Rust
-`claude_dispatch`, which:
+- **Launcher:** `claude.rtld` loads the sibling `claude`.
+- **Transparent shim:** `claude` loads the sibling `claude.real`.
 
-1. derives the program to load from its **own** install name (`/proc/self/exe`), in one
-   of two shapes: **launcher** — strip a trailing `.rtld` (`claude.rtld` → `claude`,
-   installed beside it); or **transparent** — installed *under* the program's own name
-   with the real binary moved to `<name>.real` (loads `<name>.real`). The transparent
-   shape is for programs spawned by a *fixed* path that a `.rtld` launcher can't wrap and
-   that also read `/proc/self/exe` to find themselves — e.g. Antigravity's Go
-   `language_server_linux_x64` (`os.Executable()`); being kernel-exec'd, `/proc/self/exe`
-   stays `<name>`, so its execPath resolves correctly;
-2. forwards `argv[0]` to that program **unless** we were invoked under our own name —
-   so a normal launch sees the program's own name, while a bundled-tool invocation
-   (claude re-execs itself with `argv[0]` = `ugrep`/`rg`/`bfs`) passes the tool name
-   straight through for claude's own multiplexer to dispatch.
+A normal `.rtld` launch gives the program its own name in `argv[0]`. Tool aliases
+such as `ugrep`, `rg`, and `bfs` pass through unchanged. Transparent shims preserve
+`argv[0]` as supplied.
 
-The rest of rtld runs untouched — it loads the program and transfers control normally.
-**No `LD_PRELOAD`, no `readlink` hook, no env var, no `execve`.** grep/find/rg work, and
-subagents work automatically (claude self-spawns via `execPath` = `…/claude.rtld`).
+The launcher reads the target's `PT_INTERP` to find its installed dynamic linker,
+maps both ELF files' loadable segments, and updates the startup stack's auxiliary
+vector to describe them. It then jumps to the linker's entry point in the same
+process; it never executes `ld.so` through `execve`. The installed linker performs
+its normal startup work, while
+`/proc/self/exe` remains the launcher. This lets named launchers handle subsequent
+tool calls and self-execution without `LD_PRELOAD` or an extra `execve`.
 
-The final link is **driven by cargo** (nix-ld style): glibc is built only up to
-`librtld.os`, then a `no_std` `bin` crate links it — rtld supplies the `_start` entry
-**and** the libc (our hook resolves only `memcpy`/`memset`/`memcmp` against rtld) — into
-the `-shared` `ld.so`. So the whole glibc change is **`rtld.c`-only**
-([`loader/glibc/rtld-dispatch.patch`](./loader/glibc/rtld-dispatch.patch), no `elf/Makefile` hunk);
-the logic is [`loader/src/main.rs`](./loader/src/main.rs) and `build.rs` owns the link recipe.
+Because the launcher uses the program's installed linker, the same launcher
+binary can work with different glibc releases. The selected linker still needs
+its matching runtime libraries, and the program must support that runtime.
 
-## Install
+## Build and install
 
-Needs a Rust toolchain, gcc, and patchelf — all in the bundled [pixi](https://pixi.sh)
-env. The glibc source is committed in-repo as a plain unextracted tree (no Git LFS), pruned to
-an rtld-minimal ~1 MB closure — only what the build reads to produce `ld.so`
-([`loader/glibc/prune-glibc.sh`](./loader/glibc/prune-glibc.sh)).
+Needs gcc/binutils, make, patchelf, and Python 3 for ELF checks and tests. The
+bundled [pixi](https://pixi.sh) environment provides them.
 
 ```bash
-pixi run install-loader      # patch + build glibc, install ~/.local/bin/claude.rtld
-# for several programs at once:  make -C loader install PROGS="claude agy"
+pixi run build-loader                    # builds loader/.build/rtld-dispatch
+pixi run make -C loader test              # smoke and runtime tests
+pixi run install-loader                  # installs ~/.local/bin/claude.rtld
+# Install for several programs:
+pixi run make -C loader install PROGS="claude agy"
 ```
 
-This compiles glibc once (~10–20 min), then installs a `<prog>.rtld` next to each
-real `<prog>`. Add the launcher(s) to your `~/.bashrc` / `~/.zshrc` and reload:
+With the tools already installed, use `make -C loader`, `make -C loader test`,
+and `make -C loader install` directly.
+
+The build compiles one C file as a freestanding static PIE (about 14 KB with the
+bundled toolchain), strips it, and checks that it has no interpreter,
+shared-library dependencies, RPATH, or runtime relocations. No glibc build or
+download is involved. `CC`, `CFLAGS`, and `LDFLAGS` can select the compiler and
+additional build flags; use `make -B` to rebuild when changing them.
+
+Each `<prog>.rtld` must sit beside the real `<prog>`. Installation defaults to
+`~/.local/bin`; use `PREFIX` to change the prefix. Add launchers to your
+`~/.bashrc` or `~/.zshrc` and reload:
 
 ```bash
 claude() { "$HOME/.local/bin/claude.rtld" "$@"; }
-agy()    { "$HOME/.local/bin/agy.rtld"    "$@"; }   # if you installed it for agy
+agy()    { "$HOME/.local/bin/agy.rtld"    "$@"; }
 ```
 
-Verify in a fresh shell: `echo "$CLAUDE_CODE_EXECPATH"` ends in `…/claude.rtld`,
-`echo "$LD_PRELOAD"` is empty, and `grep`/`find`/`rg` work. See
-[`loader/`](./loader/) for build internals.
+Verify with `claude --version`, then exercise its bundled search tools and
+subagents.
+
+After upgrading the launcher, run the install command again for each program.
+Builds replace their output atomically, so rebuilding alone leaves installed
+launchers unchanged. Installation uses hardlinks when possible and copies across
+filesystems.
+
+For a one-off invocation, the unrenamed loader also accepts:
+
+```bash
+loader/.build/rtld-dispatch /path/to/program arg1 arg2
+loader/.build/rtld-dispatch --verify /path/to/program
+```
+
+In this mode it maps the interpreter and lets that interpreter load the explicit
+program, preserving library lookup relative to the program's directory
+(`$ORIGIN`). It does not implement the full `ld.so` command line. Use a named
+launcher for programs that execute themselves through `/proc/self/exe`.
 
 ### Fixed-path binaries (transparent shim)
 
-Some programs are launched by a *fixed* path you don't control — e.g. the Antigravity
-IDE's node server spawns `…/extensions/antigravity/bin/language_server_linux_x64`
-directly (a Go binary that also `os.Executable()`s to find its data dir). A `.rtld`
-launcher can't wrap that, so install the loader **transparently** with
+Some programs are launched by a fixed path, such as Antigravity's
+`language_server_linux_x64`. Install the launcher at that path with
 [`loader/transparent_shim.sh`](./loader/transparent_shim.sh):
 
 ```bash
 loader/transparent_shim.sh "$HOME/.antigravity-ide-server/bin/<ver>/extensions/antigravity/bin/language_server_linux_x64"
 ```
 
-It moves the real binary to `<name>.real`, drops the loader in its place (and applies
-[`patch_agy_wsl1.py`](./loader/patch_agy_wsl1.py) if the binary carries the tcmalloc
-issue). `execve` of the fixed path then succeeds and `/proc/self/exe` stays `<name>`.
-It's idempotent — **re-run after each Antigravity upgrade** (the installer redownloads
-the real binary).
+The script moves the original to `<name>.real`, installs the launcher in its
+place, and applies [`patch_agy_wsl1.py`](./loader/patch_agy_wsl1.py) when needed.
+`/proc/self/exe` retains the fixed path, including for raw-syscall readers such as
+Go's `os.Executable()`. Re-run after an Antigravity upgrade replaces the binary.
+The script also refreshes an existing shim and copies when a hardlink cannot be
+created across filesystems.
 
-> **Version note:** `rtld-dispatch` is built from the **same glibc version as your
-> system** (here 2.42) so the linker it replaces stays in step with the `libc.so.6`
-> it loads the program against. Rebuild after a system glibc upgrade.
+### Compatibility and testing
+
+The launcher supports dynamically linked Linux x86-64 ELF programs, both PIE and
+non-PIE. It rejects executable stacks and privileged launcher startup; it does
+not reproduce setuid execution semantics. Static binaries and other
+architectures are unsupported.
+
+`make -C loader test` checks executable identity, argument forwarding,
+self-execution, dynamic linking, TLS, threads, constructors, `$ORIGIN`, and
+rejection of malformed ELF files. To test an existing alternate runtime with the
+same launcher binary:
+
+```bash
+python3 loader/tests/runtime.py loader/.build/rtld-dispatch \
+  --interpreter /path/to/runtime/ld-linux-x86-64.so.2 \
+  --library-path /path/to/runtime/lib
+```
+
+When testing an older runtime, use `--cc` with a compiler/sysroot targeting that
+release or older. A program compiled against newer libc symbols cannot run on an
+older libc. Linux tests do not establish WSL1 application compatibility; the new
+mapping implementation still needs validation on WSL1.
+
+The same launcher binary passed all 46 runtime checks with each tested runtime:
+
+| glibc | Runtime used |
+| --- | --- |
+| 2.31 | Prebuilt Ubuntu package `2.31-0ubuntu9.18` |
+| 2.35 | Prebuilt Ubuntu package `2.35-0ubuntu3.15` |
+| 2.39 | Host runtime |
+| 2.42 | Locally built runtime |
+
+Bun 1.3.11 startup and self-execution also passed through both named launchers
+and transparent shims. Installation, shim refresh, and copying across
+filesystems were checked separately.
 
 ---
 
@@ -145,11 +193,11 @@ See the current [2.1.126 report](./recovery/cases/2.1.124-to-2.1.126/REPORT.md),
 
 ## 📜 License & disclaimer
 
-`rtld-dispatch` patches and links against **glibc**, so the *built binary* is
-glibc-derived (**LGPL-2.1-or-later**); this repo ships only the patch + Rust source,
-not a binary (see [`loader/NOTICE`](./loader/NOTICE)). Original work in this repo —
-the loader patch, Rust dispatch, recovery tooling, and documentation — is
-[WTFPL](./LICENSE). **The mirrored source under `src/` and Anthropic-derived
-recovery artifacts under `recovery/cases/` are the proprietary property of
-Anthropic PBC**, included for educational/archival purposes only — this is not an
-official Anthropic product.
+The launcher, build scripts, recovery tooling, and documentation are original
+work released under the [WTFPL](./LICENSE). The launcher does not bundle or link
+against glibc; the installed dynamic linker and runtime libraries retain their
+own licenses (see [`loader/NOTICE`](./loader/NOTICE)).
+
+**The mirrored source under `src/` and Anthropic-derived recovery artifacts under
+`recovery/cases/` are the proprietary property of Anthropic PBC**, included for
+educational/archival purposes only — this is not an official Anthropic product.
