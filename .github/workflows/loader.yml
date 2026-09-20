@@ -1,0 +1,39 @@
+name: Loader
+
+on:
+  pull_request:
+    paths:
+      - 'loader/**'
+      - '.github/workflows/loader.yml'
+  push:
+    paths:
+      - 'loader/**'
+      - '.github/workflows/loader.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: loader
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gcc make binutils patchelf python3 dpkg
+      - name: Cache verified package downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: loader/.build/glibc-matrix/downloads
+          key: loader-glibc-packages-${{ hashFiles('loader/tests/matrix.py') }}
+      - name: Build once and test host runtime
+        run: make -C loader test CC=gcc
+      - name: Test package verification
+        run: python3 -m unittest discover -s loader/tests -p 'test_matrix.py'
+      - name: Test the same binary against four glibc runtimes
+        run: python3 loader/tests/matrix.py loader/.build/rtld-dispatch --cc gcc

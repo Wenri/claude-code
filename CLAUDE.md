@@ -142,7 +142,8 @@ is the pixi workspace:
 
 - `pixi install` — materialize the default env (Python 3, gcc/binutils, make, patchelf, … + bun/nodejs/typescript).
 - `pixi run build-loader` — build the ELF launcher (`loader/`); output is `loader/.build/rtld-dispatch`.
-- `make -C loader test` — run loader smoke and runtime tests.
+- `make -C loader test` — run loader smoke, runtime, and diagnostic tests.
+- `make -C loader test-matrix` — test one launcher binary against packaged glibc runtimes.
 - `pixi run install-loader` — build + install `~/.local/bin/claude.rtld` and print the launcher
   (`make -C loader install PROGS="claude agy"` to install a loader for several programs).
 - `pixi run <cmd>` — run a tool in the default env (e.g. `pixi run bun`, `pixi run node`, `pixi run tsc`).
@@ -268,10 +269,20 @@ use the bundled toolchain. Builds replace the output atomically, leaving already
 installed launchers unchanged; rerun installation to update them. Installation
 and transparent shim refresh use copies when hardlinks cannot cross filesystems.
 
-`make -C loader test` runs the smoke and runtime suites. They exercise PIE and
+`make -C loader test` runs the smoke, runtime, and diagnostic suites. They exercise PIE and
 non-PIE programs, executable identity, argument aliases, self-exec, BSS, TLS,
-pthreads, constructors, `dlopen`, `$ORIGIN`, and malformed ELF rejection. Test an
-alternate installed runtime without rebuilding the launcher using:
+pthreads, constructors, `dlopen`, `$ORIGIN`, and malformed ELF rejection. Regression
+cases cover explicit invocation across directories, 2 MiB segment alignment,
+and failed target/interpreter loading. Loader errors name the loading stage and
+file; syscall failures also report the Linux errno number.
+
+`make -C loader test-matrix` uses checksum-pinned Ubuntu binary runtime packages
+and an older development sysroot to test one launcher binary against glibc 2.31,
+2.35, 2.39, and 2.42. It requires `dpkg-deb` and downloads and caches packages
+under `loader/.build/glibc-matrix/` without building glibc or replacing system
+libraries. `MATRIX_ARGS="--versions 2.31 2.42"` selects a subset. The loader workflow at
+`.github/workflows/loader.yml` runs the host suites and packaged runtime matrix.
+Test an alternate installed runtime manually without rebuilding the launcher using:
 
 ```bash
 python3 loader/tests/runtime.py loader/.build/rtld-dispatch \
@@ -280,9 +291,9 @@ python3 loader/tests/runtime.py loader/.build/rtld-dispatch \
 ```
 
 Use `--cc` with a compiler/sysroot targeting that runtime or older when necessary.
-The same launcher binary passed all 46 runtime checks with glibc 2.31, 2.35,
-2.39, and 2.42. The first two used prebuilt Ubuntu packages, 2.39 used the host
-runtime, and 2.42 used a locally built runtime. Bun 1.3.11 startup and self-exec
+The same launcher binary passed all 48 runtime checks with packaged glibc 2.31,
+2.35, 2.39, and 2.42. The matrix checks the reported runtime version for each
+program and verifies that the launcher SHA256 stays unchanged. Bun 1.3.11 startup and self-exec
 passed with named launchers and transparent shims; install and refresh were
 checked across filesystems too.
 The launcher supports dynamic Linux x86-64 ELF only, rejects executable stacks

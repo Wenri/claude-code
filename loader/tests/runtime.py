@@ -34,8 +34,10 @@ int plugin_next(void) { return value++ + constructed; }
 PROGRAM = r"""
 #define _GNU_SOURCE
 #include <dlfcn.h>
+#include <elf.h>
 #include <gnu/libc-version.h>
 #include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,6 +50,39 @@ static volatile unsigned char bss[5 * 4096 + 37];
 static __thread int local_tls = 23;
 static int constructed;
 static int (*plugin_next)(void);
+
+#ifdef REQUIRED_LOAD_ALIGNMENT
+static int check_load_alignment(void) {
+    const Elf64_Phdr *headers = (const void *)getauxval(AT_PHDR);
+    size_t count = getauxval(AT_PHNUM);
+    uintptr_t bias = 0;
+    int found_headers = 0, found_code = 0, found_data = 0;
+    if (!headers || getauxval(AT_PHENT) != sizeof(*headers)) return 0;
+    for (size_t i = 0; i < count; ++i) {
+        if (headers[i].p_type == PT_PHDR) {
+            if ((uintptr_t)headers < headers[i].p_vaddr) return 0;
+            bias = (uintptr_t)headers - headers[i].p_vaddr;
+            found_headers = 1;
+        }
+    }
+    if (!found_headers || bias % REQUIRED_LOAD_ALIGNMENT) return 0;
+    for (size_t i = 0; i < count; ++i) {
+        const Elf64_Phdr *p = &headers[i];
+        if (p->p_type != PT_LOAD || !p->p_memsz) continue;
+        uintptr_t start = bias + p->p_vaddr;
+        uintptr_t end = start + p->p_memsz;
+        if (p->p_align != REQUIRED_LOAD_ALIGNMENT
+            || start % p->p_align != p->p_offset % p->p_align) return 0;
+        /* Check actual code/data addresses against the translated segments too. */
+        uintptr_t code = (uintptr_t)&check_load_alignment;
+        uintptr_t data = (uintptr_t)bss;
+        if ((p->p_flags & PF_X) && code >= start && code < end) found_code = 1;
+        if ((p->p_flags & PF_W) && data >= start && data + sizeof(bss) <= end)
+            found_data = 1;
+    }
+    return found_code && found_data;
+}
+#endif
 
 __attribute__((constructor)) static void initialize(void) {
     constructed = linked_value() == 38 && local_tls == 23;
@@ -64,6 +99,9 @@ static void *worker(void *unused) {
 }
 
 int main(int argc, char **argv) {
+#ifdef REQUIRED_LOAD_ALIGNMENT
+    if (!check_load_alignment()) return 21;
+#endif
     if (!constructed || local_tls != 23 || linked_value() != 38) return 10;
     for (size_t i = 0; i < sizeof(bss); ++i) {
         if (bss[i] != 0) return 11;
@@ -173,6 +211,8 @@ def main():
     parser.add_argument("--interpreter", type=Path,
                         help="PT_INTERP to embed in test programs")
     parser.add_argument("--library-path", help="matching runtime library directories")
+    parser.add_argument("--expect-glibc",
+                        help="require every test program to report this glibc version")
     parser.add_argument("--cc", default=os.environ.get("CC", "cc"),
                         help="C compiler command (use an older sysroot for old glibc)")
     parser.add_argument("--skip-malformed", action="store_true",
@@ -226,12 +266,16 @@ def main():
             result = subprocess.run(arguments, executable=str(executable), env=env,
                                     cwd=unrelated, text=True, capture_output=True, timeout=15)
             lines = result.stdout.splitlines()
+            version = None
             if lines and lines[0].startswith("glibc="):
-                versions.add(lines.pop(0).partition("=")[2])
+                version = lines.pop(0).partition("=")[2]
+                versions.add(version)
             expected = [f"exe={executable}", f"execfn={target}", "env=forwarded"]
             expected += [f"argv={argument}" for argument in expected_argv]
-            if result.returncode != status or lines != expected:
+            wrong_version = not version or (args.expect_glibc and version != args.expect_glibc)
+            if result.returncode != status or lines != expected or wrong_version:
                 failures.append(f"{name}: exit {result.returncode}, expected {status}\n"
+                                f"glibc: {version!r}, required: {args.expect_glibc!r}\n"
                                 f"expected: {expected!r}\nstdout: {result.stdout!r}\n"
                                 f"stderr: {result.stderr!r}")
             else:
@@ -267,6 +311,39 @@ def main():
             run(kind + " transparent", shim, [str(shim)], real, [str(shim)])
             run(kind + " transparent alias", shim, ["rg"], real, ["rg"])
 
+        explicit_directory = root / "separate launcher directory"
+        explicit_directory.mkdir()
+        explicit = explicit_directory / "rtld-dispatch"
+        shutil.copy2(loader, explicit)
+        explicit.chmod(0o755)
+        arguments = ["--exit", "37", "argument with spaces", ""]
+        run("explicit invocation with cross-directory $ORIGIN", explicit,
+            [str(explicit), str(pie)] + arguments, pie, [str(pie)] + arguments,
+            status=37)
+
+        alignment = 2 * 1024 * 1024
+        aligned = root / "aligned-PIE"
+        compile_source("aligned-PIE", PROGRAM, aligned, linker_flags + [
+            "-fPIE", "-pie", f"-DREQUIRED_LOAD_ALIGNMENT={alignment}",
+            f"-Wl,-z,max-page-size={alignment}",
+            "-L" + str(libs), "-lprobe-linked", "-pthread", "-ldl",
+            "-Wl,-rpath,$ORIGIN/libs",
+        ])
+        contents = aligned.read_bytes()
+        phoff = struct.unpack_from("<Q", contents, 32)[0]
+        phsize, phnum = struct.unpack_from("<HH", contents, 54)
+        load_alignments = [
+            struct.unpack_from("<Q", contents, offset + 48)[0]
+            for offset in (phoff + index * phsize for index in range(phnum))
+            if struct.unpack_from("<I", contents, offset)[0] == 1
+        ]
+        if (struct.unpack_from("<H", contents, 16)[0] != 3 or not load_alignments
+                or any(value != alignment for value in load_alignments)):
+            raise AssertionError("compiler did not produce a PIE with 2 MiB PT_LOAD alignment")
+        aligned_launcher = install("aligned-PIE.rtld")
+        run("2 MiB ELF and runtime segment alignment", aligned_launcher,
+            [str(aligned_launcher)], aligned, [str(aligned)])
+
         if not args.skip_malformed:
             launcher = install("malformed.rtld")
             target = root / "malformed"
@@ -286,6 +363,8 @@ def main():
                 except subprocess.TimeoutExpired:
                     failures.append(f"malformed {name}: timed out")
 
+    if args.expect_glibc and not versions:
+        failures.append("no test program reported its glibc version")
     print(f"{passed} checks passed; {len(failures)} failed; glibc: {', '.join(sorted(versions))}")
     if failures:
         raise SystemExit("\n\n".join(failures))

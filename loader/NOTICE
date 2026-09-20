@@ -14,7 +14,8 @@ What this repository contains:
   - main.c               — program selection, ELF validation/mapping, startup
                            stack preparation, and transfer to the dynamic linker.
   - Makefile             — build, check, test, clean, and install as <prog>.rtld.
-  - tests/               — ELF checks, dispatch smoke tests, and runtime tests.
+  - tests/               — ELF checks, dispatch/runtime/diagnostic tests, and a
+                           checksum-pinned binary runtime compatibility matrix.
   - transparent_shim.sh  — installs the launcher under a fixed program path,
                            preserving the original program as <name>.real.
   - patch_agy_wsl1.py     — standalone binary patcher for Google's Antigravity CLI

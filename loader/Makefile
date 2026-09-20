@@ -37,8 +37,14 @@ install: all
 test: all
 	CC="$(CC)" $(PYTHON) tests/smoke.py "$(BIN_OUT)"
 	$(PYTHON) tests/runtime.py "$(BIN_OUT)" --cc "$(CC)"
+	$(PYTHON) tests/diagnostics.py "$(BIN_OUT)" --cc "$(CC)"
+
+# Download binary runtime packages and exercise this exact launcher against each.
+test-matrix: all
+	$(PYTHON) -m unittest discover -s tests -p 'test_matrix.py'
+	$(PYTHON) tests/matrix.py "$(BIN_OUT)" --cc "$(CC)" $(MATRIX_ARGS)
 
 clean:
 	rm -rf .build
 
-.PHONY: all install test clean
+.PHONY: all install test test-matrix clean

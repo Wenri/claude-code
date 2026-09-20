@@ -57,7 +57,7 @@ bundled [pixi](https://pixi.sh) environment provides them.
 
 ```bash
 pixi run build-loader                    # builds loader/.build/rtld-dispatch
-pixi run make -C loader test              # smoke and runtime tests
+pixi run make -C loader test              # smoke, runtime, and diagnostic tests
 pixi run install-loader                  # installs ~/.local/bin/claude.rtld
 # Install for several programs:
 pixi run make -C loader install PROGS="claude agy"
@@ -66,7 +66,7 @@ pixi run make -C loader install PROGS="claude agy"
 With the tools already installed, use `make -C loader`, `make -C loader test`,
 and `make -C loader install` directly.
 
-The build compiles one C file as a freestanding static PIE (about 14 KB with the
+The build compiles one C file as a freestanding static PIE (about 17 KiB with the
 bundled toolchain), strips it, and checks that it has no interpreter,
 shared-library dependencies, RPATH, or runtime relocations. No glibc build or
 download is involved. `CC`, `CFLAGS`, and `LDFLAGS` can select the compiler and
@@ -127,8 +127,31 @@ architectures are unsupported.
 
 `make -C loader test` checks executable identity, argument forwarding,
 self-execution, dynamic linking, TLS, threads, constructors, `$ORIGIN`, and
-rejection of malformed ELF files. To test an existing alternate runtime with the
-same launcher binary:
+rejection of malformed ELF files. It also covers explicit invocation with the
+launcher and program in different directories, 2 MiB segment alignment, and
+diagnostics for failed target or interpreter loading.
+
+Run the packaged glibc compatibility matrix with:
+
+```bash
+make -C loader test-matrix
+# Run selected versions, reusing the package cache:
+make -C loader test-matrix MATRIX_ARGS="--versions 2.31 2.42"
+```
+
+This builds the launcher once and tests that exact binary against glibc 2.31,
+2.35, 2.39, and 2.42. Binary packages are downloaded from official Ubuntu
+archives, verified against pinned SHA256 checksums, and cached under
+`loader/.build/glibc-matrix/`. This optional suite also needs `dpkg-deb` (from
+the `dpkg` package) to extract packages. No glibc source build or system library
+replacement is involved.
+The matrix uses an older development sysroot for its test programs so that they
+can run on every selected runtime. The launcher itself remains independent of
+that sysroot.
+
+The [loader workflow](./.github/workflows/loader.yml) runs the host suites and
+packaged runtime matrix for loader changes. To test an existing alternate
+runtime manually with the same launcher binary:
 
 ```bash
 python3 loader/tests/runtime.py loader/.build/rtld-dispatch \
@@ -141,18 +164,28 @@ release or older. A program compiled against newer libc symbols cannot run on an
 older libc. Linux tests do not establish WSL1 application compatibility; the new
 mapping implementation still needs validation on WSL1.
 
-The same launcher binary passed all 46 runtime checks with each tested runtime:
+The same launcher binary passed all 48 runtime checks with each packaged runtime:
 
 | glibc | Runtime used |
 | --- | --- |
 | 2.31 | Prebuilt Ubuntu package `2.31-0ubuntu9.18` |
 | 2.35 | Prebuilt Ubuntu package `2.35-0ubuntu3.15` |
-| 2.39 | Host runtime |
-| 2.42 | Locally built runtime |
+| 2.39 | Prebuilt Ubuntu package `2.39-0ubuntu8.9` |
+| 2.42 | Prebuilt Ubuntu package `2.42-0ubuntu3.1` |
 
 Bun 1.3.11 startup and self-execution also passed through both named launchers
 and transparent shims. Installation, shim refresh, and copying across
 filesystems were checked separately.
+
+Loader errors identify the loading stage, file, and failing operation. Syscall
+failures include the Linux errno number, for example:
+
+```text
+rtld-dispatch: interpreter /path/to/ld-linux-x86-64.so.2: open failed (errno 2)
+```
+
+Here errno 2 means the interpreter was not found. ELF validation errors identify
+the invalid structure, such as a truncated file or unsupported executable stack.
 
 ---
 

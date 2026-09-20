@@ -3,6 +3,7 @@
    the kernel's /proc/self/exe remains this launcher for tool aliases/re-exec. */
 #define _GNU_SOURCE
 #include <elf.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -49,22 +50,41 @@ finish(int code)
     __builtin_unreachable();
 }
 
-static const char *current_file;
+static const char *current_stage, *current_file;
+
+__attribute__((noreturn)) static void
+fail_errno(const char *message, unsigned int error)
+{
+    print("rtld-dispatch: ");
+    print(current_stage);
+    if (current_file) { print(" "); print(current_file); }
+    print(": ");
+    print(message);
+    if (error) {
+        /* Linux syscall errors are at most 4095; no libc or pointer tables. */
+        char number[5];
+        char *digit = number + sizeof(number) - 1;
+        *digit = 0;
+        do { *--digit = '0' + error % 10; error /= 10; } while (error);
+        print(" (errno ");
+        print(digit);
+        print(")");
+    }
+    print("\n");
+    finish(127);
+}
 
 __attribute__((noreturn)) static void
 fail(const char *message)
 {
-    print("rtld-dispatch: ");
-    if (current_file) { print(current_file); print(": "); }
-    print(message);
-    print("\n");
-    finish(127);
+    fail_errno(message, 0);
 }
 
 static uintptr_t
 checked(long value, const char *operation)
 {
-    if ((unsigned long)value >= (unsigned long)-4095) fail(operation);
+    if ((unsigned long)value >= (unsigned long)-4095)
+        fail_errno(operation, (unsigned int)-value);
     return value;
 }
 
@@ -120,6 +140,7 @@ static char interpreter[4096];
 static struct image
 load_image(const char *path, enum image_kind kind)
 {
+    current_stage = kind == INTERPRETER ? "interpreter" : "target";
     current_file = path;
     int fd = checked(syscall6(SYS_openat, AT_FDCWD, (long)path,
                              O_RDONLY | O_CLOEXEC, 0, 0, 0), "open failed");
@@ -241,6 +262,7 @@ __asm__(".text\n.global _start\n_start:\n"
 __attribute__((noreturn)) void
 start(uintptr_t *stack)
 {
+    current_stage = "startup";
     if (!stack[0]) fail("missing argv[0]");
     char **argv = (void *)(stack + 1);
     char **env = argv + stack[0] + 1;
@@ -253,10 +275,12 @@ start(uintptr_t *stack)
     if (!page_size || (page_size & (page_size - 1))) fail("invalid page size");
 
     static char target[4096];
-    long size = syscall6(SYS_readlinkat, AT_FDCWD, (long)"/proc/self/exe",
-                         (long)target, sizeof(target), 0, 0);
+    current_file = "/proc/self/exe";
+    long size = checked(syscall6(SYS_readlinkat, AT_FDCWD, (long)current_file,
+                                (long)target, sizeof(target), 0, 0), "readlinkat failed");
     if (size <= 0 || (size_t)size >= sizeof(target)) fail("cannot resolve /proc/self/exe");
     target[size] = 0;
+    current_file = NULL;
     int implicit = 1;
     if (size > 5 && equal(target + size - 5, ".rtld")) {
         int own_name = equal(basename(argv[0]), basename(target));
@@ -266,7 +290,13 @@ start(uintptr_t *stack)
         if ((size_t)size + 6 > sizeof(target)) fail("target path is too long");
         const char suffix[] = ".real";
         for (size_t i = 0; i < sizeof(suffix); ++i) target[size + i] = suffix[i];
-        implicit = syscall6(SYS_faccessat, AT_FDCWD, (long)target, F_OK, 0, 0, 0) == 0;
+        current_stage = "target";
+        current_file = target;
+        long found = syscall6(SYS_faccessat, AT_FDCWD, (long)target, F_OK, 0, 0, 0);
+        if (found != -ENOENT && found != -ENOTDIR) checked(found, "access failed");
+        implicit = found == 0;
+        current_stage = "startup";
+        current_file = NULL;
     }
 
     struct image program, linker;
