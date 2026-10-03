@@ -40,7 +40,6 @@ import {
   endLLMRequestPerfettoSpan,
   endToolPerfettoSpan,
   endUserInputPerfettoSpan,
-  emitPerfettoInstant,
   isPerfettoTracingEnabled,
   startInteractionPerfettoSpan,
   startLLMRequestPerfettoSpan,

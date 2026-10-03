@@ -49,7 +49,6 @@ import type {
 } from '../../types/message.js'
 import { createAbortController } from '../../utils/abortController.js'
 import { count, uniq } from '../../utils/array.js'
-import { parseForSecurity } from '../../utils/bash/ast.js'
 import { logForDebugging } from '../../utils/debug.js'
 import {
   createCacheSafeParams,

@@ -54,6 +54,16 @@ const authenticatedMainFiles = new Map([
   ['src/utils/telemetry/sessionTracing.ts', 'a333f67740707ecfbdb23174608285a0e1d445eb27ce63c6e6a3009be7071391'],
 ])
 
+// These are corrective edits to the current cumulative tree only. Preserve the
+// original snapshot hashes above; no frozen release evidence is replaced.
+const currentSourceSyntaxCorrections = new Map([
+  ['src/utils/telemetry/sessionTracing.ts', {
+    beforeSha256: 'a333f67740707ecfbdb23174608285a0e1d445eb27ce63c6e6a3009be7071391',
+    afterSha256: '8db4119cf6922243a24045005d94199b4667a4815564a246790e28e0e63974ba',
+    reason: 'Remove the second emitPerfettoInstant specifier from the same import declaration; the duplicated local binding prevents parsing.',
+  }],
+])
+
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
@@ -111,7 +121,13 @@ function bundleStrings(contents) {
 
 test('pins the selective main source carry-forward', () => {
   for (const [relative, expected] of [...carriedFiles, ...authenticatedMainFiles]) {
-    assert.equal(sha256(fs.readFileSync(path.join(repositoryRoot, relative))), expected)
+    const correction = currentSourceSyntaxCorrections.get(relative)
+    if (correction) assert.equal(expected, correction.beforeSha256, `${relative}: original snapshot pin`)
+    assert.equal(
+      sha256(fs.readFileSync(path.join(repositoryRoot, relative))),
+      correction?.afterSha256 ?? expected,
+      `${relative}${correction ? `: ${correction.reason}` : ''}`,
+    )
   }
 })
 

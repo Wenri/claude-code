@@ -17,8 +17,6 @@ import { isEnvTruthy } from './envUtils.js'
  *   DISABLE_TELEMETRY or truthy DO_NOT_TRACK  →  no-telemetry
  */
 
-import { isEnvTruthy } from './envUtils.js'
-
 type PrivacyLevel = 'default' | 'no-telemetry' | 'essential-traffic'
 
 export function getPrivacyLevel(): PrivacyLevel {
