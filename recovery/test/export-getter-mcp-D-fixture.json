@@ -1,0 +1,222 @@
+{
+  "kind": "bounded-MCP-D-original-export-getter-statements",
+  "sourceEquivalenceEstablished": false,
+  "coordinateConvention": "Original UTF-16 ranges in the separately hash-pinned baseline and RAW candidate bundles. No named-output offset is used on the raw candidate or its source map.",
+  "fixtureContext": "Tests provide synthetic top-level declarations solely for the isolated getter bindings. These bounded contexts do not prove original whole-program binding identity or equivalence.",
+  "inputs": {
+    "baseline": {
+      "path": ".recovery-tmp/ledger-rereview/2.1.88-cli.js",
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "candidate": {
+      "path": ".recovery-tmp/source-build/native-computer-use-2x2-cloud/04-D/cli.js",
+      "bytes": 13049397,
+      "sha256": "de23ca0eae70c165e88e94fd42f6709690119ac5d6b61afa830374d7d5eb5fae"
+    },
+    "recipe": {
+      "path": ".recovery-tmp/source-build/native-computer-use-2x2-cloud/04-D/source-ast.json.gz",
+      "bytes": 8550662,
+      "sha256": "4a8c578016e47333cc9ea2aeeda08fb41285907b0f227b997e26024c363c2f2d"
+    }
+  },
+  "parsedUtf16Units": 16950,
+  "cases": [
+    {
+      "name": "locales",
+      "expectedDerivedNames": [
+        "xP6"
+      ],
+      "sourceAnchors": [
+        {
+          "from": "ze8",
+          "to": "st8",
+          "origin": "node_modules/zod/v4/locales/zh-TW.js:112:7",
+          "basis": "unique-source-declaration-position",
+          "referenceEvidence": [],
+          "identifierRanges": [
+            [
+              474642,
+              474645
+            ]
+          ]
+        }
+      ],
+      "baseline": {
+        "range": [
+          476868,
+          477314
+        ],
+        "text": "T8(xP6,{zhTW:()=>st8,zhCN:()=>at8,vi:()=>ot8,ur:()=>rt8,ua:()=>it8,tr:()=>nt8,th:()=>lt8,ta:()=>ct8,sv:()=>dt8,sl:()=>Qt8,ru:()=>Ut8,pt:()=>Ft8,ps:()=>Bt8,pl:()=>gt8,ota:()=>pt8,no:()=>mt8,nl:()=>ut8,ms:()=>It8,mk:()=>xt8,ko:()=>bt8,kh:()=>Ct8,ja:()=>St8,it:()=>ht8,id:()=>Rt8,hu:()=>Lt8,he:()=>Et8,frCA:()=>yt8,fr:()=>Nt8,fi:()=>Vt8,fa:()=>kt8,es:()=>vt8,eo:()=>Tt8,en:()=>QI6,de:()=>Zt8,cs:()=>ft8,ca:()=>Dt8,be:()=>Wt8,az:()=>Pt8,ar:()=>Xt8});",
+        "bytes": 446,
+        "sha256": "b6fb9d071ca9ecabd1b1c5be40925e81a8ff805b475faa15188410fc74888770"
+      },
+      "candidate": {
+        "range": [
+          476787,
+          477233
+        ],
+        "text": "T8(pP6,{zhTW:()=>ze8,zhCN:()=>_e8,vi:()=>Ke8,ur:()=>qe8,ua:()=>et8,tr:()=>tt8,th:()=>st8,ta:()=>at8,sv:()=>ot8,sl:()=>rt8,ru:()=>it8,pt:()=>nt8,ps:()=>ct8,pl:()=>lt8,ota:()=>dt8,no:()=>Qt8,nl:()=>Ut8,ms:()=>Ft8,mk:()=>gt8,ko:()=>Bt8,kh:()=>pt8,ja:()=>mt8,it:()=>ut8,id:()=>It8,hu:()=>xt8,he:()=>bt8,frCA:()=>Ct8,fr:()=>St8,fi:()=>ht8,fa:()=>Rt8,es:()=>Lt8,eo:()=>Et8,en:()=>lI6,de:()=>Nt8,cs:()=>Vt8,ca:()=>kt8,be:()=>vt8,az:()=>Tt8,ar:()=>Gt8});",
+        "bytes": 446,
+        "sha256": "0d2ac0509d4cf23981eb65697e6c5ca824f963a992225005d5b43f3455d28a2b"
+      }
+    },
+    {
+      "name": "core",
+      "expectedDerivedNames": [
+        "JB",
+        "FP7",
+        "xP6"
+      ],
+      "sourceAnchors": [
+        {
+          "from": "dq",
+          "to": "dq",
+          "origin": "node_modules/zod/v4/core/core.js:55:29",
+          "basis": "unique-source-reference-positions",
+          "referenceEvidence": [
+            "node_modules/zod/v4/classic/schemas.js:509:12",
+            "node_modules/zod/v4/classic/schemas.js:512:11",
+            "node_modules/zod/v4/classic/schemas.js:521:12",
+            "node_modules/zod/v4/classic/schemas.js:525:11",
+            "node_modules/zod/v4/classic/schemas.js:533:12",
+            "node_modules/zod/v4/classic/schemas.js:537:11",
+            "node_modules/zod/v4/classic/schemas.js:549:11",
+            "node_modules/zod/v4/classic/schemas.js:562:11",
+            "node_modules/zod/v4/classic/schemas.js:592:11",
+            "node_modules/zod/v4/classic/schemas.js:606:11",
+            "node_modules/zod/v4/classic/schemas.js:615:11",
+            "node_modules/zod/v4/classic/schemas.js:629:11",
+            "node_modules/zod/v4/classic/schemas.js:644:11",
+            "node_modules/zod/v4/classic/schemas.js:691:11",
+            "node_modules/zod/v4/classic/schemas.js:706:11",
+            "node_modules/zod/v4/classic/schemas.js:726:11",
+            "node_modules/zod/v4/classic/schemas.js:840:11",
+            "node_modules/zod/v4/classic/schemas.js:907:11",
+            "node_modules/zod/v4/classic/schemas.js:940:11",
+            "node_modules/zod/v4/classic/schemas.js:956:36",
+            "node_modules/zod/v4/classic/schemas.js:967:36",
+            "node_modules/zod/v4/classic/schemas.js:982:11",
+            "node_modules/zod/v4/classic/schemas.js:488:4",
+            "node_modules/zod/v4/classic/schemas.js:497:15",
+            "node_modules/zod/v4/classic/schemas.js:499:28",
+            "node_modules/zod/v4/classic/schemas.js:500:26",
+            "node_modules/zod/v4/classic/schemas.js:501:26",
+            "node_modules/zod/v4/classic/schemas.js:502:32",
+            "node_modules/zod/v4/classic/schemas.js:503:33",
+            "node_modules/zod/v4/classic/schemas.js:665:15",
+            "node_modules/zod/v4/classic/schemas.js:681:15",
+            "node_modules/zod/v4/classic/schemas.js:745:36",
+            "node_modules/zod/v4/classic/schemas.js:756:36"
+          ],
+          "identifierRanges": [
+            [
+              324438,
+              324440
+            ]
+          ]
+        }
+      ],
+      "baseline": {
+        "range": [
+          500395,
+          504888
+        ],
+        "text": "T8(JB,{version:()=>ws8,util:()=>dq,treeifyError:()=>Ma8,toJSONSchema:()=>nc,toDotPath:()=>bX7,safeParseAsync:()=>mI6,safeParse:()=>SP6,registry:()=>$_8,regexes:()=>y96,prettifyError:()=>Xa8,parseAsync:()=>uI6,parse:()=>II6,locales:()=>xP6,isValidJWT:()=>aX7,isValidBase64URL:()=>oX7,isValidBase64:()=>Ss8,globalRegistry:()=>HB,globalConfig:()=>kI6,function:()=>de8,formatError:()=>xI6,flattenError:()=>bI6,config:()=>dM,clone:()=>ME,_xid:()=>f_8,_void:()=>Ee8,_uuidv7:()=>H_8,_uuidv6:()=>j_8,_uuidv4:()=>w_8,_uuid:()=>O_8,_url:()=>J_8,_uppercase:()=>rI6,_unknown:()=>IP6,_union:()=>y25,_undefined:()=>ke8,_ulid:()=>D_8,_uint64:()=>Te8,_uint32:()=>Pe8,_tuple:()=>ue8,_trim:()=>qu6,_transform:()=>I25,_toUpperCase:()=>_u6,_toLowerCase:()=>Ku6,_templateLiteral:()=>d25,_symbol:()=>ve8,_success:()=>g25,_stringbool:()=>ge8,_stringFormat:()=>Fe8,_string:()=>Ke8,_startsWith:()=>aI6,_size:()=>lI6,_set:()=>S25,_safeParseAsync:()=>l98,_safeParse:()=>c98,_regex:()=>nI6,_refine:()=>Be8,_record:()=>R25,_readonly:()=>Q25,_property:()=>Ie8,_promise:()=>l25,_positive:()=>Se8,_pipe:()=>U25,_parseAsync:()=>d98,_parse:()=>Q98,_overwrite:()=>lc,_optional:()=>u25,_number:()=>we8,_nullable:()=>m25,_null:()=>Ve8,_normalize:()=>eI6,_nonpositive:()=>be8,_nonoptional:()=>B25,_nonnegative:()=>xe8,_never:()=>ye8,_negative:()=>Ce8,_nativeEnum:()=>b25,_nanoid:()=>X_8,_nan:()=>he8,_multipleOf:()=>R96,_minSize:()=>h96,_minLength:()=>Ae,_min:()=>gk,_mime:()=>tI6,_maxSize:()=>uP6,_maxLength:()=>mP6,_max:()=>Yh,_map:()=>h25,_lte:()=>Yh,_lt:()=>dc,_lowercase:()=>iI6,_literal:()=>x25,_length:()=>pP6,_lazy:()=>c25,_ksuid:()=>Z_8,_jwt:()=>E_8,_isoTime:()=>Ae8,_isoDuration:()=>Oe8,_isoDateTime:()=>Ye8,_isoDate:()=>$e8,_ipv6:()=>T_8,_ipv4:()=>G_8,_intersection:()=>L25,_int64:()=>Ge8,_int32:()=>Xe8,_int:()=>He8,_includes:()=>oI6,_guid:()=>cI6,_gte:()=>gk,_gt:()=>cc,_float64:()=>Me8,_float32:()=>Je8,_file:()=>me8,_enum:()=>C25,_endsWith:()=>sI6,_emoji:()=>M_8,_email:()=>A_8,_e164:()=>y_8,_discriminatedUnion:()=>E25,_default:()=>p25,_date:()=>Le8,_custom:()=>pe8,_cuid2:()=>W_8,_cuid:()=>P_8,_coercedString:()=>_e8,_coercedNumber:()=>je8,_coercedDate:()=>Re8,_coercedBoolean:()=>De8,_coercedBigint:()=>Ze8,_cidrv6:()=>k_8,_cidrv4:()=>v_8,_catch:()=>F25,_boolean:()=>We8,_bigint:()=>fe8,_base64url:()=>N_8,_base64:()=>V_8,_array:()=>zu6,_any:()=>Ne8,TimePrecision:()=>ze8,NEVER:()=>VI6,JSONSchemaGenerator:()=>L_8,JSONSchema:()=>FP7,Doc:()=>t98,$output:()=>tt8,$input:()=>et8,$constructor:()=>f1,$brand:()=>Ka8,$ZodXID:()=>Ts8,$ZodVoid:()=>ds8,$ZodUnknown:()=>bP6,$ZodUnion:()=>z_8,$ZodUndefined:()=>gs8,$ZodUUID:()=>Ms8,$ZodURL:()=>Ps8,$ZodULID:()=>Gs8,$ZodType:()=>U3,$ZodTuple:()=>L96,$ZodTransform:()=>gI6,$ZodTemplateLiteral:()=>jt8,$ZodSymbol:()=>Bs8,$ZodSuccess:()=>$t8,$ZodStringFormat:()=>eO,$ZodString:()=>E96,$ZodSet:()=>as8,$ZodRegistry:()=>dI6,$ZodRecord:()=>rs8,$ZodRealError:()=>hP6,$ZodReadonly:()=>wt8,$ZodPromise:()=>Ht8,$ZodPrefault:()=>zt8,$ZodPipe:()=>FI6,$ZodOptional:()=>qt8,$ZodObject:()=>ls8,$ZodNumberFormat:()=>ms8,$ZodNumber:()=>K_8,$ZodNullable:()=>Kt8,$ZodNull:()=>Fs8,$ZodNonOptional:()=>Yt8,$ZodNever:()=>Qs8,$ZodNanoID:()=>Ds8,$ZodNaN:()=>Ot8,$ZodMap:()=>os8,$ZodLiteral:()=>ts8,$ZodLazy:()=>Jt8,$ZodKSUID:()=>vs8,$ZodJWT:()=>Is8,$ZodIntersection:()=>is8,$ZodISOTime:()=>Ns8,$ZodISODuration:()=>ys8,$ZodISODateTime:()=>ks8,$ZodISODate:()=>Vs8,$ZodIPv6:()=>Ls8,$ZodIPv4:()=>Es8,$ZodGUID:()=>Js8,$ZodFunction:()=>Qe8,$ZodFile:()=>es8,$ZodError:()=>CI6,$ZodEnum:()=>ss8,$ZodEmoji:()=>Ws8,$ZodEmail:()=>Xs8,$ZodE164:()=>xs8,$ZodDiscriminatedUnion:()=>ns8,$ZodDefault:()=>_t8,$ZodDate:()=>cs8,$ZodCustomStringFormat:()=>us8,$ZodCustom:()=>Mt8,$ZodCheckUpperCase:()=>Ks8,$ZodCheckStringFormat:()=>CP6,$ZodCheckStartsWith:()=>zs8,$ZodCheckSizeEquals:()=>oa8,$ZodCheckRegex:()=>ea8,$ZodCheckProperty:()=>$s8,$ZodCheckOverwrite:()=>Os8,$ZodCheckNumberFormat:()=>la8,$ZodCheckMultipleOf:()=>ca8,$ZodCheckMinSize:()=>ra8,$ZodCheckMinLength:()=>sa8,$ZodCheckMimeType:()=>As8,$ZodCheckMaxSize:()=>ia8,$ZodCheckMaxLength:()=>aa8,$ZodCheckLowerCase:()=>qs8,$ZodCheckLessThan:()=>o98,$ZodCheckLengthEquals:()=>ta8,$ZodCheckIncludes:()=>_s8,$ZodCheckGreaterThan:()=>a98,$ZodCheckEndsWith:()=>Ys8,$ZodCheckBigIntFormat:()=>na8,$ZodCheck:()=>AH,$ZodCatch:()=>At8,$ZodCUID2:()=>Zs8,$ZodCUID:()=>fs8,$ZodCIDRv6:()=>hs8,$ZodCIDRv4:()=>Rs8,$ZodBoolean:()=>pI6,$ZodBigIntFormat:()=>ps8,$ZodBigInt:()=>__8,$ZodBase64URL:()=>bs8,$ZodBase64:()=>Cs8,$ZodAsyncError:()=>Uc,$ZodArray:()=>BI6,$ZodAny:()=>Us8});",
+        "bytes": 4493,
+        "sha256": "c6ff18ee80af99bb5cdb7a6c6a40716a0afeb54afeed2ab9ee4fb9a4a796cfcf"
+      },
+      "candidate": {
+        "range": [
+          500314,
+          504807
+        ],
+        "text": "T8(PB,{version:()=>Ps8,util:()=>dq,treeifyError:()=>Za8,toJSONSchema:()=>oc,toDotPath:()=>uX7,safeParseAsync:()=>gI6,safeParse:()=>IP6,registry:()=>J_8,regexes:()=>S96,prettifyError:()=>Ga8,parseAsync:()=>BI6,parse:()=>pI6,locales:()=>pP6,isValidJWT:()=>eX7,isValidBase64URL:()=>tX7,isValidBase64:()=>ms8,globalRegistry:()=>XB,globalConfig:()=>yI6,function:()=>oe8,formatError:()=>mI6,flattenError:()=>uI6,config:()=>nM,clone:()=>DE,_xid:()=>V_8,_void:()=>be8,_uuidv7:()=>D_8,_uuidv6:()=>W_8,_uuidv4:()=>P_8,_uuid:()=>X_8,_url:()=>f_8,_uppercase:()=>sI6,_unknown:()=>BP6,_union:()=>h25,_undefined:()=>Re8,_ulid:()=>k_8,_uint64:()=>Ee8,_uint32:()=>Te8,_tuple:()=>Ue8,_trim:()=>zu6,_transform:()=>B25,_toUpperCase:()=>$u6,_toLowerCase:()=>Yu6,_templateLiteral:()=>i25,_symbol:()=>Le8,_success:()=>d25,_stringbool:()=>le8,_stringFormat:()=>ne8,_string:()=>Oe8,_startsWith:()=>eI6,_size:()=>rI6,_set:()=>I25,_safeParseAsync:()=>s98,_safeParse:()=>a98,_regex:()=>oI6,_refine:()=>ce8,_record:()=>b25,_readonly:()=>n25,_property:()=>Fe8,_promise:()=>o25,_positive:()=>me8,_pipe:()=>l25,_parseAsync:()=>o98,_parse:()=>r98,_overwrite:()=>rc,_optional:()=>g25,_number:()=>Pe8,_nullable:()=>F25,_null:()=>he8,_normalize:()=>_u6,_nonpositive:()=>Be8,_nonoptional:()=>Q25,_nonnegative:()=>ge8,_never:()=>Ce8,_negative:()=>pe8,_nativeEnum:()=>m25,_nanoid:()=>G_8,_nan:()=>ue8,_multipleOf:()=>x96,_minSize:()=>I96,_minLength:()=>je,_min:()=>dk,_mime:()=>Ku6,_maxSize:()=>gP6,_maxLength:()=>FP6,_max:()=>wh,_map:()=>x25,_lte:()=>wh,_lt:()=>nc,_lowercase:()=>aI6,_literal:()=>p25,_length:()=>UP6,_lazy:()=>r25,_ksuid:()=>N_8,_jwt:()=>b_8,_isoTime:()=>Me8,_isoDuration:()=>Xe8,_isoDateTime:()=>He8,_isoDate:()=>Je8,_ipv6:()=>E_8,_ipv4:()=>y_8,_intersection:()=>C25,_int64:()=>ye8,_int32:()=>Ge8,_int:()=>De8,_includes:()=>tI6,_guid:()=>iI6,_gte:()=>dk,_gt:()=>ic,_float64:()=>Ze8,_float32:()=>fe8,_file:()=>Qe8,_enum:()=>u25,_endsWith:()=>qu6,_emoji:()=>Z_8,_email:()=>M_8,_e164:()=>C_8,_discriminatedUnion:()=>S25,_default:()=>U25,_date:()=>xe8,_custom:()=>de8,_cuid2:()=>v_8,_cuid:()=>T_8,_coercedString:()=>we8,_coercedNumber:()=>We8,_coercedDate:()=>Ie8,_coercedBoolean:()=>ke8,_coercedBigint:()=>Ne8,_cidrv6:()=>R_8,_cidrv4:()=>L_8,_catch:()=>c25,_boolean:()=>ve8,_bigint:()=>Ve8,_base64url:()=>S_8,_base64:()=>h_8,_array:()=>Au6,_any:()=>Se8,TimePrecision:()=>je8,NEVER:()=>EI6,JSONSchemaGenerator:()=>x_8,JSONSchema:()=>dP7,Doc:()=>Y_8,$output:()=>Ye8,$input:()=>$e8,$constructor:()=>f1,$brand:()=>Oa8,$ZodXID:()=>Es8,$ZodVoid:()=>os8,$ZodUnknown:()=>mP6,$ZodUnion:()=>j_8,$ZodUndefined:()=>ls8,$ZodUUID:()=>Zs8,$ZodURL:()=>Ts8,$ZodULID:()=>ys8,$ZodType:()=>d3,$ZodTuple:()=>b96,$ZodTransform:()=>QI6,$ZodTemplateLiteral:()=>Wt8,$ZodSymbol:()=>cs8,$ZodSuccess:()=>Jt8,$ZodStringFormat:()=>Kw,$ZodString:()=>C96,$ZodSet:()=>_t8,$ZodRegistry:()=>nI6,$ZodRecord:()=>qt8,$ZodRealError:()=>xP6,$ZodReadonly:()=>Pt8,$ZodPromise:()=>Dt8,$ZodPrefault:()=>jt8,$ZodPipe:()=>dI6,$ZodOptional:()=>At8,$ZodObject:()=>ss8,$ZodNumberFormat:()=>Qs8,$ZodNumber:()=>O_8,$ZodNullable:()=>Ot8,$ZodNull:()=>ns8,$ZodNonOptional:()=>Ht8,$ZodNever:()=>rs8,$ZodNanoID:()=>ks8,$ZodNaN:()=>Xt8,$ZodMap:()=>Kt8,$ZodLiteral:()=>Yt8,$ZodLazy:()=>ft8,$ZodKSUID:()=>Ls8,$ZodJWT:()=>Fs8,$ZodIntersection:()=>es8,$ZodISOTime:()=>Ss8,$ZodISODuration:()=>Cs8,$ZodISODateTime:()=>Rs8,$ZodISODate:()=>hs8,$ZodIPv6:()=>xs8,$ZodIPv4:()=>bs8,$ZodGUID:()=>fs8,$ZodFunction:()=>re8,$ZodFile:()=>$t8,$ZodError:()=>II6,$ZodEnum:()=>zt8,$ZodEmoji:()=>vs8,$ZodEmail:()=>Gs8,$ZodE164:()=>gs8,$ZodDiscriminatedUnion:()=>ts8,$ZodDefault:()=>wt8,$ZodDate:()=>as8,$ZodCustomStringFormat:()=>Us8,$ZodCustom:()=>Zt8,$ZodCheckUpperCase:()=>Os8,$ZodCheckStringFormat:()=>uP6,$ZodCheckStartsWith:()=>js8,$ZodCheckSizeEquals:()=>Ks8,$ZodCheckRegex:()=>$s8,$ZodCheckProperty:()=>Js8,$ZodCheckOverwrite:()=>Xs8,$ZodCheckNumberFormat:()=>sa8,$ZodCheckMultipleOf:()=>aa8,$ZodCheckMinSize:()=>qs8,$ZodCheckMinLength:()=>zs8,$ZodCheckMimeType:()=>Ms8,$ZodCheckMaxSize:()=>ea8,$ZodCheckMaxLength:()=>_s8,$ZodCheckLowerCase:()=>As8,$ZodCheckLessThan:()=>K_8,$ZodCheckLengthEquals:()=>Ys8,$ZodCheckIncludes:()=>ws8,$ZodCheckGreaterThan:()=>__8,$ZodCheckEndsWith:()=>Hs8,$ZodCheckBigIntFormat:()=>ta8,$ZodCheck:()=>jH,$ZodCatch:()=>Mt8,$ZodCUID2:()=>Ns8,$ZodCUID:()=>Vs8,$ZodCIDRv6:()=>us8,$ZodCIDRv4:()=>Is8,$ZodBoolean:()=>FI6,$ZodBigIntFormat:()=>ds8,$ZodBigInt:()=>w_8,$ZodBase64URL:()=>Bs8,$ZodBase64:()=>ps8,$ZodAsyncError:()=>cc,$ZodArray:()=>UI6,$ZodAny:()=>is8});",
+        "bytes": 4493,
+        "sha256": "58fa0b9ced417cf0a148e8b7aef270f15b6eed377444677b6337e8fa049e7456"
+      }
+    },
+    {
+      "name": "MSAL serializer",
+      "expectedDerivedNames": [
+        "nf1"
+      ],
+      "sourceAnchors": [
+        {
+          "from": "KY6",
+          "to": "az6",
+          "origin": "node_modules/@azure/msal-node/dist/cache/serializer/Serializer.mjs:10:6",
+          "basis": "shared-class-source-declaration-position",
+          "referenceEvidence": [
+            "node_modules/@azure/msal-node/dist/cache/NodeStorage.mjs:404:15",
+            "node_modules/@azure/msal-node/dist/cache/TokenCache.mjs:45:25"
+          ],
+          "identifierRanges": [
+            [
+              2632585,
+              2632588
+            ]
+          ]
+        },
+        {
+          "from": "I86",
+          "to": "C86",
+          "origin": "node_modules/@azure/msal-node/dist/cache/serializer/Deserializer.mjs:12:6",
+          "basis": "shared-class-source-declaration-position",
+          "referenceEvidence": [
+            "node_modules/@azure/msal-node/dist/cache/NodeStorage.mjs:397:15",
+            "node_modules/@azure/msal-node/dist/cache/NodeStorage.mjs:397:48",
+            "node_modules/@azure/msal-node/dist/cache/TokenCache.mjs:66:38"
+          ],
+          "identifierRanges": [
+            [
+              2765274,
+              2765277
+            ]
+          ]
+        }
+      ],
+      "baseline": {
+        "range": [
+          2765883,
+          2765933
+        ],
+        "text": "T8(nf1,{Serializer:()=>az6,Deserializer:()=>C86});",
+        "bytes": 50,
+        "sha256": "f83162f9449af23c151473f696e4f3e3ea89777f70f25600bd1292d567e4eb0d"
+      },
+      "candidate": {
+        "range": [
+          2767663,
+          2767713
+        ],
+        "text": "T8(tf1,{Serializer:()=>KY6,Deserializer:()=>I86});",
+        "bytes": 50,
+        "sha256": "f46df098e5fac954e505b9fde509daa877c46ca8a244d2ccceb4e817d09e8475"
+      }
+    },
+    {
+      "name": "second duplicated getters table",
+      "expectedDerivedNames": [],
+      "sourceAnchors": [],
+      "baseline": {
+        "range": [
+          523307,
+          526793
+        ],
+        "text": "T8(L,{xid:()=>jj5,void:()=>hj5,uuidv7:()=>zj5,uuidv6:()=>_j5,uuidv4:()=>Kj5,uuid:()=>qj5,url:()=>$61,uppercase:()=>rI6,unknown:()=>W2,union:()=>nA,undefined:()=>Rj5,ulid:()=>wj5,uint64:()=>Ej5,uint32:()=>Vj5,tuple:()=>xj5,trim:()=>qu6,treeifyError:()=>Ma8,transform:()=>E61,toUpperCase:()=>_u6,toLowerCase:()=>Ku6,toJSONSchema:()=>nc,templateLiteral:()=>Qj5,symbol:()=>Lj5,superRefine:()=>xW7,success:()=>Fj5,stringbool:()=>lj5,stringFormat:()=>Gj5,string:()=>Q8,strictObject:()=>bj5,startsWith:()=>aI6,size:()=>lI6,setErrorMap:()=>ij5,set:()=>mj5,safeParseAsync:()=>ee8,safeParse:()=>te8,registry:()=>$_8,regexes:()=>y96,regex:()=>nI6,refine:()=>bW7,record:()=>pw,readonly:()=>EW7,property:()=>Ie8,promise:()=>dj5,prettifyError:()=>Xa8,preprocess:()=>Q_8,prefault:()=>GW7,positive:()=>Se8,pipe:()=>m_8,partialRecord:()=>Ij5,parseAsync:()=>se8,parse:()=>ae8,overwrite:()=>lc,optional:()=>D2,object:()=>Y4,number:()=>NY,nullish:()=>gj5,nullable:()=>u_8,null:()=>Hu6,normalize:()=>eI6,nonpositive:()=>be8,nonoptional:()=>TW7,nonnegative:()=>xe8,never:()=>p_8,negative:()=>Ce8,nativeEnum:()=>pj5,nanoid:()=>$j5,nan:()=>Uj5,multipleOf:()=>R96,minSize:()=>h96,minLength:()=>Ae,mime:()=>tI6,maxSize:()=>uP6,maxLength:()=>mP6,map:()=>uj5,lte:()=>Yh,lt:()=>dc,lowercase:()=>iI6,looseObject:()=>cM,locales:()=>xP6,literal:()=>JK,length:()=>pP6,lazy:()=>hW7,ksuid:()=>Hj5,keyof:()=>Cj5,jwt:()=>Zj5,json:()=>nj5,iso:()=>gP6,ipv6:()=>Mj5,ipv4:()=>Jj5,intersection:()=>Ju6,int64:()=>yj5,int32:()=>kj5,int:()=>K61,instanceof:()=>cj5,includes:()=>oI6,guid:()=>e25,gte:()=>gk,gt:()=>cc,globalRegistry:()=>HB,getErrorMap:()=>rj5,function:()=>de8,formatError:()=>xI6,float64:()=>vj5,float32:()=>Tj5,flattenError:()=>bI6,file:()=>Bj5,enum:()=>uT,endsWith:()=>sI6,emoji:()=>Yj5,email:()=>t25,e164:()=>fj5,discriminatedUnion:()=>F_8,date:()=>Sj5,custom:()=>S61,cuid2:()=>Oj5,cuid:()=>Aj5,core:()=>JB,config:()=>dM,coerce:()=>Mu6,clone:()=>ME,cidrv6:()=>Pj5,cidrv4:()=>Xj5,check:()=>CW7,catch:()=>VW7,boolean:()=>lA,bigint:()=>Nj5,base64url:()=>Dj5,base64:()=>Wj5,array:()=>cq,any:()=>k61,_default:()=>fW7,_ZodString:()=>_61,ZodXID:()=>J61,ZodVoid:()=>AW7,ZodUnknown:()=>YW7,ZodUnion:()=>V61,ZodUndefined:()=>KW7,ZodUUID:()=>ic,ZodURL:()=>Y61,ZodULID:()=>H61,ZodType:()=>u_,ZodTuple:()=>HW7,ZodTransform:()=>y61,ZodTemplateLiteral:()=>LW7,ZodSymbol:()=>qW7,ZodSuccess:()=>vW7,ZodStringFormat:()=>mw,ZodString:()=>Au6,ZodSet:()=>MW7,ZodRecord:()=>N61,ZodRealError:()=>FP6,ZodReadonly:()=>yW7,ZodPromise:()=>SW7,ZodPrefault:()=>ZW7,ZodPipe:()=>h61,ZodOptional:()=>L61,ZodObject:()=>g_8,ZodNumberFormat:()=>UP6,ZodNumber:()=>Ou6,ZodNullable:()=>WW7,ZodNull:()=>_W7,ZodNonOptional:()=>R61,ZodNever:()=>$W7,ZodNanoID:()=>O61,ZodNaN:()=>NW7,ZodMap:()=>JW7,ZodLiteral:()=>XW7,ZodLazy:()=>RW7,ZodKSUID:()=>M61,ZodJWT:()=>T61,ZodIssueCode:()=>C61,ZodIntersection:()=>jW7,ZodISOTime:()=>S_8,ZodISODuration:()=>C_8,ZodISODateTime:()=>R_8,ZodISODate:()=>h_8,ZodIPv6:()=>P61,ZodIPv4:()=>X61,ZodGUID:()=>I_8,ZodFile:()=>PW7,ZodError:()=>a25,ZodEnum:()=>$u6,ZodEmoji:()=>A61,ZodEmail:()=>z61,ZodE164:()=>G61,ZodDiscriminatedUnion:()=>wW7,ZodDefault:()=>DW7,ZodDate:()=>B_8,ZodCustomStringFormat:()=>eP7,ZodCustom:()=>U_8,ZodCatch:()=>kW7,ZodCUID2:()=>j61,ZodCUID:()=>w61,ZodCIDRv6:()=>D61,ZodCIDRv4:()=>W61,ZodBoolean:()=>wu6,ZodBigIntFormat:()=>v61,ZodBigInt:()=>ju6,ZodBase64URL:()=>Z61,ZodBase64:()=>f61,ZodArray:()=>OW7,ZodAny:()=>zW7,TimePrecision:()=>ze8,NEVER:()=>VI6,$output:()=>tt8,$input:()=>et8,$brand:()=>Ka8});",
+        "bytes": 3486,
+        "sha256": "d89278570f168fcbb861ad7749c03e20191578daebd933cfe3554e66074eb2d2"
+      },
+      "candidate": {
+        "range": [
+          523226,
+          526712
+        ],
+        "text": "T8(L,{xid:()=>Xj5,void:()=>xj5,uuidv7:()=>Oj5,uuidv6:()=>Aj5,uuidv4:()=>$j5,uuid:()=>Yj5,url:()=>J61,uppercase:()=>sI6,unknown:()=>Z2,union:()=>rA,undefined:()=>bj5,ulid:()=>Mj5,uint64:()=>Sj5,uint32:()=>Lj5,tuple:()=>pj5,trim:()=>zu6,treeifyError:()=>Za8,transform:()=>b61,toUpperCase:()=>$u6,toLowerCase:()=>Yu6,toJSONSchema:()=>oc,templateLiteral:()=>nj5,symbol:()=>Cj5,superRefine:()=>mW7,success:()=>cj5,stringbool:()=>oj5,stringFormat:()=>Vj5,string:()=>Q8,strictObject:()=>mj5,startsWith:()=>eI6,size:()=>rI6,setErrorMap:()=>sj5,set:()=>Fj5,safeParseAsync:()=>$61,safeParse:()=>Y61,registry:()=>J_8,regexes:()=>S96,regex:()=>oI6,refine:()=>uW7,record:()=>Fw,readonly:()=>hW7,property:()=>Fe8,promise:()=>ij5,prettifyError:()=>Ga8,preprocess:()=>r_8,prefault:()=>kW7,positive:()=>me8,pipe:()=>Q_8,partialRecord:()=>Bj5,parseAsync:()=>z61,parse:()=>_61,overwrite:()=>rc,optional:()=>G2,object:()=>Y4,number:()=>EY,nullish:()=>dj5,nullable:()=>U_8,null:()=>Xu6,normalize:()=>_u6,nonpositive:()=>Be8,nonoptional:()=>VW7,nonnegative:()=>ge8,never:()=>d_8,negative:()=>pe8,nativeEnum:()=>Uj5,nanoid:()=>jj5,nan:()=>lj5,multipleOf:()=>x96,minSize:()=>I96,minLength:()=>je,mime:()=>Ku6,maxSize:()=>gP6,maxLength:()=>FP6,map:()=>gj5,lte:()=>wh,lt:()=>nc,lowercase:()=>aI6,looseObject:()=>iM,locales:()=>pP6,literal:()=>XK,length:()=>UP6,lazy:()=>bW7,ksuid:()=>Pj5,keyof:()=>uj5,jwt:()=>kj5,json:()=>aj5,iso:()=>dP6,ipv6:()=>Dj5,ipv4:()=>Wj5,intersection:()=>Pu6,int64:()=>hj5,int32:()=>Ej5,int:()=>O61,instanceof:()=>rj5,includes:()=>tI6,guid:()=>zj5,gte:()=>dk,gt:()=>ic,globalRegistry:()=>XB,getErrorMap:()=>tj5,function:()=>oe8,formatError:()=>mI6,float64:()=>yj5,float32:()=>Nj5,flattenError:()=>uI6,file:()=>Qj5,enum:()=>BT,endsWith:()=>qu6,emoji:()=>wj5,email:()=>_j5,e164:()=>vj5,discriminatedUnion:()=>n_8,date:()=>Ij5,custom:()=>m61,cuid2:()=>Jj5,cuid:()=>Hj5,core:()=>PB,config:()=>nM,coerce:()=>Wu6,clone:()=>DE,cidrv6:()=>Zj5,cidrv4:()=>fj5,check:()=>IW7,catch:()=>EW7,boolean:()=>iA,bigint:()=>Rj5,base64url:()=>Tj5,base64:()=>Gj5,array:()=>cq,any:()=>R61,_default:()=>TW7,_ZodString:()=>w61,ZodXID:()=>f61,ZodVoid:()=>jW7,ZodUnknown:()=>OW7,ZodUnion:()=>h61,ZodUndefined:()=>YW7,ZodUUID:()=>ac,ZodURL:()=>H61,ZodULID:()=>D61,ZodType:()=>p_,ZodTuple:()=>XW7,ZodTransform:()=>C61,ZodTemplateLiteral:()=>SW7,ZodSymbol:()=>zW7,ZodSuccess:()=>NW7,ZodStringFormat:()=>gw,ZodString:()=>ju6,ZodSet:()=>WW7,ZodRecord:()=>S61,ZodRealError:()=>cP6,ZodReadonly:()=>RW7,ZodPromise:()=>xW7,ZodPrefault:()=>vW7,ZodPipe:()=>u61,ZodOptional:()=>x61,ZodObject:()=>l_8,ZodNumberFormat:()=>lP6,ZodNumber:()=>Hu6,ZodNullable:()=>ZW7,ZodNull:()=>$W7,ZodNonOptional:()=>I61,ZodNever:()=>wW7,ZodNanoID:()=>X61,ZodNaN:()=>LW7,ZodMap:()=>PW7,ZodLiteral:()=>DW7,ZodLazy:()=>CW7,ZodKSUID:()=>Z61,ZodJWT:()=>E61,ZodIssueCode:()=>p61,ZodIntersection:()=>MW7,ZodISOTime:()=>m_8,ZodISODuration:()=>p_8,ZodISODateTime:()=>I_8,ZodISODate:()=>u_8,ZodIPv6:()=>T61,ZodIPv4:()=>G61,ZodGUID:()=>F_8,ZodFile:()=>fW7,ZodError:()=>qj5,ZodEnum:()=>wu6,ZodEmoji:()=>M61,ZodEmail:()=>j61,ZodE164:()=>y61,ZodDiscriminatedUnion:()=>JW7,ZodDefault:()=>GW7,ZodDate:()=>c_8,ZodCustomStringFormat:()=>_W7,ZodCustom:()=>i_8,ZodCatch:()=>yW7,ZodCUID2:()=>W61,ZodCUID:()=>P61,ZodCIDRv6:()=>k61,ZodCIDRv4:()=>v61,ZodBoolean:()=>Ju6,ZodBigIntFormat:()=>L61,ZodBigInt:()=>Mu6,ZodBase64URL:()=>N61,ZodBase64:()=>V61,ZodArray:()=>HW7,ZodAny:()=>AW7,TimePrecision:()=>je8,NEVER:()=>EI6,$output:()=>Ye8,$input:()=>$e8,$brand:()=>Oa8});",
+        "bytes": 3486,
+        "sha256": "3b1863c624865da5391b1c987816d0c30a9a04bef0a323492dc2ac240171aa83"
+      }
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "kind": "bounded-v10-shared-class-token-regression",
+  "sourceEquivalenceEstablished": false,
+  "coordinateConvention": "UTF-16 offsets, half-open; hashes of actual slices use UTF-8 bytes",
+  "sourceReportSha256": "5caae5b52e9edf2182f58f07869ec3402e403283908fce37ad4c513e517c8fc7",
+  "baseline": [
+    {
+      "index": 5506,
+      "range": [
+        4019212,
+        4019375
+      ],
+      "text": "var c64=m((fSA,d64)=>{var T0_=/[|\\\\{}()[\\]^$+*?.-]/g;d64.exports=(q)=>{if(typeof q!==\"string\")throw TypeError(\"Expected a string\");return q.replace(T0_,\"\\\\$&\")}});",
+      "bytes": 163,
+      "sha256": "fb43c637c5a4673723deca7bd5e4df31b9c160dd7e39eb697568a63510bb2f0a",
+      "statementAstSha256": "f6e0b64794b55b9736bf7c4906e6e0b043ae370c37b4b6b5a5c265f7ee5c1c5c"
+    },
+    {
+      "index": 5507,
+      "range": [
+        4019375,
+        4022861
+      ],
+      "text": "var r64=m((ZSA,i64)=>{var v0_=c64(),k0_=typeof process===\"object\"&&process&&typeof process.cwd===\"function\"?process.cwd():\".\",n64=[].concat(U6(\"module\").builtinModules,\"bootstrap_node\",\"node\").map((q)=>new RegExp(`(?:\\\\((?:node:)?${q}(?:\\\\.js)?:\\\\d+:\\\\d+\\\\)$|^\\\\s*at (?:node:)?${q}(?:\\\\.js)?:\\\\d+:\\\\d+$)`));n64.push(/\\((?:node:)?internal\\/[^:]+:\\d+:\\d+\\)$/,/\\s*at (?:node:)?internal\\/[^:]+:\\d+:\\d+$/,/\\/\\.node-spawn-wrap-\\w+-\\w+\\/node:\\d+:\\d+\\)?$/);class BE1{constructor(q){if(q={ignoredPackages:[],...q},\"internals\"in q===!1)q.internals=BE1.nodeInternals();if(\"cwd\"in q===!1)q.cwd=k0_;this._cwd=q.cwd.replace(/\\\\/g,\"/\"),this._internals=[].concat(q.internals,V0_(q.ignoredPackages)),this._wrapCallSite=q.wrapCallSite||!1}static nodeInternals(){return[...n64]}clean(q,K=0){if(K=\" \".repeat(K),!Array.isArray(q))q=q.split(`\n`);if(!/^\\s*at /.test(q[0])&&/^\\s*at /.test(q[1]))q=q.slice(1);let _=!1,z=null,Y=[];return q.forEach(($)=>{if($=$.replace(/\\\\/g,\"/\"),this._internals.some((O)=>O.test($)))return;let A=/^\\s*at /.test($);if(_)$=$.trimEnd().replace(/^(\\s+)at /,\"$1\");else if($=$.trim(),A)$=$.slice(3);if($=$.replace(`${this._cwd}/`,\"\"),$)if(A){if(z)Y.push(z),z=null;Y.push($)}else _=!0,z=$}),Y.map(($)=>`${K}${$}\n`).join(\"\")}captureString(q,K=this.captureString){if(typeof q===\"function\")K=q,q=1/0;let{stackTraceLimit:_}=Error;if(q)Error.stackTraceLimit=q;let z={};Error.captureStackTrace(z,K);let{stack:Y}=z;return Error.stackTraceLimit=_,this.clean(Y)}capture(q,K=this.capture){if(typeof q===\"function\")K=q,q=1/0;let{prepareStackTrace:_,stackTraceLimit:z}=Error;if(Error.prepareStackTrace=(A,O)=>{if(this._wrapCallSite)return O.map(this._wrapCallSite);return O},q)Error.stackTraceLimit=q;let Y={};Error.captureStackTrace(Y,K);let{stack:$}=Y;return Object.assign(Error,{prepareStackTrace:_,stackTraceLimit:z}),$}at(q=this.at){let[K]=this.capture(1,q);if(!K)return{};let _={line:K.getLineNumber(),column:K.getColumnNumber()};if(l64(_,K.getFileName(),this._cwd),K.isConstructor())Object.defineProperty(_,\"constructor\",{value:!0,configurable:!0});if(K.isEval())_.evalOrigin=K.getEvalOrigin();if(K.isNative())_.native=!0;let z;try{z=K.getTypeName()}catch(A){}if(z&&z!==\"Object\"&&z!==\"[object Object]\")_.type=z;let Y=K.getFunctionName();if(Y)_.function=Y;let $=K.getMethodName();if($&&Y!==$)_.method=$;return _}parseLine(q){let K=q&&q.match(N0_);if(!K)return null;let _=K[1]===\"new\",z=K[2],Y=K[3],$=K[4],A=Number(K[5]),O=Number(K[6]),w=K[7],j=K[8],H=K[9],J=K[10]===\"native\",M=K[11]===\")\",X,P={};if(j)P.line=Number(j);if(H)P.column=Number(H);if(M&&w){let W=0;for(let D=w.length-1;D>0;D--)if(w.charAt(D)===\")\")W++;else if(w.charAt(D)===\"(\"&&w.charAt(D-1)===\" \"){if(W--,W===-1&&w.charAt(D-1)===\" \"){let f=w.slice(0,D-1);w=w.slice(D+1),z+=` (${f}`;break}}}if(z){let W=z.match(y0_);if(W)z=W[1],X=W[2]}if(l64(P,w,this._cwd),_)Object.defineProperty(P,\"constructor\",{value:!0,configurable:!0});if(Y)P.evalOrigin=Y,P.evalLine=A,P.evalColumn=O,P.evalFile=$&&$.replace(/\\\\/g,\"/\");if(J)P.native=!0;if(z)P.function=z;if(X&&z!==X)P.method=X;return P}}function l64(q,K,_){if(K){if(K=K.replace(/\\\\/g,\"/\"),K.startsWith(`${_}/`))K=K.slice(_.length+1);q.file=K}}function V0_(q){if(q.length===0)return[];let K=q.map((_)=>v0_(_));return new RegExp(`[/\\\\\\\\]node_modules[/\\\\\\\\](?:${K.join(\"|\")})[/\\\\\\\\][^:]+:\\\\d+:\\\\d+`)}var N0_=new RegExp(\"^(?:\\\\s*at )?(?:(new) )?(?:(.*?) \\\\()?(?:eval at ([^ ]+) \\\\((.+?):(\\\\d+):(\\\\d+)\\\\), )?(?:(.+?):(\\\\d+):(\\\\d+)|(native))(\\\\)?)$\"),y0_=/^(.*?) \\[as (.*?)\\]$/;i64.exports=BE1});",
+      "bytes": 3486,
+      "sha256": "95da9e5934be951217f9cba0fdb58a97831b1dd4c25fdd552746a8a1ce106698",
+      "statementAstSha256": "a97f5684741a050719cb6091d6fa20d2cfb5379d090cc771bf2b513fcbedcdc2"
+    }
+  ],
+  "candidate": [
+    {
+      "index": 5528,
+      "range": [
+        4027531,
+        4027710
+      ],
+      "text": "var __audit_unmapped_63=m((xSA,Y84)=>{var T0_=/[|\\\\{}()[\\]^$+*?.-]/g;Y84.exports=(q)=>{if(typeof q!==\"string\")throw TypeError(\"Expected a string\");return q.replace(T0_,\"\\\\$&\")}});",
+      "bytes": 179,
+      "sha256": "7f702cb049102b3a6d114b237cb5d9fe31ad02ee507eeb125cea6a935c00893e",
+      "statementAstSha256": "c5fb787e77f30043cb5c10a4f26fccb9312e18d761fe71d277301879cc9cf8f5"
+    },
+    {
+      "index": 5529,
+      "range": [
+        4027710,
+        4031212
+      ],
+      "text": "var r64=m((ISA,w84)=>{var v0_=__audit_unmapped_63(),k0_=typeof process===\"object\"&&process&&typeof process.cwd===\"function\"?process.cwd():\".\",n64=[].concat(U6(\"module\").builtinModules,\"bootstrap_node\",\"node\").map((q)=>new RegExp(`(?:\\\\((?:node:)?${q}(?:\\\\.js)?:\\\\d+:\\\\d+\\\\)$|^\\\\s*at (?:node:)?${q}(?:\\\\.js)?:\\\\d+:\\\\d+$)`));n64.push(/\\((?:node:)?internal\\/[^:]+:\\d+:\\d+\\)$/,/\\s*at (?:node:)?internal\\/[^:]+:\\d+:\\d+$/,/\\/\\.node-spawn-wrap-\\w+-\\w+\\/node:\\d+:\\d+\\)?$/);class eE1{constructor(q){if(q={ignoredPackages:[],...q},\"internals\"in q===!1)q.internals=eE1.nodeInternals();if(\"cwd\"in q===!1)q.cwd=k0_;this._cwd=q.cwd.replace(/\\\\/g,\"/\"),this._internals=[].concat(q.internals,V0_(q.ignoredPackages)),this._wrapCallSite=q.wrapCallSite||!1}static nodeInternals(){return[...n64]}clean(q,K=0){if(K=\" \".repeat(K),!Array.isArray(q))q=q.split(`\n`);if(!/^\\s*at /.test(q[0])&&/^\\s*at /.test(q[1]))q=q.slice(1);let _=!1,z=null,Y=[];return q.forEach(($)=>{if($=$.replace(/\\\\/g,\"/\"),this._internals.some((O)=>O.test($)))return;let A=/^\\s*at /.test($);if(_)$=$.trimEnd().replace(/^(\\s+)at /,\"$1\");else if($=$.trim(),A)$=$.slice(3);if($=$.replace(`${this._cwd}/`,\"\"),$)if(A){if(z)Y.push(z),z=null;Y.push($)}else _=!0,z=$}),Y.map(($)=>`${K}${$}\n`).join(\"\")}captureString(q,K=this.captureString){if(typeof q===\"function\")K=q,q=1/0;let{stackTraceLimit:_}=Error;if(q)Error.stackTraceLimit=q;let z={};Error.captureStackTrace(z,K);let{stack:Y}=z;return Error.stackTraceLimit=_,this.clean(Y)}capture(q,K=this.capture){if(typeof q===\"function\")K=q,q=1/0;let{prepareStackTrace:_,stackTraceLimit:z}=Error;if(Error.prepareStackTrace=(A,O)=>{if(this._wrapCallSite)return O.map(this._wrapCallSite);return O},q)Error.stackTraceLimit=q;let Y={};Error.captureStackTrace(Y,K);let{stack:$}=Y;return Object.assign(Error,{prepareStackTrace:_,stackTraceLimit:z}),$}at(q=this.at){let[K]=this.capture(1,q);if(!K)return{};let _={line:K.getLineNumber(),column:K.getColumnNumber()};if(l64(_,K.getFileName(),this._cwd),K.isConstructor())Object.defineProperty(_,\"constructor\",{value:!0,configurable:!0});if(K.isEval())_.evalOrigin=K.getEvalOrigin();if(K.isNative())_.native=!0;let z;try{z=K.getTypeName()}catch(A){}if(z&&z!==\"Object\"&&z!==\"[object Object]\")_.type=z;let Y=K.getFunctionName();if(Y)_.function=Y;let $=K.getMethodName();if($&&Y!==$)_.method=$;return _}parseLine(q){let K=q&&q.match(N0_);if(!K)return null;let _=K[1]===\"new\",z=K[2],Y=K[3],$=K[4],A=Number(K[5]),O=Number(K[6]),w=K[7],j=K[8],H=K[9],J=K[10]===\"native\",M=K[11]===\")\",X,P={};if(j)P.line=Number(j);if(H)P.column=Number(H);if(M&&w){let W=0;for(let D=w.length-1;D>0;D--)if(w.charAt(D)===\")\")W++;else if(w.charAt(D)===\"(\"&&w.charAt(D-1)===\" \"){if(W--,W===-1&&w.charAt(D-1)===\" \"){let f=w.slice(0,D-1);w=w.slice(D+1),z+=` (${f}`;break}}}if(z){let W=z.match(y0_);if(W)z=W[1],X=W[2]}if(l64(P,w,this._cwd),_)Object.defineProperty(P,\"constructor\",{value:!0,configurable:!0});if(Y)P.evalOrigin=Y,P.evalLine=A,P.evalColumn=O,P.evalFile=$&&$.replace(/\\\\/g,\"/\");if(J)P.native=!0;if(z)P.function=z;if(X&&z!==X)P.method=X;return P}}function l64(q,K,_){if(K){if(K=K.replace(/\\\\/g,\"/\"),K.startsWith(`${_}/`))K=K.slice(_.length+1);q.file=K}}function V0_(q){if(q.length===0)return[];let K=q.map((_)=>v0_(_));return new RegExp(`[/\\\\\\\\]node_modules[/\\\\\\\\](?:${K.join(\"|\")})[/\\\\\\\\][^:]+:\\\\d+:\\\\d+`)}var N0_=new RegExp(\"^(?:\\\\s*at )?(?:(new) )?(?:(.*?) \\\\()?(?:eval at ([^ ]+) \\\\((.+?):(\\\\d+):(\\\\d+)\\\\), )?(?:(.+?):(\\\\d+):(\\\\d+)|(native))(\\\\)?)$\"),y0_=/^(.*?) \\[as (.*?)\\]$/;w84.exports=eE1});",
+      "bytes": 3502,
+      "sha256": "7f0c0e7bdbe294ff3009d1736aa6322fdad48a5e6ff591f98519b27add9902bb",
+      "statementAstSha256": "f50ee3cada809fd345a552441bd30008d1034569764b4597d227a5a2e858d62e"
+    }
+  ]
+}

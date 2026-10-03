@@ -1,0 +1,234 @@
+{
+  "kind": "bounded-cloud-v11-complete-class-discovery-fixtures",
+  "sourceEquivalenceEstablished": false,
+  "coordinateConvention": "Ranges use UTF-16 offsets and exact JavaScript String.slice; candidate slices are in the named output, never candidate source-map coordinates.",
+  "inputs": {
+    "baseline": {
+      "path": ".recovery-tmp/ledger-rereview/2.1.88-cli.js",
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "candidate": {
+      "path": ".recovery-tmp/source-build/native-cloud-v11/cli.named.js",
+      "bytes": 13052006,
+      "sha256": "9d74b02ee4a2b9f30c1558df6bfe0f79a1bffeb3264f97fb9837f81ec17ccafa"
+    }
+  },
+  "cases": [
+    {
+      "name": "Fuse KeyStore through anchored Fuse class",
+      "ids": [
+        83,
+        84
+      ],
+      "seedIndex": 1,
+      "anchorName": "Ud",
+      "expectedDerivedNames": [
+        "blK"
+      ],
+      "sourceAnchors": [
+        {
+          "from": "cd",
+          "to": "Ud",
+          "origin": "node_modules/fuse.js/dist/fuse.mjs:1503:6",
+          "basis": "unique-source-reference-positions",
+          "referenceEvidence": [
+            "node_modules/fuse.js/dist/fuse.mjs:1764:0",
+            "node_modules/fuse.js/dist/fuse.mjs:1765:0",
+            "node_modules/fuse.js/dist/fuse.mjs:1766:0",
+            "node_modules/fuse.js/dist/fuse.mjs:1767:0",
+            "node_modules/fuse.js/dist/fuse.mjs:1770:2",
+            "src/utils/suggestions/commandSuggestions.ts:52:19",
+            "src/hooks/unifiedSuggestions.ts:173:21"
+          ],
+          "identifierRanges": [
+            [
+              11951328,
+              11951330
+            ]
+          ]
+        }
+      ],
+      "baseline": [
+        {
+          "residualPairIndex": 83,
+          "statementIndex": 16625,
+          "range": [
+            11939885,
+            11940169
+          ],
+          "text": "class blK{constructor(q){this._keys=[],this._keyMap={};let K=0;q.forEach((_)=>{let z=xlK(_);this._keys.push(z),this._keyMap[z.id]=z,K+=z.weight}),this._keys.forEach((_)=>{_.weight/=K})}get(q){return this._keyMap[q]}keys(){return this._keys}toJSON(){return JSON.stringify(this._keys)}}",
+          "bytes": 284,
+          "sha256": "01a82926236392b3e1d68de26861e96d64fa0783be31590921da8f2d0e8ce105"
+        },
+        {
+          "residualPairIndex": 84,
+          "statementIndex": 16650,
+          "range": [
+            11949068,
+            11951585
+          ],
+          "text": "class Ud{constructor(q,K={},_){this.options={...H9,...K},this.options.useExtendedSearch,this._keyStore=new blK(this.options.keys),this.setCollection(q,_)}setCollection(q,K){if(this._docs=q,K&&!(K instanceof Bd8))throw Error(ZBY);this._myIndex=K||IlK(this.options.keys,this._docs,{getFn:this.options.getFn,fieldNormWeight:this.options.fieldNormWeight})}add(q){if(!ER(q))return;this._docs.push(q),this._myIndex.add(q)}remove(q=()=>!1){let K=[];for(let _=0,z=this._docs.length;_<z;_+=1){let Y=this._docs[_];if(q(Y,_))this.removeAt(_),_-=1,z-=1,K.push(Y)}return K}removeAt(q){this._docs.splice(q,1),this._myIndex.removeAt(q)}getIndex(){return this._myIndex}search(q,{limit:K=-1}={}){let{includeMatches:_,includeScore:z,shouldSort:Y,sortFn:$,ignoreFieldNorm:A}=this.options,O=Fd(q)?Fd(this._docs[0])?this._searchStringList(q):this._searchObjectList(q):this._searchLogical(q);if(UBY(O,{ignoreFieldNorm:A}),Y)O.sort($);if(hlK(K)&&K>-1)O=O.slice(0,K);return cBY(O,this._docs,{includeMatches:_,includeScore:z})}_searchStringList(q){let K=JY7(q,this.options),{records:_}=this._myIndex,z=[];return _.forEach(({v:Y,i:$,n:A})=>{if(!ER(Y))return;let{isMatch:O,score:w,indices:j}=K.searchIn(Y);if(O)z.push({item:Y,idx:$,matches:[{score:w,value:Y,norm:A,indices:j}]})}),z}_searchLogical(q){let K=QlK(q,this.options),_=(A,O,w)=>{if(!A.children){let{keyId:H,searcher:J}=A,M=this._findMatches({key:this._keyStore.get(H),value:this._myIndex.getValueForItemAtKeyId(O,H),searcher:J});if(M&&M.length)return[{idx:w,item:O,matches:M}];return[]}let j=[];for(let H=0,J=A.children.length;H<J;H+=1){let M=A.children[H],X=_(M,O,w);if(X.length)j.push(...X);else if(A.operator===pd8.AND)return[]}return j},z=this._myIndex.records,Y={},$=[];return z.forEach(({$:A,i:O})=>{if(ER(A)){let w=_(K,A,O);if(w.length){if(!Y[O])Y[O]={idx:O,item:A,matches:[]},$.push(Y[O]);w.forEach(({matches:j})=>{Y[O].matches.push(...j)})}}}),$}_searchObjectList(q){let K=JY7(q,this.options),{keys:_,records:z}=this._myIndex,Y=[];return z.forEach(({$,i:A})=>{if(!ER($))return;let O=[];if(_.forEach((w,j)=>{O.push(...this._findMatches({key:w,value:$[j],searcher:K}))}),O.length)Y.push({idx:A,item:$,matches:O})}),Y}_findMatches({key:q,value:K,searcher:_}){if(!ER(K))return[];let z=[];if(ps(K))K.forEach(({v:Y,i:$,n:A})=>{if(!ER(Y))return;let{isMatch:O,score:w,indices:j}=_.searchIn(Y);if(O)z.push({score:w,key:q,value:Y,idx:$,norm:A,indices:j})});else{let{v:Y,n:$}=K,{isMatch:A,score:O,indices:w}=_.searchIn(Y);if(A)z.push({score:O,key:q,value:Y,norm:$,indices:w})}return z}}",
+          "bytes": 2517,
+          "sha256": "79cc58674e046f75a3ea4d73b42283138303753b9ecf6f4d315b921ec96949e2"
+        }
+      ],
+      "candidate": [
+        {
+          "residualPairIndex": 83,
+          "statementIndex": 16657,
+          "range": [
+            11944540,
+            11944840
+          ],
+          "text": "class __audit_unmapped_58{constructor(q){this._keys=[],this._keyMap={};let K=0;q.forEach((_)=>{let z=xlK(_);this._keys.push(z),this._keyMap[z.id]=z,K+=z.weight}),this._keys.forEach((_)=>{_.weight/=K})}get(q){return this._keyMap[q]}keys(){return this._keys}toJSON(){return JSON.stringify(this._keys)}}",
+          "bytes": 300,
+          "sha256": "379763df81f6d7f8e008e4b86ea21cfcdac18f931f94baf51e7b1a31305b6d1e"
+        },
+        {
+          "residualPairIndex": 84,
+          "statementIndex": 16682,
+          "range": [
+            11953739,
+            11956272
+          ],
+          "text": "class Ud{constructor(q,K={},_){this.options={...H9,...K},this.options.useExtendedSearch,this._keyStore=new __audit_unmapped_58(this.options.keys),this.setCollection(q,_)}setCollection(q,K){if(this._docs=q,K&&!(K instanceof Bd8))throw Error(ZBY);this._myIndex=K||IlK(this.options.keys,this._docs,{getFn:this.options.getFn,fieldNormWeight:this.options.fieldNormWeight})}add(q){if(!ER(q))return;this._docs.push(q),this._myIndex.add(q)}remove(q=()=>!1){let K=[];for(let _=0,z=this._docs.length;_<z;_+=1){let Y=this._docs[_];if(q(Y,_))this.removeAt(_),_-=1,z-=1,K.push(Y)}return K}removeAt(q){this._docs.splice(q,1),this._myIndex.removeAt(q)}getIndex(){return this._myIndex}search(q,{limit:K=-1}={}){let{includeMatches:_,includeScore:z,shouldSort:Y,sortFn:$,ignoreFieldNorm:A}=this.options,O=Fd(q)?Fd(this._docs[0])?this._searchStringList(q):this._searchObjectList(q):this._searchLogical(q);if(UBY(O,{ignoreFieldNorm:A}),Y)O.sort($);if(hlK(K)&&K>-1)O=O.slice(0,K);return cBY(O,this._docs,{includeMatches:_,includeScore:z})}_searchStringList(q){let K=JY7(q,this.options),{records:_}=this._myIndex,z=[];return _.forEach(({v:Y,i:$,n:A})=>{if(!ER(Y))return;let{isMatch:O,score:w,indices:j}=K.searchIn(Y);if(O)z.push({item:Y,idx:$,matches:[{score:w,value:Y,norm:A,indices:j}]})}),z}_searchLogical(q){let K=QlK(q,this.options),_=(A,O,w)=>{if(!A.children){let{keyId:H,searcher:J}=A,M=this._findMatches({key:this._keyStore.get(H),value:this._myIndex.getValueForItemAtKeyId(O,H),searcher:J});if(M&&M.length)return[{idx:w,item:O,matches:M}];return[]}let j=[];for(let H=0,J=A.children.length;H<J;H+=1){let M=A.children[H],X=_(M,O,w);if(X.length)j.push(...X);else if(A.operator===pd8.AND)return[]}return j},z=this._myIndex.records,Y={},$=[];return z.forEach(({$:A,i:O})=>{if(ER(A)){let w=_(K,A,O);if(w.length){if(!Y[O])Y[O]={idx:O,item:A,matches:[]},$.push(Y[O]);w.forEach(({matches:j})=>{Y[O].matches.push(...j)})}}}),$}_searchObjectList(q){let K=JY7(q,this.options),{keys:_,records:z}=this._myIndex,Y=[];return z.forEach(({$,i:A})=>{if(!ER($))return;let O=[];if(_.forEach((w,j)=>{O.push(...this._findMatches({key:w,value:$[j],searcher:K}))}),O.length)Y.push({idx:A,item:$,matches:O})}),Y}_findMatches({key:q,value:K,searcher:_}){if(!ER(K))return[];let z=[];if(ps(K))K.forEach(({v:Y,i:$,n:A})=>{if(!ER(Y))return;let{isMatch:O,score:w,indices:j}=_.searchIn(Y);if(O)z.push({score:w,key:q,value:Y,idx:$,norm:A,indices:j})});else{let{v:Y,n:$}=K,{isMatch:A,score:O,indices:w}=_.searchIn(Y);if(A)z.push({score:O,key:q,value:Y,norm:$,indices:w})}return z}}",
+          "bytes": 2533,
+          "sha256": "0f3808584fa50b90c493b3da37d3f34ce3a193a375c55db85b34522474a22cf4"
+        }
+      ],
+      "sourceAnchorOriginalClassRange": [
+        11951322,
+        11953839
+      ]
+    },
+    {
+      "name": "ProtocolUtils self references through anchored ResponseHandler class",
+      "ids": [
+        30,
+        31
+      ],
+      "seedIndex": 1,
+      "anchorName": "MJ",
+      "expectedDerivedNames": [
+        "wP8"
+      ],
+      "sourceAnchors": [
+        {
+          "from": "WJ",
+          "to": "MJ",
+          "origin": "node_modules/@azure/msal-common/dist/response/ResponseHandler.mjs:27:6",
+          "basis": "unique-source-reference-positions",
+          "referenceEvidence": [
+            "node_modules/@azure/msal-common/dist/client/AuthorizationCodeClient.mjs:54:36",
+            "node_modules/@azure/msal-common/dist/client/RefreshTokenClient.mjs:46:36",
+            "node_modules/@azure/msal-common/dist/client/SilentFlowClient.mjs:106:15",
+            "node_modules/@azure/msal-node/dist/client/UsernamePasswordClient.mjs:27:36",
+            "node_modules/@azure/msal-node/dist/client/DeviceCodeClient.mjs:26:36",
+            "node_modules/@azure/msal-node/dist/client/ClientCredentialClient.mjs:80:18",
+            "node_modules/@azure/msal-node/dist/client/ClientCredentialClient.mjs:158:36",
+            "node_modules/@azure/msal-node/dist/client/OnBehalfOfClient.mjs:79:15",
+            "node_modules/@azure/msal-node/dist/client/OnBehalfOfClient.mjs:165:36",
+            "node_modules/@azure/msal-node/dist/client/ManagedIdentitySources/BaseManagedIdentitySource.mjs:178:36"
+          ],
+          "identifierRanges": [
+            [
+              2738136,
+              2738138
+            ]
+          ]
+        },
+        {
+          "from": "WJ",
+          "to": "MJ",
+          "origin": "node_modules/@azure/msal-common/dist/response/ResponseHandler.mjs:27:6",
+          "basis": "unique-source-reference-positions",
+          "referenceEvidence": [
+            "node_modules/@azure/msal-common/dist/response/ResponseHandler.mjs:133:33",
+            "node_modules/@azure/msal-common/dist/response/ResponseHandler.mjs:146:15"
+          ],
+          "identifierRanges": [
+            [
+              2738136,
+              2738138
+            ]
+          ]
+        }
+      ],
+      "baseline": [
+        {
+          "residualPairIndex": 30,
+          "statementIndex": 3897,
+          "range": [
+            2734386,
+            2734945
+          ],
+          "text": "class wP8{static setRequestState(q,K,_){let z=wP8.generateLibraryState(q,_);return K?`${z}${m1.RESOURCE_DELIM}${K}`:z}static generateLibraryState(q,K){if(!q)throw z7(G86);let _={id:q.createNewGuid()};if(K)_.meta=K;let z=JSON.stringify(_);return q.base64Encode(z)}static parseRequestState(q,K){if(!q)throw z7(G86);if(!K)throw z7(UI);try{let _=K.split(m1.RESOURCE_DELIM),z=_[0],Y=_.length>1?_.slice(1).join(m1.RESOURCE_DELIM):m1.EMPTY_STRING,$=q.base64Decode(z),A=JSON.parse($);return{userRequestState:Y||m1.EMPTY_STRING,libraryState:A}}catch(_){throw z7(UI)}}}",
+          "bytes": 559,
+          "sha256": "95183877a843ab0fc4b5bb66f1acebc13236b32f5333404f20878191709c6fab"
+        },
+        {
+          "residualPairIndex": 31,
+          "statementIndex": 3904,
+          "range": [
+            2736344,
+            2741751
+          ],
+          "text": "class MJ{constructor(q,K,_,z,Y,$,A){this.clientId=q,this.cacheStorage=K,this.cryptoObj=_,this.logger=z,this.serializableCache=Y,this.persistencePlugin=$,this.performanceClient=A}validateTokenResponse(q,K){if(q.error||q.error_description||q.suberror){let _=`Error(s): ${q.error_codes||m1.NOT_AVAILABLE} - Timestamp: ${q.timestamp||m1.NOT_AVAILABLE} - Description: ${q.error_description||m1.NOT_AVAILABLE} - Correlation ID: ${q.correlation_id||m1.NOT_AVAILABLE} - Trace ID: ${q.trace_id||m1.NOT_AVAILABLE}`,z=q.error_codes?.length?q.error_codes[0]:void 0,Y=new Jv(q.error,_,q.suberror,z,q.status);if(K&&q.status&&q.status>=_9.SERVER_ERROR_RANGE_START&&q.status<=_9.SERVER_ERROR_RANGE_END){this.logger.warning(`executeTokenRequest:validateTokenResponse - AAD is currently unavailable and the access token is unable to be refreshed.\n${Y}`);return}else if(K&&q.status&&q.status>=_9.CLIENT_ERROR_RANGE_START&&q.status<=_9.CLIENT_ERROR_RANGE_END){this.logger.warning(`executeTokenRequest:validateTokenResponse - AAD is currently available but is unable to refresh the access token.\n${Y}`);return}if(AP8(q.error,q.error_description,q.suberror))throw new iE(q.error,q.error_description,q.suberror,q.timestamp||m1.EMPTY_STRING,q.trace_id||m1.EMPTY_STRING,q.correlation_id||m1.EMPTY_STRING,q.claims||m1.EMPTY_STRING,z);throw Y}}async handleServerTokenResponse(q,K,_,z,Y,$,A,O,w){this.performanceClient?.addQueueMeasurement(N1.HandleServerTokenResponse,q.correlation_id);let j;if(q.id_token){if(j=En(q.id_token||m1.EMPTY_STRING,this.cryptoObj.base64Decode),Y&&Y.nonce){if(j.nonce!==Y.nonce)throw z7(AY6)}if(z.maxAge||z.maxAge===0){let X=j.auth_time;if(!X)throw z7(Gn);YQ6(X,z.maxAge)}}this.homeAccountIdentifier=jX.generateHomeAccountId(q.client_info||m1.EMPTY_STRING,K.authorityType,this.logger,this.cryptoObj,j);let H;if(!!Y&&!!Y.state)H=wP8.parseRequestState(this.cryptoObj,Y.state);q.key_id=q.key_id||z.sshKid||void 0;let J=this.generateCacheRecord(q,K,_,z,j,$,Y),M;try{if(this.persistencePlugin&&this.serializableCache)this.logger.verbose(\"Persistence enabled, calling beforeCacheAccess\"),M=new DS(this.serializableCache,!0),await this.persistencePlugin.beforeCacheAccess(M);if(A&&!O&&J.account){let X=this.cacheStorage.generateAccountKey(jX.getAccountInfo(J.account));if(!this.cacheStorage.getAccount(X,z.correlationId))return this.logger.warning(\"Account used to refresh tokens not in persistence, refreshed tokens will not be stored in the cache\"),await MJ.generateAuthenticationResult(this.cryptoObj,K,J,!1,z,j,H,void 0,w)}await this.cacheStorage.saveCacheRecord(J,z.correlationId,hD1(j||{}),z.storeInCache)}finally{if(this.persistencePlugin&&this.serializableCache&&M)this.logger.verbose(\"Persistence enabled, calling afterCacheAccess\"),await this.persistencePlugin.afterCacheAccess(M)}return MJ.generateAuthenticationResult(this.cryptoObj,K,J,!1,z,j,H,q,w)}generateCacheRecord(q,K,_,z,Y,$,A){let O=K.getPreferredCache();if(!O)throw z7(vn);let w=IX8(Y),j,H;if(q.id_token&&!!Y)j=uf1(this.homeAccountIdentifier,O,q.id_token,this.clientId,w||\"\"),H=Q0q(this.cacheStorage,K,this.homeAccountIdentifier,this.cryptoObj.base64Decode,z.correlationId,Y,q.client_info,O,w,A,void 0,this.logger);let J=null;if(q.access_token){let P=q.scope?JJ.fromString(q.scope):new JJ(z.scopes||[]),W=(typeof q.expires_in===\"string\"?parseInt(q.expires_in,10):q.expires_in)||0,D=(typeof q.ext_expires_in===\"string\"?parseInt(q.ext_expires_in,10):q.ext_expires_in)||0,f=(typeof q.refresh_in===\"string\"?parseInt(q.refresh_in,10):q.refresh_in)||void 0,G=_+W,Z=G+D,T=f&&f>0?_+f:void 0;J=mf1(this.homeAccountIdentifier,O,q.access_token,this.clientId,w||K.tenant||\"\",P.printScopes(),G,Z,this.cryptoObj.base64Decode,T,q.token_type,$,q.key_id,z.claims,z.requestedClaimsHash)}let M=null;if(q.refresh_token){let P;if(q.refresh_token_expires_in){let W=typeof q.refresh_token_expires_in===\"string\"?parseInt(q.refresh_token_expires_in,10):q.refresh_token_expires_in;P=_+W}M=pf1(this.homeAccountIdentifier,O,q.refresh_token,this.clientId,q.foci,$,P)}let X=null;if(q.foci)X={clientId:this.clientId,environment:O,familyId:q.foci};return{account:H,idToken:j,accessToken:J,refreshToken:M,appMetadata:X}}static async generateAuthenticationResult(q,K,_,z,Y,$,A,O,w){let j=m1.EMPTY_STRING,H=[],J=null,M,X,P=m1.EMPTY_STRING;if(_.accessToken){if(_.accessToken.tokenType===Gz.POP&&!Y.popKid){let G=new mY6(q),{secret:Z,keyId:T}=_.accessToken;if(!T)throw z7(DY6);j=await G.signPopToken(Z,T,Y)}else j=_.accessToken.secret;if(H=JJ.fromString(_.accessToken.target).asArray(),J=kQ6(_.accessToken.expiresOn),M=kQ6(_.accessToken.extendedExpiresOn),_.accessToken.refreshOn)X=kQ6(_.accessToken.refreshOn)}if(_.appMetadata)P=_.appMetadata.familyId===P86?P86:\"\";let W=$?.oid||$?.sub||\"\",D=$?.tid||\"\";if(O?.spa_accountid&&!!_.account)_.account.nativeAccountId=O?.spa_accountid;let f=_.account?bX8(jX.getAccountInfo(_.account),void 0,$,_.idToken?.secret):null;return{authority:K.canonicalAuthority,uniqueId:W,tenantId:D,scopes:H,account:f,idToken:_?.idToken?.secret||\"\",idTokenClaims:$||{},accessToken:j,fromCache:z,expiresOn:J,extExpiresOn:M,refreshOn:X,correlationId:Y.correlationId,requestId:w||m1.EMPTY_STRING,familyId:P,tokenType:_.accessToken?.tokenType||m1.EMPTY_STRING,state:A?A.userRequestState:m1.EMPTY_STRING,cloudGraphHostName:_.account?.cloudGraphHostName||m1.EMPTY_STRING,msGraphHost:_.account?.msGraphHost||m1.EMPTY_STRING,code:O?.spa_code,fromNativeBroker:!1}}}",
+          "bytes": 5407,
+          "sha256": "c37237c6c10d6db51de7495abe2db6263a12bdb0b6f2e981d6386cbb56f95b6d"
+        }
+      ],
+      "candidate": [
+        {
+          "residualPairIndex": 30,
+          "statementIndex": 3919,
+          "range": [
+            2737453,
+            2738044
+          ],
+          "text": "class __audit_unmapped_27{static setRequestState(q,K,_){let z=__audit_unmapped_27.generateLibraryState(q,_);return K?`${z}${m1.RESOURCE_DELIM}${K}`:z}static generateLibraryState(q,K){if(!q)throw z7(G86);let _={id:q.createNewGuid()};if(K)_.meta=K;let z=JSON.stringify(_);return q.base64Encode(z)}static parseRequestState(q,K){if(!q)throw z7(G86);if(!K)throw z7(UI);try{let _=K.split(m1.RESOURCE_DELIM),z=_[0],Y=_.length>1?_.slice(1).join(m1.RESOURCE_DELIM):m1.EMPTY_STRING,$=q.base64Decode(z),A=JSON.parse($);return{userRequestState:Y||m1.EMPTY_STRING,libraryState:A}}catch(_){throw z7(UI)}}}",
+          "bytes": 591,
+          "sha256": "67946e63b2536972185765be2be87ade030df8bbe164ddba74e55105f279c6b8"
+        },
+        {
+          "residualPairIndex": 31,
+          "statementIndex": 3926,
+          "range": [
+            2739443,
+            2744866
+          ],
+          "text": "class MJ{constructor(q,K,_,z,Y,$,A){this.clientId=q,this.cacheStorage=K,this.cryptoObj=_,this.logger=z,this.serializableCache=Y,this.persistencePlugin=$,this.performanceClient=A}validateTokenResponse(q,K){if(q.error||q.error_description||q.suberror){let _=`Error(s): ${q.error_codes||m1.NOT_AVAILABLE} - Timestamp: ${q.timestamp||m1.NOT_AVAILABLE} - Description: ${q.error_description||m1.NOT_AVAILABLE} - Correlation ID: ${q.correlation_id||m1.NOT_AVAILABLE} - Trace ID: ${q.trace_id||m1.NOT_AVAILABLE}`,z=q.error_codes?.length?q.error_codes[0]:void 0,Y=new Jv(q.error,_,q.suberror,z,q.status);if(K&&q.status&&q.status>=_9.SERVER_ERROR_RANGE_START&&q.status<=_9.SERVER_ERROR_RANGE_END){this.logger.warning(`executeTokenRequest:validateTokenResponse - AAD is currently unavailable and the access token is unable to be refreshed.\n${Y}`);return}else if(K&&q.status&&q.status>=_9.CLIENT_ERROR_RANGE_START&&q.status<=_9.CLIENT_ERROR_RANGE_END){this.logger.warning(`executeTokenRequest:validateTokenResponse - AAD is currently available but is unable to refresh the access token.\n${Y}`);return}if(AP8(q.error,q.error_description,q.suberror))throw new iE(q.error,q.error_description,q.suberror,q.timestamp||m1.EMPTY_STRING,q.trace_id||m1.EMPTY_STRING,q.correlation_id||m1.EMPTY_STRING,q.claims||m1.EMPTY_STRING,z);throw Y}}async handleServerTokenResponse(q,K,_,z,Y,$,A,O,w){this.performanceClient?.addQueueMeasurement(N1.HandleServerTokenResponse,q.correlation_id);let j;if(q.id_token){if(j=En(q.id_token||m1.EMPTY_STRING,this.cryptoObj.base64Decode),Y&&Y.nonce){if(j.nonce!==Y.nonce)throw z7(AY6)}if(z.maxAge||z.maxAge===0){let X=j.auth_time;if(!X)throw z7(Gn);YQ6(X,z.maxAge)}}this.homeAccountIdentifier=jX.generateHomeAccountId(q.client_info||m1.EMPTY_STRING,K.authorityType,this.logger,this.cryptoObj,j);let H;if(!!Y&&!!Y.state)H=__audit_unmapped_27.parseRequestState(this.cryptoObj,Y.state);q.key_id=q.key_id||z.sshKid||void 0;let J=this.generateCacheRecord(q,K,_,z,j,$,Y),M;try{if(this.persistencePlugin&&this.serializableCache)this.logger.verbose(\"Persistence enabled, calling beforeCacheAccess\"),M=new DS(this.serializableCache,!0),await this.persistencePlugin.beforeCacheAccess(M);if(A&&!O&&J.account){let X=this.cacheStorage.generateAccountKey(jX.getAccountInfo(J.account));if(!this.cacheStorage.getAccount(X,z.correlationId))return this.logger.warning(\"Account used to refresh tokens not in persistence, refreshed tokens will not be stored in the cache\"),await MJ.generateAuthenticationResult(this.cryptoObj,K,J,!1,z,j,H,void 0,w)}await this.cacheStorage.saveCacheRecord(J,z.correlationId,hD1(j||{}),z.storeInCache)}finally{if(this.persistencePlugin&&this.serializableCache&&M)this.logger.verbose(\"Persistence enabled, calling afterCacheAccess\"),await this.persistencePlugin.afterCacheAccess(M)}return MJ.generateAuthenticationResult(this.cryptoObj,K,J,!1,z,j,H,q,w)}generateCacheRecord(q,K,_,z,Y,$,A){let O=K.getPreferredCache();if(!O)throw z7(vn);let w=IX8(Y),j,H;if(q.id_token&&!!Y)j=uf1(this.homeAccountIdentifier,O,q.id_token,this.clientId,w||\"\"),H=Q0q(this.cacheStorage,K,this.homeAccountIdentifier,this.cryptoObj.base64Decode,z.correlationId,Y,q.client_info,O,w,A,void 0,this.logger);let J=null;if(q.access_token){let P=q.scope?JJ.fromString(q.scope):new JJ(z.scopes||[]),W=(typeof q.expires_in===\"string\"?parseInt(q.expires_in,10):q.expires_in)||0,D=(typeof q.ext_expires_in===\"string\"?parseInt(q.ext_expires_in,10):q.ext_expires_in)||0,f=(typeof q.refresh_in===\"string\"?parseInt(q.refresh_in,10):q.refresh_in)||void 0,G=_+W,Z=G+D,T=f&&f>0?_+f:void 0;J=mf1(this.homeAccountIdentifier,O,q.access_token,this.clientId,w||K.tenant||\"\",P.printScopes(),G,Z,this.cryptoObj.base64Decode,T,q.token_type,$,q.key_id,z.claims,z.requestedClaimsHash)}let M=null;if(q.refresh_token){let P;if(q.refresh_token_expires_in){let W=typeof q.refresh_token_expires_in===\"string\"?parseInt(q.refresh_token_expires_in,10):q.refresh_token_expires_in;P=_+W}M=pf1(this.homeAccountIdentifier,O,q.refresh_token,this.clientId,q.foci,$,P)}let X=null;if(q.foci)X={clientId:this.clientId,environment:O,familyId:q.foci};return{account:H,idToken:j,accessToken:J,refreshToken:M,appMetadata:X}}static async generateAuthenticationResult(q,K,_,z,Y,$,A,O,w){let j=m1.EMPTY_STRING,H=[],J=null,M,X,P=m1.EMPTY_STRING;if(_.accessToken){if(_.accessToken.tokenType===Gz.POP&&!Y.popKid){let G=new mY6(q),{secret:Z,keyId:T}=_.accessToken;if(!T)throw z7(DY6);j=await G.signPopToken(Z,T,Y)}else j=_.accessToken.secret;if(H=JJ.fromString(_.accessToken.target).asArray(),J=kQ6(_.accessToken.expiresOn),M=kQ6(_.accessToken.extendedExpiresOn),_.accessToken.refreshOn)X=kQ6(_.accessToken.refreshOn)}if(_.appMetadata)P=_.appMetadata.familyId===P86?P86:\"\";let W=$?.oid||$?.sub||\"\",D=$?.tid||\"\";if(O?.spa_accountid&&!!_.account)_.account.nativeAccountId=O?.spa_accountid;let f=_.account?bX8(jX.getAccountInfo(_.account),void 0,$,_.idToken?.secret):null;return{authority:K.canonicalAuthority,uniqueId:W,tenantId:D,scopes:H,account:f,idToken:_?.idToken?.secret||\"\",idTokenClaims:$||{},accessToken:j,fromCache:z,expiresOn:J,extExpiresOn:M,refreshOn:X,correlationId:Y.correlationId,requestId:w||m1.EMPTY_STRING,familyId:P,tokenType:_.accessToken?.tokenType||m1.EMPTY_STRING,state:A?A.userRequestState:m1.EMPTY_STRING,cloudGraphHostName:_.account?.cloudGraphHostName||m1.EMPTY_STRING,msGraphHost:_.account?.msGraphHost||m1.EMPTY_STRING,code:O?.spa_code,fromNativeBroker:!1}}}",
+          "bytes": 5423,
+          "sha256": "8b76ccb3b602d7b23fac3ca667d001994842f273f604a032bea67099d5559515"
+        }
+      ],
+      "sourceAnchorOriginalClassRange": [
+        2738130,
+        2743537
+      ]
+    }
+  ],
+  "sourceAnchorEvidence": {
+    "basis": "Existing source-reference hypotheses from the pinned v11 naming report; no independent source ownership or semantic equivalence claim.",
+    "coordinateConvention": "sourceAnchors.identifierRanges are ORIGINAL candidate UTF-16 offsets. Fixture candidate statement ranges are NAMED-output UTF-16 offsets and are not passed to a source map.",
+    "report": {
+      "path": ".recovery-tmp/source-build/native-cloud-v11/source-ast.json.gz",
+      "bytes": 8560033,
+      "sha256": "60df291345707294307bdf6764c70f5d8573e79b4ef56c48ecc0ff025fea0833"
+    },
+    "originalCandidate": {
+      "path": ".recovery-tmp/source-build/native-cloud-v11/cli.js",
+      "bytes": 13049509,
+      "sha256": "106b7ac3e46d8f7526ad33f674c44b1a15e05104f3e1f99af6b3a186fe4793c2"
+    },
+    "sourceIdentity": {
+      "criterion": "known-prefix-full-relative-path-and-source-content-sha256",
+      "baselineSources": 4756,
+      "rebuiltSources": 4756,
+      "identicalSharedSources": 4756,
+      "baselineMapSha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657",
+      "rebuiltMapSha256": "f9898c09276846b4f92b2382c9e3e2e8ce2d426b805f41970d940b073efbad50"
+    }
+  }
+}
