@@ -84,8 +84,20 @@ function compareTuple(left, right) {
   return left.length - right.length
 }
 
-function scopeIdentity(program) {
+function scopeIdentity(program, directEvalCalleeStarts) {
   const manager = analyzeScopes(program, SCOPE_OPTIONS)
+  const evalVisibleVariables = new Set()
+  for (const scope of manager.scopes) {
+    for (const reference of scope.references) {
+      if (!directEvalCalleeStarts.has(reference.identifier.start)) continue
+      // Unknown direct eval can resolve every binding in its lexical ancestry,
+      // including shadowed bindings (conservatively), but cannot resolve locals
+      // in a sibling function or a child block it is not executing within.
+      for (let visible = reference.from; visible; visible = visible.upper) {
+        for (const variable of visible.variables) evalVisibleVariables.add(variable)
+      }
+    }
+  }
   const scopes = [...manager.scopes].sort((left, right) =>
     compareTuple(scopePosition(left), scopePosition(right)),
   )
@@ -119,6 +131,7 @@ function scopeIdentity(program) {
         identifierAt.set(identifier.start, {
           kind: topLevel ? 'top' : 'local',
           name: variable.name,
+          visibleToDirectEval: evalVisibleVariables.has(variable),
           tag,
         })
       }
@@ -126,6 +139,7 @@ function scopeIdentity(program) {
         identifierAt.set(reference.identifier.start, {
           kind: topLevel ? 'top' : 'local',
           name: variable.name,
+          visibleToDirectEval: evalVisibleVariables.has(variable),
           tag,
         })
       }
@@ -156,27 +170,105 @@ function scopeIdentity(program) {
   return { identifierAt, topDefinitions }
 }
 
-function normalizedTokenParts(tokens, identity, globalBindings, coarse) {
+function syntaxIdentity(program) {
+  const parts = []
+  const runtimeNameStarts = new Set()
+  function preserveExportedPattern(pattern) {
+    if (pattern.type === 'Identifier') runtimeNameStarts.add(pattern.start)
+    else if (pattern.type === 'RestElement') preserveExportedPattern(pattern.argument)
+    else if (pattern.type === 'AssignmentPattern') preserveExportedPattern(pattern.left)
+    else if (pattern.type === 'ArrayPattern') {
+      for (const element of pattern.elements) if (element) preserveExportedPattern(element)
+    } else if (pattern.type === 'ObjectPattern') {
+      for (const property of pattern.properties) {
+        preserveExportedPattern(property.type === 'RestElement' ? property.argument : property.value)
+      }
+    }
+  }
+  let hasDirectEval = false
+  const directEvalCalleeStarts = new Set()
+  const pending = [program]
+  while (pending.length > 0) {
+    const node = pending.pop()
+    parts.push(node.type)
+    if (
+      node.type === 'CallExpression' && !node.optional &&
+      node.callee.type === 'Identifier' && node.callee.name === 'eval'
+    ) {
+      // Even a possibly shadowed eval is conservative evidence against renaming.
+      hasDirectEval = true
+      directEvalCalleeStarts.add(node.callee.start)
+    }
+    if (node.type === 'Property' && !node.computed && node.key.type === 'Identifier') {
+      runtimeNameStarts.add(node.key.start)
+    }
+    if (node.type === 'ImportSpecifier' && node.imported.type === 'Identifier') {
+      runtimeNameStarts.add(node.imported.start)
+    }
+    if (node.type === 'ExportSpecifier' && node.exported.type === 'Identifier') {
+      runtimeNameStarts.add(node.exported.start)
+    }
+    if (node.type === 'ExportNamedDeclaration' && node.declaration) {
+      if (node.declaration.type === 'VariableDeclaration') {
+        for (const declaration of node.declaration.declarations) {
+          preserveExportedPattern(declaration.id)
+        }
+      } else if (node.declaration.id) preserveExportedPattern(node.declaration.id)
+    }
+    // Token identity alone misses AST differences caused by automatic semicolon
+    // insertion. Preserve child roles, array lengths, and node topology too.
+    for (const key of Object.keys(node).sort()) {
+      const value = node[key]
+      if (Array.isArray(value) && key !== 'range') {
+        parts.push(key, value.length)
+        for (let index = value.length - 1; index >= 0; index -= 1) {
+          if (value[index]?.type) pending.push(value[index])
+          else parts.push(index, 'empty')
+        }
+      } else if (value?.type) {
+        parts.push(key)
+        pending.push(value)
+      } else if (typeof value === 'boolean') {
+        parts.push(key, value)
+      }
+    }
+  }
+  return { directEvalCalleeStarts, hasDirectEval, runtimeNameStarts, syntaxHash: framedHash(parts) }
+}
+
+function normalizedTokenParts(
+  tokens, identity, globalBindings, coarse, preserveIdentifierSpelling = false,
+) {
   const parts = []
   let unknownFreeIdentifierCount = 0
   for (const token of tokens) {
     let value = token.raw
     if (token.label === 'name') {
       const identifier = identity.identifierAt.get(token.start)
+      const evalRequiresSpelling = preserveIdentifierSpelling && (
+        identifier?.kind !== 'local' || identifier.visibleToDirectEval
+      )
       if (identifier) {
+        let binding
         if (coarse) {
-          value = '@identifier'
+          binding = '@identifier'
         } else if (identifier.kind === 'free') {
           const global = globalBindings?.get(identifier.name)
           if (global === undefined) {
-            value = `free:${identifier.name}`
+            binding = `free:${identifier.name}`
             unknownFreeIdentifierCount += 1
           } else {
-            value = `global:${global}`
+            binding = `global:${global}`
           }
         } else {
-          value = identifier.tag
+          binding = identifier.tag
         }
+        // Shorthand properties/patterns and unaliased imports/exports can use
+        // one token for both an observable runtime name and a lexical binding.
+        // Preserving spelling must not erase which declaration that token uses.
+        value = evalRequiresSpelling || identity.runtimeNameStarts.has(token.start)
+          ? `name-and-binding:${JSON.stringify([token.raw, binding])}`
+          : binding
       } else {
         // Non-reference identifiers are property, label, import/export, or
         // other runtime names. Their exact spelling is semantically relevant.
@@ -191,7 +283,8 @@ function normalizedTokenParts(tokens, identity, globalBindings, coarse) {
 function analyzeUnitSource(source) {
   const program = parse(source, PARSE_OPTIONS)
   const tokens = tokenRecords(source)
-  const identity = scopeIdentity(program)
+  const syntax = syntaxIdentity(program)
+  const identity = { ...scopeIdentity(program, syntax.directEvalCalleeStarts), ...syntax }
   const coarse = normalizedTokenParts(tokens, identity, null, true)
   return {
     coarseHash: framedHash(coarse.parts),
@@ -370,6 +463,7 @@ export function indexGeneratedBundle(filename) {
     lineStarts,
     source,
     units: partition.units,
+    hasDirectEval: partition.units.some(unit => unit.identity?.hasDirectEval),
     publicUnits: partition.units.map((unit, index) =>
       publicUnit(unit, lineStarts, index),
     ),
@@ -393,6 +487,15 @@ function groupIndicesBy(units, key) {
 }
 
 function buildGlobalBindingMaps(baseline, target) {
+  if (baseline.hasDirectEval || target.hasDirectEval) {
+    return { baselineBindings: new Map(), pairCount: 0, targetBindings: new Map() }
+  }
+  const baselineDeclarations = new Set(
+    baseline.units.flatMap(unit => unit.topDefinitions.map(definition => definition.name)),
+  )
+  const targetDeclarations = new Set(
+    target.units.flatMap(unit => unit.topDefinitions.map(definition => definition.name)),
+  )
   const baselineGroups = groupIndicesBy(baseline.units, 'coarseHash')
   const targetGroups = groupIndicesBy(target.units, 'coarseHash')
   const candidates = []
@@ -455,7 +558,9 @@ function buildGlobalBindingMaps(baseline, target) {
             targetUnit.identity.identifierAt.get(targetToken.start)
           if (
             baselineIdentifier?.kind === 'free' &&
-            targetIdentifier?.kind === 'free'
+            targetIdentifier?.kind === 'free' &&
+            baselineDeclarations.has(baselineIdentifier.name) &&
+            targetDeclarations.has(targetIdentifier.name)
           ) {
             candidates.push({
               baseline: baselineIdentifier.name,
@@ -496,7 +601,7 @@ function buildGlobalBindingMaps(baseline, target) {
   return { baselineBindings, pairCount, targetBindings }
 }
 
-function addStrictHashes(index, globals) {
+function addStrictHashes(index, globals, preserveIdentifierSpelling) {
   for (const unit of index.units) {
     if (!unit.identity || !unit.tokens) {
       unit.strictHash = null
@@ -508,8 +613,9 @@ function addStrictHashes(index, globals) {
       unit.identity,
       globals,
       false,
+      preserveIdentifierSpelling,
     )
-    unit.strictHash = framedHash(normalized.parts)
+    unit.strictHash = framedHash([unit.identity.syntaxHash, ...normalized.parts])
     unit.unknownFreeIdentifierCount =
       normalized.unknownFreeIdentifierCount
   }
@@ -696,8 +802,9 @@ export function accountGeneratedDelta(
   const baseline = indexGeneratedBundle(baselineFilename)
   const target = indexGeneratedBundle(targetFilename)
   const globals = buildGlobalBindingMaps(baseline, target)
-  addStrictHashes(baseline, globals.baselineBindings)
-  addStrictHashes(target, globals.targetBindings)
+  const preserveIdentifierSpelling = baseline.hasDirectEval || target.hasDirectEval
+  addStrictHashes(baseline, globals.baselineBindings, preserveIdentifierSpelling)
+  addStrictHashes(target, globals.targetBindings, preserveIdentifierSpelling)
 
   const pairs = exactStrictPairs(baseline, target)
   const usedBaseline = new Set(pairs.map(pair => pair.baseline))
@@ -741,8 +848,18 @@ export function accountGeneratedDelta(
   return {
     schemaVersion: 1,
     kind: 'experimental-structural-generated-delta-ledger',
+    normalization: {
+      version: 4,
+      criterion: 'scope-normalized-token-and-ast-topology-v4',
+      externalIdentifierSpellingPreserved: true,
+      runtimePropertyAndExportNamesPreserved: true,
+      runtimeNameBindingIdentityPreserved: true,
+      directEvalIdentifierSpellingPreserved: preserveIdentifierSpelling,
+      directEvalPolicy: 'preserve-lexically-visible-bindings-and-all-bundle-top-or-free-names',
+      semanticEquivalenceEstablished: false,
+    },
     claim:
-      'Complete Acorn-token ledger at top-level statement granularity. Exact matches require scope-normalized token identity; changed pairs use a coarse identifier-insensitive locator and unresolved regions remain explicit. Comments and whitespace are outside token coverage.',
+      'Acorn-token accounting at top-level statement granularity. Structural matches require normalized token identity and AST topology and preserve external identifiers and runtime property/export names. Any direct eval preserves bindings in its lexical ancestry and all bundle-top or free names; only unrelated local bindings may still be renamed. No assumptions are made about eval argument values or intrinsic purity. Coarse pairs and unresolved regions are correspondence evidence only. This does not prove universal semantics, order independence, reflection safety, or reproduction from authored source. Parse failures and token accounting remain explicit; comments and nonstructural whitespace are outside coverage.',
     baseline: {
       ...baselineEvidence,
       failureCount: baseline.failures.length,
@@ -758,7 +875,7 @@ export function accountGeneratedDelta(
     globalBindingEvidence: {
       pairCount: globals.pairCount,
       source:
-        'reciprocal one-to-one declaration slots plus free-reference positions from coarse structural pairs',
+        'reciprocal one-to-one declaration slots plus cross-unit reference positions restricted to declared bundle bindings; disabled when direct eval is detected',
     },
     coverage,
     pairCount: pairs.length,

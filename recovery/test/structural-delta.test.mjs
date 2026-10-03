@@ -55,7 +55,13 @@ test('preserves runtime property keys and shorthand values', () => {
     'var alpha=1,beta=2;function value(){return {kept:alpha,alpha}};',
     'var q=1,z=2;function value(){return {kept:z,q}};',
   )
-  assert.ok(report.coverage.tokens.changed > 0)
+  // Preserved shorthand keys now differ even in the coarse locator, so the
+  // function is unresolved rather than paired as an identifier-only change.
+  const functionRegion = report.regions.find(
+    region => region.target.nodeType === 'FunctionDeclaration',
+  )
+  assert.equal(functionRegion.classification, 'unresolved')
+  assert.ok(report.coverage.tokens.unresolved > 0)
   assert.ok(report.coverage.tokens.matched < report.target.tokenCount)
 })
 

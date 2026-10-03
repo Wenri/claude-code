@@ -167,10 +167,16 @@ export function originalPositionFor(selectedMappings, line, column) {
   const segments = selectedMappings.selected.get(line)
   if (!segments?.length) return null
 
-  let candidate = null
-  for (const segment of segments) {
-    if (segment.generatedColumn > column) break
-    if (segment.source !== undefined) candidate = segment
+  // A one-field segment explicitly ends the preceding source association.
+  // Skipping it would falsely attribute compiler-generated code to that source.
+  // Find the last segment at or before the query, including unmapped segments.
+  let low = 0
+  let high = segments.length
+  while (low < high) {
+    const middle = (low + high) >>> 1
+    if (segments[middle].generatedColumn <= column) low = middle + 1
+    else high = middle
   }
-  return candidate
+  const candidate = segments[low - 1]
+  return candidate?.source === undefined ? null : candidate
 }
