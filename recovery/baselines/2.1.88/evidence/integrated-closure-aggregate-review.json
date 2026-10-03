@@ -1,0 +1,24 @@
+{
+  "verifiedPackagedPaths": 60,
+  "exactImplementationCopies": 54,
+  "additionalPackagingFiles": [
+    "recovery/baselines/2.1.88/source-inputs.tar.gz",
+    "recovery/tooling/locked-node-dependencies.tar.gz",
+    "recovery/tooling/locked-node-dependencies.receipt.json",
+    "recovery/baselines/2.1.88/README.md",
+    "recovery/baselines/2.1.88/node-runtime-provenance.json",
+    "recovery/baselines/2.1.88/bun-runtime-provenance.json"
+  ],
+  "manifestSha256": "4f6ee137529649f9381e3aa9e7001332eb811de6dde798227a35e905bdd268d6",
+  "integratedAdapterPinsRehashed": 80,
+  "integratedNamingPinsRehashed": 58,
+  "aggregateReceiptSha256": "21844040d84b185db04631c5b36a35312a752592c29b8c4c096658599c1dd82c",
+  "aggregateSelectedFiles": 22,
+  "aggregateTestsPassed": 180,
+  "aggregateSkipped": 0,
+  "aggregateFailed": 0,
+  "acceptanceEvidenceFilesVerified": 11,
+  "compressedNameReceiptByteIdentityVerified": true,
+  "scope": "Explicit selected existing tests plus new portable/debug tests; no claim of running all historical integration tests",
+  "noCompilerOrFullASTRerun": true
+}

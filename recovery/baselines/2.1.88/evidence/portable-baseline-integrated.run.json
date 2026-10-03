@@ -1,0 +1,24 @@
+{
+  "command": [
+    "node",
+    "claude-per-version-upstream/recovery/scripts/reproduce-baseline.mjs",
+    "--manifest",
+    "claude-per-version-upstream/recovery/baselines/2.1.88/manifest.json",
+    "--manifest-sha256",
+    "4f6ee137529649f9381e3aa9e7001332eb811de6dde798227a35e905bdd268d6",
+    "--input-root",
+    "portable-baseline-materialized-inputs",
+    "--bun",
+    "claude-code-cloud/.recovery-tmp/cloud-restoration/bun-1.3.11",
+    "--output-root",
+    "portable-baseline-integrated-run"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 43.36130300098739,
+  "userSeconds": 57.481001,
+  "systemSeconds": 4.261986,
+  "maxRssKiB": 3966232,
+  "resourceAccounting": "fresh supervisor child; no inherited shell children",
+  "stdout": "{\"success\":true,\"outputRoot\":\"/workspace/scratch/503592d075ba/portable-baseline-integrated-run\",\"emittedSha256\":\"2e41079aead0dab91b48ed5c3f62753452df1c8e8fa361b7e56ae015fcc3515f\",\"strictAST\":{\"criterion\":\"strict-whole-program-ast-v2\",\"parser\":\"acorn@8.15.0\",\"ecmaVersion\":2026,\"nodes\":3092121,\"sha256\":\"10a774613d51c1500f70c70ce32a3a710b0edb0115d38568c87eeb8cc10f9117\"},\"generatedApplicationExecuted\":false}\n",
+  "stderr": ""
+}

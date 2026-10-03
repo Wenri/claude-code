@@ -1,0 +1,20 @@
+{
+  "kind": "exact-baseline-terminal-debug-comment-v1",
+  "sourceProfileSha256": "f9dea6b404c176f81d0b638e9a3e7dfe05994763e8ac65b8d75b8ddbca35aa33",
+  "canonicalDebugId": "32599E3E5F19067164756E2164756E21",
+  "footerBytes": 45,
+  "stages": {
+    "raw": {
+      "bytes": 13046999,
+      "prefixBytes": 13046954,
+      "prefixSha256": "9570f70eea980cc2406bb943a6814a519eaf05400c1aa20a3ce7a3d65b29d0ee",
+      "canonicalSha256": "7db59e55ef449d971ec5a496f9aaf41dbc25c001f0919e54840bd12aadfd7b78"
+    },
+    "final": {
+      "bytes": 13046782,
+      "prefixBytes": 13046737,
+      "prefixSha256": "6f80ea9d823cfcae0090436ce704f2332468ba27d669ccfd5c54f01755517902",
+      "canonicalSha256": "b26d920687e9a48599b5d712d17b93791086d4cd15947553f1209ea92fc6b282"
+    }
+  }
+}

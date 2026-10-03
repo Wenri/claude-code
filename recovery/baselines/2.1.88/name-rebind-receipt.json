@@ -1,0 +1,12 @@
+{
+  "kind": "physical-tool-relocation-only-name-recipe-rebind",
+  "originalRecipeSha256": "aba0a2966e23f40e423a47cca1d400ebe5e2ad6abb811e03cb1f7ce52a52a536",
+  "recipeSha256": "b7707f55d43494c8fe982520f774a03a480bb6bc1ffbc90aa67999d821cff853",
+  "originalToolPinsSha256": "265479543943a5dad8788903ba0ffc74cf2ba4e1148e2586086595c46984d058",
+  "toolPinsSha256": "2a210d1d52ea2e7f9c76d36603aef87751b1fd20f0e9030c9e6a44d975ebbbb9",
+  "changedFields": [
+    "toolPinsSha256"
+  ],
+  "bindings": 1028,
+  "allAssignmentsAndIdentitiesCandidatePinsUnchanged": true
+}

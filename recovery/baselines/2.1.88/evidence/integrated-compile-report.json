@@ -1,0 +1,1951 @@
+{
+  "kind": "source-only-explicit-reconstruction-preflight",
+  "toolchainSha256": "30c9eabd42087bcb9230e640a1d0fcbd6b7c596639ff143b4fd387e9316bc92f",
+  "profileSha256": "f9dea6b404c176f81d0b638e9a3e7dfe05994763e8ac65b8d75b8ddbca35aa33",
+  "inputRoot": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs",
+  "sourceManifestSha256": "66d84f48ee152785248d3ea4179f9588ce3ecdc54ca0294ab2732d820dec290f",
+  "sourceFiles": 6067,
+  "genesisSourceFiles": 1902,
+  "compiler": {
+    "path": "/workspace/scratch/503592d075ba/claude-code-cloud/.recovery-tmp/cloud-restoration/bun-1.3.11",
+    "name": "Bun",
+    "version": "1.3.11",
+    "sha256": "6d5bb405b1d037a2a466b92757de7e47e4369930fa94bd42f8ff44ba49de6c57",
+    "requiredInvocation": [
+      "env -u NODE_PATH",
+      "--no-env-file",
+      "--no-install"
+    ]
+  },
+  "scripts": [
+    {
+      "path": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/full-stage-compiler.mjs",
+      "sha256": "9037e137a4c432e2e2957178af6b38e7d22f57cf977685e76f39c5332e0b6407"
+    },
+    {
+      "path": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/full-stage-support.mjs",
+      "sha256": "d72cc6b46ec04ef3762b77b0ff3f1782e41638f95ab6a5ffa36f019c995f79ff"
+    }
+  ],
+  "options": {
+    "entrypoints": [
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/cli.tsx"
+    ],
+    "target": "node",
+    "format": "esm",
+    "packages": "bundle",
+    "minify": true,
+    "jsx": {
+      "runtime": "classic",
+      "development": false
+    },
+    "sourcemap": "external",
+    "features": [
+      "AGENT_TRIGGERS",
+      "AGENT_TRIGGERS_REMOTE",
+      "BRIDGE_MODE",
+      "BUILDING_CLAUDE_APPS",
+      "BUILTIN_EXPLORE_PLAN_AGENTS",
+      "CCR_REMOTE_SETUP",
+      "CHICAGO_MCP",
+      "ENHANCED_TELEMETRY_BETA",
+      "EXTRACT_MEMORIES",
+      "KAIROS_BRIEF",
+      "KAIROS_CHANNELS",
+      "LODESTONE",
+      "NATIVE_CLIENT_ATTESTATION",
+      "NATIVE_CLIPBOARD_IMAGE",
+      "NEW_INIT",
+      "TEAMMEM",
+      "TRANSCRIPT_CLASSIFIER",
+      "TREE_SITTER_BASH_SHADOW",
+      "ULTRATHINK",
+      "VOICE_MODE"
+    ],
+    "loader": {
+      ".md": "text",
+      ".txt": "text"
+    },
+    "define": {
+      "process.env.NODE_ENV": "\"production\"",
+      "process.env.USER_TYPE": "\"external\"",
+      "MACRO": "{\"ISSUES_EXPLAINER\":\"report the issue at https://github.com/anthropics/claude-code/issues\",\"PACKAGE_URL\":\"@anthropic-ai/claude-code\",\"README_URL\":\"https://code.claude.com/docs/en/overview\",\"VERSION\":\"2.1.88\",\"FEEDBACK_CHANNEL\":\"https://github.com/anthropics/claude-code/issues\",\"BUILD_TIME\":\"2026-03-30T21:59:52Z\"}",
+      "process.env.CI": "false",
+      "process.env.CLAUDE_CODE_OVERRIDE_DATE": "undefined",
+      "process.env.ENABLE_PID_BASED_VERSION_LOCKING": "undefined",
+      "process.env.ENABLE_LOCKLESS_UPDATES": "\"true\"",
+      "process.env.ENABLE_SESSION_PERSISTENCE": "\"true\"",
+      "process.env.ENABLE_LSP_TOOL": "\"true\"",
+      "process.env.CLAUDE_CODE_VERIFY_PLAN": "undefined",
+      "process.env.CLAUDE_CODE_PROFILE_QUERY": "undefined"
+    },
+    "external": [
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@ant/computer-use-mcp/src/subGates.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/add.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/after.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/ary.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/assign.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/assignIn.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/assignInWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/assignWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/at.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/attempt.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/before.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/bind.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/bindAll.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/bindKey.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/camelCase.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/castArray.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/ceil.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/chain.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/chunk.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/clamp.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/clone.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/cloneDeepWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/cloneWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/commit.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/compact.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/concat.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/cond.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/conforms.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/conformsTo.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/countBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/create.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/curry.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/curryRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/deburr.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/defaultTo.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/defaults.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/defaultsDeep.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/defer.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/delay.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/difference.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/differenceBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/differenceWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/divide.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/drop.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/dropRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/dropRightWhile.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/dropWhile.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/each.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/eachRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/endsWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/entries.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/entriesIn.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/escape.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/escapeRegExp.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/every.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/extend.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/extendWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/fill.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/filter.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/find.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/findIndex.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/findKey.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/findLast.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/findLastIndex.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/findLastKey.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/first.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flatMap.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flatMapDeep.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flatMapDepth.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flattenDeep.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flattenDepth.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flip.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/floor.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flow.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/flowRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/forEach.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/forEachRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/forIn.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/forInRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/forOwn.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/forOwnRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/fromPairs.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/functions.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/functionsIn.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/groupBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/gt.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/gte.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/has.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/head.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/inRange.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/includes.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/indexOf.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/initial.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/intersection.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/intersectionBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/intersectionWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/invert.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/invertBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/invoke.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/invokeMap.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isArrayBuffer.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isBoolean.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isDate.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isElement.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isEmpty.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isEqualWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isError.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isFinite.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isInteger.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isMatch.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isMatchWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isNaN.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isNative.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isNil.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isNull.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isNumber.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isRegExp.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isSafeInteger.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isString.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isUndefined.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isWeakMap.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/isWeakSet.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/iteratee.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/join.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/kebabCase.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/keyBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/lastIndexOf.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/lodash.default.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/lowerCase.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/lowerFirst.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/lt.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/lte.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/map.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/mapKeys.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/matches.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/matchesProperty.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/max.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/maxBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/mean.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/meanBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/merge.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/method.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/methodOf.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/min.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/minBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/mixin.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/multiply.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/next.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/nth.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/nthArg.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/omitBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/once.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/orderBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/over.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/overArgs.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/overEvery.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/overSome.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/pad.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/padEnd.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/padStart.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/parseInt.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/partial.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/partialRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/pick.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/plant.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/propertyOf.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/pull.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/pullAll.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/pullAllBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/pullAllWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/pullAt.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/random.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/range.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/rangeRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/rearg.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/reduce.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/reduceRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/remove.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/repeat.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/replace.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/rest.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/result.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/reverse.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/round.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sampleSize.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/set.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/shuffle.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/size.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/slice.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/snakeCase.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/some.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedIndex.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedIndexBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedIndexOf.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedLastIndex.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedLastIndexBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedLastIndexOf.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedUniq.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sortedUniqBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/split.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/spread.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/startCase.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/startsWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/stubObject.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/stubString.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/stubTrue.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/subtract.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/sum.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/tail.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/take.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/takeRight.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/takeRightWhile.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/takeWhile.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/tap.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/template.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/templateSettings.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/thru.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/times.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toArray.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toFinite.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toInteger.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toIterator.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toJSON.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toLength.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toLower.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toPairs.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toPairsIn.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toPath.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toSafeInteger.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/toUpper.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/transform.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/trim.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/trimEnd.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/trimStart.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/truncate.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/unary.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/unescape.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/union.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/unionBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/unionWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/uniq.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/uniqWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/uniqueId.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/unset.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/unzip.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/unzipWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/update.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/updateWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/upperCase.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/value.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/valueOf.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/valuesIn.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/without.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/words.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/wrap.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/wrapperAt.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/wrapperChain.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/wrapperLodash.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/wrapperReverse.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/wrapperValue.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/xor.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/xorBy.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/xorWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/zip.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/zipObjectDeep.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/lodash-es/zipWith.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/assistant/AssistantSessionChooser.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/commands/assistant/assistant.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/components/agents/SnapshotUpdateDialog.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/services/compact/cachedMicrocompact.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/services/compact/snipCompact.js",
+      "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/services/contextCollapse/index.js",
+      "@inquirer/checkbox",
+      "@inquirer/editor",
+      "@inquirer/expand",
+      "@inquirer/number",
+      "@inquirer/password",
+      "@inquirer/rawlist",
+      "@inquirer/search",
+      "cacache"
+    ]
+  },
+  "removedExternalRules": [
+    {
+      "relative": "src/entrypoints/sdk/coreTypes.generated.js"
+    },
+    {
+      "relative": "src/entrypoints/sdk/runtimeTypes.js"
+    },
+    {
+      "relative": "src/entrypoints/sdk/toolTypes.js"
+    },
+    {
+      "relative": "src/ink/global.d.ts"
+    },
+    {
+      "relative": "src/tools/TungstenTool/TungstenLiveMonitor.js"
+    },
+    {
+      "relative": "src/tools/TungstenTool/TungstenTool.js"
+    },
+    {
+      "relative": "src/tools/WorkflowTool/constants.js"
+    },
+    {
+      "relative": "src/types/connectorText.js"
+    },
+    {
+      "relative": "src/utils/filePersistence/types.js"
+    },
+    {
+      "specifier": "src/tools/TungstenTool/TungstenTool.js"
+    },
+    {
+      "specifier": "src/types/connectorText.js"
+    }
+  ],
+  "virtualRecipePins": [
+    {
+      "recipe": {
+        "kind": "two-pinned-virtual-native-wrapper-inputs",
+        "sourceEquivalenceEstablished": false,
+        "baselineSourceMapSha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657",
+        "inputRoot": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs",
+        "rules": [
+          {
+            "specifier": "@ant/computer-use-swift",
+            "importerRelative": "src/utils/computerUse/swiftLoader.ts",
+            "sourceRelative": "node_modules/@ant/computer-use-swift/js/index.js",
+            "importerBytes": 925,
+            "importerSha256": "befc8c66944ccad352e245518ff9ccfae3697768be89b8c2f5915b5f231d802a",
+            "sourceBytes": 1084,
+            "sourceSha256": "462ef9dfef40f27851082bcf16846c07026657005f5cfdc6707200a55cc4512c",
+            "virtualAbsolutePath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-swift/js/index.js",
+            "importerAbsolute": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/utils/computerUse/swiftLoader.ts"
+          },
+          {
+            "specifier": "@ant/computer-use-input",
+            "importerRelative": "src/utils/computerUse/inputLoader.ts",
+            "sourceRelative": "node_modules/@ant/computer-use-input/js/index.js",
+            "importerBytes": 1190,
+            "importerSha256": "a48e836cd9652fc786e8ad0ddc7b3d9d910a64ed9de001ba964ad11f3d2f57ce",
+            "sourceBytes": 1313,
+            "sourceSha256": "cdaa3d9958c9ad71cb2729fec25eed35d5cfaaa5de15933bf84ca5ac426e5e15",
+            "virtualAbsolutePath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-input/js/index.js",
+            "importerAbsolute": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/utils/computerUse/inputLoader.ts"
+          }
+        ],
+        "filters": {
+          "resolve": "^(?:@ant\\/computer-use-swift|@ant\\/computer-use-input)$",
+          "load": "^(?:\\/home\\/runner\\/code\\/tmp\\/claude-cli-external-build-2195\\/node_modules\\/@ant\\/computer-use-swift\\/js\\/index\\.js|\\/home\\/runner\\/code\\/tmp\\/claude-cli-external-build-2195\\/node_modules\\/@ant\\/computer-use-input\\/js\\/index\\.js)$",
+          "namespace": "file"
+        },
+        "tool": {
+          "path": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/virtual-native-wrappers.mjs",
+          "sha256": "2d0c9629911de1fb8e1fad13505165a5c0fb92e72dc5b8d3ba899b052e5ef13f"
+        },
+        "limitations": [
+          "Only two exact package specifiers from two exact pinned importers are intercepted; other imports use the existing compiler resolver.",
+          "Virtual files preserve every wrapper source byte and provide compiler-visible paths; this helper writes no files, including at the virtual root.",
+          "The path recipe is an explicit candidate for emitted __dirname values, not an original-profile or native-runtime equivalence claim. Full emitted AST comparison remains required."
+        ]
+      },
+      "files": [
+        {
+          "path": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-swift/js/index.js",
+          "bytes": 1084,
+          "sha256": "462ef9dfef40f27851082bcf16846c07026657005f5cfdc6707200a55cc4512c"
+        },
+        {
+          "path": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-input/js/index.js",
+          "bytes": 1313,
+          "sha256": "cdaa3d9958c9ad71cb2729fec25eed35d5cfaaa5de15933bf84ca5ac426e5e15"
+        }
+      ]
+    },
+    {
+      "recipe": {
+        "kind": "two-pinned-virtual-grpc-paths",
+        "sourceEquivalenceEstablished": false,
+        "baselineSourceMapSha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657",
+        "priorResolutionReportSha256": "7c102e676865e20d68707fad56145ecefe746a2dc5d78cd97506dadf34feb594",
+        "inputRoot": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs",
+        "rules": [
+          {
+            "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "virtualAbsolutePath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+          },
+          {
+            "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "virtualAbsolutePath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js"
+          }
+        ],
+        "filter": {
+          "source": "^(?:\\.\\/admin|\\.\\/backoff-timeout|\\.\\/channel-credentials|\\.\\/channelz|\\.\\/connectivity-state|\\.\\/constants|\\.\\/duration|\\.\\/make-client|\\.\\/orca|\\.\\/subchannel-address|\\.\\/subchannel-interface|@grpc\\/proto-loader|@js-sdsl\\/ordered-map)$",
+          "namespace": "file"
+        },
+        "inputPins": [
+          {
+            "path": "node_modules/@aws-crypto/sha256-js/build/RawSha256.js",
+            "bytes": 5128,
+            "sha256": "edf430dae46209527e5a7f2f5438a7b64eebd834674f08e3a55606705103d26b"
+          },
+          {
+            "path": "node_modules/@aws-crypto/sha256-js/build/constants.js",
+            "bytes": 1641,
+            "sha256": "45340eb7f030f48987449216a5e43d03939696791f8e7eb874f7121bbdf2c190"
+          },
+          {
+            "path": "node_modules/@aws-crypto/sha256-js/build/jsSha256.js",
+            "bytes": 2853,
+            "sha256": "49b2a1957e91af995586498a862e6cd1f9d2a83d8a0183a53142571a8a8de58f"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/admin.js",
+            "bytes": 1203,
+            "sha256": "8c2cd31dc0bec93d511ae41d09f08be2213be34e0b9f60573a6dd196aa87f97e"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+            "bytes": 6287,
+            "sha256": "f82515c6a031bf6f62a724c524da130647a4f35d0920a94a8c260d32c85c742e"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/call.js",
+            "bytes": 5779,
+            "sha256": "5140425c72ac14eb7ce50de206228a257e63c4b508d81c41c27fcc33e9757701"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/certificate-provider.js",
+            "bytes": 6124,
+            "sha256": "b4413db657cdb84a2ce479a752763e71aa02cccadce4f63fc8ff485261ec6698"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+            "bytes": 18045,
+            "sha256": "50ee27f7b53eb7ee210d1ded3c4cb89ea8d0d0eb0954dc6e455eed5f8335dc1e"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/channel.js",
+            "bytes": 2729,
+            "sha256": "b0d3dfe61438c3901beb53b1459c495d6dbe65cae71864f3df8122d691cf2a6e"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "bytes": 22978,
+            "sha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/client-interceptors.js",
+            "bytes": 17875,
+            "sha256": "93a12881497d55a94fb8e3271bbd503f20059cdb3776876f1b96a2fad07ebd39"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/client.js",
+            "bytes": 19103,
+            "sha256": "e3a84fe730d6afdb4fef32e6774aded7932c3a24b446d992baaa77d50bbaea7b"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/compression-filter.js",
+            "bytes": 12622,
+            "sha256": "bcdb903ca3651983eacddafe16862ed5c25faa7aee946f79273d903a92666b5a"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+            "bytes": 1256,
+            "sha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/constants.js",
+            "bytes": 3082,
+            "sha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/control-plane-status.js",
+            "bytes": 1534,
+            "sha256": "409ebb7350195928f63386afda09c663fbd3ac968a572360fd9418e8b9e951fb"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/duration.js",
+            "bytes": 2356,
+            "sha256": "c6f06aa8d1ae71e5136edbcb42586db951414aebc3f4aaf6e33afe03dbd5b28a"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+            "bytes": 7290,
+            "sha256": "53b84de0de89a06c0b9d654b0fe15306648fad2eeda3bdda6d597b683a2cb327"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/http_proxy.js",
+            "bytes": 9504,
+            "sha256": "4a6c7b2ff90af034d9b78cf681e55f97c1fc651e2428f8f767bb7633608113e3"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "bytes": 10007,
+            "sha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+            "bytes": 27366,
+            "sha256": "d04c913ed06645fd102901fb01149e47d8b541131217c3060c485bfd34f7dc3c"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/load-balancer-child-handler.js",
+            "bytes": 5866,
+            "sha256": "7d7fc2bda20905a33a36e8daedd3b4ac60d165ee309410db8432a7082ae986bf"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+            "bytes": 25256,
+            "sha256": "ecf55803df4dbc4d9240a78ff0558fe562a4cff86dee5b3959d2d03f5c19266e"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+            "bytes": 22090,
+            "sha256": "7bec812850bb38317e8ffa477d809d21744577102f03c21f15d34a1c95867f18"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+            "bytes": 8951,
+            "sha256": "3b1b9b559cc1aa39e4a2784d3c7b0e1a8492a037fd5b4bd6367ef166338a608d"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+            "bytes": 18691,
+            "sha256": "42c6c0cb2774dd5d949283aeede326206cc62601ab4a858dab7b48b1dec305f7"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/load-balancer.js",
+            "bytes": 5013,
+            "sha256": "4b21a6d3bea94fa06f86e158ec93914ea666e73f0e9ffe311c9c14cfb3a7a319"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/load-balancing-call.js",
+            "bytes": 13599,
+            "sha256": "d6931b65c4e0af5290b23ff3f3a10499a59a6aae54411c5de0775783c5c58d18"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/logging.js",
+            "bytes": 4200,
+            "sha256": "9d8c08337c42fdaa1e4093e171f177245f0c2ae4b221e9fd6469421c0307a453"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/make-client.js",
+            "bytes": 5424,
+            "sha256": "5c1ae3c7ca3b5b2d8076bcb27719839b74664241780d2fe4fc0ef9ff51aeab69"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/metadata.js",
+            "bytes": 9368,
+            "sha256": "730c1668b76f73084e3a402ebfb201bfb55381cb678eebfff4d0a3543e114d18"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "bytes": 11724,
+            "sha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/picker.js",
+            "bytes": 3288,
+            "sha256": "f8c0beefece60363399f39748476fa540cdc0074dc7623017398db146d85a3bb"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+            "bytes": 16268,
+            "sha256": "1c23572ebcc3751c7f1ed1379da72d685f40b730b29aa07a618bffba7d14ed5f"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/resolver-ip.js",
+            "bytes": 4179,
+            "sha256": "b6b183c241ac60511259c3b29dee9e2bbe3ae1e13e4360f8122e1f07cf6a8e91"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/resolving-call.js",
+            "bytes": 12954,
+            "sha256": "6ae57d67a0377d5747d7b725e983e7bd6c5fc1797139de25667f748abe2291d0"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+            "bytes": 13556,
+            "sha256": "437502084ddc988064d63dc65d1f78f44318e5eb4217a7ccb69419eaa059c976"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/retrying-call.js",
+            "bytes": 27550,
+            "sha256": "a4d55d4b57417b0f94b040e4cb2e4eed8b3c5224b90fae940bb8f73e69ff58c2"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/server-call.js",
+            "bytes": 6918,
+            "sha256": "6113961fa7a833197dd28217e614d941bf4e2e938475c848ea8c9c1f62d94f09"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/server-interceptors.js",
+            "bytes": 30582,
+            "sha256": "76be06258ce191f9806954dcf1282ae713f0831b6d7101dcd2aa2e0a01c26e83"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/server.js",
+            "bytes": 81336,
+            "sha256": "b1d9488072f57c0aa82f505addb0f8967dd4895f8065438e2b36e9b93f4ab912"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/service-config.js",
+            "bytes": 17194,
+            "sha256": "cd2ce9d9b3e77630befb3b9f9da05cefadc2c54f6a603215d7d7c98f621b4019"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+            "bytes": 9989,
+            "sha256": "e2acfc0b1b5b9d470353144a642b77a731373ca600ccb81fda2900af047e977e"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+            "bytes": 5928,
+            "sha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/subchannel-call.js",
+            "bytes": 23941,
+            "sha256": "2ab864ec952102a1956cf7792b0cb3d04465c12fae63f3eebdbed45fb171d5e4"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js",
+            "bytes": 3565,
+            "sha256": "7db7f8175ff05fbe9ce32d005d86fc7a511f2ba6cd2dbc36643eabdf2c8bfe12"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/subchannel-pool.js",
+            "bytes": 5644,
+            "sha256": "cca88948f2cbf433629167ee4ddf3595247040a0db2dbffd555dc68ea4dd6859"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+            "bytes": 16794,
+            "sha256": "2de30b32ee8c13ef92aa41fc90261ef46c2ba3d00c4bff1d5f68f545b8c714eb"
+          },
+          {
+            "path": "node_modules/@grpc/grpc-js/build/src/transport.js",
+            "bytes": 27235,
+            "sha256": "1f5e22bea97a2a5e2643b0bdcbbb4e86d794778e97da3017fc6f57c562738b6c"
+          },
+          {
+            "path": "node_modules/@grpc/proto-loader/build/src/index.js",
+            "bytes": 10264,
+            "sha256": "6f99a960ec14b1afc20fc996824815d9d89d58e7d537c2f2e5c028d8012b012e"
+          },
+          {
+            "path": "node_modules/@js-sdsl/ordered-map/dist/cjs/index.js",
+            "bytes": 20626,
+            "sha256": "09569c2f44472c1ad69bd9977d695fe808091319fab55241197d23d9e6b00676"
+          },
+          {
+            "path": "node_modules/@opentelemetry/core/build/src/baggage/constants.js",
+            "bytes": 1534,
+            "sha256": "a897bae8f0811b4488e18a8c61db7f5ed252a1f4583c27374d45871537dc7ff6"
+          },
+          {
+            "path": "node_modules/@opentelemetry/core/build/src/baggage/utils.js",
+            "bytes": 3282,
+            "sha256": "5d5662d2be924c84aec789ba943f38ff508047e8b85cb69d20cfcff86675e228"
+          },
+          {
+            "path": "node_modules/jsonwebtoken/node_modules/semver/internal/constants.js",
+            "bytes": 859,
+            "sha256": "0e3c33323906f2c612b0855895965f3ebac4865dd8fa9c6b4893cd4ea71e383e"
+          },
+          {
+            "path": "node_modules/jsonwebtoken/node_modules/semver/internal/re.js",
+            "bytes": 7998,
+            "sha256": "1ed1a651e379e5fe1612c9f1349179ebc787313b6b100d363beacffe32c54387"
+          },
+          {
+            "path": "node_modules/picomatch/lib/constants.js",
+            "bytes": 4458,
+            "sha256": "d386ec4ee55ba11bf99e4c1a4b0b7e673726dcac56d401b52f6f669dc70957b6"
+          },
+          {
+            "path": "node_modules/picomatch/lib/parse.js",
+            "bytes": 27544,
+            "sha256": "e8dba2cc1f3663fff122933848349d2d9a6ff1caf725336a90050f32fb59b885"
+          },
+          {
+            "path": "node_modules/picomatch/lib/picomatch.js",
+            "bytes": 9881,
+            "sha256": "808ceda04cf4a7911e9d4eab72ac8d590685960d56238018917d17b57baf9ddd"
+          },
+          {
+            "path": "node_modules/picomatch/lib/scan.js",
+            "bytes": 9189,
+            "sha256": "227fcc994a477ea95c5a0435d32783566334c6bd0dcc4a103029735ad8c9c535"
+          },
+          {
+            "path": "node_modules/picomatch/lib/utils.js",
+            "bytes": 1994,
+            "sha256": "f04604f70cd1a3f6ace80b84766468674ff38b4bb83818d2ef1d81fc6355f935"
+          },
+          {
+            "path": "node_modules/pngjs/lib/bitpacker.js",
+            "bytes": 4670,
+            "sha256": "3f7bfabcbc82bedd0cc8551bc210b44dc1fb179fa2ce3b8b1d39fa307d8af204"
+          },
+          {
+            "path": "node_modules/pngjs/lib/constants.js",
+            "bytes": 662,
+            "sha256": "9e3b4f994ac93751e9ccb4d453e85e4f25a0b086a9f24ec92c7dcb06995bdf6c"
+          },
+          {
+            "path": "node_modules/pngjs/lib/packer-async.js",
+            "bytes": 1162,
+            "sha256": "f50df0610749ce7b1a99abbe9e4596df7c16f96efd3848f12dd632b22cb02b45"
+          },
+          {
+            "path": "node_modules/pngjs/lib/packer-sync.js",
+            "bytes": 1193,
+            "sha256": "1b516238168a42704e62ba44528406188864a6ddda2ae92d1b91e5e078cdaa2d"
+          },
+          {
+            "path": "node_modules/pngjs/lib/packer.js",
+            "bytes": 3723,
+            "sha256": "b5f9956364c80d67c28d615ace639a5fb4d4d79d3acb235237f3050dca220e03"
+          },
+          {
+            "path": "node_modules/pngjs/lib/parser.js",
+            "bytes": 7720,
+            "sha256": "574e43fea28a28cc6feb7ab62a480a86bb75411ee4bfaba76a7e9d7310b6e94c"
+          },
+          {
+            "path": "node_modules/semver/internal/constants.js",
+            "bytes": 873,
+            "sha256": "38a112baf27ceca0260082ff26ac2fd7a9861cab1af12dd65e720277f68e6ce9"
+          },
+          {
+            "path": "node_modules/semver/internal/re.js",
+            "bytes": 8141,
+            "sha256": "016655766a1381078a83ba04cd6ba39afc6e64c3e5a95789ad82c3672ae87a94"
+          },
+          {
+            "path": "node_modules/sharp/node_modules/semver/internal/constants.js",
+            "bytes": 873,
+            "sha256": "38a112baf27ceca0260082ff26ac2fd7a9861cab1af12dd65e720277f68e6ce9"
+          },
+          {
+            "path": "node_modules/sharp/node_modules/semver/internal/re.js",
+            "bytes": 8141,
+            "sha256": "016655766a1381078a83ba04cd6ba39afc6e64c3e5a95789ad82c3672ae87a94"
+          },
+          {
+            "path": "node_modules/undici/lib/core/constants.js",
+            "bytes": 2610,
+            "sha256": "962e2278404f3c0b0d45bf67eb1966c39dc33c04b89e2e9f4a955ac057272b82"
+          },
+          {
+            "path": "node_modules/undici/lib/core/request.js",
+            "bytes": 10439,
+            "sha256": "917b30ebe5b842f7b3c2949e7f8fbe7f58139dd8d65833d640b41ffd19a90985"
+          },
+          {
+            "path": "node_modules/undici/lib/core/tree.js",
+            "bytes": 3455,
+            "sha256": "7f2625127a44664c9fd531c0938b00a8fbac467e2ad15e65dbef48cb5029a385"
+          },
+          {
+            "path": "node_modules/undici/lib/core/util.js",
+            "bytes": 19042,
+            "sha256": "ebbaa1263b06489bc467b6b62d95b247f38006f94d17131482ea03685ef18da9"
+          },
+          {
+            "path": "node_modules/undici/lib/web/cookies/constants.js",
+            "bytes": 306,
+            "sha256": "85a24ae49eb5954e15363049bbc68967f01aae7260246daa3f49ad375429acb4"
+          },
+          {
+            "path": "node_modules/undici/lib/web/cookies/parse.js",
+            "bytes": 12390,
+            "sha256": "e7552e4673668f44e0802e5f3317e4883c53eda5c0da915a9ab9435c0a4756e5"
+          },
+          {
+            "path": "node_modules/undici/lib/web/fetch/constants.js",
+            "bytes": 3395,
+            "sha256": "d6c377a0ce91b947a1299845516886be525f474aedad65c7dde35f2c9301b97e"
+          },
+          {
+            "path": "node_modules/undici/lib/web/fetch/index.js",
+            "bytes": 82477,
+            "sha256": "ec5fa587004c3d852f4e29ca4726eff00bede5cc4793dc6431b0c13ca0576c9f"
+          },
+          {
+            "path": "node_modules/undici/lib/web/fetch/request.js",
+            "bytes": 34565,
+            "sha256": "eed7953967abb30acad4c7ae54417e61d2c53bd3393a6f1929270865724345ad"
+          },
+          {
+            "path": "node_modules/undici/lib/web/fetch/response.js",
+            "bytes": 19205,
+            "sha256": "103a92a5e44ee47822ad5892b6134b8b237fad505a4ccf9fb4d2963af1c49fb6"
+          },
+          {
+            "path": "node_modules/undici/lib/web/fetch/util.js",
+            "bytes": 50492,
+            "sha256": "85ee9fbb5c6083b521ac108959dddc4029e3549350da5e4ec10bfc2077846039"
+          },
+          {
+            "path": "node_modules/undici/lib/web/websocket/connection.js",
+            "bytes": 14206,
+            "sha256": "399bfffecf05b8c1c43db4ca7b8ed11ad2176eb0e08d89e917c643e2c38c2761"
+          },
+          {
+            "path": "node_modules/undici/lib/web/websocket/constants.js",
+            "bytes": 1073,
+            "sha256": "55527aeddaa0d2ca2a9b57080be9ee3113f674dce45069cf6d494d5149f8767c"
+          },
+          {
+            "path": "node_modules/undici/lib/web/websocket/frame.js",
+            "bytes": 2307,
+            "sha256": "a60454364e7f2ec5db26c6ff03d20262d35fb2f1a0b2f6d625fd644be21cb118"
+          },
+          {
+            "path": "node_modules/undici/lib/web/websocket/receiver.js",
+            "bytes": 13659,
+            "sha256": "d8b8196ca9f01c90892e383da0340c6ade6fafc5415b5eaedd74431d3936a9ff"
+          },
+          {
+            "path": "node_modules/undici/lib/web/websocket/sender.js",
+            "bytes": 2291,
+            "sha256": "147f118843cdbbb884b39b2f4644cbec6671a530018e3baedafadf04339e4dcd"
+          },
+          {
+            "path": "node_modules/undici/lib/web/websocket/util.js",
+            "bytes": 9101,
+            "sha256": "709b5f90955689909493541471d703c6e69694a26c7bccbf3ec00f1b51d4ea16"
+          },
+          {
+            "path": "node_modules/undici/lib/web/websocket/websocket.js",
+            "bytes": 18499,
+            "sha256": "6c5b8b1ef1e252dc8f4100646989a9b93ef8e6861e4bfa8fcfc0409660aed1cd"
+          },
+          {
+            "path": "node_modules/ws/lib/buffer-util.js",
+            "bytes": 3056,
+            "sha256": "8b0a45739132f82e25ea13163780abf547ccfe989267f3eb7abb475beec92da3"
+          },
+          {
+            "path": "node_modules/ws/lib/constants.js",
+            "bytes": 479,
+            "sha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190"
+          },
+          {
+            "path": "node_modules/ws/lib/event-target.js",
+            "bytes": 7321,
+            "sha256": "c45d3c6e12d170c860c0c3f1a050aa0f864d9806632b609a1e607d675aba128c"
+          },
+          {
+            "path": "node_modules/ws/lib/permessage-deflate.js",
+            "bytes": 14510,
+            "sha256": "adcedcb3069b7c6db3fd6cec93699ef70bd4061126b987dd9a8f7cb16d2b7530"
+          },
+          {
+            "path": "node_modules/ws/lib/receiver.js",
+            "bytes": 16460,
+            "sha256": "7b9f6afc1fffb5c98d768d7d3d6fc1b709f28b45c6ae2682ff255075394323d9"
+          },
+          {
+            "path": "node_modules/ws/lib/sender.js",
+            "bytes": 16711,
+            "sha256": "a80e8688dde53d46d836a58c9d15121ee12e978b7b0f656ed818c63d20df5f94"
+          },
+          {
+            "path": "node_modules/ws/lib/validation.js",
+            "bytes": 3903,
+            "sha256": "41ce8e83d0d434132e1704895fedb91f6703a701b42d91c80954ab29b2845593"
+          },
+          {
+            "path": "node_modules/ws/lib/websocket-server.js",
+            "bytes": 16393,
+            "sha256": "fe8a410e89325608dc94d09778a2650bf041b9b7f5dff61d5005ea111e09a508"
+          },
+          {
+            "path": "node_modules/ws/lib/websocket.js",
+            "bytes": 36463,
+            "sha256": "ea50fd045185975e0e572637cd96fa065a7e988a1d1c890d18002c75a8a253b9"
+          }
+        ],
+        "edges": [
+          {
+            "importer": "node_modules/@aws-crypto/sha256-js/build/RawSha256.js",
+            "specifier": "./constants",
+            "target": "node_modules/@aws-crypto/sha256-js/build/constants.js"
+          },
+          {
+            "importer": "node_modules/@aws-crypto/sha256-js/build/jsSha256.js",
+            "specifier": "./constants",
+            "target": "node_modules/@aws-crypto/sha256-js/build/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/call.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/certificate-provider.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channel.js",
+            "specifier": "./channel-credentials",
+            "target": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "./admin",
+            "target": "node_modules/@grpc/grpc-js/build/src/admin.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "./make-client",
+            "target": "node_modules/@grpc/grpc-js/build/src/make-client.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "@grpc/proto-loader",
+            "target": "node_modules/@grpc/proto-loader/build/src/index.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "@js-sdsl/ordered-map",
+            "target": "node_modules/@js-sdsl/ordered-map/dist/cjs/index.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/client-interceptors.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/client.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/client.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/compression-filter.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/control-plane-status.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+            "specifier": "./admin",
+            "target": "node_modules/@grpc/grpc-js/build/src/admin.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+            "specifier": "./backoff-timeout",
+            "target": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+            "specifier": "./channel-credentials",
+            "target": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+            "specifier": "./duration",
+            "target": "node_modules/@grpc/grpc-js/build/src/duration.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+            "specifier": "./subchannel-interface",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/http_proxy.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/http_proxy.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "specifier": "./admin",
+            "target": "node_modules/@grpc/grpc-js/build/src/admin.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "specifier": "./channel-credentials",
+            "target": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "specifier": "./channelz",
+            "target": "node_modules/@grpc/grpc-js/build/src/channelz.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "specifier": "./make-client",
+            "target": "node_modules/@grpc/grpc-js/build/src/make-client.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/index.js",
+            "specifier": "./orca",
+            "target": "node_modules/@grpc/grpc-js/build/src/orca.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+            "specifier": "./channel-credentials",
+            "target": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+            "specifier": "./channelz",
+            "target": "node_modules/@grpc/grpc-js/build/src/channelz.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+            "specifier": "./subchannel-interface",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-child-handler.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+            "specifier": "./duration",
+            "target": "node_modules/@grpc/grpc-js/build/src/duration.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+            "specifier": "./subchannel-interface",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+            "specifier": "./duration",
+            "target": "node_modules/@grpc/grpc-js/build/src/duration.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+            "specifier": "./orca",
+            "target": "node_modules/@grpc/grpc-js/build/src/orca.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancer.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancing-call.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/load-balancing-call.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/logging.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/metadata.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "./backoff-timeout",
+            "target": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "./channel-credentials",
+            "target": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "./duration",
+            "target": "node_modules/@grpc/grpc-js/build/src/duration.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "./make-client",
+            "target": "node_modules/@grpc/grpc-js/build/src/make-client.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "./subchannel-interface",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/orca.js",
+            "specifier": "@grpc/proto-loader",
+            "target": "node_modules/@grpc/proto-loader/build/src/index.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/picker.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+            "specifier": "./backoff-timeout",
+            "target": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolver-ip.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolver-ip.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolving-call.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+            "specifier": "./backoff-timeout",
+            "target": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/retrying-call.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/server-call.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/server-interceptors.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/server-interceptors.js",
+            "specifier": "./orca",
+            "target": "node_modules/@grpc/grpc-js/build/src/orca.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/server.js",
+            "specifier": "./channelz",
+            "target": "node_modules/@grpc/grpc-js/build/src/channelz.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/server.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/server.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/service-config.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+            "specifier": "./channelz",
+            "target": "node_modules/@grpc/grpc-js/build/src/channelz.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/subchannel-call.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/subchannel-pool.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+            "specifier": "./backoff-timeout",
+            "target": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+            "specifier": "./channelz",
+            "target": "node_modules/@grpc/grpc-js/build/src/channelz.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+            "specifier": "./connectivity-state",
+            "target": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/transport.js",
+            "specifier": "./channelz",
+            "target": "node_modules/@grpc/grpc-js/build/src/channelz.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/transport.js",
+            "specifier": "./constants",
+            "target": "node_modules/@grpc/grpc-js/build/src/constants.js"
+          },
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/transport.js",
+            "specifier": "./subchannel-address",
+            "target": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+          },
+          {
+            "importer": "node_modules/@opentelemetry/core/build/src/baggage/utils.js",
+            "specifier": "./constants",
+            "target": "node_modules/@opentelemetry/core/build/src/baggage/constants.js"
+          },
+          {
+            "importer": "node_modules/jsonwebtoken/node_modules/semver/internal/re.js",
+            "specifier": "./constants",
+            "target": "node_modules/jsonwebtoken/node_modules/semver/internal/constants.js"
+          },
+          {
+            "importer": "node_modules/picomatch/lib/parse.js",
+            "specifier": "./constants",
+            "target": "node_modules/picomatch/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/picomatch/lib/picomatch.js",
+            "specifier": "./constants",
+            "target": "node_modules/picomatch/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/picomatch/lib/scan.js",
+            "specifier": "./constants",
+            "target": "node_modules/picomatch/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/picomatch/lib/utils.js",
+            "specifier": "./constants",
+            "target": "node_modules/picomatch/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/pngjs/lib/bitpacker.js",
+            "specifier": "./constants",
+            "target": "node_modules/pngjs/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/pngjs/lib/packer-async.js",
+            "specifier": "./constants",
+            "target": "node_modules/pngjs/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/pngjs/lib/packer-sync.js",
+            "specifier": "./constants",
+            "target": "node_modules/pngjs/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/pngjs/lib/packer.js",
+            "specifier": "./constants",
+            "target": "node_modules/pngjs/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/pngjs/lib/parser.js",
+            "specifier": "./constants",
+            "target": "node_modules/pngjs/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/semver/internal/re.js",
+            "specifier": "./constants",
+            "target": "node_modules/semver/internal/constants.js"
+          },
+          {
+            "importer": "node_modules/sharp/node_modules/semver/internal/re.js",
+            "specifier": "./constants",
+            "target": "node_modules/sharp/node_modules/semver/internal/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/core/request.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/core/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/core/tree.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/core/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/core/util.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/core/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/cookies/parse.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/cookies/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/fetch/index.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/fetch/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/fetch/request.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/fetch/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/fetch/response.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/fetch/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/fetch/util.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/fetch/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/websocket/connection.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/websocket/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/websocket/frame.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/websocket/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/websocket/receiver.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/websocket/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/websocket/sender.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/websocket/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/websocket/util.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/websocket/constants.js"
+          },
+          {
+            "importer": "node_modules/undici/lib/web/websocket/websocket.js",
+            "specifier": "./constants",
+            "target": "node_modules/undici/lib/web/websocket/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/buffer-util.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/event-target.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/permessage-deflate.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/receiver.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/sender.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/validation.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/websocket-server.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          },
+          {
+            "importer": "node_modules/ws/lib/websocket.js",
+            "specifier": "./constants",
+            "target": "node_modules/ws/lib/constants.js"
+          }
+        ],
+        "unhookedBuiltinEdges": [
+          {
+            "importer": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+            "specifier": "net",
+            "basis": "compiler-handled-builtin"
+          }
+        ],
+        "tool": {
+          "path": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/virtual-grpc-paths.mjs",
+          "sha256": "225aa357d6a092e34a15b0aee0a0e2babc694bee5ed6d38015d1cefa95a85358"
+        },
+        "limitations": [
+          "Only exact recorded importer/specifier pairs may match this hook; unchanged non-target pairs return undefined and are recorded.",
+          "Matching resolver hooks may change compiler behavior even when returning undefined; full emitted AST comparison remains required.",
+          "Native built-in net remains compiler-handled; no virtual files are written to the filesystem.",
+          "Dependency targets and virtual filenames are explicit build candidates; mirror source-map input is not authenticated original npm source."
+        ]
+      },
+      "files": [
+        {
+          "path": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+          "bytes": 22978,
+          "sha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e"
+        },
+        {
+          "path": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+          "bytes": 11724,
+          "sha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a"
+        }
+      ]
+    }
+  ],
+  "sdkFacadePins": [
+    {
+      "target": "src/entrypoints/sdk/coreTypes.generated.ts",
+      "path": "/__claude_reconstruction_sdk__/2.1.88/coreTypes.generated.ts",
+      "bytes": 18357,
+      "sha256": "82757a6fd65b943cac80c5921e63089ecea649e058d95b4b64016f2ccbed7ea9",
+      "erasedNames": [
+        "ApiKeySource",
+        "AsyncHookJSONOutput",
+        "ConfigChangeHookInput",
+        "CwdChangedHookInput",
+        "ElicitationHookInput",
+        "ElicitationResultHookInput",
+        "ExitReason",
+        "FileChangedHookInput",
+        "HookEvent",
+        "HookInput",
+        "HookJSONOutput",
+        "InstructionsLoadedHookInput",
+        "McpServerConfigForProcessTransport",
+        "McpServerStatus",
+        "ModelInfo",
+        "ModelUsage",
+        "NotificationHookInput",
+        "PermissionDeniedHookInput",
+        "PermissionMode",
+        "PermissionRequestHookInput",
+        "PermissionResult",
+        "PermissionUpdate",
+        "PostCompactHookInput",
+        "PostToolUseFailureHookInput",
+        "PostToolUseHookInput",
+        "PreCompactHookInput",
+        "PreToolUseHookInput",
+        "RewindFilesResult",
+        "SDKAssistantMessage",
+        "SDKAssistantMessageError",
+        "SDKCompactBoundaryMessage",
+        "SDKMessage",
+        "SDKPartialAssistantMessage",
+        "SDKPermissionDenial",
+        "SDKRateLimitInfo",
+        "SDKResultMessage",
+        "SDKResultSuccess",
+        "SDKSessionInfo",
+        "SDKStatus",
+        "SDKStatusMessage",
+        "SDKSystemMessage",
+        "SDKToolProgressMessage",
+        "SDKUserMessage",
+        "SDKUserMessageReplay",
+        "SessionEndHookInput",
+        "SessionStartHookInput",
+        "SetupHookInput",
+        "StopFailureHookInput",
+        "StopHookInput",
+        "SubagentStartHookInput",
+        "SubagentStopHookInput",
+        "SyncHookJSONOutput",
+        "TaskCompletedHookInput",
+        "TaskCreatedHookInput",
+        "TeammateIdleHookInput",
+        "UserPromptSubmitHookInput"
+      ]
+    },
+    {
+      "target": "src/entrypoints/sdk/runtimeTypes.ts",
+      "path": "/__claude_reconstruction_sdk__/2.1.88/runtimeTypes.ts",
+      "bytes": 31972,
+      "sha256": "252bd57d8e8ac34b4580c3098948671a790a497734513f02a200c30b1e1653fe",
+      "erasedNames": [
+        "AnyZodRawShape",
+        "EffortLevel",
+        "ForkSessionOptions",
+        "ForkSessionResult",
+        "GetSessionInfoOptions",
+        "GetSessionMessagesOptions",
+        "InferShape",
+        "InternalOptions",
+        "InternalQuery",
+        "ListSessionsOptions",
+        "McpSdkServerConfigWithInstance",
+        "Options",
+        "Query",
+        "SDKSession",
+        "SDKSessionOptions",
+        "SdkMcpToolDefinition",
+        "SessionMessage",
+        "SessionMutationOptions"
+      ]
+    },
+    {
+      "target": "src/entrypoints/sdk/toolTypes.ts",
+      "path": "/__claude_reconstruction_sdk__/2.1.88/toolTypes.ts",
+      "bytes": 116860,
+      "sha256": "1a5a0e9b3c3c9c1ab4f10a14f184d324376e057b7a386aab370270e22c985c25",
+      "erasedNames": [
+        "AgentInput",
+        "AgentOutput",
+        "AskUserQuestionInput",
+        "AskUserQuestionOutput",
+        "BashInput",
+        "BashOutput",
+        "ConfigInput",
+        "ConfigOutput",
+        "EnterWorktreeInput",
+        "EnterWorktreeOutput",
+        "ExitPlanModeInput",
+        "ExitPlanModeOutput",
+        "ExitWorktreeInput",
+        "ExitWorktreeOutput",
+        "FileEditInput",
+        "FileEditOutput",
+        "FileReadInput",
+        "FileReadOutput",
+        "FileWriteInput",
+        "FileWriteOutput",
+        "GlobInput",
+        "GlobOutput",
+        "GrepInput",
+        "GrepOutput",
+        "ListMcpResourcesInput",
+        "ListMcpResourcesOutput",
+        "McpInput",
+        "McpOutput",
+        "NotebookEditInput",
+        "NotebookEditOutput",
+        "ReadMcpResourceInput",
+        "ReadMcpResourceOutput",
+        "TaskOutputInput",
+        "TaskStopInput",
+        "TaskStopOutput",
+        "TodoWriteInput",
+        "TodoWriteOutput",
+        "ToolInputSchemas",
+        "ToolOutputSchemas",
+        "WebFetchInput",
+        "WebFetchOutput",
+        "WebSearchInput",
+        "WebSearchOutput"
+      ]
+    }
+  ],
+  "reservedMarkers": [
+    {
+      "target": "src/ink/global.d.ts",
+      "marker": "~R0"
+    },
+    {
+      "target": "src/tools/WorkflowTool/constants.ts",
+      "marker": "~R1"
+    },
+    {
+      "target": "src/types/connectorText.ts",
+      "marker": "~R2"
+    },
+    {
+      "target": "src/tools/TungstenTool/TungstenTool.ts",
+      "marker": "~R3"
+    },
+    {
+      "target": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "marker": "~R4"
+    },
+    {
+      "target": "src/utils/filePersistence/types.ts",
+      "marker": "~R5"
+    }
+  ],
+  "before": {
+    "files": 6067,
+    "manifestSha256": "66d84f48ee152785248d3ea4179f9588ce3ecdc54ca0294ab2732d820dec290f",
+    "genesisMatchingFiles": 1902
+  },
+  "readContract": {
+    "inputTree": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs",
+    "profile": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/baselines/2.1.88/profile.json",
+    "toolFiles": [
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/diagnostic-build-inputs.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/diagnostic-build-inputs.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/virtual-native-wrappers.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/virtual-native-wrappers.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/virtual-grpc-paths.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/virtual-grpc-paths.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs",
+        "resolvedPath": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+      }
+    ],
+    "adapterScripts": [
+      "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/full-stage-compiler.mjs",
+      "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery/lib/reconstruction/full-stage-support.mjs"
+    ],
+    "declaredReferenceBundleInput": null,
+    "declaredReferenceMapInput": null,
+    "staticInspection": "No reference bundle/map read path found in reviewed adapter code; profile metadata includes historical hashes only.",
+    "observedFilesystemReadFootprint": "unestablished; parent PTRACE_TRACEME probe denied by kernel",
+    "osLevelReadIsolationEnforced": false
+  },
+  "writeContract": {
+    "raw": "/workspace/scratch/503592d075ba/portable-baseline-integrated-run/raw",
+    "receipts": "/workspace/scratch/503592d075ba/portable-baseline-integrated-run/compiler-receipts.json",
+    "report": "/workspace/scratch/503592d075ba/portable-baseline-integrated-run/compile-report.json",
+    "finalizer": "Separate finalize-full-stage.mjs command"
+  },
+  "diskEstimate": {
+    "inputTreeBytesReusedWithoutCopy": 51618606,
+    "expectedRawJSAndMapBytes": 75000000,
+    "expectedFinalJSAndMapBytes": 75000000,
+    "metadataBudgetBytes": 15000000,
+    "expectedAdditionalPeakBytes": 180000000
+  },
+  "fullASTEqualityEstablished": false,
+  "compilerInvoked": true,
+  "success": true,
+  "compilerSuccess": true,
+  "outputs": [
+    {
+      "path": "raw/cli.js",
+      "kind": "entry-point",
+      "bytes": 13046999,
+      "sha256": "ab0cecb27c1501401905ae50ec2121734cd09d38816020542f97671e01e1c25c"
+    },
+    {
+      "path": "raw/cli.js.map",
+      "kind": "sourcemap",
+      "bytes": 59961444,
+      "sha256": "d1a5a55144f498dc3358d73b6df2bb643286f1142d1f80372ca3321e63797156"
+    }
+  ],
+  "logs": [],
+  "postInputs": {
+    "files": 6067,
+    "manifestSha256": "66d84f48ee152785248d3ea4179f9588ce3ecdc54ca0294ab2732d820dec290f",
+    "genesisMatchingFiles": 1902
+  },
+  "sourceBodyReplaced": false,
+  "generatedApplicationExecuted": false,
+  "postVirtualRecipesAuthenticated": true,
+  "receiptFile": {
+    "path": "compiler-receipts.json",
+    "bytes": 137998,
+    "sha256": "3a1177fc3fabf9165663779d779b02d3e41a5d1c68b7134adf6585dac796f1fd"
+  }
+}

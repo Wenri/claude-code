@@ -703,3 +703,8 @@ gate must close:
 A byte-exact generated recovery, first-party semantic source recovery,
 whole-bundle source build, and exact original authored text are four different
 claims. Keeping them separate is the central safety property of this method.
+
+
+## Verified source reconstruction baseline
+
+The fixed 2.1.88 source reconstruction profile and complete portable inputs are documented in [baselines/2.1.88/README.md](baselines/2.1.88/README.md). This baseline has an exact complete-AST and executable-text match to its pinned mirror reference. Its provenance and reconstruction limitations are explicit; this does not establish full source reproduction of the cumulative 2.1.126 tree or later releases.

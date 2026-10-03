@@ -1,0 +1,3 @@
+node_modules/
+**/.tiny-*/
+**/__pycache__/

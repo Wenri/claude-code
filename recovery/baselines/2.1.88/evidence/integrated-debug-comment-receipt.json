@@ -1,0 +1,65 @@
+{
+  "kind": "explicit-terminal-debug-comment-view-v1",
+  "sourceProfileSha256": "f9dea6b404c176f81d0b638e9a3e7dfe05994763e8ac65b8d75b8ddbca35aa33",
+  "policy": {
+    "bytes": 765,
+    "sha256": "4992cddbcdd388687f35340d92adffbb8136227aa930184e454f80692da7647a"
+  },
+  "actualCompilerReport": {
+    "bytes": 102361,
+    "sha256": "41e723c38de4a9bfab5d64d79563fd3d623b853eb2be08979d73e50fe9ea37e0"
+  },
+  "actualFinalizerReport": {
+    "bytes": 17382,
+    "sha256": "b96d50491029c4515e596e39fcbe674bbcc733b7196f3f214e12051cab77b407"
+  },
+  "actualRaw": {
+    "bytes": 13046999,
+    "sha256": "ab0cecb27c1501401905ae50ec2121734cd09d38816020542f97671e01e1c25c"
+  },
+  "actualFinal": {
+    "bytes": 13046782,
+    "sha256": "dd187d45d2b870d4a0442f28dfd6242eb8a1c5d9eba66935355ebaa1811fae46"
+  },
+  "rawPrefix": {
+    "bytes": 13046954,
+    "sha256": "9570f70eea980cc2406bb943a6814a519eaf05400c1aa20a3ce7a3d65b29d0ee"
+  },
+  "finalPrefix": {
+    "bytes": 13046737,
+    "sha256": "6f80ea9d823cfcae0090436ce704f2332468ba27d669ccfd5c54f01755517902"
+  },
+  "canonical": {
+    "bytes": 13046782,
+    "sha256": "b26d920687e9a48599b5d712d17b93791086d4cd15947553f1209ea92fc6b282"
+  },
+  "edit": {
+    "inputByteRange": [
+      13046737,
+      13046782
+    ],
+    "outputByteRange": [
+      13046737,
+      13046782
+    ],
+    "inputUTF16Range": [
+      12983022,
+      12983067
+    ],
+    "outputUTF16Range": [
+      12983022,
+      12983067
+    ],
+    "fromDebugId": "A5D1B7DE4DDE7B5764756E2164756E21",
+    "toDebugId": "32599E3E5F19067164756E2164756E21",
+    "fromFooterSha256": "833e8fe7cd06f705e084b7bac82f569f6b55009d09d905e2314b2716f10b83c0",
+    "toFooterSha256": "bd425e346f67bcd45eb41e93f65629241e7ee292fd48a34acc81e050ef981758"
+  },
+  "compilerOutputModified": false,
+  "finalizerOutputModified": false,
+  "executablePrefixByteEqual": true,
+  "sourceMapEmitted": false,
+  "mapOwnership": "final/cli.js.map remains paired with actual final/cli.js; no canonical-view map is claimed",
+  "syntaxBasis": "Exact compiler-authenticated, previously validated baseline prefix plus one strict terminal line comment; complete independent AST verification remains required",
+  "fullTargetASTEqualityEstablished": false
+}

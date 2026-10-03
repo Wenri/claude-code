@@ -1,0 +1,14 @@
+{
+  "url": "https://registry.npmjs.org/@oven/bun-linux-x64/-/bun-linux-x64-1.3.11.tgz",
+  "tarball": {
+    "bytes": 39103557,
+    "sha256": "c0b56af02a93fc18a373c0e82c21481a926ae85e1dcab3e446e41e0e7df91231",
+    "sri": "sha512-z3GFCk1UBzDOOiEBHL32lVP7Edi26BhOjKb6bIc0nRyabbRiyON4++GR0zmd/H5zM5S0+UcXFgCGnD+b8avTLw=="
+  },
+  "compiler": {
+    "path": ".recovery-tmp/cloud-restoration/bun-1.3.11",
+    "bytes": 99295408,
+    "sha256": "6d5bb405b1d037a2a466b92757de7e47e4369930fa94bd42f8ff44ba49de6c57"
+  },
+  "packageScriptsExecuted": false
+}

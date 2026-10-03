@@ -1,0 +1,6 @@
+{
+  "name": "body-blind-frozen-naming-backend-prototype",
+  "private": true,
+  "type": "module",
+  "scripts": {"test": "node --max-old-space-size=256 --test --test-concurrency=1 test.mjs converter.test.mjs"}
+}

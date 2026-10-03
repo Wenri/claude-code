@@ -1,0 +1,2795 @@
+{
+  "profileSha256": "f9dea6b404c176f81d0b638e9a3e7dfe05994763e8ac65b8d75b8ddbca35aa33",
+  "sourceManifestSha256": "66d84f48ee152785248d3ea4179f9588ce3ecdc54ca0294ab2732d820dec290f",
+  "reconstruction": [
+    {
+      "receiptId": "overlay-0",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/services/api/claude.ts",
+      "originalSha256": "6d3fd16e608120d502e70ec461ffb66bcbca12fa86862859606c9118f977a999",
+      "irSha256": "ba36210c8006833985df58e978f732ff0a67ae49443ce17bcec164ff81ad36fc",
+      "edits": [
+        {
+          "start": 1174,
+          "end": 1204,
+          "originalLiteralSha256": "140619081324b05e687aa425a8593e0f8c0132a836662bb1337c07f1dff7d5c3",
+          "originalSpecifier": "../../types/connectorText.js",
+          "marker": "~R2",
+          "replacementSha256": "736972080a567d9a278f075489a8e8bb7a8587eb9547ed81611b11d31a904dfd"
+        }
+      ],
+      "utf16Length": 125720
+    },
+    {
+      "receiptId": "overlay-1",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/utils/messages.ts",
+      "originalSha256": "24e36a51f351df9687cdac084d9b9573549a7bb5b8859b4ff39cc2d02ec7095a",
+      "irSha256": "87f93a260d22c53b333ecba50efa4b0aa7ed9b487ffd10b2b9ff535414dcacc0",
+      "edits": [
+        {
+          "start": 1474,
+          "end": 1501,
+          "originalLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21",
+          "originalSpecifier": "../types/connectorText.js",
+          "marker": "~R2",
+          "replacementSha256": "ddf372537c3d5a875ebb6350034eaaf9be3fa049b467fbc33118c9d422eb9ab0"
+        }
+      ],
+      "utf16Length": 193027
+    },
+    {
+      "receiptId": "overlay-2",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/tools.ts",
+      "originalSha256": "4307f3f7dec2916299cc2fa5c45df8b95fd9a1945be7ac918ccd3d47a42f18cb",
+      "irSha256": "305ef2637e4d0dca76e6820987bbcb6b6c640a0f79a2cb6196205638ea04c887",
+      "edits": [
+        {
+          "start": 3054,
+          "end": 3092,
+          "originalLiteralSha256": "c2dc62bccb368ba8971c3911ee86496171087606a65afaf3a8f3eb41c4e0e4ee",
+          "originalSpecifier": "./tools/TungstenTool/TungstenTool.js",
+          "marker": "~R3",
+          "replacementSha256": "b3cbce6202a7d32de1799a728407427edc22f4b0f53969f9f7baa5f737eb7a71"
+        }
+      ],
+      "utf16Length": 17290
+    },
+    {
+      "receiptId": "edge-3",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/services/api/claude.ts",
+      "originSource": "src/services/api/claude.ts",
+      "specifier": "../../types/connectorText.js",
+      "emittedSpecifier": "~R2",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/services/api/claude.ts",
+          "originSourceSha256": "6d3fd16e608120d502e70ec461ffb66bcbca12fa86862859606c9118f977a999",
+          "originGenesisGitBlob": "89a6e66192c9006a42771715852c50139f7ef4d0",
+          "range": [
+            1080,
+            1204
+          ],
+          "sliceSha256": "00b5e3e563296efc8429db127995a0e385551cbe0952acdb2122e8cd56823851",
+          "specifier": "../../types/connectorText.js",
+          "resolvedTarget": "src/types/connectorText.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            1174,
+            1204
+          ],
+          "specifierLiteralSha256": "140619081324b05e687aa425a8593e0f8c0132a836662bb1337c07f1dff7d5c3"
+        }
+      ],
+      "resolvedTarget": "src/types/connectorText.ts",
+      "action": "private-marker-external",
+      "marker": "~R2"
+    },
+    {
+      "receiptId": "overlay-4",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/services/api/logging.ts",
+      "originalSha256": "2d5effa9bc7b52c8c20a57a1fd9666e4925e40ee624a26e3641522a048c5d535",
+      "irSha256": "f89fe9627ef67b6a5e637e9e0e2b2f343cd98849e590663b264ac9b04c731d80",
+      "edits": [
+        {
+          "start": 542,
+          "end": 570,
+          "originalLiteralSha256": "4030a177e7cfdc96561c8b8759da0b6488eb8333c218f55a15c7fb8c3788c884",
+          "originalSpecifier": "src/types/connectorText.js",
+          "marker": "~R2",
+          "replacementSha256": "065b47fc698a5f144940005f635654b8e2d511e38cb69590a9e9e1393cd02e0f"
+        }
+      ],
+      "utf16Length": 24183
+    },
+    {
+      "receiptId": "edge-5",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/utils/messages.ts",
+      "originSource": "src/utils/messages.ts",
+      "specifier": "../types/connectorText.js",
+      "emittedSpecifier": "~R2",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/utils/messages.ts",
+          "originSourceSha256": "24e36a51f351df9687cdac084d9b9573549a7bb5b8859b4ff39cc2d02ec7095a",
+          "originGenesisGitBlob": "7d8db9746aefef225afd28869f828c9284a484f5",
+          "range": [
+            1437,
+            1501
+          ],
+          "sliceSha256": "c9cbc3e8fb82200fad4b3314fdb1fd91825acf2514111cb259bdb390c7f1a100",
+          "specifier": "../types/connectorText.js",
+          "resolvedTarget": "src/types/connectorText.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            1474,
+            1501
+          ],
+          "specifierLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21"
+        }
+      ],
+      "resolvedTarget": "src/types/connectorText.ts",
+      "action": "private-marker-external",
+      "marker": "~R2"
+    },
+    {
+      "receiptId": "edge-6",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/sdk/coreTypes.ts",
+      "originSource": "src/entrypoints/sdk/coreTypes.ts",
+      "specifier": "./coreTypes.generated.js",
+      "emittedSpecifier": "./coreTypes.generated.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/sdk/coreTypes.ts",
+          "originSourceSha256": "1ffd4643759f1e2342b07d6fe0d6627463b1d39ffa1775a11f10aab17dae2bcd",
+          "originGenesisGitBlob": "28e9a0dc02dbe1ed5a933431004ec33bf1cdbc88",
+          "range": [
+            585,
+            625
+          ],
+          "sliceSha256": "fa881f945e7ef7577970c212dd00a5f199de2f8ec618bf833acca5dc8bced468",
+          "specifier": "./coreTypes.generated.js",
+          "resolvedTarget": "src/entrypoints/sdk/coreTypes.generated.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            599,
+            625
+          ],
+          "specifierLiteralSha256": "f813975a7bdad791ab9e1714e388ec889bc220c20a74eef01f428f8fdfdb1afd"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/coreTypes.generated.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/coreTypes.generated.ts",
+      "facadeSha256": "82757a6fd65b943cac80c5921e63089ecea649e058d95b4b64016f2ccbed7ea9"
+    },
+    {
+      "receiptId": "edge-7",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/sdk/coreTypes.ts",
+      "originSource": "src/entrypoints/sdk/coreTypes.ts",
+      "specifier": "./coreTypes.generated.js",
+      "emittedSpecifier": "./coreTypes.generated.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/sdk/coreTypes.ts",
+          "originSourceSha256": "1ffd4643759f1e2342b07d6fe0d6627463b1d39ffa1775a11f10aab17dae2bcd",
+          "originGenesisGitBlob": "28e9a0dc02dbe1ed5a933431004ec33bf1cdbc88",
+          "range": [
+            585,
+            625
+          ],
+          "sliceSha256": "fa881f945e7ef7577970c212dd00a5f199de2f8ec618bf833acca5dc8bced468",
+          "specifier": "./coreTypes.generated.js",
+          "resolvedTarget": "src/entrypoints/sdk/coreTypes.generated.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            599,
+            625
+          ],
+          "specifierLiteralSha256": "f813975a7bdad791ab9e1714e388ec889bc220c20a74eef01f428f8fdfdb1afd"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/coreTypes.generated.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/coreTypes.generated.ts",
+      "facadeSha256": "82757a6fd65b943cac80c5921e63089ecea649e058d95b4b64016f2ccbed7ea9"
+    },
+    {
+      "receiptId": "overlay-8",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/screens/REPL.tsx",
+      "originalSha256": "a0644a57e2a6f401a6e30848a3425cf759f875af4cb51216a9228835507af28c",
+      "irSha256": "b71112ad9e59b1e6861e824a4ef915b5b7e73e541433513c3d6a32718dc74d09",
+      "edits": [
+        {
+          "start": 23053,
+          "end": 23099,
+          "originalLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+          "originalSpecifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+          "marker": "~R4",
+          "replacementSha256": "61381db7f149a87bf6a7010d397cbf8ad2487544c7be907aaea530cf7efb7cf9"
+        }
+      ],
+      "utf16Length": 895449
+    },
+    {
+      "receiptId": "overlay-9",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/utils/filePersistence/filePersistence.ts",
+      "originalSha256": "7a2ac8c9d100fbc5b4cbef474bfcb17e099ab77d59bb0d5ce02c1c2824367565",
+      "irSha256": "56e3ea9204143e929fa511c858fb6d4e040ae7e8a603cb6ac72dd85b85a8c130",
+      "edits": [
+        {
+          "start": 1060,
+          "end": 1072,
+          "originalLiteralSha256": "acbab2a870978fea442fcd973aa750802863777759964967a8ab0544af243d90",
+          "originalSpecifier": "./types.js",
+          "marker": "~R5",
+          "replacementSha256": "23b0ce9d13f9f5203c26c567c12cf074a281491035f54850cff8c9ee2b0b5829"
+        }
+      ],
+      "utf16Length": 7763
+    },
+    {
+      "receiptId": "edge-10",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/tools.ts",
+      "originSource": "src/tools.ts",
+      "specifier": "./tools/TungstenTool/TungstenTool.js",
+      "emittedSpecifier": "~R3",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/tools.ts",
+          "originSourceSha256": "4307f3f7dec2916299cc2fa5c45df8b95fd9a1945be7ac918ccd3d47a42f18cb",
+          "originGenesisGitBlob": "567573ee04ecefc923b91758d213d299cb071686",
+          "range": [
+            3025,
+            3092
+          ],
+          "sliceSha256": "8812f2eedbf5de706e9d775fd08de3606b4adffd2f7a12140118e93ce5728030",
+          "specifier": "./tools/TungstenTool/TungstenTool.js",
+          "resolvedTarget": "src/tools/TungstenTool/TungstenTool.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            3054,
+            3092
+          ],
+          "specifierLiteralSha256": "c2dc62bccb368ba8971c3911ee86496171087606a65afaf3a8f3eb41c4e0e4ee"
+        }
+      ],
+      "resolvedTarget": "src/tools/TungstenTool/TungstenTool.ts",
+      "action": "private-marker-external",
+      "marker": "~R3"
+    },
+    {
+      "receiptId": "overlay-11",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/constants/tools.ts",
+      "originalSha256": "2128aedb9192911439d0fa79ba887a3b5f47dfe278ff50be596ccd2be2a44a6d",
+      "irSha256": "500b0c0f243666031ec33db53c4d3d9d0409b7f7e827a4bce9dbf154a6385064",
+      "edits": [
+        {
+          "start": 2117,
+          "end": 2153,
+          "originalLiteralSha256": "63525aa8b19783e7cbed622b7409a9d6122ed6844be6d34a374b21e8cdee411a",
+          "originalSpecifier": "../tools/WorkflowTool/constants.js",
+          "marker": "~R1",
+          "replacementSha256": "89f2bb7445d6f8b610d5900e36f657571dc1eb68ff40149ce8acca1850b7ff78"
+        }
+      ],
+      "utf16Length": 4690
+    },
+    {
+      "receiptId": "edge-12",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/agentSdkTypes.ts",
+      "originSource": "src/entrypoints/agentSdkTypes.ts",
+      "specifier": "./sdk/runtimeTypes.js",
+      "emittedSpecifier": "./sdk/runtimeTypes.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            1390,
+            1779
+          ],
+          "sliceSha256": "2a9f007683c19e5cb233cad749d9d614b8e176dbf108b74484599bf7c3dc6f96",
+          "specifier": "./sdk/runtimeTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": true,
+          "specifierRange": [
+            1756,
+            1779
+          ],
+          "specifierLiteralSha256": "a21591bc0549c326a3880c64bb99b19ee1013c41d890d762a22094803ba3a35b"
+        },
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            779,
+            816
+          ],
+          "sliceSha256": "8c5706ab87f1abf5b07c830f4680ce684b9831c797efac066c6c221abf9fa9db",
+          "specifier": "./sdk/runtimeTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            793,
+            816
+          ],
+          "specifierLiteralSha256": "a21591bc0549c326a3880c64bb99b19ee1013c41d890d762a22094803ba3a35b"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/runtimeTypes.ts",
+      "facadeSha256": "252bd57d8e8ac34b4580c3098948671a790a497734513f02a200c30b1e1653fe"
+    },
+    {
+      "receiptId": "edge-13",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/agentSdkTypes.ts",
+      "originSource": "src/entrypoints/agentSdkTypes.ts",
+      "specifier": "./sdk/toolTypes.js",
+      "emittedSpecifier": "./sdk/toolTypes.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            1021,
+            1055
+          ],
+          "sliceSha256": "e802f33c27583380ba4758b800c6f32217cdfefd78331c7d1a0c6095f283c833",
+          "specifier": "./sdk/toolTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/toolTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            1035,
+            1055
+          ],
+          "specifierLiteralSha256": "70ebf1cdc6bccc927755568c7af7f42ba9ec1e13afd266fcb2928faafad5493e"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/toolTypes.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/toolTypes.ts",
+      "facadeSha256": "1a5a0e9b3c3c9c1ab4f10a14f184d324376e057b7a386aab370270e22c985c25"
+    },
+    {
+      "receiptId": "edge-14",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/agentSdkTypes.ts",
+      "originSource": "src/entrypoints/agentSdkTypes.ts",
+      "specifier": "./sdk/runtimeTypes.js",
+      "emittedSpecifier": "./sdk/runtimeTypes.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            1390,
+            1779
+          ],
+          "sliceSha256": "2a9f007683c19e5cb233cad749d9d614b8e176dbf108b74484599bf7c3dc6f96",
+          "specifier": "./sdk/runtimeTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": true,
+          "specifierRange": [
+            1756,
+            1779
+          ],
+          "specifierLiteralSha256": "a21591bc0549c326a3880c64bb99b19ee1013c41d890d762a22094803ba3a35b"
+        },
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            779,
+            816
+          ],
+          "sliceSha256": "8c5706ab87f1abf5b07c830f4680ce684b9831c797efac066c6c221abf9fa9db",
+          "specifier": "./sdk/runtimeTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            793,
+            816
+          ],
+          "specifierLiteralSha256": "a21591bc0549c326a3880c64bb99b19ee1013c41d890d762a22094803ba3a35b"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/runtimeTypes.ts",
+      "facadeSha256": "252bd57d8e8ac34b4580c3098948671a790a497734513f02a200c30b1e1653fe"
+    },
+    {
+      "receiptId": "edge-15",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/agentSdkTypes.ts",
+      "originSource": "src/entrypoints/agentSdkTypes.ts",
+      "specifier": "./sdk/toolTypes.js",
+      "emittedSpecifier": "./sdk/toolTypes.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            1021,
+            1055
+          ],
+          "sliceSha256": "e802f33c27583380ba4758b800c6f32217cdfefd78331c7d1a0c6095f283c833",
+          "specifier": "./sdk/toolTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/toolTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            1035,
+            1055
+          ],
+          "specifierLiteralSha256": "70ebf1cdc6bccc927755568c7af7f42ba9ec1e13afd266fcb2928faafad5493e"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/toolTypes.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/toolTypes.ts",
+      "facadeSha256": "1a5a0e9b3c3c9c1ab4f10a14f184d324376e057b7a386aab370270e22c985c25"
+    },
+    {
+      "receiptId": "edge-16",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/agentSdkTypes.ts",
+      "originSource": "src/entrypoints/agentSdkTypes.ts",
+      "specifier": "./sdk/runtimeTypes.js",
+      "emittedSpecifier": "./sdk/runtimeTypes.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            1390,
+            1779
+          ],
+          "sliceSha256": "2a9f007683c19e5cb233cad749d9d614b8e176dbf108b74484599bf7c3dc6f96",
+          "specifier": "./sdk/runtimeTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": true,
+          "specifierRange": [
+            1756,
+            1779
+          ],
+          "specifierLiteralSha256": "a21591bc0549c326a3880c64bb99b19ee1013c41d890d762a22094803ba3a35b"
+        },
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            779,
+            816
+          ],
+          "sliceSha256": "8c5706ab87f1abf5b07c830f4680ce684b9831c797efac066c6c221abf9fa9db",
+          "specifier": "./sdk/runtimeTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            793,
+            816
+          ],
+          "specifierLiteralSha256": "a21591bc0549c326a3880c64bb99b19ee1013c41d890d762a22094803ba3a35b"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/runtimeTypes.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/runtimeTypes.ts",
+      "facadeSha256": "252bd57d8e8ac34b4580c3098948671a790a497734513f02a200c30b1e1653fe"
+    },
+    {
+      "receiptId": "edge-17",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/entrypoints/agentSdkTypes.ts",
+      "originSource": "src/entrypoints/agentSdkTypes.ts",
+      "specifier": "./sdk/toolTypes.js",
+      "emittedSpecifier": "./sdk/toolTypes.js",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/entrypoints/agentSdkTypes.ts",
+          "originSourceSha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86",
+          "originGenesisGitBlob": "b19945854458cd68df367493b5907361529ce79c",
+          "range": [
+            1021,
+            1055
+          ],
+          "sliceSha256": "e802f33c27583380ba4758b800c6f32217cdfefd78331c7d1a0c6095f283c833",
+          "specifier": "./sdk/toolTypes.js",
+          "resolvedTarget": "src/entrypoints/sdk/toolTypes.ts",
+          "kind": "import-statement",
+          "sourceKind": "ExportAllDeclaration",
+          "erased": false,
+          "specifierRange": [
+            1035,
+            1055
+          ],
+          "specifierLiteralSha256": "70ebf1cdc6bccc927755568c7af7f42ba9ec1e13afd266fcb2928faafad5493e"
+        }
+      ],
+      "resolvedTarget": "src/entrypoints/sdk/toolTypes.ts",
+      "action": "sdk-declaration-facade",
+      "virtualPath": "/__claude_reconstruction_sdk__/2.1.88/toolTypes.ts",
+      "facadeSha256": "1a5a0e9b3c3c9c1ab4f10a14f184d324376e057b7a386aab370270e22c985c25"
+    },
+    {
+      "receiptId": "overlay-18",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/ink/components/Box.tsx",
+      "originalSha256": "224284d27b0c500a380b921db7f61fda4b22f7db55b0fb34859e98bfc6d1cc13",
+      "irSha256": "9764a2e2cc17a1d4fdfbbd16bd8305c53b30c2c97d021dc646298c09ea18e280",
+      "edits": [
+        {
+          "start": 57,
+          "end": 73,
+          "originalLiteralSha256": "46d1c341229e7f19b2ebba03a1390ae46702e76e0e816ccc131c4cc2456a9dc7",
+          "originalSpecifier": "../global.d.ts",
+          "marker": "~R0",
+          "replacementSha256": "bb3f276c026ea029c8bdf932c9b6cb108eee02d12504fb00b38c07698e9cbf6a"
+        }
+      ],
+      "utf16Length": 21646
+    },
+    {
+      "receiptId": "load-19",
+      "action": "sdk-facade-load",
+      "path": "/__claude_reconstruction_sdk__/2.1.88/coreTypes.generated.ts",
+      "facadeSha256": "82757a6fd65b943cac80c5921e63089ecea649e058d95b4b64016f2ccbed7ea9"
+    },
+    {
+      "receiptId": "load-20",
+      "action": "sdk-facade-load",
+      "path": "/__claude_reconstruction_sdk__/2.1.88/runtimeTypes.ts",
+      "facadeSha256": "252bd57d8e8ac34b4580c3098948671a790a497734513f02a200c30b1e1653fe"
+    },
+    {
+      "receiptId": "load-21",
+      "action": "sdk-facade-load",
+      "path": "/__claude_reconstruction_sdk__/2.1.88/toolTypes.ts",
+      "facadeSha256": "1a5a0e9b3c3c9c1ab4f10a14f184d324376e057b7a386aab370270e22c985c25"
+    },
+    {
+      "receiptId": "overlay-22",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/ink/components/ScrollBox.tsx",
+      "originalSha256": "62eaf7266fcf23914fc0a297654c72a35c820665995779f4027589dc61f25ed2",
+      "irSha256": "2ea7f3515a9311798c93b5e25941a3e7622a19fbfed9f64cd4e250a21fd003a7",
+      "edits": [
+        {
+          "start": 415,
+          "end": 431,
+          "originalLiteralSha256": "46d1c341229e7f19b2ebba03a1390ae46702e76e0e816ccc131c4cc2456a9dc7",
+          "originalSpecifier": "../global.d.ts",
+          "marker": "~R0",
+          "replacementSha256": "bb3f276c026ea029c8bdf932c9b6cb108eee02d12504fb00b38c07698e9cbf6a"
+        }
+      ],
+      "utf16Length": 31794
+    },
+    {
+      "receiptId": "edge-23",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/services/api/logging.ts",
+      "originSource": "src/services/api/logging.ts",
+      "specifier": "src/types/connectorText.js",
+      "emittedSpecifier": "~R2",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/services/api/logging.ts",
+          "originSourceSha256": "2d5effa9bc7b52c8c20a57a1fd9666e4925e40ee624a26e3641522a048c5d535",
+          "originGenesisGitBlob": "a411c12c257a9f8d912a671d610799edba504f5f",
+          "range": [
+            505,
+            570
+          ],
+          "sliceSha256": "2b1522a398c22e5a27a2f2a07e882be78c00700df5521054c1ff6260db8a6c2b",
+          "specifier": "src/types/connectorText.js",
+          "resolvedTarget": "src/types/connectorText.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            542,
+            570
+          ],
+          "specifierLiteralSha256": "4030a177e7cfdc96561c8b8759da0b6488eb8333c218f55a15c7fb8c3788c884"
+        }
+      ],
+      "resolvedTarget": "src/types/connectorText.ts",
+      "action": "private-marker-external",
+      "marker": "~R2"
+    },
+    {
+      "receiptId": "edge-24",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/utils/filePersistence/filePersistence.ts",
+      "originSource": "src/utils/filePersistence/filePersistence.ts",
+      "specifier": "./types.js",
+      "emittedSpecifier": "~R5",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/utils/filePersistence/filePersistence.ts",
+          "originSourceSha256": "7a2ac8c9d100fbc5b4cbef474bfcb17e099ab77d59bb0d5ce02c1c2824367565",
+          "originGenesisGitBlob": "9dabbab76f2ef2d4a954a7d5948fe9e8f37f923f",
+          "range": [
+            874,
+            1072
+          ],
+          "sliceSha256": "ad810c384616f574205bd69107f5ef877d0d5f85d60cd207945843c9211f0274",
+          "specifier": "./types.js",
+          "resolvedTarget": "src/utils/filePersistence/types.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            1060,
+            1072
+          ],
+          "specifierLiteralSha256": "acbab2a870978fea442fcd973aa750802863777759964967a8ab0544af243d90"
+        }
+      ],
+      "resolvedTarget": "src/utils/filePersistence/types.ts",
+      "action": "private-marker-external",
+      "marker": "~R5"
+    },
+    {
+      "receiptId": "edge-25",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/constants/tools.ts",
+      "originSource": "src/constants/tools.ts",
+      "specifier": "../tools/WorkflowTool/constants.js",
+      "emittedSpecifier": "~R1",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/constants/tools.ts",
+          "originSourceSha256": "2128aedb9192911439d0fa79ba887a3b5f47dfe278ff50be596ccd2be2a44a6d",
+          "originGenesisGitBlob": "67dd23fd312e950af8ee5f2db81470747067f132",
+          "range": [
+            2082,
+            2153
+          ],
+          "sliceSha256": "b01be17ba7271be1afdcbe27b241fcf412bc0416bffb24f9d9bd4264545050f9",
+          "specifier": "../tools/WorkflowTool/constants.js",
+          "resolvedTarget": "src/tools/WorkflowTool/constants.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            2117,
+            2153
+          ],
+          "specifierLiteralSha256": "63525aa8b19783e7cbed622b7409a9d6122ed6844be6d34a374b21e8cdee411a"
+        }
+      ],
+      "resolvedTarget": "src/tools/WorkflowTool/constants.ts",
+      "action": "private-marker-external",
+      "marker": "~R1"
+    },
+    {
+      "receiptId": "overlay-26",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/components/Message.tsx",
+      "originalSha256": "fa5b4db8d0ecb9e24fa29f2e96c817532b4a483f0c723fdd213f2cdb2a0192d9",
+      "irSha256": "a7b6887d519c5736009f654381f909f17d180a7cccbe4dbf4791da7e8b97d6ea",
+      "edits": [
+        {
+          "start": 617,
+          "end": 644,
+          "originalLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21",
+          "originalSpecifier": "../types/connectorText.js",
+          "marker": "~R2",
+          "replacementSha256": "ddf372537c3d5a875ebb6350034eaaf9be3fa049b467fbc33118c9d422eb9ab0"
+        }
+      ],
+      "utf16Length": 79111
+    },
+    {
+      "receiptId": "edge-27",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/ink/components/Box.tsx",
+      "originSource": "src/ink/components/Box.tsx",
+      "specifier": "../global.d.ts",
+      "emittedSpecifier": "~R0",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/ink/components/Box.tsx",
+          "originSourceSha256": "224284d27b0c500a380b921db7f61fda4b22f7db55b0fb34859e98bfc6d1cc13",
+          "originGenesisGitBlob": "67f2500ff84220940f4c40e14c06afa2fd6e10f1",
+          "range": [
+            50,
+            74
+          ],
+          "sliceSha256": "44a9d2a02c361fbc53d4c8eff3a1b20ee8ea059a853405682391c16a89f10ff3",
+          "specifier": "../global.d.ts",
+          "resolvedTarget": "src/ink/global.d.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            57,
+            73
+          ],
+          "specifierLiteralSha256": "46d1c341229e7f19b2ebba03a1390ae46702e76e0e816ccc131c4cc2456a9dc7"
+        }
+      ],
+      "resolvedTarget": "src/ink/global.d.ts",
+      "action": "private-marker-external",
+      "marker": "~R0"
+    },
+    {
+      "receiptId": "edge-28",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/screens/REPL.tsx",
+      "originSource": "src/screens/REPL.tsx",
+      "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+      "emittedSpecifier": "~R4",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/screens/REPL.tsx",
+          "originSourceSha256": "a0644a57e2a6f401a6e30848a3425cf759f875af4cb51216a9228835507af28c",
+          "originGenesisGitBlob": "11cc4d84deb86395e400932f2344d40bc38e317d",
+          "range": [
+            23017,
+            23100
+          ],
+          "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+          "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+          "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            23053,
+            23099
+          ],
+          "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496"
+        }
+      ],
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "action": "private-marker-external",
+      "marker": "~R4"
+    },
+    {
+      "receiptId": "overlay-29",
+      "action": "source-import-literal-overlay",
+      "originSource": "src/components/agents/ToolSelector.tsx",
+      "originalSha256": "fd0b4c937f6008d8eec224a16286ccb35d0f7a58e605a7f1a117ce620fb051aa",
+      "irSha256": "7a9fede2cf996fc28b4ae10f2094c67306558c61c8a9e0c5074fa18a50697c5e",
+      "edits": [
+        {
+          "start": 1465,
+          "end": 1505,
+          "originalLiteralSha256": "cc310b6619d7f944b0edd7e62c26dd9928f76cd44a7787a0d303bc82565c4663",
+          "originalSpecifier": "src/tools/TungstenTool/TungstenTool.js",
+          "marker": "~R3",
+          "replacementSha256": "c93afa5f2d68ed3e87d81f83531662a4e9dcdb624c4dce7bfe2411d831cd1e84"
+        }
+      ],
+      "utf16Length": 64871
+    },
+    {
+      "receiptId": "edge-30",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/ink/components/ScrollBox.tsx",
+      "originSource": "src/ink/components/ScrollBox.tsx",
+      "specifier": "../global.d.ts",
+      "emittedSpecifier": "~R0",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/ink/components/ScrollBox.tsx",
+          "originSourceSha256": "62eaf7266fcf23914fc0a297654c72a35c820665995779f4027589dc61f25ed2",
+          "originGenesisGitBlob": "03e4a31cb1dab9818a259f89aa46cd83d6c9309b",
+          "range": [
+            408,
+            432
+          ],
+          "sliceSha256": "44a9d2a02c361fbc53d4c8eff3a1b20ee8ea059a853405682391c16a89f10ff3",
+          "specifier": "../global.d.ts",
+          "resolvedTarget": "src/ink/global.d.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            415,
+            431
+          ],
+          "specifierLiteralSha256": "46d1c341229e7f19b2ebba03a1390ae46702e76e0e816ccc131c4cc2456a9dc7"
+        }
+      ],
+      "resolvedTarget": "src/ink/global.d.ts",
+      "action": "private-marker-external",
+      "marker": "~R0"
+    },
+    {
+      "receiptId": "edge-31",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/components/Message.tsx",
+      "originSource": "src/components/Message.tsx",
+      "specifier": "../types/connectorText.js",
+      "emittedSpecifier": "~R2",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/components/Message.tsx",
+          "originSourceSha256": "fa5b4db8d0ecb9e24fa29f2e96c817532b4a483f0c723fdd213f2cdb2a0192d9",
+          "originGenesisGitBlob": "ca2ef768686577d987c3525414355452cf0371fa",
+          "range": [
+            555,
+            645
+          ],
+          "sliceSha256": "6035bc1c75ab632eb9241d025a0627a0372449399408fd4249988d934e1cf7c6",
+          "specifier": "../types/connectorText.js",
+          "resolvedTarget": "src/types/connectorText.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            617,
+            644
+          ],
+          "specifierLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21"
+        }
+      ],
+      "resolvedTarget": "src/types/connectorText.ts",
+      "action": "private-marker-external",
+      "marker": "~R2"
+    },
+    {
+      "receiptId": "edge-32",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/components/agents/ToolSelector.tsx",
+      "originSource": "src/components/agents/ToolSelector.tsx",
+      "specifier": "src/tools/TungstenTool/TungstenTool.js",
+      "emittedSpecifier": "~R3",
+      "requestKind": "import-statement",
+      "sourceEdges": [
+        {
+          "originSource": "src/components/agents/ToolSelector.tsx",
+          "originSourceSha256": "fd0b4c937f6008d8eec224a16286ccb35d0f7a58e605a7f1a117ce620fb051aa",
+          "originGenesisGitBlob": "3eb61d107cc1992d8e563eea8d66933f25318d89",
+          "range": [
+            1436,
+            1506
+          ],
+          "sliceSha256": "036262b5aee4ec0593ec995a4423579a830ad25c797227f4a67101b24c2aa1b7",
+          "specifier": "src/tools/TungstenTool/TungstenTool.js",
+          "resolvedTarget": "src/tools/TungstenTool/TungstenTool.ts",
+          "kind": "import-statement",
+          "sourceKind": "ImportDeclaration",
+          "erased": false,
+          "specifierRange": [
+            1465,
+            1505
+          ],
+          "specifierLiteralSha256": "cc310b6619d7f944b0edd7e62c26dd9928f76cd44a7787a0d303bc82565c4663"
+        }
+      ],
+      "resolvedTarget": "src/tools/TungstenTool/TungstenTool.ts",
+      "action": "private-marker-external",
+      "marker": "~R3"
+    }
+  ],
+  "virtualNativeWrapperRequests": [
+    {
+      "hook": "onResolve",
+      "specifier": "@ant/computer-use-swift",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/utils/computerUse/swiftLoader.ts",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "virtualAbsolutePath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-swift/js/index.js",
+      "sourceRelative": "node_modules/@ant/computer-use-swift/js/index.js",
+      "sourceSha256": "462ef9dfef40f27851082bcf16846c07026657005f5cfdc6707200a55cc4512c"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "@ant/computer-use-input",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/src/utils/computerUse/inputLoader.ts",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "virtualAbsolutePath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-input/js/index.js",
+      "sourceRelative": "node_modules/@ant/computer-use-input/js/index.js",
+      "sourceSha256": "cdaa3d9958c9ad71cb2729fec25eed35d5cfaaa5de15933bf84ca5ac426e5e15"
+    },
+    {
+      "hook": "onLoad",
+      "path": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-swift/js/index.js",
+      "namespace": "file",
+      "accepted": true,
+      "sourceRelative": "node_modules/@ant/computer-use-swift/js/index.js",
+      "sourceBytes": 1084,
+      "sourceSha256": "462ef9dfef40f27851082bcf16846c07026657005f5cfdc6707200a55cc4512c",
+      "loader": "js"
+    },
+    {
+      "hook": "onLoad",
+      "path": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@ant/computer-use-input/js/index.js",
+      "namespace": "file",
+      "accepted": true,
+      "sourceRelative": "node_modules/@ant/computer-use-input/js/index.js",
+      "sourceBytes": 1313,
+      "sourceSha256": "cdaa3d9958c9ad71cb2729fec25eed35d5cfaaa5de15933bf84ca5ac426e5e15",
+      "loader": "js"
+    }
+  ],
+  "virtualGrpcRequests": [
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/semver/internal/re.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/semver/internal/re.js",
+      "sourceSha256": "016655766a1381078a83ba04cd6ba39afc6e64c3e5a95789ad82c3672ae87a94",
+      "recordedTarget": "node_modules/semver/internal/constants.js",
+      "targetSha256": "38a112baf27ceca0260082ff26ac2fd7a9861cab1af12dd65e720277f68e6ce9",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@opentelemetry/core/build/src/baggage/utils.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@opentelemetry/core/build/src/baggage/utils.js",
+      "sourceSha256": "5d5662d2be924c84aec789ba943f38ff508047e8b85cb69d20cfcff86675e228",
+      "recordedTarget": "node_modules/@opentelemetry/core/build/src/baggage/constants.js",
+      "targetSha256": "a897bae8f0811b4488e18a8c61db7f5ed252a1f4583c27374d45871537dc7ff6",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/sender.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/sender.js",
+      "sourceSha256": "a80e8688dde53d46d836a58c9d15121ee12e978b7b0f656ed818c63d20df5f94",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/fetch/response.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/fetch/response.js",
+      "sourceSha256": "103a92a5e44ee47822ad5892b6134b8b237fad505a4ccf9fb4d2963af1c49fb6",
+      "recordedTarget": "node_modules/undici/lib/web/fetch/constants.js",
+      "targetSha256": "d6c377a0ce91b947a1299845516886be525f474aedad65c7dde35f2c9301b97e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/core/util.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/core/util.js",
+      "sourceSha256": "ebbaa1263b06489bc467b6b62d95b247f38006f94d17131482ea03685ef18da9",
+      "recordedTarget": "node_modules/undici/lib/core/constants.js",
+      "targetSha256": "962e2278404f3c0b0d45bf67eb1966c39dc33c04b89e2e9f4a955ac057272b82",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/websocket-server.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/websocket-server.js",
+      "sourceSha256": "fe8a410e89325608dc94d09778a2650bf041b9b7f5dff61d5005ea111e09a508",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/websocket.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/websocket.js",
+      "sourceSha256": "ea50fd045185975e0e572637cd96fa065a7e988a1d1c890d18002c75a8a253b9",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/receiver.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/receiver.js",
+      "sourceSha256": "7b9f6afc1fffb5c98d768d7d3d6fc1b709f28b45c6ae2682ff255075394323d9",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/fetch/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/fetch/index.js",
+      "sourceSha256": "ec5fa587004c3d852f4e29ca4726eff00bede5cc4793dc6431b0c13ca0576c9f",
+      "recordedTarget": "node_modules/undici/lib/web/fetch/constants.js",
+      "targetSha256": "d6c377a0ce91b947a1299845516886be525f474aedad65c7dde35f2c9301b97e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/websocket/websocket.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/websocket/websocket.js",
+      "sourceSha256": "6c5b8b1ef1e252dc8f4100646989a9b93ef8e6861e4bfa8fcfc0409660aed1cd",
+      "recordedTarget": "node_modules/undici/lib/web/websocket/constants.js",
+      "targetSha256": "55527aeddaa0d2ca2a9b57080be9ee3113f674dce45069cf6d494d5149f8767c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/fetch/request.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/fetch/request.js",
+      "sourceSha256": "eed7953967abb30acad4c7ae54417e61d2c53bd3393a6f1929270865724345ad",
+      "recordedTarget": "node_modules/undici/lib/web/fetch/constants.js",
+      "targetSha256": "d6c377a0ce91b947a1299845516886be525f474aedad65c7dde35f2c9301b97e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/validation.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/validation.js",
+      "sourceSha256": "41ce8e83d0d434132e1704895fedb91f6703a701b42d91c80954ab29b2845593",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/permessage-deflate.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/permessage-deflate.js",
+      "sourceSha256": "adcedcb3069b7c6db3fd6cec93699ef70bd4061126b987dd9a8f7cb16d2b7530",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/buffer-util.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/buffer-util.js",
+      "sourceSha256": "8b0a45739132f82e25ea13163780abf547ccfe989267f3eb7abb475beec92da3",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/core/tree.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/core/tree.js",
+      "sourceSha256": "7f2625127a44664c9fd531c0938b00a8fbac467e2ad15e65dbef48cb5029a385",
+      "recordedTarget": "node_modules/undici/lib/core/constants.js",
+      "targetSha256": "962e2278404f3c0b0d45bf67eb1966c39dc33c04b89e2e9f4a955ac057272b82",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/cookies/parse.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/cookies/parse.js",
+      "sourceSha256": "e7552e4673668f44e0802e5f3317e4883c53eda5c0da915a9ab9435c0a4756e5",
+      "recordedTarget": "node_modules/undici/lib/web/cookies/constants.js",
+      "targetSha256": "85a24ae49eb5954e15363049bbc68967f01aae7260246daa3f49ad375429acb4",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/ws/lib/event-target.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/ws/lib/event-target.js",
+      "sourceSha256": "c45d3c6e12d170c860c0c3f1a050aa0f864d9806632b609a1e607d675aba128c",
+      "recordedTarget": "node_modules/ws/lib/constants.js",
+      "targetSha256": "7efe5c0b888e4fde8bd9076c65b81bfd0df0963810b977d890df126929bb9190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/fetch/util.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/fetch/util.js",
+      "sourceSha256": "85ee9fbb5c6083b521ac108959dddc4029e3549350da5e4ec10bfc2077846039",
+      "recordedTarget": "node_modules/undici/lib/web/fetch/constants.js",
+      "targetSha256": "d6c377a0ce91b947a1299845516886be525f474aedad65c7dde35f2c9301b97e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/core/request.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/core/request.js",
+      "sourceSha256": "917b30ebe5b842f7b3c2949e7f8fbe7f58139dd8d65833d640b41ffd19a90985",
+      "recordedTarget": "node_modules/undici/lib/core/constants.js",
+      "targetSha256": "962e2278404f3c0b0d45bf67eb1966c39dc33c04b89e2e9f4a955ac057272b82",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/websocket/receiver.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/websocket/receiver.js",
+      "sourceSha256": "d8b8196ca9f01c90892e383da0340c6ade6fafc5415b5eaedd74431d3936a9ff",
+      "recordedTarget": "node_modules/undici/lib/web/websocket/constants.js",
+      "targetSha256": "55527aeddaa0d2ca2a9b57080be9ee3113f674dce45069cf6d494d5149f8767c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/websocket/connection.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/websocket/connection.js",
+      "sourceSha256": "399bfffecf05b8c1c43db4ca7b8ed11ad2176eb0e08d89e917c643e2c38c2761",
+      "recordedTarget": "node_modules/undici/lib/web/websocket/constants.js",
+      "targetSha256": "55527aeddaa0d2ca2a9b57080be9ee3113f674dce45069cf6d494d5149f8767c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/websocket/sender.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/websocket/sender.js",
+      "sourceSha256": "147f118843cdbbb884b39b2f4644cbec6671a530018e3baedafadf04339e4dcd",
+      "recordedTarget": "node_modules/undici/lib/web/websocket/constants.js",
+      "targetSha256": "55527aeddaa0d2ca2a9b57080be9ee3113f674dce45069cf6d494d5149f8767c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/websocket/util.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/websocket/util.js",
+      "sourceSha256": "709b5f90955689909493541471d703c6e69694a26c7bccbf3ec00f1b51d4ea16",
+      "recordedTarget": "node_modules/undici/lib/web/websocket/constants.js",
+      "targetSha256": "55527aeddaa0d2ca2a9b57080be9ee3113f674dce45069cf6d494d5149f8767c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/pngjs/lib/packer-async.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/pngjs/lib/packer-async.js",
+      "sourceSha256": "f50df0610749ce7b1a99abbe9e4596df7c16f96efd3848f12dd632b22cb02b45",
+      "recordedTarget": "node_modules/pngjs/lib/constants.js",
+      "targetSha256": "9e3b4f994ac93751e9ccb4d453e85e4f25a0b086a9f24ec92c7dcb06995bdf6c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@aws-crypto/sha256-js/build/jsSha256.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@aws-crypto/sha256-js/build/jsSha256.js",
+      "sourceSha256": "49b2a1957e91af995586498a862e6cd1f9d2a83d8a0183a53142571a8a8de58f",
+      "recordedTarget": "node_modules/@aws-crypto/sha256-js/build/constants.js",
+      "targetSha256": "45340eb7f030f48987449216a5e43d03939696791f8e7eb874f7121bbdf2c190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/undici/lib/web/websocket/frame.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/undici/lib/web/websocket/frame.js",
+      "sourceSha256": "a60454364e7f2ec5db26c6ff03d20262d35fb2f1a0b2f6d625fd644be21cb118",
+      "recordedTarget": "node_modules/undici/lib/web/websocket/constants.js",
+      "targetSha256": "55527aeddaa0d2ca2a9b57080be9ee3113f674dce45069cf6d494d5149f8767c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/pngjs/lib/packer-sync.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/pngjs/lib/packer-sync.js",
+      "sourceSha256": "1b516238168a42704e62ba44528406188864a6ddda2ae92d1b91e5e078cdaa2d",
+      "recordedTarget": "node_modules/pngjs/lib/constants.js",
+      "targetSha256": "9e3b4f994ac93751e9ccb4d453e85e4f25a0b086a9f24ec92c7dcb06995bdf6c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/pngjs/lib/packer.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/pngjs/lib/packer.js",
+      "sourceSha256": "b5f9956364c80d67c28d615ace639a5fb4d4d79d3acb235237f3050dca220e03",
+      "recordedTarget": "node_modules/pngjs/lib/constants.js",
+      "targetSha256": "9e3b4f994ac93751e9ccb4d453e85e4f25a0b086a9f24ec92c7dcb06995bdf6c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/pngjs/lib/parser.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/pngjs/lib/parser.js",
+      "sourceSha256": "574e43fea28a28cc6feb7ab62a480a86bb75411ee4bfaba76a7e9d7310b6e94c",
+      "recordedTarget": "node_modules/pngjs/lib/constants.js",
+      "targetSha256": "9e3b4f994ac93751e9ccb4d453e85e4f25a0b086a9f24ec92c7dcb06995bdf6c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/picomatch/lib/utils.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/picomatch/lib/utils.js",
+      "sourceSha256": "f04604f70cd1a3f6ace80b84766468674ff38b4bb83818d2ef1d81fc6355f935",
+      "recordedTarget": "node_modules/picomatch/lib/constants.js",
+      "targetSha256": "d386ec4ee55ba11bf99e4c1a4b0b7e673726dcac56d401b52f6f669dc70957b6",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/picomatch/lib/picomatch.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/picomatch/lib/picomatch.js",
+      "sourceSha256": "808ceda04cf4a7911e9d4eab72ac8d590685960d56238018917d17b57baf9ddd",
+      "recordedTarget": "node_modules/picomatch/lib/constants.js",
+      "targetSha256": "d386ec4ee55ba11bf99e4c1a4b0b7e673726dcac56d401b52f6f669dc70957b6",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@aws-crypto/sha256-js/build/RawSha256.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@aws-crypto/sha256-js/build/RawSha256.js",
+      "sourceSha256": "edf430dae46209527e5a7f2f5438a7b64eebd834674f08e3a55606705103d26b",
+      "recordedTarget": "node_modules/@aws-crypto/sha256-js/build/constants.js",
+      "targetSha256": "45340eb7f030f48987449216a5e43d03939696791f8e7eb874f7121bbdf2c190",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/pngjs/lib/bitpacker.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/pngjs/lib/bitpacker.js",
+      "sourceSha256": "3f7bfabcbc82bedd0cc8551bc210b44dc1fb179fa2ce3b8b1d39fa307d8af204",
+      "recordedTarget": "node_modules/pngjs/lib/constants.js",
+      "targetSha256": "9e3b4f994ac93751e9ccb4d453e85e4f25a0b086a9f24ec92c7dcb06995bdf6c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/picomatch/lib/parse.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/picomatch/lib/parse.js",
+      "sourceSha256": "e8dba2cc1f3663fff122933848349d2d9a6ff1caf725336a90050f32fb59b885",
+      "recordedTarget": "node_modules/picomatch/lib/constants.js",
+      "targetSha256": "d386ec4ee55ba11bf99e4c1a4b0b7e673726dcac56d401b52f6f669dc70957b6",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/picomatch/lib/scan.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/picomatch/lib/scan.js",
+      "sourceSha256": "227fcc994a477ea95c5a0435d32783566334c6bd0dcc4a103029735ad8c9c535",
+      "recordedTarget": "node_modules/picomatch/lib/constants.js",
+      "targetSha256": "d386ec4ee55ba11bf99e4c1a4b0b7e673726dcac56d401b52f6f669dc70957b6",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/sharp/node_modules/semver/internal/re.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/sharp/node_modules/semver/internal/re.js",
+      "sourceSha256": "016655766a1381078a83ba04cd6ba39afc6e64c3e5a95789ad82c3672ae87a94",
+      "recordedTarget": "node_modules/sharp/node_modules/semver/internal/constants.js",
+      "targetSha256": "38a112baf27ceca0260082ff26ac2fd7a9861cab1af12dd65e720277f68e6ce9",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/jsonwebtoken/node_modules/semver/internal/re.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/jsonwebtoken/node_modules/semver/internal/re.js",
+      "sourceSha256": "1ed1a651e379e5fe1612c9f1349179ebc787313b6b100d363beacffe32c54387",
+      "recordedTarget": "node_modules/jsonwebtoken/node_modules/semver/internal/constants.js",
+      "targetSha256": "0e3c33323906f2c612b0855895965f3ebac4865dd8fa9c6b4893cd4ea71e383e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channel-credentials",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+      "targetSha256": "50ee27f7b53eb7ee210d1ded3c4cb89ea8d0d0eb0954dc6e455eed5f8335dc1e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./make-client",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/make-client.js",
+      "targetSha256": "5c1ae3c7ca3b5b2d8076bcb27719839b74664241780d2fe4fc0ef9ff51aeab69",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channelz",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "targetSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./admin",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/admin.js",
+      "targetSha256": "8c2cd31dc0bec93d511ae41d09f08be2213be34e0b9f60573a6dd196aa87f97e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./orca",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "targetSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channelz",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/index.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/index.js",
+      "sourceSha256": "248fae70078a28b5dde8f8607df8cf6619a4da4066eea55a4df36b9694c92de3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "targetSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channel-credentials",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channel.js",
+      "sourceSha256": "b0d3dfe61438c3901beb53b1459c495d6dbe65cae71864f3df8122d691cf2a6e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+      "targetSha256": "50ee27f7b53eb7ee210d1ded3c4cb89ea8d0d0eb0954dc6e455eed5f8335dc1e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+      "sourceSha256": "1c23572ebcc3751c7f1ed1379da72d685f40b730b29aa07a618bffba7d14ed5f",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+      "sourceSha256": "1c23572ebcc3751c7f1ed1379da72d685f40b730b29aa07a618bffba7d14ed5f",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./backoff-timeout",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolver-dns.js",
+      "sourceSha256": "1c23572ebcc3751c7f1ed1379da72d685f40b730b29aa07a618bffba7d14ed5f",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+      "targetSha256": "f82515c6a031bf6f62a724c524da130647a4f35d0920a94a8c260d32c85c742e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+      "sourceSha256": "3b1b9b559cc1aa39e4a2784d3c7b0e1a8492a037fd5b4bd6367ef166338a608d",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+      "sourceSha256": "3b1b9b559cc1aa39e4a2784d3c7b0e1a8492a037fd5b4bd6367ef166338a608d",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-round-robin.js",
+      "sourceSha256": "3b1b9b559cc1aa39e4a2784d3c7b0e1a8492a037fd5b4bd6367ef166338a608d",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/client.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/client.js",
+      "sourceSha256": "e3a84fe730d6afdb4fef32e6774aded7932c3a24b446d992baaa77d50bbaea7b",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/client.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/client.js",
+      "sourceSha256": "e3a84fe730d6afdb4fef32e6774aded7932c3a24b446d992baaa77d50bbaea7b",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolver-ip.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolver-ip.js",
+      "sourceSha256": "b6b183c241ac60511259c3b29dee9e2bbe3ae1e13e4360f8122e1f07cf6a8e91",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolver-ip.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolver-ip.js",
+      "sourceSha256": "b6b183c241ac60511259c3b29dee9e2bbe3ae1e13e4360f8122e1f07cf6a8e91",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "sourceSha256": "42c6c0cb2774dd5d949283aeede326206cc62601ab4a858dab7b48b1dec305f7",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "sourceSha256": "42c6c0cb2774dd5d949283aeede326206cc62601ab4a858dab7b48b1dec305f7",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./duration",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "sourceSha256": "42c6c0cb2774dd5d949283aeede326206cc62601ab4a858dab7b48b1dec305f7",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/duration.js",
+      "targetSha256": "c6f06aa8d1ae71e5136edbcb42586db951414aebc3f4aaf6e33afe03dbd5b28a",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./orca",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "sourceSha256": "42c6c0cb2774dd5d949283aeede326206cc62601ab4a858dab7b48b1dec305f7",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "targetSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-weighted-round-robin.js",
+      "sourceSha256": "42c6c0cb2774dd5d949283aeede326206cc62601ab4a858dab7b48b1dec305f7",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/logging.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/logging.js",
+      "sourceSha256": "9d8c08337c42fdaa1e4093e171f177245f0c2ae4b221e9fd6469421c0307a453",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "sourceSha256": "7bec812850bb38317e8ffa477d809d21744577102f03c21f15d34a1c95867f18",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "sourceSha256": "7bec812850bb38317e8ffa477d809d21744577102f03c21f15d34a1c95867f18",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "sourceSha256": "7bec812850bb38317e8ffa477d809d21744577102f03c21f15d34a1c95867f18",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-pick-first.js",
+      "sourceSha256": "7bec812850bb38317e8ffa477d809d21744577102f03c21f15d34a1c95867f18",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./duration",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "sourceSha256": "53b84de0de89a06c0b9d654b0fe15306648fad2eeda3bdda6d597b683a2cb327",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/duration.js",
+      "targetSha256": "c6f06aa8d1ae71e5136edbcb42586db951414aebc3f4aaf6e33afe03dbd5b28a",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./backoff-timeout",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "sourceSha256": "53b84de0de89a06c0b9d654b0fe15306648fad2eeda3bdda6d597b683a2cb327",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+      "targetSha256": "f82515c6a031bf6f62a724c524da130647a4f35d0920a94a8c260d32c85c742e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "sourceSha256": "53b84de0de89a06c0b9d654b0fe15306648fad2eeda3bdda6d597b683a2cb327",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./admin",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "sourceSha256": "53b84de0de89a06c0b9d654b0fe15306648fad2eeda3bdda6d597b683a2cb327",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/admin.js",
+      "targetSha256": "8c2cd31dc0bec93d511ae41d09f08be2213be34e0b9f60573a6dd196aa87f97e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-interface",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "sourceSha256": "53b84de0de89a06c0b9d654b0fe15306648fad2eeda3bdda6d597b683a2cb327",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js",
+      "targetSha256": "7db7f8175ff05fbe9ce32d005d86fc7a511f2ba6cd2dbc36643eabdf2c8bfe12",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channel-credentials",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/experimental.js",
+      "sourceSha256": "53b84de0de89a06c0b9d654b0fe15306648fad2eeda3bdda6d597b683a2cb327",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+      "targetSha256": "50ee27f7b53eb7ee210d1ded3c4cb89ea8d0d0eb0954dc6e455eed5f8335dc1e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/client-interceptors.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/client-interceptors.js",
+      "sourceSha256": "93a12881497d55a94fb8e3271bbd503f20059cdb3776876f1b96a2fad07ebd39",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/metadata.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/metadata.js",
+      "sourceSha256": "730c1668b76f73084e3a402ebfb201bfb55381cb678eebfff4d0a3543e114d18",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/server-interceptors.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/server-interceptors.js",
+      "sourceSha256": "76be06258ce191f9806954dcf1282ae713f0831b6d7101dcd2aa2e0a01c26e83",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./orca",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/server-interceptors.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/server-interceptors.js",
+      "sourceSha256": "76be06258ce191f9806954dcf1282ae713f0831b6d7101dcd2aa2e0a01c26e83",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "targetSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "sourceSha256": "ecf55803df4dbc4d9240a78ff0558fe562a4cff86dee5b3959d2d03f5c19266e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "sourceSha256": "ecf55803df4dbc4d9240a78ff0558fe562a4cff86dee5b3959d2d03f5c19266e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./duration",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "sourceSha256": "ecf55803df4dbc4d9240a78ff0558fe562a4cff86dee5b3959d2d03f5c19266e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/duration.js",
+      "targetSha256": "c6f06aa8d1ae71e5136edbcb42586db951414aebc3f4aaf6e33afe03dbd5b28a",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "sourceSha256": "ecf55803df4dbc4d9240a78ff0558fe562a4cff86dee5b3959d2d03f5c19266e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-interface",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-outlier-detection.js",
+      "sourceSha256": "ecf55803df4dbc4d9240a78ff0558fe562a4cff86dee5b3959d2d03f5c19266e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js",
+      "targetSha256": "7db7f8175ff05fbe9ce32d005d86fc7a511f2ba6cd2dbc36643eabdf2c8bfe12",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/server.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/server.js",
+      "sourceSha256": "b1d9488072f57c0aa82f505addb0f8967dd4895f8065438e2b36e9b93f4ab912",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/server.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/server.js",
+      "sourceSha256": "b1d9488072f57c0aa82f505addb0f8967dd4895f8065438e2b36e9b93f4ab912",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channelz",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/server.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/server.js",
+      "sourceSha256": "b1d9488072f57c0aa82f505addb0f8967dd4895f8065438e2b36e9b93f4ab912",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "targetSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/picker.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/picker.js",
+      "sourceSha256": "f8c0beefece60363399f39748476fa540cdc0074dc7623017398db146d85a3bb",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer.js",
+      "sourceSha256": "4b21a6d3bea94fa06f86e158ec93914ea666e73f0e9ffe311c9c14cfb3a7a319",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/call.js",
+      "sourceSha256": "5140425c72ac14eb7ce50de206228a257e63c4b508d81c41c27fcc33e9757701",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancer-child-handler.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancer-child-handler.js",
+      "sourceSha256": "7d7fc2bda20905a33a36e8daedd3b4ac60d165ee309410db8432a7082ae986bf",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/service-config.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/service-config.js",
+      "sourceSha256": "cd2ce9d9b3e77630befb3b9f9da05cefadc2c54f6a603215d7d7c98f621b4019",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/certificate-provider.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/certificate-provider.js",
+      "sourceSha256": "b4413db657cdb84a2ce479a752763e71aa02cccadce4f63fc8ff485261ec6698",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channel-credentials",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "sourceSha256": "d04c913ed06645fd102901fb01149e47d8b541131217c3060c485bfd34f7dc3c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+      "targetSha256": "50ee27f7b53eb7ee210d1ded3c4cb89ea8d0d0eb0954dc6e455eed5f8335dc1e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "sourceSha256": "d04c913ed06645fd102901fb01149e47d8b541131217c3060c485bfd34f7dc3c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "sourceSha256": "d04c913ed06645fd102901fb01149e47d8b541131217c3060c485bfd34f7dc3c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channelz",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "sourceSha256": "d04c913ed06645fd102901fb01149e47d8b541131217c3060c485bfd34f7dc3c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "targetSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-interface",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/internal-channel.js",
+      "sourceSha256": "d04c913ed06645fd102901fb01149e47d8b541131217c3060c485bfd34f7dc3c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js",
+      "targetSha256": "7db7f8175ff05fbe9ce32d005d86fc7a511f2ba6cd2dbc36643eabdf2c8bfe12",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+      "sourceSha256": "50ee27f7b53eb7ee210d1ded3c4cb89ea8d0d0eb0954dc6e455eed5f8335dc1e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./make-client",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/make-client.js",
+      "targetSha256": "5c1ae3c7ca3b5b2d8076bcb27719839b74664241780d2fe4fc0ef9ff51aeab69",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/make-client.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./duration",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/duration.js",
+      "targetSha256": "c6f06aa8d1ae71e5136edbcb42586db951414aebc3f4aaf6e33afe03dbd5b28a",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/duration.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channel-credentials",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channel-credentials.js",
+      "targetSha256": "50ee27f7b53eb7ee210d1ded3c4cb89ea8d0d0eb0954dc6e455eed5f8335dc1e",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/channel-credentials.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-interface",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-interface.js",
+      "targetSha256": "7db7f8175ff05fbe9ce32d005d86fc7a511f2ba6cd2dbc36643eabdf2c8bfe12",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel-interface.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/constants.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./backoff-timeout",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+      "targetSha256": "f82515c6a031bf6f62a724c524da130647a4f35d0920a94a8c260d32c85c742e",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/backoff-timeout.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "@grpc/proto-loader",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/orca.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/orca.js",
+      "sourceSha256": "66c2fee5605355d5c45bda85da3f2bd96ad954935bad0e43ccbf4c1237b1661a",
+      "recordedTarget": "node_modules/@grpc/proto-loader/build/src/index.js",
+      "targetSha256": "6f99a960ec14b1afc20fc996824815d9d89d58e7d537c2f2e5c028d8012b012e",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/proto-loader/build/src/index.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "@js-sdsl/ordered-map",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "sourceSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "recordedTarget": "node_modules/@js-sdsl/ordered-map/dist/cjs/index.js",
+      "targetSha256": "09569c2f44472c1ad69bd9977d695fe808091319fab55241197d23d9e6b00676",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@js-sdsl/ordered-map/dist/cjs/index.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "sourceSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/connectivity-state.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "sourceSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/constants.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "sourceSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel-address.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./admin",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "sourceSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/admin.js",
+      "targetSha256": "8c2cd31dc0bec93d511ae41d09f08be2213be34e0b9f60573a6dd196aa87f97e",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/admin.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./make-client",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "sourceSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/make-client.js",
+      "targetSha256": "5c1ae3c7ca3b5b2d8076bcb27719839b74664241780d2fe4fc0ef9ff51aeab69",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/make-client.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "@grpc/proto-loader",
+      "importer": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "sourceSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "recordedTarget": "node_modules/@grpc/proto-loader/build/src/index.js",
+      "targetSha256": "6f99a960ec14b1afc20fc996824815d9d89d58e7d537c2f2e5c028d8012b012e",
+      "action": "physical-child",
+      "resolvedPath": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/proto-loader/build/src/index.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/server-call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/server-call.js",
+      "sourceSha256": "6113961fa7a833197dd28217e614d941bf4e2e938475c848ea8c9c1f62d94f09",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/control-plane-status.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/control-plane-status.js",
+      "sourceSha256": "409ebb7350195928f63386afda09c663fbd3ac968a572360fd9418e8b9e951fb",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolving-call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolving-call.js",
+      "sourceSha256": "6ae57d67a0377d5747d7b725e983e7bd6c5fc1797139de25667f748abe2291d0",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/compression-filter.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/compression-filter.js",
+      "sourceSha256": "bcdb903ca3651983eacddafe16862ed5c25faa7aee946f79273d903a92666b5a",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "sourceSha256": "437502084ddc988064d63dc65d1f78f44318e5eb4217a7ccb69419eaa059c976",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./backoff-timeout",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "sourceSha256": "437502084ddc988064d63dc65d1f78f44318e5eb4217a7ccb69419eaa059c976",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+      "targetSha256": "f82515c6a031bf6f62a724c524da130647a4f35d0920a94a8c260d32c85c742e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "sourceSha256": "437502084ddc988064d63dc65d1f78f44318e5eb4217a7ccb69419eaa059c976",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/resolving-load-balancer.js",
+      "sourceSha256": "437502084ddc988064d63dc65d1f78f44318e5eb4217a7ccb69419eaa059c976",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+      "sourceSha256": "f82515c6a031bf6f62a724c524da130647a4f35d0920a94a8c260d32c85c742e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/http_proxy.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/http_proxy.js",
+      "sourceSha256": "4a6c7b2ff90af034d9b78cf681e55f97c1fc651e2428f8f767bb7633608113e3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/http_proxy.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/http_proxy.js",
+      "sourceSha256": "4a6c7b2ff90af034d9b78cf681e55f97c1fc651e2428f8f767bb7633608113e3",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel-pool.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel-pool.js",
+      "sourceSha256": "cca88948f2cbf433629167ee4ddf3595247040a0db2dbffd555dc68ea4dd6859",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "sourceSha256": "2de30b32ee8c13ef92aa41fc90261ef46c2ba3d00c4bff1d5f68f545b8c714eb",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./backoff-timeout",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "sourceSha256": "2de30b32ee8c13ef92aa41fc90261ef46c2ba3d00c4bff1d5f68f545b8c714eb",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/backoff-timeout.js",
+      "targetSha256": "f82515c6a031bf6f62a724c524da130647a4f35d0920a94a8c260d32c85c742e",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "sourceSha256": "2de30b32ee8c13ef92aa41fc90261ef46c2ba3d00c4bff1d5f68f545b8c714eb",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "sourceSha256": "2de30b32ee8c13ef92aa41fc90261ef46c2ba3d00c4bff1d5f68f545b8c714eb",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channelz",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel.js",
+      "sourceSha256": "2de30b32ee8c13ef92aa41fc90261ef46c2ba3d00c4bff1d5f68f545b8c714eb",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "targetSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/retrying-call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/retrying-call.js",
+      "sourceSha256": "a4d55d4b57417b0f94b040e4cb2e4eed8b3c5224b90fae940bb8f73e69ff58c2",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancing-call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancing-call.js",
+      "sourceSha256": "d6931b65c4e0af5290b23ff3f3a10499a59a6aae54411c5de0775783c5c58d18",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/load-balancing-call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/load-balancing-call.js",
+      "sourceSha256": "d6931b65c4e0af5290b23ff3f3a10499a59a6aae54411c5de0775783c5c58d18",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channelz",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/transport.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/transport.js",
+      "sourceSha256": "1f5e22bea97a2a5e2643b0bdcbbb4e86d794778e97da3017fc6f57c562738b6c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "targetSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/transport.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/transport.js",
+      "sourceSha256": "1f5e22bea97a2a5e2643b0bdcbbb4e86d794778e97da3017fc6f57c562738b6c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./subchannel-address",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/transport.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/transport.js",
+      "sourceSha256": "1f5e22bea97a2a5e2643b0bdcbbb4e86d794778e97da3017fc6f57c562738b6c",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/subchannel-address.js",
+      "targetSha256": "e105ceec9a9ebb9a29b2f0cdd38b9d258416cef73c4da6c03de57f1c6d7c6b9d",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel-call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel-call.js",
+      "sourceSha256": "2ab864ec952102a1956cf7792b0cb3d04465c12fae63f3eebdbed45fb171d5e4",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/subchannel-call.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/subchannel-call.js",
+      "sourceSha256": "2ab864ec952102a1956cf7792b0cb3d04465c12fae63f3eebdbed45fb171d5e4",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./channelz",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+      "sourceSha256": "e2acfc0b1b5b9d470353144a642b77a731373ca600ccb81fda2900af047e977e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/channelz.js",
+      "targetSha256": "45e081ca49fdb57147e36c6e948a7a7430f1593fa6c6465c2326c5546db3ab8e",
+      "action": "canonical-virtual-parent",
+      "resolvedPath": "/home/runner/code/tmp/claude-cli-external-build-2195/node_modules/@grpc/grpc-js/build/src/channelz.js"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./connectivity-state",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+      "sourceSha256": "e2acfc0b1b5b9d470353144a642b77a731373ca600ccb81fda2900af047e977e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/connectivity-state.js",
+      "targetSha256": "c2c896a8814cee73b9f13829f7b3b95e7861daf24b620cfde69760773a781a96",
+      "action": "recorded-native-passthrough"
+    },
+    {
+      "hook": "onResolve",
+      "specifier": "./constants",
+      "importer": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs/node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+      "namespace": "file",
+      "kind": "require-call",
+      "accepted": true,
+      "sourceRelative": "node_modules/@grpc/grpc-js/build/src/single-subchannel-channel.js",
+      "sourceSha256": "e2acfc0b1b5b9d470353144a642b77a731373ca600ccb81fda2900af047e977e",
+      "recordedTarget": "node_modules/@grpc/grpc-js/build/src/constants.js",
+      "targetSha256": "24e18395d722626f978df87d9b3e24174cca482bd5369ce89cd414b7aa27971c",
+      "action": "recorded-native-passthrough"
+    }
+  ]
+}

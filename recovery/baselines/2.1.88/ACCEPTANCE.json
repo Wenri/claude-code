@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "kind": "portable-pinned-mirror-baseline-acceptance",
+  "version": "2.1.88",
+  "status": "verified-source-only-portable-reconstruction",
+  "reviewedManifestSha256": "4f6ee137529649f9381e3aa9e7001332eb811de6dde798227a35e905bdd268d6",
+  "sourceCommit": "6b8a3944745b3be1e147a8f7267e09da84e75d1e",
+  "sourceGitTree": "7640f58ea271eb60952ebdbe0dfa173fc96ebe30",
+  "sourceInputManifestSha256": "66d84f48ee152785248d3ea4179f9588ce3ecdc54ca0294ab2732d820dec290f",
+  "sourceInputFiles": 6067,
+  "genesisSourceFiles": 1902,
+  "reference": {
+    "kind": "pinned-mirror",
+    "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js",
+    "bytes": 13047043,
+    "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f",
+    "originalRemovedNpmArtifactAuthenticated": false
+  },
+  "strictAST": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3092121,
+    "sha256": "10a774613d51c1500f70c70ce32a3a710b0edb0115d38568c87eeb8cc10f9117"
+  },
+  "replayedJS": {
+    "bytes": 13046782,
+    "sha256": "2e41079aead0dab91b48ed5c3f62753452df1c8e8fa361b7e56ae015fcc3515f"
+  },
+  "executableCoreComparison": {
+    "kind": "v3-executable-text-comparison",
+    "baselineSha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f",
+    "namedCandidateSha256": "2e41079aead0dab91b48ed5c3f62753452df1c8e8fa361b7e56ae015fcc3515f",
+    "baselineCommentShebangHeaderRange": [
+      0,
+      306
+    ],
+    "candidateDebugCommentRange": [
+      13046737,
+      13046782
+    ],
+    "remainingByteEqual": true,
+    "remainingBytes": 13046737,
+    "remainingSha256": "ea79872835f87539cc7b1c5d5cf96cd06901fb1755c81488ee6d99f6d7fbb9f4",
+    "criterion": "Remove only the explicitly recorded target shebang/comment banner and candidate trailing debug-ID comment; all remaining UTF-8 bytes are compared exactly. Original files unchanged."
+  },
+  "claims": {
+    "fixedProfileSourceOnlyReplayVerified": true,
+    "relocatedToolsAndFreshSourceInputsVerified": true,
+    "integratedRepositoryReplayVerified": true,
+    "completeEmittedASTEqual": true,
+    "executableCoreBytesEqual": true,
+    "staticNamingGraphPreserved": true,
+    "originalRemovedNpmArtifactAuthenticated": false,
+    "originalPrivateSourceAuthorshipEstablished": false,
+    "genericSemanticNormalizationUsed": false,
+    "operatingSystemReadIsolationEnforced": false,
+    "completeObservedFileReadTraceAvailable": false,
+    "knownProducerSourceMapDisplacementRepaired": false,
+    "renamedOutputSourceMapEstablished": false,
+    "laterReleaseRecoveryEstablished": false
+  },
+  "discoveryBoundary": "Reference-assisted preparation supplied only the separately authenticated binding-name plan. Compiler/finalizer and frozen naming emission use recovered source/profile/candidate data and pinned tools; no reference body is an emission input. OS read tracing was unavailable.",
+  "sourceArchive": {
+    "bytes": 13641264,
+    "sha256": "6b125e76c40b4b6c8aca16e2fbc467b2a1622cb966e69fdfcbd8dab8b086085b"
+  },
+  "commentMetadataPolicy": "Original raw/final JavaScript, maps and compiler/finalizer receipts are preserved. Exact complete executable prefix hashes and strict terminal comment shape guard a separately receipted 45-byte metadata-comment canonicalization before unchanged frozen naming.",
+  "runs": [
+    {
+      "name": "relocated",
+      "receipt": "evidence/portable-baseline-relocated.run.json",
+      "exitCode": 0,
+      "wallSeconds": 42.49034795300395,
+      "maxRssKiB": 4119068,
+      "authenticatedResolverEvents": 37,
+      "uniqueSdkResolverKeys": 3,
+      "sdkFacadeLoads": 3,
+      "unusedPrivateImportsRemoved": 11,
+      "sourceOverlaysRestored": 11,
+      "bindingsRenamed": 1028,
+      "identifierEdits": 1936
+    },
+    {
+      "name": "integrated",
+      "receipt": "evidence/portable-baseline-integrated.run.json",
+      "exitCode": 0,
+      "wallSeconds": 43.36130300098739,
+      "maxRssKiB": 3966232,
+      "authenticatedResolverEvents": 33,
+      "uniqueSdkResolverKeys": 3,
+      "sdkFacadeLoads": 3,
+      "unusedPrivateImportsRemoved": 11,
+      "sourceOverlaysRestored": 11,
+      "bindingsRenamed": 1028,
+      "identifierEdits": 1936
+    }
+  ],
+  "aggregate": {
+    "tests": 180,
+    "pass": 180,
+    "fail": 0,
+    "skipped": 0,
+    "includes": "125 existing selected current-tree tests; 54 new Node tests; Python materializer wrapper (16 subcases); 2134 source syntax checks and authenticated 2.1.126 retained-source assertion",
+    "fullHistoricalIntegrationSuiteRun": false,
+    "pythonMaterializerSubcases": 16
+  },
+  "evidence": [
+    {
+      "path": "evidence/integrated-compile-report.json",
+      "bytes": 102361,
+      "sha256": "41e723c38de4a9bfab5d64d79563fd3d623b853eb2be08979d73e50fe9ea37e0"
+    },
+    {
+      "path": "evidence/integrated-compiler-receipts.json",
+      "bytes": 137998,
+      "sha256": "3a1177fc3fabf9165663779d779b02d3e41a5d1c68b7134adf6585dac796f1fd"
+    },
+    {
+      "path": "evidence/integrated-debug-comment-receipt.json",
+      "bytes": 2204,
+      "sha256": "219f228a37ca96ce7bb8f5082d8a26d3f3bba2caae7120b014b485dd66256d37"
+    },
+    {
+      "path": "evidence/integrated-driver-report.json",
+      "bytes": 124098,
+      "sha256": "d42f343be31660bb3318dea7761d490ca08ca0c373d48778becd4d9687c6e7c6"
+    },
+    {
+      "path": "evidence/integrated-late-link-report.json",
+      "bytes": 17382,
+      "sha256": "b96d50491029c4515e596e39fcbe674bbcc733b7196f3f214e12051cab77b407"
+    },
+    {
+      "path": "evidence/integrated-name-receipt.json.gz",
+      "bytes": 313127,
+      "sha256": "61a003f071935a5d8e616aebf5d27e42909f8aa7555b0ccc37dfad0613de3267"
+    },
+    {
+      "path": "evidence/integrated-removal-edits.json",
+      "bytes": 4612,
+      "sha256": "f01dc350991ab491a521ec934685a34d421ac4a95aa28b89010d1a9c1866edee"
+    },
+    {
+      "path": "evidence/portable-baseline-integrated.run.json",
+      "bytes": 1190,
+      "sha256": "bc3f7ab8d1925e455c954ba5c4537b5d7098004f3d0ee1b8d36417036d43686f"
+    },
+    {
+      "path": "evidence/portable-baseline-materialization.json",
+      "bytes": 91,
+      "sha256": "0079a26686e2a49acaaeb0d36562a0932e760811548f3b4b25d7b8b2532a6130"
+    },
+    {
+      "path": "evidence/portable-baseline-relocated.run.json",
+      "bytes": 1209,
+      "sha256": "ba8821983499b943ab2e2d2213e5a505b88d505dcedaee516c18d83bcfb03342"
+    },
+    {
+      "path": "evidence/portable-integrated-aggregate.run.json",
+      "bytes": 18615,
+      "sha256": "21844040d84b185db04631c5b36a35312a752592c29b8c4c096658599c1dd82c"
+    }
+  ],
+  "independentReview": {
+    "status": "approved-for-publication-within-pinned-mirror-baseline-scope",
+    "evidence": [
+      {
+        "path": "evidence/integrated-closure-aggregate-review.json",
+        "bytes": 1077,
+        "sha256": "b55ad5dd342681abf7671da45696cba859bc20c5a2338e00f1fc34b64cd414b2"
+      },
+      {
+        "path": "evidence/portable-baseline-integrated-run-fresh-review.json",
+        "bytes": 2039,
+        "sha256": "f544566d61f933e96a72328e184b6aef3001408a9ce8dc9a00e5419d9db02a47"
+      },
+      {
+        "path": "evidence/portable-baseline-integrated-run-receipt-chain-review.json",
+        "bytes": 395,
+        "sha256": "36467ff1af5dbdd3d28ee63ed7abecbb8469aa65f3c5325ab7f2d39ec623454e"
+      },
+      {
+        "path": "evidence/portable-baseline-integrated-run-removed-import-fragments.json",
+        "bytes": 776,
+        "sha256": "fdccf85a99188a1a66738311259388b220c79801a07c16ebd4027f03fe864ab0"
+      }
+    ],
+    "resolverEventNote": "Relocated run has37 events; integrated run has33. All3 unique SDK resolver keys and3 facade loads are present. The same runtimeTypes/toolTypes keys repeat3 times instead of5; no unobserved scheduling cause is asserted."
+  }
+}

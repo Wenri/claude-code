@@ -1,0 +1,159 @@
+{
+  "rawSha256": "ab0cecb27c1501401905ae50ec2121734cd09d38816020542f97671e01e1c25c",
+  "finalSha256": "dd187d45d2b870d4a0442f28dfd6242eb8a1c5d9eba66935355ebaa1811fae46",
+  "coordinateConvention": "UTF-16 offsets into raw generated code; all removals are whole marker ImportDeclarations",
+  "edits": [
+    {
+      "start": 4022555,
+      "end": 4022567,
+      "removedSha256": "bc38d8fcc6f3d71cb2cb7b9d395eb8a8bd9f06a1fbf11576b00107e3b1d23d25",
+      "marker": "~R0",
+      "resolvedTarget": "src/ink/global.d.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-27",
+        "edge-30"
+      ]
+    },
+    {
+      "start": 6508456,
+      "end": 6508468,
+      "removedSha256": "9c3286e4f5d6bf464a008b0e5707f3fdb25ec764bcd8b8b508261edbc931dfd7",
+      "marker": "~R1",
+      "resolvedTarget": "src/tools/WorkflowTool/constants.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-25"
+      ]
+    },
+    {
+      "start": 8303384,
+      "end": 8303396,
+      "removedSha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+      "marker": "~R2",
+      "resolvedTarget": "src/types/connectorText.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-3",
+        "edge-5",
+        "edge-23",
+        "edge-31"
+      ]
+    },
+    {
+      "start": 9221488,
+      "end": 9221500,
+      "removedSha256": "467569166ef4aa13827391d22b524de9f662d4d850316d27e8bec9fe6bcbb64f",
+      "marker": "~R3",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenTool.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-10",
+        "edge-32"
+      ]
+    },
+    {
+      "start": 9455050,
+      "end": 9455062,
+      "removedSha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+      "marker": "~R2",
+      "resolvedTarget": "src/types/connectorText.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-3",
+        "edge-5",
+        "edge-23",
+        "edge-31"
+      ]
+    },
+    {
+      "start": 9693774,
+      "end": 9693786,
+      "removedSha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+      "marker": "~R2",
+      "resolvedTarget": "src/types/connectorText.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-3",
+        "edge-5",
+        "edge-23",
+        "edge-31"
+      ]
+    },
+    {
+      "start": 9885474,
+      "end": 9885486,
+      "removedSha256": "bc38d8fcc6f3d71cb2cb7b9d395eb8a8bd9f06a1fbf11576b00107e3b1d23d25",
+      "marker": "~R0",
+      "resolvedTarget": "src/ink/global.d.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-27",
+        "edge-30"
+      ]
+    },
+    {
+      "start": 10787584,
+      "end": 10787596,
+      "removedSha256": "467569166ef4aa13827391d22b524de9f662d4d850316d27e8bec9fe6bcbb64f",
+      "marker": "~R3",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenTool.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-10",
+        "edge-32"
+      ]
+    },
+    {
+      "start": 11478212,
+      "end": 11478224,
+      "removedSha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+      "marker": "~R2",
+      "resolvedTarget": "src/types/connectorText.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-3",
+        "edge-5",
+        "edge-23",
+        "edge-31"
+      ]
+    },
+    {
+      "start": 12299734,
+      "end": 12299746,
+      "removedSha256": "517bf7fcee254c79ade4edb2dabbf0ee9882d98f5fae033ec57713aaf5da4969",
+      "marker": "~R4",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "importedLocals": [],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-28"
+      ]
+    },
+    {
+      "start": 12813231,
+      "end": 12813328,
+      "removedSha256": "c489629a0db0ac6ddad0adabcd26b4f13810ff1bdd3da4f09abed9a92e7ba812",
+      "marker": "~R5",
+      "resolvedTarget": "src/utils/filePersistence/types.ts",
+      "importedLocals": [
+        "xej",
+        "Iej",
+        "uej"
+      ],
+      "lexicalReferencesOutsideImports": 0,
+      "resolverReceiptIds": [
+        "edge-24"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "kind": "portable-source-reproduction-baseline-v1",
+  "version": "2.1.88",
+  "sourceManifestSha256": "66d84f48ee152785248d3ea4179f9588ce3ecdc54ca0294ab2732d820dec290f",
+  "genesisCommit": "6b8a3944745b3be1e147a8f7267e09da84e75d1e",
+  "genesisSrcTree": "7640f58ea271eb60952ebdbe0dfa173fc96ebe30",
+  "rootBoundarySha256": "ad8d7bf46b81dca4b5988b7b82a9f2c46f620a46f35a210d64045202aefe0795",
+  "driverSha256": "c95c5876d83116f8537daad7cf284d9b543da7ccea181953d07ddd3c39260e75",
+  "nodeVersion": "v24.19.0",
+  "node": {
+    "root": "nodeRuntime",
+    "path": "node",
+    "bytes": 125989464,
+    "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "bun": {
+    "root": "bunRuntime",
+    "path": "EXPLICIT_EXECUTABLE_BASENAME",
+    "bytes": 99295408,
+    "sha256": "6d5bb405b1d037a2a466b92757de7e47e4369930fa94bd42f8ff44ba49de6c57"
+  },
+  "files": {
+    "profile": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/profile.json",
+      "bytes": 1856841,
+      "sha256": "f9dea6b404c176f81d0b638e9a3e7dfe05994763e8ac65b8d75b8ddbca35aa33"
+    },
+    "adapterToolchain": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/adapter-toolchain.json",
+      "bytes": 16104,
+      "sha256": "30c9eabd42087bcb9230e640a1d0fcbd6b7c596639ff143b4fd387e9316bc92f"
+    },
+    "namingRecipe": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/naming.recipe.json",
+      "bytes": 401245,
+      "sha256": "b7707f55d43494c8fe982520f774a03a480bb6bc1ffbc90aa67999d821cff853"
+    },
+    "namingToolPins": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/naming-tool-pins.json",
+      "bytes": 9277,
+      "sha256": "2a210d1d52ea2e7f9c76d36603aef87751b1fd20f0e9030c9e6a44d975ebbbb9"
+    },
+    "archiveManifest": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/source-archive.json",
+      "bytes": 1124376,
+      "sha256": "3604283475691894dc92b7704d4cac917cc3037907c7c17009bf6971780b2d90"
+    },
+    "inputTree": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/input-tree.json",
+      "bytes": 1124029,
+      "sha256": "4d29079103ba5fe69f5f8b2874ba16116c28f2a749cc9aac9d9cada02740d2e4"
+    },
+    "sourceTreeEntries": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/source-tree-entries.json",
+      "bytes": 270990,
+      "sha256": "775d1138551ea24761a092c207f8a9b32e8a2eb46f70df6cb0775dc7119e1747"
+    },
+    "debugCommentPolicy": {
+      "root": "recovery",
+      "path": "baselines/2.1.88/debug-comment-profile.json",
+      "bytes": 765,
+      "sha256": "4992cddbcdd388687f35340d92adffbb8136227aa930184e454f80692da7647a"
+    }
+  },
+  "expectedJS": {
+    "raw": {
+      "bytes": 13046999,
+      "sha256": "7db59e55ef449d971ec5a496f9aaf41dbc25c001f0919e54840bd12aadfd7b78"
+    },
+    "final": {
+      "bytes": 13046782,
+      "sha256": "b26d920687e9a48599b5d712d17b93791086d4cd15947553f1209ea92fc6b282"
+    },
+    "replayed": {
+      "bytes": 13046782,
+      "sha256": "2e41079aead0dab91b48ed5c3f62753452df1c8e8fa361b7e56ae015fcc3515f"
+    }
+  },
+  "expectedAST": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3092121,
+    "sha256": "10a774613d51c1500f70c70ce32a3a710b0edb0115d38568c87eeb8cc10f9117"
+  },
+  "sourceArchive": {
+    "bytes": 13641264,
+    "sha256": "6b125e76c40b4b6c8aca16e2fbc467b2a1622cb966e69fdfcbd8dab8b086085b"
+  },
+  "referenceBundleOrMapEmitterInput": false,
+  "originalV3ProfileSha256": "e3168ee3123f02ca0ee2bf19b4ec9779e1384491f8d2409e1a1c0ab80d787a70",
+  "portableFullReplayVerified": false
+}

@@ -1,0 +1,12 @@
+{
+  "sourceBoundReceiptsIndependentlyChecked": 33,
+  "sourceOverlayIRHashesIndependentlyReproduced": 11,
+  "rawToFinalWholeImportDeletionsReproduced": 11,
+  "finalSha256": "dd187d45d2b870d4a0442f28dfd6242eb8a1c5d9eba66935355ebaa1811fae46",
+  "actions": {
+    "source-import-literal-overlay": 11,
+    "private-marker-external": 11,
+    "sdk-declaration-facade": 8,
+    "sdk-facade-load": 3
+  }
+}

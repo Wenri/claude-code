@@ -1,0 +1,64 @@
+{
+  "kind": "authenticated-current-v3-output-pins",
+  "outputs": [
+    {
+      "path": "reconstruction-adapter-prototype/full-stage-v3/raw/cli.js",
+      "bytes": 13046999,
+      "sha256": "7db59e55ef449d971ec5a496f9aaf41dbc25c001f0919e54840bd12aadfd7b78",
+      "logicalOutput": "raw/cli.js"
+    },
+    {
+      "path": "reconstruction-adapter-prototype/full-stage-v3/raw/cli.js.map",
+      "bytes": 60123024,
+      "sha256": "5287e2d3a477c3e36b416ea1bdb31fb85ab9619d418d64da4d8dde4e3a8ebcc6",
+      "logicalOutput": "raw/cli.js.map"
+    },
+    {
+      "path": "reconstruction-adapter-prototype/full-stage-v3/final/cli.js",
+      "bytes": 13046782,
+      "sha256": "b26d920687e9a48599b5d712d17b93791086d4cd15947553f1209ea92fc6b282",
+      "logicalOutput": "final/cli.js"
+    },
+    {
+      "path": "reconstruction-adapter-prototype/full-stage-v3/final/cli.js.map",
+      "bytes": 60094369,
+      "sha256": "cd4d21128716200115e454ff6b9c9015e1c1bae9c6e2e8c236566313f6cd1463",
+      "logicalOutput": "final/cli.js.map"
+    },
+    {
+      "path": "reconstruction-adapter-prototype/full-stage-v3/replayed/cli.js",
+      "bytes": 13046782,
+      "sha256": "2e41079aead0dab91b48ed5c3f62753452df1c8e8fa361b7e56ae015fcc3515f",
+      "logicalOutput": "replayed/cli.js"
+    }
+  ],
+  "strictAST": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3092121,
+    "sha256": "10a774613d51c1500f70c70ce32a3a710b0edb0115d38568c87eeb8cc10f9117"
+  },
+  "executableBytesComparison": {
+    "kind": "v3-executable-text-comparison",
+    "baselineSha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f",
+    "namedCandidateSha256": "2e41079aead0dab91b48ed5c3f62753452df1c8e8fa361b7e56ae015fcc3515f",
+    "baselineCommentShebangHeaderRange": [
+      0,
+      306
+    ],
+    "candidateDebugCommentRange": [
+      13046737,
+      13046782
+    ],
+    "remainingByteEqual": true,
+    "remainingBytes": 13046737,
+    "remainingSha256": "ea79872835f87539cc7b1c5d5cf96cd06901fb1755c81488ee6d99f6d7fbb9f4",
+    "criterion": "Remove only the explicitly recorded target shebang/comment banner and candidate trailing debug-ID comment; all remaining UTF-8 bytes are compared exactly. Original files unchanged."
+  },
+  "pinsStreamRehashed": true,
+  "fullASTRerunByThisPlanner": false,
+  "nameEditCount": 1936,
+  "nameEditWidthChanges": 0,
+  "mapLimit": "No renamed-output source map was emitted by frozen naming; final/cli.js.map belongs to final/cli.js, not automatically to replayed/cli.js."
+}

@@ -1,0 +1,43 @@
+{
+  "success": true,
+  "outputRoot": "/workspace/scratch/503592d075ba/portable-baseline-integrated-run",
+  "toolRoot": "/workspace/scratch/503592d075ba/claude-per-version-upstream/recovery",
+  "inputRoot": "/workspace/scratch/503592d075ba/portable-baseline-materialized-inputs",
+  "manifestSha256": "4f6ee137529649f9381e3aa9e7001332eb811de6dde798227a35e905bdd268d6",
+  "compileReportSha256": "41e723c38de4a9bfab5d64d79563fd3d623b853eb2be08979d73e50fe9ea37e0",
+  "finalizerReportSha256": "b96d50491029c4515e596e39fcbe674bbcc733b7196f3f214e12051cab77b407",
+  "debugCommentReceiptSha256": "219f228a37ca96ce7bb8f5082d8a26d3f3bba2caae7120b014b485dd66256d37",
+  "actualRawSha256": "ab0cecb27c1501401905ae50ec2121734cd09d38816020542f97671e01e1c25c",
+  "actualFinalSha256": "dd187d45d2b870d4a0442f28dfd6242eb8a1c5d9eba66935355ebaa1811fae46",
+  "canonicalFinalSha256": "b26d920687e9a48599b5d712d17b93791086d4cd15947553f1209ea92fc6b282",
+  "replayedSha256": "2e41079aead0dab91b48ed5c3f62753452df1c8e8fa361b7e56ae015fcc3515f",
+  "actualDebugId": "A5D1B7DE4DDE7B5764756E2164756E21",
+  "canonicalDebugId": "32599E3E5F19067164756E2164756E21",
+  "prefixesAndSingleCommentSubstitutionVerified": true,
+  "mapDebugIdsRetainActualCompilerIdentity": true,
+  "namingIdentifierEditsVerified": 1936,
+  "lineagePiecesVerified": 3873,
+  "strictAST": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3092121,
+    "sha256": "10a774613d51c1500f70c70ce32a3a710b0edb0115d38568c87eeb8cc10f9117"
+  },
+  "freshMaterializedSourceFilesRehashed": 6067,
+  "genesisGitBlobsRehashed": 1902,
+  "mapSourceContentIdentitiesVerified": 4756,
+  "authenticatedResolverEvents": 33,
+  "resolverActionCounts": {
+    "source-import-literal-overlay": 11,
+    "private-marker-external": 11,
+    "sdk-declaration-facade": 8,
+    "sdk-facade-load": 3
+  },
+  "removedImports": 11,
+  "restoredOverlays": 11,
+  "fullASTParsedByReviewer": false,
+  "compilerInvokedByReviewer": false,
+  "seconds": 1.502,
+  "maxRSSKiB": 138156
+}
