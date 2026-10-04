@@ -1,0 +1,149 @@
+{
+  "kind": "independent-shell-prefix-shared-quote-source-review",
+  "verdict": "approved-for-fixed-2.1.89-source-trial",
+  "sourceTrialApproved": true,
+  "sourceManifest": {
+    "path": "historical-checkpoints/shell-prefix-quote-source-investigation/source-repair.json",
+    "bytes": 592,
+    "sha256": "131e372cc0d9c037592b8be550d9b58522a92b9d841f0f0e5149f3278683300c"
+  },
+  "authorArtifactManifest": {
+    "path": "historical-checkpoints/shell-prefix-quote-source-investigation/artifact-manifest.json",
+    "bytes": 13202,
+    "sha256": "036ef8388eb7e5be1370a65f29bfe47f6de36efacc72b0dd07fcef8127d25dc3"
+  },
+  "authorExecutableClosure": {
+    "path": "historical-checkpoints/shell-prefix-quote-source-investigation/code-provenance.json",
+    "bytes": 27623,
+    "sha256": "d87de244cd7df49d6002c1ef3d53aafae16be16175bd301b69c2c8d233efdc6a"
+  },
+  "authorFreeze": {
+    "path": "historical-checkpoints/shell-prefix-quote-source-investigation/freeze.json",
+    "bytes": 393,
+    "sha256": "bde27ef9dacde42dea7bca2105d98ee441acf1b4a9dd8e4a457e4fea5feecbb8"
+  },
+  "sourceFiles": [
+    {
+      "path": "src/utils/bash/shellPrefix.ts",
+      "oldSha256": "820344b16fba7a53982de0efd2caeba23e85913e70ae65bf7fdf2c3d007580db",
+      "postimageSha256": "78c1b547da5341c8dc135db2acc74c41f43d45837741e64dd6a6c66a468232a1",
+      "postimagePath": "historical-checkpoints/shell-prefix-quote-source-investigation/postimages/src/utils/bash/shellPrefix.ts"
+    }
+  ],
+  "physicalCurrentVersion": "v21",
+  "currentPreimage": {
+    "path": "historical-checkpoints/v21-stage/inputs/src/utils/bash/shellPrefix.ts",
+    "bytes": 1028,
+    "sha256": "820344b16fba7a53982de0efd2caeba23e85913e70ae65bf7fdf2c3d007580db"
+  },
+  "currentProfile": {
+    "path": "historical-checkpoints/v21-preparation/prepared/recovery/profiles/2.1.89/profile.json",
+    "bytes": 2121809,
+    "sha256": "243c285b1c5109cf09f94e251b109cbf7f441ffd7dd28afca65066d07aa84809"
+  },
+  "inputCountDelta": 0,
+  "sourceChange": {
+    "exactImportBefore": "import { quote } from './shellQuote.js'",
+    "exactImportAfter": "import { quoteShellArgs as quote } from './quoteShellArgs.js'",
+    "oldBytes": 1028,
+    "postBytes": 1050,
+    "other989BytesExact": true,
+    "entireFunctionCommentsAndTypeFieldsExact": true,
+    "localAlias": "quote",
+    "unchangedReadReferences": 4,
+    "unifiedPatchHunksAppliedInMemory": 1
+  },
+  "provenance": {
+    "artifactMembersAuthenticated": 82,
+    "executableMembersAuthenticatedBeforeImports": 117,
+    "authorFreezeUnchangedAfterReview": true,
+    "allSevenProviderPinsMatchV21": true
+  },
+  "witnesses": {
+    "file": {
+      "path": "historical-checkpoints/shell-prefix-quote-independent-review/reextracted-witnesses.json",
+      "bytes": 14471,
+      "sha256": "326ce17afdd4c5199c3805c78acd7b79657c9da6ee7075b0cc2ed08b992e8ae7"
+    },
+    "completeStatements": 14,
+    "sourcePairExternallyPinned": true,
+    "indexRowsAndUTF16RangesRechecked": true,
+    "strictCountsAndDigestsRechecked": true,
+    "heavyWholeProgramParseRun": false
+  },
+  "bindingResults": {
+    "completeTargetHelperNodes": 48,
+    "completeTargetCallerNodes": 64,
+    "jointFieldsAndLocalReferencesVerified": true,
+    "allFourCallsResolveToSharedDeclaration": true,
+    "existingActualSharedHelperEqualsTargetCompleteFields": true,
+    "actualCurrentCallerBindsLegacy91NodeWrapper": true,
+    "currentLegacyNamespaceFactoryAndInitializerGrounded": true,
+    "targetInitializerExactlyEmpty5Nodes": true,
+    "currentInitializer10NodesCallsLegacyProvider": true,
+    "realSourceNamedExportAndLocalImportBindingVerified": true,
+    "onlyUnresolvedIdentifierInBoundedNewGroup": "String",
+    "ambientGlobalStringOwnershipProven": false
+  },
+  "tests": {
+    "authorGroups": 13,
+    "authorNegativeControls": 15,
+    "independentPrimaryGroups": 11,
+    "independentPrimaryNegativeControls": 21,
+    "supplementaryReceiverNegativeControls": 4,
+    "authorCompilerOutputsReplayedExactly": 14,
+    "separateReceiverCompilerOutputReplayedExactly": 1,
+    "sourcePatchApplication": true,
+    "safeStaticTestReplayIdentical": true
+  },
+  "receiverQualification": {
+    "originalFrozenSmallFixtureStillRejected": true,
+    "originalFailureRewritten": false,
+    "separateFrozenAuthority": {
+      "path": "historical-checkpoints/shell-quoting-independent-review/receiver-control-authority.json",
+      "bytes": 2145,
+      "sha256": "c83fbb5006342adc0d219cef73c0b9cecb9114e2b5387f212c487acd196a858f"
+    },
+    "supplement": {
+      "path": "historical-checkpoints/shell-prefix-quote-independent-review/receiver-supplement.json",
+      "bytes": 1810,
+      "sha256": "9f39463fb1ce9574f81f5ac384aa934722d1e27f745665b6f2b969f30ddc2b65"
+    },
+    "separateRequireFixtureHasExact91NodeBodyAndNamespaceReceiver": true,
+    "comparisonScope": "Complete wrapper fields and local reference graph under the recorded external interface correspondences; no transitive provider or ambient-value equivalence."
+  },
+  "guardAndEval": {
+    "sourceIsGuardedOwner": false,
+    "sourceIsPinnedEvalOwner": false,
+    "18CurrentGuardRecordsInspected": true,
+    "currentEvalOwnerCollectionsInspected": true,
+    "sourceMapDirectivePresent": false,
+    "guardTransitionRequired": false
+  },
+  "retention": {
+    "oldWrapperSourceVendorAndOtherConsumersChanged": false,
+    "explicitLegacyFixtureRetainsWrapper": true,
+    "globalWrapperDeletionAuthorized": false,
+    "otherTargetConsumerRedirectsPending": true,
+    "existingSharedHelperPathAndExportAreReconstructed": true
+  },
+  "futureActualStageObligations": [
+    "Authenticate the new complete production 64-node caller and 48-node shared helper, and resolve all four caller references to that existing shared declaration.",
+    "Verify the complete production shellPrefix initializer is the target empty arrow, with no stale legacy-wrapper dependency.",
+    "Verify the existing 91-node wrapper, its concrete namespace receiver and its required other production consumers remain; isolated fixture omission is not global retention evidence.",
+    "Verify actual module placement and provider relationships separately; do not infer them from compiler callback request ordering or source import spelling.",
+    "Preserve full-program strict comparison and all outstanding source/provider obligations; this source review does not establish whole-target acceptance."
+  ],
+  "limitations": [
+    "This deliberately changes shellPrefix to the target helper; the legacy validation, fallback conversion, errors, logging, and namespace call are not claimed interchangeable.",
+    "The helper path and public export are explicit reconstruction choices; original file/import metadata is not established.",
+    "Exact String spelling and unresolved status are proved only inside bounded joined statements. No full-Program ambient binding resolution or unmodified builtin guarantee is claimed.",
+    "Array map/join, String conversion, regular expressions and replaceAll remain runtime/ambient operations; no function was executed.",
+    "Legacy logger, slow-operation and vendor transitive semantics remain outside the bounded receiver supplement.",
+    "No whole-program declaration-reordering, generic receiver normalization, global DCE, typecheck, or semantic-equivalence acceptance is granted."
+  ],
+  "actualEmissionVerified": false,
+  "fullTargetASTEqualityEstablished": false,
+  "applicationExecuted": false,
+  "sourceStageChanged": false
+}

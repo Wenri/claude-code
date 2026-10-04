@@ -1,0 +1,122 @@
+{
+  "kind": "independent-spawn-utils-shared-quote-source-review",
+  "verdict": "approved-for-exact-source-diagnostic-trial",
+  "sourceTrialApproved": true,
+  "sourceRepairSha256": "07e5376c99f089556cdbf64c8e3f22805b9694d9829eaa35a01dd67cc4b11227",
+  "authorArtifactManifestSha256": "dd5f7b3cb8f504015a478fc02b96240ed979c5bf0bd1acd8bff18595e9775374",
+  "authorCodeProvenanceSha256": "3bd405e38ce6801020a3eddd1e94e7213e4298193d7ccef7cd51488f469a54d0",
+  "authorFreezeSha256": "404d4466404818c5967cd9c7398f1bf435397774532e61614f2a8683fe9570c4",
+  "sourceFiles": [
+    {
+      "path": "src/utils/swarm/spawnUtils.ts",
+      "oldSha256": "6b87b324bbc4488e699764e10dbdb157d54e7415879768ad607a9fefa9cf580e",
+      "postimageSha256": "36e274b05e271b36c657dcff949aa30daea40ad92081bc771dc353eaef36989d",
+      "postimagePath": "historical-checkpoints/spawn-utils-quote-source-investigation/postimages/src/utils/swarm/spawnUtils.ts"
+    }
+  ],
+  "oldBytes": 5202,
+  "postimageBytes": 5224,
+  "byteDelta": 22,
+  "otherSourceBytesExact": 5157,
+  "oldGitBlob": "cfccdf5a22f520e8acb2c9411e809c84ab28ea2a",
+  "postimageGitBlob": "64a03214eea0d1dbaa763e03b7d702fb0f461de1",
+  "sourceInputCountDelta": 0,
+  "appliesToPhysicalStages": [
+    "v21",
+    "v22"
+  ],
+  "sourceMapDirectivePresent": false,
+  "sourceOwnerGuarded": false,
+  "sourceOwnerEvalPinned": false,
+  "countsOptionsGuardsEvalUnchanged": true,
+  "exactImportBefore": "import { quote } from '../bash/shellQuote.js'",
+  "exactImportAfter": "import { quoteShellArgs as quote } from '../bash/quoteShellArgs.js'",
+  "allThreeTypedExportedFunctionsAndOtherBytesPreserved": true,
+  "allFourQuoteReadsResolvedToProposedSharedDeclaration": true,
+  "completeTargetHelperAndThreeFunctionsVerifiedUnderGroundedInterfaces": true,
+  "nodeCounts": {
+    "sharedHelper": 48,
+    "getTeammateCommand": 27,
+    "buildInheritedCliFlags": 152,
+    "buildInheritedEnvVars": 52
+  },
+  "fiveBootstrapGetterExportsAndNamespaceReferencesGrounded": true,
+  "snapshotGetterStateGroupAndPublicExportGrounded": true,
+  "bundledModeAndCommandConstantGrounded": true,
+  "environmentKeys": [
+    "CLAUDE_CODE_USE_BEDROCK",
+    "CLAUDE_CODE_USE_VERTEX",
+    "CLAUDE_CODE_USE_FOUNDRY",
+    "ANTHROPIC_BASE_URL",
+    "CLAUDE_CONFIG_DIR",
+    "CLAUDE_CODE_REMOTE",
+    "CLAUDE_CODE_REMOTE_MEMORY_DIR",
+    "HTTPS_PROXY",
+    "https_proxy",
+    "HTTP_PROXY",
+    "http_proxy",
+    "NO_PROXY",
+    "no_proxy",
+    "SSL_CERT_FILE",
+    "NODE_EXTRA_CA_CERTS",
+    "REQUESTS_CA_BUNDLE",
+    "CURL_CA_BUNDLE"
+  ],
+  "environmentListOrderAndSingleReadFilterPreserved": true,
+  "actualLegacy91NodeWrapperAndNamespaceReceiverGrounded": true,
+  "retainedLegacyFixtureWholeModulePlacementAccepted": false,
+  "failedRetainedFixtureComparisonPreserved": {
+    "match": false,
+    "reason": "AssertionError [ERR_ASSERTION]: $.body[15]\n+ actual - expected\n\n+ 'VariableDeclaration'\n- 'ImportDeclaration'\n",
+    "scope": "Retained legacy fixture changes statement/module placement. No whole-fixture order equivalence or output-reordering acceptance."
+  },
+  "oldAndNewQuoteAPIsDeclaredInterchangeable": false,
+  "sourceOriginalAuthorshipClaim": false,
+  "globalBuiltinOwnershipEstablished": false,
+  "otherSourceConsumersChanged": false,
+  "globalLegacyHelperRemovalAuthorized": false,
+  "actualStageVerified": false,
+  "wholeModuleAccepted": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "tests": {
+    "authorGroups": 14,
+    "authorNegatives": 25,
+    "independentGroups": 8,
+    "independentNegatives": 11,
+    "completeOriginalIndexStatements": 57,
+    "maximumStatementBytes": 6301,
+    "compileOnlyOutputsByteExact": 10,
+    "resolverRequestsComparedAsMultiset": true,
+    "authorMembersStillExact": 69
+  },
+  "futureActualStageObligations": [
+    "Authenticate all three complete production functions and all four changed quoting references to the existing shared48-node declaration.",
+    "Verify the exact17-item environment assignment and all concrete getter/constant/snapshot interfaces against the fresh index.",
+    "Verify the complete34-node initializer retains bootstrap then teammate-snapshot calls and omits only the old legacy-quote edge from this owner.",
+    "Verify the existing91-node wrapper, its namespace receiver and remaining consumers still survive; do not infer global retention from an isolated fixture.",
+    "Check declaration placement and direct providers separately; the retained-fixture whole-module placement comparison remains failed."
+  ],
+  "qualifications": [
+    "This is a target-directed import correction, not general equivalence of the legacy validation/fallback/error/logging/namespace API and reconstructed shared quote function.",
+    "Complete bounded runtime fields and local binding graphs match under the documented imported interfaces. Mutable bootstrap state, snapshot config/debug/logger captures and other transitive behavior remain conditional.",
+    "String, process, Bun and Array spellings/roles are explicit in bounded comparisons. No full-Program ambient-binding ownership or unmodified-builtin guarantee is established.",
+    "The17 environment names, permission/flag order, one per-iteration environment read and undefined/empty filtering are preserved statically. No recovered environment access or spawn/shell/application/callback function ran.",
+    "The original failed retained-module placement comparison remains false. Separate caller/helper and namespace-receiver proofs do not enable output reordering, generic receiver normalization or whole-module acceptance.",
+    "The shared helper name/path are previously reviewed reconstruction choices. Other target quote redirects, global declaration placement, dynamic observation and whole-target acceptance remain open.",
+    "Source-stage files, author evidence and all unrelated source/module bodies remain unchanged. No full Program parse/build or application execution occurred."
+  ],
+  "applicationExecuted": false,
+  "fullProgramParsed": false,
+  "sourceStageEdited": false,
+  "authorArtifactsModified": false,
+  "evidence": [
+    "author-authentication.json",
+    "author-tests.json",
+    "author-comparison.json",
+    "independent.json",
+    "compiler-replay-check.json",
+    "witness-audit.json",
+    "complete-witnesses.json"
+  ]
+}

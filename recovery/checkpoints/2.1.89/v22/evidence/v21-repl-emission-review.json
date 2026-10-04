@@ -1,0 +1,257 @@
+{
+  "kind": "independent-actual-v21-repl-import-placement-review",
+  "verdict": "scoped-import-placement-and-retained-memo-verified-with-wider-topology-open",
+  "sourceReview": {
+    "path": "repl-mode-import-order-independent-review/review.json",
+    "sha256": "e54b35ff27e9a4e9140608719e6459cadf2d07610672c4ad585ff3d737bda1b6",
+    "closureSha256": "0ed71ee15cba7942a435dab287c5bb1150477b550f7804730fc21ef358012638"
+  },
+  "preparationReview": {
+    "path": "v21-preparation-review/review.json",
+    "sha256": "208523c326b210d48dc09ae67d47fa5807f28ee430f0029a46df5eff238bf98d",
+    "closureSha256": "be972e470acf0be10987b547bad9b070108f6440baa265d960b9ac65e6b8fe83"
+  },
+  "actualPins": {
+    "js": "v21-replay/final/cli.js",
+    "sha256": "4fa68aa1160b455ad426105b95e5f00299d54fa470b0e117004498683075b0b8",
+    "index": "v21-indexes/candidate.json",
+    "indexSha256": "af4daa341b710cd092f084c0bcd560c05b34114a82509fe9dc0b5671bf5310dc",
+    "profileSha256": "243c285b1c5109cf09f94e251b109cbf7f441ffd7dd28afca65066d07aa84809",
+    "toolchainSha256": "4d44399b78afdf87d0fb2f72083846afc2413989e8ef6156a74908eea8f1b5a2",
+    "compileReportSha256": "b7a4012ac77e24007cda216b66e01cde9397c4dac3bc32288ddd078205eaee51",
+    "strictNodes": 3098411,
+    "strictSha256": "b1d50fe902b96bfe9bdf71eaf10dad1125f44148b1ff1dc3a5a2459591c52f81"
+  },
+  "sourceManifestSha256": "2a5d06b9908c96a1afb08f26d4263b0ba3baa61cc8498ce75d68161ddbee9df7",
+  "derivedSrcTree": "941faa299853c5ffe39d265b102443c1fc366240",
+  "targetInitializerPlacementSatisfied": true,
+  "targetInitializerSlots": [
+    115,
+    116
+  ],
+  "currentInitializerSlots": [
+    115,
+    116
+  ],
+  "targetReplStatement": 17571,
+  "currentReplStatement": 17588,
+  "targetInitializerStatement": 17573,
+  "currentInitializerStatement": 17590,
+  "targetInitializerCount": 206,
+  "currentInitializerCount": 205,
+  "groundedImmediateNeighbors": [
+    {
+      "sourceOwner": "src/hooks/useMergedTools.ts",
+      "sourceExport": "useMergedTools",
+      "targetSlot": 99,
+      "currentSlot": 99,
+      "targetFunction": 14742,
+      "currentFunction": 14755,
+      "targetInitializer": 14744,
+      "currentInitializer": 14757
+    },
+    {
+      "sourceOwner": "src/tools/AgentTool/resumeAgent.ts",
+      "sourceExport": "resumeAgentBackground",
+      "targetSlot": 114,
+      "currentSlot": 114,
+      "targetFunction": 11680,
+      "currentFunction": 11700,
+      "targetInitializer": 11681,
+      "currentInitializer": 11701
+    },
+    {
+      "sourceOwner": "src/hooks/useMainLoopModel.ts",
+      "sourceExport": "useMainLoopModel",
+      "targetSlot": 117,
+      "currentSlot": 117,
+      "targetFunction": 9958,
+      "currentFunction": 9966,
+      "targetInitializer": 9960,
+      "currentInitializer": 9968
+    }
+  ],
+  "modeAndPrimitiveProviders": {
+    "target": {
+      "mode": {
+        "name": "Tu",
+        "index": 5050,
+        "initializer": 5052
+      },
+      "getter": {
+        "name": "tE6",
+        "index": 11738,
+        "initializer": 11740
+      }
+    },
+    "current": {
+      "mode": {
+        "name": "vu",
+        "index": 5052,
+        "initializer": 5054
+      },
+      "getter": {
+        "name": "qL6",
+        "index": 11757,
+        "initializer": 11759
+      }
+    }
+  },
+  "actualMemoComplete60NodesVerified": true,
+  "actualReactNamespaceAndCapturedBindingsVerified": true,
+  "exactThreeMergedDisplayReadsVerified": true,
+  "originalToolsUseEffectDependencyPreserved": true,
+  "completePriorReplLocalGraphAndRuntimeFieldsPreserved": true,
+  "priorToCurrentFreeInterfaces": 357,
+  "other355InterfacesConditional": true,
+  "realModeGetterAndEightObjectRolesVerified": true,
+  "otherPriorInitializerFieldsAndLocalGraphPreservedAfterExactRelocationInverse": true,
+  "parsedGuard10Transition": {
+    "before": {
+      "originSource": "src/screens/REPL.tsx",
+      "originSourceSha256": "ba51a8dd51cd5f3d230bd54a24285b7e2ed967ac8439203a2728ba9caabf881d",
+      "range": [
+        23328,
+        23411
+      ],
+      "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+      "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        23364,
+        23410
+      ],
+      "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+      "originSourceGitBlob": "b506f0dd2399003721bf1c09e23e7b7c03ff6531",
+      "originParentGitBlob": "3059ff4059e976180a76308ea4e89b63ce5b1a37"
+    },
+    "after": {
+      "originSource": "src/screens/REPL.tsx",
+      "originSourceSha256": "6d9921481d6c9ad00a3e7648e871e669a46b7539cd3f89156e57a6eccf0df4e2",
+      "range": [
+        23328,
+        23411
+      ],
+      "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+      "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        23364,
+        23410
+      ],
+      "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+      "originSourceGitBlob": "2d60fb0ab505d5dc86cf3c642e8f1ac351a20634",
+      "originParentGitBlob": "b506f0dd2399003721bf1c09e23e7b7c03ff6531"
+    },
+    "parsedFullImportPrefixCoordinates": true,
+    "completeOldRecordRetainedBySourceReview": true,
+    "noGenesisInvented": true
+  },
+  "allOther17GuardsAndFourEvalPinsUnchanged": true,
+  "historicalV20": {
+    "reviewSha256": "24b8ebff2a62fe57547ac22c5983e99646b33c96b37673a08215b28b97d6d0cf",
+    "closureSha256": "bfd61208d5606106b2609bd7e38e733d78ea82bc0d408192ca91b46db8489c51",
+    "initializerSlots": [
+      100,
+      101
+    ],
+    "placementSatisfied": false,
+    "unchangedHistoricalReceipt": true
+  },
+  "currentResiduals": {
+    "missingMessageRatingDirectProvider": {
+      "targetInitializer": 8867,
+      "targetName": "ks6",
+      "targetSlot": 60,
+      "currentInitializer": 8876,
+      "currentName": "Vs6",
+      "currentDirectSlot": -1,
+      "targetProviderNodes": 281,
+      "currentProviderNodes": 281,
+      "providerBodyReviewedElsewhere": true,
+      "wrapperTopologyAccepted": false
+    },
+    "missingProviderSlot60Resolved": false,
+    "wholeReplInitializerAccepted": false,
+    "wholeReplComponentAccepted": false,
+    "wrapperTopologyAccepted": false,
+    "otherProviderTransitiveEquivalenceAccepted": false,
+    "entireInitializerDifferenceExplainedBySingleMissingCall": false
+  },
+  "summaryCounts": {
+    "sourceFiles": 6084,
+    "currentGitSourceFiles": 1922,
+    "measuredSourceFiles": 6084,
+    "measuredGitSourceFiles": 1922,
+    "sourceCountValidationFailure": false
+  },
+  "physicalInputs": {
+    "files": 6084,
+    "bytes": 50950486,
+    "manifestSha256": "2a5d06b9908c96a1afb08f26d4263b0ba3baa61cc8498ce75d68161ddbee9df7",
+    "changed": [
+      "src/components/messageRating.tsx",
+      "src/screens/REPL.tsx"
+    ],
+    "unchangedFiles": 6082,
+    "bothPhysicalStagesRehashed": true,
+    "noSharedInodes": true,
+    "modesPreserved": true,
+    "compilerOrApplicationInvoked": false
+  },
+  "resolverReceiptEvents": {
+    "private-marker-external": 11,
+    "sdk-declaration-facade": 12,
+    "sdk-facade-load": 3,
+    "source-import-literal-overlay": 11
+  },
+  "markerRemovals": 11,
+  "restoredOverlaySources": 11,
+  "allDeletionEditsReproduceFinalBytes": true,
+  "allFourRawFinalOutputPinsVerified": true,
+  "mapsStreamHashedWithoutParsing": true,
+  "completeOriginalIndexWitnesses": 103,
+  "maximumStatementBytes": 54872,
+  "negativeControls": 20,
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098411,
+    "sha256": "b1d50fe902b96bfe9bdf71eaf10dad1125f44148b1ff1dc3a5a2459591c52f81"
+  },
+  "strictAstRecomputedByReviewer": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "applicationExecuted": false,
+  "fullBundleParsed": false,
+  "compilerInvokedByReviewer": false,
+  "sourceStageProfileOrOutputsModified": false,
+  "qualifications": [
+    "The direct two-import placement obligation is met under grounded mode, primitive, resumeAgentBackground and useMainLoopModel identities. Historical slots100/101 remain an immutable failed observation.",
+    "The complete memo preserves its React namespace receiver, gate, Set/filter/identity paths, three merged reads and original execution/effect dependency binding. The complete prior component graph matches under conditional external interfaces.",
+    "The missing direct messageRating initializer call at target slot60 remains absent. The current provider has281 nodes; its separate body/cache review is outside this placement verdict. No total-prefix explanation or wrapper/provider-topology acceptance follows.",
+    "The comparator preserves runtime AST fields and local binding/reference graphs while excluding parser locations and literal raw spelling. External role pairing does not establish universal transitive, reflection, dynamic eval, ambient mutation or independent-order equivalence.",
+    "Eight actual primitive objects and public names are resolved through their declarations/assignments and getter reads. Their transitive runtime behaviors are not accepted here.",
+    "The receipt audit validates current physical inputs and hashes all raw/final JS/maps. It does not establish source-map ownership or an enforced/measured complete reference-free filesystem footprint.",
+    "The fresh summary counts match the actual6,084 input and1,922 current Git-source inventory. Historical stale v20 summaries remain unchanged.",
+    "Whole strict target AST remains unequal. No application/hook/REPL/callback body was executed."
+  ],
+  "evidence": [
+    "core-results.json",
+    "evidence-results.json",
+    "tool-identity-results.json",
+    "control-results.json",
+    "guard-lineage.json",
+    "physical-input-check.json",
+    "receipt-checks.json",
+    "complete-indexed-witnesses.json",
+    "witness-audit.json"
+  ]
+}

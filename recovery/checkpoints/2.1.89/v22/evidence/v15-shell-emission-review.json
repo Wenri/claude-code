@@ -1,0 +1,1149 @@
+{
+  "kind": "independent-v15-shell-actual-emission-review",
+  "verdict": "accepted-bounded-shell-emission-obligations",
+  "shellEmissionObligationsSatisfied": true,
+  "profileSha256": "c32ad5a9af56b330e69dc511f9155512b6d0f82477d278e253bb9679bafba0e4",
+  "toolchainSha256": "48320d0c5bbedb7c25ff8fd7af69b95e7b4ea9d5f8904a5e7b3a83e6391a2b7c",
+  "compileReportSha256": "6ef908d8856f93959f950ce3a328a698c29f73d9d56902659972f74d026038b3",
+  "compilerReceiptSha256": "c6c4b32fcd1578f685431dc8c0cc5de5a6af8ced84581927fdbf52da0089bc26",
+  "finalJSSha256": "bf07956ec0b9d2dea8ad0e219535b264cc32506115a6655cd513c945cfd87a45",
+  "finalJSBytes": 13080366,
+  "candidateIndex": {
+    "path": "historical-checkpoints/v15-indexes/candidate.json",
+    "sha256": "5e92f86dd985a252a3e021a724785eee7ed0746da1afc488cc6f6032715ec8ba",
+    "bytes": 5580966,
+    "statements": 18205,
+    "strictNodes": 3099793,
+    "strictSha256": "bc0e2c1fc1407281eb3226cedf296bcc7ccae48e38adf85414f6d6f4ce143ffe"
+  },
+  "sourceApproval": {
+    "path": "historical-checkpoints/shell-callers-independent-review/review.json",
+    "sha256": "61e61d2847a9deaefc38c3c57caddafc42444a89bab9c162eacd7dbfa2a03d56"
+  },
+  "preparationApproval": {
+    "path": "historical-checkpoints/v15-preparation-review/review.json",
+    "sha256": "8778fea32648ab39d919072fc3244805f24445c27f14b253605866582d67627c"
+  },
+  "actualFourBodies": [
+    {
+      "name": "isSearchOrReadBashCommand",
+      "targetIndex": 11911,
+      "currentIndex": 11930
+    },
+    {
+      "name": "isCommandSafeViaFlagParsing",
+      "targetIndex": 7703,
+      "currentIndex": 7709
+    },
+    {
+      "name": "extractWritePathsFromSubcommand",
+      "targetIndex": 7710,
+      "currentIndex": 7716
+    },
+    {
+      "name": "isAllowlistedCommand",
+      "targetIndex": 10822,
+      "currentIndex": 10841
+    }
+  ],
+  "checks": {
+    "emissionGroups": 7,
+    "completeChangedFunctions": 4,
+    "completeSupportingFunctions": 9,
+    "additionalCompleteProviderFunctions": 7,
+    "completeDataAndInitializerExpressions": 15,
+    "boundedIndexedStatements": 82,
+    "maximumParsedStatementBytes": 18649,
+    "targetToCurrentConsistentExternalBindings": 60,
+    "priorToCurrentConsistentExternalBindings": 225,
+    "emissionNegativeControls": [
+      "wrong parser helper binding",
+      "missing server-option rejection form",
+      "wrong Windows platform boundary",
+      "changed runtime property",
+      "changed local result reference",
+      "reinsert unused shell-quote edge",
+      "reorder remaining initializer providers"
+    ],
+    "reconstructionResolverEvents": 37,
+    "markerImportsRemoved": 11,
+    "rawToFinalOnlyRecordedDeletions": true,
+    "receiptNegativeControls": 3,
+    "sourceOwnersNotOverlaid": true,
+    "sourceMapHashesAuthenticated": true,
+    "authorSourceAndPreparationClosuresUnchanged": true
+  },
+  "initializer": {
+    "prior": [
+      "k8",
+      "Ty8",
+      "Fo6",
+      "GD",
+      "T0",
+      "u7",
+      "D5",
+      "kK",
+      "A$",
+      "dv6",
+      "mN",
+      "np1",
+      "Cy8"
+    ],
+    "current": [
+      "k8",
+      "Ty8",
+      "go6",
+      "TD",
+      "u7",
+      "D5",
+      "kK",
+      "A$",
+      "dv6",
+      "pN",
+      "lp1",
+      "Cy8"
+    ],
+    "target": [
+      "k8",
+      "Ty8",
+      "Io6",
+      "kD",
+      "p7",
+      "X5",
+      "VK",
+      "H$",
+      "ET6",
+      "QN",
+      "sp1",
+      "by8"
+    ],
+    "removedPriorProvider": "T0",
+    "currentRemovedProviderIdentity": "FG",
+    "remainingDirectProviders": [
+      {
+        "position": 0,
+        "prior": "k8",
+        "current": "k8",
+        "priorDefinitionIndex": 574,
+        "currentDefinitionIndex": 574
+      },
+      {
+        "position": 1,
+        "prior": "Ty8",
+        "current": "Ty8",
+        "priorDefinitionIndex": 7572,
+        "currentDefinitionIndex": 7571
+      },
+      {
+        "position": 2,
+        "prior": "Fo6",
+        "current": "go6",
+        "priorDefinitionIndex": 7535,
+        "currentDefinitionIndex": 7534
+      },
+      {
+        "position": 3,
+        "prior": "GD",
+        "current": "TD",
+        "priorDefinitionIndex": 12800,
+        "currentDefinitionIndex": 12799
+      },
+      {
+        "position": 4,
+        "prior": "u7",
+        "current": "u7",
+        "priorDefinitionIndex": 2121,
+        "currentDefinitionIndex": 2122
+      },
+      {
+        "position": 5,
+        "prior": "D5",
+        "current": "D5",
+        "priorDefinitionIndex": 2402,
+        "currentDefinitionIndex": 2403
+      },
+      {
+        "position": 6,
+        "prior": "kK",
+        "current": "kK",
+        "priorDefinitionIndex": 2129,
+        "currentDefinitionIndex": 2130
+      },
+      {
+        "position": 7,
+        "prior": "A$",
+        "current": "A$",
+        "priorDefinitionIndex": 6178,
+        "currentDefinitionIndex": 6177
+      },
+      {
+        "position": 8,
+        "prior": "dv6",
+        "current": "dv6",
+        "priorDefinitionIndex": 6184,
+        "currentDefinitionIndex": 6183
+      },
+      {
+        "position": 9,
+        "prior": "mN",
+        "current": "pN",
+        "priorDefinitionIndex": 11992,
+        "currentDefinitionIndex": 11991
+      },
+      {
+        "position": 10,
+        "prior": "np1",
+        "current": "lp1",
+        "priorDefinitionIndex": 7708,
+        "currentDefinitionIndex": 7707
+      },
+      {
+        "position": 11,
+        "prior": "Cy8",
+        "current": "Cy8",
+        "priorDefinitionIndex": 7689,
+        "currentDefinitionIndex": 7688
+      }
+    ],
+    "priorToCurrentConsistentExternalBindings": [
+      {
+        "prior": "T0",
+        "current": "FG"
+      },
+      {
+        "prior": "y",
+        "current": "y"
+      },
+      {
+        "prior": "L8",
+        "current": "L8"
+      },
+      {
+        "prior": "l8",
+        "current": "l8"
+      },
+      {
+        "prior": "oV6",
+        "current": "oV6"
+      },
+      {
+        "prior": "O6",
+        "current": "O6"
+      },
+      {
+        "prior": "lT8",
+        "current": "lT8"
+      },
+      {
+        "prior": "k8",
+        "current": "k8"
+      },
+      {
+        "prior": "zH7",
+        "current": "zH7"
+      },
+      {
+        "prior": "YH7",
+        "current": "YH7"
+      },
+      {
+        "prior": "Ic",
+        "current": "uc"
+      },
+      {
+        "prior": "G8",
+        "current": "G8"
+      },
+      {
+        "prior": "DH7",
+        "current": "DH7"
+      },
+      {
+        "prior": "xi8",
+        "current": "bi8"
+      },
+      {
+        "prior": "Yz",
+        "current": "Yz"
+      },
+      {
+        "prior": "Ii8",
+        "current": "xi8"
+      },
+      {
+        "prior": "fH7",
+        "current": "fH7"
+      },
+      {
+        "prior": "ni8",
+        "current": "li8"
+      },
+      {
+        "prior": "WH7",
+        "current": "WH7"
+      },
+      {
+        "prior": "Ty8",
+        "current": "Ty8"
+      },
+      {
+        "prior": "Fo6",
+        "current": "go6"
+      },
+      {
+        "prior": "Z26",
+        "current": "Z26"
+      },
+      {
+        "prior": "qYz",
+        "current": "KYz"
+      },
+      {
+        "prior": "Set",
+        "current": "Set"
+      },
+      {
+        "prior": "KYz",
+        "current": "_Yz"
+      },
+      {
+        "prior": "_Yz",
+        "current": "zYz"
+      },
+      {
+        "prior": "zYz",
+        "current": "YYz"
+      },
+      {
+        "prior": "YYz",
+        "current": "$Yz"
+      },
+      {
+        "prior": "$Yz",
+        "current": "AYz"
+      },
+      {
+        "prior": "AYz",
+        "current": "OYz"
+      },
+      {
+        "prior": "OYz",
+        "current": "wYz"
+      },
+      {
+        "prior": "ny4",
+        "current": "ny4"
+      },
+      {
+        "prior": "wYz",
+        "current": "jYz"
+      },
+      {
+        "prior": "dy4",
+        "current": "dy4"
+      },
+      {
+        "prior": "Rp1",
+        "current": "Lp1"
+      },
+      {
+        "prior": "jYz",
+        "current": "HYz"
+      },
+      {
+        "prior": "HYz",
+        "current": "JYz"
+      },
+      {
+        "prior": "JYz",
+        "current": "MYz"
+      },
+      {
+        "prior": "MYz",
+        "current": "XYz"
+      },
+      {
+        "prior": "XYz",
+        "current": "PYz"
+      },
+      {
+        "prior": "PYz",
+        "current": "WYz"
+      },
+      {
+        "prior": "cy4",
+        "current": "cy4"
+      },
+      {
+        "prior": "String",
+        "current": "String"
+      },
+      {
+        "prior": "TYz",
+        "current": "vYz"
+      },
+      {
+        "prior": "kYz",
+        "current": "VYz"
+      },
+      {
+        "prior": "VYz",
+        "current": "NYz"
+      },
+      {
+        "prior": "NYz",
+        "current": "yYz"
+      },
+      {
+        "prior": "yYz",
+        "current": "EYz"
+      },
+      {
+        "prior": "EYz",
+        "current": "LYz"
+      },
+      {
+        "prior": "ly4",
+        "current": "ly4"
+      },
+      {
+        "prior": "Sp1",
+        "current": "hp1"
+      },
+      {
+        "prior": "fy8",
+        "current": "fy8"
+      },
+      {
+        "prior": "Pzz",
+        "current": "Wzz"
+      },
+      {
+        "prior": "vzz",
+        "current": "kzz"
+      },
+      {
+        "prior": "i_O",
+        "current": "o_O"
+      },
+      {
+        "prior": "Promise",
+        "current": "Promise"
+      },
+      {
+        "prior": "iV6",
+        "current": "iV6"
+      },
+      {
+        "prior": "Wzz",
+        "current": "Dzz"
+      },
+      {
+        "prior": "vp1",
+        "current": "Tp1"
+      },
+      {
+        "prior": "nzz",
+        "current": "izz"
+      },
+      {
+        "prior": "izz",
+        "current": "rzz"
+      },
+      {
+        "prior": "GD",
+        "current": "TD"
+      },
+      {
+        "prior": "wGK",
+        "current": "jGK"
+      },
+      {
+        "prior": "JGK",
+        "current": "MGK"
+      },
+      {
+        "prior": "wOY",
+        "current": "wOY"
+      },
+      {
+        "prior": "jOY",
+        "current": "jOY"
+      },
+      {
+        "prior": "MGK",
+        "current": "XGK"
+      },
+      {
+        "prior": "AGK",
+        "current": "OGK"
+      },
+      {
+        "prior": "MOY",
+        "current": "MOY"
+      },
+      {
+        "prior": "JOY",
+        "current": "JOY"
+      },
+      {
+        "prior": "R18",
+        "current": "L18"
+      },
+      {
+        "prior": "OGK",
+        "current": "wGK"
+      },
+      {
+        "prior": "Z2",
+        "current": "pO"
+      },
+      {
+        "prior": "XOY",
+        "current": "XOY"
+      },
+      {
+        "prior": "ei2",
+        "current": "_r2"
+      },
+      {
+        "prior": "u7",
+        "current": "u7"
+      },
+      {
+        "prior": "iE7",
+        "current": "iE7"
+      },
+      {
+        "prior": "rE5",
+        "current": "oE5"
+      },
+      {
+        "prior": "D5",
+        "current": "D5"
+      },
+      {
+        "prior": "qK",
+        "current": "qK"
+      },
+      {
+        "prior": "VK1",
+        "current": "kK1"
+      },
+      {
+        "prior": "K8",
+        "current": "K8"
+      },
+      {
+        "prior": "tY",
+        "current": "tY"
+      },
+      {
+        "prior": "HK",
+        "current": "HK"
+      },
+      {
+        "prior": "t7",
+        "current": "t7"
+      },
+      {
+        "prior": "El",
+        "current": "Rl"
+      },
+      {
+        "prior": "IB",
+        "current": "mB"
+      },
+      {
+        "prior": "JV",
+        "current": "HV"
+      },
+      {
+        "prior": "ih7",
+        "current": "ih7"
+      },
+      {
+        "prior": "Symbol",
+        "current": "Symbol"
+      },
+      {
+        "prior": "Qh7",
+        "current": "Qh7"
+      },
+      {
+        "prior": "fP",
+        "current": "fP"
+      },
+      {
+        "prior": "Date",
+        "current": "Date"
+      },
+      {
+        "prior": "r8",
+        "current": "r8"
+      },
+      {
+        "prior": "hA8",
+        "current": "hA8"
+      },
+      {
+        "prior": "Uh7",
+        "current": "Uh7"
+      },
+      {
+        "prior": "Ch",
+        "current": "bh"
+      },
+      {
+        "prior": "gh7",
+        "current": "gh7"
+      },
+      {
+        "prior": "CK1",
+        "current": "SK1"
+      },
+      {
+        "prior": "bY",
+        "current": "bY"
+      },
+      {
+        "prior": "AS5",
+        "current": "OS5"
+      },
+      {
+        "prior": "dh7",
+        "current": "dh7"
+      },
+      {
+        "prior": "SK1",
+        "current": "hK1"
+      },
+      {
+        "prior": "Bh7",
+        "current": "Bh7"
+      },
+      {
+        "prior": "$S5",
+        "current": "AS5"
+      },
+      {
+        "prior": "DH",
+        "current": "DH"
+      },
+      {
+        "prior": "OS5",
+        "current": "wS5"
+      },
+      {
+        "prior": "N7",
+        "current": "N7"
+      },
+      {
+        "prior": "$1",
+        "current": "$1"
+      },
+      {
+        "prior": "JD6",
+        "current": "JD6"
+      },
+      {
+        "prior": "HJ",
+        "current": "HJ"
+      },
+      {
+        "prior": "f8",
+        "current": "f8"
+      },
+      {
+        "prior": "kK",
+        "current": "kK"
+      },
+      {
+        "prior": "E41",
+        "current": "y41"
+      },
+      {
+        "prior": "Z1",
+        "current": "f1"
+      },
+      {
+        "prior": "process",
+        "current": "process"
+      },
+      {
+        "prior": "P8",
+        "current": "P8"
+      },
+      {
+        "prior": "w6",
+        "current": "w6"
+      },
+      {
+        "prior": "k_6",
+        "current": "v_6"
+      },
+      {
+        "prior": "sE7",
+        "current": "sE7"
+      },
+      {
+        "prior": "sE5",
+        "current": "tE5"
+      },
+      {
+        "prior": "aE5",
+        "current": "sE5"
+      },
+      {
+        "prior": "tE5",
+        "current": "eE5"
+      },
+      {
+        "prior": "A$",
+        "current": "A$"
+      },
+      {
+        "prior": "u34",
+        "current": "u34"
+      },
+      {
+        "prior": "QW6",
+        "current": "QW6"
+      },
+      {
+        "prior": "Tz",
+        "current": "Tz"
+      },
+      {
+        "prior": "BF",
+        "current": "FF"
+      },
+      {
+        "prior": "kO",
+        "current": "kO"
+      },
+      {
+        "prior": "OI",
+        "current": "jI"
+      },
+      {
+        "prior": "Q1",
+        "current": "Q1"
+      },
+      {
+        "prior": "BY",
+        "current": "BY"
+      },
+      {
+        "prior": "y8",
+        "current": "y8"
+      },
+      {
+        "prior": "kz",
+        "current": "kz"
+      },
+      {
+        "prior": "DC",
+        "current": "ZC"
+      },
+      {
+        "prior": "_v8",
+        "current": "_v8"
+      },
+      {
+        "prior": "zv8",
+        "current": "zv8"
+      },
+      {
+        "prior": "oA6",
+        "current": "oA6"
+      },
+      {
+        "prior": "Ij",
+        "current": "Ij"
+      },
+      {
+        "prior": "$v8",
+        "current": "$v8"
+      },
+      {
+        "prior": "W7",
+        "current": "W7"
+      },
+      {
+        "prior": "bx_",
+        "current": "xx_"
+      },
+      {
+        "prior": "Av8",
+        "current": "Av8"
+      },
+      {
+        "prior": "Yv8",
+        "current": "Yv8"
+      },
+      {
+        "prior": "mS1",
+        "current": "uS1"
+      },
+      {
+        "prior": "Ex_",
+        "current": "Lx_"
+      },
+      {
+        "prior": "Vx_",
+        "current": "Nx_"
+      },
+      {
+        "prior": "Nx_",
+        "current": "yx_"
+      },
+      {
+        "prior": "yx_",
+        "current": "Ex_"
+      },
+      {
+        "prior": "Rx_",
+        "current": "hx_"
+      },
+      {
+        "prior": "hx_",
+        "current": "Sx_"
+      },
+      {
+        "prior": "Sx_",
+        "current": "Cx_"
+      },
+      {
+        "prior": "Cx_",
+        "current": "bx_"
+      },
+      {
+        "prior": "xx_",
+        "current": "Ix_"
+      },
+      {
+        "prior": "Ix_",
+        "current": "ux_"
+      },
+      {
+        "prior": "Lx_",
+        "current": "Rx_"
+      },
+      {
+        "prior": "vx_",
+        "current": "kx_"
+      },
+      {
+        "prior": "dv6",
+        "current": "dv6"
+      },
+      {
+        "prior": "tn6",
+        "current": "sn6"
+      },
+      {
+        "prior": "Ov8",
+        "current": "Ov8"
+      },
+      {
+        "prior": "wv8",
+        "current": "wv8"
+      },
+      {
+        "prior": "jv8",
+        "current": "jv8"
+      },
+      {
+        "prior": "Hv8",
+        "current": "Hv8"
+      },
+      {
+        "prior": "en6",
+        "current": "tn6"
+      },
+      {
+        "prior": "BS1",
+        "current": "pS1"
+      },
+      {
+        "prior": "gS1",
+        "current": "BS1"
+      },
+      {
+        "prior": "qi6",
+        "current": "en6"
+      },
+      {
+        "prior": "Ki6",
+        "current": "qi6"
+      },
+      {
+        "prior": "A0",
+        "current": "O0"
+      },
+      {
+        "prior": "Jv8",
+        "current": "Jv8"
+      },
+      {
+        "prior": "U34",
+        "current": "U34"
+      },
+      {
+        "prior": "Q34",
+        "current": "Q34"
+      },
+      {
+        "prior": "Mv8",
+        "current": "Mv8"
+      },
+      {
+        "prior": "g34",
+        "current": "g34"
+      },
+      {
+        "prior": "mN",
+        "current": "pN"
+      },
+      {
+        "prior": "gZ",
+        "current": "gZ"
+      },
+      {
+        "prior": "v8",
+        "current": "v8"
+      },
+      {
+        "prior": "CH",
+        "current": "CH"
+      },
+      {
+        "prior": "Lf",
+        "current": "Lf"
+      },
+      {
+        "prior": "nj",
+        "current": "nj"
+      },
+      {
+        "prior": "sr",
+        "current": "tr"
+      },
+      {
+        "prior": "uB",
+        "current": "pB"
+      },
+      {
+        "prior": "r0",
+        "current": "r0"
+      },
+      {
+        "prior": "DWK",
+        "current": "fWK"
+      },
+      {
+        "prior": "ZWK",
+        "current": "GWK"
+      },
+      {
+        "prior": "np1",
+        "current": "lp1"
+      },
+      {
+        "prior": "Cy8",
+        "current": "Cy8"
+      },
+      {
+        "prior": "OR6",
+        "current": "OR6"
+      },
+      {
+        "prior": "T87",
+        "current": "T87"
+      },
+      {
+        "prior": "v87",
+        "current": "v87"
+      },
+      {
+        "prior": "K9Y",
+        "current": "K9Y"
+      },
+      {
+        "prior": "jWK",
+        "current": "HWK"
+      },
+      {
+        "prior": "no6",
+        "current": "lo6"
+      },
+      {
+        "prior": "k87",
+        "current": "k87"
+      },
+      {
+        "prior": "Ny8",
+        "current": "Ny8"
+      },
+      {
+        "prior": "lp8",
+        "current": "cp8"
+      },
+      {
+        "prior": "VWK",
+        "current": "NWK"
+      },
+      {
+        "prior": "EWK",
+        "current": "LWK"
+      },
+      {
+        "prior": "Map",
+        "current": "Map"
+      },
+      {
+        "prior": "_i6",
+        "current": "Ki6"
+      },
+      {
+        "prior": "ao6",
+        "current": "oo6"
+      },
+      {
+        "prior": "W$z",
+        "current": "D$z"
+      },
+      {
+        "prior": "RA",
+        "current": "RA"
+      },
+      {
+        "prior": "gE4",
+        "current": "gE4"
+      },
+      {
+        "prior": "UE4",
+        "current": "UE4"
+      },
+      {
+        "prior": "Object",
+        "current": "Object"
+      },
+      {
+        "prior": "G$z",
+        "current": "T$z"
+      },
+      {
+        "prior": "so6",
+        "current": "ao6"
+      },
+      {
+        "prior": "T$z",
+        "current": "v$z"
+      },
+      {
+        "prior": "FE4",
+        "current": "FE4"
+      },
+      {
+        "prior": "dE4",
+        "current": "dE4"
+      },
+      {
+        "prior": "C$z",
+        "current": "b$z"
+      },
+      {
+        "prior": "qN6",
+        "current": "qN6"
+      },
+      {
+        "prior": "O$O",
+        "current": "w$O"
+      },
+      {
+        "prior": "x$z",
+        "current": "I$z"
+      },
+      {
+        "prior": "ip1",
+        "current": "np1"
+      },
+      {
+        "prior": "m$z",
+        "current": "p$z"
+      },
+      {
+        "prior": "u$z",
+        "current": "m$z"
+      },
+      {
+        "prior": "p$z",
+        "current": "B$z"
+      },
+      {
+        "prior": "B$z",
+        "current": "g$z"
+      },
+      {
+        "prior": "g$z",
+        "current": "F$z"
+      },
+      {
+        "prior": "F$z",
+        "current": "U$z"
+      },
+      {
+        "prior": "U$z",
+        "current": "Q$z"
+      },
+      {
+        "prior": "l$z",
+        "current": "n$z"
+      },
+      {
+        "prior": "n$z",
+        "current": "i$z"
+      }
+    ],
+    "completePriorInitializerMinusOneEdgeEqualsCurrent": true
+  },
+  "inheritedResiduals": {
+    "commands": [
+      "jGK",
+      "go6",
+      "MGK",
+      "Z26",
+      "FG"
+    ],
+    "pathValidation": [
+      "TD",
+      "FG",
+      "Tz",
+      "kz",
+      "CH",
+      "Ki6",
+      "pN",
+      "Cy8"
+    ],
+    "shellQuoteProvider": "FG",
+    "shellQuoteDefinitionIndex": 7578
+  },
+  "limitations": [
+    "Acceptance is restricted to the four actual shell caller bodies, immediate compared provider/data definitions and exact direct initializer-edge obligation. Whole-module, full-program and arbitrary JavaScript semantic equivalence are not established.",
+    "Complete fields and local definition/reference graphs were compared, with globally consistent one-to-one external-name correspondences across the selected statements. These interface correspondences are tied to authenticated actual source owners and available direct definitions; they do not recursively prove all external, transitive, ambient, reflection or eval semantics.",
+    "The initializers were compared against the authenticated v13 emission used by the source review, whose three shell preimages remained byte-identical in v14 before this trial. The exact v15 source/profile/receipt chain is separately authenticated.",
+    "The read-only initializer now has 12 direct prefix calls and equals its prior complete initializer with only the shell-quote call deleted, under the consistent binding correspondence. Global removal of shell-quote is not claimed: actual commands and path-validation initializers still call the retained FG provider at statement7578. These inherited transitive differences remain outside this source patch.",
+    "The target commands initializer has different surrounding dependencies; comparison of the two parser helper bodies and their data does not accept that entire initializer or all transitive parser implementation behavior.",
+    "37 reconstruction resolver events were validated using the pinned fixed runtime. Other compiler receipt arrays and all JS/map files were hash-authenticated; the reviewer did not rerun the compiler or independently reproduce every native/grpc provider request.",
+    "Only the eleven recorded complete marker ImportDeclarations were deleted from raw JS to reproduce final JS byte-for-byte. Final source-map bytes are authenticated, but map-composition execution was not rerun and the known original-coordinate displacement remains unrepaired.",
+    "The shared full-program statement index was authenticated, then 82 bounded complete statements were separately parsed and their strict digest/node counts checked against original Program-context records. No new whole emitted Program parse or scope job was performed.",
+    "No recovered application/helper function, Bash/PowerShell fixture, auth/settings/native code or generated application was executed. Source stages and previous source/preparation freezes were unchanged.",
+    "V15 whole-target AST remains unequal. This bounded success cannot be promoted to complete target acceptance."
+  ],
+  "compilerInvoked": false,
+  "applicationBodiesExecuted": false,
+  "fullProgramParsed": false,
+  "wholeTargetAcceptance": false
+}

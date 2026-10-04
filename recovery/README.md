@@ -1,5 +1,7 @@
 # Claude Code release recovery
 
+Current in-progress source work is saved in the [2.1.89 revision22 checkpoint](./checkpoints/2.1.89/v22/README.md). It builds from portable source inputs but **has not passed whole-target acceptance**; pending actual checks and semantic gaps are recorded explicitly. The cumulative root source and earlier release history are unchanged.
+
 This directory contains an evidence-first, incremental method for recovering
 later Claude Code releases from authenticated adjacent published packages
 and the most recent matching source-map oracle.

@@ -1,0 +1,945 @@
+{
+  "kind": "metadata-only-profile-publication",
+  "originalProfileSha256": "7340c80b9cb7decc2a43138cc8e8b3d97a5eb43391bcf78ee9fdb7369e6106c4",
+  "publishedProfileSha256": "7e4126e11cfb1a7507c1c106926f1521d414023bb04aad76151fae04d8b2ba1e",
+  "onlyHistoricalLocatorStringsChanged": true,
+  "sourceRuntimeCompilerPolicyChanged": false,
+  "changes": [
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/0/manifest/path",
+      "originalValueSha256": "9484eed2e6fd295b585eea60dbe9e0c1d43e58133e65a305c90b9f2867ec5f63",
+      "publishedValue": "historical-checkpoints/repl-dependencies-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/0/approval/path",
+      "originalValueSha256": "faf610c5d7fa984b5849d2b4618f71d7de98b4a49cc4386fccf7ceb0bca81d32",
+      "publishedValue": "historical-checkpoints/repl-dependencies-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "de9d2de3b88a95836da39dc74888a44f2160e8ef97b5569454b06a9668666b5b",
+      "publishedValue": "historical-checkpoints/repl-dependencies-independent-review/artifact-manifest.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/1/manifest/path",
+      "originalValueSha256": "10804f63315f5df8c3bc5c434137a576bc35ea71a6101bf8bf2f10cb2e9c70a1",
+      "publishedValue": "historical-checkpoints/reconstructed-proposals/cleanup-source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/1/approval/path",
+      "originalValueSha256": "58f6129f98b367e5e3a2a774ef9ca8dd8668da691bc6f90c3d9c639a6c354b81",
+      "publishedValue": "historical-checkpoints/cleanup-enoent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "26ca20a0c755b6390ff2c96225268de15b962932e3a0f373d0cf4b0786112e33",
+      "publishedValue": "historical-checkpoints/cleanup-enoent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/2/manifest/path",
+      "originalValueSha256": "4009791c834b6dc5d2b7911efcc28d5d30e6a4c89d869202b4f49a0cbe76c17d",
+      "publishedValue": "historical-checkpoints/analytics-source-proposal/v2/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/2/approval/path",
+      "originalValueSha256": "2f6854eca349fd68354c6d9c2eb76175f91dc87e4ba225edc46af99cdd83ce38",
+      "publishedValue": "historical-checkpoints/analytics-source-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision14Preparation/components/2/approvalClosure/path",
+      "originalValueSha256": "8c2060849b00048059e74a72d8c14c93182e700c27d979e16538f3785c36c4a3",
+      "publishedValue": "historical-checkpoints/analytics-source-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/0/manifest/path",
+      "originalValueSha256": "1f3a789e2010a113b51a71edb873e8e8bf10351cc9b4712631ca3e01aae68416",
+      "publishedValue": "historical-checkpoints/remote-settings-override-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/0/approval/path",
+      "originalValueSha256": "6075065d802f1e9cbe4b0857701571269159ab6bf3cafc135b625e129b691631",
+      "publishedValue": "historical-checkpoints/remote-settings-override-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "850d157fbce03521e2d5e554f082b46ebcba65a31b8153e3e116fe45ddecc3d1",
+      "publishedValue": "historical-checkpoints/remote-settings-override-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/1/manifest/path",
+      "originalValueSha256": "19c9797df3b72842f3db3ac33dd2355cb3d4d796d4d36ff62daab357274f475e",
+      "publishedValue": "historical-checkpoints/shell-callers-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/1/approval/path",
+      "originalValueSha256": "fcbee0a2d825b18d0bc182d0f1431683e07f071be5e76817edc8267b6150a5c4",
+      "publishedValue": "historical-checkpoints/shell-callers-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "44019fb148af58165104d223ce5ee7892ae337108f86da7dea7289c6e7bd549d",
+      "publishedValue": "historical-checkpoints/shell-callers-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/2/manifest/path",
+      "originalValueSha256": "c9c547e9658e131bee9f3d72bf908ce87babdff33fefeef972f551b4f896241a",
+      "publishedValue": "historical-checkpoints/app-state-defaults-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/2/approval/path",
+      "originalValueSha256": "9d5cd99ce985318b8f7896eef593f2b1f62b9502056cc0b2f3a48557351a48db",
+      "publishedValue": "historical-checkpoints/app-state-defaults-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision15Preparation/components/2/approvalClosure/path",
+      "originalValueSha256": "646758566a338a597b9350b410ac00166d11bb87ea912fce2242d1aed0cc8273",
+      "publishedValue": "historical-checkpoints/app-state-defaults-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/0/manifest/path",
+      "originalValueSha256": "5d3a83aaf0d93e4168a0e26a7406fb8c7ec776ec9fd858bc20a1a679b7b3505d",
+      "publishedValue": "historical-checkpoints/auth-import-order-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/0/approval/path",
+      "originalValueSha256": "fd8cdbc76f3985e08476878d14681fb406e95c47743c55c78532028a2d7d4e9c",
+      "publishedValue": "historical-checkpoints/auth-import-order-source-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "9dae4e35211ed523835b865a64271701f2e3f62d9ede3183a821109c86d1a5d7",
+      "publishedValue": "historical-checkpoints/auth-import-order-source-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/1/manifest/path",
+      "originalValueSha256": "1c0ad83c9d5fcdd4d2089504671a4011e231fa30ae9d23502b84c3a18390d305",
+      "publishedValue": "historical-checkpoints/search-input-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/1/approval/path",
+      "originalValueSha256": "b641e3f5eee08fa7606bfc30619781b3c17ee4cf8a986126736f04895962756c",
+      "publishedValue": "historical-checkpoints/search-input-source-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "a9affb55674151eb93414f1ce21d15ccb62126452c4c84caa8ff46d0799eba6c",
+      "publishedValue": "historical-checkpoints/search-input-source-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/2/manifest/path",
+      "originalValueSha256": "382cc15eed6819d0c6374ccacd097ac596e6ffebd2cc8db9a142f5f8cf3ee5f9",
+      "publishedValue": "historical-checkpoints/system-message-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/2/approval/path",
+      "originalValueSha256": "f91535a4b042a47b9b89740ed916a420851187d2513f907647bb46b61b63d64e",
+      "publishedValue": "historical-checkpoints/system-message-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/components/2/approvalClosure/path",
+      "originalValueSha256": "87dd07bba74387eb973431de42d14b638b3627813416abc3da1640785b3be8e9",
+      "publishedValue": "historical-checkpoints/system-message-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/actualParentReviews/0/approval/path",
+      "originalValueSha256": "e6bb6ec11a1a6e071792f5517879d58f34003ec571e97034c79259af2c62dee1",
+      "publishedValue": "historical-checkpoints/v15-shell-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/actualParentReviews/0/approvalClosure/path",
+      "originalValueSha256": "b80926988398817c98fccf53eb983fdc0d671a3d37b7dddc5cda2851c474d9a5",
+      "publishedValue": "historical-checkpoints/v15-shell-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/actualParentReviews/1/approval/path",
+      "originalValueSha256": "d1faebb1db2d9fcb478081f657ccb7c0860c024d01a1e0254874abc47c666ef3",
+      "publishedValue": "historical-checkpoints/v15-settings-appstate-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision16Preparation/actualParentReviews/1/approvalClosure/path",
+      "originalValueSha256": "871a5b8b7e4a6e9b7da0fe6dcc308fbaab305e9844afc2134e84e9434aa68f9e",
+      "publishedValue": "historical-checkpoints/v15-settings-appstate-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/0/manifest/path",
+      "originalValueSha256": "e336106f52edbd3d82723100017041e03cc42ebbf76fb90fdcfc418a86af9314",
+      "publishedValue": "historical-checkpoints/api-query-source-investigation/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/0/approval/path",
+      "originalValueSha256": "3fd7884c5a95fe017b08a7cfcdffd035b6b34704f56ac74776a56ff0b6f98038",
+      "publishedValue": "historical-checkpoints/api-query-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "730905e87f4b58753695e2422d7db5ee7d1b396fdcd39b7e3b4d88095484f939",
+      "publishedValue": "historical-checkpoints/api-query-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/1/manifest/path",
+      "originalValueSha256": "2da3e3ce3ced6e179117221f63a05e34fea70a5fd009d96c17b4cda94bc0b081",
+      "publishedValue": "historical-checkpoints/hooks-executor-source-investigation/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/1/approval/path",
+      "originalValueSha256": "60d35a95ad822e915d0e6d76758910dc62c7b5162bfb601be87d7a1e6e34c464",
+      "publishedValue": "historical-checkpoints/hooks-executor-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "df56b52e391fcb1b6fdf9c8a5482eb756a2661cb55c3c5d7c664d9d95e85b5dd",
+      "publishedValue": "historical-checkpoints/hooks-executor-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/2/manifest/path",
+      "originalValueSha256": "a3e1049287a609c6fe973e15c3dd1fd738b1f70af098969705309fb326cc52a2",
+      "publishedValue": "historical-checkpoints/auth-import-order-v2-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/2/approval/path",
+      "originalValueSha256": "e34257b26bc5a588d9deaa1fc48c944db38b9405ba0988f32975c7369a36d942",
+      "publishedValue": "historical-checkpoints/auth-import-order-v2-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/2/approvalClosure/path",
+      "originalValueSha256": "a0ac82255a743f59a55d4f9c5d603b3901d7d737c4d6693386aafaf160de45c8",
+      "publishedValue": "historical-checkpoints/auth-import-order-v2-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/3/manifest/path",
+      "originalValueSha256": "98712c82dd3f6ec1488a5cd0c4975c23f1ec8065a3628084b12f985c331b3d65",
+      "publishedValue": "historical-checkpoints/auth-portable-import-order-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/3/approval/path",
+      "originalValueSha256": "84551dc4599efc458949c28836aba1faa701077afd8c2c6cbf4b99f286786010",
+      "publishedValue": "historical-checkpoints/auth-portable-import-order-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/3/approvalClosure/path",
+      "originalValueSha256": "609763e08258166fbfe065e254477fc45053ff1cf7fc09fe03190559d2f4c038",
+      "publishedValue": "historical-checkpoints/auth-portable-import-order-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/4/manifest/path",
+      "originalValueSha256": "9ffe1b6d3bc96fa16653634470172b47c4ba238fdd616cb2c14bba70faaca9fa",
+      "publishedValue": "historical-checkpoints/bash-silent-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/4/approval/path",
+      "originalValueSha256": "8a83367fdfc819e86d75352869049b5126b40e2681bd755ed41c3abf8fe6a12b",
+      "publishedValue": "historical-checkpoints/bash-silent-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/components/4/approvalClosure/path",
+      "originalValueSha256": "17d1687f807da48d586726edec423d903276ccd6370f405d6eb7ea216046f4dd",
+      "publishedValue": "historical-checkpoints/bash-silent-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/actualParentReviews/0/approval/path",
+      "originalValueSha256": "8e3f34ea13da39e708644dc041421a4befc694226d479487adf1933800ce6c94",
+      "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/actualParentReviews/0/approvalClosure/path",
+      "originalValueSha256": "0631b7e0edbd24319f3c0d91f24154473197931fe0fab2dd85598dc90065195d",
+      "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/actualParentReviews/1/approval/path",
+      "originalValueSha256": "0138d5e6ac28778706b7415e98bfac49f6097a73b67ad795344b33d36e22edb1",
+      "publishedValue": "historical-checkpoints/v16-system-message-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision17Preparation/actualParentReviews/1/approvalClosure/path",
+      "originalValueSha256": "20d9b179b43e94073a0083a809f70365f0d107a6cd72eaafb5df43b120457040",
+      "publishedValue": "historical-checkpoints/v16-system-message-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/0/manifest/path",
+      "originalValueSha256": "0b94ff7b1166d69c8e486ebf407faa24a51164a51445a7524ee44fd155f66132",
+      "publishedValue": "historical-checkpoints/main-mcp-wait-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/0/approval/path",
+      "originalValueSha256": "ae6c2d02e6b279b7a81b035c50cd9f4d51fe5f56675a7514ee888979e15b635b",
+      "publishedValue": "historical-checkpoints/main-mcp-wait-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "8fdd9a9ca9779b48526d91a427206dedf34c4a4f6fe99bc8abab43a26138ad58",
+      "publishedValue": "historical-checkpoints/main-mcp-wait-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/1/manifest/path",
+      "originalValueSha256": "604dee5accc144247e85bf42a1abeafe5e5cc14ff78e70b3921fa0b2b530ab06",
+      "publishedValue": "historical-checkpoints/agent-hook-source-investigation/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/1/approval/path",
+      "originalValueSha256": "4c244ed3754436bc4ee532d2952ff5405d5cc3ab430c092db5585221029a11c8",
+      "publishedValue": "historical-checkpoints/agent-hook-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "c98e269d31d7171409956405bedc7af13090a00f714253f0bf36f884f850395d",
+      "publishedValue": "historical-checkpoints/agent-hook-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/2/manifest/path",
+      "originalValueSha256": "dd534873516f6a9f3f2b6f276eb00b119bf500b80577f9a6578a601949ba2488",
+      "publishedValue": "historical-checkpoints/hooks-import-order-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/2/approval/path",
+      "originalValueSha256": "b1a77874ffae093ccf44771e93ca6ed33c6773bd62f1f021f3aae6a4f99028ed",
+      "publishedValue": "historical-checkpoints/hooks-import-order-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/components/2/approvalClosure/path",
+      "originalValueSha256": "adcc7a799736cebb2400dadd3e6d816dc343be6349111c3549009721717d299b",
+      "publishedValue": "historical-checkpoints/hooks-import-order-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/actualParentReviews/0/approval/path",
+      "originalValueSha256": "5b98858d188c726e07d1738aea20e081334dee2288a00fca1fdd3e8b15e71a27",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/actualParentReviews/0/approvalClosure/path",
+      "originalValueSha256": "1b1859368a5c56c82f39ed7783df89b4da0ffb9143aaee809e22b86912353c90",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/actualParentReviews/1/approval/path",
+      "originalValueSha256": "790440e92f12c58ba0b176533655a4e5a85ea6471d0e67d2a0ca19d187351a76",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/actualParentReviews/1/approvalClosure/path",
+      "originalValueSha256": "c91e92f4d04412f6a1f032191af7b9c7ccebcfb172678aa5977aea4e0618bdac",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/actualParentReviews/2/approval/path",
+      "originalValueSha256": "ca4bbd964f294b32af57f13dd8421d1d4d6f81d71b1beec525c41ff431a8a1ba",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/actualParentReviews/2/approvalClosure/path",
+      "originalValueSha256": "ffecafce2d9de1956d05ae57afc027c5bd37b8eff42d26c5f1c6ec2cf84789b1",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/actualParentSupplements/0/closure/path",
+      "originalValueSha256": "d71a4d3fd1df456f7c5fc823bdb538ab91ea866d86bb85cfc34d5797ad9812c7",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/supplement-freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision18Preparation/parentDiagnosticObligations/historicalReviews/0/path",
+      "originalValueSha256": "8e3f34ea13da39e708644dc041421a4befc694226d479487adf1933800ce6c94",
+      "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/components/0/manifest/path",
+      "originalValueSha256": "9cfac16327fe737b321be2ad7e6d15903cf4d977b3fd013a6fa1416597fdc760",
+      "publishedValue": "historical-checkpoints/commands-retention-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/components/0/approval/path",
+      "originalValueSha256": "5ca95c02ca849c91b0b2c03ead1bd687d29ecee6ddd00f986a881f3336583ac5",
+      "publishedValue": "historical-checkpoints/commands-retention-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "26b2e458b8657f77052181c8b4ce8d8968877e6f941c32892cf1118ec9c82a38",
+      "publishedValue": "historical-checkpoints/commands-retention-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/components/1/manifest/path",
+      "originalValueSha256": "cc36fd448d994a1f36db08c271002f02f35b1d8141d631ddb412c6fc6ba70efe",
+      "publishedValue": "historical-checkpoints/hook-schema-order-investigation/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/components/1/approval/path",
+      "originalValueSha256": "df59ed947a00e4bc4d2b627b1165620540a53935d031e25961a0f4fbdf340f8a",
+      "publishedValue": "historical-checkpoints/hook-schema-order-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "e5d737f18930f259a12807b48e9d6f03374c31248af75bb22ebc2e043af7f7a1",
+      "publishedValue": "historical-checkpoints/hook-schema-order-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/actualParentReviews/0/approval/path",
+      "originalValueSha256": "5b98858d188c726e07d1738aea20e081334dee2288a00fca1fdd3e8b15e71a27",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/actualParentReviews/0/approvalClosure/path",
+      "originalValueSha256": "1b1859368a5c56c82f39ed7783df89b4da0ffb9143aaee809e22b86912353c90",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/actualParentReviews/1/approval/path",
+      "originalValueSha256": "790440e92f12c58ba0b176533655a4e5a85ea6471d0e67d2a0ca19d187351a76",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/actualParentReviews/1/approvalClosure/path",
+      "originalValueSha256": "c91e92f4d04412f6a1f032191af7b9c7ccebcfb172678aa5977aea4e0618bdac",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/actualParentReviews/2/approval/path",
+      "originalValueSha256": "ca4bbd964f294b32af57f13dd8421d1d4d6f81d71b1beec525c41ff431a8a1ba",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/actualParentReviews/2/approvalClosure/path",
+      "originalValueSha256": "ffecafce2d9de1956d05ae57afc027c5bd37b8eff42d26c5f1c6ec2cf84789b1",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/actualParentSupplements/0/closure/path",
+      "originalValueSha256": "d71a4d3fd1df456f7c5fc823bdb538ab91ea866d86bb85cfc34d5797ad9812c7",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/supplement-freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/parentDiagnosticObligations/historicalReviews/0/path",
+      "originalValueSha256": "8e3f34ea13da39e708644dc041421a4befc694226d479487adf1933800ce6c94",
+      "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/currentActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "57bdc2a68b4d38307dcb9486bfb38f814854b4ae35f27233590919013b07a993",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/currentActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "68d7ec06c3d2756782da6396f89a28d9807f87893236ff72ec6f891c212a57b8",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/currentActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "e4d5a2352d491625b4227dd8b0e4390f91b541e6500dfbf3dcc748385ab54d2e",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision19Preparation/currentActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "92b3934338aa0155678516816252bda7bbf4df35dc5c92975f07b27c6b7ede3b",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/0/manifest/path",
+      "originalValueSha256": "ec8705ac2f2a0056923b6b5c606d016864fa68e086cb1d92d1367db12ec447c8",
+      "publishedValue": "historical-checkpoints/tool-result-storage-provider-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/0/approval/path",
+      "originalValueSha256": "ba31e42217ca787f8f21c38712aede3fd44dd1211d10a26c230490f4dedd9032",
+      "publishedValue": "historical-checkpoints/tool-result-storage-provider-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "e0553c97d1e9660523649a91a6267eeaa751650162f91828ec800ea48abf3965",
+      "publishedValue": "historical-checkpoints/tool-result-storage-provider-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/1/manifest/path",
+      "originalValueSha256": "a0431950f43b3e239e11fd7a80f180421314932fb03cfb6f837844be16352edb",
+      "publishedValue": "historical-checkpoints/messages-initializer-source-investigation/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/1/approval/path",
+      "originalValueSha256": "11df035eedba8be92e07e94a782f97d545246231328d8aef8992b8a1d1227f5f",
+      "publishedValue": "historical-checkpoints/messages-initializer-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "5306ebab1624896ede338aac0f7936ac63a352be73d362896c031678f02d6ecc",
+      "publishedValue": "historical-checkpoints/messages-initializer-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/2/manifest/path",
+      "originalValueSha256": "97891e52ccd4f7a97423077011414785ab6e52cb43eff4fad26f6adc7ee77f9f",
+      "publishedValue": "historical-checkpoints/repl-component-residual-investigation/source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/2/approval/path",
+      "originalValueSha256": "3ee0d0656f1cb7562f5ee68f7cf394c996d8aa8f3375fea9a00808879e893bdf",
+      "publishedValue": "historical-checkpoints/repl-display-tools-source-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/components/2/approvalClosure/path",
+      "originalValueSha256": "7d6bcd7d57423edb70122151bbcf7d58c5d1e98e557671ff08a14ba9d070ea39",
+      "publishedValue": "historical-checkpoints/repl-display-tools-source-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/actualParentReviews/0/approval/path",
+      "originalValueSha256": "5b98858d188c726e07d1738aea20e081334dee2288a00fca1fdd3e8b15e71a27",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/actualParentReviews/0/approvalClosure/path",
+      "originalValueSha256": "1b1859368a5c56c82f39ed7783df89b4da0ffb9143aaee809e22b86912353c90",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/actualParentReviews/1/approval/path",
+      "originalValueSha256": "790440e92f12c58ba0b176533655a4e5a85ea6471d0e67d2a0ca19d187351a76",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/actualParentReviews/1/approvalClosure/path",
+      "originalValueSha256": "c91e92f4d04412f6a1f032191af7b9c7ccebcfb172678aa5977aea4e0618bdac",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/actualParentReviews/2/approval/path",
+      "originalValueSha256": "ca4bbd964f294b32af57f13dd8421d1d4d6f81d71b1beec525c41ff431a8a1ba",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/actualParentReviews/2/approvalClosure/path",
+      "originalValueSha256": "ffecafce2d9de1956d05ae57afc027c5bd37b8eff42d26c5f1c6ec2cf84789b1",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/actualParentSupplements/0/closure/path",
+      "originalValueSha256": "d71a4d3fd1df456f7c5fc823bdb538ab91ea866d86bb85cfc34d5797ad9812c7",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/supplement-freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/parentDiagnosticObligations/historicalReviews/0/path",
+      "originalValueSha256": "8e3f34ea13da39e708644dc041421a4befc694226d479487adf1933800ce6c94",
+      "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/currentActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "57bdc2a68b4d38307dcb9486bfb38f814854b4ae35f27233590919013b07a993",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/currentActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "68d7ec06c3d2756782da6396f89a28d9807f87893236ff72ec6f891c212a57b8",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/currentActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "e4d5a2352d491625b4227dd8b0e4390f91b541e6500dfbf3dcc748385ab54d2e",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/currentActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "92b3934338aa0155678516816252bda7bbf4df35dc5c92975f07b27c6b7ede3b",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/revision19ActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "5c7416f576dbb924420e19c9025bc72a621f476cd99c6aba74f840ffe1bf908f",
+      "publishedValue": "historical-checkpoints/v19-commands-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/revision19ActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "f9f8abd8d71df981f546a8fb4b12bceac44e58eafb9bf2af52790849b927fc9c",
+      "publishedValue": "historical-checkpoints/v19-commands-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/revision19ActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "4aced9066f652c80d5711b65833dad713cbe3adb67365295b5522207e21526dc",
+      "publishedValue": "historical-checkpoints/v19-hook-schema-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision20Preparation/revision19ActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "51462dcf8917499c3064d458028db4fc6c5a37cbc9b77ba542a6281051865900",
+      "publishedValue": "historical-checkpoints/v19-hook-schema-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/components/0/manifest/path",
+      "originalValueSha256": "c3bea17decefe5e173a2818de16aec6ce81429c9c597213726ea68be8c46e26c",
+      "publishedValue": "historical-checkpoints/repl-mode-import-order-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/components/0/approval/path",
+      "originalValueSha256": "c18d11d9a530b04d2127dcac0c1dde37c5ef5ca10bdc1129f18d1a8ac5d6ef86",
+      "publishedValue": "historical-checkpoints/repl-mode-import-order-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "f16e3540e3407c79b04d1e79ff0b031e28860c68f7773ff59dfbe3c506b271da",
+      "publishedValue": "historical-checkpoints/repl-mode-import-order-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/components/1/manifest/path",
+      "originalValueSha256": "f4f85a570a2ed97ec2bccffcec67dc6aaceb941a6fa59984ec49f1c30d452435",
+      "publishedValue": "historical-checkpoints/message-rating-combined-source-proposal/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/components/1/approval/path",
+      "originalValueSha256": "2458742536ce1057a2d7dd8dfa39359da2fec739e3595ce57b97dbeccbf2d41a",
+      "publishedValue": "historical-checkpoints/message-rating-combined-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "ea5f5eda9d2578aa8a09c0d934af57942fd82279d2c5bb2b2ef46001b57044ef",
+      "publishedValue": "historical-checkpoints/message-rating-combined-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/0/proposal/path",
+      "originalValueSha256": "966a59ec9280ba36c3228c474c89e15d9e977a54b8e4644f53393ae3eb006e57",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/proposal.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/0/authorClosure/path",
+      "originalValueSha256": "033cd6561d04845808a9741778dffb63a99c0362f08b6b8caa051a7dc08c9321",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/artifact-manifest.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/0/approval/path",
+      "originalValueSha256": "c9cd1109a1fd91ef7c1eda4cf9afa2c6b5940971030d8f1ba4ccb5dd2026287c",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/0/approvalClosure/path",
+      "originalValueSha256": "e7738236ce60452e71ca3160d76e98b79cbd7aa43ab6b8226ae411bc626e1917",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/1/proposal/path",
+      "originalValueSha256": "1bd5505d4cc34448e22f3049b6aa787fc28a5df658edb2fb3adab47101c9f08b",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-fix/proposal.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/1/authorClosure/path",
+      "originalValueSha256": "00d6c4e364c1877a1a4d8f73b0d347622bafe2bffcdfebeeb6696591892633cb",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-fix/artifact-manifest.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/1/approval/path",
+      "originalValueSha256": "05e8332ba2f33720a43bb4fe0f2fddfa45d1b33598613f54b624f054835437d9",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/toolingChanges/1/approvalClosure/path",
+      "originalValueSha256": "e66f7f01e33bf60528ee90613ced6bb2630aa9d1d1478d13141301e5297d5505",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/actualParentReviews/0/approval/path",
+      "originalValueSha256": "5b98858d188c726e07d1738aea20e081334dee2288a00fca1fdd3e8b15e71a27",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/actualParentReviews/0/approvalClosure/path",
+      "originalValueSha256": "1b1859368a5c56c82f39ed7783df89b4da0ffb9143aaee809e22b86912353c90",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/actualParentReviews/1/approval/path",
+      "originalValueSha256": "790440e92f12c58ba0b176533655a4e5a85ea6471d0e67d2a0ca19d187351a76",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/actualParentReviews/1/approvalClosure/path",
+      "originalValueSha256": "c91e92f4d04412f6a1f032191af7b9c7ccebcfb172678aa5977aea4e0618bdac",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/actualParentReviews/2/approval/path",
+      "originalValueSha256": "ca4bbd964f294b32af57f13dd8421d1d4d6f81d71b1beec525c41ff431a8a1ba",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/actualParentReviews/2/approvalClosure/path",
+      "originalValueSha256": "ffecafce2d9de1956d05ae57afc027c5bd37b8eff42d26c5f1c6ec2cf84789b1",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/actualParentSupplements/0/closure/path",
+      "originalValueSha256": "d71a4d3fd1df456f7c5fc823bdb538ab91ea866d86bb85cfc34d5797ad9812c7",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/supplement-freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/parentDiagnosticObligations/historicalReviews/0/path",
+      "originalValueSha256": "8e3f34ea13da39e708644dc041421a4befc694226d479487adf1933800ce6c94",
+      "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/currentActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "57bdc2a68b4d38307dcb9486bfb38f814854b4ae35f27233590919013b07a993",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/currentActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "68d7ec06c3d2756782da6396f89a28d9807f87893236ff72ec6f891c212a57b8",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/currentActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "e4d5a2352d491625b4227dd8b0e4390f91b541e6500dfbf3dcc748385ab54d2e",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/currentActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "92b3934338aa0155678516816252bda7bbf4df35dc5c92975f07b27c6b7ede3b",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision19ActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "5c7416f576dbb924420e19c9025bc72a621f476cd99c6aba74f840ffe1bf908f",
+      "publishedValue": "historical-checkpoints/v19-commands-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision19ActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "f9f8abd8d71df981f546a8fb4b12bceac44e58eafb9bf2af52790849b927fc9c",
+      "publishedValue": "historical-checkpoints/v19-commands-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision19ActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "4aced9066f652c80d5711b65833dad713cbe3adb67365295b5522207e21526dc",
+      "publishedValue": "historical-checkpoints/v19-hook-schema-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision19ActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "51462dcf8917499c3064d458028db4fc6c5a37cbc9b77ba542a6281051865900",
+      "publishedValue": "historical-checkpoints/v19-hook-schema-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision20ActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "8931cc321a1494ca09bfdfa8b3e9a0ff6b0afd4e8c3a6e712d2744dcc1816179",
+      "publishedValue": "historical-checkpoints/v20-storage-messages-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision20ActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "3c90311ca534171b1982269f978b94db8f98245388b706604c249f756900545d",
+      "publishedValue": "historical-checkpoints/v20-storage-messages-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision20ActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "beb9cd0eaa07c157239ded767f4ebed39aa505a01dbcd6426bada81d86fec022",
+      "publishedValue": "historical-checkpoints/v20-repl-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision20ActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "6b791e020b826fd4c5679c483df9d18a436f8d91bf1fa58439ca74cbdb3d9b5f",
+      "publishedValue": "historical-checkpoints/v20-repl-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision20ActualEvidence/exactCurrentResiduals/repl/summaryProducer/path",
+      "originalValueSha256": "14cb707fe5e951e385143df4418a79526096125c5e428180948955a3edded9e3",
+      "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/revision20ActualEvidence/exactCurrentResiduals/repl/summaryProducer/preflight/path",
+      "originalValueSha256": "45e0fde84620549810fb4ee8c6aa48b3e8a91365476eddaa1766ad7728f0ff3b",
+      "publishedValue": "historical-checkpoints/v20-replay/preflight.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision21Preparation/guardTransitionHistory/0/sourceApproval/path",
+      "originalValueSha256": "c18d11d9a530b04d2127dcac0c1dde37c5ef5ca10bdc1129f18d1a8ac5d6ef86",
+      "publishedValue": "historical-checkpoints/repl-mode-import-order-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/components/0/manifest/path",
+      "originalValueSha256": "ba75ffabaf088dfafed53b9dab97f70ad91520b53b14f7f70c935b25d28fb355",
+      "publishedValue": "historical-checkpoints/shell-prefix-quote-source-investigation/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/components/0/approval/path",
+      "originalValueSha256": "3a1533cb86fa2d9d9fbcb1b8e9173a064b7dfd819248dc386d697bbc48c979ca",
+      "publishedValue": "historical-checkpoints/shell-prefix-quote-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/components/0/approvalClosure/path",
+      "originalValueSha256": "34ee8b2bc5845d09d06b8912720e302e77824f01dcfb34668f56d5c5586444bb",
+      "publishedValue": "historical-checkpoints/shell-prefix-quote-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/components/1/manifest/path",
+      "originalValueSha256": "16cf991623ebd926a0c5c03e35df8182fd62791df71d94659f69034512316308",
+      "publishedValue": "historical-checkpoints/shell-quoting-source-investigation/source-repair.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/components/1/approval/path",
+      "originalValueSha256": "1b866ccb3997591cd07b216af618b2975f1e5347368edbe02ee4216c5b0f2b1a",
+      "publishedValue": "historical-checkpoints/shell-quoting-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/components/1/approvalClosure/path",
+      "originalValueSha256": "a1dd57b0c88e6488e1b590eae1c57245e3ae7e516a14ee54402d747e036ec1eb",
+      "publishedValue": "historical-checkpoints/shell-quoting-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/0/proposal/path",
+      "originalValueSha256": "966a59ec9280ba36c3228c474c89e15d9e977a54b8e4644f53393ae3eb006e57",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/proposal.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/0/authorClosure/path",
+      "originalValueSha256": "033cd6561d04845808a9741778dffb63a99c0362f08b6b8caa051a7dc08c9321",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/artifact-manifest.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/0/approval/path",
+      "originalValueSha256": "c9cd1109a1fd91ef7c1eda4cf9afa2c6b5940971030d8f1ba4ccb5dd2026287c",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/0/approvalClosure/path",
+      "originalValueSha256": "e7738236ce60452e71ca3160d76e98b79cbd7aa43ab6b8226ae411bc626e1917",
+      "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/1/proposal/path",
+      "originalValueSha256": "1bd5505d4cc34448e22f3049b6aa787fc28a5df658edb2fb3adab47101c9f08b",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-fix/proposal.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/1/authorClosure/path",
+      "originalValueSha256": "00d6c4e364c1877a1a4d8f73b0d347622bafe2bffcdfebeeb6696591892633cb",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-fix/artifact-manifest.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/1/approval/path",
+      "originalValueSha256": "05e8332ba2f33720a43bb4fe0f2fddfa45d1b33598613f54b624f054835437d9",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-independent-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/toolingChanges/1/approvalClosure/path",
+      "originalValueSha256": "e66f7f01e33bf60528ee90613ced6bb2630aa9d1d1478d13141301e5297d5505",
+      "publishedValue": "historical-checkpoints/compiler-inventory-report-independent-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/actualParentReviews/0/approval/path",
+      "originalValueSha256": "5b98858d188c726e07d1738aea20e081334dee2288a00fca1fdd3e8b15e71a27",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/actualParentReviews/0/approvalClosure/path",
+      "originalValueSha256": "1b1859368a5c56c82f39ed7783df89b4da0ffb9143aaee809e22b86912353c90",
+      "publishedValue": "historical-checkpoints/v17-auth-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/actualParentReviews/1/approval/path",
+      "originalValueSha256": "790440e92f12c58ba0b176533655a4e5a85ea6471d0e67d2a0ca19d187351a76",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/actualParentReviews/1/approvalClosure/path",
+      "originalValueSha256": "c91e92f4d04412f6a1f032191af7b9c7ccebcfb172678aa5977aea4e0618bdac",
+      "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/actualParentReviews/2/approval/path",
+      "originalValueSha256": "ca4bbd964f294b32af57f13dd8421d1d4d6f81d71b1beec525c41ff431a8a1ba",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/actualParentReviews/2/approvalClosure/path",
+      "originalValueSha256": "ffecafce2d9de1956d05ae57afc027c5bd37b8eff42d26c5f1c6ec2cf84789b1",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/actualParentSupplements/0/closure/path",
+      "originalValueSha256": "d71a4d3fd1df456f7c5fc823bdb538ab91ea866d86bb85cfc34d5797ad9812c7",
+      "publishedValue": "historical-checkpoints/v17-bash-emission-review/supplement-freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/parentDiagnosticObligations/historicalReviews/0/path",
+      "originalValueSha256": "8e3f34ea13da39e708644dc041421a4befc694226d479487adf1933800ce6c94",
+      "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/currentActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "57bdc2a68b4d38307dcb9486bfb38f814854b4ae35f27233590919013b07a993",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/currentActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "68d7ec06c3d2756782da6396f89a28d9807f87893236ff72ec6f891c212a57b8",
+      "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/currentActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "e4d5a2352d491625b4227dd8b0e4390f91b541e6500dfbf3dcc748385ab54d2e",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/currentActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "92b3934338aa0155678516816252bda7bbf4df35dc5c92975f07b27c6b7ede3b",
+      "publishedValue": "historical-checkpoints/v18-hooks-order-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision19ActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "5c7416f576dbb924420e19c9025bc72a621f476cd99c6aba74f840ffe1bf908f",
+      "publishedValue": "historical-checkpoints/v19-commands-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision19ActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "f9f8abd8d71df981f546a8fb4b12bceac44e58eafb9bf2af52790849b927fc9c",
+      "publishedValue": "historical-checkpoints/v19-commands-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision19ActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "4aced9066f652c80d5711b65833dad713cbe3adb67365295b5522207e21526dc",
+      "publishedValue": "historical-checkpoints/v19-hook-schema-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision19ActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "51462dcf8917499c3064d458028db4fc6c5a37cbc9b77ba542a6281051865900",
+      "publishedValue": "historical-checkpoints/v19-hook-schema-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision20ActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "8931cc321a1494ca09bfdfa8b3e9a0ff6b0afd4e8c3a6e712d2744dcc1816179",
+      "publishedValue": "historical-checkpoints/v20-storage-messages-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision20ActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "3c90311ca534171b1982269f978b94db8f98245388b706604c249f756900545d",
+      "publishedValue": "historical-checkpoints/v20-storage-messages-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision20ActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "beb9cd0eaa07c157239ded767f4ebed39aa505a01dbcd6426bada81d86fec022",
+      "publishedValue": "historical-checkpoints/v20-repl-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision20ActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "6b791e020b826fd4c5679c483df9d18a436f8d91bf1fa58439ca74cbdb3d9b5f",
+      "publishedValue": "historical-checkpoints/v20-repl-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision20ActualEvidence/exactCurrentResiduals/repl/summaryProducer/path",
+      "originalValueSha256": "14cb707fe5e951e385143df4418a79526096125c5e428180948955a3edded9e3",
+      "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision20ActualEvidence/exactCurrentResiduals/repl/summaryProducer/preflight/path",
+      "originalValueSha256": "45e0fde84620549810fb4ee8c6aa48b3e8a91365476eddaa1766ad7728f0ff3b",
+      "publishedValue": "historical-checkpoints/v20-replay/preflight.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision21ActualEvidence/reports/0/approval/path",
+      "originalValueSha256": "62bd35190a89721ebf08f709c034ab25c995937ec4262a1fd858ea8bd77c1ccf",
+      "publishedValue": "historical-checkpoints/v21-repl-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision21ActualEvidence/reports/0/approvalClosure/path",
+      "originalValueSha256": "4e875192cc51fee0adad5421e253bab29412981f622aefb069bc2c9f562d7162",
+      "publishedValue": "historical-checkpoints/v21-repl-emission-review/freeze.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision21ActualEvidence/reports/1/approval/path",
+      "originalValueSha256": "9c3da28e017f75c188925a0454fa3d5fe412846af91d2451ab4f90a076c1d85a",
+      "publishedValue": "historical-checkpoints/v21-message-rating-emission-review/review.json"
+    },
+    {
+      "jsonPointer": "/sourceTreeContract/reviewedRevision22Preparation/revision21ActualEvidence/reports/1/approvalClosure/path",
+      "originalValueSha256": "e700f534c19178b30937d9c8f4786887f584898d8b1942e3cec14257140d04b3",
+      "publishedValue": "historical-checkpoints/v21-message-rating-emission-review/freeze.json"
+    }
+  ],
+  "qualification": "Published metadata is a path-redacted derivative, not the byte-identical private working profile. Historical locators identify evidence origins and are not runtime inputs. The portable replay is separately recorded."
+}

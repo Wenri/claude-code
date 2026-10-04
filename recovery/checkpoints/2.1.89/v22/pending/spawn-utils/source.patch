@@ -1,0 +1,11 @@
+--- a/src/utils/swarm/spawnUtils.ts
++++ b/src/utils/swarm/spawnUtils.ts
+@@ -9,7 +9,7 @@
+   getMainLoopModelOverride,
+   getSessionBypassPermissionsMode,
+ } from '../../bootstrap/state.js'
+-import { quote } from '../bash/shellQuote.js'
++import { quoteShellArgs as quote } from '../bash/quoteShellArgs.js'
+ import { isInBundledMode } from '../bundledMode.js'
+ import type { PermissionMode } from '../permissions/PermissionMode.js'
+ import { getTeammateModeFromSnapshot } from './backends/teammateModeSnapshot.js'

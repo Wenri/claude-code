@@ -1,0 +1,278 @@
+{
+  "kind": "independent-actual-v21-message-rating-emission-review",
+  "verdict": "provider-hook-cache-and-concrete-prefix-verified-raw-initializer-grouping-unresolved",
+  "actualPins": {
+    "js": "v21-replay/final/cli.js",
+    "sha256": "4fa68aa1160b455ad426105b95e5f00299d54fa470b0e117004498683075b0b8",
+    "index": "v21-indexes/candidate.json",
+    "indexSha256": "af4daa341b710cd092f084c0bcd560c05b34114a82509fe9dc0b5671bf5310dc",
+    "profileSha256": "243c285b1c5109cf09f94e251b109cbf7f441ffd7dd28afca65066d07aa84809",
+    "toolchainSha256": "4d44399b78afdf87d0fb2f72083846afc2413989e8ef6156a74908eea8f1b5a2",
+    "compileReportSha256": "b7a4012ac77e24007cda216b66e01cde9397c4dac3bc32288ddd078205eaee51"
+  },
+  "sourceApproval": {
+    "reviewSha256": "a88cfc570bf95bd1c2a7b5ef14acac06350f3baf7c872d994d82cd8eea0a2dcb",
+    "freezeSha256": "7f8d8da1036a62cbe20ab8f1309f7104466fa6a57d648baa3c818ce0d422ef2c",
+    "members": 34
+  },
+  "preparationApproval": {
+    "reviewSha256": "208523c326b210d48dc09ae67d47fa5807f28ee430f0029a46df5eff238bf98d",
+    "closureSha256": "be972e470acf0be10987b547bad9b070108f6440baa265d960b9ac65e6b8fe83",
+    "members": 30
+  },
+  "sourceRepairSha256": "56c2056fb5e3864ffa91496832fbb141b4d0046d6d45223e28a93c1f59da3787",
+  "sourcePostimageSha256": "c85fcf184b1c8de13cee4f1e1b8b8091e92b1cb5d1303e2255134bf079274aa0",
+  "sourceBytes": 4416,
+  "actualProviderBodyVerified": true,
+  "actualProviderNodes": 281,
+  "actualHookCacheVerified": true,
+  "actualHookNodes": 67,
+  "jointSixRetainedFunctionFieldsAndLocalGraphVerified": true,
+  "concreteReactRuntimeAndContextOwnersVerified": true,
+  "actualModuleHeaderVerified": true,
+  "actualRuntimePrefixOrderSatisfied": true,
+  "targetPrefix": [
+    "t6",
+    "P$",
+    "V8"
+  ],
+  "currentPrefix": [
+    "q8",
+    "P$",
+    "k8"
+  ],
+  "targetRetainedStatements": [
+    8860,
+    8861,
+    8862,
+    8863,
+    8864,
+    8865
+  ],
+  "currentRetainedStatements": [
+    8868,
+    8869,
+    8870,
+    8871,
+    8872,
+    8874
+  ],
+  "runtimeAndProviderDefinitions": {
+    "target": {
+      "runtimeName": "$6",
+      "runtimeDeclaration": 5057,
+      "runtimeInitializer": 5058,
+      "notificationInitializer": 12861,
+      "analyticsInitializer": 580,
+      "componentReact": "u$"
+    },
+    "current": {
+      "runtimeName": "z6",
+      "runtimeDeclaration": 5059,
+      "runtimeInitializer": 5060,
+      "notificationInitializer": 12882,
+      "analyticsInitializer": 580,
+      "componentReact": "X$"
+    }
+  },
+  "cacheAndContextOwnership": {
+    "target": {
+      "cacheCells": 3,
+      "cacheAccesses": [
+        0,
+        1,
+        0,
+        1,
+        2,
+        2
+      ],
+      "writeSlots": [
+        0,
+        1,
+        2
+      ],
+      "missBeforeStores": true,
+      "cacheHitCell": 2,
+      "comparisonOperators": [
+        "!==",
+        "!=="
+      ],
+      "guardOperator": "||",
+      "cacheRuntime": "$6",
+      "cacheInternals": "MP_",
+      "runtimeReact": "Baq",
+      "componentReact": "u$",
+      "sharedConcreteReactProducer": "Z6",
+      "distinctNamespaceVariables": true,
+      "ratingsContext": "HI4",
+      "contextNesting": [
+        "Y26",
+        "HI4",
+        "MI4",
+        "JI4",
+        "PI4",
+        "XI4"
+      ],
+      "emptyRatingsMap": "jI4",
+      "threeTimerArgumentsAndCaptureFreeParameterVerified": true,
+      "createdMapReturnVerified": true,
+      "fullRawInitializerGroupingAccepted": false
+    },
+    "current": {
+      "cacheCells": 3,
+      "cacheAccesses": [
+        0,
+        1,
+        0,
+        1,
+        2,
+        2
+      ],
+      "writeSlots": [
+        0,
+        1,
+        2
+      ],
+      "missBeforeStores": true,
+      "cacheHitCell": 2,
+      "comparisonOperators": [
+        "!==",
+        "!=="
+      ],
+      "guardOperator": "||",
+      "cacheRuntime": "z6",
+      "cacheInternals": "fP_",
+      "runtimeReact": "Faq",
+      "componentReact": "X$",
+      "sharedConcreteReactProducer": "f6",
+      "distinctNamespaceVariables": true,
+      "ratingsContext": "MI4",
+      "contextNesting": [
+        "HI4",
+        "MI4",
+        "PI4",
+        "XI4",
+        "DI4",
+        "WI4"
+      ],
+      "emptyRatingsMap": "JI4",
+      "threeTimerArgumentsAndCaptureFreeParameterVerified": true,
+      "createdMapReturnVerified": true,
+      "fullRawInitializerGroupingAccepted": false
+    }
+  },
+  "allEightOrderedAssignmentFieldsUnderGroundedRolesVerified": true,
+  "actualInitializerWholeAstEqual": false,
+  "actualInitializerGroupingAccepted": false,
+  "initializerGrouping": {
+    "target": [
+      {
+        "statementType": "ExpressionStatement",
+        "expressionType": "SequenceExpression",
+        "assignments": 4
+      },
+      {
+        "statementType": "ExpressionStatement",
+        "expressionType": "SequenceExpression",
+        "assignments": 2
+      },
+      {
+        "statementType": "ExpressionStatement",
+        "expressionType": "SequenceExpression",
+        "assignments": 2
+      }
+    ],
+    "current": [
+      {
+        "statementType": "ExpressionStatement",
+        "expressionType": "SequenceExpression",
+        "assignments": 8
+      }
+    ],
+    "targetNodes": 75,
+    "currentNodes": 71,
+    "completeRawInitializerAccepted": false
+  },
+  "targetInitializerStatement": 8867,
+  "currentInitializerStatement": 8876,
+  "extraUseRateMessage": {
+    "index": 8873,
+    "text": "function zy6(){return X$.useContext(HI4)}",
+    "retentionAccepted": false
+  },
+  "extraUseRateMessageRetentionAccepted": false,
+  "wrapperTopologyAccepted": false,
+  "wholeProductionModuleAccepted": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "negativeControls": 20,
+  "completeOriginalIndexWitnesses": 51,
+  "largestStatementBytes": 13451,
+  "compileReportCountsCorrected": true,
+  "beforeAndPostInventory": {
+    "files": 6084,
+    "manifestSha256": "2a5d06b9908c96a1afb08f26d4263b0ba3baa61cc8498ce75d68161ddbee9df7",
+    "currentGitSourceFiles": 1922,
+    "currentDerivedSrcTree": "941faa299853c5ffe39d265b102443c1fc366240",
+    "extraSourceAssets": 29,
+    "genesisVerifiedAsLineageOnly": true,
+    "sourceEdgeAndEvalRangePinsVerified": true
+  },
+  "sourceGuardAndEvalOwnerOverlap": false,
+  "exactSourceAndRuntimeRows": [
+    {
+      "path": "src/components/messageRating.tsx",
+      "bytes": 4416,
+      "sha256": "c85fcf184b1c8de13cee4f1e1b8b8091e92b1cb5d1303e2255134bf079274aa0"
+    },
+    {
+      "path": "src/context/notifications.tsx",
+      "bytes": 33050,
+      "sha256": "bb8a61bc04240071f2eaa07eb6529651ef5f4462f025e47cebeb6de3b9f04fb3"
+    },
+    {
+      "path": "src/services/analytics/index.ts",
+      "bytes": 5542,
+      "sha256": "293b4c3660ec2c1e01e7916e2e5ccd580275301907e8d96644191e07f91c44b9"
+    },
+    {
+      "path": "node_modules/react/cjs/react.production.js",
+      "bytes": 17217,
+      "sha256": "ae0aae9b31dcccfc8b194dc6ab1cc9cc4525e25b887d10cc22ae4f8fbd2482cc"
+    },
+    {
+      "path": "node_modules/react/cjs/react-compiler-runtime.production.js",
+      "bytes": 463,
+      "sha256": "f7d518f5c043cd008514b4fd8c665a9d2fa5686bd36c6e7d44d78187c0438700"
+    }
+  ],
+  "applicationOrHookOrCallbackExecuted": false,
+  "fullApplicationParsed": false,
+  "sourceStageProfileOrOutputModified": false,
+  "qualifications": [
+    "The real75-node target versus71-node current initializer grouping difference stays unresolved; no grouping equivalence certificate or normalizer is introduced.",
+    "All eight ordered assignments and the three-call runtime/notifications/analytics prefix are grounded, but that does not establish whole initializer or module equality.",
+    "Extra useRateMessage retention, wrapper ownership and broader provider/module topology remain unaccepted.",
+    "React dispatch, Map/timer behavior and transitive notification/analytics state are scoped interfaces, not universal semantic equivalence.",
+    "Dynamic eval, ambient escapes, source-text reflection and AST observation are not normalized away.",
+    "Source-map displacement and full finalizer composition were not independently rerun in this bounded review."
+  ],
+  "evidence": [
+    {
+      "path": "core-results.json",
+      "sha256": "be309333e8bacefaebcde7878a4168d0a9756d58137e362fc146b289e420fb44"
+    },
+    {
+      "path": "ownership-results.json",
+      "sha256": "6da1025a37c6913f4524bd48038fe05a88f3391fbf37ea618a3d9f1ae3c07d9d"
+    },
+    {
+      "path": "control-results.json",
+      "sha256": "1bab34a3f962d16c127dd462317af18d30c40487ec30624a9aa4b8390e953781"
+    },
+    {
+      "path": "complete-indexed-witnesses.json",
+      "sha256": "29e98e2a34a6393a76cf4e64ae9e4cce81d38a6731a4fd20189f377c4a3bfaa2"
+    }
+  ]
+}

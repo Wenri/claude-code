@@ -1,0 +1,61 @@
+{
+  "kind": "incomplete-reviewed-source-checkpoint",
+  "version": "2.1.89",
+  "revision": 22,
+  "baseMainCommit": "73bd8bac5faaa52b3018927767cab3a8f8742746",
+  "cumulativeRootSourceVersion": "2.1.126",
+  "rootSourceMustRemainUnchanged": true,
+  "sourceFiles": 6084,
+  "sourceBytes": 50950550,
+  "sourceManifestSha256": "01bfab84ed987ce1c7b08533c8b40a6c2b66ceedd0dc4c5ecb315fd09cce5a96",
+  "derivedSrcTree": "4d903377e8cf3ded6dd600359562360b650db5ad",
+  "sourceAndPreparationReviewed": true,
+  "serialBuildAndStrictParsePassed": true,
+  "actualV22ShellReview": "pending",
+  "versionAccepted": false,
+  "strictAstEqual": false,
+  "wholeProgramBindingEquivalenceEstablished": false,
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098404,
+    "sha256": "b099c01d6f39b99efb39fa5f61c2ce126f9bf3b9bed181d2df7b3ae96edac590"
+  },
+  "target": {
+    "javaScriptSha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+    "nodes": 3098331,
+    "strictAstSha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "acceptancePolicy": "Consistent binding renames and provably independent definition ordering may be accepted with conservative evidence. No whole-program acceptance route has passed. Strict AST remains a stronger diagnostic; node-count deltas are not edit distances.",
+  "latestVerifiedScopedResults": [
+    "REPL mode/primitive initializer slots115/116 and retained memo/display reads pass in revision21.",
+    "MessageRating provider281 and cached hook67, six-function graph, cache cells, concrete contexts and prefix pass in revision21.",
+    "Prior storage/messages and shell/auth/hook-schema results retain their explicitly bounded scopes."
+  ],
+  "unfinished": [
+    "The two current shell source corrections are independently approved and built, but their actual production initializer, shared-helper binding and unrelated-consumer retention checks are pending.",
+    "MessageRating raw initializer grouping75/71 and live helper/wrapper topology remain unresolved.",
+    "REPL direct provider slot60 and broader whole-component/prefix/transitive graph remain unresolved.",
+    "Other quote-helper consumers and source/body/cache gaps remain; private-binding and grouping certificates are diagnostic only.",
+    "Original private authorship, arbitrary dynamic/reflection/ambient equivalence, universal TypeScript/API compatibility and source-map generated-coordinate correctness are not claimed."
+  ],
+  "separateFutureWork": [
+    {
+      "owner": "src/utils/swarm/spawnUtils.ts",
+      "state": "independently reviewed source proposal, not integrated or actual-emission verified",
+      "sourceManifestSha256": "07e5376c99f089556cdbf64c8e3f22805b9694d9829eaa35a01dd67cc4b11227",
+      "reviewSha256": "c68b22e74ed4855775ab4d9a683e385d9e9be475c439dfafc4ee21500cc09219"
+    },
+    {
+      "owner": "src/tools/shared/spawnMultiAgent.ts",
+      "state": "frozen unreviewed proposal, excluded from active tree",
+      "sourceManifestSha256": "84f1b8faa1e86d8fcd7832ea83dc28f00c920fd2d19fdf159e966f08b6b9743b"
+    },
+    {
+      "owner": "src/components/SearchBox.tsx",
+      "state": "frozen draft, independent review and final replay incomplete, excluded from active tree",
+      "sourceManifestSha256": "2dae396f200c6053e80ebeac9bb3d0b319b5e90657026331be0afa442c5a2a36"
+    }
+  ]
+}

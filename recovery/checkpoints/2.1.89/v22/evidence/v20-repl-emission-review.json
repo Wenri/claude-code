@@ -1,0 +1,393 @@
+{
+  "kind": "independent-actual-v20-repl-display-memo-emission-review",
+  "verdict": "memo-and-display-bindings-verified-initializer-placement-unmet",
+  "sourceReview": {
+    "path": "historical-checkpoints/repl-display-tools-source-review/review.json",
+    "sha256": "5a4f120be95b1d8d07ddffa47c6b59ee8043b05a0cfe56f6e5d820581d66fb52",
+    "closureSha256": "b1a2fe67485c1a1d942ec5fa999fc3376ad15a96e5aa427ce358af3fb0f17137"
+  },
+  "preparationReview": {
+    "reviewSha256": "29440bcf958976ed8bd6487c3ca99c6baa08408e76626c248eac7a36a9ee652c",
+    "freezeSha256": "30062a3697fbc5cf71bd5429e399e73c0e1f2a774cd4d461b5575415798d3997",
+    "members": 37
+  },
+  "actualPins": {
+    "js": "v20-replay/final/cli.js",
+    "sha256": "b3cbcc3ff83bac31ec8efb0e3f50a9c333066079c3284ac188111afe4c105528",
+    "index": "v20-indexes/candidate.json",
+    "indexSha256": "9906167ca64c5e656ad221f9a112a4971e1fc16006c8abd4ebfd453864b953df",
+    "profileSha256": "70a48802a695a6c9044de914e74a58ea0548736d7d1aaf951f5c19958018b2c1",
+    "toolchainSha256": "e777e106d37fda05a5892b076eea804b563c2e80e6532aff8ab40906e59e4604",
+    "compileReportSha256": "558f5dab5ed809c35fc7643040badf63a3b13f910dd09d461e83d8e66d99bdca"
+  },
+  "sourceManifestSha256": "a1111cd44d8d3a8fffeff33c046cdcae4e5dba5411d425d9447e70bd93a41d80",
+  "sourceTree": "225c00888340f157a1408d8b34c46260587b8670",
+  "actualMemoComplete60NodesVerified": true,
+  "actualReactNamespaceAndCapturedBindingsVerified": true,
+  "exactThreeMergedDisplayReadsVerified": true,
+  "originalToolsUseEffectDependencyPreserved": true,
+  "allRemainingPriorComponentFieldsAndLocalGraphPreservedUnderConditionalInterfaces": true,
+  "conditionalExternalInterfaceCount": 355,
+  "realModeGetterAndEightObjectRolesVerified": true,
+  "twoNewInitializerEdgesPresent": true,
+  "newInitializerEdgesAdjacentInTargetRelativeOrder": true,
+  "targetInitializerPlacementSatisfied": false,
+  "targetInitializerSlots": [
+    115,
+    116
+  ],
+  "currentInitializerSlots": [
+    100,
+    101
+  ],
+  "targetReplStatement": 17571,
+  "currentReplStatement": 17588,
+  "targetInitializerStatement": 17573,
+  "currentInitializerStatement": 17590,
+  "currentInitializerCount": 205,
+  "targetInitializerCount": 206,
+  "modeAndPrimitiveProviders": {
+    "target": {
+      "mode": {
+        "name": "Tu",
+        "index": 5050,
+        "initializer": 5052
+      },
+      "getter": {
+        "name": "tE6",
+        "index": 11738,
+        "initializer": 11740
+      }
+    },
+    "current": {
+      "mode": {
+        "name": "vu",
+        "index": 5052,
+        "initializer": 5054
+      },
+      "getter": {
+        "name": "qL6",
+        "index": 11757,
+        "initializer": 11759
+      }
+    }
+  },
+  "sourceRelocationLead": {
+    "after": {
+      "name": "resumeAgentBackground",
+      "specifier": "../tools/AgentTool/resumeAgent.js",
+      "range": [
+        13858,
+        13932
+      ],
+      "text": "import { resumeAgentBackground } from '../tools/AgentTool/resumeAgent.js';"
+    },
+    "before": {
+      "name": "useMainLoopModel",
+      "specifier": "../hooks/useMainLoopModel.js",
+      "range": [
+        13933,
+        13997
+      ],
+      "text": "import { useMainLoopModel } from '../hooks/useMainLoopModel.js';"
+    },
+    "movedImports": [
+      {
+        "name": "isReplModeEnabled",
+        "specifier": "../tools/REPLTool/constants.js",
+        "range": [
+          12483,
+          12550
+        ],
+        "text": "import { isReplModeEnabled } from '../tools/REPLTool/constants.js';"
+      },
+      {
+        "name": "getReplPrimitiveTools",
+        "specifier": "../tools/REPLTool/primitiveTools.js",
+        "range": [
+          12551,
+          12627
+        ],
+        "text": "import { getReplPrimitiveTools } from '../tools/REPLTool/primitiveTools.js';"
+      }
+    ],
+    "futureActualNumericSlotsMandatory": true,
+    "sourceEdited": false
+  },
+  "anchorEvidence": [
+    {
+      "sourceOwner": "src/hooks/useMergedTools.ts",
+      "sourceSha256": "eae7817917afd87c1180040a1228c90775f7d3921e296a2f5b94e3e3f95d71eb",
+      "sourceExport": "useMergedTools",
+      "sourceExportRange": [
+        947,
+        1644
+      ],
+      "sourceExportSha256": "95d91a68118cee72210299ffa7557b00314201e655de20eeeffb7834fe2492eb",
+      "targetFunction": {
+        "index": 14742,
+        "name": "DQ8",
+        "row": {
+          "index": 14742,
+          "type": "FunctionDeclaration",
+          "range": [
+            10776946,
+            10777043
+          ],
+          "nodes": 36,
+          "strictSha256": "b928d7ac1337a5277bf97880447e2558e394cba0ec6c072efa058635e0832213",
+          "shapeSha256": "cc9de3c82b4e6dfea8b629833525f690857c39f0fecb089b65fa7a73560cc934",
+          "identifierNamesErased": 16,
+          "protectedIdentifierOccurrences": 2
+        }
+      },
+      "currentFunction": {
+        "index": 14755,
+        "name": "PQ8",
+        "row": {
+          "index": 14755,
+          "type": "FunctionDeclaration",
+          "range": [
+            10771789,
+            10771886
+          ],
+          "nodes": 36,
+          "strictSha256": "0df1b5ccf68cb2da9f340ce9a8e5754c72af4e786ad60ceef377d201090c114b",
+          "shapeSha256": "cc9de3c82b4e6dfea8b629833525f690857c39f0fecb089b65fa7a73560cc934",
+          "identifierNamesErased": 16,
+          "protectedIdentifierOccurrences": 2
+        }
+      },
+      "targetInitializer": 14744,
+      "currentInitializer": 14757
+    },
+    {
+      "sourceOwner": "src/tools/AgentTool/resumeAgent.ts",
+      "sourceSha256": "3bb835c4ad5bce70eeaa82b803bbc19bce8059a3155e1474fa2ec3b4515d453e",
+      "sourceExport": "resumeAgentBackground",
+      "sourceExportRange": [
+        1917,
+        9332
+      ],
+      "sourceExportSha256": "d58b31653ded5c613515feb4422bd2c6257f2abbd6a6cbd807f642be074f15a5",
+      "targetFunction": {
+        "index": 11680,
+        "name": "j18",
+        "row": {
+          "index": 11680,
+          "type": "FunctionDeclaration",
+          "range": [
+            9187132,
+            9189813
+          ],
+          "nodes": 663,
+          "strictSha256": "fc1f7541db871cf7c2ab6764fd612ba23d14e7fc3668e1d51f310cc6100d931f",
+          "shapeSha256": "8032466111c6fb8c1dbab3829507a40db1484534650854af0dd6715aad982acf",
+          "identifierNamesErased": 189,
+          "protectedIdentifierOccurrences": 134
+        }
+      },
+      "currentFunction": {
+        "index": 11700,
+        "name": "H18",
+        "row": {
+          "index": 11700,
+          "type": "FunctionDeclaration",
+          "range": [
+            9188397,
+            9191078
+          ],
+          "nodes": 663,
+          "strictSha256": "8dba88c7a65707303db6b46304e65e73d0a9303dc7d923b743f947cb6ec5e567",
+          "shapeSha256": "8032466111c6fb8c1dbab3829507a40db1484534650854af0dd6715aad982acf",
+          "identifierNamesErased": 189,
+          "protectedIdentifierOccurrences": 134
+        }
+      },
+      "targetInitializer": 11681,
+      "currentInitializer": 11701
+    },
+    {
+      "sourceOwner": "src/hooks/useMainLoopModel.ts",
+      "sourceSha256": "7dcf5c86f60a1966ee1db74ef295b2060ebea085d530d6c9ab708422edfe4e3a",
+      "sourceExport": "useMainLoopModel",
+      "sourceExportRange": [
+        485,
+        1506
+      ],
+      "sourceExportSha256": "609c80d1a23190d722fa3cd9e2f6eca3d3ec38f3bf61361b6686797edfbf1417",
+      "targetFunction": {
+        "index": 9958,
+        "name": "UX",
+        "row": {
+          "index": 9958,
+          "type": "FunctionDeclaration",
+          "range": [
+            8178255,
+            8178420
+          ],
+          "nodes": 54,
+          "strictSha256": "a86733c3a939e6aeb89c7ccc9a2cc9c7f336b3cdb7c5024366f404c8fd661e3f",
+          "shapeSha256": "509fe9376f55abbf921fe8e89bbe70283e318938537054da8e7eb877a698b0a0",
+          "identifierNamesErased": 20,
+          "protectedIdentifierOccurrences": 4
+        }
+      },
+      "currentFunction": {
+        "index": 9966,
+        "name": "QX",
+        "row": {
+          "index": 9966,
+          "type": "FunctionDeclaration",
+          "range": [
+            8180419,
+            8180584
+          ],
+          "nodes": 54,
+          "strictSha256": "dbeca7ccfa7f2be8273254520c9140c97cae91d7c7d01e6b69db0b3b9229a0f4",
+          "shapeSha256": "509fe9376f55abbf921fe8e89bbe70283e318938537054da8e7eb877a698b0a0",
+          "identifierNamesErased": 20,
+          "protectedIdentifierOccurrences": 4
+        }
+      },
+      "targetInitializer": 9960,
+      "currentInitializer": 9968
+    }
+  ],
+  "missingMessageRatingProviderBoundary": {
+    "targetInitializer": 8867,
+    "targetName": "ks6",
+    "targetSlot": 60,
+    "currentInitializer": 8876,
+    "currentName": "Vs6",
+    "currentDirectSlot": -1,
+    "targetProviderNodes": 281,
+    "currentProviderNodes": 269,
+    "slot99UseMergedToolsAlreadyMatches": true,
+    "doesNotExplainFifteenSlotPlacementError": true,
+    "wrapperTopologyAccepted": false
+  },
+  "guard10TransitionVerified": true,
+  "guard10Transition": {
+    "edgeIndex": 10,
+    "priorProfileEdge": {
+      "originSource": "src/screens/REPL.tsx",
+      "originSourceSha256": "e4f9398c59546bf009228b3d86c492d67180e9763e27720b6b6c9b683c333382",
+      "range": [
+        23183,
+        23266
+      ],
+      "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+      "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        23219,
+        23265
+      ],
+      "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+      "originSourceGitBlob": "3059ff4059e976180a76308ea4e89b63ce5b1a37",
+      "originParentGitBlob": "a0f44904d120f0b4fa5a1d33c6d8600371711127"
+    },
+    "currentProfileEdge": {
+      "originSource": "src/screens/REPL.tsx",
+      "originSourceSha256": "ba51a8dd51cd5f3d230bd54a24285b7e2ed967ac8439203a2728ba9caabf881d",
+      "range": [
+        23328,
+        23411
+      ],
+      "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+      "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        23364,
+        23410
+      ],
+      "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+      "originSourceGitBlob": "b506f0dd2399003721bf1c09e23e7b7c03ff6531",
+      "originParentGitBlob": "3059ff4059e976180a76308ea4e89b63ce5b1a37"
+    },
+    "immediateParentAdvancedToPriorCurrent": true,
+    "historicalParentRetainedInPriorRecord": true,
+    "genesisInvented": false,
+    "rangesAndSlicesExact": true
+  },
+  "compilerOverlayReceiptVerified": true,
+  "compileReportSummaryDiscrepancy": {
+    "topLevelSourceFiles": 6083,
+    "topLevelGitSourceFiles": 1921,
+    "verifiedSourceFiles": 6084,
+    "verifiedGitSourceFiles": 1922
+  },
+  "summaryProducer": {
+    "path": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+    "sha256": "65a840059c372659a855876b350acb6b68ea0d08de70ad03c8418a56978182d0",
+    "constantSummaryLine": 6,
+    "preflightWriteLine": 8,
+    "compileReportSpreadLine": 9,
+    "measuredPostInputsLine": 10,
+    "preflight": {
+      "path": "historical-checkpoints/v20-replay/preflight.json",
+      "sha256": "5e0460c9327154a255265bc0562241d4e293d0f2693b4fb26aea02fb26effb29",
+      "sameStaleSummary": true
+    },
+    "sourceValidationFailure": false,
+    "reportsModified": false
+  },
+  "sourceCountValidationFailure": false,
+  "completeOriginalIndexWitnesses": 100,
+  "maximumStatementBytes": 54872,
+  "negativeControls": 20,
+  "toolAndNameSourcePins": 16,
+  "wholeComponentAccepted": false,
+  "wrapperTopologyAccepted": false,
+  "messageRatingProviderBodyAccepted": false,
+  "useMessageRatingCacheAccepted": false,
+  "extraUseRateMessageRetentionAccepted": false,
+  "transitiveToolBodiesAccepted": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "applicationExecuted": false,
+  "fullBundleParsed": false,
+  "sourceStageOrProfileOrOutputModified": false,
+  "qualifications": [
+    "Actual target slot placement remains unmet despite correct adjacency; source relocation requires separate source/profile review and actual emitted placement checks.",
+    "The missing MessageRatingProvider direct edge at target slot60 and wrapper/provider/cache topology remain independent failures.",
+    "The 355 remaining external interfaces are conditional; no whole-component or global semantic equivalence is asserted.",
+    "Primitive object identities are grounded; transitive tool/factory behavior and ambient mutation remain unaccepted.",
+    "Source maps are not used as authoritative generated-owner labels; displacement and full finalizer composition were not revalidated here.",
+    "Source-text reflection, AST observation and dynamic eval/ambient escapes are not erased or declared safe.",
+    "Stale report summaries are preserved; passing actual count inventories are recorded separately."
+  ],
+  "evidence": [
+    {
+      "path": "core-results.json",
+      "sha256": "e408790827c26bba83c40b852615115846e362e3d796ab3dced3093d956808de"
+    },
+    {
+      "path": "tool-identity-results.json",
+      "sha256": "fa6d303742c527ee37c5ef19e65ee1d8cd90f1711faff9ef4c7b6bf94d7a77bb"
+    },
+    {
+      "path": "evidence-results.json",
+      "sha256": "58052b68fe98a5f8d3564ceaff863057d6aeb0869de750b701c7f976879dc18b"
+    },
+    {
+      "path": "control-results.json",
+      "sha256": "ecbc45a4016dfa1cb5012fc05eb232c28f302ab605397dc3601bc146f457cc5f"
+    },
+    {
+      "path": "source-count-producer.json",
+      "sha256": "87d3889641744915d32c2673f83613eabbfd0a3bbb0b591d21380ec0c31dd033"
+    },
+    {
+      "path": "complete-indexed-witnesses.json",
+      "sha256": "042e1ed17d5a6eb401c6a3bd208b28faae462b9855cec925b0f3110bb5c669a0"
+    }
+  ]
+}

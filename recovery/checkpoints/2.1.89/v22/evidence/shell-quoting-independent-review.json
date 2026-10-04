@@ -1,0 +1,67 @@
+{
+  "kind": "independent-shell-quoting-shared-helper-and-redirection-source-review",
+  "verdict": "approved-for-fixed-source-trial",
+  "authorSourceManifestSha256": "33768758ed37b43ef85df00d1e5604f6603fc974c0257d5618a50aa880c65c36",
+  "authorArtifactManifestSha256": "fce21fb0b254af5b51ee89d963b886c8a387f04e7ca063a8e813ce246ba55f2a",
+  "authorCodeProvenanceSha256": "00599145b5c18ca50e0ce758ed3222519097a893c1061cdc6f3c169884542197",
+  "authorFreezeSha256": "ea49e47e61eb75c064836dc8e6d5686c41bd34682dc080e4a4c52108cf91a862",
+  "sourceOwner": "src/utils/bash/shellQuoting.ts",
+  "preimageSha256": "3808b3da9601680ca5d9f76ba1bf010e8c9f2d4fc776aabac2b735bde3246c6a",
+  "postimageSha256": "6ae482175f4851ee5fdfd4dbc1ef77dde59070aeed6751e21d538c1982b30021",
+  "verification": {
+    "authorStaticGroups": 11,
+    "authorSourceNegatives": 15,
+    "authorWholeModuleNegatives": 12,
+    "independentGroups": 9,
+    "independentNegatives": 18,
+    "completeOriginalIndexStatements": 24,
+    "compilerOutputsByteExact": 4,
+    "sortedResolverReceiptExact": true,
+    "actualOriginalCallerIndependentExtraction": [
+      10679,
+      10699
+    ],
+    "newCallerNodes": 59,
+    "oldCallerNodes": 58,
+    "newHelperNodes": 48,
+    "closedGraphOnlyFreeIdentifier": "String",
+    "sourceRemainderAndTypesExact": true,
+    "supplementalLegacyWrapperAndValidationNodes": [
+      91,
+      135
+    ],
+    "supplementalLegacyNamespaceReceiverExact": true
+  },
+  "behavior": {
+    "importIdentityChangedTo": "./quoteShellArgs.js:quoteShellArgs as quote",
+    "regularHelperArgument": "[command]",
+    "regularHelperEvaluations": 1,
+    "evaluationOrder": "quote command first, then test addStdinRedirect; append literal redirect only in true branch",
+    "defaultRedirect": true,
+    "heredocMultilinePrefixByteAndFieldExact": true,
+    "repeatedHeredocCallRetained": true,
+    "allFourPublicExportsPreserved": true,
+    "allOtherHelpersRegexesAndBranchesPreserved": true,
+    "noGlobalLegacyRemoval": true
+  },
+  "actualStageObligations": [
+    "complete59-node caller and unchanged local functions",
+    "actual shared48-node helper binding",
+    "module initializer14 to11 nodes retaining only original regex allocation",
+    "remove old wrapper initializer edge from this owner alone",
+    "preserve old wrapper and unrelated consumers",
+    "global declaration placement and complete target acceptance remain separate"
+  ],
+  "qualifications": [
+    "Target-directed observable behavior repair, not general equivalence of old/new quote APIs.",
+    "Original fixture receiver flattening remains a failed comparison; the separate CJS require-context supplement preserves the actual receiver and closes both old quoting function bodies under explicit transitive external interfaces.",
+    "Fixture eager declarations do not establish actual lazy initializer order, source module retention or full-stage DCE.",
+    "The new helper name/path are previously reviewed reconstruction choices, not recovered private authorship.",
+    "No application or shell function, callback, recovered helper or generated program was executed.",
+    "Reviewer harness initially attempted to iterate metadata as an edit and to use an AST walker for a non-AST witness record; both rejected early. Corrected selectors preserved all graph checks and both error logs."
+  ],
+  "codeProvenanceSha256": "281c6b42ee7e75a84c09dd3027ac24635489e4cc94afe72a0c3bcd8266d959b8",
+  "wholeTargetAccepted": false,
+  "applicationExecuted": false,
+  "activeStageEdited": false
+}

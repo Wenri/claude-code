@@ -1,0 +1,22 @@
+{
+  "kind": "independent-public-checkpoint-materializer-code-review",
+  "verdict": "approved-for-authenticated-data-only-materialization",
+  "materializerSha256": "4305ee44997ec4adc8b94f42164d534a00716053f6751d0be3bed09de5bc5493",
+  "sourcePackageManifestSha256": "3301d44ab542c7860cbcf774f035645abb766fc9529df8f0011305524d4a2465",
+  "testsSha256": "dfe2ef4b4092ae6366d092850c228d2465dfa13053fa9cc705d29f0d321fa8d4",
+  "focusedControlsPassed": 53,
+  "allInputBytesAuthenticatedBeforeFirstOutputWrite": true,
+  "safeRelativeRegularTarMembersOnly": true,
+  "newOutputOutsideRepositoryRequired": true,
+  "runtimeFiles": 69,
+  "validationFiles": 48,
+  "archiveFetchOrInstallPerformed": false,
+  "applicationOrCompilerExecutedByMaterializer": false,
+  "hostileConcurrentWriterSandboxClaimed": false,
+  "limits": [
+    "Requires trusted quiescent input trees and output parent; it is not a race-resistant sandbox against a same-user writer.",
+    "An I/O failure after publication begins can leave a partial fresh output; retry must use a different new root.",
+    "Full real-checkpoint integration and final staged commit review remain separate.",
+    "Host Python standard-library environment is not independently packaged."
+  ]
+}

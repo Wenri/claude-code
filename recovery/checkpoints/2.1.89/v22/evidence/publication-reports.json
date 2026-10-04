@@ -1,0 +1,470 @@
+{
+  "kind": "path-redacted-review-reports",
+  "reports": [
+    {
+      "path": "evidence/v22-preparation-review.json",
+      "originalSha256": "a32cdab2dad4b5fbb4db6e3d3dbbb0e202da30fac09581be04b8698b7c36b62c",
+      "publishedSha256": "a32cdab2dad4b5fbb4db6e3d3dbbb0e202da30fac09581be04b8698b7c36b62c",
+      "locatorRedactions": [],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/shell-prefix-quote-independent-review.json",
+      "originalSha256": "11875a54ad105aaffa4be72b32f1faf6226ddd7b7b86295c988551d261ae3716",
+      "publishedSha256": "23774b6210ee2a18b7e637a06a012e6e3b87a1cba368c225e90f5d1b69172b81",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceManifest/path",
+          "originalValueSha256": "2723a16999125244c20172e487b88b816897e48eee1aa8b62a5da5376d36e476",
+          "publishedValue": "historical-checkpoints/shell-prefix-quote-source-investigation/source-repair.json"
+        },
+        {
+          "jsonPointer": "/authorArtifactManifest/path",
+          "originalValueSha256": "ac64df4623ad99c963f8fd432d0405a2e10da368fe4d52af15233117c59551de",
+          "publishedValue": "historical-checkpoints/shell-prefix-quote-source-investigation/artifact-manifest.json"
+        },
+        {
+          "jsonPointer": "/authorExecutableClosure/path",
+          "originalValueSha256": "706c267de17b4501e7116188043fc4f88a9efbdb4ea5c5cf149a3331aec981dc",
+          "publishedValue": "historical-checkpoints/shell-prefix-quote-source-investigation/code-provenance.json"
+        },
+        {
+          "jsonPointer": "/authorFreeze/path",
+          "originalValueSha256": "1237f27febbf2ed9b08afaf8331d62c00a97bde4911c84fec0e82ae377d8ac07",
+          "publishedValue": "historical-checkpoints/shell-prefix-quote-source-investigation/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceFiles/0/postimagePath",
+          "originalValueSha256": "d8cb90adee38b82391e2fa62acf11266d94986c34b62f9bec9d87da455e3a10e",
+          "publishedValue": "historical-checkpoints/shell-prefix-quote-source-investigation/postimages/src/utils/bash/shellPrefix.ts"
+        },
+        {
+          "jsonPointer": "/currentPreimage/path",
+          "originalValueSha256": "8ff701bbf95ab56a2c6699e42fbce035349bbdb503e4a31e92437b6ac581efd6",
+          "publishedValue": "historical-checkpoints/v21-stage/inputs/src/utils/bash/shellPrefix.ts"
+        },
+        {
+          "jsonPointer": "/currentProfile/path",
+          "originalValueSha256": "880e8d2598b711bfd87d2612af4b50cfe61abc4ebb3c28bd8c9e66dcf78476a9",
+          "publishedValue": "historical-checkpoints/v21-preparation/prepared/recovery/profiles/2.1.89/profile.json"
+        },
+        {
+          "jsonPointer": "/witnesses/file/path",
+          "originalValueSha256": "9b66bc4641d9758a84a2b7b80b42b0c3df8e2d7457d98c323aef938569886082",
+          "publishedValue": "historical-checkpoints/shell-prefix-quote-independent-review/reextracted-witnesses.json"
+        },
+        {
+          "jsonPointer": "/receiverQualification/separateFrozenAuthority/path",
+          "originalValueSha256": "ccc855d138e8014651c58af5fd6e1830f313cf2a0bbacbc1667873fbbc44b8a9",
+          "publishedValue": "historical-checkpoints/shell-quoting-independent-review/receiver-control-authority.json"
+        },
+        {
+          "jsonPointer": "/receiverQualification/supplement/path",
+          "originalValueSha256": "07306f7fd3b2f9d77aa3748ec2d84295e796eac40823486466d07cc0f247322c",
+          "publishedValue": "historical-checkpoints/shell-prefix-quote-independent-review/receiver-supplement.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/shell-quoting-independent-review.json",
+      "originalSha256": "1b4f22bc0fe26ebd061e507ec9b04cfa9ebb2fed50bcf680e06c32b16e7264b7",
+      "publishedSha256": "1b4f22bc0fe26ebd061e507ec9b04cfa9ebb2fed50bcf680e06c32b16e7264b7",
+      "locatorRedactions": [],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v21-repl-emission-review.json",
+      "originalSha256": "7b7b097c16f551b41bcf09a8431a511f8bbaff5e667e72487129fd2a4e56c262",
+      "publishedSha256": "7b7b097c16f551b41bcf09a8431a511f8bbaff5e667e72487129fd2a4e56c262",
+      "locatorRedactions": [],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v21-message-rating-emission-review.json",
+      "originalSha256": "455c19ebc62aa25038a443952b5fcd2706c37448cba6002adbaa36e06bad3f15",
+      "publishedSha256": "455c19ebc62aa25038a443952b5fcd2706c37448cba6002adbaa36e06bad3f15",
+      "locatorRedactions": [],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v20-storage-messages-emission-review.json",
+      "originalSha256": "3494870ba2bb71cd2a0314abde35360cdcba4ae07000701190d54dc46eb0891d",
+      "publishedSha256": "2c38b1be073f1266084147a2f5638446725dc8bf5ef6d4e7f8fb35982b56810d",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceApprovals/0/path",
+          "originalValueSha256": "ba31e42217ca787f8f21c38712aede3fd44dd1211d10a26c230490f4dedd9032",
+          "publishedValue": "historical-checkpoints/tool-result-storage-provider-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovals/1/path",
+          "originalValueSha256": "11df035eedba8be92e07e94a782f97d545246231328d8aef8992b8a1d1227f5f",
+          "publishedValue": "historical-checkpoints/messages-initializer-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/readContract/inputTree",
+          "originalValueSha256": "8f8f68f07d99f4a6d1386c1cb855fbc839f30e26f800450d2b8fe07cbd286f57",
+          "publishedValue": "historical-checkpoints/v20-stage/inputs"
+        },
+        {
+          "jsonPointer": "/readContract/profile",
+          "originalValueSha256": "50d5b3b9a06c9f723b56f128dfef82d3f59dafe224a141477da4689ae7014fce",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/profiles/2.1.89/profile.json"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/0/resolvedPath",
+          "originalValueSha256": "cea0fa2a02e885de81f81c227d4192fed1750648926a13c1833535a20565eab9",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/1/resolvedPath",
+          "originalValueSha256": "37cacd98664c2ae6920dd8f863fa97550cfecab32567663108950eb9cc2c0871",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/2/resolvedPath",
+          "originalValueSha256": "f092e4ecef6b3587a3f67556b218365b4351c6064d8576f87e36a71d76482c20",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/3/resolvedPath",
+          "originalValueSha256": "638317ed771921987cdbe8e486546fb40b639ac9dc645a9390819ea1297537d8",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/4/resolvedPath",
+          "originalValueSha256": "ca992fc2a74b7580cf2ed3aab5da4aff72ded33b5d8079215421135457fa037d",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/5/resolvedPath",
+          "originalValueSha256": "2f222230e246ef0606d1aa3b348c05ef57a6cb2ea8b90ed153f34b4f9911a4a0",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/6/resolvedPath",
+          "originalValueSha256": "9a7fde2907074b981ff1c8ec3c83461fdea003eb1e32aebfc144981040e38fbf",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/7/resolvedPath",
+          "originalValueSha256": "ef6dc7c696732fb9a78a7003a04e6e81d7ae281ba24be5c1d18be14f578aac68",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/8/resolvedPath",
+          "originalValueSha256": "3cc0e1a32ddb6d345733d27a2732b363fb173442d19594c65a78bf485eb7769d",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/adapterScripts/0",
+          "originalValueSha256": "14cb707fe5e951e385143df4418a79526096125c5e428180948955a3edded9e3",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/adapterScripts/1",
+          "originalValueSha256": "3d748453d5c23c7056a1a48b9f86b2df1915d425e7c9e0dc72f46f207958f920",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-support.mjs"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v20-repl-emission-review.json",
+      "originalSha256": "24b8ebff2a62fe57547ac22c5983e99646b33c96b37673a08215b28b97d6d0cf",
+      "publishedSha256": "617d40e9a945d2b7850f7e69a9523c3be39024af6807683ed5c0a9491904cdb8",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceReview/path",
+          "originalValueSha256": "3ee0d0656f1cb7562f5ee68f7cf394c996d8aa8f3375fea9a00808879e893bdf",
+          "publishedValue": "historical-checkpoints/repl-display-tools-source-review/review.json"
+        },
+        {
+          "jsonPointer": "/summaryProducer/path",
+          "originalValueSha256": "14cb707fe5e951e385143df4418a79526096125c5e428180948955a3edded9e3",
+          "publishedValue": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs"
+        },
+        {
+          "jsonPointer": "/summaryProducer/preflight/path",
+          "originalValueSha256": "45e0fde84620549810fb4ee8c6aa48b3e8a91365476eddaa1766ad7728f0ff3b",
+          "publishedValue": "historical-checkpoints/v20-replay/preflight.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v19-commands-emission-review.json",
+      "originalSha256": "a491b5c1b063e74213be4d1ef56168e920092f160ca9e55a76bd325d73af26b1",
+      "publishedSha256": "28958d85bde9cd1707000aad93537daaf6bd6d7989b2ff12b52ad0739903dd35",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/readContract/inputTree",
+          "originalValueSha256": "3dbca19c9bca1c444babafabcd616c3c7a744affd2ffa1925548acfc288c4f2a",
+          "publishedValue": "historical-checkpoints/v19-stage/inputs"
+        },
+        {
+          "jsonPointer": "/readContract/profile",
+          "originalValueSha256": "fee3980abfa851253a2f4590ab8c014de8f43dc8d5965efcd105e07faeb0c893",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/profiles/2.1.89/profile.json"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/0/resolvedPath",
+          "originalValueSha256": "5bb5e4afa3fc6a4d8779ffa886b78633fa1072222804451f9550c968a3acf974",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/1/resolvedPath",
+          "originalValueSha256": "2258b6fbcc46ed45bc3081a38087c4823568c6be1ab1e9405b33b2fdc94e3dba",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/2/resolvedPath",
+          "originalValueSha256": "62c7fc60c811da0cea9f326f1b412f9640eca38336b8c3336af1ecf4aa275dca",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/3/resolvedPath",
+          "originalValueSha256": "326a14c5597a3ef0085b74ca48d37a7987b735002f2310618323201c3218b886",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/4/resolvedPath",
+          "originalValueSha256": "560e35b0447042f8914dbbf3f4c24c5c69d7cf48ecac14c4fbdec9cfd9348c22",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/5/resolvedPath",
+          "originalValueSha256": "f6df52367334877b73541576465d836885af93cbc9fac6f885a6eac9dc3c9039",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/6/resolvedPath",
+          "originalValueSha256": "fed459faaf0df9f2a47b4185327d679ddd2ec6eadc56c8e7f48ca9b92a815e44",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/7/resolvedPath",
+          "originalValueSha256": "8c09a034f6da51044fb43f1ec914223843d93f0b2c41b994beca686ea7aab0d6",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/toolFiles/8/resolvedPath",
+          "originalValueSha256": "5bb408a2e34071118af4feac97f01980bed766dcd9ae926a124e6230e0fe7302",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/adapterScripts/0",
+          "originalValueSha256": "a5e0ca462411e908b13885a31411f49bf5743824053e3af2c069b5a9ffe8a88f",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs"
+        },
+        {
+          "jsonPointer": "/readContract/adapterScripts/1",
+          "originalValueSha256": "a3a18c84296d56eec4b976bab23058d9aab1a187fb6f3294a3a23310650c6b45",
+          "publishedValue": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-support.mjs"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v19-hook-schema-emission-review.json",
+      "originalSha256": "e3eb4a69b5481e1eae15c31f329d01693f112e2a4e075bd9e5dd3cdfb9369b2c",
+      "publishedSha256": "a85b9024483647af619b2168a2e0d4acd30f8e304f60aa692caee65d66178075",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceApproval/path",
+          "originalValueSha256": "df59ed947a00e4bc4d2b627b1165620540a53935d031e25961a0f4fbdf340f8a",
+          "publishedValue": "historical-checkpoints/hook-schema-order-independent-review/review.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v18-main-agent-emission-review.json",
+      "originalSha256": "284dad7dff5bacbb845dff3ecd2605eb462c8a99ba8ef5b3a3bf14c2cc365b53",
+      "publishedSha256": "14636619f3d0424e74ed0aea95ff8a6620bb429da4ca9dd40687958e0c342443",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/evidence/source-approval-authority.json/path",
+          "originalValueSha256": "c24eaf6944ba16be820ecd2d2ccb20254757b65eaae4d04425aad8418e269d5a",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/source-approval-authority.json"
+        },
+        {
+          "jsonPointer": "/evidence/actual-authority.json/path",
+          "originalValueSha256": "5886bd02a996d397fa0fff161a389aaf1b9ffc0ecbf59ea20f5f2713cfcc6be7",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/actual-authority.json"
+        },
+        {
+          "jsonPointer": "/evidence/target-witnesses.json/path",
+          "originalValueSha256": "f6346a2ea183d6adb80de479d673148177eb396de4aebe3f67477f5605c163eb",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/target-witnesses.json"
+        },
+        {
+          "jsonPointer": "/evidence/candidate-initial.json/path",
+          "originalValueSha256": "159ff94934f50598baab1ec5fa5d9ab3f235f47834235394a2c832c20b717c8d",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/candidate-initial.json"
+        },
+        {
+          "jsonPointer": "/evidence/provider-witnesses.json/path",
+          "originalValueSha256": "c20e2ec26f1f41082eb21674976f163e99c192766ecf6d38fee2aa160fb702e0",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/provider-witnesses.json"
+        },
+        {
+          "jsonPointer": "/evidence/actual-binding-leads.json/path",
+          "originalValueSha256": "47ba305a628a99e2e84c1967a0dcadaca5e91d505b7dfc4ed648d401be02ffd2",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/actual-binding-leads.json"
+        },
+        {
+          "jsonPointer": "/evidence/binding-receipts.json/path",
+          "originalValueSha256": "6294eba8c68fdfcd6709e8e71b7dbe021d8f3d0d3c900788efdab167f049904c",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/binding-receipts.json"
+        },
+        {
+          "jsonPointer": "/evidence/comparisons.json/path",
+          "originalValueSha256": "3a6332073d7df26c1e96c37b9b11b3a3fe8cc61de51454f483f0728d651daedd",
+          "publishedValue": "historical-checkpoints/v18-main-agent-emission-review/comparisons.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v18-hooks-order-emission-review.json",
+      "originalSha256": "56ea9cbfcf9121e3eacb3f3cfc1431bbffc95e1a9e18332f3fe93280d3278bcb",
+      "publishedSha256": "4bc5b90f4800db1d4c684d4a1d62d3b561d8ecf40bb590f8ea01f7f5c19042b2",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/historicalV17Review/path",
+          "originalValueSha256": "790440e92f12c58ba0b176533655a4e5a85ea6471d0e67d2a0ca19d187351a76",
+          "publishedValue": "historical-checkpoints/v17-api-hooks-emission-review/review.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v17-auth-emission-review.json",
+      "originalSha256": "cd5a1804d02d0162f69099486be09327067ba7b3cbdc671e8cda109f7b440ab3",
+      "publishedSha256": "0e575a54b9dd06957a980375e50bf4d0ac3c11ecad9146c27ce10eb1c94b1903",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/historicalV16Review/path",
+          "originalValueSha256": "8e3f34ea13da39e708644dc041421a4befc694226d479487adf1933800ce6c94",
+          "publishedValue": "historical-checkpoints/v16-auth-search-emission-review/review.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/v15-shell-emission-review.json",
+      "originalSha256": "f971c0ba39fa6d6ab44f2fe0905d627b1459782dcff4b9ad87ba5af64c7c6bae",
+      "publishedSha256": "a4a3141ab6fbb4736f0e06a053fc98eef297002da4461683a5ab54d125d0c4f2",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/candidateIndex/path",
+          "originalValueSha256": "c74b83da0d72c51facab3fd1260a529ddc4149090139b29bdcacb10e11c726e5",
+          "publishedValue": "historical-checkpoints/v15-indexes/candidate.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/path",
+          "originalValueSha256": "fcbee0a2d825b18d0bc182d0f1431683e07f071be5e76817edc8267b6150a5c4",
+          "publishedValue": "historical-checkpoints/shell-callers-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/preparationApproval/path",
+          "originalValueSha256": "264a90693cc79a2af90f6d5b95b97d55a9511388117427cce7fca61bfdbdeecb",
+          "publishedValue": "historical-checkpoints/v15-preparation-review/review.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/compiler-inventory-report-independent-review.json",
+      "originalSha256": "389a7a57191062b4b32621340a718e630940a797f3a3ec17505b48b4788c3aa7",
+      "publishedSha256": "389a7a57191062b4b32621340a718e630940a797f3a3ec17505b48b4788c3aa7",
+      "locatorRedactions": [],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/preparation-verify-only-independent-review.json",
+      "originalSha256": "ad3d6402aded0662ceabbadc1134843f45a89b45a5298b39308b4646e4ca8a4c",
+      "publishedSha256": "de2ebdd28e26f3bd64a954c53a8ddd037f9d5cf9df111d9c006b4b978b25fe20",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/inputPins/artifact-manifest.json/path",
+          "originalValueSha256": "063bfd046881a645700e4afcc128885d7f1a9f99bb5f7497ab5c201d1f154627",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/artifact-manifest.json"
+        },
+        {
+          "jsonPointer": "/inputPins/code-provenance.json/path",
+          "originalValueSha256": "c621765cfd275cc839897fabfc5125a783f35021eebba1418551b9a138f7c819",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/code-provenance.json"
+        },
+        {
+          "jsonPointer": "/inputPins/FREEZE.json/path",
+          "originalValueSha256": "da4828e83bbd98d0b7e3187702310d39545f0d7b89b4f9f46b13434aced410b3",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/FREEZE.json"
+        },
+        {
+          "jsonPointer": "/inputPins/proposal.json/path",
+          "originalValueSha256": "5d5c6ba4a3965a886b9bc91a217f5f34c51ed0ba571bc7f3596c4dece9411762",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/proposal.json"
+        },
+        {
+          "jsonPointer": "/inputPins/prepare-final.py/path",
+          "originalValueSha256": "d45a791db44bfd48183d042c98060e3b9afbaa82288905083f5bfea9efa5bdf9",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/prepare-final.py"
+        },
+        {
+          "jsonPointer": "/inputPins/verification-only.patch/path",
+          "originalValueSha256": "b9eaee7e9dbbf7cac4d716924fb3268a77cde258e5eb07f8ac05332e47f7addc",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-hardening/verification-only.patch"
+        },
+        {
+          "jsonPointer": "/evidence/proposal-authentication.json/path",
+          "originalValueSha256": "c4e436854053fd79098fd7b6d672034d6a86a61cd75d478ca21b4f857e22d42c",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/proposal-authentication.json"
+        },
+        {
+          "jsonPointer": "/evidence/baseline-census.json/path",
+          "originalValueSha256": "165517c1702c948154677403b3005f76c2b771bbc8375d044c147054f6a714c2",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/baseline-census.json"
+        },
+        {
+          "jsonPointer": "/evidence/author-tests.json/path",
+          "originalValueSha256": "8f7e7fe41e0c8d522c99214146c81e5347278644027ce0cb70c8f359e10df175",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/author-tests.json"
+        },
+        {
+          "jsonPointer": "/evidence/author-replay.json/path",
+          "originalValueSha256": "0241309864a8f3a792cf3002caa2b19087d0f52fdf404b7fb26af97c3f2cfc14",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/author-replay.json"
+        },
+        {
+          "jsonPointer": "/evidence/candidate-verification.json/path",
+          "originalValueSha256": "05308d251ba9f7fc2ec9b58f8739e22bbab203fedf4506ff503af8932b51e312",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/candidate-verification.json"
+        },
+        {
+          "jsonPointer": "/evidence/independent-checks.json/path",
+          "originalValueSha256": "5f24b71eefaeb583374bfdae757599c94ddc7bf8a614f59a17f55ef8e455d122",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/independent-checks.json"
+        },
+        {
+          "jsonPointer": "/evidence/output-identity.json/path",
+          "originalValueSha256": "d4b994f102b11d555e280285bd4f069c5a11432784e02789718280177676a512",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/output-identity.json"
+        },
+        {
+          "jsonPointer": "/evidence/blocked-control.json/path",
+          "originalValueSha256": "c364f1a0249a7a8d8bda4c1de30362a91ef73a5b9cd38d906b78e692e07c6fd1",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/blocked-control.json"
+        },
+        {
+          "jsonPointer": "/evidence/final-authentication.json/path",
+          "originalValueSha256": "ddff12af32af9199cbdc389808609c28926abd3e361cee7334d42065397f6b15",
+          "publishedValue": "historical-checkpoints/preparation-verify-only-independent-review/final-authentication.json"
+        }
+      ],
+      "semantics": "Path-redacted report; original immutable evidence closure is not reproduced in full."
+    }
+  ]
+}

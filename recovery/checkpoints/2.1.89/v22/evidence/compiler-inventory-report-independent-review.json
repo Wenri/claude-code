@@ -1,0 +1,70 @@
+{
+  "kind": "independent-metadata-only-compiler-inventory-producer-review",
+  "verdict": "approved-for-exact-future-profile-and-toolchain-repinning",
+  "proposalSha256": "e0db0066a1a52a997859d74f4dd727812ac63d0a1c64c6ab42b09fde4db36783",
+  "authorArtifactManifestSha256": "c6c2ef37cefc92d66883fcad64630391fe4f0c0b30803faba2d6a35c3933837b",
+  "authorFreezeSha256": "900628408e34a58749e83a7ef9a08b3bf0227eed7e5885a20f3b9904925b91de",
+  "sourceTransition": {
+    "kind": "metadata-only-compiler-inventory-report-source-proposal",
+    "targetRelativePath": "lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+    "parentProfileSha256": "70a48802a695a6c9044de914e74a58ea0548736d7d1aaf951f5c19958018b2c1",
+    "oldSha256": "65a840059c372659a855876b350acb6b68ea0d08de70ad03c8418a56978182d0",
+    "postimageSha256": "1a821ab4b35fb67eb0096438e499919331c57eefd8c8ba909224c169484d4ff1",
+    "oldBytes": 7841,
+    "postimageBytes": 7873,
+    "exactOldFragment": "sourceFiles:6083,currentGitSourceFiles:1921",
+    "exactNewFragment": "sourceFiles:before.files,currentGitSourceFiles:before.currentGitSourceFiles",
+    "changes": [
+      "derive summary sourceFiles from already validated physical before.files",
+      "derive summary currentGitSourceFiles from already validated physical before.currentGitSourceFiles"
+    ],
+    "genesisLineageCountUnchanged": 1902,
+    "compilerCallOrOptionsChanged": false,
+    "applicationBodiesExecuted": false,
+    "independentReviewRequired": true,
+    "futurePreparedProfileAndToolchainRePinRequired": true
+  },
+  "exactTwoReportingValueChangesVerified": true,
+  "bothNewReadsResolveToExistingConstBefore": true,
+  "inventoryPlainDataProducerChainVerified": true,
+  "fullCompilerProgramFieldsOtherwiseIdentical": true,
+  "compilerInputDataflowAndBuildArgumentsUnchanged": true,
+  "finalizerSummaryCountConsumption": false,
+  "finalizerIndependentPhysicalValidations": 2,
+  "compilerSupportSourceContractAdmissionUnchanged": true,
+  "historicalGenesisCount": 1902,
+  "historicalV20ActualReports": {
+    "preflightSummary": {
+      "sourceFiles": 6083,
+      "currentGitSourceFiles": 1921
+    },
+    "measuredBefore": {
+      "files": 6084,
+      "currentGitSourceFiles": 1922
+    },
+    "compilePostInputs": {
+      "files": 6084,
+      "currentGitSourceFiles": 1922
+    },
+    "modifiedInPlace": false
+  },
+  "tests": {
+    "authorGroups": 20,
+    "authorNegativeControls": 12,
+    "authorResultByteEqual": true,
+    "independentGroups": 8,
+    "independentNegativeControls": 10
+  },
+  "futureActualObligations": [
+    "Repin the exact new compiler bytes in a separately reviewed profile/toolchain; preserve old runtime and reports.",
+    "In both fresh preflight and compile reports, sourceFiles must equal before.files and currentGitSourceFiles must equal before.currentGitSourceFiles.",
+    "Fresh compiler postInputs and finalizer before/after inventory must agree with the measured input tree.",
+    "Record new report and output hashes; this review does not establish fresh emitted-byte or whole-target equality."
+  ],
+  "arbitraryExternalReportConsumersAudited": false,
+  "separateVerifyOnlyHardeningApprovedHere": false,
+  "wholeTargetAcceptance": false,
+  "compilerInvoked": false,
+  "adapterExecuted": false,
+  "applicationExecuted": false
+}

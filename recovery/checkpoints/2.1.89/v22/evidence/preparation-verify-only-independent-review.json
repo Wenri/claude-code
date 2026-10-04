@@ -1,0 +1,148 @@
+{
+  "kind": "independent-future-preparation-verifier-review",
+  "verdict": "approved-narrow-verification-only-hardening-for-separate-future-adoption",
+  "inputPins": {
+    "artifact-manifest.json": {
+      "path": "historical-checkpoints/preparation-verify-only-hardening/artifact-manifest.json",
+      "bytes": 91349,
+      "sha256": "6ec4c73468ef33fed7b6073397d8b2d06430439130c0d8d5354598b92c1878c4"
+    },
+    "code-provenance.json": {
+      "path": "historical-checkpoints/preparation-verify-only-hardening/code-provenance.json",
+      "bytes": 43034,
+      "sha256": "694e6ae3b9b0815579038be52b4ab51f8c2e746b3431751db4fdafa74ff0730b"
+    },
+    "FREEZE.json": {
+      "path": "historical-checkpoints/preparation-verify-only-hardening/FREEZE.json",
+      "bytes": 1104,
+      "sha256": "d7c7bd034d020add40b8b7c2f47261d36c0bd756a91a99f63c1286a75fe6f368"
+    },
+    "proposal.json": {
+      "path": "historical-checkpoints/preparation-verify-only-hardening/proposal.json",
+      "bytes": 580,
+      "sha256": "bc6350ec39425cb6acc9360fd26d220f32da54977024923c2fe784e6cb65ef4b"
+    },
+    "prepare-final.py": {
+      "path": "historical-checkpoints/preparation-verify-only-hardening/prepare-final.py",
+      "bytes": 26666,
+      "sha256": "e685d0ad7d24d4f69c96a32683f47f85a097dde556ed72ba767247644c5cf4e8"
+    },
+    "verification-only.patch": {
+      "path": "historical-checkpoints/preparation-verify-only-hardening/verification-only.patch",
+      "bytes": 3343,
+      "sha256": "16c9b8948ccee2e5a4d2d0ee2c4ed259069c8055d5b9558c4928789509b3e7fe"
+    }
+  },
+  "baseline": {
+    "generatorSha256": "7eb657ca97e5c103c2b6bdccd0debb8595eb7fb555f111ecafa9a5142f15a9f4",
+    "closureSha256": "1ef1dc4b5e14996aff73bea8c152ffd8b30988a19e43a9490f050bebd97a2bb0",
+    "verifiedMembers": 489
+  },
+  "authenticatedProposalMembers": 450,
+  "authenticatedExecutableFiles": 169,
+  "exactCodeDelta": {
+    "newFunctions": [
+      "require_prepared_root",
+      "verify_prepared_tree"
+    ],
+    "changedExistingFunction": "main",
+    "allOtherPriorFunctionsByteIdentical": true,
+    "allPriorModuleAndDerivationPrefixByteIdentical": true,
+    "exclusivePublicationSuffixByteIdentical": true,
+    "patchReconstructedFromFullBeforeAfter": true,
+    "profileGuardCompilerAdmissionChanged": false,
+    "newDryDerivationMode": false
+  },
+  "verificationBehavior": {
+    "requiresExistingCanonicalDirectoryBeforeBootAndDerive": true,
+    "exactRegularFileAndRequiredDirectoryCensus": true,
+    "missingRootRejectedWithoutCreationOrSuccessReport": true,
+    "missingPartialWrongByteUnexpectedAndSymlinkTreesRejected": true,
+    "specialFifoRejectedBeforeRead": true,
+    "everyRequiredMemberIndividuallyMissingRejected": 427,
+    "validCompleteTreeAndStdoutIdentity": true,
+    "verificationWritesInput": false
+  },
+  "reproducedAuthorGroups": 28,
+  "authorUnsafeInventoryControls": 8,
+  "independentGroups": 8,
+  "independentNegatives": 34,
+  "outputIdentity": {
+    "normalCliStdoutByteIdentical": true,
+    "stdoutBytes": 40472,
+    "stdoutSha256": "36bbfc5b10c979129deb97f21d283ac63435923b77419d9a201adc70909c6bd4",
+    "fullMetadataDerivationByteIdentical": true,
+    "preparedMembers": 427,
+    "preparedDirectories": 59,
+    "profileSha256": "70a48802a695a6c9044de914e74a58ea0548736d7d1aaf951f5c19958018b2c1",
+    "toolchainSha256": "e777e106d37fda05a5892b076eea804b563c2e80e6532aff8ab40906e59e4604",
+    "sourceContractSha256": "859e9d4a501b68a7b566a6b464f6705ff0581b19a7ac03d4d03d8cd4854d9044",
+    "historicalOutputTreeWritten": false,
+    "applicationExecuted": false,
+    "bundleCompilerInvoked": false
+  },
+  "approvalScope": {
+    "futureGeneratorAdoptionOnly": true,
+    "retroactiveV20Amendment": false,
+    "historicalV20Modified": false,
+    "newSourceRevisionGenerated": false,
+    "sourceAcceptanceChanged": false,
+    "actualEmissionAcceptanceChanged": false,
+    "applicationExecuted": false,
+    "bundleCompilerInvoked": false
+  },
+  "limitations": [
+    "This verifier observes filesystem state during checks; no atomic snapshot under hostile concurrent mutation is proved.",
+    "Identical-byte hardlinks remain allowed by the existing policy.",
+    "The host Python standard library and operating system remain environmental rather than a closed executable dependency.",
+    "An optional Unix-domain socket creation control was denied by the container with EPERM before bind; it was not retried. FIFO rejection and all required other cases passed.",
+    "Future revision integration must separately authenticate this exact tooling change and its new preparation closure; frozen v20 remains unchanged."
+  ],
+  "evidence": {
+    "proposal-authentication.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/proposal-authentication.json",
+      "bytes": 289,
+      "sha256": "cfec74bf8f7c80c57ab6b34c5de7350add96f8f4891a1a398ca9db856f82a017"
+    },
+    "baseline-census.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/baseline-census.json",
+      "bytes": 90988,
+      "sha256": "028499d9e954bd52560c9aea4206e2df43e439c1026ef494034b609951a091f4"
+    },
+    "author-tests.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/author-tests.json",
+      "bytes": 1649,
+      "sha256": "05d45442fbe7c7a0f5d588407090cabdf03286ee2b3f9d5381365df847cc564d"
+    },
+    "author-replay.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/author-replay.json",
+      "bytes": 84452,
+      "sha256": "c3379130d5f65cdec40e8910c216ffd3e965126d761aabc0a6688505043806f9"
+    },
+    "candidate-verification.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/candidate-verification.json",
+      "bytes": 40472,
+      "sha256": "36bbfc5b10c979129deb97f21d283ac63435923b77419d9a201adc70909c6bd4"
+    },
+    "independent-checks.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/independent-checks.json",
+      "bytes": 1943,
+      "sha256": "6aa790ed6352bfb9f4e66873328f17ae221c3ac52d6bdb68c1598bbb8f3b0f6a"
+    },
+    "output-identity.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/output-identity.json",
+      "bytes": 631,
+      "sha256": "96e10b74fcd66744a85394c09799b1085acf28b26d7d72ab1ea716025997caac"
+    },
+    "blocked-control.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/blocked-control.json",
+      "bytes": 550,
+      "sha256": "d496a60859da92d310cfe3bb2558bc228b6a57321ce88021f081238203137d2d"
+    },
+    "final-authentication.json": {
+      "path": "historical-checkpoints/preparation-verify-only-independent-review/final-authentication.json",
+      "bytes": 811,
+      "sha256": "c6d8bd1bbe17aa008193963e90a78723a638ca406c57b6dbb5e049aee40eea7d"
+    }
+  }
+}

@@ -1,0 +1,441 @@
+{
+  "kind": "independent-actual-v19-commands-retention-review",
+  "verdict": "commands-retention-and-classifier-verified-inherited-raw-Bash-family-unaccepted",
+  "actualCommandsRetainedModuleAccepted": true,
+  "actualCommandsInitializerAccepted": true,
+  "actualClassifierAccepted": true,
+  "actualFullBashFamilyRawASTAccepted": false,
+  "completeWholeTargetAccepted": false,
+  "rawGroupingCertificateEnabled": false,
+  "profileSha256": "868fdfb5e1d84f7ed6245f39d39bec53d3de078fc43ad43de90b91b9aeb9f137",
+  "toolchainSha256": "e66c546b8ec86c5629149193db8b7ffa8a2f503900ecda1fedaf8a7e5300eb2a",
+  "compileReportSha256": "c6fa9ba64fc7aa303b1b18dab3a7ddcc6156eb20b896cad73b65fc4ba9de9c15",
+  "inputPins": {
+    "target": {
+      "js": "v12/provenance/official-2.1.89-cli.js",
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+      "index": "v13-indexes/target.json",
+      "indexSha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747"
+    },
+    "prior": {
+      "js": "v18-replay/final/cli.js",
+      "sha256": "30db208393893554d9f88369d7896509e0f9370f03ca6da74d790c148a1485d7",
+      "index": "v18-indexes/candidate.json",
+      "indexSha256": "7d9e82ed32c047a976c4beb3d30e9535b044aea37e22562167d54bdc8ee63d68"
+    },
+    "current": {
+      "js": "v19-replay/final/cli.js",
+      "sha256": "b14656e280c5a40b068b5bdc449bba907404fc1b4febc0efea367cc1d82dd7ba",
+      "index": "v19-indexes/candidate.json",
+      "indexSha256": "9d57289d065cf6725b45650f772d46d8fb8cafcfa413354c8391e35f8d9136f6"
+    }
+  },
+  "sourceApproval": {
+    "path": "commands-retention-independent-review/review.json",
+    "sha256": "ba31b1a29b689405b1591ffdd941dcd380a3a7d5cffd01558169da88ca10f3ab",
+    "closureSha256": "1b1c621dd6b7ffeabed667f26cce1ef2c2e87dc981a01c46ebc0510f2a03089b"
+  },
+  "actualCommands": {
+    "target": [
+      12764,
+      12765,
+      12766,
+      12767,
+      12768,
+      12769,
+      12770
+    ],
+    "current": [
+      12783,
+      12784,
+      12785,
+      12786,
+      12787,
+      12788,
+      12789
+    ],
+    "headerNodes": 16,
+    "initializerNodes": 77,
+    "completeFieldsAndLocalGraphEqual": true,
+    "moduleInterfaceMap": {
+      "qo": "sr",
+      "xV6": "rV6",
+      "mo6": "Uo6",
+      "_GK": "OGK",
+      "Io6": "go6",
+      "fw6": "Z26",
+      "Set": "Set",
+      "qGK": "$GK",
+      "KGK": "AGK",
+      "E": "y"
+    }
+  },
+  "directProviderGraph": {
+    "target": [
+      7454,
+      7540,
+      7542,
+      12758,
+      12759,
+      7534,
+      7535,
+      7544,
+      7545,
+      12762,
+      12763,
+      7469,
+      12760,
+      12761
+    ],
+    "current": [
+      7453,
+      7539,
+      7541,
+      12777,
+      12778,
+      7533,
+      7534,
+      7543,
+      7544,
+      12781,
+      12782,
+      7468,
+      12779,
+      12780
+    ],
+    "completeFieldsAndLocalGraphEqual": true,
+    "remainingExternalInterfaces": {
+      "Sp1": "Np1",
+      "ZP": "fP",
+      "Promise": "Promise",
+      "Set": "Set",
+      "E": "y",
+      "V8": "v8",
+      "Symbol": "Symbol",
+      "h3": "u3",
+      "s1": "o1",
+      "m2": "qw",
+      "iC": "iC",
+      "dB": "pB",
+      "n8": "l8",
+      "Hzz": "Mzz",
+      "Dzz": "Zzz",
+      "performance": "performance",
+      "Zzz": "Tzz",
+      "Date": "Date",
+      "$8": "Y8",
+      "console": "console",
+      "m6": "p6",
+      "process": "process",
+      "setTimeout": "setTimeout",
+      "u8": "m8",
+      "sK": "rK",
+      "dG": "BG",
+      "clearTimeout": "clearTimeout",
+      "Array": "Array",
+      "d": "d",
+      "Ga": "Da",
+      "Map": "Map"
+    },
+    "transitiveExternalEquivalenceEstablished": false
+  },
+  "retentionDelta": {
+    "prior": [
+      12784,
+      12785,
+      12786,
+      12787,
+      12788,
+      12789,
+      12790
+    ],
+    "removedHeader": [
+      "_OY",
+      "ni2"
+    ],
+    "removedSetAssignments": [
+      "_OY",
+      "ni2"
+    ],
+    "removedInitializerCalls": [
+      "wGK",
+      "FG"
+    ],
+    "survivingPriorCalls": [
+      "OGK",
+      "go6",
+      "Z26"
+    ],
+    "currentCalls": [
+      "OGK",
+      "go6",
+      "Z26"
+    ],
+    "currentMatchesOnlyThoseExplicitSourceChanges": true,
+    "verificationProjectionUsedForDeltaOnly": true
+  },
+  "bashClassifier": [
+    {
+      "role": "target",
+      "classifier": "f3Y",
+      "classifierIndex": 11912,
+      "splitName": "e$",
+      "setName": "W3Y",
+      "silentSetValues": [
+        "mv",
+        "cp",
+        "rm",
+        "mkdir",
+        "rmdir",
+        "chmod",
+        "chown",
+        "chgrp",
+        "touch",
+        "ln",
+        "cd",
+        "export",
+        "unset",
+        "wait"
+      ],
+      "commandInitializer": "kD",
+      "splitCalleeResolved": true,
+      "setReadWriteResolved": true,
+      "commandsInitializerResolved": true
+    },
+    {
+      "role": "current",
+      "classifier": "y3Y",
+      "classifierIndex": 11931,
+      "splitName": "YO",
+      "setName": "V3Y",
+      "silentSetValues": [
+        "mv",
+        "cp",
+        "rm",
+        "mkdir",
+        "rmdir",
+        "chmod",
+        "chown",
+        "chgrp",
+        "touch",
+        "ln",
+        "cd",
+        "export",
+        "unset",
+        "wait"
+      ],
+      "commandInitializer": "TD",
+      "splitCalleeResolved": true,
+      "setReadWriteResolved": true,
+      "commandsInitializerResolved": true
+    }
+  ],
+  "inheritedBashGroupingResidual": {
+    "sourceOwner": "src/tools/BashTool/BashTool.tsx",
+    "targetStatement": 11919,
+    "currentStatement": 11938,
+    "rawASTAccepted": false,
+    "normalizationGateEnabled": false,
+    "wholeBashFamilyUnchangedFromV18": true,
+    "target": {
+      "nodes": 2051,
+      "topLevelInitializerStatements": 43,
+      "sequenceExpressionStatements": 2
+    },
+    "current": {
+      "nodes": 2051,
+      "topLevelInitializerStatements": 42,
+      "sequenceExpressionStatements": 3
+    }
+  },
+  "shellQuote": {
+    "completeWrapperRegionUnchanged": true,
+    "actualHelperConsumers": 24,
+    "scopeResolvedHelperCalls": 68,
+    "unchangedOtherSourceImportOwners": 16,
+    "currentInitializer": "zk",
+    "priorInitializerCalls": 15,
+    "currentInitializerCalls": 14,
+    "uniqueUnchangedInitializerPairs": 11,
+    "ambiguousInitializerOwners": [
+      {
+        "prior": 10644,
+        "candidates": [
+          10644,
+          10680,
+          10695
+        ],
+        "individualOwnerEquivalenceEstablished": false
+      },
+      {
+        "prior": 10680,
+        "candidates": [
+          10644,
+          10680,
+          10695
+        ],
+        "individualOwnerEquivalenceEstablished": false
+      },
+      {
+        "prior": 10695,
+        "candidates": [
+          10644,
+          10680,
+          10695
+        ],
+        "individualOwnerEquivalenceEstablished": false
+      }
+    ],
+    "individualAmbiguousOwnerEquivalenceAccepted": false,
+    "globalModuleRemoved": false
+  },
+  "legacyLimits": {
+    "sourceAPIsPreserved": true,
+    "retainedSourceExports": [
+      [
+        "CommandPrefixResult",
+        "CommandSubcommandPrefixResult"
+      ],
+      "splitCommandWithOperators",
+      "filterControlOperators",
+      "splitCommand_DEPRECATED",
+      "parseCommandArguments",
+      "isHelpCommand",
+      [
+        "getCommandSubcommandPrefix"
+      ],
+      "clearCommandPrefixCaches",
+      "isUnsafeCompoundCommand_DEPRECATED",
+      "extractOutputRedirections"
+    ],
+    "legacyInitializationAndErrorTimingPreserved": false,
+    "liveImportEquivalenceEstablished": false,
+    "genericSetIterationEquivalence": false,
+    "nativeESMPortabilityEstablished": false,
+    "transitiveExternalEquivalenceEstablished": false,
+    "outsideOrDynamicConsumersExcluded": false
+  },
+  "receiptClosure": {
+    "physicalSourceFiles": 6083,
+    "physicalSourceBytes": 50949155,
+    "allBeforeAfterIdentitiesEqual": true,
+    "authenticatedResolverEvents": 37,
+    "markerRemovals": 11,
+    "restoredOverlays": 11,
+    "allDeletionEditsReproduceFinalBytes": true,
+    "mapsStreamHashedWithoutParsing": true
+  },
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098228,
+    "sha256": "8b699ee4bf7474d6afb7a1e41e31ce86c1127f73ab4ed80f86a932205c3a9649"
+  },
+  "strictAstRecomputedByReviewer": false,
+  "uniqueCompleteStatements": 167,
+  "maximumStatementBytes": 14698,
+  "regressionGroups": 11,
+  "negativeControls": 12,
+  "readContract": {
+    "inputTree": "historical-checkpoints/v19-stage/inputs",
+    "profile": "historical-checkpoints/v19-preparation/prepared/recovery/profiles/2.1.89/profile.json",
+    "toolFiles": [
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs",
+        "resolvedPath": "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+      }
+    ],
+    "adapterScripts": [
+      "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+      "historical-checkpoints/v19-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-support.mjs"
+    ],
+    "declaredReferenceBundleInput": null,
+    "declaredReferenceMapInput": null,
+    "staticInspection": "No reference bundle/map read path found in reviewed adapter code; profile metadata includes historical hashes only.",
+    "observedFilesystemReadFootprint": "unestablished; parent PTRACE_TRACEME probe denied by kernel",
+    "osLevelReadIsolationEnforced": false
+  },
+  "sourceOrRuntimeEditsMade": false,
+  "compilerInvoked": false,
+  "fullProgramParsed": false,
+  "applicationExecuted": false,
+  "supportingArtifacts": [
+    {
+      "path": "result.json",
+      "bytes": 16033,
+      "sha256": "c3def5fe7be28bb3e3472cc6b037f6fb59a69062207b6d9117f3a79ee14f5659"
+    },
+    {
+      "path": "shell-consumers.json",
+      "bytes": 12990,
+      "sha256": "215f62847e12f3d23bdab4153f4c7ec67cc3f9fb108be3525ae7328cd183904a"
+    },
+    {
+      "path": "shell-initializers.json",
+      "bytes": 2528,
+      "sha256": "b1ded4f6a68371b588cb52456240546cac2497bf344632592b504b67ab2537e1"
+    },
+    {
+      "path": "receipt-checks.json",
+      "bytes": 127899,
+      "sha256": "5b14dda7bac6180a9f4e557b58ccd3c9984fefa44c6332dcb137aa9011a24ddc"
+    },
+    {
+      "path": "tests.json",
+      "bytes": 1691,
+      "sha256": "a9958269c4ac613055f6d20d0b1cae8fb430431033b96c351f4b5a235cfcefa5"
+    },
+    {
+      "path": "witness-reextraction.json",
+      "bytes": 274,
+      "sha256": "8104828b11cea74010d2d8530ef0dafb86a25b61cd82570a131f4747e6d31748"
+    },
+    {
+      "path": "final-authentication.json",
+      "bytes": 665,
+      "sha256": "bf9bb3b3f4ed91df287de646ccbe80f3a857c64326ddcbdb19175e102f69ab0d"
+    }
+  ]
+}

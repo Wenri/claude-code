@@ -1,0 +1,108 @@
+{
+  "kind": "independent-fixed-v22-preparation-review",
+  "verdict": "approved-for-exact-source-only-full-stage-trial",
+  "profileSha256": "7340c80b9cb7decc2a43138cc8e8b3d97a5eb43391bcf78ee9fdb7369e6106c4",
+  "toolchainSha256": "069ec7d84b9c5088f78cd66bc80d335ac4ab00042de2a9d8b9134415002880f7",
+  "sourceContractSha256": "2323f60cfbe8202bb59ed404fbad0c2880ee7a137a296613300602fc9041932a",
+  "fullStageCompilerSha256": "1a821ab4b35fb67eb0096438e499919331c57eefd8c8ba909224c169484d4ff1",
+  "parentProfileSha256": "243c285b1c5109cf09f94e251b109cbf7f441ffd7dd28afca65066d07aa84809",
+  "aggregateSha256": "35b5e1ef3ff6e763b60e1dd445a1c7ac53591f82122b406ec35f80affd18b4d3",
+  "authorPreparationClosureSha256": "64b407f8ad41ab21a7ccdc6ed72826233dd8709335c1bcebc0c08fd695e3af1a",
+  "authorCodeClosureSha256": "c31e4b821c925051b52a5209f76f03ec6bebc57ffd6ac64da7cf23d1db4e88f4",
+  "authorFreezeSha256": "310d5b282cf65dee33a95a5f681852669b6b4849e4a1a7602ea49615a3ddda7a",
+  "authorGeneratorSha256": "941ac5eef9eefed40d64314b2710e59321154b751bef00614eb99cc3a9c6863b",
+  "preparationMembers": 893,
+  "executableMembers": 88,
+  "preparedMembers": 847,
+  "entireProfileBytesIndependentlyDerived": true,
+  "entireToolchainBytesIndependentlyDerived": true,
+  "allPreparedOutputsReadOnlyReplayExact": true,
+  "physicalSourceCount": 6084,
+  "physicalSourceBytes": 50950550,
+  "sourceManifestSha256": "01bfab84ed987ce1c7b08533c8b40a6c2b66ceedd0dc4c5ecb315fd09cce5a96",
+  "derivedSrcTree": "4d903377e8cf3ded6dd600359562360b650db5ad",
+  "gitSourceEntries": 1922,
+  "stagedSourceEntries": 1951,
+  "extraAssets": 29,
+  "replacements": 2,
+  "sourceAdditions": 0,
+  "unchangedInputs": 6082,
+  "noSharedInputInodes": true,
+  "allSourceModesPreserved": true,
+  "runtimeChangedFiles": 1,
+  "otherRuntimeFilesByteExact": 68,
+  "runtimeAdmissionScope": "Only three fixed revision22/parent21 admission substitutions; count guards and reporting code stay unchanged.",
+  "exactApprovedVerifierFunctions": true,
+  "missingRootRefusesBeforeBootOrDerive": true,
+  "completeExisting847MemberTreeVerified": true,
+  "sourceEdges": 18,
+  "changedGuardIndices": [],
+  "all18GuardRecordsAndHistoriesExact": true,
+  "evalPinsUnchanged": true,
+  "allOtherCompilerOptionsAliasesFacadesAndProducerPoliciesExact": true,
+  "historicalEvidenceRootsDeeplyUnchanged": true,
+  "historicalPointersPreserved": 23,
+  "historicalParentPreparedPaths": 688,
+  "onlyActiveProfileToolchainContractDiffer": true,
+  "priorProfileAndToolchainCopiesExact": true,
+  "currentActualSnapshotsRetainedInFull": true,
+  "messageRatingRawGroupingStillFalse": true,
+  "sourceTrialActualEmissionStillFalse": true,
+  "sourceApprovalClosureMembers": 72,
+  "actualV21ReceiptClosureMembers": 70,
+  "authorNegativeControls": {
+    "authority": 42,
+    "policyRuntime": 34,
+    "historyPointers": 46,
+    "scanner": 22,
+    "verifier": 7,
+    "physicalRuntime": 8,
+    "total": 159
+  },
+  "independentAdditionalNegativeControls": 27,
+  "actualPhysicalCurrentPassParentReject": true,
+  "cliReportDecodedJsonMatchesMetadata": true,
+  "cliReportBytesEqualMetadata": true,
+  "compilerInvoked": false,
+  "applicationExecuted": false,
+  "currentActualTrialRun": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "sourceStagesOrPreparedArtifactsModified": false,
+  "qualifications": [
+    "The approved shell changes are target-directed behavior repairs; old/new quote APIs and legacy validation/fallback/errors/logging/receivers are not universally equivalent.",
+    "Helper names/paths are reconstructed choices, not recovered private authorship.",
+    "Source syntax/import scanning is not full behavioral equivalence; independent frozen source reviews bind the exact postimages.",
+    "Actual emitted helper/caller bindings, retention, initialization order and target checks remain mandatory for both new owners.",
+    "The current message-rating grouping, extra-hook/wrapper and wider whole-target limits remain explicitly false.",
+    "Historical pointer names and original targets are preserved without rewriting earlier evidence.",
+    "Source-map ownership, ambient builtins, transitive behavior and full filesystem read isolation remain outside the proof.",
+    "Host Python standard-library provenance is environmental; verifier controls use only tiny reviewer-owned synthetic paths."
+  ],
+  "evidence": [
+    {
+      "path": "authority-authentication.json",
+      "sha256": "9829fa7e4b8e64723674a02978b88379676c6c4072ba691021dcebc5ef27b02d"
+    },
+    {
+      "path": "author-closure-authentication.json",
+      "sha256": "bd9a6b85c30dfbd07dbbfecbcd991c439cb7d7dca2809201b50d26c44c584b15"
+    },
+    {
+      "path": "physical-verification.json",
+      "sha256": "6d012d3dd29e4c820a2a09655944371ffa40b3fb3d04b993ebc0df0ebb546f9f"
+    },
+    {
+      "path": "independent-derivation.json",
+      "sha256": "75f3b8c6e6b63c697d49c0cfbb48d69b31a0c72f3cef0698aa0373fb704994db"
+    },
+    {
+      "path": "additional-controls.json",
+      "sha256": "aed557a06d42bce3307153b93c52f142b70757a83bcc22ae12ffaf541840d868"
+    },
+    {
+      "path": "history-and-final-authentication.json",
+      "sha256": "fe9809026192335db9a2170947a9ed12539726bd12bd18f888e3e2c9eec38892"
+    }
+  ]
+}
