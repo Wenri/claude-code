@@ -1,0 +1,570 @@
+{
+  "kind": "independent-actual-v25-messages-viewport-review",
+  "reportId": "messages_viewport",
+  "verdict": "scoped-production-viewport-repair-matches-target",
+  "actualEmissionVerified": true,
+  "sourceTrialApproved": true,
+  "sourceManifestSha256": "a1e7f84eb37de36e4af5615d2268f171aee705e311cb51b7993ba268cd3c73c3",
+  "authorArtifactSha256": "1f114eace292aed12d73eaafdccc8a9f2771d98a28ff274d700caa8ad1549ceb",
+  "sourceApprovalSha256": "80e5c381752837ecb9438f5f918964601325f40c7347a48a390b8a98362b8a95",
+  "sourceApprovalClosureSha256": "d78677f95927e2b8a31939d0033b5399351fe6b2f3cebb774c703bfa3b6f82d3",
+  "currentPins": [
+    {
+      "path": "v25-replay/final/cli.js",
+      "bytes": 13076546,
+      "sha256": "dfb268fb17200c5a95f2eea2f20d6d1b9aeebc3b607ac31af803e51cddf4581f"
+    },
+    {
+      "path": "v25-indexes/candidate.json",
+      "bytes": 5578503,
+      "sha256": "a49265871eafdeb00f925f0e116b60a294074baa436cd904387e7f6d469b366f"
+    },
+    {
+      "path": "v25-replay/compile-report.json",
+      "bytes": 101985,
+      "sha256": "7014ff9fae771d58c05d3347e3ddd74d3b2ba5bbcfa3cc91a7581ca5ce4f1bd5"
+    },
+    {
+      "path": "v25-replay/profile.json",
+      "bytes": 2854358,
+      "sha256": "ced01916c7a0ed3e45931d2dbf4f33df17e52a0af9a0d8eed2b650f388da04ef"
+    },
+    {
+      "path": "v25-preparation-review/review.json",
+      "bytes": 7920,
+      "sha256": "cb426abb97ec3469a30af6546a0b94f27215faba60d74e51c414e2febf59e8f5"
+    },
+    {
+      "path": "v25-preparation/prepared/recovery/profiles/2.1.89/toolchain.json",
+      "bytes": 14064,
+      "sha256": "cb8ff9922dbda2c2ffc3b12ee912459022f603594e2a65c3db965893c15c8df6"
+    }
+  ],
+  "sourcePostimageSha256": "5253f54d8a2fd9a76aa09d1ca4da5583deb338460721006eadd3e2c433984dff",
+  "completeCallerArrowNodes": 1910,
+  "completeCallerHeaderNodes": 1935,
+  "completeCapHelperNodes": 11,
+  "completeWindowHelperNodes": 129,
+  "completeFieldsAndLocalBindingGraphsMatch": true,
+  "productionReceiverCheckClosed": true,
+  "historicalStandaloneComparisonsRemainFalse": true,
+  "namespaceMemberReceiversPreserved": true,
+  "namespaceBindingDetails": {
+    "target": {
+      "namespaceBindings": [
+        "UO",
+        "M5"
+      ],
+      "namespaceMemberCalls": [
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useRef"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "UO",
+          "member": "useState"
+        },
+        {
+          "receiver": "UO",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "UO",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "UO",
+          "member": "useRef"
+        },
+        {
+          "receiver": "UO",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "UO",
+          "member": "useRef"
+        },
+        {
+          "receiver": "UO",
+          "member": "useEffect"
+        },
+        {
+          "receiver": "UO",
+          "member": "useEffect"
+        },
+        {
+          "receiver": "UO",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "UO",
+          "member": "useRef"
+        },
+        {
+          "receiver": "UO",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        },
+        {
+          "receiver": "M5",
+          "member": "createElement"
+        }
+      ],
+      "factory": 5056,
+      "toEsmHelper": 4,
+      "terminalGetter": 5746,
+      "terminalNamespace": 5747,
+      "terminalNamespaceInitializer": 5748,
+      "terminalContextHeader": 5532,
+      "terminalContextInitializer": 5533,
+      "rowBinding": "U",
+      "capBinding": "o",
+      "completeInitializerIndex": 14295
+    },
+    "current": {
+      "namespaceBindings": [
+        "FA",
+        "xK"
+      ],
+      "namespaceMemberCalls": [
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useRef"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useMemo"
+        },
+        {
+          "receiver": "FA",
+          "member": "useState"
+        },
+        {
+          "receiver": "FA",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "FA",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "FA",
+          "member": "useRef"
+        },
+        {
+          "receiver": "FA",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "FA",
+          "member": "useRef"
+        },
+        {
+          "receiver": "FA",
+          "member": "useEffect"
+        },
+        {
+          "receiver": "FA",
+          "member": "useEffect"
+        },
+        {
+          "receiver": "FA",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "FA",
+          "member": "useRef"
+        },
+        {
+          "receiver": "FA",
+          "member": "useCallback"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        },
+        {
+          "receiver": "xK",
+          "member": "createElement"
+        }
+      ],
+      "factory": 5058,
+      "toEsmHelper": 4,
+      "terminalGetter": 5748,
+      "terminalNamespace": 5749,
+      "terminalNamespaceInitializer": 5750,
+      "terminalContextHeader": 5534,
+      "terminalContextInitializer": 5535,
+      "rowBinding": "U",
+      "capBinding": "i",
+      "completeInitializerIndex": 14317
+    }
+  },
+  "terminalCapExact": true,
+  "twiceCapPretrimExact": true,
+  "threeBoundedReadsAndOneInitializationWrite": true,
+  "lookupInputExact": true,
+  "bothMemoDependenciesExact": true,
+  "explicitWindowCapAndAnchorsExact": true,
+  "negativeControls": [
+    "flatten production useMemo receiver",
+    "collapse named-hook namespace into default React receiver",
+    "wrong React factory for one namespace",
+    "terminal context receiver changed",
+    "cap input uses columns",
+    "cap constant changed",
+    "twice-cap operands reversed",
+    "trim threshold made inclusive",
+    "negative slice changed positive",
+    "lookup receives unbounded original",
+    "one of three bounded references captured elsewhere",
+    "first memo cap dependency removed",
+    "window explicit cap removed",
+    "window cap default restored",
+    "anchor clearing changed",
+    "anchor uuid property changed",
+    "second memo cap dependency removed",
+    "row fallback introduced",
+    "fourth window step changed"
+  ],
+  "actualIndexedWitnesses": 25,
+  "allDistinctBaselineAndActualWitnesses": 42,
+  "remainingCapturedInterfaces": {
+    "WeakMap": "WeakMap",
+    "Z55": "V55",
+    "f55": "k55",
+    "Ib6": "ub6",
+    "Sw7": "C27",
+    "Rw7": "S27",
+    "hw7": "h27",
+    "G55": "N55",
+    "Symbol": "Symbol",
+    "Object": "Object",
+    "Error": "Error",
+    "Array": "Array",
+    "String": "String",
+    "process": "process",
+    "window": "window",
+    "console": "console",
+    "reportError": "reportError",
+    "E": "y",
+    "Math": "Math",
+    "y5": "N5",
+    "oo6": "so6",
+    "SX": "CX",
+    "Date": "Date",
+    "I0K": "cZK",
+    "Av": "$T",
+    "M78": "D78",
+    "Q6": "c6",
+    "n2": "aw",
+    "b4": "x4",
+    "d0K": "eZK",
+    "QU8": "QU8",
+    "R0K": "gZK",
+    "PvY": "vTY",
+    "XvY": "TTY",
+    "ZRK": "hhK",
+    "TPK": "hPK",
+    "DRK": "LhK",
+    "PRK": "yhK",
+    "JRK": "khK",
+    "S0K": "FZK",
+    "Set": "Set",
+    "gSK": "aSK",
+    "tN6": "qy6",
+    "O5": "O5",
+    "QF": "cF",
+    "w8": "w8",
+    "_5": "z5",
+    "JSK": "kSK",
+    "MSK": "VSK",
+    "Jo": "Po",
+    "m": "u",
+    "I$": "I$",
+    "w7": "A7",
+    "EU8": "EU8",
+    "$8": "Y8",
+    "Qq6": "nq6",
+    "mSK": "iSK",
+    "T": "k",
+    "j_": "o9",
+    "lx4": "rx4",
+    "Wx8": "Zx8"
+  },
+  "inheritedResiduals": {
+    "messagesWrapperTopologyAccepted": false,
+    "wrapperNodes": 19,
+    "initializer": {
+      "targetNodes": 457,
+      "currentNodes": 460,
+      "accepted": false
+    },
+    "buildMessageLookups": {
+      "index": 12674,
+      "nodes": 627,
+      "targetNodes": 634,
+      "inputIsBoundedLocal": true,
+      "bodyAccepted": false
+    }
+  },
+  "actualViewportAccepted": true,
+  "wholeMessagesModuleAccepted": false,
+  "fullTargetASTEqualityEstablished": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "transitiveProviderEquivalence": false,
+  "applicationExecuted": false,
+  "renderersOrHooksExecuted": false,
+  "sourceStageOrRepositoryEdited": false,
+  "originalArtifactsUnchanged": true,
+  "qualifications": [
+    "Acceptance is the full scoped viewport caller and helpers with grounded React and terminal contexts. Other captured interfaces remain conditional.",
+    "The standalone receiver failures remain historical false; this fresh production check closes their pending obligation without normalizing receiver forms.",
+    "The wrapper, entire Messages initializer and lookup callee body retain separate known residuals.",
+    "No global external/dynamic-consumer absence proof or universal omitted-cap API equivalence is claimed.",
+    "Whole-target strict equality remains false; this receipt is not a normalization or final acceptance gate."
+  ],
+  "evidence": {
+    "actual-bindings.json": "c7c23311814e550eb4cb9b5a0ca0fcc60897f53c326a2783045f36e62271f780",
+    "actual-result.json": "d2b1625e40845fcfce55b7fdd823abf43686c58037e88401abdbc85e3305a0bc",
+    "actual-witnesses.json": "bc9a6db014b92cc5793862f5ad263edb9f1445384509dd7086bfeddd04849642",
+    "baseline-authentication.json": "70028c70650a71ae6aecb630d693f295cc80c25498658a5f4aafa3961fa04c08",
+    "baseline-receivers.json": "c3042178b2ff59622f53e51c292bf86dcd1af7b30e90c88eec0e84b7b321a029",
+    "baseline-witnesses.json": "8b7e5e8fa221231a4feb4547f58fd82b7d79445cec7153ffb34ff45629ec184a",
+    "current-authentication.json": "940ee59161a157937ef48ac25f7e903e6b8f7b4a6b2259259514062ec7b737e0",
+    "replay-verification.json": "4a7e23d18ec7aaf90896c916505cea152e30b5dd5e2fa060cd8c9bda1076c640",
+    "stage-verification.json": "04a3cfcdc8b915e1e0dcc1475f88435515dd64ffc1647107515499816562cfb2"
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "kind": "actual-v26-normalized-message-lookups-emission-review",
+  "reportId": "message_lookups",
+  "verdict": "scoped-production-lookup-repair-matches-target",
+  "actualEmissionVerified": true,
+  "actualLookupAccepted": true,
+  "completePredicateHelperLocalGraphAccepted": true,
+  "actualCurrentViewportCallerAccepted": true,
+  "sourceManifest": {
+    "path": "historical-checkpoints/message-lookups-source-proposal/source-repair.json",
+    "bytes": 533,
+    "sha256": "818fd6b11d26755614f148a05a6aa8e5b8022203adbfe432acb4e0f0c7f3cfb7"
+  },
+  "sourceApproval": {
+    "path": "historical-checkpoints/message-lookups-independent-review/review.json",
+    "bytes": 6769,
+    "sha256": "00acffc3d77df4c3d86cfbeb7913556005bbaa9539e2d41ed2c8e4f8aefd8ef0"
+  },
+  "sourceApprovalClosure": {
+    "path": "historical-checkpoints/message-lookups-independent-review/freeze.json",
+    "bytes": 3689,
+    "sha256": "824fa75803476070874008fa18886b430d8fa8583f41091679b269a352f94d48"
+  },
+  "preparationApproval": {
+    "path": "historical-checkpoints/v26-preparation-review/review.json",
+    "bytes": 24283,
+    "sha256": "1f30a3704d7e4cab16977fcb33f0824301e3d0462b24a89a8ff9862d147103f2"
+  },
+  "preparationApprovalClosure": {
+    "path": "historical-checkpoints/v26-preparation-review/freeze.json",
+    "bytes": 6547,
+    "sha256": "5d048bf90b9e1c26763338383864d4d9619f10bafaa4c508a1069bc8c6ee4336"
+  },
+  "currentJS": {
+    "path": "historical-checkpoints/v26-replay/final/cli.js",
+    "bytes": 13076402,
+    "sha256": "4136b8ab625c2e561be4996a16c9ba9768310b2e6f74a482a07bead10b1b4dd0"
+  },
+  "currentIndex": {
+    "path": "historical-checkpoints/v26-indexes/candidate.json",
+    "bytes": 5577892,
+    "sha256": "7ac84518e2c18bc1c08c5872f31c5758e95aba624f98ea4560e2c3a601076e6a"
+  },
+  "compileReport": {
+    "path": "historical-checkpoints/v26-replay/compile-report.json",
+    "bytes": 101985,
+    "sha256": "a356cb317b75ad649d53d6b6e0294f1d66661e4a32ed024ad360872d48918ec2"
+  },
+  "currentProfile": {
+    "path": "historical-checkpoints/v26-replay/profile.json",
+    "bytes": 3270673,
+    "sha256": "235f75bf49cf647935abf6548b63c50e931fb922ce1ec8dfa9a69e5aab8cbaff"
+  },
+  "currentToolchain": {
+    "path": "historical-checkpoints/v26-preparation/prepared/recovery/profiles/2.1.89/toolchain.json",
+    "bytes": 14064,
+    "sha256": "81445abe2ae13af05e16f71a505b36120f8216c519bec3b67f2df94feb9f5e94"
+  },
+  "targetPredicate": 12652,
+  "currentPredicate": 12671,
+  "predicateNodes": 82,
+  "targetHelper": 12653,
+  "currentHelper": 12672,
+  "helperNodes": 634,
+  "completePairNodesWithProgram": 717,
+  "fixedAmbientCaptures": [
+    "Map",
+    "Set"
+  ],
+  "roles": {
+    "firstParameter": "q",
+    "secondParameter": "K",
+    "mapBinding": "H",
+    "normalizedMessageBinding": "D",
+    "contentBlockBinding": "f",
+    "writeCount": 1,
+    "constructorBindings": [
+      "_",
+      "z",
+      "Y",
+      "$",
+      "A",
+      "O",
+      "w",
+      "j",
+      "H",
+      "J",
+      "M",
+      "X"
+    ],
+    "returnProperties": [
+      "siblingToolUseIDs",
+      "progressMessagesByToolUseID",
+      "inProgressHookCounts",
+      "resolvedHookCounts",
+      "toolResultByToolUseID",
+      "toolUseByToolUseID",
+      "assistantUuidByToolUseID",
+      "normalizedMessageCount",
+      "resolvedToolUseIDs",
+      "erroredToolUseIDs"
+    ],
+    "caller": {
+      "header": 14314,
+      "firstArgument": "b6",
+      "secondArgument": "O8",
+      "lookupResult": "w7",
+      "argumentBindingsDistinct": true,
+      "firstHasThreeReads": true,
+      "lookupsReturnedFromMemo": true
+    }
+  },
+  "privatePredicateBindingProven": true,
+  "privatePredicateSourceUnchanged": true,
+  "constructorAndReturnPropertyOrderExact": true,
+  "normalizedFirstArrayUuidWriteProven": true,
+  "secondArrayGroupingAndLastMessageReadProven": true,
+  "actualViewport": {
+    "targetHeader": 14294,
+    "currentHeader": 14314,
+    "completeHeaderNodes": 1935,
+    "completeArrowNodes": 1910,
+    "productionReceiversClosed": true,
+    "namespaceReceiversNotNormalized": true,
+    "pretrimCapMultiplier": 2,
+    "boundedReads": 3,
+    "bothMemoDependencyArraysExact": true,
+    "capAndAnchorFieldsExact": true,
+    "sourceCallerUnchangedFromV25": true
+  },
+  "guard16": {
+    "before": {
+      "originSource": "src/utils/messages.ts",
+      "originSourceSha256": "3431e88fe760a689f7e9ca01ca39e3fd19cd7b854d0c8305740338bd80dfeaf2",
+      "range": [
+        1437,
+        1501
+      ],
+      "sliceSha256": "c9cbc3e8fb82200fad4b3314fdb1fd91825acf2514111cb259bdb390c7f1a100",
+      "specifier": "../types/connectorText.js",
+      "resolvedTarget": "src/types/connectorText.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        1474,
+        1501
+      ],
+      "specifierLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21",
+      "originSourceGitBlob": "c656618c9a5ff3e56196560b5c9eab5906e5abed",
+      "originParentGitBlob": "9939ce5703dd348b0cb8f9d6ba939f9ff354490d"
+    },
+    "after": {
+      "originSource": "src/utils/messages.ts",
+      "originSourceSha256": "31bada389b2b6aab6062bab0a076709b348e616f0bee4a29db4a68bfbfb72c5d",
+      "range": [
+        1437,
+        1501
+      ],
+      "sliceSha256": "c9cbc3e8fb82200fad4b3314fdb1fd91825acf2514111cb259bdb390c7f1a100",
+      "specifier": "../types/connectorText.js",
+      "resolvedTarget": "src/types/connectorText.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        1474,
+        1501
+      ],
+      "specifierLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21",
+      "originSourceGitBlob": "5c62380e8e7addbba44c472e877af14a26ff608e",
+      "originParentGitBlob": "c656618c9a5ff3e56196560b5c9eab5906e5abed"
+    },
+    "protectedSlicesExact": true,
+    "priorRecordPreservedByteExact": true,
+    "noInventedGenesis": true
+  },
+  "other17GuardsExact": true,
+  "allEvalAndCompilerPoliciesExact": true,
+  "messagesUtilityInitializer": {
+    "target": 12737,
+    "targetNodes": 206,
+    "v25": 12758,
+    "v25Nodes": 206,
+    "v26": 12756,
+    "v26Nodes": 206,
+    "completeV25GraphUnchanged": true
+  },
+  "selectedOrdinaryDeclarationRetentionUnchanged": true,
+  "wholeOwnerRetentionCertified": false,
+  "validation": {
+    "lookupGroups": 8,
+    "lookupNegatives": 18,
+    "viewportNegatives": 19,
+    "lookupWitnesses": 8,
+    "viewportWitnesses": 25,
+    "physicalSourcePostimageAndCallerVerified": true,
+    "currentAndTargetFullInputHashesVerified": true,
+    "compilerExecuted": false,
+    "applicationOrConstructorOrCallbackExecuted": false
+  },
+  "qualifications": [
+    "The UUID mapping now follows the normalized first array, including its coverage, UUID values and overwrite order. This is target-directed behavior, not equivalence to the prior second-array implementation.",
+    "The constructor, property-read, setter and return-property order is exact. No Map/Set purity, ambient integrity or runtime execution is assumed.",
+    "The current actual production viewport caller and receivers pass. Prior standalone fixture failures remain false and are not relabeled by this later result.",
+    "The complete utils/messages initializer retains its V25 graph at 206 nodes. This accepts unchanged initialization for that selected statement; every other owner function and global/dynamic retention are not certified.",
+    "Messages wrapper topology remains outside scope, with its retained 19-node wrapper and 460/457-node component initializer discrepancy. All wider/transitive provider limits remain explicit.",
+    "Whole-target strict AST comparison remains unequal at 3098479 nodes with digest c3ed173705ab103e2bafc6f096e217b99dc126b7587a2f6bd6adfed289cc6e8b. No normalization acceptance gate is enabled.",
+    "No generated or application function, Map/Set constructor, UI renderer, callback or shell was executed. Only bounded original-index slices were parsed; source/profile/stage/repository files stayed immutable."
+  ],
+  "harnessHistory": [
+    "The first mutation selector found two normalized-array loops. It was narrowed to the unique loop containing the UUID-map write; the failed log is preserved.",
+    "The first physical provider checklist used guessed context/runtime paths and skipped missing rows. The final script uses all six exact existing source paths, requires each row and preserves the initial report as incomplete history."
+  ],
+  "historicalStandaloneFailuresRemainFalse": true,
+  "wrapperTopologyAccepted": false,
+  "wholeMessagesModuleAccepted": false,
+  "transitiveProviderEquivalence": false,
+  "fullTargetASTEqualityEstablished": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "applicationExecuted": false,
+  "evidence": {
+    "lookup-result.json": {
+      "path": "historical-checkpoints/v26-message-lookups-emission-review/lookup-result.json",
+      "bytes": 5708,
+      "sha256": "8c67640a05ea94bfc713af80c4ce32f8ccbf4fea9b78434165a4aa1e6f882077"
+    },
+    "viewport-result.json": {
+      "path": "historical-checkpoints/v26-message-lookups-emission-review/viewport-result.json",
+      "bytes": 3613,
+      "sha256": "88ce0a6575361c7c55593021d5e0c56fba310da7963c2ce4c0d641dd19eda4fe"
+    },
+    "viewport-bindings.json": {
+      "path": "historical-checkpoints/v26-message-lookups-emission-review/viewport-bindings.json",
+      "bytes": 7198,
+      "sha256": "d29df5025ee5d8fab813f5677da5b5290de8c5332c56f24a33bc521c81aca540"
+    },
+    "source-guard-result.json": {
+      "path": "historical-checkpoints/v26-message-lookups-emission-review/source-guard-result.json",
+      "bytes": 3918,
+      "sha256": "f6ce8cc9d3291c31f755829a6297c6488edf617fd7f30827dc909d710d2f5506"
+    },
+    "input-pins.json": {
+      "path": "historical-checkpoints/v26-message-lookups-emission-review/input-pins.json",
+      "bytes": 4022,
+      "sha256": "0f8b1dfcc538ff3bedf5c8add019b61611749f39e8426d73790d34872373466e"
+    },
+    "code-provenance.json": {
+      "path": "historical-checkpoints/v26-message-lookups-emission-review/code-provenance.json",
+      "bytes": 34198,
+      "sha256": "4908638be9a395aac43c536815b4dbf0bd9cb9c0870076dbcc3b256e9e879345"
+    }
+  }
+}

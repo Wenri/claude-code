@@ -1,0 +1,5916 @@
+{
+  "kind": "independent-actual-v28-auto-compact-emission-review",
+  "reportId": "auto_compact",
+  "verdict": "bounded-actual-auto-compact-module-providers-and-callers-verified",
+  "sourceRevision": 28,
+  "profileSha256": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e",
+  "toolchainSha256": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35",
+  "finalJSSha256": "124809d5c6af3eb78e305d678dac5948c59d954ee1178846eebde4ebfd1ff6b0",
+  "candidateIndexSha256": "fbb1c1dba7fb0f145e927f42a97477cda9b259d097ada6900af9a72c94d80dc4",
+  "compileReportSha256": "dd96aaff92bb6d8a46075c9dc0cdc634e5e95a87377c1a15c97669877338a77d",
+  "sourceApprovalSha256": "85106a21d45aeba2649153ee4dc089ed57b07c6291f1ff7121f5d79092603e80",
+  "sourceApprovalClosureSha256": "ed37684ffd9f1bbc03f06d3f6f0e11c12a59b6ad8a3da0f54b379fc2f5dade76",
+  "sourceManifestSha256": "2475890a491c8d0ccc5d083612a9e22ba4c84a9eb7244e1186071a3fb1e75fba",
+  "actualEmissionVerified": true,
+  "actualCompleteNineFunctionsVerified": true,
+  "actualColdTimePredicateVerified": true,
+  "actualPreTryFeatureTimingVerified": true,
+  "actualOptionalRefillAndHeaderOrderVerified": true,
+  "actualFull67NodeInitializerVerified": true,
+  "actualSameStateDuplicateReferencesVerified": true,
+  "actualFifteenOtherDirectInitializerOrderVerified": true,
+  "actualMainSlot17BindingVerified": true,
+  "actualFactoryQueryCompactionBindingVerified": true,
+  "selectedJoinedGraphAccepted": true,
+  "historicalExternalProviderFixtureAccepted": false,
+  "allTransitiveProviderEquivalence": false,
+  "globalDeclarationAndInitializationOrderAccepted": false,
+  "globalDynamicConsumerAbsenceProven": false,
+  "wholeMainAccepted": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "sourceStageModified": false,
+  "repositoryModified": false,
+  "compilerInvoked": false,
+  "applicationExecuted": false,
+  "authentication": {
+    "sourceApproval": {
+      "path": "historical-checkpoints/auto-compact-independent-review/freeze.json",
+      "sha256": "ed37684ffd9f1bbc03f06d3f6f0e11c12a59b6ad8a3da0f54b379fc2f5dade76",
+      "members": 51
+    },
+    "sourceAuthor": {
+      "path": "historical-checkpoints/auto-compact-source-proposal/artifact-manifest.json",
+      "sha256": "c55843e4395c6e579e8e88507de87fb67004488600f210046008dec79080537c",
+      "members": 49
+    },
+    "readOnlyBaseline": {
+      "path": "historical-checkpoints/auto-compact-source-investigation/READONLY-FREEZE.json",
+      "sha256": "b481d11d0c28c8af50ed2696e48934bf4b71717edb3a95ffe2a390f4c24c0fe7",
+      "members": 41
+    },
+    "executableMembers": 184,
+    "preparationApproval": {
+      "path": "historical-checkpoints/v28-preparation-review/freeze.json",
+      "sha256": "673ce64a301248b53aa2cc219e591d3eed2d8d548cfd011e28e1e221e1968e96",
+      "members": 50
+    },
+    "inputPins": {
+      "targetJS": {
+        "path": "v12/provenance/official-2.1.89-cli.js",
+        "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+        "bytes": 13081065
+      },
+      "targetIndex": {
+        "path": "v13-indexes/target.json",
+        "sha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747",
+        "bytes": 5573628
+      },
+      "priorJS": {
+        "path": "v27-replay/final/cli.js",
+        "sha256": "c0fccb4b49eeaa17b5e8c441a56a68d90f9807a34a717fc42aa0bd3919dce9a1",
+        "bytes": 13072847
+      },
+      "priorIndex": {
+        "path": "v27-indexes/candidate.json",
+        "sha256": "d012eee89d558f308d0214a9a9d055ce215c04d62b3d37316e25db447b931da9",
+        "bytes": 5573874
+      },
+      "currentJS": {
+        "path": "v28-replay/final/cli.js",
+        "sha256": "124809d5c6af3eb78e305d678dac5948c59d954ee1178846eebde4ebfd1ff6b0",
+        "bytes": 13072901
+      },
+      "currentIndex": {
+        "path": "v28-indexes/candidate.json",
+        "sha256": "fbb1c1dba7fb0f145e927f42a97477cda9b259d097ada6900af9a72c94d80dc4",
+        "bytes": 5573874
+      },
+      "compileReport": {
+        "path": "v28-replay/compile-report.json",
+        "sha256": "dd96aaff92bb6d8a46075c9dc0cdc634e5e95a87377c1a15c97669877338a77d",
+        "bytes": 101985
+      },
+      "profile": {
+        "path": "v28-preparation/prepared/recovery/profiles/2.1.89/profile.json",
+        "sha256": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e",
+        "bytes": 4505370
+      },
+      "toolchain": {
+        "path": "v28-preparation/prepared/recovery/profiles/2.1.89/toolchain.json",
+        "sha256": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35",
+        "bytes": 14064
+      }
+    },
+    "authenticatedBeforeImports": true,
+    "applicationExecuted": false
+  },
+  "actualModule": {
+    "target": [
+      {
+        "index": 12184,
+        "type": "FunctionDeclaration",
+        "range": [
+          9495310,
+          9495559
+        ],
+        "nodes": 89,
+        "strictSha256": "bf5e87456c981f80666faf741b207fce36e88d1c9669ca8ae0da277483c49150",
+        "shapeSha256": "92c6fc401f940b50d3241184f0436c185b6b65da68a363b26f2fed4437252121",
+        "identifierNamesErased": 29,
+        "protectedIdentifierOccurrences": 6
+      },
+      {
+        "index": 12185,
+        "type": "FunctionDeclaration",
+        "range": [
+          9495559,
+          9495970
+        ],
+        "nodes": 99,
+        "strictSha256": "c35aeae1156c5d362e09cf0734dca7ccd8d73eeb0baadbb7eca5b1431ab9502f",
+        "shapeSha256": "d6b5856f8ca9ad9ca14eb30d9ff5526cbea10e6fbe2bee1ff990485ceb09deca",
+        "identifierNamesErased": 29,
+        "protectedIdentifierOccurrences": 18
+      },
+      {
+        "index": 12186,
+        "type": "FunctionDeclaration",
+        "range": [
+          9495970,
+          9496061
+        ],
+        "nodes": 37,
+        "strictSha256": "dd7cbf9db04f3dd3ad2568bb81a325448626cdad9855b8f2762b922166ed92d6",
+        "shapeSha256": "0c0de3391760d58475f051386c3a9287f1fdc20786dad745190132a0964ef8db",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 12187,
+        "type": "FunctionDeclaration",
+        "range": [
+          9496061,
+          9496104
+        ],
+        "nodes": 13,
+        "strictSha256": "94f4ff4e50bdc8c3f18e9d4a8edc8caf5b5eedca5bef480d520e059a0b49f6f1",
+        "shapeSha256": "e542760421e34739f50d6a5cbe5dda720d6425870a9d43bc5a22bc0dc7fa2a9a",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 12188,
+        "type": "FunctionDeclaration",
+        "range": [
+          9496104,
+          9496302
+        ],
+        "nodes": 68,
+        "strictSha256": "835bcd9f43c04ce4b39aa6783434529442b9966f73cb3cc276b909830a535235",
+        "shapeSha256": "639ffb0d853543afaa808dddfb0f4853b9389041540bf121071ba559a224b6a5",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 4
+      },
+      {
+        "index": 12189,
+        "type": "FunctionDeclaration",
+        "range": [
+          9496302,
+          9496686
+        ],
+        "nodes": 137,
+        "strictSha256": "d2c4b6d997dc96b8df785493059b1b74459d45a3301b2a349ef845a493574156",
+        "shapeSha256": "c5220e2cfab2f6a656b4f3ffadc54f664b4cd9f257c7d8c52012db364e4d8b39",
+        "identifierNamesErased": 67,
+        "protectedIdentifierOccurrences": 9
+      },
+      {
+        "index": 12190,
+        "type": "FunctionDeclaration",
+        "range": [
+          9496686,
+          9496824
+        ],
+        "nodes": 30,
+        "strictSha256": "7b659fce05dc616e9e55b3a9ae94c718ce856e936b5c94f8e8d804b3622e73b3",
+        "shapeSha256": "244ff14482f40cf1b8ce571963aef138e826c6ad9ebf4e63fc88f2085ecf88cb",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 5
+      },
+      {
+        "index": 12191,
+        "type": "FunctionDeclaration",
+        "range": [
+          9496824,
+          9497105
+        ],
+        "nodes": 82,
+        "strictSha256": "ca3650946375bebb0eddaf86c15a3e820f32533861d73e51c57763cc634ab9e2",
+        "shapeSha256": "1f6c2e1b87dd871958f3b7462006a1db6456003b3000b33fd51afefd028fe0a6",
+        "identifierNamesErased": 33,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 12192,
+        "type": "FunctionDeclaration",
+        "range": [
+          9497105,
+          9498451
+        ],
+        "nodes": 307,
+        "strictSha256": "508bc18163a93ee34cf5767cb93d7cb5b1320349e5e8ea35ddf8a5bf4a2249e9",
+        "shapeSha256": "6eb05f9c1cb3ad1e2f61a7357d8766e15661949fcd8f4cf263c0b1ae07374cbd",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      {
+        "index": 12193,
+        "type": "VariableDeclaration",
+        "range": [
+          9498451,
+          9498554
+        ],
+        "nodes": 36,
+        "strictSha256": "c6cac32e72f901b465ecd1afdc2fdd6e4f737b937b8dfe5155f8cb67c6791072",
+        "shapeSha256": "e7cc3aa26d882ba3f93d0b4bf6f26dcb0e57747fbd216e2df598d4455ee34841",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 0
+      },
+      {
+        "index": 12194,
+        "type": "VariableDeclaration",
+        "range": [
+          9498554,
+          9498934
+        ],
+        "nodes": 67,
+        "strictSha256": "ba38951a32e82b4726b9ead6edda661ee03d67505949521a62706fc2533ce6f0",
+        "shapeSha256": "74266ef8e2a869c83c76163d489502245fbb2000cfea2137d3472a915be89c63",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 0
+      }
+    ],
+    "prior": [
+      {
+        "index": 12190,
+        "type": "FunctionDeclaration",
+        "range": [
+          9492865,
+          9493114
+        ],
+        "nodes": 89,
+        "strictSha256": "ca10a20ca69b9da18a273c3c151be1084cac5c5f2f5db6900f04f9de17236335",
+        "shapeSha256": "92c6fc401f940b50d3241184f0436c185b6b65da68a363b26f2fed4437252121",
+        "identifierNamesErased": 29,
+        "protectedIdentifierOccurrences": 6
+      },
+      {
+        "index": 12191,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493114,
+          9493525
+        ],
+        "nodes": 99,
+        "strictSha256": "8e276d06a97ae7f52286c8c119828dc459629f4c17ad4c2c2f68c1def829e0b6",
+        "shapeSha256": "d6b5856f8ca9ad9ca14eb30d9ff5526cbea10e6fbe2bee1ff990485ceb09deca",
+        "identifierNamesErased": 29,
+        "protectedIdentifierOccurrences": 18
+      },
+      {
+        "index": 12192,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493525,
+          9493616
+        ],
+        "nodes": 37,
+        "strictSha256": "2e85863a8bad84139c0c7bb202bc6ea21d1cee0337391f00abdaa2dcbe3f05b4",
+        "shapeSha256": "0c0de3391760d58475f051386c3a9287f1fdc20786dad745190132a0964ef8db",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 12193,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493616,
+          9493677
+        ],
+        "nodes": 14,
+        "strictSha256": "bbfb49950897a55bd9bc541bbeee38079293e8e7b9dd9f0718929579dfc3e123",
+        "shapeSha256": "1cbd73551ff856b0f4e1947c9a7f7d8997bfc7f89a454cfe7dcdcfc0628c2b5d",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      {
+        "index": 12194,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493677,
+          9493875
+        ],
+        "nodes": 68,
+        "strictSha256": "2a574068e8168e67400e34e96c440388e7c44c0b57f23db70fb9d678ffe52a26",
+        "shapeSha256": "639ffb0d853543afaa808dddfb0f4853b9389041540bf121071ba559a224b6a5",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 4
+      },
+      {
+        "index": 12195,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493875,
+          9494259
+        ],
+        "nodes": 137,
+        "strictSha256": "33222691ed772fe41f8d91c280aa0019122e3c2692e4880c1f50d942875e9332",
+        "shapeSha256": "c5220e2cfab2f6a656b4f3ffadc54f664b4cd9f257c7d8c52012db364e4d8b39",
+        "identifierNamesErased": 67,
+        "protectedIdentifierOccurrences": 9
+      },
+      {
+        "index": 12196,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494259,
+          9494397
+        ],
+        "nodes": 30,
+        "strictSha256": "ccb86dbde4cbe5bd9620ada1766d2b619c15ee6dd3677f3ef4ec0c92c3493302",
+        "shapeSha256": "244ff14482f40cf1b8ce571963aef138e826c6ad9ebf4e63fc88f2085ecf88cb",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 5
+      },
+      {
+        "index": 12197,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494397,
+          9494678
+        ],
+        "nodes": 82,
+        "strictSha256": "20fee6815d8c75fd713156ee683b4ba6019b4a55717e3df0c3c985646c6d86be",
+        "shapeSha256": "1f6c2e1b87dd871958f3b7462006a1db6456003b3000b33fd51afefd028fe0a6",
+        "identifierNamesErased": 33,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 12198,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494678,
+          9495994
+        ],
+        "nodes": 300,
+        "strictSha256": "79c153e4c0e7c57a714e9e397e3895d6cd6105af871df65e8913501a19ed15a6",
+        "shapeSha256": "97428eedc751fb849ddc5af5a5a126cfce62152a7a2fe4923b02c9b07e751d04",
+        "identifierNamesErased": 80,
+        "protectedIdentifierOccurrences": 39
+      },
+      {
+        "index": 12199,
+        "type": "VariableDeclaration",
+        "range": [
+          9495994,
+          9496097
+        ],
+        "nodes": 36,
+        "strictSha256": "8a78396b62578825005cc997c2aa1a8050de69de1e455a760e781055aa0ff076",
+        "shapeSha256": "8717548b47d859a73e158737b37f5e9c8f94d3811afe6b69c602e8d95dae0384",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 0
+      },
+      {
+        "index": 12200,
+        "type": "VariableDeclaration",
+        "range": [
+          9496097,
+          9496472
+        ],
+        "nodes": 64,
+        "strictSha256": "5a9bd7fb6d4855196558aac8e2ae92e5d2112fcc3dbc39af94526b3588532484",
+        "shapeSha256": "f97f270dc75b4026519ff506bc57825b3603191ea6a80c4f7a6bee93827f8a2d",
+        "identifierNamesErased": 21,
+        "protectedIdentifierOccurrences": 0
+      }
+    ],
+    "current": [
+      {
+        "index": 12190,
+        "type": "FunctionDeclaration",
+        "range": [
+          9492863,
+          9493112
+        ],
+        "nodes": 89,
+        "strictSha256": "ca10a20ca69b9da18a273c3c151be1084cac5c5f2f5db6900f04f9de17236335",
+        "shapeSha256": "92c6fc401f940b50d3241184f0436c185b6b65da68a363b26f2fed4437252121",
+        "identifierNamesErased": 29,
+        "protectedIdentifierOccurrences": 6
+      },
+      {
+        "index": 12191,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493112,
+          9493523
+        ],
+        "nodes": 99,
+        "strictSha256": "328b92d240926a48b710c80ad84bd9b26376d4a041d4998ecc11f5d7cd6fd31e",
+        "shapeSha256": "d6b5856f8ca9ad9ca14eb30d9ff5526cbea10e6fbe2bee1ff990485ceb09deca",
+        "identifierNamesErased": 29,
+        "protectedIdentifierOccurrences": 18
+      },
+      {
+        "index": 12192,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493523,
+          9493614
+        ],
+        "nodes": 37,
+        "strictSha256": "d765f60002354423e498843bf42701f1a8147f451477a854a1bd4c31bb5219ce",
+        "shapeSha256": "0c0de3391760d58475f051386c3a9287f1fdc20786dad745190132a0964ef8db",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 12193,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493614,
+          9493657
+        ],
+        "nodes": 13,
+        "strictSha256": "345b3ede995a57b7c9179155530d910aff36f21f30f234a73bb03d88c33e0904",
+        "shapeSha256": "e542760421e34739f50d6a5cbe5dda720d6425870a9d43bc5a22bc0dc7fa2a9a",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 12194,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493657,
+          9493855
+        ],
+        "nodes": 68,
+        "strictSha256": "2a574068e8168e67400e34e96c440388e7c44c0b57f23db70fb9d678ffe52a26",
+        "shapeSha256": "639ffb0d853543afaa808dddfb0f4853b9389041540bf121071ba559a224b6a5",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 4
+      },
+      {
+        "index": 12195,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493855,
+          9494239
+        ],
+        "nodes": 137,
+        "strictSha256": "518d67a8370554da39dd4de5d4a24fb9f6f7d143f37fd175bb9c5fd7a2053361",
+        "shapeSha256": "c5220e2cfab2f6a656b4f3ffadc54f664b4cd9f257c7d8c52012db364e4d8b39",
+        "identifierNamesErased": 67,
+        "protectedIdentifierOccurrences": 9
+      },
+      {
+        "index": 12196,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494239,
+          9494377
+        ],
+        "nodes": 30,
+        "strictSha256": "ccb86dbde4cbe5bd9620ada1766d2b619c15ee6dd3677f3ef4ec0c92c3493302",
+        "shapeSha256": "244ff14482f40cf1b8ce571963aef138e826c6ad9ebf4e63fc88f2085ecf88cb",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 5
+      },
+      {
+        "index": 12197,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494377,
+          9494658
+        ],
+        "nodes": 82,
+        "strictSha256": "59d3545fa11da9dcbf221147c0c48c1e84f46007a301dbb68ff3eba88819d9ab",
+        "shapeSha256": "1f6c2e1b87dd871958f3b7462006a1db6456003b3000b33fd51afefd028fe0a6",
+        "identifierNamesErased": 33,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 12198,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494658,
+          9496004
+        ],
+        "nodes": 307,
+        "strictSha256": "5838716cccd0ea23b3fad762844638cb1ca9328dd736e70596884ecae6ee062a",
+        "shapeSha256": "6eb05f9c1cb3ad1e2f61a7357d8766e15661949fcd8f4cf263c0b1ae07374cbd",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      {
+        "index": 12199,
+        "type": "VariableDeclaration",
+        "range": [
+          9496004,
+          9496107
+        ],
+        "nodes": 36,
+        "strictSha256": "059516aa53669c4ea8d8a246aeeca0de46c4570561d1adb5f3b3fc75efd3be02",
+        "shapeSha256": "e7cc3aa26d882ba3f93d0b4bf6f26dcb0e57747fbd216e2df598d4455ee34841",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 0
+      },
+      {
+        "index": 12200,
+        "type": "VariableDeclaration",
+        "range": [
+          9496107,
+          9496487
+        ],
+        "nodes": 67,
+        "strictSha256": "b6a7e2cce6efcd3cf3dece9c366a2984e93f3c9aa2c9451c38ce03b078be21a6",
+        "shapeSha256": "74266ef8e2a869c83c76163d489502245fbb2000cfea2137d3472a915be89c63",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 0
+      }
+    ],
+    "comparison": {
+      "nodes": 966,
+      "forward": {
+        "parseInt": "parseInt",
+        "parseFloat": "parseFloat",
+        "Number": "Number",
+        "Math": "Math",
+        "LW": "NW",
+        "mT": "xv",
+        "process": "process",
+        "VU": "NU",
+        "m18": "u18",
+        "Date": "Date",
+        "JR": "Jh",
+        "isNaN": "isNaN",
+        "NaN": "NaN",
+        "Q6": "c6",
+        "w8": "w8",
+        "DZ": "P0",
+        "N": "N",
+        "RB8": "hB8",
+        "jq6": "wq6",
+        "Lp": "Rp",
+        "rt": "rt",
+        "u8": "m8",
+        "BE6": "pE6",
+        "j6": "w6",
+        "Xa": "Wa",
+        "we": "we",
+        "k8": "k8",
+        "k1": "T1",
+        "sW": "rW",
+        "_8": "K8",
+        "F8": "B8",
+        "Uk6": "Uk6",
+        "L8": "E8",
+        "h8": "R8",
+        "fZ": "W0",
+        "s1": "o1",
+        "m2": "Yw",
+        "zq6": "_q6",
+        "lk6": "nO6",
+        "Wa": "fa",
+        "p18": "m18",
+        "SB8": "SB8",
+        "E": "y"
+      },
+      "reverse": {
+        "parseInt": "parseInt",
+        "parseFloat": "parseFloat",
+        "Number": "Number",
+        "Math": "Math",
+        "NW": "LW",
+        "xv": "mT",
+        "process": "process",
+        "NU": "VU",
+        "u18": "m18",
+        "Date": "Date",
+        "Jh": "JR",
+        "isNaN": "isNaN",
+        "NaN": "NaN",
+        "c6": "Q6",
+        "w8": "w8",
+        "P0": "DZ",
+        "N": "N",
+        "hB8": "RB8",
+        "wq6": "jq6",
+        "Rp": "Lp",
+        "rt": "rt",
+        "m8": "u8",
+        "pE6": "BE6",
+        "w6": "j6",
+        "Wa": "Xa",
+        "we": "we",
+        "k8": "k8",
+        "T1": "k1",
+        "rW": "sW",
+        "K8": "_8",
+        "B8": "F8",
+        "Uk6": "Uk6",
+        "E8": "L8",
+        "R8": "h8",
+        "W0": "fZ",
+        "o1": "s1",
+        "Yw": "m2",
+        "_q6": "zq6",
+        "nO6": "lk6",
+        "fa": "Wa",
+        "m18": "p18",
+        "SB8": "SB8",
+        "y": "E"
+      },
+      "scopeCount": 20
+    }
+  },
+  "actualModuleAndGetter": {
+    "nodes": 973,
+    "forward": {
+      "Z8": "G8",
+      "parseInt": "parseInt",
+      "parseFloat": "parseFloat",
+      "Number": "Number",
+      "Math": "Math",
+      "LW": "NW",
+      "mT": "xv",
+      "process": "process",
+      "VU": "NU",
+      "m18": "u18",
+      "Date": "Date",
+      "isNaN": "isNaN",
+      "NaN": "NaN",
+      "Q6": "c6",
+      "w8": "w8",
+      "DZ": "P0",
+      "N": "N",
+      "RB8": "hB8",
+      "jq6": "wq6",
+      "Lp": "Rp",
+      "rt": "rt",
+      "u8": "m8",
+      "BE6": "pE6",
+      "j6": "w6",
+      "Xa": "Wa",
+      "we": "we",
+      "k8": "k8",
+      "k1": "T1",
+      "sW": "rW",
+      "_8": "K8",
+      "F8": "B8",
+      "Uk6": "Uk6",
+      "L8": "E8",
+      "h8": "R8",
+      "fZ": "W0",
+      "s1": "o1",
+      "m2": "Yw",
+      "zq6": "_q6",
+      "lk6": "nO6",
+      "Wa": "fa",
+      "p18": "m18",
+      "SB8": "SB8",
+      "E": "y"
+    },
+    "reverse": {
+      "G8": "Z8",
+      "parseInt": "parseInt",
+      "parseFloat": "parseFloat",
+      "Number": "Number",
+      "Math": "Math",
+      "NW": "LW",
+      "xv": "mT",
+      "process": "process",
+      "NU": "VU",
+      "u18": "m18",
+      "Date": "Date",
+      "isNaN": "isNaN",
+      "NaN": "NaN",
+      "c6": "Q6",
+      "w8": "w8",
+      "P0": "DZ",
+      "N": "N",
+      "hB8": "RB8",
+      "wq6": "jq6",
+      "Rp": "Lp",
+      "rt": "rt",
+      "m8": "u8",
+      "pE6": "BE6",
+      "w6": "j6",
+      "Wa": "Xa",
+      "we": "we",
+      "k8": "k8",
+      "T1": "k1",
+      "rW": "sW",
+      "K8": "_8",
+      "B8": "F8",
+      "Uk6": "Uk6",
+      "E8": "L8",
+      "R8": "h8",
+      "W0": "fZ",
+      "o1": "s1",
+      "Yw": "m2",
+      "_q6": "zq6",
+      "nO6": "lk6",
+      "fa": "Wa",
+      "m18": "p18",
+      "SB8": "SB8",
+      "y": "E"
+    },
+    "scopeCount": 21
+  },
+  "timing": {
+    "target": {
+      "cold": {
+        "index": 12187,
+        "type": "FunctionDeclaration",
+        "range": [
+          9496061,
+          9496104
+        ],
+        "nodes": 13,
+        "strictSha256": "94f4ff4e50bdc8c3f18e9d4a8edc8caf5b5eedca5bef480d520e059a0b49f6f1",
+        "shapeSha256": "e542760421e34739f50d6a5cbe5dda720d6425870a9d43bc5a22bc0dc7fa2a9a",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      "compaction": {
+        "index": 12192,
+        "type": "FunctionDeclaration",
+        "range": [
+          9497105,
+          9498451
+        ],
+        "nodes": 307,
+        "strictSha256": "508bc18163a93ee34cf5767cb93d7cb5b1320349e5e8ea35ddf8a5bf4a2249e9",
+        "shapeSha256": "6eb05f9c1cb3ad1e2f61a7357d8766e15661949fcd8f4cf263c0b1ae07374cbd",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "getter": {
+        "index": 421,
+        "type": "FunctionDeclaration",
+        "range": [
+          35522,
+          35566
+        ],
+        "nodes": 7,
+        "strictSha256": "dcb4d1bad2080e91b1f4cea69cc16dae14844a4659e0740124d01f8515b15778",
+        "shapeSha256": "b7d2788ca2459fee4298221ba0062785222db85ba11a15ee2efac9feac171fba",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "gateCallee": "u8",
+      "gateStatement": 8,
+      "immediatelyAfterSessionMemoryReturn": true,
+      "immediatelyBeforeTry": true,
+      "compactArguments": 8,
+      "thresholdDeclaratorLast": true,
+      "optionalRefill": true
+    },
+    "current": {
+      "cold": {
+        "index": 12193,
+        "type": "FunctionDeclaration",
+        "range": [
+          9493614,
+          9493657
+        ],
+        "nodes": 13,
+        "strictSha256": "345b3ede995a57b7c9179155530d910aff36f21f30f234a73bb03d88c33e0904",
+        "shapeSha256": "e542760421e34739f50d6a5cbe5dda720d6425870a9d43bc5a22bc0dc7fa2a9a",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      "compaction": {
+        "index": 12198,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494658,
+          9496004
+        ],
+        "nodes": 307,
+        "strictSha256": "5838716cccd0ea23b3fad762844638cb1ca9328dd736e70596884ecae6ee062a",
+        "shapeSha256": "6eb05f9c1cb3ad1e2f61a7357d8766e15661949fcd8f4cf263c0b1ae07374cbd",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "getter": {
+        "index": 421,
+        "type": "FunctionDeclaration",
+        "range": [
+          35216,
+          35260
+        ],
+        "nodes": 7,
+        "strictSha256": "cf5b682714aee99ce9cfa855f3d638a24308c4305896b82cac09c286424f7674",
+        "shapeSha256": "b7d2788ca2459fee4298221ba0062785222db85ba11a15ee2efac9feac171fba",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "gateCallee": "m8",
+      "gateStatement": 8,
+      "immediatelyAfterSessionMemoryReturn": true,
+      "immediatelyBeforeTry": true,
+      "compactArguments": 8,
+      "thresholdDeclaratorLast": true,
+      "optionalRefill": true
+    }
+  },
+  "stateOwner": {
+    "target": {
+      "header": 573,
+      "creator": 361,
+      "initializer": 574,
+      "getter": 421,
+      "stateName": "Z8",
+      "initializerName": "k8",
+      "autoInitReferences": 2
+    },
+    "prior": {
+      "header": 573,
+      "creator": 361,
+      "initializer": 574,
+      "getter": 421,
+      "stateName": "G8",
+      "initializerName": "V8",
+      "autoInitReferences": 1
+    },
+    "current": {
+      "header": 573,
+      "creator": 361,
+      "initializer": 574,
+      "getter": 421,
+      "stateName": "G8",
+      "initializerName": "k8",
+      "autoInitReferences": 2
+    }
+  },
+  "stateSource": {
+    "row": {
+      "path": "src/bootstrap/state.ts",
+      "bytes": 56281,
+      "sha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049"
+    },
+    "getterText": "export function getLastInteractionTime(): number {\n  return STATE.lastInteractionTime\n}",
+    "getterRange": [
+      28747,
+      28834
+    ],
+    "alias": [
+      "./src/bootstrap/state.ts"
+    ]
+  },
+  "stateHeaderCreatorInitializerGetterGraph": {
+    "nodes": 494,
+    "forward": {
+      "Lz5": "Vz5",
+      "XH7": "MH7",
+      "process": "process",
+      "Date": "Date",
+      "ab6": "hi8",
+      "Map": "Map",
+      "Set": "Set",
+      "YH7": "_H7",
+      "Ci8": "zH7",
+      "Fc": "Uc",
+      "zz": "_z",
+      "E": "y"
+    },
+    "reverse": {
+      "Vz5": "Lz5",
+      "MH7": "XH7",
+      "process": "process",
+      "Date": "Date",
+      "hi8": "ab6",
+      "Map": "Map",
+      "Set": "Set",
+      "_H7": "YH7",
+      "zH7": "Ci8",
+      "Uc": "Fc",
+      "_z": "zz",
+      "y": "E"
+    },
+    "scopeCount": 9
+  },
+  "directProviders": [
+    {
+      "sourceRole": "isEnvTruthy",
+      "sourceOwner": {
+        "path": "src/utils/envUtils.ts",
+        "bytes": 6246,
+        "sha256": "0519e43a719ad6579319021c3949d45b7360f71d31f82186df2e9e1bfbc07cdf"
+      },
+      "sourceImport": "import { isEnvTruthy } from '../../utils/envUtils.js'",
+      "sourceExport": {
+        "range": [
+          898,
+          1169
+        ],
+        "text": "export function isEnvTruthy(envVar: string | boolean | undefined): boolean {\n  if (!envVar) return false\n  if (typeof envVar === 'boolean') return envVar\n  const normalizedValue = envVar.toLowerCase().trim()\n  return ['1', 'true', 'yes', 'on'].includes(normalizedValue)\n}",
+        "sha256": "dfe6b937696b6eac4f8855f2da634edc002c95c4765ad54d67d6d758912118b1"
+      },
+      "target": {
+        "index": 595,
+        "type": "FunctionDeclaration",
+        "range": [
+          47825,
+          47959
+        ],
+        "nodes": 37,
+        "strictSha256": "cb30427d6715e2776843a5fd9b1326286ab16666b4de27138632e6d88727214f",
+        "shapeSha256": "7cc5bb0b418a7c4888e721f12f4d1a86d5b0603807c6ba4ed0e5ba562d4ae2a6",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 595,
+        "type": "FunctionDeclaration",
+        "range": [
+          47519,
+          47653
+        ],
+        "nodes": 37,
+        "strictSha256": "6fc491d89e84891e5ac1d9dbb84cf2ac8da8ec9dd2a7a69e7061ad7ca9ccfe55",
+        "shapeSha256": "7cc5bb0b418a7c4888e721f12f4d1a86d5b0603807c6ba4ed0e5ba562d4ae2a6",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 3
+      },
+      "bindingNames": [
+        "Q6",
+        "c6"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 38,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceRole": "logForDebugging",
+      "sourceOwner": {
+        "path": "src/utils/debug.ts",
+        "bytes": 8000,
+        "sha256": "8d6734724d4e8467a50781d3af9d4341d54a8ffc64bf71a2726976714123b01e"
+      },
+      "sourceImport": "import { logForDebugging } from '../../utils/debug.js'",
+      "sourceExport": {
+        "range": [
+          6218,
+          6896
+        ],
+        "text": "export function logForDebugging(\n  message: string,\n  { level }: { level: DebugLogLevel } = {\n    level: 'debug',\n  },\n): void {\n  if (LEVEL_ORDER[level] < LEVEL_ORDER[getMinDebugLogLevel()]) {\n    return\n  }\n  if (!shouldLogDebugMessage(message)) {\n    return\n  }\n\n  // Multiline messages break the jsonl output format, so make any multiline messages JSON.\n  if (hasFormattedOutput && message.includes('\\n')) {\n    message = jsonStringify(message)\n  }\n  const timestamp = new Date().toISOString()\n  const output = `${timestamp} [${level.toUpperCase()}] ${message.trim()}\\n`\n  if (isDebugToStdErr()) {\n    writeToStderr(output)\n    return\n  }\n\n  getDebugWriter().write(output)\n}",
+        "sha256": "65d9fe7a0e6984c9aae1c515b8b6e1e6f9db4ebdc40e716922a34f006bcba2e8"
+      },
+      "target": {
+        "index": 888,
+        "type": "FunctionDeclaration",
+        "range": [
+          143897,
+          144122
+        ],
+        "nodes": 81,
+        "strictSha256": "3a1b6a78988733169a0de54e8328b39bbb6058e418f6500434ffbd3992d9d54b",
+        "shapeSha256": "f1df93aaea1ce8023fb92f0f97990ee043acc37ae15a652b825e9ea30680bab9",
+        "identifierNamesErased": 23,
+        "protectedIdentifierOccurrences": 7
+      },
+      "current": {
+        "index": 888,
+        "type": "FunctionDeclaration",
+        "range": [
+          143591,
+          143816
+        ],
+        "nodes": 81,
+        "strictSha256": "28503135999510e432850a1c668e1ad1f34078a49366b374740f52a55f87d41e",
+        "shapeSha256": "f1df93aaea1ce8023fb92f0f97990ee043acc37ae15a652b825e9ea30680bab9",
+        "identifierNamesErased": 23,
+        "protectedIdentifierOccurrences": 7
+      },
+      "bindingNames": [
+        "N",
+        "N"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 82,
+        "forward": {
+          "ka8": "Ga8",
+          "gO5": "uA5",
+          "UO5": "pA5",
+          "m6": "B6",
+          "Va8": "Ta8",
+          "Date": "Date",
+          "ql": "Kl",
+          "NB": "LB",
+          "cO5": "FA5"
+        },
+        "reverse": {
+          "Ga8": "ka8",
+          "uA5": "gO5",
+          "pA5": "UO5",
+          "B6": "m6",
+          "Ta8": "Va8",
+          "Date": "Date",
+          "Kl": "ql",
+          "LB": "NB",
+          "FA5": "cO5"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "sourceRole": "trySessionMemoryCompaction",
+      "sourceOwner": {
+        "path": "src/services/compact/sessionMemoryCompact.ts",
+        "bytes": 21058,
+        "sha256": "2ece0444187296b18c0edcfb9d01f2b3f0708854c81fdd2de6c3fb1236b08045"
+      },
+      "sourceImport": "import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'",
+      "sourceExport": {
+        "range": [
+          16996,
+          21053
+        ],
+        "text": "export async function trySessionMemoryCompaction(\n  messages: Message[],\n  agentId?: AgentId,\n  autoCompactThreshold?: number,\n): Promise<CompactionResult | null> {\n  if (!shouldUseSessionMemoryCompaction()) {\n    return null\n  }\n\n  // Initialize config from remote (only fetches once)\n  await initSessionMemoryCompactConfig()\n\n  // Wait for any in-progress session memory extraction to complete (with timeout)\n  await waitForSessionMemoryExtraction()\n\n  const lastSummarizedMessageId = getLastSummarizedMessageId()\n  const sessionMemory = await getSessionMemoryContent()\n\n  // No session memory file exists at all\n  if (!sessionMemory) {\n    logEvent('tengu_sm_compact_no_session_memory', {})\n    return null\n  }\n\n  // Session memory exists but matches the template (no actual content extracted)\n  // Fall back to legacy compact behavior\n  if (await isSessionMemoryEmpty(sessionMemory)) {\n    logEvent('tengu_sm_compact_empty_template', {})\n    return null\n  }\n\n  try {\n    let lastSummarizedIndex: number\n\n    if (lastSummarizedMessageId) {\n      // Normal case: we know exactly which messages have been summarized\n      lastSummarizedIndex = messages.findIndex(\n        msg => msg.uuid === lastSummarizedMessageId,\n      )\n\n      if (lastSummarizedIndex === -1) {\n        // The summarized message ID doesn't exist in current messages\n        // This can happen if messages were modified - fall back to legacy compact\n        // since we can't determine the boundary between summarized and unsummarized messages\n        logEvent('tengu_sm_compact_summarized_id_not_found', {})\n        return null\n      }\n    } else {\n      // Resumed session case: session memory has content but we don't know the boundary\n      // Set lastSummarizedIndex to last message so startIndex becomes messages.length (no messages kept initially)\n      lastSummarizedIndex = messages.length - 1\n      logEvent('tengu_sm_compact_resumed_session', {})\n    }\n\n    // Calculate the starting index for messages to keep\n    // This starts from lastSummarizedIndex, expands to meet minimums,\n    // and adjusts to not split tool_use/tool_result pairs\n    const startIndex = calculateMessagesToKeepIndex(\n      messages,\n      lastSummarizedIndex,\n    )\n    // Filter out old compact boundary messages from messagesToKeep.\n    // After REPL pruning, old boundaries re-yielded from messagesToKeep would\n    // trigger an unwanted second prune (isCompactBoundaryMessage returns true),\n    // discarding the new boundary and summary.\n    const messagesToKeep = messages\n      .slice(startIndex)\n      .filter(m => !isCompactBoundaryMessage(m))\n\n    // Run session start hooks to restore CLAUDE.md and other context\n    const hookResults = await processSessionStartHooks('compact', {\n      model: getMainLoopModel(),\n    })\n\n    // Get transcript path for the summary message\n    const transcriptPath = getTranscriptPath()\n\n    const compactionResult = createCompactionResultFromSessionMemory(\n      messages,\n      sessionMemory,\n      messagesToKeep,\n      hookResults,\n      transcriptPath,\n      agentId,\n    )\n\n    const postCompactMessages = buildPostCompactMessages(compactionResult)\n\n    const postCompactTokenCount = estimateMessageTokens(postCompactMessages)\n\n    // Only check threshold if one was provided (for autocompact)\n    if (\n      autoCompactThreshold !== undefined &&\n      postCompactTokenCount >= autoCompactThreshold\n    ) {\n      logEvent('tengu_sm_compact_threshold_exceeded', {\n        postCompactTokenCount,\n        autoCompactThreshold,\n      })\n      return null\n    }\n\n    return {\n      ...compactionResult,\n      postCompactTokenCount,\n      truePostCompactTokenCount: postCompactTokenCount,\n    }\n  } catch (error) {\n    // Use logEvent instead of logError since errors here are expected\n    // (e.g., file not found, path issues) and shouldn't go to error logs\n    logEvent('tengu_sm_compact_error', {})\n    if (process.env.USER_TYPE === 'ant') {\n      logForDebugging(`Session memory compaction error: ${errorMessage(error)}`)\n    }\n    return null\n  }\n}",
+        "sha256": "7267f3b9f0fbd3f1fe626b989a38de6dd6aee33885c27fc7047edeffafbe7d29"
+      },
+      "target": {
+        "index": 12181,
+        "type": "FunctionDeclaration",
+        "range": [
+          9494343,
+          9495113
+        ],
+        "nodes": 199,
+        "strictSha256": "12427ed44660b3b5cf2a7ebcaacf4fcca2be8a186fd34c21495571bddde0cc7e",
+        "shapeSha256": "4d77cf67cffeeaf1d9c6756b0acc51ac032e744d44653e37fff6b15aa57d1791",
+        "identifierNamesErased": 68,
+        "protectedIdentifierOccurrences": 10
+      },
+      "current": {
+        "index": 12187,
+        "type": "FunctionDeclaration",
+        "range": [
+          9491896,
+          9492666
+        ],
+        "nodes": 199,
+        "strictSha256": "bba881f3c79e5a1e5db030d00805ec178240d8798f99266cb1df1eaa65195ff2",
+        "shapeSha256": "4d77cf67cffeeaf1d9c6756b0acc51ac032e744d44653e37fff6b15aa57d1791",
+        "identifierNamesErased": 68,
+        "protectedIdentifierOccurrences": 10
+      },
+      "bindingNames": [
+        "RB8",
+        "hB8"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 200,
+        "forward": {
+          "hB8": "RB8",
+          "Z_Y": "X_Y",
+          "pJ4": "mJ4",
+          "IJ4": "xJ4",
+          "uV8": "mr6",
+          "d": "d",
+          "zfK": "zfK",
+          "T_Y": "D_Y",
+          "UD": "BD",
+          "W5": "D5",
+          "QD": "gD",
+          "X$": "M$",
+          "k_Y": "f_Y",
+          "Pa": "Da",
+          "pk6": "pk6"
+        },
+        "reverse": {
+          "RB8": "hB8",
+          "X_Y": "Z_Y",
+          "mJ4": "pJ4",
+          "xJ4": "IJ4",
+          "mr6": "uV8",
+          "d": "d",
+          "zfK": "zfK",
+          "D_Y": "T_Y",
+          "BD": "UD",
+          "D5": "W5",
+          "gD": "QD",
+          "M$": "X$",
+          "f_Y": "k_Y",
+          "Da": "Pa",
+          "pk6": "pk6"
+        },
+        "scopeCount": 9
+      }
+    },
+    {
+      "sourceRole": "setLastSummarizedMessageId",
+      "sourceOwner": {
+        "path": "src/services/SessionMemory/sessionMemoryUtils.ts",
+        "bytes": 6110,
+        "sha256": "2f333a2bd9becb83f655967b9f4bd0bd8affc9aefe8a2da09bfe9c44a7501faf"
+      },
+      "sourceImport": "import { setLastSummarizedMessageId } from '../SessionMemory/sessionMemoryUtils.js'",
+      "sourceExport": {
+        "range": [
+          2326,
+          2452
+        ],
+        "text": "export function setLastSummarizedMessageId(\n  messageId: string | undefined,\n): void {\n  lastSummarizedMessageId = messageId\n}",
+        "sha256": "9578fe9d2f0aed1b6e2ba816a16329a4dc7882e28aa38d5b57fe168e9a5930c4"
+      },
+      "target": {
+        "index": 6819,
+        "type": "FunctionDeclaration",
+        "range": [
+          5035061,
+          5035083
+        ],
+        "nodes": 8,
+        "strictSha256": "7a2b8f9cf4037c353ebff3b50c6291dd2d835b631cf63509613fc05e4fe461b9",
+        "shapeSha256": "33c9ebaac363c794d312abcf2978a10bcbe1f5aae4b54d6a8b636698ecda805c",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 6819,
+        "type": "FunctionDeclaration",
+        "range": [
+          5035082,
+          5035104
+        ],
+        "nodes": 8,
+        "strictSha256": "8f42de6a1a08d5b432f06316b53fe3591f3fd37853bfb388397fa3ce01e99c34",
+        "shapeSha256": "33c9ebaac363c794d312abcf2978a10bcbe1f5aae4b54d6a8b636698ecda805c",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "bindingNames": [
+        "jq6",
+        "wq6"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 9,
+        "forward": {
+          "CJ4": "SJ4"
+        },
+        "reverse": {
+          "SJ4": "CJ4"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceRole": "runPostCompactCleanup",
+      "sourceOwner": {
+        "path": "src/services/compact/postCompactCleanup.ts",
+        "bytes": 3778,
+        "sha256": "2783f5c75e80638002b5563a0b4ee5daff912bab6523c1473ed1e5060f12e9b7"
+      },
+      "sourceImport": "import { runPostCompactCleanup } from './postCompactCleanup.js'",
+      "sourceExport": {
+        "range": [
+          1658,
+          3771
+        ],
+        "text": "export function runPostCompactCleanup(querySource?: QuerySource): void {\n  // Subagents (agent:*) run in the same process and share module-level\n  // state with the main thread. Only reset main-thread module-level state\n  // (context-collapse, memory file cache) for main-thread compacts.\n  // Same startsWith pattern as isMainThread (index.ts:188).\n  const isMainThreadCompact =\n    querySource === undefined ||\n    querySource.startsWith('repl_main_thread') ||\n    querySource === 'sdk'\n\n  resetMicrocompactState()\n  if (feature('CONTEXT_COLLAPSE')) {\n    if (isMainThreadCompact) {\n      /* eslint-disable @typescript-eslint/no-require-imports */\n      ;(\n        require('../contextCollapse/index.js') as typeof import('../contextCollapse/index.js')\n      ).resetContextCollapse()\n      /* eslint-enable @typescript-eslint/no-require-imports */\n    }\n  }\n  if (isMainThreadCompact) {\n    // getUserContext is a memoized outer layer wrapping getClaudeMds() →\n    // getMemoryFiles(). If only the inner getMemoryFiles cache is cleared,\n    // the next turn hits the getUserContext cache and never reaches\n    // getMemoryFiles(), so the armed InstructionsLoaded hook never fires.\n    // Manual /compact already clears this explicitly at its call sites;\n    // auto-compact and reactive-compact did not — this centralizes the\n    // clear so all compaction paths behave consistently.\n    getUserContext.cache.clear?.()\n    resetGetMemoryFilesCache('compact')\n  }\n  clearSystemPromptSections()\n  clearClassifierApprovals()\n  clearSpeculativeChecks()\n  // Intentionally NOT calling resetSentSkillNames(): re-injecting the full\n  // skill_listing (~4K tokens) post-compact is pure cache_creation. The\n  // model still has SkillTool in schema, invoked_skills preserves used\n  // skills, and dynamic additions are handled by skillChangeDetector /\n  // cacheUtils resets. See compactConversation() for full rationale.\n  clearBetaTracingState()\n  if (feature('COMMIT_ATTRIBUTION')) {\n    void import('../../utils/attributionHooks.js').then(m =>\n      m.sweepFileContentCache(),\n    )\n  }\n  clearSessionMessagesCache()\n}",
+        "sha256": "910f0322004ad678d26441d34d45913145ae92f273c005cfb8b6b1b04509b11c"
+      },
+      "target": {
+        "index": 12155,
+        "type": "FunctionDeclaration",
+        "range": [
+          9484083,
+          9484233
+        ],
+        "nodes": 50,
+        "strictSha256": "b184fe68104f66e09eebec5ab2d123cf9d5d8ac1edff4098180a3fa642d9a6bd",
+        "shapeSha256": "6ee0caf0cc1c62fd55f94eff6f02a7f4a7cc667c8fe9f6354f3280c95a3d340f",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 12161,
+        "type": "FunctionDeclaration",
+        "range": [
+          9481636,
+          9481786
+        ],
+        "nodes": 50,
+        "strictSha256": "5db7684f53f547e524ad477a64c68e90d7f5504635451740f0086fe6c0c14892",
+        "shapeSha256": "6ee0caf0cc1c62fd55f94eff6f02a7f4a7cc667c8fe9f6354f3280c95a3d340f",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 3
+      },
+      "bindingNames": [
+        "Lp",
+        "Rp"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 51,
+        "forward": {
+          "uA": "uO",
+          "br6": "Rr6",
+          "ur": "pr",
+          "ia": "oa",
+          "l4K": "l4K",
+          "ap8": "ap8",
+          "$F4": "YF4",
+          "H17": "A17"
+        },
+        "reverse": {
+          "uO": "uA",
+          "Rr6": "br6",
+          "pr": "ur",
+          "oa": "ia",
+          "l4K": "l4K",
+          "ap8": "ap8",
+          "YF4": "$F4",
+          "A17": "H17"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceRole": "markPostCompaction",
+      "sourceOwner": {
+        "path": "src/bootstrap/state.ts",
+        "bytes": 56281,
+        "sha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049"
+      },
+      "sourceImport": "import {\n  getSdkBetas,\n  markPostCompaction,\n} from '../../bootstrap/state.js'",
+      "sourceExport": {
+        "range": [
+          28388,
+          28471
+        ],
+        "text": "export function markPostCompaction(): void {\n  STATE.pendingPostCompaction = true\n}",
+        "sha256": "cdbb78dc54d596757a707e2654697688f45c6af79b8d8b25f64b23dd5d948fe6"
+      },
+      "target": {
+        "index": 419,
+        "type": "FunctionDeclaration",
+        "range": [
+          35397,
+          35439
+        ],
+        "nodes": 10,
+        "strictSha256": "28a5bf2b5b8ed3843584cc12d91b560d9866626320cf12f5cbf5df898a39f792",
+        "shapeSha256": "d2a3c2dda46d438de02f75c35f4a8d22c13146a5b7dff0d5b2204b18f0237ca6",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 419,
+        "type": "FunctionDeclaration",
+        "range": [
+          35091,
+          35133
+        ],
+        "nodes": 10,
+        "strictSha256": "885bb8cfd711a89c67b33928d11c5fb7066a980771c5ebc2a0372381628d2a9e",
+        "shapeSha256": "d2a3c2dda46d438de02f75c35f4a8d22c13146a5b7dff0d5b2204b18f0237ca6",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "bindingNames": [
+        "rt",
+        "rt"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 11,
+        "forward": {
+          "Z8": "G8"
+        },
+        "reverse": {
+          "G8": "Z8"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceRole": "getFeatureValue_CACHED_MAY_BE_STALE",
+      "sourceOwner": {
+        "path": "src/services/analytics/growthbook.ts",
+        "bytes": 40526,
+        "sha256": "42541e6311ebed2d2865332eb7d9b2b99ac46f16d47674e702d7b035c1b96cf4"
+      },
+      "sourceImport": "import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'",
+      "sourceExport": {
+        "range": [
+          26175,
+          27609
+        ],
+        "text": "export function getFeatureValue_CACHED_MAY_BE_STALE<T>(\n  feature: string,\n  defaultValue: T,\n): T {\n  // Check env var overrides first (for eval harnesses)\n  const overrides = getEnvOverrides()\n  if (overrides && feature in overrides) {\n    return overrides[feature] as T\n  }\n  const configOverrides = getConfigOverrides()\n  if (configOverrides && feature in configOverrides) {\n    return configOverrides[feature] as T\n  }\n\n  if (!isGrowthBookEnabled()) {\n    return defaultValue\n  }\n\n  // Log experiment exposure if data is available, otherwise defer until after init\n  if (experimentDataByFeature.has(feature)) {\n    logExposureForFeature(feature)\n  } else {\n    pendingExposures.add(feature)\n  }\n\n  // In-memory payload is authoritative once processRemoteEvalPayload has run.\n  // Disk is also fresh by then (syncRemoteEvalToDisk runs synchronously inside\n  // init), so this is correctness-equivalent to the disk read below — but it\n  // skips the config JSON parse and is what onGrowthBookRefresh subscribers\n  // depend on to read fresh values the instant they're notified.\n  if (remoteEvalFeatureValues.has(feature)) {\n    return remoteEvalFeatureValues.get(feature) as T\n  }\n\n  // Fall back to disk cache (survives across process restarts)\n  try {\n    const cached = getGlobalConfig().cachedGrowthBookFeatures?.[feature]\n    return cached !== undefined ? (cached as T) : defaultValue\n  } catch {\n    return defaultValue\n  }\n}",
+        "sha256": "ed48a7dbc705a4ea08a66863d05864826013851a260aff3172e8d3efedc32d74"
+      },
+      "target": {
+        "index": 4902,
+        "type": "FunctionDeclaration",
+        "range": [
+          3695062,
+          3695321
+        ],
+        "nodes": 93,
+        "strictSha256": "4d59e4a7dc381c94f45bface3d82f6319540de56e3c65cc8f51e648741779330",
+        "shapeSha256": "9dbe571c42133459d6885a6ce16962f669a4ff5068b664dfa0dcfd8f63ba7a1a",
+        "identifierNamesErased": 36,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 4904,
+        "type": "FunctionDeclaration",
+        "range": [
+          3695325,
+          3695584
+        ],
+        "nodes": 93,
+        "strictSha256": "d98555a5d9c955c4d2cd31f7c2166a1912449b9b65429f0265a2a3a802c504df",
+        "shapeSha256": "9dbe571c42133459d6885a6ce16962f669a4ff5068b664dfa0dcfd8f63ba7a1a",
+        "identifierNamesErased": 36,
+        "protectedIdentifierOccurrences": 5
+      },
+      "bindingNames": [
+        "u8",
+        "m8"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 94,
+        "forward": {
+          "rG6": "rG6",
+          "oG6": "oG6",
+          "xi": "ui",
+          "nG6": "nG6",
+          "cc6": "Fc6",
+          "zO6": "KA6",
+          "qC": "qC",
+          "w8": "w8"
+        },
+        "reverse": {
+          "rG6": "rG6",
+          "oG6": "oG6",
+          "ui": "xi",
+          "nG6": "nG6",
+          "Fc6": "cc6",
+          "KA6": "zO6",
+          "qC": "qC",
+          "w8": "w8"
+        },
+        "scopeCount": 6
+      }
+    },
+    {
+      "sourceRole": "compactConversation",
+      "sourceOwner": {
+        "path": "src/services/compact/compact.ts",
+        "bytes": 61530,
+        "sha256": "c3f0faab0bd5650f0adcba1df56c1b5495243dcabb78fd682c6bfc1f2dd235fc"
+      },
+      "sourceImport": "import {\n  type CompactionResult,\n  compactConversation,\n  ERROR_MESSAGE_USER_ABORT,\n  type RecompactionInfo,\n} from './compact.js'",
+      "sourceExport": {
+        "range": [
+          13954,
+          28238
+        ],
+        "text": "export async function compactConversation(\n  messages: Message[],\n  context: ToolUseContext,\n  cacheSafeParams: CacheSafeParams,\n  suppressFollowUpQuestions: boolean,\n  customInstructions?: string,\n  isAutoCompact: boolean = false,\n  recompactionInfo?: RecompactionInfo,\n  stripNonEssential: boolean = false,\n): Promise<CompactionResult> {\n  try {\n    if (messages.length === 0) {\n      throw new Error(ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)\n    }\n\n    const preCompactTokenCount = tokenCountWithEstimation(messages)\n\n    const appState = context.getAppState()\n    void logPermissionContextForAnts(appState.toolPermissionContext, 'summary')\n\n    context.onCompactProgress?.({\n      type: 'hooks_start',\n      hookType: 'pre_compact',\n    })\n\n    // Execute PreCompact hooks\n    context.setSDKStatus?.('compacting')\n    const hookResult = await executePreCompactHooks(\n      {\n        trigger: isAutoCompact ? 'auto' : 'manual',\n        customInstructions: customInstructions ?? null,\n      },\n      context.abortController.signal,\n    )\n    customInstructions = mergeHookInstructions(\n      customInstructions,\n      hookResult.newCustomInstructions,\n    )\n    const userDisplayMessage = hookResult.userDisplayMessage\n\n    // Show requesting mode with up arrow and custom message\n    context.setStreamMode?.('requesting')\n    context.setResponseLength?.(() => 0)\n    context.onCompactProgress?.({ type: 'compact_start' })\n\n    // 3P default: true — forked-agent path reuses main conversation's prompt cache.\n    // Experiment (Jan 2026) confirmed: false path is 98% cache miss, costs ~0.76% of\n    // fleet cache_creation (~38B tok/day), concentrated in ephemeral envs (CCR/GHA/SDK)\n    // with cold GB cache and 3P providers where GB is disabled. GB gate kept as kill-switch.\n    const promptCacheSharingEnabled = getFeatureValue_CACHED_MAY_BE_STALE(\n      'tengu_compact_cache_prefix',\n      true,\n    )\n\n    const compactPrompt = getCompactPrompt(customInstructions)\n    const summaryRequest = createUserMessage({\n      content: compactPrompt,\n    })\n\n    let messagesToSummarize = messages\n    let retryCacheSafeParams = cacheSafeParams\n    let summaryResponse: AssistantMessage\n    let summary: string | null\n    let ptlAttempts = 0\n    for (;;) {\n      summaryResponse = await streamCompactSummary({\n        messages: messagesToSummarize,\n        summaryRequest,\n        appState,\n        context,\n        preCompactTokenCount,\n        cacheSafeParams: retryCacheSafeParams,\n        stripNonEssential,\n      })\n      summary = getAssistantMessageText(summaryResponse)\n      if (!summary?.startsWith(PROMPT_TOO_LONG_ERROR_MESSAGE)) break\n\n      // CC-1180: compact request itself hit prompt-too-long. Truncate the\n      // oldest API-round groups and retry rather than leaving the user stuck.\n      ptlAttempts++\n      const truncated =\n        ptlAttempts <= MAX_PTL_RETRIES\n          ? truncateHeadForPTLRetry(messagesToSummarize, summaryResponse)\n          : null\n      if (!truncated) {\n        logEvent('tengu_compact_failed', {\n          reason:\n            'prompt_too_long' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n          preCompactTokenCount,\n          promptCacheSharingEnabled,\n          ptlAttempts,\n        })\n        throw new Error(ERROR_MESSAGE_PROMPT_TOO_LONG)\n      }\n      logEvent('tengu_compact_ptl_retry', {\n        attempt: ptlAttempts,\n        droppedMessages: messagesToSummarize.length - truncated.length,\n        remainingMessages: truncated.length,\n      })\n      messagesToSummarize = truncated\n      // The forked-agent path reads from cacheSafeParams.forkContextMessages,\n      // not the messages param — thread the truncated set through both paths.\n      retryCacheSafeParams = {\n        ...retryCacheSafeParams,\n        forkContextMessages: truncated,\n      }\n    }\n\n    if (!summary) {\n      logForDebugging(\n        `Compact failed: no summary text in response. Response: ${jsonStringify(summaryResponse)}`,\n        { level: 'error' },\n      )\n      logEvent('tengu_compact_failed', {\n        reason:\n          'no_summary' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n        preCompactTokenCount,\n        promptCacheSharingEnabled,\n      })\n      throw new Error(\n        `Failed to generate conversation summary - response did not contain valid text content`,\n      )\n    } else if (startsWithApiErrorPrefix(summary)) {\n      logEvent('tengu_compact_failed', {\n        reason:\n          'api_error' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n        preCompactTokenCount,\n        promptCacheSharingEnabled,\n      })\n      throw new Error(summary)\n    }\n\n    // Store the current file state before clearing\n    const preCompactReadFileState = cacheToObject(context.readFileState)\n\n    // Clear the cache\n    context.readFileState.clear()\n    context.loadedNestedMemoryPaths?.clear()\n\n    // Intentionally NOT resetting sentSkillNames: re-injecting the full\n    // skill_listing (~4K tokens) post-compact is pure cache_creation with\n    // marginal benefit. The model still has SkillTool in its schema and\n    // invoked_skills attachment (below) preserves used-skill content. Ants\n    // with EXPERIMENTAL_SKILL_SEARCH already skip re-injection via the\n    // early-return in getSkillListingAttachments.\n\n    // Run async attachment generation in parallel\n    const [fileAttachments, asyncAgentAttachments] = await Promise.all([\n      createPostCompactFileAttachments(\n        preCompactReadFileState,\n        context,\n        POST_COMPACT_MAX_FILES_TO_RESTORE,\n      ),\n      createAsyncAgentAttachmentsIfNeeded(context),\n    ])\n\n    const postCompactFileAttachments: AttachmentMessage[] = [\n      ...fileAttachments,\n      ...asyncAgentAttachments,\n    ]\n    const planAttachment = createPlanAttachmentIfNeeded(context.agentId)\n    if (planAttachment) {\n      postCompactFileAttachments.push(planAttachment)\n    }\n\n    // Add plan mode instructions if currently in plan mode, so the model\n    // continues operating in plan mode after compaction\n    const planModeAttachment = await createPlanModeAttachmentIfNeeded(context)\n    if (planModeAttachment) {\n      postCompactFileAttachments.push(planModeAttachment)\n    }\n\n    // Add skill attachment if skills were invoked in this session\n    const skillAttachment = createSkillAttachmentIfNeeded(context.agentId)\n    if (skillAttachment) {\n      postCompactFileAttachments.push(skillAttachment)\n    }\n\n    // Compaction ate prior delta attachments. Re-announce from the current\n    // state so the model has tool/instruction context on the first\n    // post-compact turn. Empty message history → diff against nothing →\n    // announces the full set.\n    for (const att of getDeferredToolsDeltaAttachment(\n      context.options.tools,\n      context.options.mainLoopModel,\n      [],\n      { callSite: 'compact_full' },\n    )) {\n      postCompactFileAttachments.push(createAttachmentMessage(att))\n    }\n    for (const att of getAgentListingDeltaAttachment(context, [])) {\n      postCompactFileAttachments.push(createAttachmentMessage(att))\n    }\n    for (const att of getMcpInstructionsDeltaAttachment(\n      context.options.mcpClients,\n      context.options.tools,\n      context.options.mainLoopModel,\n      [],\n    )) {\n      postCompactFileAttachments.push(createAttachmentMessage(att))\n    }\n\n    context.onCompactProgress?.({\n      type: 'hooks_start',\n      hookType: 'session_start',\n    })\n    // Execute SessionStart hooks after successful compaction\n    const hookMessages = await processSessionStartHooks('compact', {\n      model: context.options.mainLoopModel,\n    })\n\n    // Create the compact boundary marker and summary messages before the\n    // event so we can compute the true resulting-context size.\n    const boundaryMarker = createCompactBoundaryMessage(\n      isAutoCompact ? 'auto' : 'manual',\n      preCompactTokenCount ?? 0,\n      messages.at(-1)?.uuid,\n    )\n    // Carry loaded-tool state — the summary doesn't preserve tool_reference\n    // blocks, so the post-compact schema filter needs this to keep sending\n    // already-loaded deferred tool schemas to the API.\n    const preCompactDiscovered = extractDiscoveredToolNames(messages)\n    if (preCompactDiscovered.size > 0) {\n      boundaryMarker.compactMetadata.preCompactDiscoveredTools = [\n        ...preCompactDiscovered,\n      ].sort()\n    }\n\n    const transcriptPath = getTranscriptPath()\n    const summaryMessages: UserMessage[] = [\n      createUserMessage({\n        content: getCompactUserSummaryMessage(\n          summary,\n          suppressFollowUpQuestions,\n          transcriptPath,\n        ),\n        isCompactSummary: true,\n        isVisibleInTranscriptOnly: true,\n      }),\n    ]\n\n    // Previously \"postCompactTokenCount\" — renamed because this is the\n    // compact API call's total usage (input_tokens ≈ preCompactTokenCount),\n    // NOT the size of the resulting context. Kept for event-field continuity.\n    const compactionCallTotalTokens = tokenCountFromLastAPIResponse([\n      summaryResponse,\n    ])\n\n    // Message-payload estimate of the resulting context. The next iteration's\n    // shouldAutoCompact will see this PLUS ~20-40K for system prompt + tools +\n    // userContext (via API usage.input_tokens). So `willRetriggerNextTurn: true`\n    // is a strong signal; `false` may still retrigger when this is close to threshold.\n    const truePostCompactTokenCount = roughTokenCountEstimationForMessages([\n      boundaryMarker,\n      ...summaryMessages,\n      ...postCompactFileAttachments,\n      ...hookMessages,\n    ])\n\n    // Extract compaction API usage metrics\n    const compactionUsage = getTokenUsage(summaryResponse)\n\n    const querySourceForEvent =\n      recompactionInfo?.querySource ?? context.options.querySource ?? 'unknown'\n\n    logEvent('tengu_compact', {\n      preCompactTokenCount,\n      stripNonEssential,\n      // Kept for continuity — semantically the compact API call's total usage\n      postCompactTokenCount: compactionCallTotalTokens,\n      truePostCompactTokenCount,\n      autoCompactThreshold: recompactionInfo?.autoCompactThreshold ?? -1,\n      willRetriggerNextTurn:\n        recompactionInfo !== undefined &&\n        truePostCompactTokenCount >= recompactionInfo.autoCompactThreshold,\n      isAutoCompact,\n      querySource:\n        querySourceForEvent as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n      queryChainId: (context.queryTracking?.chainId ??\n        '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n      queryDepth: context.queryTracking?.depth ?? -1,\n      isRecompactionInChain: recompactionInfo?.isRecompactionInChain ?? false,\n      turnsSincePreviousCompact:\n        recompactionInfo?.turnsSincePreviousCompact ?? -1,\n      previousCompactTurnId: (recompactionInfo?.previousCompactTurnId ??\n        '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n      compactionInputTokens: compactionUsage?.input_tokens,\n      compactionOutputTokens: compactionUsage?.output_tokens,\n      compactionCacheReadTokens: compactionUsage?.cache_read_input_tokens ?? 0,\n      compactionCacheCreationTokens:\n        compactionUsage?.cache_creation_input_tokens ?? 0,\n      compactionTotalTokens: compactionUsage\n        ? compactionUsage.input_tokens +\n          (compactionUsage.cache_creation_input_tokens ?? 0) +\n          (compactionUsage.cache_read_input_tokens ?? 0) +\n          compactionUsage.output_tokens\n        : 0,\n      promptCacheSharingEnabled,\n      // analyzeContext walks every content block (~11ms on a 4.5K-message\n      // session) purely for this telemetry breakdown. Computed here, past\n      // the compaction-API await, so the sync walk doesn't starve the\n      // render loop before compaction even starts. Same deferral pattern\n      // as reactiveCompact.ts.\n      ...(() => {\n        try {\n          return tokenStatsToStatsigMetrics(analyzeContext(messages))\n        } catch (error) {\n          logError(error as Error)\n          return {}\n        }\n      })(),\n    })\n\n    // Reset cache read baseline so the post-compact drop isn't flagged as a break\n    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {\n      notifyCompaction(\n        context.options.querySource ?? 'compact',\n        context.agentId,\n      )\n    }\n    markPostCompaction()\n\n    // Re-append session metadata (custom title, tag) so it stays within\n    // the 16KB tail window that readLiteMetadata reads for --resume display.\n    // Without this, enough post-compaction messages push the metadata entry\n    // out of the window, causing --resume to show the auto-generated title\n    // instead of the user-set session name.\n    reAppendSessionMetadata()\n\n    // Write a reduced transcript segment for the pre-compaction messages\n    // (assistant mode only). Fire-and-forget — errors are logged internally.\n    if (feature('KAIROS')) {\n      void sessionTranscriptModule?.writeSessionTranscriptSegment(messages)\n    }\n\n    context.onCompactProgress?.({\n      type: 'hooks_start',\n      hookType: 'post_compact',\n    })\n    const postCompactHookResult = await executePostCompactHooks(\n      {\n        trigger: isAutoCompact ? 'auto' : 'manual',\n        compactSummary: summary,\n      },\n      context.abortController.signal,\n    )\n\n    const combinedUserDisplayMessage = [\n      userDisplayMessage,\n      postCompactHookResult.userDisplayMessage,\n    ]\n      .filter(Boolean)\n      .join('\\n')\n\n    return {\n      boundaryMarker,\n      summaryMessages,\n      attachments: postCompactFileAttachments,\n      hookResults: hookMessages,\n      userDisplayMessage: combinedUserDisplayMessage || undefined,\n      preCompactTokenCount,\n      postCompactTokenCount: compactionCallTotalTokens,\n      truePostCompactTokenCount,\n      compactionUsage,\n    }\n  } catch (error) {\n    // Only show the error notification for manual /compact.\n    // Auto-compact failures are retried on the next turn and the\n    // notification is confusing when compaction eventually succeeds.\n    if (!isAutoCompact) {\n      addErrorNotificationIfNeeded(error, context)\n    }\n    throw error\n  } finally {\n    context.setStreamMode?.('requesting')\n    context.setResponseLength?.(() => 0)\n    context.onCompactProgress?.({ type: 'compact_end' })\n    context.setSDKStatus?.(null)\n  }\n}",
+        "sha256": "b6456eae1d966a396f833f2e307a7963d06aff21795725229094bc31e56bcad9"
+      },
+      "target": {
+        "index": 12140,
+        "type": "FunctionDeclaration",
+        "range": [
+          9469814,
+          9473732
+        ],
+        "nodes": 937,
+        "strictSha256": "526c2580289bed5f3a526cd7266b28913dca3b0bf047d38c19aff47b660728bf",
+        "shapeSha256": "b9de637422493cd23665029ac87849fe6c3204cc71cf69d72ad24417d5652a6f",
+        "identifierNamesErased": 260,
+        "protectedIdentifierOccurrences": 147
+      },
+      "current": {
+        "index": 12146,
+        "type": "FunctionDeclaration",
+        "range": [
+          9467377,
+          9471281
+        ],
+        "nodes": 937,
+        "strictSha256": "e963fee4442bde0278a6ee7d6bbf5018dc788d1222f726add43b5eee70eefcf1",
+        "shapeSha256": "b9de637422493cd23665029ac87849fe6c3204cc71cf69d72ad24417d5652a6f",
+        "identifierNamesErased": 260,
+        "protectedIdentifierOccurrences": 147
+      },
+      "bindingNames": [
+        "BE6",
+        "pE6"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 938,
+        "forward": {
+          "MR6": "Hh6",
+          "Error": "Error",
+          "DZ": "P0",
+          "ZB8": "ZB8",
+          "PR6": "Jh6",
+          "w17": "Y17",
+          "u8": "m8",
+          "mDK": "mDK",
+          "c8": "Q8",
+          "lDK": "lDK",
+          "XR6": "hH6",
+          "zp": "$p",
+          "UDK": "UDK",
+          "FDK": "FDK",
+          "d": "d",
+          "QDK": "QDK",
+          "Ga": "va",
+          "m6": "B6",
+          "N": "N",
+          "FI1": "pI1",
+          "gDK": "gDK",
+          "nDK": "nDK",
+          "oDK": "oDK",
+          "Promise": "Promise",
+          "vB8": "TB8",
+          "rDK": "rDK",
+          "iDK": "iDK",
+          "G4": "G4",
+          "TB8": "vB8",
+          "kB8": "kB8",
+          "VB8": "VB8",
+          "QD": "gD",
+          "u18": "I18",
+          "Jd": "Xd",
+          "X$": "M$",
+          "x18": "b18",
+          "uN": "xN",
+          "Qk6": "Qk6",
+          "cC": "nC",
+          "XM4": "MM4",
+          "PM4": "XM4",
+          "j6": "w6",
+          "rt": "rt",
+          "NB8": "NB8",
+          "yB8": "yB8",
+          "Boolean": "Boolean",
+          "cDK": "cDK"
+        },
+        "reverse": {
+          "Hh6": "MR6",
+          "Error": "Error",
+          "P0": "DZ",
+          "ZB8": "ZB8",
+          "Jh6": "PR6",
+          "Y17": "w17",
+          "m8": "u8",
+          "mDK": "mDK",
+          "Q8": "c8",
+          "lDK": "lDK",
+          "hH6": "XR6",
+          "$p": "zp",
+          "UDK": "UDK",
+          "FDK": "FDK",
+          "d": "d",
+          "QDK": "QDK",
+          "va": "Ga",
+          "B6": "m6",
+          "N": "N",
+          "pI1": "FI1",
+          "gDK": "gDK",
+          "nDK": "nDK",
+          "oDK": "oDK",
+          "Promise": "Promise",
+          "TB8": "vB8",
+          "rDK": "rDK",
+          "iDK": "iDK",
+          "G4": "G4",
+          "vB8": "TB8",
+          "kB8": "kB8",
+          "VB8": "VB8",
+          "gD": "QD",
+          "I18": "u18",
+          "Xd": "Jd",
+          "M$": "X$",
+          "b18": "x18",
+          "xN": "uN",
+          "Qk6": "Qk6",
+          "nC": "cC",
+          "MM4": "XM4",
+          "XM4": "PM4",
+          "w6": "j6",
+          "rt": "rt",
+          "NB8": "NB8",
+          "yB8": "yB8",
+          "Boolean": "Boolean",
+          "cDK": "cDK"
+        },
+        "scopeCount": 17
+      }
+    },
+    {
+      "sourceRole": "hasExactErrorMessage",
+      "sourceOwner": {
+        "path": "src/utils/errors.ts",
+        "bytes": 7655,
+        "sha256": "ab8d90dac1d13f7e5fde4708643120556ea83d25f3586c90dafb2e453e01e9bd"
+      },
+      "sourceImport": "import { hasExactErrorMessage } from '../../utils/errors.js'",
+      "sourceExport": {
+        "range": [
+          2974,
+          3117
+        ],
+        "text": "export function hasExactErrorMessage(error: unknown, message: string): boolean {\n  return error instanceof Error && error.message === message\n}",
+        "sha256": "63cb8db6d1776acb9303f991a1fc629ab027b7829e0e4bd318c7986729993d65"
+      },
+      "target": {
+        "index": 747,
+        "type": "FunctionDeclaration",
+        "range": [
+          125665,
+          125723
+        ],
+        "nodes": 15,
+        "strictSha256": "d407c5d2aae2e62c9a7c24c0665416539ef07517596ebf49178201d941108afe",
+        "shapeSha256": "3b6b82d5dd900a562c6cdcbea63f0c4e8ea18a9d0d7b3c6d9b29c6a8ff6c6182",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 747,
+        "type": "FunctionDeclaration",
+        "range": [
+          125359,
+          125417
+        ],
+        "nodes": 15,
+        "strictSha256": "d407c5d2aae2e62c9a7c24c0665416539ef07517596ebf49178201d941108afe",
+        "shapeSha256": "3b6b82d5dd900a562c6cdcbea63f0c4e8ea18a9d0d7b3c6d9b29c6a8ff6c6182",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "bindingNames": [
+        "we",
+        "we"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 16,
+        "forward": {
+          "Error": "Error"
+        },
+        "reverse": {
+          "Error": "Error"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceRole": "logError",
+      "sourceOwner": {
+        "path": "src/utils/log.ts",
+        "bytes": 11693,
+        "sha256": "82f7f41d4803c6498518fda9f969509a546424a6218b46c54986fdd9572bf339"
+      },
+      "sourceImport": "import { logError } from '../../utils/log.js'",
+      "sourceExport": {
+        "range": [
+          5584,
+          6823
+        ],
+        "text": "export function logError(error: unknown): void {\n  const err = toError(error)\n  if (feature('HARD_FAIL') && isHardFailMode()) {\n    // biome-ignore lint/suspicious/noConsole:: intentional crash output\n    console.error('[HARD FAIL] logError called with:', err.stack || err.message)\n    // eslint-disable-next-line custom-rules/no-process-exit\n    process.exit(1)\n  }\n  try {\n    // Check if error reporting should be disabled\n    if (\n      // Cloud providers (Bedrock/Vertex/Foundry) always disable features\n      isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||\n      isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||\n      isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||\n      process.env.DISABLE_ERROR_REPORTING ||\n      isEssentialTrafficOnly()\n    ) {\n      return\n    }\n\n    const errorStr = err.stack || err.message\n\n    const errorInfo = {\n      error: errorStr,\n      timestamp: new Date().toISOString(),\n    }\n\n    // Always add to in-memory log (no dependencies needed)\n    addToInMemoryErrorLog(errorInfo)\n\n    // If sink not attached, queue the event\n    if (errorLogSink === null) {\n      errorQueue.push({ type: 'error', error: err })\n      return\n    }\n\n    errorLogSink.logError(err)\n  } catch {\n    // pass\n  }\n}",
+        "sha256": "2c73cb3bcd6d7e5f27fec2c88735404df4c11479db48af8f4390cc580247790f"
+      },
+      "target": {
+        "index": 2032,
+        "type": "FunctionDeclaration",
+        "range": [
+          869591,
+          869948
+        ],
+        "nodes": 96,
+        "strictSha256": "e575c4ce9c3bc450124dba24b32074d5d32ca627727cf1353ea3ce50f74856f9",
+        "shapeSha256": "ca75fcc858d09704c07dbdeca491e3e3b4eb48230ae82968ef67b4b43a8c0813",
+        "identifierNamesErased": 24,
+        "protectedIdentifierOccurrences": 17
+      },
+      "current": {
+        "index": 2032,
+        "type": "FunctionDeclaration",
+        "range": [
+          869257,
+          869614
+        ],
+        "nodes": 96,
+        "strictSha256": "ad94e9644f536b8b0f45d765dda1696cfa927dd89aff6197c37e3c430c0290a4",
+        "shapeSha256": "ca75fcc858d09704c07dbdeca491e3e3b4eb48230ae82968ef67b4b43a8c0813",
+        "identifierNamesErased": 24,
+        "protectedIdentifierOccurrences": 17
+      },
+      "bindingNames": [
+        "j6",
+        "w6"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 97,
+        "forward": {
+          "p1": "u1",
+          "process": "process",
+          "Q6": "c6",
+          "wY": "OY",
+          "Date": "Date",
+          "IW6": "IW6",
+          "jE5": "$E5",
+          "MI": "XI"
+        },
+        "reverse": {
+          "u1": "p1",
+          "process": "process",
+          "c6": "Q6",
+          "OY": "wY",
+          "Date": "Date",
+          "IW6": "IW6",
+          "$E5": "jE5",
+          "XI": "MI"
+        },
+        "scopeCount": 7
+      }
+    },
+    {
+      "sourceRole": "ERROR_MESSAGE_USER_ABORT",
+      "sourceOwner": {
+        "path": "src/services/compact/compact.ts",
+        "bytes": 61530,
+        "sha256": "c3f0faab0bd5650f0adcba1df56c1b5495243dcabb78fd682c6bfc1f2dd235fc"
+      },
+      "sourceImport": "import {\n  type CompactionResult,\n  compactConversation,\n  ERROR_MESSAGE_USER_ABORT,\n  type RecompactionInfo,\n} from './compact.js'",
+      "sourceExport": {
+        "range": [
+          10862,
+          10935
+        ],
+        "text": "export const ERROR_MESSAGE_USER_ABORT = 'API Error: Request was aborted.'",
+        "sha256": "5f078edc84d5094f648f0c1a8fb3e8a3bfaca98891c0dc84af305bddfb08e50c"
+      },
+      "target": {
+        "index": 12153,
+        "type": "VariableDeclaration",
+        "range": [
+          9483403,
+          9483874
+        ],
+        "nodes": 41,
+        "strictSha256": "a98628e43b064c25f2e5a686e915bfc851ea52f1f692d451e3635b5af5da983f",
+        "shapeSha256": "afc62bec611d89676d4034f9bd60e204888e062adbea9b580bdfffbf66d9c8e5",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 12159,
+        "type": "VariableDeclaration",
+        "range": [
+          9480956,
+          9481427
+        ],
+        "nodes": 41,
+        "strictSha256": "0071d25b79e867d29a5b078bb2877509e4acbce98482f275eeef5d94aa40d67a",
+        "shapeSha256": "afc62bec611d89676d4034f9bd60e204888e062adbea9b580bdfffbf66d9c8e5",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 0
+      },
+      "bindingNames": [
+        "Xa",
+        "Wa"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 42,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 2
+      }
+    }
+  ],
+  "additionalDirectProviders": [
+    {
+      "sourceRole": "getSdkBetas",
+      "sourceOwner": {
+        "path": "src/bootstrap/state.ts",
+        "bytes": 56281,
+        "sha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049"
+      },
+      "sourceExport": {
+        "range": [
+          31285,
+          31364
+        ],
+        "text": "export function getSdkBetas(): string[] | undefined {\n  return STATE.sdkBetas\n}",
+        "sha256": "bfe1167389fc5882ad01b51091b1fc8897b63f321021e0e97c7997ddba91c879"
+      },
+      "target": {
+        "index": 431,
+        "type": "FunctionDeclaration",
+        "range": [
+          36031,
+          36064
+        ],
+        "nodes": 7,
+        "strictSha256": "d9f2f57587c5b073d77668330e85af782c21154da212075689b628c8c8c9d1c7",
+        "shapeSha256": "7b20f908df895fe4daf93495531d688a0e6283285d15cd0f60589f50f1ec75db",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 431,
+        "type": "FunctionDeclaration",
+        "range": [
+          35725,
+          35758
+        ],
+        "nodes": 7,
+        "strictSha256": "9726ee3dc637471eaa0486ffa905b15934411b30ef340659a56aee3f84501f26",
+        "shapeSha256": "7b20f908df895fe4daf93495531d688a0e6283285d15cd0f60589f50f1ec75db",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "bindingNames": [
+        "LW",
+        "NW"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 8,
+        "forward": {
+          "Z8": "G8"
+        },
+        "reverse": {
+          "G8": "Z8"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceRole": "getGlobalConfig",
+      "sourceOwner": {
+        "path": "src/utils/config.ts",
+        "bytes": 63717,
+        "sha256": "5bddab9ace77cea53ef47b3a344b0a92531ac334c43d30624d086d90e88fdb78"
+      },
+      "sourceExport": {
+        "range": [
+          39643,
+          41073
+        ],
+        "text": "export function getGlobalConfig(): GlobalConfig {\n  if (process.env.NODE_ENV === 'test') {\n    return TEST_GLOBAL_CONFIG_FOR_TESTING\n  }\n\n  // Fast path: pure memory read. After startup, this always hits — our own\n  // writes go write-through and other instances' writes are picked up by the\n  // background freshness watcher (never blocks this path).\n  if (globalConfigCache.config) {\n    configCacheHits++\n    return globalConfigCache.config\n  }\n\n  // Slow path: startup load. Sync I/O here is acceptable because it runs\n  // exactly once, before any UI is rendered. Stat before read so any race\n  // self-corrects (old mtime + new content → watcher re-reads next tick).\n  configCacheMisses++\n  try {\n    let stats: { mtimeMs: number; size: number } | null = null\n    try {\n      stats = getFsImplementation().statSync(getGlobalClaudeFile())\n    } catch {\n      // File doesn't exist\n    }\n    const config = migrateConfigFields(\n      getConfig(getGlobalClaudeFile(), createDefaultGlobalConfig),\n    )\n    globalConfigCache = {\n      config,\n      mtime: stats?.mtimeMs ?? Date.now(),\n    }\n    lastReadFileStats = stats\n      ? { mtime: stats.mtimeMs, size: stats.size }\n      : null\n    startGlobalConfigFreshnessWatcher()\n    return config\n  } catch {\n    // If anything goes wrong, fall back to uncached behavior\n    return migrateConfigFields(\n      getConfig(getGlobalClaudeFile(), createDefaultGlobalConfig),\n    )\n  }\n}",
+        "sha256": "35dcaaef0fa4550fc8542f2f87205781fb6709afc33aec62de6ab8fb6314107e"
+      },
+      "target": {
+        "index": 4979,
+        "type": "FunctionDeclaration",
+        "range": [
+          3708218,
+          3708477
+        ],
+        "nodes": 95,
+        "strictSha256": "14272a2d8fc2c8dee7ac72526513008647918d6c24546a4eb0e9d8a443a8c964",
+        "shapeSha256": "37e4f271053d242cb37807784f5e351edb545e3913d18e51b380f4996a3077d7",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 11
+      },
+      "current": {
+        "index": 4981,
+        "type": "FunctionDeclaration",
+        "range": [
+          3708481,
+          3708740
+        ],
+        "nodes": 95,
+        "strictSha256": "998bf1a3a69ae557fc60b6a1bb2612c03fc83ca0ccddab93a35b21cceff6813a",
+        "shapeSha256": "37e4f271053d242cb37807784f5e351edb545e3913d18e51b380f4996a3077d7",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 11
+      },
+      "bindingNames": [
+        "w8",
+        "w8"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 96,
+        "forward": {
+          "ic6": "dc6",
+          "hF": "hF",
+          "AZ8": "O08",
+          "vP": "vP",
+          "M8": "X8",
+          "mi": "Bi",
+          "$O6": "zA6",
+          "_y1": "Ky1",
+          "Date": "Date",
+          "I16": "x16",
+          "WM_": "JM_"
+        },
+        "reverse": {
+          "dc6": "ic6",
+          "hF": "hF",
+          "O08": "AZ8",
+          "vP": "vP",
+          "X8": "M8",
+          "Bi": "mi",
+          "zA6": "$O6",
+          "Ky1": "_y1",
+          "Date": "Date",
+          "x16": "I16",
+          "JM_": "WM_"
+        },
+        "scopeCount": 9
+      }
+    },
+    {
+      "sourceRole": "getContextWindowForModel",
+      "sourceOwner": {
+        "path": "src/utils/context.ts",
+        "bytes": 6574,
+        "sha256": "eb03caaafac7240a9d18c3433764600b66f770798051ed542a04faad2c1a6147"
+      },
+      "sourceExport": {
+        "range": [
+          1890,
+          3031
+        ],
+        "text": "export function getContextWindowForModel(\n  model: string,\n  betas?: string[],\n): number {\n  // Allow override via environment variable (ant-only)\n  // This takes precedence over all other context window resolution, including 1M detection,\n  // so users can cap the effective context window for local decisions (auto-compact, etc.)\n  // while still using a 1M-capable endpoint.\n  if (\n    process.env.USER_TYPE === 'ant' &&\n    process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS\n  ) {\n    const override = parseInt(process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS, 10)\n    if (!isNaN(override) && override > 0) {\n      return override\n    }\n  }\n\n  // [1m] suffix — explicit client-side opt-in, respected over all detection\n  if (has1mContext(model)) {\n    return 1_000_000\n  }\n\n  if (betas?.includes(CONTEXT_1M_BETA_HEADER) && modelSupports1M(model)) {\n    return 1_000_000\n  }\n  if (getSonnet1mExpTreatmentEnabled(model)) {\n    return 1_000_000\n  }\n  if (process.env.USER_TYPE === 'ant') {\n    const antModel = resolveAntModel(model)\n    if (antModel?.contextWindow) {\n      return antModel.contextWindow\n    }\n  }\n  return MODEL_CONTEXT_WINDOW_DEFAULT\n}",
+        "sha256": "fbf625feb34160bfd0878130561cc0d0ee6dbcbe6cab363205dfceb483779b77"
+      },
+      "target": {
+        "index": 4456,
+        "type": "FunctionDeclaration",
+        "range": [
+          3438233,
+          3438341
+        ],
+        "nodes": 32,
+        "strictSha256": "971e53665f3b202ec4d9e901a2f4d8a68ac424c6d92490fbcb261655ce34e06a",
+        "shapeSha256": "37a3d437f26a487e27ab74c01b29b2581fc0561fcd1a317024e9dab000010dda",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 4458,
+        "type": "FunctionDeclaration",
+        "range": [
+          3438486,
+          3438594
+        ],
+        "nodes": 32,
+        "strictSha256": "40967eb2aea89efccd9ea535e06c0aa40884213f2027dc4582de10a6a1ffcc59",
+        "shapeSha256": "37a3d437f26a487e27ab74c01b29b2581fc0561fcd1a317024e9dab000010dda",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 1
+      },
+      "bindingNames": [
+        "mT",
+        "xv"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 33,
+        "forward": {
+          "OL": "OL",
+          "J86": "H86",
+          "cP1": "QP1",
+          "Kk1": "ev1",
+          "Y6_": "q6_"
+        },
+        "reverse": {
+          "OL": "OL",
+          "H86": "J86",
+          "QP1": "cP1",
+          "ev1": "Kk1",
+          "q6_": "Y6_"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceRole": "validateBoundedIntEnvVar",
+      "sourceOwner": {
+        "path": "src/utils/envValidation.ts",
+        "bytes": 1045,
+        "sha256": "20b14c4a2308016fa766bb015ac1ec54c2c44c530b1f7a9d51c707218c796ef6"
+      },
+      "sourceExport": {
+        "range": [
+          168,
+          1044
+        ],
+        "text": "export function validateBoundedIntEnvVar(\n  name: string,\n  value: string | undefined,\n  defaultValue: number,\n  upperLimit: number,\n): EnvVarValidationResult {\n  if (!value) {\n    return { effective: defaultValue, status: 'valid' }\n  }\n  const parsed = parseInt(value, 10)\n  if (isNaN(parsed) || parsed <= 0) {\n    const result: EnvVarValidationResult = {\n      effective: defaultValue,\n      status: 'invalid',\n      message: `Invalid value \"${value}\" (using default: ${defaultValue})`,\n    }\n    logForDebugging(`${name} ${result.message}`)\n    return result\n  }\n  if (parsed > upperLimit) {\n    const result: EnvVarValidationResult = {\n      effective: upperLimit,\n      status: 'capped',\n      message: `Capped from ${parsed} to ${upperLimit}`,\n    }\n    logForDebugging(`${name} ${result.message}`)\n    return result\n  }\n  return { effective: parsed, status: 'valid' }\n}",
+        "sha256": "d011913f183a4400a9af15592081b72ca29d71b5c79a044e3353e0d048e155e4"
+      },
+      "target": {
+        "index": 6803,
+        "type": "FunctionDeclaration",
+        "range": [
+          5032529,
+          5032899
+        ],
+        "nodes": 109,
+        "strictSha256": "7ae494ec7945ac42e1cd0c5706f9b314a9e1f6344674d1570e339864ce7484a5",
+        "shapeSha256": "ff66dd43cb1cb85cbcbcd150244cbd998999f7a0bfcb3d20f4e540cad837c018",
+        "identifierNamesErased": 32,
+        "protectedIdentifierOccurrences": 12
+      },
+      "current": {
+        "index": 6803,
+        "type": "FunctionDeclaration",
+        "range": [
+          5032550,
+          5032920
+        ],
+        "nodes": 109,
+        "strictSha256": "64df06fc0f8e618ad20bf939980dded344e0e6c1725734ab3c07cc05ba50d855",
+        "shapeSha256": "ff66dd43cb1cb85cbcbcd150244cbd998999f7a0bfcb3d20f4e540cad837c018",
+        "identifierNamesErased": 32,
+        "protectedIdentifierOccurrences": 12
+      },
+      "bindingNames": [
+        "VU",
+        "NU"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 110,
+        "forward": {
+          "parseInt": "parseInt",
+          "N": "N",
+          "isNaN": "isNaN"
+        },
+        "reverse": {
+          "parseInt": "parseInt",
+          "N": "N",
+          "isNaN": "isNaN"
+        },
+        "scopeCount": 5
+      }
+    },
+    {
+      "sourceRole": "tokenCountWithEstimation",
+      "sourceOwner": {
+        "path": "src/utils/tokens.ts",
+        "bytes": 9606,
+        "sha256": "0f229cdd7ed4fe117a67bebc4c79140d5e851b7fce381395e8c760940b287d90"
+      },
+      "sourceExport": {
+        "range": [
+          8243,
+          9583
+        ],
+        "text": "export function tokenCountWithEstimation(messages: readonly Message[]): number {\n  let i = messages.length - 1\n  while (i >= 0) {\n    const message = messages[i]\n    const usage = message ? getTokenUsage(message) : undefined\n    if (message && usage) {\n      // Walk back past any earlier sibling records split from the same API\n      // response (same message.id) so interleaved tool_results between them\n      // are included in the estimation slice.\n      const responseId = getAssistantMessageId(message)\n      if (responseId) {\n        let j = i - 1\n        while (j >= 0) {\n          const prior = messages[j]\n          const priorId = prior ? getAssistantMessageId(prior) : undefined\n          if (priorId === responseId) {\n            // Earlier split of the same API response — anchor here instead.\n            i = j\n          } else if (priorId !== undefined) {\n            // Hit a different API response — stop walking.\n            break\n          }\n          // priorId === undefined: a user/tool_result/attachment message,\n          // possibly interleaved between splits — keep walking.\n          j--\n        }\n      }\n      return (\n        getTokenCountFromUsage(usage) +\n        roughTokenCountEstimationForMessages(messages.slice(i + 1))\n      )\n    }\n    i--\n  }\n  return roughTokenCountEstimationForMessages(messages)\n}",
+        "sha256": "d1b44753a809307a064cf85d7e260d7dd61959df07c323f74025311522c76a87"
+      },
+      "target": {
+        "index": 6816,
+        "type": "FunctionDeclaration",
+        "range": [
+          5034760,
+          5035004
+        ],
+        "nodes": 110,
+        "strictSha256": "145328e6671082234b2e6576c71fee29cc5cb5a30b5f1e72e5e1e892524503f6",
+        "shapeSha256": "c032f8112c24a9bc50dc8c6a7031801b7092d64ef97e86d085bde4cbed8e5157",
+        "identifierNamesErased": 42,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 6816,
+        "type": "FunctionDeclaration",
+        "range": [
+          5034781,
+          5035025
+        ],
+        "nodes": 110,
+        "strictSha256": "ce62cae7ae0b097a1a5a075307ba30d82950d096c0cc8eab73e4d37d4ee78d45",
+        "shapeSha256": "c032f8112c24a9bc50dc8c6a7031801b7092d64ef97e86d085bde4cbed8e5157",
+        "identifierNamesErased": 42,
+        "protectedIdentifierOccurrences": 2
+      },
+      "bindingNames": [
+        "DZ",
+        "P0"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 111,
+        "forward": {
+          "cC": "nC",
+          "RJ4": "RJ4",
+          "dk6": "dk6",
+          "Qk6": "Qk6"
+        },
+        "reverse": {
+          "nC": "cC",
+          "RJ4": "RJ4",
+          "dk6": "dk6",
+          "Qk6": "Qk6"
+        },
+        "scopeCount": 7
+      }
+    },
+    {
+      "sourceRole": "getMaxOutputTokensForModel",
+      "sourceOwner": {
+        "path": "src/services/api/claude.ts",
+        "bytes": 126046,
+        "sha256": "03d1b98346ec695014000fbbcd227f6946cb5412c985a80449a27ca1e48b8957"
+      },
+      "sourceExport": {
+        "range": [
+          125066,
+          125986
+        ],
+        "text": "export function getMaxOutputTokensForModel(model: string): number {\n  const maxOutputTokens = getModelMaxOutputTokens(model)\n\n  // Slot-reservation cap: drop default to 8k for all models. BQ p99 output\n  // = 4,911 tokens; 32k/64k defaults over-reserve 8-16× slot capacity.\n  // Requests hitting the cap get one clean retry at 64k (query.ts\n  // max_output_tokens_escalate). Math.min keeps models with lower native\n  // defaults (e.g. claude-3-opus at 4k) at their native value. Applied\n  // before the env-var override so CLAUDE_CODE_MAX_OUTPUT_TOKENS still wins.\n  const defaultTokens = isMaxTokensCapEnabled()\n    ? Math.min(maxOutputTokens.default, CAPPED_DEFAULT_MAX_TOKENS)\n    : maxOutputTokens.default\n\n  const result = validateBoundedIntEnvVar(\n    'CLAUDE_CODE_MAX_OUTPUT_TOKENS',\n    process.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS,\n    defaultTokens,\n    maxOutputTokens.upperLimit,\n  )\n  return result.effective\n}",
+        "sha256": "ab77bead73e0f6878601c77ea261fae0ff8f39169e9200059debb59f78a157af"
+      },
+      "target": {
+        "index": 15907,
+        "type": "FunctionDeclaration",
+        "range": [
+          11530858,
+          11531039
+        ],
+        "nodes": 41,
+        "strictSha256": "785d9813797752bb94ce6df2b0f18f780541945e9d44efc9cdb83f6739fe69fc",
+        "shapeSha256": "e268b0601032747e4db9acbf52db9dce30ad18df3b0f9e4ffe5fca5022794de1",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 7
+      },
+      "current": {
+        "index": 15908,
+        "type": "FunctionDeclaration",
+        "range": [
+          11522913,
+          11523094
+        ],
+        "nodes": 41,
+        "strictSha256": "1ccd92a639179f188434db07a931070fcb929769c6eb6d078c312657993a622c",
+        "shapeSha256": "e268b0601032747e4db9acbf52db9dce30ad18df3b0f9e4ffe5fca5022794de1",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 7
+      },
+      "bindingNames": [
+        "m18",
+        "u18"
+      ],
+      "conditionalCompleteDefinition": {
+        "nodes": 42,
+        "forward": {
+          "P16": "X16",
+          "lCq": "nCq",
+          "Math": "Math",
+          "TxY": "JxY",
+          "process": "process",
+          "VU": "NU"
+        },
+        "reverse": {
+          "X16": "P16",
+          "nCq": "lCq",
+          "Math": "Math",
+          "JxY": "TxY",
+          "process": "process",
+          "NU": "VU"
+        },
+        "scopeCount": 3
+      }
+    }
+  ],
+  "fullInitializerOrder": [
+    {
+      "slot": 0,
+      "sourceOwner": {
+        "path": "src/bootstrap/state.ts",
+        "bytes": 56281,
+        "sha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049"
+      },
+      "target": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          45153,
+          45256
+        ],
+        "nodes": 47,
+        "strictSha256": "39a5e5a6d4e20ec892aafcf2b81ed744e8c39a8e661257ead7c3c24c29f3f928",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          44847,
+          44950
+        ],
+        "nodes": 47,
+        "strictSha256": "a301177ec71b4eca1d274a128b400a4dbaeaac7d749977bb2eabf11e7015ec5c",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "names": [
+        "k8",
+        "k8"
+      ],
+      "comparison": {
+        "nodes": 48,
+        "forward": {
+          "YH7": "_H7",
+          "Ci8": "zH7",
+          "Fc": "Uc",
+          "Z8": "G8",
+          "DH7": "WH7",
+          "Bi8": "mi8",
+          "zz": "_z",
+          "gi8": "pi8",
+          "ti8": "DH7",
+          "ei8": "oi8",
+          "WH7": "PH7",
+          "E": "y"
+        },
+        "reverse": {
+          "_H7": "YH7",
+          "zH7": "Ci8",
+          "Uc": "Fc",
+          "G8": "Z8",
+          "WH7": "DH7",
+          "mi8": "Bi8",
+          "_z": "zz",
+          "pi8": "gi8",
+          "DH7": "ti8",
+          "oi8": "ei8",
+          "PH7": "WH7",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { getLastInteractionTime } from 'src/bootstrap/state.js'",
+        "import {\n  getSdkBetas,\n  markPostCompaction,\n} from '../../bootstrap/state.js'"
+      ]
+    },
+    {
+      "slot": 1,
+      "sourceOwner": {
+        "path": "src/bootstrap/state.ts",
+        "bytes": 56281,
+        "sha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049"
+      },
+      "target": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          45153,
+          45256
+        ],
+        "nodes": 47,
+        "strictSha256": "39a5e5a6d4e20ec892aafcf2b81ed744e8c39a8e661257ead7c3c24c29f3f928",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          44847,
+          44950
+        ],
+        "nodes": 47,
+        "strictSha256": "a301177ec71b4eca1d274a128b400a4dbaeaac7d749977bb2eabf11e7015ec5c",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "names": [
+        "k8",
+        "k8"
+      ],
+      "comparison": {
+        "nodes": 48,
+        "forward": {
+          "YH7": "_H7",
+          "Ci8": "zH7",
+          "Fc": "Uc",
+          "Z8": "G8",
+          "DH7": "WH7",
+          "Bi8": "mi8",
+          "zz": "_z",
+          "gi8": "pi8",
+          "ti8": "DH7",
+          "ei8": "oi8",
+          "WH7": "PH7",
+          "E": "y"
+        },
+        "reverse": {
+          "_H7": "YH7",
+          "zH7": "Ci8",
+          "Uc": "Fc",
+          "G8": "Z8",
+          "WH7": "DH7",
+          "mi8": "Bi8",
+          "_z": "zz",
+          "pi8": "gi8",
+          "DH7": "ti8",
+          "oi8": "ei8",
+          "PH7": "WH7",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { getLastInteractionTime } from 'src/bootstrap/state.js'",
+        "import {\n  getSdkBetas,\n  markPostCompaction,\n} from '../../bootstrap/state.js'"
+      ]
+    },
+    {
+      "slot": 2,
+      "sourceOwner": {
+        "path": "src/utils/config.ts",
+        "bytes": 63717,
+        "sha256": "5bddab9ace77cea53ef47b3a344b0a92531ac334c43d30624d086d90e88fdb78"
+      },
+      "target": {
+        "index": 5001,
+        "type": "VariableDeclaration",
+        "range": [
+          3714616,
+          3716116
+        ],
+        "nodes": 241,
+        "strictSha256": "e80fe8ecf414cd1c15f565e8f3146ef329ae8b52ce62c13b4c15afe90a45b580",
+        "shapeSha256": "4caf8195f4eb6740a3d981f2c205ef8df708a6693c632354f51990c9252a1041",
+        "identifierNamesErased": 57,
+        "protectedIdentifierOccurrences": 12
+      },
+      "current": {
+        "index": 5003,
+        "type": "VariableDeclaration",
+        "range": [
+          3714879,
+          3716379
+        ],
+        "nodes": 241,
+        "strictSha256": "9f5e19e8cb6ae04e15ee431d2521f4296f8b818d5a4678e6f7f43f2241742933",
+        "shapeSha256": "4caf8195f4eb6740a3d981f2c205ef8df708a6693c632354f51990c9252a1041",
+        "identifierNamesErased": 57,
+        "protectedIdentifierOccurrences": 12
+      },
+      "names": [
+        "k1",
+        "T1"
+      ],
+      "comparison": {
+        "nodes": 242,
+        "forward": {
+          "KK": "qK",
+          "iq1": "cq1",
+          "k8": "k8",
+          "sw": "e2",
+          "V8": "V8",
+          "p7": "u7",
+          "i9": "i9",
+          "vL": "_C",
+          "_8": "K8",
+          "_$": "K$",
+          "E_": "L_",
+          "F8": "B8",
+          "L8": "E8",
+          "CK": "CK",
+          "a7": "a7",
+          "X5": "P5",
+          "NA": "NO",
+          "h8": "R8",
+          "Tz": "Tz",
+          "PI": "WI",
+          "n8": "l8",
+          "aN1": "oN1",
+          "$M_": "KM_",
+          "TL": "vL",
+          "ui": "pi",
+          "Lq": "Lq",
+          "rc6": "cc6",
+          "HZ8": "H08",
+          "mi": "Bi",
+          "noq": "ioq",
+          "ioq": "roq",
+          "jLO": "zLA",
+          "HLO": "YLA",
+          "hF": "hF",
+          "XM_": "jM_",
+          "Bq": "gq",
+          "MZ8": "M08",
+          "q7": "t1",
+          "wH": "PH",
+          "y_6": "V_6",
+          "wZ8": "w08",
+          "$1": "A1",
+          "DM_": "MM_",
+          "$O6": "zA6",
+          "fM_": "XM_",
+          "JZ8": "J08",
+          "E": "y"
+        },
+        "reverse": {
+          "qK": "KK",
+          "cq1": "iq1",
+          "k8": "k8",
+          "e2": "sw",
+          "V8": "V8",
+          "u7": "p7",
+          "i9": "i9",
+          "_C": "vL",
+          "K8": "_8",
+          "K$": "_$",
+          "L_": "E_",
+          "B8": "F8",
+          "E8": "L8",
+          "CK": "CK",
+          "a7": "a7",
+          "P5": "X5",
+          "NO": "NA",
+          "R8": "h8",
+          "Tz": "Tz",
+          "WI": "PI",
+          "l8": "n8",
+          "oN1": "aN1",
+          "KM_": "$M_",
+          "vL": "TL",
+          "pi": "ui",
+          "Lq": "Lq",
+          "cc6": "rc6",
+          "H08": "HZ8",
+          "Bi": "mi",
+          "ioq": "noq",
+          "roq": "ioq",
+          "zLA": "jLO",
+          "YLA": "HLO",
+          "hF": "hF",
+          "jM_": "XM_",
+          "gq": "Bq",
+          "M08": "MZ8",
+          "t1": "q7",
+          "PH": "wH",
+          "V_6": "y_6",
+          "w08": "wZ8",
+          "A1": "$1",
+          "MM_": "DM_",
+          "zA6": "$O6",
+          "XM_": "fM_",
+          "J08": "JZ8",
+          "y": "E"
+        },
+        "scopeCount": 5
+      },
+      "sourceImport": [
+        "import { getGlobalConfig } from '../../utils/config.js'"
+      ]
+    },
+    {
+      "slot": 3,
+      "sourceOwner": {
+        "path": "src/utils/context.ts",
+        "bytes": 6574,
+        "sha256": "eb03caaafac7240a9d18c3433764600b66f770798051ed542a04faad2c1a6147"
+      },
+      "target": {
+        "index": 4462,
+        "type": "VariableDeclaration",
+        "range": [
+          3439506,
+          3439549
+        ],
+        "nodes": 22,
+        "strictSha256": "0a43ba167de421cb1217b56684c1856158557992623dcbd9975028efb89ea073",
+        "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 4464,
+        "type": "VariableDeclaration",
+        "range": [
+          3439759,
+          3439802
+        ],
+        "nodes": 22,
+        "strictSha256": "6bb0174ca72e8b7ae874b541df8c358a6dcc447b0a90dad71a5549d6212a9302",
+        "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 0
+      },
+      "names": [
+        "sW",
+        "rW"
+      ],
+      "comparison": {
+        "nodes": 23,
+        "forward": {
+          "X86": "M86",
+          "k1": "T1",
+          "F8": "B8",
+          "gq": "Bq",
+          "eT1": "sv1",
+          "E": "y"
+        },
+        "reverse": {
+          "M86": "X86",
+          "T1": "k1",
+          "B8": "F8",
+          "Bq": "gq",
+          "sv1": "eT1",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { getContextWindowForModel } from '../../utils/context.js'"
+      ]
+    },
+    {
+      "slot": 4,
+      "sourceOwner": {
+        "path": "src/utils/debug.ts",
+        "bytes": 8000,
+        "sha256": "8d6734724d4e8467a50781d3af9d4341d54a8ffc64bf71a2726976714123b01e"
+      },
+      "target": {
+        "index": 892,
+        "type": "VariableDeclaration",
+        "range": [
+          144304,
+          145306
+        ],
+        "nodes": 322,
+        "strictSha256": "28b38476dcc67011653ea4b588250b907c79aa0ea304542a527cd71de53602e9",
+        "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "current": {
+        "index": 892,
+        "type": "VariableDeclaration",
+        "range": [
+          143998,
+          145000
+        ],
+        "nodes": 322,
+        "strictSha256": "ff69ef62a1bf3d43f6cc3587a190d6b589de6f7e77b0589d2a944044b83e7604",
+        "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "names": [
+        "_8",
+        "K8"
+      ],
+      "comparison": {
+        "nodes": 323,
+        "forward": {
+          "KK": "qK",
+          "k8": "k8",
+          "i9": "i9",
+          "RH7": "hH7",
+          "F8": "B8",
+          "a7": "a7",
+          "n8": "l8",
+          "ka8": "Ga8",
+          "gO5": "uA5",
+          "process": "process",
+          "Object": "Object",
+          "$1": "A1",
+          "lv": "QT",
+          "xM7": "xM7",
+          "Q6": "c6",
+          "NB": "LB",
+          "uM7": "uM7",
+          "FO5": "mA5",
+          "LH7": "LH7",
+          "Ta8": "Za8",
+          "Promise": "Promise",
+          "BM7": "BM7",
+          "N96": "k96",
+          "CM7": "CM7",
+          "bM7": "bM7",
+          "BO5": "IA5",
+          "pO5": "xA5",
+          "E": "y"
+        },
+        "reverse": {
+          "qK": "KK",
+          "k8": "k8",
+          "i9": "i9",
+          "hH7": "RH7",
+          "B8": "F8",
+          "a7": "a7",
+          "l8": "n8",
+          "Ga8": "ka8",
+          "uA5": "gO5",
+          "process": "process",
+          "Object": "Object",
+          "A1": "$1",
+          "QT": "lv",
+          "xM7": "xM7",
+          "c6": "Q6",
+          "LB": "NB",
+          "uM7": "uM7",
+          "mA5": "FO5",
+          "LH7": "LH7",
+          "Za8": "Ta8",
+          "Promise": "Promise",
+          "BM7": "BM7",
+          "k96": "N96",
+          "CM7": "CM7",
+          "bM7": "bM7",
+          "IA5": "BO5",
+          "xA5": "pO5",
+          "y": "E"
+        },
+        "scopeCount": 17
+      },
+      "sourceImport": [
+        "import { logForDebugging } from '../../utils/debug.js'"
+      ]
+    },
+    {
+      "slot": 5,
+      "sourceOwner": {
+        "path": "src/utils/envUtils.ts",
+        "bytes": 6246,
+        "sha256": "0519e43a719ad6579319021c3949d45b7360f71d31f82186df2e9e1bfbc07cdf"
+      },
+      "target": {
+        "index": 606,
+        "type": "VariableDeclaration",
+        "range": [
+          48852,
+          49491
+        ],
+        "nodes": 70,
+        "strictSha256": "5cab06da5462d4c9c276fc1c90baeba87b89dded565e293f62054921cda7cd98",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 606,
+        "type": "VariableDeclaration",
+        "range": [
+          48546,
+          49185
+        ],
+        "nodes": 70,
+        "strictSha256": "4449136b6060012aa46be1c613d4ab539e9d3bce33ba59313b147c215d77e210",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "names": [
+        "F8",
+        "B8"
+      ],
+      "comparison": {
+        "nodes": 71,
+        "forward": {
+          "KK": "qK",
+          "r1": "l1",
+          "process": "process",
+          "ez5": "oz5",
+          "SH7": "SH7",
+          "$1": "A1",
+          "qY5": "az5",
+          "E": "y"
+        },
+        "reverse": {
+          "qK": "KK",
+          "l1": "r1",
+          "process": "process",
+          "oz5": "ez5",
+          "SH7": "SH7",
+          "A1": "$1",
+          "az5": "qY5",
+          "y": "E"
+        },
+        "scopeCount": 5
+      },
+      "sourceImport": [
+        "import { isEnvTruthy } from '../../utils/envUtils.js'"
+      ]
+    },
+    {
+      "slot": 6,
+      "sourceOwner": {
+        "path": "src/utils/envValidation.ts",
+        "bytes": 1045,
+        "sha256": "20b14c4a2308016fa766bb015ac1ec54c2c44c530b1f7a9d51c707218c796ef6"
+      },
+      "target": {
+        "index": 6804,
+        "type": "VariableDeclaration",
+        "range": [
+          5032899,
+          5032921
+        ],
+        "nodes": 10,
+        "strictSha256": "7307f5140ef71d7142125bdf885cd220e320599839a8d750833eec17108c79a5",
+        "shapeSha256": "65fa3ba34bd72cea4346fba5d8794cfa09166080c3adc4dcd5a064a7c57532e2",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 6804,
+        "type": "VariableDeclaration",
+        "range": [
+          5032920,
+          5032942
+        ],
+        "nodes": 10,
+        "strictSha256": "dcc04c8aec590b7b18d214fa501b882de5f50d500e5df3ca22e3c1b27b7f3682",
+        "shapeSha256": "65fa3ba34bd72cea4346fba5d8794cfa09166080c3adc4dcd5a064a7c57532e2",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "names": [
+        "Uk6",
+        "Uk6"
+      ],
+      "comparison": {
+        "nodes": 11,
+        "forward": {
+          "_8": "K8",
+          "E": "y"
+        },
+        "reverse": {
+          "K8": "_8",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { validateBoundedIntEnvVar } from '../../utils/envValidation.js'"
+      ]
+    },
+    {
+      "slot": 7,
+      "sourceOwner": {
+        "path": "src/utils/errors.ts",
+        "bytes": 7655,
+        "sha256": "ab8d90dac1d13f7e5fde4708643120556ea83d25f3586c90dafb2e453e01e9bd"
+      },
+      "target": {
+        "index": 756,
+        "type": "VariableDeclaration",
+        "range": [
+          126624,
+          127430
+        ],
+        "nodes": 225,
+        "strictSha256": "b4b88b46fb36c0379b3c1993df5baeef3be48c1616bebd1e67c18b98c3a36614",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "current": {
+        "index": 756,
+        "type": "VariableDeclaration",
+        "range": [
+          126318,
+          127124
+        ],
+        "nodes": 225,
+        "strictSha256": "bb271fb1996b39b495d2ba4438a816820a220b46efba9e73c3b39fc661cdeb3d",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "names": [
+        "L8",
+        "E8"
+      ],
+      "comparison": {
+        "nodes": 226,
+        "forward": {
+          "dv": "QZ",
+          "JI6": "OI6",
+          "Error": "Error",
+          "TB": "NB",
+          "dz": "Qz",
+          "cv": "UT",
+          "kE": "VE",
+          "PP": "WP",
+          "zV": "KV",
+          "E": "y"
+        },
+        "reverse": {
+          "QZ": "dv",
+          "OI6": "JI6",
+          "Error": "Error",
+          "NB": "TB",
+          "Qz": "dz",
+          "UT": "cv",
+          "VE": "kE",
+          "WP": "PP",
+          "KV": "zV",
+          "y": "E"
+        },
+        "scopeCount": 16
+      },
+      "sourceImport": [
+        "import { hasExactErrorMessage } from '../../utils/errors.js'"
+      ]
+    },
+    {
+      "slot": 8,
+      "sourceOwner": {
+        "path": "src/utils/log.ts",
+        "bytes": 11693,
+        "sha256": "82f7f41d4803c6498518fda9f969509a546424a6218b46c54986fdd9572bf339"
+      },
+      "target": {
+        "index": 2038,
+        "type": "VariableDeclaration",
+        "range": [
+          870356,
+          870486
+        ],
+        "nodes": 54,
+        "strictSha256": "4defd05b0dcbeebbbde5c81206210c81e65808f04acbadc9f60e71012a83102c",
+        "shapeSha256": "25919a64a79a86b2330a4e2df8ebb08a79ac8de1908be378d8f89eed5d7a070b",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 2038,
+        "type": "VariableDeclaration",
+        "range": [
+          870022,
+          870152
+        ],
+        "nodes": 54,
+        "strictSha256": "c1ae93e01fd17ec2f682d6f5dfa44578d9aa7127c2fe56c70b8b823ee5b6428a",
+        "shapeSha256": "25919a64a79a86b2330a4e2df8ebb08a79ac8de1908be378d8f89eed5d7a070b",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 2
+      },
+      "names": [
+        "h8",
+        "R8"
+      ],
+      "comparison": {
+        "nodes": 55,
+        "forward": {
+          "KK": "qK",
+          "k8": "k8",
+          "IY": "xY",
+          "u$8": "I$8",
+          "xW6": "xW6",
+          "F8": "B8",
+          "L8": "E8",
+          "n8": "l8",
+          "p$8": "m$8",
+          "IW6": "IW6",
+          "gS$": "CS$",
+          "process": "process",
+          "$1": "A1",
+          "E": "y"
+        },
+        "reverse": {
+          "qK": "KK",
+          "k8": "k8",
+          "xY": "IY",
+          "I$8": "u$8",
+          "xW6": "xW6",
+          "B8": "F8",
+          "E8": "L8",
+          "l8": "n8",
+          "m$8": "p$8",
+          "IW6": "IW6",
+          "CS$": "gS$",
+          "process": "process",
+          "A1": "$1",
+          "y": "E"
+        },
+        "scopeCount": 4
+      },
+      "sourceImport": [
+        "import { logError } from '../../utils/log.js'"
+      ]
+    },
+    {
+      "slot": 9,
+      "sourceOwner": {
+        "path": "src/utils/tokens.ts",
+        "bytes": 9606,
+        "sha256": "0f229cdd7ed4fe117a67bebc4c79140d5e851b7fce381395e8c760940b287d90"
+      },
+      "target": {
+        "index": 6817,
+        "type": "VariableDeclaration",
+        "range": [
+          5035004,
+          5035035
+        ],
+        "nodes": 16,
+        "strictSha256": "6295ab75af4220e68d7bd84d1e62b05fe1937bea5522026bbd3ba247f7ff8b53",
+        "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 6817,
+        "type": "VariableDeclaration",
+        "range": [
+          5035025,
+          5035056
+        ],
+        "nodes": 16,
+        "strictSha256": "d8d45df3b9627c7ba5fe1ed99abd119a06097650bbd37146308aead547c55ff4",
+        "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "names": [
+        "fZ",
+        "W0"
+      ],
+      "comparison": {
+        "nodes": 17,
+        "forward": {
+          "bN": "SN",
+          "i1": "c1",
+          "n8": "l8",
+          "E": "y"
+        },
+        "reverse": {
+          "SN": "bN",
+          "c1": "i1",
+          "l8": "n8",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { tokenCountWithEstimation } from '../../utils/tokens.js'"
+      ]
+    },
+    {
+      "slot": 10,
+      "sourceOwner": {
+        "path": "src/services/analytics/growthbook.ts",
+        "bytes": 40526,
+        "sha256": "42541e6311ebed2d2865332eb7d9b2b99ac46f16d47674e702d7b035c1b96cf4"
+      },
+      "target": {
+        "index": 4915,
+        "type": "VariableDeclaration",
+        "range": [
+          3697209,
+          3698213
+        ],
+        "nodes": 338,
+        "strictSha256": "56321a0c1b4ec728093ed8eda6af26b6af2cbe817262f4c94965f1eeaf2fd26c",
+        "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+        "identifierNamesErased": 99,
+        "protectedIdentifierOccurrences": 29
+      },
+      "current": {
+        "index": 4917,
+        "type": "VariableDeclaration",
+        "range": [
+          3697472,
+          3698476
+        ],
+        "nodes": 338,
+        "strictSha256": "8b37025655ab7dfc8b81a174d7941dbc3d0bae04d2c9d03e1634d07aa79d5482",
+        "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+        "identifierNamesErased": 99,
+        "protectedIdentifierOccurrences": 29
+      },
+      "names": [
+        "s1",
+        "o1"
+      ],
+      "comparison": {
+        "nodes": 339,
+        "forward": {
+          "Iy7": "Iy7",
+          "EW6": "EW6",
+          "k8": "k8",
+          "my7": "my7",
+          "k1": "T1",
+          "_8": "K8",
+          "L8": "E8",
+          "EG": "NG",
+          "h8": "R8",
+          "n8": "l8",
+          "I$6": "b$6",
+          "Ci": "xi",
+          "zO6": "KA6",
+          "Map": "Map",
+          "qC": "qC",
+          "nG6": "nG6",
+          "Set": "Set",
+          "UN1": "FN1",
+          "iG6": "iG6",
+          "zz": "_z",
+          "dN1": "QN1",
+          "xi": "ui",
+          "yoq": "yoq",
+          "uy7": "uy7",
+          "WJ": "ZJ",
+          "a$": "a$",
+          "gX6": "gX6",
+          "g7": "p7",
+          "cN1": "dN1",
+          "N$8": "V$8",
+          "Promise": "Promise",
+          "bi": "Ii",
+          "koq": "koq",
+          "cc6": "Fc6",
+          "Voq": "Voq",
+          "Fc6": "mc6",
+          "Uc6": "pc6",
+          "process": "process",
+          "$1": "A1",
+          "Ii": "mi",
+          "lc6": "Uc6",
+          "hoq": "Roq",
+          "E": "y"
+        },
+        "reverse": {
+          "Iy7": "Iy7",
+          "EW6": "EW6",
+          "k8": "k8",
+          "my7": "my7",
+          "T1": "k1",
+          "K8": "_8",
+          "E8": "L8",
+          "NG": "EG",
+          "R8": "h8",
+          "l8": "n8",
+          "b$6": "I$6",
+          "xi": "Ci",
+          "KA6": "zO6",
+          "Map": "Map",
+          "qC": "qC",
+          "nG6": "nG6",
+          "Set": "Set",
+          "FN1": "UN1",
+          "iG6": "iG6",
+          "_z": "zz",
+          "QN1": "dN1",
+          "ui": "xi",
+          "yoq": "yoq",
+          "uy7": "uy7",
+          "ZJ": "WJ",
+          "a$": "a$",
+          "gX6": "gX6",
+          "p7": "g7",
+          "dN1": "cN1",
+          "V$8": "N$8",
+          "Promise": "Promise",
+          "Ii": "bi",
+          "koq": "koq",
+          "Fc6": "cc6",
+          "Voq": "Voq",
+          "mc6": "Fc6",
+          "pc6": "Uc6",
+          "process": "process",
+          "A1": "$1",
+          "mi": "Ii",
+          "Uc6": "lc6",
+          "Roq": "hoq",
+          "y": "E"
+        },
+        "scopeCount": 14
+      },
+      "sourceImport": [
+        "import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'"
+      ]
+    },
+    {
+      "slot": 11,
+      "sourceOwner": {
+        "path": "src/services/api/claude.ts",
+        "bytes": 126046,
+        "sha256": "03d1b98346ec695014000fbbcd227f6946cb5412c985a80449a27ca1e48b8957"
+      },
+      "target": {
+        "index": 15909,
+        "type": "VariableDeclaration",
+        "range": [
+          11531057,
+          11531404
+        ],
+        "nodes": 193,
+        "strictSha256": "6c36f8139b9c235061b703530ac6533b3bdc5f3af31ea7cb420dca6fafa9e03c",
+        "shapeSha256": "a0b9c12f124ba04a3eee4e73a19c9a12f7195b6b49917e1db275fe60d56fd23c",
+        "identifierNamesErased": 65,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 15910,
+        "type": "VariableDeclaration",
+        "range": [
+          11523112,
+          11523459
+        ],
+        "nodes": 193,
+        "strictSha256": "d815a15942bed3fbd1b12e7e25f5e2f39884d4deb434f52990417b5330333a2e",
+        "shapeSha256": "a0b9c12f124ba04a3eee4e73a19c9a12f7195b6b49917e1db275fe60d56fd23c",
+        "identifierNamesErased": 65,
+        "protectedIdentifierOccurrences": 0
+      },
+      "names": [
+        "m2",
+        "Yw"
+      ],
+      "comparison": {
+        "nodes": 194,
+        "forward": {
+          "L_": "R_",
+          "GZ8": "G08",
+          "nq": "Fq",
+          "SH6": "RH6",
+          "G7": "Z7",
+          "LG": "yG",
+          "k1": "T1",
+          "sW": "rW",
+          "HZ": "w0",
+          "F8": "B8",
+          "L8": "E8",
+          "Wz7": "Mz7",
+          "h8": "R8",
+          "i1": "c1",
+          "gq": "Bq",
+          "fZ": "W0",
+          "s1": "o1",
+          "cU": "lU",
+          "DUK": "XUK",
+          "_e": "_e",
+          "k8": "k8",
+          "X86": "M86",
+          "Bb": "gb",
+          "P46": "X46",
+          "Gu": "Tu",
+          "jb": "Hb",
+          "_8": "K8",
+          "_$": "K$",
+          "cf": "Uf",
+          "Nw6": "N26",
+          "Ho6": "wo6",
+          "QB8": "QB8",
+          "Sn": "bn",
+          "yH6": "VH6",
+          "TN": "GN",
+          "lC": "iC",
+          "fU": "ZU",
+          "Uk6": "Uk6",
+          "NA": "NO",
+          "FF6": "mF6",
+          "OR6": "$h6",
+          "n8": "l8",
+          "V46": "k46",
+          "V8": "V8",
+          "QC": "cC",
+          "Kd": "zd",
+          "yJ": "RJ",
+          "C17": "L17",
+          "WG6": "WG6",
+          "iC": "oC",
+          "C18": "h18",
+          "zq6": "_q6",
+          "pr": "gr",
+          "$xY": "obY",
+          "sK6": "oK6",
+          "Lq": "Lq",
+          "E": "y"
+        },
+        "reverse": {
+          "R_": "L_",
+          "G08": "GZ8",
+          "Fq": "nq",
+          "RH6": "SH6",
+          "Z7": "G7",
+          "yG": "LG",
+          "T1": "k1",
+          "rW": "sW",
+          "w0": "HZ",
+          "B8": "F8",
+          "E8": "L8",
+          "Mz7": "Wz7",
+          "R8": "h8",
+          "c1": "i1",
+          "Bq": "gq",
+          "W0": "fZ",
+          "o1": "s1",
+          "lU": "cU",
+          "XUK": "DUK",
+          "_e": "_e",
+          "k8": "k8",
+          "M86": "X86",
+          "gb": "Bb",
+          "X46": "P46",
+          "Tu": "Gu",
+          "Hb": "jb",
+          "K8": "_8",
+          "K$": "_$",
+          "Uf": "cf",
+          "N26": "Nw6",
+          "wo6": "Ho6",
+          "QB8": "QB8",
+          "bn": "Sn",
+          "VH6": "yH6",
+          "GN": "TN",
+          "iC": "lC",
+          "ZU": "fU",
+          "Uk6": "Uk6",
+          "NO": "NA",
+          "mF6": "FF6",
+          "$h6": "OR6",
+          "l8": "n8",
+          "k46": "V46",
+          "V8": "V8",
+          "cC": "QC",
+          "zd": "Kd",
+          "RJ": "yJ",
+          "L17": "C17",
+          "WG6": "WG6",
+          "oC": "iC",
+          "h18": "C18",
+          "_q6": "zq6",
+          "gr": "pr",
+          "obY": "$xY",
+          "oK6": "sK6",
+          "Lq": "Lq",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { getMaxOutputTokensForModel } from '../api/claude.js'"
+      ]
+    },
+    {
+      "slot": 12,
+      "sourceOwner": {
+        "path": "src/services/api/promptCacheBreakDetection.ts",
+        "bytes": 26288,
+        "sha256": "bebdc028df79cb8df8e8ff715e0b02421db929f0a309c8af987574546513b2fe"
+      },
+      "target": {
+        "index": 6711,
+        "type": "VariableDeclaration",
+        "range": [
+          4954076,
+          4954130
+        ],
+        "nodes": 27,
+        "strictSha256": "c53a7ffc72898c6a5cf95f9ebce1eb80b34509fabe50d908b7227d400fb39949",
+        "shapeSha256": "c666b5ec26fc8e255fe9f818a7bb0d55443c2830e3c009987f5d2e858de58407",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 6711,
+        "type": "VariableDeclaration",
+        "range": [
+          4954099,
+          4954153
+        ],
+        "nodes": 27,
+        "strictSha256": "93ac228bc62a9883fe22d3c16934cae65ae2861b9970995ba43f44554d4f4f3a",
+        "shapeSha256": "c666b5ec26fc8e255fe9f818a7bb0d55443c2830e3c009987f5d2e858de58407",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "names": [
+        "zq6",
+        "_q6"
+      ],
+      "comparison": {
+        "nodes": 28,
+        "forward": {
+          "_8": "K8",
+          "h8": "R8",
+          "Vz": "kz",
+          "n8": "l8",
+          "V8": "V8",
+          "pc_": "Cc_",
+          "Map": "Map",
+          "E": "y"
+        },
+        "reverse": {
+          "K8": "_8",
+          "R8": "h8",
+          "kz": "Vz",
+          "l8": "n8",
+          "V8": "V8",
+          "Cc_": "pc_",
+          "Map": "Map",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { notifyCompaction } from '../api/promptCacheBreakDetection.js'"
+      ]
+    },
+    {
+      "slot": 13,
+      "sourceOwner": {
+        "path": "src/services/SessionMemory/sessionMemoryUtils.ts",
+        "bytes": 6110,
+        "sha256": "2f333a2bd9becb83f655967b9f4bd0bd8affc9aefe8a2da09bfe9c44a7501faf"
+      },
+      "target": {
+        "index": 6833,
+        "type": "VariableDeclaration",
+        "range": [
+          5035811,
+          5035956
+        ],
+        "nodes": 38,
+        "strictSha256": "d3b55540247432fd7d31c0872024706dd81f8c3dc82697d9260d5da8aafbad73",
+        "shapeSha256": "a8caf630cbfca1d9ba48167e06d787b9130b362f660f26fde5fbf0695c899f24",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 6833,
+        "type": "VariableDeclaration",
+        "range": [
+          5035832,
+          5035977
+        ],
+        "nodes": 38,
+        "strictSha256": "018dae75479682996320491f1c54fea28debb989d0d9b698de8cc904c45663b2",
+        "shapeSha256": "a8caf630cbfca1d9ba48167e06d787b9130b362f660f26fde5fbf0695c899f24",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 3
+      },
+      "names": [
+        "lk6",
+        "nO6"
+      ],
+      "comparison": {
+        "nodes": 39,
+        "forward": {
+          "L8": "E8",
+          "a7": "a7",
+          "Vz": "kz",
+          "V8": "V8",
+          "gr6": "ur6",
+          "ck6": "ck6",
+          "E": "y"
+        },
+        "reverse": {
+          "E8": "L8",
+          "a7": "a7",
+          "kz": "Vz",
+          "V8": "V8",
+          "ur6": "gr6",
+          "ck6": "ck6",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { setLastSummarizedMessageId } from '../SessionMemory/sessionMemoryUtils.js'"
+      ]
+    },
+    {
+      "slot": 14,
+      "sourceOwner": {
+        "path": "src/services/compact/compact.ts",
+        "bytes": 61530,
+        "sha256": "c3f0faab0bd5650f0adcba1df56c1b5495243dcabb78fd682c6bfc1f2dd235fc"
+      },
+      "target": {
+        "index": 12154,
+        "type": "VariableDeclaration",
+        "range": [
+          9483874,
+          9484083
+        ],
+        "nodes": 118,
+        "strictSha256": "b3b6e13821565a0a27b552277b06250a606f2b6d328db437eff8bfa445d26212",
+        "shapeSha256": "09bc81279418660799280f50a97066aec872d646f9e0a57eb69c6ae61e3302b2",
+        "identifierNamesErased": 39,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 12160,
+        "type": "VariableDeclaration",
+        "range": [
+          9481427,
+          9481636
+        ],
+        "nodes": 118,
+        "strictSha256": "1f0ab3446c95f7632286f441a1d004b09f996ca38930620ed98f267dea5082b0",
+        "shapeSha256": "09bc81279418660799280f50a97066aec872d646f9e0a57eb69c6ae61e3302b2",
+        "identifierNamesErased": 39,
+        "protectedIdentifierOccurrences": 0
+      },
+      "names": [
+        "Wa",
+        "fa"
+      ],
+      "comparison": {
+        "nodes": 119,
+        "forward": {
+          "qm": "Km",
+          "dv": "QZ",
+          "k8": "k8",
+          "kp": "Vp",
+          "UY": "FY",
+          "BV8": "pV8",
+          "KW": "qW",
+          "k1": "T1",
+          "sW": "rW",
+          "WM4": "PM4",
+          "_8": "K8",
+          "L8": "E8",
+          "UG": "gG",
+          "lG": "wk",
+          "C$": "C$",
+          "h8": "R8",
+          "CDK": "CDK",
+          "i1": "c1",
+          "Tz": "Tz",
+          "CJ": "xJ",
+          "OR6": "$h6",
+          "LK6": "yK6",
+          "YK": "zK",
+          "n8": "l8",
+          "bj": "pj",
+          "fZ": "W0",
+          "lC": "iC",
+          "s1": "o1",
+          "V8": "V8",
+          "m2": "Yw",
+          "iC": "oC",
+          "zq6": "_q6",
+          "pr": "gr",
+          "$17": "K17",
+          "bN": "SN",
+          "O17": "_17",
+          "E": "y"
+        },
+        "reverse": {
+          "Km": "qm",
+          "QZ": "dv",
+          "k8": "k8",
+          "Vp": "kp",
+          "FY": "UY",
+          "pV8": "BV8",
+          "qW": "KW",
+          "T1": "k1",
+          "rW": "sW",
+          "PM4": "WM4",
+          "K8": "_8",
+          "E8": "L8",
+          "gG": "UG",
+          "wk": "lG",
+          "C$": "C$",
+          "R8": "h8",
+          "CDK": "CDK",
+          "c1": "i1",
+          "Tz": "Tz",
+          "xJ": "CJ",
+          "$h6": "OR6",
+          "yK6": "LK6",
+          "zK": "YK",
+          "l8": "n8",
+          "pj": "bj",
+          "W0": "fZ",
+          "iC": "lC",
+          "o1": "s1",
+          "V8": "V8",
+          "Yw": "m2",
+          "oC": "iC",
+          "_q6": "zq6",
+          "gr": "pr",
+          "K17": "$17",
+          "SN": "bN",
+          "_17": "O17",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import {\n  type CompactionResult,\n  compactConversation,\n  ERROR_MESSAGE_USER_ABORT,\n  type RecompactionInfo,\n} from './compact.js'"
+      ]
+    },
+    {
+      "slot": 15,
+      "sourceOwner": {
+        "path": "src/services/compact/postCompactCleanup.ts",
+        "bytes": 3778,
+        "sha256": "2783f5c75e80638002b5563a0b4ee5daff912bab6523c1473ed1e5060f12e9b7"
+      },
+      "target": {
+        "index": 12156,
+        "type": "VariableDeclaration",
+        "range": [
+          9484233,
+          9484293
+        ],
+        "nodes": 31,
+        "strictSha256": "d2a6876de308fb78017586ca593bd40ed36bd2f3cd3ed76ce61400efdb19c0d2",
+        "shapeSha256": "7f805507359ed2a4e499ab6e2632f70c0ff8b26ae7ab7a2b75fe77879a5dcc3c",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 12162,
+        "type": "VariableDeclaration",
+        "range": [
+          9481786,
+          9481846
+        ],
+        "nodes": 31,
+        "strictSha256": "2298a99cbd3f22dc3607e369776a5307fd3dedef4c784a2c379639db147d7f5f",
+        "shapeSha256": "7f805507359ed2a4e499ab6e2632f70c0ff8b26ae7ab7a2b75fe77879a5dcc3c",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 0
+      },
+      "names": [
+        "p18",
+        "m18"
+      ],
+      "comparison": {
+        "nodes": 32,
+        "forward": {
+          "Ih6": "xR6",
+          "IN": "bN",
+          "QN": "UN",
+          "ZK6": "DK6",
+          "MM": "XM",
+          "YK": "zK",
+          "ds6": "Us6",
+          "QC": "cC",
+          "E": "y"
+        },
+        "reverse": {
+          "xR6": "Ih6",
+          "bN": "IN",
+          "UN": "QN",
+          "DK6": "ZK6",
+          "XM": "MM",
+          "zK": "YK",
+          "Us6": "ds6",
+          "cC": "QC",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { runPostCompactCleanup } from './postCompactCleanup.js'"
+      ]
+    },
+    {
+      "slot": 16,
+      "sourceOwner": {
+        "path": "src/services/compact/sessionMemoryCompact.ts",
+        "bytes": 21058,
+        "sha256": "2ece0444187296b18c0edcfb9d01f2b3f0708854c81fdd2de6c3fb1236b08045"
+      },
+      "target": {
+        "index": 12183,
+        "type": "VariableDeclaration",
+        "range": [
+          9495132,
+          9495310
+        ],
+        "nodes": 77,
+        "strictSha256": "a218e068309ad6dabf7080bcc1f8b6ab8ca3df4b16f9f74a122f31fc5f2d17e8",
+        "shapeSha256": "09a366996d2ce19cf58f6fe8341cb90c0e2226be0e0852fe881f94719a801103",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 12189,
+        "type": "VariableDeclaration",
+        "range": [
+          9492685,
+          9492863
+        ],
+        "nodes": 77,
+        "strictSha256": "70e597d1784f930a133ab80a12087272b0a171eb29e65fd0031502b464b27f15",
+        "shapeSha256": "09a366996d2ce19cf58f6fe8341cb90c0e2226be0e0852fe881f94719a801103",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 3
+      },
+      "names": [
+        "SB8",
+        "SB8"
+      ],
+      "comparison": {
+        "nodes": 78,
+        "forward": {
+          "_8": "K8",
+          "F8": "B8",
+          "L8": "E8",
+          "i1": "c1",
+          "gq": "Bq",
+          "Vz": "kz",
+          "LK6": "yK6",
+          "YK": "zK",
+          "fZ": "W0",
+          "lC": "iC",
+          "s1": "o1",
+          "V8": "V8",
+          "M17": "w17",
+          "lk6": "nO6",
+          "Wa": "fa",
+          "QC": "cC",
+          "O17": "_17",
+          "LB8": "LB8",
+          "P17": "H17",
+          "E": "y"
+        },
+        "reverse": {
+          "K8": "_8",
+          "B8": "F8",
+          "E8": "L8",
+          "c1": "i1",
+          "Bq": "gq",
+          "kz": "Vz",
+          "yK6": "LK6",
+          "zK": "YK",
+          "W0": "fZ",
+          "iC": "lC",
+          "o1": "s1",
+          "V8": "V8",
+          "w17": "M17",
+          "nO6": "lk6",
+          "fa": "Wa",
+          "cC": "QC",
+          "_17": "O17",
+          "LB8": "LB8",
+          "H17": "P17",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceImport": [
+        "import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'"
+      ]
+    }
+  ],
+  "callers": {
+    "target": {
+      "main": {
+        "index": 18175,
+        "type": "VariableDeclaration",
+        "range": [
+          13012894,
+          13013853
+        ],
+        "nodes": 476,
+        "strictSha256": "6974db2f8d2d0872044a85433716f8267d2e67ae7c1c5159bac6dfc5acf60466",
+        "shapeSha256": "ff57eb2ce79db7015aa90842347060ec297e8c6f71bb1182dc17f56e34cecfd4",
+        "identifierNamesErased": 156,
+        "protectedIdentifierOccurrences": 3
+      },
+      "slot": 17,
+      "autoInitializer": {
+        "index": 12194,
+        "type": "VariableDeclaration",
+        "range": [
+          9498554,
+          9498934
+        ],
+        "nodes": 67,
+        "strictSha256": "ba38951a32e82b4726b9ead6edda661ee03d67505949521a62706fc2533ce6f0",
+        "shapeSha256": "74266ef8e2a869c83c76163d489502245fbb2000cfea2137d3472a915be89c63",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 0
+      },
+      "factory": {
+        "index": 12078,
+        "type": "FunctionDeclaration",
+        "range": [
+          9426390,
+          9426468
+        ],
+        "nodes": 17,
+        "strictSha256": "742ffe692d582a8e5c4b63adeeb5872a0e43b2e01757b80b11ba26df6d19bb87",
+        "shapeSha256": "8cf9d7a876409862f909695d19074f45a239fd8b66df1d16324014a1cbce8744",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 4
+      },
+      "query": {
+        "index": 12086,
+        "type": "FunctionDeclaration",
+        "range": [
+          9427051,
+          9440481
+        ],
+        "nodes": 3301,
+        "strictSha256": "4bb6cb21763a16d68555198feee311485284ec29e1967c1a27e5425480182da7",
+        "shapeSha256": "3122f5f65d1ff722300d788d548f9875fa365593579c8642a72f82ef5e239cc9",
+        "identifierNamesErased": 829,
+        "protectedIdentifierOccurrences": 594
+      },
+      "autocompactBindingResolved": true,
+      "queryReceiverDeclaration": [
+        {
+          "type": "Variable",
+          "range": [
+            1590,
+            1605
+          ]
+        }
+      ],
+      "queryReceiverCanBeCallerOverride": true
+    },
+    "prior": {
+      "main": {
+        "index": 18177,
+        "type": "VariableDeclaration",
+        "range": [
+          13004713,
+          13005672
+        ],
+        "nodes": 476,
+        "strictSha256": "feed0e550102731d821d23b2257a5836532fd673f3c61f7c6c40c7b074103689",
+        "shapeSha256": "ff57eb2ce79db7015aa90842347060ec297e8c6f71bb1182dc17f56e34cecfd4",
+        "identifierNamesErased": 156,
+        "protectedIdentifierOccurrences": 3
+      },
+      "slot": 17,
+      "autoInitializer": {
+        "index": 12200,
+        "type": "VariableDeclaration",
+        "range": [
+          9496097,
+          9496472
+        ],
+        "nodes": 64,
+        "strictSha256": "5a9bd7fb6d4855196558aac8e2ae92e5d2112fcc3dbc39af94526b3588532484",
+        "shapeSha256": "f97f270dc75b4026519ff506bc57825b3603191ea6a80c4f7a6bee93827f8a2d",
+        "identifierNamesErased": 21,
+        "protectedIdentifierOccurrences": 0
+      },
+      "factory": {
+        "index": 12084,
+        "type": "FunctionDeclaration",
+        "range": [
+          9423929,
+          9424007
+        ],
+        "nodes": 17,
+        "strictSha256": "5350977a923a13c2c46f386d7f7e2507e5fd2e8c3c6fd89151a08f1ea0802fb5",
+        "shapeSha256": "8cf9d7a876409862f909695d19074f45a239fd8b66df1d16324014a1cbce8744",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 4
+      },
+      "query": {
+        "index": 12092,
+        "type": "FunctionDeclaration",
+        "range": [
+          9424590,
+          9438049
+        ],
+        "nodes": 3301,
+        "strictSha256": "2710a3f1d696350ff1de74dea9b1db9e1352cb34a459945b682bf3267d50716c",
+        "shapeSha256": "3122f5f65d1ff722300d788d548f9875fa365593579c8642a72f82ef5e239cc9",
+        "identifierNamesErased": 829,
+        "protectedIdentifierOccurrences": 594
+      },
+      "autocompactBindingResolved": true,
+      "queryReceiverDeclaration": [
+        {
+          "type": "Variable",
+          "range": [
+            1560,
+            1575
+          ]
+        }
+      ],
+      "queryReceiverCanBeCallerOverride": true
+    },
+    "current": {
+      "main": {
+        "index": 18177,
+        "type": "VariableDeclaration",
+        "range": [
+          13004767,
+          13005726
+        ],
+        "nodes": 476,
+        "strictSha256": "a1e3504d4cf9ddfc47fc398d8ea0d394fa84386dd7f16ca09a4850259621ae05",
+        "shapeSha256": "ff57eb2ce79db7015aa90842347060ec297e8c6f71bb1182dc17f56e34cecfd4",
+        "identifierNamesErased": 156,
+        "protectedIdentifierOccurrences": 3
+      },
+      "slot": 17,
+      "autoInitializer": {
+        "index": 12200,
+        "type": "VariableDeclaration",
+        "range": [
+          9496107,
+          9496487
+        ],
+        "nodes": 67,
+        "strictSha256": "b6a7e2cce6efcd3cf3dece9c366a2984e93f3c9aa2c9451c38ce03b078be21a6",
+        "shapeSha256": "74266ef8e2a869c83c76163d489502245fbb2000cfea2137d3472a915be89c63",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 0
+      },
+      "factory": {
+        "index": 12084,
+        "type": "FunctionDeclaration",
+        "range": [
+          9423927,
+          9424005
+        ],
+        "nodes": 17,
+        "strictSha256": "5350977a923a13c2c46f386d7f7e2507e5fd2e8c3c6fd89151a08f1ea0802fb5",
+        "shapeSha256": "8cf9d7a876409862f909695d19074f45a239fd8b66df1d16324014a1cbce8744",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 4
+      },
+      "query": {
+        "index": 12092,
+        "type": "FunctionDeclaration",
+        "range": [
+          9424588,
+          9438047
+        ],
+        "nodes": 3301,
+        "strictSha256": "b76d3bf63ef6db89de6c9ecf3e79edad3a6013ad45abb08ffc8320bf3df80a48",
+        "shapeSha256": "3122f5f65d1ff722300d788d548f9875fa365593579c8642a72f82ef5e239cc9",
+        "identifierNamesErased": 829,
+        "protectedIdentifierOccurrences": 594
+      },
+      "autocompactBindingResolved": true,
+      "queryReceiverDeclaration": [
+        {
+          "type": "Variable",
+          "range": [
+            1590,
+            1605
+          ]
+        }
+      ],
+      "queryReceiverCanBeCallerOverride": true
+    }
+  },
+  "factoryQueryGraph": {
+    "nodes": 3626,
+    "forward": {
+      "process": "process",
+      "Q6": "c6",
+      "wfK": "wfK",
+      "h_Y": "V_Y",
+      "f17": "X17",
+      "N": "N",
+      "JfK": "JfK",
+      "re6": "ne6",
+      "RB8": "hB8",
+      "jq6": "wq6",
+      "Lp": "Rp",
+      "rt": "rt",
+      "L_Y": "k_Y",
+      "u8": "m8",
+      "BE6": "pE6",
+      "j6": "w6",
+      "Xa": "Wa",
+      "we": "we",
+      "Rh6": "RR6",
+      "ZU": "GU",
+      "u9Y": "S9Y",
+      "HDK": "HDK",
+      "ZDK": "ZDK",
+      "Fz": "gz",
+      "t87": "r87",
+      "XM": "PM",
+      "I3": "u3",
+      "n2": "aw",
+      "RH6": "LH6",
+      "Number": "Number",
+      "Set": "Set",
+      "NS4": "vS4",
+      "TDK": "vDK",
+      "sK": "rK",
+      "d": "d",
+      "fDK": "fDK",
+      "B9": "B9",
+      "xV8": "xV8",
+      "Math": "Math",
+      "Pa": "Da",
+      "g9Y": "I9Y",
+      "y18": "V18",
+      "pr6": "xr6",
+      "iI": "rI",
+      "WD4": "PD4",
+      "LH6": "yH6",
+      "DZ": "P0",
+      "hH6": "EH6",
+      "zp": "$p",
+      "$0": "zZ",
+      "O5": "w5",
+      "Object": "Object",
+      "DDK": "DDK",
+      "FP": "gP",
+      "PB8": "PB8",
+      "e87": "o87",
+      "XH": "GH",
+      "kw": "N2",
+      "oA6": "rO6",
+      "String": "String",
+      "Error": "Error",
+      "ok6": "rk6",
+      "CU": "bU",
+      "VE": "NE",
+      "MD4": "JD4",
+      "$o6": "zo6",
+      "ya": "La",
+      "q17": "a87",
+      "XB8": "XB8",
+      "qk1": "tv1",
+      "c8": "Q8",
+      "p9Y": "b9Y",
+      "ODK": "ADK",
+      "no6": "co6",
+      "Array": "Array",
+      "vDK": "TDK",
+      "qW4": "eP4",
+      "G4": "G4",
+      "Ow6": "$26",
+      "OD4": "$D4",
+      "EN8": "yN8",
+      "YL6": "zL6",
+      "GDK": "GDK",
+      "uU": "mU",
+      "_D4": "KD4",
+      "A7": "$7",
+      "Uz": "Fz"
+    },
+    "reverse": {
+      "process": "process",
+      "c6": "Q6",
+      "wfK": "wfK",
+      "V_Y": "h_Y",
+      "X17": "f17",
+      "N": "N",
+      "JfK": "JfK",
+      "ne6": "re6",
+      "hB8": "RB8",
+      "wq6": "jq6",
+      "Rp": "Lp",
+      "rt": "rt",
+      "k_Y": "L_Y",
+      "m8": "u8",
+      "pE6": "BE6",
+      "w6": "j6",
+      "Wa": "Xa",
+      "we": "we",
+      "RR6": "Rh6",
+      "GU": "ZU",
+      "S9Y": "u9Y",
+      "HDK": "HDK",
+      "ZDK": "ZDK",
+      "gz": "Fz",
+      "r87": "t87",
+      "PM": "XM",
+      "u3": "I3",
+      "aw": "n2",
+      "LH6": "RH6",
+      "Number": "Number",
+      "Set": "Set",
+      "vS4": "NS4",
+      "vDK": "TDK",
+      "rK": "sK",
+      "d": "d",
+      "fDK": "fDK",
+      "B9": "B9",
+      "xV8": "xV8",
+      "Math": "Math",
+      "Da": "Pa",
+      "I9Y": "g9Y",
+      "V18": "y18",
+      "xr6": "pr6",
+      "rI": "iI",
+      "PD4": "WD4",
+      "yH6": "LH6",
+      "P0": "DZ",
+      "EH6": "hH6",
+      "$p": "zp",
+      "zZ": "$0",
+      "w5": "O5",
+      "Object": "Object",
+      "DDK": "DDK",
+      "gP": "FP",
+      "PB8": "PB8",
+      "o87": "e87",
+      "GH": "XH",
+      "N2": "kw",
+      "rO6": "oA6",
+      "String": "String",
+      "Error": "Error",
+      "rk6": "ok6",
+      "bU": "CU",
+      "NE": "VE",
+      "JD4": "MD4",
+      "zo6": "$o6",
+      "La": "ya",
+      "a87": "q17",
+      "XB8": "XB8",
+      "tv1": "qk1",
+      "Q8": "c8",
+      "b9Y": "p9Y",
+      "ADK": "ODK",
+      "co6": "no6",
+      "Array": "Array",
+      "TDK": "vDK",
+      "eP4": "qW4",
+      "G4": "G4",
+      "$26": "Ow6",
+      "$D4": "OD4",
+      "yN8": "EN8",
+      "zL6": "YL6",
+      "GDK": "GDK",
+      "mU": "uU",
+      "KD4": "_D4",
+      "$7": "A7",
+      "Fz": "Uz"
+    },
+    "scopeCount": 94
+  },
+  "conditionalMainInitializerGraph": {
+    "nodes": 477,
+    "forward": {
+      "lx": "nx",
+      "E51": "N51",
+      "Nk1": "kk1",
+      "Qz7": "gz7",
+      "h3": "h3",
+      "Xa6": "Ja6",
+      "iq1": "cq1",
+      "qm": "Km",
+      "s5": "a5",
+      "IN": "bN",
+      "iz7": "cz7",
+      "ab": "ab",
+      "Z65": "W65",
+      "s1": "o1",
+      "v65": "f65",
+      "vI8": "vI8",
+      "r56": "n56",
+      "hb": "hb",
+      "LN1": "yN1",
+      "RD": "ED",
+      "wy6": "Oy6",
+      "nU": "nU",
+      "iD": "cD",
+      "P46": "X46",
+      "s$": "s$",
+      "WK8": "XK8",
+      "G7": "Z7",
+      "k1": "T1",
+      "jl6": "$l6",
+      "HZ": "w0",
+      "cf": "Uf",
+      "T48": "G48",
+      "i1": "c1",
+      "VK": "kK",
+      "Rs6": "Ls6",
+      "oL": "oL",
+      "rF": "oF",
+      "yl8": "Vl8",
+      "n8": "l8",
+      "NO7": "vA7",
+      "N65": "v65",
+      "E16": "y16",
+      "V8": "V8",
+      "tc6": "rc6",
+      "k8": "k8",
+      "CO": "hA",
+      "B85": "u85",
+      "t16": "s16",
+      "EA7": "NO7",
+      "cU": "lU",
+      "yD": "kD",
+      "hA7": "EO7",
+      "c75": "U75",
+      "BP": "pP",
+      "so": "eo",
+      "hJ6": "LJ6",
+      "sW": "rW",
+      "ML6": "JL6",
+      "bA7": "SO7",
+      "F8": "B8",
+      "zO7": "qA7",
+      "Dq8": "Wq8",
+      "X5": "P5",
+      "$_7": "__7",
+      "NA": "NO",
+      "h8": "R8",
+      "KA7": "eA7",
+      "gq": "Bq",
+      "En": "Rn",
+      "uW": "bW",
+      "VX": "NX",
+      "xy": "xy",
+      "dX": "lX",
+      "$78": "Y78",
+      "E88": "N88",
+      "vN": "ZN",
+      "fC": "GC",
+      "LK6": "yK6",
+      "YK": "zK",
+      "jA8": "HO8",
+      "n1": "d1",
+      "Fc": "Uc",
+      "pj": "Qj",
+      "zL6": "_L6",
+      "a75": "i75",
+      "TI8": "kI8",
+      "Vm": "Nm",
+      "t75": "o75",
+      "qq5": "s75",
+      "$17": "K17",
+      "ZN6": "DN6",
+      "bZ": "h0",
+      "yJ": "RJ",
+      "pa6": "ua6",
+      "dO7": "UA7",
+      "SH6": "RH6",
+      "jb": "Hb",
+      "i9": "i9",
+      "_o": "Yo",
+      "Ri": "Ci",
+      "nN6": "dN6",
+      "vL": "_C",
+      "p7": "u7",
+      "_8": "K8",
+      "L8": "E8",
+      "a7": "a7",
+      "KO": "qA",
+      "c18": "d18",
+      "eT1": "sv1",
+      "Ty": "vy",
+      "GK8": "fK8",
+      "yA": "yO",
+      "_q5": "e75",
+      "Yq5": "Kq5",
+      "Oq5": "zq5",
+      "Aq5": "Yq5",
+      "jq5": "Aq5",
+      "Jq5": "wq5",
+      "Xq5": "Hq5",
+      "Wq5": "Mq5",
+      "fq5": "Pq5",
+      "Gq5": "Dq5",
+      "Tq5": "Zq5",
+      "AO7": "YA7",
+      "Vq5": "Tq5",
+      "Kd": "zd",
+      "Tw6": "v26",
+      "pV6": "uV6",
+      "MC6": "HC6",
+      "hZ": "y0",
+      "LG": "yG",
+      "_$": "K$",
+      "BK8": "mK8",
+      "Sj": "Ij",
+      "ES6": "VS6",
+      "H$": "j$",
+      "LM": "LM",
+      "Xp": "Pp",
+      "TN": "GN",
+      "I$6": "b$6",
+      "z0": "qZ",
+      "process": "process",
+      "Q4": "U4",
+      "kC7": "VC7",
+      "Sbq": "Cbq",
+      "keY": "PeY",
+      "sK6": "oK6",
+      "Lq": "Lq",
+      "NeY": "DeY",
+      "E": "y"
+    },
+    "reverse": {
+      "nx": "lx",
+      "N51": "E51",
+      "kk1": "Nk1",
+      "gz7": "Qz7",
+      "h3": "h3",
+      "Ja6": "Xa6",
+      "cq1": "iq1",
+      "Km": "qm",
+      "a5": "s5",
+      "bN": "IN",
+      "cz7": "iz7",
+      "ab": "ab",
+      "W65": "Z65",
+      "o1": "s1",
+      "f65": "v65",
+      "vI8": "vI8",
+      "n56": "r56",
+      "hb": "hb",
+      "yN1": "LN1",
+      "ED": "RD",
+      "Oy6": "wy6",
+      "nU": "nU",
+      "cD": "iD",
+      "X46": "P46",
+      "s$": "s$",
+      "XK8": "WK8",
+      "Z7": "G7",
+      "T1": "k1",
+      "$l6": "jl6",
+      "w0": "HZ",
+      "Uf": "cf",
+      "G48": "T48",
+      "c1": "i1",
+      "kK": "VK",
+      "Ls6": "Rs6",
+      "oL": "oL",
+      "oF": "rF",
+      "Vl8": "yl8",
+      "l8": "n8",
+      "vA7": "NO7",
+      "v65": "N65",
+      "y16": "E16",
+      "V8": "V8",
+      "rc6": "tc6",
+      "k8": "k8",
+      "hA": "CO",
+      "u85": "B85",
+      "s16": "t16",
+      "NO7": "EA7",
+      "lU": "cU",
+      "kD": "yD",
+      "EO7": "hA7",
+      "U75": "c75",
+      "pP": "BP",
+      "eo": "so",
+      "LJ6": "hJ6",
+      "rW": "sW",
+      "JL6": "ML6",
+      "SO7": "bA7",
+      "B8": "F8",
+      "qA7": "zO7",
+      "Wq8": "Dq8",
+      "P5": "X5",
+      "__7": "$_7",
+      "NO": "NA",
+      "R8": "h8",
+      "eA7": "KA7",
+      "Bq": "gq",
+      "Rn": "En",
+      "bW": "uW",
+      "NX": "VX",
+      "xy": "xy",
+      "lX": "dX",
+      "Y78": "$78",
+      "N88": "E88",
+      "ZN": "vN",
+      "GC": "fC",
+      "yK6": "LK6",
+      "zK": "YK",
+      "HO8": "jA8",
+      "d1": "n1",
+      "Uc": "Fc",
+      "Qj": "pj",
+      "_L6": "zL6",
+      "i75": "a75",
+      "kI8": "TI8",
+      "Nm": "Vm",
+      "o75": "t75",
+      "s75": "qq5",
+      "K17": "$17",
+      "DN6": "ZN6",
+      "h0": "bZ",
+      "RJ": "yJ",
+      "ua6": "pa6",
+      "UA7": "dO7",
+      "RH6": "SH6",
+      "Hb": "jb",
+      "i9": "i9",
+      "Yo": "_o",
+      "Ci": "Ri",
+      "dN6": "nN6",
+      "_C": "vL",
+      "u7": "p7",
+      "K8": "_8",
+      "E8": "L8",
+      "a7": "a7",
+      "qA": "KO",
+      "d18": "c18",
+      "sv1": "eT1",
+      "vy": "Ty",
+      "fK8": "GK8",
+      "yO": "yA",
+      "e75": "_q5",
+      "Kq5": "Yq5",
+      "zq5": "Oq5",
+      "Yq5": "Aq5",
+      "Aq5": "jq5",
+      "wq5": "Jq5",
+      "Hq5": "Xq5",
+      "Mq5": "Wq5",
+      "Pq5": "fq5",
+      "Dq5": "Gq5",
+      "Zq5": "Tq5",
+      "YA7": "AO7",
+      "Tq5": "Vq5",
+      "zd": "Kd",
+      "v26": "Tw6",
+      "uV6": "pV6",
+      "HC6": "MC6",
+      "y0": "hZ",
+      "yG": "LG",
+      "K$": "_$",
+      "mK8": "BK8",
+      "Ij": "Sj",
+      "VS6": "ES6",
+      "j$": "H$",
+      "LM": "LM",
+      "Pp": "Xp",
+      "GN": "TN",
+      "b$6": "I$6",
+      "qZ": "z0",
+      "process": "process",
+      "U4": "Q4",
+      "VC7": "kC7",
+      "Cbq": "Sbq",
+      "PeY": "keY",
+      "oK6": "sK6",
+      "Lq": "Lq",
+      "DeY": "NeY",
+      "y": "E"
+    },
+    "scopeCount": 3
+  },
+  "completeSelectedGraph": {
+    "passed": true,
+    "nodes": 8557,
+    "forward": {
+      "Z8": "G8",
+      "YH7": "_H7",
+      "Ci8": "zH7",
+      "Fc": "Uc",
+      "DH7": "WH7",
+      "Bi8": "mi8",
+      "zz": "_z",
+      "gi8": "pi8",
+      "ti8": "DH7",
+      "ei8": "oi8",
+      "WH7": "PH7",
+      "E": "y",
+      "KK": "qK",
+      "iq1": "cq1",
+      "sw": "e2",
+      "V8": "V8",
+      "p7": "u7",
+      "i9": "i9",
+      "vL": "_C",
+      "_$": "K$",
+      "E_": "L_",
+      "CK": "CK",
+      "a7": "a7",
+      "X5": "P5",
+      "NA": "NO",
+      "Tz": "Tz",
+      "PI": "WI",
+      "n8": "l8",
+      "aN1": "oN1",
+      "$M_": "KM_",
+      "TL": "vL",
+      "ui": "pi",
+      "Lq": "Lq",
+      "rc6": "cc6",
+      "HZ8": "H08",
+      "mi": "Bi",
+      "noq": "ioq",
+      "ioq": "roq",
+      "jLO": "zLA",
+      "HLO": "YLA",
+      "hF": "hF",
+      "XM_": "jM_",
+      "Bq": "gq",
+      "MZ8": "M08",
+      "q7": "t1",
+      "wH": "PH",
+      "y_6": "V_6",
+      "wZ8": "w08",
+      "$1": "A1",
+      "DM_": "MM_",
+      "$O6": "zA6",
+      "fM_": "XM_",
+      "JZ8": "J08",
+      "X86": "M86",
+      "gq": "Bq",
+      "eT1": "sv1",
+      "RH7": "hH7",
+      "ka8": "Ga8",
+      "gO5": "uA5",
+      "process": "process",
+      "Object": "Object",
+      "lv": "QT",
+      "xM7": "xM7",
+      "NB": "LB",
+      "uM7": "uM7",
+      "FO5": "mA5",
+      "LH7": "LH7",
+      "Ta8": "Za8",
+      "Promise": "Promise",
+      "BM7": "BM7",
+      "N96": "k96",
+      "CM7": "CM7",
+      "bM7": "bM7",
+      "BO5": "IA5",
+      "pO5": "xA5",
+      "r1": "l1",
+      "ez5": "oz5",
+      "SH7": "SH7",
+      "qY5": "az5",
+      "dv": "QZ",
+      "JI6": "OI6",
+      "Error": "Error",
+      "TB": "NB",
+      "dz": "Qz",
+      "cv": "UT",
+      "kE": "VE",
+      "PP": "WP",
+      "zV": "KV",
+      "IY": "xY",
+      "u$8": "I$8",
+      "xW6": "xW6",
+      "p$8": "m$8",
+      "IW6": "IW6",
+      "gS$": "CS$",
+      "bN": "SN",
+      "i1": "c1",
+      "Iy7": "Iy7",
+      "EW6": "EW6",
+      "my7": "my7",
+      "EG": "NG",
+      "I$6": "b$6",
+      "Ci": "xi",
+      "zO6": "KA6",
+      "Map": "Map",
+      "qC": "qC",
+      "nG6": "nG6",
+      "Set": "Set",
+      "UN1": "FN1",
+      "iG6": "iG6",
+      "dN1": "QN1",
+      "xi": "ui",
+      "yoq": "yoq",
+      "uy7": "uy7",
+      "WJ": "ZJ",
+      "a$": "a$",
+      "gX6": "gX6",
+      "g7": "p7",
+      "cN1": "dN1",
+      "N$8": "V$8",
+      "bi": "Ii",
+      "koq": "koq",
+      "cc6": "Fc6",
+      "Voq": "Voq",
+      "Fc6": "mc6",
+      "Uc6": "pc6",
+      "Ii": "mi",
+      "lc6": "Uc6",
+      "hoq": "Roq",
+      "L_": "R_",
+      "GZ8": "G08",
+      "nq": "Fq",
+      "SH6": "RH6",
+      "G7": "Z7",
+      "LG": "yG",
+      "HZ": "w0",
+      "Wz7": "Mz7",
+      "cU": "lU",
+      "DUK": "XUK",
+      "_e": "_e",
+      "Bb": "gb",
+      "P46": "X46",
+      "Gu": "Tu",
+      "jb": "Hb",
+      "cf": "Uf",
+      "Nw6": "N26",
+      "Ho6": "wo6",
+      "QB8": "QB8",
+      "Sn": "bn",
+      "yH6": "VH6",
+      "TN": "GN",
+      "lC": "iC",
+      "fU": "ZU",
+      "FF6": "mF6",
+      "OR6": "$h6",
+      "V46": "k46",
+      "QC": "cC",
+      "Kd": "zd",
+      "yJ": "RJ",
+      "C17": "L17",
+      "WG6": "WG6",
+      "iC": "oC",
+      "C18": "h18",
+      "pr": "gr",
+      "$xY": "obY",
+      "sK6": "oK6",
+      "Vz": "kz",
+      "pc_": "Cc_",
+      "gr6": "ur6",
+      "ck6": "ck6",
+      "qm": "Km",
+      "kp": "Vp",
+      "UY": "FY",
+      "BV8": "pV8",
+      "KW": "qW",
+      "WM4": "PM4",
+      "UG": "gG",
+      "lG": "wk",
+      "C$": "C$",
+      "CDK": "CDK",
+      "CJ": "xJ",
+      "LK6": "yK6",
+      "YK": "zK",
+      "bj": "pj",
+      "$17": "K17",
+      "O17": "_17",
+      "Ih6": "xR6",
+      "IN": "bN",
+      "QN": "UN",
+      "ZK6": "DK6",
+      "MM": "XM",
+      "ds6": "Us6",
+      "M17": "w17",
+      "LB8": "LB8",
+      "P17": "H17",
+      "UO5": "pA5",
+      "m6": "B6",
+      "Va8": "Ta8",
+      "Date": "Date",
+      "ql": "Kl",
+      "cO5": "FA5",
+      "hB8": "RB8",
+      "Z_Y": "X_Y",
+      "pJ4": "mJ4",
+      "IJ4": "xJ4",
+      "uV8": "mr6",
+      "d": "d",
+      "zfK": "zfK",
+      "T_Y": "D_Y",
+      "UD": "BD",
+      "W5": "D5",
+      "QD": "gD",
+      "X$": "M$",
+      "k_Y": "f_Y",
+      "Pa": "Da",
+      "pk6": "pk6",
+      "CJ4": "SJ4",
+      "uA": "uO",
+      "br6": "Rr6",
+      "ur": "pr",
+      "ia": "oa",
+      "l4K": "l4K",
+      "ap8": "ap8",
+      "$F4": "YF4",
+      "H17": "A17",
+      "rG6": "rG6",
+      "oG6": "oG6",
+      "ZB8": "ZB8",
+      "PR6": "Jh6",
+      "w17": "Y17",
+      "mDK": "mDK",
+      "c8": "Q8",
+      "lDK": "lDK",
+      "XR6": "hH6",
+      "zp": "$p",
+      "UDK": "UDK",
+      "Ga": "va",
+      "FI1": "pI1",
+      "nDK": "nDK",
+      "oDK": "oDK",
+      "vB8": "TB8",
+      "rDK": "rDK",
+      "iDK": "iDK",
+      "G4": "G4",
+      "TB8": "vB8",
+      "kB8": "kB8",
+      "VB8": "VB8",
+      "u18": "I18",
+      "Jd": "Xd",
+      "x18": "b18",
+      "uN": "xN",
+      "Qk6": "Qk6",
+      "cC": "nC",
+      "XM4": "MM4",
+      "PM4": "XM4",
+      "NB8": "NB8",
+      "yB8": "yB8",
+      "Boolean": "Boolean",
+      "cDK": "cDK",
+      "p1": "u1",
+      "wY": "OY",
+      "jE5": "$E5",
+      "MI": "XI",
+      "ic6": "dc6",
+      "AZ8": "O08",
+      "vP": "vP",
+      "M8": "X8",
+      "_y1": "Ky1",
+      "I16": "x16",
+      "WM_": "JM_",
+      "OL": "OL",
+      "J86": "H86",
+      "cP1": "QP1",
+      "Kk1": "ev1",
+      "Y6_": "q6_",
+      "parseInt": "parseInt",
+      "isNaN": "isNaN",
+      "RJ4": "RJ4",
+      "dk6": "dk6",
+      "P16": "X16",
+      "lCq": "nCq",
+      "Math": "Math",
+      "TxY": "JxY",
+      "parseFloat": "parseFloat",
+      "Number": "Number",
+      "NaN": "NaN",
+      "Rh6": "RR6",
+      "ZU": "GU",
+      "u9Y": "S9Y",
+      "HDK": "HDK",
+      "ZDK": "ZDK",
+      "Fz": "gz",
+      "t87": "r87",
+      "XM": "PM",
+      "I3": "u3",
+      "n2": "aw",
+      "RH6": "LH6",
+      "NS4": "vS4",
+      "TDK": "vDK",
+      "sK": "rK",
+      "B9": "B9",
+      "xV8": "xV8",
+      "g9Y": "I9Y",
+      "y18": "V18",
+      "pr6": "xr6",
+      "iI": "rI",
+      "WD4": "PD4",
+      "LH6": "yH6",
+      "O5": "w5",
+      "DDK": "DDK",
+      "FP": "gP",
+      "PB8": "PB8",
+      "e87": "o87",
+      "XH": "GH",
+      "kw": "N2",
+      "oA6": "rO6",
+      "String": "String",
+      "ok6": "rk6",
+      "CU": "bU",
+      "VE": "NE",
+      "MD4": "JD4",
+      "$o6": "zo6",
+      "ya": "La",
+      "q17": "a87",
+      "XB8": "XB8",
+      "qk1": "tv1",
+      "p9Y": "b9Y",
+      "ODK": "ADK",
+      "no6": "co6",
+      "Array": "Array",
+      "vDK": "TDK",
+      "qW4": "eP4",
+      "Ow6": "$26",
+      "OD4": "$D4",
+      "EN8": "yN8",
+      "YL6": "zL6",
+      "GDK": "GDK",
+      "uU": "mU",
+      "_D4": "KD4",
+      "A7": "$7",
+      "Uz": "Fz",
+      "lx": "nx",
+      "E51": "N51",
+      "Nk1": "kk1",
+      "Qz7": "gz7",
+      "h3": "h3",
+      "Xa6": "Ja6",
+      "s5": "a5",
+      "iz7": "cz7",
+      "ab": "ab",
+      "Z65": "W65",
+      "v65": "f65",
+      "vI8": "vI8",
+      "r56": "n56",
+      "LN1": "yN1",
+      "RD": "ED",
+      "wy6": "Oy6",
+      "nU": "nU",
+      "iD": "cD",
+      "s$": "s$",
+      "WK8": "XK8",
+      "jl6": "$l6",
+      "T48": "G48",
+      "VK": "kK",
+      "Rs6": "Ls6",
+      "oL": "oL",
+      "rF": "oF",
+      "yl8": "Vl8",
+      "NO7": "vA7",
+      "N65": "v65",
+      "E16": "y16",
+      "tc6": "rc6",
+      "CO": "hA",
+      "B85": "u85",
+      "t16": "s16",
+      "EA7": "NO7",
+      "yD": "kD",
+      "hA7": "EO7",
+      "c75": "U75",
+      "BP": "pP",
+      "so": "eo",
+      "hJ6": "LJ6",
+      "ML6": "JL6",
+      "bA7": "SO7",
+      "zO7": "qA7",
+      "Dq8": "Wq8",
+      "$_7": "__7",
+      "KA7": "eA7",
+      "En": "Rn",
+      "uW": "bW",
+      "VX": "NX",
+      "xy": "xy",
+      "dX": "lX",
+      "$78": "Y78",
+      "E88": "N88",
+      "vN": "ZN",
+      "fC": "GC",
+      "jA8": "HO8",
+      "n1": "d1",
+      "pj": "Qj",
+      "zL6": "_L6",
+      "a75": "i75",
+      "TI8": "kI8",
+      "Vm": "Nm",
+      "t75": "o75",
+      "qq5": "s75",
+      "ZN6": "DN6",
+      "bZ": "h0",
+      "pa6": "ua6",
+      "dO7": "UA7",
+      "_o": "Yo",
+      "Ri": "Ci",
+      "nN6": "dN6",
+      "KO": "qA",
+      "c18": "d18",
+      "Ty": "vy",
+      "GK8": "fK8",
+      "yA": "yO",
+      "_q5": "e75",
+      "Yq5": "Kq5",
+      "Oq5": "zq5",
+      "Aq5": "Yq5",
+      "jq5": "Aq5",
+      "Jq5": "wq5",
+      "Xq5": "Hq5",
+      "Wq5": "Mq5",
+      "fq5": "Pq5",
+      "Gq5": "Dq5",
+      "Tq5": "Zq5",
+      "AO7": "YA7",
+      "Vq5": "Tq5",
+      "Tw6": "v26",
+      "pV6": "uV6",
+      "MC6": "HC6",
+      "hZ": "y0",
+      "BK8": "mK8",
+      "Sj": "Ij",
+      "ES6": "VS6",
+      "H$": "j$",
+      "LM": "LM",
+      "Xp": "Pp",
+      "z0": "qZ",
+      "Q4": "U4",
+      "kC7": "VC7",
+      "Sbq": "Cbq",
+      "keY": "PeY",
+      "NeY": "DeY"
+    },
+    "reverse": {
+      "G8": "Z8",
+      "_H7": "YH7",
+      "zH7": "Ci8",
+      "Uc": "Fc",
+      "WH7": "DH7",
+      "mi8": "Bi8",
+      "_z": "zz",
+      "pi8": "gi8",
+      "DH7": "ti8",
+      "oi8": "ei8",
+      "PH7": "WH7",
+      "y": "E",
+      "qK": "KK",
+      "cq1": "iq1",
+      "e2": "sw",
+      "V8": "V8",
+      "u7": "p7",
+      "i9": "i9",
+      "_C": "vL",
+      "K$": "_$",
+      "L_": "E_",
+      "CK": "CK",
+      "a7": "a7",
+      "P5": "X5",
+      "NO": "NA",
+      "Tz": "Tz",
+      "WI": "PI",
+      "l8": "n8",
+      "oN1": "aN1",
+      "KM_": "$M_",
+      "vL": "TL",
+      "pi": "ui",
+      "Lq": "Lq",
+      "cc6": "rc6",
+      "H08": "HZ8",
+      "Bi": "mi",
+      "ioq": "noq",
+      "roq": "ioq",
+      "zLA": "jLO",
+      "YLA": "HLO",
+      "hF": "hF",
+      "jM_": "XM_",
+      "gq": "Bq",
+      "M08": "MZ8",
+      "t1": "q7",
+      "PH": "wH",
+      "V_6": "y_6",
+      "w08": "wZ8",
+      "A1": "$1",
+      "MM_": "DM_",
+      "zA6": "$O6",
+      "XM_": "fM_",
+      "J08": "JZ8",
+      "M86": "X86",
+      "Bq": "gq",
+      "sv1": "eT1",
+      "hH7": "RH7",
+      "Ga8": "ka8",
+      "uA5": "gO5",
+      "process": "process",
+      "Object": "Object",
+      "QT": "lv",
+      "xM7": "xM7",
+      "LB": "NB",
+      "uM7": "uM7",
+      "mA5": "FO5",
+      "LH7": "LH7",
+      "Za8": "Ta8",
+      "Promise": "Promise",
+      "BM7": "BM7",
+      "k96": "N96",
+      "CM7": "CM7",
+      "bM7": "bM7",
+      "IA5": "BO5",
+      "xA5": "pO5",
+      "l1": "r1",
+      "oz5": "ez5",
+      "SH7": "SH7",
+      "az5": "qY5",
+      "QZ": "dv",
+      "OI6": "JI6",
+      "Error": "Error",
+      "NB": "TB",
+      "Qz": "dz",
+      "UT": "cv",
+      "VE": "kE",
+      "WP": "PP",
+      "KV": "zV",
+      "xY": "IY",
+      "I$8": "u$8",
+      "xW6": "xW6",
+      "m$8": "p$8",
+      "IW6": "IW6",
+      "CS$": "gS$",
+      "SN": "bN",
+      "c1": "i1",
+      "Iy7": "Iy7",
+      "EW6": "EW6",
+      "my7": "my7",
+      "NG": "EG",
+      "b$6": "I$6",
+      "xi": "Ci",
+      "KA6": "zO6",
+      "Map": "Map",
+      "qC": "qC",
+      "nG6": "nG6",
+      "Set": "Set",
+      "FN1": "UN1",
+      "iG6": "iG6",
+      "QN1": "dN1",
+      "ui": "xi",
+      "yoq": "yoq",
+      "uy7": "uy7",
+      "ZJ": "WJ",
+      "a$": "a$",
+      "gX6": "gX6",
+      "p7": "g7",
+      "dN1": "cN1",
+      "V$8": "N$8",
+      "Ii": "bi",
+      "koq": "koq",
+      "Fc6": "cc6",
+      "Voq": "Voq",
+      "mc6": "Fc6",
+      "pc6": "Uc6",
+      "mi": "Ii",
+      "Uc6": "lc6",
+      "Roq": "hoq",
+      "R_": "L_",
+      "G08": "GZ8",
+      "Fq": "nq",
+      "RH6": "SH6",
+      "Z7": "G7",
+      "yG": "LG",
+      "w0": "HZ",
+      "Mz7": "Wz7",
+      "lU": "cU",
+      "XUK": "DUK",
+      "_e": "_e",
+      "gb": "Bb",
+      "X46": "P46",
+      "Tu": "Gu",
+      "Hb": "jb",
+      "Uf": "cf",
+      "N26": "Nw6",
+      "wo6": "Ho6",
+      "QB8": "QB8",
+      "bn": "Sn",
+      "VH6": "yH6",
+      "GN": "TN",
+      "iC": "lC",
+      "ZU": "fU",
+      "mF6": "FF6",
+      "$h6": "OR6",
+      "k46": "V46",
+      "cC": "QC",
+      "zd": "Kd",
+      "RJ": "yJ",
+      "L17": "C17",
+      "WG6": "WG6",
+      "oC": "iC",
+      "h18": "C18",
+      "gr": "pr",
+      "obY": "$xY",
+      "oK6": "sK6",
+      "kz": "Vz",
+      "Cc_": "pc_",
+      "ur6": "gr6",
+      "ck6": "ck6",
+      "Km": "qm",
+      "Vp": "kp",
+      "FY": "UY",
+      "pV8": "BV8",
+      "qW": "KW",
+      "PM4": "WM4",
+      "gG": "UG",
+      "wk": "lG",
+      "C$": "C$",
+      "CDK": "CDK",
+      "xJ": "CJ",
+      "yK6": "LK6",
+      "zK": "YK",
+      "pj": "bj",
+      "K17": "$17",
+      "_17": "O17",
+      "xR6": "Ih6",
+      "bN": "IN",
+      "UN": "QN",
+      "DK6": "ZK6",
+      "XM": "MM",
+      "Us6": "ds6",
+      "w17": "M17",
+      "LB8": "LB8",
+      "H17": "P17",
+      "pA5": "UO5",
+      "B6": "m6",
+      "Ta8": "Va8",
+      "Date": "Date",
+      "Kl": "ql",
+      "FA5": "cO5",
+      "RB8": "hB8",
+      "X_Y": "Z_Y",
+      "mJ4": "pJ4",
+      "xJ4": "IJ4",
+      "mr6": "uV8",
+      "d": "d",
+      "zfK": "zfK",
+      "D_Y": "T_Y",
+      "BD": "UD",
+      "D5": "W5",
+      "gD": "QD",
+      "M$": "X$",
+      "f_Y": "k_Y",
+      "Da": "Pa",
+      "pk6": "pk6",
+      "SJ4": "CJ4",
+      "uO": "uA",
+      "Rr6": "br6",
+      "pr": "ur",
+      "oa": "ia",
+      "l4K": "l4K",
+      "ap8": "ap8",
+      "YF4": "$F4",
+      "A17": "H17",
+      "rG6": "rG6",
+      "oG6": "oG6",
+      "ZB8": "ZB8",
+      "Jh6": "PR6",
+      "Y17": "w17",
+      "mDK": "mDK",
+      "Q8": "c8",
+      "lDK": "lDK",
+      "hH6": "XR6",
+      "$p": "zp",
+      "UDK": "UDK",
+      "va": "Ga",
+      "pI1": "FI1",
+      "nDK": "nDK",
+      "oDK": "oDK",
+      "TB8": "vB8",
+      "rDK": "rDK",
+      "iDK": "iDK",
+      "G4": "G4",
+      "vB8": "TB8",
+      "kB8": "kB8",
+      "VB8": "VB8",
+      "I18": "u18",
+      "Xd": "Jd",
+      "b18": "x18",
+      "xN": "uN",
+      "Qk6": "Qk6",
+      "nC": "cC",
+      "MM4": "XM4",
+      "XM4": "PM4",
+      "NB8": "NB8",
+      "yB8": "yB8",
+      "Boolean": "Boolean",
+      "cDK": "cDK",
+      "u1": "p1",
+      "OY": "wY",
+      "$E5": "jE5",
+      "XI": "MI",
+      "dc6": "ic6",
+      "O08": "AZ8",
+      "vP": "vP",
+      "X8": "M8",
+      "Ky1": "_y1",
+      "x16": "I16",
+      "JM_": "WM_",
+      "OL": "OL",
+      "H86": "J86",
+      "QP1": "cP1",
+      "ev1": "Kk1",
+      "q6_": "Y6_",
+      "parseInt": "parseInt",
+      "isNaN": "isNaN",
+      "RJ4": "RJ4",
+      "dk6": "dk6",
+      "X16": "P16",
+      "nCq": "lCq",
+      "Math": "Math",
+      "JxY": "TxY",
+      "parseFloat": "parseFloat",
+      "Number": "Number",
+      "NaN": "NaN",
+      "RR6": "Rh6",
+      "GU": "ZU",
+      "S9Y": "u9Y",
+      "HDK": "HDK",
+      "ZDK": "ZDK",
+      "gz": "Fz",
+      "r87": "t87",
+      "PM": "XM",
+      "u3": "I3",
+      "aw": "n2",
+      "LH6": "RH6",
+      "vS4": "NS4",
+      "vDK": "TDK",
+      "rK": "sK",
+      "B9": "B9",
+      "xV8": "xV8",
+      "I9Y": "g9Y",
+      "V18": "y18",
+      "xr6": "pr6",
+      "rI": "iI",
+      "PD4": "WD4",
+      "yH6": "LH6",
+      "w5": "O5",
+      "DDK": "DDK",
+      "gP": "FP",
+      "PB8": "PB8",
+      "o87": "e87",
+      "GH": "XH",
+      "N2": "kw",
+      "rO6": "oA6",
+      "String": "String",
+      "rk6": "ok6",
+      "bU": "CU",
+      "NE": "VE",
+      "JD4": "MD4",
+      "zo6": "$o6",
+      "La": "ya",
+      "a87": "q17",
+      "XB8": "XB8",
+      "tv1": "qk1",
+      "b9Y": "p9Y",
+      "ADK": "ODK",
+      "co6": "no6",
+      "Array": "Array",
+      "TDK": "vDK",
+      "eP4": "qW4",
+      "$26": "Ow6",
+      "$D4": "OD4",
+      "yN8": "EN8",
+      "zL6": "YL6",
+      "GDK": "GDK",
+      "mU": "uU",
+      "KD4": "_D4",
+      "$7": "A7",
+      "Fz": "Uz",
+      "nx": "lx",
+      "N51": "E51",
+      "kk1": "Nk1",
+      "gz7": "Qz7",
+      "h3": "h3",
+      "Ja6": "Xa6",
+      "a5": "s5",
+      "cz7": "iz7",
+      "ab": "ab",
+      "W65": "Z65",
+      "f65": "v65",
+      "vI8": "vI8",
+      "n56": "r56",
+      "yN1": "LN1",
+      "ED": "RD",
+      "Oy6": "wy6",
+      "nU": "nU",
+      "cD": "iD",
+      "s$": "s$",
+      "XK8": "WK8",
+      "$l6": "jl6",
+      "G48": "T48",
+      "kK": "VK",
+      "Ls6": "Rs6",
+      "oL": "oL",
+      "oF": "rF",
+      "Vl8": "yl8",
+      "vA7": "NO7",
+      "v65": "N65",
+      "y16": "E16",
+      "rc6": "tc6",
+      "hA": "CO",
+      "u85": "B85",
+      "s16": "t16",
+      "NO7": "EA7",
+      "kD": "yD",
+      "EO7": "hA7",
+      "U75": "c75",
+      "pP": "BP",
+      "eo": "so",
+      "LJ6": "hJ6",
+      "JL6": "ML6",
+      "SO7": "bA7",
+      "qA7": "zO7",
+      "Wq8": "Dq8",
+      "__7": "$_7",
+      "eA7": "KA7",
+      "Rn": "En",
+      "bW": "uW",
+      "NX": "VX",
+      "xy": "xy",
+      "lX": "dX",
+      "Y78": "$78",
+      "N88": "E88",
+      "ZN": "vN",
+      "GC": "fC",
+      "HO8": "jA8",
+      "d1": "n1",
+      "Qj": "pj",
+      "_L6": "zL6",
+      "i75": "a75",
+      "kI8": "TI8",
+      "Nm": "Vm",
+      "o75": "t75",
+      "s75": "qq5",
+      "DN6": "ZN6",
+      "h0": "bZ",
+      "ua6": "pa6",
+      "UA7": "dO7",
+      "Yo": "_o",
+      "Ci": "Ri",
+      "dN6": "nN6",
+      "qA": "KO",
+      "d18": "c18",
+      "vy": "Ty",
+      "fK8": "GK8",
+      "yO": "yA",
+      "e75": "_q5",
+      "Kq5": "Yq5",
+      "zq5": "Oq5",
+      "Yq5": "Aq5",
+      "Aq5": "jq5",
+      "wq5": "Jq5",
+      "Hq5": "Xq5",
+      "Mq5": "Wq5",
+      "Pq5": "fq5",
+      "Dq5": "Gq5",
+      "Zq5": "Tq5",
+      "YA7": "AO7",
+      "Tq5": "Vq5",
+      "v26": "Tw6",
+      "uV6": "pV6",
+      "HC6": "MC6",
+      "y0": "hZ",
+      "mK8": "BK8",
+      "Ij": "Sj",
+      "VS6": "ES6",
+      "j$": "H$",
+      "LM": "LM",
+      "Pp": "Xp",
+      "qZ": "z0",
+      "U4": "Q4",
+      "VC7": "kC7",
+      "Cbq": "Sbq",
+      "PeY": "keY",
+      "DeY": "NeY"
+    },
+    "scopeCount": 225
+  },
+  "sourceExportAndLexicalOwnerGrounding": {
+    "namespaces": [
+      {
+        "role": "getLastInteractionTime",
+        "source": {
+          "path": "src/bootstrap/state.ts",
+          "bytes": 56281,
+          "sha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049"
+        },
+        "exportRange": [
+          28747,
+          28834
+        ],
+        "exportSliceSha256": "0b8008da49c3431c16087b62c8ad6a1889928a8d0d5cfbdc4b52d3bb5110673a",
+        "target": {
+          "namespace": 358,
+          "declaration": 421,
+          "exportedBinding": "JR",
+          "exportReferenceResolved": true
+        },
+        "current": {
+          "namespace": 358,
+          "declaration": 421,
+          "exportedBinding": "Jh",
+          "exportReferenceResolved": true
+        }
+      },
+      {
+        "role": "getSdkBetas",
+        "source": {
+          "path": "src/bootstrap/state.ts",
+          "bytes": 56281,
+          "sha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049"
+        },
+        "exportRange": [
+          31285,
+          31364
+        ],
+        "exportSliceSha256": "bfe1167389fc5882ad01b51091b1fc8897b63f321021e0e97c7997ddba91c879",
+        "target": {
+          "namespace": 358,
+          "declaration": 431,
+          "exportedBinding": "LW",
+          "exportReferenceResolved": true
+        },
+        "current": {
+          "namespace": 358,
+          "declaration": 431,
+          "exportedBinding": "NW",
+          "exportReferenceResolved": true
+        }
+      },
+      {
+        "role": "getGlobalConfig",
+        "source": {
+          "path": "src/utils/config.ts",
+          "bytes": 63717,
+          "sha256": "5bddab9ace77cea53ef47b3a344b0a92531ac334c43d30624d086d90e88fdb78"
+        },
+        "exportRange": [
+          39643,
+          41073
+        ],
+        "exportSliceSha256": "35dcaaef0fa4550fc8542f2f87205781fb6709afc33aec62de6ab8fb6314107e",
+        "target": {
+          "namespace": 4960,
+          "declaration": 4979,
+          "exportedBinding": "w8",
+          "exportReferenceResolved": true
+        },
+        "current": {
+          "namespace": 4962,
+          "declaration": 4981,
+          "exportedBinding": "w8",
+          "exportReferenceResolved": true
+        }
+      },
+      {
+        "role": "tokenCountWithEstimation",
+        "source": {
+          "path": "src/utils/tokens.ts",
+          "bytes": 9606,
+          "sha256": "0f229cdd7ed4fe117a67bebc4c79140d5e851b7fce381395e8c760940b287d90"
+        },
+        "exportRange": [
+          8243,
+          9583
+        ],
+        "exportSliceSha256": "d1b44753a809307a064cf85d7e260d7dd61959df07c323f74025311522c76a87",
+        "target": {
+          "namespace": 6806,
+          "declaration": 6816,
+          "exportedBinding": "DZ",
+          "exportReferenceResolved": true
+        },
+        "current": {
+          "namespace": 6806,
+          "declaration": 6816,
+          "exportedBinding": "P0",
+          "exportReferenceResolved": true
+        }
+      },
+      {
+        "role": "getFeatureValue_CACHED_MAY_BE_STALE",
+        "source": {
+          "path": "src/services/analytics/growthbook.ts",
+          "bytes": 40526,
+          "sha256": "42541e6311ebed2d2865332eb7d9b2b99ac46f16d47674e702d7b035c1b96cf4"
+        },
+        "exportRange": [
+          26175,
+          27609
+        ],
+        "exportSliceSha256": "ed48a7dbc705a4ea08a66863d05864826013851a260aff3172e8d3efedc32d74",
+        "target": {
+          "namespace": 4884,
+          "declaration": 4902,
+          "exportedBinding": "u8",
+          "exportReferenceResolved": true
+        },
+        "current": {
+          "namespace": 4886,
+          "declaration": 4904,
+          "exportedBinding": "m8",
+          "exportReferenceResolved": true
+        }
+      }
+    ],
+    "promptCache": {
+      "source": {
+        "path": "src/services/api/promptCacheBreakDetection.ts",
+        "bytes": 26288,
+        "sha256": "bebdc028df79cb8df8e8ff715e0b02421db929f0a309c8af987574546513b2fe"
+      },
+      "retainedExport": "resetPromptCacheBreakDetection",
+      "exportText": "export function resetPromptCacheBreakDetection(): void {\n  previousStateBySource.clear()\n}",
+      "exportRange": [
+        25691,
+        25781
+      ],
+      "selectedAutoCompactNotifyCallerPresent": false,
+      "globalNotifyAbsenceProven": false,
+      "target": {
+        "function": 6709,
+        "header": 6710,
+        "initializer": 6711,
+        "ownedMap": "pc_",
+        "lexicalMapBindingVerified": true
+      },
+      "prior": {
+        "function": 6709,
+        "header": 6710,
+        "initializer": 6711,
+        "ownedMap": "Cc_",
+        "lexicalMapBindingVerified": true
+      },
+      "current": {
+        "function": 6709,
+        "header": 6710,
+        "initializer": 6711,
+        "ownedMap": "Cc_",
+        "lexicalMapBindingVerified": true
+      },
+      "targetCurrent": {
+        "nodes": 42,
+        "forward": {
+          "_8": "K8",
+          "h8": "R8",
+          "Vz": "kz",
+          "n8": "l8",
+          "V8": "V8",
+          "Map": "Map",
+          "E": "y"
+        },
+        "reverse": {
+          "K8": "_8",
+          "R8": "h8",
+          "kz": "Vz",
+          "l8": "n8",
+          "V8": "V8",
+          "Map": "Map",
+          "y": "E"
+        },
+        "scopeCount": 4
+      },
+      "priorCurrent": {
+        "nodes": 42,
+        "forward": {
+          "K8": "K8",
+          "R8": "R8",
+          "kz": "kz",
+          "l8": "l8",
+          "k8": "V8",
+          "Map": "Map",
+          "y": "y"
+        },
+        "reverse": {
+          "K8": "K8",
+          "R8": "R8",
+          "kz": "kz",
+          "l8": "l8",
+          "V8": "k8",
+          "Map": "Map",
+          "y": "y"
+        },
+        "scopeCount": 4
+      }
+    },
+    "sevenUnchangedFunctions": {
+      "nodes": 543,
+      "forward": {
+        "parseInt": "parseInt",
+        "parseFloat": "parseFloat",
+        "Number": "Number",
+        "M17": "M17",
+        "jfK": "jfK",
+        "Math": "Math",
+        "NW": "NW",
+        "xv": "xv",
+        "process": "process",
+        "NU": "NU",
+        "u18": "u18",
+        "Z_Y": "Z_Y",
+        "P17": "P17",
+        "isNaN": "isNaN",
+        "G_Y": "G_Y",
+        "T_Y": "T_Y",
+        "W17": "W17",
+        "NaN": "NaN",
+        "c6": "c6",
+        "w8": "w8",
+        "P0": "P0",
+        "N": "N"
+      },
+      "reverse": {
+        "parseInt": "parseInt",
+        "parseFloat": "parseFloat",
+        "Number": "Number",
+        "M17": "M17",
+        "jfK": "jfK",
+        "Math": "Math",
+        "NW": "NW",
+        "xv": "xv",
+        "process": "process",
+        "NU": "NU",
+        "u18": "u18",
+        "Z_Y": "Z_Y",
+        "P17": "P17",
+        "isNaN": "isNaN",
+        "G_Y": "G_Y",
+        "T_Y": "T_Y",
+        "W17": "W17",
+        "NaN": "NaN",
+        "c6": "c6",
+        "w8": "w8",
+        "P0": "P0",
+        "N": "N"
+      },
+      "scopeCount": 14
+    },
+    "baselineResiduals": {
+      "priorPredicateNodes": 14,
+      "currentPredicateNodes": 13,
+      "priorCompactionNodes": 300,
+      "currentCompactionNodes": 307,
+      "priorInitializerNodes": 64,
+      "currentInitializerNodes": 67,
+      "oldTimePredicateNotDeclaredEquivalent": true
+    }
+  },
+  "finalizerEvidence": {
+    "kind": "actual-v28-auto-compact-source-and-finalizer-chain",
+    "profileSha256": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e",
+    "toolchainSha256": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35",
+    "compileReportSha256": "dd96aaff92bb6d8a46075c9dc0cdc634e5e95a87377c1a15c97669877338a77d",
+    "sourceManifestSha256": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+    "before": {
+      "files": 6084,
+      "manifestSha256": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+      "currentGitSourceFiles": 1922,
+      "currentDerivedSrcTree": "459e876206692e10750c94e74f865155addb9d53",
+      "extraSourceAssets": 29,
+      "genesisVerifiedAsLineageOnly": true,
+      "sourceEdgeAndEvalRangePinsVerified": true
+    },
+    "postInputs": {
+      "files": 6084,
+      "manifestSha256": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+      "currentGitSourceFiles": 1922,
+      "currentDerivedSrcTree": "459e876206692e10750c94e74f865155addb9d53",
+      "extraSourceAssets": 29,
+      "genesisVerifiedAsLineageOnly": true,
+      "sourceEdgeAndEvalRangePinsVerified": true
+    },
+    "sourceFiles": 6084,
+    "currentGitSourceFiles": 1922,
+    "all18GuardAndFourEvalPoliciesAndPhysicalSlicesExact": true,
+    "reviewedOwnerUnguarded": true,
+    "sourceRows": [
+      {
+        "path": "src/commands/clear/caches.ts",
+        "bytes": 6370,
+        "sha256": "9c5eef4aead5bb81c4ff7301576be4b07d79a993355ab528d5150510d0f63da2"
+      },
+      {
+        "path": "src/components/Message.tsx",
+        "bytes": 79402,
+        "sha256": "5dda5a867202da380755e314154c098169c7a30a646ba1d4f0e6f297465fa919"
+      },
+      {
+        "path": "src/components/agents/ToolSelector.tsx",
+        "bytes": 64871,
+        "sha256": "fd0b4c937f6008d8eec224a16286ccb35d0f7a58e605a7f1a117ce620fb051aa"
+      },
+      {
+        "path": "src/constants/tools.ts",
+        "bytes": 4781,
+        "sha256": "7df860c4f6e21af0f055f5b9acf45c194bcf755a853dfa095f7ce0d1f5206e98"
+      },
+      {
+        "path": "src/entrypoints/agentSdkTypes.ts",
+        "bytes": 13076,
+        "sha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86"
+      },
+      {
+        "path": "src/entrypoints/agentSdkTypes.ts",
+        "bytes": 13076,
+        "sha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86"
+      },
+      {
+        "path": "src/entrypoints/agentSdkTypes.ts",
+        "bytes": 13076,
+        "sha256": "1a19463435743cba6e76d7104bf5efc83879403bf3c9af6b8452aca22b019d86"
+      },
+      {
+        "path": "src/entrypoints/sdk/coreTypes.ts",
+        "bytes": 1466,
+        "sha256": "1ffd4643759f1e2342b07d6fe0d6627463b1d39ffa1775a11f10aab17dae2bcd"
+      },
+      {
+        "path": "src/ink/components/Box.tsx",
+        "bytes": 22043,
+        "sha256": "0f77f7a9a3370f5edb1c7b0c7f5d4204a62d66749808e0df0a9e7b37343781a0"
+      },
+      {
+        "path": "src/ink/components/ScrollBox.tsx",
+        "bytes": 31814,
+        "sha256": "62eaf7266fcf23914fc0a297654c72a35c820665995779f4027589dc61f25ed2"
+      },
+      {
+        "path": "src/screens/REPL.tsx",
+        "bytes": 899566,
+        "sha256": "6d9921481d6c9ad00a3e7648e871e669a46b7539cd3f89156e57a6eccf0df4e2"
+      },
+      {
+        "path": "src/services/api/claude.ts",
+        "bytes": 126046,
+        "sha256": "03d1b98346ec695014000fbbcd227f6946cb5412c985a80449a27ca1e48b8957"
+      },
+      {
+        "path": "src/services/api/logging.ts",
+        "bytes": 24191,
+        "sha256": "2d5effa9bc7b52c8c20a57a1fd9666e4925e40ee624a26e3641522a048c5d535"
+      },
+      {
+        "path": "src/tools.ts",
+        "bytes": 17294,
+        "sha256": "4307f3f7dec2916299cc2fa5c45df8b95fd9a1945be7ac918ccd3d47a42f18cb"
+      },
+      {
+        "path": "src/utils/effort.ts",
+        "bytes": 11583,
+        "sha256": "0bb9ccf6afc3de0472266de1811dc6b44918abdc58ccf03ceb90d2c44c623104"
+      },
+      {
+        "path": "src/utils/filePersistence/filePersistence.ts",
+        "bytes": 7763,
+        "sha256": "7a2ac8c9d100fbc5b4cbef474bfcb17e099ab77d59bb0d5ce02c1c2824367565"
+      },
+      {
+        "path": "src/utils/messages.ts",
+        "bytes": 194105,
+        "sha256": "31bada389b2b6aab6062bab0a076709b348e616f0bee4a29db4a68bfbfb72c5d"
+      },
+      {
+        "path": "src/utils/permissions/classifierDecision.ts",
+        "bytes": 4585,
+        "sha256": "f3797aa029ad184719677b2490d22a9c68ee9d464888229f2e117e90f8aab977"
+      },
+      {
+        "path": "node_modules/@protobufjs/inquire/index.js",
+        "bytes": 717,
+        "sha256": "754aa723c71e6fe119b2d2d5642e04124e6ed8dcf09a5fe89c65d08c21f3ba09"
+      },
+      {
+        "path": "node_modules/whatwg-url/lib/utils.js",
+        "bytes": 5390,
+        "sha256": "3dce521ab525a11eb5d817a78bf3308a8ab2e16b73c5c288f81c8d6ad496fa2e"
+      },
+      {
+        "path": "node_modules/get-intrinsic/index.js",
+        "bytes": 14439,
+        "sha256": "c3bc7278af37cede0da2db32724fa0b89a07c44205c44c4f5db0e4d8d497d49c"
+      },
+      {
+        "path": "node_modules/fflate/esm/index.mjs",
+        "bytes": 89811,
+        "sha256": "b71c2efc7bbd3379c883bc59223c53f5ddb47a6db4f01adb19675b213bed0e9c"
+      },
+      {
+        "path": "src/services/compact/autoCompact.ts",
+        "bytes": 16792,
+        "sha256": "fe59875e18495811774dd655993ac4808bdb2fdaa75cae86cb988e198e081264"
+      }
+    ],
+    "receiptSha256": "82d15ae1d8eb8dac60abf4d6a0dae486cfe8b63c02173a28ce8dbf7a37f62272",
+    "authenticatedReceiptEvents": 37,
+    "lateLinkReportSha256": "36e4387e8ecc3b12f47013d2ee8cb0865cb4f45882eab408dcbb4831c7b868d0",
+    "removalEditsSha256": "067343559bcdedab9d7c7a7fc870508922b3407694072a5c73559a87f55ac790",
+    "rawSha256": "c0b111c395c5b7fda5addf500ad53204b4be6769a9c6a413371427ee381db22b",
+    "finalSha256": "124809d5c6af3eb78e305d678dac5948c59d954ee1178846eebde4ebfd1ff6b0",
+    "removedImports": [
+      {
+        "range": [
+          4024872,
+          4024884
+        ],
+        "marker": "~R0",
+        "sha256": "bc38d8fcc6f3d71cb2cb7b9d395eb8a8bd9f06a1fbf11576b00107e3b1d23d25",
+        "target": "src/ink/global.d.ts"
+      },
+      {
+        "range": [
+          6559604,
+          6559616
+        ],
+        "marker": "~R1",
+        "sha256": "9c3286e4f5d6bf464a008b0e5707f3fdb25ec764bcd8b8b508261edbc931dfd7",
+        "target": "src/tools/WorkflowTool/constants.ts"
+      },
+      {
+        "range": [
+          8284292,
+          8284304
+        ],
+        "marker": "~R2",
+        "sha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+        "target": "src/types/connectorText.ts"
+      },
+      {
+        "range": [
+          9199198,
+          9199210
+        ],
+        "marker": "~R3",
+        "sha256": "467569166ef4aa13827391d22b524de9f662d4d850316d27e8bec9fe6bcbb64f",
+        "target": "src/tools/TungstenTool/TungstenTool.ts"
+      },
+      {
+        "range": [
+          9438796,
+          9438808
+        ],
+        "marker": "~R2",
+        "sha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+        "target": "src/types/connectorText.ts"
+      },
+      {
+        "range": [
+          9684174,
+          9684186
+        ],
+        "marker": "~R2",
+        "sha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+        "target": "src/types/connectorText.ts"
+      },
+      {
+        "range": [
+          9868504,
+          9868516
+        ],
+        "marker": "~R0",
+        "sha256": "bc38d8fcc6f3d71cb2cb7b9d395eb8a8bd9f06a1fbf11576b00107e3b1d23d25",
+        "target": "src/ink/global.d.ts"
+      },
+      {
+        "range": [
+          10779259,
+          10779271
+        ],
+        "marker": "~R3",
+        "sha256": "467569166ef4aa13827391d22b524de9f662d4d850316d27e8bec9fe6bcbb64f",
+        "target": "src/tools/TungstenTool/TungstenTool.ts"
+      },
+      {
+        "range": [
+          11494595,
+          11494607
+        ],
+        "marker": "~R2",
+        "sha256": "a15443ed257f8b8fbd2696976feebabc55f95a38171612632f5fd3bf92549b51",
+        "target": "src/types/connectorText.ts"
+      },
+      {
+        "range": [
+          12318381,
+          12318393
+        ],
+        "marker": "~R4",
+        "sha256": "517bf7fcee254c79ade4edb2dabbf0ee9882d98f5fae033ec57713aaf5da4969",
+        "target": "src/tools/TungstenTool/TungstenLiveMonitor.ts"
+      },
+      {
+        "range": [
+          12838180,
+          12838277
+        ],
+        "marker": "~R5",
+        "sha256": "b526418f9ace5e65ceed41dc1d9378722e373bf0ecf0dda011bcd8fdaf697ecd",
+        "target": "src/utils/filePersistence/types.ts"
+      }
+    ],
+    "completeDeletionReplayExact": true,
+    "rawAndFinalMapBytesAuthenticated": true,
+    "sourceMapCoordinatesIndependentlyRevalidated": false,
+    "sourceMapDisplacementRepaired": false,
+    "applicationExecuted": false,
+    "wholeTargetAcceptance": false,
+    "normalizationGateEnabled": false
+  },
+  "validation": {
+    "groups": 9,
+    "negativeControls": 11,
+    "completeStrictIndexedWitnesses": 148,
+    "maximumStatementBytes": 13461,
+    "allComparisonInputsStrictIndexRechecked": true,
+    "completeElevenStatementModuleNodesIncludingProgram": 966,
+    "selectedJoinedNodesIncludingProgram": 8557,
+    "readOnlyReplayComparisons": 3,
+    "allReplayOutputsExact": true,
+    "wholeApplicationParsed": false,
+    "sourceAndPreparationClosuresUnchanged": true
+  },
+  "qualifications": [
+    "This is a bounded actual V28 emission approval for auto_compact. It establishes the selected complete module/caller/provider fields and lexical binding edges under remaining explicit capture interfaces, not whole-program equivalence or full original authorship.",
+    "The new idle predicate intentionally uses Date.now() before getLastInteractionTime() and compares against 5400000. The old total-duration/startTime predicate is not declared semantically equivalent, especially for direct exported-predicate consumers or feature-off behavior.",
+    "The exact feature lookup is the right operand of && after the session-memory early return and immediately before try; its time/provider failures remain outside the catch. Ambient Date, mutable state, cached feature state, receivers/prototypes and externally supplied query dependencies remain interfaces.",
+    "Both production prefix calls resolve to the same declared state initializer at statement574. This verifies the target-shaped duplicate binding and order. It does not assume duplicate calls or module initialization are universally harmless, nor prove every transitive supplier equivalent.",
+    "The historical bounded compiler fixture omitted fifteen application-provider initializer calls and remains failed/unaccepted for full initializer comparison. This new actual 67-node result is distinct and does not rewrite the source approval or its raw false flags.",
+    "Concrete provider attribution combines physically authenticated source imports/exports, pinned prior complete provider witnesses, actual complete definition comparisons, five resolved export-namespace bindings and the retained prompt-cache reset/Map lexical anchor. No full source-to-generated replay of every supplier or global declaration-order equivalence is claimed.",
+    "The imported notifyCompaction function has no caller in the selected emitted autoCompact body. The retained prompt-cache module is grounded through resetPromptCacheBreakDetection and its same Map. A first reviewer locator expected the unavailable notification body and rejected before producing a report; the failed attempt is retained. No global dynamic/reflective absence or broader DCE claim follows.",
+    "The complete query body and productionDeps property bind the selected compaction function, but a caller can supply a different dependency object. Main slot17 binds the concrete autoCompact initializer; remaining main providers and whole-main semantics are not accepted from its conditional structural match.",
+    "All 18 source guards/four eval records and physical slices, options and source metadata remain exact. The owner is unguarded. The 37 finalizer receipts and eleven import deletions reproduce final output exactly; map bytes are authenticated but generated-coordinate correctness/displacement is not independently established.",
+    "No compaction, model/API request, callback, initializer, shell, source function or generated application was executed. No compiler/full bundle parse was run by this reviewer. Stage, source, profiles, runtime, repository and prior closures remain unchanged.",
+    "V28 whole strict AST remains unequal at 3097309 nodes / 296db1eb2fc7664c78df16942384075205adfc3a95e73c1a408969573a867e08. Node counts are not an edit distance. Other inherited mixed findings, including Windows-order, wrappers and raw grouping, remain outside this scoped success."
+  ],
+  "evidence": {
+    "actual-checks.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/actual-checks.json",
+      "bytes": 168482,
+      "sha256": "277798d0dc333b9df5808db7a4e59bfa56a2efd3821a437be547b26ff700df83"
+    },
+    "actual-witnesses.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/actual-witnesses.json",
+      "bytes": 128986,
+      "sha256": "ffb599b35e5beab4bf869cc30abcf44ada6fffb0fe8f501d8099474753c9350e"
+    },
+    "attempt1-provider-grounding.mjs.txt": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/attempt1-provider-grounding.mjs.txt",
+      "bytes": 6230,
+      "sha256": "73069f4aa356a7c04c6685ab25be1e18f0238d5fb39766be6f7fa4b8b655138a"
+    },
+    "attempt1-provider-grounding.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/attempt1-provider-grounding.stderr",
+      "bytes": 555,
+      "sha256": "1264a811b119e8e43d18088aa31acd3cb83b632ecef1f1384af8fb7a34861b6f"
+    },
+    "authenticate.py": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/authenticate.py",
+      "bytes": 2690,
+      "sha256": "73ef70afcc9a8970c89d482f88c5d99ada6088bf97c247b77d600cef492baf33"
+    },
+    "authentication.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/authentication.json",
+      "bytes": 2755,
+      "sha256": "ef275e1d5c9de827cfaffb9f116b9b0c317fac09fb55fddf742e78ed3400266e"
+    },
+    "check-actual.mjs": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/check-actual.mjs",
+      "bytes": 15862,
+      "sha256": "536c2330608a57c83fbfc14e959e6016dfea8303b85bc87305a10b5032e3ab64"
+    },
+    "check-complete.mjs": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/check-complete.mjs",
+      "bytes": 15976,
+      "sha256": "a2401d021f8b845472a14649f91194daa41a2035210ad2c855fb587021759a1e"
+    },
+    "check-complete.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/check-complete.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "check-complete.stdout": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/check-complete.stdout",
+      "bytes": 17547,
+      "sha256": "191002d9a6963fb8c876fa03ea90274296aa95b98bc4f061b11a8b84172e05f5"
+    },
+    "check-evidence.mjs": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/check-evidence.mjs",
+      "bytes": 5928,
+      "sha256": "378a6733d6d40e85eca1b691fd2d3ce93566804fae257b5a0655683872adc96b"
+    },
+    "check.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "check.stdout": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/check.stdout",
+      "bytes": 15070,
+      "sha256": "525a930e92e35d8d0fa4f6569bb2e7ed76391275086005203fa035972de186bb"
+    },
+    "common.mjs": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/common.mjs",
+      "bytes": 3218,
+      "sha256": "435bda5e64e1de3eb8871f5655fd363102ae028d017b27ce2c4a427bde694c19"
+    },
+    "complete-checks.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/complete-checks.json",
+      "bytes": 171206,
+      "sha256": "566028e4acd5a67bd4f563e689c9492b8ec97409cb8ab783fa27384781c52113"
+    },
+    "complete-witnesses.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/complete-witnesses.json",
+      "bytes": 169363,
+      "sha256": "76de301a791ad6204632b5e0587115ee2e6651c4684d5709ecac40ce8cf4873c"
+    },
+    "evidence-result.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/evidence-result.json",
+      "bytes": 8438,
+      "sha256": "33dad89853515c43e6ccda880df1be98c37e11bf0074256bdbf2d1106f2f8932"
+    },
+    "evidence.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/evidence.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "freeze-review.py": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/freeze-review.py",
+      "bytes": 10286,
+      "sha256": "ffb849cb65402775cdff5f77d2ec4444bb9c2685d3e066532f93f3c2b4c21a30"
+    },
+    "ground-provider-boundaries.mjs": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/ground-provider-boundaries.mjs",
+      "bytes": 6191,
+      "sha256": "703435b3b070be26471d42e6f24d0ebbcd5c94a5ecbab8149625037d65cb909d"
+    },
+    "initial-witnesses.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/initial-witnesses.json",
+      "bytes": 28972,
+      "sha256": "11224048ec270912ffec212d8a982fc4e325658ccba34a7689249ce68876622a"
+    },
+    "locate.mjs": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/locate.mjs",
+      "bytes": 1276,
+      "sha256": "6b86dac0599f4209a7cf07b4ddf704580b17c29ab5ec621ca79b3c57691a4c27"
+    },
+    "locations.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/locations.json",
+      "bytes": 13858,
+      "sha256": "05b33ab5a72252cdfd2e3121f0c8e3c79f504ab4e5c0707d8be18c3fca159f22"
+    },
+    "provider-boundaries.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-boundaries.json",
+      "bytes": 7693,
+      "sha256": "6674eb34ac73f5330ae9189e93d254d6913f4a61ed68575ed4d79d4d83ef7854"
+    },
+    "provider-boundaries.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-boundaries.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "provider-boundaries.stdout": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-boundaries.stdout",
+      "bytes": 223,
+      "sha256": "f749fcfe116360fd3a85ee51119bad3ee8c20b829e3a90847c14e5d115e4800c"
+    },
+    "provider-boundary-witnesses.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-boundary-witnesses.json",
+      "bytes": 59314,
+      "sha256": "51a881defb87ea87b9f321f9a545578eca819c8cd3436a3a5cdd48486962d59c"
+    },
+    "provider-initializers.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-initializers.json",
+      "bytes": 23061,
+      "sha256": "b119d00a6a7a048ac3a41d390f12f18b0d359bcd7c11397c0aade8d9c5ff42d5"
+    },
+    "provider-locate-witnesses.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-locate-witnesses.json",
+      "bytes": 48238,
+      "sha256": "2e537034a44f3a6ba205960ff260695a5fdce04baf5433a28e427924ed0e2dad"
+    },
+    "provider-locate.mjs": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-locate.mjs",
+      "bytes": 1218,
+      "sha256": "1c7db1206bf1dabc0d0d6393aeb32b53f52f7e460afc7d19c6423f986475b533"
+    },
+    "provider-locate.stdout": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/provider-locate.stdout",
+      "bytes": 23448,
+      "sha256": "1cca3e5f60a4f59f384ae1d4b8fc1a9b0193821b7cb86a650c3b34cb9ce465d8"
+    },
+    "replay-complete.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/replay-complete.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay-complete.stdout": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/replay-complete.stdout",
+      "bytes": 17547,
+      "sha256": "191002d9a6963fb8c876fa03ea90274296aa95b98bc4f061b11a8b84172e05f5"
+    },
+    "replay-evidence.json": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/replay-evidence.json",
+      "bytes": 8438,
+      "sha256": "33dad89853515c43e6ccda880df1be98c37e11bf0074256bdbf2d1106f2f8932"
+    },
+    "replay-evidence.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/replay-evidence.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay-providers.stderr": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/replay-providers.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay-providers.stdout": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/replay-providers.stdout",
+      "bytes": 223,
+      "sha256": "f749fcfe116360fd3a85ee51119bad3ee8c20b829e3a90847c14e5d115e4800c"
+    },
+    "utility.py": {
+      "path": "historical-checkpoints/v28-auto-compact-emission-review/utility.py",
+      "bytes": 2136,
+      "sha256": "ca27d132797213f7d5e362b9b49d234d44c5d91bf8330cca134f48ccd8300cca"
+    }
+  }
+}

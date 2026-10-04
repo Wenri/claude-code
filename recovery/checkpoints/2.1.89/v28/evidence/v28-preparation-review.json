@@ -1,0 +1,629 @@
+{
+  "kind": "independent-fixed-v28-preparation-review",
+  "verdict": "approved-for-exact-fixed-source-diagnostic-trial",
+  "preparationTrialApproved": true,
+  "sourceRevision": 28,
+  "profileSha256": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e",
+  "toolchainSha256": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35",
+  "sourceContractSha256": "90a41db35565c5d50c58009a815bda259f56f466d30e2a814090476753baeae8",
+  "aggregateManifestSha256": "1034babec5cb9f3b70614baa554489f4d2cc033ee616b93f4eb063a3c6fd9193",
+  "authorPreparationClosure": {
+    "path": "historical-checkpoints/v28-preparation/TRANSFER-MANIFEST.json",
+    "bytes": 417430,
+    "sha256": "c96b0f607c2d5e225ac9e399dbef5a7664af96e59e6231e3a74260019cca97fe"
+  },
+  "authorFreeze": {
+    "path": "historical-checkpoints/v28-preparation/FREEZE.json",
+    "bytes": 2277,
+    "sha256": "1065212d7ae61e663c6cf6a0e7d7a3c16313be10125ec6585883f904140526bb"
+  },
+  "authorExecutableClosure": {
+    "path": "historical-checkpoints/v28-preparation/code-provenance-final.json",
+    "bytes": 21821,
+    "sha256": "99a5b0e70e7622e1d8da2c2fd3ca0c12285dd1193d32e0911837c8feb1ce5a4d"
+  },
+  "authorGenerator": {
+    "path": "historical-checkpoints/v28-preparation/prepare-approved.py",
+    "bytes": 28686,
+    "sha256": "3b36d4b960879f627e5d0b1525d91c5ac3f2a55f2bbb12e8ca9796cd8866c911"
+  },
+  "parentProfileSha256": "04e5ee226daa89dc3373ed478dcd601a2be045fcef7517ecc25717cc2e568e6a",
+  "expected": {
+    "sourceFiles": 6084,
+    "sourceBytes": 50939997,
+    "stagedSourceFiles": 1951,
+    "gitSourceFiles": 1922,
+    "extraSourceAssets": 29,
+    "sourceManifestSha256": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+    "derivedSrcTree": "459e876206692e10750c94e74f865155addb9d53"
+  },
+  "sourceFiles": [
+    {
+      "path": "src/utils/yaml.ts",
+      "operation": "replace",
+      "oldSha256": "053fa90f7d5891b65d1aeaa84d1ce2c07f6be7e08d5f83d645bcda821dd0f997",
+      "oldBytes": 814,
+      "oldGitBlob": "8ba1681797637d12c893edc6d2ec900fefa1b70f",
+      "postimageSha256": "c146f394c1604dfd60bc3505efd167a60624bf870d020f9e70f59c8c3619b3fd",
+      "postimageBytes": 814,
+      "postimageGitBlob": "2b448a068653b7ce3405f91bccf346f276490a5c",
+      "postimagePath": "historical-checkpoints/yaml-stringify-source-proposal/postimages/src/utils/yaml.ts"
+    },
+    {
+      "path": "src/services/compact/autoCompact.ts",
+      "operation": "replace",
+      "oldSha256": "1af77fb5b72130399946974f74fc4ae0dee272a5fc04033d1496fcc278fef75d",
+      "oldBytes": 16733,
+      "oldGitBlob": "3b36bb19a7883d56700c2b62da46798a15408dc2",
+      "postimageSha256": "fe59875e18495811774dd655993ac4808bdb2fdaa75cae86cb988e198e081264",
+      "postimageBytes": 16792,
+      "postimageGitBlob": "6310a4926b5cc6a22e296f47a8654f8f913b999f",
+      "postimagePath": "historical-checkpoints/auto-compact-source-proposal/postimages/src/services/compact/autoCompact.ts"
+    },
+    {
+      "path": "src/components/agents/agentFileUtils.ts",
+      "operation": "replace",
+      "oldSha256": "7cd94fc7a46acbe435f8309eb94ecf1a7518a563503f9fa08771343a4d47cd4b",
+      "oldBytes": 8096,
+      "oldGitBlob": "dae596b40a9d200bc1f5d564021e4684f7bd7985",
+      "postimageSha256": "b9840efafb783a4ed7d30ce3e2fd4e7a7eded4028acf45e6821014ecf4d2f0ba",
+      "postimageBytes": 8172,
+      "postimageGitBlob": "25dd7f72b8ff90247066f9cc2f526b51943c37da",
+      "postimagePath": "historical-checkpoints/update-agent-file-source-proposal/postimages/src/components/agents/agentFileUtils.ts"
+    }
+  ],
+  "components": [
+    {
+      "id": "yaml_stringify",
+      "manifest": {
+        "path": "historical-checkpoints/yaml-stringify-source-proposal/source-repair.json",
+        "sha256": "285fb99b6c9628b5e59c5e5aceb95ca757067a1d32c5c7c2edd317e7f7b7a982"
+      },
+      "approval": {
+        "path": "historical-checkpoints/yaml-stringify-independent-review/review.json",
+        "sha256": "f0c4d552b09a776c75a7a2b320222eac83d6551eaf36e0e5ad27ec7414f0579d"
+      },
+      "approvalClosure": {
+        "path": "historical-checkpoints/yaml-stringify-independent-review/freeze.json",
+        "sha256": "db5239a80749e96cb156ca093c075e9afab51d7874bbeaf1eab7f807de63af41"
+      },
+      "sourcePaths": [
+        "src/utils/yaml.ts"
+      ]
+    },
+    {
+      "id": "auto_compact",
+      "manifest": {
+        "path": "historical-checkpoints/auto-compact-source-proposal/source-repair.json",
+        "sha256": "2475890a491c8d0ccc5d083612a9e22ba4c84a9eb7244e1186071a3fb1e75fba"
+      },
+      "approval": {
+        "path": "historical-checkpoints/auto-compact-independent-review/review.json",
+        "sha256": "85106a21d45aeba2649153ee4dc089ed57b07c6291f1ff7121f5d79092603e80"
+      },
+      "approvalClosure": {
+        "path": "historical-checkpoints/auto-compact-independent-review/freeze.json",
+        "sha256": "ed37684ffd9f1bbc03f06d3f6f0e11c12a59b6ad8a3da0f54b379fc2f5dade76"
+      },
+      "sourcePaths": [
+        "src/services/compact/autoCompact.ts"
+      ]
+    },
+    {
+      "id": "agent_file_updates",
+      "manifest": {
+        "path": "historical-checkpoints/update-agent-file-source-proposal/source-repair.json",
+        "sha256": "293f1a67016615dda55ef4995f4efa55e7d7b9d46e2c2ccfd668377a0955fc43"
+      },
+      "approval": {
+        "path": "historical-checkpoints/update-agent-file-independent-review/review.json",
+        "sha256": "350e95651b96153273f4c79fd7e0c74bedb364b5c46f439463ca4d2a1652b4ff"
+      },
+      "approvalClosure": {
+        "path": "historical-checkpoints/update-agent-file-independent-review/freeze.json",
+        "sha256": "bbd8ad07aa7842b8f473f50bf63f68bc4ebbd9b61233be9e332c6b88bc0f6b86"
+      },
+      "sourcePaths": [
+        "src/components/agents/agentFileUtils.ts"
+      ]
+    }
+  ],
+  "physical": {
+    "changed": [
+      "src/components/agents/agentFileUtils.ts",
+      "src/services/compact/autoCompact.ts",
+      "src/utils/yaml.ts"
+    ],
+    "unchanged": 6081,
+    "fullParentCurrentRehash": true,
+    "allSourceBlobsExact": true,
+    "noSharedInodesOrModeDrift": true,
+    "all18Guards4EvalSlicesExact": true,
+    "historicalGuard16NotReapplied": true
+  },
+  "completeProfileToolchainAndRuntimeDerivation": {
+    "kind": "independent-v28-byte-exact-profile-runtime-comparison",
+    "profileSha256": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e",
+    "toolchainSha256": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35",
+    "sourceContractSha256": "90a41db35565c5d50c58009a815bda259f56f466d30e2a814090476753baeae8",
+    "fullProfileAndToolchainByteExact": true,
+    "runtimeFiles": 69,
+    "onlyFixedAdmissionChanged": true,
+    "otherRuntimeFilesExact": 68,
+    "historicalPointerTargetsExact": 30,
+    "missingRootAndExactTreeVerifierBodiesExact": true,
+    "authorGeneratorNotUsedForDerivation": true,
+    "applicationExecuted": false
+  },
+  "completeOutputAccounting": {
+    "kind": "independent-v28-complete-output-accounting",
+    "preparedFiles": 1924,
+    "retainedParentFiles": 1674,
+    "changedParentFiles": [
+      "recovery/lib/reconstruction/versions/2.1.89/source-contract.mjs",
+      "recovery/profiles/2.1.89/profile.json",
+      "recovery/profiles/2.1.89/toolchain.json"
+    ],
+    "exactNewFiles": 250,
+    "newEvidenceFiles": 241,
+    "newMetadataAndParentCopies": 9,
+    "allFullSourceAndActualApprovalMembersCopiedByteExact": true,
+    "completeTransitionAndRuntimeMetadataIndependentlyReconstructed": true,
+    "closureRows": [
+      {
+        "id": "yaml_stringify",
+        "members": 25
+      },
+      {
+        "id": "auto_compact",
+        "members": 51
+      },
+      {
+        "id": "agent_file_updates",
+        "members": 39
+      },
+      {
+        "id": "bash_provider_pipe",
+        "members": 66
+      },
+      {
+        "id": "cross_project_resume_quote",
+        "members": 25
+      },
+      {
+        "id": "pane_backend_quote",
+        "members": 23
+      }
+    ],
+    "historicalPointerCount": 30,
+    "noHistoricalTargetRetargeted": true,
+    "applicationExecuted": false
+  },
+  "authorityEvidence": {
+    "thirteenInheritedRootsExact": true,
+    "allThreeCompleteReceiptSnapshotsExact": true,
+    "sourceAndActualReviewClosureMembers": 229,
+    "sourceAuthorArtifactMembers": 145,
+    "rawSourceSchemasAndQualifications": [
+      {
+        "id": "yaml_stringify",
+        "kind": "fixed-yaml-stringify-default-hint-repair",
+        "rawKeys": [
+          "kind",
+          "baselineProfileSha256",
+          "sourceFiles",
+          "sourceCountDelta",
+          "gitCountDelta",
+          "guardOwnerRefreshRequired",
+          "evalOwnerOverlap",
+          "sourceTrialApproved",
+          "actualEmissionVerified",
+          "applicationExecuted"
+        ],
+        "rawSourceTrialApproved": false,
+        "rawActualEmissionVerified": false,
+        "independentVerdict": "approved-for-target-directed-source-trial",
+        "completeQualifications": [
+          "Addition applies default-hint ToPrimitive for an object result; template interpolation applies string-hint ToPrimitive. This is a target-directed behavior repair, not generic equivalence. Bun remains ambient and may be absent, replaced, proxied or return non-strings. No coercion callback was executed.",
+          "The selected updateAgentFile caller passes a cloned frontmatter object, but its separate tools-property reads remain target 1 versus current 4, with 143/144 nodes. Caller equivalence is explicitly rejected and no caller source is edited.",
+          "The fixture includes the full wrapper, actual YAML entry/public-api and package metadata. Deeper YAML dependencies are external. Actual production initializer equivalence and transitive provider semantics remain pending.",
+          "Source-import and token censuses are leads followed by selected local binding checks. They do not establish global alias, dynamic import, eval or arbitrary external-consumer absence.",
+          "Actual staged source/helper/fallback/provider checks are required before claiming production success. Full target strict AST is still unequal.",
+          "The initial guessed READONLY-FREEZE filename was absent; discovered freeze.json matched the external pin before any imports. All reviewer source/compiler checks passed; author historical failures remain frozen and qualified.",
+          "No application, YAML function, generated output, filesystem-provider callback or live source was executed or edited. No profile, stage, repository, guarded-policy or compiler-feature change was made."
+        ]
+      },
+      {
+        "id": "auto_compact",
+        "kind": "fixed-auto-compact-idle-predicate-gating-and-initializer-source-trial",
+        "rawKeys": [
+          "kind",
+          "baselineProfileSha256",
+          "sourceFiles",
+          "sourceCountDelta",
+          "gitCountDelta",
+          "guardEvalOwner",
+          "sourceTrialApproved",
+          "actualEmissionVerified"
+        ],
+        "rawSourceTrialApproved": false,
+        "rawActualEmissionVerified": false,
+        "independentVerdict": "approved-for-exact-future-source-trial",
+        "completeQualifications": [
+          "The import spelling and duplication mechanism are reconstructed source, not original-authorship proof. No memoization or duplicate-initializer harmlessness equivalence is assumed.",
+          "The old exported predicate and general feature-off or external/dynamic-caller behavior are not declared equivalent. Only one direct source predicate call was found; reflective or injected callers remain possible.",
+          "All remaining provider interfaces, mutable state, Date, ambient prototypes, loaders, reflection, global declaration order, full state retention, wrapper/module topology and whole-target equivalence remain conditional or open.",
+          "Both old raw false source flags and failed full-fixture initializer comparisons remain preserved. Source approval does not resolve future production emission checks.",
+          "No current stage, runtime, repository or prior immutable source/evidence package was edited."
+        ]
+      },
+      {
+        "id": "agent_file_updates",
+        "kind": "agent-file-cache-once-and-base-dir-source-trial",
+        "rawKeys": [
+          "kind",
+          "baselineProfileSha256",
+          "sourceFiles",
+          "sourceCountDelta",
+          "gitCountDelta",
+          "guardEvalOwner",
+          "sourceTrialApproved",
+          "actualEmissionVerified"
+        ],
+        "rawSourceTrialApproved": false,
+        "rawActualEmissionVerified": false,
+        "independentVerdict": "approved-for-target-directed-source-trial",
+        "completeQualifications": [
+          "This intentionally changes accessor/proxy read counts, filename/provider lookup order, error timing and path selection. A truthy baseDir bypasses fallback provider errors and is read twice. The cached tools value remains mutable; no generic old/new equivalence is claimed.",
+          "The tiny fixtures externalize application providers. Their dynamic empty initializer loses the production memoizing wrapper; both the raw comparison and a diagnostic omission-of-external-calls attempt remain failed and unaccepted. The actual 28-node initializer with all seven real provider calls remains a future production obligation.",
+          "The read-only complete 749-node owner projection is supporting diagnostic evidence, not a claim that the fixture reproduced the production initializer. No initializer or receiver was normalized for approval.",
+          "YAML has a separate source approval f0c4d552b09a776c75a7a2b320222eac83d6551eaf36e0e5ad27ec7414f0579d. This proposal does not modify or silently apply it. Its actual downstream emission must be checked separately.",
+          "parseAgentFromMarkdown remains 803 versus 762 nodes; only baseDir/filename/agentType field bindings are accepted here. AgentEditor remains 728 versus 720, with its missing source comparison in the agent-list update still unresolved. Neither complete producer/caller is accepted or edited.",
+          "Static source/import and selected caller records are not proof of absence of global/dynamic aliases or other runtime consumers. Native methods, mutable prototypes/objects, transitive suppliers and reflection remain interfaces.",
+          "Reviewer attempt1 had a missing brace before evaluation; attempt2 included the dynamic fixture compiler export-setter helper when counting twelve owner functions. Both are preserved. The final check identifies that helper separately by its computed this assignment and keeps its production-wrapper mismatch qualified. A reviewer-only source-role locator label for the src/ absolute import was corrected before freeze; no source or graph rule was relaxed.",
+          "No app, YAML, pane/navigation, getter/proxy, shell, native filesystem helper, callback, dynamic import or generated output was executed. No repository, profile or active-stage edit occurred. Actual staged complete owner/provider/caller/initializer verification remains mandatory."
+        ]
+      }
+    ],
+    "allSourceActualFlagsFalse": true,
+    "wholeAcceptanceAndNormalizationFalse": true,
+    "historicalGuard16ObjectExact": true
+  },
+  "controls": {
+    "authored": {
+      "test-authority": 196,
+      "test-source-authority": 45,
+      "test-policy-runtime": 295,
+      "test-history-pointers": 60,
+      "test-verify-integration": 7,
+      "test-scanner": 67,
+      "test-physical-stage": 8
+    },
+    "authoredNegatives": 678,
+    "independentBoundaryNegatives": 52,
+    "independentSyntaxNegatives": 19,
+    "totalNegativeControls": 749,
+    "completeReplayFiles": 1924,
+    "completeReplayStdoutByteExact": true,
+    "existingCurrentPhysicalInputPasses": true,
+    "oldPhysicalInputRejected": true,
+    "missingRootRefusalVerified": true,
+    "exactTreeVerifierBodiesUnchanged": true
+  },
+  "sourceAdmission": {
+    "kind": "independent-v28-source-admission-review",
+    "sourcePairs": [
+      {
+        "path": "src/utils/yaml.ts",
+        "plusDefaultHintIntentional": true,
+        "fallbackBytesExact": true,
+        "scanner": {
+          "exactSourceEditRecipe": true,
+          "sourceEdits": 1,
+          "remainingBytesAndCompleteParserFieldsRestored": true,
+          "newOrdinaryStaticImports": 0,
+          "opaqueMapExact": true,
+          "sourceIndependentApprovalPresent": true,
+          "actualEmissionVerified": false,
+          "generationEnabled": false
+        }
+      },
+      {
+        "path": "src/services/compact/autoCompact.ts",
+        "ordinaryAbsoluteStateImport": true,
+        "relativeStateImportRetained": true,
+        "clockGetterOrder": true,
+        "flagReadShortCircuitedAtCaller": true,
+        "thresholdAfterThrash": true,
+        "scanner": {
+          "exactSourceEditRecipe": true,
+          "sourceEdits": 7,
+          "remainingBytesAndCompleteParserFieldsRestored": true,
+          "newOrdinaryStaticImports": 1,
+          "opaqueMapExact": true,
+          "sourceIndependentApprovalPresent": true,
+          "actualEmissionVerified": false,
+          "generationEnabled": false
+        }
+      },
+      {
+        "path": "src/components/agents/agentFileUtils.ts",
+        "filenameBeforeBaseDirBeforeFallback": true,
+        "baseDirTruthinessPreserved": true,
+        "oneUpdatesToolsRead": true,
+        "joinUsesCachedTools": true,
+        "scanner": {
+          "exactSourceEditRecipe": true,
+          "sourceEdits": 2,
+          "remainingBytesAndCompleteParserFieldsRestored": true,
+          "newOrdinaryStaticImports": 0,
+          "opaqueMapExact": true,
+          "sourceIndependentApprovalPresent": true,
+          "actualEmissionVerified": false,
+          "generationEnabled": false
+        }
+      }
+    ],
+    "negativeControls": 19,
+    "checks": [
+      "YAML reverse addition operands",
+      "YAML explicit String conversion",
+      "YAML fallback supplier changed",
+      "src/utils/yaml.ts parsed unrelated field edit",
+      "src/utils/yaml.ts unchanged fields cannot erase comments",
+      "state initializer anchor",
+      "clock getter switched",
+      "gate short circuit changed",
+      "threshold equality changed",
+      "duplicate state import deduplicated",
+      "src/services/compact/autoCompact.ts parsed unrelated field edit",
+      "src/services/compact/autoCompact.ts unchanged fields cannot erase comments",
+      "filename branch changed",
+      "baseDir receiver changed",
+      "tools read repeated",
+      "cached star comparison changed",
+      "fallback order changed",
+      "src/components/agents/agentFileUtils.ts parsed unrelated field edit",
+      "src/components/agents/agentFileUtils.ts unchanged fields cannot erase comments"
+    ],
+    "completeASTFieldsNotErased": true,
+    "sourceApprovalsKeptSeparateFromProduction": true,
+    "applicationExecuted": false
+  },
+  "authorFreezeUnchanged": true,
+  "initialScaffoldMembersUnchanged": 20,
+  "pendingSupplementMembersUnchanged": 17,
+  "actualEmissionVerified": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "applicationExecuted": false,
+  "compilerInvoked": false,
+  "sourceStageModified": false,
+  "repositoryModified": false,
+  "qualifications": [
+    "This approves only the exact fixed V28 preparation and source-directed diagnostic trial. All three source trials still require fresh complete production emission review; no V28 bundle or application was built or executed by this reviewer.",
+    "The original 20-member generation-disabled scaffold and 17-member pending supplement remain unchanged. Historical null prerequisites, false flags and generationEnabled fields describe those frozen stages and are not relabeled. The active generator is separately pinned prepare-approved.py.",
+    "All thirteen inherited evidence roots and the complete three V27 receipt snapshots remain exact. Bash scoped actual success stays distinct from completeJoinedProviderGraphAccepted:false and inheritedWindowsPathsProviderOrderAccepted:false. The grounded six-provider Windows order remains an inherited unresolved boundary, not a positional remapping opportunity.",
+    "revision26GuardOwnerRefresh is retained only as historical authority, including the complete before/after record and immediate-parent identity. It is not reapplied. Current guard16, all 18 guards, four eval records and 30 historical metadata pointer targets remain exact. No genesis or active-refresh field is synthesized.",
+    "All raw source manifests keep sourceTrialApproved:false and actualEmissionVerified:false. Their fresh independent approvals authorize only the exact source trial. YAML uses split guardOwnerRefreshRequired/evalOwnerOverlap fields; autoCompact and agent-file use guardEvalOwner. Those distinct schemas and full qualifications are copied unchanged.",
+    "YAML intentionally changes template string coercion to addition/default-hint coercion while preserving fallback source. This is not generic old/new equivalence; ambient Bun, proxies/coercion callbacks, deeper fallback dependencies and caller behavior remain conditional.",
+    "autoCompact changes idle-clock reading, gate timing, optional tracking and a reconstructed duplicate state import. Its failed full initializer fixture remains failed; fresh actual verification must establish the real 67-node initializer and main slot17 with concrete providers. Duplicate initializer harmlessness is not assumed.",
+    "Agent-file intentionally changes tools getter/read counts, baseDir filename/provider/error order and path selection. Both failed fixture initializer comparisons remain unaccepted. The complete actual two functions, seven-provider 28-node initializer and YAML downstream behavior require fresh checks. parseAgentFromMarkdown and AgentEditor whole-body residuals remain outside scope.",
+    "Source admission reverses only the three fixed byte recipes with 1/7/2 exact occurrences and reparses all fields after restoration. No generic AST-field omission, receiver normalization, free-binding erasure, source-map coordinate repair or whole-program equivalence gate is introduced.",
+    "Only fixed revision28/parent27 admission changes among 69 runtime files. Compiler, finalizer, reporting producer, parsing policies, options, aliases, facades, features and private-producer policies are byte/structure exact. Python optimized mode remains unsupported, as disclosed by the author.",
+    "Three reviewer-only harness adaptation mistakes were rejected and retained: the new preparation metadata key initially used revision27; an output-count string substitution touched an old digest; and a source function locator used getAgentFilePath instead of getActualAgentFilePath. Corrected reviewer harnesses pass without modifying author/source/policy bytes or relaxing a check.",
+    "The source and preparation closures authenticate bytes and their explicit reviewed scope. They do not establish full original authorship, transitive provider equivalence, dynamic/external consumers, loader or reflection behavior, global order, OS isolation or whole-target acceptance. The prior full strict AST remains unequal."
+  ],
+  "evidence": {
+    "account-prepared-outputs.py": {
+      "path": "historical-checkpoints/v28-preparation-review/account-prepared-outputs.py",
+      "bytes": 7152,
+      "sha256": "39e27a8df51017199d4788904997ff1f6c127719b193de9038ebccf12ae11f1d"
+    },
+    "attempt2-failure.txt": {
+      "path": "historical-checkpoints/v28-preparation-review/attempt2-failure.txt",
+      "bytes": 251,
+      "sha256": "20e7ed43d6b6f33a99e6a8e0e2d71608dd4fb461bcbde4c999a5c1e177bb7bef"
+    },
+    "attempt2-output-accounting.py.txt": {
+      "path": "historical-checkpoints/v28-preparation-review/attempt2-output-accounting.py.txt",
+      "bytes": 7152,
+      "sha256": "4fbf1063678e48ea1a7a86325c146275be603251667d25b630e5a63e1c7b6aa2"
+    },
+    "attempt3-syntax-controls.mjs.txt": {
+      "path": "historical-checkpoints/v28-preparation-review/attempt3-syntax-controls.mjs.txt",
+      "bytes": 7980,
+      "sha256": "37e8157abed13eb84f47e754306749354175e2756b1e834dd0805834fc89642a"
+    },
+    "attempt3-syntax-controls.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/attempt3-syntax-controls.stderr",
+      "bytes": 654,
+      "sha256": "713eac998ca2445b21097a180d62f3c2b5e184c8fc8b545039473dc59096c234"
+    },
+    "authenticate-final.py": {
+      "path": "historical-checkpoints/v28-preparation-review/authenticate-final.py",
+      "bytes": 1702,
+      "sha256": "edaa02de43d84cc694d0317e9896285b6c049749254932985cbb7853cf5bdc03"
+    },
+    "author-controls.json": {
+      "path": "historical-checkpoints/v28-preparation-review/author-controls.json",
+      "bytes": 664,
+      "sha256": "35d340348cb58cea78003a1f06e81069979d2555e936fe67ea91c29c735ba09b"
+    },
+    "authority-physical.json": {
+      "path": "historical-checkpoints/v28-preparation-review/authority-physical.json",
+      "bytes": 10807,
+      "sha256": "be81501747564e78571003c73ffa2ef2ba475af7d153d7d1927fcb5c1af0209d"
+    },
+    "check-authority-physical.py": {
+      "path": "historical-checkpoints/v28-preparation-review/check-authority-physical.py",
+      "bytes": 10096,
+      "sha256": "9492ab3c00fa82ea99d6abe9c04514693616c39564f314a488d9aa12ded6a06c"
+    },
+    "common.py": {
+      "path": "historical-checkpoints/v28-preparation-review/common.py",
+      "bytes": 2136,
+      "sha256": "ca27d132797213f7d5e362b9b49d234d44c5d91bf8330cca134f48ccd8300cca"
+    },
+    "compare-profile-runtime.py": {
+      "path": "historical-checkpoints/v28-preparation-review/compare-profile-runtime.py",
+      "bytes": 2224,
+      "sha256": "299d21eb2ac301c7c48a02f38ef68f11bfee37d5111f1bae85c395e735c92b54"
+    },
+    "derive-expected.py": {
+      "path": "historical-checkpoints/v28-preparation-review/derive-expected.py",
+      "bytes": 5804,
+      "sha256": "37ff13f71a73ab23513b39bb7353539ece7701924f0e8e419af193963dabfe43"
+    },
+    "expected-derivation.json": {
+      "path": "historical-checkpoints/v28-preparation-review/expected-derivation.json",
+      "bytes": 8547,
+      "sha256": "cabc003cdc0891d7cbdb747a825e7508bc3019895a61fa0cadae92f8a8b9c92d"
+    },
+    "expected-profile.json": {
+      "path": "historical-checkpoints/v28-preparation-review/expected-profile.json",
+      "bytes": 4505370,
+      "sha256": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e"
+    },
+    "expected-source-contract.mjs": {
+      "path": "historical-checkpoints/v28-preparation-review/expected-source-contract.mjs",
+      "bytes": 5973,
+      "sha256": "90a41db35565c5d50c58009a815bda259f56f466d30e2a814090476753baeae8"
+    },
+    "expected-toolchain.json": {
+      "path": "historical-checkpoints/v28-preparation-review/expected-toolchain.json",
+      "bytes": 14064,
+      "sha256": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35"
+    },
+    "final-authentication.json": {
+      "path": "historical-checkpoints/v28-preparation-review/final-authentication.json",
+      "bytes": 493,
+      "sha256": "b25e17b7e20e7e8bca24f45cdaf6ccf4ba239882677eefbee3362310955ee4ef"
+    },
+    "freeze-review.py": {
+      "path": "historical-checkpoints/v28-preparation-review/freeze-review.py",
+      "bytes": 9683,
+      "sha256": "77c704a5f4b1e922046d336628942f1d4ace5bacda469c7a5fa5438edc00bc63"
+    },
+    "independent-boundaries.json": {
+      "path": "historical-checkpoints/v28-preparation-review/independent-boundaries.json",
+      "bytes": 2038,
+      "sha256": "31a3128f585c9abe30bc65998efa9cb27357b552e2f71707171fcb56348b659e"
+    },
+    "independent-boundaries.py": {
+      "path": "historical-checkpoints/v28-preparation-review/independent-boundaries.py",
+      "bytes": 7334,
+      "sha256": "5176d7de623b55583296a722914cc185b5105f682b8afc0cbdb9bc7b186defcc"
+    },
+    "output-accounting.json": {
+      "path": "historical-checkpoints/v28-preparation-review/output-accounting.json",
+      "bytes": 1059,
+      "sha256": "b6514473b260537e224bb291412f9db81adfff2006ba6099080406f8949b9154"
+    },
+    "profile-runtime-comparison.json": {
+      "path": "historical-checkpoints/v28-preparation-review/profile-runtime-comparison.json",
+      "bytes": 647,
+      "sha256": "6675722f3ddd5d7bd3f8cadef78d4d956041b443d86bc157cd60af6e975049e3"
+    },
+    "run-author-controls.py": {
+      "path": "historical-checkpoints/v28-preparation-review/run-author-controls.py",
+      "bytes": 1141,
+      "sha256": "1760279f49cabce7336a3250eb8e9676a28a4a94e4137342c421d82ee7304e03"
+    },
+    "syntax-controls.json": {
+      "path": "historical-checkpoints/v28-preparation-review/syntax-controls.json",
+      "bytes": 2801,
+      "sha256": "d9d05382438bfacc09f1f0e5bcbddad266eed1b0569bf3f27adabd771fc8c5e6"
+    },
+    "syntax-controls.mjs": {
+      "path": "historical-checkpoints/v28-preparation-review/syntax-controls.mjs",
+      "bytes": 7986,
+      "sha256": "6c737bf8b8ca0d80bfcafde87eb825dec813f29ca35ab746c45f05b61079d4c7"
+    },
+    "syntax-controls.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/syntax-controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-authority.json": {
+      "path": "historical-checkpoints/v28-preparation-review/test-authority.json",
+      "bytes": 15581,
+      "sha256": "991e477cd25d0fdd1c94522353c75763b157a5f82e2b13929c776775f5631098"
+    },
+    "test-authority.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/test-authority.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-history-pointers.json": {
+      "path": "historical-checkpoints/v28-preparation-review/test-history-pointers.json",
+      "bytes": 25176,
+      "sha256": "98b6a0dd4e0336d99ad25468a48b8fa64a3ef390f50e52c175bbe138bc34732d"
+    },
+    "test-history-pointers.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/test-history-pointers.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-physical-stage.json": {
+      "path": "historical-checkpoints/v28-preparation-review/test-physical-stage.json",
+      "bytes": 888,
+      "sha256": "ba582cbcbd7a976b8ae6e0f6f3ba96e29285191bdee23061bb31da25a35b432e"
+    },
+    "test-physical-stage.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/test-physical-stage.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-policy-runtime.json": {
+      "path": "historical-checkpoints/v28-preparation-review/test-policy-runtime.json",
+      "bytes": 9203,
+      "sha256": "19881c87aa5042876ccc67adac77f6274a43f51477115b7654e824152be9c17e"
+    },
+    "test-policy-runtime.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/test-policy-runtime.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-scanner.json": {
+      "path": "historical-checkpoints/v28-preparation-review/test-scanner.json",
+      "bytes": 5661,
+      "sha256": "6074851bd2dbca0199644923e20ec41d54136f0c62abfddf151524d3ab8698cf"
+    },
+    "test-scanner.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/test-scanner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-source-authority.json": {
+      "path": "historical-checkpoints/v28-preparation-review/test-source-authority.json",
+      "bytes": 2162,
+      "sha256": "180f98df4ad7647a5bc2b7095aaaeab49bbfad56d5dd3518d0f1e14ac1755029"
+    },
+    "test-source-authority.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/test-source-authority.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-verify-integration.json": {
+      "path": "historical-checkpoints/v28-preparation-review/test-verify-integration.json",
+      "bytes": 578,
+      "sha256": "245515b6458a2df202f5595991dc7dc4a1690a5390a597cc89ded80df390e0d8"
+    },
+    "test-verify-integration.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/test-verify-integration.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "verify-only.json": {
+      "path": "historical-checkpoints/v28-preparation-review/verify-only.json",
+      "bytes": 661197,
+      "sha256": "795a409bcd3db4ae24d3465709ad6399cd453688a3e9d23c99e212d5b881aaca"
+    },
+    "verify-only.stderr": {
+      "path": "historical-checkpoints/v28-preparation-review/verify-only.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "kind": "independent-actual-v22-shell-quote-emission-review",
+  "reportId": "shell_quote",
+  "verdict": "approved-for-the-two-bounded-actual-shell-emission-obligations",
+  "actualEmissionVerified": true,
+  "shellPrefixActualEmissionVerified": true,
+  "shellQuotingActualEmissionVerified": true,
+  "profileSha256": "7340c80b9cb7decc2a43138cc8e8b3d97a5eb43391bcf78ee9fdb7369e6106c4",
+  "toolchainSha256": "069ec7d84b9c5088f78cd66bc80d335ac4ab00042de2a9d8b9134415002880f7",
+  "finalJavaScript": {
+    "path": "historical-checkpoints/v22-replay/final/cli.js",
+    "bytes": 13076260,
+    "sha256": "60048072a70b457219bbca4e45c6f001a8dce38d0f1aaa1a78a22da5e7bb2f48"
+  },
+  "candidateIndex": {
+    "path": "historical-checkpoints/v22-indexes/candidate.json",
+    "bytes": 5578501,
+    "sha256": "c0d72ffa335940710b66b149609cf700711ac93d06c5dc25b8754376202e779b"
+  },
+  "compileReport": {
+    "path": "historical-checkpoints/v22-replay/compile-report.json",
+    "bytes": 101985,
+    "sha256": "42eaed5760f8b46481718cc74773a8edd3aae9ff4a1783e4f5f2c40f87236868"
+  },
+  "sourceApprovals": [
+    {
+      "review": {
+        "path": "historical-checkpoints/shell-prefix-quote-independent-review/review.json",
+        "bytes": 7656,
+        "sha256": "11875a54ad105aaffa4be72b32f1faf6226ddd7b7b86295c988551d261ae3716"
+      },
+      "closure": {
+        "path": "historical-checkpoints/shell-prefix-quote-independent-review/freeze.json",
+        "bytes": 6667,
+        "sha256": "a61210432b5b4d7fd0ab489e9fcab2be00970e342600d3d317a102271b56920f"
+      }
+    },
+    {
+      "review": {
+        "path": "historical-checkpoints/shell-quoting-independent-review/review.json",
+        "bytes": 3522,
+        "sha256": "1b4f22bc0fe26ebd061e507ec9b04cfa9ebb2fed50bcf680e06c32b16e7264b7"
+      },
+      "closure": {
+        "path": "historical-checkpoints/shell-quoting-independent-review/freeze.json",
+        "bytes": 5453,
+        "sha256": "41f603a9f2bb855712a0fa3c884b95e2523c5aba263cc5bd5b60c2c1aa73c9b5"
+      }
+    }
+  ],
+  "preparationApproval": {
+    "review": {
+      "path": "historical-checkpoints/v22-preparation-review/review.json",
+      "bytes": 5226,
+      "sha256": "a32cdab2dad4b5fbb4db6e3d3dbbb0e202da30fac09581be04b8698b7c36b62c"
+    },
+    "closure": {
+      "path": "historical-checkpoints/v22-preparation-review/freeze.json",
+      "bytes": 5985,
+      "sha256": "b2959a2c1bd9c259394dae9002732b7a132e3547c345e187188d22ebd9e4b441"
+    }
+  },
+  "target": {
+    "js": {
+      "path": "historical-checkpoints/v12/provenance/official-2.1.89-cli.js",
+      "bytes": 13081065,
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01"
+    },
+    "index": {
+      "path": "historical-checkpoints/v13-indexes/target.json",
+      "bytes": 5573628,
+      "sha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747"
+    }
+  },
+  "prior": {
+    "js": {
+      "path": "historical-checkpoints/v21-replay/final/cli.js",
+      "bytes": 13076276,
+      "sha256": "4fa68aa1160b455ad426105b95e5f00299d54fa470b0e117004498683075b0b8"
+    },
+    "index": {
+      "path": "historical-checkpoints/v21-indexes/candidate.json",
+      "bytes": 5578502,
+      "sha256": "af4daa341b710cd092f084c0bcd560c05b34114a82509fe9dc0b5671bf5310dc"
+    }
+  },
+  "shellPrefix": {
+    "caller": 10696,
+    "nodes": 64,
+    "sharedHelperCalls": 4,
+    "initializer": 10697,
+    "initializerNodes": 5,
+    "priorInitializerNodes": 10,
+    "legacyDependencyRemoved": true,
+    "completeTargetFieldsAndLocalCapturedBindings": true,
+    "emptyInitializerVerified": true
+  },
+  "shellQuoting": {
+    "caller": 10700,
+    "nodes": 59,
+    "priorCallerNodes": 58,
+    "sharedHelperCalls": 1,
+    "quoteBeforeRedirectBranch": true,
+    "defaultRedirectTrue": true,
+    "unchangedSiblingsAndRegex": true,
+    "heredocRepeatedCheckRetained": true,
+    "initializer": 10705,
+    "initializerNodes": 11,
+    "priorInitializerNodes": 14,
+    "onlyOriginalRegexAssignment": true,
+    "completeTargetModuleFieldsAndJoinedBindings": true,
+    "allRuntimeLiteralsRegexesAndRawSpellingsExact": true
+  },
+  "sharedHelper": {
+    "target": 9810,
+    "prior": 12642,
+    "current": 10695,
+    "nodes": 48,
+    "priorFieldsExact": true,
+    "sourceOwner": "src/utils/bash/quoteShellArgs.ts",
+    "sourceSha256": "5c87a87868fa8ab36420f1eb4fd6ee830b28f059d6a03b81f1735ba0c8020457",
+    "allFiveCallerReferencesResolveToSameDeclaration": true,
+    "onlyUnresolvedIdentifierInJoinedGraph": "String",
+    "ambientStringOwnershipProven": false
+  },
+  "legacyRetention": {
+    "completePriorCurrentModuleGraphPreserved": true,
+    "wrapperStatement": 7577,
+    "wrapperNodes": 91,
+    "namespaceStatement": 7578,
+    "initializerStatement": 7579,
+    "namespaceReceiverPreserved": true,
+    "quoteAndParseFactories": [
+      {
+        "field": "quote",
+        "callee": "g54",
+        "statement": 6026,
+        "nodes": 101
+      },
+      {
+        "field": "parse",
+        "callee": "n54",
+        "statement": 6027,
+        "nodes": 858
+      }
+    ],
+    "otherConsumerStatements": 15,
+    "otherBoundCallSites": 53,
+    "allOtherConsumerFieldsBindingsAndRawLiteralsPreserved": true,
+    "globalLegacyDeletion": false,
+    "conditionalExternalInterfaceMaps": {
+      "WeakMap": "WeakMap",
+      "N55": "N55",
+      "V55": "V55",
+      "xb6": "Ib6",
+      "h27": "S27",
+      "R27": "h27",
+      "L27": "R27",
+      "y55": "y55",
+      "w6": "w6",
+      "Error": "Error",
+      "String": "String",
+      "p6": "p6",
+      "R8": "R8",
+      "l8": "l8",
+      "RegExp": "RegExp",
+      "Math": "Math",
+      "JSON": "JSON",
+      "Boolean": "Boolean"
+    }
+  },
+  "sourceAndPolicy": {
+    "sourceBodiesMatchApprovedPostimages": true,
+    "bothOwnersUnguardedAndNotEvalOwners": true,
+    "all18GuardRecordsAndProtectedSlicesUnchanged": true,
+    "fourEvalPoliciesAndSlicesUnchanged": true,
+    "unchangedSharedLegacyAndVendorInputPins": true,
+    "sourceFiles": 6084,
+    "gitSourceFiles": 1922,
+    "sourceManifestSha256": "01bfab84ed987ce1c7b08533c8b40a6c2b66ceedd0dc4c5ecb315fd09cce5a96"
+  },
+  "receiptChain": {
+    "authenticatedCompilerReceiptEvents": 37,
+    "markerImportDeletionsReplayed": 11,
+    "finalBytesReproducedExactly": true,
+    "compileSummaryAndMeasuredInventoryAgree": true,
+    "rawAndFinalSourceMapBytesHashed": true,
+    "sourceMapCoordinateCorrectnessEstablished": false,
+    "producerDisplacementRepaired": false
+  },
+  "verification": {
+    "completeStrictIndexedStatements": 88,
+    "maximumStatementBytes": 3411,
+    "negativeControls": 26,
+    "allNegativeControlsRejected": true,
+    "allFourReadOnlyChecksReplayedExactly": true,
+    "sourceReviewAndPreparationClosuresReauthenticated": true,
+    "literalRawSpellingChecks": true,
+    "wholeProgramParsedByReviewer": false
+  },
+  "strictWholeProgram": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098404,
+    "sha256": "b099c01d6f39b99efb39fa5f61c2ce126f9bf3b9bed181d2df7b3ae96edac590",
+    "targetNodes": 3098331,
+    "targetSha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c",
+    "equal": false,
+    "nodeCountDeltaIsNotStructuralDistance": true
+  },
+  "qualifications": [
+    "This is a target-directed check of two emitted shell families, their shared helper, and retained legacy consumers. It does not establish arbitrary JavaScript semantic equivalence or whole-program equality.",
+    "Complete fields and lexical binding relationships match within bounded joined statements under the recorded declaration correspondences; identifier spellings are not asserted equal. Function names, source-text reflection, ambient mutation and dynamic-name observation remain outside this certificate.",
+    "The joined new shell graph has only the exact unresolved name String. Its full-program declaring scope or runtime value is not established; map, join, replaceAll and regular-expression operations were never executed.",
+    "Legacy comparison preserves receiver form and concrete local factory/namespace bindings. Its remaining log, slow-operation, compiler-helper and ambient references retain conditional interfaces; no transitive runtime provider equivalence is inferred.",
+    "Text scans nominated legacy consumers, followed by complete bounded parsing and reference resolution for every hit. This is not an exhaustive whole-program lexical or dynamic reference census.",
+    "The shared helper moved from prior statement12642 to current10695; target statement9810 differs. Global declaration placement and complete dependency order are not accepted by this review.",
+    "Source names and the helper file path are explicit reconstruction choices, not recovered private authorship. Earlier fixture receiver failures remain historical evidence.",
+    "Finalizer replay verifies the exact deletion of 11 marker ImportDeclarations and final bytes; source-map bytes were hashed, without claiming original-coordinate correctness or fixing known producer displacement.",
+    "All other mixed receipts, raw grouping failures, wrapper topology limits, global acceptance failures and normalization gates remain unchanged. The committed checkpoint status remains an honest earlier snapshot."
+  ],
+  "historicalSourceReviewsUnmodified": true,
+  "applicationExecuted": false,
+  "shellOrRecoveredFunctionsExecuted": false,
+  "compilerInvokedByReviewer": false,
+  "sourceStageChanged": false,
+  "repositoryChanged": false,
+  "normalizationGateEnabled": false,
+  "fullTargetASTEqualityEstablished": false,
+  "wholeTargetAcceptance": false,
+  "evidence": {
+    "core-results.json": {
+      "path": "historical-checkpoints/v22-shell-emission-review/core-results.json",
+      "bytes": 2670,
+      "sha256": "83c7179d6633469782906a4d3cd39318b8b8d9a43fda242ca25d483c93de0f26"
+    },
+    "retention-results.json": {
+      "path": "historical-checkpoints/v22-shell-emission-review/retention-results.json",
+      "bytes": 7372,
+      "sha256": "53b3c58b56fd3eab59caba62dca1da75a533aabc648143e607afe6b47e625982"
+    },
+    "evidence-results.json": {
+      "path": "historical-checkpoints/v22-shell-emission-review/evidence-results.json",
+      "bytes": 10846,
+      "sha256": "27fac4419b29199ee22c18a4e20a71b3cf96d8c95d3d009d9b0afd8479df3753"
+    },
+    "control-results.json": {
+      "path": "historical-checkpoints/v22-shell-emission-review/control-results.json",
+      "bytes": 1490,
+      "sha256": "8cd1bb0b01b206e3954b46e4f909984a16611623c9736af7b1cd6a3c8709a670"
+    },
+    "complete-indexed-witnesses.json": {
+      "path": "historical-checkpoints/v22-shell-emission-review/complete-indexed-witnesses.json",
+      "bytes": 94237,
+      "sha256": "143a39be6451cc4ecb36a380a371a78ee5aa156ebe558a005f82978924853542"
+    },
+    "resumed-authentication.json": {
+      "path": "historical-checkpoints/v22-shell-emission-review/resumed-authentication.json",
+      "bytes": 1873,
+      "sha256": "30b477206318dc31b9e69d068e1cc9d938b37bcacb5348d1ed43c874e5e2ecf7"
+    },
+    "code-provenance.json": {
+      "path": "historical-checkpoints/v22-shell-emission-review/code-provenance.json",
+      "bytes": 30354,
+      "sha256": "5d8b8fab528b48ade09624b960cf248788467ab35a59a8f4b98c09c4bc5bbc26"
+    }
+  }
+}

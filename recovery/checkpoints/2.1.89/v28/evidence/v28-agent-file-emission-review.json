@@ -1,0 +1,638 @@
+{
+  "kind": "independent-actual-v28-agent-file-updates-review-receipt",
+  "reportId": "agent_file_updates",
+  "verdict": "passed-scoped-actual-emission",
+  "actualScopedEmissionVerified": true,
+  "wholeTargetAcceptance": false,
+  "applicationExecuted": false,
+  "current": {
+    "current": {
+      "js": "v28-replay/final/cli.js",
+      "sha256": "124809d5c6af3eb78e305d678dac5948c59d954ee1178846eebde4ebfd1ff6b0",
+      "index": "v28-indexes/candidate.json",
+      "indexSha256": "fbb1c1dba7fb0f145e927f42a97477cda9b259d097ada6900af9a72c94d80dc4"
+    },
+    "profile": {
+      "path": "v28-replay/profile.json",
+      "sha256": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e",
+      "bytes": 4505370
+    },
+    "toolchain": {
+      "path": "v28-preparation/prepared/recovery/profiles/2.1.89/toolchain.json",
+      "sha256": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35",
+      "bytes": 14064
+    },
+    "compileReport": {
+      "path": "v28-replay/compile-report.json",
+      "sha256": "dd96aaff92bb6d8a46075c9dc0cdc634e5e95a87377c1a15c97669877338a77d",
+      "bytes": 101985
+    },
+    "preparationReview": {
+      "path": "v28-preparation-review/review.json",
+      "sha256": "ae07f395cc1dbfc7bcf8dec264a0f09e5a9fed6acdebb33e95a8f791f01c7f34",
+      "bytes": 34025
+    },
+    "preparationClosure": {
+      "path": "v28-preparation-review/freeze.json",
+      "sha256": "673ce64a301248b53aa2cc219e591d3eed2d8d548cfd011e28e1e221e1968e96",
+      "bytes": 8195
+    },
+    "strictNodes": 3097309,
+    "strictSha256": "296db1eb2fc7664c78df16942384075205adfc3a95e73c1a408969573a867e08",
+    "wholeTargetAcceptance": false
+  },
+  "sourceManifest": {
+    "path": "historical-checkpoints/update-agent-file-source-proposal/source-repair.json",
+    "bytes": 888,
+    "sha256": "293f1a67016615dda55ef4995f4efa55e7d7b9d46e2c2ccfd668377a0955fc43"
+  },
+  "sourceApproval": {
+    "path": "historical-checkpoints/update-agent-file-independent-review/review.json",
+    "bytes": 8573,
+    "sha256": "350e95651b96153273f4c79fd7e0c74bedb364b5c46f439463ca4d2a1652b4ff"
+  },
+  "sourceApprovalClosure": {
+    "path": "historical-checkpoints/update-agent-file-independent-review/freeze.json",
+    "bytes": 6391,
+    "sha256": "bbd8ad07aa7842b8f473f50bf63f68bc4ebbd9b61233be9e332c6b88bc0f6b86"
+  },
+  "priorGroundwork": {
+    "path": "historical-checkpoints/v28-agent-file-emission-review/BASELINE-FREEZE.json",
+    "bytes": 2744,
+    "sha256": "03f46be99ab812ef1e0074939fd44b60b85aa0c5aa80a1cfb21467fc89a1cbf3"
+  },
+  "validation": {
+    "groups": 8,
+    "negativeControls": 20,
+    "strictAndShapeWitnesses": 82,
+    "completeOwnerFunctions": 12,
+    "completeOwnerNodesIncludingProgram": 749,
+    "nativeImports": 2,
+    "actualInitializerNodes": 28,
+    "actualInitializerProviderCalls": 7,
+    "completeJoinedDirectProviderNodesIncludingProgram": 2038,
+    "runtimeFilesAuthenticated": 69,
+    "compilerRunByReviewer": false,
+    "fullProgramParsedByReviewer": false,
+    "stdoutReplayByteExact": true
+  },
+  "actualOwnerStatements": {
+    "target": [
+      {
+        "index": 14753,
+        "type": "ImportDeclaration",
+        "range": [
+          10778019,
+          10778099
+        ],
+        "nodes": 14,
+        "strictSha256": "f385dcc545e030ad6ef9944820624b73f9fab56b11b8873ebba0f8c6a30f994f",
+        "shapeSha256": "6569a4b0af97c35f74b72141f9ab2461b4cea285db113dca71906795cd755cd7",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 4
+      },
+      {
+        "index": 14754,
+        "type": "ImportDeclaration",
+        "range": [
+          10778099,
+          10778128
+        ],
+        "nodes": 5,
+        "strictSha256": "f995195156e08f9f0e319706bfbcb7da3e95735694a99c6ae8d13f55a8f46774",
+        "shapeSha256": "3a6eeea65e3ab021153ae73f8415a0e7ccd1e19939b48ae4324b8272d21de9f7",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 14755,
+        "type": "FunctionDeclaration",
+        "range": [
+          10778128,
+          10778475
+        ],
+        "nodes": 116,
+        "strictSha256": "0e1072818c801821c6e6a1a31e2756f00d2e4cf4f3849d02cd70baa6d5d43483",
+        "shapeSha256": "91194b23106586c21715ac3a61e44d0d7e9ee66436974a55c470163933c5d83f",
+        "identifierNamesErased": 36,
+        "protectedIdentifierOccurrences": 5
+      },
+      {
+        "index": 14756,
+        "type": "FunctionDeclaration",
+        "range": [
+          10778475,
+          10778825
+        ],
+        "nodes": 64,
+        "strictSha256": "713633ff93133fec1cbc83a8e869f507147c4da6cc14e5004d68988698818dcc",
+        "shapeSha256": "80726fd7ceb202443d3cfd393cf914bb23c6deac2a0a6fa879ec95280f2b4231",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 7
+      },
+      {
+        "index": 14757,
+        "type": "FunctionDeclaration",
+        "range": [
+          10778825,
+          10778940
+        ],
+        "nodes": 23,
+        "strictSha256": "de61cda929b93a29487e442418c479cd02da1e0707d3d2f74e2083f87e9b2a69",
+        "shapeSha256": "86bfa40ca78c9d5149faebe4f1db127aa8a6d4ffcd75bbdcdfe5f2e858a6aa91",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 14758,
+        "type": "FunctionDeclaration",
+        "range": [
+          10778940,
+          10779009
+        ],
+        "nodes": 22,
+        "strictSha256": "e99ce31f5a948ef384eedeb7e647b05114202bf6d0d7ff10d08af7de07bebdaa",
+        "shapeSha256": "e7b534e45edcb55660d99221e61f7d48c819fd828b0d60e1b66d54be781bc4a8",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 14759,
+        "type": "FunctionDeclaration",
+        "range": [
+          10779009,
+          10779261
+        ],
+        "nodes": 62,
+        "strictSha256": "98e1cd76a5c2f6f32510a20e8a0e90025d639c09f0a9e1a1cc886c89f23bd222",
+        "shapeSha256": "e116bad139c45fb6f12fde1c00106be3d5280f12d4e49ec6c26f235f0e1ed354",
+        "identifierNamesErased": 18,
+        "protectedIdentifierOccurrences": 7
+      },
+      {
+        "index": 14760,
+        "type": "FunctionDeclaration",
+        "range": [
+          10779261,
+          10779372
+        ],
+        "nodes": 30,
+        "strictSha256": "74f7b3af9e45659750f55b8cafb3242323852b05346dd723b67422b0347573d3",
+        "shapeSha256": "2d74ef3c29e5ddc486df1ff8fff9cf8fa4407d6fc06c70f33781b87c7f9390f8",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 3
+      },
+      {
+        "index": 14761,
+        "type": "FunctionDeclaration",
+        "range": [
+          10779372,
+          10779582
+        ],
+        "nodes": 56,
+        "strictSha256": "cfe768b41a3deb621049d7171045cb17dd20c2e2d46e0405d06571c20fda7a5b",
+        "shapeSha256": "ca1c86f93f0307f312fa4897f1148f97e986e8f5f352551abb14bdde6baa12b1",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 5
+      },
+      {
+        "index": 14762,
+        "type": "FunctionDeclaration",
+        "range": [
+          10779582,
+          10779654
+        ],
+        "nodes": 22,
+        "strictSha256": "208c5bd98a8636cb8d163a77d9b3dc06a4d561f2cdb38e7053aa626b1d83d9a5",
+        "shapeSha256": "1b555a0709cef485b6a202a9b2a6b9682ac3fd62fe9514bf645cb63c61a31d9b",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 14763,
+        "type": "FunctionDeclaration",
+        "range": [
+          10779654,
+          10779943
+        ],
+        "nodes": 83,
+        "strictSha256": "d144db6e65222ea7f422c40d11c7d1dccba26e33b5ca767911de0e817933c004",
+        "shapeSha256": "a69a746574fc01f97e52bb029711127fa4da5f08f169ed4ec4c6712c02ad312c",
+        "identifierNamesErased": 39,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 14764,
+        "type": "FunctionDeclaration",
+        "range": [
+          10779943,
+          10780388
+        ],
+        "nodes": 143,
+        "strictSha256": "4f6b733a22b2d4038cc68614fc484710f3e86a6a54bce4ef6aa548f8c369c1ff",
+        "shapeSha256": "382ca65371d7665db5ddfa5a75ada9ffae2893221b8dbf17c2a2ecd3f5159702",
+        "identifierNamesErased": 42,
+        "protectedIdentifierOccurrences": 16
+      },
+      {
+        "index": 14765,
+        "type": "FunctionDeclaration",
+        "range": [
+          10780388,
+          10780548
+        ],
+        "nodes": 38,
+        "strictSha256": "8d165757c8a3508cdef7697de9cfa43f80f7240ee8df5b517bc967f30526ef1c",
+        "shapeSha256": "efe13837a147f07c16665ed79086da5d1048293273f3f85c969fd9cc0c7054e4",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 14766,
+        "type": "FunctionDeclaration",
+        "range": [
+          10780548,
+          10780687
+        ],
+        "nodes": 42,
+        "strictSha256": "56c7427151276a69f777c461ed6ac1d19099782fa5dc19832b297d56176a1014",
+        "shapeSha256": "6f5819a6c275169a026512fee961f8906dd38aff24a421df6192e55cc59adf44",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 4
+      },
+      {
+        "index": 14767,
+        "type": "VariableDeclaration",
+        "range": [
+          10780687,
+          10780740
+        ],
+        "nodes": 28,
+        "strictSha256": "f29f9d55b847b53122cead1451fffb7eda277115eac6c1a664edc0b5c4885b66",
+        "shapeSha256": "beb18e4255d46927893cef2b7a1b937147e3844b1a64c547708bc97011351ef6",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      }
+    ],
+    "current": [
+      {
+        "index": 14753,
+        "type": "ImportDeclaration",
+        "range": [
+          10770155,
+          10770235
+        ],
+        "nodes": 14,
+        "strictSha256": "cbee5ba780e7ddabd9e85cd4076938c2dbf3e2cdf0bf4033544f341f76a81e01",
+        "shapeSha256": "6569a4b0af97c35f74b72141f9ab2461b4cea285db113dca71906795cd755cd7",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 4
+      },
+      {
+        "index": 14754,
+        "type": "ImportDeclaration",
+        "range": [
+          10770235,
+          10770264
+        ],
+        "nodes": 5,
+        "strictSha256": "0375e625f903bae13c67c3fab2221fca250bfd3842a207d35882a13e4f1566c5",
+        "shapeSha256": "3a6eeea65e3ab021153ae73f8415a0e7ccd1e19939b48ae4324b8272d21de9f7",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 14755,
+        "type": "FunctionDeclaration",
+        "range": [
+          10770264,
+          10770611
+        ],
+        "nodes": 116,
+        "strictSha256": "8fb7094397161421990667f06addbc0c00e01f0ea4e8bde196ae0ff67f521496",
+        "shapeSha256": "91194b23106586c21715ac3a61e44d0d7e9ee66436974a55c470163933c5d83f",
+        "identifierNamesErased": 36,
+        "protectedIdentifierOccurrences": 5
+      },
+      {
+        "index": 14756,
+        "type": "FunctionDeclaration",
+        "range": [
+          10770611,
+          10770961
+        ],
+        "nodes": 64,
+        "strictSha256": "eb9bb838a8ded6e3e8e0b81d46d96fb85f10e203f84e0fb6a8f9120e31257d43",
+        "shapeSha256": "80726fd7ceb202443d3cfd393cf914bb23c6deac2a0a6fa879ec95280f2b4231",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 7
+      },
+      {
+        "index": 14757,
+        "type": "FunctionDeclaration",
+        "range": [
+          10770961,
+          10771076
+        ],
+        "nodes": 23,
+        "strictSha256": "37060d5c6b619284915c1ce6f42b7cd529ed5718b062d406adff0b240623ffe8",
+        "shapeSha256": "86bfa40ca78c9d5149faebe4f1db127aa8a6d4ffcd75bbdcdfe5f2e858a6aa91",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 14758,
+        "type": "FunctionDeclaration",
+        "range": [
+          10771076,
+          10771145
+        ],
+        "nodes": 22,
+        "strictSha256": "e8d72bc7936606a11f1f40b1363db680855d1531d84e54c3e030985286d21232",
+        "shapeSha256": "e7b534e45edcb55660d99221e61f7d48c819fd828b0d60e1b66d54be781bc4a8",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 14759,
+        "type": "FunctionDeclaration",
+        "range": [
+          10771145,
+          10771397
+        ],
+        "nodes": 62,
+        "strictSha256": "5d67e5ebc4f47439f45b8c09ed6479d597fe270ad932bd1a52d12b4f39bc1542",
+        "shapeSha256": "e116bad139c45fb6f12fde1c00106be3d5280f12d4e49ec6c26f235f0e1ed354",
+        "identifierNamesErased": 18,
+        "protectedIdentifierOccurrences": 7
+      },
+      {
+        "index": 14760,
+        "type": "FunctionDeclaration",
+        "range": [
+          10771397,
+          10771508
+        ],
+        "nodes": 30,
+        "strictSha256": "26630bc770a4c350eed7f3bcbb506dd5de7f3e79df4b87c01680be11f122c2b0",
+        "shapeSha256": "2d74ef3c29e5ddc486df1ff8fff9cf8fa4407d6fc06c70f33781b87c7f9390f8",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 3
+      },
+      {
+        "index": 14761,
+        "type": "FunctionDeclaration",
+        "range": [
+          10771508,
+          10771718
+        ],
+        "nodes": 56,
+        "strictSha256": "142781f7b0aa654e0d1dc200d078024ed834e35ace3e2d25001eea64c92cc140",
+        "shapeSha256": "ca1c86f93f0307f312fa4897f1148f97e986e8f5f352551abb14bdde6baa12b1",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 5
+      },
+      {
+        "index": 14762,
+        "type": "FunctionDeclaration",
+        "range": [
+          10771718,
+          10771790
+        ],
+        "nodes": 22,
+        "strictSha256": "af25397e1b689c4e4d20f1f092e8ada6ca48a4c804a38b67d03adae3f577f3ca",
+        "shapeSha256": "1b555a0709cef485b6a202a9b2a6b9682ac3fd62fe9514bf645cb63c61a31d9b",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 14763,
+        "type": "FunctionDeclaration",
+        "range": [
+          10771790,
+          10772079
+        ],
+        "nodes": 83,
+        "strictSha256": "7bffb488ec651e1196148bf659f453e05b38468a93a1a39f327e6fb6c64b373d",
+        "shapeSha256": "a69a746574fc01f97e52bb029711127fa4da5f08f169ed4ec4c6712c02ad312c",
+        "identifierNamesErased": 39,
+        "protectedIdentifierOccurrences": 2
+      },
+      {
+        "index": 14764,
+        "type": "FunctionDeclaration",
+        "range": [
+          10772079,
+          10772524
+        ],
+        "nodes": 143,
+        "strictSha256": "c0b7f68509d0684c0c6d790b736e9a1363d87a24051fb605667986e73796465d",
+        "shapeSha256": "382ca65371d7665db5ddfa5a75ada9ffae2893221b8dbf17c2a2ecd3f5159702",
+        "identifierNamesErased": 42,
+        "protectedIdentifierOccurrences": 16
+      },
+      {
+        "index": 14765,
+        "type": "FunctionDeclaration",
+        "range": [
+          10772524,
+          10772684
+        ],
+        "nodes": 38,
+        "strictSha256": "92464063e56e3b95fe918ad196d67151dc8a065de72b68cfd5520dc22f73ff7a",
+        "shapeSha256": "efe13837a147f07c16665ed79086da5d1048293273f3f85c969fd9cc0c7054e4",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 1
+      },
+      {
+        "index": 14766,
+        "type": "FunctionDeclaration",
+        "range": [
+          10772684,
+          10772823
+        ],
+        "nodes": 42,
+        "strictSha256": "8bf56c71db903764cb047e8d6179cddd60329c61caa63f2158dab8a1a24d7e14",
+        "shapeSha256": "6f5819a6c275169a026512fee961f8906dd38aff24a421df6192e55cc59adf44",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 4
+      },
+      {
+        "index": 14767,
+        "type": "VariableDeclaration",
+        "range": [
+          10772823,
+          10772876
+        ],
+        "nodes": 28,
+        "strictSha256": "25de1b05470fb85d711f4cc918b4902c599ead2691db05110bedd78f3e81ec92",
+        "shapeSha256": "beb18e4255d46927893cef2b7a1b937147e3844b1a64c547708bc97011351ef6",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      }
+    ]
+  },
+  "sourcePostimage": {
+    "path": "src/components/agents/agentFileUtils.ts",
+    "bytes": 8172,
+    "sha256": "b9840efafb783a4ed7d30ce3e2fd4e7a7eded4028acf45e6821014ecf4d2f0ba"
+  },
+  "tools": {
+    "syntacticPropertyReads": 1,
+    "cachedReadReferences": 4,
+    "readInsideInBranch": true,
+    "joinReceiverResolvesCachedValue": true,
+    "paths": {
+      "absent": 0,
+      "undefined": 1,
+      "lengthNotOne": 1,
+      "wildcard": 1,
+      "singleNonWildcard": 1
+    },
+    "countsConditionalOnEarlierOperationsReturningNormally": true,
+    "cacheValueFrozen": false
+  },
+  "path": {
+    "filenameFirstAfterGuards": true,
+    "baseDirReadsOnTruthyPath": 2,
+    "directoryLookupOnlyAfterFalsyBaseDir": true,
+    "nativeJoinBindingsExact": true
+  },
+  "lifecycle": {
+    "nativeImportSource": "fs/promises",
+    "pathHelperReferences": 2,
+    "writerReferences": 2,
+    "awaitedNativeMethods": [
+      "writeFile",
+      "datasync",
+      "close"
+    ],
+    "finallyClose": true
+  },
+  "yamlSharedCallEdge": {
+    "sharedActualBinding": "aK4",
+    "actualDeclaration": {
+      "index": 5924,
+      "type": "FunctionDeclaration",
+      "range": [
+        4299751,
+        4299851
+      ],
+      "nodes": 29,
+      "strictSha256": "fc0e9aeae403a39cccba2be6d646d7b010a6260c5eb88725a321b489cc96f12d",
+      "shapeSha256": "4042e6613d9adc3fdcca5a747d6fe8a7ce219b87d3bf3449f8f242b3a49964f4",
+      "identifierNamesErased": 7,
+      "protectedIdentifierOccurrences": 3
+    },
+    "fullYamlApprovalOwnedBySeparateReviewer": true
+  },
+  "selectedCaller": {
+    "sourceOwner": "src/components/agents/AgentEditor.tsx",
+    "actualRow": {
+      "index": 14794,
+      "type": "FunctionDeclaration",
+      "range": [
+        10786143,
+        10788517
+      ],
+      "nodes": 720,
+      "strictSha256": "5da4f534381a72da78d5ccb2b121e9fe6d95bba67befc54c482133d0063e3d1a",
+      "shapeSha256": "e6b132fb4ab7ba65fff5d746d05012d68893c11f7b5f9d0aea0064281e8c0ff9",
+      "identifierNamesErased": 201,
+      "protectedIdentifierOccurrences": 101
+    },
+    "pathAndUpdateBindingsResolved": true,
+    "updateArgumentProperties": [
+      "tools",
+      "color",
+      "model"
+    ],
+    "fullPriorCurrentComponentFieldsAndGraphUnchanged": true,
+    "targetNodes": 728,
+    "currentNodes": 720,
+    "fullTargetComponentAccepted": false
+  },
+  "parserInputs": {
+    "targetRow": {
+      "index": 6650,
+      "type": "FunctionDeclaration",
+      "range": [
+        4935148,
+        4937780
+      ],
+      "nodes": 803,
+      "strictSha256": "0d17bf2b4431ce83e2ec85d9b98ba5b29ed09a33645bed43f1cc517079091ed7",
+      "shapeSha256": "8581ca2a7ac567af8d8b68143ea1ae776241eede4ee1d1275e00f9bb51c522f6",
+      "identifierNamesErased": 236,
+      "protectedIdentifierOccurrences": 68
+    },
+    "currentRow": {
+      "index": 6650,
+      "type": "FunctionDeclaration",
+      "range": [
+        4935292,
+        4937803
+      ],
+      "nodes": 762,
+      "strictSha256": "e53f5216b3af6d1e5a18152ecdba3956282d406f60b1a681c2068c16bb6459f7",
+      "shapeSha256": "6980fe6afc1adea116305bfb644b1d94b3d994fa7f182097f91dbd8b672bce79",
+      "identifierNamesErased": 223,
+      "protectedIdentifierOccurrences": 61
+    },
+    "baseDirParameter": 1,
+    "agentTypeDestructuredFromParameter": 2,
+    "filenameFromParameter": 0,
+    "fullTargetParserAccepted": false
+  },
+  "historicalStatus": {
+    "sourceTrialApproved": true,
+    "rawTinyInitializerComparisonAccepted": false,
+    "diagnosticOmissionOfInitializerCallsAccepted": false,
+    "actualProduction28NodeInitializerNowVerified": true,
+    "historicalFixtureMetadataRewritten": false
+  },
+  "qualifications": [
+    "This verifies the selected emitted owner and its concrete native/local/direct-provider graph. Whole-program strict AST equality remains false at 3,097,309 nodes and the pinned digest.",
+    "The tools cache intentionally changes observable getter/proxy read counts. Counts assume earlier operations return normally; cached values and their length/index/join members remain mutable.",
+    "The path helper intentionally evaluates filename || agentType before fallback directory lookup, reads a truthy baseDir twice and bypasses fallback-provider errors on that branch. Native path/filesystem operations are interfaces; no such function executed.",
+    "The real production initializer now matches all seven ordered provider calls and the memoizing wrapper. The prior tiny initializer failures remain historical false results and were not normalized or relabeled.",
+    "The YAML call in updateAgentFile resolves to the included actual 29-node shared declaration. Complete YAML fallback/export/addition review belongs to the separate yaml_stringify actual reviewer.",
+    "parseAgentFromMarkdown remains 803/762 nodes and AgentEditor remains 728/720. Their selected input/caller edges are grounded, but neither complete target body is accepted or changed by V28.",
+    "The complete prior/current AgentEditor body is unchanged; its actual path/update references resolve the repaired functions with the same agent parameter and conditional plain data-property spreads. This is not a global caller/alias census.",
+    "All transitive supplier behavior, ambient Error/Bun/native methods, prototype mutation, reflection, runtime environment and global retention/absence remain outside this bounded static review.",
+    "The initial groundwork join locator wrongly required one call although target has two native joins; it was corrected to verify both target joins and the one prior join. The failed attempt is preserved; no comparison or source rule was weakened."
+  ],
+  "evidence": [
+    {
+      "path": "historical-checkpoints/v28-agent-file-emission-review/actual-input-pins.json",
+      "bytes": 1318,
+      "sha256": "fde1fac339da5a8e1796b0b554cf87800f8509e0a05c7a3c5b8cedb142c6c1aa"
+    },
+    {
+      "path": "historical-checkpoints/v28-agent-file-emission-review/actual-checks.json",
+      "bytes": 60293,
+      "sha256": "b6af986d083fbd3084d5e9b8ce4379c1945126d593d460697b78806b869a24cf"
+    },
+    {
+      "path": "historical-checkpoints/v28-agent-file-emission-review/actual-witnesses.json",
+      "bytes": 75544,
+      "sha256": "82cfd9df52d41665b3372b8d440beabb9f81b28d9520c06931c1b24076fbc5c5"
+    },
+    {
+      "path": "historical-checkpoints/v28-agent-file-emission-review/provider-groundwork.json",
+      "bytes": 34722,
+      "sha256": "69803c65d5ff74393c3dbc988996fd7b9e258c6b622f885f20493c47bb0e1e73"
+    },
+    {
+      "path": "historical-checkpoints/v28-agent-file-emission-review/groundwork.json",
+      "bytes": 60115,
+      "sha256": "1e42a472aa1627f887c0cc75bfa18664d7922c9feed3f1acd92ddccdcc45adaf"
+    },
+    {
+      "path": "historical-checkpoints/v28-agent-file-emission-review/final-authentication.json",
+      "bytes": 506,
+      "sha256": "cc187b8e9659ff5e897cc64369b72b57b9a40fcaa7dbfe73d25dba5f8909ab29"
+    }
+  ],
+  "mandatoryRemainingGlobalCondition": "Exact final whole-program strict AST equality remains required."
+}

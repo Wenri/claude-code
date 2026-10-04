@@ -1,0 +1,440 @@
+{
+  "kind": "independent-actual-v18-hooks-import-order-review",
+  "verdict": "mixed-hooks-order-and-generator-verified-inherited-storage-provider-graph-unaccepted",
+  "hooksTargetInitializerOrderSatisfied": true,
+  "completeDirectHooksInitializerUnderGroundedRolesVerified": true,
+  "executeHooksGeneratorBodyVerified": true,
+  "jointHooksToolResultProviderGraphAccepted": false,
+  "profileSha256": "36fdd053b12bff348c64b18f20b840cf409f29f01a3ccbed64a5aa15f7c6c046",
+  "toolchainSha256": "47b086e7ef6f4495d7545725d42a3398a80baaa009fe4741d959eb71c0a7c316",
+  "compileReportSha256": "38d912dfe0b53b2501a7b9f288246295131cd880508bb3ceecb3acd70def4517",
+  "finalJSSha256": "30db208393893554d9f88369d7896509e0f9370f03ca6da74d790c148a1485d7",
+  "finalJSBytes": 13075917,
+  "candidateIndexSha256": "7d9e82ed32c047a976c4beb3d30e9535b044aea37e22562167d54bdc8ee63d68",
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098265,
+    "sha256": "e6ea91db08b38f433173a75f57ad9cfc0930e5c4a5a78fe3bcd49fb45c04aea3"
+  },
+  "hooksInitializer": {
+    "target": 15788,
+    "prior": 15801,
+    "current": 15801,
+    "targetName": "C$",
+    "priorName": "R$",
+    "currentName": "h$",
+    "targetPrefix": [
+      "CK",
+      "ea1",
+      "SL6",
+      "p7",
+      "la1",
+      "HL6",
+      "rw6",
+      "VK",
+      "cB",
+      "CL6",
+      "lO8",
+      "oa1",
+      "au",
+      "vN",
+      "k8",
+      "k1",
+      "uj6",
+      "YK",
+      "n1",
+      "V8",
+      "Am",
+      "KG",
+      "V46",
+      "a_7",
+      "xZ",
+      "h3",
+      "tw6",
+      "_8",
+      "_$",
+      "Sf",
+      "h8",
+      "OC6",
+      "nB8",
+      "p2",
+      "i1",
+      "c18",
+      "KW",
+      "Nw6",
+      "nq",
+      "NFK",
+      "LFK",
+      "IFK",
+      "yo",
+      "n8",
+      "F8",
+      "L8"
+    ],
+    "priorPrefix": [
+      "bK",
+      "oa1",
+      "lL6",
+      "u7",
+      "Ua1",
+      "yL6",
+      "o26",
+      "kK",
+      "BB",
+      "nL6",
+      "nA8",
+      "la1",
+      "lu",
+      "PN",
+      "k8",
+      "T1",
+      "uj6",
+      "zK",
+      "Q1",
+      "v8",
+      "_m",
+      "S0",
+      "aZ",
+      "R46",
+      "i_7",
+      "I3",
+      "qw6",
+      "K8",
+      "tY",
+      "Lf",
+      "L8",
+      "TC6",
+      "QB8",
+      "Qw",
+      "d1",
+      "s18",
+      "eP",
+      "y26",
+      "Uq",
+      "EFK",
+      "hFK",
+      "mFK",
+      "ko",
+      "l8",
+      "B8",
+      "y8"
+    ],
+    "currentPrefix": [
+      "bK",
+      "oa1",
+      "lL6",
+      "u7",
+      "Ua1",
+      "yL6",
+      "o26",
+      "kK",
+      "BB",
+      "nL6",
+      "nA8",
+      "la1",
+      "lu",
+      "PN",
+      "k8",
+      "T1",
+      "uj6",
+      "_K",
+      "Q1",
+      "v8",
+      "_m",
+      "aZ",
+      "R46",
+      "i_7",
+      "S0",
+      "u3",
+      "qw6",
+      "K8",
+      "sY",
+      "Lf",
+      "L8",
+      "TC6",
+      "QB8",
+      "Uw",
+      "d1",
+      "s18",
+      "eP",
+      "y26",
+      "Uq",
+      "EFK",
+      "hFK",
+      "mFK",
+      "ko",
+      "l8",
+      "B8",
+      "y8"
+    ],
+    "exactFourProviderSlotsSatisfied": true,
+    "priorMatchesOnlyAfterAuthorizedDiagnosticCallMove": true,
+    "otherFortyTwoCallsKeepRelativeOrder": true
+  },
+  "executeHooks": {
+    "targetStatement": 15749,
+    "priorStatement": 15762,
+    "currentStatement": 15762,
+    "currentName": "CR",
+    "nodes": 3064,
+    "completeTargetAndPriorFieldsAndLocalGraphsMatch": true,
+    "fourCountersPreserved": true,
+    "onlyFinalEventSpreadLast": true,
+    "postYieldIncrementTimingPreserved": true
+  },
+  "fourProviderOwners": [
+    {
+      "label": "plugin schemas",
+      "sourceOwner": "src/utils/plugins/schemas.ts",
+      "targetName": "KG",
+      "priorName": "aZ",
+      "currentName": "aZ",
+      "targetIndex": 2516,
+      "priorIndex": 2517,
+      "currentIndex": 2517,
+      "completePriorFieldsAndLocalGraphMatch": true,
+      "completeTargetFieldsAndLocalGraphMatch": true,
+      "inheritedResidual": null
+    },
+    {
+      "label": "session tracing",
+      "sourceOwner": "src/utils/telemetry/sessionTracing.ts",
+      "targetName": "V46",
+      "priorName": "R46",
+      "currentName": "R46",
+      "targetIndex": 9119,
+      "priorIndex": 9127,
+      "currentIndex": 9127,
+      "completePriorFieldsAndLocalGraphMatch": true,
+      "completeTargetFieldsAndLocalGraphMatch": true,
+      "inheritedResidual": null
+    },
+    {
+      "label": "hook schemas",
+      "sourceOwner": "src/types/hooks.ts",
+      "targetName": "a_7",
+      "priorName": "i_7",
+      "currentName": "i_7",
+      "targetIndex": 15687,
+      "priorIndex": 15700,
+      "currentIndex": 15700,
+      "completePriorFieldsAndLocalGraphMatch": true,
+      "completeTargetFieldsAndLocalGraphMatch": false,
+      "inheritedResidual": "Expected values to be strictly deep-equal:\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      block: 0,\n      type: 'global',\n      variables: []\n...\n    {\n+     block: 35,\n-     block: 75,\n      type: 'function',\n      variables: []\n    },\n    {"
+    },
+    {
+      "label": "tool-result storage",
+      "sourceOwner": "src/utils/toolResultStorage.ts",
+      "targetName": "xZ",
+      "priorName": "S0",
+      "currentName": "S0",
+      "targetIndex": 8316,
+      "priorIndex": 8322,
+      "currentIndex": 8322,
+      "completePriorFieldsAndLocalGraphMatch": true,
+      "completeTargetFieldsAndLocalGraphMatch": false,
+      "inheritedResidual": "grounded forward N_6\n\n'YD6' !== '_K'\n"
+    }
+  ],
+  "toolResultStorageProviderResidual": {
+    "kind": "inherited-tool-result-storage-owner-conflict",
+    "sourceOwner": "src/utils/toolResultStorage.ts",
+    "sourceImport": "import { getProjectDir } from './sessionStorage.js'",
+    "targetDirectDependency": {
+      "name": "N_6",
+      "statement": 2178,
+      "sourceOwner": "src/utils/sessionStoragePortable.ts"
+    },
+    "currentDirectDependency": {
+      "name": "_K",
+      "statement": 15597,
+      "sourceOwner": "src/utils/sessionStorage.ts"
+    },
+    "priorDirectDependency": {
+      "name": "zK",
+      "statement": 15597,
+      "sourceOwner": "src/utils/sessionStorage.ts"
+    },
+    "actualPortableDependency": {
+      "name": "YD6",
+      "statement": 2177,
+      "sourceOwner": "src/utils/sessionStoragePortable.ts"
+    },
+    "toolResultInitializer": {
+      "target": 8316,
+      "prior": 8322,
+      "current": 8322
+    },
+    "callChain": [
+      {
+        "sourceName": "persistToolResult",
+        "target": 8288,
+        "current": 8294
+      },
+      {
+        "sourceName": "getToolResultPath",
+        "target": 8286,
+        "current": 8292
+      },
+      {
+        "sourceName": "getToolResultsDir",
+        "target": 8285,
+        "current": 8291
+      },
+      {
+        "sourceName": "getSessionDir",
+        "target": 8284,
+        "current": 8290
+      }
+    ],
+    "getProjectDir": {
+      "targetName": "wL7",
+      "targetStatement": 2166,
+      "targetForm": "ordinary FunctionDeclaration",
+      "currentName": "zw",
+      "currentDeclaration": 15596,
+      "currentAssignmentOwner": 15597,
+      "currentForm": "memoized arrow assigned in sessionStorage initializer",
+      "ordinaryAndMemoizedIdentityEquated": false
+    },
+    "sourceEvidence": [
+      {
+        "owner": "src/utils/toolResultStorage.ts",
+        "sourceSha256": "db2bf39064319eefccebf49cf5c4521b42a13bc63caf2c57b21113f6204e6bcd",
+        "range": [
+          934,
+          986
+        ],
+        "text": "import { getProjectDir } from './sessionStorage.js'\n",
+        "sha256": "991b99d740812bdfbc6df16f3d08808b8bfbd1e1637cabd90463705867e242a3"
+      },
+      {
+        "owner": "src/utils/toolResultStorage.ts",
+        "sourceSha256": "db2bf39064319eefccebf49cf5c4521b42a13bc63caf2c57b21113f6204e6bcd",
+        "range": [
+          3564,
+          3663
+        ],
+        "text": "function getSessionDir(): string {\n  return join(getProjectDir(getOriginalCwd()), getSessionId())\n}",
+        "sha256": "03641d9034b38afb9211b081aac8d4ea2f65f7e8cf7838ca4c706a23723d5fcd"
+      },
+      {
+        "owner": "src/utils/sessionStoragePortable.ts",
+        "sourceSha256": "c9470c555fe9e621d4c47cea89261393b124ab54246353968be88d272f57945f",
+        "range": [
+          10572,
+          10691
+        ],
+        "text": "export function getProjectDir(projectDir: string): string {\n  return join(getProjectsDir(), sanitizePath(projectDir))\n}",
+        "sha256": "ea54cae3d4e4845889cf6e1c70a3d8a4aa42d45a2b6ccb902ff83ec9daf29871"
+      },
+      {
+        "owner": "src/utils/sessionStorage.ts",
+        "sourceSha256": "4301cd0af78d37a41441a65d404738941eb706f2cc7cc8c1cedd8675f9d4813c",
+        "range": [
+          15624,
+          15755
+        ],
+        "text": "export const getProjectDir = memoize((projectDir: string): string => {\n  return join(getProjectsDir(), sanitizePath(projectDir))\n})",
+        "sha256": "c0d21c99682dcb2e6db40ff0812be873df65afde72717cbd393adde2a8731a80"
+      },
+      {
+        "owner": "src/utils/sessionStoragePortable.ts",
+        "sourceSha256": "c9470c555fe9e621d4c47cea89261393b124ab54246353968be88d272f57945f",
+        "range": [
+          17804,
+          17875
+        ],
+        "text": "const ATTR_SNAP_PREFIX = Buffer.from('{\"type\":\"attribution-snapshot\"')\n",
+        "sha256": "05630e5a4acda2752441932035ca2e04365dbcb9351852012e7de1c2942f98e9"
+      },
+      {
+        "owner": "src/utils/sessionStoragePortable.ts",
+        "sourceSha256": "c9470c555fe9e621d4c47cea89261393b124ab54246353968be88d272f57945f",
+        "range": [
+          861,
+          948
+        ],
+        "text": "const uuidRegex =\n  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i\n\n",
+        "sha256": "3cd64d6d8997013c8872738713e26bc36cfab5b4807e988b35325183df4baee0"
+      }
+    ],
+    "priorToCurrentStorageInitializerFieldsAndLocalGraphMatch": true,
+    "priorToCurrentSessionStorageInitializerFieldsAndLocalGraphMatch": true,
+    "portableInitializerFieldsAndLocalGraphMatch": true,
+    "newlyIntroducedByHooksImportMove": false,
+    "jointHooksToolResultProviderGraphAccepted": false,
+    "possibleSeparateSourceLead": "Review changing only toolResultStorage.ts getProjectDir import to ./sessionStoragePortable.js; requires a separate source proposal and actual emitted checks.",
+    "sourceChangeApproved": false,
+    "applicationExecuted": false,
+    "fullProgramParsed": false
+  },
+  "inheritedHookSchemaResidual": {
+    "sourceOwner": "src/types/hooks.ts",
+    "targetStatement": 15687,
+    "priorStatement": 15700,
+    "currentStatement": 15700,
+    "accepted": false,
+    "priorCurrentCompleteFieldsAndLocalGraphMatch": true
+  },
+  "otherProviderBoundary": {
+    "priorDefinitionsCompared": 46,
+    "completePriorCurrentDefinitionMatches": 45,
+    "changedProviderPosition": 40,
+    "sourceOwner": "src/utils/hooks/execAgentHook.ts",
+    "qualification": "Separately approved source changes the resolver initializer. Its actual body/resolver review is separately owned; this receipt grants no acceptance of it."
+  },
+  "historicalV17Review": {
+    "path": "historical-checkpoints/v17-api-hooks-emission-review/review.json",
+    "sha256": "5ddb706efeb062cb14f6967567dba13ed8af408d5de0ad3010caf80fc19276ee",
+    "closureSha256": "7991faa0a5569e0fe1dc598e372ccb90c526fbfda28cbc438ad2fbf5671213f1",
+    "hooksTargetInitializerOrderSatisfied": false,
+    "unchanged": true
+  },
+  "verification": {
+    "completeIndexedStatements": 131,
+    "maximumStatementBytes": 23500,
+    "allRangesAndTextHashesReextracted": true,
+    "currentFinalBytes": 13075917,
+    "indexStrictAst": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3098265,
+      "sha256": "e6ea91db08b38f433173a75f57ad9cfc0930e5c4a5a78fe3bcd49fb45c04aea3"
+    },
+    "regressionGroups": 10,
+    "negativeControls": 15,
+    "completeStorageAndHookProviderFunctions": 7,
+    "all6083InputIdentitiesMatchBeforeAfter": true,
+    "rawDeletionReplayExact": true,
+    "resolverEvents": 33,
+    "resolverEventHistogram": {
+      "private-marker-external": 11,
+      "sdk-declaration-facade": 8,
+      "sdk-facade-load": 3,
+      "source-import-literal-overlay": 11
+    },
+    "markerImportsRemoved": 11,
+    "overlaysRestored": 11,
+    "mapsHashedWithoutParsing": true,
+    "reviewerStrictFullASTRun": false
+  },
+  "qualifications": [
+    "The four ordered immediate module identities are grounded through complete definitions, prior/source export and import anchors, literal assignments, and the real persistence caller chain. A positional free-name map alone was not accepted.",
+    "Complete direct hooks initializer fields/local graph pass under distinct provider roles; this does not make its transitive provider graph correct. The two target session-storage owners are not collapsed into one current initializer.",
+    "The storage initializer originally admits the same shallow geometry under free identifiers, but the joint named-owner check rejects its portable/full-session alias. That inherited boundary was exposed by this review and is now explicit rather than accepted as transitive equivalence.",
+    "Hook schema declaration ordering remains an inherited mismatch. The separately changed execAgentHook dependency is reserved for its own actual review.",
+    "The prior initializer was reordered only in an isolated diagnostic AST to check the exact source-authorized move. Emitted code and final strict AST were never normalized or changed.",
+    "Both current and historical receipts remain immutable. A later source proposal may address the storage import; this review approves no new source edit or deletion.",
+    "No application, hook/generator, callback, filesystem resolver or API request was executed; no full emitted Program AST or compiler job ran here.",
+    "No original authorship, source-map ownership, complete observed read footprint or OS read isolation is claimed. Strict whole target remains unequal; binding-aware alpha equivalence and proven independent ordering are separate allowed criteria."
+  ],
+  "applicationExecuted": false,
+  "compilerInvoked": false,
+  "fullProgramParsed": false,
+  "sourceStageModified": false,
+  "wholeTargetAcceptance": false
+}

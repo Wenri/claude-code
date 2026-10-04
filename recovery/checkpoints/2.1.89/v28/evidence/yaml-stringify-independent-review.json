@@ -1,0 +1,168 @@
+{
+  "kind": "independent-yaml-stringify-source-review",
+  "verdict": "approved-for-target-directed-source-trial",
+  "sourceTrialApproved": true,
+  "actualEmissionVerified": false,
+  "wholeTargetAcceptance": false,
+  "applicationExecuted": false,
+  "author": {
+    "path": "historical-checkpoints/yaml-stringify-source-proposal",
+    "pins": {
+      "source-repair.json": "285fb99b6c9628b5e59c5e5aceb95ca757067a1d32c5c7c2edd317e7f7b7a982",
+      "artifact-manifest.json": "ecf4b0054afd7f3a57104b8a5433bc7e2f9d3d2ab97e426685f7fd32105e1d4c",
+      "code-provenance.json": "bf4802e626c8d19b77273aa39648add9a8420e254a46d1f11976aa97159fe3f4",
+      "freeze.json": "e9c272c4a388bfe67060e57a2eb8677730adcbbc0ca172216752697c298c8d5a"
+    },
+    "allFrozenArtifactBytesUnchanged": true
+  },
+  "readOnlyEvidence": {
+    "resultSha256": "0474c80f8d209b9e16fcfc0b1eda4cfb45a5a2152faf94a24815db62e3974083",
+    "closureSha256": "f841450a0d6390735e42e5b1e79f0e215504ddc64dfd8c2f2894d6d00ae610cd"
+  },
+  "sourceFiles": [
+    {
+      "path": "src/utils/yaml.ts",
+      "oldBytes": 814,
+      "oldSha256": "053fa90f7d5891b65d1aeaa84d1ce2c07f6be7e08d5f83d645bcda821dd0f997",
+      "oldGitBlob": "8ba1681797637d12c893edc6d2ec900fefa1b70f",
+      "postimageBytes": 814,
+      "postimageSha256": "c146f394c1604dfd60bc3505efd167a60624bf870d020f9e70f59c8c3619b3fd",
+      "postimageGitBlob": "2b448a068653b7ce3405f91bccf346f276490a5c",
+      "postimagePath": "historical-checkpoints/yaml-stringify-source-proposal/postimages/src/utils/yaml.ts"
+    }
+  ],
+  "verification": {
+    "authorGroups": 11,
+    "authorNegativeControls": 16,
+    "independentGroundworkGroups": 5,
+    "independentSourceGroups": 9,
+    "independentNegativeControls": 21,
+    "completeOriginalIndexWitnesses": 48,
+    "largestIndexedFragmentBytes": 14228,
+    "compileOnlyFixtureSourceBytes": 6800,
+    "exactCompilerOutputs": 4,
+    "exactSortedRequestReceipt": true,
+    "typedOwnerReversal": true,
+    "wholeFixtureReversals": [
+      {
+        "style": "symbolic",
+        "nodes": 1026,
+        "allIdentifierSpellingsExact": true,
+        "graphSha256": "2c7eaec1e5e1020a5e1d338fab27bc84e5c74bb62fec71de8c899560c50797f8"
+      },
+      {
+        "style": "compact",
+        "nodes": 993,
+        "allIdentifierSpellingsExact": true,
+        "graphSha256": "823c4abe41e828ade20e7568a5ea1ae3ee9cf48601dac8c117229d0adb4c5946"
+      }
+    ],
+    "guardOwnerOverlap": false,
+    "evalOwnerOverlap": false,
+    "currentV26PreimageVerifiedAgainAtFreeze": true,
+    "fullApplicationParsed": false,
+    "yamlFunctionsExecuted": false,
+    "typecheckPerformed": false
+  },
+  "completeOwnerGraph": {
+    "nodes": 54,
+    "variables": 6,
+    "references": 10,
+    "sha256": "a8ff44dafa333cbda257da776d1bf898ed45e33aeed420307f61b4a53ba8a751"
+  },
+  "actualFallbackGraph": {
+    "nodes": 925,
+    "variables": 73,
+    "references": 261,
+    "sha256": "17910f34f9011987c5efcd9e67875b6321387a0afa5ae4b3768d7a0fadad0e83",
+    "directCaptureRoles": {
+      "Bun": "ambient:Bun",
+      "Array": "ambient:Array",
+      "Math": "ambient:Math",
+      "Object": "ambient:Object",
+      "p": "bundler:CJS",
+      "cR1": "source-initializer:node_modules/yaml/dist/compose/composer.js",
+      "hn6": "source-initializer:node_modules/yaml/dist/doc/Document.js",
+      "hR1": "source-initializer:node_modules/yaml/dist/schema/Schema.js",
+      "Rn6": "source-initializer:node_modules/yaml/dist/errors.js",
+      "Xn6": "source-initializer:node_modules/yaml/dist/nodes/Alias.js",
+      "QY": "source-initializer:node_modules/yaml/dist/nodes/identity.js",
+      "J76": "source-initializer:node_modules/yaml/dist/nodes/Pair.js",
+      "kX": "source-initializer:node_modules/yaml/dist/nodes/Scalar.js",
+      "X76": "source-initializer:node_modules/yaml/dist/nodes/YAMLMap.js",
+      "P76": "source-initializer:node_modules/yaml/dist/nodes/YAMLSeq.js",
+      "Cv8": "source-initializer:node_modules/yaml/dist/parse/cst.js",
+      "eR1": "source-initializer:node_modules/yaml/dist/parse/lexer.js",
+      "qS1": "source-initializer:node_modules/yaml/dist/parse/line-counter.js",
+      "KS1": "source-initializer:node_modules/yaml/dist/parse/parser.js",
+      "iK4": "source-initializer:node_modules/yaml/dist/public-api.js",
+      "Jn6": "source-initializer:node_modules/yaml/dist/visit.js",
+      "qR1": "source-initializer:node_modules/yaml/dist/log.js"
+    },
+    "transitiveEquivalenceAccepted": false
+  },
+  "fixtureFallback": {
+    "nodes": 130,
+    "entryBinding": "f",
+    "publicApiBinding": "F",
+    "stringifyBinding": "X",
+    "realReceiverRetained": true,
+    "transitiveSuppliersQualified": true,
+    "graphSha256": "3b7927c9529c15313861856ccb174740f44635df32eec7ce0af726e2dc20edcd"
+  },
+  "actualFallbackChain": [
+    {
+      "role": "target",
+      "wrapper": 5922,
+      "entry": 5920,
+      "publicApi": 5919,
+      "entryId": "zS1",
+      "apiId": "iK4",
+      "stringifyLocal": "NS_",
+      "nodes": 130
+    },
+    {
+      "role": "current",
+      "wrapper": 5924,
+      "entry": 5922,
+      "publicApi": 5921,
+      "entryId": "YS1",
+      "apiId": "sK4",
+      "stringifyLocal": "ES_",
+      "nodes": 130
+    }
+  ],
+  "callerResidual": {
+    "toolsReads": {
+      "target": 1,
+      "current": 4
+    },
+    "targetNodes": 143,
+    "currentNodes": 144,
+    "acceptedAsEquivalent": false
+  },
+  "approvedScope": [
+    "Exactly one return expression changes from a template interpolation to ordered addition of a newline. Both owners remain 814 bytes. Every other source byte, signature/type, export, guard, property read, call argument, receiver and lazy fallback stays exact.",
+    "The complete before/current and after/target two-function graphs each have 54 nodes. No runtime property, receiver, coercion form or AST field is normalized to force agreement.",
+    "Reversing the single emitted expression restores all whole-fixture AST fields and identifier spellings in both symbolic and compact variants. Declaration/reference/read/write graphs also agree.",
+    "The fallback stays a lazy member call on the actual YAML entry namespace. Its export links to the complete 130-node public-api stringify function. The joined actual API/entry/wrapper graph is 925 nodes with explicitly grounded direct source request identities."
+  ],
+  "qualifications": [
+    "Addition applies default-hint ToPrimitive for an object result; template interpolation applies string-hint ToPrimitive. This is a target-directed behavior repair, not generic equivalence. Bun remains ambient and may be absent, replaced, proxied or return non-strings. No coercion callback was executed.",
+    "The selected updateAgentFile caller passes a cloned frontmatter object, but its separate tools-property reads remain target 1 versus current 4, with 143/144 nodes. Caller equivalence is explicitly rejected and no caller source is edited.",
+    "The fixture includes the full wrapper, actual YAML entry/public-api and package metadata. Deeper YAML dependencies are external. Actual production initializer equivalence and transitive provider semantics remain pending.",
+    "Source-import and token censuses are leads followed by selected local binding checks. They do not establish global alias, dynamic import, eval or arbitrary external-consumer absence.",
+    "Actual staged source/helper/fallback/provider checks are required before claiming production success. Full target strict AST is still unequal.",
+    "The initial guessed READONLY-FREEZE filename was absent; discovered freeze.json matched the external pin before any imports. All reviewer source/compiler checks passed; author historical failures remain frozen and qualified.",
+    "No application, YAML function, generated output, filesystem-provider callback or live source was executed or edited. No profile, stage, repository, guarded-policy or compiler-feature change was made."
+  ],
+  "evidence": {
+    "groundwork-authentication.json": "e8213c6ebcca89686d6508c5370af91c1103977dbe7e6fdcd7b22bb623b77048",
+    "groundwork.json": "63ba6c0f9077a50dba4fdc5113747175ed60ff64e9da486a92493d736fc75c53",
+    "proposal-authentication.json": "cdc56b06055485e15c95bfc1f42bd5133ef37e151570865b153dc0238f2668a1",
+    "author-tests.json": "fd947dcffe89e597879e3e95eb7dbcc83e54b288695bb637b7b848a850c1e348",
+    "verify-source.json": "98658690bdcb48e7f26b7abba6b2783f79d68407a493a94691de595b08584ff3",
+    "independent-final.json": "2248a645f380921867994a5dfcfa35cf9b838d72dfa118418018197dc41be1ed",
+    "code-provenance.json": "d12ac383306eb25ea40d99431120f961aa7dbdbf263d1eeb951ddaedf6a1e506"
+  }
+}

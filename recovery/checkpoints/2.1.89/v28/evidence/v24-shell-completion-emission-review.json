@@ -1,0 +1,1585 @@
+{
+  "kind": "independent-v24-shell-completion-actual-emission-review",
+  "reportId": "shell_completion",
+  "verdict": "scoped-shell-completion-emission-verified",
+  "actualEmissionVerified": true,
+  "actualShellCompletionModuleVerified": true,
+  "actualParserAndLocalQuoteVerified": true,
+  "actualSixOrdinaryQuoteBindingsVerified": true,
+  "actualThreeProviderInitializerCallsVerified": true,
+  "actualPrivateHelperAndOperatorAllocationRemovalVerified": true,
+  "actualRetainedLegacyConsumersVerified": true,
+  "profileSha256": "103fbdb9f5f71319f2389d7b4f53e347ac6f04852cac13d2a39fb020b94aa773",
+  "toolchainSha256": "8eba1803307a7fa4d313fca7d836b668db68b7224123203e05041ede16f12634",
+  "finalJavaScript": {
+    "js": "v24-replay/final/cli.js",
+    "sha256": "7d2e0d9096eadcb64265625fdf68b6c7fa4c0b836e8d67fc42638f4c08c2d722",
+    "index": "v24-indexes/candidate.json",
+    "indexSha256": "d2adc4a5438c93504c8f99f649da83f8b667767918fc251f0a78bb4ce2524eb8"
+  },
+  "compileReportSha256": "2fa0f152d1b1c01cb4953ab93bce4a08b7e56c7e61474c7825628f14d73b0313",
+  "sourceApproval": {
+    "path": "historical-checkpoints/shell-completion-independent-review/review.json",
+    "sha256": "388a52e6a364c4245b79b58c0329cac2b95e79194f4007ced669997c7f5085db"
+  },
+  "sourceApprovalClosure": {
+    "path": "historical-checkpoints/shell-completion-independent-review/freeze.json",
+    "sha256": "b7072ec1c73d16efd8bca4974bacb367427c5292ca80243ec893d14dbac82928"
+  },
+  "sourceManifestSha256": "aaa96ea984f5917378b3138929ec8c2e67b5118b69288e0117539a6fd9bc685e",
+  "sourcePostimageSha256": "82c0d7ae1b9060935bb13d536208cf028b0af29b0a54228be166e3add73fe92a",
+  "completeModule": [
+    {
+      "target": 16660,
+      "current": 16674,
+      "targetName": "pC6",
+      "currentName": "gC6",
+      "nodes": 18
+    },
+    {
+      "target": 16661,
+      "current": 16675,
+      "targetName": "EFY",
+      "currentName": "bFY",
+      "nodes": 34
+    },
+    {
+      "target": 16662,
+      "current": 16676,
+      "targetName": "LFY",
+      "currentName": "xFY",
+      "nodes": 86
+    },
+    {
+      "target": 16663,
+      "current": 16677,
+      "targetName": "hFY",
+      "currentName": "IFY",
+      "nodes": 48
+    },
+    {
+      "target": 16664,
+      "current": 16678,
+      "targetName": "RFY",
+      "currentName": "uFY",
+      "nodes": 48
+    },
+    {
+      "target": 16665,
+      "current": 16679,
+      "targetName": "SFY",
+      "currentName": "mFY",
+      "nodes": 91
+    },
+    {
+      "target": 16666,
+      "current": 16680,
+      "targetName": "inK",
+      "currentName": "tnK",
+      "nodes": 79
+    },
+    {
+      "target": 16667,
+      "current": 16681,
+      "targetName": [
+        "z$7",
+        "yFY"
+      ],
+      "currentName": [
+        "z$7",
+        "CFY"
+      ],
+      "nodes": 7
+    },
+    {
+      "target": 16668,
+      "current": 16682,
+      "targetName": [
+        "rnK"
+      ],
+      "currentName": [
+        "enK"
+      ],
+      "nodes": 16
+    }
+  ],
+  "parser": {
+    "target": 16662,
+    "current": 16676,
+    "nodes": 86,
+    "methods": [
+      "slice",
+      "match",
+      "split",
+      "at",
+      "includes"
+    ],
+    "branchEvaluationAndPropertyOrderPreserved": true
+  },
+  "localQuote": {
+    "target": 16660,
+    "current": 16674,
+    "targetName": "pC6",
+    "currentName": "gC6",
+    "nodes": 18,
+    "ordinaryReadonlyReferences": 6,
+    "oneElementArrayArguments": true,
+    "bashCalls": 3,
+    "zshCalls": 3,
+    "receiverChanged": false,
+    "distinctFromShared48AndLegacy91": true
+  },
+  "initializer": {
+    "target": 16668,
+    "parent": 16684,
+    "current": 16682,
+    "parentNodes": 27,
+    "targetAndCurrentNodes": 16,
+    "targetCalls": [
+      "_8",
+      "p26",
+      "Ty"
+    ],
+    "currentCalls": [
+      "K8",
+      "Uw6",
+      "ky"
+    ],
+    "sourceRoles": [
+      "src/utils/debug.ts",
+      "src/utils/localInstaller.ts",
+      "src/utils/Shell.ts"
+    ],
+    "wholeOwnInitializerFieldsAndLocalGraphMatchUnderGroundedDirectRoles": true,
+    "parentRemovedCalls": [
+      {
+        "zeroBasedSlot": 0,
+        "name": "cU",
+        "sourceRole": "src/utils/bash/shellQuote.ts"
+      }
+    ],
+    "parentRemovedFinalAllocation": {
+      "name": "xFY",
+      "values": [
+        "|",
+        "||",
+        "&&",
+        ";"
+      ]
+    },
+    "remainingProviderOrderPreserved": true,
+    "transitiveProviderGraphAccepted": false
+  },
+  "directProviders": [
+    {
+      "target": 888,
+      "parent": 888,
+      "current": 888,
+      "nodes": 81,
+      "targetText": "function N(q,{level:K}={level:\"debug\"}){if(ka8[K]<ka8[gO5()])return;if(!UO5(q))return;if(Va8&&q.includes(`\n`))q=m6(q);let z=`${new Date().toISOString()} [${K.toUpperCase()}] ${q.trim()}\n`;if(NB()){ql(z);return}cO5().write(z)}",
+      "currentText": "function N(q,{level:K}={level:\"debug\"}){if(Ta8[K]<Ta8[cA5()])return;if(!nA5(q))return;if(va8&&q.includes(`\n`))q=p6(q);let z=`${new Date().toISOString()} [${K.toUpperCase()}] ${q.trim()}\n`;if(RB()){Kl(z);return}oA5().write(z)}"
+    },
+    {
+      "target": 9373,
+      "parent": 9382,
+      "current": 9382,
+      "nodes": 39,
+      "targetText": "function _E6(){let q=process.env.SHELL||\"\";if(q.includes(\"zsh\"))return\"zsh\";if(q.includes(\"bash\"))return\"bash\";if(q.includes(\"fish\"))return\"fish\";return\"unknown\"}",
+      "currentText": "function $E6(){let q=process.env.SHELL||\"\";if(q.includes(\"zsh\"))return\"zsh\";if(q.includes(\"bash\"))return\"bash\";if(q.includes(\"fish\"))return\"fish\";return\"unknown\"}"
+    },
+    {
+      "target": 10722,
+      "parent": 10743,
+      "current": 10743,
+      "nodes": 601,
+      "targetText": "async function bL6(q,K,_,z){let{timeout:Y,onProgress:$,preventCwdChanges:O,shouldUseSandbox:A,shouldAutoBackground:w,onStdout:j}=z??{},H=Y||Fiz,J=await liz[_](),M=Math.floor(Math.random()*65536).toString(16).padStart(4,\"0\"),X=Biz(process.env.CLAUDE_CODE_TMPDIR||\"/tmp\",ta1()),{commandString:P,cwdFilePath:W}=await J.buildExecCommand(q,{id:M,sandboxTmpDir:A?X:void 0,useSandbox:A??!1}),D=P,f=l$8();try{await YYK(f)}catch{let B=q7();N(`Shell CWD \"${f}\" no longer exists, recovering to \"${B}\"`);try{await YYK(B),k38(B),f=B}catch{return $YK(`Working directory \"${f}\" no longer exists. Please restart Claude from an existing directory.`)}}if(K.aborted)return sa1();let G=J.shellPath,Z=A&&_===\"powershell\",v=Z?\"/bin/sh\":G;if(A){D=await P7.wrapWithSandbox(D,v,void 0,K);try{await M8().mkdir(X,{mode:448})}catch(B){N(`Failed to create ${X} directory: ${B}`)}}let k=Z?\"/bin/sh\":G,V=Z?[\"-c\",D]:J.getSpawnArgs(D),y=await J.getEnvironmentOverrides(q),h=!!j,R=Hh(\"local_bash\"),I=new WA(R,$??null,!h);await Iiz(xL6(),{recursive:!0});let x;if(!h){let B=O88.O_NOFOLLOW??0;x=await uiz(I.path,process.platform===\"win32\"?\"w\":O88.O_WRONLY|O88.O_CREAT|O88.O_APPEND|B)}try{let B=Ciz(k,V,{env:{...vm(),SHELL:_===\"bash\"?G:void 0,GIT_EDITOR:\"true\",CLAUDECODE:\"1\",...y,...{}},cwd:f,stdio:h?[\"pipe\",\"pipe\",\"pipe\"]:[\"pipe\",x?.fd,x?.fd],detached:J.detached,windowsHide:!0}),u=Ou8(B,K,H,I,w);if(x!==void 0)try{await x.close()}catch{}if(B.stdout&&j)B.stdout.on(\"data\",(g)=>{j(typeof g===\"string\"?g:g.toString())});let C=Z1()===\"windows\"?T_6(W):W;return u.result.then(async(g)=>{if(A)P7.cleanupAfterCommand();if(g&&!O&&!g.backgroundTaskId)try{let F=biz(C,{encoding:\"utf8\"}).trim();if(Z1()===\"windows\")F=T_6(F);if(F.normalize(\"NFC\")!==f)lA(F,f),jL6(),u3K(f,F)}catch{d(\"tengu_shell_set_cwd\",{success:!1})}try{xiz(C)}catch{}}),u}catch(B){if(x!==void 0)try{await x.close()}catch{}return I.clear(),N(`Shell exec error: ${g6(B)}`),sa1(void 0,{code:126,stderr:g6(B)})}}",
+      "currentText": "async function uL6(q,K,_,z){let{timeout:Y,onProgress:$,preventCwdChanges:A,shouldUseSandbox:O,shouldAutoBackground:w,onStdout:j}=z??{},H=Y||siz,J=await _rz[_](),M=Math.floor(Math.random()*65536).toString(16).padStart(4,\"0\"),X=oiz(process.env.CLAUDE_CODE_TMPDIR||\"/tmp\",sa1()),{commandString:P,cwdFilePath:W}=await J.buildExecCommand(q,{id:M,sandboxTmpDir:O?X:void 0,useSandbox:O??!1}),D=P,f=a$8();try{await JYK(f)}catch{let B=t1();N(`Shell CWD \"${f}\" no longer exists, recovering to \"${B}\"`);try{await JYK(B),E38(B),f=B}catch{return MYK(`Working directory \"${f}\" no longer exists. Please restart Claude from an existing directory.`)}}if(K.aborted)return aa1();let G=J.shellPath,Z=O&&_===\"powershell\",T=Z?\"/bin/sh\":G;if(O){D=await P7.wrapWithSandbox(D,T,void 0,K);try{await X8().mkdir(X,{mode:448})}catch(B){N(`Failed to create ${X} directory: ${B}`)}}let v=Z?\"/bin/sh\":G,V=Z?[\"-c\",D]:J.getSpawnArgs(D),L=await J.getEnvironmentOverrides(q),S=!!j,R=JR(\"local_bash\"),I=new WO(R,$??null,!S);await liz(mL6(),{recursive:!0});let x;if(!S){let B=j88.O_NOFOLLOW??0;x=await niz(I.path,process.platform===\"win32\"?\"w\":j88.O_WRONLY|j88.O_CREAT|j88.O_APPEND|B)}try{let B=Qiz(v,V,{env:{...Tm(),SHELL:_===\"bash\"?G:void 0,GIT_EDITOR:\"true\",CLAUDECODE:\"1\",...L,...{}},cwd:f,stdio:S?[\"pipe\",\"pipe\",\"pipe\"]:[\"pipe\",x?.fd,x?.fd],detached:J.detached,windowsHide:!0}),m=wu8(B,K,H,I,w);if(x!==void 0)try{await x.close()}catch{}if(B.stdout&&j)B.stdout.on(\"data\",(g)=>{j(typeof g===\"string\"?g:g.toString())});let C=f1()===\"windows\"?N_6(W):W;return m.result.then(async(g)=>{if(O)P7.cleanupAfterCommand();if(g&&!A&&!g.backgroundTaskId)try{let F=diz(C,{encoding:\"utf8\"}).trim();if(f1()===\"windows\")F=N_6(F);if(F.normalize(\"NFC\")!==f)lO(F,f),ML6(),g3K(f,F)}catch{d(\"tengu_shell_set_cwd\",{success:!1})}try{ciz(C)}catch{}}),m}catch(B){if(x!==void 0)try{await x.close()}catch{}return I.clear(),N(`Shell exec error: ${U6(B)}`),aa1(void 0,{code:126,stderr:U6(B)})}}"
+    },
+    {
+      "target": 892,
+      "parent": 892,
+      "current": 892,
+      "nodes": 322,
+      "targetText": "var _8=E(()=>{KK();k8();i9();RH7();F8();a7();n8();ka8={verbose:0,debug:1,info:2,warn:3,error:4},gO5=$1(()=>{let q=process.env.CLAUDE_CODE_DEBUG_LOG_LEVEL?.toLowerCase().trim();if(q&&Object.hasOwn(ka8,q))return q;return\"debug\"}),lv=$1(()=>{return xM7||Q6(process.env.DEBUG)||Q6(process.env.DEBUG_SDK)||process.argv.includes(\"--debug\")||process.argv.includes(\"-d\")||NB()||process.argv.some((q)=>q.startsWith(\"--debug=\"))||uM7()!==null});FO5=$1(()=>{let q=process.argv.find((_)=>_.startsWith(\"--debug=\"));if(!q)return null;let K=q.substring(8);return LH7(K)}),NB=$1(()=>{return process.argv.includes(\"--debug-to-stderr\")||process.argv.includes(\"-d2e\")}),uM7=$1(()=>{for(let q=0;q<process.argv.length;q++){let K=process.argv[q];if(K.startsWith(\"--debug-file=\"))return K.substring(13);if(K===\"--debug-file\"&&q+1<process.argv.length)return process.argv[q+1]}return null});Ta8=Promise.resolve();BM7=$1(async()=>{try{let q=N96(),K=CM7(q),_=bM7(K,\"latest\");await BO5(_).catch(()=>{}),await pO5(q,_)}catch{}})});",
+      "currentText": "var K8=y(()=>{qK();V8();n9();bH7();B8();a7();l8();Ta8={verbose:0,debug:1,info:2,warn:3,error:4},cA5=$1(()=>{let q=process.env.CLAUDE_CODE_DEBUG_LOG_LEVEL?.toLowerCase().trim();if(q&&Object.hasOwn(Ta8,q))return q;return\"debug\"}),dT=$1(()=>{return mM7||c6(process.env.DEBUG)||c6(process.env.DEBUG_SDK)||process.argv.includes(\"--debug\")||process.argv.includes(\"-d\")||RB()||process.argv.some((q)=>q.startsWith(\"--debug=\"))||BM7()!==null});lA5=$1(()=>{let q=process.argv.find((_)=>_.startsWith(\"--debug=\"));if(!q)return null;let K=q.substring(8);return SH7(K)}),RB=$1(()=>{return process.argv.includes(\"--debug-to-stderr\")||process.argv.includes(\"-d2e\")}),BM7=$1(()=>{for(let q=0;q<process.argv.length;q++){let K=process.argv[q];if(K.startsWith(\"--debug-file=\"))return K.substring(13);if(K===\"--debug-file\"&&q+1<process.argv.length)return process.argv[q+1]}return null});Ga8=Promise.resolve();UM7=$1(async()=>{try{let q=L96(),K=IM7(q),_=uM7(K,\"latest\");await dA5(_).catch(()=>{}),await QA5(q,_)}catch{}})});"
+    },
+    {
+      "target": 9374,
+      "parent": 9383,
+      "current": 9383,
+      "nodes": 28,
+      "targetText": "var p26=E(()=>{k1();F8();L8();XK();a7();h8();n8()});",
+      "currentText": "var Uw6=y(()=>{T1();B8();E8();MK();a7();R8();l8()});"
+    },
+    {
+      "target": 10725,
+      "parent": 10746,
+      "current": 10746,
+      "nodes": 120,
+      "targetText": "var Ty=E(()=>{KK();V8();k8();cN();p7();_8();L8();a7();h8();ea1();bj();SL6();DV();m68();Vz();VK();H$();HL6();ezK();CL6();oa1();rw6();cB();diz=$1(Qiz),ciz=$1(async()=>{let q=await Ia();if(!q)throw Error(\"PowerShell is not available\");return zYK(q)}),liz={bash:async()=>(await diz()).provider,powershell:ciz}});",
+      "currentText": "var ky=y(()=>{qK();k8();V8();cN();u7();K8();E8();a7();R8();ta1();Bj();xL6();WV();g68();kz();kK();j$();XL6();AYK();IL6();ra1();t26();iB();qrz=$1(eiz),Krz=$1(async()=>{let q=await ga();if(!q)throw Error(\"PowerShell is not available\");return HYK(q)}),_rz={bash:async()=>(await qrz()).provider,powershell:Krz}});"
+    }
+  ],
+  "jointExternalInterfaces": {
+    "ka8": "Ta8",
+    "gO5": "cA5",
+    "UO5": "nA5",
+    "m6": "p6",
+    "Va8": "va8",
+    "Date": "Date",
+    "ql": "Kl",
+    "NB": "RB",
+    "cO5": "oA5",
+    "process": "process",
+    "Fiz": "siz",
+    "liz": "_rz",
+    "Math": "Math",
+    "ta1": "sa1",
+    "Biz": "oiz",
+    "l$8": "a$8",
+    "YYK": "JYK",
+    "q7": "t1",
+    "k38": "E38",
+    "$YK": "MYK",
+    "sa1": "aa1",
+    "P7": "P7",
+    "M8": "X8",
+    "Hh": "JR",
+    "WA": "WO",
+    "xL6": "mL6",
+    "Iiz": "liz",
+    "O88": "j88",
+    "uiz": "niz",
+    "vm": "Tm",
+    "Ciz": "Qiz",
+    "Ou8": "wu8",
+    "T_6": "N_6",
+    "Z1": "f1",
+    "biz": "diz",
+    "lA": "lO",
+    "jL6": "ML6",
+    "u3K": "g3K",
+    "d": "d",
+    "xiz": "ciz",
+    "g6": "U6",
+    "KK": "qK",
+    "k8": "V8",
+    "i9": "n9",
+    "RH7": "bH7",
+    "F8": "B8",
+    "a7": "a7",
+    "n8": "l8",
+    "Object": "Object",
+    "$1": "$1",
+    "lv": "dT",
+    "xM7": "mM7",
+    "Q6": "c6",
+    "uM7": "BM7",
+    "FO5": "lA5",
+    "LH7": "SH7",
+    "Ta8": "Ga8",
+    "Promise": "Promise",
+    "BM7": "UM7",
+    "N96": "L96",
+    "CM7": "IM7",
+    "bM7": "uM7",
+    "BO5": "dA5",
+    "pO5": "QA5",
+    "k1": "T1",
+    "L8": "E8",
+    "XK": "MK",
+    "h8": "R8",
+    "V8": "k8",
+    "cN": "cN",
+    "p7": "u7",
+    "ea1": "ta1",
+    "bj": "Bj",
+    "SL6": "xL6",
+    "DV": "WV",
+    "m68": "g68",
+    "Vz": "kz",
+    "VK": "kK",
+    "H$": "j$",
+    "HL6": "XL6",
+    "ezK": "AYK",
+    "CL6": "IL6",
+    "oa1": "ra1",
+    "rw6": "t26",
+    "cB": "iB",
+    "diz": "qrz",
+    "Qiz": "eiz",
+    "ciz": "Krz",
+    "Ia": "ga",
+    "Error": "Error",
+    "zYK": "HYK"
+  },
+  "realSourceProviderInterfaces": [
+    {
+      "owner": "src/utils/debug.ts",
+      "sha256": "8d6734724d4e8467a50781d3af9d4341d54a8ffc64bf71a2726976714123b01e",
+      "bytes": 8000,
+      "exportName": "logForDebugging",
+      "exportKind": "value",
+      "range": [
+        6218,
+        6896
+      ],
+      "declarationSha256": "65d9fe7a0e6984c9aae1c515b8b6e1e6f9db4ebdc40e716922a34f006bcba2e8",
+      "imports": [
+        {
+          "source": "fs/promises",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "appendFile",
+              "imported": "appendFile",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "mkdir",
+              "imported": "mkdir",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "symlink",
+              "imported": "symlink",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "unlink",
+              "imported": "unlink",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "lodash-es/memoize.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportDefaultSpecifier",
+              "local": "memoize"
+            }
+          ]
+        },
+        {
+          "source": "path",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "dirname",
+              "imported": "dirname",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "join",
+              "imported": "join",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "src/bootstrap/state.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getSessionId",
+              "imported": "getSessionId",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./bufferedWriter.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "BufferedWriter",
+              "imported": "BufferedWriter",
+              "importKind": "type"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "createBufferedWriter",
+              "imported": "createBufferedWriter",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./cleanupRegistry.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "registerCleanup",
+              "imported": "registerCleanup",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./debugFilter.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "DebugFilter",
+              "imported": "DebugFilter",
+              "importKind": "type"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "parseDebugFilter",
+              "imported": "parseDebugFilter",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "shouldShowDebugMessage",
+              "imported": "shouldShowDebugMessage",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./envUtils.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getClaudeConfigHomeDir",
+              "imported": "getClaudeConfigHomeDir",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "isEnvTruthy",
+              "imported": "isEnvTruthy",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./fsOperations.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getFsImplementation",
+              "imported": "getFsImplementation",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./process.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "writeToStderr",
+              "imported": "writeToStderr",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./slowOperations.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "jsonStringify",
+              "imported": "jsonStringify",
+              "importKind": "value"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "owner": "src/utils/localInstaller.ts",
+      "sha256": "0bbd3c9ab2d1c6e97fa1f4b4fe9230a8b17a2d69650b36048420686d95d28891",
+      "bytes": 4810,
+      "exportName": "getShellType",
+      "exportKind": "value",
+      "range": [
+        4560,
+        4807
+      ],
+      "declarationSha256": "a2db8f480ed2e95081c03ce46188d6d652752decbf4918946b1f25c889496b33",
+      "imports": [
+        {
+          "source": "fs/promises",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "access",
+              "imported": "access",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "chmod",
+              "imported": "chmod",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "writeFile",
+              "imported": "writeFile",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "path",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "join",
+              "imported": "join",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./config.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "ReleaseChannel",
+              "imported": "ReleaseChannel",
+              "importKind": "type"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "saveGlobalConfig",
+              "imported": "saveGlobalConfig",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./envUtils.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getClaudeConfigHomeDir",
+              "imported": "getClaudeConfigHomeDir",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./errors.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getErrnoCode",
+              "imported": "getErrnoCode",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./execFileNoThrow.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "execFileNoThrowWithCwd",
+              "imported": "execFileNoThrowWithCwd",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./fsOperations.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getFsImplementation",
+              "imported": "getFsImplementation",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./log.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "logError",
+              "imported": "logError",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./slowOperations.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "jsonStringify",
+              "imported": "jsonStringify",
+              "importKind": "value"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "owner": "src/utils/Shell.ts",
+      "sha256": "ff0375ff87ce31ca0478b1d46048ded218330625b17035729781a17afc2c73d6",
+      "bytes": 16929,
+      "exportName": "exec",
+      "exportKind": "value",
+      "range": [
+        6286,
+        16013
+      ],
+      "declarationSha256": "a189dd73b0d1ca1a3f7e7146087d5f689b7f30e02ad3f6989bfe3488b3f6d4db",
+      "imports": [
+        {
+          "source": "child_process",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "execFileSync",
+              "imported": "execFileSync",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "spawn",
+              "imported": "spawn",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "fs",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "fsConstants",
+              "imported": "constants",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "readFileSync",
+              "imported": "readFileSync",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "unlinkSync",
+              "imported": "unlinkSync",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "fs/promises",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "FileHandle",
+              "imported": "FileHandle",
+              "importKind": "type"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "mkdir",
+              "imported": "mkdir",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "open",
+              "imported": "open",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "realpath",
+              "imported": "realpath",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "lodash-es/memoize.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportDefaultSpecifier",
+              "local": "memoize"
+            }
+          ]
+        },
+        {
+          "source": "path",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "isAbsolute",
+              "imported": "isAbsolute",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "resolve",
+              "imported": "resolve",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "path/posix",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "posixJoin",
+              "imported": "join",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "src/services/analytics/index.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "logEvent",
+              "imported": "logEvent",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "../bootstrap/state.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getOriginalCwd",
+              "imported": "getOriginalCwd",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "getSessionId",
+              "imported": "getSessionId",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "setCwdState",
+              "imported": "setCwdState",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "../Task.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "generateTaskId",
+              "imported": "generateTaskId",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./cwd.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "pwd",
+              "imported": "pwd",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./debug.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "logForDebugging",
+              "imported": "logForDebugging",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./errors.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "errorMessage",
+              "imported": "errorMessage",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "isENOENT",
+              "imported": "isENOENT",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./fsOperations.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getFsImplementation",
+              "imported": "getFsImplementation",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./log.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "logError",
+              "imported": "logError",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./ShellCommand.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "createAbortedCommand",
+              "imported": "createAbortedCommand",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "createFailedCommand",
+              "imported": "createFailedCommand",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "ShellCommand",
+              "imported": "ShellCommand",
+              "importKind": "type"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "wrapSpawn",
+              "imported": "wrapSpawn",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./task/diskOutput.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getTaskOutputDir",
+              "imported": "getTaskOutputDir",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./task/TaskOutput.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "TaskOutput",
+              "imported": "TaskOutput",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./which.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "which",
+              "imported": "which",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "fs",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "accessSync",
+              "imported": "accessSync",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./hooks/fileChangedWatcher.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "onCwdChangedForHooks",
+              "imported": "onCwdChangedForHooks",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./permissions/filesystem.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getClaudeTempDirName",
+              "imported": "getClaudeTempDirName",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./platform.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getPlatform",
+              "imported": "getPlatform",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./sandbox/sandbox-adapter.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "SandboxManager",
+              "imported": "SandboxManager",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./sessionEnvironment.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "invalidateSessionEnvCache",
+              "imported": "invalidateSessionEnvCache",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./shell/bashProvider.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "createBashShellProvider",
+              "imported": "createBashShellProvider",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./shell/powershellDetection.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getCachedPowerShellPath",
+              "imported": "getCachedPowerShellPath",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./shell/powershellProvider.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "createPowerShellProvider",
+              "imported": "createPowerShellProvider",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./shell/shellProvider.js",
+          "importKind": "type",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "ShellProvider",
+              "imported": "ShellProvider",
+              "importKind": "value"
+            },
+            {
+              "type": "ImportSpecifier",
+              "local": "ShellType",
+              "imported": "ShellType",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./subprocessEnv.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "subprocessEnv",
+              "imported": "subprocessEnv",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "./windowsPaths.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "posixPathToWindowsPath",
+              "imported": "posixPathToWindowsPath",
+              "importKind": "value"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "owner": "src/utils/bash/shellCompletion.ts",
+      "sha256": "82c0d7ae1b9060935bb13d536208cf028b0af29b0a54228be166e3add73fe92a",
+      "bytes": 5534,
+      "exportName": "getShellCompletions",
+      "exportKind": "value",
+      "range": [
+        4558,
+        5533
+      ],
+      "declarationSha256": "7381d38ea2dc1cc34b777bdd5aaecad34e724def95196bb27338325712cbde31",
+      "imports": [
+        {
+          "source": "src/components/PromptInput/PromptInputFooterSuggestions.js",
+          "importKind": "type",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "SuggestionItem",
+              "imported": "SuggestionItem",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "../debug.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "logForDebugging",
+              "imported": "logForDebugging",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "../localInstaller.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportSpecifier",
+              "local": "getShellType",
+              "imported": "getShellType",
+              "importKind": "value"
+            }
+          ]
+        },
+        {
+          "source": "../Shell.js",
+          "importKind": "value",
+          "specifiers": [
+            {
+              "type": "ImportNamespaceSpecifier",
+              "local": "Shell"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "publicCaller": {
+    "target": 16755,
+    "current": 16769,
+    "nodes": 37,
+    "currentName": "pUY",
+    "publicFunction": "tnK",
+    "actualPublicBindingReads": 1,
+    "sourceOwner": {
+      "path": "src/hooks/useTypeahead.tsx",
+      "sha256": "446203d75aa5ffb62999d47837fcd56b9a777b78aa4c61daf79f9123cd6fd9f6",
+      "bytes": 212610,
+      "importRange": [
+        1584,
+        1681
+      ],
+      "importSha256": "b503cc879f0af5bf4ff90092bf0d938631977ea8f125332651d4d0ea887349a9"
+    },
+    "completeCallerJointFieldsAndLocalGraphEqual": true,
+    "transitiveExternalInterfaces": {
+      "ka8": "Ta8",
+      "gO5": "cA5",
+      "UO5": "nA5",
+      "m6": "p6",
+      "Va8": "va8",
+      "Date": "Date",
+      "ql": "Kl",
+      "NB": "RB",
+      "cO5": "oA5",
+      "process": "process",
+      "Fiz": "siz",
+      "liz": "_rz",
+      "Math": "Math",
+      "ta1": "sa1",
+      "Biz": "oiz",
+      "l$8": "a$8",
+      "YYK": "JYK",
+      "q7": "t1",
+      "k38": "E38",
+      "$YK": "MYK",
+      "sa1": "aa1",
+      "P7": "P7",
+      "M8": "X8",
+      "Hh": "JR",
+      "WA": "WO",
+      "xL6": "mL6",
+      "Iiz": "liz",
+      "O88": "j88",
+      "uiz": "niz",
+      "vm": "Tm",
+      "Ciz": "Qiz",
+      "Ou8": "wu8",
+      "T_6": "N_6",
+      "Z1": "f1",
+      "biz": "diz",
+      "lA": "lO",
+      "jL6": "ML6",
+      "u3K": "g3K",
+      "d": "d",
+      "xiz": "ciz",
+      "g6": "U6",
+      "KK": "qK",
+      "k8": "V8",
+      "i9": "n9",
+      "RH7": "bH7",
+      "F8": "B8",
+      "a7": "a7",
+      "n8": "l8",
+      "Object": "Object",
+      "$1": "$1",
+      "lv": "dT",
+      "xM7": "mM7",
+      "Q6": "c6",
+      "uM7": "BM7",
+      "FO5": "lA5",
+      "LH7": "SH7",
+      "Ta8": "Ga8",
+      "Promise": "Promise",
+      "BM7": "UM7",
+      "N96": "L96",
+      "CM7": "IM7",
+      "bM7": "uM7",
+      "BO5": "dA5",
+      "pO5": "QA5",
+      "k1": "T1",
+      "L8": "E8",
+      "XK": "MK",
+      "h8": "R8",
+      "V8": "k8",
+      "cN": "cN",
+      "p7": "u7",
+      "ea1": "ta1",
+      "bj": "Bj",
+      "SL6": "xL6",
+      "DV": "WV",
+      "m68": "g68",
+      "Vz": "kz",
+      "VK": "kK",
+      "H$": "j$",
+      "HL6": "XL6",
+      "ezK": "AYK",
+      "CL6": "IL6",
+      "oa1": "ra1",
+      "rw6": "t26",
+      "cB": "iB",
+      "diz": "qrz",
+      "Qiz": "eiz",
+      "ciz": "Krz",
+      "Ia": "ga",
+      "Error": "Error",
+      "zYK": "HYK",
+      "lc8": "cc8",
+      "AbortController": "AbortController"
+    },
+    "globalIndirectConsumersAccepted": false
+  },
+  "legacyRetention": {
+    "retainedLegacyWrapper": {
+      "parent": 7577,
+      "current": 7577,
+      "name": "dw",
+      "nodes": 91,
+      "namespaceHeader": 7578,
+      "initializer": 7579,
+      "factory": 6028,
+      "namespaceAndFactoryFieldsAndBindingsPreserved": true
+    },
+    "requiredOtherConsumers": [
+      {
+        "parent": 9843,
+        "current": 9843,
+        "nodes": 806,
+        "calls": 9
+      },
+      {
+        "parent": 10674,
+        "current": 10674,
+        "nodes": 293,
+        "calls": 2
+      },
+      {
+        "parent": 10687,
+        "current": 10687,
+        "nodes": 82,
+        "calls": 1
+      },
+      {
+        "parent": 10688,
+        "current": 10688,
+        "nodes": 77,
+        "calls": 2
+      },
+      {
+        "parent": 10692,
+        "current": 10692,
+        "nodes": 130,
+        "calls": 1
+      },
+      {
+        "parent": 10693,
+        "current": 10693,
+        "nodes": 56,
+        "calls": 1
+      },
+      {
+        "parent": 10718,
+        "current": 10718,
+        "nodes": 417,
+        "calls": 2
+      },
+      {
+        "parent": 14356,
+        "current": 14356,
+        "nodes": 137,
+        "calls": 2
+      }
+    ],
+    "ordinaryCallCensus": {
+      "parent": [
+        {
+          "index": 9843,
+          "calls": 9
+        },
+        {
+          "index": 10674,
+          "calls": 2
+        },
+        {
+          "index": 10687,
+          "calls": 1
+        },
+        {
+          "index": 10688,
+          "calls": 2
+        },
+        {
+          "index": 10692,
+          "calls": 1
+        },
+        {
+          "index": 10693,
+          "calls": 1
+        },
+        {
+          "index": 10718,
+          "calls": 2
+        },
+        {
+          "index": 14356,
+          "calls": 2
+        },
+        {
+          "index": 16679,
+          "calls": 3
+        },
+        {
+          "index": 16680,
+          "calls": 3
+        }
+      ],
+      "current": [
+        {
+          "index": 9843,
+          "calls": 9
+        },
+        {
+          "index": 10674,
+          "calls": 2
+        },
+        {
+          "index": 10687,
+          "calls": 1
+        },
+        {
+          "index": 10688,
+          "calls": 2
+        },
+        {
+          "index": 10692,
+          "calls": 1
+        },
+        {
+          "index": 10693,
+          "calls": 1
+        },
+        {
+          "index": 10718,
+          "calls": 2
+        },
+        {
+          "index": 14356,
+          "calls": 2
+        }
+      ]
+    },
+    "parentCompletionCallsRemovedOnly": 6,
+    "currentRetainedCalls": 20,
+    "selectedCensusExhaustiveForOrdinaryCalls": true,
+    "dynamicAliasOrEvalAbsenceProven": false,
+    "shared48NodeHelper": {
+      "index": 9819,
+      "name": "Oz",
+      "completeTargetAndParentFieldsAndLocalGraphPreserved": true
+    },
+    "separateLocal18NodeQuote": "gC6",
+    "fullTransitiveProviderEquivalence": false,
+    "remainingFieldsAndGraphsPreserved": true
+  },
+  "receiptChain": {
+    "currentPhysicalInputs": {
+      "files": 6084,
+      "manifestSha256": "35183b90baf51d35a8aed77ea163f34c7ca08e14af8112b7417ab44bed005567",
+      "currentGitSourceFiles": 1922,
+      "currentDerivedSrcTree": "5d72e1229ae190ff3d8f77317231ca57d24f10f9",
+      "extraSourceAssets": 29,
+      "genesisVerifiedAsLineageOnly": true,
+      "sourceEdgeAndEvalRangePinsVerified": true
+    },
+    "allBeforeAfterIdentitiesEqual": true,
+    "truthfulSummaryCounts": {
+      "sourceFiles": 6084,
+      "currentGitSourceFiles": 1922,
+      "measuredSourceFiles": 6084,
+      "measuredGitSourceFiles": 1922,
+      "sourceCountValidationFailure": false
+    },
+    "events": {
+      "private-marker-external": 11,
+      "sdk-declaration-facade": 12,
+      "sdk-facade-load": 3,
+      "source-import-literal-overlay": 11
+    },
+    "facadeLoads": 3,
+    "overlayOwners": 11,
+    "markerRemovals": 11,
+    "restoredOverlaySources": 11,
+    "allDeletionEditsReproduceFinalBytes": true,
+    "mapsStreamHashedWithoutParsing": true,
+    "all18GuardAnd4EvalPoliciesUnchanged": true,
+    "readContract": {
+      "inputTree": "historical-checkpoints/v24-stage/inputs",
+      "profile": "historical-checkpoints/v24-preparation/prepared/recovery/profiles/2.1.89/profile.json",
+      "toolFiles": [
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs",
+          "resolvedPath": "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+        }
+      ],
+      "adapterScripts": [
+        "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+        "historical-checkpoints/v24-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-support.mjs"
+      ],
+      "declaredReferenceBundleInput": null,
+      "declaredReferenceMapInput": null,
+      "staticInspection": "No reference bundle/map read path found in reviewed adapter code; profile metadata includes historical hashes only.",
+      "observedFilesystemReadFootprint": "unestablished; parent PTRACE_TRACEME probe denied by kernel",
+      "osLevelReadIsolationEnforced": false
+    }
+  },
+  "verification": {
+    "completeDistinctStatements": 79,
+    "statementRoles": {
+      "target": 18,
+      "parent": 31,
+      "current": 30
+    },
+    "largestStatementBytes": 3411,
+    "completeModuleGroups": 6,
+    "adversarialNegatives": 10,
+    "positiveFixedRoleControlBeforeNegatives": true,
+    "additionalPublicCallerAndLegacyGraphChecks": true,
+    "independentUtf16Reextraction": true,
+    "boundedSourceOwnersParsed": 5
+  },
+  "strictWholeProgram": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098459,
+    "sha256": "a8fc24b299aceb35c46090e44a94e9c4b418f83064461d73174979917cb14486",
+    "equalToTarget": false,
+    "recomputedByReviewer": false,
+    "nodeCountDeltaIsNotStructuralDistance": true
+  },
+  "qualifications": [
+    "The repaired source intentionally changes shell parsing, operator/trailing-space handling and previous parser effects. The local quote always quotes the first string argument and does not inherit legacy validation, coercion or logged fallback. This is target-directed behavior repair, not equivalence of old/new APIs for arbitrary values.",
+    "Complete module and direct provider definitions/initializers compare with concrete source import/export interfaces and joint local/captured bindings. Their remaining transitive captures stay conditional; no full provider graph, ambient/native behavior, global initialization schedule or general order theorem is accepted.",
+    "The old 91-node namespace wrapper and factory remain for all 20 indexed ordinary calls in eight required other consumers. Ordinary-call coverage is not a global alias/write/reflection/eval absence proof, and no global legacy module deletion is authorized.",
+    "The separate shared 48-node helper is retained and matches its target and V23 complete fields/local graph. It is not substituted for the new local 18-node helper.",
+    "The public useTypeahead caller is checked as a complete 37-node function with the actual getShellCompletions binding. Other indirect/global callers and the broader hook module are outside this review.",
+    "All earlier source fixture failures and source approval qualifications remain immutable. The actual production result does not retroactively accept the old artificial alias-split fixture.",
+    "There is no source-map directive on the changed owner. Maps were streamed only for hash verification; recovered map ownership and original private source authorship remain unproved.",
+    "All 37 resolver events are observed for this run, not a unique module census. Complete declared before/after identities and all eleven final deletion edits pass, while OS read isolation and complete read footprint remain unestablished.",
+    "Whole target strict AST remains unequal. The stronger strict diagnostic does not rule out later independently proved binding-aware alpha or ordering acceptance, and no normalization gate is enabled."
+  ],
+  "harnessHistory": [
+    "An initializer shape nomination was nonunique; it was replaced by the actual module-call identifier and unique declaration lookup, with complete provider definitions/source interfaces jointly checked. No positional alias merge was admitted.",
+    "Initial mutation controls included the diagnostic free-name inventory in comparison; the final authoritative controls compare complete normalized AST and local graph and first require the unmutated positive case to pass. Initial output is retained and superseded for negatives.",
+    "The public caller source path was corrected from .ts to the physically present .tsx, and its explicit type-only ShellCompletionType import is preserved separately from the real value import."
+  ],
+  "priorFailuresRewritten": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalDeclarationAndInitializationOrderAccepted": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "sourceOrStageEdited": false,
+  "compilerInvokedByReviewer": false,
+  "fullProgramParsedByReviewer": false,
+  "applicationExecuted": false,
+  "shellCompletionNativeOrCallbackExecuted": false,
+  "evidence": {
+    "actual.json": "b2e3dd6f9229754ee6e8f9c96d0e29ea735886f9e06a30087ea87a797ba358ad",
+    "retention.json": "09d94b4972b17238be8c354fb539ccd50daba58b1074342e96a8a36bd0745512",
+    "caller.json": "91aa7f94546d31debe8221e4cd753922cd651ae09eae7e0f6d4b5aef39950f3e",
+    "receipt-checks.json": "ab07db58bfdbf6ff5ba8373b655b464b67e3798aa23b0ae10ecec90d904bc8e5",
+    "witness-audit.json": "391c3d8e67d4f5a425736592eb8fe6f55bbd1bb837d10ceaa3d0a77a0c14275a",
+    "baseline-authentication.json": "cb704155e8753690ba0c03c42030982b0043473ba2c6b6ca058cd5bdf81e0f95",
+    "review-code-provenance.json": "d22537853d23defb99869d9cc8e22769db8561fd4d5d4905d740d87dd82ccbd3"
+  }
+}

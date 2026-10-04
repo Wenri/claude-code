@@ -1,0 +1,52 @@
+{
+  "steps": [
+    {
+      "exitCode": 0,
+      "wallSeconds": 1.0930439849980758,
+      "maxRssKiB": 301404,
+      "step": "preflight",
+      "originalReceiptSha256": "2b7b81a02e616874de7003167a50d71b80d01caa66ac8b341ec52c0a00a34ac8"
+    },
+    {
+      "exitCode": 0,
+      "wallSeconds": 2.0480093639998813,
+      "maxRssKiB": 1130720,
+      "step": "compile",
+      "originalReceiptSha256": "c06fc2ca2d805b14680186c946636c3290d1591fa4fe8f5ced6300803158eeea"
+    },
+    {
+      "exitCode": 0,
+      "wallSeconds": 5.0031108490002225,
+      "maxRssKiB": 961104,
+      "step": "finalize",
+      "originalReceiptSha256": "4a95bf75ffe9156baba3569de31e8b3d2b9c39e929166d1cdb4f6789382afdae"
+    },
+    {
+      "exitCode": 0,
+      "wallSeconds": 7.315151180999237,
+      "maxRssKiB": 584044,
+      "step": "ast",
+      "originalReceiptSha256": "5b666542e26be9525cffb1ecbb428162e7cd10304f8e773376b7a3e3b0c860d2"
+    },
+    {
+      "exitCode": 0,
+      "wallSeconds": 26.595406949003518,
+      "maxRssKiB": 695880,
+      "step": "index",
+      "originalReceiptSha256": "bb9639443109f36a1763c33fd68e27221494588a74f4a747184364b4fef4cff8"
+    }
+  ],
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3097309,
+    "sha256": "296db1eb2fc7664c78df16942384075205adfc3a95e73c1a408969573a867e08"
+  },
+  "finalJavaScriptSha256": "124809d5c6af3eb78e305d678dac5948c59d954ee1178846eebde4ebfd1ff6b0",
+  "candidateIndexSha256": "fbb1c1dba7fb0f145e927f42a97477cda9b259d097ada6900af9a72c94d80dc4",
+  "originalCompileReportSha256": "dd96aaff92bb6d8a46075c9dc0cdc634e5e95a87377c1a15c97669877338a77d",
+  "actualSourceEmissionReviewsComplete": true,
+  "wholeTargetAccepted": false,
+  "applicationExecuted": false
+}

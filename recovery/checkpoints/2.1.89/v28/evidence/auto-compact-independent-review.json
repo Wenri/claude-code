@@ -1,0 +1,155 @@
+{
+  "kind": "independent-auto-compact-source-trial-review",
+  "verdict": "approved-for-exact-future-source-trial",
+  "sourceTrialApproved": true,
+  "actualEmissionVerified": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "applicationExecuted": false,
+  "sourceManifest": {
+    "path": "historical-checkpoints/auto-compact-source-proposal/source-repair.json",
+    "bytes": 899,
+    "sha256": "2475890a491c8d0ccc5d083612a9e22ba4c84a9eb7244e1186071a3fb1e75fba"
+  },
+  "sourceApprovalScope": "Exactly seven source occurrence edits in one existing unguarded owner, from the authenticated current V26/V27 preimage to the frozen proposed postimage.",
+  "sourceFiles": [
+    {
+      "path": "src/services/compact/autoCompact.ts",
+      "oldSha256": "1af77fb5b72130399946974f74fc4ae0dee272a5fc04033d1496fcc278fef75d",
+      "oldBytes": 16733,
+      "oldGitBlob": "3b36bb19a7883d56700c2b62da46798a15408dc2",
+      "postimageSha256": "fe59875e18495811774dd655993ac4808bdb2fdaa75cae86cb988e198e081264",
+      "postimageBytes": 16792,
+      "postimageGitBlob": "6310a4926b5cc6a22e296f47a8654f8f913b999f",
+      "postimagePath": "historical-checkpoints/auto-compact-source-proposal/postimages/src/services/compact/autoCompact.ts"
+    }
+  ],
+  "authorArtifactManifest": {
+    "path": "historical-checkpoints/auto-compact-source-proposal/artifact-manifest.json",
+    "bytes": 7759,
+    "sha256": "c55843e4395c6e579e8e88507de87fb67004488600f210046008dec79080537c"
+  },
+  "authorExecutableClosure": {
+    "path": "historical-checkpoints/auto-compact-source-proposal/code-provenance.json",
+    "bytes": 44115,
+    "sha256": "40bd77310622282016da4185a0c36b8528821fa87513c64a8883f16bfb8a56cf"
+  },
+  "authorFreeze": {
+    "path": "historical-checkpoints/auto-compact-source-proposal/freeze.json",
+    "bytes": 545,
+    "sha256": "09c77ef7c591e4b34a3cdd12dd5f8d6d28745519143436f14c1135216971811f"
+  },
+  "readOnlyEvidenceClosure": {
+    "path": "historical-checkpoints/auto-compact-source-investigation/READONLY-FREEZE.json",
+    "bytes": 6639,
+    "sha256": "b481d11d0c28c8af50ed2696e48934bf4b71717edb3a95ffe2a390f4c24c0fe7"
+  },
+  "currentApplicability": {
+    "v26ProfileSha256": "235f75bf49cf647935abf6548b63c50e931fb922ce1ec8dfa9a69e5aab8cbaff",
+    "v27ProfileSha256": "04e5ee226daa89dc3373ed478dcd601a2be045fcef7517ecc25717cc2e568e6a",
+    "preimagesByteIdentical": true,
+    "sourceCountDelta": 0,
+    "gitCountDelta": 0,
+    "guardOwnerOverlap": false,
+    "evalOwnerOverlap": false
+  },
+  "validation": {
+    "authorSourceGroups": 7,
+    "authorSourceNegatives": 12,
+    "authorCompiledGraphNegatives": 7,
+    "readOnlyMainGroups": 5,
+    "readOnlyMainNegatives": 10,
+    "independentGroups": 10,
+    "independentNegatives": 8,
+    "originalWitnessReferences": 114,
+    "distinctOriginalStatements": 60,
+    "maximumIndexedStatementBytes": 13461,
+    "compilerOutputs": 8,
+    "compilerReceiptByteExact": true,
+    "all49AuthorMembersUnchanged": true,
+    "executableMembersAuthenticated": 184,
+    "wholeApplicationParsed": false,
+    "compilerUse": "Bounded two-source fixtures only, static and dynamic entry compile modes; no output was executed."
+  },
+  "approvedDeltas": {
+    "timePredicate": "Date.now() is evaluated before the ordinary getLastInteractionTime() call; subtract the recorded lastInteractionTime and compare >= the unchanged 5400000 threshold. This differs from the old Date.now()-STATE.startTime duration.",
+    "featureTiming": "The existing cached feature lookup moves out of the exported predicate to the right side of && in autoCompactIfNeeded, after the session-memory early return and immediately before try. Neither time nor feature lookup errors are moved into the compaction catch.",
+    "optionalField": "Restore tracking?.consecutiveRapidRefills exactly. The preceding condition already proves a truthy tracking object; no distinct behavioral bug is claimed from optionality alone.",
+    "declarationOrder": "Place the unchanged threshold declaration after AUTOCOMPACT_THRASH_MESSAGE.",
+    "importTopology": "Add the explicitly reconstructed named value import getLastInteractionTime from src/bootstrap/state.js immediately after bun:bundle and before the relative state import. Remove only getTotalDuration from the latter. Both requests resolve to the same physical state owner."
+  },
+  "bindingEvidence": {
+    "concreteTargetGetter": {
+      "index": 421,
+      "name": "JR",
+      "nodes": 7,
+      "property": "lastInteractionTime"
+    },
+    "completeTargetPredicate": {
+      "index": 12187,
+      "name": "L_Y",
+      "nodes": 13
+    },
+    "completeTargetCompaction": {
+      "index": 12192,
+      "name": "PDK",
+      "nodes": 307
+    },
+    "targetHeader": {
+      "index": 12193,
+      "nodes": 36
+    },
+    "targetInitializer": {
+      "index": 12194,
+      "name": "hb",
+      "nodes": 67
+    },
+    "currentInitializer": {
+      "index": 12213,
+      "nodes": 64
+    },
+    "actualCurrentStateReferences": 1,
+    "actualTargetStateReferences": 2,
+    "allRepeatedCallsResolveSameDeclaredVariable": true,
+    "elevenImmediateSourceImportExportInterfacesGrounded": true,
+    "sameProviderShapeAloneUsedAsAuthority": false,
+    "sourceUnchangedTypesAndRemainingBytesExact": true,
+    "sourceReverseCompleteBabelFieldsExact": true
+  },
+  "compilerBoundary": {
+    "beforeCompleteNineFunctionsAndGetterNodes": 869,
+    "afterCompleteNineFunctionsAndGetterNodes": 870,
+    "beforeExplicitExternalInitBoundaryNodes": 924,
+    "afterExplicitExternalInitBoundaryNodes": 928,
+    "stateOwnerFullPhysicalSourceCompiled": true,
+    "afterStateCalls": 2,
+    "allAfterStateCallsResolveSameVariable": true,
+    "otherApplicationProviderInitializersExternal": 15,
+    "rawWholeFixtureInitializerAccepted": false,
+    "fullProductionInitializerAccepted": false,
+    "fixtureDynamicEntryIsRetentionProof": false,
+    "workingDirectoryCommentQualification": "The first workspace-root run changed only two generated path comments. Replaying at the original restore directory reproduced all eight output bytes and the sorted receipt exactly."
+  },
+  "futureActualObligations": [
+    "Verify the complete 13-node predicate, 307-node compaction function, all nine functions and local reference graphs against the original target using actual emitted providers.",
+    "Verify the complete 36-node header and 67-node production initializer, with both state calls resolving to the same real state initializer and the other fifteen provider calls in exact target order.",
+    "Retain the separately verified main-to-autoCompact call at target slot 17 and recheck the real factory/query dependency interface, including its possible caller-supplied override.",
+    "Verify concrete getLastInteractionTime and cached feature provider identities, Date/read/short-circuit/pre-try order, optional refill field, all eight compactConversation arguments and original receivers."
+  ],
+  "qualifications": [
+    "The import spelling and duplication mechanism are reconstructed source, not original-authorship proof. No memoization or duplicate-initializer harmlessness equivalence is assumed.",
+    "The old exported predicate and general feature-off or external/dynamic-caller behavior are not declared equivalent. Only one direct source predicate call was found; reflective or injected callers remain possible.",
+    "All remaining provider interfaces, mutable state, Date, ambient prototypes, loaders, reflection, global declaration order, full state retention, wrapper/module topology and whole-target equivalence remain conditional or open.",
+    "Both old raw false source flags and failed full-fixture initializer comparisons remain preserved. Source approval does not resolve future production emission checks.",
+    "No current stage, runtime, repository or prior immutable source/evidence package was edited."
+  ],
+  "evidence": [
+    "authentication.json",
+    "evidence-audit.json",
+    "fresh-witnesses.json",
+    "independent-controls.json",
+    "independent-witnesses.json",
+    "cwd-replay-qualification.json",
+    "compiler-replay-restored-cwd/receipt.json"
+  ]
+}

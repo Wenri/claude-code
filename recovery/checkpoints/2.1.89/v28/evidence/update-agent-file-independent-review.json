@@ -1,0 +1,134 @@
+{
+  "kind": "independent-agent-file-two-function-source-review",
+  "verdict": "approved-for-target-directed-source-trial",
+  "sourceTrialApproved": true,
+  "actualEmissionVerified": false,
+  "wholeTargetAcceptance": false,
+  "applicationExecuted": false,
+  "author": {
+    "path": "historical-checkpoints/update-agent-file-source-proposal",
+    "pins": {
+      "source-repair.json": "293f1a67016615dda55ef4995f4efa55e7d7b9d46e2c2ccfd668377a0955fc43",
+      "artifact-manifest.json": "21110b6bd3305842bff65ead253146d1207060a36bbba7b3b3d1bc4b7cd6986a",
+      "code-provenance.json": "058844f41ec1a85a703062a9bcd840fb8343c6aeaaee503a60e546011bb7ece4",
+      "freeze.json": "6645063a43228e14ee6386ebe35dbc8e47dd534e6e88347dd44ebe719ad9f5f4"
+    },
+    "frozenMembersUnchanged": true
+  },
+  "readOnlyClosureSha256": "0aa22bd08317eebdeb82fdea0963623a9c1b2bb95cbac9160805a1fb238301d1",
+  "readOnlyScopeReportSha256": "182c66202f5334067542078a941f08e6687be121df51eca7b47b92cd7631501e",
+  "sourceFiles": [
+    {
+      "path": "src/components/agents/agentFileUtils.ts",
+      "oldSha256": "7cd94fc7a46acbe435f8309eb94ecf1a7518a563503f9fa08771343a4d47cd4b",
+      "oldBytes": 8096,
+      "oldGitBlob": "dae596b40a9d200bc1f5d564021e4684f7bd7985",
+      "postimageSha256": "b9840efafb783a4ed7d30ce3e2fd4e7a7eded4028acf45e6821014ecf4d2f0ba",
+      "postimageBytes": 8172,
+      "postimageGitBlob": "25dd7f72b8ff90247066f9cc2f526b51943c37da",
+      "postimagePath": "historical-checkpoints/update-agent-file-source-proposal/postimages/src/components/agents/agentFileUtils.ts"
+    }
+  ],
+  "applicability": {
+    "physicalV26AndV27OwnerUnchanged": true,
+    "v26ProfileSha256": "235f75bf49cf647935abf6548b63c50e931fb922ce1ec8dfa9a69e5aab8cbaff",
+    "v27ProfileSha256": "04e5ee226daa89dc3373ed478dcd601a2be045fcef7517ecc25717cc2e568e6a",
+    "guardOwnerOverlap": false,
+    "evalOwnerOverlap": false,
+    "compilerFixtureV26ProvenancePreserved": true,
+    "V27CompilerFeaturesDefinesAndJsxSame": true
+  },
+  "verification": {
+    "authorSourceGroups": 6,
+    "authorSourceNegatives": 12,
+    "authorGraphNegatives": 10,
+    "independentGroundworkGroups": 5,
+    "independentSourceGroups": 9,
+    "independentNegatives": 19,
+    "uniqueCompleteOriginalIndexWitnesses": 40,
+    "maxWitnessBytes": 2632,
+    "compilerOutputsReproducedExactly": 8,
+    "sortedReceiptReproducedExactly": true,
+    "fullApplicationParsed": false,
+    "typecheckPerformed": false
+  },
+  "sourceBindingEvidence": {
+    "readsOfToolsProperty": 1,
+    "cachedReadUses": 4,
+    "cacheInsideInBranch": true,
+    "mutableValueNotFrozen": true
+  },
+  "completeOwnerFunctionGraphs": {
+    "before-static": {
+      "nodes": 707,
+      "sha256": "1505e8ba075893cde79eb7baf1e45322a88ca34f7e73fcdd20e815c36a79742e"
+    },
+    "before-dynamic": {
+      "nodes": 707,
+      "sha256": "1505e8ba075893cde79eb7baf1e45322a88ca34f7e73fcdd20e815c36a79742e"
+    },
+    "after-static": {
+      "nodes": 721,
+      "sha256": "bab462baff4259f74e209fe89cf02170b0d72107507ab7e477feafedc506594d"
+    },
+    "after-dynamic": {
+      "nodes": 721,
+      "sha256": "bab462baff4259f74e209fe89cf02170b0d72107507ab7e477feafedc506594d"
+    }
+  },
+  "unchangedLifecycle": {
+    "pathHelperBoundReferences": 2,
+    "writerBoundReferences": 2,
+    "nativeMethods": [
+      "writeFile",
+      "datasync",
+      "close"
+    ],
+    "finallyClose": true
+  },
+  "pathInputBindings": {
+    "target": {
+      "nodes": 803,
+      "baseDirParameter": 1,
+      "agentTypeParameter": 2,
+      "filenameInputParameter": 0,
+      "nativeBasename": "Tc_",
+      "wholeBodyAccepted": false
+    },
+    "current": {
+      "nodes": 762,
+      "baseDirParameter": 1,
+      "agentTypeParameter": 2,
+      "filenameInputParameter": 0,
+      "nativeBasename": "Vc_",
+      "wholeBodyAccepted": false
+    }
+  },
+  "acceptedScope": [
+    "Exactly two source function edits; all other 8096-byte preimage content reverses exactly from the 8172-byte postimage. Imports, signatures/types, comments, source metadata, all ten other function bodies and native requests are unchanged.",
+    "updateAgentFile reads updates.tools once inside the original in-operator branch. Four later operations resolve that cached binding; its join receiver and separator are exact. Absent/undefined/length-not-one/wildcard/single-non-wildcard static paths have target read counts 0/1/1/1/1, conditional on prior operations returning normally.",
+    "getActualAgentFilePath keeps built-in/plugin guards first, evaluates filename || agentType next, tests baseDir truthiness and uses a second baseDir read for the direct native join. Falsy baseDir derives the existing directory afterward. The existing type contract and parser/loader fields already provide these values.",
+    "All twelve complete owner functions plus the fs/promises and path imports compare at 707 nodes before/current and 721 nodes after/target in both static and dynamic fixtures, with explicit imported provider roles. The 143-node update and 62-node path helper are included.",
+    "Two bound internal path-helper calls, two bound writer calls, readFile/open/unlink identities, awaited write/datasync and finally-close remain exact. Selected AgentEditor source imports and actual path/update references resolve the real agent parameter, and update uses conditional spreads of plain tools/color/model data properties."
+  ],
+  "qualifications": [
+    "This intentionally changes accessor/proxy read counts, filename/provider lookup order, error timing and path selection. A truthy baseDir bypasses fallback provider errors and is read twice. The cached tools value remains mutable; no generic old/new equivalence is claimed.",
+    "The tiny fixtures externalize application providers. Their dynamic empty initializer loses the production memoizing wrapper; both the raw comparison and a diagnostic omission-of-external-calls attempt remain failed and unaccepted. The actual 28-node initializer with all seven real provider calls remains a future production obligation.",
+    "The read-only complete 749-node owner projection is supporting diagnostic evidence, not a claim that the fixture reproduced the production initializer. No initializer or receiver was normalized for approval.",
+    "YAML has a separate source approval f0c4d552b09a776c75a7a2b320222eac83d6551eaf36e0e5ad27ec7414f0579d. This proposal does not modify or silently apply it. Its actual downstream emission must be checked separately.",
+    "parseAgentFromMarkdown remains 803 versus 762 nodes; only baseDir/filename/agentType field bindings are accepted here. AgentEditor remains 728 versus 720, with its missing source comparison in the agent-list update still unresolved. Neither complete producer/caller is accepted or edited.",
+    "Static source/import and selected caller records are not proof of absence of global/dynamic aliases or other runtime consumers. Native methods, mutable prototypes/objects, transitive suppliers and reflection remain interfaces.",
+    "Reviewer attempt1 had a missing brace before evaluation; attempt2 included the dynamic fixture compiler export-setter helper when counting twelve owner functions. Both are preserved. The final check identifies that helper separately by its computed this assignment and keeps its production-wrapper mismatch qualified. A reviewer-only source-role locator label for the src/ absolute import was corrected before freeze; no source or graph rule was relaxed.",
+    "No app, YAML, pane/navigation, getter/proxy, shell, native filesystem helper, callback, dynamic import or generated output was executed. No repository, profile or active-stage edit occurred. Actual staged complete owner/provider/caller/initializer verification remains mandatory."
+  ],
+  "evidence": {
+    "groundwork-authentication.json": "9a525d9c25d1772ca4a70a7d5f5154c08f5c8d0c07d0fac73cda11e10ada6d4d",
+    "groundwork.json": "a0722a7c482cda0f1157c4dd4e4e7f5c82a5110d049ab3b6a2ed6b1f96e9e0e7",
+    "proposal-authentication.json": "9a132b4d758c9d95955159bbd4a2e9244219a88ddfacb965921b9ab93c1122cf",
+    "author-source-tests.json": "c7531cfdadaf75b6d0cc6eb407a532a785cd730f7bb049a36d86bc4bce30e1d1",
+    "author-graph-tests.json": "f91d07029b332551477c9847963d5d5d3aefc376eadc57c28eb73dfcee79a4dd",
+    "prepare-verification.json": "feef55f945822d0992cd27a670a3b7da1c27f4e40825f97578b22cddb0489d57",
+    "independent-complete.json": "ba44e7d9d0375b3e54565e316830c171723948818f4cca2a34fd88a7f724fa46",
+    "code-provenance.json": "a27fb534ac42b7dfd5178136ca6c3e19e6e2ce59ae0f64dbab06fae2ba19114a"
+  }
+}

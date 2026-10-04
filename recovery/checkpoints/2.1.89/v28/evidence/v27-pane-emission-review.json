@@ -1,0 +1,799 @@
+{
+  "kind": "independent-actual-v27-pane-emission-review",
+  "reportId": "pane_backend_quote",
+  "verdict": "approved-scoped-actual-emission",
+  "actualEmissionVerified": true,
+  "sourceTrialApprovalInherited": true,
+  "wholeTargetAcceptance": false,
+  "fullProgramBindingGraphEstablished": false,
+  "applicationExecuted": false,
+  "sourceApproval": {
+    "path": "historical-checkpoints/pane-backend-quote-independent-review/review.json",
+    "sha256": "e8175e485f1b5d7322c3ee7d8775a0fd259bf57e997048b52feca23fa8e8df1a",
+    "closureSha256": "ed395c1a16f047829986169c761856a8fe9e46192e4b9b631a17237982d3de13",
+    "historicalFailuresPreserved": true
+  },
+  "inputPins": {
+    "v27-replay/final/cli.js": "c0fccb4b49eeaa17b5e8c441a56a68d90f9807a34a717fc42aa0bd3919dce9a1",
+    "v27-indexes/candidate.json": "d012eee89d558f308d0214a9a9d055ce215c04d62b3d37316e25db447b931da9",
+    "v27-replay/profile.json": "04e5ee226daa89dc3373ed478dcd601a2be045fcef7517ecc25717cc2e568e6a",
+    "v27-replay/compile-report.json": "5810af603979bfb638c2c7183da1212b50dfac7b347a6b715d59b48686b5aa5f",
+    "v27-preparation/prepared/recovery/profiles/2.1.89/toolchain.json": "32c42a094aede3a9837a21313518ee01e66fa92b3c5d5efa1795db239ccf27e4",
+    "v27-preparation-review/review.json": "4344b61a1d9af23e22554a71c8c2ad7c6106d5a71d8d44c5e9216b8c4ebf5000"
+  },
+  "sourceManifestSha256": "0a0a9c5ae7debf41a5131aada87d9da13b12fa523d99a0df5d0b524fe76aabcd",
+  "sourceFiles": 6084,
+  "source": {
+    "path": "src/utils/swarm/backends/PaneBackendExecutor.ts",
+    "sha256": "a4e07945cff21ce301e30ba2c0adb00a8862132ac1f9da7aa051809a71e2ecc3",
+    "guardOverlap": false,
+    "evalOverlap": false
+  },
+  "preparationApprovalSha256": "4344b61a1d9af23e22554a71c8c2ad7c6106d5a71d8d44c5e9216b8c4ebf5000",
+  "preparationClosureSha256": "9c5ae0434f16a328097d035e4a4d141f7b0c6ebf865bffd9f909560b4a7ed0b8",
+  "verification": {
+    "groups": 7,
+    "negativeControls": 20,
+    "completeIndexedWitnesses": 59,
+    "maxIndexedSliceBytes": 3411,
+    "originalV26BaselineClosureSha256": "7c9e8639b23c33170e65c412764dd3f78a1b31191948eff2314fc9aa3b07cd70",
+    "completeTargetAndActualClassNodes": 806,
+    "completeFactoryNodes": 8,
+    "completeHelperNodes": 48,
+    "completeComponentGraph": {
+      "nodes": 863,
+      "variables": 58,
+      "references": 186,
+      "sha256": "ecf88d5f979f232f06014042dd8a6d649107ea67808fb61a076e6f3ac2b27eaa"
+    },
+    "completeProviderGraphNodes": 2398,
+    "concreteDirectProviderExports": 12,
+    "concreteInitializerProviders": 8,
+    "actualInitializerNodes": 31,
+    "actualInitializerProjectionUsed": false,
+    "actualQuotedReferences": 9,
+    "rawToFinalUtf16RemovalsReproduced": true,
+    "symbolicFixtureBridgeUsedForActualGate": false
+  },
+  "class": {
+    "target": 9834,
+    "current": 9837,
+    "nodes": 806
+  },
+  "factory": {
+    "target": 9835,
+    "current": 9838,
+    "nodes": 8
+  },
+  "quoteProof": {
+    "definitionIndex": 9813,
+    "definitionName": "EK",
+    "definitionNodes": 48,
+    "references": 9,
+    "readOnly": true,
+    "callArguments": [
+      "[K]",
+      "[q.name]",
+      "[q.teamName]",
+      "[_]",
+      "[q.parentSessionId||N8()]",
+      "[q.model]",
+      "[q.model]",
+      "[J]",
+      "[A]"
+    ],
+    "ordinaryCalls": true
+  },
+  "providers": [
+    {
+      "sourceOwner": "src/bootstrap/state.ts",
+      "sourceSha256": "6e30b0dc319885a5e3ae74da9ada8ca38e7b3cea6bd47a449409f98f7c571049",
+      "exported": "getSessionId",
+      "target": 362,
+      "current": 362,
+      "targetName": "N8",
+      "currentName": "N8",
+      "comparison": {
+        "nodes": 8,
+        "forward": {
+          "Z8": "G8"
+        },
+        "reverse": {
+          "G8": "Z8"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceOwner": "src/utils/agentId.ts",
+      "sourceSha256": "f96b8f0ccbb7859d7b76fbf647ce752b16594e49ccb5296db5887d20d1faa6b5",
+      "exported": "formatAgentId",
+      "target": 9687,
+      "current": 9690,
+      "targetName": "Ah",
+      "currentName": "OR",
+      "comparison": {
+        "nodes": 13,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceOwner": "src/utils/agentId.ts",
+      "sourceSha256": "f96b8f0ccbb7859d7b76fbf647ce752b16594e49ccb5296db5887d20d1faa6b5",
+      "exported": "parseAgentId",
+      "target": 9688,
+      "current": 9691,
+      "targetName": "be6",
+      "currentName": "Se6",
+      "comparison": {
+        "nodes": 39,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceOwner": "src/utils/cleanupRegistry.ts",
+      "sourceSha256": "07505ea73c4cfff522e8721dcccf63de390a09b4fb67dff12ed73b1d373ca2a5",
+      "exported": "registerCleanup",
+      "target": 582,
+      "current": 582,
+      "targetName": "Bq",
+      "currentName": "gq",
+      "comparison": {
+        "nodes": 18,
+        "forward": {
+          "Jo8": "wo8"
+        },
+        "reverse": {
+          "wo8": "Jo8"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "sourceOwner": "src/utils/debug.ts",
+      "sourceSha256": "8d6734724d4e8467a50781d3af9d4341d54a8ffc64bf71a2726976714123b01e",
+      "exported": "logForDebugging",
+      "target": 888,
+      "current": 888,
+      "targetName": "N",
+      "currentName": "N",
+      "comparison": {
+        "nodes": 82,
+        "forward": {
+          "ka8": "Ga8",
+          "gO5": "uA5",
+          "UO5": "pA5",
+          "m6": "B6",
+          "Va8": "Ta8",
+          "Date": "Date",
+          "ql": "ql",
+          "NB": "LB",
+          "cO5": "FA5"
+        },
+        "reverse": {
+          "Ga8": "ka8",
+          "uA5": "gO5",
+          "pA5": "UO5",
+          "B6": "m6",
+          "Ta8": "Va8",
+          "Date": "Date",
+          "ql": "ql",
+          "LB": "NB",
+          "FA5": "cO5"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "sourceOwner": "src/utils/slowOperations.ts",
+      "sourceSha256": "8bb7da17d8b089bb73ab079fc411e60b0f0c1e571431938327bdcfafa8530b09",
+      "exported": "jsonStringify",
+      "target": 851,
+      "current": 851,
+      "targetName": "m6",
+      "currentName": "B6",
+      "comparison": {
+        "nodes": 51,
+        "forward": {
+          "oO": "rA",
+          "Fz": "gz",
+          "JSON": "JSON",
+          "Uz": "Fz"
+        },
+        "reverse": {
+          "rA": "oO",
+          "gz": "Fz",
+          "JSON": "JSON",
+          "Fz": "Uz"
+        },
+        "scopeCount": 7
+      }
+    },
+    {
+      "sourceOwner": "src/utils/teammateMailbox.ts",
+      "sourceSha256": "4290680af7729320ef2adc5d7683380a2606a2d527160f8e54f9b779b6f16f0b",
+      "exported": "writeToMailbox",
+      "target": 9714,
+      "current": 9717,
+      "targetName": "C_",
+      "currentName": "b_",
+      "comparison": {
+        "nodes": 164,
+        "forward": {
+          "AFz": "_Fz",
+          "zj6": "_j6",
+          "N": "N",
+          "LE6": "EE6",
+          "j6": "w6",
+          "Q1": "r1",
+          "kb8": "Nb8",
+          "XJ": "DJ",
+          "Ma": "Xa",
+          "m6": "B6"
+        },
+        "reverse": {
+          "_Fz": "AFz",
+          "_j6": "zj6",
+          "N": "N",
+          "EE6": "LE6",
+          "w6": "j6",
+          "r1": "Q1",
+          "Nb8": "kb8",
+          "DJ": "XJ",
+          "Xa": "Ma",
+          "B6": "m6"
+        },
+        "scopeCount": 11
+      }
+    },
+    {
+      "sourceOwner": "src/utils/swarm/spawnUtils.ts",
+      "sourceSha256": "36e274b05e271b36c657dcff949aa30daea40ad92081bc771dc353eaef36989d",
+      "exported": "buildInheritedCliFlags",
+      "target": 9821,
+      "current": 9824,
+      "targetName": "IqK",
+      "currentName": "xqK",
+      "comparison": {
+        "nodes": 153,
+        "forward": {
+          "M96": "J96",
+          "gx": "gx",
+          "EK": "EK",
+          "ot": "at",
+          "fB": "TB",
+          "wj6": "Oj6",
+          "Jx6": "Ox6"
+        },
+        "reverse": {
+          "J96": "M96",
+          "gx": "gx",
+          "EK": "EK",
+          "at": "ot",
+          "TB": "fB",
+          "Oj6": "wj6",
+          "Ox6": "Jx6"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "sourceOwner": "src/utils/swarm/spawnUtils.ts",
+      "sourceSha256": "36e274b05e271b36c657dcff949aa30daea40ad92081bc771dc353eaef36989d",
+      "exported": "buildInheritedEnvVars",
+      "target": 9822,
+      "current": 9825,
+      "targetName": "ae6",
+      "currentName": "re6",
+      "comparison": {
+        "nodes": 53,
+        "forward": {
+          "process": "process",
+          "EK": "EK",
+          "kFz": "fFz"
+        },
+        "reverse": {
+          "process": "process",
+          "EK": "EK",
+          "fFz": "kFz"
+        },
+        "scopeCount": 5
+      }
+    },
+    {
+      "sourceOwner": "src/utils/swarm/spawnUtils.ts",
+      "sourceSha256": "36e274b05e271b36c657dcff949aa30daea40ad92081bc771dc353eaef36989d",
+      "exported": "getTeammateCommand",
+      "target": 9820,
+      "current": 9823,
+      "targetName": "xqK",
+      "currentName": "bqK",
+      "comparison": {
+        "nodes": 28,
+        "forward": {
+          "process": "process",
+          "NE6": "VE6",
+          "Oj": "Jj"
+        },
+        "reverse": {
+          "process": "process",
+          "VE6": "NE6",
+          "Jj": "Oj"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceOwner": "src/utils/swarm/teammateLayoutManager.ts",
+      "sourceSha256": "cd1c11fee4cc684086c8643414ecfc6ba0ff2abbe8c3fd17872a911323e0d3dc",
+      "exported": "assignTeammateColor",
+      "target": 9826,
+      "current": 9829,
+      "targetName": "Da",
+      "currentName": "fa",
+      "comparison": {
+        "nodes": 38,
+        "forward": {
+          "$r1": "Kr1",
+          "GJ": "kJ",
+          "Or1": "_r1"
+        },
+        "reverse": {
+          "Kr1": "$r1",
+          "kJ": "GJ",
+          "_r1": "Or1"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "sourceOwner": "src/utils/swarm/backends/detection.ts",
+      "sourceSha256": "13556bba1943e422c887c0e36ecba4ee5e17c542f116faad3a8340dccad5d95f",
+      "exported": "isInsideTmux",
+      "target": 9696,
+      "current": 9699,
+      "targetName": "rm",
+      "currentName": "om",
+      "comparison": {
+        "nodes": 18,
+        "forward": {
+          "xe6": "Ce6",
+          "p7K": "m7K"
+        },
+        "reverse": {
+          "Ce6": "xe6",
+          "m7K": "p7K"
+        },
+        "scopeCount": 3
+      }
+    }
+  ],
+  "initializer": {
+    "target": 9836,
+    "current": 9839,
+    "nodes": 31,
+    "providers": [
+      {
+        "sourceOwner": "src/bootstrap/state.ts",
+        "target": 574,
+        "current": 574,
+        "targetName": "k8",
+        "currentName": "V8",
+        "comparison": {
+          "nodes": 48,
+          "forward": {
+            "YH7": "_H7",
+            "Ci8": "zH7",
+            "Fc": "Fc",
+            "Z8": "G8",
+            "DH7": "WH7",
+            "Bi8": "mi8",
+            "zz": "_z",
+            "gi8": "pi8",
+            "ti8": "DH7",
+            "ei8": "oi8",
+            "WH7": "PH7",
+            "E": "y"
+          },
+          "reverse": {
+            "_H7": "YH7",
+            "zH7": "Ci8",
+            "Fc": "Fc",
+            "G8": "Z8",
+            "WH7": "DH7",
+            "mi8": "Bi8",
+            "_z": "zz",
+            "pi8": "gi8",
+            "DH7": "ti8",
+            "oi8": "ei8",
+            "PH7": "WH7",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "sourceOwner": "src/utils/cleanupRegistry.ts",
+        "target": 585,
+        "current": 585,
+        "targetName": "i9",
+        "currentName": "i9",
+        "comparison": {
+          "nodes": 13,
+          "forward": {
+            "Jo8": "wo8",
+            "Set": "Set",
+            "E": "y"
+          },
+          "reverse": {
+            "wo8": "Jo8",
+            "Set": "Set",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "sourceOwner": "src/utils/debug.ts",
+        "target": 892,
+        "current": 892,
+        "targetName": "_8",
+        "currentName": "K8",
+        "comparison": {
+          "nodes": 323,
+          "forward": {
+            "KK": "qK",
+            "k8": "V8",
+            "i9": "i9",
+            "RH7": "hH7",
+            "F8": "B8",
+            "a7": "a7",
+            "n8": "l8",
+            "ka8": "Ga8",
+            "gO5": "uA5",
+            "process": "process",
+            "Object": "Object",
+            "$1": "A1",
+            "lv": "QT",
+            "xM7": "xM7",
+            "Q6": "c6",
+            "NB": "LB",
+            "uM7": "uM7",
+            "FO5": "mA5",
+            "LH7": "LH7",
+            "Ta8": "Za8",
+            "Promise": "Promise",
+            "BM7": "BM7",
+            "N96": "V96",
+            "CM7": "CM7",
+            "bM7": "bM7",
+            "BO5": "IA5",
+            "pO5": "xA5",
+            "E": "y"
+          },
+          "reverse": {
+            "qK": "KK",
+            "V8": "k8",
+            "i9": "i9",
+            "hH7": "RH7",
+            "B8": "F8",
+            "a7": "a7",
+            "l8": "n8",
+            "Ga8": "ka8",
+            "uA5": "gO5",
+            "process": "process",
+            "Object": "Object",
+            "A1": "$1",
+            "QT": "lv",
+            "xM7": "xM7",
+            "c6": "Q6",
+            "LB": "NB",
+            "uM7": "uM7",
+            "mA5": "FO5",
+            "LH7": "LH7",
+            "Za8": "Ta8",
+            "Promise": "Promise",
+            "BM7": "BM7",
+            "V96": "N96",
+            "CM7": "CM7",
+            "bM7": "bM7",
+            "IA5": "BO5",
+            "xA5": "pO5",
+            "y": "E"
+          },
+          "scopeCount": 17
+        }
+      },
+      {
+        "sourceOwner": "src/utils/slowOperations.ts",
+        "target": 855,
+        "current": 855,
+        "targetName": "n8",
+        "currentName": "l8",
+        "comparison": {
+          "nodes": 71,
+          "forward": {
+            "k8": "V8",
+            "_8": "K8",
+            "Dz$": "wz$",
+            "process": "process",
+            "Number": "Number",
+            "kO5": "ZA5",
+            "Symbol": "Symbol",
+            "oO": "rA",
+            "VO5": "GA5",
+            "E": "y"
+          },
+          "reverse": {
+            "V8": "k8",
+            "K8": "_8",
+            "wz$": "Dz$",
+            "process": "process",
+            "Number": "Number",
+            "ZA5": "kO5",
+            "Symbol": "Symbol",
+            "rA": "oO",
+            "GA5": "VO5",
+            "y": "E"
+          },
+          "scopeCount": 6
+        }
+      },
+      {
+        "sourceOwner": "src/utils/teammateMailbox.ts",
+        "target": 9746,
+        "current": 9749,
+        "targetName": "RJ",
+        "currentName": "bJ",
+        "comparison": {
+          "nodes": 320,
+          "forward": {
+            "u7": "x7",
+            "IY": "xY",
+            "mi1": "bi1",
+            "_8": "K8",
+            "F8": "B8",
+            "L8": "E8",
+            "h8": "R8",
+            "n8": "l8",
+            "pj": "Qj",
+            "JY": "HY",
+            "kb8": "Nb8",
+            "t7K": "s7K",
+            "L": "E",
+            "I6": "u6",
+            "e7K": "t7K",
+            "Ja": "Ma",
+            "qqK": "e7K",
+            "KqK": "qqK",
+            "_qK": "KqK",
+            "zqK": "_qK",
+            "E": "y"
+          },
+          "reverse": {
+            "x7": "u7",
+            "xY": "IY",
+            "bi1": "mi1",
+            "K8": "_8",
+            "B8": "F8",
+            "E8": "L8",
+            "R8": "h8",
+            "l8": "n8",
+            "Qj": "pj",
+            "HY": "JY",
+            "Nb8": "kb8",
+            "s7K": "t7K",
+            "E": "L",
+            "u6": "I6",
+            "t7K": "e7K",
+            "Ma": "Ja",
+            "e7K": "qqK",
+            "qqK": "KqK",
+            "KqK": "_qK",
+            "_qK": "zqK",
+            "y": "E"
+          },
+          "scopeCount": 9
+        }
+      },
+      {
+        "sourceOwner": "src/utils/swarm/spawnUtils.ts",
+        "target": 9824,
+        "current": 9827,
+        "targetName": "Yr1",
+        "currentName": "qr1",
+        "comparison": {
+          "nodes": 35,
+          "forward": {
+            "k8": "V8",
+            "jj6": "wj6",
+            "kFz": "fFz",
+            "E": "y"
+          },
+          "reverse": {
+            "V8": "k8",
+            "wj6": "jj6",
+            "fFz": "kFz",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "sourceOwner": "src/utils/swarm/teammateLayoutManager.ts",
+        "target": 9833,
+        "current": 9836,
+        "targetName": "se6",
+        "currentName": "oe6",
+        "comparison": {
+          "nodes": 19,
+          "forward": {
+            "WZ": "X0",
+            "Rb": "hb",
+            "$r1": "Kr1",
+            "Map": "Map",
+            "E": "y"
+          },
+          "reverse": {
+            "X0": "WZ",
+            "hb": "Rb",
+            "Kr1": "$r1",
+            "Map": "Map",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "sourceOwner": "src/utils/swarm/backends/detection.ts",
+        "target": 9703,
+        "current": 9706,
+        "targetName": "yb",
+        "currentName": "yb",
+        "comparison": {
+          "nodes": 30,
+          "forward": {
+            "E_": "L_",
+            "XK": "MK",
+            "p7K": "m7K",
+            "process": "process",
+            "WBz": "HBz",
+            "E": "y"
+          },
+          "reverse": {
+            "L_": "E_",
+            "MK": "XK",
+            "m7K": "p7K",
+            "process": "process",
+            "HBz": "WBz",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      }
+    ],
+    "graphSha256": "bc68393408397abe5137e1f55788d9d287b3a335092d893933ae0b586968d01e",
+    "projectionUsed": false
+  },
+  "registry": {
+    "target": 9874,
+    "current": 9877,
+    "source": {
+      "path": "src/utils/swarm/backends/registry.ts",
+      "bytes": 14791,
+      "sha256": "af9079a34ff5e3667c6f097ef5de00f77c5e23d651397240aa44a34915398b07"
+    },
+    "graphSha256": "63ac6c2e0248eb670e2e771524a427eba55c6ada6e848d9f295b55d3dcb09a52"
+  },
+  "legacy": {
+    "source": {
+      "path": "src/utils/bash/shellQuote.ts",
+      "sha256": "89d87fe9bc2c8de893d7697dc40e923a5f68516c9a47cc06053e602fbcfbb58d",
+      "unchanged": true
+    },
+    "retained": {
+      "parserIndex": 7573,
+      "parserNodes": 59,
+      "namespace": "vy8",
+      "initializerIndex": 7575,
+      "initializerNodes": 21,
+      "vendorIndex": 6028,
+      "vendorExports": [
+        "quote",
+        "parse"
+      ],
+      "comparison": {
+        "nodes": 81,
+        "forward": {
+          "uV6": "vy8",
+          "w6": "w6",
+          "Error": "Error",
+          "R8": "R8",
+          "l8": "l8",
+          "oT8": "lT8",
+          "O6": "O6",
+          "y": "y"
+        },
+        "reverse": {
+          "vy8": "uV6",
+          "w6": "w6",
+          "Error": "Error",
+          "R8": "R8",
+          "l8": "l8",
+          "lT8": "oT8",
+          "O6": "O6",
+          "y": "y"
+        },
+        "scopeCount": 7
+      }
+    },
+    "omissionEvidence": {
+      "priorWrappers": [
+        {
+          "priorIndex": 7574,
+          "nodes": 135,
+          "shapeSha256": "db1f659948c3c31a3f7b9c1284635f7db4a34b9d89ee88a474a19ecb8e5e62aa",
+          "currentCompleteStatementShapeMatches": []
+        },
+        {
+          "priorIndex": 7575,
+          "nodes": 235,
+          "shapeSha256": "c8f3381284a3b0b2dceb0d198577009b7c7389651dc5a9edf99b554d4995e363",
+          "currentCompleteStatementShapeMatches": []
+        },
+        {
+          "priorIndex": 7576,
+          "nodes": 142,
+          "shapeSha256": "4a5067ec0b83c1db112db6920a557e8a9f2d15bc0aa6de7462efaff986d82dd2",
+          "currentCompleteStatementShapeMatches": []
+        },
+        {
+          "priorIndex": 7577,
+          "nodes": 91,
+          "shapeSha256": "28fec3565501695b9642f4122ad9c89bdc3fe7087d31ef2527eb58513af933b9",
+          "currentCompleteStatementShapeMatches": []
+        }
+      ],
+      "rawMarker": "Failed to quote shell arguments safely",
+      "markerRows": [],
+      "limitedTo": "No identical complete top-level diagnostic shape or literal marker; not whole-program binding, inlining, dynamic or alternate-encoding absence proof."
+    }
+  },
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3097286,
+    "sha256": "f258c5160b24d71620dcf579b7bfac61902c38ec5d6ba6c03b92c2aa3211f539"
+  },
+  "acceptedScope": [
+    "Physical V27 Pane source is exactly the independently approved postimage. Source guards and eval records do not overlap this owner.",
+    "All nine actual ordinary quote calls resolve the one included shared 48-node declaration. Every argument, receiver, field, callback and local declaration/reference/read/write edge in the complete 806-node class matches the target. The factory resolves the concrete class declaration.",
+    "The actual 31-node initializer has the eight complete grounded provider declarations in target order. No current statement or call was removed, moved or normalized for acceptance.",
+    "All twelve direct exported source providers and eight initializer owners join the complete target/current component graph at 2398 nodes. Remaining transitive captures stay qualified.",
+    "The concrete registry caller resolves the actual exported factory and preserves its complete body and backend argument.",
+    "The unchanged legacy source still emits the 59-node parser, the 21-node namespace initializer and the physical vendor entry with both quote and parse exports."
+  ],
+  "qualifications": [
+    "No identical complete top-level shape was found for the prior 135/235/142/91-node legacy wrapper functions, and the old quote-error literal has no raw marker nomination. This is compiler-omission evidence at those exact statements, not a whole-program binding, inlining, alternate encoding or dynamic-code absence proof. The legacy module was not globally removed.",
+    "The V26 raw old-name census had six nominations including an oversized string-bearing statement; it was not parsed or promoted into a binding proof. Old spellings are not treated as current binding identities.",
+    "Complete direct provider fields and local graphs agree under recorded external correspondences. Deeper transitive provider behavior and global declaration order are not accepted.",
+    "Source-map displacement and ambient/runtime/reflection limits remain inherited. No source map established ownership and no symbolic/compact bridge normalized the actual target comparison.",
+    "The final full-target AST remains unequal at 3097286 nodes/f258c5160b24d71620dcf579b7bfac61902c38ec5d6ba6c03b92c2aa3211f539. The node-count drop is not an acceptance criterion.",
+    "The first independent actual control expected one legacy parse member call; the complete function has two retained conditional arms. The corrected check requires both exact namespace calls and retains the complete 81-node parser/initializer graph. Original script and failure remain.",
+    "The raw-to-final text-removal chain was reproduced using UTF16 ranges and byte hashes. Existing marker-liveness/policy approval was inherited rather than re-running whole-program analysis. No full app parse, build, pane/process/shell/filesystem body or generated output was executed."
+  ],
+  "evidence": {
+    "groundwork-authentication.json": "fc9aa3412983588c80b067d20b32efd2f88e7b9ab6a25d1ef1684c9effe1ff21",
+    "baseline.json": "70061111f5137f85bf9bade71a87dd73983958dba4b9ffc40e6b85864951569c",
+    "baseline-witnesses.json": "b016114bed547d4705f0f375461b005887e386ded32538381860ba42e406de87",
+    "actual-authentication.json": "95e588697b5b736846bb7da7eb2d6f434dad2801f724b7b7f9718fac2ac95e48",
+    "actual-controls.json": "90209f8e7e03198b854f835bcb951291135473c6182548c0457d70c1aded7018",
+    "actual-witnesses.json": "b6a5b62314ee6a83fe4b0a72265ab1d02eec9c68eafb4b12285de6042ebd3a78",
+    "code-provenance.json": "3258f00e1daacb42682f6ec51bd4948897aac2fe2ca806812f7002cf08283786"
+  }
+}

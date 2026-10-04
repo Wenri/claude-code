@@ -1,0 +1,1002 @@
+{
+  "kind": "independent-actual-v28-yaml-emission-review",
+  "reportId": "yaml_stringify",
+  "verdict": "approved-scoped-actual-emission",
+  "actualEmissionVerified": true,
+  "actualScopedEmissionVerified": true,
+  "wholeTargetAcceptance": false,
+  "fullProgramBindingGraphEstablished": false,
+  "applicationExecuted": false,
+  "sourceApproval": {
+    "path": "historical-checkpoints/yaml-stringify-independent-review/review.json",
+    "sha256": "f0c4d552b09a776c75a7a2b320222eac83d6551eaf36e0e5ad27ec7414f0579d",
+    "closureSha256": "db5239a80749e96cb156ca093c075e9afab51d7874bbeaf1eab7f807de63af41"
+  },
+  "inputPins": {
+    "v28-replay/final/cli.js": "124809d5c6af3eb78e305d678dac5948c59d954ee1178846eebde4ebfd1ff6b0",
+    "v28-indexes/candidate.json": "fbb1c1dba7fb0f145e927f42a97477cda9b259d097ada6900af9a72c94d80dc4",
+    "v28-replay/compile-report.json": "dd96aaff92bb6d8a46075c9dc0cdc634e5e95a87377c1a15c97669877338a77d",
+    "v28-replay/profile.json": "a03a2a91f3d5982839585ad5fe5f4ff7f398aa78f3701a9c7e70ec6a46f4409e",
+    "v28-preparation/prepared/recovery/profiles/2.1.89/toolchain.json": "efb7c535d4c456e848db8a2b5d8b08d8fcc20a38f03dd1206e306c7d787d1a35",
+    "v28-preparation-review/review.json": "ae07f395cc1dbfc7bcf8dec264a0f09e5a9fed6acdebb33e95a8f791f01c7f34",
+    "v28-preparation-review/freeze.json": "673ce64a301248b53aa2cc219e591d3eed2d8d548cfd011e28e1e221e1968e96"
+  },
+  "preparationReviewSha256": "ae07f395cc1dbfc7bcf8dec264a0f09e5a9fed6acdebb33e95a8f791f01c7f34",
+  "preparationClosureSha256": "673ce64a301248b53aa2cc219e591d3eed2d8d548cfd011e28e1e221e1968e96",
+  "sourceManifestSha256": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+  "sourceFiles": 6084,
+  "source": {
+    "path": "src/utils/yaml.ts",
+    "sha256": "c146f394c1604dfd60bc3505efd167a60624bf870d020f9e70f59c8c3619b3fd",
+    "bytes": 814,
+    "guardOverlap": false,
+    "evalOverlap": false,
+    "inlineMap": false
+  },
+  "verification": {
+    "baselineGroups": 6,
+    "actualGroups": 8,
+    "negativeControls": 14,
+    "completeTargetAndActualWitnesses": 48,
+    "largestCompleteStatementBytes": 14228,
+    "fullApplicationParsed": false,
+    "compileOrApplicationExecutionPerformed": false,
+    "rawToFinalUtf16RemovalsReproduced": true,
+    "markerImportRemovals": 11,
+    "unchangedParseNodes": 24,
+    "stringifyNodes": 29,
+    "completeOwnerGraph": {
+      "nodes": 54,
+      "variables": 6,
+      "references": 10,
+      "sha256": "993675b176860bba47ed461e745cedd84b5436e9b05f5c0cbc59337a17403bb7"
+    },
+    "completeFallbackEntryPublicApiGraph": {
+      "nodes": 925,
+      "variables": 73,
+      "references": 261,
+      "sha256": "17910f34f9011987c5efcd9e67875b6321387a0afa5ae4b3768d7a0fadad0e83",
+      "targetRoles": {
+        "Bun": "ambient:Bun",
+        "Array": "ambient:Array",
+        "Math": "ambient:Math",
+        "Object": "ambient:Object",
+        "p": "bundler:CJS",
+        "cR1": "source-initializer:node_modules/yaml/dist/compose/composer.js",
+        "hn6": "source-initializer:node_modules/yaml/dist/doc/Document.js",
+        "hR1": "source-initializer:node_modules/yaml/dist/schema/Schema.js",
+        "Rn6": "source-initializer:node_modules/yaml/dist/errors.js",
+        "Xn6": "source-initializer:node_modules/yaml/dist/nodes/Alias.js",
+        "QY": "source-initializer:node_modules/yaml/dist/nodes/identity.js",
+        "J76": "source-initializer:node_modules/yaml/dist/nodes/Pair.js",
+        "kX": "source-initializer:node_modules/yaml/dist/nodes/Scalar.js",
+        "X76": "source-initializer:node_modules/yaml/dist/nodes/YAMLMap.js",
+        "P76": "source-initializer:node_modules/yaml/dist/nodes/YAMLSeq.js",
+        "Cv8": "source-initializer:node_modules/yaml/dist/parse/cst.js",
+        "eR1": "source-initializer:node_modules/yaml/dist/parse/lexer.js",
+        "qS1": "source-initializer:node_modules/yaml/dist/parse/line-counter.js",
+        "KS1": "source-initializer:node_modules/yaml/dist/parse/parser.js",
+        "iK4": "source-initializer:node_modules/yaml/dist/public-api.js",
+        "Jn6": "source-initializer:node_modules/yaml/dist/visit.js",
+        "qR1": "source-initializer:node_modules/yaml/dist/log.js"
+      },
+      "currentRoles": {
+        "Bun": "ambient:Bun",
+        "Array": "ambient:Array",
+        "Math": "ambient:Math",
+        "Object": "ambient:Object",
+        "p": "bundler:CJS",
+        "dh1": "source-initializer:node_modules/yaml/dist/compose/composer.js",
+        "Nn6": "source-initializer:node_modules/yaml/dist/doc/Document.js",
+        "Lh1": "source-initializer:node_modules/yaml/dist/schema/Schema.js",
+        "yn6": "source-initializer:node_modules/yaml/dist/errors.js",
+        "jn6": "source-initializer:node_modules/yaml/dist/nodes/Alias.js",
+        "UY": "source-initializer:node_modules/yaml/dist/nodes/identity.js",
+        "H76": "source-initializer:node_modules/yaml/dist/nodes/Pair.js",
+        "VX": "source-initializer:node_modules/yaml/dist/nodes/Scalar.js",
+        "M76": "source-initializer:node_modules/yaml/dist/nodes/YAMLMap.js",
+        "X76": "source-initializer:node_modules/yaml/dist/nodes/YAMLSeq.js",
+        "ST8": "source-initializer:node_modules/yaml/dist/parse/cst.js",
+        "th1": "source-initializer:node_modules/yaml/dist/parse/lexer.js",
+        "eh1": "source-initializer:node_modules/yaml/dist/parse/line-counter.js",
+        "qS1": "source-initializer:node_modules/yaml/dist/parse/parser.js",
+        "rK4": "source-initializer:node_modules/yaml/dist/public-api.js",
+        "On6": "source-initializer:node_modules/yaml/dist/visit.js",
+        "eR1": "source-initializer:node_modules/yaml/dist/log.js"
+      }
+    },
+    "directProducerDefinitions": 17,
+    "entryProducerCalls": 16,
+    "publicApiProducerCalls": 7,
+    "commonJSFactoryContainingStatementNodes": 257,
+    "actualGateProjectionOrNormalizationUsed": false
+  },
+  "chains": {
+    "target": {
+      "parse": 5921,
+      "stringify": 5922,
+      "entry": 5920,
+      "publicApi": 5919,
+      "entryName": "zS1",
+      "publicApiName": "iK4",
+      "stringifyBody": "NS_",
+      "stringifyBodyNodes": 130,
+      "concreteCJSFactory": true
+    },
+    "current": {
+      "parse": 5923,
+      "stringify": 5924,
+      "entry": 5922,
+      "publicApi": 5921,
+      "entryName": "_S1",
+      "publicApiName": "rK4",
+      "stringifyBody": "ZS_",
+      "stringifyBodyNodes": 130,
+      "concreteCJSFactory": true
+    }
+  },
+  "orderedProducerEdges": {
+    "target": {
+      "entry": [
+        {
+          "path": "node_modules/yaml/dist/compose/composer.js",
+          "statement": 5911,
+          "local": "SS_",
+          "binding": "cR1"
+        },
+        {
+          "path": "node_modules/yaml/dist/doc/Document.js",
+          "statement": 5894,
+          "local": "CS_",
+          "binding": "hn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/schema/Schema.js",
+          "statement": 5892,
+          "local": "bS_",
+          "binding": "hR1"
+        },
+        {
+          "path": "node_modules/yaml/dist/errors.js",
+          "statement": 5895,
+          "local": "_S1",
+          "binding": "Rn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/Alias.js",
+          "statement": 5856,
+          "local": "xS_",
+          "binding": "Xn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/identity.js",
+          "statement": 5849,
+          "local": "D76",
+          "binding": "QY"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/Pair.js",
+          "statement": 5868,
+          "local": "IS_",
+          "binding": "J76"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/Scalar.js",
+          "statement": 5857,
+          "local": "uS_",
+          "binding": "kX"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/YAMLMap.js",
+          "statement": 5870,
+          "local": "mS_",
+          "binding": "X76"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/YAMLSeq.js",
+          "statement": 5872,
+          "local": "pS_",
+          "binding": "P76"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/cst.js",
+          "statement": 5915,
+          "local": "BS_",
+          "binding": "Cv8"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/lexer.js",
+          "statement": 5916,
+          "local": "gS_",
+          "binding": "eR1"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/line-counter.js",
+          "statement": 5917,
+          "local": "FS_",
+          "binding": "qS1"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/parser.js",
+          "statement": 5918,
+          "local": "US_",
+          "binding": "KS1"
+        },
+        {
+          "path": "node_modules/yaml/dist/public-api.js",
+          "statement": 5919,
+          "local": "Iv8",
+          "binding": "iK4"
+        },
+        {
+          "path": "node_modules/yaml/dist/visit.js",
+          "statement": 5850,
+          "local": "rK4",
+          "binding": "Jn6"
+        }
+      ],
+      "publicApi": [
+        {
+          "path": "node_modules/yaml/dist/compose/composer.js",
+          "statement": 5911,
+          "local": "dK4",
+          "binding": "cR1"
+        },
+        {
+          "path": "node_modules/yaml/dist/doc/Document.js",
+          "statement": 5894,
+          "local": "ZS_",
+          "binding": "hn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/errors.js",
+          "statement": 5895,
+          "local": "In6",
+          "binding": "Rn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/log.js",
+          "statement": 5865,
+          "local": "GS_",
+          "binding": "qR1"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/identity.js",
+          "statement": 5849,
+          "local": "vS_",
+          "binding": "QY"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/line-counter.js",
+          "statement": 5917,
+          "local": "TS_",
+          "binding": "qS1"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/parser.js",
+          "statement": 5918,
+          "local": "cK4",
+          "binding": "KS1"
+        }
+      ]
+    },
+    "current": {
+      "entry": [
+        {
+          "path": "node_modules/yaml/dist/compose/composer.js",
+          "statement": 5913,
+          "local": "NS_",
+          "binding": "dh1"
+        },
+        {
+          "path": "node_modules/yaml/dist/doc/Document.js",
+          "statement": 5896,
+          "local": "yS_",
+          "binding": "Nn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/schema/Schema.js",
+          "statement": 5894,
+          "local": "ES_",
+          "binding": "Lh1"
+        },
+        {
+          "path": "node_modules/yaml/dist/errors.js",
+          "statement": 5897,
+          "local": "KS1",
+          "binding": "yn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/Alias.js",
+          "statement": 5858,
+          "local": "LS_",
+          "binding": "jn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/identity.js",
+          "statement": 5851,
+          "local": "W76",
+          "binding": "UY"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/Pair.js",
+          "statement": 5870,
+          "local": "RS_",
+          "binding": "H76"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/Scalar.js",
+          "statement": 5859,
+          "local": "hS_",
+          "binding": "VX"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/YAMLMap.js",
+          "statement": 5872,
+          "local": "SS_",
+          "binding": "M76"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/YAMLSeq.js",
+          "statement": 5874,
+          "local": "CS_",
+          "binding": "X76"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/cst.js",
+          "statement": 5917,
+          "local": "bS_",
+          "binding": "ST8"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/lexer.js",
+          "statement": 5918,
+          "local": "xS_",
+          "binding": "th1"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/line-counter.js",
+          "statement": 5919,
+          "local": "IS_",
+          "binding": "eh1"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/parser.js",
+          "statement": 5920,
+          "local": "uS_",
+          "binding": "qS1"
+        },
+        {
+          "path": "node_modules/yaml/dist/public-api.js",
+          "statement": 5921,
+          "local": "xT8",
+          "binding": "rK4"
+        },
+        {
+          "path": "node_modules/yaml/dist/visit.js",
+          "statement": 5852,
+          "local": "oK4",
+          "binding": "On6"
+        }
+      ],
+      "publicApi": [
+        {
+          "path": "node_modules/yaml/dist/compose/composer.js",
+          "statement": 5913,
+          "local": "cK4",
+          "binding": "dh1"
+        },
+        {
+          "path": "node_modules/yaml/dist/doc/Document.js",
+          "statement": 5896,
+          "local": "MS_",
+          "binding": "Nn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/errors.js",
+          "statement": 5897,
+          "local": "Sn6",
+          "binding": "yn6"
+        },
+        {
+          "path": "node_modules/yaml/dist/log.js",
+          "statement": 5867,
+          "local": "XS_",
+          "binding": "eR1"
+        },
+        {
+          "path": "node_modules/yaml/dist/nodes/identity.js",
+          "statement": 5851,
+          "local": "PS_",
+          "binding": "UY"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/line-counter.js",
+          "statement": 5919,
+          "local": "WS_",
+          "binding": "eh1"
+        },
+        {
+          "path": "node_modules/yaml/dist/parse/parser.js",
+          "statement": 5920,
+          "local": "lK4",
+          "binding": "qS1"
+        }
+      ]
+    }
+  },
+  "providerBodies": [
+    {
+      "path": "node_modules/yaml/dist/compose/composer.js",
+      "target": 5911,
+      "current": 5913,
+      "comparison": {
+        "nodes": 1078,
+        "forward": {
+          "B6": "g6",
+          "rh1": "iR1",
+          "hn6": "Nn6",
+          "Rn6": "yn6",
+          "QY": "UY",
+          "NK4": "yK4",
+          "WT6": "Wv6",
+          "Array": "Array",
+          "console": "console",
+          "JSON": "JSON",
+          "Object": "Object",
+          "p": "p"
+        },
+        "reverse": {
+          "g6": "B6",
+          "iR1": "rh1",
+          "Nn6": "hn6",
+          "yn6": "Rn6",
+          "UY": "QY",
+          "yK4": "NK4",
+          "Wv6": "WT6",
+          "Array": "Array",
+          "console": "console",
+          "JSON": "JSON",
+          "Object": "Object",
+          "p": "p"
+        },
+        "scopeCount": 28
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/doc/Document.js",
+      "target": 5894,
+      "current": 5896,
+      "comparison": {
+        "nodes": 1439,
+        "forward": {
+          "Xn6": "jn6",
+          "Kv8": "qT8",
+          "QY": "UY",
+          "J76": "H76",
+          "w76": "O76",
+          "hR1": "Lh1",
+          "_K4": "zK4",
+          "tG8": "sG8",
+          "oh1": "rR1",
+          "Pn6": "Hn6",
+          "rh1": "iR1",
+          "Object": "Object",
+          "Array": "Array",
+          "String": "String",
+          "Number": "Number",
+          "JSON": "JSON",
+          "Error": "Error",
+          "Map": "Map",
+          "p": "p"
+        },
+        "reverse": {
+          "jn6": "Xn6",
+          "qT8": "Kv8",
+          "UY": "QY",
+          "H76": "J76",
+          "O76": "w76",
+          "Lh1": "hR1",
+          "zK4": "_K4",
+          "sG8": "tG8",
+          "rR1": "oh1",
+          "Hn6": "Pn6",
+          "iR1": "rh1",
+          "Object": "Object",
+          "Array": "Array",
+          "String": "String",
+          "Number": "Number",
+          "JSON": "JSON",
+          "Error": "Error",
+          "Map": "Map",
+          "p": "p"
+        },
+        "scopeCount": 33
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/schema/Schema.js",
+      "target": 5892,
+      "current": 5894,
+      "comparison": {
+        "nodes": 250,
+        "forward": {
+          "QY": "UY",
+          "HT6": "Hv6",
+          "JT6": "Jv6",
+          "kn6": "Zn6",
+          "KK4": "_K4",
+          "Array": "Array",
+          "Object": "Object",
+          "p": "p"
+        },
+        "reverse": {
+          "UY": "QY",
+          "Hv6": "HT6",
+          "Jv6": "JT6",
+          "Zn6": "kn6",
+          "_K4": "KK4",
+          "Array": "Array",
+          "Object": "Object",
+          "p": "p"
+        },
+        "scopeCount": 7
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/errors.js",
+      "target": 5895,
+      "current": 5897,
+      "comparison": {
+        "nodes": 394,
+        "forward": {
+          "Error": "Error",
+          "Math": "Math",
+          "p": "p"
+        },
+        "reverse": {
+          "Error": "Error",
+          "Math": "Math",
+          "p": "p"
+        },
+        "scopeCount": 15
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/nodes/Alias.js",
+      "target": 5856,
+      "current": 5858,
+      "comparison": {
+        "nodes": 491,
+        "forward": {
+          "tG8": "sG8",
+          "Jn6": "On6",
+          "QY": "UY",
+          "eG8": "tG8",
+          "w76": "O76",
+          "Error": "Error",
+          "Object": "Object",
+          "ReferenceError": "ReferenceError",
+          "Math": "Math",
+          "p": "p"
+        },
+        "reverse": {
+          "sG8": "tG8",
+          "On6": "Jn6",
+          "UY": "QY",
+          "tG8": "eG8",
+          "O76": "w76",
+          "Error": "Error",
+          "Object": "Object",
+          "ReferenceError": "ReferenceError",
+          "Math": "Math",
+          "p": "p"
+        },
+        "scopeCount": 22
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/nodes/identity.js",
+      "target": 5849,
+      "current": 5851,
+      "comparison": {
+        "nodes": 335,
+        "forward": {
+          "Symbol": "Symbol",
+          "p": "p"
+        },
+        "reverse": {
+          "Symbol": "Symbol",
+          "p": "p"
+        },
+        "scopeCount": 14
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/nodes/Pair.js",
+      "target": 5868,
+      "current": 5870,
+      "comparison": {
+        "nodes": 206,
+        "forward": {
+          "Pn6": "Hn6",
+          "H44": "J44",
+          "zR1": "_h1",
+          "QY": "UY",
+          "Object": "Object",
+          "Map": "Map",
+          "JSON": "JSON",
+          "p": "p"
+        },
+        "reverse": {
+          "Hn6": "Pn6",
+          "J44": "H44",
+          "_h1": "zR1",
+          "UY": "QY",
+          "Object": "Object",
+          "Map": "Map",
+          "JSON": "JSON",
+          "p": "p"
+        },
+        "scopeCount": 9
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/nodes/Scalar.js",
+      "target": 5857,
+      "current": 5859,
+      "comparison": {
+        "nodes": 137,
+        "forward": {
+          "QY": "UY",
+          "eG8": "tG8",
+          "w76": "O76",
+          "String": "String",
+          "p": "p"
+        },
+        "reverse": {
+          "UY": "QY",
+          "tG8": "eG8",
+          "O76": "w76",
+          "String": "String",
+          "p": "p"
+        },
+        "scopeCount": 8
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/nodes/YAMLMap.js",
+      "target": 5870,
+      "current": 5872,
+      "comparison": {
+        "nodes": 708,
+        "forward": {
+          "YR1": "zh1",
+          "zR1": "_h1",
+          "Kv8": "qT8",
+          "QY": "UY",
+          "J76": "H76",
+          "kX": "VX",
+          "Array": "Array",
+          "Object": "Object",
+          "Map": "Map",
+          "Error": "Error",
+          "JSON": "JSON",
+          "p": "p"
+        },
+        "reverse": {
+          "zh1": "YR1",
+          "_h1": "zR1",
+          "qT8": "Kv8",
+          "UY": "QY",
+          "H76": "J76",
+          "VX": "kX",
+          "Array": "Array",
+          "Object": "Object",
+          "Map": "Map",
+          "Error": "Error",
+          "JSON": "JSON",
+          "p": "p"
+        },
+        "scopeCount": 25
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/nodes/YAMLSeq.js",
+      "target": 5872,
+      "current": 5874,
+      "comparison": {
+        "nodes": 470,
+        "forward": {
+          "Pn6": "Hn6",
+          "YR1": "zh1",
+          "Kv8": "qT8",
+          "QY": "UY",
+          "kX": "VX",
+          "w76": "O76",
+          "Error": "Error",
+          "String": "String",
+          "JSON": "JSON",
+          "Set": "Set",
+          "Symbol": "Symbol",
+          "Object": "Object",
+          "Number": "Number",
+          "p": "p"
+        },
+        "reverse": {
+          "Hn6": "Pn6",
+          "zh1": "YR1",
+          "qT8": "Kv8",
+          "UY": "QY",
+          "VX": "kX",
+          "O76": "w76",
+          "Error": "Error",
+          "String": "String",
+          "JSON": "JSON",
+          "Set": "Set",
+          "Symbol": "Symbol",
+          "Object": "Object",
+          "Number": "Number",
+          "p": "p"
+        },
+        "scopeCount": 20
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/parse/cst.js",
+      "target": 5915,
+      "current": 5917,
+      "comparison": {
+        "nodes": 311,
+        "forward": {
+          "SK4": "CK4",
+          "CK4": "bK4",
+          "IK4": "uK4",
+          "JSON": "JSON",
+          "p": "p"
+        },
+        "reverse": {
+          "CK4": "SK4",
+          "bK4": "CK4",
+          "uK4": "IK4",
+          "JSON": "JSON",
+          "p": "p"
+        },
+        "scopeCount": 10
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/parse/lexer.js",
+      "target": 5916,
+      "current": 5918,
+      "comparison": {
+        "nodes": 3058,
+        "forward": {
+          "Cv8": "ST8",
+          "Set": "Set",
+          "TypeError": "TypeError",
+          "Number": "Number",
+          "Math": "Math",
+          "p": "p"
+        },
+        "reverse": {
+          "ST8": "Cv8",
+          "Set": "Set",
+          "TypeError": "TypeError",
+          "Number": "Number",
+          "Math": "Math",
+          "p": "p"
+        },
+        "scopeCount": 73
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/parse/line-counter.js",
+      "target": 5917,
+      "current": 5919,
+      "comparison": {
+        "nodes": 143,
+        "forward": {
+          "p": "p"
+        },
+        "reverse": {
+          "p": "p"
+        },
+        "scopeCount": 8
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/parse/parser.js",
+      "target": 5918,
+      "current": 5920,
+      "comparison": {
+        "nodes": 4223,
+        "forward": {
+          "B6": "g6",
+          "Cv8": "ST8",
+          "eR1": "th1",
+          "Array": "Array",
+          "console": "console",
+          "Object": "Object",
+          "p": "p"
+        },
+        "reverse": {
+          "g6": "B6",
+          "ST8": "Cv8",
+          "th1": "eR1",
+          "Array": "Array",
+          "console": "console",
+          "Object": "Object",
+          "p": "p"
+        },
+        "scopeCount": 102
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/public-api.js",
+      "target": 5919,
+      "current": 5921,
+      "comparison": {
+        "nodes": 569,
+        "forward": {
+          "cR1": "dh1",
+          "hn6": "Nn6",
+          "Rn6": "yn6",
+          "qR1": "eR1",
+          "QY": "UY",
+          "qS1": "eh1",
+          "KS1": "qS1",
+          "Array": "Array",
+          "Object": "Object",
+          "Math": "Math",
+          "p": "p"
+        },
+        "reverse": {
+          "dh1": "cR1",
+          "Nn6": "hn6",
+          "yn6": "Rn6",
+          "eR1": "qR1",
+          "UY": "QY",
+          "eh1": "qS1",
+          "qS1": "KS1",
+          "Array": "Array",
+          "Object": "Object",
+          "Math": "Math",
+          "p": "p"
+        },
+        "scopeCount": 14
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/visit.js",
+      "target": 5850,
+      "current": 5852,
+      "comparison": {
+        "nodes": 853,
+        "forward": {
+          "QY": "UY",
+          "Symbol": "Symbol",
+          "Object": "Object",
+          "Error": "Error",
+          "p": "p"
+        },
+        "reverse": {
+          "UY": "QY",
+          "Symbol": "Symbol",
+          "Object": "Object",
+          "Error": "Error",
+          "p": "p"
+        },
+        "scopeCount": 23
+      },
+      "transitiveCapturesConditional": true
+    },
+    {
+      "path": "node_modules/yaml/dist/log.js",
+      "target": 5865,
+      "current": 5867,
+      "comparison": {
+        "nodes": 76,
+        "forward": {
+          "B6": "g6",
+          "console": "console",
+          "p": "p"
+        },
+        "reverse": {
+          "g6": "B6",
+          "console": "console",
+          "p": "p"
+        },
+        "scopeCount": 5
+      },
+      "transitiveCapturesConditional": true
+    }
+  ],
+  "coercion": {
+    "actualForm": "Bun.YAML.stringify(input, null, 2) + newline",
+    "type": "BinaryExpression",
+    "operator": "+",
+    "leftThenRight": true,
+    "hint": "default",
+    "historicalTemplateInterpolationHint": "string",
+    "fallback": "return lazyYamlEntry().stringify(input)",
+    "namespaceReceiverAndLazyBranchPreserved": true,
+    "ambientBunBehaviorAssumed": false
+  },
+  "caller": {
+    "index": 14764,
+    "nodes": 143,
+    "stringifyIndex": 5924,
+    "argumentLocal": "A",
+    "toolsSyntacticReads": 1,
+    "fullCallerModuleReviewOwnedBy": "search_github_sdk_definitions",
+    "fullCallerModuleAcceptedHere": false
+  },
+  "separateCallerApproval": {
+    "path": "historical-checkpoints/v28-agent-file-emission-review/review.json",
+    "sha256": "cf651a302a4796995c5bfe9f3eaa180cb2da40bc898241705e637b2e7a8c4aa7",
+    "closureSha256": "c362112c79931b115afddd4dc2093fbe9652d6a2a264d947a04f9bc0c7a3cec4",
+    "scope": "Separate complete AgentFileUtils owner, direct providers and initializer verdict; YAML fallback verdict remains this review."
+  },
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3097309,
+    "sha256": "296db1eb2fc7664c78df16942384075205adfc3a95e73c1a408969573a867e08"
+  },
+  "history": {
+    "targetV27BaselineFreezeSha256": "05adc6c5a15fcf10147f2ce3957029736a116b01e087d93f8de5b610195ca662",
+    "oldInterpolationAndFourToolsReadsPreservedAsHistoricalEvidence": true,
+    "v28OldToolsReadResidualClaimed": false,
+    "reviewerFailures": [
+      {
+        "path": "authenticate-production-attempt1.py",
+        "reason": "The receipt adapter initially expected the earlier physicalInventory schema; the pinned V28 review uses expected plus an explicit physical validation report. The final adapter verifies those actual fields without weakening source/receipt pins."
+      },
+      {
+        "path": "actual-attempt1.mjs",
+        "reason": "An inherited source-owner inventory included AgentFileUtils and initially expected its historical preimage. The corrected inventory explicitly binds its separately approved V28 postimage; the original failure is retained."
+      }
+    ]
+  },
+  "acceptedScope": [
+    "Complete parseYaml and stringifyYaml bodies and all selected bound edges match the authenticated target.",
+    "The native addition expression and exact lazy namespace fallback preserve target AST fields without receiver or coercion normalization.",
+    "The actual YAML CJS entry/public-api, source export chain, included factory binding and ordered direct producer interfaces are authenticated.",
+    "The selected actual AgentFileUtils call binds the same shared stringify declaration and local cloned object; its complete module has a separate frozen review."
+  ],
+  "qualifications": [
+    "Default-hint addition can differ from string-hint interpolation for object results, accessors or proxies. This is target-directed behavior recovery; no coercion callback or YAML function was executed.",
+    "Bun remains an ambient global which may be absent, replaced, proxied or return unusual values. No generic runtime-equivalence claim is made.",
+    "Complete direct provider bodies are checked under their disclosed captured interfaces. Recursive transitive YAML dependencies, ambient primitives and arbitrary external consumers are not certified equivalent.",
+    "Source/import and diagnostic token inventories do not establish global binding, dynamic/eval or external-consumer absence.",
+    "The parser and AgentEditor residuals belong to the separately qualified AgentFileUtils review; historical tools-read mismatch is resolved in this V28 caller.",
+    "Source maps are not ownership evidence. Marker-import liveness/policy remains inherited from the approved toolchain; only exact recorded UTF16 text removals were replayed here.",
+    "The full target strict AST remains unequal. No source, profile, stage, repository, compiler feature or guard policy was changed."
+  ],
+  "evidence": [
+    "BASELINE-FREEZE.json",
+    "baseline.json",
+    "baseline-witnesses.json",
+    "production-authentication.json",
+    "actual-controls.json",
+    "actual-witnesses.json",
+    "caller-review-authentication.json"
+  ]
+}

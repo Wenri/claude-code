@@ -1,0 +1,78 @@
+{
+  "kind": "incomplete-reviewed-source-checkpoint",
+  "version": "2.1.89",
+  "revision": 28,
+  "baseMainCommit": "245e0b81beac4808fa7657b4aa2a84073a6c52cf",
+  "cumulativeRootSourceVersion": "2.1.126",
+  "rootSourceMustRemainUnchanged": true,
+  "sourceFiles": 6084,
+  "sourceBytes": 50939997,
+  "sourceManifestSha256": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+  "derivedSrcTree": "459e876206692e10750c94e74f865155addb9d53",
+  "sourceAndPreparationReviewed": true,
+  "serialBuildAndStrictParsePassed": true,
+  "actualV28SourceReviews": "scoped-pass",
+  "versionAccepted": false,
+  "strictAstEqual": false,
+  "wholeProgramBindingEquivalenceEstablished": false,
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3097309,
+    "sha256": "296db1eb2fc7664c78df16942384075205adfc3a95e73c1a408969573a867e08"
+  },
+  "target": {
+    "javaScriptSha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+    "nodes": 3098331,
+    "strictAstSha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "acceptancePolicy": "Sound binding-aware alpha-equivalence and provably independent definition ordering may be accepted after conservative whole-program review. Strict exact AST is the stronger diagnostic. Neither whole route has passed; unsupported or observable cases stay unresolved, and counts are not distances.",
+  "latestVerifiedScopedResults": [
+    "V25 ShellSnapshot quote/provider order and Messages viewport complete production graphs pass.",
+    "V26 main direct calls/guard and normalized message lookup owner/caller pass; their historical broader limits remain.",
+    "V27 Bash/pipe, CrossProjectResume and Pane complete repaired functions and direct provider orders pass. The broader Bash graph retains the inherited Windows provider-order failure.",
+    "V28 YAML complete owner, default-hint expression, real namespace/fallback/export chain and repaired caller edge pass.",
+    "V28 autoCompact complete module, timing/feature/refill/header changes, same-state duplicate calls, full67-node initializer and main slot17 pass under explicit interfaces.",
+    "V28 all twelve agent-file functions, cache-once tools value, baseDir/evaluation order, native bindings and real28-node initializer pass."
+  ],
+  "unfinished": [
+    "The inherited Windows provider initialization order and broader Bash joined-provider graph remain false in these inputs.",
+    "AgentEditor728/720 and the separate markdown parser803/762 remain unaccepted; V29 source proposals are outside this checkpoint.",
+    "MessageRating raw initializer grouping, live helper/wrapper topology, REPL provider placement and other source/body/cache gaps remain unresolved.",
+    "All reports retain conditional external interfaces, raw fixture failures and historical statuses; no transitive or whole-program acceptance follows.",
+    "Private-binding and grouping certificates remain diagnostic. Original private authorship, arbitrary reflection/dynamic/ambient equivalence, universal TypeScript/API compatibility and generated source-map coordinates are unestablished."
+  ],
+  "separateFutureWork": [
+    {
+      "component": "file_read_guards",
+      "owners": [
+        "src/tools/FileEditTool/constants.ts",
+        "src/tools/FileEditTool/FileEditTool.ts",
+        "src/tools/FileWriteTool/FileWriteTool.ts"
+      ],
+      "state": "independently reviewed source trial; excluded from V28 inputs; fresh actual-stage checks mandatory",
+      "sourceManifestSha256": "727b18964c0fbfae8580817394d001bf3571602451af24a8ff9bc55feec77c2e"
+    },
+    {
+      "component": "agent_editor_source_match",
+      "owners": [
+        "src/components/agents/AgentEditor.tsx"
+      ],
+      "state": "independently reviewed one-condition source trial with failed tiny React comparison and stale map preserved; excluded from V28 inputs",
+      "sourceManifestSha256": "65dd2fb9d1e0cdd22daab42bfa65f86e10164a962a1db77378da6214a8653b00"
+    },
+    {
+      "component": "windows_paths_order",
+      "owners": [
+        "src/utils/windowsPaths.ts"
+      ],
+      "state": "independently reviewed import relocation; actual six-provider order and global placement not yet verified; excluded from V28 inputs",
+      "sourceManifestSha256": "fa6ce78510fdaea6b58b37543c77a0ed3883b2bc15b279edc261b1c18f2ce8cb"
+    }
+  ],
+  "publicRelocatedReplayPassed": true,
+  "publicRelocatedReplayMatchesPrivateStrictAst": true,
+  "publicMaterializedFiles": 6203,
+  "publicProfileSha256": "2086c76130988902f6515c2710c3a0005b49bb8aea8459cde8c454f2a41ed4c3"
+}

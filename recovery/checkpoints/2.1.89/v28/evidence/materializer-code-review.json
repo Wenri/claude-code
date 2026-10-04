@@ -1,0 +1,196 @@
+{
+  "kind": "independent-fixed-public-v28-materializer-review",
+  "verdict": "approved-code-only-for-fixed-v28-public-checkpoint",
+  "codeTrialApproved": true,
+  "publicIntegrationVerified": false,
+  "publicationApproved": false,
+  "applicationExecuted": false,
+  "repositoryModified": false,
+  "sourceStageModified": false,
+  "author": {
+    "path": "publish-v28-materializer",
+    "pins": {
+      "artifact-manifest.json": "499d14a52dbd416ae0ac32a284f5b78ce6d2db4e10a19284b4071566decf1574",
+      "code-provenance.json": "9c98b44d977bfa9d205a3f54c04da58289999096e983fb9ec8f7ef2fad7eb6ef",
+      "freeze.json": "a93c0730c841ad3422319753aac981b263d875f46255431ff2e910c0a63fe3fb",
+      "materialize.py": "665bdcc840cf38336529b3070198a167c1629e22cd04f2349907c8da23beed91"
+    },
+    "all13FrozenArtifactsUnchanged": true
+  },
+  "baseline": {
+    "kind": "reviewed-v24-materializer-baseline-authentication",
+    "pins": {
+      "materialize.py": "e0a5151b2883c633f10414c7af97a63c495665a3804d7325e5c78d927e8d8648",
+      "artifact-manifest.json": "0f31abb136a5028e037d47ee3586440f52a97754e3fa4c2eb4e9597505f7282f",
+      "code-provenance.json": "deff3866892481c02c5d40484ec159e6127fc552ad39628f50d491488fac0c9d",
+      "freeze.json": "cceceb927182bba34cbc975949cb56233b34a6167604a8c5804f2d450dc7dc4b"
+    },
+    "previousReviewSha256": "31a72d6e4db0b3af376bffced5d487484239a535a6e2ed767ae77c520171c051",
+    "previousReviewClosureSha256": "e8607a43dc3a3bf3f00b967bd789db51196af96d75500b1a98f00ccbdc64dc0d",
+    "artifactMembers": 11,
+    "executableMembers": 4,
+    "V28ToolingExecuted": false,
+    "publicIntegrationReviewed": false
+  },
+  "exactChange": {
+    "authorizedByteSubstitutions": 8,
+    "astConstantValueChanges": 9,
+    "everyOtherBytePreserved": true,
+    "completePythonAstReversal": true,
+    "algorithmOrPolicyChanges": false,
+    "newDependencies": false,
+    "functionBodies": [
+      {
+        "name": "require",
+        "byteExact": true,
+        "oldSha256": "9775a8b3969599d5d1f620d9717824195d7ab69490eafb5e7b8d1bacbf14df85",
+        "newSha256": "9775a8b3969599d5d1f620d9717824195d7ab69490eafb5e7b8d1bacbf14df85"
+      },
+      {
+        "name": "sha",
+        "byteExact": true,
+        "oldSha256": "fc33541dab55897936faef1ad2869e455cbd6942f02508b99b41efdccc29be21",
+        "newSha256": "fc33541dab55897936faef1ad2869e455cbd6942f02508b99b41efdccc29be21"
+      },
+      {
+        "name": "safe_rel",
+        "byteExact": true,
+        "oldSha256": "22eac1c9b8962a72f184d1c7aa2d45f45d3cdf18a5a1a707b379fed7b009980d",
+        "newSha256": "22eac1c9b8962a72f184d1c7aa2d45f45d3cdf18a5a1a707b379fed7b009980d"
+      },
+      {
+        "name": "canonical",
+        "byteExact": true,
+        "oldSha256": "ff4329f82171adc5407ab6a29a896db7a0eb09ac6dbdee5c5f0c1c98ea104025",
+        "newSha256": "ff4329f82171adc5407ab6a29a896db7a0eb09ac6dbdee5c5f0c1c98ea104025"
+      },
+      {
+        "name": "read_file",
+        "byteExact": true,
+        "oldSha256": "56b5fcd302094a18124f38e42c222b22fdbb4f884f763d54b33f90b487796275",
+        "newSha256": "56b5fcd302094a18124f38e42c222b22fdbb4f884f763d54b33f90b487796275"
+      },
+      {
+        "name": "json_bytes",
+        "byteExact": true,
+        "oldSha256": "24a803ff127a95641ab8ca7e2b88d942ee711094d739a4ad5afed0eaff66e10a",
+        "newSha256": "24a803ff127a95641ab8ca7e2b88d942ee711094d739a4ad5afed0eaff66e10a"
+      },
+      {
+        "name": "row",
+        "byteExact": true,
+        "oldSha256": "441f596091411934552de23781aac8395c6e7327fb4b5c087e9f1dada90956b1",
+        "newSha256": "441f596091411934552de23781aac8395c6e7327fb4b5c087e9f1dada90956b1"
+      },
+      {
+        "name": "rows",
+        "byteExact": true,
+        "oldSha256": "eec0afdaae92a12fde97330e034708d3cb1d589269003fef6a8eabeacdcaddae",
+        "newSha256": "eec0afdaae92a12fde97330e034708d3cb1d589269003fef6a8eabeacdcaddae"
+      },
+      {
+        "name": "validation_rows",
+        "byteExact": true,
+        "oldSha256": "0db4972980a3aff7c2f591dba8b09c4d8a09d630d40615c4380e912f679e4979",
+        "newSha256": "0db4972980a3aff7c2f591dba8b09c4d8a09d630d40615c4380e912f679e4979"
+      },
+      {
+        "name": "checked",
+        "byteExact": true,
+        "oldSha256": "ad2cb13bc99ed698546dd87672964718ca7096ab24bc4f2f5e89a63c445bce5b",
+        "newSha256": "ad2cb13bc99ed698546dd87672964718ca7096ab24bc4f2f5e89a63c445bce5b"
+      },
+      {
+        "name": "archive",
+        "byteExact": true,
+        "oldSha256": "be3cdb03e403a4afdceefba02d67fc5414f94480d31097a7ee6b836f0d1b3226",
+        "newSha256": "be3cdb03e403a4afdceefba02d67fc5414f94480d31097a7ee6b836f0d1b3226"
+      },
+      {
+        "name": "source_digest",
+        "byteExact": true,
+        "oldSha256": "bd2ad84ff24181c8f8a594acbbbcfc20d2e62c9fdd472829b4f754f2c26b8aa3",
+        "newSha256": "bd2ad84ff24181c8f8a594acbbbcfc20d2e62c9fdd472829b4f754f2c26b8aa3"
+      },
+      {
+        "name": "git_blob",
+        "byteExact": true,
+        "oldSha256": "aef033ce63cc124b83981ccfe61beda4de57787be904e9257689fe0e72c037f0",
+        "newSha256": "aef033ce63cc124b83981ccfe61beda4de57787be904e9257689fe0e72c037f0"
+      },
+      {
+        "name": "git_tree",
+        "byteExact": true,
+        "oldSha256": "f2151da4031672bd698d9d69c06148246435edc05cba78c622b3227855f1193e",
+        "newSha256": "f2151da4031672bd698d9d69c06148246435edc05cba78c622b3227855f1193e"
+      },
+      {
+        "name": "prepare",
+        "byteExact": false,
+        "oldSha256": "c5422a896d3280b1d827fa933aa83bc6070d34cdfebc02e3872e72cbd1e4b8f4",
+        "newSha256": "7fc4cda3623ef347fd7eef0f3e398119b506bfb45a06d2910e8bde28fae5a461"
+      },
+      {
+        "name": "publish",
+        "byteExact": true,
+        "oldSha256": "3c3dc7d079c55a8f039610f1822629eb96e6f6b9d63d47406ff2b63d9cb9cdab",
+        "newSha256": "3c3dc7d079c55a8f039610f1822629eb96e6f6b9d63d47406ff2b63d9cb9cdab"
+      },
+      {
+        "name": "main",
+        "byteExact": true,
+        "oldSha256": "40c2876aaad079aca8b2d51a9752387d688667e7c7e741d7f3659bfa5bee5806",
+        "newSha256": "40c2876aaad079aca8b2d51a9752387d688667e7c7e741d7f3659bfa5bee5806"
+      }
+    ]
+  },
+  "expected": {
+    "sourceFiles": 6084,
+    "sourceBytes": 50939997,
+    "sourceManifestSha256": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+    "overlayFiles": 156,
+    "overlayBytes": 6824544,
+    "gitSourceFiles": 1922,
+    "extraSourceAssets": 29,
+    "derivedSrcTree": "459e876206692e10750c94e74f865155addb9d53",
+    "physicalPublicIntegrationVerified": false
+  },
+  "validation": {
+    "inheritedControls": 53,
+    "authorFixedControls": 39,
+    "independentGroups": 11,
+    "independentNegativeControls": 17,
+    "inheritedTestByteExact": true,
+    "allControlsPassed": true,
+    "allTestsRanInOwnedReviewDirectories": true,
+    "boundedRegularReadChecks": true,
+    "archiveTypeMemberModePathSizeHashChecks": true,
+    "missingExtraMemberChecks": true,
+    "existingOutputAndRepositoryOverlapRefused": true,
+    "strictCheckerLayoutUnchanged": true,
+    "fullSourceAndRuntimeValidationAlgorithmsUnchanged": true,
+    "quiescentAndPartialOutputLimitsPreserved": true,
+    "actualPublicMaterializationPerformed": false
+  },
+  "limits": [
+    "Inputs and output parent must be trusted and quiescent; no concurrent-writer sandbox claim.",
+    "A publication I/O failure may leave a partial new tree; the helper refuses reuse and never silently deletes it.",
+    "Byte bounds are input/inventory bounds, not total RSS.",
+    "Exact public manifest, archive and physical materialized integration remain the separate staged-checkpoint review."
+  ],
+  "pendingIntegration": [
+    "Authenticate the final externally pinned public V28 manifest and all payload/archive members.",
+    "Verify public profile locator redactions and exact current source/runtime/validation materialization.",
+    "Verify the exact staged Git tree, root .126 and prior checkpoint preservation in the separate publication review.",
+    "Retain strict-unequal and all pending actual/global behavior qualifications in public status."
+  ],
+  "evidence": [
+    "baseline-authentication.json",
+    "author-authentication.json",
+    "copied-author-inputs.json",
+    "inherited-tests.json",
+    "fixed-tests.json",
+    "independent.json"
+  ],
+  "boundary": "Only the data-only materializer code is approved. No public profile, archive, source, application, Git operation or upload was produced by this review."
+}

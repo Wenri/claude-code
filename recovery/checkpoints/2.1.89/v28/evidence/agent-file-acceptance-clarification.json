@@ -1,0 +1,22 @@
+{
+  "kind": "v28-agent-file-acceptance-wording-clarification",
+  "reportId": "agent_file_updates",
+  "originalReceipt": {
+    "path": "v28-agent-file-emission-review/review.json",
+    "sha256": "cf651a302a4796995c5bfe9f3eaa180cb2da40bc898241705e637b2e7a8c4aa7"
+  },
+  "originalClosure": {
+    "path": "v28-agent-file-emission-review/freeze.json",
+    "sha256": "c362112c79931b115afddd4dc2093fbe9652d6a2a264d947a04f9bc0c7a3cec4"
+  },
+  "field": "/mandatoryRemainingGlobalCondition",
+  "originalWording": "Exact final whole-program strict AST equality remains required.",
+  "clarification": "This field describes strict equality too narrowly as the required acceptance route. It does not override the user acceptance policy permitting sound binding-aware alpha-equivalence and provably independent definition ordering. Strict whole-program AST equality is a stronger diagnostic. Neither whole acceptance route has passed.",
+  "allOriginalEvidenceAndScopedVerdictsUnchanged": true,
+  "wholeTargetAcceptance": false,
+  "unsupportedCasesRemainRejection": true,
+  "newEquivalenceOrOrderingProofClaimed": false,
+  "behavioralClaimAdded": false,
+  "runtimeOrAcceptanceGateChanged": false,
+  "originalReceiptAndClosureModified": false
+}

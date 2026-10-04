@@ -1,0 +1,439 @@
+{
+  "kind": "v23-spawn-family-emission-review",
+  "reportId": "spawn_quote",
+  "verdict": "scoped-spawn-family-emission-verified",
+  "actualEmissionVerified": true,
+  "spawnUtilsActualEmissionVerified": true,
+  "spawnMultiAgentActualEmissionVerified": true,
+  "profileSha256": "5edefdcb2ffeeecda370f78bcaa8c27af22359574701ce27604a09558034d0f9",
+  "toolchainSha256": "8a755a555e7b3c1c8602eb5be4e8c7709a5b0f8501821de853f057ac1acb9209",
+  "finalJavaScript": {
+    "path": "historical-checkpoints/v23-replay/final/cli.js",
+    "sha256": "b412f4dde98b56551390053ff452bec9e7e6aad8ca0f8a75957ba652830e58cc",
+    "bytes": 13076968
+  },
+  "candidateIndex": {
+    "path": "historical-checkpoints/v23-indexes/candidate.json",
+    "sha256": "8147d5b1402a6e11a9f65d51c2051e2d1db11ddcc0fa2ecbec283277e9a7c8ce",
+    "bytes": 5578814
+  },
+  "compileReportSha256": "8abdae418c5a7917747e5b0afafeb97f026e53a71e2337d90470ebc667be050d",
+  "preparationApproval": {
+    "path": "historical-checkpoints/v23-preparation-review/review.json",
+    "sha256": "c41072ad2ed415206cc4d73f9b791f7aedb076b38774858f0f341cc35320a036",
+    "closureSha256": "aeab5cfa155b2ab00eb19afa76636f786fcfa98de44fd62f9e8c82e566158740"
+  },
+  "sourceApprovals": [
+    {
+      "id": "spawn_utils_quote",
+      "approval": {
+        "path": "historical-checkpoints/spawn-utils-quote-independent-review/review.json",
+        "sha256": "c68b22e74ed4855775ab4d9a683e385d9e9be475c439dfafc4ee21500cc09219"
+      },
+      "closure": {
+        "path": "historical-checkpoints/spawn-utils-quote-independent-review/freeze.json",
+        "sha256": "b7fe27e2ee4951701005d86f9c23dded94b5b50ce45fc7914909564dd03bad5c"
+      },
+      "members": 34,
+      "sourceRepairSha256": "07e5376c99f089556cdbf64c8e3f22805b9694d9829eaa35a01dd67cc4b11227"
+    },
+    {
+      "id": "spawn_multi_agent_quote",
+      "approval": {
+        "path": "historical-checkpoints/spawn-multi-agent-independent-review/review.json",
+        "sha256": "04e751c6510f510a0651aaa0550579cc354498a13dbb89497e3988324813a60d"
+      },
+      "closure": {
+        "path": "historical-checkpoints/spawn-multi-agent-independent-review/freeze.json",
+        "sha256": "32be0ace5d4c2010d0c038847e1dcaf3b8ee9ff8279ff7189c395a377eaa1eab"
+      },
+      "members": 36,
+      "sourceRepairSha256": "84f1b8faa1e86d8fcd7832ea83dc28f00c920fd2d19fdf159e966f08b6b9743b"
+    }
+  ],
+  "spawnUtils": {
+    "target": [
+      9820,
+      9824
+    ],
+    "current": [
+      9829,
+      9833
+    ],
+    "initializerNodes": 34,
+    "resolvedSharedCalls": 4,
+    "completeHelperThreeFunctionsHeaderInitializerGraphVerified": true,
+    "environmentKeys": [
+      "CLAUDE_CODE_USE_BEDROCK",
+      "CLAUDE_CODE_USE_VERTEX",
+      "CLAUDE_CODE_USE_FOUNDRY",
+      "ANTHROPIC_BASE_URL",
+      "CLAUDE_CONFIG_DIR",
+      "CLAUDE_CODE_REMOTE",
+      "CLAUDE_CODE_REMOTE_MEMORY_DIR",
+      "HTTPS_PROXY",
+      "https_proxy",
+      "HTTP_PROXY",
+      "http_proxy",
+      "NO_PROXY",
+      "no_proxy",
+      "SSL_CERT_FILE",
+      "NODE_EXTRA_CA_CERTS",
+      "REQUESTS_CA_BUNDLE",
+      "CURL_CA_BUNDLE"
+    ],
+    "singleEnvironmentReadAndUndefinedEmptyFilteringPreserved": true,
+    "oldDirectProviderSlotRemoved": 1,
+    "remainingDirectProviderOrderPreserved": true
+  },
+  "spawnMultiAgent": {
+    "target": [
+      11713,
+      11727
+    ],
+    "current": [
+      11734,
+      11748
+    ],
+    "initializerNodes": 78,
+    "resolvedSharedCalls": 23,
+    "complete13FunctionsHeaderInitializerGraphVerified": true,
+    "all23CallsOrdinaryReadOnlyAndOneElementArrayArguments": true,
+    "realReactNamespaceBindingRetainedInJointGraph": true,
+    "oldDirectProviderSlotRemoved": 2,
+    "remainingDirectProviderOrderPreserved": true
+  },
+  "jointSharedHelperGraph": {
+    "helperNodes": 48,
+    "targetStatement": 9810,
+    "currentStatement": 9819,
+    "currentBinding": "Oz",
+    "all27CallsResolveToOneDeclaration": true,
+    "allFieldsAndSelectedLocalCapturedGraphsMatchUnderQualifiedExternalInterfaces": true,
+    "qualifiedExternalInterfaces": {
+      "String": "String",
+      "process": "process",
+      "NE6": "LE6",
+      "Oj": "Mj",
+      "M96": "W96",
+      "gx": "gx",
+      "ot": "qe",
+      "fB": "kB",
+      "wj6": "Jj6",
+      "Jx6": "Hx6",
+      "k8": "V8",
+      "jj6": "Mj6",
+      "w8": "w8",
+      "J18": "X18",
+      "$5": "A5",
+      "dZ": "U0",
+      "t8": "s8",
+      "Error": "Error",
+      "Eb": "Lb",
+      "Set": "Set",
+      "ee6": "K68",
+      "Ah": "wR",
+      "f8": "Z8",
+      "HK6": "XK6",
+      "AK6": "HK6",
+      "sXK": "YPK",
+      "Promise": "Promise",
+      "Gr1": "Dr1",
+      "mqK": "FqK",
+      "Da": "Ta",
+      "pqK": "UqK",
+      "BqK": "QqK",
+      "Boolean": "Boolean",
+      "N8": "N8",
+      "gqK": "dqK",
+      "Wy": "Dy",
+      "Date": "Date",
+      "MK6": "WK6",
+      "Az": "Az",
+      "C_": "C_",
+      "JK6": "PK6",
+      "Hh": "JR",
+      "AbortController": "AbortController",
+      "lZ": "d0",
+      "EZ": "N0",
+      "Hj6": "Xj6",
+      "Kj6": "Yj6",
+      "Jr6": "Hr6",
+      "N": "N",
+      "Fb8": "Qb8",
+      "gb8": "Ub8",
+      "tm": "Kp",
+      "g6": "U6",
+      "fr1": "Pr1",
+      "cN": "cN",
+      "k1": "T1",
+      "p7": "u7",
+      "_8": "K8",
+      "L8": "E8",
+      "XK": "MK",
+      "gq": "Bq",
+      "yb": "Eb",
+      "Rb": "hb",
+      "tXK": "$PK",
+      "ai1": "ii1",
+      "Qb8": "cb8",
+      "gD": "pD",
+      "se6": "ee6",
+      "F67": "p67",
+      "LZ": "y0",
+      "RJ": "xJ",
+      "BP": "BP",
+      "Z6": "f6",
+      "O6": "O6"
+    },
+    "externalProviderBodyEquivalenceAccepted": false,
+    "ambientBuiltinOwnershipProven": false
+  },
+  "sharedHelperPlacement": {
+    "targetHelper": 9810,
+    "currentHelper": 9819,
+    "targetBeforeInitializer": 9809,
+    "currentBeforeInitializer": 9818,
+    "targetAfterNamespace": 9811,
+    "currentAfterNamespace": 9820,
+    "currentLocalTargetModuleBoundaryRelationshipVerified": true,
+    "sourceBeforeOwner": "src/utils/swarm/backends/it2Setup.ts",
+    "sourceBeforeExport": "getPreferTmuxOverIterm2",
+    "sourceAfterOwner": "src/utils/swarm/backends/teammateModeSnapshot.ts",
+    "beforeBothRepairedSourceModules": true,
+    "singleMatchingHelperDeclaration": true,
+    "globalIndependentOrderingEstablished": false
+  },
+  "legacyRetention": {
+    "statement": 7577,
+    "namespaceHeader": 7578,
+    "initializer": 7579,
+    "namespaceFactory": 6028,
+    "requiredOtherConsumers": [
+      {
+        "priorIndex": 9842,
+        "currentIndex": 9843,
+        "name": "cqK",
+        "nodes": 806,
+        "requiredCalls": 9
+      },
+      {
+        "priorIndex": 10673,
+        "currentIndex": 10674,
+        "name": "UzK",
+        "nodes": 293,
+        "requiredCalls": 2
+      },
+      {
+        "priorIndex": 10686,
+        "currentIndex": 10687,
+        "name": "Ua1",
+        "nodes": 82,
+        "requiredCalls": 1
+      },
+      {
+        "priorIndex": 10687,
+        "currentIndex": 10688,
+        "name": "Viz",
+        "nodes": 77,
+        "requiredCalls": 2
+      },
+      {
+        "priorIndex": 10691,
+        "currentIndex": 10692,
+        "name": "Liz",
+        "nodes": 130,
+        "requiredCalls": 1
+      },
+      {
+        "priorIndex": 10692,
+        "currentIndex": 10693,
+        "name": "Riz",
+        "nodes": 56,
+        "requiredCalls": 1
+      },
+      {
+        "priorIndex": 10718,
+        "currentIndex": 10718,
+        "name": "YYK",
+        "nodes": 417,
+        "requiredCalls": 2
+      },
+      {
+        "priorIndex": 14355,
+        "currentIndex": 14356,
+        "name": "nU8",
+        "nodes": 137,
+        "requiredCalls": 2
+      },
+      {
+        "priorIndex": 16678,
+        "currentIndex": 16679,
+        "name": "pFY",
+        "nodes": 48,
+        "requiredCalls": 3
+      },
+      {
+        "priorIndex": 16679,
+        "currentIndex": 16680,
+        "name": "BFY",
+        "nodes": 48,
+        "requiredCalls": 3
+      }
+    ],
+    "requiredOtherCalls": 26,
+    "globalAliasOrEvalCoverageClaimed": false,
+    "real91NodeWrapperNamespaceAndFactoryRetained": true,
+    "completeOtherCallerFieldsAndLocalGraphsPreservedFromV22": true,
+    "all26RemainingOrdinaryCallsResolveToActualLegacyDeclaration": true,
+    "globalLegacyHelperRemovalAuthorized": false,
+    "oldAndNewQuoteAPIsDeclaredInterchangeable": false
+  },
+  "sourceAndPolicy": {
+    "physicalInputs": {
+      "files": 6084,
+      "manifestSha256": "ac672738869de916a9523386ad444265d06d0e22b4f8fc53bb08282e479094a2",
+      "currentGitSourceFiles": 1922,
+      "currentDerivedSrcTree": "fd7edb9b37a898ef43eb31f9468ee47b6b9ad09d",
+      "extraSourceAssets": 29,
+      "genesisVerifiedAsLineageOnly": true,
+      "sourceEdgeAndEvalRangePinsVerified": true
+    },
+    "truthfulSummaryCounts": {
+      "sourceFiles": 6084,
+      "currentGitSourceFiles": 1922,
+      "measuredSourceFiles": 6084,
+      "measuredGitSourceFiles": 1922,
+      "sourceCountValidationFailure": false
+    },
+    "all18GuardsAnd4EvalPoliciesUnchanged": true,
+    "reportProducerSha256": "1a821ab4b35fb67eb0096438e499919331c57eefd8c8ba909224c169484d4ff1"
+  },
+  "receiptChain": {
+    "compileReportSha256": "8abdae418c5a7917747e5b0afafeb97f026e53a71e2337d90470ebc667be050d",
+    "compilerReceiptSha256": "ebeb3a28d98d7a51be93f16a8612dd5a3c94622fb614569364686034ae7e2c83",
+    "events": {
+      "private-marker-external": 11,
+      "sdk-declaration-facade": 12,
+      "sdk-facade-load": 3,
+      "source-import-literal-overlay": 11
+    },
+    "allBeforeAfterIdentitiesEqual": true,
+    "markerRemovals": 11,
+    "restoredOverlaySources": 11,
+    "actualOverlayOwners": 11,
+    "actualFacadeLoads": 3,
+    "fourOutputPinsVerified": true,
+    "allDeletionEditsReproduceFinalBytes": true,
+    "mapsStreamHashedWithoutParsing": true,
+    "individualRemovedImportSourceOwnershipProven": false,
+    "readContract": {
+      "inputTree": "historical-checkpoints/v23-stage/inputs",
+      "profile": "historical-checkpoints/v23-preparation/prepared/recovery/profiles/2.1.89/profile.json",
+      "toolFiles": [
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs",
+          "resolvedPath": "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+        }
+      ],
+      "adapterScripts": [
+        "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+        "historical-checkpoints/v23-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-support.mjs"
+      ],
+      "declaredReferenceBundleInput": null,
+      "declaredReferenceMapInput": null,
+      "staticInspection": "No reference bundle/map read path found in reviewed adapter code; profile metadata includes historical hashes only.",
+      "observedFilesystemReadFootprint": "unestablished; parent PTRACE_TRACEME probe denied by kernel",
+      "osLevelReadIsolationEnforced": false
+    }
+  },
+  "verification": {
+    "independentGroups": 8,
+    "negativeControls": 10,
+    "completeIndexedWitnesses": 114,
+    "allSlicesIndependentlyReextracted": true,
+    "strictDigestsAndNodeCountsCheckedPerBoundedStatement": true,
+    "sourceBoundaryFilesParsed": 4
+  },
+  "strictWholeProgram": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098643,
+    "sha256": "5ae7184bc5e226597111809c3e53cb37acbddd58d4209fc20487b84ef931bb95",
+    "targetNodes": 3098331,
+    "targetSha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c",
+    "equal": false,
+    "recomputedByReviewer": false,
+    "nodeCountDeltaIsNotStructuralDistance": true
+  },
+  "qualifications": [
+    "The complete repaired modules and shared-helper references pass under explicit unchanged external interfaces. This does not establish their transitive provider bodies, global alias/eval behavior, ambient builtins or whole-program semantics.",
+    "The shared declaration now occupies the target local boundary after it2Setup and before the teammate-mode snapshot module. No general declaration-reordering theorem or global order acceptance is inferred.",
+    "The previously failed SpawnUtils retained-fixture whole-module placement remains an immutable failed fixture result; actual production verification is separate and does not retroactively accept it.",
+    "The old wrapper retains its distinct validation, error, logging, coercion and namespace receiver contract for the ten required other callers. The two APIs are not declared interchangeable for arbitrary inputs.",
+    "The indexed direct-call census is limited to the checked ordinary references, not a whole-program alias, assignment, reflection, dynamic-eval or runtime-purity proof.",
+    "Maps were streamed only for digest verification. No recovered original source-map ownership, original private authorship, reference-read isolation or measured complete compiler footprint is established.",
+    "The actual input census and top-level report agree at 6084/1922. Callback totals are observed for this run and are not treated as a unique module count.",
+    "The full strict target remains unequal. Binding-aware alpha-equivalence and independently proved ordering remain separate possible acceptance work; no normalization gate is enabled."
+  ],
+  "retainedLegacyFixturePlacementAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "historicalSourceApprovalsUnmodified": true,
+  "applicationExecuted": false,
+  "spawnShellOrCallbackFunctionsExecuted": false,
+  "compilerInvokedByReviewer": false,
+  "fullProgramParsedByReviewer": false,
+  "sourceStageOrRepositoryEdited": false,
+  "evidence": {
+    "controls": "actual.json",
+    "witnesses": "actual-witnesses.json",
+    "sliceAudit": "independent-slice-audit.json",
+    "receiptChain": "receipt-checks.json",
+    "sourceBoundaries": "source-boundaries.json",
+    "baseline": "baseline.json"
+  }
+}

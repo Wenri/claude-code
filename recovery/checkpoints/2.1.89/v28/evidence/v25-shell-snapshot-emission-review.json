@@ -1,0 +1,1743 @@
+{
+  "kind": "independent-v25-shell-snapshot-actual-emission-review",
+  "reportId": "shell_snapshot",
+  "verdict": "scoped-shell-snapshot-emission-verified",
+  "actualEmissionVerified": true,
+  "actualCompleteShellSnapshotModuleVerified": true,
+  "actualFiveSharedQuoteBindingsVerified": true,
+  "actualExecaInitializerPlacementVerified": true,
+  "actualThirteenProviderDeclarationsVerified": true,
+  "actualLegacyOtherConsumersRetained": true,
+  "profileSha256": "ced01916c7a0ed3e45931d2dbf4f33df17e52a0af9a0d8eed2b650f388da04ef",
+  "toolchainSha256": "cb8ff9922dbda2c2ffc3b12ee912459022f603594e2a65c3db965893c15c8df6",
+  "finalJavaScript": {
+    "js": "v25-replay/final/cli.js",
+    "sha256": "dfb268fb17200c5a95f2eea2f20d6d1b9aeebc3b607ac31af803e51cddf4581f",
+    "index": "v25-indexes/candidate.json",
+    "indexSha256": "a49265871eafdeb00f925f0e116b60a294074baa436cd904387e7f6d469b366f"
+  },
+  "compileReportSha256": "7014ff9fae771d58c05d3347e3ddd74d3b2ba5bbcfa3cc91a7581ca5ce4f1bd5",
+  "sourceApproval": {
+    "path": "historical-checkpoints/shell-snapshot-independent-review/review.json",
+    "sha256": "7102d9836e862c477328862c16304c21c12c3999649af2e080f2cf65a1c75f06"
+  },
+  "sourceApprovalClosure": {
+    "path": "historical-checkpoints/shell-snapshot-independent-review/freeze.json",
+    "sha256": "d573897286e31fca3c610d3b9b3a49d54298d2fce281f74b5d7bc079be6a3b30"
+  },
+  "sourceManifestSha256": "4fbe1a2a3f3a65aed24faa9ed35a8e69fd238f61ef5f33d848f1eca2aa0f8f38",
+  "sourcePostimageSha256": "6b79944698537ee67656334034cd4fe978e4e10ca1de6a052135215007303bdf",
+  "modulePairs": [
+    {
+      "target": 10662,
+      "parent": 10683,
+      "current": 10683,
+      "targetNodes": 5,
+      "currentNodes": 5
+    },
+    {
+      "target": 10663,
+      "parent": 10684,
+      "current": 10684,
+      "targetNodes": 8,
+      "currentNodes": 8
+    },
+    {
+      "target": 10664,
+      "parent": 10685,
+      "current": 10685,
+      "targetNodes": 4,
+      "currentNodes": 4
+    },
+    {
+      "target": 10665,
+      "parent": 10686,
+      "current": 10686,
+      "targetNodes": 5,
+      "currentNodes": 5
+    },
+    {
+      "target": 10666,
+      "parent": 10687,
+      "current": 10687,
+      "targetNodes": 82,
+      "currentNodes": 82
+    },
+    {
+      "target": 10667,
+      "parent": 10688,
+      "current": 10688,
+      "targetNodes": 77,
+      "currentNodes": 77
+    },
+    {
+      "target": 10668,
+      "parent": 10689,
+      "current": 10689,
+      "targetNodes": 52,
+      "currentNodes": 52
+    },
+    {
+      "target": 10669,
+      "parent": 10690,
+      "current": 10690,
+      "targetNodes": 30,
+      "currentNodes": 30
+    },
+    {
+      "target": 10670,
+      "parent": 10691,
+      "current": 10691,
+      "targetNodes": 52,
+      "currentNodes": 52
+    },
+    {
+      "target": 10671,
+      "parent": 10692,
+      "current": 10692,
+      "targetNodes": 130,
+      "currentNodes": 130
+    },
+    {
+      "target": 10672,
+      "parent": 10693,
+      "current": 10693,
+      "targetNodes": 56,
+      "currentNodes": 56
+    },
+    {
+      "target": 10673,
+      "parent": 10694,
+      "current": 10694,
+      "targetNodes": 546,
+      "currentNodes": 546
+    },
+    {
+      "target": 10674,
+      "parent": 10695,
+      "current": 10695,
+      "targetNodes": 56,
+      "currentNodes": 56
+    }
+  ],
+  "completeModuleFieldsAndLocalBindingGraphMatchTarget": true,
+  "completeJoinedDirectProviderFieldsAndLocalGraphMatchUnderCapturedInterfaces": true,
+  "sharedHelper": {
+    "target": 9810,
+    "parent": 9819,
+    "current": 9819,
+    "name": "v9",
+    "nodes": 48
+  },
+  "ordinarySingletonArrayCalls": [
+    {
+      "index": 10687,
+      "name": "Qa1",
+      "nodes": 82,
+      "calls": 1
+    },
+    {
+      "index": 10688,
+      "name": "kiz",
+      "nodes": 77,
+      "calls": 2
+    },
+    {
+      "index": 10692,
+      "name": "Eiz",
+      "nodes": 130,
+      "calls": 1
+    },
+    {
+      "index": 10693,
+      "name": "Liz",
+      "nodes": 56,
+      "calls": 1
+    }
+  ],
+  "initializer": {
+    "target": 10674,
+    "parent": 10695,
+    "current": 10695,
+    "parentNodes": 59,
+    "targetAndCurrentNodes": 56,
+    "currentName": "rzK",
+    "actualCalls": [
+      "k8",
+      "i9",
+      "u7",
+      "K8",
+      "ku",
+      "B8",
+      "SK",
+      "a7",
+      "R8",
+      "kK",
+      "GC",
+      "Kv",
+      "t26"
+    ],
+    "providers": [
+      {
+        "role": "analytics",
+        "target": {
+          "index": 580,
+          "name": "V8",
+          "nodes": 11,
+          "slot": 0
+        },
+        "parent": {
+          "index": 580,
+          "name": "k8",
+          "nodes": 11,
+          "slot": 1
+        },
+        "current": {
+          "index": 580,
+          "name": "k8",
+          "nodes": 11,
+          "slot": 0
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "cleanupRegistry",
+        "target": {
+          "index": 585,
+          "name": "i9",
+          "nodes": 12,
+          "slot": 1
+        },
+        "parent": {
+          "index": 585,
+          "name": "n9",
+          "nodes": 12,
+          "slot": 2
+        },
+        "current": {
+          "index": 585,
+          "name": "i9",
+          "nodes": 12,
+          "slot": 1
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "cwd",
+        "target": {
+          "index": 2122,
+          "name": "p7",
+          "nodes": 15,
+          "slot": 2
+        },
+        "parent": {
+          "index": 2122,
+          "name": "u7",
+          "nodes": 15,
+          "slot": 3
+        },
+        "current": {
+          "index": 2122,
+          "name": "u7",
+          "nodes": 15,
+          "slot": 2
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "debug",
+        "target": {
+          "index": 892,
+          "name": "_8",
+          "nodes": 322,
+          "slot": 3
+        },
+        "parent": {
+          "index": 892,
+          "name": "K8",
+          "nodes": 322,
+          "slot": 4
+        },
+        "current": {
+          "index": 892,
+          "name": "K8",
+          "nodes": 322,
+          "slot": 3
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "embeddedTools",
+        "target": {
+          "index": 5055,
+          "name": "ku",
+          "nodes": 10,
+          "slot": 4
+        },
+        "parent": {
+          "index": 5057,
+          "name": "ku",
+          "nodes": 10,
+          "slot": 5
+        },
+        "current": {
+          "index": 5057,
+          "name": "ku",
+          "nodes": 10,
+          "slot": 4
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "envUtils",
+        "target": {
+          "index": 606,
+          "name": "F8",
+          "nodes": 70,
+          "slot": 5
+        },
+        "parent": {
+          "index": 606,
+          "name": "B8",
+          "nodes": 70,
+          "slot": 6
+        },
+        "current": {
+          "index": 606,
+          "name": "B8",
+          "nodes": 70,
+          "slot": 5
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "file",
+        "target": {
+          "index": 2214,
+          "name": "CK",
+          "nodes": 40,
+          "slot": 6
+        },
+        "parent": {
+          "index": 2214,
+          "name": "SK",
+          "nodes": 40,
+          "slot": 7
+        },
+        "current": {
+          "index": 2214,
+          "name": "SK",
+          "nodes": 40,
+          "slot": 6
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "fsOperations",
+        "target": {
+          "index": 869,
+          "name": "a7",
+          "nodes": 1390,
+          "slot": 7
+        },
+        "parent": {
+          "index": 869,
+          "name": "a7",
+          "nodes": 1390,
+          "slot": 8
+        },
+        "current": {
+          "index": 869,
+          "name": "a7",
+          "nodes": 1390,
+          "slot": 7
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "log",
+        "target": {
+          "index": 2038,
+          "name": "h8",
+          "nodes": 54,
+          "slot": 8
+        },
+        "parent": {
+          "index": 2038,
+          "name": "R8",
+          "nodes": 54,
+          "slot": 9
+        },
+        "current": {
+          "index": 2038,
+          "name": "R8",
+          "nodes": 54,
+          "slot": 8
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "platform",
+        "target": {
+          "index": 2130,
+          "name": "VK",
+          "nodes": 295,
+          "slot": 9
+        },
+        "parent": {
+          "index": 2130,
+          "name": "kK",
+          "nodes": 295,
+          "slot": 10
+        },
+        "current": {
+          "index": 2130,
+          "name": "kK",
+          "nodes": 295,
+          "slot": 9
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "ripgrep",
+        "target": {
+          "index": 5947,
+          "name": "fC",
+          "nodes": 521,
+          "slot": 10
+        },
+        "parent": {
+          "index": 5947,
+          "name": "GC",
+          "nodes": 521,
+          "slot": 11
+        },
+        "current": {
+          "index": 5947,
+          "name": "GC",
+          "nodes": 521,
+          "slot": 10
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "execa",
+        "target": {
+          "index": 2312,
+          "name": "zT",
+          "nodes": 13,
+          "slot": 11
+        },
+        "parent": {
+          "index": 2312,
+          "name": "Kv",
+          "nodes": 13,
+          "slot": 0
+        },
+        "current": {
+          "index": 2312,
+          "name": "Kv",
+          "nodes": 13,
+          "slot": 11
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      },
+      {
+        "role": "subprocessEnv",
+        "target": {
+          "index": 8468,
+          "name": "rw6",
+          "nodes": 37,
+          "slot": 12
+        },
+        "parent": {
+          "index": 8474,
+          "name": "t26",
+          "nodes": 37,
+          "slot": 12
+        },
+        "current": {
+          "index": 8474,
+          "name": "t26",
+          "nodes": 37,
+          "slot": 12
+        },
+        "completeDeclarationIncluded": true,
+        "transitivePurityAssumed": false
+      }
+    ],
+    "execaTargetAndCurrentSlot": 11,
+    "ripgrepTargetAndCurrentSlot": 10,
+    "subprocessEnvTargetAndCurrentSlot": 12,
+    "historicalExecaSlot": 0,
+    "oldWrapperInitializationRemoved": true,
+    "otherTwelveProviderCallsAndRelativeOrderPreserved": true,
+    "completeOwnInitializerAcceptedUnderGroundedDirectRoles": true,
+    "globalOrTransitiveInitializerEquivalenceAccepted": false
+  },
+  "concreteDirectImportedValues": [
+    {
+      "source": "src/utils/ripgrep.ts",
+      "imported": "ripgrepCommand",
+      "local": "ripgrepCommand",
+      "exportKind": "value",
+      "exportRange": [
+        2348,
+        2571
+      ],
+      "exportSha256": "90ce98f949925012e0072cd116d9d23669ce3c4b4b15ef937e4d3da3bb757756",
+      "targetDeclarations": [
+        {
+          "index": 5939,
+          "nodes": 25
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 5939,
+          "nodes": 25
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/embeddedTools.ts",
+      "imported": "hasEmbeddedSearchTools",
+      "local": "hasEmbeddedSearchTools",
+      "exportKind": "value",
+      "exportRange": [
+        560,
+        822
+      ],
+      "exportSha256": "6aba5094d068e858737ab8b00d930c00963b87a01b0379066ad843ec164f0a38",
+      "targetDeclarations": [
+        {
+          "index": 5053,
+          "nodes": 39
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 5055,
+          "nodes": 39
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/embeddedTools.ts",
+      "imported": "embeddedSearchToolsBinaryPath",
+      "local": "embeddedSearchToolsBinaryPath",
+      "exportKind": "value",
+      "exportRange": [
+        957,
+        1042
+      ],
+      "exportSha256": "3bf4a0961d6474298b58f455ede8cefedb640e52335418cdd7dc8b8af166acde",
+      "targetDeclarations": [
+        {
+          "index": 5054,
+          "nodes": 7
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 5056,
+          "nodes": 7
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/execa.ts",
+      "imported": "execaCommand",
+      "local": "execa",
+      "exportKind": "value",
+      "exportRange": [
+        1385,
+        1516
+      ],
+      "exportSha256": "f172e51afd5a11608291708037bb509444c53858bdce64dac4fb34d8270a53c2",
+      "targetDeclarations": [
+        {
+          "index": 2310,
+          "nodes": 16
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 2310,
+          "nodes": 16
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/platform.ts",
+      "imported": "getPlatform",
+      "local": "getPlatform",
+      "exportKind": "value",
+      "exportRange": [
+        365,
+        1265
+      ],
+      "exportSha256": "c371b668d2ca8f137a88bd291b977dcbe6c2ea476e411306357533655cd25620",
+      "targetDeclarations": [
+        {
+          "index": 2129,
+          "nodes": 11
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 2129,
+          "nodes": 11
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/debug.ts",
+      "imported": "logForDebugging",
+      "local": "logForDebugging",
+      "exportKind": "value",
+      "exportRange": [
+        6218,
+        6896
+      ],
+      "exportSha256": "65d9fe7a0e6984c9aae1c515b8b6e1e6f9db4ebdc40e716922a34f006bcba2e8",
+      "targetDeclarations": [
+        {
+          "index": 888,
+          "nodes": 81
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 888,
+          "nodes": 81
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/file.ts",
+      "imported": "pathExists",
+      "local": "pathExists",
+      "exportKind": "value",
+      "exportRange": [
+        1026,
+        1172
+      ],
+      "exportSha256": "d8cc2824fb54a204f7d196a3ea5e29e64e511f1772cf014962f7ceba21292dc3",
+      "targetDeclarations": [
+        {
+          "index": 2191,
+          "nodes": 19
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 2191,
+          "nodes": 19
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/envUtils.ts",
+      "imported": "getClaudeConfigHomeDir",
+      "local": "getClaudeConfigHomeDir",
+      "exportKind": "value",
+      "exportRange": [
+        259,
+        471
+      ],
+      "exportSha256": "f817603e0e5dc52c792c5339bd511533e0febd5a565ffda89b4f88cea17ff17c",
+      "targetDeclarations": [
+        {
+          "index": 605,
+          "nodes": 5
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 605,
+          "nodes": 5
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/subprocessEnv.ts",
+      "imported": "subprocessEnv",
+      "local": "subprocessEnv",
+      "exportKind": "value",
+      "exportRange": [
+        3098,
+        3954
+      ],
+      "exportSha256": "6f8d53f363d199cb5789d6db928295dd3fe377145553b05be1877dd66102fafb",
+      "targetDeclarations": [
+        {
+          "index": 8466,
+          "nodes": 71
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 8472,
+          "nodes": 71
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/fsOperations.ts",
+      "imported": "getFsImplementation",
+      "local": "getFsImplementation",
+      "exportKind": "value",
+      "exportRange": [
+        19644,
+        19717
+      ],
+      "exportSha256": "3dcf86cb1c15e42536db39a40ad569003a4bbdbef4d42e083d513ceb731747ca",
+      "targetDeclarations": [
+        {
+          "index": 864,
+          "nodes": 5
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 864,
+          "nodes": 5
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/services/analytics/index.ts",
+      "imported": "logEvent",
+      "local": "logEvent",
+      "exportKind": "value",
+      "exportRange": [
+        4382,
+        4751
+      ],
+      "exportSha256": "055961e6addb6f18b4d31840967fa08bd8f0ea8d6fc76ffe79df13d3db677f2a",
+      "targetDeclarations": [
+        {
+          "index": 577,
+          "nodes": 34
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 577,
+          "nodes": 34
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/cleanupRegistry.ts",
+      "imported": "registerCleanup",
+      "local": "registerCleanup",
+      "exportKind": "value",
+      "exportRange": [
+        487,
+        680
+      ],
+      "exportSha256": "4fabcf64d6959af500064c0e98bd7b73b33997a092d10ab43b46a127394602cc",
+      "targetDeclarations": [
+        {
+          "index": 582,
+          "nodes": 17
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 582,
+          "nodes": 17
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/cwd.ts",
+      "imported": "getCwd",
+      "local": "getCwd",
+      "exportKind": "value",
+      "exportRange": [
+        879,
+        984
+      ],
+      "exportSha256": "772675479e0f5e14fbd18177647bf328560e601464fdcf3fa5f56ad1c5c17b64",
+      "targetDeclarations": [
+        {
+          "index": 2120,
+          "nodes": 13
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 2120,
+          "nodes": 13
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    },
+    {
+      "source": "src/utils/log.ts",
+      "imported": "logError",
+      "local": "logError",
+      "exportKind": "value",
+      "exportRange": [
+        5584,
+        6823
+      ],
+      "exportSha256": "2c73cb3bcd6d7e5f27fec2c88735404df4c11479db48af8f4390cc580247790f",
+      "targetDeclarations": [
+        {
+          "index": 2032,
+          "nodes": 96
+        }
+      ],
+      "currentDeclarations": [
+        {
+          "index": 2032,
+          "nodes": 96
+        }
+      ],
+      "allCompleteDeclarationsIncluded": true,
+      "transitiveProviderEquivalenceAccepted": false
+    }
+  ],
+  "sourceBoundary": {
+    "sourceOwner": "src/utils/bash/ShellSnapshot.ts",
+    "sourceSha256": "6b79944698537ee67656334034cd4fe978e4e10ca1de6a052135215007303bdf",
+    "sourceBytes": 21812,
+    "exactTwoImportChangesOnly": true,
+    "sourcePublicExports": [
+      {
+        "exportKind": "value",
+        "declarationType": "FunctionDeclaration",
+        "names": [
+          "createRipgrepShellIntegration"
+        ],
+        "range": [
+          2423,
+          3168
+        ],
+        "sha256": "f9c9c4c40c3afa24642a9265c76e36c2bfe448fd5340d372d7ab7299d6681d2c"
+      },
+      {
+        "exportKind": "value",
+        "declarationType": "FunctionDeclaration",
+        "names": [
+          "createFindGrepShellIntegration"
+        ],
+        "range": [
+          6074,
+          7086
+        ],
+        "sha256": "03b0078112c426b50fae7b3d0ab40308ff8506ba82ef1001f9774441db5d5301"
+      },
+      {
+        "exportKind": "value",
+        "declarationType": "VariableDeclaration",
+        "names": [
+          "createAndSaveSnapshot"
+        ],
+        "range": [
+          15577,
+          21805
+        ],
+        "sha256": "7295c96dfd6f6379a1ad24c610c2c31d34189ad668253d4fbbfb5f47ecbe7a73"
+      }
+    ],
+    "caller": {
+      "source": "src/utils/shell/bashProvider.ts",
+      "sha256": "d54b49706e7d19972bde2d30fe4c2c9e3e743311b3cdf63d4bafbfc0ce82ff66",
+      "importRange": [
+        269,
+        333
+      ],
+      "importSha256": "5813c903fc036e203386d514f4a7ffaa390080389ab60dfda46d4ceba262cb19",
+      "imported": "createAndSaveSnapshot",
+      "local": "createAndSaveSnapshot",
+      "valueKind": "value",
+      "completeSourceFunctionRange": [
+        2432,
+        10991
+      ],
+      "sourceFunctionSha256": "d08857defe1b11b6061d1dac483891b17995b93d02e7e477af1add4b146e9a62",
+      "ordinaryCalls": 1
+    },
+    "completeDirectValueDeclarations": [
+      {
+        "source": "src/utils/ripgrep.ts",
+        "imported": "ripgrepCommand",
+        "local": "ripgrepCommand",
+        "exportKind": "value",
+        "exportRange": [
+          2348,
+          2571
+        ],
+        "exportSha256": "90ce98f949925012e0072cd116d9d23669ce3c4b4b15ef937e4d3da3bb757756",
+        "targetDeclarations": [
+          {
+            "index": 5939,
+            "nodes": 25,
+            "textSha256": "e8b5cb1282f588dba277cafeed6a13356167a3de67b31efdcd61959a6d6d17c4",
+            "exactText": "function oO6(){let q=Bv8();return{rgPath:q.command,rgArgs:q.args,argv0:q.argv0}}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 5939,
+            "nodes": 25,
+            "textSha256": "8f6e977b6eac68f31c8f6d236d7f129c2ed22eb4c88c13412e5b780e20dcbff9",
+            "exactText": "function tA6(){let q=QT8();return{rgPath:q.command,rgArgs:q.args,argv0:q.argv0}}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/embeddedTools.ts",
+        "imported": "hasEmbeddedSearchTools",
+        "local": "hasEmbeddedSearchTools",
+        "exportKind": "value",
+        "exportRange": [
+          560,
+          822
+        ],
+        "exportSha256": "6aba5094d068e858737ab8b00d930c00963b87a01b0379066ad843ec164f0a38",
+        "targetDeclarations": [
+          {
+            "index": 5053,
+            "nodes": 39,
+            "textSha256": "10d67f5ecb8913097d78c8ab18659837f5652bf24356090a9dccbad9b621dc7f",
+            "exactText": "function kj(){if(!Q6(process.env.EMBEDDED_SEARCH_TOOLS))return!1;let q=process.env.CLAUDE_CODE_ENTRYPOINT;return q!==\"sdk-ts\"&&q!==\"sdk-py\"&&q!==\"sdk-cli\"&&q!==\"local-agent\"}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 5055,
+            "nodes": 39,
+            "textSha256": "9c003fc46fdc84d5f42411bc926f3411a638cef67fb9e5475f7c9bcd8d312978",
+            "exactText": "function Ej(){if(!c6(process.env.EMBEDDED_SEARCH_TOOLS))return!1;let q=process.env.CLAUDE_CODE_ENTRYPOINT;return q!==\"sdk-ts\"&&q!==\"sdk-py\"&&q!==\"sdk-cli\"&&q!==\"local-agent\"}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/embeddedTools.ts",
+        "imported": "embeddedSearchToolsBinaryPath",
+        "local": "embeddedSearchToolsBinaryPath",
+        "exportKind": "value",
+        "exportRange": [
+          957,
+          1042
+        ],
+        "exportSha256": "3bf4a0961d6474298b58f455ede8cefedb640e52335418cdd7dc8b8af166acde",
+        "targetDeclarations": [
+          {
+            "index": 5054,
+            "nodes": 7,
+            "textSha256": "fcbea4f378164435421d5f091a752efc70556c75c48978df6c84c0d185a597fe",
+            "exactText": "function Laq(){return process.execPath}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 5056,
+            "nodes": 7,
+            "textSha256": "aec41cc2f4c3f881c6b9a778ef48597001a8ebf18b10ca6353d65990dbdf8447",
+            "exactText": "function Caq(){return process.execPath}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/execa.ts",
+        "imported": "execaCommand",
+        "local": "execa",
+        "exportKind": "value",
+        "exportRange": [
+          1385,
+          1516
+        ],
+        "exportSha256": "f172e51afd5a11608291708037bb509444c53858bdce64dac4fb34d8270a53c2",
+        "targetDeclarations": [
+          {
+            "index": 2310,
+            "nodes": 16,
+            "textSha256": "caf84859a93ba51b1ce16d41c4475572827c6c2fc3162dc3a89b510af897976a",
+            "exactText": "async function $j(q,K){return nB(q,{...K,shell:!0})}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 2310,
+            "nodes": 16,
+            "textSha256": "1be3f452920df7ac2574af2ed624afc246bc20b65af1e9bc23c82ebd63cd46ed",
+            "exactText": "async function Hj(q,K){return oB(q,{...K,shell:!0})}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/platform.ts",
+        "imported": "getPlatform",
+        "local": "getPlatform",
+        "exportKind": "value",
+        "exportRange": [
+          365,
+          1265
+        ],
+        "exportSha256": "c371b668d2ca8f137a88bd291b977dcbe6c2ea476e411306357533655cd25620",
+        "targetDeclarations": [
+          {
+            "index": 2129,
+            "nodes": 11,
+            "textSha256": "755735d21e4a29071dfb9c255e238c07e948d65828a4a0b184c432c96c51ba23",
+            "exactText": "var b41,Z1,v_6,aE7,lE5;"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 2129,
+            "nodes": 11,
+            "textSha256": "47c531f3b655beb89af09bcecc5a2911dfddd48b725a7bfd2a139b7443f1bb1a",
+            "exactText": "var S41,f1,V_6,eE7,aE5;"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/debug.ts",
+        "imported": "logForDebugging",
+        "local": "logForDebugging",
+        "exportKind": "value",
+        "exportRange": [
+          6218,
+          6896
+        ],
+        "exportSha256": "65d9fe7a0e6984c9aae1c515b8b6e1e6f9db4ebdc40e716922a34f006bcba2e8",
+        "targetDeclarations": [
+          {
+            "index": 888,
+            "nodes": 81,
+            "textSha256": "8d8e2f3b91c93ca037add149305dec753d35c3cc0505f44a5da48afaa6f7dbc1",
+            "exactText": "function N(q,{level:K}={level:\"debug\"}){if(ka8[K]<ka8[gO5()])return;if(!UO5(q))return;if(Va8&&q.includes(`\n`))q=m6(q);let z=`${new Date().toISOString()} [${K.toUpperCase()}] ${q.trim()}\n`;if(NB()){ql(z);return}cO5().write(z)}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 888,
+            "nodes": 81,
+            "textSha256": "c71830136536a4b127dbb26f1a29504da3b4f7b884fca00160c8cb74d267c2a0",
+            "exactText": "function N(q,{level:K}={level:\"debug\"}){if(Ta8[K]<Ta8[cA5()])return;if(!nA5(q))return;if(va8&&q.includes(`\n`))q=p6(q);let z=`${new Date().toISOString()} [${K.toUpperCase()}] ${q.trim()}\n`;if(RB()){Kl(z);return}oA5().write(z)}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/file.ts",
+        "imported": "pathExists",
+        "local": "pathExists",
+        "exportKind": "value",
+        "exportRange": [
+          1026,
+          1172
+        ],
+        "exportSha256": "d8cc2824fb54a204f7d196a3ea5e29e64e511f1772cf014962f7ceba21292dc3",
+        "targetDeclarations": [
+          {
+            "index": 2191,
+            "nodes": 19,
+            "textSha256": "2f602655253a5352191614e13884c287e86c72694e743063d55b6ae20d7077ee",
+            "exactText": "async function b5(q){try{return await PL7(q),!0}catch{return!1}}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 2191,
+            "nodes": 19,
+            "textSha256": "db2135b30a2e5b65c087ef40bb63a0b9781e6f5887704f375b0c4566902fcbf2",
+            "exactText": "async function S5(q){try{return await fL7(q),!0}catch{return!1}}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/envUtils.ts",
+        "imported": "getClaudeConfigHomeDir",
+        "local": "getClaudeConfigHomeDir",
+        "exportKind": "value",
+        "exportRange": [
+          259,
+          471
+        ],
+        "exportSha256": "f817603e0e5dc52c792c5339bd511533e0febd5a565ffda89b4f88cea17ff17c",
+        "targetDeclarations": [
+          {
+            "index": 605,
+            "nodes": 5,
+            "textSha256": "ef73d870cc0087a42c09bbb10fc4d6b41d5661d6a0a2df59a031ba0e6dfbd71a",
+            "exactText": "var r1,qY5;"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 605,
+            "nodes": 5,
+            "textSha256": "e4706a1f90abe2954ef00c954b074f37c400ca6505c9a2a915aff88b793bce16",
+            "exactText": "var l1,$Y5;"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/subprocessEnv.ts",
+        "imported": "subprocessEnv",
+        "local": "subprocessEnv",
+        "exportKind": "value",
+        "exportRange": [
+          3098,
+          3954
+        ],
+        "exportSha256": "6f8d53f363d199cb5789d6db928295dd3fe377145553b05be1877dd66102fafb",
+        "targetDeclarations": [
+          {
+            "index": 8466,
+            "nodes": 71,
+            "textSha256": "f60c16e104e240d88a98adc0c93bd6d9c8cd145f1f8993561347f4df4a5a9631",
+            "exactText": "function vm(){let q=SC4?.()??{};if(!Q6(process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB))return Object.keys(q).length>0?{...process.env,...q}:process.env;let K={...process.env,...q};for(let _ of JJz)delete K[_],delete K[`INPUT_${_}`];return K}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 8472,
+            "nodes": 71,
+            "textSha256": "ea30ec44311437d14ebec2241718b41f0eb27f9c27314c9198d8c92efff56c86",
+            "exactText": "function Tm(){let q=bC4?.()??{};if(!c6(process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB))return Object.keys(q).length>0?{...process.env,...q}:process.env;let K={...process.env,...q};for(let _ of DJz)delete K[_],delete K[`INPUT_${_}`];return K}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/fsOperations.ts",
+        "imported": "getFsImplementation",
+        "local": "getFsImplementation",
+        "exportKind": "value",
+        "exportRange": [
+          19644,
+          19717
+        ],
+        "exportSha256": "3dcf86cb1c15e42536db39a40ad569003a4bbdbef4d42e083d513ceb731747ca",
+        "targetDeclarations": [
+          {
+            "index": 864,
+            "nodes": 5,
+            "textSha256": "8390594d0a18c36266faef400ea77b861b33a5acaa38b7fa2577965753c3a0d7",
+            "exactText": "function M8(){return xO5}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 864,
+            "nodes": 5,
+            "textSha256": "0881dd84d07ae89a2216f143a4dbccc96137919fc1ed675f228672c3de3247a6",
+            "exactText": "function X8(){return BA5}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/services/analytics/index.ts",
+        "imported": "logEvent",
+        "local": "logEvent",
+        "exportKind": "value",
+        "exportRange": [
+          4382,
+          4751
+        ],
+        "exportSha256": "055961e6addb6f18b4d31840967fa08bd8f0ea8d6fc76ffe79df13d3db677f2a",
+        "targetDeclarations": [
+          {
+            "index": 577,
+            "nodes": 34,
+            "textSha256": "cceb1aca234df85b3328a58308ffc8860efebf47535a786446620ed0667c5a8f",
+            "exactText": "function d(q,K){if(tt===null){Vx6.push({eventName:q,metadata:K,async:!1});return}tt.logEvent(q,K)}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 577,
+            "nodes": 34,
+            "textSha256": "84daaa95bbff0d6987df400784506986ec1edf5bb5982eefdc95a1cd33fd3d83",
+            "exactText": "function d(q,K){if(_e===null){Vx6.push({eventName:q,metadata:K,async:!1});return}_e.logEvent(q,K)}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/cleanupRegistry.ts",
+        "imported": "registerCleanup",
+        "local": "registerCleanup",
+        "exportKind": "value",
+        "exportRange": [
+          487,
+          680
+        ],
+        "exportSha256": "4fabcf64d6959af500064c0e98bd7b73b33997a092d10ab43b46a127394602cc",
+        "targetDeclarations": [
+          {
+            "index": 582,
+            "nodes": 17,
+            "textSha256": "60b953ac65c6ba1b77d9c59b679109fbd499348060f59b05fdb9285a0bf5bcf2",
+            "exactText": "function Bq(q){return Jo8.add(q),()=>Jo8.delete(q)}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 582,
+            "nodes": 17,
+            "textSha256": "9b6e5afeaadf9374d1e30d96f96f38a579e6a801947b3e6e36f031b1f722d069",
+            "exactText": "function gq(q){return jo8.add(q),()=>jo8.delete(q)}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/cwd.ts",
+        "imported": "getCwd",
+        "local": "getCwd",
+        "exportKind": "value",
+        "exportRange": [
+          879,
+          984
+        ],
+        "exportSha256": "772675479e0f5e14fbd18177647bf328560e601464fdcf3fa5f56ad1c5c17b64",
+        "targetDeclarations": [
+          {
+            "index": 2120,
+            "nodes": 13,
+            "textSha256": "9bef64f6c1cbb5568c9539d473ea3907dc1329764c57e344f053d8f7bacefe49",
+            "exactText": "function f8(){try{return l$8()}catch{return q7()}}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 2120,
+            "nodes": 13,
+            "textSha256": "f80157f602523a928fc4e17cc5a68ce0855bd39a238949602b8a0f6fa0235fb4",
+            "exactText": "function Z8(){try{return a$8()}catch{return t1()}}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      },
+      {
+        "source": "src/utils/log.ts",
+        "imported": "logError",
+        "local": "logError",
+        "exportKind": "value",
+        "exportRange": [
+          5584,
+          6823
+        ],
+        "exportSha256": "2c73cb3bcd6d7e5f27fec2c88735404df4c11479db48af8f4390cc580247790f",
+        "targetDeclarations": [
+          {
+            "index": 2032,
+            "nodes": 96,
+            "textSha256": "eb7b4aac4b78f01d7592d2981022b74a791a4d2250a2b1fd3fdac5fd0f053bd4",
+            "exactText": "function j6(q){let K=p1(q);try{if(Q6(process.env.CLAUDE_CODE_USE_BEDROCK)||Q6(process.env.CLAUDE_CODE_USE_VERTEX)||Q6(process.env.CLAUDE_CODE_USE_FOUNDRY)||process.env.DISABLE_ERROR_REPORTING||wY())return;let z={error:K.stack||K.message,timestamp:new Date().toISOString()};if(jE5(z),MI===null){IW6.push({type:\"error\",error:K});return}MI.logError(K)}catch{}}"
+          }
+        ],
+        "currentDeclarations": [
+          {
+            "index": 2032,
+            "nodes": 96,
+            "textSha256": "3496fd998142b3d62b5243a1afd5c9cd554f6b1b1e452ce572c4917488a9385b",
+            "exactText": "function w6(q){let K=u1(q);try{if(c6(process.env.CLAUDE_CODE_USE_BEDROCK)||c6(process.env.CLAUDE_CODE_USE_VERTEX)||c6(process.env.CLAUDE_CODE_USE_FOUNDRY)||process.env.DISABLE_ERROR_REPORTING||OY())return;let z={error:K.stack||K.message,timestamp:new Date().toISOString()};if(PE5(z),MI===null){BW6.push({type:\"error\",error:K});return}MI.logError(K)}catch{}}"
+          }
+        ],
+        "allCompleteDeclarationsIncluded": true,
+        "transitiveProviderEquivalenceAccepted": false
+      }
+    ],
+    "guardOverlap": false,
+    "evalOwnerOverlap": false,
+    "sourceMapDirectiveCount": 0,
+    "sourceMapBytesChanged": false,
+    "originalSourceMapOwnershipEstablished": false,
+    "applicationExecuted": false
+  },
+  "conditionalExternalInterfaces": {
+    "String": "String",
+    "Vx6": "Vx6",
+    "Jo8": "jo8",
+    "Set": "Set",
+    "k8": "V8",
+    "nE7": "oE7",
+    "UE5": "nE5",
+    "KK": "qK",
+    "RH7": "bH7",
+    "n8": "l8",
+    "ka8": "Ta8",
+    "gO5": "cA5",
+    "process": "process",
+    "Object": "Object",
+    "$1": "A1",
+    "lv": "dT",
+    "xM7": "mM7",
+    "Q6": "c6",
+    "NB": "RB",
+    "uM7": "BM7",
+    "FO5": "lA5",
+    "LH7": "SH7",
+    "Ta8": "Ga8",
+    "Promise": "Promise",
+    "BM7": "UM7",
+    "N96": "L96",
+    "CM7": "IM7",
+    "bM7": "uM7",
+    "BO5": "dA5",
+    "pO5": "QA5",
+    "ez5": "YY5",
+    "SH7": "xH7",
+    "s1": "o1",
+    "L8": "E8",
+    "IE": "mE",
+    "oE7": "tE7",
+    "Tz": "Tz",
+    "bO5": "pA5",
+    "oO": "rA",
+    "Fz": "gz",
+    "q9": "e3",
+    "Uz": "Fz",
+    "RO5": "IA5",
+    "yO5": "SA5",
+    "SO5": "uA5",
+    "LO5": "bA5",
+    "hO5": "xA5",
+    "NO5": "hA5",
+    "Q1": "r1",
+    "EM7": "hM7",
+    "EO5": "CA5",
+    "Buffer": "Buffer",
+    "m98": "F98",
+    "Math": "Math",
+    "xO5": "BA5",
+    "IY": "xY",
+    "u$8": "g$8",
+    "xW6": "pW6",
+    "p$8": "U$8",
+    "IW6": "BW6",
+    "gS$": "lS$",
+    "cE5": "oE5",
+    "dE5": "rE5",
+    "XK": "MK",
+    "eK4": "oK1",
+    "VC_": "EC_",
+    "kC_": "yC_",
+    "NC_": "LC_",
+    "f76": "T76",
+    "Bv8": "QT8",
+    "tK4": "lA8",
+    "A_": "N_",
+    "Oj": "Jj",
+    "z54": "$54",
+    "Error": "Error",
+    "gv8": "dT8",
+    "TC_": "NC_",
+    "EC_": "hC_",
+    "LC_": "SC_",
+    "pv8": "UT8",
+    "t8": "s8",
+    "Bun": "Bun",
+    "Date": "Date",
+    "vO8": "yA8",
+    "o$8": "t$8",
+    "JJz": "DJz",
+    "nB": "oB",
+    "UO5": "nA5",
+    "m6": "p6",
+    "Va8": "va8",
+    "ql": "Kl",
+    "cO5": "oA5",
+    "PL7": "fL7",
+    "SC4": "bC4",
+    "tt": "_e",
+    "l$8": "a$8",
+    "q7": "t1",
+    "p1": "u1",
+    "wY": "OY",
+    "jE5": "PE5",
+    "MI": "MI"
+  },
+  "parentExactFiveCallAndInitializerDeltaVerified": true,
+  "legacyRetention": {
+    "retainedLegacyWrapper": {
+      "parent": 7577,
+      "current": 7577,
+      "name": "QP",
+      "nodes": 91,
+      "namespaceHeader": 7578,
+      "initializer": 7579,
+      "factory": 6028,
+      "namespaceAndFactoryFieldsAndBindingsPreserved": true
+    },
+    "requiredOtherConsumers": [
+      {
+        "parent": 9843,
+        "current": 9843,
+        "nodes": 806,
+        "calls": 9
+      },
+      {
+        "parent": 10674,
+        "current": 10674,
+        "nodes": 293,
+        "calls": 2
+      },
+      {
+        "parent": 10718,
+        "current": 10718,
+        "nodes": 417,
+        "calls": 2
+      },
+      {
+        "parent": 14356,
+        "current": 14357,
+        "nodes": 137,
+        "calls": 2
+      }
+    ],
+    "ordinaryCallCensus": {
+      "parent": [
+        {
+          "index": 9843,
+          "calls": 9
+        },
+        {
+          "index": 10674,
+          "calls": 2
+        },
+        {
+          "index": 10687,
+          "calls": 1
+        },
+        {
+          "index": 10688,
+          "calls": 2
+        },
+        {
+          "index": 10692,
+          "calls": 1
+        },
+        {
+          "index": 10693,
+          "calls": 1
+        },
+        {
+          "index": 10718,
+          "calls": 2
+        },
+        {
+          "index": 14356,
+          "calls": 2
+        }
+      ],
+      "current": [
+        {
+          "index": 9843,
+          "calls": 9
+        },
+        {
+          "index": 10674,
+          "calls": 2
+        },
+        {
+          "index": 10718,
+          "calls": 2
+        },
+        {
+          "index": 14357,
+          "calls": 2
+        }
+      ]
+    },
+    "parentSnapshotCallsRemovedOnly": 5,
+    "currentRetainedCalls": 15,
+    "selectedCensusExhaustiveForOrdinaryCalls": true,
+    "dynamicAliasOrEvalAbsenceProven": false,
+    "shared48NodeHelper": {
+      "index": 9819,
+      "name": "v9",
+      "completeTargetAndParentFieldsAndLocalGraphPreserved": true,
+      "placement": {
+        "target": [
+          9808,
+          9809,
+          9810,
+          9811
+        ],
+        "parent": [
+          9817,
+          9818,
+          9819,
+          9820
+        ],
+        "current": [
+          9817,
+          9818,
+          9819,
+          9820
+        ]
+      },
+      "localDeclarationBoundaryMatches": true,
+      "globalOrderingAccepted": false
+    },
+    "realSnapshotCallerBindings": [
+      {
+        "role": "target",
+        "index": 10697,
+        "nodes": 417,
+        "header": 10673,
+        "snapshotBinding": "FzK"
+      },
+      {
+        "role": "parent",
+        "index": 10718,
+        "nodes": 417,
+        "header": 10694,
+        "snapshotBinding": "izK"
+      },
+      {
+        "role": "current",
+        "index": 10718,
+        "nodes": 417,
+        "header": 10694,
+        "snapshotBinding": "izK"
+      }
+    ],
+    "completeCurrentParentCallerFieldsAndLocalGraphPreserved": true,
+    "broaderCallerTargetEquivalenceAccepted": false,
+    "fullTransitiveProviderEquivalence": false,
+    "remainingFieldsAndGraphsPreserved": true
+  },
+  "receiptChain": {
+    "currentPhysicalInputs": {
+      "files": 6084,
+      "manifestSha256": "9044f70a8cb451fc8e08fd3c374960c9743093db73890c5a3b7e618c1b6ce76d",
+      "currentGitSourceFiles": 1922,
+      "currentDerivedSrcTree": "f6932ec555dd24eb76762899396e04fe472f5af1",
+      "extraSourceAssets": 29,
+      "genesisVerifiedAsLineageOnly": true,
+      "sourceEdgeAndEvalRangePinsVerified": true
+    },
+    "allBeforeAfterIdentitiesEqual": true,
+    "truthfulSummaryCounts": {
+      "sourceFiles": 6084,
+      "currentGitSourceFiles": 1922,
+      "measuredSourceFiles": 6084,
+      "measuredGitSourceFiles": 1922,
+      "sourceCountValidationFailure": false
+    },
+    "events": {
+      "private-marker-external": 11,
+      "sdk-declaration-facade": 12,
+      "sdk-facade-load": 3,
+      "source-import-literal-overlay": 11
+    },
+    "facadeLoads": 3,
+    "overlayOwners": 11,
+    "markerRemovals": 11,
+    "restoredOverlaySources": 11,
+    "allDeletionEditsReproduceFinalBytes": true,
+    "mapsStreamHashedWithoutParsing": true,
+    "all18GuardAnd4EvalPoliciesUnchanged": true,
+    "readContract": {
+      "inputTree": "historical-checkpoints/v25-stage/inputs",
+      "profile": "historical-checkpoints/v25-preparation/prepared/recovery/profiles/2.1.89/profile.json",
+      "toolFiles": [
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+        },
+        {
+          "root": "recovery",
+          "relativePath": "lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs",
+          "resolvedPath": "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+        }
+      ],
+      "adapterScripts": [
+        "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+        "historical-checkpoints/v25-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-support.mjs"
+      ],
+      "declaredReferenceBundleInput": null,
+      "declaredReferenceMapInput": null,
+      "staticInspection": "No reference bundle/map read path found in reviewed adapter code; profile metadata includes historical hashes only.",
+      "observedFilesystemReadFootprint": "unestablished; parent PTRACE_TRACEME probe denied by kernel",
+      "osLevelReadIsolationEnforced": false
+    }
+  },
+  "verification": {
+    "completeDistinctOriginalIndexStatements": 152,
+    "statementRoles": {
+      "target": 46,
+      "parent": 53,
+      "current": 53
+    },
+    "largestStatementBytes": 3952,
+    "completeModuleStatements": 13,
+    "namedFunctions": 7,
+    "completeSnapshotArrowIncluded": true,
+    "concreteInitializerDeclarations": 13,
+    "directNamedValueInterfaces": 14,
+    "adversarialNegatives": [
+      "old wrapper restored at a call",
+      "namespace receiver introduced",
+      "additional argument",
+      "singleton-array content changed",
+      "execa moved to historical slot zero",
+      "execa after subprocessEnv",
+      "old wrapper init restored",
+      "analytics slot replaced with execa",
+      "timeout literal changed",
+      "template raw changed",
+      "PATH logical fallback changed",
+      "VCS ordering changed"
+    ],
+    "positiveFixedRoleControlBeforeNegatives": true,
+    "independentUtf16Reextraction": true,
+    "sourceApprovalAuthorAndPreparationClosuresUnchanged": true
+  },
+  "strictWholeProgram": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098504,
+    "sha256": "085133b7ed5e37d0693b778092cce8d449e8f365f3f591bbed206e31193785c4",
+    "equalToTarget": false,
+    "recomputedByReviewer": false,
+    "nodeCountDeltaIsNotStructuralDistance": true
+  },
+  "qualifications": [
+    "The five quote redirects are target-directed behavior repairs. The shared helper is not declared interchangeable with the old wrapper validation, coercion, logging or fallback for arbitrary inputs.",
+    "The source execa relocation changes initialization and possible error timing. Its actual direct production placement now matches target slot 11 after ripgrep and before subprocessEnv; no memoization, purity or independent-order theorem is assumed.",
+    "All thirteen complete initializer declarations, their concrete imported value declarations and the complete ShellSnapshot module are compared jointly. Remaining captured interfaces, ambient/native behavior and transitive providers remain conditional; no whole provider graph is accepted.",
+    "The old quote-only positional role map remains rejected history. Actual success is based on the combined source proposal and concrete provider definitions, not relabeling the earlier failed fixture.",
+    "The original 91-node wrapper, namespace and factory remain, with fifteen indexed ordinary calls in four other complete consumers. This census is not a whole-program alias/write/reflection/eval absence proof and authorizes no global deletion.",
+    "The real 417-node bashProvider caller preserves its current-parent complete fields/local graph and resolved snapshot call. Its broader target/transitive behavior remains outside this review.",
+    "The shared 48-node helper has the exact checked local declaration boundary, including the preceding preferTmux function/initializer and following namespace. Global ordering equivalence remains unproved.",
+    "All typed source bytes except the exact quote import replacement and exact execa import relocation are preserved. Source author fixtures retain their production-versus-standalone context limits; actual production verification does not retroactively expand those fixture claims.",
+    "Maps were streamed only for hash verification. Original private authorship and map ownership remain unproved. No snapshot, shell, native callback or recovered application function was executed.",
+    "All 37 resolver events and eleven final deletion edits are authenticated for this run. Event totals are not a unique module census; OS-level read isolation and the complete runtime read footprint remain unestablished.",
+    "Whole target strict AST remains unequal. No normalization gate is enabled, and later binding-aware alpha or independent-order acceptance requires its own proof."
+  ],
+  "harnessHistory": [
+    "The first reviewer script had a missing closing brace and did not run; its syntax failure is retained.",
+    "The generic AST-only one() helper was initially used on eslint-scope records; the review now uses a separate exact-one array helper. An intermediate replacement typo was corrected before any output was accepted.",
+    "The first explicit positive-role test omitted the model’s unchanged-free prefix. It failed before mutation tests; the final positive case passes before twelve meaningful negatives. The failure is retained."
+  ],
+  "historicalQuoteOnlyPositionalMapAccepted": false,
+  "priorFailuresRewritten": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalDeclarationAndInitializationOrderAccepted": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "sourceOrStageEdited": false,
+  "compilerInvokedByReviewer": false,
+  "fullProgramParsedByReviewer": false,
+  "applicationExecuted": false,
+  "shellSnapshotNativeOrCallbackExecuted": false,
+  "evidence": {
+    "actual.json": "7918d6c135b9da6abd81f1f08821895e8a448ef8f06d9e9a10673e3fd6ad868b",
+    "retention.json": "825609af9edc8343394150a3ebb3c156d37285ea87fd68e6a2921fea0eed249e",
+    "source-boundary.json": "c03f91bd7ea5276b82a33493633db0910473be8599402d5e48de1f6ea02f47ca",
+    "receipt-checks.json": "69641cc9ca98b7378e21c56a6be577f21a4784f2ae603c8e6fbfe0ea9097d38b",
+    "witness-audit.json": "869f8ee80e317ab2c6cada7b4ac52c3cdf3b5bbd51e5c381ea37b71637a108aa",
+    "baseline-authentication.json": "72ce6b4462168571c6c3a290d0d3848e3b029010958f241a6c7c22b18c16d1aa",
+    "review-code-provenance.json": "7fee409767f5bb9952abc900bd9035306c07d6e38a544f16c44d49aa3d47c9dc"
+  }
+}
