@@ -1,0 +1,78 @@
+{
+  "kind": "independent-shell-completion-parser-and-local-quote-source-review",
+  "verdict": "approved-for-fixed-2.1.89-source-trial",
+  "sourceTrialApproved": true,
+  "sourceFiles": [
+    {
+      "path": "src/utils/bash/shellCompletion.ts",
+      "oldSha256": "0d76aac89d228aeb25dc64ad428fd790a1480a41f272693a16cb83bdd8326b1b",
+      "oldBytes": 7874,
+      "oldGitBlob": "cdaa6387beb1fd200ed8c955dbf030e57c7c8eaf",
+      "postimageSha256": "82c0d7ae1b9060935bb13d536208cf028b0af29b0a54228be166e3add73fe92a",
+      "postimageBytes": 5534,
+      "postimageGitBlob": "b187ab507960f979f530148cc022937e7a677060",
+      "postimagePath": "historical-checkpoints/shell-completion-source-proposal/postimages/src/utils/bash/shellCompletion.ts"
+    }
+  ],
+  "sourceManifestSha256": "aaa96ea984f5917378b3138929ec8c2e67b5118b69288e0117539a6fd9bc685e",
+  "authorArtifactSha256": "b9fa763638e767f3873941a8b8aaeab85d7dafb7e1298227ad8c8e48c279535a",
+  "authorCodeSha256": "67d39f388da48a2496c3df439f9e36916bda4d4b66f807401e4dca0ab8318c1f",
+  "authorFreezeSha256": "33636fbdeef04d1c8af70ee2f36daf0905f348f03359ca6b9f496374a0923eac",
+  "baselineArtifactSha256": "dfe27e7fb926545b341f893e7007b4b19e27463e7c9369cd636f7da9cbee195d",
+  "physicalV22PreimageVerified": true,
+  "allNinePhysicalFixtureInputsMatchV22": true,
+  "authorGroupsReproduced": 14,
+  "authorNegativeControls": 16,
+  "independentGroups": 8,
+  "independentNegativeControls": 20,
+  "completeOriginalIndexWitnessesReextracted": 39,
+  "largestFragmentBytes": 1930,
+  "exactCompilerOutputFiles": 4,
+  "sortedResolverReceiptByteExact": true,
+  "completeTargetFunctionNodes": [
+    18,
+    34,
+    86,
+    48,
+    48,
+    91,
+    79,
+    81,
+    39,
+    601
+  ],
+  "newLocalQuoteReferences": 6,
+  "privateSourceSupportGroupLexicallyClosed": true,
+  "fiveOtherFunctionsByteExact": true,
+  "remainingImportsTypesPublicExportByteExact": true,
+  "targetInitializerNodes": 16,
+  "currentInitializerNodes": 27,
+  "initializerProof": "Complete original-index graph with actual debug/localInstaller/Shell providers matches after exactly removing current slot0 shellQuote initializer and final COMMAND_OPERATORS array assignment. Future actual stage required.",
+  "sourceChangedByReviewer": false,
+  "authorArtifactsUnchanged": true,
+  "sourceStageChanged": false,
+  "applicationExecuted": false,
+  "actualEmissionVerified": false,
+  "fullTargetASTEqualityEstablished": false,
+  "qualifications": [
+    "Explicit target-directed behavior repair: whitespace parsing replaces shell parsing/operator context; local quote always quotes first string argument and omits old wrapper validation/coercion/logged fallback.",
+    "Local quote is the separate 18-node target function, not the existing shared 48-node helper. All six ordinary singleton-array calls are grounded.",
+    "The source private-support group is closed within the complete source lexical graph. Source/emitted textual censuses are leads, not dynamic/global absence proof.",
+    "Real direct provider bodies match under explicit transitive capture interfaces; no transitive application or native semantics claim.",
+    "The physical slowOperations fixture corrects an earlier artificial import-alias split. Failed fixture evidence is retained, without alias normalization.",
+    "Bounded fixture explicitly retains the CJS vendor interface; it is not actual whole-stage DCE or initialization evidence.",
+    "Actual source-stage module graph, three provider initialization calls/order, old-edge/operator-allocation removal, remaining helper retention and global ordering are still required.",
+    "No source-map directive is present or changed. Reflection, ambient behavior and generic alpha/order equivalence remain outside acceptance."
+  ],
+  "reviewHarnessHistory": [
+    {
+      "file": "independent-controls.stderr",
+      "cause": "Reviewer initially wrote incorrect expected node counts for three direct providers. Re-extracted immutable rows establish 81,39,601; full graph comparisons were already passing and unchanged."
+    },
+    {
+      "file": "independent-controls-final.stderr",
+      "cause": "Reviewer mutation selector used one() for three constructor quote calls. It now asserts exactly three and mutates the first; graph rejection checks are unchanged."
+    }
+  ],
+  "authoritativeIndependentControls": "independent-accepted.json"
+}

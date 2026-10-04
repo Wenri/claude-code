@@ -1,0 +1,419 @@
+{
+  "kind": "reviewed-rooted-reconstruction-adapter-toolchain-v1",
+  "files": [
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/checked-roots.mjs",
+      "bytes": 2163,
+      "sha256": "ad8d7bf46b81dca4b5988b7b82a9f2c46f620a46f35a210d64045202aefe0795"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs",
+      "bytes": 11714,
+      "sha256": "577dcb904a8f88f2f53b0a6b817549dd24ffd2ae18d1d0cb7b9be718f5563a68"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs",
+      "bytes": 17945,
+      "sha256": "1bbe8695addc9f6215ca79c99d34b506645e83bc315fac60a53fc9a6463765ca"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs",
+      "bytes": 13131,
+      "sha256": "a1d3754503d348d147f5bee28cbbd08c228f5b00b15ff72f7a0b27e9b210cadf"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs",
+      "bytes": 13383,
+      "sha256": "db1e51b00b0c399f16b4bf81f6f37f9cae898b0c90ac175f696b27c7b18aff7b"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs",
+      "bytes": 4491,
+      "sha256": "9fd93d16c0bf17a6288a482b4ffb1f2f116e5942a73bb00d3d33ab09c00e1ac2"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs",
+      "bytes": 14629,
+      "sha256": "073282f7350eb20d0bf66ea1928d64adf2dcfca290de0dc94594f83e449a4042"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs",
+      "bytes": 11045,
+      "sha256": "cb9d3d02dbdf881f0e6bbc06e25a201938bfd33fe0286e14b1043bf8c9177186"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/finalize-full-stage.mjs",
+      "bytes": 4924,
+      "sha256": "f346af3f16157113016810f6890d5c393a0f59f28918565dff5e119a5eb6553d"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+      "bytes": 7873,
+      "sha256": "1a821ab4b35fb67eb0096438e499919331c57eefd8c8ba909224c169484d4ff1"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/full-stage-support.mjs",
+      "bytes": 14023,
+      "sha256": "c3794223d65ef10fc19801c87ea0baedcf5be0d392a6dd96352839a921d2457a"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/guarded-source-adapter.mjs",
+      "bytes": 1914,
+      "sha256": "e808b44eeb893d0e129b9d44a1a2fce7e0e78b0de01831e344449a6f531256fa"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/marker-late-link.mjs",
+      "bytes": 14126,
+      "sha256": "d8a73aaa38be2f2df39234029c33e232ef5dea195b009e5f4d5e4e85b3bc4240"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/source-contract.mjs",
+      "bytes": 5973,
+      "sha256": "c102ef05881beb99089aa9bfffa725fe44a5bc02dca74c035dc8b54755d5c7be"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs",
+      "bytes": 37644,
+      "sha256": "72ec1ec16e3fbce64e43e724dd21bca97b3e45ea76b93930ab1bfcdd9fce9205"
+    },
+    {
+      "root": "recovery",
+      "path": "lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs",
+      "bytes": 7798,
+      "sha256": "b62165486528cd78c0aa037a3bf88a92e77471885b2b688a56b197fb597c8e64"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/.package-lock.json",
+      "bytes": 2470,
+      "sha256": "e4e2ff60669972df95a1b596fca5a63e7951eae6b0befcb8a4503fb364f24438"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/esrecurse/LICENSE",
+      "bytes": 1141,
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/esrecurse/README.md",
+      "bytes": 1990,
+      "sha256": "39aa7698d643040605facf9de4bf681aab584db3bd9ac8fdfcde9bade6bf91fc"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/esrecurse/index.d.ts",
+      "bytes": 1393,
+      "sha256": "d5799bcf7fe4e6de3063abf4e321c14b051706f03cf5716d8a19f22fe1f69519"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/esrecurse/package.json",
+      "bytes": 823,
+      "sha256": "10559a1fe22c5c66a6d91cf7fc8dbe3fe98642ccd14994392a0a43f0d33ea982"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/estree/LICENSE",
+      "bytes": 1141,
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/estree/README.md",
+      "bytes": 458,
+      "sha256": "284daa8ee1deb294176001d299e950b7af96026497c7147e000f15c00ee6f541"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/estree/flow.d.ts",
+      "bytes": 4801,
+      "sha256": "5e7c558636932e615efa25b9ecdeff5e80436e646b16084c7554b66ae1fe9103"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/estree/index.d.ts",
+      "bytes": 18924,
+      "sha256": "751764bb94219b4ce8f5475dc35d3de2e432fea01a0c9610cd7f69ad05e398c6"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/@types/estree/package.json",
+      "bytes": 829,
+      "sha256": "3537a6a503f57901111d8a29df81962887653deb199b9a795c7fb50bbfdd1bdc"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/CHANGELOG.md",
+      "bytes": 23249,
+      "sha256": "981f7def585a9b286740a90bc619c3355ff8e132a449c4dbbb78905d3df2198b"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/LICENSE",
+      "bytes": 1099,
+      "sha256": "76a876cf886ff9be2a8b5e2e86514fed06223c8c9f0c1e9ee9606e93841e00b7"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/README.md",
+      "bytes": 10799,
+      "sha256": "dfbb7699d8b6c7fe0175c59a7e060486c0167625279c178eddac860d479c6450"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/bin/acorn",
+      "bytes": 60,
+      "sha256": "4c3eb6f1d8932790dbff043839f8ee7686bc614a59ef577e96fed618a4a4b1b8"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/dist/acorn.d.mts",
+      "bytes": 21989,
+      "sha256": "a4abbf5d5ecd7367532921a52e2a2762a6f5f38c3e4ad6c25e6e90152c403804"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/dist/acorn.d.ts",
+      "bytes": 21989,
+      "sha256": "a4abbf5d5ecd7367532921a52e2a2762a6f5f38c3e4ad6c25e6e90152c403804"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/dist/acorn.js",
+      "bytes": 241575,
+      "sha256": "fdb08546776ec6228b03e8d02b40d4ab3255bae5f401adba7ff5dad927ac5c9c"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/dist/acorn.mjs",
+      "bytes": 229792,
+      "sha256": "b4c8c70200e72bae33cf1085e0ecb1e792c1b6924ed50cab817caf14f51bb249"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/dist/bin.js",
+      "bytes": 3329,
+      "sha256": "fffd9df1d9158c4580068ad17c3176c34fe46f59021b8cd5780454994764dc30"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/acorn/package.json",
+      "bytes": 1061,
+      "sha256": "9e422c8225c9cc4c774e9a9392d0ecac7f766b46122ef2db99db0fc4bbedc247"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/LICENSE",
+      "bytes": 1390,
+      "sha256": "d3a724e2ed749f172ff70b62a1d0631b7d4b0ea273782365a3464d4e2d6b6dbd"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/README.md",
+      "bytes": 11171,
+      "sha256": "7170e4eb9e7779758994e08532af053453bbface33fe0816a8185978f6fe51ad"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/dist/eslint-scope.cjs",
+      "bytes": 64832,
+      "sha256": "615c9351593f8d8d3a2700fad7c288b0e0d48188fe4ef70e98707887ac9b302b"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/assert.js",
+      "bytes": 452,
+      "sha256": "ee6a92ef1198f83af7dd766fce1ae1b86344200cb56c9f1b8311e25826bb6c96"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/definition.js",
+      "bytes": 2822,
+      "sha256": "81e051d08b3cc83d4d15e5481c419b8bf9886e34ff8240bf61fcf2b08cc621d1"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/index.d.cts",
+      "bytes": 26913,
+      "sha256": "14d05dc8f5c5321d463f44ea300208a9943e08c0d427ee857bcd174aa9d72f13"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/index.d.ts",
+      "bytes": 117,
+      "sha256": "cd448460641d289e06406ed5133ab50feac7edb00b8eab3170a7c5ea73feddee"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/index.js",
+      "bytes": 6323,
+      "sha256": "522ad28c80b2749adc5d388703bc7f0dd919808fea20cbd84cdf473734d4748f"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/pattern-visitor.js",
+      "bytes": 4544,
+      "sha256": "409803cc8d60e925ca366b6bad6f8e085690d9c531ada4d7393037c7d04931df"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/reference.js",
+      "bytes": 4341,
+      "sha256": "d620dfb10ed0e848448da0720e53a0196bd5ffa61e5a2ce7d05a90e64c79de76"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/referencer.js",
+      "bytes": 18048,
+      "sha256": "d8cc6d00d48bdc2de55c74289551d7edb4ff4a853ea5678a07a921620deba518"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/scope-manager.js",
+      "bytes": 7397,
+      "sha256": "57e33cdbd881bd9035740cad7afd78341d164b5e268b4420738abe5802e5d17c"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/scope.js",
+      "bytes": 20423,
+      "sha256": "13fbe9d3973b596bb2fafae272b5a6b80db69bb360894a117b31c7f4e93e48ed"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/lib/variable.js",
+      "bytes": 3040,
+      "sha256": "3a1b7e00e96fccb9a4c8985f34f6362fbbae91794f7e37cc6aa33be9866fee87"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/eslint-scope/package.json",
+      "bytes": 1682,
+      "sha256": "00b69c8c78e79c01f844987acdf8cdd43c8647dd84c752cdc39dc9319bac241a"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/esrecurse/.babelrc",
+      "bytes": 30,
+      "sha256": "9b5fa5ccf91f15404f266f8595c85a005814efdecc3fd7c584630e6667fb5597"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/esrecurse/README.md",
+      "bytes": 5102,
+      "sha256": "a7007c78c9d9da690ef6cdb0e7a3427d05832edb00abd1f5a9882700d73be4ad"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/esrecurse/esrecurse.js",
+      "bytes": 4230,
+      "sha256": "aa99847033c240a621fe987f0e06b754f388f22abd11a05bdf9cdd00794b7350"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/esrecurse/gulpfile.babel.js",
+      "bytes": 3000,
+      "sha256": "fb47567884ee5dddc084a93db85d940f0874dbb4a1863820c6c317a3a83e62b1"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/esrecurse/package.json",
+      "bytes": 1165,
+      "sha256": "3bc67cb54672ec6957b53947613c23599371bf9222dbbe97275d20516a561a20"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/estraverse/.jshintrc",
+      "bytes": 242,
+      "sha256": "48460ff8874f6b68482ec068c01f7246ae406b891749f92f3d06180b3c70fc35"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/estraverse/LICENSE.BSD",
+      "bytes": 1231,
+      "sha256": "0e74697a68cebdcd61502c30fe80ab7f9e341d995dcd452023654d57133534b1"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/estraverse/README.md",
+      "bytes": 4865,
+      "sha256": "623a48ac487901c20b18ff241617efb3adf6a3b8c077073fccdddc770404c991"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/estraverse/estraverse.js",
+      "bytes": 26957,
+      "sha256": "818578222a4686be24197cac7e9ea00a6b32a0312c86a2bb946ec4b7faeee93c"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/estraverse/gulpfile.js",
+      "bytes": 2790,
+      "sha256": "02601a92111d2c67d2f9bc725a66c80aceb7e24a9e266a2ab5e83c5b9e01b27a"
+    },
+    {
+      "root": "recovery",
+      "path": "node_modules/estraverse/package.json",
+      "bytes": 1009,
+      "sha256": "133a5be160a0123ad20ab8f2bdaa9da2fd94ebf3403996bf4cb69606e6a84a65"
+    },
+    {
+      "root": "recovery",
+      "path": "package-lock.json",
+      "bytes": 2624,
+      "sha256": "c8d4cc21eecc7549f9395e6fcbde6da54972944ee782a4ecc600ad8c8a9e9b73"
+    },
+    {
+      "root": "recovery",
+      "path": "package.json",
+      "bytes": 391,
+      "sha256": "8a1643a5d47e363749f17ce080a89b7dedc66add1feeebefccf356bed8cc72cb"
+    },
+    {
+      "root": "recovery",
+      "path": "scripts/build-2.1.89-candidate.mjs",
+      "bytes": 160,
+      "sha256": "37b7788e3cb74963171ca453a485e011e74316d1a0ec84591d4ce96689e0dfce"
+    },
+    {
+      "root": "recovery",
+      "path": "scripts/finalize-2.1.89-candidate.mjs",
+      "bytes": 160,
+      "sha256": "e209c791cf1d6e20bdd46018d487593e748c04b4b594a795ed284f8d1ba34c0e"
+    },
+    {
+      "root": "recovery",
+      "path": "tooling/babel-parser-7.29.0/LICENSE",
+      "bytes": 1086,
+      "sha256": "2e97627cb278aa7556fb9e8817368302301a595b6c7582512b8d74c57b773652"
+    },
+    {
+      "root": "recovery",
+      "path": "tooling/babel-parser-7.29.0/lib/index.js",
+      "bytes": 512056,
+      "sha256": "c09a452686d62e1b9b7d68f8e1606144cb2c422586e28fc533f5d1b56a51cbf5"
+    },
+    {
+      "root": "recovery",
+      "path": "tooling/babel-parser-7.29.0/package.json",
+      "bytes": 1382,
+      "sha256": "f9f93c4e80bdda3c57a8c3c2d3869ef3e2ab4f6c7cdb6f3c1d0336e6bf17b285"
+    }
+  ]
+}

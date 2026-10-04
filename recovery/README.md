@@ -1,6 +1,6 @@
 # Claude Code release recovery
 
-Current in-progress source work is saved in the [2.1.89 revision22 checkpoint](./checkpoints/2.1.89/v22/README.md). It builds from portable source inputs but **has not passed whole-target acceptance**; pending actual checks and semantic gaps are recorded explicitly. The cumulative root source and earlier release history are unchanged.
+Current in-progress source work is saved in the [2.1.89 revision24 checkpoint](./checkpoints/2.1.89/v24/README.md). It builds from portable source inputs and its current scoped emission checks pass, but **has not passed whole-target acceptance**. Remaining semantic gaps are explicit. The [earlier revision22 checkpoint](./checkpoints/2.1.89/v22/README.md), cumulative root source and release history remain unchanged.
 
 This directory contains an evidence-first, incremental method for recovering
 later Claude Code releases from authenticated adjacent published packages

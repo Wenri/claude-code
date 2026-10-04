@@ -1,0 +1,117 @@
+{
+  "kind": "independent-fixed-v24-preparation-review",
+  "verdict": "approved-for-fixed-source-diagnostic-trial",
+  "preparationApproved": true,
+  "sourceTrialApproved": true,
+  "authorRoot": "historical-checkpoints/v24-preparation",
+  "aggregateSha256": "0db27bedcbcdb811abae9d701dc92e95cb0947e128923215444f7adf7d6bc4a4",
+  "authorClosure": {
+    "path": "historical-checkpoints/v24-preparation/TRANSFER-MANIFEST.json",
+    "sha256": "cc6dd4f07a0f3febf2ffe144b50c2db1c91c11b0500295b3540cf764b9daf67f",
+    "members": 1219
+  },
+  "authorFreezeSha256": "6aa4a590f79bb04676709961e47dd490ccde43e3d47bbff2738daea103e11c64",
+  "authorCodeClosureSha256": "0b21f45231652b359db3f76f03bd3d7a6f7da0a18cee595ed5ec4e2cd676bf71",
+  "authorCodeMembers": 95,
+  "generatorSha256": "32736cf5da60c93db26cab143559ead431b50c51dc523d7e850ff4d5f99cdd73",
+  "profileSha256": "103fbdb9f5f71319f2389d7b4f53e347ac6f04852cac13d2a39fb020b94aa773",
+  "toolchainSha256": "8eba1803307a7fa4d313fca7d836b668db68b7224123203e05041ede16f12634",
+  "sourceContractSha256": "c102ef05881beb99089aa9bfffa725fe44a5bc02dca74c035dc8b54755d5c7be",
+  "fullStageCompilerSha256": "1a821ab4b35fb67eb0096438e499919331c57eefd8c8ba909224c169484d4ff1",
+  "parent": {
+    "sourceRevision": 23,
+    "profileSha256": "5edefdcb2ffeeecda370f78bcaa8c27af22359574701ce27604a09558034d0f9",
+    "toolchainSha256": "8a755a555e7b3c1c8602eb5be4e8c7709a5b0f8501821de853f057ac1acb9209"
+  },
+  "physical": {
+    "kind": "independent-v24-physical-data-check",
+    "aggregateSha256": "0db27bedcbcdb811abae9d701dc92e95cb0947e128923215444f7adf7d6bc4a4",
+    "files": 6084,
+    "bytes": 50949448,
+    "changed": [
+      "src/utils/bash/shellCompletion.ts",
+      "src/main.tsx"
+    ],
+    "unchanged": 6082,
+    "stagedSourceFiles": 1951,
+    "gitSourceFiles": 1922,
+    "extraSourceAssets": 29,
+    "sourceManifestSha256": "35183b90baf51d35a8aed77ea163f34c7ca08e14af8112b7417ab44bed005567",
+    "derivedSrcTree": "5d72e1229ae190ff3d8f77317231ca57d24f10f9",
+    "guardSlices": 18,
+    "evalSlices": 4,
+    "noSharedInodesOrModeDrift": true,
+    "allParentHashesVerified": true,
+    "allCurrentHashesVerified": true,
+    "sourceApprovalAndSnapshotRowsExact": true,
+    "authorCodeImported": false
+  },
+  "completeProfileAndToolchainIndependentlyReconstructed": true,
+  "runtimeChanges": [
+    {
+      "path": "lib/reconstruction/versions/2.1.89/source-contract.mjs",
+      "line": 15,
+      "beforeSha256": "6dc73510c677ba232cbb83bfe5df641f547be63950f582f03e9fc538a64b5822",
+      "afterSha256": "c102ef05881beb99089aa9bfffa725fe44a5bc02dca74c035dc8b54755d5c7be"
+    }
+  ],
+  "otherRuntimeFilesUnchanged": 68,
+  "truthfulReportProducerPreserved": true,
+  "all18GuardRecordsAndFourEvalRecordsExact": true,
+  "allCurrentParentGenesisGuardHistoryPreserved": true,
+  "allOptionsAliasesFacadesFeaturesAndProducersExact": true,
+  "completeReplayFiles": 1153,
+  "all1032ParentPreparedFilesRetainedExceptActiveProfileToolchainContract": true,
+  "historicalPointerTargetsPreserved": 25,
+  "exactParentProfileToolchainCopies": true,
+  "approvedVerifierBodiesByteExact": true,
+  "allNineHistoricalEvidenceFieldsPreserved": true,
+  "completeActualV23ReceiptSnapshotsPreserved": [
+    "spawn_quote",
+    "search_box"
+  ],
+  "historicalFailuresRelabeled": false,
+  "authorNegativesReproduced": 311,
+  "additionalIndependentNegatives": 43,
+  "all1219AuthorClosureMembersUnchangedAfterReplay": true,
+  "all16InitialScaffoldMembersUnchanged": true,
+  "replayStdoutByteExactTransition": true,
+  "newSourceTrials": [
+    {
+      "componentId": "shell_completion",
+      "actualEmissionVerified": false,
+      "freshActualEmissionRequired": true
+    },
+    {
+      "componentId": "main_startup_environment",
+      "actualEmissionVerified": false,
+      "freshActualEmissionRequired": true
+    }
+  ],
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "compilerInvokedByReviewer": false,
+  "fullProgramParsedByReviewer": false,
+  "applicationExecuted": false,
+  "environmentAssignmentExecuted": false,
+  "sourceStageOrRepositoryEdited": false,
+  "qualifications": [
+    "Approval permits only the exact pinned V24 source diagnostic trial. Neither source preparation nor this review establishes actual emitted behavior, whole target equivalence, or original private source authorship.",
+    "ShellCompletion has an explicitly reviewed parser behavior change and a separate local 18-node quote helper. Its six calls, retained functions, three real initialization providers, 16-node initializer, removed old edge/operator allocation, and retained unrelated legacy users still require fresh actual checks.",
+    "Main inserts the exact unconditional process.env assignment before the existing checkpoint. Its missing target prefix dependency calls at slots 17 and 102 and inherited autoCompact initializer difference remain unresolved. No assignment or application code was executed.",
+    "The complete actual V23 receipts retain their conditional external interfaces, failed source fixture history, ambient/global order and source-map limitations. Their successes are not whole-program acceptance.",
+    "Author source-mutation negatives are predominantly exact-source byte-digest rejection; they do not independently prove source semantics. The separate frozen source approvals and exact edit recipes remain authority.",
+    "Initial disabled scaffolding and its pending labels remain immutable historical evidence; prepare-approved.py and the separately pinned final records are the active fixed implementation.",
+    "Host Python standard-library provenance and full filesystem read isolation remain environmental/unestablished. Eval inventory is not a dynamic purity proof.",
+    "An independent reviewer line-index assertion initially used index 13 instead of the observed index 14; it was corrected in the reviewer directory and rerun. No author artifact changed."
+  ],
+  "evidence": {
+    "groundwork-authentication.json": "637c03eea68bbc0d4fccbbcd9ed8e3b6a707677acd9ea4c1a87b038fb230cc5b",
+    "final-authentication.json": "939e39ef032626bee221ad9dd51abe7b2295dd8ec93d52725b940c02ebb5c650",
+    "physical-data-check.json": "b0f5b2b25b47636c17e3effecae4bd50c0a9eb6c910ae8a5ac77289b437c1c50",
+    "independent-derivation.json": "94fd4ce253da8383d95c300ec093440b95cfdcb7fbfab47b5a69fa614616a1d0",
+    "authored-controls-replay.json": "8e93b9df87b7ed5740b2161efa3890caf398cdacdf35f42caf06e9568a649ce0",
+    "independent-controls.json": "65511038feba26d123be4404d2c9e495c7583192d3c9108a90b241cd55e9abd5",
+    "harness-history.json": "4303f3718e23a960eadd6f32f3297305d34bc054468080d1af61461421a6b992"
+  }
+}

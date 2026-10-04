@@ -1,0 +1,48 @@
+{
+  "kind": "public-metadata-profile-relocated-replay",
+  "profileSha256": "a613086907049f554de1bc3fd96742a035dd55306c0bfe460e9c0305a584c43a",
+  "toolchainSha256": "8eba1803307a7fa4d313fca7d836b668db68b7224123203e05041ede16f12634",
+  "materializedSourceEqualsPrivateReviewedStage": true,
+  "sourceManifestSha256": "35183b90baf51d35a8aed77ea163f34c7ca08e14af8112b7417ab44bed005567",
+  "derivedSrcTree": "5d72e1229ae190ff3d8f77317231ca57d24f10f9",
+  "steps": [
+    {
+      "step": "preflight",
+      "exitCode": 0,
+      "wallSeconds": 1.1006865649978863,
+      "maxRssKiB": 293384
+    },
+    {
+      "step": "compile",
+      "exitCode": 0,
+      "wallSeconds": 1.9048913969963905,
+      "maxRssKiB": 1152708
+    },
+    {
+      "step": "finalize",
+      "exitCode": 0,
+      "wallSeconds": 5.489035865000915,
+      "maxRssKiB": 961884
+    },
+    {
+      "step": "ast",
+      "exitCode": 0,
+      "wallSeconds": 7.554139113999554,
+      "maxRssKiB": 584144
+    }
+  ],
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098459,
+    "sha256": "a8fc24b299aceb35c46090e44a94e9c4b418f83064461d73174979917cb14486"
+  },
+  "matchesPrivateReviewedCandidateStrictAst": true,
+  "officialTargetStrictAstEqual": false,
+  "actualV24ShellCompletionAndMainAssignmentReviewsComplete": true,
+  "applicationExecuted": false,
+  "finalJavaScriptBytes": 13076425,
+  "finalJavaScriptSha256": "d31cb5245a96dae8a70e267405d4d6d1477614ef09f4477b951f553bc623bba1",
+  "compileReportSha256": "3888053941199ceedcfd3befb6e616492c2eb22d2676c9f81bc2f6d70db48a5f"
+}

@@ -1,0 +1,57 @@
+{
+  "kind": "incomplete-reviewed-source-checkpoint",
+  "version": "2.1.89",
+  "revision": 24,
+  "baseMainCommit": "60de9568697114f2ac7aaea1a258a4b47ecf7f8f",
+  "cumulativeRootSourceVersion": "2.1.126",
+  "rootSourceMustRemainUnchanged": true,
+  "sourceFiles": 6084,
+  "sourceBytes": 50949448,
+  "sourceManifestSha256": "35183b90baf51d35a8aed77ea163f34c7ca08e14af8112b7417ab44bed005567",
+  "derivedSrcTree": "5d72e1229ae190ff3d8f77317231ca57d24f10f9",
+  "sourceAndPreparationReviewed": true,
+  "serialBuildAndStrictParsePassed": true,
+  "actualV24ShellCompletionAndStartupAssignmentReviews": "scoped-pass",
+  "versionAccepted": false,
+  "strictAstEqual": false,
+  "wholeProgramBindingEquivalenceEstablished": false,
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098459,
+    "sha256": "a8fc24b299aceb35c46090e44a94e9c4b418f83064461d73174979917cb14486"
+  },
+  "target": {
+    "javaScriptSha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+    "nodes": 3098331,
+    "strictAstSha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "acceptancePolicy": "Consistent binding renames and provably independent definition ordering require conservative evidence. Neither whole-program acceptance route has passed; strict AST remains a stronger diagnostic and counts are not distances.",
+  "latestVerifiedScopedResults": [
+    "Revision22 shellPrefix and shellQuoting callers, helper bindings, initializers and retained legacy consumers pass.",
+    "Revision23 spawn families and SearchBox complete bodies/cache/direct provider checks pass.",
+    "Revision24 ShellCompletion full parser/local quote/module graph, initializer and remaining legacy users pass.",
+    "Revision24 exact startup string assignment is before the real checkpoint, with its prior complete initializer remainder preserved."
+  ],
+  "unfinished": [
+    "Main still lacks two target direct initializer calls, and the deeper computer-use condition/try/loading-order correction is outside this checkpoint.",
+    "MessageRating raw initializer grouping, live helper/wrapper topology, REPL provider placement and broader source/body/cache gaps remain unresolved.",
+    "All scoped reports retain conditional external interfaces and specific failed fixture or inherited provider comparisons; no transitive or whole-program acceptance follows.",
+    "Private-binding and grouping certificates are diagnostic only. Original private authorship, arbitrary reflection/dynamic/ambient equivalence, universal TypeScript/API compatibility and generated source-map coordinates remain unestablished."
+  ],
+  "separateFutureWork": [
+    {
+      "owner": "src/utils/bash/ShellSnapshot.ts",
+      "state": "independently reviewed source proposal; excluded from current inputs and awaiting actual-stage verification",
+      "sourceManifestSha256": "4fbe1a2a3f3a65aed24faa9ed35a8e69fd238f61ef5f33d848f1eca2aa0f8f38"
+    },
+    {
+      "owner": "src/components/Messages.tsx",
+      "state": "viewport source independently reviewed with a failed standalone React receiver comparison preserved; excluded from current inputs and awaiting actual-stage verification",
+      "sourceManifestSha256": "a1e7f84eb37de36e4af5615d2268f171aee705e311cb51b7993ba268cd3c73c3"
+    }
+  ],
+  "publicRelocatedReplayPassed": true,
+  "materializerCodeIndependentlyReviewed": true
+}

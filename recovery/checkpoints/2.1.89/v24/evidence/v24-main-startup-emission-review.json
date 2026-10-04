@@ -1,0 +1,288 @@
+{
+  "kind": "independent-actual-v24-main-startup-assignment-review",
+  "reportId": "main_startup_environment",
+  "verdict": "scoped-assignment-emission-verified-with-unresolved-initializer-obligations",
+  "actualEmissionVerified": true,
+  "assignmentEmissionVerified": true,
+  "exactEightNodeStringAssignmentBeforeCheckpoint": true,
+  "sourceOwner": "src/main.tsx",
+  "sourceManifestSha256": "77c3f1bc82b079e449fbf77a82952f40fb0bb30a26be8ebc9133cfceb746a341",
+  "sourceApprovalSha256": "90ae306f7328be4ff9b68df6244c529bbfb7e9a777ba538642d6f83a4d405de5",
+  "sourceApprovalClosureSha256": "717a274c82c1db8b6194306b87947a66b9d53610fb493b1199f0811d5b843a1a",
+  "sourcePreimageSha256": "094a3d5972aa6da4e5ead96d45a78889abf2e09bf0925cd73d0bb3525294485e",
+  "sourcePostimageSha256": "6d7437049c2467b08da011dd673d7ec603414a5cf11669b3ea3c823aec124ea0",
+  "profileSha256": "103fbdb9f5f71319f2389d7b4f53e347ac6f04852cac13d2a39fb020b94aa773",
+  "toolchainSha256": "8eba1803307a7fa4d313fca7d836b668db68b7224123203e05041ede16f12634",
+  "sourceInventoryManifestSha256": "35183b90baf51d35a8aed77ea163f34c7ca08e14af8112b7417ab44bed005567",
+  "preparationReviewSha256": "7f0da77ab9fcf7634be2d680e138d0a10b0ca88bae0ed88e8e3bad5340f6ffbd",
+  "preparationReviewClosureSha256": "dba0751f392c2c69a9f8fbefd1de6ea99d3f6b27dccc4703771063e33f5aacd3",
+  "pins": {
+    "target": {
+      "js": "v12/provenance/official-2.1.89-cli.js",
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+      "index": "v13-indexes/target.json",
+      "indexSha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747"
+    },
+    "prior": {
+      "js": "v23-replay/final/cli.js",
+      "sha256": "b412f4dde98b56551390053ff452bec9e7e6aad8ca0f8a75957ba652830e58cc",
+      "index": "v23-indexes/candidate.json",
+      "indexSha256": "8147d5b1402a6e11a9f65d51c2051e2d1db11ddcc0fa2ecbec283277e9a7c8ce"
+    },
+    "current": {
+      "js": "v24-replay/final/cli.js",
+      "sha256": "7d2e0d9096eadcb64265625fdf68b6c7fa4c0b836e8d67fc42638f4c08c2d722",
+      "index": "v24-indexes/candidate.json",
+      "indexSha256": "d2adc4a5438c93504c8f99f649da83f8b667767918fc251f0a78bb4ce2524eb8"
+    }
+  },
+  "compileReportSha256": "2fa0f152d1b1c01cb4953ab93bce4a08b7e56c7e61474c7825628f14d73b0313",
+  "strictAst": {
+    "nodes": 3098459,
+    "sha256": "a8fc24b299aceb35c46090e44a94e9c4b418f83064461d73174979917cb14486",
+    "equalToTarget": false
+  },
+  "initializers": {
+    "target": {
+      "mainIndex": 18175,
+      "mainNodes": 476,
+      "mainSha256": "fb18700323e7fb6f41d1ecf6a34060941ba433c5e94899a5bcfaf61571cb0fed",
+      "selected": [
+        4,
+        7,
+        8,
+        938,
+        941,
+        942,
+        946,
+        952,
+        953,
+        2593,
+        4510,
+        11391,
+        11392,
+        18155,
+        18174
+      ],
+      "traceIndex": 946,
+      "trace": "Q4",
+      "perfIndex": 938,
+      "performance": "NE",
+      "perfState": "Ia8",
+      "perfHeader": 941,
+      "perfInitializer": 942,
+      "mainHeader": 18174,
+      "entrySlot": 145,
+      "assignmentSlot": 144,
+      "prefixCalls": 144,
+      "checkpointMainReadReferences": 2,
+      "performanceCallResolved": true
+    },
+    "prior": {
+      "mainIndex": 18193,
+      "mainNodes": 462,
+      "mainSha256": "5004884558f7ef5fe858a450e530fd711a02048f2e24ac60a29aa4dfb9891678",
+      "selected": [
+        4,
+        7,
+        8,
+        938,
+        941,
+        942,
+        946,
+        952,
+        953,
+        2595,
+        4512,
+        11412,
+        11413,
+        18173,
+        18192
+      ],
+      "traceIndex": 946,
+      "trace": "U4",
+      "perfIndex": 938,
+      "performance": "EE",
+      "perfState": "Ca8",
+      "perfHeader": 941,
+      "perfInitializer": 942,
+      "mainHeader": 18192,
+      "entrySlot": 142,
+      "assignmentSlot": -1,
+      "prefixCalls": 142,
+      "checkpointMainReadReferences": 2,
+      "performanceCallResolved": true
+    },
+    "current": {
+      "mainIndex": 18191,
+      "mainNodes": 470,
+      "mainSha256": "fd6ed639b852b8ed4d5507d7193760c8ff67bbef9c60b04bfc3d285f6152b097",
+      "selected": [
+        4,
+        7,
+        8,
+        938,
+        941,
+        942,
+        946,
+        952,
+        953,
+        2595,
+        4512,
+        11412,
+        11413,
+        18171,
+        18190
+      ],
+      "traceIndex": 946,
+      "trace": "U4",
+      "perfIndex": 938,
+      "performance": "EE",
+      "perfState": "ba8",
+      "perfHeader": 941,
+      "perfInitializer": 942,
+      "mainHeader": 18190,
+      "entrySlot": 143,
+      "assignmentSlot": 142,
+      "prefixCalls": 142,
+      "checkpointMainReadReferences": 2,
+      "performanceCallResolved": true
+    }
+  },
+  "concreteCheckpointAndPerformanceBindingsVerified": true,
+  "completeSelectedMainRemainderPreservedUnderExplicitInterfaces": true,
+  "fullTargetInitializerVerified": false,
+  "diagnosticTargetComparisonExclusions": [
+    {
+      "targetSlot": 17,
+      "targetCallee": "hb",
+      "sourceOwner": "src/services/compact/autoCompact.ts",
+      "nodes": 3,
+      "resolved": false
+    },
+    {
+      "targetSlot": 102,
+      "targetCallee": "nN6",
+      "sourceOwner": "src/utils/computerUse/gates.ts",
+      "nodes": 3,
+      "resolved": false
+    }
+  ],
+  "providerResiduals": {
+    "target": {
+      "autoCompact": {
+        "index": 12194,
+        "nodes": 67,
+        "name": "hb",
+        "directSlots": [
+          17
+        ]
+      },
+      "computerUseGates": {
+        "index": 8585,
+        "nodes": 51,
+        "name": "nN6",
+        "directSlots": [
+          102
+        ]
+      }
+    },
+    "prior": {
+      "autoCompact": {
+        "index": 12215,
+        "nodes": 64,
+        "name": "em",
+        "directSlots": []
+      },
+      "computerUseGates": {
+        "index": 8593,
+        "nodes": 51,
+        "name": "iN6",
+        "directSlots": []
+      }
+    },
+    "current": {
+      "autoCompact": {
+        "index": 12215,
+        "nodes": 64,
+        "name": "tm",
+        "directSlots": []
+      },
+      "computerUseGates": {
+        "index": 8593,
+        "nodes": 51,
+        "name": "iN6",
+        "directSlots": []
+      }
+    }
+  },
+  "separateAutoCompactInitializerDifferenceResolved": false,
+  "otherInitializerProviderInterfacesConditionallyCompared": 176,
+  "all18GuardsAndFourEvalPinsUnchangedAndPhysicalSlicesVerified": true,
+  "mainGuardOrEvalMembership": false,
+  "completeStrictIndexedStatements": 54,
+  "largestFragmentBytes": 959,
+  "negativeControls": [
+    "wrong environment key",
+    "numeric value",
+    "zero string",
+    "nullish assignment",
+    "wrong process receiver",
+    "wrong env receiver",
+    "computed property access",
+    "assignment after checkpoint",
+    "missing assignment",
+    "duplicate assignment",
+    "conditional assignment",
+    "wrong checkpoint function",
+    "wrong checkpoint label",
+    "prefix call reordering",
+    "wrong performance provider",
+    "wrong performance state reference",
+    "changed raw string spelling",
+    "missing profiler header"
+  ],
+  "exactResultReplays": 2,
+  "receiptEvents": 37,
+  "markerImportDeletionsReplayed": 11,
+  "completeDeletionReplayExact": true,
+  "rawAndFinalMapsAuthenticated": true,
+  "originalSourceMapCoordinatesVerified": false,
+  "sourceMapDisplacementRepaired": false,
+  "wholeMainEquivalent": false,
+  "wholeTargetAcceptance": false,
+  "normalizationGateEnabled": false,
+  "allTransitiveProvidersEquivalent": false,
+  "ambientProcessBehaviorVerified": false,
+  "sourceTextReflectionEquivalence": false,
+  "applicationExecuted": false,
+  "environmentAssigned": false,
+  "compilerInvoked": false,
+  "wholeProgramParsedByReviewer": false,
+  "sourceStageProfileRuntimeRepositoryChanged": false,
+  "historicalFailuresRelabeled": false,
+  "qualifications": [
+    "The accepted obligation is the exact unconditional process.env.NoDefaultCurrentDirectoryInExePath=\"1\" assignment, immediately before the complete real main_tsx_entry checkpoint call. It remains after all 142 existing direct dependency calls and before both prefetch calls.",
+    "Target main initializer has 476 nodes, V23 has 462 and V24 has 470. The unchanged six-node deficit consists of missing direct autoCompact and computerUse/gates calls at target slots 17 and 102. These are explicitly excluded only in a diagnostic comparison; full initializer acceptance remains false.",
+    "Both main checkpoint references resolve jointly to actual U4 statement 946, whose EE performance reader resolves to statement 938 with the concrete cached state and declarations. The source startupProfiler/profileCheckpoint import and authenticated source-derived compiler fixture ground that role.",
+    "All selected provider and main fields, local declarations, captured references, runtime keys, receivers, literal raw values and order are compared jointly. The full remaining 176 external interface pairs are recorded explicitly; matching them is conditional and does not establish all provider bodies or general execution equivalence.",
+    "AutoCompact remains 67 target nodes versus 64 current nodes, independently of its missing direct main edge. ComputerUse/gates remains present elsewhere with matching 51-node fields under stated external interfaces.",
+    "Host process/env setters, exceptions, preceding ambient mutation, dynamic code and source-text/name reflection are external boundaries. No environment write, main, profiler, performance mark, callback, keychain or native body ran.",
+    "Compiler receipts and all eleven whole marker-import deletions replay exactly to the pinned final bytes. Map bytes authenticate, but their original-source coordinate accuracy and known producer displacement are not repaired.",
+    "Whole-program strict AST equality and all normalization gates remain false. Source reviews and historical failed obligations remain immutable; this new receipt resolves only its named actual assignment obligation."
+  ],
+  "reviewHarnessHistory": [
+    {
+      "script": "check-main-initial.mjs",
+      "stderr": "main-initial.stderr",
+      "cause": "The first locator expected the performance cache null assignment inside its lazy initializer. Actual authenticated code places that assignment in the header; the corrected locator follows the concrete profiler initializer dependency and includes both complete header and initializer. No comparison field was dropped."
+    }
+  ],
+  "evidence": {
+    "main-result.json": "3934766619ec121fb326922b21818e1a20bf7f7518421c4690bbb0d15323fe5f",
+    "evidence-result.json": "c9d4e4a5da3a6ffa1a2ce648df844a68b29ecfa707250cf8b828cedeff562269",
+    "witnesses.json": "84ee83d99ebda8399b8111255e319622f03c5bd2b768ba2c3a4cbccaf7e3132c",
+    "authentication.json": "43c7286740d9ac3df4f6b688327c709dbd23aef2911af791412ab382382484bb",
+    "code-provenance.json": "4f81d68598dd826ee11acc5274f7624c6ecc75b0490c23fe6afe758cfc137482"
+  }
+}

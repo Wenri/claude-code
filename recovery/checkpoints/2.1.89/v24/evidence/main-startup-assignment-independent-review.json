@@ -1,0 +1,86 @@
+{
+  "kind": "independent-main-startup-assignment-source-review",
+  "verdict": "approved-for-fixed-2.1.89-source-trial",
+  "sourceTrialApproved": true,
+  "sourceFiles": [
+    {
+      "path": "src/main.tsx",
+      "oldSha256": "094a3d5972aa6da4e5ead96d45a78889abf2e09bf0925cd73d0bb3525294485e",
+      "oldBytes": 233959,
+      "oldGitBlob": "3fbfc943a747aa0b2a7bcc23678395f35096ed67",
+      "postimageSha256": "6d7437049c2467b08da011dd673d7ec603414a5cf11669b3ea3c823aec124ea0",
+      "postimageBytes": 234013,
+      "postimageGitBlob": "548f8cf841eec0f5731aeab76fe2f8178fadcde5",
+      "postimagePath": "historical-checkpoints/main-startup-assignment-source-proposal/postimages/src/main.tsx"
+    }
+  ],
+  "sourceManifestSha256": "77c3f1bc82b079e449fbf77a82952f40fb0bb30a26be8ebc9133cfceb746a341",
+  "authorArtifactSha256": "b9f4b3da3c9d020890d480185b4fc48b2bfdf49d5d39966948cc4775e27e60cb",
+  "authorCodeSha256": "4ebb92f9dfdf385cfc53f03125e54d9cc1c0d37c8394b9ce24ff2cde6d3c7ecf",
+  "authorFreezeSha256": "61b352c6c1c8ae94b4c6f748bad98fa62438310e05d274f74685226737cdf6b7",
+  "baselineArtifactSha256": "8a22b8d8b5b92477f3445d6cd78d09cafc42a774f093cdb328f483e6d0afafb8",
+  "v22AndV23PreimagesVerified": true,
+  "insertedSourceBytes": 54,
+  "insertedASTNodes": 8,
+  "otherSourceBytesRetained": 233959,
+  "unchangedImportDeclarations": 165,
+  "fullTypedSourceRemainderGraph": {
+    "nodes": 19461,
+    "scopes": 634,
+    "bindings": 1063,
+    "references": 3242,
+    "sha256": "61d8dd559a6ac96a8a56d0bb0c8a9b39d12817f88ebb291e7143ba2e04106937"
+  },
+  "authorGroupsReproduced": 11,
+  "authorNegativesReproduced": 10,
+  "independentGroups": 8,
+  "independentNegatives": 12,
+  "completeOriginalIndexStatements": 36,
+  "largestBoundedStatementBytes": 959,
+  "compilerOutputFilesByteExact": 4,
+  "sortedResolverReceiptByteExact": true,
+  "fixtureSourceBytes": 8435,
+  "fullMainCompiled": false,
+  "realSourceCheckpointImportResolved": true,
+  "actualCheckpointPerformanceProviderGraphMatched": true,
+  "processBinding": "Unresolved ambient global at inserted source and actual target/fixture assignment; no local process binding introduced or substituted.",
+  "remainingInitializerPrefixResiduals": [
+    {
+      "targetSlot": 17,
+      "targetCallee": "hb",
+      "sourceOwner": "src/services/compact/autoCompact.ts",
+      "repairIncluded": false
+    },
+    {
+      "targetSlot": 102,
+      "targetCallee": "nN6",
+      "sourceOwner": "src/utils/computerUse/gates.ts",
+      "repairIncluded": false
+    }
+  ],
+  "actualEmissionVerified": false,
+  "wholeMainEquivalent": false,
+  "fullTargetASTEqualityEstablished": false,
+  "sourceStageChanged": false,
+  "authorArtifactsUnchanged": true,
+  "sourceEditedByReviewer": false,
+  "applicationExecuted": false,
+  "environmentAssigned": false,
+  "qualifications": [
+    "This is an unconditional target-directed process.env assignment to the string 1, before the entry checkpoint and following prefetch calls. It is not a conditional/nullish/Windows-only source assignment.",
+    "Only source was parsed and source-derived entry/provider fixtures compiled. No application, main, profiler, initializer, shell or native body was executed.",
+    "All other source statements/imports and their complete source binding/reference graph remain exact. This does not claim global TypeScript API compatibility or transitive runtime equivalence.",
+    "The complete actual main initializer comparison still requires excluding two missing dependency calls separately from the assignment. Their six nodes remain unresolved and no import correction is included.",
+    "The autoCompact provider also retains its separately observed 67-versus-64-node initializer difference.",
+    "Actual full-stage assignment placement and preserved prefix/remainder must be independently verified; no complete initializer or whole-target success is asserted.",
+    "Host process/env setters, exceptions, previous global mutation, and transitive provider behavior remain external boundaries.",
+    "No source-map directive, guarded-owner or eval-owner change is included; guard/eval records and current source requests remain exact."
+  ],
+  "reviewHarnessHistory": [
+    {
+      "file": "independent-controls.stderr",
+      "cause": "Reviewer paired-fixture graph call omitted its required explicit ambient process mapping. The retry supplies exact same-spelling global interfaces after checking every identity; no renaming or graph requirement was relaxed."
+    }
+  ],
+  "authoritativeIndependentControls": "independent-accepted.json"
+}

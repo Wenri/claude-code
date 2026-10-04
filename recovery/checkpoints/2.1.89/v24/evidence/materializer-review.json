@@ -1,0 +1,31 @@
+{
+  "kind": "independent-fixed-v24-materializer-code-review",
+  "verdict": "approved-fixed-data-materializer-only",
+  "helperSha256": "e0a5151b2883c633f10414c7af97a63c495665a3804d7325e5c78d927e8d8648",
+  "priorPublishedHelperSha256": "4305ee44997ec4adc8b94f42164d534a00716053f6751d0be3bed09de5bc5493",
+  "authorArtifactSha256": "0f31abb136a5028e037d47ee3586440f52a97754e3fa4c2eb4e9597505f7282f",
+  "authorExecutableClosureSha256": "deff3866892481c02c5d40484ec159e6127fc552ad39628f50d491488fac0c9d",
+  "authorFreezeSha256": "cceceb927182bba34cbc975949cb56233b34a6167604a8c5804f2d450dc7dc4b",
+  "exactAuthorizedSubstitutions": 8,
+  "inheritedControlsPassed": 53,
+  "fixedV24ControlsPassed": 26,
+  "allOtherValidationPublicationFunctionBodiesExact": true,
+  "sourceOverlayCount": 152,
+  "publicManifestAndStagedTreeApproval": false,
+  "applicationExecuted": false,
+  "repoSourceOrPublicPackageEdited": false,
+  "qualifications": [
+    "This approves the small fixed materializer code delta only. Public member/privacy audit, independent reconstruction and final staged-tree checks are still required.",
+    "The inherited trusted quiescent-input/output-parent assumption is unchanged. This is not a sandbox against concurrent same-user mutation.",
+    "Publication failure can leave a partial fresh output; no existing output is reused or deleted. Source/archive contents are never executed.",
+    "Python host/standard-library provenance remains environmental. Existing file/archive/inventory bounds and all fail-closed path/type/hash checks remain exact."
+  ],
+  "evidence": {
+    "materializer-authentication.json": "71f841d9f6d60363f091bb87db5756050b3e43b01b9fcbb3a1bfe89046e8e9ea",
+    "materializer-delta-review.json": "4b55ffec2f07e55721c648bb4d20ce0a2539e0fd7cbe455740e4720acb89a5ab",
+    "materializer-inherited.stdout": "7b93a689603192b7fd2541f422cebde5b6ae05e3c59bb3c5ef7cb06ce4e2a5d0",
+    "materializer-inherited.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "materializer-fixed.stdout": "68c69803280a8574ee49a191eecc805cac52951b6bf2a9807e092427892c577e",
+    "materializer-fixed.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

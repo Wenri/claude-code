@@ -1,0 +1,2243 @@
+{
+  "kind": "independent-actual-v23-searchbox-emission-review",
+  "verdict": "accepted-with-explicit-bounded-provider-and-global-limitations",
+  "inputPins": {
+    "profile": {
+      "path": "historical-checkpoints/v23-replay/profile.json",
+      "bytes": 2298525,
+      "sha256": "5edefdcb2ffeeecda370f78bcaa8c27af22359574701ce27604a09558034d0f9"
+    },
+    "tools": {
+      "path": "historical-checkpoints/v23-preparation/prepared/recovery/profiles/2.1.89/toolchain.json",
+      "bytes": 14064,
+      "sha256": "8a755a555e7b3c1c8602eb5be4e8c7709a5b0f8501821de853f057ac1acb9209"
+    },
+    "compileReport": {
+      "path": "historical-checkpoints/v23-replay/compile-report.json",
+      "bytes": 101985,
+      "sha256": "8abdae418c5a7917747e5b0afafeb97f026e53a71e2337d90470ebc667be050d"
+    },
+    "preparationReview": {
+      "path": "historical-checkpoints/v23-preparation-review/review.json",
+      "bytes": 8670,
+      "sha256": "c41072ad2ed415206cc4d73f9b791f7aedb076b38774858f0f341cc35320a036"
+    },
+    "preparationClosure": {
+      "path": "historical-checkpoints/v23-preparation-review/freeze.json",
+      "bytes": 7518,
+      "sha256": "aeab5cfa155b2ab00eb19afa76636f786fcfa98de44fd62f9e8c82e566158740",
+      "members": 47
+    },
+    "candidateSource": {
+      "path": "historical-checkpoints/v23-replay/final/cli.js",
+      "bytes": 13076968,
+      "sha256": "b412f4dde98b56551390053ff452bec9e7e6aad8ca0f8a75957ba652830e58cc"
+    },
+    "candidateIndex": {
+      "path": "historical-checkpoints/v23-indexes/candidate.json",
+      "bytes": 5578814,
+      "sha256": "8147d5b1402a6e11a9f65d51c2051e2d1db11ddcc0fa2ecbec283277e9a7c8ce"
+    },
+    "targetSource": {
+      "path": "historical-checkpoints/v12/provenance/official-2.1.89-cli.js",
+      "bytes": 13081065,
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01"
+    },
+    "targetIndex": {
+      "path": "historical-checkpoints/v13-indexes/target.json",
+      "bytes": 5573628,
+      "sha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747"
+    },
+    "actualSourceOwner": {
+      "path": "historical-checkpoints/v23-stage/inputs/src/components/SearchBox.tsx",
+      "bytes": 10561,
+      "sha256": "4d8fefc5a4f8abb8eee603c24a7e6c2c42bca39a178032a713a8a2c3f872146f"
+    }
+  },
+  "sourceApproval": {
+    "path": "historical-checkpoints/searchbox-independent-review/review.json",
+    "bytes": 13066,
+    "sha256": "86b4314f67618072c73c72beeea316ff4e84d386f5ac5b17bd2a78fc814166aa"
+  },
+  "sourceApprovalClosure": {
+    "path": "historical-checkpoints/searchbox-independent-review/freeze.json",
+    "bytes": 7909,
+    "sha256": "a841d8e1e5af928c09f685aa18f670bab7dfc0e6dad6e48afa09c4e8a16227b7"
+  },
+  "actualSearchBoxComponentAndHelperVerified": true,
+  "actualCacheScheduleVerified": true,
+  "actualSearchBoxModuleHeaderAndInitializerAccepted": true,
+  "actualDirectReactCacheTextBoxCaptureEdgesVerified": true,
+  "actualSelectedCallerRetentionVerified": true,
+  "actualEmissionVerified": true,
+  "actualEmissionVerifiedScope": "SearchBox complete component, cursor helper, own header/initializer, direct captured owner edges, and selected caller retention only.",
+  "productionStatements": {
+    "target": [
+      13296,
+      13297,
+      13298,
+      13299
+    ],
+    "candidate": [
+      13317,
+      13318,
+      13319,
+      13320
+    ],
+    "nodes": [
+      585,
+      187,
+      3,
+      21
+    ],
+    "declarations": {
+      "target": [
+        "pp",
+        "IjY",
+        "rA",
+        "tH6"
+      ],
+      "candidate": [
+        "Fp",
+        "QjY",
+        "oO",
+        "_J6"
+      ]
+    },
+    "completeFieldsAndLocalReferenceGraphsEqual": true,
+    "contiguousModuleSequenceEqualUnderGroundedDirectRoles": true
+  },
+  "cache": {
+    "allocation": 21,
+    "orderedAccesses": 42,
+    "orderedStores": 21,
+    "invalidationRegions": 4,
+    "allFieldsControlPathsAndStoreRHSCompared": true,
+    "eachAccessAlternateValidIndexRejected": true
+  },
+  "cursorAndHighlight": {
+    "strictOffsetLengthComparison": "<",
+    "cursorFallback": " ",
+    "positiveHighlightTest": "> 0",
+    "cursorInsideHighlightTest": "< highlightLen",
+    "sliceCalls": 6,
+    "clampingAdded": false,
+    "prefixDimDefault": false,
+    "highlightLenDefault": 0,
+    "cursorOffsetFallback": "cursorOffset ?? query.length",
+    "parameterAndReadOrderPreserved": true
+  },
+  "initializer": {
+    "targetOrder": [
+      "t6() compiler-runtime initializer",
+      "r6() Ink barrel initializer",
+      "rA=O6(Z6(),1) React interop assignment"
+    ],
+    "candidateOrder": [
+      "q8() compiler-runtime initializer",
+      "a6() Ink barrel initializer",
+      "oO=O6(f6(),1) React interop assignment"
+    ],
+    "fullOwnInitializerGraphEqual": true,
+    "actualBunLazyInitializerFactoryChecked": true,
+    "actualInteropHelperGroupChecked": true,
+    "initializerPurityClaimed": false,
+    "wholeProgramInitializationScheduleAccepted": false
+  },
+  "providerEdges": [
+    {
+      "role": "target",
+      "names": {
+        "main": "pp",
+        "helper": "IjY",
+        "ns": "rA",
+        "box": "m",
+        "boxFn": "Xv_",
+        "text": "T",
+        "runtime": "$6",
+        "factory": "Z6",
+        "init": "tH6",
+        "cacheInit": "t6",
+        "inkInit": "r6",
+        "lazy": "E"
+      },
+      "jsxCreateElementCalls": 23,
+      "initializerDirectOrder": [
+        "t6",
+        "r6",
+        "React interop assignment"
+      ],
+      "allConcreteCaptureEdgesResolvedWithinBoundedGraph": true
+    },
+    {
+      "role": "current",
+      "names": {
+        "main": "Fp",
+        "helper": "QjY",
+        "ns": "oO",
+        "box": "u",
+        "boxFn": "fT_",
+        "text": "k",
+        "runtime": "z6",
+        "factory": "f6",
+        "init": "_J6",
+        "cacheInit": "q8",
+        "inkInit": "a6",
+        "lazy": "y"
+      },
+      "jsxCreateElementCalls": 23,
+      "initializerDirectOrder": [
+        "q8",
+        "a6",
+        "React interop assignment"
+      ],
+      "allConcreteCaptureEdgesResolvedWithinBoundedGraph": true
+    }
+  ],
+  "providerComparisonScope": {
+    "actualReactFactoryAndCacheFunctionFieldsCompared": true,
+    "actualBoxAliasToThemedBoxAssignmentResolved": true,
+    "actualTextDeclarationResolved": true,
+    "reactDefaultReceiverPreserved": true,
+    "cacheHUseMemoCacheReceiverPreserved": true,
+    "physicalSourceAndPackageProvidersUnchangedFromV22": [
+      {
+        "path": "src/ink.ts",
+        "bytes": 3887,
+        "sha256": "e2c0463ef56c61433441447197dd90f3dde4b4de7ee645b88cad17eadba9ac4e",
+        "unchangedFromV22": true
+      },
+      {
+        "path": "src/components/design-system/ThemedBox.tsx",
+        "bytes": 18043,
+        "sha256": "7fe462efe37a67e5166241b1befe8474f9685e60b4261f7a193a7582051f6c43",
+        "unchangedFromV22": true
+      },
+      {
+        "path": "src/components/design-system/ThemedText.tsx",
+        "bytes": 13877,
+        "sha256": "f0610f967cc61a897f911538dc7b9afec3e66a3bbadaa505ca0acca3bf897967",
+        "unchangedFromV22": true
+      },
+      {
+        "path": "src/components/design-system/ThemeProvider.tsx",
+        "bytes": 18852,
+        "sha256": "e6eec2b5eb08edf6327e1d70ebd518adf14b25f677acedec03f0f9be03bdcee6",
+        "unchangedFromV22": true
+      },
+      {
+        "path": "src/utils/theme.ts",
+        "bytes": 26830,
+        "sha256": "f560505eb8053d0860a98dc39a7eb3811e8801349f2275a207b18e91477023d0",
+        "unchangedFromV22": true
+      },
+      {
+        "path": "node_modules/react/cjs/react.production.js",
+        "bytes": 17217,
+        "sha256": "ae0aae9b31dcccfc8b194dc6ab1cc9cc4525e25b887d10cc22ae4f8fbd2482cc",
+        "unchangedFromV22": true
+      },
+      {
+        "path": "node_modules/react/cjs/react-compiler-runtime.production.js",
+        "bytes": 463,
+        "sha256": "f7d518f5c043cd008514b4fd8c665a9d2fa5686bd36c6e7d44d78187c0438700",
+        "unchangedFromV22": true
+      }
+    ],
+    "completeBoxAndTextBodiesComparedSeparately": true,
+    "completeInkInitializerFieldsConditionallyCompared": true,
+    "completeInkTransitiveOwnerGraphAccepted": false,
+    "themeAndBaseInkTransitiveBehaviorAccepted": false,
+    "ambientValuesOrDynamicOwnershipProven": false
+  },
+  "callers": {
+    "actualSourceCallers": [
+      {
+        "path": "src/commands/plugin/DiscoverPlugins.tsx",
+        "sha256": "d194212757b1e7ed9e287bc38afb8cec5e56486f4e45889d967635bd2f390294",
+        "actualNamedImportAndLexicalJSXBindingVerified": true,
+        "references": [
+          {
+            "range": [
+              21555,
+              21711
+            ],
+            "text": "<SearchBox query={searchQuery} isFocused={isSearchMode} isTerminalFocused={isTerminalFocused} width={terminalWidth - 4} cursorOffset={searchCursorOffset} />",
+            "properties": [
+              "query",
+              "isFocused",
+              "isTerminalFocused",
+              "width",
+              "cursorOffset"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "src/commands/plugin/ManagePlugins.tsx",
+        "sha256": "8b768ebac06d70e777ae5605657ef4b52cf3fcf0cd4b9d13d4ac60f068a0b9e3",
+        "actualNamedImportAndLexicalJSXBindingVerified": true,
+        "references": [
+          {
+            "range": [
+              85632,
+              85788
+            ],
+            "text": "<SearchBox query={searchQuery} isFocused={isSearchMode} isTerminalFocused={isTerminalFocused} width={terminalWidth - 4} cursorOffset={searchCursorOffset} />",
+            "properties": [
+              "query",
+              "isFocused",
+              "isTerminalFocused",
+              "width",
+              "cursorOffset"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "src/components/LogSelector.tsx",
+        "sha256": "3bb7d64fb588951ab7249c1d61495d76e2402af870322224dea6491abb8093bd",
+        "actualNamedImportAndLexicalJSXBindingVerified": true,
+        "references": [
+          {
+            "range": [
+              40933,
+              41054
+            ],
+            "text": "<SearchBox query={searchQuery} isFocused={t61} isTerminalFocused={isTerminalFocused} cursorOffset={searchCursorOffset} />",
+            "properties": [
+              "query",
+              "isFocused",
+              "isTerminalFocused",
+              "cursorOffset"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "src/components/Settings/Config.tsx",
+        "sha256": "1d1290070b9c504bec95e7a39f1d3800f9463190d7d8ab2961f7162d09d00315",
+        "actualNamedImportAndLexicalJSXBindingVerified": true,
+        "references": [
+          {
+            "range": [
+              67064,
+              67243
+            ],
+            "text": "<SearchBox query={searchQuery} isFocused={isSearchMode && !headerFocused} isTerminalFocused={isTerminalFocused} cursorOffset={searchCursorOffset} placeholder=\"Search settings…\" />",
+            "properties": [
+              "query",
+              "isFocused",
+              "isTerminalFocused",
+              "cursorOffset",
+              "placeholder"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "src/components/design-system/FuzzyPicker.tsx",
+        "sha256": "b78bd08db28058b52305694c685469b92268de914f455000b1feaaacaa69c47e",
+        "actualNamedImportAndLexicalJSXBindingVerified": true,
+        "references": [
+          {
+            "range": [
+              6039,
+              6168
+            ],
+            "text": "<SearchBox query={query} cursorOffset={cursorOffset} placeholder={placeholder} isFocused isTerminalFocused={isTerminalFocused} />",
+            "properties": [
+              "query",
+              "cursorOffset",
+              "placeholder",
+              "isFocused",
+              "isTerminalFocused"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "src/components/permissions/rules/PermissionRuleList.tsx",
+        "sha256": "0dac9eff8f525e6ee17e53203454cf7f74906b9a944e245dfa95cb5ca18baee1",
+        "actualNamedImportAndLexicalJSXBindingVerified": true,
+        "references": [
+          {
+            "range": [
+              9351,
+              9474
+            ],
+            "text": "<SearchBox query={searchQuery} isFocused={t4} isTerminalFocused={isFocused} width={tabWidth} cursorOffset={cursorOffset} />",
+            "properties": [
+              "query",
+              "isFocused",
+              "isTerminalFocused",
+              "width",
+              "cursorOffset"
+            ]
+          }
+        ]
+      }
+    ],
+    "selectedEmitted": [
+      {
+        "role": "target",
+        "component": "pp",
+        "statementRows": [
+          13305,
+          13863,
+          13926,
+          14314,
+          14598
+        ],
+        "properties": [
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "cursorOffset",
+            "placeholder"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "width",
+            "cursorOffset"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "width",
+            "cursorOffset"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "cursorOffset"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "width",
+            "cursorOffset"
+          ]
+        ],
+        "selectedReferences": 5,
+        "callerBodiesEquivalent": false,
+        "dynamicOrGlobalAbsenceProven": false
+      },
+      {
+        "role": "current",
+        "component": "Fp",
+        "statementRows": [
+          13326,
+          13884,
+          13947,
+          14335,
+          14612
+        ],
+        "properties": [
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "cursorOffset",
+            "placeholder"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "width",
+            "cursorOffset"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "width",
+            "cursorOffset"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "cursorOffset"
+          ],
+          [
+            "query",
+            "isFocused",
+            "isTerminalFocused",
+            "width",
+            "cursorOffset"
+          ]
+        ],
+        "selectedReferences": 5,
+        "callerBodiesEquivalent": false,
+        "dynamicOrGlobalAbsenceProven": false
+      }
+    ],
+    "unchangedFiveCallerInheritance": [
+      {
+        "priorStatement": 13325,
+        "currentStatement": 13326,
+        "priorNodes": 6309,
+        "currentNodes": 6309,
+        "comparison": {
+          "interfaces": [
+            {
+              "left": "fT",
+              "right": "ZT",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "eN",
+              "right": "eN",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[1].init.callee"
+            },
+            {
+              "left": "$q",
+              "right": "$q",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[2].init.callee"
+            },
+            {
+              "left": "wT6",
+              "right": "jT6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[3].init.callee"
+            },
+            {
+              "left": "w8",
+              "right": "w8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[4].init.arguments[0].callee"
+            },
+            {
+              "left": "pJ",
+              "right": "gJ",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[4].init.callee.object"
+            },
+            {
+              "left": "u8",
+              "right": "u8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[5].init.callee.object"
+            },
+            {
+              "left": "T7",
+              "right": "T7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[6].init.arguments[0].callee"
+            },
+            {
+              "left": "jk",
+              "right": "Hk",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[8].init.arguments[0].right"
+            },
+            {
+              "left": "IO",
+              "right": "uO",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[15].init.callee"
+            },
+            {
+              "left": "a1",
+              "right": "a1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[16].init.callee"
+            },
+            {
+              "left": "Math",
+              "right": "Math",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[0].declarations[17].init.right.arguments[0].callee.object"
+            },
+            {
+              "left": "P8",
+              "right": "P8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[19].init.callee"
+            },
+            {
+              "left": "BK",
+              "right": "pK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[22].init.arguments[0].body.test.callee"
+            },
+            {
+              "left": "Vg8",
+              "right": "Ng8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[24].init.left.callee"
+            },
+            {
+              "left": "Z78",
+              "right": "G78",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[24].init.right.left.callee"
+            },
+            {
+              "left": "Xd",
+              "right": "Pd",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[25].init.callee.object.expressions[0].callee"
+            },
+            {
+              "left": "sK6",
+              "right": "tK6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[25].init.callee.object.expressions[1].arguments[0]"
+            },
+            {
+              "left": "Lq",
+              "right": "Lq",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[25].init.callee.object.expressions[1].callee"
+            },
+            {
+              "left": "t7",
+              "right": "t7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[26].init.callee"
+            },
+            {
+              "left": "k1",
+              "right": "k1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[29].init.arguments[0].body.callee"
+            },
+            {
+              "left": "wz",
+              "right": "wz",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[32].init.callee"
+            },
+            {
+              "left": "DE",
+              "right": "DE",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[34].init.arguments[0].body.callee"
+            },
+            {
+              "left": "RR",
+              "right": "RR",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[38].init.callee"
+            },
+            {
+              "left": "SL8",
+              "right": "CL8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[0].init.callee"
+            },
+            {
+              "left": "process",
+              "right": "process",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[2].declarations[1].init.argument.arguments[0].object.object"
+            },
+            {
+              "left": "c6",
+              "right": "c6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[1].init.argument.callee"
+            },
+            {
+              "left": "LH",
+              "right": "hH",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[2].init.arguments[0].callee"
+            },
+            {
+              "left": "IV8",
+              "right": "uV8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[3].init.callee"
+            },
+            {
+              "left": "jA6",
+              "right": "HA6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[4].init.callee"
+            },
+            {
+              "left": "d",
+              "right": "d",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].body.body[0].expression.expressions[0].callee"
+            },
+            {
+              "left": "nV",
+              "right": "iV",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].body.body[0].expression.expressions[2].arguments[0].body.body[0].declarations[0].init.left.callee"
+            },
+            {
+              "left": "JJ",
+              "right": "XJ",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].body.body[0].expression.expressions[2].arguments[0].body.body[0].declarations[0].init.right.test.arguments[2].callee"
+            },
+            {
+              "left": "qJ6",
+              "right": "KJ6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].body.body[0].expression.expressions[2].arguments[0].body.body[0].declarations[0].init.right.test.callee"
+            },
+            {
+              "left": "h8",
+              "right": "h8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[4].body.body[0].expression.expressions[0].callee"
+            },
+            {
+              "left": "M7",
+              "right": "M7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[1].properties[4].value.body.body[0].expression.expressions[0].callee"
+            },
+            {
+              "left": "nI",
+              "right": "nI",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[4].argument.consequent.elements[0].properties[1].value.expressions[0]"
+            },
+            {
+              "left": "YU6",
+              "right": "$U6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[4].argument.consequent.elements[0].properties[4].value.body.body[0].consequent.expression.expressions[0].arguments[0].body.properties[1].value.callee"
+            },
+            {
+              "left": "YY6",
+              "right": "$Y6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[4].argument.consequent.elements[0].properties[4].value.body.body[0].test.expressions[0].callee"
+            },
+            {
+              "left": "KM",
+              "right": "zM",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[4].argument.test.right.callee"
+            },
+            {
+              "left": "m8",
+              "right": "m8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[5].argument.test.callee"
+            },
+            {
+              "left": "tZ",
+              "right": "eZ",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[12].properties[3].value.callee.body.body[0].declarations[1].init"
+            },
+            {
+              "left": "gE",
+              "right": "gE",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[12].properties[5].value.body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "WI",
+              "right": "WI",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[12].properties[5].value.body.body[0].declarations[1].init.consequent.callee"
+            },
+            {
+              "left": "gS7",
+              "right": "FS7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[12].properties[5].value.body.body[0].declarations[1].init.test.callee"
+            },
+            {
+              "left": "w6",
+              "right": "w6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[12].properties[5].value.body.body[1].consequent.body[0].expression.callee"
+            },
+            {
+              "left": "uh6",
+              "right": "mh6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[13].argument.consequent.elements[0].properties[4].value.body.body[0].expression.expressions[2].arguments[0].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "String",
+              "right": "String",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[15].properties[4].value.body.body[0].expression.expressions[2].arguments[1].properties[1].value.callee"
+            },
+            {
+              "left": "x4",
+              "right": "x4",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[16].argument.test.callee"
+            },
+            {
+              "left": "vB",
+              "right": "vB",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[22].argument.consequent.elements[0].properties[5].value.body.body[3].expression.expressions[1].callee"
+            },
+            {
+              "left": "nP",
+              "right": "rP",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[28].argument.test.argument.callee"
+            },
+            {
+              "left": "si1",
+              "right": "ti1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[31].argument.consequent.callee.body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "ti1",
+              "right": "ei1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[31].argument.consequent.callee.body.body[1].argument.elements[0].properties[5].value.body.body[1].expression.expressions[0].callee"
+            },
+            {
+              "left": "ykK",
+              "right": "ykK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[31].argument.consequent.callee.body.body[1].argument.elements[1].properties[2].value.callee"
+            },
+            {
+              "left": "nq",
+              "right": "nq",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[31].argument.test.callee"
+            },
+            {
+              "left": "bF",
+              "right": "bF",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[32].argument.consequent.elements[0].properties[5].value.body.body[1].declarations[0].init.callee"
+            },
+            {
+              "left": "vs",
+              "right": "ks",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[32].argument.test.callee"
+            },
+            {
+              "left": "X2",
+              "right": "W2",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[33].argument.consequent.elements[0].properties[2].value.callee.body.body[0].test.object.callee"
+            },
+            {
+              "left": "k",
+              "right": "k",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[34].argument.consequent.elements[0].properties[1].value.arguments[0]"
+            },
+            {
+              "left": "gV",
+              "right": "FV",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[34].argument.consequent.elements[0].properties[1].value.arguments[4].arguments[2].callee"
+            },
+            {
+              "left": "Boolean",
+              "right": "Boolean",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[34].argument.consequent.elements[0].properties[3].value.callee"
+            },
+            {
+              "left": "gT",
+              "right": "FT",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].declarations[0].init.elements[34].argument.test.right.argument.callee"
+            },
+            {
+              "left": "Y8",
+              "right": "Y8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[7].declarations[1].init.arguments[0].body.body[1].declarations[0].init.arguments[0].body.body[0].argument.expressions[1].expressions[1].callee.object"
+            },
+            {
+              "left": "Object",
+              "right": "Object",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[7].declarations[1].init.arguments[0].body.body[1].declarations[0].init.callee.object.callee.object"
+            },
+            {
+              "left": "P1",
+              "right": "P1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[8].expression.expressions[0].callee"
+            },
+            {
+              "left": "l7",
+              "right": "l7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[10].expression.callee"
+            },
+            {
+              "left": "u",
+              "right": "u",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[0]"
+            },
+            {
+              "left": "Fp",
+              "right": "Fp",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[2].arguments[0]"
+            },
+            {
+              "left": "t6",
+              "right": "t6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[3].arguments[2].alternate.arguments[2].right.arguments[2].object"
+            },
+            {
+              "left": "rc6",
+              "right": "oc6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[3].arguments[2].alternate.arguments[3].arguments[0].body.body[1].argument.arguments[2].arguments[3].arguments[2].alternate.alternate.alternate.alternate.consequent.arguments[3].arguments[3].callee"
+            },
+            {
+              "left": "pl",
+              "right": "Bl",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[3].arguments[2].alternate.arguments[3].arguments[0].body.body[1].argument.arguments[2].arguments[3].arguments[2].alternate.alternate.alternate.consequent.arguments[2].callee"
+            },
+            {
+              "left": "njY",
+              "right": "ijY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[3].arguments[2].alternate.arguments[3].arguments[0].body.body[1].argument.arguments[2].arguments[3].arguments[2].alternate.alternate.consequent.arguments[2].arguments[0]"
+            },
+            {
+              "left": "ljY",
+              "right": "njY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[3].arguments[2].alternate.arguments[3].arguments[0].body.body[1].argument.arguments[2].arguments[3].arguments[2].alternate.consequent.arguments[2].left.object"
+            },
+            {
+              "left": "m1",
+              "right": "m1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[4].alternate.alternate.arguments[2].arguments[0]"
+            },
+            {
+              "left": "W1",
+              "right": "W1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[4].alternate.alternate.arguments[2].arguments[2].arguments[0]"
+            },
+            {
+              "left": "q1",
+              "right": "q1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.alternate.arguments[4].alternate.consequent.arguments[2].arguments[3].arguments[0]"
+            },
+            {
+              "left": "ZkK",
+              "right": "ZkK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.alternate.consequent.arguments[0]"
+            },
+            {
+              "left": "E1",
+              "right": "E1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.consequent.arguments[0]"
+            },
+            {
+              "left": "J1",
+              "right": "J1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.alternate.consequent.arguments[2].alternate.arguments[0]"
+            },
+            {
+              "left": "VkK",
+              "right": "VkK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.alternate.consequent.arguments[2].arguments[0]"
+            },
+            {
+              "left": "vkK",
+              "right": "vkK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.alternate.consequent.arguments[2].arguments[0]"
+            },
+            {
+              "left": "S47",
+              "right": "C47",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.consequent.arguments[2].arguments[0]"
+            },
+            {
+              "left": "dk6",
+              "right": "ck6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.alternate.consequent.arguments[2].arguments[1].properties[1].value.callee"
+            },
+            {
+              "left": "eH6",
+              "right": "qJ6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.alternate.consequent.arguments[2].arguments[0]"
+            },
+            {
+              "left": "HJ",
+              "right": "MJ",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].alternate.consequent.arguments[2].arguments[1].properties[3].value.consequent.left.right.callee"
+            },
+            {
+              "left": "ah6",
+              "right": "sh6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].argument.arguments[2].consequent.arguments[2].arguments[0]"
+            }
+          ],
+          "completeFieldsAndLocalGraphEqual": true,
+          "transitiveExternalEquivalenceEstablished": false
+        },
+        "fullTargetCallerEqualityClaimed": false
+      },
+      {
+        "priorStatement": 13883,
+        "currentStatement": 13884,
+        "priorNodes": 2582,
+        "currentNodes": 2582,
+        "comparison": {
+          "interfaces": [
+            {
+              "left": "nH",
+              "right": "rH",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[0].init.callee.object"
+            },
+            {
+              "left": "RR",
+              "right": "RR",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[7].init.callee"
+            },
+            {
+              "left": "IO",
+              "right": "uO",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[8].init.callee"
+            },
+            {
+              "left": "a1",
+              "right": "a1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[9].init.callee"
+            },
+            {
+              "left": "Set",
+              "right": "Set",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[0].declarations[12].init.arguments[0].callee"
+            },
+            {
+              "left": "jS6",
+              "right": "HS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[14].init.callee"
+            },
+            {
+              "left": "s_",
+              "right": "a_",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "xp",
+              "right": "xp",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[0].declarations[1].init.argument.callee"
+            },
+            {
+              "left": "vd",
+              "right": "kd",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[1].body.consequent.body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "Eh6",
+              "right": "Lh6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[1].body.consequent.body.body[1].expression.arguments[0].properties[3].value.callee"
+            },
+            {
+              "left": "ZR",
+              "right": "ZR",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[2].declarations[0].init.arguments[0].body.right.argument.callee"
+            },
+            {
+              "left": "AS6",
+              "right": "OS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[3].block.body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "U6",
+              "right": "U6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[3].handler.body.body[0].expression.expressions[0].arguments[0].expressions[0].callee"
+            },
+            {
+              "left": "N",
+              "right": "N",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[3].handler.body.body[0].expression.expressions[0].callee"
+            },
+            {
+              "left": "Object",
+              "right": "Object",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[5].declarations[0].init.object.callee.object"
+            },
+            {
+              "left": "B0K",
+              "right": "g0K",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[6].consequent.body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "$7",
+              "right": "$7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[7].declarations[0].init.callee"
+            },
+            {
+              "left": "Nh6",
+              "right": "yh6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[7].declarations[1].init.callee"
+            },
+            {
+              "left": "Error",
+              "right": "Error",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].body.body[0].block.body[8].consequent.alternate.argument.callee"
+            },
+            {
+              "left": "T56",
+              "right": "v56",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[4].declarations[0].init.body.body[4].body.body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "Vh6",
+              "right": "Nh6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[4].declarations[0].init.body.body[5].alternate.alternate.body[0].declarations[0].init.expressions[2].callee"
+            },
+            {
+              "left": "A7",
+              "right": "A7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[4].declarations[0].init.body.body[5].consequent.body[0].declarations[0].init.expressions[1].callee"
+            },
+            {
+              "left": "bz",
+              "right": "bz",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[4].declarations[0].init.body.body[5].test.expressions[2].callee"
+            },
+            {
+              "left": "sF8",
+              "right": "tF8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[4].declarations[1].init.body.body[2].consequent.body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "P1",
+              "right": "P1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[1].callee"
+            },
+            {
+              "left": "X4",
+              "right": "X4",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[3].callee"
+            },
+            {
+              "left": "l7",
+              "right": "l7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[4].callee"
+            },
+            {
+              "left": "B56",
+              "right": "g56",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.arguments[0].body.body[1].declarations[1].init.callee"
+            },
+            {
+              "left": "wS6",
+              "right": "jS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.arguments[0].body.body[2].argument.callee"
+            },
+            {
+              "left": "O1",
+              "right": "O1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.callee.object"
+            },
+            {
+              "left": "OS6",
+              "right": "wS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[7].consequent.body[1].argument.arguments[0]"
+            },
+            {
+              "left": "b3",
+              "right": "C3",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[7].test.expressions[0].arguments[0].properties[2].value.body.body[2].alternate.alternate.alternate.alternate.consequent.expression.callee"
+            },
+            {
+              "left": "k",
+              "right": "k",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[8].consequent.argument.arguments[0]"
+            },
+            {
+              "left": "u",
+              "right": "u",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[10].consequent.body[1].argument.arguments[0]"
+            },
+            {
+              "left": "eF8",
+              "right": "qU8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[10].consequent.body[1].argument.arguments[4].arguments[0]"
+            },
+            {
+              "left": "m1",
+              "right": "m1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[10].consequent.body[1].argument.arguments[7].arguments[2].arguments[2].arguments[0]"
+            },
+            {
+              "left": "W1",
+              "right": "W1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[10].consequent.body[1].argument.arguments[7].arguments[2].arguments[2].arguments[2].arguments[0]"
+            },
+            {
+              "left": "ZPY",
+              "right": "GPY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[11].consequent.argument.arguments[3].arguments[0]"
+            },
+            {
+              "left": "Fp",
+              "right": "Fp",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].argument.arguments[3].arguments[2].arguments[0]"
+            },
+            {
+              "left": "t6",
+              "right": "t6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].argument.arguments[4].right.arguments[2].arguments[2].object"
+            },
+            {
+              "left": "xw",
+              "right": "uw",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].argument.arguments[7].arguments[0].body.body[1].argument.arguments[2].arguments[3].arguments[7].left.right.right"
+            },
+            {
+              "left": "oF8",
+              "right": "aF8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].argument.arguments[7].arguments[0].body.body[1].argument.arguments[2].arguments[3].arguments[7].right.arguments[3].callee"
+            },
+            {
+              "left": "v4",
+              "right": "v4",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].argument.arguments[7].arguments[0].body.body[1].argument.arguments[3].right.arguments[2].arguments[2].callee"
+            },
+            {
+              "left": "fPY",
+              "right": "ZPY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].argument.arguments[10].arguments[0]"
+            }
+          ],
+          "completeFieldsAndLocalGraphEqual": true,
+          "transitiveExternalEquivalenceEstablished": false
+        },
+        "fullTargetCallerEqualityClaimed": false
+      },
+      {
+        "priorStatement": 13946,
+        "currentStatement": 13947,
+        "priorNodes": 7701,
+        "currentNodes": 7701,
+        "comparison": {
+          "interfaces": [
+            {
+              "left": "P8",
+              "right": "P8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "PS6",
+              "right": "WS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[3].init.callee"
+            },
+            {
+              "left": "TY",
+              "right": "TY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[4].init.callee.object"
+            },
+            {
+              "left": "IO",
+              "right": "uO",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[6].init.callee"
+            },
+            {
+              "left": "a1",
+              "right": "a1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[7].init.callee"
+            },
+            {
+              "left": "RR",
+              "right": "RR",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[9].init.callee"
+            },
+            {
+              "left": "Map",
+              "right": "Map",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[0].declarations[14].init.arguments[0].callee"
+            },
+            {
+              "left": "u56",
+              "right": "m56",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[17].init.callee"
+            },
+            {
+              "left": "W8",
+              "right": "W8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[18].init.callee.object"
+            },
+            {
+              "left": "P1",
+              "right": "P1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[1].expression.callee"
+            },
+            {
+              "left": "V7",
+              "right": "V7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[1].init.arguments[0].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "Set",
+              "right": "Set",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[2].declarations[1].init.arguments[0].body.body[4].declarations[0].init.callee"
+            },
+            {
+              "left": "p56",
+              "right": "B56",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[1].init.arguments[0].body.body[6].declarations[0].init.callee"
+            },
+            {
+              "left": "Z4",
+              "right": "Z4",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[1].init.arguments[0].body.body[7].body.body[1].declarations[0].init.callee"
+            },
+            {
+              "left": "Object",
+              "right": "Object",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[2].declarations[1].init.arguments[0].body.body[14].right.callee.object"
+            },
+            {
+              "left": "NEK",
+              "right": "NEK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].expression.arguments[0].body.body[0].consequent.expression.callee"
+            },
+            {
+              "left": "jS6",
+              "right": "HS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[4].declarations[2].init.callee"
+            },
+            {
+              "left": "FC",
+              "right": "FC",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[0].arguments[0].body.body[1].body.body[1].consequent.expression.right.left.right.callee"
+            },
+            {
+              "left": "Array",
+              "right": "Array",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[0].arguments[0].body.body[1].body.body[1].consequent.expression.right.right.left.callee.object"
+            },
+            {
+              "left": "DS6",
+              "right": "fS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[0].arguments[0].body.body[1].body.body[2].consequent.block.body[0].declarations[0].init.callee.object"
+            },
+            {
+              "left": "JJ6",
+              "right": "MJ6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[0].arguments[0].body.body[1].body.body[2].consequent.block.body[0].declarations[2].init.argument.callee.object"
+            },
+            {
+              "left": "i8",
+              "right": "i8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[0].arguments[0].body.body[1].body.body[2].consequent.block.body[0].declarations[3].init.expression.callee.object.object.callee"
+            },
+            {
+              "left": "N",
+              "right": "N",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[0].arguments[0].body.body[1].body.body[2].consequent.handler.body.body[0].expression.callee"
+            },
+            {
+              "left": "SM",
+              "right": "bM",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[1].arguments[0].body.body[0].body.body[1].block.body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "FPY",
+              "right": "UPY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[1].arguments[0].body.body[0].body.body[1].block.body[0].declarations[2].init.callee"
+            },
+            {
+              "left": "$7",
+              "right": "$7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[1].arguments[0].body.body[0].body.body[1].block.body[3].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "KU8",
+              "right": "_U8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].expression.expressions[1].arguments[0].body.body[0].body.body[1].block.body[6].body.body.body[0].declarations[1].init.alternate.object.callee"
+            },
+            {
+              "left": "HS6",
+              "right": "JS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[3].test.left.right.argument.callee"
+            },
+            {
+              "left": "g56",
+              "right": "F56",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[0].consequent[0].body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "Error",
+              "right": "Error",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[0].consequent[0].body[1].consequent.argument.callee"
+            },
+            {
+              "left": "JS6",
+              "right": "MS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[1].consequent[0].body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "PEK",
+              "right": "PEK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[2].consequent[0].body[2].test.callee"
+            },
+            {
+              "left": "sX",
+              "right": "eX",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[2].consequent[0].body[3].declarations[0].init.object.object.callee"
+            },
+            {
+              "left": "o34",
+              "right": "a34",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[2].consequent[0].body[3].declarations[1].init.consequent.argument.callee"
+            },
+            {
+              "left": "ys",
+              "right": "Es",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[2].consequent[0].body[5].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "MS6",
+              "right": "XS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[1].cases[3].consequent[0].body[1].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "bz",
+              "right": "bz",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].block.body[2].expression.callee"
+            },
+            {
+              "left": "String",
+              "right": "String",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].handler.body.body[1].declarations[0].init.alternate.callee"
+            },
+            {
+              "left": "u1",
+              "right": "u1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].handler.body.body[2].expression.expressions[1].arguments[0].callee"
+            },
+            {
+              "left": "w6",
+              "right": "w6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[0].init.body.body[5].handler.body.body[2].expression.expressions[1].callee"
+            },
+            {
+              "left": "l7",
+              "right": "l7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[9].expression.expressions[0].callee"
+            },
+            {
+              "left": "yEK",
+              "right": "yEK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[10].declarations[0].init.arguments[0].body.body[1].expression.expressions[0].callee"
+            },
+            {
+              "left": "Kr6",
+              "right": "_r6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].declarations[0].init.arguments[0].body.body[2].consequent.body[0].consequent.expression.arguments[0].properties[1].value.body.body[1].block.body[3].declarations[1].init.argument.callee"
+            },
+            {
+              "left": "U6",
+              "right": "U6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].declarations[0].init.arguments[0].body.body[2].consequent.body[0].consequent.expression.arguments[0].properties[1].value.body.body[1].handler.body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "gPY",
+              "right": "FPY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].declarations[0].init.arguments[0].body.body[2].consequent.body[0].test.expressions[0].arguments[0].properties[1].value.body.body[0].block.body[0].declarations[0].init.argument.callee"
+            },
+            {
+              "left": "b3",
+              "right": "C3",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[12].declarations[0].init.arguments[0].body.body[3].consequent.expression.arguments[0].properties[1].value.body.argument.callee"
+            },
+            {
+              "left": "k",
+              "right": "k",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].consequent.argument.arguments[0]"
+            },
+            {
+              "left": "k1",
+              "right": "k1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].test.expressions[1].arguments[0].properties[0].value.body.body[0].consequent.expression.callee.body.body[2].consequent.body[1].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "M7",
+              "right": "M7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].test.expressions[1].arguments[0].properties[0].value.body.body[0].consequent.expression.callee.body.body[2].consequent.body[1].body.body[1].consequent.expression.expressions[0].callee"
+            },
+            {
+              "left": "t6",
+              "right": "t6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].test.expressions[3].arguments[0].body.body[3].declarations[0].init.body.body[1].block.body[4].test.expressions[0].arguments[0].expressions[0].object"
+            },
+            {
+              "left": "X4",
+              "right": "X4",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].test.expressions[3].callee"
+            },
+            {
+              "left": "u",
+              "right": "u",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[14].consequent.argument.arguments[0]"
+            },
+            {
+              "left": "OS6",
+              "right": "wS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[15].consequent.body[1].argument.arguments[0]"
+            },
+            {
+              "left": "Yq8",
+              "right": "$q8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[16].consequent.body[1].argument.arguments[0]"
+            },
+            {
+              "left": "BG",
+              "right": "gG",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[16].consequent.body[1].argument.arguments[1].properties[3].value.callee"
+            },
+            {
+              "left": "AV8",
+              "right": "OV8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[16].consequent.body[1].argument.arguments[1].properties[4].value.body.body[0].block.body[0].expression.expressions[0].callee"
+            },
+            {
+              "left": "Date",
+              "right": "Date",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[18].consequent.body[1].argument.arguments[4].arguments[4].arguments[3].callee.object.callee"
+            },
+            {
+              "left": "m1",
+              "right": "m1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[18].consequent.body[1].argument.arguments[6].arguments[0]"
+            },
+            {
+              "left": "W1",
+              "right": "W1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[18].consequent.body[1].argument.arguments[6].arguments[2].arguments[0]"
+            },
+            {
+              "left": "qi6",
+              "right": "Ki6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[20].consequent.argument.arguments[3].arguments[3].arguments[2].callee"
+            },
+            {
+              "left": "A7",
+              "right": "A7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[21].consequent.body[0].declarations[4].init.alternate.arguments[2].arguments[4].callee"
+            },
+            {
+              "left": "WS6",
+              "right": "DS6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[21].consequent.body[0].declarations[4].init.alternate.arguments[3].arguments[0].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "F56",
+              "right": "U56",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[21].consequent.body[0].declarations[4].init.alternate.arguments[3].arguments[0].body.body[1].argument.arguments[2].arguments[2].callee"
+            },
+            {
+              "left": "BPY",
+              "right": "gPY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[21].consequent.body[1].argument.arguments[8].arguments[0]"
+            },
+            {
+              "left": "KQ",
+              "right": "_Q",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[23].consequent.body[0].declarations[1].init.object.callee"
+            },
+            {
+              "left": "OJ6",
+              "right": "wJ6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[23].consequent.body[1].alternate.alternate.alternate.consequent.body[1].argument.arguments[0]"
+            },
+            {
+              "left": "qq8",
+              "right": "Kq8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[23].consequent.body[1].consequent.body[1].argument.arguments[0]"
+            },
+            {
+              "left": "_q8",
+              "right": "zq8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[24].consequent.body[2].argument.arguments[0]"
+            },
+            {
+              "left": "Kq8",
+              "right": "_q8",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[25].consequent.body[2].argument.arguments[0]"
+            },
+            {
+              "left": "Fp",
+              "right": "Fp",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[27].argument.arguments[2].arguments[2].arguments[0]"
+            },
+            {
+              "left": "EEK",
+              "right": "EEK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[27].argument.arguments[5].arguments[0].body.body[1].argument.arguments[3].arguments[0]"
+            }
+          ],
+          "completeFieldsAndLocalGraphEqual": true,
+          "transitiveExternalEquivalenceEstablished": false
+        },
+        "fullTargetCallerEqualityClaimed": false
+      },
+      {
+        "priorStatement": 14334,
+        "currentStatement": 14335,
+        "priorNodes": 7265,
+        "currentNodes": 7265,
+        "comparison": {
+          "interfaces": [
+            {
+              "left": "z6",
+              "right": "z6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "a1",
+              "right": "a1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[4].init.callee"
+            },
+            {
+              "left": "l5",
+              "right": "c5",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[6].init.callee"
+            },
+            {
+              "left": "IO",
+              "right": "uO",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[7].init.callee"
+            },
+            {
+              "left": "Is",
+              "right": "us",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[1].consequent.expression.expressions[0].right.callee"
+            },
+            {
+              "left": "Symbol",
+              "right": "Symbol",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[1].test.right.callee.object"
+            },
+            {
+              "left": "$q",
+              "right": "$q",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].declarations[2].init.callee"
+            },
+            {
+              "left": "YD",
+              "right": "AD",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[3].consequent.expression.expressions[0].right.callee"
+            },
+            {
+              "left": "ri",
+              "right": "oi",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[5].consequent.expression.expressions[0].right.body.callee"
+            },
+            {
+              "left": "Dq",
+              "right": "Dq",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[6].declarations[2].init.callee.object.object"
+            },
+            {
+              "left": "t1",
+              "right": "t1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[7].consequent.expression.expressions[0].right.callee"
+            },
+            {
+              "left": "Set",
+              "right": "Set",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[9].consequent.expression.expressions[0].right.callee"
+            },
+            {
+              "left": "d",
+              "right": "d",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[13].consequent.expression.expressions[0].right.body.body[0].expression.expressions[1].callee"
+            },
+            {
+              "left": "RR",
+              "right": "RR",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[16].declarations[0].init.callee"
+            },
+            {
+              "left": "setTimeout",
+              "right": "setTimeout",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[17].consequent.expression.expressions[0].right.body.body[1].declarations[0].init.callee"
+            },
+            {
+              "left": "clearTimeout",
+              "right": "clearTimeout",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[17].consequent.expression.expressions[0].right.body.body[2].argument.body.callee"
+            },
+            {
+              "left": "KX",
+              "right": "zX",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[20].consequent.expression.expressions[0].right.body.body[0].expression.expressions[0].callee.object.callee"
+            },
+            {
+              "left": "hs",
+              "right": "Ss",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[20].consequent.expression.expressions[0].right.body.body[0].expression.expressions[1].callee.object.callee"
+            },
+            {
+              "left": "iTY",
+              "right": "rTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[22].declarations[0].init.arguments[0].arguments[0]"
+            },
+            {
+              "left": "Map",
+              "right": "Map",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[22].declarations[0].init.callee"
+            },
+            {
+              "left": "sTY",
+              "right": "tTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[25].consequent.expression.expressions[0].right.callee"
+            },
+            {
+              "left": "nTY",
+              "right": "iTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[29].consequent.body[1].consequent.expression.expressions[0].right.arguments[0]"
+            },
+            {
+              "left": "re",
+              "right": "oe",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[34].body.body[2].consequent.body[1].expression.expressions[0].right.arguments[0].body.body[0].declarations[0].init.callee.object.callee"
+            },
+            {
+              "left": "gTY",
+              "right": "FTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[42].consequent.body[0].consequent.body[0].body.consequent.body[0].declarations[0].init.arguments[2]"
+            },
+            {
+              "left": "FTY",
+              "right": "UTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[42].consequent.body[0].consequent.body[0].body.consequent.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "QTY",
+              "right": "dTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[42].consequent.body[0].consequent.body[2].consequent.expression.expressions[0].right.arguments[0].arguments[0]"
+            },
+            {
+              "left": "UTY",
+              "right": "QTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[42].consequent.body[0].consequent.body[4].consequent.body[2].declarations[0].init.callee.object.arguments[0]"
+            },
+            {
+              "left": "Math",
+              "right": "Math",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[47].declarations[1].init.callee.object"
+            },
+            {
+              "left": "aTY",
+              "right": "sTY",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[48].body.body[2].consequent.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "A37",
+              "right": "O37",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[48].body.body[2].consequent.body[1].expression.expressions[0].right.arguments[0].body.body[0].declarations[4].init.consequent.callee"
+            },
+            {
+              "left": "w37",
+              "right": "j37",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[48].body.body[2].consequent.body[1].expression.expressions[0].right.arguments[0].body.body[1].consequent.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "O37",
+              "right": "w37",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[48].body.body[2].consequent.body[1].expression.expressions[0].right.arguments[0].body.body[1].consequent.body[1].argument.properties[2].value.callee"
+            },
+            {
+              "left": "Array",
+              "right": "Array",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[48].body.body[2].consequent.body[1].expression.expressions[0].right.callee.object.callee.object"
+            },
+            {
+              "left": "jCK",
+              "right": "jCK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[50].body.body[2].consequent.body[1].consequent.expression.expressions[0].right.body.body[0].declarations[1].init.callee"
+            },
+            {
+              "left": "GI6",
+              "right": "TI6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[50].body.body[2].consequent.body[1].consequent.expression.expressions[0].right.body.body[0].declarations[2].init.callee"
+            },
+            {
+              "left": "xA",
+              "right": "IA",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[52].consequent.expression.expressions[0].right.body.body[1].declarations[0].init.callee"
+            },
+            {
+              "left": "Rs",
+              "right": "hs",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[54].consequent.expression.expressions[0].right.body.body[2].consequent.body[0].test.expressions[0].argument.callee"
+            },
+            {
+              "left": "parseInt",
+              "right": "parseInt",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[75].consequent.expression.expressions[0].right.body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "P1",
+              "right": "P1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[82].expression.callee"
+            },
+            {
+              "left": "X4",
+              "right": "X4",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[97].expression.callee"
+            },
+            {
+              "left": "aSK",
+              "right": "aSK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[103].consequent.body[3].consequent.expression.expressions[0].right.arguments[0]"
+            },
+            {
+              "left": "u",
+              "right": "u",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[105].consequent.expression.expressions[0].right.arguments[0]"
+            },
+            {
+              "left": "I$",
+              "right": "u$",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[105].consequent.expression.expressions[0].right.arguments[2].arguments[0]"
+            },
+            {
+              "left": "k",
+              "right": "k",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[107].consequent.expression.expressions[0].right.arguments[2].arguments[0]"
+            },
+            {
+              "left": "zCK",
+              "right": "zCK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[109].consequent.expression.expressions[0].right.consequent.arguments[0]"
+            },
+            {
+              "left": "Fp",
+              "right": "Fp",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[111].consequent.expression.expressions[0].right.arguments[0]"
+            },
+            {
+              "left": "m1",
+              "right": "m1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[113].consequent.expression.expressions[0].right.right.arguments[2].arguments[2].arguments[0]"
+            },
+            {
+              "left": "xK",
+              "right": "bK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[117].consequent.expression.expressions[0].right.right.arguments[2].arguments[0]"
+            },
+            {
+              "left": "Boolean",
+              "right": "Boolean",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[125].consequent.expression.expressions[0].right.left.left.callee"
+            },
+            {
+              "left": "J1",
+              "right": "J1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[127].consequent.expression.expressions[0].right.alternate.alternate.alternate.arguments[0]"
+            },
+            {
+              "left": "$CK",
+              "right": "$CK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[127].consequent.expression.expressions[0].right.alternate.alternate.consequent.arguments[0]"
+            },
+            {
+              "left": "i3",
+              "right": "n3",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[127].consequent.expression.expressions[0].right.alternate.consequent.arguments[3].arguments[2].arguments[0]"
+            },
+            {
+              "left": "q1",
+              "right": "q1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[129].consequent.expression.expressions[0].right.arguments[2].alternate.alternate.alternate.alternate.alternate.arguments[2].arguments[2].right.arguments[0]"
+            },
+            {
+              "left": "W1",
+              "right": "W1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[129].consequent.expression.expressions[0].right.arguments[2].alternate.alternate.alternate.alternate.alternate.arguments[2].arguments[8].arguments[0]"
+            }
+          ],
+          "completeFieldsAndLocalGraphEqual": true,
+          "transitiveExternalEquivalenceEstablished": false
+        },
+        "fullTargetCallerEqualityClaimed": false
+      },
+      {
+        "priorStatement": 14611,
+        "currentStatement": 14612,
+        "priorNodes": 516,
+        "currentNodes": 516,
+        "comparison": {
+          "interfaces": [
+            {
+              "left": "z6",
+              "right": "z6",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[0].init.callee"
+            },
+            {
+              "left": "JkK",
+              "right": "JkK",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[2].init.callee"
+            },
+            {
+              "left": "fT",
+              "right": "ZT",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[0].declarations[3].init.callee"
+            },
+            {
+              "left": "hk",
+              "right": "Sk",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[2].expression.callee.object"
+            },
+            {
+              "left": "u",
+              "right": "u",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[7].consequent.expression.expressions[0].right.arguments[0]"
+            },
+            {
+              "left": "Fp",
+              "right": "Fp",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[7].consequent.expression.expressions[0].right.arguments[2].arguments[0]"
+            },
+            {
+              "left": "D7",
+              "right": "D7",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[7].consequent.expression.expressions[0].right.arguments[2].callee.object"
+            },
+            {
+              "left": "Math",
+              "right": "Math",
+              "kind": "exact-builtin",
+              "firstPath": "$.body[0].body.body[8].declarations[0].init.callee.object"
+            },
+            {
+              "left": "J1",
+              "right": "J1",
+              "kind": "conditional-external",
+              "firstPath": "$.body[0].body.body[9].consequent.expression.expressions[0].right.arguments[0]"
+            }
+          ],
+          "completeFieldsAndLocalGraphEqual": true,
+          "transitiveExternalEquivalenceEstablished": false
+        },
+        "fullTargetCallerEqualityClaimed": false
+      }
+    ],
+    "sourceOnlyCallerWithNoEmittedOwnerOrDCEVerdict": "src/components/design-system/FuzzyPicker.tsx",
+    "fullTargetCallerBodiesAccepted": false,
+    "dynamicIndirectOrGlobalConsumerAbsenceProven": false
+  },
+  "sourceOwner": {
+    "path": "src/components/SearchBox.tsx",
+    "sha256": "4d8fefc5a4f8abb8eee603c24a7e6c2c42bca39a178032a713a8a2c3f872146f",
+    "bytes": 10561,
+    "exactOfficialCompilerOutputPlusOpaqueMap": true,
+    "productionCompilerPassAdded": false,
+    "sourceCountDelta": 0,
+    "guardOwner": false,
+    "evalOwner": false,
+    "resolvedTypeSemanticsValidated": false
+  },
+  "mapMetadata": {
+    "retainedOpaqueHistoricalDirective": true,
+    "bytes": 7092,
+    "sha256": "82c844c1a9628112358246106cbe0a38fe18e31470b1a8093bed00621fa22cf5",
+    "coordinatesKnownStale": true,
+    "decodedOrUsedForOwnership": false,
+    "generalMapIrrelevanceClaimed": false
+  },
+  "preservedLimitations": [
+    "The frozen combined supplier fixture remains rejected because separate source modules created distinct imported locals for useTheme and getTheme. Actual direct Box/Text owner and separate-body checks do not retroactively accept that fixture or establish all transitive supplier behavior.",
+    "All earlier failed and paused draft records remain unchanged; the final source closure and earlier approval were reauthenticated without edits.",
+    "Five selected emitted caller references and six complete source caller bindings are checked. This does not establish all dynamic/indirect/global consumers or full target equality of their bodies. The ManagePlugins caller retains its inherited 7701 versus target 7729-node difference.",
+    "The complete contiguous SearchBox module declarations and own initializer match under grounded direct roles. Overall declaration order, all initialization scheduling, provider purity and full-program binding ownership are not accepted.",
+    "Unresolved or same-spelled ambient captures do not prove unmodified builtin values or global ownership through dynamic scopes. No application, rendering, callbacks or generated functions were executed.",
+    "The private V22 profile is distinct from the published metadata-locator-redacted derivative. V23 actual inputs use the exact private preparation/profile supplied by the parent."
+  ],
+  "priorFailuresRewritten": false,
+  "sourceFixtureAggregateSupplierAccepted": false,
+  "fullTransitiveProviderGraphAccepted": false,
+  "globalDeclarationAndInitializationOrderAccepted": false,
+  "wholeTargetAcceptance": false,
+  "fullTargetASTEqualityEstablished": false,
+  "fullProgramStrictObservation": {
+    "candidateNodes": 3098643,
+    "candidateSha256": "5ae7184bc5e226597111809c3e53cb37acbddd58d4209fc20487b84ef931bb95",
+    "targetNodes": 3098331,
+    "targetSha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c",
+    "equal": false,
+    "suppliedIndexObservationNotNewWholeParse": true
+  },
+  "verification": {
+    "completeCurrentAndTargetIndexedSlices": 58,
+    "additionalPriorCallerSlices": 5,
+    "groups": 15,
+    "staticNegatives": 54,
+    "runtimeToolFilesAuthenticated": 69,
+    "sourceStageChanged": false,
+    "fullBundleParsed": false,
+    "compilerInvokedByReviewer": false,
+    "generatedOrApplicationCodeExecuted": false,
+    "reviewerLedgerDiagnosticCleanup": "The initial successful check included an irrelevant constant diagnostic field. Final check removes it; both successful scripts/results are preserved and comparison logic is unchanged."
+  },
+  "codeProvenance": {
+    "path": "historical-checkpoints/v23-searchbox-emission-review/code-provenance.json",
+    "bytes": 582697,
+    "sha256": "d1482728081d08de7cf1c9d29387c5e32f257266ea10a2aa9e5cb6437329bc31"
+  },
+  "evidence": {
+    "baseline-authentication.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/baseline-authentication.json",
+      "bytes": 3044,
+      "sha256": "7d9764a1697ab9d7f3da1f669328949dfedc7feda73c5e2c0840029bc441749b"
+    },
+    "target-witnesses.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/target-witnesses.json",
+      "bytes": 117975,
+      "sha256": "3a54bad0978e8e349d297687302f61a14cb968633d14b68ddf94d36470f25bd9"
+    },
+    "actual-inputs.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/actual-inputs.json",
+      "bytes": 2291,
+      "sha256": "695d04ac4da3a708bfc9ff11af8b97db7679a6747ab0ce630db95ab399b59eba"
+    },
+    "witnesses.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/witnesses.json",
+      "bytes": 262690,
+      "sha256": "a45b5f8407573027aee0b90819a962a4f92f55c99a3ce44d6a4b4fe9a99e35ce"
+    },
+    "statement-pairs.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/statement-pairs.json",
+      "bytes": 785,
+      "sha256": "91870c6b742de42d8d50fe3da8f3fb96e80e1dbd2f49250f176eaf365388543b"
+    },
+    "check.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/check.json",
+      "bytes": 31634,
+      "sha256": "90788ce6b8298d5b41c424bb9e4e13b2b96d50890ee39282571c3e377140a2aa"
+    },
+    "check-source.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/check-source.json",
+      "bytes": 75110,
+      "sha256": "d661bdc3620afa80e7e1de3a566a274670239e5ba37317df48f49093b443117f"
+    },
+    "prior-caller-witnesses.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/prior-caller-witnesses.json",
+      "bytes": 90470,
+      "sha256": "763bdb13daa52e5993d66c5f35425e078c593c9261c32c9a7275cc4ddc7f557f"
+    },
+    "actual-source-providers.json": {
+      "path": "historical-checkpoints/v23-searchbox-emission-review/actual-source-providers.json",
+      "bytes": 1352,
+      "sha256": "8173fd80ef6c3b9d85c0717ae065a8009b9de028323ce81cf39b0f70a09570b9"
+    }
+  }
+}

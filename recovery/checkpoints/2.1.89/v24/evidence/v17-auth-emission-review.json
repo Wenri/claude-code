@@ -1,0 +1,433 @@
+{
+  "verdict": "verified-actual-v17-auth-and-authPortable-source-trial-emission-with-inherited-transitive-boundary",
+  "profileSha256": "a8e00b2ab05ad70ae6b3c8279bdd127f8ca9d1e50105ab6aa8d398ef6efc4d56",
+  "toolchainSha256": "493b89f3f018389a7b0961210428acf63c72e64b70fc6af2ce598b60e7364f3f",
+  "compileReportSha256": "f32b747d93a28ae3f8c72b8a0b7fb3c783ba4ccc58c26430603d6b3cb3f2e286",
+  "finalJSSha256": "34e5d9afb6eed4befe27a7071dffb2e9970613c8019b7c841a595b4ab89517c8",
+  "finalJSBytes": 13076088,
+  "candidateIndexSha256": "ea2ce34a174a8ec64e52c92992a5e07d73e4af156cee2c86a25bbb374f62b1bc",
+  "candidateStatements": 18196,
+  "candidateStrictAst": {
+    "nodes": 3098304,
+    "sha256": "f606946bb57caa95ae08be7ff5322240b4cc13ae59919f1c8b760b48aec9a3cc"
+  },
+  "targetJSSha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+  "targetIndexSha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747",
+  "targetStrictAst": {
+    "nodes": 3098331,
+    "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "sourceReviews": [
+    {
+      "owner": "src/utils/auth.ts",
+      "sourceSha256": "cde374174cab162b3235faf7d20e54b5e02a9a7b738142512e6cec5be03a043b",
+      "sourceReviewSha256": "9089916099d9874fa17313e2928027f5d5932665b653bf5e2211d83ead14ed4b"
+    },
+    {
+      "owner": "src/utils/authPortable.ts",
+      "sourceSha256": "68c1d0097521f74163a300bca5d24e1155ed10020eb812c42badc0bbc3d8c21a",
+      "sourceReviewSha256": "bfd7b50347788b4995898832916528ea1ccb05a4da0af776ede8ef91d08e0071"
+    }
+  ],
+  "authOrderObligationSatisfied": true,
+  "authPortableOrderObligationSatisfied": true,
+  "auth": {
+    "targetInitializer": {
+      "statement": 4594,
+      "range": [
+        3491372,
+        3492578
+      ],
+      "strictSha256": "5790490893be5cb86902351c60d84bf9eb1dbc1bcd62a01b0c955b92b7cb6ff8",
+      "snippetSha256": "3df4ef797eb3caf8d876392705b191d9cacb4347ecb3dbfb9c3884818a1dbbd5"
+    },
+    "priorInitializer": {
+      "statement": 4595,
+      "range": [
+        3491599,
+        3492805
+      ],
+      "strictSha256": "cf65328a8814a07197cbba911a288baa138b5e70a961e9b0d8aebf917633f4aa",
+      "snippetSha256": "0e502437877eb4a82ab1512ba012146696cea410cdda7af2bb60c36af04ab9a1"
+    },
+    "currentInitializer": {
+      "statement": 4595,
+      "range": [
+        3491599,
+        3492805
+      ],
+      "strictSha256": "f4d47a641c2aa6c52591becd1569eefa6c94a4edf4ad83fc1a15527873724109",
+      "snippetSha256": "2a8a2fa4ef3f679d8ddc93e85e64e2aedae892a998194115cd443762aefe8fde"
+    },
+    "targetPrefix": [
+      "h3",
+      "KK",
+      "s5",
+      "V8",
+      "En",
+      "L_",
+      "k8",
+      "EM1",
+      "iW",
+      "kZ6",
+      "IM1",
+      "lF6",
+      "LP1",
+      "MM8",
+      "LG",
+      "k1",
+      "_8",
+      "F8",
+      "L8",
+      "XK",
+      "h8",
+      "dB",
+      "zT",
+      "T16",
+      "Nk1",
+      "az6",
+      "n1",
+      "n8",
+      "qf8"
+    ],
+    "priorPrefix": [
+      "I3",
+      "qK",
+      "K3",
+      "v8",
+      "kn",
+      "E_",
+      "k8",
+      "vM1",
+      "lW",
+      "g06",
+      "hM1",
+      "rF6",
+      "kP1",
+      "XM8",
+      "kG",
+      "T1",
+      "K8",
+      "B8",
+      "y8",
+      "HK",
+      "L8",
+      "sT",
+      "mB",
+      "E16",
+      "Gk1",
+      "az6",
+      "Q1",
+      "l8",
+      "Kf8"
+    ],
+    "currentPrefix": [
+      "I3",
+      "qK",
+      "K3",
+      "v8",
+      "kn",
+      "E_",
+      "k8",
+      "vM1",
+      "lW",
+      "g06",
+      "hM1",
+      "rF6",
+      "kP1",
+      "XM8",
+      "kG",
+      "T1",
+      "K8",
+      "B8",
+      "y8",
+      "HK",
+      "L8",
+      "pB",
+      "sT",
+      "E16",
+      "Gk1",
+      "az6",
+      "Q1",
+      "l8",
+      "Kf8"
+    ],
+    "priorExecaSlot": 21,
+    "currentExecaSlot": 22,
+    "requiredExecaSlot": 22,
+    "currentMemoizeSlot": 21,
+    "actualTargetInitializerOrderMatches": true,
+    "completeFieldsAndLocalReferencesMatchTarget": true,
+    "completePriorInitializerMatchesAfterOnlyAuthorized21_22Swap": true,
+    "all29CompleteDirectProviderDefinitionsMatch": true,
+    "memoizeProvider": {
+      "sourceOwner": "src/utils/memoize.ts",
+      "sourceExport": "memoizeWithTTLAsync",
+      "targetExport": "Pp6",
+      "currentExport": "Zp6",
+      "targetInitializer": "dB",
+      "currentInitializer": "pB",
+      "targetInitializerIndex": 2139,
+      "currentInitializerIndex": 2145
+    },
+    "execaProvider": {
+      "sourceOwner": "src/utils/execa.ts",
+      "targetInitializer": "zT",
+      "currentInitializer": "sT",
+      "targetInitializerIndex": 2312,
+      "currentInitializerIndex": 2311,
+      "fiveWrapperBodiesAndThreeAuthCallersCompared": true
+    }
+  },
+  "authPortable": {
+    "targetInitializer": {
+      "statement": 3094,
+      "range": [
+        2296591,
+        2296619
+      ],
+      "strictSha256": "0371722304c4c18ab546ecc415214e900c804486a482c27b32b5c32df1472dbf",
+      "snippetSha256": "eccaff1736a7bd70e1dc2dac62b0a9e03408e84f8f884d40cad4095ba8587fd2"
+    },
+    "priorInitializer": {
+      "statement": 3095,
+      "range": [
+        2296806,
+        2296834
+      ],
+      "strictSha256": "9a41e042a2afb0ef3c7925b1ae78e7fc6df8d3d746a31ad1b9206db7c2994ec4",
+      "snippetSha256": "235f02b66a91ded96cfa5d8e8a5a846869d2d0e3d664980f38d76dfdf16903d3"
+    },
+    "currentInitializer": {
+      "statement": 3095,
+      "range": [
+        2296806,
+        2296834
+      ],
+      "strictSha256": "0bc390193d7f86adcb355df03e90385d9ae5cced7033a517e6182f2eb8b4b510",
+      "snippetSha256": "a81aa441cdef3c6f0d0f9396ee7996ee010f0eaaae2d87dfa6e164bef5763f34"
+    },
+    "targetPrefix": [
+      "az6",
+      "zT"
+    ],
+    "priorPrefix": [
+      "sT",
+      "az6"
+    ],
+    "currentPrefix": [
+      "az6",
+      "sT"
+    ],
+    "actualTargetInitializerOrderMatches": true,
+    "completeFieldsAndLocalReferencesMatchTarget": true,
+    "completePriorInitializerMatchesAfterOnlyAuthorized0_1Swap": true,
+    "bothExportedFunctionsMatchTargetAndPrior": true,
+    "keychainHelper": "getMacOsKeychainStorageServiceName",
+    "keychainSourceOwner": "src/utils/secureStorage/macOsKeychainHelpers.ts",
+    "keychainSourceSha256": "4909e3a8a1a374f1a2183887087ae23c1859e6882fc8b2bfb070c02b8e2ec17d",
+    "keychainTargetDeclaration": 3086,
+    "keychainCurrentDeclaration": 3087
+  },
+  "inheritedTransitiveBoundary": {
+    "sourceOwner": "node_modules/lru-cache/dist/esm/index.js",
+    "sourceSha256": "12553800af71e71ffd01e39ee7a4faf95eba1f35604c76863d575e2af3447292",
+    "targetInitializer": {
+      "statement": 2136,
+      "range": [
+        879526,
+        895809
+      ],
+      "strictSha256": "22cb5627a89a735f97f5673f3673ca8d1589da481a388b5f45527e14ee7e93f2",
+      "snippetSha256": "db9ee6c2ff4b00f5b11a654693070f706e6c4b1caa93694fdd8b3352cea663e1"
+    },
+    "priorInitializer": {
+      "statement": 2142,
+      "range": [
+        879823,
+        896106
+      ],
+      "strictSha256": "c393ad23a17fdbe7d28396c9c956c18fd0cb4f5c5a478c76ecb5bdf21f60e90e",
+      "snippetSha256": "4af7b5060e84cb8d6b5c3b0416e6895803d4eba32426cd452dc4991e57e16243"
+    },
+    "currentInitializer": {
+      "statement": 2142,
+      "range": [
+        879823,
+        896106
+      ],
+      "strictSha256": "dae66b0b512958b446215475a5b2de0ae4434af814ad6e603061ee2e6734f043",
+      "snippetSha256": "d6aba00a69f94c3e6543017b313800db0ed041cda8ef07224444eda0f620f103"
+    },
+    "targetPrivateIdentifierSpellingDeltas": 79,
+    "v16ToV17FieldAndLocalGraphDeltas": 0,
+    "observedPrivateNamePairs": [
+      [
+        "A",
+        "O"
+      ],
+      [
+        "O",
+        "A"
+      ],
+      [
+        "R",
+        "h"
+      ],
+      [
+        "T",
+        "v"
+      ],
+      [
+        "h",
+        "R"
+      ],
+      [
+        "v",
+        "T"
+      ]
+    ],
+    "privateNameNormalizationApplied": false,
+    "transitiveEquivalenceAccepted": false,
+    "behavioralDifferenceClaim": false,
+    "evidenceSha256": "dca1f5bee04c6e130f817c072e51df29fbbcd959ff9d716c785ce95f5c0f4faa"
+  },
+  "verification": {
+    "groups": 8,
+    "adversarialAuthControls": 9,
+    "receiptCorruptionControls": 3,
+    "completeDirectAuthProviderDefinitions": 29,
+    "completeWrapperCallerAndMemoizeKeychainPortableFunctions": 13,
+    "deeperProvidersCompared": 7,
+    "deeperProvidersCompleteMatch": 6,
+    "deeperInheritedSpellingBoundary": 1,
+    "boundedIndexedStatements": 140,
+    "largestIndexedStatementBytes": 16283,
+    "boundPerIndexedStatementBytes": 65536,
+    "priorSourceAndPreparationClosureMembersReauthenticated": 386,
+    "strictDigestsAndNodeCountsCheckedAgainstOriginalIndexes": true,
+    "noPositionalProviderAliasAcceptance": true,
+    "noInitializerOrderingNormalizationForAcceptance": true,
+    "authorizedPriorOnlySwapsAreDiagnosticComparisons": true
+  },
+  "finalizerReceipts": {
+    "profileSha256": "a8e00b2ab05ad70ae6b3c8279bdd127f8ca9d1e50105ab6aa8d398ef6efc4d56",
+    "toolchainSha256": "493b89f3f018389a7b0961210428acf63c72e64b70fc6af2ce598b60e7364f3f",
+    "compileReportSha256": "f32b747d93a28ae3f8c72b8a0b7fb3c783ba4ccc58c26430603d6b3cb3f2e286",
+    "receiptSha256": "c313cbe1a8e761e59dfd873b06fc8ca2eea226008a1f4d203ea342a6b2675eee",
+    "lateLinkReportSha256": "7e259ee917e45931b3e2b6111b50ef4637818b252d931d926e43f8f1d81d77e1",
+    "removalEditsSha256": "08db7efc86eca4cb9d60359ec38689f22489fc768314353bae9cd6c9b3caf148",
+    "finalJSsha256": "34e5d9afb6eed4befe27a7071dffb2e9970613c8019b7c841a595b4ab89517c8",
+    "physical": {
+      "files": 6083,
+      "manifestSha256": "8b09b26ae8ce8cf6c66698f6ff3d033dcf385c2b455cf33e681dc0d3d164a9a9",
+      "currentGitSourceFiles": 1921,
+      "currentDerivedSrcTree": "e841873d2f8c39f167118158de3bc57f3907354a",
+      "extraSourceAssets": 29,
+      "genesisVerifiedAsLineageOnly": true,
+      "sourceEdgeAndEvalRangePinsVerified": true
+    },
+    "authenticatedReceiptEvents": 37,
+    "markerImportsRemoved": 11,
+    "rawToFinalDeletionBytesReproduced": true,
+    "authOwnersAreApprovedPostimagesAndNotOverlaid": true,
+    "additionalReceiptNegatives": [
+      "duplicate receipt ID",
+      "altered overlay body hash",
+      "altered source edge"
+    ],
+    "fullApplicationParsed": false,
+    "applicationExecuted": false,
+    "compilerInvoked": false,
+    "sourceMapHashesAuthenticated": true,
+    "sourceMapCompositionNotReexecuted": true,
+    "sourceMapDisplacementRepaired": false,
+    "wholeTargetAcceptance": false
+  },
+  "historicalV16Review": {
+    "path": "historical-checkpoints/v16-auth-search-emission-review/review.json",
+    "sha256": "6a27a8320a0b842b446629dc98065001c9e9a617e044a8032077dbd40ce6fadf",
+    "closureSha256": "84802b0bb483808079aad8f51d9cceb3c1f53193c11c68f15bbcaa243c43168d",
+    "unchanged": true,
+    "historicalAuthOrderObligationSatisfied": false,
+    "historicalAuthPortableAccepted": false
+  },
+  "qualifications": [
+    "This new actual v17 result satisfies the two narrowly reviewed source-trial order obligations. It does not rewrite the prior mixed v16 failure or establish whole-target acceptance.",
+    "The exact execa, memoize and keychain roles were grounded from complete wrapper/helper declarations, source export interfaces and actual constructor/initializer bindings before comparing ordered prefixes. Ordinal-only aliases were not admitted.",
+    "Complete initializer fields and local definition/reference graphs match, and 29 complete direct auth provider definitions match. Remaining transitive provider and mutable ambient/global ownership limitations remain conditional.",
+    "The newly inspected LRU transitive provider has 79 PrivateIdentifier spelling deltas versus target, all already present in v16. Its prior/current field and local-reference comparison has zero deltas. These names were preserved; no private-name alpha equivalence or runtime difference is claimed.",
+    "The initial deeper-provider all-match assertion correctly exposed that LRU spelling boundary. The final review reports that explicit unresolved transitive result; it does not turn it into a passing provider comparison. Core order/body checks stayed unchanged.",
+    "Final JS is independently reproduced by exactly the 11 authenticated whole marker-import deletions. Source maps are hash-authenticated; their composition was not rerun and the known source-map displacement is not repaired.",
+    "All bodies were parsed as authenticated bounded whole statements. No application, recovered auth/keychain/execa command, helper, callback or generated module was executed. No full emitted-Program parse or build ran in this review.",
+    "Strict whole-target ASTs remain unequal. The node-count difference is not a semantic distance or an acceptance criterion."
+  ],
+  "sourceAndOutputPinsReverifiedAtFreeze": true,
+  "applicationExecuted": false,
+  "applicationBodiesExecuted": false,
+  "compilerInvoked": false,
+  "fullBundleParsed": false,
+  "wholeTargetAcceptance": false,
+  "evidence": [
+    {
+      "path": "bounded-context.mjs",
+      "sha256": "a467715bb3aa2814d5f1cf07e6e32d967dd9ca2f915b22be5f86551839961cb0"
+    },
+    {
+      "path": "check-auth-emission.mjs",
+      "sha256": "6663be0e3f9c657641c1bef697f3a0134b565eb70d5e31bf337d96288e91a87d"
+    },
+    {
+      "path": "closure-authentication.json",
+      "sha256": "c12627ab4bcc006f7c266edf8e06143bcca4f54c00a86e2ff52bc47501c98a2e"
+    },
+    {
+      "path": "common.mjs",
+      "sha256": "1a0cfe1bf253846feb6cbdb899f4bb1295bddd62e55c62c8688b1061c34a9c05"
+    },
+    {
+      "path": "emission-results.json",
+      "sha256": "efd881479c6e2245aa72e25ad001739dffc0ba18598339709b4ecc921726a4a8"
+    },
+    {
+      "path": "emission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "emission.stdout",
+      "sha256": "b09b57e9ebf477cfef73b3e64acdfc955810f987f40e79c9a527859fa38d8295"
+    },
+    {
+      "path": "indexed-evidence.json",
+      "sha256": "81d41a3acc88569144cd1ec254ab68396e50a45a99f37fef69bee8329a4cb579"
+    },
+    {
+      "path": "inherited-lru-boundary.json",
+      "sha256": "dca1f5bee04c6e130f817c072e51df29fbbcd959ff9d716c785ce95f5c0f4faa"
+    },
+    {
+      "path": "initial-emission-results.json",
+      "sha256": "cff3a4dc70424f57bdb12a4e66b255c0df78f537003ded56edc2fcd3297909c4"
+    },
+    {
+      "path": "initial-indexed-evidence.json",
+      "sha256": "e5416aa64c0d2d60d5d9676fde037600574d49097159e1adc9010a5a41209c1a"
+    },
+    {
+      "path": "receipt-results.json",
+      "sha256": "3dbd02ef06701d13371931369a53907b88f55a53c75a307446df4d82b3baa737"
+    },
+    {
+      "path": "receipts.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts.stdout",
+      "sha256": "cbbbb7d253dbfc4691d49e106848890eff8951120f1b5f9890f03d0f17d616da"
+    },
+    {
+      "path": "review-receipts.mjs",
+      "sha256": "59bd9c5d26d26cb37abcb285f509d252faeae159cce9fbb216e66e4ea4c9f1f4"
+    }
+  ]
+}

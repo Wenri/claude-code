@@ -1,0 +1,166 @@
+{
+  "kind": "independent-v18-actual-main-and-agent-hook-emission-review",
+  "verdict": "scoped-actual-repairs-verified",
+  "mainWaitVerified": true,
+  "agentHookResolvedTranscriptVerified": true,
+  "actualFsInitializerSlotVerified": true,
+  "finalJSSha256": "30db208393893554d9f88369d7896509e0f9370f03ca6da74d790c148a1485d7",
+  "candidateIndexSha256": "7d9e82ed32c047a976c4beb3d30e9535b044aea37e22562167d54bdc8ee63d68",
+  "targetJSSha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+  "targetIndexSha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747",
+  "profileSha256": "36fdd053b12bff348c64b18f20b840cf409f29f01a3ccbed64a5aa15f7c6c046",
+  "compileReportSha256": "38d912dfe0b53b2501a7b9f288246295131cd880508bb3ceecb3acd70def4517",
+  "strictAst": {
+    "nodes": 3098265,
+    "sha256": "e6ea91db08b38f433173a75f57ad9cfc0930e5c4a5a78fe3bcd49fb45c04aea3",
+    "targetEqual": false
+  },
+  "main": {
+    "targetIndex": 18168,
+    "currentIndex": 18184,
+    "completeHelperNodes": 67,
+    "currentHelper": "sK",
+    "mode": "hK",
+    "timeout": "t7",
+    "actualCalls": [
+      {
+        "range": [
+          29976,
+          30019
+        ],
+        "label": "--mcp-config servers"
+      },
+      {
+        "range": [
+          31008,
+          31037
+        ],
+        "label": "claude.ai connectors"
+      }
+    ],
+    "referenceRangesRelativeToCompleteMain": true,
+    "capturedDefinitions": [
+      {
+        "name": "hK",
+        "range": [
+          29574,
+          29619
+        ]
+      },
+      {
+        "name": "t7",
+        "range": [
+          29620,
+          29627
+        ]
+      }
+    ],
+    "wholeMainAccepted": false
+  },
+  "agent": {
+    "targetIndex": 15699,
+    "currentIndex": 15712,
+    "completeNodes": 743,
+    "currentName": "RFK",
+    "resolver": "aY",
+    "getter": "X8",
+    "resolvedLocal": "J",
+    "initializerIndex": 15713,
+    "fsInitializer": "o7",
+    "insertionSlotZeroBased": 11,
+    "originalPathFallbackPreserved": true,
+    "activeFilesystemRuntimeValueUnproven": true
+  },
+  "checks": {
+    "groups": 12,
+    "negativeControls": 13,
+    "completeStrictIndexedStatements": 36,
+    "actualSourcePostimagesVerified": 2,
+    "physicalDirectProviderOwnersVerified": 6,
+    "fullProgramParsed": false,
+    "compilerInvoked": false
+  },
+  "findings": [
+    "The actual v18 main wait helper is the target 67-node async function declaration. Its complete protected fields and local graph match under fixed nonblocking, timeout and logger interfaces grounded in the full containing statement and direct provider definitions.",
+    "Both exact labels refer to that same declared helper in awaited calls. The regular wait stays between before_connectMcp and after_connectMcp checkpoints. The claude.ai call consumes the already-created connection promise and immediately precedes after_connectMcp_claudeai. Complete batch and connection callbacks retain the recorded target fields/local graphs under qualified unchanged captures.",
+    "The actual helper has the target nonblocking early return, ordered Promise.race inputs and timer registration, followed by unconditional clearTimeout after successful await and before the timeout log. Rejection still bypasses cleanup/logging; no finally was introduced. Its mode and 5000-ms delay each resolve to one concrete lexical declaration with one initialization write.",
+    "The complete actual execAgentHook body has 743 nodes and matches the target fields/local graph. It resolves the selected transcript once through the real safeResolvePath/getFsImplementation definitions before Date.now and before the outer try. The same returned local supplies exactly the prompt interpolation and existing Read(/...) rule.",
+    "The joint actual fsOperations imports, concrete resolver/getter definitions, active implementation declaration/default initializer, hook body and hook initializer match the target in the recorded direct-interface frame. New references resolve to the included concrete definitions; exact absolute reference/definition ranges are recorded.",
+    "The actual hook initializer now calls fsOperations at zero-based slot 11, after errors and before messages. The complete hook initializer has the target 19 ordered calls. Source import placement and real neighboring provider declarations are authenticated.",
+    "Resolver UNC/special-file/caught-error paths still allow the original path to return. Its preliminary startsWith checks and the hook-level resolver/property reads precede the hook catch. Active filesystem state remains mutable. No always-canonical or always-default-filesystem claim is made."
+  ],
+  "inheritedResiduals": [
+    {
+      "kind": "broader-main-fields",
+      "targetStatement": 18168,
+      "currentStatement": 18184,
+      "accepted": false,
+      "note": "Historical macOS/private setup, initial-prompt and AppState caller groups remain outside this review; no new full-main equivalence or residual count is claimed."
+    },
+    {
+      "targetIndex": 12737,
+      "currentIndex": 12756,
+      "targetNodes": 206,
+      "currentNodes": 209,
+      "accepted": false
+    },
+    {
+      "kind": "other-hooks-provider-boundaries",
+      "accepted": false,
+      "note": "Unchanged external provider/transitive semantics and separate hooks import/schema-order acceptance belong to their own reviews."
+    }
+  ],
+  "qualifications": [
+    "This is scoped actual static-field/local-graph verification, not arbitrary JavaScript semantic equivalence or whole target acceptance.",
+    "Ambient Promise, timers, process, Date and filesystem runtime values are not certified global, built-in, immutable or equal. No dynamic enclosing-scope ownership claim is drawn from unresolved references.",
+    "Captured batching, query, logging and other unchanged transitive interfaces remain qualified. Complete direct provider bodies/source exports corroborate identities, without full transitive execution semantics.",
+    "Current source profile, two approved physical postimages and six direct provider owners were authenticated. The parent-supplied final JS/index pins are the output authority; this review did not rerun the compiler or raw-to-final transformation chain.",
+    "The prior bounded context fixture folded the timeout; the actual production helper comparison now checks its real captured lexical timeout directly. No constant-folding, field, receiver or free-name normalization was introduced.",
+    "The main stale-map removal remains a source-metadata repair with original bytes preserved by the frozen source proposal. This actual review uses original strict indexes and no source-map attribution.",
+    "No application, hook, callback, Promise, timer, filesystem resolver or emitted module was executed. All parsing was restricted to authenticated complete statements. Active source/profile and earlier frozen artifacts remain unchanged."
+  ],
+  "evidence": {
+    "source-approval-authority.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/source-approval-authority.json",
+      "bytes": 871,
+      "sha256": "f649e37e2aabd6bbeb7f993874dd1968959c4e78b85871b2aa4347eb99c42d38"
+    },
+    "actual-authority.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/actual-authority.json",
+      "bytes": 1031,
+      "sha256": "ab6b457d3806f3d5f66f4b72c78d7919b651f974ba47195d9a531f6976b16933"
+    },
+    "target-witnesses.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/target-witnesses.json",
+      "bytes": 76242,
+      "sha256": "8d8b57b33257debb907bbb508d395d95dee32e91e7c56e40f34eadc5eb799470"
+    },
+    "candidate-initial.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/candidate-initial.json",
+      "bytes": 61230,
+      "sha256": "f2c6de866d59956e8b85d8c04394112bcd7ad95aaee95492553fd4b062145cc6"
+    },
+    "provider-witnesses.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/provider-witnesses.json",
+      "bytes": 16588,
+      "sha256": "980987e2e5b19c36265009ca0dd48412fcad59e3c7dd56e635736a156c0c8430"
+    },
+    "actual-binding-leads.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/actual-binding-leads.json",
+      "bytes": 694,
+      "sha256": "e9b0e682976b4be4b3652eaefb85d6d1c90ce5f229e2eec489d0d3cec0872863"
+    },
+    "binding-receipts.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/binding-receipts.json",
+      "bytes": 6634,
+      "sha256": "8c067174e3a47778f32e41f91e8c219c4fad17e4434e2b4a1a566bb2c50a46db"
+    },
+    "comparisons.json": {
+      "path": "historical-checkpoints/v18-main-agent-emission-review/comparisons.json",
+      "bytes": 35429,
+      "sha256": "b13241c9a600662d8bc641557d30e4847fd096f7b57c9caf1163053fbb035147"
+    }
+  },
+  "applicationExecuted": false,
+  "wholeTargetAcceptance": false
+}

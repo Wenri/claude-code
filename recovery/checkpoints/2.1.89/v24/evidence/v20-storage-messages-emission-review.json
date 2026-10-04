@@ -1,0 +1,668 @@
+{
+  "kind": "independent-actual-v20-storage-messages-emission-review",
+  "verdict": "repaired-storage-and-messages-verified-with-inherited-provider-limits",
+  "actualStorageCallerChainAccepted": true,
+  "actualStorageOrdinaryPortableProviderAccepted": true,
+  "actualStorageInitializerSlotEightAccepted": true,
+  "previousToolResultStorageProviderConflictResolvedInBoundedGraph": true,
+  "boundedHooksStoragePortableFullSessionGraphAccepted": true,
+  "entireHooksTransitiveProviderGraphAccepted": false,
+  "actualMessagesQuoteHelperAndConverterAccepted": true,
+  "actualMessagesHeaderAndInitializerAccepted": true,
+  "oldShellQuoteWrapperAndOtherConsumersPreserved": true,
+  "messagesInheritedProviderGraphAccepted": false,
+  "wholeTargetAcceptance": false,
+  "originalReconstructedHelperAuthorshipClaimed": false,
+  "helperDeclarationOrderingEquivalenceEstablished": false,
+  "sourceApprovals": [
+    {
+      "path": "historical-checkpoints/tool-result-storage-provider-independent-review/review.json",
+      "sha256": "e9a3fd025a98ace34ce1041045bbb1d4f0a7b8171583fe3a8757dbc4a3a09375"
+    },
+    {
+      "path": "historical-checkpoints/messages-initializer-independent-review/review.json",
+      "sha256": "cd928263b6367d2852ca1e2b525518b27b4565f80f7c75d7c062b1b22d380489"
+    }
+  ],
+  "actualInputs": {
+    "target": {
+      "js": "v12/provenance/official-2.1.89-cli.js",
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01",
+      "index": "v13-indexes/target.json",
+      "indexSha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747"
+    },
+    "prior": {
+      "js": "v19-replay/final/cli.js",
+      "sha256": "b14656e280c5a40b068b5bdc449bba907404fc1b4febc0efea367cc1d82dd7ba",
+      "index": "v19-indexes/candidate.json",
+      "indexSha256": "9d57289d065cf6725b45650f772d46d8fb8cafcfa413354c8391e35f8d9136f6"
+    },
+    "current": {
+      "js": "v20-replay/final/cli.js",
+      "sha256": "b3cbcc3ff83bac31ec8efb0e3f50a9c333066079c3284ac188111afe4c105528",
+      "index": "v20-indexes/candidate.json",
+      "indexSha256": "9906167ca64c5e656ad221f9a112a4971e1fc16006c8abd4ebfd453864b953df"
+    }
+  },
+  "profileSha256": "70a48802a695a6c9044de914e74a58ea0548736d7d1aaf951f5c19958018b2c1",
+  "toolchainSha256": "e777e106d37fda05a5892b076eea804b563c2e80e6532aff8ab40906e59e4604",
+  "compileReportSha256": "558f5dab5ed809c35fc7643040badf63a3b13f910dd09d461e83d8e66d99bdca",
+  "physicalInputs": {
+    "files": 6084,
+    "manifestSha256": "a1111cd44d8d3a8fffeff33c046cdcae4e5dba5411d425d9447e70bd93a41d80",
+    "currentGitSourceFiles": 1922,
+    "currentDerivedSrcTree": "225c00888340f157a1408d8b34c46260587b8670",
+    "extraSourceAssets": 29,
+    "genesisVerifiedAsLineageOnly": true,
+    "sourceEdgeAndEvalRangePinsVerified": true
+  },
+  "guardsApplied": [
+    {
+      "index": 10,
+      "exactPriorProfileEdge": {
+        "originSource": "src/screens/REPL.tsx",
+        "originSourceSha256": "e4f9398c59546bf009228b3d86c492d67180e9763e27720b6b6c9b683c333382",
+        "range": [
+          23183,
+          23266
+        ],
+        "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+        "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+        "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+        "kind": "import-statement",
+        "sourceKind": "ImportDeclaration",
+        "erased": false,
+        "specifierRange": [
+          23219,
+          23265
+        ],
+        "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+        "originSourceGitBlob": "3059ff4059e976180a76308ea4e89b63ce5b1a37",
+        "originParentGitBlob": "a0f44904d120f0b4fa5a1d33c6d8600371711127"
+      },
+      "requiredNextProfileEdge": {
+        "originSource": "src/screens/REPL.tsx",
+        "originSourceSha256": "ba51a8dd51cd5f3d230bd54a24285b7e2ed967ac8439203a2728ba9caabf881d",
+        "range": [
+          23328,
+          23411
+        ],
+        "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+        "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+        "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+        "kind": "import-statement",
+        "sourceKind": "ImportDeclaration",
+        "erased": false,
+        "specifierRange": [
+          23364,
+          23410
+        ],
+        "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+        "originSourceGitBlob": "b506f0dd2399003721bf1c09e23e7b7c03ff6531",
+        "originParentGitBlob": "3059ff4059e976180a76308ea4e89b63ce5b1a37"
+      },
+      "sourceRangesIndependentlyParsed": true,
+      "profileApplicationNotYetReviewedHere": true
+    },
+    {
+      "index": 16,
+      "exactPriorProfileEdge": {
+        "originSource": "src/utils/messages.ts",
+        "originSourceSha256": "89856db202c45481c80777607ad0278daf76f6b15915a7c32295062405a621e8",
+        "range": [
+          1437,
+          1501
+        ],
+        "sliceSha256": "c9cbc3e8fb82200fad4b3314fdb1fd91825acf2514111cb259bdb390c7f1a100",
+        "specifier": "../types/connectorText.js",
+        "resolvedTarget": "src/types/connectorText.ts",
+        "kind": "import-statement",
+        "sourceKind": "ImportDeclaration",
+        "erased": false,
+        "specifierRange": [
+          1474,
+          1501
+        ],
+        "specifierLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21",
+        "originSourceGitBlob": "9939ce5703dd348b0cb8f9d6ba939f9ff354490d",
+        "originParentGitBlob": "7d8db9746aefef225afd28869f828c9284a484f5"
+      },
+      "requiredNextProfileEdge": {
+        "originSource": "src/utils/messages.ts",
+        "originSourceSha256": "3431e88fe760a689f7e9ca01ca39e3fd19cd7b854d0c8305740338bd80dfeaf2",
+        "range": [
+          1437,
+          1501
+        ],
+        "sliceSha256": "c9cbc3e8fb82200fad4b3314fdb1fd91825acf2514111cb259bdb390c7f1a100",
+        "specifier": "../types/connectorText.js",
+        "resolvedTarget": "src/types/connectorText.ts",
+        "kind": "import-statement",
+        "sourceKind": "ImportDeclaration",
+        "erased": false,
+        "specifierRange": [
+          1474,
+          1501
+        ],
+        "specifierLiteralSha256": "571d3989ef1b284539b828a309de0344b97f1fbf873bc60fcb0549889ce4fd21",
+        "originSourceGitBlob": "c656618c9a5ff3e56196560b5c9eab5906e5abed",
+        "originParentGitBlob": "9939ce5703dd348b0cb8f9d6ba939f9ff354490d"
+      },
+      "sourceRangesIndependentlyParsed": true,
+      "profileApplicationNotYetReviewedHere": true
+    }
+  ],
+  "storageFunctions": [
+    {
+      "sourceName": "persistToolResult",
+      "targetIndex": 8288,
+      "currentIndex": 8295,
+      "targetName": "LN6",
+      "currentName": "hN6",
+      "nodes": 138
+    },
+    {
+      "sourceName": "getToolResultPath",
+      "targetIndex": 8286,
+      "currentIndex": 8293,
+      "targetName": "Qa6",
+      "currentName": "Qa6",
+      "nodes": 23
+    },
+    {
+      "sourceName": "ensureToolResultsDir",
+      "targetIndex": 8287,
+      "currentIndex": 8294,
+      "targetName": "iw6",
+      "currentName": "a26",
+      "nodes": 18
+    },
+    {
+      "sourceName": "getToolResultsDir",
+      "targetIndex": 8285,
+      "currentIndex": 8292,
+      "targetName": "eq6",
+      "currentName": "_46",
+      "nodes": 9
+    },
+    {
+      "sourceName": "getSessionDir",
+      "targetIndex": 8284,
+      "currentIndex": 8291,
+      "targetName": "ojz",
+      "currentName": "_Hz",
+      "nodes": 12
+    },
+    {
+      "sourceName": "getProjectDir",
+      "targetIndex": 2166,
+      "currentIndex": 2166,
+      "targetName": "wL7",
+      "currentName": "jL7",
+      "nodes": 12
+    },
+    {
+      "sourceName": "getProjectsDir",
+      "targetIndex": 2165,
+      "currentIndex": 2165,
+      "targetName": "KO8",
+      "currentName": "YA8",
+      "nodes": 9
+    },
+    {
+      "sourceName": "sanitizePath",
+      "targetIndex": 2164,
+      "currentIndex": 2164,
+      "targetName": "KX",
+      "currentName": "qX",
+      "nodes": 53
+    }
+  ],
+  "storageInitializer": {
+    "targetIndex": 8316,
+    "currentIndex": 8323,
+    "targetCalls": [
+      "k8",
+      "s1",
+      "V8",
+      "vj",
+      "_8",
+      "L8",
+      "I7",
+      "h8",
+      "N_6",
+      "n8"
+    ],
+    "currentCalls": [
+      "V8",
+      "o1",
+      "k8",
+      "Vj",
+      "K8",
+      "E8",
+      "b7",
+      "R8",
+      "E_6",
+      "l8"
+    ],
+    "slot8PortableOwner": {
+      "targetIndex": 2178,
+      "currentIndex": 2178,
+      "targetName": "N_6",
+      "currentName": "E_6"
+    },
+    "otherNineProvidersPriorCurrentJoined": true
+  },
+  "fullSessionBoundary": {
+    "targetIndex": 15584,
+    "currentIndex": 15598,
+    "name": "YK",
+    "hooksCurrentIndex": 15802,
+    "hooksSlot": 17,
+    "distinctFromPortable": true
+  },
+  "joinedProviderBoundary": {
+    "completeStatements": 40,
+    "scope": "Storage region, ordinary portable functions, portable initializer, full-session declaration/initializer and direct hooks initializer. Remaining free interfaces conditional.",
+    "pathJoinImports": {
+      "target": {
+        "row": 2157,
+        "text": "import{join as YL7}from\"path\";",
+        "source": "path",
+        "type": "ImportSpecifier",
+        "imported": "join",
+        "local": "YL7"
+      },
+      "current": {
+        "row": 2157,
+        "text": "import{join as $L7}from\"path\";",
+        "source": "path",
+        "type": "ImportSpecifier",
+        "imported": "join",
+        "local": "$L7"
+      }
+    },
+    "ordinaryMemoizedEquivalenceClaimed": false
+  },
+  "messagesFunctions": [
+    {
+      "targetIndex": 9810,
+      "currentIndex": 12642,
+      "targetName": "EK",
+      "currentName": "EZK",
+      "nodes": 48
+    },
+    {
+      "targetIndex": 12703,
+      "currentIndex": 12724,
+      "targetName": "I17",
+      "currentName": "C17",
+      "nodes": 2253
+    },
+    {
+      "targetIndex": 12704,
+      "currentIndex": 12725,
+      "targetName": "H78",
+      "currentName": "M78",
+      "nodes": 105
+    },
+    {
+      "targetIndex": 12705,
+      "currentIndex": 12726,
+      "targetName": "J78",
+      "currentName": "X78",
+      "nodes": 23
+    },
+    {
+      "targetIndex": 12637,
+      "currentIndex": 12658,
+      "targetName": "c8",
+      "currentName": "Q8",
+      "nodes": 110
+    }
+  ],
+  "messagesHeader": {
+    "target": 12736,
+    "current": 12757,
+    "nodes": 74
+  },
+  "messagesInitializer": {
+    "targetIndex": 12737,
+    "currentIndex": 12758,
+    "nodes": 206,
+    "directCalls": 44,
+    "targetCalls": [
+      "Bv",
+      "wn6",
+      "V8",
+      "vj",
+      "lh1",
+      "iU",
+      "sw",
+      "s1",
+      "iC",
+      "P46",
+      "s$",
+      "KW",
+      "I7",
+      "tK6",
+      "n8",
+      "wr6",
+      "OI1",
+      "MV8",
+      "z$",
+      "rU",
+      "sZ",
+      "s88",
+      "QK6",
+      "UY",
+      "Qa",
+      "$M",
+      "k8",
+      "IY",
+      "Ej6",
+      "nq",
+      "kp",
+      "SH6",
+      "k1",
+      "_8",
+      "xW6",
+      "ku",
+      "I7",
+      "UV8",
+      "NA",
+      "h8",
+      "Sf",
+      "tK6",
+      "pj",
+      "lC"
+    ],
+    "currentCalls": [
+      "mT",
+      "An6",
+      "k8",
+      "Vj",
+      "dR1",
+      "oU",
+      "t2",
+      "o1",
+      "oC",
+      "f46",
+      "s$",
+      "eP",
+      "b7",
+      "q56",
+      "l8",
+      "Ar6",
+      "zI1",
+      "WV8",
+      "_$",
+      "aU",
+      "r0",
+      "t88",
+      "cK6",
+      "FY",
+      "na",
+      "AM",
+      "V8",
+      "xY",
+      "Rj6",
+      "Fq",
+      "Np",
+      "bH6",
+      "T1",
+      "K8",
+      "mW6",
+      "ku",
+      "b7",
+      "dV8",
+      "NO",
+      "R8",
+      "Lf",
+      "q56",
+      "Uj",
+      "iC"
+    ],
+    "emptyLookupsKeys": [
+      "siblingToolUseIDs",
+      "progressMessagesByToolUseID",
+      "inProgressHookCounts",
+      "resolvedHookCounts",
+      "toolResultByToolUseID",
+      "assistantUuidByToolUseID",
+      "toolUseByToolUseID",
+      "normalizedMessageCount",
+      "resolvedToolUseIDs",
+      "erroredToolUseIDs"
+    ],
+    "allSurvivingDirectProviderDefinitionsPriorCurrentEqual": true,
+    "transitiveFreeInterfacesConditional": true
+  },
+  "messagesInheritedProviderResiduals": [
+    {
+      "slot": 8,
+      "target": {
+        "index": 12757,
+        "name": "iC",
+        "nodes": 58
+      },
+      "current": {
+        "index": 12778,
+        "name": "oC",
+        "nodes": 55
+      },
+      "prior": {
+        "index": 12776,
+        "name": "iC",
+        "nodes": 55
+      },
+      "completeTargetFieldsAndLocalGraphEqual": false,
+      "completePriorFieldsAndLocalGraphEqual": true,
+      "sourceOwnerIndependentlyAssigned": false,
+      "transitiveEquivalenceAccepted": false
+    },
+    {
+      "slot": 20,
+      "target": {
+        "index": 11919,
+        "name": "sZ",
+        "nodes": 2051
+      },
+      "current": {
+        "index": 11939,
+        "name": "r0",
+        "nodes": 2051
+      },
+      "prior": {
+        "index": 11938,
+        "name": "r0",
+        "nodes": 2051
+      },
+      "completeTargetFieldsAndLocalGraphEqual": false,
+      "completePriorFieldsAndLocalGraphEqual": true,
+      "sourceOwnerIndependentlyAssigned": false,
+      "transitiveEquivalenceAccepted": false
+    },
+    {
+      "slot": 22,
+      "target": {
+        "index": 11135,
+        "name": "QK6",
+        "nodes": 1471
+      },
+      "current": {
+        "index": 11155,
+        "name": "cK6",
+        "nodes": 1472
+      },
+      "prior": {
+        "index": 11154,
+        "name": "nK6",
+        "nodes": 1472
+      },
+      "completeTargetFieldsAndLocalGraphEqual": false,
+      "completePriorFieldsAndLocalGraphEqual": true,
+      "sourceOwnerIndependentlyAssigned": false,
+      "transitiveEquivalenceAccepted": false
+    },
+    {
+      "slot": 24,
+      "target": {
+        "index": 11153,
+        "name": "Qa",
+        "nodes": 1100
+      },
+      "current": {
+        "index": 11173,
+        "name": "na",
+        "nodes": 1101
+      },
+      "prior": {
+        "index": 11172,
+        "name": "Fa",
+        "nodes": 1101
+      },
+      "completeTargetFieldsAndLocalGraphEqual": false,
+      "completePriorFieldsAndLocalGraphEqual": true,
+      "sourceOwnerIndependentlyAssigned": false,
+      "transitiveEquivalenceAccepted": false
+    }
+  ],
+  "retainedOldWrapper": {
+    "priorIndex": 7576,
+    "currentIndex": 7577,
+    "currentName": "g4",
+    "nodes": 91,
+    "unchanged": true
+  },
+  "retainedOtherShellConsumers": {
+    "completeStatements": 23,
+    "resolvedCallOccurrences": 67,
+    "unchangedSourceOwners": 15
+  },
+  "fourteenOtherTargetHelperRedirectionsPending": true,
+  "currentResolverEvents": {
+    "private-marker-external": 11,
+    "sdk-declaration-facade": 8,
+    "sdk-facade-load": 3,
+    "source-import-literal-overlay": 11
+  },
+  "receiptChain": {
+    "allPhysicalBeforeAfterIdentitiesExact": true,
+    "outputPins": [
+      {
+        "path": "raw/cli.js",
+        "kind": "entry-point",
+        "bytes": 13076392,
+        "sha256": "45698219e2dc3cb8e3ec0f9a09703ee0b3532ec46bb527d96aca95b62b63ea9f"
+      },
+      {
+        "path": "raw/cli.js.map",
+        "kind": "sourcemap",
+        "bytes": 59075790,
+        "sha256": "ce102959e6687e3e24326bb106b2d977f058d0242d61cdea0d90fe4dcda1b2e5"
+      },
+      {
+        "path": "final/cli.js",
+        "bytes": 13076175,
+        "sha256": "b3cbcc3ff83bac31ec8efb0e3f50a9c333066079c3284ac188111afe4c105528"
+      },
+      {
+        "path": "final/cli.js.map",
+        "bytes": 59047045,
+        "sha256": "8b5a2fbeaf52a0cf164c12c3fd61f2a3076db7efa05014b41007d039b6a419ec"
+      }
+    ],
+    "elevenDeletionEditsReproduceFinalBytes": true,
+    "overlaySourcesRestored": 11,
+    "guardCount": 18,
+    "evalRoles": 4,
+    "mapsStreamHashedWithoutParsing": true,
+    "individualRemovedImportSourceOwnershipProven": false
+  },
+  "strictAST": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098351,
+    "sha256": "d5a20b83025908bcb934ae3a90d4d214d19fb9a566efa823d3cac784fb799136"
+  },
+  "strictASTRecomputedByReviewer": false,
+  "checks": {
+    "groups": 11,
+    "negativeControls": 15,
+    "uniqueCompleteStatements": 293,
+    "maximumStatementBytes": 14699
+  },
+  "readContract": {
+    "inputTree": "historical-checkpoints/v20-stage/inputs",
+    "profile": "historical-checkpoints/v20-preparation/prepared/recovery/profiles/2.1.89/profile.json",
+    "toolFiles": [
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/scripts/build-baseline-native-candidate.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/diagnostic-build-inputs.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-native-wrappers.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/runtime-package-candidates.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/virtual-grpc-paths.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-optional-requires.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-package-resolution.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/inquirer-core-ownership.mjs"
+      },
+      {
+        "root": "recovery",
+        "relativePath": "lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs",
+        "resolvedPath": "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/pinned-legacy/lib/native-computer-use-resolution.mjs"
+      }
+    ],
+    "adapterScripts": [
+      "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-compiler.mjs",
+      "historical-checkpoints/v20-preparation/prepared/recovery/lib/reconstruction/versions/2.1.89/full-stage-support.mjs"
+    ],
+    "declaredReferenceBundleInput": null,
+    "declaredReferenceMapInput": null,
+    "staticInspection": "No reference bundle/map read path found in reviewed adapter code; profile metadata includes historical hashes only.",
+    "observedFilesystemReadFootprint": "unestablished; parent PTRACE_TRACEME probe denied by kernel",
+    "osLevelReadIsolationEnforced": false
+  },
+  "applicationExecuted": false,
+  "fullProgramParsed": false,
+  "fullBuildRunByReviewer": false,
+  "qualifications": [
+    "This closes only the explicit current storage/messages obligations, not whole-target equivalence.",
+    "The four inherited messages provider bodies remain unequal while their current definitions match v19.",
+    "The new quote helper is target-directed reconstruction; old and new quote providers are not asserted interchangeable.",
+    "The shared helper is now retained at a different declaration position; independent ordering proof is not established.",
+    "Component Messages wrapper topology and unrelated source-map/transitive limits remain open.",
+    "Prior v18 mixed provider failure is preserved as history and was not overwritten."
+  ]
+}
