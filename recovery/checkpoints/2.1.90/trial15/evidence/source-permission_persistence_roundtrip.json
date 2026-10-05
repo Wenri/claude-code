@@ -1,0 +1,280 @@
+{
+  "kind": "qualified-independent-permission-roundtrip-source-review",
+  "sourceTrialApproved": true,
+  "actualEmissionVerified": false,
+  "sourceManifest": {
+    "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/source-repair.json",
+    "sha256": "16a7683e884d96717df4bacbbffedad1dfc7d05893a0be486588a3f37eec920a"
+  },
+  "reviewedSourceRows": [
+    {
+      "path": "src/utils/sessionStorage.ts",
+      "oldBytes": 180329,
+      "oldSha256": "6ea425f4201fb412c0bb11eb34c90dccfa1984e3f294400f0304de1cc9b7a4b3",
+      "oldGitBlob": "148a671df23bc96db9bdb7576e60d39632262dec",
+      "postimageBytes": 181320,
+      "postimageSha256": "6a82bbfcfe25886afa37df71f80a122a743241de2a46cd8e6b736389e3fae55c",
+      "postimageGitBlob": "cec0accb983e72b897c1c59e1c5af96b72d32946",
+      "postimagePath": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/utils/sessionStorage.ts"
+    },
+    {
+      "path": "src/types/logs.ts",
+      "oldBytes": 11586,
+      "oldSha256": "ffcbc9964188652008760c1d5202f194dc5ce115c8a6548ba65f95218f5281a0",
+      "oldGitBlob": "0a0a4ae3ac9175f37888f50f87e2e734b7e28ad5",
+      "postimageBytes": 11620,
+      "postimageSha256": "9cb491426e8f7c7fa01a77542e9d74110a08dedc4943819520ea785c78d1e27b",
+      "postimageGitBlob": "517a3d98fa17f2d128dfd4af40da4548d3825740",
+      "postimagePath": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/types/logs.ts"
+    },
+    {
+      "path": "src/screens/REPL.tsx",
+      "oldBytes": 899830,
+      "oldSha256": "66de2dbdf744c3e44397d0c1002cfdb2b7ee61e9998873044bee56d758c1b5d2",
+      "oldGitBlob": "62198089c7bd856d3d6b201a79d8c5c63f49259a",
+      "postimageBytes": 899959,
+      "postimageSha256": "d5d7d33aff9c9371424e6b064fd2c439fbdfe3e6b22cac35f4280b611495c293",
+      "postimageGitBlob": "506e37d1d4a67a1ceca4a10d302e2a42c10f738c",
+      "postimagePath": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/screens/REPL.tsx"
+    }
+  ],
+  "baseProfile": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json",
+    "sha256": "20bd4b1c3904cfd2426216800231e648c9b7f1ae9ec3798c479a35f0d7193a5e"
+  },
+  "baseInputs": "historical-checkpoints/recovery-2.1.90-stage-v17-storage-stream-reader/inputs",
+  "scope": {
+    "replacementOwners": 3,
+    "sourceCountDelta": 0,
+    "sourceGitCountDelta": 0,
+    "byteDelta": 1154,
+    "exactRecipes": 15,
+    "targetDirected": true
+  },
+  "authorAuthority": {
+    "source-repair.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/source-repair.json",
+      "sha256": "16a7683e884d96717df4bacbbffedad1dfc7d05893a0be486588a3f37eec920a"
+    },
+    "guard-transition.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/guard-transition.json",
+      "sha256": "bef60828b903d6cd8f972ec1ae1f947785a790a12b8ab17465a93583aa10e739"
+    },
+    "artifact-manifest.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/artifact-manifest.json",
+      "sha256": "ff0e5dd818e7cbeee9a45ec91a6893b6b97f6c746bc8abbb6500f18ed293d8c0"
+    },
+    "code-provenance.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/code-provenance.json",
+      "sha256": "9b306d1b35dd1089c65bfc623bd357d51f6c2045b8c6c37a660a3e636eebe318"
+    },
+    "freeze.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/freeze.json",
+      "sha256": "0b5c216e992241306eb6beece9b211864ee71497c66b118a3bcee182b16f689f"
+    }
+  },
+  "authentication": {
+    "evidence": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/authentication.json",
+      "sha256": "588494da7891954622580be45eabda1048b9159241a0c9bbcfa7ecbe8e8e81e6"
+    },
+    "artifactMembers": 93,
+    "directExecutableRecords": 36,
+    "reusedParserRecords": 15,
+    "completedBeforeImports": true,
+    "finalTopLevelPinsAndSourceBytesUnchanged": true
+  },
+  "freshReplays": {
+    "evidence": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/replay-result.json",
+      "sha256": "0313adcbadda30d3b2aa1b45355b731b15433661dd11fe47dd1c0008e1af9fca"
+    },
+    "compilerOutputsExact": 16,
+    "resolverLoadReceiptsExact": 2,
+    "stdoutReportsExact": 4,
+    "originalIndexedWitnesses": 39,
+    "authorNegativeControlsReproduced": 19,
+    "independentNegativeMatrixAdded": false,
+    "wholeSourceByteInverse": true,
+    "wholeSymbolicAndCompactFixtureInverses": true,
+    "typeErasureOnly": true,
+    "wholeProjectTypecheckPerformed": false
+  },
+  "independentEvidence": {
+    "groundwork.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/groundwork.json",
+      "sha256": "cd6e7b5fc6f4c71205a23167fe7c8f979cbe8d12fe3924a5eca2ca0b1bf1e659"
+    },
+    "groundwork-witnesses.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/groundwork-witnesses.json",
+      "sha256": "fc2b4b1fd6fc6c4ae6dad075555859314267ed4d8ff2ae54d44a9bc3c90ddd48"
+    },
+    "effect-binding.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/effect-binding.json",
+      "sha256": "a6d8c75867df718ad2bebe1392939108dfce428c604ba5ccf1c195c03c67bf91"
+    },
+    "independent-checks.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/independent-checks.json",
+      "sha256": "677f7a330248bc49803b47dffcabca08d7b143c178ec994ac21561a1d0a1f541"
+    }
+  },
+  "acceptedScopedEvidence": {
+    "physicalIngressCompleteProjectClassNodes": 2388,
+    "physicalIngressSelectedStorageGraphNodes": 4501,
+    "completeProjectGetterWriterBindingGraph": true,
+    "completeSetterRestoreClearAndTwoConsumers": true,
+    "cacheOnlySetterHasNoImmediateIo": true,
+    "twoWriteBranchesPreserveWriterReceiverArgumentsAndNoAddedAwait": true,
+    "permissionRecordKeys": [
+      "type",
+      "permissionMode",
+      "sessionId"
+    ],
+    "readerMapRemainsUUIDToString": true,
+    "existingPermissionModeEntryAndEntryUnionExact": true,
+    "optionalLogOptionFieldAndTwoAssertionsEraseExactly": true,
+    "replCallbackDependencyShareOriginalModeBinding": true,
+    "namedReactUseEffectImportDistinctFromTitleNamespace": true,
+    "concreteEffectNeighborOrder": [
+      "usePromptsFromClaudeInChrome",
+      "permission-mode useEffect",
+      "useSwarmInitialization"
+    ],
+    "existingClearBeforeRestoreAndRewindCallbackPreserved": true,
+    "readerTitleResumeCacheClearAndAllowanceRepairsPreserved": true
+  },
+  "guard10Transition": {
+    "sourceEdgeIndex": 10,
+    "authority": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/guard-transition.json",
+      "sha256": "bef60828b903d6cd8f972ec1ae1f947785a790a12b8ab17465a93583aa10e739"
+    },
+    "before": {
+      "originSource": "src/screens/REPL.tsx",
+      "originSourceSha256": "66de2dbdf744c3e44397d0c1002cfdb2b7ee61e9998873044bee56d758c1b5d2",
+      "range": [
+        23358,
+        23441
+      ],
+      "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+      "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        23394,
+        23440
+      ],
+      "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+      "originSourceGitBlob": "62198089c7bd856d3d6b201a79d8c5c63f49259a",
+      "originParentGitBlob": "a34d5ca68cb70e96ac94c81db369904ba753f66c"
+    },
+    "after": {
+      "originSource": "src/screens/REPL.tsx",
+      "originSourceSha256": "d5d7d33aff9c9371424e6b064fd2c439fbdfe3e6b22cac35f4280b611495c293",
+      "range": [
+        23378,
+        23461
+      ],
+      "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+      "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+      "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+      "kind": "import-statement",
+      "sourceKind": "ImportDeclaration",
+      "erased": false,
+      "specifierRange": [
+        23414,
+        23460
+      ],
+      "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+      "originSourceGitBlob": "506e37d1d4a67a1ceca4a10d302e2a42c10f738c",
+      "originParentGitBlob": "62198089c7bd856d3d6b201a79d8c5c63f49259a"
+    },
+    "preservedHistory": {
+      "completePriorRecord": {
+        "originSource": "src/screens/REPL.tsx",
+        "originSourceSha256": "66de2dbdf744c3e44397d0c1002cfdb2b7ee61e9998873044bee56d758c1b5d2",
+        "range": [
+          23358,
+          23441
+        ],
+        "sliceSha256": "f322300df2d816e9d32cb8ece08c17ea0080556e851a0bc4d06b931038f3e06c",
+        "specifier": "../tools/TungstenTool/TungstenLiveMonitor.js",
+        "resolvedTarget": "src/tools/TungstenTool/TungstenLiveMonitor.ts",
+        "kind": "import-statement",
+        "sourceKind": "ImportDeclaration",
+        "erased": false,
+        "specifierRange": [
+          23394,
+          23440
+        ],
+        "specifierLiteralSha256": "a370284c57b395a2b9735f134eb1ff9c79bbadaaf27f64f0d6698775a01bb496",
+        "originSourceGitBlob": "62198089c7bd856d3d6b201a79d8c5c63f49259a",
+        "originParentGitBlob": "a34d5ca68cb70e96ac94c81db369904ba753f66c"
+      }
+    },
+    "independentlyParsedBeforeAndAfter": true,
+    "protectedStatementAndLiteralByteExact": true,
+    "originGenesisFieldAbsentBeforeAndAfter": true,
+    "refreshRequiredBeforeAnyFutureBuild": true,
+    "currentProfileModified": false
+  },
+  "inlineMap": {
+    "bytes": 637817,
+    "sha256": "c76e86cc9664c15514207b55a8dcb441dbf1c1d343fb8e85db5aee81eca65d2f",
+    "unchanged": true,
+    "coordinatesValidated": false
+  },
+  "preservedFailures": {
+    "rawReactEffectReceiverComparisonAccepted": false,
+    "rawReactEffectReceiverReason": "The isolated named React import compiles to a direct callee while production target uses z1.useEffect. Callback/dependency and original source import binding pass separately; neither receiver is normalized.",
+    "originalExternalOnlyProjectGraphAccepted": false,
+    "originalExternalOnlyProjectReason": "Unchanged sessionIngress namespace access differs from the direct production binding. Separately compiling its physical source closes the selected Project graph, without alias rewriting.",
+    "symbolicProductionBodiesAccepted": false,
+    "sessionIngressInitializerAccepted": false,
+    "sessionIngressInitializerReason": "Inherited target/current 47/44 initializer mismatch remains outside this source repair.",
+    "completeTransitiveProviderGraphAccepted": false,
+    "globalInitializationOrderAccepted": false,
+    "wholePermissionRoundTripAccepted": false,
+    "wholeStorageOwnerAccepted": false,
+    "wholeReplOwnerAccepted": false,
+    "wholeVersion90Acceptance": false,
+    "normalizationGateEnabled": false
+  },
+  "historicalActualReaderReview": {
+    "path": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/review.json",
+    "sha256": "e1692a0f69537f9ab40bbfad31eaf5ca33dfcd4de47639c641e234141c13ebff",
+    "closureSha256": "32d48ea4d80fe5145aeb3e50d153c9f78e9272dea9d5370d48d96579b90d69dc",
+    "actualScopedEmissionVerified": true,
+    "actualEmissionVerified": false,
+    "unchangedHistoryReused": true
+  },
+  "futureActualObligations": [
+    "Authenticate the final profile, three physical source rows and parsed guard 10 transition before a future compiler trial.",
+    "Verify complete production Project2388 and setter11, restore153, clear82, loadFullLog431, loadAllLogsFromSessionFile394, with actual getter, writer, map, record-property and enqueue bindings/order.",
+    "Verify the complete production 16-node effect, real React useEffect namespace, actual savePermissionMode export, one captured mode binding at callback and dependency, and concrete Chrome/effect/swarm ordering in the original REPL scope.",
+    "Preserve approved reader400/54/997, title/resume/cache/clear/allowance bodies and clear-before-restore behavior, with actual source exports and initializer/provider order.",
+    "Keep sessionIngress initializer, deeper providers, unrelated rating/fullscreen/REPL prefix residuals and whole-target inequality explicit; do not promote source fixture success to actual permission round-trip acceptance."
+  ],
+  "limits": [
+    "Source-derived fixtures were compiled and parsed only; recovered callbacks and native/application bodies were never executed.",
+    "Existing truthy tests, two property reads in restore, exact no-fallback consumer expression and writer error/order behavior are target-directed rather than generic old/new equivalence.",
+    "Host/native fs effects and transitive external providers remain conditional.",
+    "The existing inline map is byte-exact historical metadata; generated coordinates are unvalidated after source insertion."
+  ],
+  "applicationExecuted": false,
+  "fullBundleParsed": false,
+  "liveStageOrRepositoryModified": false,
+  "wholePermissionRoundTripAccepted": false,
+  "wholeStorageOwnerAccepted": false,
+  "wholeReplOwnerAccepted": false,
+  "rawReactEffectReceiverComparisonAccepted": false,
+  "symbolicProductionBodiesAccepted": false,
+  "originalExternalOnlyProjectGraphAccepted": false,
+  "sessionIngressInitializerAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalInitializationOrderAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false
+}

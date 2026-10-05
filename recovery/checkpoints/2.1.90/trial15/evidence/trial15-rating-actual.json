@@ -1,0 +1,610 @@
+{
+  "kind": "independent-actual-message-rating-clear-emission-review",
+  "reportId": "message_rating_clear_toggle",
+  "verdict": "approved scoped actual rating-clear provider and binding behavior; whole module, initializer and REPL topology remain unaccepted",
+  "actualScopedEmissionVerified": true,
+  "actualEmissionVerified": true,
+  "sourceTrialScopedEmissionObligationSatisfied": true,
+  "complete296NodeProviderVerified": true,
+  "sameRefSnapshotAndSeparateUpdaterPreviousVerified": true,
+  "deleteSetReturnMapAndAnalyticsNotificationOrderVerified": true,
+  "realReactContextCacheAndDirectProvidersVerified": true,
+  "productionInitializerAccepted": false,
+  "wholeTargetModuleAccepted": false,
+  "replWrappersOrPrefixAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalInitializationOrderAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "sourceManifest": {
+    "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/source-repair.json",
+    "bytes": 1567,
+    "sha256": "059cd42836c7a280dbca60f13dcd68c3dbbdf4884961765abab2e81c37605a69"
+  },
+  "sourceApproval": {
+    "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/review.json",
+    "bytes": 7841,
+    "sha256": "0c8b0e07532692e72af9a84cbd177ed2be7aa6df44d9cdf0d3475ef380acde6d"
+  },
+  "sourceApprovalClosure": {
+    "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/freeze.json",
+    "bytes": 3335,
+    "sha256": "3c0420d5d51be651ba0b920f95268b8251ac7b4f00f556da11bc9169fb6571da"
+  },
+  "productionAuthority": {
+    "kind": "final-external-authority-for-independent-rating-actual-review",
+    "productionPinsFinal": true,
+    "target": {
+      "js": "historical-checkpoints/recovery-2.1.90-start/package/cli.js",
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+      "index": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json",
+      "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9"
+    },
+    "previous": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v14/final/cli.js",
+      "sha256": "6957d163e0717d76a4c1c5e45ae75cb5a3e0eb899306a0223909d752be787a79",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v14-analysis/candidate-index.json",
+      "indexSha256": "c9bea328a75453309c9432a8a30a40947f4d6d13b47a444c8b603f1c03238d23"
+    },
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v15/final/cli.js",
+      "sha256": "5e2713cef9da833dd9a92155f1b89683577b90e982a32cc53a8c92268649ed90",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v15-analysis/candidate-index.json",
+      "indexSha256": "05e041e27457c2310693f469e5c4d6bd0303b8599c3d532b29981e55750c5814"
+    },
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/profile.json",
+      "sha256": "6c38df2f74bb987367e7a38725773cf8afcf23251884ebfe1dc60611110d0ab3"
+    },
+    "readinessReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/review.json",
+      "sha256": "b197c15a5b10bc60909275489dcd98b8e5ace4801e297cbc5328e615ac4d3dc4"
+    },
+    "readinessClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/freeze.json",
+      "sha256": "de3d307c1fe3f9a7bf36192f1316461e05604f31a9cba4225aa79e6e2caa845d"
+    },
+    "compileReport": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v15/compile-report.json",
+      "sha256": "49d01f821953424019edd27bc3d4d64ee8ce5c5d59ec7ddb9096c6496d2afc7e"
+    },
+    "strictTargetEqual": false,
+    "candidateStrictDigest": "e515117b9569651a7ae6350a0d9662c9f3292041321be73f61225a1e8ea25e09"
+  },
+  "currentBinding": {
+    "kind": "final-current-rating-authority-and-output-binding",
+    "profileSha256": "6c38df2f74bb987367e7a38725773cf8afcf23251884ebfe1dc60611110d0ab3",
+    "sourceManifestSha256": "7f11c207fc446269b90193049e68a9d3aa8fa3e8f52ebd8a26a4987942dc38c4",
+    "exactCurrentOwner": {
+      "path": "src/components/messageRating.tsx",
+      "bytes": 4501,
+      "sha256": "aadb0a33c8db7b3345e3927569e93ff93d8087d53dbc7ae652e268e018da76a3"
+    },
+    "compileReportBoundToProfileAndSources": true,
+    "generatedApplicationExecuted": false,
+    "wholeStrictTargetEquality": false,
+    "checkerReplayExact": true,
+    "originalIndexStatements": 53
+  },
+  "actualProvider": {
+    "index": 8907,
+    "nodes": 296,
+    "sliceSha256": "1ee5ef9526c2cd63d3705e56e22adb086fb164f026228db80866014d6cbe2b35"
+  },
+  "completeProviderComparison": {
+    "pass": true,
+    "result": {
+      "nodes": 297,
+      "forward": {
+        "U$": "f$",
+        "wu4": "Xu4",
+        "jK": "jK",
+        "clearTimeout": "clearTimeout",
+        "setTimeout": "setTimeout",
+        "Map": "Map",
+        "d": "d",
+        "T26": "Mu4",
+        "ju4": "Pu4",
+        "Ju4": "Du4",
+        "Hu4": "Wu4",
+        "Xu4": "Zu4",
+        "Mu4": "fu4"
+      },
+      "reverse": {
+        "f$": "U$",
+        "Xu4": "wu4",
+        "jK": "jK",
+        "clearTimeout": "clearTimeout",
+        "setTimeout": "setTimeout",
+        "Map": "Map",
+        "d": "d",
+        "Mu4": "T26",
+        "Pu4": "ju4",
+        "Du4": "Ju4",
+        "Wu4": "Hu4",
+        "Zu4": "Xu4",
+        "fu4": "Mu4"
+      },
+      "scopeCount": 9
+    }
+  },
+  "completeSixFunctionGraph": {
+    "pass": true,
+    "result": {
+      "nodes": 400,
+      "forward": {
+        "Y6": "$6",
+        "ju4": "Pu4",
+        "U$": "f$",
+        "Hu4": "Wu4",
+        "Ju4": "Du4",
+        "Mu4": "fu4",
+        "Xu4": "Zu4",
+        "wu4": "Xu4",
+        "jK": "jK",
+        "clearTimeout": "clearTimeout",
+        "setTimeout": "setTimeout",
+        "Map": "Map",
+        "d": "d",
+        "T26": "Mu4"
+      },
+      "reverse": {
+        "$6": "Y6",
+        "Pu4": "ju4",
+        "f$": "U$",
+        "Wu4": "Hu4",
+        "Du4": "Ju4",
+        "fu4": "Mu4",
+        "Zu4": "Xu4",
+        "Xu4": "wu4",
+        "jK": "jK",
+        "clearTimeout": "clearTimeout",
+        "setTimeout": "setTimeout",
+        "Map": "Map",
+        "d": "d",
+        "Mu4": "T26"
+      },
+      "scopeCount": 14
+    }
+  },
+  "completeProviderHeaderGraph": {
+    "pass": true,
+    "result": {
+      "nodes": 3805,
+      "forward": {
+        "clearTimeout": "clearTimeout",
+        "setTimeout": "setTimeout",
+        "Map": "Map",
+        "Symbol": "Symbol",
+        "Object": "Object",
+        "Error": "Error",
+        "Array": "Array",
+        "String": "String",
+        "process": "process",
+        "window": "window",
+        "console": "console",
+        "reportError": "reportError",
+        "WeakMap": "WeakMap",
+        "e35": "n35",
+        "t35": "l35",
+        "Ox6": "eb6",
+        "h27": "Nw7",
+        "L27": "Vw7",
+        "E27": "kw7",
+        "q95": "i35",
+        "Mz": "Jz",
+        "e7": "e7",
+        "CwY": "I2Y",
+        "Yf": "sD",
+        "K47": "nq7",
+        "OS6": "th6",
+        "Set": "Set",
+        "ox6": "Qx6",
+        "He": "He"
+      },
+      "reverse": {
+        "clearTimeout": "clearTimeout",
+        "setTimeout": "setTimeout",
+        "Map": "Map",
+        "Symbol": "Symbol",
+        "Object": "Object",
+        "Error": "Error",
+        "Array": "Array",
+        "String": "String",
+        "process": "process",
+        "window": "window",
+        "console": "console",
+        "reportError": "reportError",
+        "WeakMap": "WeakMap",
+        "n35": "e35",
+        "l35": "t35",
+        "eb6": "Ox6",
+        "Nw7": "h27",
+        "Vw7": "L27",
+        "kw7": "E27",
+        "i35": "q95",
+        "Jz": "Mz",
+        "e7": "e7",
+        "I2Y": "CwY",
+        "sD": "Yf",
+        "nq7": "K47",
+        "th6": "OS6",
+        "Set": "Set",
+        "Qx6": "ox6",
+        "He": "He"
+      },
+      "scopeCount": 133
+    }
+  },
+  "semanticBindingChecks": {
+    "preSetterRefGetCount": 1,
+    "clearedReadCount": 3,
+    "clearedWriteCount": 1,
+    "updaterPreviousReads": 1,
+    "separateRefSnapshotAndUpdaterPrevious": true,
+    "createdMapReturned": true,
+    "analyticsAfterSetterOutsideUpdater": true,
+    "notificationOnlyWhenNotCleared": true,
+    "updaterSchedulingNotAssumed": true
+  },
+  "completeDirectProviders": [
+    {
+      "name": "React factory",
+      "targetIndex": 5069,
+      "currentIndex": 5075,
+      "comparison": {
+        "pass": true,
+        "result": {
+          "nodes": 2311,
+          "forward": {
+            "Symbol": "Symbol",
+            "Object": "Object",
+            "Error": "Error",
+            "Array": "Array",
+            "String": "String",
+            "process": "process",
+            "window": "window",
+            "console": "console",
+            "reportError": "reportError",
+            "p": "p"
+          },
+          "reverse": {
+            "Symbol": "Symbol",
+            "Object": "Object",
+            "Error": "Error",
+            "Array": "Array",
+            "String": "String",
+            "process": "process",
+            "window": "window",
+            "console": "console",
+            "reportError": "reportError",
+            "p": "p"
+          },
+          "scopeCount": 84
+        }
+      }
+    },
+    {
+      "name": "React interop",
+      "targetIndex": 4,
+      "currentIndex": 4,
+      "comparison": {
+        "pass": true,
+        "result": {
+          "nodes": 257,
+          "forward": {
+            "WeakMap": "WeakMap",
+            "e35": "n35",
+            "t35": "l35",
+            "Ox6": "eb6",
+            "h27": "Nw7",
+            "L27": "Vw7",
+            "E27": "kw7",
+            "q95": "i35"
+          },
+          "reverse": {
+            "WeakMap": "WeakMap",
+            "n35": "e35",
+            "l35": "t35",
+            "eb6": "Ox6",
+            "Nw7": "h27",
+            "Vw7": "L27",
+            "kw7": "E27",
+            "i35": "q95"
+          },
+          "scopeCount": 9
+        }
+      }
+    },
+    {
+      "name": "compiler cache",
+      "targetIndex": 5070,
+      "currentIndex": 5076,
+      "comparison": {
+        "pass": true,
+        "result": {
+          "nodes": 19,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 3
+        }
+      }
+    },
+    {
+      "name": "notifications",
+      "targetIndex": 12901,
+      "currentIndex": 12903,
+      "comparison": {
+        "pass": true,
+        "result": {
+          "nodes": 771,
+          "forward": {
+            "Mz": "Jz",
+            "e7": "e7",
+            "CwY": "I2Y",
+            "Yf": "sD",
+            "K47": "nq7",
+            "setTimeout": "setTimeout",
+            "OS6": "th6",
+            "clearTimeout": "clearTimeout",
+            "Set": "Set"
+          },
+          "reverse": {
+            "Jz": "Mz",
+            "e7": "e7",
+            "I2Y": "CwY",
+            "sD": "Yf",
+            "nq7": "K47",
+            "setTimeout": "setTimeout",
+            "th6": "OS6",
+            "clearTimeout": "clearTimeout",
+            "Set": "Set"
+          },
+          "scopeCount": 29
+        }
+      }
+    },
+    {
+      "name": "analytics",
+      "targetIndex": 577,
+      "currentIndex": 577,
+      "comparison": {
+        "pass": true,
+        "result": {
+          "nodes": 35,
+          "forward": {
+            "ox6": "Qx6",
+            "He": "He"
+          },
+          "reverse": {
+            "Qx6": "ox6",
+            "He": "He"
+          },
+          "scopeCount": 4
+        }
+      }
+    }
+  ],
+  "realReactContextAndInteropEvidence": {
+    "allSixNestedProvidersUseActualReactDefaultReceiver": true,
+    "allHooksUseSameActualReactNamespace": true,
+    "emptyRatingsMapAndSixContextsGroundedByActualAssignments": true,
+    "assignmentDiagnostic": {
+      "pass": true,
+      "result": {
+        "nodes": 62,
+        "forward": {
+          "U$": "f$",
+          "Z6": "f6",
+          "w6": "O6",
+          "T26": "Mu4",
+          "wu4": "Xu4",
+          "Map": "Map",
+          "ju4": "Pu4",
+          "Hu4": "Wu4",
+          "Ju4": "Du4",
+          "Mu4": "fu4",
+          "Xu4": "Zu4"
+        },
+        "reverse": {
+          "f$": "U$",
+          "f6": "Z6",
+          "O6": "w6",
+          "Mu4": "T26",
+          "Xu4": "wu4",
+          "Map": "Map",
+          "Pu4": "ju4",
+          "Wu4": "Hu4",
+          "Du4": "Ju4",
+          "fu4": "Mu4",
+          "Zu4": "Xu4"
+        },
+        "scopeCount": 2
+      }
+    },
+    "rawInitializer": {
+      "pass": false,
+      "error": "node count\n\n76 !== 72\n"
+    },
+    "priorInitializerPreserved": {
+      "pass": true,
+      "result": {
+        "nodes": 72,
+        "forward": {
+          "t6": "t6",
+          "Z$": "Z$",
+          "V8": "V8",
+          "f$": "f$",
+          "f6": "f6",
+          "O6": "O6",
+          "Ju4": "Mu4",
+          "Mu4": "Xu4",
+          "Map": "Map",
+          "Xu4": "Pu4",
+          "Pu4": "Wu4",
+          "Wu4": "Du4",
+          "Du4": "fu4",
+          "fu4": "Zu4",
+          "y": "y"
+        },
+        "reverse": {
+          "t6": "t6",
+          "Z$": "Z$",
+          "V8": "V8",
+          "f$": "f$",
+          "f6": "f6",
+          "O6": "O6",
+          "Mu4": "Ju4",
+          "Xu4": "Mu4",
+          "Map": "Map",
+          "Pu4": "Xu4",
+          "Wu4": "Pu4",
+          "Du4": "Wu4",
+          "fu4": "Du4",
+          "Zu4": "fu4",
+          "y": "y"
+        },
+        "scopeCount": 3
+      }
+    },
+    "threeConcretePrefixProviders": [
+      {
+        "targetIndex": 5071,
+        "currentIndex": 5077,
+        "comparison": {
+          "pass": true,
+          "result": {
+            "nodes": 22,
+            "forward": {
+              "Isq": "Qsq",
+              "Z6": "f6",
+              "w6": "O6",
+              "ZW_": "yW_",
+              "E": "y"
+            },
+            "reverse": {
+              "Qsq": "Isq",
+              "f6": "Z6",
+              "O6": "w6",
+              "yW_": "ZW_",
+              "y": "E"
+            },
+            "scopeCount": 3
+          }
+        }
+      },
+      {
+        "targetIndex": 12904,
+        "currentIndex": 12906,
+        "comparison": {
+          "pass": true,
+          "result": {
+            "nodes": 35,
+            "forward": {
+              "b7": "x7",
+              "OS6": "th6",
+              "Z6": "f6",
+              "w6": "O6",
+              "CvK": "bTK",
+              "E": "y"
+            },
+            "reverse": {
+              "x7": "b7",
+              "th6": "OS6",
+              "f6": "Z6",
+              "O6": "w6",
+              "bTK": "CvK",
+              "y": "E"
+            },
+            "scopeCount": 3
+          }
+        }
+      },
+      {
+        "targetIndex": 580,
+        "currentIndex": 580,
+        "comparison": {
+          "pass": true,
+          "result": {
+            "nodes": 12,
+            "forward": {
+              "ox6": "Qx6",
+              "E": "y"
+            },
+            "reverse": {
+              "Qx6": "ox6",
+              "y": "E"
+            },
+            "scopeCount": 3
+          }
+        }
+      }
+    ]
+  },
+  "extraCurrentUseRateMessage": {
+    "targetAbsent": true,
+    "current": {
+      "index": 8906,
+      "nodes": 9,
+      "sliceSha256": "edf7b1104496930320818a693425e05956f93ffb0aa5087e34bc8ee5a0f34104"
+    },
+    "priorPreservation": {
+      "pass": true,
+      "result": {
+        "nodes": 10,
+        "forward": {
+          "Ju4": "Mu4",
+          "f$": "f$"
+        },
+        "reverse": {
+          "Mu4": "Ju4",
+          "f$": "f$"
+        },
+        "scopeCount": 3
+      }
+    }
+  },
+  "sourceHistoricalLimits": [
+    "Target provider equality is conditional on the grounded unchanged external providers and normal compiler-interface captures. No recovered function was invoked.",
+    "Target/current module initializer remains raw 75/71 unequal; its exact eight assignment roles were compared only as a named diagnostic view. No statement regrouping gate was changed.",
+    "Current retains extra useRateMessage; complete target module retention is not claimed.",
+    "REPL wrappers, direct initializer placement, whole REPL and fullscreen are excluded.",
+    "Both symbolic-to-production provider comparisons fail by seven nodes. The compact physical React comparisons pass without receiver normalization.",
+    "The raw compact whole-provider transplant inverse fails because outer minified captures differ. The successful full-owner inverse reverses only the four selected AST sites in the after output, preserving actual bindings.",
+    "Two unsorted compiler callback descriptors changed receipt order on first replay. All four JavaScript outputs were already exact. Final receipts sort the same descriptor multiset with multiplicity; callback order and production initializer order are not inferred.",
+    "No application, callbacks, Map operations, timer, notification, analytics or initializer bodies were executed."
+  ],
+  "verification": {
+    "originalIndexStatements": 53,
+    "focusedAppliedAstNegatives": [
+      "clone captured ref instead of updater previous",
+      "mutate previous state",
+      "set instead of delete",
+      "delete sentiment",
+      "invert cleared",
+      "return set result",
+      "analytics inside updater",
+      "analytics before setter",
+      "analytics property order",
+      "notification always",
+      "notification on clear",
+      "cleared not a ref snapshot",
+      "wrong callback dependency",
+      "wrong analytics capture"
+    ],
+    "stdoutReplayExact": true,
+    "fullApplicationParsed": false,
+    "applicationExecuted": false
+  },
+  "limits": [
+    "Success covers the actual selected provider/callback and grounded direct binding graph. It does not promote the raw 75/71 initializer grouping or extra useRateMessage retention.",
+    "The ref snapshot used to decide cleared and the updater previous Map are distinct captured values; setter invocation precedes analytics, but updater execution timing or repetition is not assumed.",
+    "Ambient Map, timers, React dispatcher and transitive notification/analytics effects remain qualified. No recovered code or callbacks are invoked.",
+    "Missing REPL wrappers/direct-prefix and broader Messages/exportRenderer/fullscreen topology are outside this repair. Whole-version acceptance remains false under the current acceptance policy."
+  ],
+  "applicationExecuted": false,
+  "recoveredCallbacksExecuted": false,
+  "fullBuildExecutedByReviewer": false,
+  "fullBundleParsedByReviewer": false,
+  "sourceStageProfileRuntimeOrAuthorModified": false
+}

@@ -1,0 +1,83 @@
+{
+  "kind": "incomplete-reviewed-source-checkpoint",
+  "version": "2.1.90",
+  "trial": 15,
+  "sourceRevision": 1,
+  "baseMainCommit": "1ce0fd459224c00f24ee49cd14b4cffd07aa9810",
+  "cumulativeRootSourceVersion": "2.1.126",
+  "cumulativeRootSrcTree": "03356a5a73253994e1842638230aa9043e2d6efa",
+  "rootSourceMustRemainUnchanged": true,
+  "sourceFiles": 6109,
+  "sourceBytes": 51044467,
+  "sourceManifestSha256": "7f11c207fc446269b90193049e68a9d3aa8fa3e8f52ebd8a26a4987942dc38c4",
+  "derivedSrcTree": "3bdf74a6aacabb01ed05f562f3e27ffe4bd7bc9d",
+  "sourceAndPreparationReviewed": true,
+  "privateSerialBuildAndStrictParsePassed": true,
+  "versionAccepted": false,
+  "strictAstEqual": false,
+  "wholeProgramBindingEquivalenceEstablished": false,
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3106137,
+    "sha256": "e515117b9569651a7ae6350a0d9662c9f3292041321be73f61225a1e8ea25e09"
+  },
+  "target": {
+    "javaScriptSha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+    "strictAst": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110206,
+      "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+    }
+  },
+  "publicProfileSha256": "ef82cd19baf9bd2520b7bda4a944d57c6fa0674acfc44536f93a4ec1775083c9",
+  "toolchainSha256": "c55222452c78ccde4ea41c3bde1ee1eebd0095f7096af51941d444cb4802c3f9",
+  "publicRelocatedCompilerReplayVerified": true,
+  "publicCandidateIndependentlyAudited": false,
+  "publicationApproved": false,
+  "publicMaterializationVerified": true,
+  "trial15ActualReviewsPending": false,
+  "acceptancePolicy": "Exact strict AST equality is a stronger diagnostic. Sound binding-aware alpha-equivalence and provably independent definition ordering are permitted only where concretely proved; unsupported observable cases remain unresolved. Neither whole route has passed.",
+  "currentScopedResults": [
+    "The exact Trial15 permission Project/cache/write/reader graph and real React effect pass their scoped production checks. The complete receipt retains inherited sessionIngress47/44, full REPL15429/15410 and prefix688/685 failures; overall permission acceptance remains false.",
+    "The complete296-node rating provider passes its production ref/updater/analytics/notification checks. Raw75/71 initializer, extra hook and REPL topology remain outside acceptance.",
+    "Earlier reader/title/resume/lifecycle/queue and vendor results retain their own bounded reports and immutable historical failures."
+  ],
+  "unfinished": [
+    "Whole target equality and conservative whole-program equivalence remain false; node counts are not completion percentages.",
+    "REPL wrapper topology, fullscreen behavior, raw initializer grouping and inherited deeper/global supplier boundaries remain open unless an attached scoped receipt explicitly closes one.",
+    "Source maps, arbitrary reflection/dynamic/ambient equivalence, original private authorship and universal package/type API compatibility are not established."
+  ],
+  "evidenceBoundary": "Report derivatives preserve complete statuses/limits. Private full proof archives are not republished. Historical locator labels are not runtime inputs.",
+  "currentActualReviews": [
+    {
+      "reportId": "permission_persistence_roundtrip",
+      "path": "evidence/trial15-permission-actual.json",
+      "originalReviewSha256": "59c7a17d13817ff5c3e13b7994fa829575aa7ed4a216b62a7a4b3586f0cefa1e",
+      "publishedReviewSha256": "0d9f35a7b5a76f444cc1954451da764e9827a1358122ff298572098074a5c29f",
+      "originalClosureSha256": "cc6aa4157be32e6654fa3d7a950294308214e763d2931e19d23fd369d0f83517",
+      "verdict": "complete-permission-storage-and-real-react-effect-graphs-pass-inherited-initializer-provider-and-whole-repl-boundaries-remain-false",
+      "actualScopedEmissionVerified": true,
+      "actualEmissionVerified": false
+    },
+    {
+      "reportId": "message_rating_clear_toggle",
+      "path": "evidence/trial15-rating-actual.json",
+      "originalReviewSha256": "0ee57df7aa219016abb23e103bd212deb13bd767528d363441f96721f0cbc50a",
+      "publishedReviewSha256": "2d2782ea9227b2b9f9ffd97a1ff3dee705577bedc930b8188df469f5efc2a5d4",
+      "originalClosureSha256": "bfb73fac912edfd958537c8dd67f2d4a0104d99377a70de42dd8084b294b20aa",
+      "verdict": "approved scoped actual rating-clear provider and binding behavior; whole module, initializer and REPL topology remain unaccepted",
+      "actualScopedEmissionVerified": true,
+      "actualEmissionVerified": true
+    }
+  ],
+  "publicMaterializedFiles": 6228,
+  "publicPortableReplayEvidence": {
+    "path": "evidence/portable-trial15-replay.json",
+    "bytes": 842,
+    "sha256": "4965d652980e7646b2fcafb2219b92e66dbcc11b4b50bcdcf3bb1381b0e3f027"
+  }
+}

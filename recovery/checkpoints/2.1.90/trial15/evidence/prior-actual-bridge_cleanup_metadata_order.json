@@ -1,0 +1,4419 @@
+{
+  "kind": "mixed-actual-six-owner-bridge-cleanup-metadata-provider-order-review",
+  "reportId": "bridge_cleanup_metadata_order",
+  "verdict": "scoped-bodies-shared-captures-and-direct-initializer-order-pass-expanded-provider-graph-remains-mixed",
+  "actualScopedEmissionVerified": true,
+  "actualEmissionVerified": false,
+  "completeEightSelectedBodiesVerified": true,
+  "fourteenSharedProductionCapturesVerified": true,
+  "actualJoinedCaptureGraphAccepted": true,
+  "completeSelectedCallerPresenceCoreMetadataModulesVerifiedUnderRecordedInterfaces": true,
+  "sourceTrialDirectInitializationObligationsSatisfied": true,
+  "syncInitializerTargetPlacementVerified": true,
+  "fullProductionPrefixesVerifiedUnderGroundedSupplierInterfaces": true,
+  "completeExpandedProviderGraphAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalInitializationOrderAccepted": false,
+  "fullPersistenceFeatureAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "production": {
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v12-bridge-resume/profile.json",
+      "sha256": "f87e665387379f56ee0e079862b7c2a483f213fa414fe159e96a1bce06b525f3"
+    },
+    "toolchainSha256": "c55222452c78ccde4ea41c3bde1ee1eebd0095f7096af51941d444cb4802c3f9",
+    "inputs": "historical-checkpoints/recovery-2.1.90-stage-v14-bridge-resume/inputs",
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v11/final/cli.js",
+      "sha256": "0564c641edcc26d8cd6934d6b218ff15be917505a44ccc3886fcda174dd53042",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v11-analysis/candidate-index.json",
+      "indexSha256": "65fd54c8c45ebdb9141be340b93a3783a7057ff1e1820a8daf27241fb5b100de"
+    },
+    "target": {
+      "js": "historical-checkpoints/recovery-2.1.90-start/package/cli.js",
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+      "index": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json",
+      "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9"
+    },
+    "compileReport": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v11/compile-report.json",
+      "sha256": "dff5a0c89296925f88290e7dfdae4d14e49c34d509e877ace9b10236f842d565"
+    },
+    "strict": {
+      "nodes": 3106059,
+      "sha256": "017b5465d814149354a84f2312b8f195ef58aa33f431f24225a11e06fbcd4926",
+      "equal": false
+    }
+  },
+  "sourceApproval": {
+    "path": "historical-checkpoints/recovery-2.1.90-bridge-cleanup-order-independent-review/review.json",
+    "sha256": "977088b9e852ed3b4a4fcd052022f1ebb87e1729904dc60b2fac90fbb1db0190",
+    "closureSha256": "5e6e83209ce3c4f80bc1b86256459f828f1c34853b59ed3d8b44374e98f6e7dc",
+    "sourceManifestSha256": "d080caa02a8b12f5fe1943864a64d3153794f9965b6df9f998092a9d6a34a7ec",
+    "allSixCurrentPostimagesRehashed": true,
+    "priorSourceFixtureTestsReused": true
+  },
+  "completeBodies": {
+    "env": {
+      "target": {
+        "index": 16304,
+        "type": "FunctionDeclaration",
+        "range": [
+          11747104,
+          11761771
+        ],
+        "nodes": 3219,
+        "strictSha256": "32b7922611cf895d10833d0a73fd6a45034d0af196cc01df5714e626b2b937b7",
+        "shapeSha256": "8477ac6324833a6511075ae74c8d4384c41a274a1df97746095505af1a00413a",
+        "identifierNamesErased": 932,
+        "protectedIdentifierOccurrences": 333
+      },
+      "current": {
+        "index": 16296,
+        "type": "FunctionDeclaration",
+        "range": [
+          11732382,
+          11747047
+        ],
+        "nodes": 3219,
+        "strictSha256": "612b02818314ee2d6fa394b277628c7ba502d0d2406d4995bff3c0907b1f2587",
+        "shapeSha256": "8477ac6324833a6511075ae74c8d4384c41a274a1df97746095505af1a00413a",
+        "identifierNamesErased": 932,
+        "protectedIdentifierOccurrences": 333
+      },
+      "nodes": 3219,
+      "completeFieldsBindingsAndReceiversMatch": true
+    },
+    "remote": {
+      "target": {
+        "index": 16316,
+        "type": "FunctionDeclaration",
+        "range": [
+          11769165,
+          11777373
+        ],
+        "nodes": 1937,
+        "strictSha256": "59d676c02b49163c819559cc451ab3bad5b670d1d35e9ba8d57f9b3b3d90cdf0",
+        "shapeSha256": "d1f8e35121f6eebb07f5c8d43e454e316c44f6fb0499ddadf14fc57fbb3e55d8",
+        "identifierNamesErased": 565,
+        "protectedIdentifierOccurrences": 214
+      },
+      "current": {
+        "index": 16308,
+        "type": "FunctionDeclaration",
+        "range": [
+          11754441,
+          11762647
+        ],
+        "nodes": 1937,
+        "strictSha256": "5f65ee09069c4ac0d91d13eeb35aa7cf6733cd33b6262833159e73c7017bee70",
+        "shapeSha256": "d1f8e35121f6eebb07f5c8d43e454e316c44f6fb0499ddadf14fc57fbb3e55d8",
+        "identifierNamesErased": 565,
+        "protectedIdentifierOccurrences": 214
+      },
+      "nodes": 1937,
+      "completeFieldsBindingsAndReceiversMatch": true
+    },
+    "caller": {
+      "target": {
+        "index": 16325,
+        "type": "FunctionDeclaration",
+        "range": [
+          11778515,
+          11782997
+        ],
+        "nodes": 1052,
+        "strictSha256": "1c8d04998b09f460205dc9a2403f6451be793b70ca541459874ce5d5fbae8d76",
+        "shapeSha256": "62eca60fe56abb9bb54302b81953187069454dffc8bb2aa9ea7ddc08f4fe784a",
+        "identifierNamesErased": 330,
+        "protectedIdentifierOccurrences": 108
+      },
+      "current": {
+        "index": 16317,
+        "type": "FunctionDeclaration",
+        "range": [
+          11763789,
+          11768271
+        ],
+        "nodes": 1052,
+        "strictSha256": "18158b8c666228f6e874c7718da49edae9e8a3ea1c91cd642cb194d00486304c",
+        "shapeSha256": "62eca60fe56abb9bb54302b81953187069454dffc8bb2aa9ea7ddc08f4fe784a",
+        "identifierNamesErased": 330,
+        "protectedIdentifierOccurrences": 108
+      },
+      "nodes": 1052,
+      "completeFieldsBindingsAndReceiversMatch": true
+    },
+    "wire": {
+      "target": {
+        "index": 16248,
+        "type": "FunctionDeclaration",
+        "range": [
+          11701767,
+          11701968
+        ],
+        "nodes": 49,
+        "strictSha256": "04fbb99484eb7194952e98df273e9fa7af6b97f8e1e233d6cf5c3e98b8b5d40d",
+        "shapeSha256": "bf80b8d03e5f44289e295c358f95c765fcc4787dfc571750a9b5120d7f011203",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 16240,
+        "type": "FunctionDeclaration",
+        "range": [
+          11687045,
+          11687246
+        ],
+        "nodes": 49,
+        "strictSha256": "16616f5c328d81ddb57c4d126eda4d70687609e54039e8a6b07830e03ff26029",
+        "shapeSha256": "bf80b8d03e5f44289e295c358f95c765fcc4787dfc571750a9b5120d7f011203",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 3
+      },
+      "nodes": 49,
+      "completeFieldsBindingsAndReceiversMatch": true
+    },
+    "pulse": {
+      "target": {
+        "index": 16250,
+        "type": "FunctionDeclaration",
+        "range": [
+          11702018,
+          11702481
+        ],
+        "nodes": 113,
+        "strictSha256": "8ceac3949e7ad0dc9eb31f803e20fbe9cba606c2d7debaef7db013ef0c34fc8c",
+        "shapeSha256": "3821d8823419f33451938f4cd75ea0aaed36e386a8aad978a79ff571a595f6a3",
+        "identifierNamesErased": 27,
+        "protectedIdentifierOccurrences": 14
+      },
+      "current": {
+        "index": 16242,
+        "type": "FunctionDeclaration",
+        "range": [
+          11687296,
+          11687759
+        ],
+        "nodes": 113,
+        "strictSha256": "270d99277b63de1fa6891851eb404cd0939f7f93d4f21a62c855c2271a02e38b",
+        "shapeSha256": "3821d8823419f33451938f4cd75ea0aaed36e386a8aad978a79ff571a595f6a3",
+        "identifierNamesErased": 27,
+        "protectedIdentifierOccurrences": 14
+      },
+      "nodes": 113,
+      "completeFieldsBindingsAndReceiversMatch": true
+    },
+    "wrapper": {
+      "target": {
+        "index": 16326,
+        "type": "FunctionDeclaration",
+        "range": [
+          11782997,
+          11783109
+        ],
+        "nodes": 38,
+        "strictSha256": "6f747ee678ac55ad0b7cb96c65135a64d3c294d6327da5fcc5704ef5820ddaff",
+        "shapeSha256": "e45c0c9dd1f1158cba0df81993d97b32a8998fdd1c517c50f62e84ba2d3d3a39",
+        "identifierNamesErased": 11,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 16318,
+        "type": "FunctionDeclaration",
+        "range": [
+          11768271,
+          11768383
+        ],
+        "nodes": 38,
+        "strictSha256": "baca38365a9f36848d955e28876f78a3601e4866dc9d6f17e730e484f79037b1",
+        "shapeSha256": "e45c0c9dd1f1158cba0df81993d97b32a8998fdd1c517c50f62e84ba2d3d3a39",
+        "identifierNamesErased": 11,
+        "protectedIdentifierOccurrences": 3
+      },
+      "nodes": 38,
+      "completeFieldsBindingsAndReceiversMatch": true
+    },
+    "metadataHelper": {
+      "target": {
+        "index": 4855,
+        "type": "FunctionDeclaration",
+        "range": [
+          3672743,
+          3672843
+        ],
+        "nodes": 30,
+        "strictSha256": "5fff48d43ea6406ab355d15289221d49da2a2b17ba7deeb0d736fb04462c9644",
+        "shapeSha256": "39cb6e2ce0059b957648ee57e918d2fdc02c0abf16086546dca15f5ae9d50125",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 4
+      },
+      "current": {
+        "index": 4861,
+        "type": "FunctionDeclaration",
+        "range": [
+          3674015,
+          3674115
+        ],
+        "nodes": 30,
+        "strictSha256": "e4d58d7e96270416db7d85833d48fd8915f2632cff56f8bd904d5922519f7670",
+        "shapeSha256": "39cb6e2ce0059b957648ee57e918d2fdc02c0abf16086546dca15f5ae9d50125",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 4
+      },
+      "nodes": 30,
+      "completeFieldsBindingsAndReceiversMatch": true
+    },
+    "placementGetter": {
+      "target": {
+        "index": 604,
+        "type": "FunctionDeclaration",
+        "range": [
+          48700,
+          48755
+        ],
+        "nodes": 13,
+        "strictSha256": "f4c9a07a24ed4159d3254cad29b9a6f2d4f38e6785919d21fa01c0396bbe159e",
+        "shapeSha256": "67540fc63157a573e1d32ebb7cbf8d5fa3f7e9769c59f03f00cde87856143e41",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 603,
+        "type": "FunctionDeclaration",
+        "range": [
+          48372,
+          48427
+        ],
+        "nodes": 13,
+        "strictSha256": "6881c695368f5d3d4c13d0102fb803a009eda0dffc4dc741e26106e15b281a84",
+        "shapeSha256": "67540fc63157a573e1d32ebb7cbf8d5fa3f7e9769c59f03f00cde87856143e41",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 2
+      },
+      "nodes": 13,
+      "completeFieldsBindingsAndReceiversMatch": true
+    }
+  },
+  "graphs": {
+    "eightBodies": {
+      "nodes": 6452,
+      "pass": true
+    },
+    "eightBodiesPlusFourteenConcreteProviderDeclarations": {
+      "nodes": 7677,
+      "pass": true
+    },
+    "selectedModulesRootsAndMatchingDirectProviders": {
+      "nodes": 18104,
+      "statementPairs": 108,
+      "pass": true,
+      "omittedProviderDefinitions": [
+        {
+          "target": 15668,
+          "current": 15662,
+          "owner": "src/utils/sessionStorage.ts",
+          "nodes": [
+            190,
+            206
+          ]
+        },
+        {
+          "target": 4953,
+          "current": 4958,
+          "owner": "src/utils/concurrentSessions.ts",
+          "nodes": [
+            41,
+            34
+          ]
+        }
+      ],
+      "callsToTheseSuppliersRetainedUnchanged": true,
+      "omissionIsAnExplicitInterfaceBoundaryNotAstNormalization": true
+    },
+    "allDirectProviderDefinitions": {
+      "pass": false,
+      "error": "node count\n\n15102 !== 15111\n"
+    }
+  },
+  "fourteenSharedProviders": [
+    {
+      "targetName": "F6",
+      "currentName": "Q6",
+      "sourceExport": {
+        "path": "src/utils/errors.ts",
+        "bytes": 7655,
+        "sha256": "ab8d90dac1d13f7e5fde4708643120556ea83d25f3586c90dafb2e453e01e9bd",
+        "range": [
+          3480,
+          3584
+        ],
+        "text": "export function errorMessage(e: unknown): string {\n  return e instanceof Error ? e.message : String(e)\n}"
+      },
+      "target": {
+        "index": 750,
+        "type": "FunctionDeclaration",
+        "range": [
+          125808,
+          125869
+        ],
+        "nodes": 15,
+        "strictSha256": "b7f686e1a02052a151bc729a881f7893ea2170d2d5886469119713886147e48c",
+        "shapeSha256": "31479278c6f01f9c0ec1029bdad776e9525f5fa6606b22e6bf68b6d28314a211",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 750,
+        "type": "FunctionDeclaration",
+        "range": [
+          125503,
+          125564
+        ],
+        "nodes": 15,
+        "strictSha256": "3767e37973b3f42d41d908babb70c681f0ed1b34d81dd673597030bfb4a11068",
+        "shapeSha256": "31479278c6f01f9c0ec1029bdad776e9525f5fa6606b22e6bf68b6d28314a211",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 16,
+        "forward": {
+          "String": "String",
+          "Error": "Error"
+        },
+        "reverse": {
+          "String": "String",
+          "Error": "Error"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "iy",
+      "currentName": "Uy",
+      "sourceExport": {
+        "path": "src/bridge/debugUtils.ts",
+        "bytes": 4240,
+        "sha256": "136b6d12113d03f37715313f843b606049949f3858a30e09aaf2e0bc2a37fa10",
+        "range": [
+          3916,
+          4237
+        ],
+        "text": "export function logBridgeSkip(\n  reason: string,\n  debugMsg?: string,\n  v2?: boolean,\n): void {\n  if (debugMsg) {\n    logForDebugging(debugMsg)\n  }\n  logEvent('tengu_bridge_repl_skipped', {\n    reason:\n      reason as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n    ...(v2 !== undefined && { v2 }),\n  })\n}"
+      },
+      "target": {
+        "index": 14176,
+        "type": "FunctionDeclaration",
+        "range": [
+          10492746,
+          10492839
+        ],
+        "nodes": 30,
+        "strictSha256": "cd026ae84faed6497e7edd49a0c42dad4eeff887e51973254f24fd89102dbf17",
+        "shapeSha256": "f761296b2889f6eaac876eec050a557a5f78eaf97bda8fdc4d6fb0d0eed94ab0",
+        "identifierNamesErased": 11,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 14177,
+        "type": "FunctionDeclaration",
+        "range": [
+          10486189,
+          10486282
+        ],
+        "nodes": 30,
+        "strictSha256": "9033e9ac7fd41cee13f6e08c52020bb705640729c1039c354828fe4f9ce77cf2",
+        "shapeSha256": "f761296b2889f6eaac876eec050a557a5f78eaf97bda8fdc4d6fb0d0eed94ab0",
+        "identifierNamesErased": 11,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 31,
+        "forward": {
+          "N": "N",
+          "d": "d"
+        },
+        "reverse": {
+          "N": "N",
+          "d": "d"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "o8",
+      "currentName": "o8",
+      "sourceExport": {
+        "path": "src/utils/diagLogs.ts",
+        "bytes": 2784,
+        "sha256": "d163594e5282ec5bd07a13604c1b254215589c58621641f3485360f9c256141c",
+        "range": [
+          871,
+          1557
+        ],
+        "text": "export function logForDiagnosticsNoPII(\n  level: DiagnosticLogLevel,\n  event: string,\n  data?: Record<string, unknown>,\n): void {\n  const logFile = getDiagnosticLogFile()\n  if (!logFile) {\n    return\n  }\n\n  const entry: DiagnosticLogEntry = {\n    timestamp: new Date().toISOString(),\n    level,\n    event,\n    data: data ?? {},\n  }\n\n  const fs = getFsImplementation()\n  const line = jsonStringify(entry) + '\\n'\n  try {\n    fs.appendFileSync(logFile, line)\n  } catch {\n    // If append fails, try creating the directory first\n    try {\n      fs.mkdirSync(dirname(logFile))\n      fs.appendFileSync(logFile, line)\n    } catch {\n      // Silently fail if logging is not possible\n    }\n  }\n}"
+      },
+      "target": {
+        "index": 2114,
+        "type": "FunctionDeclaration",
+        "range": [
+          875843,
+          876063
+        ],
+        "nodes": 79,
+        "strictSha256": "e801d5dca9570a2f9b67d1c163b66a88f8575c7cafd415f54e89f3e1e218039b",
+        "shapeSha256": "60bd35783a7ff4035a4f09b2a82afde517bb4f6e7745cc4e4fcf10b2b3076aa7",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 8
+      },
+      "current": {
+        "index": 2114,
+        "type": "FunctionDeclaration",
+        "range": [
+          875536,
+          875756
+        ],
+        "nodes": 79,
+        "strictSha256": "e0a3801a14652b4bc6866332c455b782a3a31eb8d8bc97d74f7a71dbffa99759",
+        "shapeSha256": "60bd35783a7ff4035a4f09b2a82afde517bb4f6e7745cc4e4fcf10b2b3076aa7",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 8
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 80,
+        "forward": {
+          "Th5": "AR5",
+          "Date": "Date",
+          "J8": "X8",
+          "g6": "p6",
+          "vh5": "$R5"
+        },
+        "reverse": {
+          "AR5": "Th5",
+          "Date": "Date",
+          "X8": "J8",
+          "p6": "g6",
+          "$R5": "vh5"
+        },
+        "scopeCount": 9
+      }
+    },
+    {
+      "targetName": "d",
+      "currentName": "d",
+      "sourceExport": {
+        "path": "src/services/analytics/index.ts",
+        "bytes": 5542,
+        "sha256": "293b4c3660ec2c1e01e7916e2e5ccd580275301907e8d96644191e07f91c44b9",
+        "range": [
+          4382,
+          4751
+        ],
+        "text": "export function logEvent(\n  eventName: string,\n  // intentionally no strings unless AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,\n  // to avoid accidentally logging code/filepaths\n  metadata: LogEventMetadata,\n): void {\n  if (sink === null) {\n    eventQueue.push({ eventName, metadata, async: false })\n    return\n  }\n  sink.logEvent(eventName, metadata)\n}"
+      },
+      "target": {
+        "index": 577,
+        "type": "FunctionDeclaration",
+        "range": [
+          45556,
+          45654
+        ],
+        "nodes": 34,
+        "strictSha256": "1ed9118bcbdb9c540acf2f7e205aa3e2fb06f974245f19b4497d7b4fa1f9ee8b",
+        "shapeSha256": "dac014953907817ddf8db04c8bffed899386ae3889da5788c83474fdab8ecf3a",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 577,
+        "type": "FunctionDeclaration",
+        "range": [
+          45250,
+          45348
+        ],
+        "nodes": 34,
+        "strictSha256": "5e9684928acf6bda2db3b7e20436b5660dd31844c72f0993eaee1b4db2780f78",
+        "shapeSha256": "dac014953907817ddf8db04c8bffed899386ae3889da5788c83474fdab8ecf3a",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 35,
+        "forward": {
+          "ox6": "Ux6",
+          "He": "He"
+        },
+        "reverse": {
+          "Ux6": "ox6",
+          "He": "He"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "targetName": "hN6",
+      "currentName": "NN6",
+      "sourceExport": {
+        "path": "src/bridge/sessionIdCompat.ts",
+        "bytes": 2536,
+        "sha256": "8c99317ff59c95b29f02503dbea705dd06fcf14e424c169c62156d4cabb0dd2b",
+        "range": [
+          2379,
+          2525
+        ],
+        "text": "export function toInfraSessionId(id: string): string {\n  if (!id.startsWith('session_')) return id\n  return 'cse_' + id.slice('session_'.length)\n}"
+      },
+      "target": {
+        "index": 7975,
+        "type": "FunctionDeclaration",
+        "range": [
+          6621716,
+          6621794
+        ],
+        "nodes": 21,
+        "strictSha256": "92c04e4b072b6ecdeed3ca65be354df5a44623ae1b6c33bb75f7e9da9b2776ae",
+        "shapeSha256": "cce15ba7f6c3cfe025a57115fda944c7d1192c2e3345b2473b5610c1513724b5",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 7984,
+        "type": "FunctionDeclaration",
+        "range": [
+          6623208,
+          6623286
+        ],
+        "nodes": 21,
+        "strictSha256": "4d2d956e0e19380ab1b243ed77ad8a4b02a7d9d95a4f7c308c24782991863639",
+        "shapeSha256": "cce15ba7f6c3cfe025a57115fda944c7d1192c2e3345b2473b5610c1513724b5",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 22,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "jt",
+      "currentName": "jt",
+      "sourceExport": {
+        "path": "src/bridge/bridgeMessaging.ts",
+        "bytes": 15703,
+        "sha256": "1cebbf62493129bfe75a20a5398cc99300da1fad28e4bb51bef58b632d3c0ff1",
+        "range": [
+          14388,
+          15220
+        ],
+        "text": "export class BoundedUUIDSet {\n  private readonly capacity: number\n  private readonly ring: (string | undefined)[]\n  private readonly set = new Set<string>()\n  private writeIdx = 0\n\n  constructor(capacity: number) {\n    this.capacity = capacity\n    this.ring = new Array<string | undefined>(capacity)\n  }\n\n  add(uuid: string): void {\n    if (this.set.has(uuid)) return\n    // Evict the entry at the current write position (if occupied)\n    const evicted = this.ring[this.writeIdx]\n    if (evicted !== undefined) {\n      this.set.delete(evicted)\n    }\n    this.ring[this.writeIdx] = uuid\n    this.set.add(uuid)\n    this.writeIdx = (this.writeIdx + 1) % this.capacity\n  }\n\n  has(uuid: string): boolean {\n    return this.set.has(uuid)\n  }\n\n  clear(): void {\n    this.set.clear()\n    this.ring.fill(undefined)\n    this.writeIdx = 0\n  }\n}"
+      },
+      "target": {
+        "index": 16269,
+        "type": "ClassDeclaration",
+        "range": [
+          11708073,
+          11708450
+        ],
+        "nodes": 139,
+        "strictSha256": "ccc882d1b1b710df6ac13a8c8b6cb5ff4f781dcea4ecd01d97d790b4e8bacb1e",
+        "shapeSha256": "acd55274e1f37b7934d378e6cb3b9cbfac4ebc71ade1dd87dd874ad7dea169c0",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 30
+      },
+      "current": {
+        "index": 16261,
+        "type": "ClassDeclaration",
+        "range": [
+          11693351,
+          11693728
+        ],
+        "nodes": 139,
+        "strictSha256": "ccc882d1b1b710df6ac13a8c8b6cb5ff4f781dcea4ecd01d97d790b4e8bacb1e",
+        "shapeSha256": "acd55274e1f37b7934d378e6cb3b9cbfac4ebc71ade1dd87dd874ad7dea169c0",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 30
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 140,
+        "forward": {
+          "Set": "Set",
+          "Array": "Array"
+        },
+        "reverse": {
+          "Set": "Set",
+          "Array": "Array"
+        },
+        "scopeCount": 9
+      }
+    },
+    {
+      "targetName": "PK8",
+      "currentName": "OK8",
+      "sourceExport": {
+        "path": "src/bridge/flushGate.ts",
+        "bytes": 1981,
+        "sha256": "8c04d8d32b4c4ea76e5b506ea2e23fa466d88f46b04f2ebb52963e9f055d41c2",
+        "range": [
+          670,
+          1968
+        ],
+        "text": "export class FlushGate<T> {\n  private _active = false\n  private _pending: T[] = []\n\n  get active(): boolean {\n    return this._active\n  }\n\n  get pendingCount(): number {\n    return this._pending.length\n  }\n\n  /** Mark flush as in-progress. enqueue() will start queuing items. */\n  start(): void {\n    this._active = true\n  }\n\n  /**\n   * End the flush and return any queued items for draining.\n   * Caller is responsible for sending the returned items.\n   */\n  end(): T[] {\n    this._active = false\n    return this._pending.splice(0)\n  }\n\n  /**\n   * If flush is active, queue the items and return true.\n   * If flush is not active, return false (caller should send directly).\n   */\n  enqueue(...items: T[]): boolean {\n    if (!this._active) return false\n    this._pending.push(...items)\n    return true\n  }\n\n  /**\n   * Discard all queued items (permanent transport close).\n   * Returns the number of items dropped.\n   */\n  drop(): number {\n    this._active = false\n    const count = this._pending.length\n    this._pending.length = 0\n    return count\n  }\n\n  /**\n   * Clear the active flag without dropping queued items.\n   * Used when the transport is replaced (onWorkReceived) — the new\n   * transport's flush will drain the pending items.\n   */\n  deactivate(): void {\n    this._active = false\n  }\n}"
+      },
+      "target": {
+        "index": 16302,
+        "type": "ClassDeclaration",
+        "range": [
+          11746689,
+          11747066
+        ],
+        "nodes": 124,
+        "strictSha256": "5359e76be274e91871a1f2180f01f6f33a92ce96b9b76ca3104930155968149f",
+        "shapeSha256": "e9d5e06d158f4e47a53212c9f9e6a79f7e5ecb66804d201d8ce5554701139681",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 25
+      },
+      "current": {
+        "index": 16294,
+        "type": "ClassDeclaration",
+        "range": [
+          11731967,
+          11732344
+        ],
+        "nodes": 124,
+        "strictSha256": "d35297987aeb7fcdc1781131bc68c0c044e3df448edbf32dff6e306abf92efd5",
+        "shapeSha256": "e9d5e06d158f4e47a53212c9f9e6a79f7e5ecb66804d201d8ce5554701139681",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 25
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 125,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 12
+      }
+    },
+    {
+      "targetName": "ic8",
+      "currentName": "Uc8",
+      "sourceExport": {
+        "path": "src/bridge/bridgeMessaging.ts",
+        "bytes": 15703,
+        "sha256": "1cebbf62493129bfe75a20a5398cc99300da1fad28e4bb51bef58b632d3c0ff1",
+        "range": [
+          8909,
+          13235
+        ],
+        "text": "export function handleServerControlRequest(\n  request: SDKControlRequest,\n  handlers: ServerControlRequestHandlers,\n): void {\n  const {\n    transport,\n    sessionId,\n    outboundOnly,\n    onInterrupt,\n    onSetModel,\n    onSetMaxThinkingTokens,\n    onSetPermissionMode,\n  } = handlers\n  if (!transport) {\n    logForDebugging(\n      '[bridge:repl] Cannot respond to control_request: transport not configured',\n    )\n    return\n  }\n\n  let response: SDKControlResponse\n\n  // Outbound-only: reply error for mutable requests so claude.ai doesn't show\n  // false success. initialize must still succeed (server kills the connection\n  // if it doesn't — see comment above).\n  if (outboundOnly && request.request.subtype !== 'initialize') {\n    response = {\n      type: 'control_response',\n      response: {\n        subtype: 'error',\n        request_id: request.request_id,\n        error: OUTBOUND_ONLY_ERROR,\n      },\n    }\n    const event = { ...response, session_id: sessionId }\n    void transport.write(event)\n    logForDebugging(\n      `[bridge:repl] Rejected ${request.request.subtype} (outbound-only) request_id=${request.request_id}`,\n    )\n    return\n  }\n\n  switch (request.request.subtype) {\n    case 'initialize':\n      // Respond with minimal capabilities — the REPL handles\n      // commands, models, and account info itself.\n      response = {\n        type: 'control_response',\n        response: {\n          subtype: 'success',\n          request_id: request.request_id,\n          response: {\n            commands: [],\n            output_style: 'normal',\n            available_output_styles: ['normal'],\n            models: [],\n            account: {},\n            pid: process.pid,\n          },\n        },\n      }\n      break\n\n    case 'set_model':\n      onSetModel?.(request.request.model)\n      response = {\n        type: 'control_response',\n        response: {\n          subtype: 'success',\n          request_id: request.request_id,\n        },\n      }\n      break\n\n    case 'set_max_thinking_tokens':\n      onSetMaxThinkingTokens?.(request.request.max_thinking_tokens)\n      response = {\n        type: 'control_response',\n        response: {\n          subtype: 'success',\n          request_id: request.request_id,\n        },\n      }\n      break\n\n    case 'set_permission_mode': {\n      // The callback returns a policy verdict so we can send an error\n      // control_response without importing isAutoModeGateEnabled /\n      // isBypassPermissionsModeDisabled here (bootstrap-isolation). If no\n      // callback is registered (daemon context, which doesn't wire this —\n      // see daemonBridge.ts), return an error verdict rather than a silent\n      // false-success: the mode is never actually applied in that context,\n      // so success would lie to the client.\n      const verdict = onSetPermissionMode?.(request.request.mode) ?? {\n        ok: false,\n        error:\n          'set_permission_mode is not supported in this context (onSetPermissionMode callback not registered)',\n      }\n      if (verdict.ok) {\n        response = {\n          type: 'control_response',\n          response: {\n            subtype: 'success',\n            request_id: request.request_id,\n          },\n        }\n      } else {\n        response = {\n          type: 'control_response',\n          response: {\n            subtype: 'error',\n            request_id: request.request_id,\n            error: verdict.error,\n          },\n        }\n      }\n      break\n    }\n\n    case 'interrupt':\n      onInterrupt?.()\n      response = {\n        type: 'control_response',\n        response: {\n          subtype: 'success',\n          request_id: request.request_id,\n        },\n      }\n      break\n\n    default:\n      // Unknown subtype — respond with error so the server doesn't\n      // hang waiting for a reply that never comes.\n      response = {\n        type: 'control_response',\n        response: {\n          subtype: 'error',\n          request_id: request.request_id,\n          error: `REPL bridge does not handle control_request subtype: ${request.request.subtype}`,\n        },\n      }\n  }\n\n  const event = { ...response, session_id: sessionId }\n  void transport.write(event)\n  logForDebugging(\n    `[bridge:repl] Sent control_response for ${request.request.subtype} request_id=${request.request_id} result=${response.response.subtype}`,\n  )\n}"
+      },
+      "target": {
+        "index": 16267,
+        "type": "FunctionDeclaration",
+        "range": [
+          11706019,
+          11707843
+        ],
+        "nodes": 375,
+        "strictSha256": "8f861a71abb3896640fc5bd176f66ad251e6f5fd4e7846d4e9d16ddd035a9869",
+        "shapeSha256": "136bafe90ce596e021f2d36fc4c433c5dce3c216947aaf2229d1fb169be614bd",
+        "identifierNamesErased": 63,
+        "protectedIdentifierOccurrences": 86
+      },
+      "current": {
+        "index": 16259,
+        "type": "FunctionDeclaration",
+        "range": [
+          11691297,
+          11693121
+        ],
+        "nodes": 375,
+        "strictSha256": "09eeb0c4f75df996ccf4646265d84962d0e0f23daf252b1fbfc82258830b2d58",
+        "shapeSha256": "136bafe90ce596e021f2d36fc4c433c5dce3c216947aaf2229d1fb169be614bd",
+        "identifierNamesErased": 63,
+        "protectedIdentifierOccurrences": 86
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 376,
+        "forward": {
+          "N": "N",
+          "lpY": "cBY",
+          "process": "process"
+        },
+        "reverse": {
+          "N": "N",
+          "cBY": "lpY",
+          "process": "process"
+        },
+        "scopeCount": 7
+      }
+    },
+    {
+      "targetName": "UC6",
+      "currentName": "xC6",
+      "sourceExport": {
+        "path": "src/bridge/bridgeMessaging.ts",
+        "bytes": 15703,
+        "sha256": "1cebbf62493129bfe75a20a5398cc99300da1fad28e4bb51bef58b632d3c0ff1",
+        "range": [
+          2735,
+          3161
+        ],
+        "text": "export function isEligibleBridgeMessage(m: Message): boolean {\n  // Virtual messages (REPL inner calls) are display-only — bridge/SDK\n  // consumers see the REPL tool_use/result which summarizes the work.\n  if ((m.type === 'user' || m.type === 'assistant') && m.isVirtual) {\n    return false\n  }\n  return (\n    m.type === 'user' ||\n    m.type === 'assistant' ||\n    (m.type === 'system' && m.subtype === 'local_command')\n  )\n}"
+      },
+      "target": {
+        "index": 16264,
+        "type": "FunctionDeclaration",
+        "range": [
+          11704784,
+          11704958
+        ],
+        "nodes": 47,
+        "strictSha256": "223e0d88ab504bf75d50c38f05257671f6578f6470a9bdb008958b8f592e31ac",
+        "shapeSha256": "6bd1bcc4f65e04853515e26249e0795077267389137add3674031d8e33ea14b0",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 7
+      },
+      "current": {
+        "index": 16256,
+        "type": "FunctionDeclaration",
+        "range": [
+          11690062,
+          11690236
+        ],
+        "nodes": 47,
+        "strictSha256": "a6a1e304493ed76bc8c01d5c5ddf7c17675a17e8ad58c150f779199e0193198e",
+        "shapeSha256": "6bd1bcc4f65e04853515e26249e0795077267389137add3674031d8e33ea14b0",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 7
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 48,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "nc8",
+      "currentName": "Fc8",
+      "sourceExport": {
+        "path": "src/bridge/bridgeMessaging.ts",
+        "bytes": 15703,
+        "sha256": "1cebbf62493129bfe75a20a5398cc99300da1fad28e4bb51bef58b632d3c0ff1",
+        "range": [
+          4872,
+          7479
+        ],
+        "text": "export function handleIngressMessage(\n  data: string,\n  recentPostedUUIDs: BoundedUUIDSet,\n  recentInboundUUIDs: BoundedUUIDSet,\n  onInboundMessage: ((msg: SDKMessage) => void | Promise<void>) | undefined,\n  onPermissionResponse?: ((response: SDKControlResponse) => void) | undefined,\n  onControlRequest?: ((request: SDKControlRequest) => void) | undefined,\n): void {\n  try {\n    const parsed: unknown = normalizeControlMessageKeys(jsonParse(data))\n\n    // control_response is not an SDKMessage — check before the type guard\n    if (isSDKControlResponse(parsed)) {\n      logForDebugging('[bridge:repl] Ingress message type=control_response')\n      onPermissionResponse?.(parsed)\n      return\n    }\n\n    // control_request from the server (initialize, set_model, can_use_tool).\n    // Must respond promptly or the server kills the WS (~10-14s timeout).\n    if (isSDKControlRequest(parsed)) {\n      logForDebugging(\n        `[bridge:repl] Inbound control_request subtype=${parsed.request.subtype}`,\n      )\n      onControlRequest?.(parsed)\n      return\n    }\n\n    if (!isSDKMessage(parsed)) return\n\n    // Check for UUID to detect echoes of our own messages\n    const uuid =\n      'uuid' in parsed && typeof parsed.uuid === 'string'\n        ? parsed.uuid\n        : undefined\n\n    if (uuid && recentPostedUUIDs.has(uuid)) {\n      logForDebugging(\n        `[bridge:repl] Ignoring echo: type=${parsed.type} uuid=${uuid}`,\n      )\n      return\n    }\n\n    // Defensive dedup: drop inbound prompts we've already forwarded. The\n    // SSE seq-num carryover (lastTransportSequenceNum) is the primary fix\n    // for history-replay; this catches edge cases where that negotiation\n    // fails (server ignores from_sequence_num, transport died before\n    // receiving any frames, etc).\n    if (uuid && recentInboundUUIDs.has(uuid)) {\n      logForDebugging(\n        `[bridge:repl] Ignoring re-delivered inbound: type=${parsed.type} uuid=${uuid}`,\n      )\n      return\n    }\n\n    logForDebugging(\n      `[bridge:repl] Ingress message type=${parsed.type}${uuid ? ` uuid=${uuid}` : ''}`,\n    )\n\n    if (parsed.type === 'user') {\n      if (uuid) recentInboundUUIDs.add(uuid)\n      logEvent('tengu_bridge_message_received', {\n        is_repl: true,\n      })\n      // Fire-and-forget — handler may be async (attachment resolution).\n      void onInboundMessage?.(parsed)\n    } else {\n      logForDebugging(\n        `[bridge:repl] Ignoring non-user inbound message: type=${parsed.type}`,\n      )\n    }\n  } catch (err) {\n    logForDebugging(\n      `[bridge:repl] Failed to parse ingress message: ${errorMessage(err)}`,\n    )\n  }\n}"
+      },
+      "target": {
+        "index": 16266,
+        "type": "FunctionDeclaration",
+        "range": [
+          11705234,
+          11706019
+        ],
+        "nodes": 190,
+        "strictSha256": "b9c606b2ee00044d3e64e3e652c4c74efb05ada143904cb92b7e6c1dcbf69461",
+        "shapeSha256": "a584d01731abcb6a92b4719a903cdff2a55ded55d1ae75ecf4284314fcee5ab6",
+        "identifierNamesErased": 57,
+        "protectedIdentifierOccurrences": 13
+      },
+      "current": {
+        "index": 16258,
+        "type": "FunctionDeclaration",
+        "range": [
+          11690512,
+          11691297
+        ],
+        "nodes": 190,
+        "strictSha256": "cd5b04fe3d24b74f65a8764d5de267b41e6ef63218511380d2152689a14b6fc5",
+        "shapeSha256": "a584d01731abcb6a92b4719a903cdff2a55ded55d1ae75ecf4284314fcee5ab6",
+        "identifierNamesErased": 57,
+        "protectedIdentifierOccurrences": 13
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 191,
+        "forward": {
+          "l8": "n8",
+          "cc8": "pc8",
+          "N": "N",
+          "dpY": "QBY",
+          "cpY": "dBY",
+          "QpY": "UBY",
+          "d": "d",
+          "F6": "Q6"
+        },
+        "reverse": {
+          "n8": "l8",
+          "pc8": "cc8",
+          "N": "N",
+          "QBY": "dpY",
+          "dBY": "cpY",
+          "UBY": "QpY",
+          "d": "d",
+          "Q6": "F6"
+        },
+        "scopeCount": 11
+      }
+    },
+    {
+      "targetName": "qM6",
+      "currentName": "KM6",
+      "sourceExport": {
+        "path": "src/bridge/workSecret.ts",
+        "bytes": 4672,
+        "sha256": "2046e50e72ad06c8fd1c94d325fc1f03c364135431baba78d7c62a880ebdb7cb",
+        "range": [
+          3238,
+          3423
+        ],
+        "text": "export function buildCCRv2SdkUrl(\n  apiBaseUrl: string,\n  sessionId: string,\n): string {\n  const base = apiBaseUrl.replace(/\\/+$/, '')\n  return `${base}/v1/code/sessions/${sessionId}`\n}"
+      },
+      "target": {
+        "index": 16055,
+        "type": "FunctionDeclaration",
+        "range": [
+          11598089,
+          11598161
+        ],
+        "nodes": 17,
+        "strictSha256": "2c7ffe0a22cadef4968af0eeac810ee90df07f57ac84664eb606c5b6f6843f1d",
+        "shapeSha256": "4ec12d0cc975ecb2349eabc213f12b90f3f724f59491c069f02efebf9ed6c366",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 16047,
+        "type": "FunctionDeclaration",
+        "range": [
+          11583404,
+          11583476
+        ],
+        "nodes": 17,
+        "strictSha256": "6b7a54d13efee18e2a7e976a52e0c5a60c2a22003c433ddea46505d6f6c9bcaf",
+        "shapeSha256": "4ec12d0cc975ecb2349eabc213f12b90f3f724f59491c069f02efebf9ed6c366",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 18,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "QC6",
+      "currentName": "IC6",
+      "sourceExport": {
+        "path": "src/bridge/bridgeMessaging.ts",
+        "bytes": 15703,
+        "sha256": "1cebbf62493129bfe75a20a5398cc99300da1fad28e4bb51bef58b632d3c0ff1",
+        "range": [
+          13465,
+          13873
+        ],
+        "text": "export function makeResultMessage(sessionId: string): SDKResultSuccess {\n  return {\n    type: 'result',\n    subtype: 'success',\n    duration_ms: 0,\n    duration_api_ms: 0,\n    is_error: false,\n    num_turns: 0,\n    result: '',\n    stop_reason: null,\n    total_cost_usd: 0,\n    usage: { ...EMPTY_USAGE },\n    modelUsage: {},\n    permission_denials: [],\n    session_id: sessionId,\n    uuid: randomUUID(),\n  }\n}"
+      },
+      "target": {
+        "index": 16268,
+        "type": "FunctionDeclaration",
+        "range": [
+          11707843,
+          11708073
+        ],
+        "nodes": 52,
+        "strictSha256": "f1dcebecf45ba2f03b1fa6ed40a120bb4962b12422671d04216449343df98157",
+        "shapeSha256": "f333d2035407a3b42884e66b9e62ff203f68a6cf5ae824566dd506ae4c116749",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 14
+      },
+      "current": {
+        "index": 16260,
+        "type": "FunctionDeclaration",
+        "range": [
+          11693121,
+          11693351
+        ],
+        "nodes": 52,
+        "strictSha256": "292c9aea8a76691b5add71753a83929019e69cf7ac625a27f145f3b9710f2164",
+        "shapeSha256": "f333d2035407a3b42884e66b9e62ff203f68a6cf5ae824566dd506ae4c116749",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 14
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 53,
+        "forward": {
+          "P0": "HZ",
+          "UpY": "FBY"
+        },
+        "reverse": {
+          "HZ": "P0",
+          "FBY": "UpY"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "Uq",
+      "currentName": "Uq",
+      "sourceExport": {
+        "path": "src/utils/cleanupRegistry.ts",
+        "bytes": 900,
+        "sha256": "07505ea73c4cfff522e8721dcccf63de390a09b4fb67dff12ed73b1d373ca2a5",
+        "range": [
+          487,
+          680
+        ],
+        "text": "export function registerCleanup(cleanupFn: () => Promise<void>): () => void {\n  cleanupFunctions.add(cleanupFn)\n  return () => cleanupFunctions.delete(cleanupFn) // Return unregister function\n}"
+      },
+      "target": {
+        "index": 582,
+        "type": "FunctionDeclaration",
+        "range": [
+          46354,
+          46405
+        ],
+        "nodes": 17,
+        "strictSha256": "194cde4bf66706cf9a6215826db19a445f0aeb940164b8422c20cf7d9bbecef2",
+        "shapeSha256": "cb6a5da42d2ea0059b3c992be547e508d3c483cb7ec50e75e4ada374ac91bdab",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 582,
+        "type": "FunctionDeclaration",
+        "range": [
+          46048,
+          46099
+        ],
+        "nodes": 17,
+        "strictSha256": "38a05064a446ec2035c2a0ac726f7991516fa9d8da2da862d1803b276d75fe74",
+        "shapeSha256": "cb6a5da42d2ea0059b3c992be547e508d3c483cb7ec50e75e4ada374ac91bdab",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 18,
+        "forward": {
+          "Ka8": "ro8"
+        },
+        "reverse": {
+          "ro8": "Ka8"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "targetName": "lc8",
+      "currentName": "gc8",
+      "sourceExport": {
+        "path": "src/bridge/bridgeMessaging.ts",
+        "bytes": 15703,
+        "sha256": "1cebbf62493129bfe75a20a5398cc99300da1fad28e4bb51bef58b632d3c0ff1",
+        "range": [
+          3878,
+          4471
+        ],
+        "text": "export function extractTitleText(m: Message): string | undefined {\n  if (m.type !== 'user' || m.isMeta || m.toolUseResult || m.isCompactSummary)\n    return undefined\n  if (m.origin && m.origin.kind !== 'human') return undefined\n  const content = m.message.content\n  let raw: string | undefined\n  if (typeof content === 'string') {\n    raw = content\n  } else {\n    for (const block of content) {\n      if (block.type === 'text') {\n        raw = block.text\n        break\n      }\n    }\n  }\n  if (!raw) return undefined\n  const clean = stripDisplayTagsAllowEmpty(raw)\n  return clean || undefined\n}"
+      },
+      "target": {
+        "index": 16265,
+        "type": "FunctionDeclaration",
+        "range": [
+          11704958,
+          11705234
+        ],
+        "nodes": 85,
+        "strictSha256": "eb7338a65f7440d245ccbac424376a819a6e4500b38defd9b23e3f4b18f48f41",
+        "shapeSha256": "82926174f2e44331a89f29c5e9f35a61251f1662e2ba09d9fd4bf2e421616e60",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 11
+      },
+      "current": {
+        "index": 16257,
+        "type": "FunctionDeclaration",
+        "range": [
+          11690236,
+          11690512
+        ],
+        "nodes": 85,
+        "strictSha256": "d415245e614a661fd05f56a7cdce1f2938942480c4339653dd955bb7f2bc3781",
+        "shapeSha256": "82926174f2e44331a89f29c5e9f35a61251f1662e2ba09d9fd4bf2e421616e60",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 11
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 86,
+        "forward": {
+          "aW6": "aW6"
+        },
+        "reverse": {
+          "aW6": "aW6"
+        },
+        "scopeCount": 5
+      }
+    }
+  ],
+  "completeModules": [
+    {
+      "name": "caller",
+      "targetRange": [
+        16322,
+        16329
+      ],
+      "currentRange": [
+        16314,
+        16321
+      ],
+      "nodes": 1250,
+      "pass": true
+    },
+    {
+      "name": "presence",
+      "targetRange": [
+        16248,
+        16252
+      ],
+      "currentRange": [
+        16240,
+        16244
+      ],
+      "nodes": 225,
+      "pass": true
+    },
+    {
+      "name": "envCore",
+      "targetRange": [
+        16303,
+        16307
+      ],
+      "currentRange": [
+        16295,
+        16299
+      ],
+      "nodes": 4425,
+      "pass": true
+    },
+    {
+      "name": "remoteCore",
+      "targetRange": [
+        16313,
+        16321
+      ],
+      "currentRange": [
+        16305,
+        16313
+      ],
+      "nodes": 2285,
+      "pass": true
+    },
+    {
+      "name": "metadata",
+      "targetRange": [
+        4851,
+        4867
+      ],
+      "currentRange": [
+        4857,
+        4873
+      ],
+      "nodes": 2205,
+      "pass": true
+    }
+  ],
+  "prefixes": [
+    {
+      "name": "caller",
+      "target": {
+        "index": 16329,
+        "type": "VariableDeclaration",
+        "range": [
+          11783268,
+          11783426
+        ],
+        "nodes": 85,
+        "strictSha256": "4eb398d924f45b2c5cf4abe378e94efb763b93c3b7d98a191bc5552cefc1e852",
+        "shapeSha256": "8eddd539d3cf25515a78673188726fe8225bf45f8dd365a4c74fcffdab87f61f",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16321,
+        "type": "VariableDeclaration",
+        "range": [
+          11768542,
+          11768700
+        ],
+        "nodes": 85,
+        "strictSha256": "bc412f02bcae3e3029a55faaab70d2a8d1cb40f73748daa4ffa1e12bac91b74a",
+        "shapeSha256": "8eddd539d3cf25515a78673188726fe8225bf45f8dd365a4c74fcffdab87f61f",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 0
+      },
+      "callCount": 26,
+      "completePrefixFieldsAndBoundOrderVerified": true,
+      "calls": [
+        {
+          "slotOneBased": 1,
+          "targetName": "T8",
+          "currentName": "v8",
+          "target": {
+            "index": 574,
+            "type": "VariableDeclaration",
+            "range": [
+              45124,
+              45227
+            ],
+            "nodes": 47,
+            "strictSha256": "dad05b2f3b0673228101ece22fd53f9fde1e8dc992ad7d76109341378a1b9747",
+            "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 2
+          },
+          "current": {
+            "index": 574,
+            "type": "VariableDeclaration",
+            "range": [
+              44818,
+              44921
+            ],
+            "nodes": 47,
+            "strictSha256": "4b37b5fccf8ce08265925b55e0e11155291e801123764f88199254cb7825216c",
+            "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 2
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 2,
+          "targetName": "s1",
+          "currentName": "t1",
+          "target": {
+            "index": 4927,
+            "type": "VariableDeclaration",
+            "range": [
+              3698447,
+              3699451
+            ],
+            "nodes": 338,
+            "strictSha256": "232df73ca158474a531233e9fc487aff5428fb7258c0f581ce613d39780faa11",
+            "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+            "identifierNamesErased": 99,
+            "protectedIdentifierOccurrences": 29
+          },
+          "current": {
+            "index": 4933,
+            "type": "VariableDeclaration",
+            "range": [
+              3699719,
+              3700723
+            ],
+            "nodes": 338,
+            "strictSha256": "913f577c87f38191d32fb95b9967f69120324933c716f6611062056bac9eaaa8",
+            "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+            "identifierNamesErased": 99,
+            "protectedIdentifierOccurrences": 29
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 3,
+          "targetName": "OlK",
+          "currentName": "ncK",
+          "target": {
+            "index": 16252,
+            "type": "VariableDeclaration",
+            "range": [
+              11702531,
+              11702584
+            ],
+            "nodes": 27,
+            "strictSha256": "c9a7d3eaa97c477505e499ab21c3d203b242374546cac3910737f451064e07ab",
+            "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+            "identifierNamesErased": 9,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16244,
+            "type": "VariableDeclaration",
+            "range": [
+              11687809,
+              11687862
+            ],
+            "nodes": 27,
+            "strictSha256": "bee5eeb9bdfcc0f3e67f5505c9961e56d97adc85bebcc395217a96274eff35ef",
+            "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+            "identifierNamesErased": 9,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 4,
+          "targetName": "_D",
+          "currentName": "aW",
+          "target": {
+            "index": 3067,
+            "type": "VariableDeclaration",
+            "range": [
+              2289129,
+              2289181
+            ],
+            "nodes": 28,
+            "strictSha256": "8b4b04bb95d77ac27490f1591589a0fcf0ab52f3ac510649fa86848c0375816f",
+            "shapeSha256": "beb18e4255d46927893cef2b7a1b937147e3844b1a64c547708bc97011351ef6",
+            "identifierNamesErased": 9,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 3073,
+            "type": "VariableDeclaration",
+            "range": [
+              2290855,
+              2290907
+            ],
+            "nodes": 28,
+            "strictSha256": "e04a5319f767782f594f5ecf56c2c12cd2cfef6896491e8fb74032f044ff72a6",
+            "shapeSha256": "beb18e4255d46927893cef2b7a1b937147e3844b1a64c547708bc97011351ef6",
+            "identifierNamesErased": 9,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 5,
+          "targetName": "gD",
+          "currentName": "bD",
+          "target": {
+            "index": 8960,
+            "type": "VariableDeclaration",
+            "range": [
+              7011531,
+              7011648
+            ],
+            "nodes": 50,
+            "strictSha256": "cbdda843b4b17fe11d02adc2fdb8358d52e22202b352ab17252a58dacabb85f4",
+            "shapeSha256": "b010f68f904c9fe7762443e3ca74ba38761ab8a6c07a43d757b214cfec26e018",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 8968,
+            "type": "VariableDeclaration",
+            "range": [
+              7011106,
+              7011223
+            ],
+            "nodes": 50,
+            "strictSha256": "00b5f7d9dac8278916428fdf584835754e94ff2902bfb32347b9b638e4c83cee",
+            "shapeSha256": "b010f68f904c9fe7762443e3ca74ba38761ab8a6c07a43d757b214cfec26e018",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 6,
+          "targetName": "k7",
+          "currentName": "f7",
+          "target": {
+            "index": 4605,
+            "type": "VariableDeclaration",
+            "range": [
+              3492511,
+              3493716
+            ],
+            "nodes": 347,
+            "strictSha256": "e1e604ee8c09e38e0b8d77a6ef30b480eba17a0785effeda29534a37c7421591",
+            "shapeSha256": "2ead364b4bf0639cb1dc8a256443e942733f5dd787430794e75bee39248a7b89",
+            "identifierNamesErased": 90,
+            "protectedIdentifierOccurrences": 30
+          },
+          "current": {
+            "index": 4611,
+            "type": "VariableDeclaration",
+            "range": [
+              3493783,
+              3494988
+            ],
+            "nodes": 347,
+            "strictSha256": "9e02f2c0e7c8fbbfe337c246b0cd4a175b2ef4777ffa2ef98e610abe628ec8d2",
+            "shapeSha256": "2ead364b4bf0639cb1dc8a256443e942733f5dd787430794e75bee39248a7b89",
+            "identifierNamesErased": 90,
+            "protectedIdentifierOccurrences": 30
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 7,
+          "targetName": "V1",
+          "currentName": "v1",
+          "target": {
+            "index": 5014,
+            "type": "VariableDeclaration",
+            "range": [
+              3715937,
+              3717437
+            ],
+            "nodes": 241,
+            "strictSha256": "2a45139c463c5b903f44320f61537eec4b63c1ae7ceaa39f644260bd2787d550",
+            "shapeSha256": "4caf8195f4eb6740a3d981f2c205ef8df708a6693c632354f51990c9252a1041",
+            "identifierNamesErased": 57,
+            "protectedIdentifierOccurrences": 12
+          },
+          "current": {
+            "index": 5019,
+            "type": "VariableDeclaration",
+            "range": [
+              3717142,
+              3718642
+            ],
+            "nodes": 241,
+            "strictSha256": "626099947dedab726fd45d289031c968a2dd73236bb7407366db7118668bc202",
+            "shapeSha256": "4caf8195f4eb6740a3d981f2c205ef8df708a6693c632354f51990c9252a1041",
+            "identifierNamesErased": 57,
+            "protectedIdentifierOccurrences": 12
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 8,
+          "targetName": "K8",
+          "currentName": "K8",
+          "target": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144329,
+              145331
+            ],
+            "nodes": 322,
+            "strictSha256": "003c56d48677b32fcc4343ffb25f59e3f5387d1ef1f42b3f2589826ad85222f4",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "current": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144024,
+              145026
+            ],
+            "nodes": 322,
+            "strictSha256": "6fe3436a07e86ac340150ba3f98190442e2eb238abfece604db0a9fb4319e811",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 9,
+          "targetName": "sW6",
+          "currentName": "sW6",
+          "target": {
+            "index": 2024,
+            "type": "VariableDeclaration",
+            "range": [
+              868418,
+              868557
+            ],
+            "nodes": 15,
+            "strictSha256": "b37b1f2e3e42daa2c257596580e1b5a85a8d93ca9c216dade6008fb430a3ef51",
+            "shapeSha256": "2d7ecbc711963e02de4aa4376e95da05d4afaa4641d336f6516ad47b61477b5e",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 2024,
+            "type": "VariableDeclaration",
+            "range": [
+              868111,
+              868250
+            ],
+            "nodes": 15,
+            "strictSha256": "c5b95340e8d1264ed1cff96e99e53382eb24d71ca6d848634c212fb869cf3b8d",
+            "shapeSha256": "2d7ecbc711963e02de4aa4376e95da05d4afaa4641d336f6516ad47b61477b5e",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 10,
+          "targetName": "y8",
+          "currentName": "y8",
+          "target": {
+            "index": 757,
+            "type": "VariableDeclaration",
+            "range": [
+              126649,
+              127455
+            ],
+            "nodes": 225,
+            "strictSha256": "3fe00fbbd959ffa4bb5c5a4f4215308173dc9dd81109e907b469ff17e5a7fbcb",
+            "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+            "identifierNamesErased": 51,
+            "protectedIdentifierOccurrences": 30
+          },
+          "current": {
+            "index": 757,
+            "type": "VariableDeclaration",
+            "range": [
+              126344,
+              127150
+            ],
+            "nodes": 225,
+            "strictSha256": "50887b8da98d96949c858011e029ee4e74a969175b05aff11594f39dc8188987",
+            "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+            "identifierNamesErased": 51,
+            "protectedIdentifierOccurrences": 30
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 11,
+          "targetName": "W5",
+          "currentName": "f5",
+          "target": {
+            "index": 2401,
+            "type": "VariableDeclaration",
+            "range": [
+              962858,
+              964237
+            ],
+            "nodes": 445,
+            "strictSha256": "daf2b07e6822f60d97371054b7005062b013e6a01368d6e864a931482330a11b",
+            "shapeSha256": "27619406567a36693d07ce43e943b2466a1df40f79e226b8d7d288e30e0e6ce3",
+            "identifierNamesErased": 135,
+            "protectedIdentifierOccurrences": 33
+          },
+          "current": {
+            "index": 2405,
+            "type": "VariableDeclaration",
+            "range": [
+              963270,
+              964649
+            ],
+            "nodes": 445,
+            "strictSha256": "b97daa05c1a27463b4058ed7340ce822bef7796713b7ed1315e72c207d54dc07",
+            "shapeSha256": "27619406567a36693d07ce43e943b2466a1df40f79e226b8d7d288e30e0e6ce3",
+            "identifierNamesErased": 135,
+            "protectedIdentifierOccurrences": 33
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 12,
+          "targetName": "jC6",
+          "currentName": "KC6",
+          "target": {
+            "index": 14562,
+            "type": "VariableDeclaration",
+            "range": [
+              10679559,
+              10679601
+            ],
+            "nodes": 22,
+            "strictSha256": "34a3e8c30e6add6d1815ee0d58e4e6e3497bf7ca4ae52513fc790e61a8dc3b4c",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 14556,
+            "type": "VariableDeclaration",
+            "range": [
+              10667508,
+              10667550
+            ],
+            "nodes": 22,
+            "strictSha256": "070d96588850dc1aea2df61d035dd548cc1b76a6c50e28e7a667eaa814f6adb2",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 13,
+          "targetName": "o1",
+          "currentName": "l1",
+          "target": {
+            "index": 12780,
+            "type": "VariableDeclaration",
+            "range": [
+              9766723,
+              9767403
+            ],
+            "nodes": 206,
+            "strictSha256": "dd88d7f9723c5accdbcdeed802954956feb444d887e6a3cbfe034e947f5dfb51",
+            "shapeSha256": "4dce6b8a7d1d0b7e5fb801c223b27b3c6bd9dfdf8bd3c71ca0f30718c7f5cd79",
+            "identifierNamesErased": 67,
+            "protectedIdentifierOccurrences": 11
+          },
+          "current": {
+            "index": 12781,
+            "type": "VariableDeclaration",
+            "range": [
+              9760570,
+              9761250
+            ],
+            "nodes": 206,
+            "strictSha256": "bb9bde52f41ae5f19a62054be003bae9bcf136f4dd3d311bdee08558e247f1ae",
+            "shapeSha256": "4dce6b8a7d1d0b7e5fb801c223b27b3c6bd9dfdf8bd3c71ca0f30718c7f5cd79",
+            "identifierNamesErased": 67,
+            "protectedIdentifierOccurrences": 11
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 14,
+          "targetName": "qh",
+          "currentName": "tL",
+          "target": {
+            "index": 8494,
+            "type": "VariableDeclaration",
+            "range": [
+              6802258,
+              6802300
+            ],
+            "nodes": 22,
+            "strictSha256": "fd32975b92e8c60881c35c07bbfb65da7fd3aa473424475ee6bcbc00276b152a",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 8502,
+            "type": "VariableDeclaration",
+            "range": [
+              6803730,
+              6803772
+            ],
+            "nodes": 22,
+            "strictSha256": "ef581241a7c7911bdf0f9f4723d8afefe554e1bb52d6d6a62791f1c28e8b436c",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 15,
+          "targetName": "_K",
+          "currentName": "YK",
+          "target": {
+            "index": 15668,
+            "type": "VariableDeclaration",
+            "range": [
+              11399099,
+              11399873
+            ],
+            "nodes": 190,
+            "strictSha256": "59408ee227925de29b6fa71a55e9cdd43fad4c228c77eedf5ccc112b26e0309f",
+            "shapeSha256": "986decb87a0bbade00eb31111531311b14feb2df3004fecff05a96b4368e94c5",
+            "identifierNamesErased": 57,
+            "protectedIdentifierOccurrences": 10
+          },
+          "current": {
+            "index": 15662,
+            "type": "VariableDeclaration",
+            "range": [
+              11384512,
+              11385487
+            ],
+            "nodes": 206,
+            "strictSha256": "c43a197b95828a5c1ca5875c8b06efc840516c73c685194d672ec3d155e83111",
+            "shapeSha256": "581c1b5d5b13a5c1b3ded9d98670fc1160c0eb12fb3d9cab738e2cdb5021aa6a",
+            "identifierNamesErased": 59,
+            "protectedIdentifierOccurrences": 11
+          },
+          "supplierBodyMatches": false
+        },
+        {
+          "slotOneBased": 16,
+          "targetName": "tS6",
+          "currentName": "cS6",
+          "target": {
+            "index": 14167,
+            "type": "VariableDeclaration",
+            "range": [
+              10490635,
+              10490728
+            ],
+            "nodes": 45,
+            "strictSha256": "ebdb24df91841312534ab353a723d19632cbdc1aa76400830830bcfaa74be6b6",
+            "shapeSha256": "b710172337c8a14705cb0e3bb98a0cc1bc7e9f54e5af7f26f1a5830f085e3a31",
+            "identifierNamesErased": 13,
+            "protectedIdentifierOccurrences": 3
+          },
+          "current": {
+            "index": 14168,
+            "type": "VariableDeclaration",
+            "range": [
+              10484078,
+              10484171
+            ],
+            "nodes": 45,
+            "strictSha256": "8bf61deba943d0dc4203f8bcff98c5d5f8bae38b0163e03192394f8020c5fd35",
+            "shapeSha256": "b710172337c8a14705cb0e3bb98a0cc1bc7e9f54e5af7f26f1a5830f085e3a31",
+            "identifierNamesErased": 13,
+            "protectedIdentifierOccurrences": 3
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 17,
+          "targetName": "tI8",
+          "currentName": "nI8",
+          "target": {
+            "index": 10429,
+            "type": "VariableDeclaration",
+            "range": [
+              8373602,
+              8380700
+            ],
+            "nodes": 755,
+            "strictSha256": "91d4843ac37a6d96689bbf611ff7d77361f0d5d85f557a9685073c787838e9f2",
+            "shapeSha256": "8b3b6b07892ae6c31794df8217c2471b206c10add3912ce41f23fe728f37d818",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 10440,
+            "type": "VariableDeclaration",
+            "range": [
+              8370623,
+              8377721
+            ],
+            "nodes": 755,
+            "strictSha256": "18bb7a276cbf9940e71fe98f85f5a971c7d23d6adc8cac3448a57a9243b17eb8",
+            "shapeSha256": "8b3b6b07892ae6c31794df8217c2471b206c10add3912ce41f23fe728f37d818",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 18,
+          "targetName": "$s",
+          "currentName": "As",
+          "target": {
+            "index": 11372,
+            "type": "VariableDeclaration",
+            "range": [
+              9045883,
+              9045909
+            ],
+            "nodes": 13,
+            "strictSha256": "b3e43da25c0076d78d203da488212d80404f41225bcce0a1fce76d7d874fb0d2",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 11377,
+            "type": "VariableDeclaration",
+            "range": [
+              9039865,
+              9039891
+            ],
+            "nodes": 13,
+            "strictSha256": "969858441d64e91cbca8685fde5e01f07b0c1806126b093dcf9e0254583aab89",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 19,
+          "targetName": "lp",
+          "currentName": "lB",
+          "target": {
+            "index": 13299,
+            "type": "VariableDeclaration",
+            "range": [
+              9961664,
+              9961695
+            ],
+            "nodes": 16,
+            "strictSha256": "9e2aa30be6660faeb88704b338d9006f20f68a5556e42633bc64dda710637707",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 13300,
+            "type": "VariableDeclaration",
+            "range": [
+              9955506,
+              9955537
+            ],
+            "nodes": 16,
+            "strictSha256": "38964d9e135fd18626bdeed0539f2e7b588b5ec3b628fb72187ca8b048ca71d9",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 20,
+          "targetName": "EJ6",
+          "currentName": "EJ6",
+          "target": {
+            "index": 14185,
+            "type": "VariableDeclaration",
+            "range": [
+              10498399,
+              10498431
+            ],
+            "nodes": 16,
+            "strictSha256": "995625ed43f97ffe9a876113c36956acf5a12b28f0fd9f338535b0120182f0c2",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 14186,
+            "type": "VariableDeclaration",
+            "range": [
+              10491842,
+              10491874
+            ],
+            "nodes": 16,
+            "strictSha256": "b54ecd1ec81a2602f28bf4f18cf3ee6262af980bd4e1dafdd8f53131c825f1ce",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 21,
+          "targetName": "ps",
+          "currentName": "Bs",
+          "target": {
+            "index": 14178,
+            "type": "VariableDeclaration",
+            "range": [
+              10492867,
+              10493047
+            ],
+            "nodes": 42,
+            "strictSha256": "c2eeb44fef6eb419531601db770dc9d2a2992e1a4c1f06821a3a26ffc6b99559",
+            "shapeSha256": "3ebcdac3aeef2463d866942d302be9489894efa087d76f85ccc1fee8f20d702a",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 1
+          },
+          "current": {
+            "index": 14179,
+            "type": "VariableDeclaration",
+            "range": [
+              10486310,
+              10486490
+            ],
+            "nodes": 42,
+            "strictSha256": "63bb3fc9b1ab15c567acf6436d5b864269ee4861cd1df591e13684060f337853",
+            "shapeSha256": "3ebcdac3aeef2463d866942d302be9489894efa087d76f85ccc1fee8f20d702a",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 1
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 22,
+          "targetName": "C48",
+          "currentName": "y48",
+          "target": {
+            "index": 15361,
+            "type": "VariableDeclaration",
+            "range": [
+              11219685,
+              11221031
+            ],
+            "nodes": 326,
+            "strictSha256": "0f080d2b1de17ef2cda88afffbcbc6118673cb937272fcbb98acbb61d342c269",
+            "shapeSha256": "31af2a9d79a8fcf6028f411d29b5511549ebbb8ddbe55ca8e24a7e1e3e467f72",
+            "identifierNamesErased": 25,
+            "protectedIdentifierOccurrences": 82
+          },
+          "current": {
+            "index": 15355,
+            "type": "VariableDeclaration",
+            "range": [
+              11205575,
+              11206921
+            ],
+            "nodes": 326,
+            "strictSha256": "a4a49df4d8fcafe9fc78c03b6b8ff5f89bb37db4e83eb5e39ac21b4117591b29",
+            "shapeSha256": "31af2a9d79a8fcf6028f411d29b5511549ebbb8ddbe55ca8e24a7e1e3e467f72",
+            "identifierNamesErased": 25,
+            "protectedIdentifierOccurrences": 82
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 23,
+          "targetName": "jlK",
+          "currentName": "ocK",
+          "target": {
+            "index": 16258,
+            "type": "VariableDeclaration",
+            "range": [
+              11703982,
+              11704091
+            ],
+            "nodes": 38,
+            "strictSha256": "ff8d690508b2fc03eea27fd32d175b722281088b811537ca3a6dc8a0fbbf309c",
+            "shapeSha256": "5c9de84543bb8399941c4c568a052997c6a3a83e07c3f66646d0eee782e69563",
+            "identifierNamesErased": 11,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16250,
+            "type": "VariableDeclaration",
+            "range": [
+              11689260,
+              11689369
+            ],
+            "nodes": 38,
+            "strictSha256": "34e93ecd8a64db6c71d5ac9e6d7d5599df0cc6c11282babf538b0bbbfe83f96c",
+            "shapeSha256": "5c9de84543bb8399941c4c568a052997c6a3a83e07c3f66646d0eee782e69563",
+            "identifierNamesErased": 11,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 24,
+          "targetName": "Lc8",
+          "currentName": "vc8",
+          "target": {
+            "index": 16038,
+            "type": "VariableDeclaration",
+            "range": [
+              11589987,
+              11591273
+            ],
+            "nodes": 226,
+            "strictSha256": "52179bf451f671006df96ba9610d666b8fbc6a5cf1cb9ea115c2ed8f786edb2e",
+            "shapeSha256": "48bd2bdaa02a3d4fe74a962f403f4896571dda4f2668f8d6de2c0209cbab43a7",
+            "identifierNamesErased": 34,
+            "protectedIdentifierOccurrences": 51
+          },
+          "current": {
+            "index": 16030,
+            "type": "VariableDeclaration",
+            "range": [
+              11575302,
+              11576588
+            ],
+            "nodes": 226,
+            "strictSha256": "80fd6b0a69fe7e7de7c18497085c28a893b9a0d9f466348d37157f4da4dbc702",
+            "shapeSha256": "48bd2bdaa02a3d4fe74a962f403f4896571dda4f2668f8d6de2c0209cbab43a7",
+            "identifierNamesErased": 34,
+            "protectedIdentifierOccurrences": 51
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 25,
+          "targetName": "TlK",
+          "currentName": "OlK",
+          "target": {
+            "index": 16307,
+            "type": "VariableDeclaration",
+            "range": [
+              11766918,
+              11767033
+            ],
+            "nodes": 61,
+            "strictSha256": "36b10397c8544b8ebffa9cb43ddd4b85b2f0b21b9caf91becd00405c34576141",
+            "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+            "identifierNamesErased": 20,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16299,
+            "type": "VariableDeclaration",
+            "range": [
+              11752194,
+              11752309
+            ],
+            "nodes": 61,
+            "strictSha256": "ecada012888c0703a0394d08e33c3a253f62eaa1becc699dec7315c340930b7c",
+            "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+            "identifierNamesErased": 20,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 26,
+          "targetName": "k26",
+          "currentName": "Gw6",
+          "target": {
+            "index": 8910,
+            "type": "VariableDeclaration",
+            "range": [
+              6999660,
+              6999831
+            ],
+            "nodes": 59,
+            "strictSha256": "181e0944f8d1887fd5cf87b2a2bda74c94e6cdc4d6a445f44787881fd471d6d9",
+            "shapeSha256": "dd8fd840f95900ec1e9808b13f81c6d423296c820461dfba6ff478bcfb88d142",
+            "identifierNamesErased": 17,
+            "protectedIdentifierOccurrences": 4
+          },
+          "current": {
+            "index": 8918,
+            "type": "VariableDeclaration",
+            "range": [
+              6999235,
+              6999406
+            ],
+            "nodes": 59,
+            "strictSha256": "f7114c9a2b7ca6ff1a51fcc88ccd7fa8723ee8db6a08f6456f0a851435522883",
+            "shapeSha256": "dd8fd840f95900ec1e9808b13f81c6d423296c820461dfba6ff478bcfb88d142",
+            "identifierNamesErased": 17,
+            "protectedIdentifierOccurrences": 4
+          },
+          "supplierBodyMatches": true
+        }
+      ]
+    },
+    {
+      "name": "presence",
+      "target": {
+        "index": 16252,
+        "type": "VariableDeclaration",
+        "range": [
+          11702531,
+          11702584
+        ],
+        "nodes": 27,
+        "strictSha256": "c9a7d3eaa97c477505e499ab21c3d203b242374546cac3910737f451064e07ab",
+        "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16244,
+        "type": "VariableDeclaration",
+        "range": [
+          11687809,
+          11687862
+        ],
+        "nodes": 27,
+        "strictSha256": "bee5eeb9bdfcc0f3e67f5505c9961e56d97adc85bebcc395217a96274eff35ef",
+        "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "callCount": 5,
+      "completePrefixFieldsAndBoundOrderVerified": true,
+      "calls": [
+        {
+          "slotOneBased": 1,
+          "targetName": "TK",
+          "currentName": "kK",
+          "target": {
+            "index": 1863,
+            "type": "VariableDeclaration",
+            "range": [
+              808650,
+              808907
+            ],
+            "nodes": 62,
+            "strictSha256": "32ef3913c3356e584fb7d6a46cb6868f49e569aed41eda985663c6e1b44981a1",
+            "shapeSha256": "8b1f06c49ac4f73202ed43774c48de41793a80a0c2f1438355a1fd52e10955c4",
+            "identifierNamesErased": 20,
+            "protectedIdentifierOccurrences": 16
+          },
+          "current": {
+            "index": 1863,
+            "type": "VariableDeclaration",
+            "range": [
+              808345,
+              808602
+            ],
+            "nodes": 62,
+            "strictSha256": "6230fa0527b56c4f967bdd705c93d2dc8b3ee9ed66a5502602a30b45e9b19127",
+            "shapeSha256": "8b1f06c49ac4f73202ed43774c48de41793a80a0c2f1438355a1fd52e10955c4",
+            "identifierNamesErased": 20,
+            "protectedIdentifierOccurrences": 16
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 2,
+          "targetName": "kr8",
+          "currentName": "Dr8",
+          "target": {
+            "index": 343,
+            "type": "VariableDeclaration",
+            "range": [
+              23021,
+              23036
+            ],
+            "nodes": 5,
+            "strictSha256": "a81aa5f34b7b6117a5ae0ea05be8deddd548fc823ea07d59883db3193576bb50",
+            "shapeSha256": "7a353bb3bead5faebb2f19a387704250921ccb894a129813a87785f92253f548",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 343,
+            "type": "VariableDeclaration",
+            "range": [
+              22715,
+              22730
+            ],
+            "nodes": 5,
+            "strictSha256": "b8c75b90a2e5206000fbac3d3c24a1c4920530c42142338538d5c7c244a65d82",
+            "shapeSha256": "7a353bb3bead5faebb2f19a387704250921ccb894a129813a87785f92253f548",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 3,
+          "targetName": "T8",
+          "currentName": "v8",
+          "target": {
+            "index": 574,
+            "type": "VariableDeclaration",
+            "range": [
+              45124,
+              45227
+            ],
+            "nodes": 47,
+            "strictSha256": "dad05b2f3b0673228101ece22fd53f9fde1e8dc992ad7d76109341378a1b9747",
+            "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 2
+          },
+          "current": {
+            "index": 574,
+            "type": "VariableDeclaration",
+            "range": [
+              44818,
+              44921
+            ],
+            "nodes": 47,
+            "strictSha256": "4b37b5fccf8ce08265925b55e0e11155291e801123764f88199254cb7825216c",
+            "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 2
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 4,
+          "targetName": "K8",
+          "currentName": "K8",
+          "target": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144329,
+              145331
+            ],
+            "nodes": 322,
+            "strictSha256": "003c56d48677b32fcc4343ffb25f59e3f5387d1ef1f42b3f2589826ad85222f4",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "current": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144024,
+              145026
+            ],
+            "nodes": 322,
+            "strictSha256": "6fe3436a07e86ac340150ba3f98190442e2eb238abfece604db0a9fb4319e811",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 5,
+          "targetName": "s1",
+          "currentName": "t1",
+          "target": {
+            "index": 4927,
+            "type": "VariableDeclaration",
+            "range": [
+              3698447,
+              3699451
+            ],
+            "nodes": 338,
+            "strictSha256": "232df73ca158474a531233e9fc487aff5428fb7258c0f581ce613d39780faa11",
+            "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+            "identifierNamesErased": 99,
+            "protectedIdentifierOccurrences": 29
+          },
+          "current": {
+            "index": 4933,
+            "type": "VariableDeclaration",
+            "range": [
+              3699719,
+              3700723
+            ],
+            "nodes": 338,
+            "strictSha256": "913f577c87f38191d32fb95b9967f69120324933c716f6611062056bac9eaaa8",
+            "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+            "identifierNamesErased": 99,
+            "protectedIdentifierOccurrences": 29
+          },
+          "supplierBodyMatches": true
+        }
+      ]
+    },
+    {
+      "name": "env",
+      "target": {
+        "index": 16307,
+        "type": "VariableDeclaration",
+        "range": [
+          11766918,
+          11767033
+        ],
+        "nodes": 61,
+        "strictSha256": "36b10397c8544b8ebffa9cb43ddd4b85b2f0b21b9caf91becd00405c34576141",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16299,
+        "type": "VariableDeclaration",
+        "range": [
+          11752194,
+          11752309
+        ],
+        "nodes": 61,
+        "strictSha256": "ecada012888c0703a0394d08e33c3a253f62eaa1becc699dec7315c340930b7c",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "callCount": 18,
+      "completePrefixFieldsAndBoundOrderVerified": true,
+      "calls": [
+        {
+          "slotOneBased": 1,
+          "targetName": "N48",
+          "currentName": "Z48",
+          "target": {
+            "index": 15031,
+            "type": "VariableDeclaration",
+            "range": [
+              10900946,
+              10901129
+            ],
+            "nodes": 56,
+            "strictSha256": "2b9aea7940c1019ee12bddc6608a636fe01b83d3994b322ec138ee3c676bd11d",
+            "shapeSha256": "fd35fe94dfddb5fec70f1c8db8040bdbfd71979397aa03b250fcb72cb2f7c87e",
+            "identifierNamesErased": 14,
+            "protectedIdentifierOccurrences": 6
+          },
+          "current": {
+            "index": 15025,
+            "type": "VariableDeclaration",
+            "range": [
+              10888829,
+              10889012
+            ],
+            "nodes": 56,
+            "strictSha256": "992aa749a450b124d1bef83a04cd71ac15a58ab63fd1a4a4bec4ccd6bea5c306",
+            "shapeSha256": "fd35fe94dfddb5fec70f1c8db8040bdbfd71979397aa03b250fcb72cb2f7c87e",
+            "identifierNamesErased": 14,
+            "protectedIdentifierOccurrences": 6
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 2,
+          "targetName": "K8",
+          "currentName": "K8",
+          "target": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144329,
+              145331
+            ],
+            "nodes": 322,
+            "strictSha256": "003c56d48677b32fcc4343ffb25f59e3f5387d1ef1f42b3f2589826ad85222f4",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "current": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144024,
+              145026
+            ],
+            "nodes": 322,
+            "strictSha256": "6fe3436a07e86ac340150ba3f98190442e2eb238abfece604db0a9fb4319e811",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 3,
+          "targetName": "$$",
+          "currentName": "$$",
+          "target": {
+            "index": 2117,
+            "type": "VariableDeclaration",
+            "range": [
+              876367,
+              876393
+            ],
+            "nodes": 13,
+            "strictSha256": "f541ae518ab28787b47cc2f9cf78af235157fc28204b63ae253be7e94ba078cd",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 2117,
+            "type": "VariableDeclaration",
+            "range": [
+              876060,
+              876086
+            ],
+            "nodes": 13,
+            "strictSha256": "3f2ea6c21037525aa013cc7176cf5b3bb1ce1b0d6744191613e0e65a41d8fcdb",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 4,
+          "targetName": "V8",
+          "currentName": "V8",
+          "target": {
+            "index": 580,
+            "type": "VariableDeclaration",
+            "range": [
+              45787,
+              45810
+            ],
+            "nodes": 11,
+            "strictSha256": "0b80c496e6e0b9f2cd77b2dfb26f78beba0dbf2ad16e5ce8625f97baf8c63e74",
+            "shapeSha256": "db841cb530ad8146a7ba405e8ad0385cb30a6d13d188f4045bf48d5735670f9b",
+            "identifierNamesErased": 3,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 580,
+            "type": "VariableDeclaration",
+            "range": [
+              45481,
+              45504
+            ],
+            "nodes": 11,
+            "strictSha256": "92baba2ba3de1b5ea1e17adbdff925de2dead1ad90c3085a800898e7480f726d",
+            "shapeSha256": "db841cb530ad8146a7ba405e8ad0385cb30a6d13d188f4045bf48d5735670f9b",
+            "identifierNamesErased": 3,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 5,
+          "targetName": "QA",
+          "currentName": "Aw",
+          "target": {
+            "index": 4867,
+            "type": "VariableDeclaration",
+            "range": [
+              3678626,
+              3681498
+            ],
+            "nodes": 480,
+            "strictSha256": "f68dda037db9bc74f593a6311c4fc19d2262cb4e931a238df91a31461a5486c1",
+            "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+            "identifierNamesErased": 83,
+            "protectedIdentifierOccurrences": 108
+          },
+          "current": {
+            "index": 4873,
+            "type": "VariableDeclaration",
+            "range": [
+              3679898,
+              3682770
+            ],
+            "nodes": 480,
+            "strictSha256": "24a03a2a8ea87e558ece1cacf5dfc84e8c1adc932feb7a6804c1491c48bd4972",
+            "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+            "identifierNamesErased": 83,
+            "protectedIdentifierOccurrences": 108
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 6,
+          "targetName": "a9",
+          "currentName": "a9",
+          "target": {
+            "index": 585,
+            "type": "VariableDeclaration",
+            "range": [
+              46483,
+              46511
+            ],
+            "nodes": 12,
+            "strictSha256": "24e8ce0f7d098909839f36265bd12eab37779637d3cc2d62327c1a950297b24a",
+            "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 585,
+            "type": "VariableDeclaration",
+            "range": [
+              46177,
+              46205
+            ],
+            "nodes": 12,
+            "strictSha256": "5c79e679f7339a3709b7461b70d0138065ad8c1d5e69b5677dd2ff6b46fa9ebf",
+            "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 7,
+          "targetName": "rc8",
+          "currentName": "Qc8",
+          "target": {
+            "index": 16271,
+            "type": "VariableDeclaration",
+            "range": [
+              11708547,
+              11708596
+            ],
+            "nodes": 25,
+            "strictSha256": "7b59a8c39469b79ca36e629d06bd688af48f8ce7ce4c1d8ca271fa660c5f4e29",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16263,
+            "type": "VariableDeclaration",
+            "range": [
+              11693825,
+              11693874
+            ],
+            "nodes": 25,
+            "strictSha256": "aa0123fe918192695e5c537fbd59d8c704aba568848cd17cf63d2b04ec229a92",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 8,
+          "targetName": "o48",
+          "currentName": "Q48",
+          "target": {
+            "index": 16057,
+            "type": "VariableDeclaration",
+            "range": [
+              11598566,
+              11598593
+            ],
+            "nodes": 13,
+            "strictSha256": "d20aa472e9ce7f62db1354bf855661637c9c6885cae95d1b891334d9806ebf83",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16049,
+            "type": "VariableDeclaration",
+            "range": [
+              11583881,
+              11583908
+            ],
+            "nodes": 13,
+            "strictSha256": "468a5112f8ac3ad50a6aa199efe429f6458c220e48d81792bdc9f392be03036a",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 9,
+          "targetName": "TN",
+          "currentName": "AC",
+          "target": {
+            "index": 4953,
+            "type": "VariableDeclaration",
+            "range": [
+              3702495,
+              3702579
+            ],
+            "nodes": 41,
+            "strictSha256": "947ed0a0a655f161f7cb589a9e86e5ea1e24d0a9004f1c44d77e146bd3c8a499",
+            "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+            "identifierNamesErased": 13,
+            "protectedIdentifierOccurrences": 1
+          },
+          "current": {
+            "index": 4958,
+            "type": "VariableDeclaration",
+            "range": [
+              3703722,
+              3703784
+            ],
+            "nodes": 34,
+            "strictSha256": "133a18c1d57fab26b4b65f8a90a5950a5751bb3793f4c412d4fa5b2bfc7377d2",
+            "shapeSha256": "0936532dd0e4a74256c2b1e6e11b297e5a238f229e97bbc30d4f2a17ffb25b2e",
+            "identifierNamesErased": 11,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": false
+        },
+        {
+          "slotOneBased": 10,
+          "targetName": "J$7",
+          "currentName": "_$7",
+          "target": {
+            "index": 16280,
+            "type": "VariableDeclaration",
+            "range": [
+              11722050,
+              11724570
+            ],
+            "nodes": 580,
+            "strictSha256": "8b668529440671eee95600af0de409d34b6ca82ab2bd8cfba91d1828f26f6347",
+            "shapeSha256": "1b718d13882b68c7d6d5c3a9c4a4f8e6cc4fcdae37ae5b94f6ebed30ee9a476b",
+            "identifierNamesErased": 101,
+            "protectedIdentifierOccurrences": 92
+          },
+          "current": {
+            "index": 16272,
+            "type": "VariableDeclaration",
+            "range": [
+              11707328,
+              11709848
+            ],
+            "nodes": 580,
+            "strictSha256": "d4b18ad5436aa7c1885a61fa83a9ad684623b705e2cb691cea0bf67903363579",
+            "shapeSha256": "1b718d13882b68c7d6d5c3a9c4a4f8e6cc4fcdae37ae5b94f6ebed30ee9a476b",
+            "identifierNamesErased": 101,
+            "protectedIdentifierOccurrences": 92
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 11,
+          "targetName": "P$7",
+          "currentName": "$$7",
+          "target": {
+            "index": 16301,
+            "type": "VariableDeclaration",
+            "range": [
+              11746639,
+              11746689
+            ],
+            "nodes": 25,
+            "strictSha256": "9977f54e7882d00238410c8a578cd7b93d4d9e91a8fad5b29de4d168cdfa616f",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16293,
+            "type": "VariableDeclaration",
+            "range": [
+              11731917,
+              11731967
+            ],
+            "nodes": 25,
+            "strictSha256": "e6ade9bf5ee15d2b2d5dedbee1e7a81b840325898764247bfac77433af9db4a7",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 12,
+          "targetName": "qh",
+          "currentName": "tL",
+          "target": {
+            "index": 8494,
+            "type": "VariableDeclaration",
+            "range": [
+              6802258,
+              6802300
+            ],
+            "nodes": 22,
+            "strictSha256": "fd32975b92e8c60881c35c07bbfb65da7fd3aa473424475ee6bcbc00276b152a",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 8502,
+            "type": "VariableDeclaration",
+            "range": [
+              6803730,
+              6803772
+            ],
+            "nodes": 22,
+            "strictSha256": "ef581241a7c7911bdf0f9f4723d8afefe554e1bb52d6d6a62791f1c28e8b436c",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 13,
+          "targetName": "g8",
+          "currentName": "p8",
+          "target": {
+            "index": 607,
+            "type": "VariableDeclaration",
+            "range": [
+              48877,
+              49516
+            ],
+            "nodes": 70,
+            "strictSha256": "b91a173308da044583c01f5dcc3f9987e18d352e6e2534c6e139ed0b0b2a6ce6",
+            "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 5
+          },
+          "current": {
+            "index": 607,
+            "type": "VariableDeclaration",
+            "range": [
+              48572,
+              49211
+            ],
+            "nodes": 70,
+            "strictSha256": "f0d61742368f86b9bc83d356c24c63aeadefab7c1976a4d3b65dfac54016ea53",
+            "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 5
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 14,
+          "targetName": "N48",
+          "currentName": "Z48",
+          "target": {
+            "index": 15031,
+            "type": "VariableDeclaration",
+            "range": [
+              10900946,
+              10901129
+            ],
+            "nodes": 56,
+            "strictSha256": "2b9aea7940c1019ee12bddc6608a636fe01b83d3994b322ec138ee3c676bd11d",
+            "shapeSha256": "fd35fe94dfddb5fec70f1c8db8040bdbfd71979397aa03b250fcb72cb2f7c87e",
+            "identifierNamesErased": 14,
+            "protectedIdentifierOccurrences": 6
+          },
+          "current": {
+            "index": 15025,
+            "type": "VariableDeclaration",
+            "range": [
+              10888829,
+              10889012
+            ],
+            "nodes": 56,
+            "strictSha256": "992aa749a450b124d1bef83a04cd71ac15a58ab63fd1a4a4bec4ccd6bea5c306",
+            "shapeSha256": "fd35fe94dfddb5fec70f1c8db8040bdbfd71979397aa03b250fcb72cb2f7c87e",
+            "identifierNamesErased": 14,
+            "protectedIdentifierOccurrences": 6
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 15,
+          "targetName": "ps",
+          "currentName": "Bs",
+          "target": {
+            "index": 14178,
+            "type": "VariableDeclaration",
+            "range": [
+              10492867,
+              10493047
+            ],
+            "nodes": 42,
+            "strictSha256": "c2eeb44fef6eb419531601db770dc9d2a2992e1a4c1f06821a3a26ffc6b99559",
+            "shapeSha256": "3ebcdac3aeef2463d866942d302be9489894efa087d76f85ccc1fee8f20d702a",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 1
+          },
+          "current": {
+            "index": 14179,
+            "type": "VariableDeclaration",
+            "range": [
+              10486310,
+              10486490
+            ],
+            "nodes": 42,
+            "strictSha256": "63bb3fc9b1ab15c567acf6436d5b864269ee4861cd1df591e13684060f337853",
+            "shapeSha256": "3ebcdac3aeef2463d866942d302be9489894efa087d76f85ccc1fee8f20d702a",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 1
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 16,
+          "targetName": "vY7",
+          "currentName": "JY7",
+          "target": {
+            "index": 16035,
+            "type": "VariableDeclaration",
+            "range": [
+              11589504,
+              11589857
+            ],
+            "nodes": 35,
+            "strictSha256": "5d7a1b3f23f581254f6469af20a14ff9a4d1c4228764677de942377629bb3ad7",
+            "shapeSha256": "b9e788a7aebd27943c3e3b7852f37a0801493e1f204c993891e5441420bf9117",
+            "identifierNamesErased": 3,
+            "protectedIdentifierOccurrences": 8
+          },
+          "current": {
+            "index": 16027,
+            "type": "VariableDeclaration",
+            "range": [
+              11574819,
+              11575172
+            ],
+            "nodes": 35,
+            "strictSha256": "8746cf27bd860f0397dd61e5568334dd67e84da097169b4ea623e81da5368567",
+            "shapeSha256": "b9e788a7aebd27943c3e3b7852f37a0801493e1f204c993891e5441420bf9117",
+            "identifierNamesErased": 3,
+            "protectedIdentifierOccurrences": 8
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 17,
+          "targetName": "y8",
+          "currentName": "y8",
+          "target": {
+            "index": 757,
+            "type": "VariableDeclaration",
+            "range": [
+              126649,
+              127455
+            ],
+            "nodes": 225,
+            "strictSha256": "3fe00fbbd959ffa4bb5c5a4f4215308173dc9dd81109e907b469ff17e5a7fbcb",
+            "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+            "identifierNamesErased": 51,
+            "protectedIdentifierOccurrences": 30
+          },
+          "current": {
+            "index": 757,
+            "type": "VariableDeclaration",
+            "range": [
+              126344,
+              127150
+            ],
+            "nodes": 225,
+            "strictSha256": "50887b8da98d96949c858011e029ee4e74a969175b05aff11594f39dc8188987",
+            "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+            "identifierNamesErased": 51,
+            "protectedIdentifierOccurrences": 30
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 18,
+          "targetName": "v_7",
+          "currentName": "P_7",
+          "target": {
+            "index": 15034,
+            "type": "VariableDeclaration",
+            "range": [
+              10901168,
+              10901196
+            ],
+            "nodes": 13,
+            "strictSha256": "94fbfcb32a7f56d93c3def53be4db1139292804cbbe9063fc78268d81a94377f",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 15028,
+            "type": "VariableDeclaration",
+            "range": [
+              10889051,
+              10889079
+            ],
+            "nodes": 13,
+            "strictSha256": "092a391aeacf6a40eff8fdd0d06a008033581febe74ea44ae90dfe65c4c72102",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        }
+      ]
+    },
+    {
+      "name": "remote",
+      "target": {
+        "index": 16321,
+        "type": "VariableDeclaration",
+        "range": [
+          11778324,
+          11778439
+        ],
+        "nodes": 61,
+        "strictSha256": "a2283e1f2faa82acdd5b4d859f1df4b08d85119a8a3eb5dc221d3c4e2dd08b0e",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16313,
+        "type": "VariableDeclaration",
+        "range": [
+          11763598,
+          11763713
+        ],
+        "nodes": 61,
+        "strictSha256": "2a3a3090205ae90cb6d64db92e481ea61f5de6cc912b156d4946df64829d22cc",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "callCount": 18,
+      "completePrefixFieldsAndBoundOrderVerified": true,
+      "calls": [
+        {
+          "slotOneBased": 1,
+          "targetName": "TK",
+          "currentName": "kK",
+          "target": {
+            "index": 1863,
+            "type": "VariableDeclaration",
+            "range": [
+              808650,
+              808907
+            ],
+            "nodes": 62,
+            "strictSha256": "32ef3913c3356e584fb7d6a46cb6868f49e569aed41eda985663c6e1b44981a1",
+            "shapeSha256": "8b1f06c49ac4f73202ed43774c48de41793a80a0c2f1438355a1fd52e10955c4",
+            "identifierNamesErased": 20,
+            "protectedIdentifierOccurrences": 16
+          },
+          "current": {
+            "index": 1863,
+            "type": "VariableDeclaration",
+            "range": [
+              808345,
+              808602
+            ],
+            "nodes": 62,
+            "strictSha256": "6230fa0527b56c4f967bdd705c93d2dc8b3ee9ed66a5502602a30b45e9b19127",
+            "shapeSha256": "8b1f06c49ac4f73202ed43774c48de41793a80a0c2f1438355a1fd52e10955c4",
+            "identifierNamesErased": 20,
+            "protectedIdentifierOccurrences": 16
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 2,
+          "targetName": "P$7",
+          "currentName": "$$7",
+          "target": {
+            "index": 16301,
+            "type": "VariableDeclaration",
+            "range": [
+              11746639,
+              11746689
+            ],
+            "nodes": 25,
+            "strictSha256": "9977f54e7882d00238410c8a578cd7b93d4d9e91a8fad5b29de4d168cdfa616f",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16293,
+            "type": "VariableDeclaration",
+            "range": [
+              11731917,
+              11731967
+            ],
+            "nodes": 25,
+            "strictSha256": "e6ade9bf5ee15d2b2d5dedbee1e7a81b840325898764247bfac77433af9db4a7",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 3,
+          "targetName": "o48",
+          "currentName": "Q48",
+          "target": {
+            "index": 16057,
+            "type": "VariableDeclaration",
+            "range": [
+              11598566,
+              11598593
+            ],
+            "nodes": 13,
+            "strictSha256": "d20aa472e9ce7f62db1354bf855661637c9c6885cae95d1b891334d9806ebf83",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16049,
+            "type": "VariableDeclaration",
+            "range": [
+              11583881,
+              11583908
+            ],
+            "nodes": 13,
+            "strictSha256": "468a5112f8ac3ad50a6aa199efe429f6458c220e48d81792bdc9f392be03036a",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 4,
+          "targetName": "Ec8",
+          "currentName": "Tc8",
+          "target": {
+            "index": 16033,
+            "type": "VariableDeclaration",
+            "range": [
+              11589455,
+              11589497
+            ],
+            "nodes": 22,
+            "strictSha256": "616a7cba8cabe32e3818bb63dc74a8825bc5e62d647d1acc633ad085fa0613c2",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16025,
+            "type": "VariableDeclaration",
+            "range": [
+              11574770,
+              11574812
+            ],
+            "nodes": 22,
+            "strictSha256": "92e7ea73a4c40554dcc565511bd28ba1469e46c491722ba0b2e1af458517d3ca",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 5,
+          "targetName": "k26",
+          "currentName": "Gw6",
+          "target": {
+            "index": 8910,
+            "type": "VariableDeclaration",
+            "range": [
+              6999660,
+              6999831
+            ],
+            "nodes": 59,
+            "strictSha256": "181e0944f8d1887fd5cf87b2a2bda74c94e6cdc4d6a445f44787881fd471d6d9",
+            "shapeSha256": "dd8fd840f95900ec1e9808b13f81c6d423296c820461dfba6ff478bcfb88d142",
+            "identifierNamesErased": 17,
+            "protectedIdentifierOccurrences": 4
+          },
+          "current": {
+            "index": 8918,
+            "type": "VariableDeclaration",
+            "range": [
+              6999235,
+              6999406
+            ],
+            "nodes": 59,
+            "strictSha256": "f7114c9a2b7ca6ff1a51fcc88ccd7fa8723ee8db6a08f6456f0a851435522883",
+            "shapeSha256": "dd8fd840f95900ec1e9808b13f81c6d423296c820461dfba6ff478bcfb88d142",
+            "identifierNamesErased": 17,
+            "protectedIdentifierOccurrences": 4
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 6,
+          "targetName": "C48",
+          "currentName": "y48",
+          "target": {
+            "index": 15361,
+            "type": "VariableDeclaration",
+            "range": [
+              11219685,
+              11221031
+            ],
+            "nodes": 326,
+            "strictSha256": "0f080d2b1de17ef2cda88afffbcbc6118673cb937272fcbb98acbb61d342c269",
+            "shapeSha256": "31af2a9d79a8fcf6028f411d29b5511549ebbb8ddbe55ca8e24a7e1e3e467f72",
+            "identifierNamesErased": 25,
+            "protectedIdentifierOccurrences": 82
+          },
+          "current": {
+            "index": 15355,
+            "type": "VariableDeclaration",
+            "range": [
+              11205575,
+              11206921
+            ],
+            "nodes": 326,
+            "strictSha256": "a4a49df4d8fcafe9fc78c03b6b8ff5f89bb37db4e83eb5e39ac21b4117591b29",
+            "shapeSha256": "31af2a9d79a8fcf6028f411d29b5511549ebbb8ddbe55ca8e24a7e1e3e467f72",
+            "identifierNamesErased": 25,
+            "protectedIdentifierOccurrences": 82
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 7,
+          "targetName": "rc8",
+          "currentName": "Qc8",
+          "target": {
+            "index": 16271,
+            "type": "VariableDeclaration",
+            "range": [
+              11708547,
+              11708596
+            ],
+            "nodes": 25,
+            "strictSha256": "7b59a8c39469b79ca36e629d06bd688af48f8ce7ce4c1d8ca271fa660c5f4e29",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16263,
+            "type": "VariableDeclaration",
+            "range": [
+              11693825,
+              11693874
+            ],
+            "nodes": 25,
+            "strictSha256": "aa0123fe918192695e5c537fbd59d8c704aba568848cd17cf63d2b04ec229a92",
+            "shapeSha256": "89cdf23989038419f62c8b553ba904ba979e90ca1752418c1af7293211c595e8",
+            "identifierNamesErased": 8,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 8,
+          "targetName": "ps",
+          "currentName": "Bs",
+          "target": {
+            "index": 14178,
+            "type": "VariableDeclaration",
+            "range": [
+              10492867,
+              10493047
+            ],
+            "nodes": 42,
+            "strictSha256": "c2eeb44fef6eb419531601db770dc9d2a2992e1a4c1f06821a3a26ffc6b99559",
+            "shapeSha256": "3ebcdac3aeef2463d866942d302be9489894efa087d76f85ccc1fee8f20d702a",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 1
+          },
+          "current": {
+            "index": 14179,
+            "type": "VariableDeclaration",
+            "range": [
+              10486310,
+              10486490
+            ],
+            "nodes": 42,
+            "strictSha256": "63bb3fc9b1ab15c567acf6436d5b864269ee4861cd1df591e13684060f337853",
+            "shapeSha256": "3ebcdac3aeef2463d866942d302be9489894efa087d76f85ccc1fee8f20d702a",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 1
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 9,
+          "targetName": "K8",
+          "currentName": "K8",
+          "target": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144329,
+              145331
+            ],
+            "nodes": 322,
+            "strictSha256": "003c56d48677b32fcc4343ffb25f59e3f5387d1ef1f42b3f2589826ad85222f4",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "current": {
+            "index": 893,
+            "type": "VariableDeclaration",
+            "range": [
+              144024,
+              145026
+            ],
+            "nodes": 322,
+            "strictSha256": "6fe3436a07e86ac340150ba3f98190442e2eb238abfece604db0a9fb4319e811",
+            "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+            "identifierNamesErased": 81,
+            "protectedIdentifierOccurrences": 39
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 10,
+          "targetName": "$$",
+          "currentName": "$$",
+          "target": {
+            "index": 2117,
+            "type": "VariableDeclaration",
+            "range": [
+              876367,
+              876393
+            ],
+            "nodes": 13,
+            "strictSha256": "f541ae518ab28787b47cc2f9cf78af235157fc28204b63ae253be7e94ba078cd",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 2117,
+            "type": "VariableDeclaration",
+            "range": [
+              876060,
+              876086
+            ],
+            "nodes": 13,
+            "strictSha256": "3f2ea6c21037525aa013cc7176cf5b3bb1ce1b0d6744191613e0e65a41d8fcdb",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 11,
+          "targetName": "g8",
+          "currentName": "p8",
+          "target": {
+            "index": 607,
+            "type": "VariableDeclaration",
+            "range": [
+              48877,
+              49516
+            ],
+            "nodes": 70,
+            "strictSha256": "b91a173308da044583c01f5dcc3f9987e18d352e6e2534c6e139ed0b0b2a6ce6",
+            "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 5
+          },
+          "current": {
+            "index": 607,
+            "type": "VariableDeclaration",
+            "range": [
+              48572,
+              49211
+            ],
+            "nodes": 70,
+            "strictSha256": "f0d61742368f86b9bc83d356c24c63aeadefab7c1976a4d3b65dfac54016ea53",
+            "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 5
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 12,
+          "targetName": "y8",
+          "currentName": "y8",
+          "target": {
+            "index": 757,
+            "type": "VariableDeclaration",
+            "range": [
+              126649,
+              127455
+            ],
+            "nodes": 225,
+            "strictSha256": "3fe00fbbd959ffa4bb5c5a4f4215308173dc9dd81109e907b469ff17e5a7fbcb",
+            "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+            "identifierNamesErased": 51,
+            "protectedIdentifierOccurrences": 30
+          },
+          "current": {
+            "index": 757,
+            "type": "VariableDeclaration",
+            "range": [
+              126344,
+              127150
+            ],
+            "nodes": 225,
+            "strictSha256": "50887b8da98d96949c858011e029ee4e74a969175b05aff11594f39dc8188987",
+            "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+            "identifierNamesErased": 51,
+            "protectedIdentifierOccurrences": 30
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 13,
+          "targetName": "a9",
+          "currentName": "a9",
+          "target": {
+            "index": 585,
+            "type": "VariableDeclaration",
+            "range": [
+              46483,
+              46511
+            ],
+            "nodes": 12,
+            "strictSha256": "24e8ce0f7d098909839f36265bd12eab37779637d3cc2d62327c1a950297b24a",
+            "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 585,
+            "type": "VariableDeclaration",
+            "range": [
+              46177,
+              46205
+            ],
+            "nodes": 12,
+            "strictSha256": "5c79e679f7339a3709b7461b70d0138065ad8c1d5e69b5677dd2ff6b46fa9ebf",
+            "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 14,
+          "targetName": "V8",
+          "currentName": "V8",
+          "target": {
+            "index": 580,
+            "type": "VariableDeclaration",
+            "range": [
+              45787,
+              45810
+            ],
+            "nodes": 11,
+            "strictSha256": "0b80c496e6e0b9f2cd77b2dfb26f78beba0dbf2ad16e5ce8625f97baf8c63e74",
+            "shapeSha256": "db841cb530ad8146a7ba405e8ad0385cb30a6d13d188f4045bf48d5735670f9b",
+            "identifierNamesErased": 3,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 580,
+            "type": "VariableDeclaration",
+            "range": [
+              45481,
+              45504
+            ],
+            "nodes": 11,
+            "strictSha256": "92baba2ba3de1b5ea1e17adbdff925de2dead1ad90c3085a800898e7480f726d",
+            "shapeSha256": "db841cb530ad8146a7ba405e8ad0385cb30a6d13d188f4045bf48d5735670f9b",
+            "identifierNamesErased": 3,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 15,
+          "targetName": "QA",
+          "currentName": "Aw",
+          "target": {
+            "index": 4867,
+            "type": "VariableDeclaration",
+            "range": [
+              3678626,
+              3681498
+            ],
+            "nodes": 480,
+            "strictSha256": "f68dda037db9bc74f593a6311c4fc19d2262cb4e931a238df91a31461a5486c1",
+            "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+            "identifierNamesErased": 83,
+            "protectedIdentifierOccurrences": 108
+          },
+          "current": {
+            "index": 4873,
+            "type": "VariableDeclaration",
+            "range": [
+              3679898,
+              3682770
+            ],
+            "nodes": 480,
+            "strictSha256": "24a03a2a8ea87e558ece1cacf5dfc84e8c1adc932feb7a6804c1491c48bd4972",
+            "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+            "identifierNamesErased": 83,
+            "protectedIdentifierOccurrences": 108
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 16,
+          "targetName": "W$7",
+          "currentName": "A$7",
+          "target": {
+            "index": 16312,
+            "type": "VariableDeclaration",
+            "range": [
+              11768905,
+              11768947
+            ],
+            "nodes": 22,
+            "strictSha256": "994de4397585ceb3a35b921d423197aecc4c6ef02e6808cf7d51eadb6794952c",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16304,
+            "type": "VariableDeclaration",
+            "range": [
+              11754181,
+              11754223
+            ],
+            "nodes": 22,
+            "strictSha256": "a8f8b825cc1595ef19b998e2333f4cf68a6cc41d71e23438a3ded42a37327b7c",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 17,
+          "targetName": "W$7",
+          "currentName": "A$7",
+          "target": {
+            "index": 16312,
+            "type": "VariableDeclaration",
+            "range": [
+              11768905,
+              11768947
+            ],
+            "nodes": 22,
+            "strictSha256": "994de4397585ceb3a35b921d423197aecc4c6ef02e6808cf7d51eadb6794952c",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 16304,
+            "type": "VariableDeclaration",
+            "range": [
+              11754181,
+              11754223
+            ],
+            "nodes": 22,
+            "strictSha256": "a8f8b825cc1595ef19b998e2333f4cf68a6cc41d71e23438a3ded42a37327b7c",
+            "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 18,
+          "targetName": "$s",
+          "currentName": "As",
+          "target": {
+            "index": 11372,
+            "type": "VariableDeclaration",
+            "range": [
+              9045883,
+              9045909
+            ],
+            "nodes": 13,
+            "strictSha256": "b3e43da25c0076d78d203da488212d80404f41225bcce0a1fce76d7d874fb0d2",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 11377,
+            "type": "VariableDeclaration",
+            "range": [
+              9039865,
+              9039891
+            ],
+            "nodes": 13,
+            "strictSha256": "969858441d64e91cbca8685fde5e01f07b0c1806126b093dcf9e0254583aab89",
+            "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+            "identifierNamesErased": 4,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        }
+      ]
+    },
+    {
+      "name": "metadata",
+      "target": {
+        "index": 4867,
+        "type": "VariableDeclaration",
+        "range": [
+          3678626,
+          3681498
+        ],
+        "nodes": 480,
+        "strictSha256": "f68dda037db9bc74f593a6311c4fc19d2262cb4e931a238df91a31461a5486c1",
+        "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+        "identifierNamesErased": 83,
+        "protectedIdentifierOccurrences": 108
+      },
+      "current": {
+        "index": 4873,
+        "type": "VariableDeclaration",
+        "range": [
+          3679898,
+          3682770
+        ],
+        "nodes": 480,
+        "strictSha256": "24a03a2a8ea87e558ece1cacf5dfc84e8c1adc932feb7a6804c1491c48bd4972",
+        "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+        "identifierNamesErased": 83,
+        "protectedIdentifierOccurrences": 108
+      },
+      "callCount": 15,
+      "completePrefixFieldsAndBoundOrderVerified": true,
+      "calls": [
+        {
+          "slotOneBased": 1,
+          "targetName": "qK",
+          "currentName": "_K",
+          "target": {
+            "index": 282,
+            "type": "VariableDeclaration",
+            "range": [
+              20004,
+              20047
+            ],
+            "nodes": 20,
+            "strictSha256": "271c481073f0b9ef2b676542db4c840ad2a9e20c83fb9c24fe396a2a75bb8854",
+            "shapeSha256": "ae65c4ede38b82c024cbb84370d42254286f09b1ee8a3968c1d36ad4c565892f",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 1
+          },
+          "current": {
+            "index": 282,
+            "type": "VariableDeclaration",
+            "range": [
+              19698,
+              19741
+            ],
+            "nodes": 20,
+            "strictSha256": "88436ec7edcf11a77ee586632857dfbeb95990179601802a90bc56f7cdf23f40",
+            "shapeSha256": "ae65c4ede38b82c024cbb84370d42254286f09b1ee8a3968c1d36ad4c565892f",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 1
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 2,
+          "targetName": "R_",
+          "currentName": "h_",
+          "target": {
+            "index": 2479,
+            "type": "VariableDeclaration",
+            "range": [
+              992904,
+              996179
+            ],
+            "nodes": 694,
+            "strictSha256": "356b0f7bad4e92f75f9ad630c5ad074684292aa565fcac1e9996a928e35f9c48",
+            "shapeSha256": "9e109d0654462c8c559460db1f9f42ddcf602f7bdde4aec10b31bf2f014ebfed",
+            "identifierNamesErased": 123,
+            "protectedIdentifierOccurrences": 106
+          },
+          "current": {
+            "index": 2483,
+            "type": "VariableDeclaration",
+            "range": [
+              993316,
+              996591
+            ],
+            "nodes": 694,
+            "strictSha256": "19c67a9a95efb08ea04f7ccedca18cd78268c4d25651bcc3900006fa1fd4be41",
+            "shapeSha256": "9e109d0654462c8c559460db1f9f42ddcf602f7bdde4aec10b31bf2f014ebfed",
+            "identifierNamesErased": 123,
+            "protectedIdentifierOccurrences": 106
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 3,
+          "targetName": "F16",
+          "currentName": "F16",
+          "target": {
+            "index": 4804,
+            "type": "VariableDeclaration",
+            "range": [
+              3667679,
+              3668145
+            ],
+            "nodes": 122,
+            "strictSha256": "a7fa3572b545fdc26680ffd82d1e60b6571e4dde10b2bbd09eaf7f792f261529",
+            "shapeSha256": "f84cde7442ee19fd5b3156938944691772dd070e28bf6d881c8d408b5f6824bf",
+            "identifierNamesErased": 28,
+            "protectedIdentifierOccurrences": 11
+          },
+          "current": {
+            "index": 4810,
+            "type": "VariableDeclaration",
+            "range": [
+              3668951,
+              3669417
+            ],
+            "nodes": 122,
+            "strictSha256": "3d63c5de5cc872dd410595b06979b578fb1a3cea4fcd6c6130459a54a296a855",
+            "shapeSha256": "f84cde7442ee19fd5b3156938944691772dd070e28bf6d881c8d408b5f6824bf",
+            "identifierNamesErased": 28,
+            "protectedIdentifierOccurrences": 11
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 4,
+          "targetName": "IG",
+          "currentName": "hG",
+          "target": {
+            "index": 4489,
+            "type": "VariableDeclaration",
+            "range": [
+              3443413,
+              3444295
+            ],
+            "nodes": 334,
+            "strictSha256": "d02cc872685315c3d2ab4d9218a0d3b8906c872a3f90f74fce387848f5c68109",
+            "shapeSha256": "9b539cf2ece9b24d41ba7e214c2f7f748e2497b95977b1762a9a439a35e0da4b",
+            "identifierNamesErased": 111,
+            "protectedIdentifierOccurrences": 29
+          },
+          "current": {
+            "index": 4495,
+            "type": "VariableDeclaration",
+            "range": [
+              3444683,
+              3445567
+            ],
+            "nodes": 334,
+            "strictSha256": "1d02ab0cb4b35e6900da3677ddc44f0228fd888e6002d71c830cbb3338d4e5e6",
+            "shapeSha256": "9b539cf2ece9b24d41ba7e214c2f7f748e2497b95977b1762a9a439a35e0da4b",
+            "identifierNamesErased": 111,
+            "protectedIdentifierOccurrences": 29
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 5,
+          "targetName": "Qq",
+          "currentName": "Fq",
+          "target": {
+            "index": 3221,
+            "type": "VariableDeclaration",
+            "range": [
+              2416561,
+              2416728
+            ],
+            "nodes": 48,
+            "strictSha256": "a307bcf50bf263df19872e56445de2bb5fe7fd4c801f4b85a8921f2e54e3a602",
+            "shapeSha256": "a3d228f37945137f9c7b504fe5c0c0f0a4e15ff3daf4cb1965ce3ef4dab35f76",
+            "identifierNamesErased": 14,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 3227,
+            "type": "VariableDeclaration",
+            "range": [
+              2418199,
+              2418366
+            ],
+            "nodes": 48,
+            "strictSha256": "d146e840e2806ed33b5bdf6817445e114b957eb7116e8c1eaf3f1bd4671b49f2",
+            "shapeSha256": "a3d228f37945137f9c7b504fe5c0c0f0a4e15ff3daf4cb1965ce3ef4dab35f76",
+            "identifierNamesErased": 14,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 6,
+          "targetName": "T8",
+          "currentName": "v8",
+          "target": {
+            "index": 574,
+            "type": "VariableDeclaration",
+            "range": [
+              45124,
+              45227
+            ],
+            "nodes": 47,
+            "strictSha256": "dad05b2f3b0673228101ece22fd53f9fde1e8dc992ad7d76109341378a1b9747",
+            "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 2
+          },
+          "current": {
+            "index": 574,
+            "type": "VariableDeclaration",
+            "range": [
+              44818,
+              44921
+            ],
+            "nodes": 47,
+            "strictSha256": "4b37b5fccf8ce08265925b55e0e11155291e801123764f88199254cb7825216c",
+            "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+            "identifierNamesErased": 16,
+            "protectedIdentifierOccurrences": 2
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 7,
+          "targetName": "g8",
+          "currentName": "p8",
+          "target": {
+            "index": 607,
+            "type": "VariableDeclaration",
+            "range": [
+              48877,
+              49516
+            ],
+            "nodes": 70,
+            "strictSha256": "b91a173308da044583c01f5dcc3f9987e18d352e6e2534c6e139ed0b0b2a6ce6",
+            "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 5
+          },
+          "current": {
+            "index": 607,
+            "type": "VariableDeclaration",
+            "range": [
+              48572,
+              49211
+            ],
+            "nodes": 70,
+            "strictSha256": "f0d61742368f86b9bc83d356c24c63aeadefab7c1976a4d3b65dfac54016ea53",
+            "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+            "identifierNamesErased": 10,
+            "protectedIdentifierOccurrences": 5
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 8,
+          "targetName": "My1",
+          "currentName": "jy1",
+          "target": {
+            "index": 4809,
+            "type": "VariableDeclaration",
+            "range": [
+              3668747,
+              3668779
+            ],
+            "nodes": 16,
+            "strictSha256": "4de50d1b497cf6d2c260abb33383a55bfcd7643142add1444b9ca138d61557bb",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 4815,
+            "type": "VariableDeclaration",
+            "range": [
+              3670019,
+              3670051
+            ],
+            "nodes": 16,
+            "strictSha256": "be24b57cba5b8f2a9d0b855371e0de99e2d943dc896279b76cf0b043f3866b7b",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 9,
+          "targetName": "ni",
+          "currentName": "di",
+          "target": {
+            "index": 4813,
+            "type": "VariableDeclaration",
+            "range": [
+              3668991,
+              3669270
+            ],
+            "nodes": 42,
+            "strictSha256": "d34108dd598f9aa4e719dcc658277ebb52b34338f963436a6f1f445e327ba675",
+            "shapeSha256": "3bd2afe2fd00918993a08be9225502a5480e47c82ae98a9b2a8b4cc98fcabd4d",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 7
+          },
+          "current": {
+            "index": 4819,
+            "type": "VariableDeclaration",
+            "range": [
+              3670263,
+              3670542
+            ],
+            "nodes": 42,
+            "strictSha256": "2c85e3fd69f428cf50c6aca355da1d4b97faf6f81fa3fcc23f3b275e2b85d074",
+            "shapeSha256": "3bd2afe2fd00918993a08be9225502a5480e47c82ae98a9b2a8b4cc98fcabd4d",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 7
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 10,
+          "targetName": "k7",
+          "currentName": "f7",
+          "target": {
+            "index": 4605,
+            "type": "VariableDeclaration",
+            "range": [
+              3492511,
+              3493716
+            ],
+            "nodes": 347,
+            "strictSha256": "e1e604ee8c09e38e0b8d77a6ef30b480eba17a0785effeda29534a37c7421591",
+            "shapeSha256": "2ead364b4bf0639cb1dc8a256443e942733f5dd787430794e75bee39248a7b89",
+            "identifierNamesErased": 90,
+            "protectedIdentifierOccurrences": 30
+          },
+          "current": {
+            "index": 4611,
+            "type": "VariableDeclaration",
+            "range": [
+              3493783,
+              3494988
+            ],
+            "nodes": 347,
+            "strictSha256": "9e02f2c0e7c8fbbfe337c246b0cd4a175b2ef4777ffa2ef98e610abe628ec8d2",
+            "shapeSha256": "2ead364b4bf0639cb1dc8a256443e942733f5dd787430794e75bee39248a7b89",
+            "identifierNamesErased": 90,
+            "protectedIdentifierOccurrences": 30
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 11,
+          "targetName": "W5",
+          "currentName": "f5",
+          "target": {
+            "index": 2401,
+            "type": "VariableDeclaration",
+            "range": [
+              962858,
+              964237
+            ],
+            "nodes": 445,
+            "strictSha256": "daf2b07e6822f60d97371054b7005062b013e6a01368d6e864a931482330a11b",
+            "shapeSha256": "27619406567a36693d07ce43e943b2466a1df40f79e226b8d7d288e30e0e6ce3",
+            "identifierNamesErased": 135,
+            "protectedIdentifierOccurrences": 33
+          },
+          "current": {
+            "index": 2405,
+            "type": "VariableDeclaration",
+            "range": [
+              963270,
+              964649
+            ],
+            "nodes": 445,
+            "strictSha256": "b97daa05c1a27463b4058ed7340ce822bef7796713b7ed1315e72c207d54dc07",
+            "shapeSha256": "27619406567a36693d07ce43e943b2466a1df40f79e226b8d7d288e30e0e6ce3",
+            "identifierNamesErased": 135,
+            "protectedIdentifierOccurrences": 33
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 12,
+          "targetName": "kK",
+          "currentName": "VK",
+          "target": {
+            "index": 2128,
+            "type": "VariableDeclaration",
+            "range": [
+              876909,
+              878038
+            ],
+            "nodes": 295,
+            "strictSha256": "4e01346107dd866891359185aa60fb3a5730c4a17cd8ce1f77cb10603269fb80",
+            "shapeSha256": "2f8274c67ff0724a4fa1ebd1fbe490f52c626897f4f7c11800dfb20c6b0b162b",
+            "identifierNamesErased": 58,
+            "protectedIdentifierOccurrences": 22
+          },
+          "current": {
+            "index": 2131,
+            "type": "VariableDeclaration",
+            "range": [
+              877270,
+              878399
+            ],
+            "nodes": 295,
+            "strictSha256": "321d88eb3d5af1d696ae673daceeb427e1e49facb4deba397cf161d2d796b36a",
+            "shapeSha256": "2f8274c67ff0724a4fa1ebd1fbe490f52c626897f4f7c11800dfb20c6b0b162b",
+            "identifierNamesErased": 58,
+            "protectedIdentifierOccurrences": 22
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 13,
+          "targetName": "Lu",
+          "currentName": "Nu",
+          "target": {
+            "index": 4824,
+            "type": "VariableDeclaration",
+            "range": [
+              3669965,
+              3669998
+            ],
+            "nodes": 15,
+            "strictSha256": "f6b60c17c1e95e91a15e7b236bbb47515ad5f2fb7495928bf75269b179774eaa",
+            "shapeSha256": "da7e48a277c5df251f8f85af98243ca065612a8335ef9239696c3697030935eb",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 4830,
+            "type": "VariableDeclaration",
+            "range": [
+              3671237,
+              3671270
+            ],
+            "nodes": 15,
+            "strictSha256": "7064ae125e167d30f9816e3fff3bf49d304c888e5fe794f76cc24a34fe847c39",
+            "shapeSha256": "da7e48a277c5df251f8f85af98243ca065612a8335ef9239696c3697030935eb",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 14,
+          "targetName": "i8",
+          "currentName": "i8",
+          "target": {
+            "index": 856,
+            "type": "VariableDeclaration",
+            "range": [
+              135215,
+              135424
+            ],
+            "nodes": 70,
+            "strictSha256": "6f34a08b8dda8ef5580905ba6f3a1cf2a3f48ad4d725f1b6567398770c4aed6d",
+            "shapeSha256": "967c8032527b8f5276f43a4f5973c632f8104ebda985a0b7901ac736b5112b99",
+            "identifierNamesErased": 19,
+            "protectedIdentifierOccurrences": 4
+          },
+          "current": {
+            "index": 856,
+            "type": "VariableDeclaration",
+            "range": [
+              134910,
+              135119
+            ],
+            "nodes": 70,
+            "strictSha256": "38a56ef4463791776af7547e50d5732680db28e39f04299a95b2fbce479d6ee7",
+            "shapeSha256": "967c8032527b8f5276f43a4f5973c632f8104ebda985a0b7901ac736b5112b99",
+            "identifierNamesErased": 19,
+            "protectedIdentifierOccurrences": 4
+          },
+          "supplierBodyMatches": true
+        },
+        {
+          "slotOneBased": 15,
+          "targetName": "DY",
+          "currentName": "XY",
+          "target": {
+            "index": 4849,
+            "type": "VariableDeclaration",
+            "range": [
+              3672254,
+              3672285
+            ],
+            "nodes": 16,
+            "strictSha256": "ae0da69abedc34f294e631171ac1c4a9693b948d80fcde81622b211da10c80da",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "current": {
+            "index": 4855,
+            "type": "VariableDeclaration",
+            "range": [
+              3673526,
+              3673557
+            ],
+            "nodes": 16,
+            "strictSha256": "d2642abf5e4d1616c776ea94458dfe1319632881be8e08e87250303eedf9f533",
+            "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+            "identifierNamesErased": 5,
+            "protectedIdentifierOccurrences": 0
+          },
+          "supplierBodyMatches": true
+        }
+      ]
+    },
+    {
+      "name": "envUtils",
+      "target": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48877,
+          49516
+        ],
+        "nodes": 70,
+        "strictSha256": "b91a173308da044583c01f5dcc3f9987e18d352e6e2534c6e139ed0b0b2a6ce6",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48572,
+          49211
+        ],
+        "nodes": 70,
+        "strictSha256": "f0d61742368f86b9bc83d356c24c63aeadefab7c1976a4d3b65dfac54016ea53",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "callCount": 1,
+      "completePrefixFieldsAndBoundOrderVerified": true,
+      "calls": [
+        {
+          "slotOneBased": 1,
+          "targetName": "qK",
+          "currentName": "_K",
+          "target": {
+            "index": 282,
+            "type": "VariableDeclaration",
+            "range": [
+              20004,
+              20047
+            ],
+            "nodes": 20,
+            "strictSha256": "271c481073f0b9ef2b676542db4c840ad2a9e20c83fb9c24fe396a2a75bb8854",
+            "shapeSha256": "ae65c4ede38b82c024cbb84370d42254286f09b1ee8a3968c1d36ad4c565892f",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 1
+          },
+          "current": {
+            "index": 282,
+            "type": "VariableDeclaration",
+            "range": [
+              19698,
+              19741
+            ],
+            "nodes": 20,
+            "strictSha256": "88436ec7edcf11a77ee586632857dfbeb95990179601802a90bc56f7cdf23f40",
+            "shapeSha256": "ae65c4ede38b82c024cbb84370d42254286f09b1ee8a3968c1d36ad4c565892f",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 1
+          },
+          "supplierBodyMatches": true
+        }
+      ]
+    }
+  ],
+  "correctedOrder": {
+    "caller": {
+      "target": 16329,
+      "current": 16321,
+      "syncSlot": 23,
+      "presenceSlot": 3,
+      "trustedDeviceSlot": 26
+    },
+    "env": {
+      "target": 16307,
+      "current": 16299,
+      "metadataSlot": 5
+    },
+    "remote": {
+      "target": 16321,
+      "current": 16313,
+      "metadataSlot": 15,
+      "codeSessionSlots": [
+        16,
+        17
+      ]
+    },
+    "presence": {
+      "target": 16252,
+      "current": 16244,
+      "cryptoSlot": 2,
+      "debugSlot": 4,
+      "growthbookSlot": 5
+    }
+  },
+  "actualCryptoRoute": [
+    {
+      "role": "target",
+      "prefix": {
+        "index": 16252,
+        "type": "VariableDeclaration",
+        "range": [
+          11702531,
+          11702584
+        ],
+        "nodes": 27,
+        "strictSha256": "c9a7d3eaa97c477505e499ab21c3d203b242374546cac3910737f451064e07ab",
+        "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "allocationIndex": 5,
+      "nativeImport": {
+        "index": 342,
+        "type": "ImportDeclaration",
+        "range": [
+          22983,
+          23021
+        ],
+        "nodes": 5,
+        "strictSha256": "ea550c6bb346d779b7bb822a0c087cf9f2efe48cd5818a7e37d19c0b705277bf",
+        "shapeSha256": "d6b7bbe75526b2fa3f3c3da3ff6a1a1b25def1be12d34f3dfd24ef00cd49cc08",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 1
+      },
+      "uuid": "kx6",
+      "cryptoInit": {
+        "index": 343,
+        "type": "VariableDeclaration",
+        "range": [
+          23021,
+          23036
+        ],
+        "nodes": 5,
+        "strictSha256": "a81aa5f34b7b6117a5ae0ea05be8deddd548fc823ea07d59883db3193576bb50",
+        "shapeSha256": "7a353bb3bead5faebb2f19a387704250921ccb894a129813a87785f92253f548",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 0
+      },
+      "cryptoInitName": "kr8",
+      "cryptoInitSlotOneBased": 2
+    },
+    {
+      "role": "current",
+      "prefix": {
+        "index": 16244,
+        "type": "VariableDeclaration",
+        "range": [
+          11687809,
+          11687862
+        ],
+        "nodes": 27,
+        "strictSha256": "bee5eeb9bdfcc0f3e67f5505c9961e56d97adc85bebcc395217a96274eff35ef",
+        "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "allocationIndex": 5,
+      "nativeImport": {
+        "index": 342,
+        "type": "ImportDeclaration",
+        "range": [
+          22677,
+          22715
+        ],
+        "nodes": 5,
+        "strictSha256": "b772289fc15b579163064dc512ba3c5c6e44c53aa6a66d335f8356ca84e9057d",
+        "shapeSha256": "d6b7bbe75526b2fa3f3c3da3ff6a1a1b25def1be12d34f3dfd24ef00cd49cc08",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 1
+      },
+      "uuid": "Px6",
+      "cryptoInit": {
+        "index": 343,
+        "type": "VariableDeclaration",
+        "range": [
+          22715,
+          22730
+        ],
+        "nodes": 5,
+        "strictSha256": "b8c75b90a2e5206000fbac3d3c24a1c4920530c42142338538d5c7c244a65d82",
+        "shapeSha256": "7a353bb3bead5faebb2f19a387704250921ccb894a129813a87785f92253f548",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 0
+      },
+      "cryptoInitName": "Dr8",
+      "cryptoInitSlotOneBased": 2
+    }
+  ],
+  "nativeRandomUuidDeclarationAndSourceExportVerified": true,
+  "originalContextConclusions": [
+    "Both complete core bodies, caller and wrapper match without dynamic-import replacement or capture merging. Fourteen repeated captures resolve to one real production declaration each, and all fourteen complete provider declarations match jointly with the eight bodies.",
+    "The full caller preserves generation increment, stale-generation check, both callback spreads, both delegated paths and all prior target control flow. The two complete core bodies preserve the seven teardown sites and their receiver, optionality and order.",
+    "The injected optional trusted-device callback resolves through the caller source import and concrete production supplier. No fallback getter was inserted in the env core; remote retains its real direct supplier.",
+    "The cleanup wrapper binds the original teardown receiver once, cleans before awaiting it, passes no invented arguments and returns the same handle. Only the two delegated results are wrapped; earlier auth/policy returns and rejected awaits retain their original boundaries.",
+    "The metadata helper invokes the concrete external getter once and preserves ordered namespace/cluster logical spreads; both core event payloads reference that helper. The fixed external getter has two undefined values and does not infer an internal implementation.",
+    "Caller sync is target/current slot23, presence slot3, trusted-device slot26. Env metadata is slot5 after analytics/index and before cleanupRegistry. Remote metadata is slot15 before both codeSession slots16/17. Presence uses the actual shared crypto initializer at slot2 before native UUID allocation, with debug slot4 before growthbook slot5.",
+    "Current six source postimages are exact; the earlier parsed import-neighbor and source-export evidence is reused. The current fourteen supplier source exports were separately rehashed against the active profile."
+  ],
+  "inheritedProviderFailures": {
+    "storageInitializer": {
+      "target": 15668,
+      "current": 15662,
+      "nodes": [
+        190,
+        206
+      ],
+      "accepted": false,
+      "owner": "src/utils/sessionStorage.ts",
+      "qualification": "Target title-change signal/subscription versus current metadata-marker/Buffer arrays remains the independently recorded Trial10 storage gap. The complete Project class remains an unaccepted inherited boundary; it was not newly claimed equal here."
+    },
+    "concurrentSessions": {
+      "evidence": "supplier-residual.json",
+      "sha256": "28fd9e92b7a71dece7712ad6539f50d34529d1e5e94e80c346b015bb1081a8c1",
+      "owner": {
+        "path": "src/utils/concurrentSessions.ts",
+        "sha256": "e4ca77513dc97cc36fec8722dc3ec4a37cc97af95ec9cc7a6fd37e5b460a6afa",
+        "bytes": 6808,
+        "unchangedFromV13": true
+      },
+      "export": {
+        "target": {
+          "index": 4950,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702104,
+            3702157
+          ],
+          "nodes": 12,
+          "strictSha256": "3807b79b01b5289d716731dda572951bf264fa54a4b8b0e304b6a10886800b66",
+          "shapeSha256": "ea554a857e3585cd8385a30393a0289d000eb15206fd28fcd9f78b236c712632",
+          "identifierNamesErased": 4,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 4956,
+          "type": "FunctionDeclaration",
+          "range": [
+            3703339,
+            3703392
+          ],
+          "nodes": 12,
+          "strictSha256": "c989bcb81abe6de79484a0e9e54f6b23bc5b2472509f2508d23c77890d748403",
+          "shapeSha256": "ea554a857e3585cd8385a30393a0289d000eb15206fd28fcd9f78b236c712632",
+          "identifierNamesErased": 4,
+          "protectedIdentifierOccurrences": 1
+        },
+        "targetText": "async function FZ8(q){await Iy1({bridgeSessionId:q})}",
+        "currentText": "async function x08(q){await by1({bridgeSessionId:q})}",
+        "comparison": {
+          "nodes": 13,
+          "forward": {
+            "Iy1": "by1"
+          },
+          "reverse": {
+            "by1": "Iy1"
+          },
+          "scopeCount": 3
+        }
+      },
+      "initializer": {
+        "target": {
+          "index": 4953,
+          "type": "VariableDeclaration",
+          "range": [
+            3702495,
+            3702579
+          ],
+          "nodes": 41,
+          "strictSha256": "947ed0a0a655f161f7cb589a9e86e5ea1e24d0a9004f1c44d77e146bd3c8a499",
+          "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+          "identifierNamesErased": 13,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 4958,
+          "type": "VariableDeclaration",
+          "range": [
+            3703722,
+            3703784
+          ],
+          "nodes": 34,
+          "strictSha256": "133a18c1d57fab26b4b65f8a90a5950a5751bb3793f4c412d4fa5b2bfc7377d2",
+          "shapeSha256": "0936532dd0e4a74256c2b1e6e11b297e5a238f229e97bbc30d4f2a17ffb25b2e",
+          "identifierNamesErased": 11,
+          "protectedIdentifierOccurrences": 0
+        },
+        "targetText": "var TN=E(()=>{T8();a9();K8();g8();y8();XO6();kK();i8();DY();Raq=Promise.resolve()});",
+        "currentText": "var AC=y(()=>{v8();a9();K8();p8();y8();jA6();VK();i8();XY()});",
+        "raw": {
+          "pass": false,
+          "error": "node count\n\n42 !== 35\n"
+        },
+        "priorSame": {
+          "nodes": 35,
+          "forward": {
+            "v8": "v8",
+            "a9": "a9",
+            "K8": "K8",
+            "p8": "p8",
+            "y8": "y8",
+            "jA6": "jA6",
+            "VK": "VK",
+            "n8": "i8",
+            "XY": "XY",
+            "y": "y"
+          },
+          "reverse": {
+            "v8": "v8",
+            "a9": "a9",
+            "K8": "K8",
+            "p8": "p8",
+            "y8": "y8",
+            "jA6": "jA6",
+            "VK": "VK",
+            "i8": "n8",
+            "XY": "XY",
+            "y": "y"
+          },
+          "scopeCount": 3
+        }
+      },
+      "updatePidFile": {
+        "target": {
+          "index": 4948,
+          "type": "FunctionDeclaration",
+          "range": [
+            3701822,
+            3702050
+          ],
+          "nodes": 68,
+          "strictSha256": "9053364eac507b59574393cf84f4999d64bbed81368ec5696c71bb2ca8b661f4",
+          "shapeSha256": "5208d4ecc6b9e140dca0a986ad660d3b3afab281980d49020b78ab2183693a9f",
+          "identifierNamesErased": 24,
+          "protectedIdentifierOccurrences": 2
+        },
+        "current": {
+          "index": 4954,
+          "type": "FunctionDeclaration",
+          "range": [
+            3703094,
+            3703285
+          ],
+          "nodes": 53,
+          "strictSha256": "cc0c6dd4d1d0dd44a02294c153baf3d9dc9d6617a1d2baec9531c29fd8b51694",
+          "shapeSha256": "535eb7b1e149d52dea8782b1446b62d6d1da47d731614a278a916673816ea3b1",
+          "identifierNamesErased": 19,
+          "protectedIdentifierOccurrences": 1
+        },
+        "targetText": "async function Iy1(q){let K=pZ8(xy1(),`${process.pid}.json`),_=Raq.then(async()=>{try{let z=l8(await zX_(K,\"utf8\"));await Caq(K,g6({...z,...q}))}catch(z){N(`[concurrentSessions] updatePidFile failed: ${F6(z)}`)}});Raq=_,await _}",
+        "currentText": "async function by1(q){let K=C08(Cy1(),`${process.pid}.json`);try{let _=n8(await zX_(K,\"utf8\"));await xaq(K,p6({..._,...q}))}catch(_){N(`[concurrentSessions] updatePidFile failed: ${Q6(_)}`)}}",
+        "raw": {
+          "pass": false,
+          "error": "node count\n\n69 !== 54\n"
+        },
+        "priorSame": {
+          "nodes": 54,
+          "forward": {
+            "Ry1": "Cy1",
+            "process": "process",
+            "h08": "C08",
+            "eM_": "zX_",
+            "l8": "n8",
+            "p6": "p6",
+            "Saq": "xaq",
+            "U6": "Q6",
+            "N": "N"
+          },
+          "reverse": {
+            "Cy1": "Ry1",
+            "process": "process",
+            "C08": "h08",
+            "zX_": "eM_",
+            "n8": "l8",
+            "p6": "p6",
+            "xaq": "Saq",
+            "Q6": "U6",
+            "N": "N"
+          },
+          "scopeCount": 6
+        }
+      },
+      "behavior": "Target serializes read/merge/write through a shared Promise chain initialized with Promise.resolve(); current performs direct overlapping read/merge/write. Current initializer/helper both equal Trial10. No queue helper was executed or repaired by this review."
+    }
+  },
+  "rawPlacementLimit": {
+    "owner": "src/utils/envUtils.ts",
+    "targetOrder": [
+      {
+        "index": 603,
+        "role": "isInProtectedNamespace",
+        "nodes": 6
+      },
+      {
+        "index": 604,
+        "role": "external placement getter",
+        "nodes": 13
+      }
+    ],
+    "currentOrder": [
+      {
+        "index": 603,
+        "role": "external placement getter",
+        "nodes": 13
+      },
+      {
+        "index": 604,
+        "role": "isInProtectedNamespace",
+        "nodes": 6
+      }
+    ],
+    "fullOwnerDeclarationOrderAccepted": false,
+    "behavioralFailureInferred": false,
+    "qualification": "Both hoisted function bodies and the70-node initializer are correct. Their relative raw declaration placement differs; no source/reflection/eval independence certificate or normalization is inferred."
+  },
+  "history": {
+    "priorActualLifecycleReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-persistence-lifecycle-emission-review/review.json",
+      "sha256": "88ecde8b2c162f35896255f354e7bf553456ced376ab076d93f2f225e23e8d05",
+      "closureSha256": "14816293de15fe15c364237753510ecc42c77b037546f585facb60371bef7d8c",
+      "immutable": true
+    },
+    "priorSyncStorageReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-persistence-sync-storage-emission-review/review.json",
+      "sha256": "2084ae03001b1f76fcab3a9177605425d436c1fca68275d9e034b1cc021972a6",
+      "closureSha256": "698fca509bd816227061827dbcddf8c8e0cc1874c79fbaafd09818fd7ee0a347",
+      "immutable": true
+    },
+    "blockedSourceFixtureAndContinuationRemainHistorical": true,
+    "sourceApprovalNotRewritten": true
+  },
+  "verification": {
+    "freshStrictOriginalIndexedStatements": 229,
+    "freshNegativeControls": [
+      {
+        "name": "sync moved from slot23 to end",
+        "rejected": true
+      },
+      {
+        "name": "presence debug and growthbook reversed",
+        "rejected": true
+      },
+      {
+        "name": "metadata and cleanup neighbor swapped",
+        "rejected": true
+      },
+      {
+        "name": "one repeated shared error capture split",
+        "rejected": true
+      },
+      {
+        "name": "cleanup moved after awaited bound teardown",
+        "rejected": true
+      },
+      {
+        "name": "trusted device option replaced with unrelated capture",
+        "rejected": true
+      },
+      {
+        "name": "crypto initializer invocation removed",
+        "rejected": true
+      }
+    ],
+    "sourceFixtureSuiteReusedNotRerun": true,
+    "currentChangedOwnerHashesFresh": true,
+    "guardEvalOwnerOverlapAbsent": true,
+    "rawToFinalRecordedEditsIndependentlyReproduced": true,
+    "parserToolHistoryReused": true,
+    "harnessCorrections": [
+      "The initial inspection script had an extra bracket and was fixed before any extraction.",
+      "A crypto check initially assumed a7-node wrapped initializer; original target/current witnesses prove the real5-node empty arrow, which is now checked exactly.",
+      "A negative selector initially included both ObjectPattern and ObjectExpression trusted-device properties; selection was restricted to the actual forwarded object property before the rejection check. Failed attempts are preserved."
+    ]
+  },
+  "limits": [
+    "All findings are static protected-field/local-binding/provider and ordering checks under the explicitly recorded remaining interfaces. No application, network, auth, filesystem helper, timer, RNG or callback ran.",
+    "The complete expanded provider graph remains false because of the storage and concurrentSessions bodies. Their direct call identities and positions are grounded, but these behavioral gaps are not normalized away.",
+    "Global placement, full feature acceptance, transitive/native behavior, whole-program behavior and whole-target equality remain false.",
+    "This review covers the six bridge owners; the separate resume-filter actual review belongs to the toolworker.",
+    "The current compile/finalization report chain is checked. Source-map original-location correctness and generic eval/host-reflection semantics are not newly established."
+  ],
+  "applicationExecuted": false,
+  "fullBuildExecutedByReviewer": false,
+  "fullBundleProgramParsedByReviewer": false,
+  "sourceStageProfileRuntimeOrRepositoryModified": false
+}

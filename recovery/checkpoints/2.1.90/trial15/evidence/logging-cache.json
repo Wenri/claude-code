@@ -1,0 +1,306 @@
+{
+  "kind": "compact-independent-actual90-allowance-and-cache-review",
+  "reportId": "logging_allowance_cache",
+  "candidateVersion": "2.1.90",
+  "candidateTrial": 2,
+  "verdict": "scoped-allowance-cache-and-query-forwarding-pass-with-storage-owner-residuals-open",
+  "inputPins": {
+    "profileSha256": "4a56522cea06e05a701ab98471019244721159c3366bc89704b78521f828fe6f",
+    "toolchainSha256": "775817e9fba4c828e19257cf8dfd098f33d0bd9d2387ce6512ecbfd1615a9e35",
+    "finalJs": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v2/final/cli.js",
+      "sha256": "e94ad3f6fd293c7f9879682a522a5f7e2812106e9e0697c7a0c67e6ea6baa368"
+    },
+    "index": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v2-analysis/candidate-index.json",
+      "sha256": "0325bddcaa4e769abbeed26918517513021a7fa1d7d6d6519db09ef264635eae"
+    },
+    "compileReportSha256": "b0b436ed3cc88d34498951a99a9f01e36a451bbfaaeec996adc750d764c09db3",
+    "sourceManifestSha256": "dd6ccb4b919b41dccee1f0c9e875945b121b1c0e88754081dd5bb81d6d6ce425",
+    "physicalInputRoot": "historical-checkpoints/recovery-2.1.90-stage-v3-logging-cache/inputs"
+  },
+  "target": {
+    "jsSha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+    "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9"
+  },
+  "sourceAndProfileEvidenceReused": {
+    "allowanceReview": "798ad1f6e3b0e06d371668a1b2c8608c3be42e5a27a0ee91fcfd75607bdf7f00",
+    "cacheReview": "56939f4a1d1a2842d5a22a37e9c3bd3fea04c04ea192281598b6832d465a435c",
+    "bindingReview": "c7968009d1a90a00ffbdca08d9351fea65e2c6cea63b9732c8670ff930c454d9",
+    "sourceAndHistoryControlSuitesRerun": false
+  },
+  "verifiedActualScope": {
+    "completeAllowancePredicateNodes": 96,
+    "allFourOrderedAllowanceKindsVerified": true,
+    "completeCollectorNodes": 61,
+    "collectorOptionalSetMutatesAndReturnsSameObject": true,
+    "completeCleanHelperNodes": 38,
+    "filterBeforeAntReturnAndArrayOrSetBranchVerified": true,
+    "completeUnchangedTransformNodes": 287,
+    "completeRecordTranscriptNodes": 105,
+    "completeRecordSidechainTranscriptNodes": 20,
+    "recordFourthArgumentAndOptionalDefaultForwardingVerified": true,
+    "completeHookNodes": 294,
+    "realReactNamespaceReceiverPreserved": true,
+    "cacheReadsResolveToOneDeclaredRef": 4,
+    "clearCollectSequenceRecordCleanOrderVerified": true,
+    "renderTimeSetAllocationAndEffectDependenciesVerified": true,
+    "selectedJointGraphNodesIncludingProgram": 960,
+    "publicCollectorExportResolvesToActualDeclaration": true,
+    "realReplTokenAndEnvAndUserTypeAndChainBindingsClosed": true,
+    "completeHookInitializerNodes": 24,
+    "hookInitializerDirectOrderMatchesUnderStatedInterfaces": true,
+    "completePhysicalReactFactoryNodes": 2310,
+    "interopAndAppStateAndSwarmDirectFieldsCompared": true
+  },
+  "queryEngine": {
+    "targetIndex": 18105,
+    "currentIndex": 18013,
+    "completeRecorderNodes": 86,
+    "capturedCursorSixCallAndResetGraphNodes": 420,
+    "sixCallsResolveOneRecorderBinding": true,
+    "recordFourArgumentsAndFullMessagesContextVerified": true,
+    "actualPredicateCaptureNowHasAllFourAllowances": true,
+    "completeClassAccepted": false,
+    "targetClassNodes": 3430,
+    "currentClassNodes": 3425
+  },
+  "indices": {
+    "target": {
+      "namespace": 15536,
+      "functions": {
+        "isLoggableMessage": {
+          "index": 15650,
+          "nodes": 96,
+          "name": "oJ6"
+        },
+        "collectReplIds": {
+          "index": 15651,
+          "nodes": 61,
+          "name": "zc8"
+        },
+        "cleanMessagesForLogging": {
+          "index": 15653,
+          "nodes": 38,
+          "name": "F48"
+        },
+        "recordTranscript": {
+          "index": 15573,
+          "nodes": 105,
+          "name": "Gm"
+        },
+        "recordSidechainTranscript": {
+          "index": 15574,
+          "nodes": 20,
+          "name": "Ad"
+        },
+        "getUserType": {
+          "index": 15561,
+          "nodes": 5,
+          "name": "sd8"
+        },
+        "isChainParticipant": {
+          "index": 15541,
+          "nodes": 10,
+          "name": "N36"
+        }
+      },
+      "transform": 15652,
+      "token": 5064,
+      "env": 595,
+      "hook": {
+        "index": 16235,
+        "nodes": 294
+      },
+      "hookInitializer": 16237,
+      "reactFactory": 5069,
+      "interop": 4
+    },
+    "current": {
+      "namespace": 15454,
+      "functions": {
+        "isLoggableMessage": {
+          "index": 15567,
+          "nodes": 96,
+          "name": "mJ6"
+        },
+        "collectReplIds": {
+          "index": 15569,
+          "nodes": 61,
+          "name": "Xd8"
+        },
+        "cleanMessagesForLogging": {
+          "index": 15571,
+          "nodes": 38,
+          "name": "A48"
+        },
+        "recordTranscript": {
+          "index": 15491,
+          "nodes": 105,
+          "name": "jm"
+        },
+        "recordSidechainTranscript": {
+          "index": 15492,
+          "nodes": 20,
+          "name": "sQ"
+        },
+        "getUserType": {
+          "index": 15479,
+          "nodes": 5,
+          "name": "Od8"
+        },
+        "isChainParticipant": {
+          "index": 15459,
+          "nodes": 10,
+          "name": "$36"
+        }
+      },
+      "transform": 15570,
+      "token": 5053,
+      "env": 595,
+      "hook": {
+        "index": 16150,
+        "nodes": 294
+      },
+      "hookInitializer": 16152,
+      "reactFactory": 5058,
+      "interop": 4
+    }
+  },
+  "freshPhysicalSourceRows": {
+    "src/hooks/useLogMessages.ts": {
+      "path": "src/hooks/useLogMessages.ts",
+      "bytes": 5895,
+      "sha256": "fb3171763abb588ee16d2d5be774fbab231bffbdfde8c6b5ea9b1e70411c54e2"
+    },
+    "src/utils/sessionStorage.ts": {
+      "path": "src/utils/sessionStorage.ts",
+      "bytes": 183342,
+      "sha256": "ea29785f4d097579d5be7a3c64429c98ca1b18d517bb91b7b329dc015333b068"
+    },
+    "src/QueryEngine.ts": {
+      "path": "src/QueryEngine.ts",
+      "bytes": 52511,
+      "sha256": "c7bb67df2a559af982469f12af3772707a30582423be0a64c05e0707fafd0f75"
+    },
+    "src/tools/REPLTool/constants.ts": {
+      "path": "src/tools/REPLTool/constants.ts",
+      "bytes": 1799,
+      "sha256": "cb5d602522cb517daed37804bddd834f061ef7d38d5f3f79c3e2c7896dbacfca"
+    },
+    "node_modules/react/cjs/react.production.js": {
+      "path": "node_modules/react/cjs/react.production.js",
+      "bytes": 17217,
+      "sha256": "ae0aae9b31dcccfc8b194dc6ab1cc9cc4525e25b887d10cc22ae4f8fbd2482cc"
+    }
+  },
+  "freshNegativeControls": [
+    "same actual cache ref forwarded",
+    "cache clear precedes collect",
+    "sequence counter distinct from cache ref",
+    "collector mutates supplied Set",
+    "record forwards fourth parameter",
+    "allowance field literal remains exact",
+    "QueryEngine forwards full messages, not parent hint"
+  ],
+  "preservedFailures": [
+    {
+      "name": "complete QueryEngine",
+      "accepted": false,
+      "reason": "node count\n\n3431 !== 3426\n"
+    },
+    {
+      "name": "complete sessionStorage initializer",
+      "accepted": false,
+      "reason": "node count\n\n191 !== 207\n"
+    },
+    {
+      "name": "readLiteMetadata",
+      "accepted": false,
+      "reason": "node count\n\n296 !== 277\n"
+    },
+    {
+      "name": "enrichLog",
+      "accepted": false,
+      "reason": "node count\n\n230 !== 182\n"
+    }
+  ],
+  "remainingMetadataResumeConflicts": {
+    "count": 3,
+    "roles": [
+      "LiteMetadata fields",
+      "readLiteMetadata extraction and return fields",
+      "enrichLog filters"
+    ],
+    "completeFunctionMismatches": [
+      {
+        "name": "readLiteMetadata",
+        "targetIndex": 15660,
+        "currentIndex": 15577,
+        "targetNodes": 295,
+        "currentNodes": 276
+      },
+      {
+        "name": "enrichLog",
+        "targetIndex": 15665,
+        "currentIndex": 15582,
+        "targetNodes": 229,
+        "currentNodes": 181
+      }
+    ],
+    "resolved": false
+  },
+  "receiptChain": {
+    "kind": "actual-current-output-compile-and-deletion-chain",
+    "profileSha256": "4a56522cea06e05a701ab98471019244721159c3366bc89704b78521f828fe6f",
+    "toolchainSha256": "775817e9fba4c828e19257cf8dfd098f33d0bd9d2387ce6512ecbfd1615a9e35",
+    "compileReportSha256": "b0b436ed3cc88d34498951a99a9f01e36a451bbfaaeec996adc750d764c09db3",
+    "receiptSha256": "4af232a8eda3d96c11723d0e6b165271beb88bd0e6b8ea4e5ebc70c1253e3240",
+    "receiptEvents": 33,
+    "rawSha256": "4666b6c5dcd7d3df6f426cc2d716e349fb2d4f7cb116155b3a993038fe86e134",
+    "finalSha256": "e94ad3f6fd293c7f9879682a522a5f7e2812106e9e0697c7a0c67e6ea6baa368",
+    "removalEditsSha256": "d51b56418d9c83ddcaaa8ba9893178ec9d947f7c2c38875203620223ae88f528",
+    "lateLinkReportSha256": "e53d34373d60a969142f9cbe55ee7f38022c642032b3d6c847e5275cabb314ff",
+    "beforeAfterPhysicalInventoryEqual": true,
+    "all11DeletionsReplayedByteExactly": true,
+    "allRemovedFragmentsParsedAsWholeMarkerImports": true,
+    "resolverReceiptAndPolicyTargetsMatch": true,
+    "sourceMapDisplacementRepaired": false,
+    "receiptPolicyValidation": "Unchanged finalizer validation reused; this review authenticates receipts and exact marker deletion replay, not a new whole-program parse or event-multiplicity cause.",
+    "applicationExecuted": false
+  },
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3097704,
+    "sha256": "8b97a1b90cb686178110f26bf1cac5d7973db0da42c7c9f6b16387342053429b"
+  },
+  "uniqueCompleteIndexedWitnesses": 42,
+  "maximumSliceBytes": 14259,
+  "qualifications": [
+    "The original three standalone source-fixture failures remain historical failures. Fresh production bodies now pass the stated bounded comparisons without erasing literal fields, shared-token captures or React namespace receivers.",
+    "The complete sessionStorage initializer remains unequal: target190/current206 nodes. Namespace/export and metadata/resume differences remain outside this approval; whole sessionStorage and full transcript behavior are not accepted.",
+    "The complete QueryEngine remains unequal at3430/3425 nodes. Its changed recorder, concrete storage exports and six-call/cursor graph pass; no complete-class or whole-version acceptance follows.",
+    "The shared REPL token, env predicate, user type, chain predicate and the selected storage/hook functions are in the joined graph. Filesystem/project/session reads, deeper AppState/swarm providers, lazy initialization helper and interop helper captures remain explicit inherited external interfaces; their transitive behavior and global order are not established.",
+    "Set identity, instanceof, allocation, add/clear, getter reads and receiver/order fields are preserved for this build. Cross-realm or modified ambient/prototype behavior, dynamic eval and source reflection are not normalized or proved safe.",
+    "The unchanged finalizer receipt policy is reused. This review authenticates33 receipt events and exactly replays11 marker removals; count equality does not establish event-multiplicity causes, purity or source-map correctness.",
+    "Only bounded authenticated indexed statements were parsed. No compiler, application, hook, callback, collection mutation, filesystem operation from recovered code or full Program parse was executed by the reviewer."
+  ],
+  "reviewerHarnessHistory": [
+    {
+      "issue": "Initial QueryEngine nomination required a VariableDeclaration and source-local field spellings.",
+      "cause": "The actual complete owner is a ClassDeclaration, and its locals are minified.",
+      "resolution": "Use the unique ClassDeclaration with the actual mutableMessages/permissionDenials fields; authenticate its complete indexed statement before analysis. The initial zero-match failure remains preserved."
+    }
+  ],
+  "actualEmissionVerified": true,
+  "actualScopedEmissionVerified": true,
+  "wholeSessionStorageAccepted": false,
+  "wholeQueryEngineAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "fullProgramParsedByReviewer": false,
+  "compilerInvokedByReviewer": false,
+  "applicationExecuted": false
+}

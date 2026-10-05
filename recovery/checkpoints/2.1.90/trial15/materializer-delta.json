@@ -1,0 +1,64 @@
+{
+  "baselinePath": "recovery/checkpoints/2.1.90/trial7/materialize.py",
+  "baselineSha256": "a6a2c5b10e3baff8ca00522c743868a733e0138875dd7039bdb4e59191b192f0",
+  "candidateSha256": "633d249e9a99897b05b8dc92d8e16527cbf3ffb67fabf6fbe8f4c3f0cf5a2c82",
+  "substitutions": [
+    {
+      "before": "Offline fixed-2.1.90-trial7 checkpoint",
+      "after": "Offline fixed-2.1.90-trial15 checkpoint",
+      "occurrences": 1
+    },
+    {
+      "before": "\"sourceFiles\": 6108, \"sourceBytes\": 51036694",
+      "after": "\"sourceFiles\": 6109, \"sourceBytes\": 51044467",
+      "occurrences": 1
+    },
+    {
+      "before": "966823ecc70d3a6009ee3c2100516666941222168e877c9408dcbaf502ec6e29",
+      "after": "7f11c207fc446269b90193049e68a9d3aa8fa3e8f52ebd8a26a4987942dc38c4",
+      "occurrences": 1
+    },
+    {
+      "before": "7db5611b82602d46d5ce983904e0a573e1b74402",
+      "after": "3bdf74a6aacabb01ed05f562f3e27ffe4bd7bc9d",
+      "occurrences": 1
+    },
+    {
+      "before": "CHECKPOINT = \"recovery/checkpoints/2.1.90/trial7\"",
+      "after": "CHECKPOINT = \"recovery/checkpoints/2.1.90/trial15\"",
+      "occurrences": 1
+    },
+    {
+      "before": "len(pins) == 1929",
+      "after": "len(pins) == 1930",
+      "occurrences": 1
+    },
+    {
+      "before": "wrong fixed-2.1.90-trial7 expectations",
+      "after": "wrong fixed-2.1.90-trial15 expectations",
+      "occurrences": 1
+    },
+    {
+      "before": "[6108,1958,1929,29]",
+      "after": "[6109,1959,1930,29]",
+      "occurrences": 1
+    },
+    {
+      "before": "== 1958, \"staged src census\"",
+      "after": "== 1959, \"staged src census\"",
+      "occurrences": 1
+    },
+    {
+      "before": "len(delta) == 205",
+      "after": "len(delta) == 211",
+      "occurrences": 1
+    },
+    {
+      "before": "exact 205 changed/new inputs",
+      "after": "exact 211 changed/new inputs",
+      "occurrences": 1
+    }
+  ],
+  "completeReverseExact": true,
+  "algorithmPolicyChanges": false
+}

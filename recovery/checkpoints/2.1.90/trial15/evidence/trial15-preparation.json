@@ -1,0 +1,223 @@
+{
+  "kind": "compact-independent-four-owner-permission-rating-readiness",
+  "profileApproved": true,
+  "diagnosticTrialReady": true,
+  "actualEmissionVerified": false,
+  "wholePermissionRoundTripAccepted": false,
+  "wholeStorageOwnerAccepted": false,
+  "wholeReplOwnerAccepted": false,
+  "wholeTargetRatingModuleAccepted": false,
+  "completeStorageInitializerProviderGraphAccepted": false,
+  "ratingProductionInitializerAccepted": false,
+  "replRatingWrappersOrPrefixAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalInitializationOrderAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "profile": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/profile.json",
+    "bytes": 10847865,
+    "sha256": "6c38df2f74bb987367e7a38725773cf8afcf23251884ebfe1dc60611110d0ab3"
+  },
+  "authorFreeze": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/FREEZE.json",
+    "bytes": 3172,
+    "sha256": "56e69c0462dab7956b1538c86f24b2188b977265f9fa311d7d30a96e566f8933"
+  },
+  "authorExecutableClosure": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/code-provenance.json",
+    "bytes": 20217,
+    "sha256": "49d255f8473354322c435a84669c5706c053bd132d0e180871eb0a5738ad7d8d"
+  },
+  "inputs": "historical-checkpoints/recovery-2.1.90-stage-v18-permission-rating/inputs",
+  "stageReceipt": {
+    "path": "historical-checkpoints/recovery-2.1.90-stage-v18-permission-rating/stage-verification.json",
+    "bytes": 5978,
+    "sha256": "eb4654524e347198f399aef86b27c6be996f63c34ed5fdeba1bfa9a5367c8fe9"
+  },
+  "stageAuthority": {
+    "path": "historical-checkpoints/recovery-2.1.90-permission-rating-stage-authority.json",
+    "bytes": 162002,
+    "sha256": "810e125c398b7bd2e77663787cddf272d26b34b2bd01961e25582b207bb70798"
+  },
+  "parentProfile": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json",
+    "bytes": 9864085,
+    "sha256": "20bd4b1c3904cfd2426216800231e648c9b7f1ae9ec3798c479a35f0d7193a5e"
+  },
+  "runtimeReuse": {
+    "root": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/recovery",
+    "toolchain": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/toolchain.json",
+      "bytes": 14064,
+      "sha256": "c55222452c78ccde4ea41c3bde1ee1eebd0095f7096af51941d444cb4802c3f9"
+    },
+    "sourceContractSha256": "74874a33697d8146814ad8dede3dab198691ceefd1368afeba13c8cee996f65f",
+    "files": 69,
+    "allBytesExact": true,
+    "algorithmsAndPoliciesUnchanged": true
+  },
+  "sourceApprovals": [
+    {
+      "componentId": "permission_persistence_roundtrip",
+      "review": {
+        "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/review.json",
+        "bytes": 13463,
+        "sha256": "d87d8055e3c8bfa1750873c09cb53d33bb7359c6b4d8bf42c8e5736491029033"
+      },
+      "closure": {
+        "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/freeze.json",
+        "bytes": 8348,
+        "sha256": "517208a4aa0ccab5195a708a07c869c978911d3d87f9ad458309883145270160"
+      }
+    },
+    {
+      "componentId": "message_rating_clear_toggle",
+      "review": {
+        "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/review.json",
+        "bytes": 7841,
+        "sha256": "0c8b0e07532692e72af9a84cbd177ed2be7aa6df44d9cdf0d3475ef380acde6d"
+      },
+      "closure": {
+        "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/freeze.json",
+        "bytes": 3335,
+        "sha256": "3c0420d5d51be651ba0b920f95268b8251ac7b4f00f556da11bc9169fb6571da"
+      }
+    }
+  ],
+  "currentMixedActualEvidence": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/review.json",
+      "bytes": 137085,
+      "sha256": "e1692a0f69537f9ab40bbfad31eaf5ca33dfcd4de47639c641e234141c13ebff"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/freeze.json",
+      "bytes": 8122,
+      "sha256": "32d48ea4d80fe5145aeb3e50d153c9f78e9272dea9d5370d48d96579b90d69dc"
+    },
+    "completeDecodedReceiptPreserved": true,
+    "actualScopedEmissionVerified": true,
+    "actualEmissionVerified": false
+  },
+  "physical": {
+    "kind": "independent-approved-four-owner-physical-stage",
+    "stageReceiptSha256": "eb4654524e347198f399aef86b27c6be996f63c34ed5fdeba1bfa9a5367c8fe9",
+    "authoritySha256": "810e125c398b7bd2e77663787cddf272d26b34b2bd01961e25582b207bb70798",
+    "sourceFiles": 6109,
+    "sourceBytes": 51044467,
+    "changedPaths": [
+      "src/components/messageRating.tsx",
+      "src/screens/REPL.tsx",
+      "src/types/logs.ts",
+      "src/utils/sessionStorage.ts"
+    ],
+    "unchangedFiles": 6105,
+    "sourceManifestSha256": "7f11c207fc446269b90193049e68a9d3aa8fa3e8f52ebd8a26a4987942dc38c4",
+    "derivedSrcTree": "3bdf74a6aacabb01ed05f562f3e27ffe4bd7bc9d",
+    "currentFilesAndGitRowsRehashed": true,
+    "modesInodesAndCaseFoldChecksPassed": true,
+    "guard10ExactApprovedTransition": true,
+    "other17GuardsAnd4EvalOwnersExact": true,
+    "completeSourceApprovalClosuresAuthenticated": {
+      "permission_persistence_roundtrip": 50,
+      "message_rating_clear_toggle": 20
+    },
+    "completeMixedCurrentReceiptPreserved": true,
+    "authorBindingCodeImported": false
+  },
+  "metadata": {
+    "kind": "independent-full-typed-permission-rating-profile-reversal",
+    "profileSha256": "6c38df2f74bb987367e7a38725773cf8afcf23251884ebfe1dc60611110d0ab3",
+    "completeFourSourceAndGitRowsVerified": true,
+    "completeProfileReversal": true,
+    "newDiagnosticFieldsIndividuallyVerified": true,
+    "allInheritedMetadataAndHistoryExact": true,
+    "rawSourceFlagsAndAllFailedBoundariesExact": true,
+    "completeCurrentMixedReaderReceiptExact": true,
+    "fullGuard10TransitionAndPriorRecordExact": true,
+    "runtimeAuthoritySharedFieldsMatchParentRicherRecord": true,
+    "independentNegatives": [
+      "guard-immediate-parent-rollback",
+      "invent-genesis",
+      "promote-raw-rating-manifest",
+      "promote-current-mixed-receipt",
+      "edit-old-guard-history",
+      "alter-eval-policy",
+      "change-runtime-root",
+      "replace-count-with-boolean"
+    ],
+    "qualificationsReviewed": [
+      "Exactly four approved existing source/Git rows change; no source count, runtime/toolchain or compiler policy changes.",
+      "The permission and rating raw manifests and independent source verdicts are preserved verbatim. Source approvals do not promote their future actual/global obligations.",
+      "Only approved guard10 current owner/hash/parent/ranges refresh. Exact protected slices, absent genesis field, full prior guard transition, all other guards and eval policy remain unchanged.",
+      "The complete Trial14 storage reader receipt is preserved with scoped true and overall false, including sessionIngress supplier, Project/permission, symbolic/shim and global boundaries.",
+      "The rating clear boolean reads the ref before setter invocation while its updater clones its own previous Map. Actual rating emission, raw initializer grouping and REPL wrapper topology remain separate.",
+      "The existing runtime source contract and all69 runtime files are reused; no compiler or recovered application executes during metadata preparation."
+    ],
+    "authorBindingCodeImported": false,
+    "applicationExecuted": false
+  },
+  "freshRuntimeChecks": {
+    "currentV18Pass": true,
+    "oldV17Rejected": true,
+    "allProtectedRangesVerified": true,
+    "authorMetadataNegatives": [
+      "rating source row rollback",
+      "storage source row rollback",
+      "logs Git row rollback",
+      "guard immediate parent rollback",
+      "raw author approval promoted",
+      "Trial14 overall verdict promoted",
+      "permission actual accepted early",
+      "old input root"
+    ],
+    "existingRuntimeNegatives": [
+      "rating source row rollback",
+      "storage source row rollback",
+      "logs Git row rollback"
+    ]
+  },
+  "replay": {
+    "profileAndBindingReportByteExact": true,
+    "authorControlReceiptExact": true,
+    "finalAuthor18MembersUnchanged": true,
+    "sourceCompilerFixturesRerun": false,
+    "unchangedHistoricalSuitesRerun": false
+  },
+  "reusedEvidence": [
+    "The independently frozen permission source approval, including all raw receiver/symbolic/external-only and sessionIngress boundaries.",
+    "Naming independently reviewed the rating source authored by this reviewer; that separate approval is reused, not replaced by this metadata review.",
+    "Prior runtime algorithms/count admission/guard/eval behavior and all unchanged history are reused with fresh exact-byte and current-contract checks."
+  ],
+  "retainedAttempts": [
+    {
+      "kind": "author pre-generation schema assumption",
+      "record": {
+        "path": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/attempt-history.json",
+        "bytes": 813,
+        "sha256": "20dd056a08f2b854f58733b9c1bc8622425bc871c3faf8c7eedb316343546d88"
+      },
+      "profileExistedAfterFailure": false
+    },
+    {
+      "kind": "reviewer prior-approval predicate lookup",
+      "record": {
+        "path": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/reviewer-attempt1.json",
+        "bytes": 483,
+        "sha256": "3b42f4663cc328d3f10ba6acff5ddf7a119ea0a8d4ef36773009fb0a3013b4b1"
+      },
+      "candidateDefectFound": false
+    }
+  ],
+  "limits": [
+    "Readiness permits the exact isolated diagnostic trial only. Neither source approval implies new production behavior acceptance.",
+    "Permission raw React/symbolic/external-only fixture failures, rating symbolic/transplant/receipt-order failures and raw75/71 initializer grouping are retained in full.",
+    "Trial14 reader own-body success remains distinct from its false expanded sessionIngress supplier graph and overall actual status.",
+    "The exact guard10 prior record and transition history remain intact, with immediate parent62198089c7bd856d3d6b201a79d8c5c63f49259a and no invented genesis.",
+    "Generated-location/source-map correctness, REPL wrapper/prefix/fullscreen gaps, deeper providers and whole-version acceptance remain unproved."
+  ],
+  "applicationExecuted": false,
+  "compilerInvoked": false,
+  "sourceStageProfileRuntimeOrRepositoryModified": false
+}

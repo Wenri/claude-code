@@ -1,0 +1,235 @@
+{
+  "kind": "focused-powerup-provider-correction-actual-review",
+  "reportId": "powerup_provider_correction",
+  "verdict": "approved-scoped-actual-provider-correction-with-inherited-residuals",
+  "powerupProviderCorrectionActualVerified": true,
+  "threeSettingsCallsAndRealUseSettingsAppStateGraphVerified": true,
+  "directSelectValueAndInitializerVerified": true,
+  "unchangedPowerupSurroundingGraphVerified": true,
+  "rawDemosGroupingAccepted": false,
+  "toggleMemoryRegistryAccepted": false,
+  "wholePowerupAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "authority": {
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v5-query-powerup/profile.json",
+      "sha256": "443edb3af255177c2cf5a19cedaa4ef8429e8ed2c316a58f113cc2b320576bfb",
+      "bytes": 6971369
+    },
+    "toolchain": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v4-powerup-aws/toolchain.json",
+      "sha256": "7abc84cebbc2d51c9dc46dceb2eafdb26ed10ecc552f9d1f3cc359ee899a372b",
+      "bytes": 14064
+    },
+    "compileReport": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v5/compile-report.json",
+      "sha256": "28349ec581ed7f83fced0e9a087b133aaa36855a00fc31282882668e41832385",
+      "bytes": 105297
+    },
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v5/final/cli.js",
+      "sha256": "2509de269865fa2971e1b6040dde28e6a7ba9dd89d97e4d6713c9bb263089e2f",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v5-analysis/candidate-index.json",
+      "indexSha256": "352b5b236fab24a2b0c2a849254eb31adbce0099419e9d6661f23e9f4520bc8d"
+    },
+    "sourceRoot": "historical-checkpoints/recovery-2.1.90-stage-v7-query-powerup/inputs",
+    "allFiveSerialStepsExit0Referenced": true,
+    "wholeTargetAcceptance": false
+  },
+  "sourceApproval": {
+    "path": "historical-checkpoints/recovery-2.1.90-powerup-provider-correction-independent-review/review.json",
+    "sha256": "961a55aec1e53140c4bd07d25f472caf0a26b112f746ba58cc5d12994285d5ad",
+    "closureSha256": "a109f8b65fd7c7bd78c3f38188eade7af143ddd3160b8aaa1277974302879d1d",
+    "sourceManifestSha256": "147dd85dc328eee339f6fc33661805aa5d0310ae9d81084db15b6af89e211b6d"
+  },
+  "previousActualReview": {
+    "path": "historical-checkpoints/recovery-2.1.90-powerup-emission-review/review.json",
+    "sha256": "e98f1d0a5ffa50af23cd33c809316e1c2fa054557226ccf5a9da284700e7d5bf",
+    "closureSha256": "2c3b7c301701e00e82745d4d2dabbec0bfefadc5b204097c72c3eb0f1239ba55",
+    "immutableMixedVerdictPreserved": true
+  },
+  "actualSourceRows": [
+    {
+      "path": "src/commands/powerup/demos.tsx",
+      "bytes": 9360,
+      "sha256": "df194f2525b5c7bbf10a85e353ba5bbf4b51993aa09f8e64fa999479e2e3ca73"
+    },
+    {
+      "path": "src/commands/powerup/lessons.tsx",
+      "bytes": 13374,
+      "sha256": "0f44cc47d790bba433d20ec31a3711f22e65b3d6523463b8a8f3873013c61beb"
+    },
+    {
+      "path": "src/commands/powerup/PowerupApp.tsx",
+      "bytes": 8398,
+      "sha256": "5f131183b05a0111bc4891299fde5bcb08591b59acaab13979050c0a3a6242b8"
+    },
+    {
+      "path": "src/commands/powerup/powerup.tsx",
+      "bytes": 312,
+      "sha256": "eab6efdc14f34c8f0f2442eb2ac30f0d00f15814b179ffa4a03e7f4932f2ba92"
+    },
+    {
+      "path": "src/commands/powerup/index.ts",
+      "bytes": 252,
+      "sha256": "4faf3e694d139a157a984653102e567c69cac2d756676edbd76b6079fd5ae347"
+    },
+    {
+      "path": "src/commands.ts",
+      "bytes": 25384,
+      "sha256": "00e309a24eea9f356de77257becf5e1e5e3a6b56040af28f9677fa6ae3f559c7"
+    }
+  ],
+  "actualProviderSourceRows": [
+    {
+      "path": "src/hooks/useSettings.ts",
+      "bytes": 618,
+      "sha256": "0008be27d0a56dce1d689301248183217d9e02a57bf0fadd71c64784619ccb98"
+    },
+    {
+      "path": "src/state/AppState.tsx",
+      "bytes": 23480,
+      "sha256": "51165c47d76886fe6a0e9151615f146e2455ba4f198fb2c8d0afc7988681cabe"
+    },
+    {
+      "path": "src/components/CustomSelect/select.tsx",
+      "bytes": 115187,
+      "sha256": "34951e215b1a4727235c4025e8458009f460023382155372f996540599e592b0"
+    },
+    {
+      "path": "src/components/CustomSelect/index.ts",
+      "bytes": 118,
+      "sha256": "fe2f47ffeca8c6c4ba7a406ddc70a262366b7b189a0df578ec8f751357f36e30"
+    }
+  ],
+  "completeRegion": {
+    "target": [
+      14109,
+      14140
+    ],
+    "previous": [
+      14104,
+      14135
+    ],
+    "current": [
+      14104,
+      14135
+    ]
+  },
+  "freshChecks": {
+    "strictReextractedStatements": 195,
+    "settings": {
+      "targetFunction": 8826,
+      "currentFunction": 8834,
+      "targetUseAppState": 12895,
+      "currentUseAppState": 12897,
+      "currentHookName": "lO",
+      "calls": [
+        {
+          "target": 14111,
+          "current": 14106,
+          "callee": "lO",
+          "arguments": 0
+        },
+        {
+          "target": 14116,
+          "current": 14111,
+          "callee": "lO",
+          "arguments": 0
+        },
+        {
+          "target": 14117,
+          "current": 14112,
+          "callee": "lO",
+          "arguments": 0
+        }
+      ],
+      "joinedGraphNodes": 856,
+      "zeroArgumentCallsAndPrefersReducedMotionReadsPreserved": true,
+      "behavior": "All three actual callers now use the existing AppState selector hook, including its subscription/context behavior, rather than the initial-settings getter."
+    },
+    "demosPrefix": {
+      "targetInitializer": 14121,
+      "currentInitializer": 14116,
+      "targetHookInitializer": 8827,
+      "currentHookInitializer": 8835,
+      "hookPrefixSlotZeroBased": 4,
+      "directCalls": 9,
+      "joinedGraphNodes": 38,
+      "completePrefixOrderAndHookEdgeVerified": true
+    },
+    "select": {
+      "targetFunction": 8589,
+      "currentFunction": 8598,
+      "targetDirectInitializer": 8601,
+      "currentDirectInitializer": 8610,
+      "targetPowerup": 14128,
+      "currentPowerup": 14123,
+      "targetPowerupInitializer": 14133,
+      "currentPowerupInitializer": 14128,
+      "joinedGraphNodes": 5079,
+      "behavior": "The actual Powerup initializer now calls the direct Select initializer. The previous CustomSelect barrel edge is absent from this exact initializer."
+    },
+    "surrounding": {
+      "fullFiveModuleRegionNodes": 4797,
+      "statementCount": 31,
+      "unchangedProviderRoles": 44,
+      "joinedGraphNodes": 15039,
+      "completeFieldLocalBindingCaptureAndReceiverGraphPreserved": true,
+      "tenLessonsAndAllCacheSchedulesPreservedViaCompleteGraph": true,
+      "sixDistinctReactNamespaceBindingsPreserved": true,
+      "sourceOwnersRehashed": 6,
+      "concreteProviderSourcesRehashed": 4
+    },
+    "focusedNegatives": [
+      "wrong settings selector",
+      "wrong Select initializer"
+    ]
+  },
+  "inheritedResiduals": {
+    "demosInitializer": {
+      "targetNodes": 114,
+      "currentNodes": 111,
+      "rawComparison": {
+        "pass": false,
+        "error": "node count\n\n125 !== 122\n"
+      },
+      "scope": "Assignments remain one six-expression sequence in the candidate versus three target statements of 2/1/3 assignments. No grouping normalization is accepted."
+    },
+    "registry": {
+      "targetStatement": 15534,
+      "currentStatement": 15522,
+      "unchangedFromV4Nodes": 915,
+      "rawTargetComparison": {
+        "pass": false,
+        "error": "node count\n\n919 !== 915\n"
+      },
+      "scope": "The complete registry is unchanged from V4, including its inherited missing toggle-memory registration. This review does not admit a command or bootstrap/memory behavior repair."
+    },
+    "fullPowerupRegion": {
+      "pass": false,
+      "error": "node count\n\n4800 !== 4797\n"
+    }
+  },
+  "reuse": {
+    "priorSourceReversalCompilerReplaysAnd14Negatives": "reused from frozen independent source approval; not rerun",
+    "priorTargetProviderOwnershipAndReactRuntimeGrounding": "reused from frozen V4 actual review; actual V5 source and complete surrounding provider graphs checked freshly",
+    "failedV1AndStandaloneFixtureRecords": "retained by reference, not rewritten"
+  },
+  "limits": [
+    "The actual correction is target-directed; old getter and hook behavior are not claimed equivalent.",
+    "Full demos initializer grouping and whole registry remain unequal.",
+    "Captured ambient values and deeper React, settings, Select and other transitive providers remain under the recorded interfaces; no global runtime equivalence is claimed.",
+    "No new source/compiler reconstruction or full Program parse was performed."
+  ],
+  "strictAst": {
+    "currentNodes": 3106098,
+    "currentSha256": "38a57c11b598a6110216efb05fc3ba7de0eed8d6ccf7cf101fe8a202a418f4f2",
+    "targetNodes": 3110206,
+    "wholeAcceptance": false
+  },
+  "applicationExecuted": false,
+  "fullProgramParsed": false,
+  "sourceStageModified": false
+}

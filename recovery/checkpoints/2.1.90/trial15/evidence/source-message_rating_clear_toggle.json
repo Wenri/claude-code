@@ -1,0 +1,162 @@
+{
+  "kind": "independent-message-rating-clear-source-review",
+  "verdict": "approved for the exact one-owner rating-clear source trial",
+  "sourceTrialApproved": true,
+  "actualEmissionVerified": false,
+  "wholeTargetModuleAccepted": false,
+  "productionInitializerAccepted": false,
+  "replWrappersOrPrefixAccepted": false,
+  "wholeVersionAcceptance": false,
+  "sourceManifest": {
+    "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/source-repair.json",
+    "sha256": "059cd42836c7a280dbca60f13dcd68c3dbbdf4884961765abab2e81c37605a69"
+  },
+  "reviewedSourceRows": [
+    {
+      "path": "src/components/messageRating.tsx",
+      "oldSha256": "c85fcf184b1c8de13cee4f1e1b8b8091e92b1cb5d1303e2255134bf079274aa0",
+      "oldBytes": 4416,
+      "oldGitBlob": "9acf28400a7f270b778c4f46999201d732d4471f",
+      "postimageSha256": "aadb0a33c8db7b3345e3927569e93ff93d8087d53dbc7ae652e268e018da76a3",
+      "postimageBytes": 4501,
+      "postimageGitBlob": "c1485e1c662ea5eb67c3a028fe25dbb18f95d325",
+      "postimagePath": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/postimages/src/components/messageRating.tsx"
+    }
+  ],
+  "authorRawApprovalFlagsRemainUnchanged": true,
+  "authorArtifactClosure": {
+    "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/artifact-manifest.json",
+    "sha256": "4327d3c63a0025ad0210bd670451320ba20b83c29e073cf2565abaa4047053ad",
+    "members": 70
+  },
+  "authorFreeze": {
+    "path": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/freeze.json",
+    "sha256": "796d72d2f234d336428d10aa43083f2b2a0687576b70a2f156150cea42a64dd5"
+  },
+  "currentProfile": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json",
+    "sha256": "20bd4b1c3904cfd2426216800231e648c9b7f1ae9ec3798c479a35f0d7193a5e"
+  },
+  "baseInputs": "historical-checkpoints/recovery-2.1.90-stage-v17-storage-stream-reader/inputs",
+  "byteDelta": 85,
+  "sourceAndGitCountsUnchanged": true,
+  "freshChecks": [
+    "Final source/artifact/code closure authenticated before author tools; all70 author members remain unchanged",
+    "Exact V17 current source/profile/guard-eval applicability; source outside the rating callback body is byte-identical",
+    "Complete296-node provider comparison in the original compiled module context and complete unchanged outer provider baseline",
+    "Scope-resolved original ref/render-state/setter/updater/created-Map/cleared/analytics/notification bindings",
+    "Seven independently applied AST mutations rejected; all fifteen author mutations reproduce",
+    "Four compiler output bytes plus complete canonical resolver-descriptor receipt reproduce",
+    "All unique provider/hook/context/React/notification/analytics original-index witnesses independently re-extracted strictly"
+  ],
+  "completeGraphs": {
+    "currentProvider": 281,
+    "targetProvider": 296,
+    "beforeSixRetainedFunctions": 385,
+    "afterSixRetainedFunctions": 400,
+    "compactWholeOwnerInverse": 3015,
+    "symbolicWholeOwnerInverse": 3048,
+    "inverseQualification": "The exact four-site inverse retains each output module’s own captured bindings; the failed transplant of differently minified provider bytes remains rejected."
+  },
+  "sharedBindingAndSideEffectVerdict": {
+    "clearedComputedOnceFromCurrentRefBeforeSetter": true,
+    "updaterPreviousDistinctFromRenderState": true,
+    "updaterClonesPreviousAndReturnsExactNewMap": true,
+    "clearDeletesUuidElseSetsSameUuidAndSentiment": true,
+    "outerClearedSharedByUpdaterAnalyticsAndNotification": true,
+    "analyticsOutsideUpdaterAfterSetterInvocation": true,
+    "notificationOnlyWhenNotCleared": true,
+    "noAssumedUpdaterExecutionTiming": true,
+    "timersRefsContextsReactReceiversPreserved": true,
+    "callbackDependencyRemainsNotificationBinding": true
+  },
+  "independentNegatives": [
+    "clear decision moved to updater state",
+    "new Map clones ref snapshot instead of previous state",
+    "delete uses sentiment binding",
+    "return previous Map identity",
+    "analytics inside state updater",
+    "clearing also sends notification",
+    "timer callback third argument changed"
+  ],
+  "freshStrictWitnesses": 33,
+  "compilerReplay": {
+    "files": [
+      {
+        "name": "after-compact.js",
+        "bytes": 10051,
+        "sha256": "c478e0287b68cf69064f37e160c8aef326a8658b418206e991113b3e7a0ee63d"
+      },
+      {
+        "name": "after-symbolic.js",
+        "bytes": 21831,
+        "sha256": "bed7463291511552871f8db80704b4b1669c210a4742add5ed5ba43a3e35e713"
+      },
+      {
+        "name": "before-compact.js",
+        "bytes": 10015,
+        "sha256": "1aa1921233f8481af8ad05156a214285c1a9fd07855c2c2b879de1baf371b093"
+      },
+      {
+        "name": "before-symbolic.js",
+        "bytes": 21698,
+        "sha256": "48f7464d6dcf66d7bcdfe87cab7608899d91cc9395341810bebf8c0c367b11a4"
+      },
+      {
+        "name": "receipt.json",
+        "bytes": 6821,
+        "sha256": "fb234be02dcca0aaf42dc1db6b59c901a124604418225fdcf111f5b0d23bf2cc"
+      }
+    ],
+    "canonicalReceiptByteEqual": true,
+    "resolverDescriptorCensus": [
+      {
+        "output": "before-symbolic.js",
+        "descriptors": 7,
+        "uniqueDescriptors": 7,
+        "exactMultisetWithMultiplicity": true
+      },
+      {
+        "output": "before-compact.js",
+        "descriptors": 7,
+        "uniqueDescriptors": 7,
+        "exactMultisetWithMultiplicity": true
+      },
+      {
+        "output": "after-symbolic.js",
+        "descriptors": 7,
+        "uniqueDescriptors": 7,
+        "exactMultisetWithMultiplicity": true
+      },
+      {
+        "output": "after-compact.js",
+        "descriptors": 7,
+        "uniqueDescriptors": 7,
+        "exactMultisetWithMultiplicity": true
+      }
+    ],
+    "rawCallbackArrivalOrderAccepted": false,
+    "productionInitializerOrderInferred": false
+  },
+  "historicalFailuresRetained": [
+    "Raw symbolic-to-production comparisons remain false; no receiver or namespace erasure is used.",
+    "The compact whole-provider transplant inverse fails captured-name binding and remains rejected; exact-site whole-owner inverses pass.",
+    "Original unsorted compiler callback descriptors changed arrival order; only the exact final canonical descriptor multiset with multiplicity is accepted.",
+    "Full production initializer remains target75/current71 raw unequal. The eight-assignment context-identity diagnostic is not initializer equivalence."
+  ],
+  "limits": [
+    "No recovered function, React application, timer, callback or emitted JavaScript executed.",
+    "State setter invocation is ordered before analytics; scheduling or repetition of the updater is not assumed. The original ref snapshot and updater previous state may differ.",
+    "Ambient Map/Promise/timer/React effects and transitive notification/analytics behavior are not claimed equivalent merely from names. Grounded complete direct providers retain their captured-interface limits.",
+    "The existing extra useRateMessage function remains. No REPL wrapper placement, Messages/exportRenderer topology, fullscreen or global initialization repair is included.",
+    "Current source/type annotations remain except the four explicit callback sites; this is not full-project TypeScript or original-authorship acceptance."
+  ],
+  "futureActualObligations": [
+    "Recheck exact staged preimage and actual complete296-node provider with the same ref/setter/Map and side-effect bindings.",
+    "Retain all context/hook/cache/timer declarations and real React namespace receivers; preserve known raw initializer grouping and wrapper topology as separate obligations.",
+    "Full source/module retention, direct provider/global placement and whole-version acceptance require their own actual-stage evidence."
+  ],
+  "applicationExecuted": false,
+  "fullApplicationParsed": false,
+  "unchangedHistoricalToolsReused": true
+}

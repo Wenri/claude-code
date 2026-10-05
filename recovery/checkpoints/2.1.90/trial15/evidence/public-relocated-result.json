@@ -1,0 +1,25 @@
+{
+  "kind": "relocated-public-checkpoint-compiler-replay",
+  "publicManifestSha256": "de6aea5d1a0ab1e6d46c8721b8e2848f00cb2503467f62d1f2549bf1a261352a",
+  "publicProfileSha256": "09e70cb95ae3fc71cdb539f0bea0a9a6c24223c696970deb4ea3d69072e92977",
+  "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+  "allFiveStepsExitZero": true,
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3105172,
+    "sha256": "5dcf01b84a95cde1a3c1faacce353265a6e6104d991273b628c65611c8843839"
+  },
+  "privateTrial7StrictAst": {
+    "nodes": 3105172,
+    "sha256": "5dcf01b84a95cde1a3c1faacce353265a6e6104d991273b628c65611c8843839"
+  },
+  "sameStrictCandidateAst": true,
+  "finalJsSha256": "56a6bf018bcecb16db3a7ff55e6a59676b8ae89757d28967c549b86c3252c9f1",
+  "sameFinalJsBytes": false,
+  "compileReportSha256": "b1bc00474d9011f7a89f47b7b800a7b92676b80b9b165f957b8c6ddc3d910522",
+  "applicationExecuted": false,
+  "officialTargetAcceptance": false,
+  "wholeVersionAcceptance": false
+}

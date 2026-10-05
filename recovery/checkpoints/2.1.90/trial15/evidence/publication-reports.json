@@ -1,0 +1,1392 @@
+{
+  "kind": "locator-redacted-review-reports",
+  "reports": [
+    {
+      "path": "evidence/aws-three-route.json",
+      "originalSha256": "9ca72acc88d214e169e8a8cd466043a7409440e5054f2df1b791cc53e170144d",
+      "publishedSha256": "0ed4743ed6e3c345726f6a15ab331eb83bf4720e24f546c50e7b8a5dc2127c47",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceApproval/review/path",
+          "originalValueSha256": "f2ebaaecf209e7c5368d495f7bf15ad246e84863f69933826555b74580d2063d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/closure/path",
+          "originalValueSha256": "6a41d65246097ce97b7c694f98ba27ceb0b3072742dd0c10792adfeaa3be274f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/manifest/path",
+          "originalValueSha256": "06362c0b11a2f88a1c35b8bd84c38eb3e60ca74d273162ea4d29bf47b24ca107",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-three-route-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/preparationApproval/review/path",
+          "originalValueSha256": "63f507904e4f69833d83632de75d9059cfc15bcfebcfa31fafc4886846376185",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/preparationApproval/closure/path",
+          "originalValueSha256": "7a68315d493e2a95f284fcd8b9154b0fce58aface75a6425ed9fbda32a78c33c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/actualInputs/target/js/path",
+          "originalValueSha256": "903bbde3fca462326a4e3b479b2c500c47ce519f6450f4fb2c436177c6c39fdd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/package/cli.js"
+        },
+        {
+          "jsonPointer": "/actualInputs/target/index/path",
+          "originalValueSha256": "3c7ee9fa66a718b4bd1bc306585b8c38f2545315b0fbf3d7e4c40cd61718b5b8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json"
+        },
+        {
+          "jsonPointer": "/actualInputs/current/js/path",
+          "originalValueSha256": "de9ea1a150daeec6ca77eb8f97ba5d049b12f844e94f8cc3ce9fe62a85fab97f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v7/final/cli.js"
+        },
+        {
+          "jsonPointer": "/actualInputs/current/index/path",
+          "originalValueSha256": "ac414c421e728b1e855a4f5d9e1bc632624475e4f32e73781e126793d7037517",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v7-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/profile/path",
+          "originalValueSha256": "93177603525d0f5b2aa90cd7c15cfd533384fced91012ef157e56bc2288d0fbd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/profile.json"
+        },
+        {
+          "jsonPointer": "/compileReport/path",
+          "originalValueSha256": "ee5757df66366a4ac725ea366251ed984e1b5c0729babefa237bc36862546dd9",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v7/compile-report.json"
+        },
+        {
+          "jsonPointer": "/toolchain/path",
+          "originalValueSha256": "81e17569a681dadd9f78ae97dd2b9578ca7fcd2414c4e8b8797676575542c19d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/toolchain.json"
+        },
+        {
+          "jsonPointer": "/previousEvidencePreserved/mixedAwsReview/path",
+          "originalValueSha256": "fd693ce4adadc399985bd80ba6aceab60e59a5f686cd857fada0a48c07173af8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-core-emission-review/review.json"
+        },
+        {
+          "jsonPointer": "/previousEvidencePreserved/mixedAwsClosure/path",
+          "originalValueSha256": "72948b9c81c5b52b5a998139b5c926187341ac7533ff119cdac0312244a291ee",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-core-emission-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/previousEvidencePreserved/rejectedTwoRouteReview/path",
+          "originalValueSha256": "eaaf9d4064e3b5a0b2e70244237b4b6c9bb135b9ded0f47d2affc2087727e7c6",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/previousEvidencePreserved/rejectedTwoRouteClosure/path",
+          "originalValueSha256": "73779d227ce5d3c5ee18ea553e84379bdf26d1b14777103c746869be1089ab0e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/freeze.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/toggle-registration.json",
+      "originalSha256": "ff54982b4ca1ad9ad099e464c5abc4a6d200d7ec94882be5ca870985dc7c7b70",
+      "publishedSha256": "f03c11a5f55e3f21cd54a4e1f95327b088494ff0c3ae835b287e0a4bc6514463",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/production/trial",
+          "originalValueSha256": "39452424ccb104130c4034d5fd0032d9f778a1f9a5a8a0f37728530ad99e4681",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v7"
+        },
+        {
+          "jsonPointer": "/production/current/js",
+          "originalValueSha256": "de9ea1a150daeec6ca77eb8f97ba5d049b12f844e94f8cc3ce9fe62a85fab97f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v7/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/current/index",
+          "originalValueSha256": "ac414c421e728b1e855a4f5d9e1bc632624475e4f32e73781e126793d7037517",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v7-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/profile/path",
+          "originalValueSha256": "93177603525d0f5b2aa90cd7c15cfd533384fced91012ef157e56bc2288d0fbd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/profile.json"
+        },
+        {
+          "jsonPointer": "/production/inputs",
+          "originalValueSha256": "9a8045c64d94d23fea5ecdbad6b745c32a1d8149cb1638a1d3b7bfd1e3fdad01",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v10-registration-aws/inputs"
+        },
+        {
+          "jsonPointer": "/sourceAndBindingEvidence/0/path",
+          "originalValueSha256": "9877e663e7a96c6dcd8b527631086a7c7684e0418de77a1de71bd7c7bfb2e08e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceAndBindingEvidence/1/path",
+          "originalValueSha256": "99328fee9525adfd03c54e7f0028b2e304d28645bdf3d2b1e748b1d73ec2f786",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceAndBindingEvidence/2/path",
+          "originalValueSha256": "63f507904e4f69833d83632de75d9059cfc15bcfebcfa31fafc4886846376185",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceAndBindingEvidence/3/path",
+          "originalValueSha256": "7a68315d493e2a95f284fcd8b9154b0fce58aface75a6425ed9fbda32a78c33c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/historicalActualEvidence/review/path",
+          "originalValueSha256": "d0eeeae560467ab335193abdf8c16074c840634543cb25f82ac23311aa2adcf8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-emission-review/review.json"
+        },
+        {
+          "jsonPointer": "/historicalActualEvidence/closure/path",
+          "originalValueSha256": "901a28f575e85b9b786f54d310fcd517288b131930a11e255375ad4be1487cc1",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-emission-review/freeze.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/preparation.json",
+      "originalSha256": "ae7b8ffd4ddd96666cbe92c2ce1508361910d59edb5bd4bf2676ea4b682d18f8",
+      "publishedSha256": "ffe241f35341b23aa955c6c02b55422941ab4500f8960b7e7d3708a5d2ecb06f",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/profile/path",
+          "originalValueSha256": "93177603525d0f5b2aa90cd7c15cfd533384fced91012ef157e56bc2288d0fbd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/profile.json"
+        },
+        {
+          "jsonPointer": "/authorFreeze/path",
+          "originalValueSha256": "ce3e0c2514795fab3e7575d3d13bc7b51f6762c0f398cc84ca3a3d13188cb1dd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/FREEZE.json"
+        },
+        {
+          "jsonPointer": "/authorCodeClosure/path",
+          "originalValueSha256": "8936f15dc51801857bf327b34d696ea61c0a487fda35ae111f0ba909a889ea74",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/code-provenance.json"
+        },
+        {
+          "jsonPointer": "/parentProfile/path",
+          "originalValueSha256": "4f8cb69539f33cb3e8cad8a03e02461a19deaebc94d25f7a6e1718aecbc37c13",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v7-toggle-carryforward/profile.json"
+        },
+        {
+          "jsonPointer": "/runtime/root",
+          "originalValueSha256": "8618672fe49ec4afae56220f754104a8c5e89848215da7df0a4d095bbeac7559",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/recovery"
+        },
+        {
+          "jsonPointer": "/runtime/toolchainPath",
+          "originalValueSha256": "81e17569a681dadd9f78ae97dd2b9578ca7fcd2414c4e8b8797676575542c19d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/toolchain.json"
+        },
+        {
+          "jsonPointer": "/physical/inputs",
+          "originalValueSha256": "9a8045c64d94d23fea5ecdbad6b745c32a1d8149cb1638a1d3b7bfd1e3fdad01",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v10-registration-aws/inputs"
+        },
+        {
+          "jsonPointer": "/physical/sourceApprovals/0/manifest",
+          "originalValueSha256": "361abd65ac1adfdd5080d036c918aa30ec2a194cbf464370ebf69a92d5dff666",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-registry-order-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/physical/sourceApprovals/0/review",
+          "originalValueSha256": "9877e663e7a96c6dcd8b527631086a7c7684e0418de77a1de71bd7c7bfb2e08e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/physical/sourceApprovals/1/manifest",
+          "originalValueSha256": "06362c0b11a2f88a1c35b8bd84c38eb3e60ca74d273162ea4d29bf47b24ca107",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-three-route-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/physical/sourceApprovals/1/review",
+          "originalValueSha256": "f2ebaaecf209e7c5368d495f7bf15ad246e84863f69933826555b74580d2063d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/evidencePreservation/sourceAndFailedEvidence/0/root",
+          "originalValueSha256": "beeacf96d970f63bd2d6bd741a106ca6303b077d3faf0cecb0e2ffbc69be8a86",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review"
+        },
+        {
+          "jsonPointer": "/evidencePreservation/sourceAndFailedEvidence/1/root",
+          "originalValueSha256": "d9a253407098fe2b1c7bb03eb3b48cb4e0ba2992a9c7da0604cdb7a1be08d6f1",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review"
+        },
+        {
+          "jsonPointer": "/evidencePreservation/sourceAndFailedEvidence/2/root",
+          "originalValueSha256": "97c40d1cc4215ed44729a9bae65e4a27309ee8d4dfed6924cfd6f1cd21204951",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-emission-review"
+        },
+        {
+          "jsonPointer": "/evidencePreservation/sourceAndFailedEvidence/3/root",
+          "originalValueSha256": "a97c2683e3fe8682c7c804cfa097288ad08d41b71cb8ba34e734bff2d92d97d5",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review"
+        },
+        {
+          "jsonPointer": "/evidencePreservation/unchangedRuntimeRoot",
+          "originalValueSha256": "8618672fe49ec4afae56220f754104a8c5e89848215da7df0a4d095bbeac7559",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/recovery"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/env-markdown.json",
+      "originalSha256": "7e0e3620acd237e8d3e5e72a576a050c4667939c1946e75d0599fd767904427a",
+      "publishedSha256": "aaea52bb6ee87379aaf7ee56c04feaae61aebd6ea320ec136da0a392472df934",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/inputPins/profile",
+          "originalValueSha256": "4f8cb69539f33cb3e8cad8a03e02461a19deaebc94d25f7a6e1718aecbc37c13",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v7-toggle-carryforward/profile.json"
+        },
+        {
+          "jsonPointer": "/inputPins/toolchain",
+          "originalValueSha256": "81e17569a681dadd9f78ae97dd2b9578ca7fcd2414c4e8b8797676575542c19d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/toolchain.json"
+        },
+        {
+          "jsonPointer": "/inputPins/inputs",
+          "originalValueSha256": "c7ead5be1a40d8649668317c0a185713d612ec06778a1c3f3f9f78b61aead9fa",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v9-toggle-carryforward/inputs"
+        },
+        {
+          "jsonPointer": "/inputPins/compileReport",
+          "originalValueSha256": "9d61cd9f9aa5ff9a4c1a7847c09f8f2fe78bb1a3fbeac65623e65122a7fa2c18",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v6/compile-report.json"
+        },
+        {
+          "jsonPointer": "/inputPins/current/js",
+          "originalValueSha256": "fe30d003d9a428d930d6139ffbad1d24795ad447c890d1328c480e1668edf809",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v6/final/cli.js"
+        },
+        {
+          "jsonPointer": "/inputPins/current/index",
+          "originalValueSha256": "9321cd77aad5a75e5764b8a675c5214178375eb483037bc136698fd64a026679",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v6-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/sourceApplicabilityReference/review",
+          "originalValueSha256": "efd00dce0ec92c065bc4efc2243cc95b418b9139fad4461d78be16a57fe0561f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-v31-carryforward-applicability-review/review.json"
+        },
+        {
+          "jsonPointer": "/toggleSourceReviewReference/review",
+          "originalValueSha256": "d3f07dd7759972d669eb729d154a5390a47707918d30e6f7c491cb6f71973572",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-toggle-memory-independent-review/review.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/powerup-correction.json",
+      "originalSha256": "4c481a0263f47c2fbc53dfe8b4b1d097fda04a5cbb75f1eb6eac9a06865d1742",
+      "publishedSha256": "cb964e33f1a6a6e78206895708886a3377b5aa871ecb3beb3aa27a70d6b8c686",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/authority/profile/path",
+          "originalValueSha256": "458290953c150c418da9af5a9c090ccc633853896adf5c2232d0a0ef97d5ba5e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v5-query-powerup/profile.json"
+        },
+        {
+          "jsonPointer": "/authority/toolchain/path",
+          "originalValueSha256": "9eb99276bee943adf36ec6426508aa982cada77dc4891cfc653c3160bd225839",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v4-powerup-aws/toolchain.json"
+        },
+        {
+          "jsonPointer": "/authority/compileReport/path",
+          "originalValueSha256": "c85a5f37bd0490fcccff54d19d98330ae2b21afca3473ad63f2b8a6f0b694739",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v5/compile-report.json"
+        },
+        {
+          "jsonPointer": "/authority/current/js",
+          "originalValueSha256": "aab3b2c330f3e3d7b0aaf6f9cb88da5f1555ffe1b7b7ca30d154ac3bdccfa74d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v5/final/cli.js"
+        },
+        {
+          "jsonPointer": "/authority/current/index",
+          "originalValueSha256": "05dde90015407880c60a8592fd8fedc66f36cd812159c9d68df8a070719f474f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v5-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/authority/sourceRoot",
+          "originalValueSha256": "7a7266b3ccc4ec4da15f69cd2ca2e2e1e5b28abb79ff4ce0766a47d632894599",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v7-query-powerup/inputs"
+        },
+        {
+          "jsonPointer": "/sourceApproval/path",
+          "originalValueSha256": "2d6032c8366b3d3596f4e2074477442c43d0f5fd81630a211fb879252acb43b2",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-powerup-provider-correction-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/previousActualReview/path",
+          "originalValueSha256": "b36a0c0a61b9a5be5c9a6267283e3a2ead363e15a9ab39fea1f9e7d5a0bd446f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-powerup-emission-review/review.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/query-engine.json",
+      "originalSha256": "abeaeef43b86066e3cc3fef767d2ea6f841cd559f31904fb3e48d2d451310d7b",
+      "publishedSha256": "ae360aeac555a5c5e0111f1a534bb47acc507335a1b19e02a7316e66478aa894",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/inputPins/js",
+          "originalValueSha256": "aab3b2c330f3e3d7b0aaf6f9cb88da5f1555ffe1b7b7ca30d154ac3bdccfa74d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v5/final/cli.js"
+        },
+        {
+          "jsonPointer": "/inputPins/index",
+          "originalValueSha256": "05dde90015407880c60a8592fd8fedc66f36cd812159c9d68df8a070719f474f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v5-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/target/js",
+          "originalValueSha256": "903bbde3fca462326a4e3b479b2c500c47ce519f6450f4fb2c436177c6c39fdd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/package/cli.js"
+        },
+        {
+          "jsonPointer": "/target/index",
+          "originalValueSha256": "3c7ee9fa66a718b4bd1bc306585b8c38f2545315b0fbf3d7e4c40cd61718b5b8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json"
+        },
+        {
+          "jsonPointer": "/priorFailedBaseline/pins/js",
+          "originalValueSha256": "6025f0afa1e6282d413280929ab6227337d11fa653e68d8b71db7dafb24f300e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v3/final/cli.js"
+        },
+        {
+          "jsonPointer": "/priorFailedBaseline/pins/index",
+          "originalValueSha256": "318e71cab2445e79045dbe574e89413a65c81a529e9a96916f539f8a32dff3cd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v3-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/profile/path",
+          "originalValueSha256": "458290953c150c418da9af5a9c090ccc633853896adf5c2232d0a0ef97d5ba5e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v5-query-powerup/profile.json"
+        },
+        {
+          "jsonPointer": "/currentSourceRoot",
+          "originalValueSha256": "7a7266b3ccc4ec4da15f69cd2ca2e2e1e5b28abb79ff4ce0766a47d632894599",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v7-query-powerup/inputs"
+        },
+        {
+          "jsonPointer": "/sourceAndBindingEvidenceReused/0/review",
+          "originalValueSha256": "b1733cf040fb2bb95041f8fae2a341fda979db395b3865ce2dc31427c5e270b3",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-query-engine-replay-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceAndBindingEvidenceReused/1/review",
+          "originalValueSha256": "4b80d394cbe1fbd7ca845fdfbef6c17c06ce1c4d1818e284f066d78468081e84",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-owner-corrections-binding-independent-review/review.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/sandbox.json",
+      "originalSha256": "6c5aa69a88f38d616e4f1f5ca7955290a08506039cb9a6bc8650b2062f94fe6e",
+      "publishedSha256": "fa4fbd2fea77f04c7100ee88b76cc4d6a6d8bc1f835e40b73ba2a86863741f97",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/pins/profile/path",
+          "originalValueSha256": "52831615e33a9890f47ea4508c06b80e6a85abc7648c3d28442f013fd9d4eaee",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v3-sandbox/profile.json"
+        },
+        {
+          "jsonPointer": "/pins/toolchain/path",
+          "originalValueSha256": "a936afd356f9195f96b949930d205c34bf1825976b98a4165e1531e60704476e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v3-sandbox/toolchain.json"
+        },
+        {
+          "jsonPointer": "/pins/candidateJS/path",
+          "originalValueSha256": "6025f0afa1e6282d413280929ab6227337d11fa653e68d8b71db7dafb24f300e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v3/final/cli.js"
+        },
+        {
+          "jsonPointer": "/pins/candidateIndex/path",
+          "originalValueSha256": "318e71cab2445e79045dbe574e89413a65c81a529e9a96916f539f8a32dff3cd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v3-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/pins/targetJS/path",
+          "originalValueSha256": "903bbde3fca462326a4e3b479b2c500c47ce519f6450f4fb2c436177c6c39fdd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/package/cli.js"
+        },
+        {
+          "jsonPointer": "/pins/targetIndex/path",
+          "originalValueSha256": "3c7ee9fa66a718b4bd1bc306585b8c38f2545315b0fbf3d7e4c40cd61718b5b8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json"
+        },
+        {
+          "jsonPointer": "/pins/compileReport/path",
+          "originalValueSha256": "cd8c39b31f3e4b2e4a53506f86602b389d5f3a01dd0ca5e7abd2b605b5e795d9",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v3/compile-report.json"
+        },
+        {
+          "jsonPointer": "/pins/sourceApproval/path",
+          "originalValueSha256": "1a7d64b211fb5cf975606e728234f71852f12f6fc877cca2ebba1e71bc7f6fc9",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-sandbox-runtime-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/pins/bindingApproval/path",
+          "originalValueSha256": "37ead26bfcd5d25b417669dcd9837d475e3e7ded040616413cefdef72d9f9a7e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-sandbox-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/pins/sourceApprovalClosure/path",
+          "originalValueSha256": "2c5dcd6d368acd5ec1e566a8767e70cc85efa9b403b15c690cd331802bc4883b",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-sandbox-runtime-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/pins/bindingApprovalClosure/path",
+          "originalValueSha256": "87c30dcd9f0038f76aab775c7f6a4ab4ff7ba6a33c12164020422ce8c23f2851",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-sandbox-binding-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceInputRoot",
+          "originalValueSha256": "1cc9eb9759716c15183f913d445f9035cd13c77bfe738fb3275a0c35d58b9c82",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v5-sandbox/inputs"
+        },
+        {
+          "jsonPointer": "/runtimeRoot",
+          "originalValueSha256": "cc2bdc1167d2c26ec8ea7cf37f41761951eee326a5c1dbff9460fef9a2247cca",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v3-sandbox/recovery"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/logging-cache.json",
+      "originalSha256": "e0c05c9d5247d1520dbcdc706fef67ebca879a95f419e523f4817fe427cba938",
+      "publishedSha256": "9e12e14b930ae701f8e3019d8d9e93faf9fa1035fe75f6654ce7d09b43bd1ca5",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/inputPins/finalJs/path",
+          "originalValueSha256": "75c2ff7ba9ae518518e0022c83db2edaa40001daf24007359818339bde371a2d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v2/final/cli.js"
+        },
+        {
+          "jsonPointer": "/inputPins/index/path",
+          "originalValueSha256": "69c68222cbb83bc6edea0e3c1415c6e75dd862d7deb3239fe147b003c4d40af3",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v2-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/inputPins/physicalInputRoot",
+          "originalValueSha256": "0a74775059ef49b5c9782e68b39b010e691242684e6b4480a7ed0588657680b5",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v3-logging-cache/inputs"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/aws-prior-mixed.json",
+      "originalSha256": "65d6252f39fcef3ae0ecf2e0e000e2ad2ba755bfcd6c766522ac9476624e3817",
+      "publishedSha256": "7882ebc2715cf138a37a9eeef2b7ed0cbe6b57a5311e76bb2453193237fb3dee",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/authority/inputRoot",
+          "originalValueSha256": "5075759c2ebcf81ff2bf107a617d69586743ccee28a59049fb349f8d264906ad",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v6-powerup-aws/inputs"
+        },
+        {
+          "jsonPointer": "/resolvedSubsetAuthority/subset/path",
+          "originalValueSha256": "9cc9d38e07892ea6d80a188abf127bc362068b54264e996e1c6832d81edc529c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-compiler-subset-supplement/vendor-subset.json"
+        },
+        {
+          "jsonPointer": "/resolvedSubsetAuthority/subsetFreeze/path",
+          "originalValueSha256": "8b95a3899e5afe951fa8bc540fd95340baeb3d83bb08420656eb85818ac4cf34",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-compiler-subset-supplement/freeze.json"
+        },
+        {
+          "jsonPointer": "/resolvedSubsetAuthority/subsetReview/path",
+          "originalValueSha256": "958ed160229c30edebea3c8e252f585dc43e543f4cddc58fe3dc0a36646907b9",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-subset-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/resolvedSubsetAuthority/subsetReviewClosure/path",
+          "originalValueSha256": "e5a5b276e339ab15d3495156179e983e3091a2aa8c6ab99e7c303793f1c6a550",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-subset-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/resolvedSubsetAuthority/bindingReview/path",
+          "originalValueSha256": "2214cb57ec2f77c93084b5ea23c7f9250381190d09cf94b866d1990b3f95cc6c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-powerup-aws-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/resolvedSubsetAuthority/bindingClosure/path",
+          "originalValueSha256": "3476e871f9ffdd1e08b039a371cb1356a39fe4c62bc78b3bbb0918f0a5b87870",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-powerup-aws-binding-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovalReferenced/path",
+          "originalValueSha256": "a1f5dc362f07bec19e46d6b2a6eb05f478a1ca5129e1854e541a1e3ed7dfaf42",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-core-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/unacceptedFindings/selectedFetchHttpHandler/currentSourceOwner/path",
+          "originalValueSha256": "783939fd46b8b78634700a4f0b1416a655403eec0abc5eb9ed06e8f7064a5528",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v6-powerup-aws/inputs/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/aws-rejected-two-routes.json",
+      "originalSha256": "c951fe351e78d3fd9a708aa486aae07249cb4ebe49f48091d02b51e9c0636941",
+      "publishedSha256": "dd9c893f7e437761f81d0c81b44d7f5cec962e429720a1c5040341163fd9acf3",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/authorResult/path",
+          "originalValueSha256": "5e7311ef2a6f2b49830f0a862ef4c6e5e3c1152a271bc64af9c33f31a38b00c1",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-fetch-http-supplier-investigation/result.json"
+        },
+        {
+          "jsonPointer": "/authorClosure/path",
+          "originalValueSha256": "69c5c8fdbd5facbab4dd461b9c47537c6fb7760c0aa23dbadd0985eea01ab219",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-fetch-http-supplier-investigation/freeze.json"
+        },
+        {
+          "jsonPointer": "/authorCode/path",
+          "originalValueSha256": "333435f78d3f7a897289799c3ac4b252e4c07e145ec11a65b6f8d5313e80d01d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-fetch-http-supplier-investigation/code-provenance.json"
+        },
+        {
+          "jsonPointer": "/priorMixedActualReview/path",
+          "originalValueSha256": "fd693ce4adadc399985bd80ba6aceab60e59a5f686cd857fada0a48c07173af8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-core-emission-review/review.json"
+        },
+        {
+          "jsonPointer": "/currentApplicability/sourceStage",
+          "originalValueSha256": "7a7266b3ccc4ec4da15f69cd2ca2e2e1e5b28abb79ff4ce0766a47d632894599",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v7-query-powerup/inputs"
+        },
+        {
+          "jsonPointer": "/evidence/authentication.json/path",
+          "originalValueSha256": "91edcaf2aebc20bfe2193544e9aaefee7e36e42a313c40bec19e4f495fca9425",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/authentication.json"
+        },
+        {
+          "jsonPointer": "/evidence/code-authentication.json/path",
+          "originalValueSha256": "0ea1f5b4902c6606bf65c50c2e63ba3cbf1b1e6622aef31137138450da14c748",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/code-authentication.json"
+        },
+        {
+          "jsonPointer": "/evidence/author-replay.json/path",
+          "originalValueSha256": "fda49059d76d900e23228565e4cbe059e2da9e51d2b59a367c9fd9fc14d1678a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/author-replay.json"
+        },
+        {
+          "jsonPointer": "/evidence/range-authentication.json/path",
+          "originalValueSha256": "737556f4867f8a2b1096bcc89e2aa2047aa9f7e913367c08a9ac8ff35e4c8378",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/range-authentication.json"
+        },
+        {
+          "jsonPointer": "/evidence/range-authenticated-witnesses.json/path",
+          "originalValueSha256": "dcae2f81ea98c5cf3b9f134cf09e084c799ac2dde72efb20ac7e34c5075ad791",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/range-authenticated-witnesses.json"
+        },
+        {
+          "jsonPointer": "/evidence/independent-checks.json/path",
+          "originalValueSha256": "733e70d46f518123f8e32f609ae687b5630b35b83af77bc7015efd27aec13d5c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/independent-checks.json"
+        },
+        {
+          "jsonPointer": "/evidence/fresh-witnesses.json/path",
+          "originalValueSha256": "ed1e5e4c9447a5e14d1cac281bb493acb114ba565f3b91f8aa7217e201998393",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/fresh-witnesses.json"
+        },
+        {
+          "jsonPointer": "/evidence/physical-review.json/path",
+          "originalValueSha256": "4fd4ccb63b63bf604173af5f6ef987f25b65fde5bfd31effeaffbc2a4ca5aadf",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/physical-review.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving statuses and limits; original immutable proof closure is not reproduced in full."
+    },
+    {
+      "path": "evidence/trial15-preparation.json",
+      "originalSha256": "b197c15a5b10bc60909275489dcd98b8e5ace4801e297cbc5328e615ac4d3dc4",
+      "publishedSha256": "babdf53331410d174719d86342eef7ba5a32574805d96f2314f9eb2137860a06",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/profile/path",
+          "originalValueSha256": "a39a53b2ff58289c660e53e8c989a43ee47d00532d183fb2adc548c3f406a26a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/profile.json"
+        },
+        {
+          "jsonPointer": "/authorFreeze/path",
+          "originalValueSha256": "f48cd3410d74edda3b810cd57d2c99bc784376d8ea6077ed59a2d33c20167b04",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/FREEZE.json"
+        },
+        {
+          "jsonPointer": "/authorExecutableClosure/path",
+          "originalValueSha256": "b84e5003d84cce43836925a3326457817f61f0a3efe2b5d3773f4bcc1af6eb65",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/code-provenance.json"
+        },
+        {
+          "jsonPointer": "/inputs",
+          "originalValueSha256": "a99e0c74e66202f343f829c4a2258e4a57d985f2e913b57ab7ba7baa1d328fee",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v18-permission-rating/inputs"
+        },
+        {
+          "jsonPointer": "/stageReceipt/path",
+          "originalValueSha256": "86bcff6bf287270fb1cbfc36cf8b26e4659d0fd2769e90be8f6ad94a706aafb1",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v18-permission-rating/stage-verification.json"
+        },
+        {
+          "jsonPointer": "/stageAuthority/path",
+          "originalValueSha256": "ef70d5b84dc4a8040bc7d25847491a68d0db6659d7db1ef4be60b54737bb0b26",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-rating-stage-authority.json"
+        },
+        {
+          "jsonPointer": "/parentProfile/path",
+          "originalValueSha256": "9e30f2853277862cdfe7351a8deb55c88874fbe01046adc2f32a45c18169827a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json"
+        },
+        {
+          "jsonPointer": "/runtimeReuse/root",
+          "originalValueSha256": "7e593b3bea928af1ce75b6fcf587dd6e298e3b0a0b694fd199554e1fb8d07652",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/recovery"
+        },
+        {
+          "jsonPointer": "/runtimeReuse/toolchain/path",
+          "originalValueSha256": "74eeca5991e6704ae12577c0bd26147daec82bdaf1669bd8264d594fc45a5e01",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/toolchain.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovals/0/review/path",
+          "originalValueSha256": "a09a60f748d781fa48027818e0b285cf8c63132c7369f7cd8858282efb936300",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovals/0/closure/path",
+          "originalValueSha256": "c79a7680e854ceaee4784aff3bec596b01ef7d149ee8fb096fd4c53dbae90781",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovals/1/review/path",
+          "originalValueSha256": "a03e05bb0ac1e865ee5b60c710d96d7a58d5dfb9ce5e23e8484b1f8031cc8892",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovals/1/closure/path",
+          "originalValueSha256": "8c17a3f008078a18a56e0b5f2882efad7050153a5730ced8a729214afdf87ed5",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/currentMixedActualEvidence/review/path",
+          "originalValueSha256": "bb9618f5c6bc7ac03322a4d3baf9f8eabd8854ced1faaa46275d251f6cc09337",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/review.json"
+        },
+        {
+          "jsonPointer": "/currentMixedActualEvidence/closure/path",
+          "originalValueSha256": "e8be632873f30b1d279e5ae85f146d2b39e3b5a10bea0960d54338248849c591",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/retainedAttempts/0/record/path",
+          "originalValueSha256": "03b998dc23fef1890ed803110f6d0142e9767135f58c6a46e0fa11649ca66e11",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/attempt-history.json"
+        },
+        {
+          "jsonPointer": "/retainedAttempts/1/record/path",
+          "originalValueSha256": "ed89a85f0bab0aa30347b64ff653501c1898308954528d70f87e23d4a047ea37",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/reviewer-attempt1.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/source-permission_persistence_roundtrip.json",
+      "originalSha256": "d87d8055e3c8bfa1750873c09cb53d33bb7359c6b4d8bf42c8e5736491029033",
+      "publishedSha256": "41222723903193a2bc0831e2aeba593b0c3cced309e518b267c04eea1b2469db",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceManifest/path",
+          "originalValueSha256": "508782679e8bfe590546bd546a4697b5be902c9a593998a4a069722dcf236b86",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/reviewedSourceRows/0/postimagePath",
+          "originalValueSha256": "0867e78ce606aab9ecce5ab2e9f33bf69686296e580daf7c287dd94eda32e55d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/utils/sessionStorage.ts"
+        },
+        {
+          "jsonPointer": "/reviewedSourceRows/1/postimagePath",
+          "originalValueSha256": "ce5c8460481314739de5bd58d67ce153a2833df936d4d0d7d698c8b2a5bba047",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/types/logs.ts"
+        },
+        {
+          "jsonPointer": "/reviewedSourceRows/2/postimagePath",
+          "originalValueSha256": "b56c8c56819c30415ddcea9c91793ad1157ffc31d59e053affe872cde91eab1e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/screens/REPL.tsx"
+        },
+        {
+          "jsonPointer": "/baseProfile/path",
+          "originalValueSha256": "9e30f2853277862cdfe7351a8deb55c88874fbe01046adc2f32a45c18169827a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json"
+        },
+        {
+          "jsonPointer": "/baseInputs",
+          "originalValueSha256": "0a66bf4355c05e71314f8adb81e2a69f5c90ec87a260cb56207482c8f608f6e8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v17-storage-stream-reader/inputs"
+        },
+        {
+          "jsonPointer": "/authorAuthority/source-repair.json/path",
+          "originalValueSha256": "508782679e8bfe590546bd546a4697b5be902c9a593998a4a069722dcf236b86",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/authorAuthority/guard-transition.json/path",
+          "originalValueSha256": "38b52e01cf8689ec2471c9e67a9ee88698ad51f3252d65d092745f7793c23270",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/guard-transition.json"
+        },
+        {
+          "jsonPointer": "/authorAuthority/artifact-manifest.json/path",
+          "originalValueSha256": "afe9a56ae306fe7073b595f66df69cc36a23cb7e6e693995e8a76f4522687fdc",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/artifact-manifest.json"
+        },
+        {
+          "jsonPointer": "/authorAuthority/code-provenance.json/path",
+          "originalValueSha256": "f78f31260136dc29f81f1c60bbd65be596ab8005eaa226fc29c08696a98e7604",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/code-provenance.json"
+        },
+        {
+          "jsonPointer": "/authorAuthority/freeze.json/path",
+          "originalValueSha256": "304ff0b6cc1f7a34ce4d3ae3a7595ade6246a7bd4788aae28863921ae3649a95",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/freeze.json"
+        },
+        {
+          "jsonPointer": "/authentication/evidence/path",
+          "originalValueSha256": "d920ef014f5f76db083408ba0efa301e95d35cebf98b4fcb46f3a790b368f762",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/authentication.json"
+        },
+        {
+          "jsonPointer": "/freshReplays/evidence/path",
+          "originalValueSha256": "b4849d560f7929e6203c7a7de9702ab96e6f544a3fbb44a2d0947dd3ab48a3d7",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/replay-result.json"
+        },
+        {
+          "jsonPointer": "/independentEvidence/groundwork.json/path",
+          "originalValueSha256": "6f360068b583bfce0f57d6896b34b8bd9a00600de316c00f110f8a02af5a2e62",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/groundwork.json"
+        },
+        {
+          "jsonPointer": "/independentEvidence/groundwork-witnesses.json/path",
+          "originalValueSha256": "2d4be4eaab3b58e798004bb942fbf69653b18d01fb8b2d642013aaf5fc37bf3e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/groundwork-witnesses.json"
+        },
+        {
+          "jsonPointer": "/independentEvidence/effect-binding.json/path",
+          "originalValueSha256": "9f117aec49e362f4f2074f08007d372d44a654eb988e331d3182fd4f8ee944e8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/effect-binding.json"
+        },
+        {
+          "jsonPointer": "/independentEvidence/independent-checks.json/path",
+          "originalValueSha256": "2d650c8ff7b946b6a94e39f2a79df0e470be9495f51942c960b8a9af48d766b7",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/independent-checks.json"
+        },
+        {
+          "jsonPointer": "/guard10Transition/authority/path",
+          "originalValueSha256": "38b52e01cf8689ec2471c9e67a9ee88698ad51f3252d65d092745f7793c23270",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/guard-transition.json"
+        },
+        {
+          "jsonPointer": "/historicalActualReaderReview/path",
+          "originalValueSha256": "bb9618f5c6bc7ac03322a4d3baf9f8eabd8854ced1faaa46275d251f6cc09337",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/review.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/source-message_rating_clear_toggle.json",
+      "originalSha256": "0c8b0e07532692e72af9a84cbd177ed2be7aa6df44d9cdf0d3475ef380acde6d",
+      "publishedSha256": "ef76bb170d0b49a4776dc8aa9c95abad63e9d58e3f24bb8a55c6e69bceeab528",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceManifest/path",
+          "originalValueSha256": "35b616e52499e5fdaa3e654b224ca23418b7da993c2375c4eebe1ba0fc985875",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/reviewedSourceRows/0/postimagePath",
+          "originalValueSha256": "9ea10f8eb08802419c50b3969258025e60cd5c7c8a58e8d15acfe1c53d3cf79d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/postimages/src/components/messageRating.tsx"
+        },
+        {
+          "jsonPointer": "/authorArtifactClosure/path",
+          "originalValueSha256": "f8202061bb6c4e8065f62b19874ba1ce82ddcf45eea1bc9e1663fe2c355dfd19",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/artifact-manifest.json"
+        },
+        {
+          "jsonPointer": "/authorFreeze/path",
+          "originalValueSha256": "8adf85b080001ab65c64cd320ba0161bfc3df5d1837d766a66b74f1edd5a5992",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/freeze.json"
+        },
+        {
+          "jsonPointer": "/currentProfile/path",
+          "originalValueSha256": "9e30f2853277862cdfe7351a8deb55c88874fbe01046adc2f32a45c18169827a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json"
+        },
+        {
+          "jsonPointer": "/baseInputs",
+          "originalValueSha256": "0a66bf4355c05e71314f8adb81e2a69f5c90ec87a260cb56207482c8f608f6e8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v17-storage-stream-reader/inputs"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/prior-actual-bridge_cleanup_metadata_order.json",
+      "originalSha256": "f3ab1b036f0e1fe3201d187805e36f9d314c2c9974483d56db0d6811c619102a",
+      "publishedSha256": "3e2d91fdbcb9896c3a452235a13360582359e8a907e37b707d8505681d6f1d42",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/production/profile/path",
+          "originalValueSha256": "d8f0e4d1dde723ee4adaf202d031a619c76d97656f0f74d87916bb00ff21554f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v12-bridge-resume/profile.json"
+        },
+        {
+          "jsonPointer": "/production/inputs",
+          "originalValueSha256": "f38a9a1fbbc083661c720c45f7b316a9aead12af576cf56cc00cac7f3940034c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v14-bridge-resume/inputs"
+        },
+        {
+          "jsonPointer": "/production/current/js",
+          "originalValueSha256": "3ec326149d4745698fa4bf81d0b3b7baadc0caaea094e6aed778bc515ff77890",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/current/index",
+          "originalValueSha256": "ec9e21bd7faab272f9ec00496d86f7a3da64321a9d47ba7c03479bf4a94a0e01",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/target/js",
+          "originalValueSha256": "903bbde3fca462326a4e3b479b2c500c47ce519f6450f4fb2c436177c6c39fdd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/package/cli.js"
+        },
+        {
+          "jsonPointer": "/production/target/index",
+          "originalValueSha256": "3c7ee9fa66a718b4bd1bc306585b8c38f2545315b0fbf3d7e4c40cd61718b5b8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json"
+        },
+        {
+          "jsonPointer": "/production/compileReport/path",
+          "originalValueSha256": "31d2880471334af447a023e5587cd965fafe32de42e403f436ae88cb207a7b52",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11/compile-report.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/path",
+          "originalValueSha256": "16e8a17848b7459ab9e7dbfaf61053a6cc61438f62034b232db0710ffda6006a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-bridge-cleanup-order-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/history/priorActualLifecycleReview/path",
+          "originalValueSha256": "06afadcf03cf71e046f3e9478f3f6201b30e3144512f74c0c2931bbc9c5bb520",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-persistence-lifecycle-emission-review/review.json"
+        },
+        {
+          "jsonPointer": "/history/priorSyncStorageReview/path",
+          "originalValueSha256": "e8952f691b977bf70b0a744c0b17d7289c8724a3b0715531cb48ae8689fa66dc",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-persistence-sync-storage-emission-review/review.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/prior-actual-session_resume_metadata_filter.json",
+      "originalSha256": "67ccb7936322757a2cd9018842ff919cdb13917b99040ba6dc0083a970b93933",
+      "publishedSha256": "458d0a448c32bb6b01590db299b8ddb9c957652b23c3f573d78d54b5b6380bfb",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/production/current/js",
+          "originalValueSha256": "3ec326149d4745698fa4bf81d0b3b7baadc0caaea094e6aed778bc515ff77890",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/current/index",
+          "originalValueSha256": "ec9e21bd7faab272f9ec00496d86f7a3da64321a9d47ba7c03479bf4a94a0e01",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/prior/js",
+          "originalValueSha256": "ca3eb08207ea122c495920c208eec4770577247ffd2536e249528a9bb42d40f6",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v10/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/prior/index",
+          "originalValueSha256": "74a346d1e8e973624a3b6d6595f92fab5bf9986dd3038a2cce4746e5f5228b8d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v10-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/profile/path",
+          "originalValueSha256": "d8f0e4d1dde723ee4adaf202d031a619c76d97656f0f74d87916bb00ff21554f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v12-bridge-resume/profile.json"
+        },
+        {
+          "jsonPointer": "/production/toolchain/path",
+          "originalValueSha256": "74eeca5991e6704ae12577c0bd26147daec82bdaf1669bd8264d594fc45a5e01",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/toolchain.json"
+        },
+        {
+          "jsonPointer": "/production/runtimeRoot",
+          "originalValueSha256": "7e593b3bea928af1ce75b6fcf587dd6e298e3b0a0b694fd199554e1fb8d07652",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/recovery"
+        },
+        {
+          "jsonPointer": "/production/inputs",
+          "originalValueSha256": "f38a9a1fbbc083661c720c45f7b316a9aead12af576cf56cc00cac7f3940034c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v14-bridge-resume/inputs"
+        },
+        {
+          "jsonPointer": "/production/stageReceipt/path",
+          "originalValueSha256": "75296b80fb89e2e9fc530da5690ab85ac237e1ebc9350b30c7621786f8399066",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v14-bridge-resume/stage-verification.json"
+        },
+        {
+          "jsonPointer": "/production/compileReport/path",
+          "originalValueSha256": "31d2880471334af447a023e5587cd965fafe32de42e403f436ae88cb207a7b52",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11/compile-report.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/path",
+          "originalValueSha256": "7ea56c03098882e24f3e8651fcf69c41fc952e6d53f02ffc14d5c6a0e36eed32",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-resume-filter-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovalClosure/path",
+          "originalValueSha256": "e8a93e4d380f8c2fe899c2bbb4bdfa879a4062f69f8a2e56920918597f1657be",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-resume-filter-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/preparationApproval/path",
+          "originalValueSha256": "7b1e331dd264ab7ef3f5e5e31fab2638d3485726518f2ad4779c64593767f10b",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-bridge-resume-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/preparationApprovalClosure/path",
+          "originalValueSha256": "6e511d71207d53085c015a6afcbb77618b9cb5e6e968ab856ad57a19018658ee",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-bridge-resume-binding-independent-review/freeze.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/prior-actual-concurrent_sessions_update_queue.json",
+      "originalSha256": "3589cdd6c6d840a0f06dabc349bb25a4891ebf520004665636554c0284eb0f34",
+      "publishedSha256": "d16d90a34fa7007a6b5a9952bd2d817364e6f71fcfe81bdef32b0ec2df0790e9",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/production/profile/path",
+          "originalValueSha256": "769f21e9a1f63ee02374089384e7bdeb0196570b4212f05f2f2492b2acc39eaa",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v13-concurrent-sessions/profile.json"
+        },
+        {
+          "jsonPointer": "/production/runtimeRoot",
+          "originalValueSha256": "7e593b3bea928af1ce75b6fcf587dd6e298e3b0a0b694fd199554e1fb8d07652",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/recovery"
+        },
+        {
+          "jsonPointer": "/production/inputs",
+          "originalValueSha256": "feefc1ce65e6f452b2f1dc640cbf10b3adc339ada5b6df63570d2f1c4b0d3d8e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v15-concurrent-sessions/inputs"
+        },
+        {
+          "jsonPointer": "/production/current/js",
+          "originalValueSha256": "1739a8b8d3bf87ef3bdb7b8d920bde67f79d0e3ecf1f62c6a041da12c0170bf0",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v12/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/current/index",
+          "originalValueSha256": "025dc1eea99ca267d1755d051c0375d76bae46be6668b21ad64db69637e9ff05",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v12-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/target/js",
+          "originalValueSha256": "903bbde3fca462326a4e3b479b2c500c47ce519f6450f4fb2c436177c6c39fdd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/package/cli.js"
+        },
+        {
+          "jsonPointer": "/production/target/index",
+          "originalValueSha256": "3c7ee9fa66a718b4bd1bc306585b8c38f2545315b0fbf3d7e4c40cd61718b5b8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json"
+        },
+        {
+          "jsonPointer": "/production/compileReport/path",
+          "originalValueSha256": "a2ee92edeba41dee718ef6e245f3a94f938d4294ccc72f9ba2163af211c5f561",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v12/compile-report.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/review/path",
+          "originalValueSha256": "5c3938534955d5df130fd3e17c1efd375db49361a26c72838dd66e3d62b31046",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-concurrent-sessions-queue-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/sourceManifest/path",
+          "originalValueSha256": "bac3fa63203e34a8453be4f02c3b5b5508031ea1809a8bf4d18071998b16dae5",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-concurrent-sessions-queue-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/readinessApproval/review/path",
+          "originalValueSha256": "27e126f1d58b0226ff4a3e62a77c7fd220a292c0cadd18c412951e1b99cf1e87",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v13-concurrent-sessions-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/readinessApproval/closure/path",
+          "originalValueSha256": "91e2c1c56ea460061a1129a5255ab8e7ff686441dd7d47cdba244ba85d17ba3d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v13-concurrent-sessions-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/priorActualHistory/bridgeReview/path",
+          "originalValueSha256": "d2c4389f44f896b388680075728bcf48ad2e47b909a2cd443880424397d55084",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-bridge-cleanup-order-emission-review/review.json"
+        },
+        {
+          "jsonPointer": "/priorActualHistory/bridgeClosure/path",
+          "originalValueSha256": "a34eefb19198d9b494851bc45d931f6973fd2e4e50e0357666d51e78888c9fe1",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-bridge-cleanup-order-emission-review/freeze.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/prior-actual-session_title_signal_subscription.json",
+      "originalSha256": "329194218006a9b2ee5758a97f916bc0c3928462d088db8b13646dfd71bc5084",
+      "publishedSha256": "2801d4cd1189671023d1f1eafbee77692aa83aee2ffc916346b5c2e94dec9eea",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/production/trial",
+          "originalValueSha256": "cacca4e7bc7c849b2e1478a21dee0918d5ed45ef5da22e4880cde1590ae0e916",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v13"
+        },
+        {
+          "jsonPointer": "/production/profile/path",
+          "originalValueSha256": "36d6cde564924221a2dc8221247b9314f6101c2d67db9316f46be82999939bdc",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v14-title-signal/profile.json"
+        },
+        {
+          "jsonPointer": "/production/inputs",
+          "originalValueSha256": "7e982b3671366e16ba69c23605309542d0c50e66f8a6836ab574e6377800277b",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v16-title-signal/inputs"
+        },
+        {
+          "jsonPointer": "/production/current/js",
+          "originalValueSha256": "3682d06d9085ff614bb311f98f419c7ae7e4a2d03164f95fbcd3d679966eebf4",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v13/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/current/index",
+          "originalValueSha256": "6d299cf9b332e46615e57ee2a679d03bf834613cdacdb0a8d9237e312e484ff6",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v13-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/prior/js",
+          "originalValueSha256": "1739a8b8d3bf87ef3bdb7b8d920bde67f79d0e3ecf1f62c6a041da12c0170bf0",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v12/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/prior/index",
+          "originalValueSha256": "025dc1eea99ca267d1755d051c0375d76bae46be6668b21ad64db69637e9ff05",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v12-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/baseline/js",
+          "originalValueSha256": "3ec326149d4745698fa4bf81d0b3b7baadc0caaea094e6aed778bc515ff77890",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/baseline/index",
+          "originalValueSha256": "ec9e21bd7faab272f9ec00496d86f7a3da64321a9d47ba7c03479bf4a94a0e01",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v11-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/path",
+          "originalValueSha256": "0d6a0c58c68be05cafd35ce6d7866464abe152a3be0bfa2e282e6892774f97d6",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-title-signal-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovalClosure/path",
+          "originalValueSha256": "3bf02a0cc02d0297df5f2e8fa0d438ae6b38831066cafe0ae41ea3097dc57cd2",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-title-signal-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/readinessApproval/path",
+          "originalValueSha256": "99d9748aa304ddfb00d13426b7bc7649d2718457e4ac564e423c61c3de56c1f2",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-title-signal-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/readinessApprovalClosure/path",
+          "originalValueSha256": "f2cd18f3f4a7bd57f3d422ee9bfdf8d836ae1cfe90572990f42227014ee08b71",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-title-signal-binding-independent-review/freeze.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/prior-actual-storage_streaming_reader.json",
+      "originalSha256": "e1692a0f69537f9ab40bbfad31eaf5ca33dfcd4de47639c641e234141c13ebff",
+      "publishedSha256": "d1f9d09040748de3d17669db4f84626028f34943263ca0f74322d56ab1a570ce",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/production/profile/path",
+          "originalValueSha256": "9e30f2853277862cdfe7351a8deb55c88874fbe01046adc2f32a45c18169827a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json"
+        },
+        {
+          "jsonPointer": "/production/current/js",
+          "originalValueSha256": "87a689e2ad691eb5d744118accd5088a322636c0ea954b8d83ade2d128608268",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v14/final/cli.js"
+        },
+        {
+          "jsonPointer": "/production/current/index",
+          "originalValueSha256": "d76887bfcd85959731f52931a5f40008d4eadb27c363037c95ab38bb0e0f754f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v14-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/production/target/js",
+          "originalValueSha256": "903bbde3fca462326a4e3b479b2c500c47ce519f6450f4fb2c436177c6c39fdd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/package/cli.js"
+        },
+        {
+          "jsonPointer": "/production/target/index",
+          "originalValueSha256": "3c7ee9fa66a718b4bd1bc306585b8c38f2545315b0fbf3d7e4c40cd61718b5b8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json"
+        },
+        {
+          "jsonPointer": "/production/inputs",
+          "originalValueSha256": "0a66bf4355c05e71314f8adb81e2a69f5c90ec87a260cb56207482c8f608f6e8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-stage-v17-storage-stream-reader/inputs"
+        },
+        {
+          "jsonPointer": "/production/runtimeRoot",
+          "originalValueSha256": "7e593b3bea928af1ce75b6fcf587dd6e298e3b0a0b694fd199554e1fb8d07652",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/recovery"
+        },
+        {
+          "jsonPointer": "/production/compileReport/path",
+          "originalValueSha256": "5dca645a2d98a8197930f74d579d7ba2ad855114b7f90bfc09d26be7a6ebd0ab",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v14/compile-report.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/review/path",
+          "originalValueSha256": "b799b9d9a4e47008280ba71da90944a796f432f357a4d71feeb9757e07a97f9b",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-reader-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/closure/path",
+          "originalValueSha256": "5a43c6cdc174ec4c67e9070717262b48c7dc5c396b1b8da69d39d7eee4c171ee",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-reader-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/exactCurrentRows/0/postimagePath",
+          "originalValueSha256": "20ac48de92af9107bb5f0a5e81fa27ee7c0e54e34ea038c0ac8bffa716d586b7",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-source-proposal/postimages/src/utils/sessionStorage.ts"
+        },
+        {
+          "jsonPointer": "/sourceApproval/exactCurrentRows/1/postimagePath",
+          "originalValueSha256": "5dddc8a3589bac4815ec7e5559598e3d05d463ab189e95826c304f38e52ddb4f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-source-proposal/postimages/src/types/logs.ts"
+        },
+        {
+          "jsonPointer": "/readinessApproval/review/path",
+          "originalValueSha256": "aec9fdb10bbac285a4c037667a3f1b4391991c3d2d559c44ddb71cb519cbcd6e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-reader-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/readinessApproval/closure/path",
+          "originalValueSha256": "1e36d4a5b7b62b38d1edfa61779828c5228548f523cd4d84396a6f043ac140e1",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-reader-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/portableRetention/otherOwnerSourcePinsReused",
+          "originalValueSha256": "5240e45d067d755be0448ef4ef20e587e6ac411e0e4c8f49a37b7b4d8c91d19c",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-reader-independent-review/preservation.json"
+        }
+      ],
+      "meaning": "Locator-redacted report preserving all status values and limits; original proof closure is referenced, not republished in full."
+    },
+    {
+      "path": "evidence/trial15-permission-actual.json",
+      "originalSha256": "59c7a17d13817ff5c3e13b7994fa829575aa7ed4a216b62a7a4b3586f0cefa1e",
+      "publishedSha256": "0d9f35a7b5a76f444cc1954451da764e9827a1358122ff298572098074a5c29f",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/inputPins/current/js",
+          "originalValueSha256": "7febfb48b339dfcd3b839ea4107bfdb9bdba4a7cfea51d9ad707cf53a2607c94",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v15/final/cli.js"
+        },
+        {
+          "jsonPointer": "/inputPins/current/index",
+          "originalValueSha256": "c1c2d3e7d028c2f2a7d9fd55a00708ebe335c5faad62322662d6dbe301011d35",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v15-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/inputPins/profile/path",
+          "originalValueSha256": "a39a53b2ff58289c660e53e8c989a43ee47d00532d183fb2adc548c3f406a26a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/profile.json"
+        },
+        {
+          "jsonPointer": "/inputPins/compileReport/path",
+          "originalValueSha256": "8799947eca223b6184487320fc47b7bbfcdf910e7fa2f74ef0d5e08ebd0b99d7",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v15/compile-report.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/review/path",
+          "originalValueSha256": "a09a60f748d781fa48027818e0b285cf8c63132c7369f7cd8858282efb936300",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/closure/path",
+          "originalValueSha256": "c79a7680e854ceaee4784aff3bec596b01ef7d149ee8fb096fd4c53dbae90781",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/sourceManifest/path",
+          "originalValueSha256": "508782679e8bfe590546bd546a4697b5be902c9a593998a4a069722dcf236b86",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/readiness/review/path",
+          "originalValueSha256": "7374a703e8c683aad25de15c979fe4c6c29fdb2b3ea79164a68079e9e952b64e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/readiness/closure/path",
+          "originalValueSha256": "55ad585ce39615b3e213491c8eece75ef24f3a4fa81eafcfc87fd7112194f406",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/physicalSourceRows/0/postimagePath",
+          "originalValueSha256": "0867e78ce606aab9ecce5ab2e9f33bf69686296e580daf7c287dd94eda32e55d",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/utils/sessionStorage.ts"
+        },
+        {
+          "jsonPointer": "/physicalSourceRows/1/postimagePath",
+          "originalValueSha256": "ce5c8460481314739de5bd58d67ce153a2833df936d4d0d7d698c8b2a5bba047",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/types/logs.ts"
+        },
+        {
+          "jsonPointer": "/physicalSourceRows/2/postimagePath",
+          "originalValueSha256": "b56c8c56819c30415ddcea9c91793ad1157ffc31d59e053affe872cde91eab1e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/screens/REPL.tsx"
+        },
+        {
+          "jsonPointer": "/freshEvidence/groundwork.json/path",
+          "originalValueSha256": "9f60e04b50d373ff3621ce3f68e3d37c84e65f880783a42bc49a5dc14d4ce93b",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/groundwork.json"
+        },
+        {
+          "jsonPointer": "/freshEvidence/actual-checks.json/path",
+          "originalValueSha256": "8418358d35257d02e749d5646b8cd59ad1bd4f0c6dc2b952967d9d9c7907c5d7",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/actual-checks.json"
+        },
+        {
+          "jsonPointer": "/freshEvidence/retention-controls.json/path",
+          "originalValueSha256": "b744cf2f73739e9658e771cfb03768039f551b63b0dcb5dcf6e8632a5f5eb0ed",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/retention-controls.json"
+        },
+        {
+          "jsonPointer": "/freshEvidence/final-retention.json/path",
+          "originalValueSha256": "0284581dc1cb08489e016d73c33e1723e385e3d847cdb5d57a26e3aa1d942eba",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/final-retention.json"
+        },
+        {
+          "jsonPointer": "/historicalReaderReview/review/path",
+          "originalValueSha256": "bb9618f5c6bc7ac03322a4d3baf9f8eabd8854ced1faaa46275d251f6cc09337",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/review.json"
+        }
+      ],
+      "originalClosureSha256": "cc6aa4157be32e6654fa3d7a950294308214e763d2931e19d23fd369d0f83517",
+      "meaning": "Locator-only public derivative. Complete statuses and raw failures remain unchanged; closure reference is to the original private proof."
+    },
+    {
+      "path": "evidence/trial15-rating-actual.json",
+      "originalSha256": "0ee57df7aa219016abb23e103bd212deb13bd767528d363441f96721f0cbc50a",
+      "publishedSha256": "2d2782ea9227b2b9f9ffd97a1ff3dee705577bedc930b8188df469f5efc2a5d4",
+      "locatorRedactions": [
+        {
+          "jsonPointer": "/sourceManifest/path",
+          "originalValueSha256": "35b616e52499e5fdaa3e654b224ca23418b7da993c2375c4eebe1ba0fc985875",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-source-proposal/source-repair.json"
+        },
+        {
+          "jsonPointer": "/sourceApproval/path",
+          "originalValueSha256": "a03e05bb0ac1e865ee5b60c710d96d7a58d5dfb9ce5e23e8484b1f8031cc8892",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/sourceApprovalClosure/path",
+          "originalValueSha256": "8c17a3f008078a18a56e0b5f2882efad7050153a5730ced8a729214afdf87ed5",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-message-rating-clear-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/productionAuthority/target/js",
+          "originalValueSha256": "903bbde3fca462326a4e3b479b2c500c47ce519f6450f4fb2c436177c6c39fdd",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/package/cli.js"
+        },
+        {
+          "jsonPointer": "/productionAuthority/target/index",
+          "originalValueSha256": "3c7ee9fa66a718b4bd1bc306585b8c38f2545315b0fbf3d7e4c40cd61718b5b8",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json"
+        },
+        {
+          "jsonPointer": "/productionAuthority/previous/js",
+          "originalValueSha256": "87a689e2ad691eb5d744118accd5088a322636c0ea954b8d83ade2d128608268",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v14/final/cli.js"
+        },
+        {
+          "jsonPointer": "/productionAuthority/previous/index",
+          "originalValueSha256": "d76887bfcd85959731f52931a5f40008d4eadb27c363037c95ab38bb0e0f754f",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v14-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/productionAuthority/current/js",
+          "originalValueSha256": "7febfb48b339dfcd3b839ea4107bfdb9bdba4a7cfea51d9ad707cf53a2607c94",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v15/final/cli.js"
+        },
+        {
+          "jsonPointer": "/productionAuthority/current/index",
+          "originalValueSha256": "c1c2d3e7d028c2f2a7d9fd55a00708ebe335c5faad62322662d6dbe301011d35",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v15-analysis/candidate-index.json"
+        },
+        {
+          "jsonPointer": "/productionAuthority/profile/path",
+          "originalValueSha256": "a39a53b2ff58289c660e53e8c989a43ee47d00532d183fb2adc548c3f406a26a",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/profile.json"
+        },
+        {
+          "jsonPointer": "/productionAuthority/readinessReview/path",
+          "originalValueSha256": "7374a703e8c683aad25de15c979fe4c6c29fdb2b3ea79164a68079e9e952b64e",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/review.json"
+        },
+        {
+          "jsonPointer": "/productionAuthority/readinessClosure/path",
+          "originalValueSha256": "55ad585ce39615b3e213491c8eece75ef24f3a4fa81eafcfc87fd7112194f406",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/freeze.json"
+        },
+        {
+          "jsonPointer": "/productionAuthority/compileReport/path",
+          "originalValueSha256": "8799947eca223b6184487320fc47b7bbfcdf910e7fa2f74ef0d5e08ebd0b99d7",
+          "publishedValue": "historical-checkpoints/recovery-2.1.90-trial-v15/compile-report.json"
+        }
+      ],
+      "originalClosureSha256": "bfb73fac912edfd958537c8dd67f2d4a0104d99377a70de42dd8084b294b20aa",
+      "meaning": "Locator-only public derivative. Complete statuses and raw failures remain unchanged; closure reference is to the original private proof."
+    }
+  ]
+}

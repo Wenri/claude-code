@@ -1,0 +1,11 @@
+{
+  "kind": "bounded-publication-privacy-and-locator-check",
+  "profileJournalEntries": 2727,
+  "completeProfileReverseExact": true,
+  "sourceRuntimeAndPolicyBytesUnchanged": true,
+  "recognizedInlineMapsInspected": 28,
+  "privateLocatorOrKeyPatternHits": [],
+  "executableBinaryHits": [],
+  "sourceCodeRootPathQualification": "Existing literal paths in shell examples and the remote insights implementation remain exact code. They do not expose local task paths or credential values.",
+  "proofLimit": "Pattern and structured-locator checks do not establish arbitrary semantic secrecy; independent audit remains required."
+}

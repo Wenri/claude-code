@@ -1,0 +1,412 @@
+{
+  "kind": "compact-independent-actual-aws-core-emission-review",
+  "reportId": "anthropic_aws_core",
+  "verdict": "mixed-core-bodies-and-own-initializers-pass-with-concrete-fetch-provider-residual",
+  "coreSourceChangesPresent": true,
+  "scopedCoreBodyAndBindingChecksPass": true,
+  "actualEmissionVerified": false,
+  "completeAWSCoreDependencyAcceptance": false,
+  "wholeSDKAcceptance": false,
+  "completeFeatureAcceptance": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "authority": {
+    "pins": {
+      "recovery-2.1.90-trial-v4/final/cli.js": "719c028630d2e3c35e31d2560d42190ae269d8035d6f75f930c73c503b0ae705",
+      "recovery-2.1.90-trial-v4-analysis/candidate-index.json": "9bd301666c3a98dcdaf52ade51b5933430e7c2b998f65ebf5672b3b12e9b68ee",
+      "recovery-2.1.90-trial-v4/compile-report.json": "d770f249e944dbbf96bf0792e4f32a32972ff9488b8b39e305399a88ea1fcadb",
+      "recovery-2.1.90-candidate-v4-powerup-aws/profile.json": "8dc4a573647135524570235bc1e897319195fb597be4a3c8707533944e17d7a7",
+      "recovery-2.1.90-candidate-v4-powerup-aws/toolchain.json": "7abc84cebbc2d51c9dc46dceb2eafdb26ed10ecc552f9d1f3cc359ee899a372b"
+    },
+    "inputRoot": "historical-checkpoints/recovery-2.1.90-stage-v6-powerup-aws/inputs",
+    "profileTarget": "node",
+    "physicalCoreSources": [
+      {
+        "path": "src/services/api/client.ts",
+        "sha256": "d4dda7921661a9fad45601ba3cb4093b3c9c4762821d9bfdac158b5532fe0c32",
+        "bytes": 17065
+      },
+      {
+        "path": "src/utils/model/providers.ts",
+        "sha256": "cce9c0ecf8d313f66f3d1ae5886f8e50f6f7a9e0297143facba03b254fe4381d",
+        "bytes": 1451
+      },
+      {
+        "path": "src/utils/model/configs.ts",
+        "sha256": "2dd2ac06566880fa01d566a5ad6b17fccecfb71fc6db0ad4a1aaeeff61cd5e1f",
+        "bytes": 4760
+      },
+      {
+        "path": "src/utils/auth.ts",
+        "sha256": "324fe6c499c98e5048bd139f41da4b7249a8a8d6aeb13f4b268964dd5d89df48",
+        "bytes": 66262
+      },
+      {
+        "path": "src/utils/log.ts",
+        "sha256": "0dcc23ef451796f02b8842c65a82c34ad7f5448773602599217324da8cdbdbc8",
+        "bytes": 11757
+      },
+      {
+        "path": "src/utils/subprocessEnv.ts",
+        "sha256": "78e93706f6363902e443528afa8c111e0b05ac250c7da39e0501ce6e7a58f38b",
+        "bytes": 4002
+      },
+      {
+        "path": "src/utils/managedEnvConstants.ts",
+        "sha256": "76971daf2787af418d1c950967708bda8e3597fd1d2a6bbb2215e228bb446fa7",
+        "bytes": 7052
+      },
+      {
+        "path": "src/utils/swarm/spawnUtils.ts",
+        "sha256": "2f6b68bff1dde3e219ae450be6a67ba7900491acb6cc69c8167d5a05a579bf08",
+        "bytes": 5403
+      },
+      {
+        "path": "src/utils/apiPreconnect.ts",
+        "sha256": "06ed692575f5a709c9643ce7eefdabc9532c1d9d1790fb1b1bf0d7d7350df468",
+        "bytes": 2905
+      },
+      {
+        "path": "src/main.tsx",
+        "sha256": "d63ed999c2ccc470f6c8ea3c2a7dc3f7fe6fc12a7c02987e0d30e3ca122a6c45",
+        "bytes": 234174
+      }
+    ],
+    "physicalVendorMembers": [
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/LICENSE",
+        "bytes": 1056,
+        "sha256": "8bf96984ff8bcfae7e48cae76a529e8a25317ba9e02abf7fd3cc64fdf95657a6"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/client.mjs",
+        "bytes": 7292,
+        "sha256": "26a8c3ee7fa54d9108a34c305f1bc0758524995e3129c2578d40d86d74eeca71"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/core/auth.mjs",
+        "bytes": 2840,
+        "sha256": "9670856e31aeb715d8ccf4db0802d450c7de455481e1d0088df0604920a4a321"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/core/error.mjs",
+        "bytes": 80,
+        "sha256": "e39d00ec62baf6e8acc5a1b5cc1b4ee4d864607b19b0d2d89a890030bc8f70b1"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/index.mjs",
+        "bytes": 120,
+        "sha256": "e5781aa3f1c08a4354c0ef54fa0a51100fc76f120cf2ab77454f835ef7444ebe"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/headers.mjs",
+        "bytes": 2516,
+        "sha256": "05e891fab90d2d5cf4dcf1b458a62b0d8e13d770a1f75fef07767d04fe52c141"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/base64.mjs",
+        "bytes": 1281,
+        "sha256": "f7f0c00183ee575d2c6f3b927c7c17bf5a0ffd92677f4ef768ee6b5972500ae8"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/bytes.mjs",
+        "bytes": 766,
+        "sha256": "63f10e3469d0bf8fca5dbce75660819ad958b8a97c5c5685120003d6ffdadf9d"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/env.mjs",
+        "bytes": 597,
+        "sha256": "da242ebd2b6f2f30a0eeec25836200d1a88ac98aa5cd76d88be6ae829132dc23"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/log.mjs",
+        "bytes": 2635,
+        "sha256": "3d42283d6d7ba4efc5a1abf10c05081685fe84363c0c31db419d247dd7165c5f"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/query.mjs",
+        "bytes": 1057,
+        "sha256": "3b9796960c767ace60200f4356f33eea2d048d51e79f8cb3849ec415be6a945c"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/sleep.mjs",
+        "bytes": 201,
+        "sha256": "660528ac365c1cacfee9a73293d4e54b37770bd7783e19a1b8022e6cfdbd8474"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/uuid.mjs",
+        "bytes": 630,
+        "sha256": "1b6a812f51ee1a4b42627539b133c0bcdc3a46da9d1657a9d0f3da04d2be7f99"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils/values.mjs",
+        "bytes": 3103,
+        "sha256": "2d0dadde090d56b6477a0f33188b47f47ac718858c21c670b93b1fb154bccb3c"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/internal/utils.mjs",
+        "bytes": 363,
+        "sha256": "a97864924387d64be359fe70b6f3870c3f90415dd373913abdeef107e915ae96"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/aws-sdk/package.json",
+        "bytes": 2154,
+        "sha256": "d1bcecd30ba7f66d2a736ea16491305ec33c643d658d3f4e90ed057d9398102d"
+      }
+    ],
+    "sourceCount": 6106,
+    "guardEvalOverlap": false,
+    "initialFull278PresenceCheckStoppedAtOmittedLogo": true,
+    "applicationExecuted": false,
+    "ESMSubsetApprovalReferencePendingAtInitialCheckOnly": true
+  },
+  "resolvedSubsetAuthority": {
+    "subset": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-compiler-subset-supplement/vendor-subset.json",
+      "sha256": "a252b718cf160d254186f94d1b87b52af62f3ee535786ce8148d6fbfdd2971a8"
+    },
+    "subsetFreeze": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-compiler-subset-supplement/freeze.json",
+      "sha256": "e11ce788fc6551a29fa488216c1cde1a66a83c46bfa45c298151bf428f1557b8"
+    },
+    "subsetReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-subset-independent-review/review.json",
+      "sha256": "cca8556193a2ba475f5559ec38ea4e606866261bbebac1817836001c2daf01fd"
+    },
+    "subsetReviewClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-subset-independent-review/freeze.json",
+      "sha256": "61027918e32d8ed6951a0df1c7b8399b2cdefa79a37abde37ab5645f58fe4d51"
+    },
+    "bindingReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-powerup-aws-binding-independent-review/review.json",
+      "sha256": "107b86e40ff7998e8f921f154e05fc7d58c867081781bfe006214d2a4a14db24"
+    },
+    "bindingClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-powerup-aws-binding-independent-review/freeze.json",
+      "sha256": "bfc7bf6438390e297fdc4e6beb30f8830d69ec206a669ded261e791e8e874e58"
+    }
+  },
+  "sourceApprovalReferenced": {
+    "path": "historical-checkpoints/recovery-2.1.90-aws-core-independent-review/review.json",
+    "sha256": "66ef70eaa51e8638c6aa8ab0990e9f422d39cfc501236f1a1c1c828095d2ad78",
+    "closureSha256": "a0a39ee35f22fac88e618b148dfe6e7adae881e4a2141b4ae81d05f24d5a009f"
+  },
+  "acceptedScopedPredicates": {
+    "sevenCompleteCoreFunctions": [
+      {
+        "targetIndex": 2033,
+        "currentIndex": 2032,
+        "nodes": 104
+      },
+      {
+        "targetIndex": 3025,
+        "currentIndex": 3036,
+        "nodes": 41
+      },
+      {
+        "targetIndex": 4538,
+        "currentIndex": 4548,
+        "nodes": 116
+      },
+      {
+        "targetIndex": 4584,
+        "currentIndex": 4594,
+        "nodes": 47
+      },
+      {
+        "targetIndex": 4596,
+        "currentIndex": 4606,
+        "nodes": 37
+      },
+      {
+        "targetIndex": 16124,
+        "currentIndex": 16109,
+        "nodes": 120
+      },
+      {
+        "targetIndex": 18255,
+        "currentIndex": 18233,
+        "nodes": 114
+      }
+    ],
+    "clientBranch": {
+      "targetIndex": 4447,
+      "currentIndex": 4457,
+      "nodes": 108,
+      "afterFoundryBeforeVertex": true,
+      "commonArgsResolvesSameDefaultHeadersObject": true,
+      "actualRemainderMatchesPriorTrialAfterRemovingOnlyAWSBranch": true,
+      "wholeClientAccepted": false
+    },
+    "sdkClass": {
+      "targetInitializer": 4334,
+      "currentInitializer": 4344,
+      "classNodes": 364,
+      "initializerNodes": 392,
+      "threeExportHeaderClassEntryGraphNodes": 432,
+      "wholeEighteenStatementOwnRegionNodesIncludingProgram": 1190,
+      "receiversAndClassCategoryPreserved": true,
+      "constructorAndMethodCompleteFieldsPreserved": true,
+      "duplicateSDKInitializationCallsPreserved": true,
+      "rawSourceMapsUsed": false
+    },
+    "modelConfigs": {
+      "completeHeaderInitializerNodesIncludingProgram": 311,
+      "allElevenModelRowsAndOrdersMatch": true
+    },
+    "environmentScopes": {
+      "completeSubprocessNamespaceFunctionsAndInitializerNodesIncludingProgram": 140,
+      "completeSpawnUtilsModuleNodesIncludingProgram": 275,
+      "bothCompleteManagedSetAssignmentsMatch": true,
+      "managedFileSuggestionResidualUntouched": true
+    },
+    "retainedProviderFunctionsHeaderInitializerNodesIncludingProgram": 97,
+    "apiPreconnectWholeModuleNodesIncludingProgram": 139,
+    "apiClientHeaderInitializerNodesIncludingProgram": 42,
+    "logHeaderInitializerNodesIncludingProgram": 68,
+    "authWholeInitializerNodes": 347,
+    "realSelectedProviders": {
+      "envPredicate": 37,
+      "errorValue": 15,
+      "bareMode": 19,
+      "credentialPrefetch": 41,
+      "sdkLoggerFactory": 61,
+      "sdkBaseClass": 2431,
+      "sdkErrorInitializer": 407,
+      "credentialProviderCJS": 169,
+      "sha256ProviderCJS": 33,
+      "httpRequestProviderCJS": 902,
+      "signatureProviderCJS": 3142,
+      "capturedCredentialMemoizerAndDebugGateInitializersMatch": true
+    },
+    "qualifiedJoinedCoreGraphNodes": 11100,
+    "qualifiedJoinedGraphBoundary": "The unequal FetchHttpHandler supplier remains an explicit free interface, not accepted or normalized.",
+    "sourceSubset": {
+      "physicalAppPostimages": 10,
+      "approvedVendorFiles": 16,
+      "staticReachedESMFiles": 14,
+      "staticEdges": 28,
+      "onlyDynamicPackageEdge": "core/auth.mjs -> @aws-sdk/credential-providers",
+      "actualClientRootNamespaceAndCredentialDynamicEntryBindingsVerified": true,
+      "target": "node",
+      "wholeInstallablePackageClaim": false
+    }
+  },
+  "unacceptedFindings": {
+    "selectedFetchHttpHandler": {
+      "targetIndex": 2796,
+      "targetNodes": 995,
+      "currentIndex": 3254,
+      "currentNodes": 1191,
+      "directCJSBoundaryNodeDifference": 196,
+      "targetPerCallRequestTimeoutOverride": true,
+      "currentPerCallRequestTimeoutOverride": false,
+      "targetOwnFields": [
+        "config",
+        "configProvider"
+      ],
+      "currentOwnFieldDeclarations": [],
+      "runtimeNameExportDescriptorAndReceiverDifferences": true,
+      "currentSourceOwner": {
+        "path": "historical-checkpoints/recovery-2.1.90-stage-v6-powerup-aws/inputs/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js",
+        "bytes": 8783,
+        "sha256": "326b4130fd16ea7f4ac55c007246e01b575c25fdcc53a94f0d1b391cf8ac0b02"
+      },
+      "selectionBindingProof": [
+        {
+          "role": "target",
+          "providerIndex": 2796,
+          "authIndex": 4331,
+          "initIndex": 4332,
+          "namespaceLocal": "AEq",
+          "moduleFactory": "i28",
+          "exportProperty": "FetchHttpHandler",
+          "classBinding": "Qz1",
+          "constructorResolvesThroughConcreteNamespaceAssignment": true,
+          "exportGetterOrAssignmentResolvesActualClass": true
+        },
+        {
+          "role": "current",
+          "providerIndex": 3254,
+          "authIndex": 4341,
+          "initIndex": 4342,
+          "namespaceLocal": "DEq",
+          "moduleFactory": "$X8",
+          "exportProperty": "FetchHttpHandler",
+          "classBinding": "YL9",
+          "constructorResolvesThroughConcreteNamespaceAssignment": true,
+          "exportGetterOrAssignmentResolvesActualClass": true
+        }
+      ],
+      "currentStandaloneNodeFixtureComparison": {
+        "pass": false,
+        "error": "node count\n\n1194 !== 1192\n",
+        "qualification": "Deeper fixture imports remain external; no receiver/category or external-call projection was applied."
+      },
+      "replacementSupplierChosen": false
+    },
+    "wholeClient": {
+      "targetNodes": 774,
+      "currentNodes": 776,
+      "knownConditionalSpreadAndFalseVersusEmptyObjectResidualsPreserved": true,
+      "requestIDAndOtherAWSFollowOnUnaccepted": true
+    },
+    "wholeManagedConstantsInitializer": {
+      "targetNodes": 159,
+      "currentNodes": 158,
+      "knownMissingFileSuggestionRetained": true
+    },
+    "newFirstPartyCompatibleHelper": {
+      "targetIndex": 3027,
+      "nodes": 15,
+      "notPartOfCoreSourceProposal": true,
+      "currentAbsentAsPreviouslyScoped": true
+    },
+    "widerAWSFollowOns": "Defaults/capabilities/UI, status, request IDs, billing, SDK schemas, web search and retirement follow-ons remain outside this ten-owner core. No resolved TypeScript compatibility or full feature claim."
+  },
+  "freshChecks": {
+    "strictOriginalIndexStatements": 178,
+    "focusedNegatives": [
+      "wrong actual selection flag",
+      "changed super auth receiver"
+    ],
+    "currentPhysicalSourceAndSubsetPins": true,
+    "actualCompleteBodiesAndCrossStatementBindingGraphs": true,
+    "allAcceptedComparisonsKeepReceiversRuntimeKeysAndClassCategories": true,
+    "guardEvalOwnerOverlap": false,
+    "allFiveSerialStepsReferencedNotRerun": true
+  },
+  "strictWholeProgramFromPinnedIndex": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3106093,
+    "sha256": "70ebc532f4b9ee62cf9a4eb7a593acf4efcfca27eb09db433ad58537a820d8b5"
+  },
+  "strictEquality": false,
+  "reusedNotRerun": [
+    "The approved 25 source recipes/29 replacements, complete source reversal and prior negative matrices.",
+    "Official package signatures, full 278-member provenance, full/subset Node compilation equality and prior source fixture replays. Current 16 selected files were physically rehashed and the complete static ESM interface graph was reparsed.",
+    "Previously approved compiler/parser/toolchain inventory and fixed current preparation; direct loaded helper bytes and exact current profile/toolchain/output pins authenticate.",
+    "No new compiler job, installation, whole-application AST parse or application callback was executed."
+  ],
+  "failureHistory": [
+    "An initial applicability check expected the original full 278-file vendor scope and stopped at the omitted logo. The separately approved 16-file compiler subset and binding review resolve this count/scope distinction; the full package remains provenance evidence.",
+    "The first source-subset authority route used uppercase FREEZE.json; the actual lowercase freeze.json has exactly the supplied external digest. The route-only correction and original stderr are retained.",
+    "The first bounded fixture selector expected a Literal export key where the parser reports Identifier; v2 selects the unique existing httpHandlerConfigs method. Its resulting full comparison remains false at 1194 versus1192 nodes, without normalization.",
+    "The earlier source SDK-base external fixture failure remains historical. Actual existing base/error/initializer declarations match separately, while the newly discovered selected Fetch supplier remains unaccepted."
+  ],
+  "limits": [
+    "All whole-version, whole-package, complete-feature, global-initialization-order and transitive-provider acceptance remain false.",
+    "Main is accepted only for the complete selected startDeferredPrefetches function and its recorded captures; full main is not accepted.",
+    "The 11,100-node graph is conditional on the explicitly unequal Fetch supplier and remaining ambient/deeper captures. It must not be reported as a fully closed dependency graph.",
+    "The 16 compiler files preserve Node bare-root ESM use only. Advertised omitted CJS/types/subpaths remain unsupported. Static request census does not prove absence of arbitrary computed or escaped requests.",
+    "Native environment, credential/network/crypto, collections/prototypes, timers and SDK resource behavior were not executed or generally proved.",
+    "Maps remain opaque metadata and were not used to assign production ownership. Quiescent input assumptions remain."
+  ],
+  "applicationExecuted": false,
+  "compilerExecuted": false,
+  "fullProgramParsed": false,
+  "sourceStageOrRepositoryEdited": false,
+  "ESMSubsetApprovalReferenceResolved": true
+}

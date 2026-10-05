@@ -1,0 +1,1346 @@
+{
+  "kind": "mixed-independent-actual-permission-persistence-roundtrip-review",
+  "reportId": "permission_persistence_roundtrip",
+  "verdict": "complete-permission-storage-and-real-react-effect-graphs-pass-inherited-initializer-provider-and-whole-repl-boundaries-remain-false",
+  "actualScopedEmissionVerified": true,
+  "actualEmissionVerified": false,
+  "actualPermissionPersistenceGraphVerified": true,
+  "actualReactEffectReceiverVerified": true,
+  "completeProjectClassVerified": true,
+  "wholePermissionRoundTripAccepted": false,
+  "wholeStorageOwnerAccepted": false,
+  "wholeReplOwnerAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "globalInitializationOrderAccepted": false,
+  "normalizationGateEnabled": false,
+  "inputPins": {
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v15/final/cli.js",
+      "sha256": "5e2713cef9da833dd9a92155f1b89683577b90e982a32cc53a8c92268649ed90",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v15-analysis/candidate-index.json",
+      "indexSha256": "05e041e27457c2310693f469e5c4d6bd0303b8599c3d532b29981e55750c5814"
+    },
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v16-permission-rating/profile.json",
+      "sha256": "6c38df2f74bb987367e7a38725773cf8afcf23251884ebfe1dc60611110d0ab3"
+    },
+    "compileReport": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v15/compile-report.json",
+      "sha256": "49d01f821953424019edd27bc3d4d64ee8ce5c5d59ec7ddb9096c6496d2afc7e"
+    },
+    "readiness": {
+      "reviewSha256": "b197c15a5b10bc60909275489dcd98b8e5ace4801e297cbc5328e615ac4d3dc4",
+      "closureSha256": "de3d307c1fe3f9a7bf36192f1316461e05604f31a9cba4225aa79e6e2caa845d"
+    }
+  },
+  "sourceApproval": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/review.json",
+      "sha256": "d87d8055e3c8bfa1750873c09cb53d33bb7359c6b4d8bf42c8e5736491029033"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-independent-review/freeze.json",
+      "sha256": "517208a4aa0ccab5195a708a07c869c978911d3d87f9ad458309883145270160"
+    },
+    "sourceManifest": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/source-repair.json",
+      "sha256": "16a7683e884d96717df4bacbbffedad1dfc7d05893a0be486588a3f37eec920a"
+    },
+    "unchangedSourceFixtureEvidenceReused": true,
+    "sourceFixtureSuiteRerun": false
+  },
+  "readiness": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/review.json",
+      "sha256": "b197c15a5b10bc60909275489dcd98b8e5ace4801e297cbc5328e615ac4d3dc4"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-rating-binding-independent-review/freeze.json",
+      "sha256": "de3d307c1fe3f9a7bf36192f1316461e05604f31a9cba4225aa79e6e2caa845d"
+    },
+    "unchangedRuntimePolicyEvidenceReused": true
+  },
+  "physicalSourceRows": [
+    {
+      "path": "src/utils/sessionStorage.ts",
+      "oldBytes": 180329,
+      "oldSha256": "6ea425f4201fb412c0bb11eb34c90dccfa1984e3f294400f0304de1cc9b7a4b3",
+      "oldGitBlob": "148a671df23bc96db9bdb7576e60d39632262dec",
+      "postimageBytes": 181320,
+      "postimageSha256": "6a82bbfcfe25886afa37df71f80a122a743241de2a46cd8e6b736389e3fae55c",
+      "postimageGitBlob": "cec0accb983e72b897c1c59e1c5af96b72d32946",
+      "postimagePath": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/utils/sessionStorage.ts"
+    },
+    {
+      "path": "src/types/logs.ts",
+      "oldBytes": 11586,
+      "oldSha256": "ffcbc9964188652008760c1d5202f194dc5ce115c8a6548ba65f95218f5281a0",
+      "oldGitBlob": "0a0a4ae3ac9175f37888f50f87e2e734b7e28ad5",
+      "postimageBytes": 11620,
+      "postimageSha256": "9cb491426e8f7c7fa01a77542e9d74110a08dedc4943819520ea785c78d1e27b",
+      "postimageGitBlob": "517a3d98fa17f2d128dfd4af40da4548d3825740",
+      "postimagePath": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/types/logs.ts"
+    },
+    {
+      "path": "src/screens/REPL.tsx",
+      "oldBytes": 899830,
+      "oldSha256": "66de2dbdf744c3e44397d0c1002cfdb2b7ee61e9998873044bee56d758c1b5d2",
+      "oldGitBlob": "62198089c7bd856d3d6b201a79d8c5c63f49259a",
+      "postimageBytes": 899959,
+      "postimageSha256": "d5d7d33aff9c9371424e6b064fd2c439fbdfe3e6b22cac35f4280b611495c293",
+      "postimageGitBlob": "506e37d1d4a67a1ceca4a10d302e2a42c10f738c",
+      "postimagePath": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-source-proposal/postimages/src/screens/REPL.tsx"
+    }
+  ],
+  "guard10ApprovedTransitionMatchesCurrentProfileAndParsedOwner": true,
+  "freshEvidence": {
+    "groundwork.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/groundwork.json",
+      "sha256": "38ea178eecbf2085405e05bd9d2a49807c3d9f4c566d468ba05f82693180ecf8"
+    },
+    "actual-checks.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/actual-checks.json",
+      "sha256": "13365963dececb13db15cfe46082e5d383afe8448daa564b2d3fe543602267eb"
+    },
+    "retention-controls.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/retention-controls.json",
+      "sha256": "dc2ed5cae4e612bdcb9e76d2fc2d5db7c6cfdabe9dc892fbc6c529197702b751"
+    },
+    "final-retention.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-permission-roundtrip-emission-review/final-retention.json",
+      "sha256": "986feecd19cfaae014ac5caa5b0ad8c58a3a642a02a3f873018fe5549da30258"
+    }
+  },
+  "freshOriginalIndexedWitnesses": 157,
+  "freshNegativeControls": [
+    "wrong cached permission field",
+    "wrong returned permission map",
+    "changed permission writer property order",
+    "wrong actual React hook"
+  ],
+  "completeFunctions": [
+    {
+      "label": "Project",
+      "target": {
+        "index": 15572,
+        "type": "ClassDeclaration",
+        "range": [
+          11354504,
+          11364551
+        ],
+        "nodes": 2388,
+        "strictSha256": "78d3c602fffd9d6f00dc54752dd7391acee02dbdf322a466ee01ef89047d6ab5",
+        "shapeSha256": "3e91c2dde3ef94a25e631671bf1e7d1cd871565f12035e6f61a91ea124ed7da2",
+        "identifierNamesErased": 459,
+        "protectedIdentifierOccurrences": 372
+      },
+      "current": {
+        "index": 15568,
+        "type": "ClassDeclaration",
+        "range": [
+          11340279,
+          11350326
+        ],
+        "nodes": 2388,
+        "strictSha256": "0f5083550e44775b7d1c550b95409c55d07ed0618ce7ad420d418f9b0f720c5a",
+        "shapeSha256": "3e91c2dde3ef94a25e631671bf1e7d1cd871565f12035e6f61a91ea124ed7da2",
+        "identifierNamesErased": 459,
+        "protectedIdentifierOccurrences": 372
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 2389,
+        "forward": {
+          "Map": "Map",
+          "clearTimeout": "clearTimeout",
+          "Promise": "Promise",
+          "setTimeout": "setTimeout",
+          "HUK": "$UK",
+          "m48": "S48",
+          "NC6": "fC6",
+          "g6": "p6",
+          "N8": "N8",
+          "SbY": "SbY",
+          "OT": "eT",
+          "Xf": "Af",
+          "Date": "Date",
+          "jbY": "wbY",
+          "A66": "$66",
+          "Math": "Math",
+          "Buffer": "Buffer",
+          "m4": "p4",
+          "N": "N",
+          "XbY": "MbY",
+          "l8": "l8",
+          "hC6": "vC6",
+          "yC6": "ZC6",
+          "process": "process",
+          "Q6": "l6",
+          "GUK": "PUK",
+          "JV": "KV",
+          "XX": "HX",
+          "C96": "E96",
+          "gJ": "gJ",
+          "ix6": "Fx6",
+          "BZ8": "fbY",
+          "sd8": "cd8",
+          "fbY": "DbY",
+          "f8": "Z8",
+          "MbY": "JbY",
+          "N36": "G36",
+          "H48": "$48",
+          "Error": "Error",
+          "j6": "j6",
+          "EC6": "GC6",
+          "oA": "cO",
+          "PW": "HW",
+          "Qa": "Qa",
+          "D$": "D$",
+          "Jf": "Yf",
+          "Gz7": "Xz7",
+          "q9": "_9",
+          "vR8": "Dh8",
+          "d": "d",
+          "eK": "z5",
+          "q9K": "w9K",
+          "MUK": "OUK"
+        },
+        "reverse": {
+          "Map": "Map",
+          "clearTimeout": "clearTimeout",
+          "Promise": "Promise",
+          "setTimeout": "setTimeout",
+          "$UK": "HUK",
+          "S48": "m48",
+          "fC6": "NC6",
+          "p6": "g6",
+          "N8": "N8",
+          "SbY": "SbY",
+          "eT": "OT",
+          "Af": "Xf",
+          "Date": "Date",
+          "wbY": "jbY",
+          "$66": "A66",
+          "Math": "Math",
+          "Buffer": "Buffer",
+          "p4": "m4",
+          "N": "N",
+          "MbY": "XbY",
+          "l8": "l8",
+          "vC6": "hC6",
+          "ZC6": "yC6",
+          "process": "process",
+          "l6": "Q6",
+          "PUK": "GUK",
+          "KV": "JV",
+          "HX": "XX",
+          "E96": "C96",
+          "gJ": "gJ",
+          "Fx6": "ix6",
+          "fbY": "BZ8",
+          "cd8": "sd8",
+          "DbY": "fbY",
+          "Z8": "f8",
+          "JbY": "MbY",
+          "G36": "N36",
+          "$48": "H48",
+          "Error": "Error",
+          "j6": "j6",
+          "GC6": "EC6",
+          "cO": "oA",
+          "HW": "PW",
+          "Qa": "Qa",
+          "D$": "D$",
+          "Yf": "Jf",
+          "Xz7": "Gz7",
+          "_9": "q9",
+          "Dh8": "vR8",
+          "d": "d",
+          "z5": "eK",
+          "w9K": "q9K",
+          "OUK": "MUK"
+        },
+        "scopeCount": 116
+      }
+    },
+    {
+      "label": "getProject",
+      "target": {
+        "index": 15564,
+        "type": "FunctionDeclaration",
+        "range": [
+          11354042,
+          11354180
+        ],
+        "nodes": 44,
+        "strictSha256": "f83362e8aed70fadf5049d900e8dd45f772fb8cd56156f84fb38841b0bd32e36",
+        "shapeSha256": "9667429543710cd207d6f0fe8cb6a604611626c1505383e344fe425951279383",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 15560,
+        "type": "FunctionDeclaration",
+        "range": [
+          11339817,
+          11339955
+        ],
+        "nodes": 44,
+        "strictSha256": "6a142b7decbe1d079696071a1bf72597418335b5da6378e72f51b1927ca30822",
+        "shapeSha256": "9667429543710cd207d6f0fe8cb6a604611626c1505383e344fe425951279383",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 45,
+        "forward": {
+          "rJ6": "rJ6",
+          "Uq": "Uq",
+          "JUK": "AUK",
+          "vUK": "WUK"
+        },
+        "reverse": {
+          "rJ6": "rJ6",
+          "Uq": "Uq",
+          "AUK": "JUK",
+          "WUK": "vUK"
+        },
+        "scopeCount": 8
+      }
+    },
+    {
+      "label": "appendEntryToFile",
+      "target": {
+        "index": 15605,
+        "type": "FunctionDeclaration",
+        "range": [
+          11374657,
+          11374805
+        ],
+        "nodes": 56,
+        "strictSha256": "c34c6843b169859e83ce760cf51dddf8698d63fa2977d7656f824360ec06d457",
+        "shapeSha256": "c00f2a7970403fa5653a17e6998c7215fedc7e4de4aec4f9e68e37273baf611a",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 6
+      },
+      "current": {
+        "index": 15601,
+        "type": "FunctionDeclaration",
+        "range": [
+          11360433,
+          11360581
+        ],
+        "nodes": 56,
+        "strictSha256": "123473645373011ae30776bb6a21a19e87ce98cf5f805d73081d340e4f62f609",
+        "shapeSha256": "c00f2a7970403fa5653a17e6998c7215fedc7e4de4aec4f9e68e37273baf611a",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 6
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 57,
+        "forward": {
+          "J8": "X8",
+          "g6": "p6",
+          "m48": "S48"
+        },
+        "reverse": {
+          "X8": "J8",
+          "p6": "g6",
+          "S48": "m48"
+        },
+        "scopeCount": 6
+      }
+    },
+    {
+      "label": "savePermissionMode",
+      "target": {
+        "index": 15623,
+        "type": "FunctionDeclaration",
+        "range": [
+          11377624,
+          11377676
+        ],
+        "nodes": 11,
+        "strictSha256": "53aa8fe809f522a3f418a9341b3c303f1ac11f38051c02f056f771b256d48e31",
+        "shapeSha256": "1475008438fe581a6343b9a3947941c60b440ab993ed4817f548970ffeebadb6",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 15619,
+        "type": "FunctionDeclaration",
+        "range": [
+          11363400,
+          11363452
+        ],
+        "nodes": 11,
+        "strictSha256": "59496c4a1236361374213f1c627d4fe7415b58407b4736aeaecbab85a81a64fc",
+        "shapeSha256": "1475008438fe581a6343b9a3947941c60b440ab993ed4817f548970ffeebadb6",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 12,
+        "forward": {
+          "$Y": "YY"
+        },
+        "reverse": {
+          "YY": "$Y"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "label": "restoreSessionMetadata",
+      "target": {
+        "index": 15615,
+        "type": "FunctionDeclaration",
+        "range": [
+          11376020,
+          11376665
+        ],
+        "nodes": 153,
+        "strictSha256": "e2f9e502d9d50f8fb1648f8763517cbf6b0196e045df007260932d37db2e4ecc",
+        "shapeSha256": "30f17623e1e8e6f7e8e9ae438e94d4d8c5594322b1508dd31a39f8302554c4ec",
+        "identifierNamesErased": 37,
+        "protectedIdentifierOccurrences": 33
+      },
+      "current": {
+        "index": 15611,
+        "type": "FunctionDeclaration",
+        "range": [
+          11361796,
+          11362441
+        ],
+        "nodes": 153,
+        "strictSha256": "281e4f2f5bf037d0f3964983247680bd7e6521a080d8eaa5418a1d2416b5bcc3",
+        "shapeSha256": "30f17623e1e8e6f7e8e9ae438e94d4d8c5594322b1508dd31a39f8302554c4ec",
+        "identifierNamesErased": 37,
+        "protectedIdentifierOccurrences": 33
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 154,
+        "forward": {
+          "$Y": "YY"
+        },
+        "reverse": {
+          "YY": "$Y"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "label": "clearSessionMetadata",
+      "target": {
+        "index": 15616,
+        "type": "FunctionDeclaration",
+        "range": [
+          11376665,
+          11377079
+        ],
+        "nodes": 82,
+        "strictSha256": "90e05b1cdd2783a97d5d1242d12f902233c61931a8e80bdb0e314be1ff93d5be",
+        "shapeSha256": "ae63cb99c5334cb395058ca39be937bae319cb60c0830c709bca67a2a592a6a8",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 12
+      },
+      "current": {
+        "index": 15612,
+        "type": "FunctionDeclaration",
+        "range": [
+          11362441,
+          11362855
+        ],
+        "nodes": 82,
+        "strictSha256": "321d3243bb108d1918379a87c46360b11ca6136d2fdafc2515f48cb29c5aae46",
+        "shapeSha256": "ae63cb99c5334cb395058ca39be937bae319cb60c0830c709bca67a2a592a6a8",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 12
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 83,
+        "forward": {
+          "$Y": "YY"
+        },
+        "reverse": {
+          "YY": "$Y"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "label": "loadFullLog",
+      "target": {
+        "index": 15627,
+        "type": "FunctionDeclaration",
+        "range": [
+          11378243,
+          11379708
+        ],
+        "nodes": 431,
+        "strictSha256": "ef6721fe5b2b9aac8f9aba35eeb28e12b1524bd0cd4a7803c8a2d729c952ccd3",
+        "shapeSha256": "ccbe6a8d0b3fe23c099da2547a0300d8a9c4af36360549bc342b61854a862d82",
+        "identifierNamesErased": 135,
+        "protectedIdentifierOccurrences": 93
+      },
+      "current": {
+        "index": 15623,
+        "type": "FunctionDeclaration",
+        "range": [
+          11364019,
+          11365484
+        ],
+        "nodes": 431,
+        "strictSha256": "3cd576b061d47783991158554c2b4d000d687791627a219c7ae88aa401baec95",
+        "shapeSha256": "ccbe6a8d0b3fe23c099da2547a0300d8a9c4af36360549bc342b61854a862d82",
+        "identifierNamesErased": 135,
+        "protectedIdentifierOccurrences": 93
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 432,
+        "forward": {
+          "vh": "ZR",
+          "Fa": "Fa",
+          "td8": "ld8",
+          "lK6": "UK6",
+          "IL6": "CL6",
+          "hz7": "kz7",
+          "Rz7": "Vz7",
+          "ed8": "nd8",
+          "qc8": "id8"
+        },
+        "reverse": {
+          "ZR": "vh",
+          "Fa": "Fa",
+          "ld8": "td8",
+          "UK6": "lK6",
+          "CL6": "IL6",
+          "kz7": "hz7",
+          "Vz7": "Rz7",
+          "nd8": "ed8",
+          "id8": "qc8"
+        },
+        "scopeCount": 8
+      }
+    },
+    {
+      "label": "loadAllLogsFromSessionFile",
+      "target": {
+        "index": 15658,
+        "type": "FunctionDeclaration",
+        "range": [
+          11393218,
+          11394468
+        ],
+        "nodes": 394,
+        "strictSha256": "41bcad43c4d104329cb74e3a494305cc876901d51cd40b15aa49ff879f3ec401",
+        "shapeSha256": "09adbc0c4e92639c85a77ba26f863e1c99ecf877a378aed1eeb8130cea851f03",
+        "identifierNamesErased": 116,
+        "protectedIdentifierOccurrences": 86
+      },
+      "current": {
+        "index": 15654,
+        "type": "FunctionDeclaration",
+        "range": [
+          11378910,
+          11380160
+        ],
+        "nodes": 394,
+        "strictSha256": "dc44158dd6a516a7dbd01ddc66fc9429e56513f244ad32d0fecb60be20c2a4a2",
+        "shapeSha256": "09adbc0c4e92639c85a77ba26f863e1c99ecf877a378aed1eeb8130cea851f03",
+        "identifierNamesErased": 116,
+        "protectedIdentifierOccurrences": 86
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 395,
+        "forward": {
+          "Fa": "Fa",
+          "Map": "Map",
+          "lK6": "UK6",
+          "IL6": "CL6",
+          "Date": "Date",
+          "hz7": "kz7",
+          "Rz7": "Vz7",
+          "ed8": "nd8",
+          "qc8": "id8"
+        },
+        "reverse": {
+          "Fa": "Fa",
+          "Map": "Map",
+          "UK6": "lK6",
+          "CL6": "IL6",
+          "Date": "Date",
+          "kz7": "hz7",
+          "Vz7": "Rz7",
+          "nd8": "ed8",
+          "id8": "qc8"
+        },
+        "scopeCount": 8
+      }
+    },
+    {
+      "label": "loadTranscriptFile",
+      "target": {
+        "index": 15633,
+        "type": "FunctionDeclaration",
+        "range": [
+          11382771,
+          11385875
+        ],
+        "nodes": 997,
+        "strictSha256": "a2bdebcc23e9e4fa2f37310b11b61863c0c6fe101aabfb01d34c7d4f40fce736",
+        "shapeSha256": "846240f3bbd1333a3ae6da87ae9472c1071c0537ce44ea0343a58e5ffe2ba866",
+        "identifierNamesErased": 298,
+        "protectedIdentifierOccurrences": 161
+      },
+      "current": {
+        "index": 15629,
+        "type": "FunctionDeclaration",
+        "range": [
+          11368547,
+          11371651
+        ],
+        "nodes": 997,
+        "strictSha256": "ceec798658a31d36522556ada8720ee2800709e58c33de8c263f597dca2f8dfa",
+        "shapeSha256": "846240f3bbd1333a3ae6da87ae9472c1071c0537ce44ea0343a58e5ffe2ba866",
+        "identifierNamesErased": 298,
+        "protectedIdentifierOccurrences": 161
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 998,
+        "forward": {
+          "Map": "Map",
+          "PbY": "XbY",
+          "gJ": "gJ",
+          "Qa": "Qa",
+          "Gz7": "Xz7",
+          "mbY": "mbY",
+          "pbY": "BbY",
+          "XUK": "wUK",
+          "PUK": "jUK",
+          "OD6": "AD6",
+          "process": "process",
+          "Q6": "l6",
+          "hC6": "vC6",
+          "ubY": "ubY",
+          "il": "ll",
+          "Set": "Set",
+          "I8": "m8",
+          "d": "d"
+        },
+        "reverse": {
+          "Map": "Map",
+          "XbY": "PbY",
+          "gJ": "gJ",
+          "Qa": "Qa",
+          "Xz7": "Gz7",
+          "mbY": "mbY",
+          "BbY": "pbY",
+          "wUK": "XUK",
+          "jUK": "PUK",
+          "AD6": "OD6",
+          "process": "process",
+          "l6": "Q6",
+          "vC6": "hC6",
+          "ubY": "ubY",
+          "ll": "il",
+          "Set": "Set",
+          "m8": "I8",
+          "d": "d"
+        },
+        "scopeCount": 31
+      }
+    }
+  ],
+  "selectedStorageGraphNodes": 4557,
+  "readerNativeAndProviderJoinedGraphNodes": 6549,
+  "selectedGraphWithOwnInitializerAnd27MatchingProvidersNodes": 11586,
+  "permissionValueAndWriteBindings": {
+    "oneAllocatedReaderMapReturnedAndWritten": {
+      "binding": "X",
+      "sameAllocatedMapAtReturnsAndWrites": true,
+      "writes": 1,
+      "inputEntrySameAtKeyAndValue": true,
+      "consumers": [
+        {
+          "statement": 15623,
+          "mapBinding": "X",
+          "getCalls": 1,
+          "destructuredFromSameLoader": true
+        },
+        {
+          "statement": 15654,
+          "mapBinding": "X",
+          "getCalls": 1,
+          "destructuredFromSameLoader": true
+        }
+      ]
+    },
+    "realSetterProjectGetterConstructorAndWriterJoined": true,
+    "cacheOnlySetterNoImmediateIo": true,
+    "currentSessionPermissionModeOwnFieldWithoutInitializer": true,
+    "truthyRestoreAndReappendTestsPreserved": true,
+    "recordPropertyOrder": [
+      "type",
+      "permissionMode",
+      "sessionId"
+    ],
+    "enqueueReceiverThisAndNoAddedAwait": true,
+    "consumerSelectionHasNoInventedFallback": true,
+    "clearBeforeRestoreAndUnchangedReplRemainderVerified": true
+  },
+  "actualEffect": {
+    "nodes": 16,
+    "body": {
+      "pass": true,
+      "nodes": 18,
+      "forward": {
+        "U": "F",
+        "Iz7": "Rz7",
+        "z1": "K1"
+      },
+      "reverse": {
+        "F": "U",
+        "Rz7": "Iz7",
+        "K1": "z1"
+      },
+      "scopeCount": 3
+    },
+    "joinedSetterGetterAndNeighborsNodes": 380,
+    "realReactWrapperFactoryReceiverGraphNodes": 2647,
+    "originalScopeBindings": {
+      "target": {
+        "modeBinding": "U",
+        "modeDefinitions": 1,
+        "sameModeAtReadAndDependency": true,
+        "setterBinding": "Iz7",
+        "setterRealExportResolved": true,
+        "reactReceiver": "z1",
+        "receiverDeclarationRange": [
+          7,
+          9
+        ],
+        "wrapper": {
+          "index": 4,
+          "type": "VariableDeclaration",
+          "range": [
+            544,
+            1214
+          ],
+          "nodes": 256,
+          "strictSha256": "95308cec3ef4871ffa932726ea9960694e976907cbc105b00e9a6eeef304c886",
+          "shapeSha256": "c7bdcf06ca4b4a9c3dfc69893c055f9ca64230b431ff46364f5236a03dbabf20",
+          "identifierNamesErased": 95,
+          "protectedIdentifierOccurrences": 20
+        },
+        "factory": {
+          "index": 5069,
+          "type": "VariableDeclaration",
+          "range": [
+            3734641,
+            3742473
+          ],
+          "nodes": 2310,
+          "strictSha256": "f5e6657b67fcab8ab659436def25009325a6c336f2b8796d25e184ac6711a071",
+          "shapeSha256": "2fcf9314f723aea943147a0c8cf8923cce171c991bfd89e65b85d7c3144b956a",
+          "identifierNamesErased": 691,
+          "protectedIdentifierOccurrences": 266
+        },
+        "otherEffects": 32
+      },
+      "current": {
+        "modeBinding": "F",
+        "modeDefinitions": 1,
+        "sameModeAtReadAndDependency": true,
+        "setterBinding": "Rz7",
+        "setterRealExportResolved": true,
+        "reactReceiver": "K1",
+        "receiverDeclarationRange": [
+          7,
+          9
+        ],
+        "wrapper": {
+          "index": 4,
+          "type": "VariableDeclaration",
+          "range": [
+            238,
+            908
+          ],
+          "nodes": 256,
+          "strictSha256": "086ed5b94083d56bcc4d9e70c88a3b7cb00a2f1b125ea6aa78684751f7eea389",
+          "shapeSha256": "c7bdcf06ca4b4a9c3dfc69893c055f9ca64230b431ff46364f5236a03dbabf20",
+          "identifierNamesErased": 95,
+          "protectedIdentifierOccurrences": 20
+        },
+        "factory": {
+          "index": 5075,
+          "type": "VariableDeclaration",
+          "range": [
+            3735866,
+            3743698
+          ],
+          "nodes": 2310,
+          "strictSha256": "6af04a75065537ca82128bd91c16e91adeeaa9f402f37fc9e0f4ebd1f5a75e79",
+          "shapeSha256": "2fcf9314f723aea943147a0c8cf8923cce171c991bfd89e65b85d7c3144b956a",
+          "identifierNamesErased": 691,
+          "protectedIdentifierOccurrences": 266
+        },
+        "otherEffects": 32
+      }
+    },
+    "neighborModules": [
+      {
+        "target": [
+          {
+            "index": 17408,
+            "type": "FunctionDeclaration",
+            "range": [
+              12276095,
+              12276447
+            ],
+            "nodes": 147,
+            "strictSha256": "ccd27895867315f9b061d80a90796ac6bb176376b40be1559e0ca75d4e8fd5a4",
+            "shapeSha256": "a911db7a7dd45d9f0f0814816e8a83f11be853c27bc36fd7572eae7c5bdbaa6f",
+            "identifierNamesErased": 52,
+            "protectedIdentifierOccurrences": 4
+          },
+          {
+            "index": 17409,
+            "type": "FunctionDeclaration",
+            "range": [
+              12276447,
+              12276463
+            ],
+            "nodes": 3,
+            "strictSha256": "2778ed9302aeb28919660453a659c48216e215fc9ee175c8a37b8a59da6225ac",
+            "shapeSha256": "5068aa69853a384f997df3afa8ba46baf82bd731d9394ea1278573d5f511d30c",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 0
+          },
+          {
+            "index": 17410,
+            "type": "FunctionDeclaration",
+            "range": [
+              12276463,
+              12276533
+            ],
+            "nodes": 22,
+            "strictSha256": "74d8a4db56e8336de84b4f4eefa4bf579d0bd3f57a84f5199d6163243e925582",
+            "shapeSha256": "ddb79ea4f8dc866ade6e4f007fcf84b49373f0b24f7c2aecba85032c4dad5a10",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 3
+          }
+        ],
+        "current": [
+          {
+            "index": 17402,
+            "type": "FunctionDeclaration",
+            "range": [
+              12258886,
+              12259238
+            ],
+            "nodes": 147,
+            "strictSha256": "187711b0a19ae2d94f100bb55fbbdc754c94d12410a02c07979d1e3bee539af0",
+            "shapeSha256": "a911db7a7dd45d9f0f0814816e8a83f11be853c27bc36fd7572eae7c5bdbaa6f",
+            "identifierNamesErased": 52,
+            "protectedIdentifierOccurrences": 4
+          },
+          {
+            "index": 17403,
+            "type": "FunctionDeclaration",
+            "range": [
+              12259238,
+              12259254
+            ],
+            "nodes": 3,
+            "strictSha256": "3964c6bdd311b91a3d6a6403635a142aea023dbd78fcafe58831d81a431bf5e4",
+            "shapeSha256": "5068aa69853a384f997df3afa8ba46baf82bd731d9394ea1278573d5f511d30c",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 0
+          },
+          {
+            "index": 17404,
+            "type": "FunctionDeclaration",
+            "range": [
+              12259254,
+              12259324
+            ],
+            "nodes": 22,
+            "strictSha256": "3edf981ba9175a722366afc28ac48a0918e3891fa7921f8c5c1eb347f523c101",
+            "shapeSha256": "ddb79ea4f8dc866ade6e4f007fcf84b49373f0b24f7c2aecba85032c4dad5a10",
+            "identifierNamesErased": 7,
+            "protectedIdentifierOccurrences": 3
+          }
+        ],
+        "completeBodyHeaderInitializer": {
+          "nodes": 173,
+          "forward": {
+            "Y6": "$6",
+            "A58": "q58",
+            "Rm": "Em",
+            "$y": "sN"
+          },
+          "reverse": {
+            "$6": "Y6",
+            "q58": "A58",
+            "Em": "Rm",
+            "sN": "$y"
+          },
+          "scopeCount": 7
+        }
+      },
+      {
+        "target": [
+          {
+            "index": 17213,
+            "type": "FunctionDeclaration",
+            "range": [
+              12196860,
+              12197297
+            ],
+            "nodes": 160,
+            "strictSha256": "eb3ecff721ed11caddaa92c08125e3fdce6aae535f980781c3754dcbc9bdc625",
+            "shapeSha256": "d9851eef586785738a32776448752637b54eb732ad2eeeed04471b917fa99e36",
+            "identifierNamesErased": 50,
+            "protectedIdentifierOccurrences": 20
+          },
+          {
+            "index": 17214,
+            "type": "VariableDeclaration",
+            "range": [
+              12197297,
+              12197305
+            ],
+            "nodes": 3,
+            "strictSha256": "07bd820460c11ff5381dbcf16b1a14fb99c22df598cd85811e77ce1b5cb8b344",
+            "shapeSha256": "a45e372a2d24d1ac54164a3d69ddb0163f1f537f7ba5d0855b94f60cbe551b77",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 0
+          },
+          {
+            "index": 17215,
+            "type": "VariableDeclaration",
+            "range": [
+              12197305,
+              12197369
+            ],
+            "nodes": 33,
+            "strictSha256": "55f4b1245a3e952dc00d73a0af1e0bb3e8e4191ea0c8e1609e1ac794781a3361",
+            "shapeSha256": "78c897367f854290bb4350d3c89e3dedfac74926457aa001a4d23ae1ce749d8d",
+            "identifierNamesErased": 11,
+            "protectedIdentifierOccurrences": 0
+          }
+        ],
+        "current": [
+          {
+            "index": 17206,
+            "type": "FunctionDeclaration",
+            "range": [
+              12179771,
+              12180208
+            ],
+            "nodes": 160,
+            "strictSha256": "06f6deb99f12bcac876e12da5a896b1cc0eeb9b846c966187bb2bb443638eb01",
+            "shapeSha256": "d9851eef586785738a32776448752637b54eb732ad2eeeed04471b917fa99e36",
+            "identifierNamesErased": 50,
+            "protectedIdentifierOccurrences": 20
+          },
+          {
+            "index": 17207,
+            "type": "VariableDeclaration",
+            "range": [
+              12180208,
+              12180216
+            ],
+            "nodes": 3,
+            "strictSha256": "784eb4b130e552db74e5c7c02dca4bb0fba4a9760525446bc483f3b45f0f17db",
+            "shapeSha256": "a45e372a2d24d1ac54164a3d69ddb0163f1f537f7ba5d0855b94f60cbe551b77",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 0
+          },
+          {
+            "index": 17208,
+            "type": "VariableDeclaration",
+            "range": [
+              12180216,
+              12180280
+            ],
+            "nodes": 33,
+            "strictSha256": "79ce2bb06a8abafa2ca61cc1f00710a619a8c29f1dc53ceda1887a6f1255b1ce",
+            "shapeSha256": "78c897367f854290bb4350d3c89e3dedfac74926457aa001a4d23ae1ce749d8d",
+            "identifierNamesErased": 11,
+            "protectedIdentifierOccurrences": 0
+          }
+        ],
+        "completeBodyHeaderInitializer": {
+          "nodes": 197,
+          "forward": {
+            "Xl6": "$l6",
+            "N8": "N8",
+            "kA7": "fO7",
+            "$tK": "esK",
+            "UH": "QH",
+            "oq": "rq",
+            "T8": "v8",
+            "qO": "qA",
+            "TA7": "DO7",
+            "oD": "QD",
+            "OtK": "qtK",
+            "DY": "PY",
+            "Z6": "f6",
+            "w6": "O6",
+            "E": "y"
+          },
+          "reverse": {
+            "$l6": "Xl6",
+            "N8": "N8",
+            "fO7": "kA7",
+            "esK": "$tK",
+            "QH": "UH",
+            "rq": "oq",
+            "v8": "T8",
+            "qA": "qO",
+            "DO7": "TA7",
+            "QD": "oD",
+            "qtK": "OtK",
+            "PY": "DY",
+            "f6": "Z6",
+            "O6": "w6",
+            "y": "E"
+          },
+          "scopeCount": 9
+        }
+      }
+    ],
+    "distinctTitleNamespace": {
+      "permission": "K1",
+      "title": "E8"
+    },
+    "exactPriorReplInverseNodes": 15395
+  },
+  "preservation": {
+    "priorTrial14ReaderTitleResumeCacheGraph": {
+      "pass": true,
+      "nodes": 260,
+      "forward": {
+        "yY": "YY",
+        "DUK": "fUK",
+        "N8": "N8",
+        "process": "process",
+        "l6": "l6",
+        "cd8": "cd8",
+        "$66": "$66",
+        "Buffer": "Buffer",
+        "dbY": "cbY",
+        "N": "N"
+      },
+      "reverse": {
+        "YY": "yY",
+        "fUK": "DUK",
+        "N8": "N8",
+        "process": "process",
+        "l6": "l6",
+        "cd8": "cd8",
+        "$66": "$66",
+        "Buffer": "Buffer",
+        "cbY": "dbY",
+        "N": "N"
+      },
+      "scopeCount": 11
+    },
+    "namespaceInverseRemovesOnlyNewSetterExport": true,
+    "replHeaderAndInitializerUnchangedFromTrial14": true,
+    "replHeaderAndInitializerComparisonNodes": 752,
+    "createRequireImportAndContainingDeclarationUnchangedAndCallRetained": true,
+    "createRequirePurityClaimed": false,
+    "sourceTypeErasureAndInlineMapLimitReused": true
+  },
+  "boundaries": {
+    "storageOwnInitializer": {
+      "target": {
+        "index": 15668,
+        "type": "VariableDeclaration",
+        "range": [
+          11399099,
+          11399873
+        ],
+        "nodes": 190,
+        "strictSha256": "59408ee227925de29b6fa71a55e9cdd43fad4c228c77eedf5ccc112b26e0309f",
+        "shapeSha256": "986decb87a0bbade00eb31111531311b14feb2df3004fecff05a96b4368e94c5",
+        "identifierNamesErased": 57,
+        "protectedIdentifierOccurrences": 10
+      },
+      "current": {
+        "index": 15664,
+        "type": "VariableDeclaration",
+        "range": [
+          11384791,
+          11385565
+        ],
+        "nodes": 190,
+        "strictSha256": "24c5fa66f944a5a3c95feadc1615a057c2eef45aa28efbaaaaddabc509f28b30",
+        "shapeSha256": "986decb87a0bbade00eb31111531311b14feb2df3004fecff05a96b4368e94c5",
+        "identifierNamesErased": 57,
+        "protectedIdentifierOccurrences": 10
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 191,
+        "forward": {
+          "qK": "_K",
+          "V8": "V8",
+          "T8": "v8",
+          "mO": "IA",
+          "pY": "pY",
+          "s1": "t1",
+          "dI8": "BI8",
+          "XD": "OC",
+          "pZ": "x0",
+          "a9": "a9",
+          "TN": "AC",
+          "g7": "p7",
+          "K8": "K8",
+          "$$": "$$",
+          "g8": "p8",
+          "y8": "y8",
+          "I7": "u7",
+          "s7": "s7",
+          "tq8": "iq8",
+          "W5": "f5",
+          "YO": "zA",
+          "bA": "RO",
+          "R8": "L8",
+          "o1": "l1",
+          "Az": "Vz",
+          "j66": "O66",
+          "i8": "i8",
+          "xm": "Sm",
+          "MbY": "JbY",
+          "DUK": "JUK",
+          "WbY": "PbY",
+          "Set": "Set",
+          "Tz7": "Wz7",
+          "Map": "Map",
+          "aj": "tj",
+          "KB": "Kp",
+          "MX": "jX",
+          "C0": "RZ",
+          "A1": "$1",
+          "kUK": "fUK",
+          "L_": "E_",
+          "bz7": "Ez7",
+          "EC6": "GC6",
+          "VUK": "ZUK",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "V8": "V8",
+          "v8": "T8",
+          "IA": "mO",
+          "pY": "pY",
+          "t1": "s1",
+          "BI8": "dI8",
+          "OC": "XD",
+          "x0": "pZ",
+          "a9": "a9",
+          "AC": "TN",
+          "p7": "g7",
+          "K8": "K8",
+          "$$": "$$",
+          "p8": "g8",
+          "y8": "y8",
+          "u7": "I7",
+          "s7": "s7",
+          "iq8": "tq8",
+          "f5": "W5",
+          "zA": "YO",
+          "RO": "bA",
+          "L8": "R8",
+          "l1": "o1",
+          "Vz": "Az",
+          "O66": "j66",
+          "i8": "i8",
+          "Sm": "xm",
+          "JbY": "MbY",
+          "JUK": "DUK",
+          "PbY": "WbY",
+          "Set": "Set",
+          "Wz7": "Tz7",
+          "Map": "Map",
+          "tj": "aj",
+          "Kp": "KB",
+          "jX": "MX",
+          "RZ": "C0",
+          "$1": "A1",
+          "fUK": "kUK",
+          "E_": "L_",
+          "Ez7": "bz7",
+          "GC6": "EC6",
+          "ZUK": "VUK",
+          "y": "E"
+        },
+        "scopeCount": 6
+      }
+    },
+    "completeStorageInitializerProviderGraph": {
+      "pass": false,
+      "error": "node count\n\n5085 !== 5082\n"
+    },
+    "sessionIngress": {
+      "target": {
+        "index": 10390,
+        "type": "VariableDeclaration",
+        "range": [
+          8363390,
+          8363481
+        ],
+        "nodes": 47,
+        "strictSha256": "c9ed75ce18526ccf7515a594ecfab6b01a884ac1bf29c0cf339f36aff04e5280",
+        "shapeSha256": "df3a6c10f372d2a2497620640d49a11dcb5d98ddc0f14f829303fa46a80b746a",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 10402,
+        "type": "VariableDeclaration",
+        "range": [
+          8360517,
+          8360603
+        ],
+        "nodes": 44,
+        "strictSha256": "8d87edff5a781a66acf7acad24e252cead3662ce9ce87b9244b0ba545f46ee16",
+        "shapeSha256": "bc658d0bb6e75f958cb7f61f17a4c636062b6320876e044cb6f0396ba3d64858",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 0
+      },
+      "prior": {
+        "index": 10402,
+        "type": "VariableDeclaration",
+        "range": [
+          8360483,
+          8360569
+        ],
+        "nodes": 44,
+        "strictSha256": "8d87edff5a781a66acf7acad24e252cead3662ce9ce87b9244b0ba545f46ee16",
+        "shapeSha256": "bc658d0bb6e75f958cb7f61f17a4c636062b6320876e044cb6f0396ba3d64858",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 0
+      },
+      "priorExact": {
+        "nodes": 45,
+        "forward": {
+          "kK": "kK",
+          "t5": "t5",
+          "K8": "K8",
+          "$$": "$$",
+          "p8": "p8",
+          "L8": "L8",
+          "tL": "tL",
+          "i8": "i8",
+          "IM": "IM",
+          "nj6": "nj6",
+          "Map": "Map",
+          "qa1": "qa1",
+          "y": "y"
+        },
+        "reverse": {
+          "kK": "kK",
+          "t5": "t5",
+          "K8": "K8",
+          "$$": "$$",
+          "p8": "p8",
+          "L8": "L8",
+          "tL": "tL",
+          "i8": "i8",
+          "IM": "IM",
+          "nj6": "nj6",
+          "Map": "Map",
+          "qa1": "qa1",
+          "y": "y"
+        },
+        "scopeCount": 3
+      },
+      "owner": "src/services/api/sessionIngress.ts",
+      "scope": "Inherited initializer47/44; deeper transitive functions remain outside this permission repair."
+    },
+    "fullRepl": {
+      "target": {
+        "index": 17664,
+        "type": "FunctionDeclaration",
+        "range": [
+          12374084,
+          12429086
+        ],
+        "nodes": 15429,
+        "strictSha256": "fedc45263c88aebcbecf7f5b683059279bfed60a851d54487ac17d5acb591162",
+        "shapeSha256": "af0def2c28b0f2b3e2806cf384d0e151597bf7c279ecea7a7da5462db2afaf4a",
+        "identifierNamesErased": 4526,
+        "protectedIdentifierOccurrences": 2237
+      },
+      "current": {
+        "index": 17658,
+        "type": "FunctionDeclaration",
+        "range": [
+          12356824,
+          12411754
+        ],
+        "nodes": 15410,
+        "strictSha256": "7343da19b56bda67d615f746504a3d37d50e2c65694df071961bd72749729fc3",
+        "shapeSha256": "f8d394f1e010665c970d20e5991994616ba3555a0249d2e91966ef545f309a67",
+        "identifierNamesErased": 4519,
+        "protectedIdentifierOccurrences": 2235
+      },
+      "comparison": {
+        "pass": false,
+        "error": "node count\n\n15430 !== 15411\n"
+      }
+    },
+    "fullReplInitializer": {
+      "pass": false,
+      "error": "node count\n\n689 !== 686\n"
+    },
+    "historicalSourceRawReactReceiverAccepted": false,
+    "historicalOriginalExternalOnlyProjectAccepted": false,
+    "sourceSymbolicBodiesAccepted": false,
+    "ratingWrapperFullscreenAndOtherReplResidualsRemainSeparate": true,
+    "separateRatingActualReviewNotDuplicated": true,
+    "wholeStrict": {
+      "equal": false,
+      "candidateNodes": 3106137,
+      "candidateStrictSha256": "e515117b9569651a7ae6350a0d9662c9f3292041321be73f61225a1e8ea25e09"
+    }
+  },
+  "historicalReaderReview": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-emission-review/review.json",
+      "sha256": "e1692a0f69537f9ab40bbfad31eaf5ca33dfcd4de47639c641e234141c13ebff"
+    },
+    "unchangedAndReused": true
+  },
+  "preservedHarnessCorrections": [
+    "The first local compile-report hash was transcribed incorrectly; the exact parent pin was then authenticated. The dependent harness refused the missing pins file before reading production output.",
+    "Two initial title-hook selections were too broad/too shallow: three useSyncExternalStore calls exist and the title getter occurs inside an arrow argument. Final selection resolves the actual exported getCurrentSessionTitle call.",
+    "A negative mutation selector initially assumed every object member had a key; it was corrected to account for spreads. Mutation selection and assertions execute outside the rejection wrapper. All failed scripts/logs are retained."
+  ],
+  "limits": [
+    "This is a static production-output binding and structure review; no application, React effect, persistence callback, reader or writer was executed.",
+    "The target-matching selected graphs retain concrete external interfaces. The unchanged sessionIngress initializer47/44 prevents full initializer-provider acceptance.",
+    "The full REPL body remains15429/15410 and its initializer688/685 remains unequal. The exact permission insertion is independently verified through complete prior-body reversal and current provider identities.",
+    "Earlier isolated raw fixture failures remain immutable history; fresh actual receiver/class proof does not rewrite those records."
+  ],
+  "applicationExecuted": false,
+  "recoveredCallbacksExecuted": false,
+  "fullBundleParsed": false,
+  "separateBuildRun": false,
+  "sourceStageProfileOrRepositoryModified": false
+}

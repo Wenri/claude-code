@@ -1,0 +1,19 @@
+{
+  "kind": "portable-public-trial15-compiler-replay-result",
+  "allFourStepsExitZero": true,
+  "publicProfileSha256": "ef82cd19baf9bd2520b7bda4a944d57c6fa0674acfc44536f93a4ec1775083c9",
+  "publicManifestSha256": "b7a579d75da251c27f4791d812ac624917e584ef321f3cb95f5d841411576442",
+  "finalJsSha256": "b13b9066765c9852392a0439bb2a75460e8955600b7728a63459b2771300af83",
+  "compileReportSha256": "06f9aca1d87d82c2f96d6c2ff96d1a3a424a348a9cfab9f9dd41c6898aa3756f",
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3106137,
+    "sha256": "e515117b9569651a7ae6350a0d9662c9f3292041321be73f61225a1e8ea25e09"
+  },
+  "matchesPrivateTrial15StrictAst": true,
+  "matchesOfficialTargetStrictAst": false,
+  "applicationExecuted": false,
+  "wholeVersionAcceptance": false
+}

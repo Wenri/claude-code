@@ -1,0 +1,14 @@
+{
+  "kind": "bounded-final-comment-byte-comparison",
+  "oldSha256": "4a46c4384ff6e81160e749536e528f5762ebdda0e5e4598842c82e7e8c8b67f4",
+  "newSha256": "56a6bf018bcecb16db3a7ff55e6a59676b8ae89757d28967c549b86c3252c9f1",
+  "oldBytes": 13105738,
+  "newBytes": 13105738,
+  "allBytesBeforeFinalDebugIdCommentEqual": true,
+  "onlyFinalDebugIdCommentDiffers": true,
+  "oldDebugId": "EE528B6688A888C364756E2164756E21",
+  "newDebugId": "A50DE73F796E714264756E2164756E21",
+  "strictAstEqualityIndependentlyMeasured": true,
+  "sourceMapCoordinateOrByteEqualityClaim": false,
+  "applicationExecuted": false
+}

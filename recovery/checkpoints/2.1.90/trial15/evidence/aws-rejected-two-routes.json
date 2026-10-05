@@ -1,0 +1,155 @@
+{
+  "kind": "independent-rejected-aws-shared-supplier-routing-review",
+  "reportId": "aws_shared_supplier_routing",
+  "verdict": "both-two-route-repairs-rejected-no-source-trial-approved",
+  "authorResult": {
+    "path": "historical-checkpoints/recovery-2.1.90-fetch-http-supplier-investigation/result.json",
+    "bytes": 14049,
+    "sha256": "985f52e84f5c25b8aff21f16abc7f2fe9b0bc9e335431ee3629b864697968359"
+  },
+  "authorClosure": {
+    "path": "historical-checkpoints/recovery-2.1.90-fetch-http-supplier-investigation/freeze.json",
+    "bytes": 5447,
+    "sha256": "303b5cc74d0a0239f92863fa48a68f89247677cc0e178cb1c0791cfe2cc8190f"
+  },
+  "authorCode": {
+    "path": "historical-checkpoints/recovery-2.1.90-fetch-http-supplier-investigation/code-provenance.json",
+    "bytes": 2057,
+    "sha256": "b9f33d568203daafc9ffa6896c9995a5da9b34d1e5d044f62cf77b7063b5b296"
+  },
+  "priorMixedActualReview": {
+    "path": "historical-checkpoints/recovery-2.1.90-aws-core-emission-review/review.json",
+    "sha256": "65d6252f39fcef3ae0ecf2e0e000e2ad2ba755bfcd6c766522ac9476624e3817"
+  },
+  "sourceTrialApproved": false,
+  "sourceDeltaExists": false,
+  "integrationApproved": false,
+  "actualEmissionVerified": false,
+  "thirdRouteTested": false,
+  "wholeSupplierAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "freshChecks": {
+    "authorMembersAuthenticatedAndUnchanged": 33,
+    "authorSafeReplay": true,
+    "originalIndexStrictAndShapeWitnesses": 30,
+    "physicalSourceAndPackageRows": 27,
+    "individualHandlerAndProviderGraphs": [
+      {
+        "handlerCurrent": 2797,
+        "nodes": 1981,
+        "pass": true
+      },
+      {
+        "handlerCurrent": 3004,
+        "nodes": 1981,
+        "pass": true
+      }
+    ],
+    "completeTwoRouteGraphsRejected": 2,
+    "directTargetFactoryDeclarationsIncluded": true,
+    "rootHandlerAndUnchangedConsumersGraphNodes": 1566,
+    "negativeIdentityAndRootConsumerControls": 5
+  },
+  "exactFailureCauses": [
+    {
+      "route": "share util-stream handler",
+      "handlerCurrent": 2797,
+      "targetDistinctFactories": [
+        "Il7 at2795",
+        "Cg6 at2777"
+      ],
+      "currentCollapsedFactory": "uf6 at2781",
+      "consumers": "handler and sdkStreamMixin",
+      "sourceIdentity": "The current handler and mixin resolve @smithy/util-base64 to the same physical module. Target calls two separately declared CJS factories; the full declaration/reference graph differs."
+    },
+    {
+      "route": "share websocket handler",
+      "handlerCurrent": 3004,
+      "targetDistinctFactories": [
+        "Nl7 at2790",
+        "D_q at2990"
+      ],
+      "currentCollapsedFactory": "yJ1 at2991",
+      "consumers": "handler and middleware-websocket",
+      "sourceIdentity": "The current handler and websocket middleware resolve @smithy/protocol-http to the same physical module. Target calls two separately declared CJS factories; the full declaration/reference graph differs."
+    }
+  ],
+  "provenanceBoundary": {
+    "existingTwo995NodeHandlerSourceFilesByteIdentical": true,
+    "resolvedDependenciesDifferent": true,
+    "root1191NodeHandlerKept": true,
+    "awsAuthCurrentBytesStillExactOfficialArchive": true,
+    "officialArchiveSha256": "573242fb878aef401f6c5fd42fff759f5ebf6ad1aca1c5bf173d65011766d54e",
+    "officialSignatureVerificationReusedFromApprovedCoreReview": true,
+    "noOfficialVendorPostimageAltered": true
+  },
+  "currentApplicability": {
+    "sourceStage": "historical-checkpoints/recovery-2.1.90-stage-v7-query-powerup/inputs",
+    "profileSha256": "443edb3af255177c2cf5a19cedaa4ef8429e8ed2c316a58f113cc2b320576bfb",
+    "allSelectedPhysicalRowsPinned": true,
+    "guardEvalOwnerOverlap": false,
+    "productionWitnessVersion": "pinned fourth trial; V7 relevant bytes unchanged, not a claim of a V7 output review"
+  },
+  "limits": [
+    "Local 995-node handler and complete1981-node provider equivalence does not permit merging distinct factories across consumers. No non-bijective name mapping, receiver projection, module deduplication or ordering normalization is accepted.",
+    "No compile-only source repair fixture exists: the candidate routing scope was rejected at complete indexed AST/local binding comparison before authoring a source delta. Safe parser replay was reproduced; no missing compiler result is called a pass.",
+    "Root handler and both selected existing root consumers remain unchanged. Static source/import and indexed binding evidence does not prove absence of escaped, dynamic or external consumers.",
+    "The suggested additional dependency redirects are hypotheses only. Neither third-route design is tested, authored, approved or admitted.",
+    "The signed official package/source closure remains prior evidence; any future reconstructed vendor routing postimage must be identified separately from official archive bytes.",
+    "Host/native/CJS/transitive effects, current AWS supplier acceptance and whole-version acceptance remain false. No application, handler, fetch, network, credential, filesystem callback or package lifecycle execution occurred."
+  ],
+  "harnessHistory": [
+    "Two initial runs at256MiB hit the heap cap while expected-failure assertions attempted to format complete cyclic eslint-scope objects. The second run had already separated whole-file/range authentication.",
+    "The final run keeps256MiB and asserts the same strict variable-object identity conditions as booleans with fixed messages, avoiding huge diagnostic formatting. All witness and scope checks remain unchanged; no512MiB retry was needed."
+  ],
+  "reusedNotRerun": [
+    "Prior official AWS archive signature and complete core source review",
+    "Unchanged full-stage/profile/history validation suites"
+  ],
+  "evidence": {
+    "authentication.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/authentication.json",
+      "bytes": 239,
+      "sha256": "816ab8f1f7e3742d46528dad4eb4de86d4fb91eec37a4ed7e37fff1d9114a6de"
+    },
+    "code-authentication.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/code-authentication.json",
+      "bytes": 1192,
+      "sha256": "a36a48c425eb1b44442e2a350375998b084f47cba59adc88482ca67db950aeaf"
+    },
+    "author-replay.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/author-replay.json",
+      "bytes": 143,
+      "sha256": "d5d96575a6933d9702955d32aff12d30ed54f2953eeb55c77c018562d869494a"
+    },
+    "range-authentication.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/range-authentication.json",
+      "bytes": 836,
+      "sha256": "aa28971cebcc15370e9a3d68905968d1f509afa595daaccef3c7ecc2a3696fec"
+    },
+    "range-authenticated-witnesses.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/range-authenticated-witnesses.json",
+      "bytes": 65950,
+      "sha256": "ad507b5372ba0a32ba5fc46e06e106a358a6a88477b462d5e41daf2cbb23583d"
+    },
+    "independent-checks.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/independent-checks.json",
+      "bytes": 1798,
+      "sha256": "5c9efdec74cfef7b6d9a4502b2bb033c3d6302e6579df45e49576e28a3f2d1e7"
+    },
+    "fresh-witnesses.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/fresh-witnesses.json",
+      "bytes": 65950,
+      "sha256": "6b5f425106e8e23a641250d7d04ed29f20484ca084bbbe3c778d9481b83f52d6"
+    },
+    "physical-review.json": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/physical-review.json",
+      "bytes": 9422,
+      "sha256": "c6286c51e4a30979de402db945fcaada68862d1736f22afb69400d9bb92b04c0"
+    }
+  },
+  "applicationExecuted": false,
+  "fullApplicationParsed": false,
+  "sourceStageOrRepositoryEdited": false,
+  "authorArtifactsUnchanged": true
+}

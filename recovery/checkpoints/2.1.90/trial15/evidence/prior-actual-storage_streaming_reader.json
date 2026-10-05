@@ -1,0 +1,4836 @@
+{
+  "kind": "mixed-independent-actual-storage-stream-reader-review",
+  "reportId": "storage_streaming_reader",
+  "verdict": "complete-reader-native-callback-and-own-initializer-pass-inherited-session-ingress-provider-and-project-permission-boundaries-remain-false",
+  "actualScopedEmissionVerified": true,
+  "actualEmissionVerified": false,
+  "completeReaderBodiesAndBindingsVerified": true,
+  "completeLocalAndNativeGraphVerified": true,
+  "sixDirectReaderProviderBodiesVerified": true,
+  "oldPrivateScanGroupRemovedWithinOwner": true,
+  "portableReaderAndAttributionConsumerRetained": true,
+  "storageInitializerOwnBodyVerified": true,
+  "completeStorageInitializerProviderGraphAccepted": false,
+  "sourceTrialReaderBodiesObligationSatisfied": true,
+  "sourceTrialCompleteInitializerProviderObligationSatisfied": false,
+  "titleResumeCacheAllowanceAndWriterClearPreserved": true,
+  "actualCreateRequireRetentionVerified": true,
+  "createRequireInitializerPurityEstablished": false,
+  "rawSymbolicSourceFixtureEqualityAccepted": false,
+  "wholeStorageOwnerAccepted": false,
+  "wholeProjectAccepted": false,
+  "permissionRoundTripAccepted": false,
+  "permissionWritingAccepted": false,
+  "replPermissionRestorationAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalInitializationOrderAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "production": {
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-stream-reader/profile.json",
+      "sha256": "20bd4b1c3904cfd2426216800231e648c9b7f1ae9ec3798c479a35f0d7193a5e"
+    },
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v14/final/cli.js",
+      "sha256": "6957d163e0717d76a4c1c5e45ae75cb5a3e0eb899306a0223909d752be787a79",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v14-analysis/candidate-index.json",
+      "indexSha256": "c9bea328a75453309c9432a8a30a40947f4d6d13b47a444c8b603f1c03238d23"
+    },
+    "target": {
+      "js": "historical-checkpoints/recovery-2.1.90-start/package/cli.js",
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+      "index": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json",
+      "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9"
+    },
+    "inputs": "historical-checkpoints/recovery-2.1.90-stage-v17-storage-stream-reader/inputs",
+    "runtimeRoot": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/recovery",
+    "toolchainSha256": "c55222452c78ccde4ea41c3bde1ee1eebd0095f7096af51941d444cb4802c3f9",
+    "compileReport": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v14/compile-report.json",
+      "sha256": "75754e4d052a8c8cec58c696dd33c68e73114971730b6885e7785e436cfb0c3f"
+    },
+    "strict": {
+      "nodes": 3106011,
+      "sha256": "82ea7ea3efc6fe89599bbd7cf2a9043e7a1eb90513f3cef15e2d6d922adc3f0b",
+      "equal": false
+    }
+  },
+  "sourceApproval": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-storage-reader-independent-review/review.json",
+      "sha256": "4c6a2a30c2f3d120934467db2ce3111e952a548e343c70352fd2a1bc3e9d03eb"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-storage-reader-independent-review/freeze.json",
+      "sha256": "8a1e78495216710bc4a616af4744f9e46e06214cda3d2434858350aff3041604"
+    },
+    "exactCurrentRows": [
+      {
+        "path": "src/utils/sessionStorage.ts",
+        "oldBytes": 184431,
+        "oldSha256": "3e0537be11235c698dce002b07bb06786d8007a8c459b66d6c1086dbe1101e15",
+        "postimageBytes": 180329,
+        "postimageSha256": "6ea425f4201fb412c0bb11eb34c90dccfa1984e3f294400f0304de1cc9b7a4b3",
+        "postimagePath": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-source-proposal/postimages/src/utils/sessionStorage.ts",
+        "oldGitBlob": "475ed6d0087c1f5fb0131cbf1fcc605b042ed9e7",
+        "postimageGitBlob": "148a671df23bc96db9bdb7576e60d39632262dec"
+      },
+      {
+        "path": "src/types/logs.ts",
+        "oldBytes": 11391,
+        "oldSha256": "2c660e03de15d5c51932aa865942c7b4ce3be09c319d2f6bc8c6585899d8353e",
+        "oldGitBlob": "46221e522491ad244f08f356f2273c29ec8b97b8",
+        "postimageBytes": 11586,
+        "postimageSha256": "ffcbc9964188652008760c1d5202f194dc5ce115c8a6548ba65f95218f5281a0",
+        "postimageGitBlob": "0a0a4ae3ac9175f37888f50f87e2e734b7e28ad5",
+        "postimagePath": "historical-checkpoints/recovery-2.1.90-storage-stream-reader-source-proposal/postimages/src/types/logs.ts"
+      }
+    ],
+    "rawSymbolicAndShimLimitationsRemainHistorical": true
+  },
+  "readinessApproval": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-reader-independent-review/review.json",
+      "sha256": "93a47b691a6729332873d8e7615505b2234b746b6288ed85c43b4fc1f3588d30"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v15-storage-reader-independent-review/freeze.json",
+      "sha256": "bccb547e20f929439c240d82dd9902e2ff254f00ba957845048d8c97b060ae39"
+    },
+    "sourceAndMetadataProofsReused": true
+  },
+  "completeFunctions": {
+    "scanner": {
+      "target": {
+        "index": 15631,
+        "type": "FunctionDeclaration",
+        "range": [
+          11381629,
+          11382616
+        ],
+        "nodes": 400,
+        "strictSha256": "6586dcf393000419c2b483c95ad63a9f120c2518c1867282d2ffe21dfdf330f6",
+        "shapeSha256": "900a004a4865899c73e922ce5768bb83954557ed3cbad0753aec4e2ecc95deab",
+        "identifierNamesErased": 157,
+        "protectedIdentifierOccurrences": 26
+      },
+      "current": {
+        "index": 15626,
+        "type": "FunctionDeclaration",
+        "range": [
+          11366894,
+          11367881
+        ],
+        "nodes": 400,
+        "strictSha256": "aca54db03f1d6adfef7c4b3c59dc66f3ac52652a1c34332f19701f0dc397b532",
+        "shapeSha256": "900a004a4865899c73e922ce5768bb83954557ed3cbad0753aec4e2ecc95deab",
+        "identifierNamesErased": 157,
+        "protectedIdentifierOccurrences": 26
+      },
+      "comparison": {
+        "nodes": 401,
+        "forward": {
+          "Buffer": "Buffer",
+          "Zz7": "Mz7",
+          "l8": "l8",
+          "kC6": "WC6",
+          "Math": "Math",
+          "fz7": "Jz7"
+        },
+        "reverse": {
+          "Buffer": "Buffer",
+          "Mz7": "Zz7",
+          "l8": "l8",
+          "WC6": "kC6",
+          "Math": "Math",
+          "Jz7": "fz7"
+        },
+        "scopeCount": 15
+      }
+    },
+    "attribution": {
+      "target": {
+        "index": 15632,
+        "type": "FunctionDeclaration",
+        "range": [
+          11382616,
+          11382771
+        ],
+        "nodes": 54,
+        "strictSha256": "cc3df477bc8e9c7e4dd8f6abe6a2d7274db3bac8823b90b92629a3c90381433b",
+        "shapeSha256": "00791e05da29c292bc15537729a3904d4da09e518ea013fedaa7fce8faee5a9e",
+        "identifierNamesErased": 21,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 15627,
+        "type": "FunctionDeclaration",
+        "range": [
+          11367881,
+          11368036
+        ],
+        "nodes": 54,
+        "strictSha256": "1234b72a17c745af677a5193472215f4abad41a2a955bba961d4fad2df575b01",
+        "shapeSha256": "00791e05da29c292bc15537729a3904d4da09e518ea013fedaa7fce8faee5a9e",
+        "identifierNamesErased": 21,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "nodes": 55,
+        "forward": {
+          "Zz7": "Mz7",
+          "Buffer": "Buffer",
+          "kC6": "WC6",
+          "l8": "l8",
+          "fz7": "Jz7"
+        },
+        "reverse": {
+          "Mz7": "Zz7",
+          "Buffer": "Buffer",
+          "WC6": "kC6",
+          "l8": "l8",
+          "Jz7": "fz7"
+        },
+        "scopeCount": 5
+      }
+    },
+    "loader": {
+      "target": {
+        "index": 15633,
+        "type": "FunctionDeclaration",
+        "range": [
+          11382771,
+          11385875
+        ],
+        "nodes": 997,
+        "strictSha256": "a2bdebcc23e9e4fa2f37310b11b61863c0c6fe101aabfb01d34c7d4f40fce736",
+        "shapeSha256": "846240f3bbd1333a3ae6da87ae9472c1071c0537ce44ea0343a58e5ffe2ba866",
+        "identifierNamesErased": 298,
+        "protectedIdentifierOccurrences": 161
+      },
+      "current": {
+        "index": 15628,
+        "type": "FunctionDeclaration",
+        "range": [
+          11368036,
+          11371140
+        ],
+        "nodes": 997,
+        "strictSha256": "426fe390d5bf39f64185e09e0de1ca4100ece69a336264fd7c081919817225c7",
+        "shapeSha256": "846240f3bbd1333a3ae6da87ae9472c1071c0537ce44ea0343a58e5ffe2ba866",
+        "identifierNamesErased": 298,
+        "protectedIdentifierOccurrences": 161
+      },
+      "comparison": {
+        "nodes": 998,
+        "forward": {
+          "Map": "Map",
+          "PbY": "MbY",
+          "gJ": "gJ",
+          "Qa": "Qa",
+          "Gz7": "Xz7",
+          "mbY": "ubY",
+          "pbY": "mbY",
+          "XUK": "OUK",
+          "PUK": "wUK",
+          "OD6": "AD6",
+          "process": "process",
+          "Q6": "l6",
+          "hC6": "vC6",
+          "ubY": "IbY",
+          "il": "ll",
+          "Set": "Set",
+          "I8": "m8",
+          "d": "d"
+        },
+        "reverse": {
+          "Map": "Map",
+          "MbY": "PbY",
+          "gJ": "gJ",
+          "Qa": "Qa",
+          "Xz7": "Gz7",
+          "ubY": "mbY",
+          "mbY": "pbY",
+          "OUK": "XUK",
+          "wUK": "PUK",
+          "AD6": "OD6",
+          "process": "process",
+          "l6": "Q6",
+          "vC6": "hC6",
+          "IbY": "ubY",
+          "ll": "il",
+          "Set": "Set",
+          "m8": "I8",
+          "d": "d"
+        },
+        "scopeCount": 31
+      }
+    }
+  },
+  "graphs": {
+    "completeLocalAndNative": {
+      "nodes": 2720,
+      "forward": {
+        "Map": "Map",
+        "gJ": "gJ",
+        "Set": "Set",
+        "d": "d",
+        "Buffer": "Buffer",
+        "IbY": "xbY",
+        "l8": "l8",
+        "Math": "Math",
+        "OD6": "AD6",
+        "process": "process",
+        "Q6": "l6",
+        "il": "ll",
+        "I8": "m8"
+      },
+      "reverse": {
+        "Map": "Map",
+        "gJ": "gJ",
+        "Set": "Set",
+        "d": "d",
+        "Buffer": "Buffer",
+        "xbY": "IbY",
+        "l8": "l8",
+        "Math": "Math",
+        "AD6": "OD6",
+        "process": "process",
+        "l6": "Q6",
+        "ll": "il",
+        "m8": "I8"
+      },
+      "scopeCount": 86
+    },
+    "withSixDirectProviderBodies": {
+      "pass": true,
+      "nodes": 2990,
+      "forward": {
+        "Map": "Map",
+        "Set": "Set",
+        "Buffer": "Buffer",
+        "IbY": "xbY",
+        "Math": "Math",
+        "OD6": "AD6",
+        "process": "process",
+        "cz": "Qz",
+        "JSON": "JSON",
+        "lz": "dz",
+        "Ab5": "eC5",
+        "MC7": "JC7",
+        "jb5": "Kb5",
+        "wb5": "qb5",
+        "Xv6": "MT6",
+        "Pv6": "XT6",
+        "ai": "ii",
+        "Jv6": "HT6",
+        "Tl6": "Xl6",
+        "ZO6": "PA6",
+        "OC": "YC",
+        "j8": "w8",
+        "ox6": "Qx6",
+        "He": "He"
+      },
+      "reverse": {
+        "Map": "Map",
+        "Set": "Set",
+        "Buffer": "Buffer",
+        "xbY": "IbY",
+        "Math": "Math",
+        "AD6": "OD6",
+        "process": "process",
+        "Qz": "cz",
+        "JSON": "JSON",
+        "dz": "lz",
+        "eC5": "Ab5",
+        "JC7": "MC7",
+        "Kb5": "jb5",
+        "qb5": "wb5",
+        "MT6": "Xv6",
+        "XT6": "Pv6",
+        "ii": "ai",
+        "HT6": "Jv6",
+        "Xl6": "Tl6",
+        "PA6": "ZO6",
+        "YC": "OC",
+        "w8": "j8",
+        "Qx6": "ox6",
+        "He": "He"
+      },
+      "scopeCount": 100
+    },
+    "readerTitleAndInitializerWith27MatchingSupplierDefinitions": {
+      "nodes": 8098,
+      "statementPairs": 46,
+      "pass": true,
+      "omittedSupplierDefinition": {
+        "target": 10390,
+        "current": 10402,
+        "owner": "src/services/api/sessionIngress.ts",
+        "nodes": [
+          47,
+          44
+        ],
+        "callsRetained": true
+      },
+      "callsToOmittedSupplierRetained": true
+    },
+    "complete28InitializerProviders": {
+      "pass": false,
+      "error": "node count\n\n5085 !== 5082\n"
+    }
+  },
+  "directReaderProviders": [
+    {
+      "targetName": "l8",
+      "currentName": "l8",
+      "comparison": {
+        "pass": true,
+        "nodes": 67,
+        "forward": {
+          "cz": "Qz",
+          "JSON": "JSON",
+          "lz": "dz"
+        },
+        "reverse": {
+          "Qz": "cz",
+          "JSON": "JSON",
+          "dz": "lz"
+        },
+        "scopeCount": 7
+      },
+      "target": {
+        "index": 855,
+        "type": "VariableDeclaration",
+        "range": [
+          135048,
+          135215
+        ],
+        "nodes": 66,
+        "strictSha256": "c566b7f3e134ce79528e2cd3197bc8eb9a89b45d31f43603f77142d5bd6e1159",
+        "shapeSha256": "81b968ff3890a4954b89bcab568b255a19535956e594cbad9a4cc66f83775628",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 855,
+        "type": "VariableDeclaration",
+        "range": [
+          134743,
+          134910
+        ],
+        "nodes": 66,
+        "strictSha256": "95510771767d5b2bdcf579167f85f928971f6af785829bd3bbb03f2ece3c63ce",
+        "shapeSha256": "81b968ff3890a4954b89bcab568b255a19535956e594cbad9a4cc66f83775628",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 2
+      }
+    },
+    {
+      "targetName": "gJ",
+      "currentName": "gJ",
+      "comparison": {
+        "pass": true,
+        "nodes": 18,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      },
+      "target": {
+        "index": 12760,
+        "type": "FunctionDeclaration",
+        "range": [
+          9754110,
+          9754183
+        ],
+        "nodes": 17,
+        "strictSha256": "63c15224714cf90d99a549bb95c480249e798520edf9de36168672f81e44ccdd",
+        "shapeSha256": "095d9789b3f75c8fed7724139524fe0f8228f88f861217fe1b644d67b69c40bb",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 12762,
+        "type": "FunctionDeclaration",
+        "range": [
+          9748051,
+          9748124
+        ],
+        "nodes": 17,
+        "strictSha256": "63c15224714cf90d99a549bb95c480249e798520edf9de36168672f81e44ccdd",
+        "shapeSha256": "095d9789b3f75c8fed7724139524fe0f8228f88f861217fe1b644d67b69c40bb",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 2
+      }
+    },
+    {
+      "targetName": "Q6",
+      "currentName": "l6",
+      "comparison": {
+        "pass": true,
+        "nodes": 38,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      },
+      "target": {
+        "index": 595,
+        "type": "FunctionDeclaration",
+        "range": [
+          47796,
+          47930
+        ],
+        "nodes": 37,
+        "strictSha256": "cb30427d6715e2776843a5fd9b1326286ab16666b4de27138632e6d88727214f",
+        "shapeSha256": "7cc5bb0b418a7c4888e721f12f4d1a86d5b0603807c6ba4ed0e5ba562d4ae2a6",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 595,
+        "type": "FunctionDeclaration",
+        "range": [
+          47490,
+          47624
+        ],
+        "nodes": 37,
+        "strictSha256": "d76739a2763e358d0f1b9884dd0f8d9691a390fe7396efb4aa2033cfdc62f3d3",
+        "shapeSha256": "7cc5bb0b418a7c4888e721f12f4d1a86d5b0603807c6ba4ed0e5ba562d4ae2a6",
+        "identifierNamesErased": 8,
+        "protectedIdentifierOccurrences": 3
+      }
+    },
+    {
+      "targetName": "il",
+      "currentName": "ll",
+      "comparison": {
+        "pass": true,
+        "nodes": 24,
+        "forward": {
+          "Ab5": "eC5",
+          "MC7": "JC7",
+          "jb5": "Kb5",
+          "wb5": "qb5"
+        },
+        "reverse": {
+          "eC5": "Ab5",
+          "JC7": "MC7",
+          "Kb5": "jb5",
+          "qb5": "wb5"
+        },
+        "scopeCount": 3
+      },
+      "target": {
+        "index": 2444,
+        "type": "FunctionDeclaration",
+        "range": [
+          983475,
+          983562
+        ],
+        "nodes": 23,
+        "strictSha256": "d3105156a06a43dcdae47dfb22bcd06995f1b6d5deb75e802593d62a1503fb33",
+        "shapeSha256": "d9de414d81055a3988023c12f808b2eac8365509067a743e11df1fda4456ccde",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 2448,
+        "type": "FunctionDeclaration",
+        "range": [
+          983887,
+          983974
+        ],
+        "nodes": 23,
+        "strictSha256": "027c412c2d0c6df76afe777e0b17139028d0254ba46e08f5a9ce23870aaafaf6",
+        "shapeSha256": "d9de414d81055a3988023c12f808b2eac8365509067a743e11df1fda4456ccde",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 0
+      }
+    },
+    {
+      "targetName": "I8",
+      "currentName": "m8",
+      "comparison": {
+        "pass": true,
+        "nodes": 94,
+        "forward": {
+          "Xv6": "MT6",
+          "Pv6": "XT6",
+          "ai": "ii",
+          "Jv6": "HT6",
+          "Tl6": "Xl6",
+          "ZO6": "PA6",
+          "OC": "YC",
+          "j8": "w8"
+        },
+        "reverse": {
+          "MT6": "Xv6",
+          "XT6": "Pv6",
+          "ii": "ai",
+          "HT6": "Jv6",
+          "Xl6": "Tl6",
+          "PA6": "ZO6",
+          "YC": "OC",
+          "w8": "j8"
+        },
+        "scopeCount": 6
+      },
+      "target": {
+        "index": 4914,
+        "type": "FunctionDeclaration",
+        "range": [
+          3696300,
+          3696559
+        ],
+        "nodes": 93,
+        "strictSha256": "288ca51908d7a4b9f388adea8c79bcba644e34da8e82ff9b237cc642211740de",
+        "shapeSha256": "9dbe571c42133459d6885a6ce16962f669a4ff5068b664dfa0dcfd8f63ba7a1a",
+        "identifierNamesErased": 36,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 4920,
+        "type": "FunctionDeclaration",
+        "range": [
+          3697572,
+          3697831
+        ],
+        "nodes": 93,
+        "strictSha256": "117bd7ff11b18806a38770a8c09a1ac55af0de5f186fe14271d7f95c5ab7e5af",
+        "shapeSha256": "9dbe571c42133459d6885a6ce16962f669a4ff5068b664dfa0dcfd8f63ba7a1a",
+        "identifierNamesErased": 36,
+        "protectedIdentifierOccurrences": 5
+      }
+    },
+    {
+      "targetName": "d",
+      "currentName": "d",
+      "comparison": {
+        "pass": true,
+        "nodes": 35,
+        "forward": {
+          "ox6": "Qx6",
+          "He": "He"
+        },
+        "reverse": {
+          "Qx6": "ox6",
+          "He": "He"
+        },
+        "scopeCount": 4
+      },
+      "target": {
+        "index": 577,
+        "type": "FunctionDeclaration",
+        "range": [
+          45556,
+          45654
+        ],
+        "nodes": 34,
+        "strictSha256": "1ed9118bcbdb9c540acf2f7e205aa3e2fb06f974245f19b4497d7b4fa1f9ee8b",
+        "shapeSha256": "dac014953907817ddf8db04c8bffed899386ae3889da5788c83474fdab8ecf3a",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 577,
+        "type": "FunctionDeclaration",
+        "range": [
+          45250,
+          45348
+        ],
+        "nodes": 34,
+        "strictSha256": "79d25a32ea51b7451c861f71283225edaea91b658cf6d3204f2e442c47619f0f",
+        "shapeSha256": "dac014953907817ddf8db04c8bffed899386ae3889da5788c83474fdab8ecf3a",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      }
+    }
+  ],
+  "originalModuleBindings": {
+    "moduleRange": [
+      15530,
+      15663
+    ],
+    "moduleStatements": 134,
+    "helperReferences": [
+      {
+        "name": "ubY",
+        "statement": 15626,
+        "referenceSites": [
+          {
+            "statement": 15628,
+            "read": true,
+            "write": false
+          }
+        ]
+      },
+      {
+        "name": "mbY",
+        "statement": 15627,
+        "referenceSites": [
+          {
+            "statement": 15628,
+            "read": true,
+            "write": false
+          }
+        ]
+      },
+      {
+        "name": "Fa",
+        "statement": 15628,
+        "referenceSites": [
+          {
+            "statement": 15531,
+            "read": true,
+            "write": false
+          },
+          {
+            "statement": 15594,
+            "read": true,
+            "write": false
+          },
+          {
+            "statement": 15622,
+            "read": true,
+            "write": false
+          },
+          {
+            "statement": 15629,
+            "read": true,
+            "write": false
+          },
+          {
+            "statement": 15640,
+            "read": true,
+            "write": false
+          },
+          {
+            "statement": 15651,
+            "read": true,
+            "write": false
+          },
+          {
+            "statement": 15653,
+            "read": true,
+            "write": false
+          }
+        ]
+      }
+    ],
+    "scannerAndAttributionHelpersHaveOneLoaderReaderEach": true,
+    "loaderExportAndSixInternalCallersRetained": true,
+    "callbackMapsResolvedInOriginalContext": true,
+    "permissionMapNotClearedByCompactionReset": true
+  },
+  "storageInitializer": {
+    "target": {
+      "index": 15668,
+      "type": "VariableDeclaration",
+      "range": [
+        11399099,
+        11399873
+      ],
+      "nodes": 190,
+      "strictSha256": "59408ee227925de29b6fa71a55e9cdd43fad4c228c77eedf5ccc112b26e0309f",
+      "shapeSha256": "986decb87a0bbade00eb31111531311b14feb2df3004fecff05a96b4368e94c5",
+      "identifierNamesErased": 57,
+      "protectedIdentifierOccurrences": 10
+    },
+    "current": {
+      "index": 15663,
+      "type": "VariableDeclaration",
+      "range": [
+        11384238,
+        11385012
+      ],
+      "nodes": 190,
+      "strictSha256": "023f5a4dd9e86b24c40d45bfdb19cee058f8ed5d38fffb06997a4b5c0c14a78e",
+      "shapeSha256": "986decb87a0bbade00eb31111531311b14feb2df3004fecff05a96b4368e94c5",
+      "identifierNamesErased": 57,
+      "protectedIdentifierOccurrences": 10
+    },
+    "comparison": {
+      "nodes": 191,
+      "forward": {
+        "qK": "_K",
+        "V8": "V8",
+        "T8": "v8",
+        "mO": "IA",
+        "pY": "pY",
+        "s1": "t1",
+        "dI8": "BI8",
+        "XD": "OC",
+        "pZ": "b0",
+        "a9": "a9",
+        "TN": "AC",
+        "g7": "p7",
+        "K8": "K8",
+        "$$": "$$",
+        "g8": "p8",
+        "y8": "y8",
+        "I7": "u7",
+        "s7": "s7",
+        "tq8": "iq8",
+        "W5": "f5",
+        "YO": "zA",
+        "bA": "RO",
+        "R8": "L8",
+        "o1": "l1",
+        "Az": "Vz",
+        "j66": "O66",
+        "i8": "i8",
+        "xm": "Sm",
+        "MbY": "HbY",
+        "DUK": "HUK",
+        "WbY": "XbY",
+        "Set": "Set",
+        "Tz7": "Wz7",
+        "Map": "Map",
+        "aj": "tj",
+        "KB": "Kp",
+        "MX": "jX",
+        "C0": "RZ",
+        "A1": "$1",
+        "kUK": "DUK",
+        "L_": "E_",
+        "bz7": "Ez7",
+        "EC6": "GC6",
+        "VUK": "fUK",
+        "E": "y"
+      },
+      "reverse": {
+        "_K": "qK",
+        "V8": "V8",
+        "v8": "T8",
+        "IA": "mO",
+        "pY": "pY",
+        "t1": "s1",
+        "BI8": "dI8",
+        "OC": "XD",
+        "b0": "pZ",
+        "a9": "a9",
+        "AC": "TN",
+        "p7": "g7",
+        "K8": "K8",
+        "$$": "$$",
+        "p8": "g8",
+        "y8": "y8",
+        "u7": "I7",
+        "s7": "s7",
+        "iq8": "tq8",
+        "f5": "W5",
+        "zA": "YO",
+        "RO": "bA",
+        "L8": "R8",
+        "l1": "o1",
+        "Vz": "Az",
+        "O66": "j66",
+        "i8": "i8",
+        "Sm": "xm",
+        "HbY": "MbY",
+        "HUK": "DUK",
+        "XbY": "WbY",
+        "Set": "Set",
+        "Wz7": "Tz7",
+        "Map": "Map",
+        "tj": "aj",
+        "Kp": "KB",
+        "jX": "MX",
+        "RZ": "C0",
+        "$1": "A1",
+        "DUK": "kUK",
+        "E_": "L_",
+        "Ez7": "bz7",
+        "GC6": "EC6",
+        "fUK": "VUK",
+        "y": "E"
+      },
+      "scopeCount": 6
+    }
+  },
+  "initializerProviderRows": [
+    {
+      "slot": 1,
+      "targetName": "qK",
+      "currentName": "_K",
+      "target": {
+        "index": 282,
+        "type": "VariableDeclaration",
+        "range": [
+          20004,
+          20047
+        ],
+        "nodes": 20,
+        "strictSha256": "271c481073f0b9ef2b676542db4c840ad2a9e20c83fb9c24fe396a2a75bb8854",
+        "shapeSha256": "ae65c4ede38b82c024cbb84370d42254286f09b1ee8a3968c1d36ad4c565892f",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 282,
+        "type": "VariableDeclaration",
+        "range": [
+          19698,
+          19741
+        ],
+        "nodes": 20,
+        "strictSha256": "e86d86a875e72eaadad7f0837c874fe8b858f0379ed3cb0fad3087e742141263",
+        "shapeSha256": "ae65c4ede38b82c024cbb84370d42254286f09b1ee8a3968c1d36ad4c565892f",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 21,
+        "forward": {
+          "k38": "W38",
+          "Tr8": "Pr8",
+          "D96": "J96",
+          "A1": "$1",
+          "E": "y"
+        },
+        "reverse": {
+          "W38": "k38",
+          "Pr8": "Tr8",
+          "J96": "D96",
+          "$1": "A1",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 2,
+      "targetName": "V8",
+      "currentName": "V8",
+      "target": {
+        "index": 580,
+        "type": "VariableDeclaration",
+        "range": [
+          45787,
+          45810
+        ],
+        "nodes": 11,
+        "strictSha256": "0b80c496e6e0b9f2cd77b2dfb26f78beba0dbf2ad16e5ce8625f97baf8c63e74",
+        "shapeSha256": "db841cb530ad8146a7ba405e8ad0385cb30a6d13d188f4045bf48d5735670f9b",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 580,
+        "type": "VariableDeclaration",
+        "range": [
+          45481,
+          45504
+        ],
+        "nodes": 11,
+        "strictSha256": "757b1267e0ca2f35deece57f903cbec1816c9887a1a606e32267b6b6a3d51619",
+        "shapeSha256": "db841cb530ad8146a7ba405e8ad0385cb30a6d13d188f4045bf48d5735670f9b",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 12,
+        "forward": {
+          "ox6": "Qx6",
+          "E": "y"
+        },
+        "reverse": {
+          "Qx6": "ox6",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 3,
+      "targetName": "T8",
+      "currentName": "v8",
+      "target": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          45124,
+          45227
+        ],
+        "nodes": 47,
+        "strictSha256": "dad05b2f3b0673228101ece22fd53f9fde1e8dc992ad7d76109341378a1b9747",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          44818,
+          44921
+        ],
+        "nodes": 47,
+        "strictSha256": "a93f3c11d507d75e0489f6a87ddf6f303360bb0f4686975ccd87849bbfc57a71",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 48,
+        "forward": {
+          "_J7": "sH7",
+          "kr8": "Wr8",
+          "Kl": "tc",
+          "G8": "G8",
+          "PJ7": "jJ7",
+          "Rr8": "kr8",
+          "L_": "E_",
+          "Sr8": "Vr8",
+          "dr8": "HJ7",
+          "cr8": "ur8",
+          "XJ7": "wJ7",
+          "E": "y"
+        },
+        "reverse": {
+          "sH7": "_J7",
+          "Wr8": "kr8",
+          "tc": "Kl",
+          "G8": "G8",
+          "jJ7": "PJ7",
+          "kr8": "Rr8",
+          "E_": "L_",
+          "Vr8": "Sr8",
+          "HJ7": "dr8",
+          "ur8": "cr8",
+          "wJ7": "XJ7",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 4,
+      "targetName": "mO",
+      "currentName": "IA",
+      "target": {
+        "index": 15534,
+        "type": "VariableDeclaration",
+        "range": [
+          11346009,
+          11348866
+        ],
+        "nodes": 918,
+        "strictSha256": "08ff32404eca75b2b41480c17daaab17d65c701d51040c657437b91ee9d56cf2",
+        "shapeSha256": "4d8195d5f6a775702950bf37143f8128f1800e7b09d1bc869c730c4e83e732a8",
+        "identifierNamesErased": 370,
+        "protectedIdentifierOccurrences": 46
+      },
+      "current": {
+        "index": 15529,
+        "type": "VariableDeclaration",
+        "range": [
+          11331742,
+          11334599
+        ],
+        "nodes": 918,
+        "strictSha256": "55baa9159ca2684c74be8aba706446f6f16210c0a565d76f31cf564ebb57b521",
+        "shapeSha256": "4d8195d5f6a775702950bf37143f8128f1800e7b09d1bc869c730c4e83e732a8",
+        "identifierNamesErased": 370,
+        "protectedIdentifierOccurrences": 46
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 919,
+        "forward": {
+          "xTK": "xvK",
+          "uTK": "uvK",
+          "pTK": "BvK",
+          "QTK": "QvK",
+          "cTK": "cvK",
+          "nTK": "nvK",
+          "qkK": "qkK",
+          "GkK": "GkK",
+          "kkK": "kkK",
+          "ykK": "ykK",
+          "IkK": "IkK",
+          "dkK": "ckK",
+          "ikK": "rkK",
+          "ekK": "ekK",
+          "$VK": "$VK",
+          "CVK": "CVK",
+          "aVK": "aVK",
+          "eVK": "eVK",
+          "PNK": "PNK",
+          "DNK": "DNK",
+          "INK": "INK",
+          "oNK": "oNK",
+          "eNK": "eNK",
+          "jyK": "jyK",
+          "GyK": "GyK",
+          "TyK": "vyK",
+          "VyK": "VyK",
+          "hyK": "RyK",
+          "SyK": "SyK",
+          "byK": "byK",
+          "PEK": "PEK",
+          "GEK": "GEK",
+          "TEK": "vEK",
+          "ULK": "ULK",
+          "oRK": "ohK",
+          "sRK": "shK",
+          "DSK": "WSK",
+          "ZSK": "fSK",
+          "SSK": "hSK",
+          "mSK": "uSK",
+          "mbK": "ubK",
+          "W97": "O97",
+          "ebK": "tbK",
+          "KxK": "qxK",
+          "AxK": "AxK",
+          "JxK": "HxK",
+          "KIK": "axK",
+          "zIK": "txK",
+          "$IK": "qIK",
+          "AIK": "_IK",
+          "jIK": "YIK",
+          "MIK": "OIK",
+          "WIK": "HIK",
+          "ZIK": "XIK",
+          "NIK": "GIK",
+          "hIK": "VIK",
+          "nIK": "UIK",
+          "oIK": "cIK",
+          "quK": "oIK",
+          "OuK": "KuK",
+          "MuK": "OuK",
+          "SuK": "yuK",
+          "xuK": "RuK",
+          "BuK": "xuK",
+          "cmK": "gmK",
+          "rmK": "dmK",
+          "qpK": "omK",
+          "zpK": "tmK",
+          "HpK": "$BK",
+          "MpK": "OBK",
+          "WpK": "HBK",
+          "fpK": "MBK",
+          "ZpK": "XBK",
+          "kpK": "fBK",
+          "NpK": "GBK",
+          "EpK": "vBK",
+          "BpK": "xBK",
+          "spK": "nBK",
+          "qBK": "oBK",
+          "_BK": "sBK",
+          "R8": "L8",
+          "y8": "y8",
+          "K8": "K8",
+          "ta": "ea",
+          "uv": "RT",
+          "fi6": "ji6",
+          "y78": "T78",
+          "qK": "_K",
+          "k7": "f7",
+          "C_": "C_",
+          "wBK": "zpK",
+          "S_7": "V_7",
+          "kBK": "fpK",
+          "EBK": "vpK",
+          "CBK": "EpK",
+          "IBK": "hpK",
+          "QBK": "BpK",
+          "B_7": "C_7",
+          "d68": "B68",
+          "iBK": "QpK",
+          "rBK": "dpK",
+          "qgK": "opK",
+          "IgK": "hgK",
+          "mgK": "CgK",
+          "BgK": "xgK",
+          "xA": "hO",
+          "nFK": "FFK",
+          "UgK": "mgK",
+          "FgK": "ugK",
+          "Lq": "hq",
+          "rFK": "QFK",
+          "ogK": "cgK",
+          "rgK": "dgK",
+          "aFK": "cFK",
+          "OFK": "KFK",
+          "$FK": "qFK",
+          "eFK": "iFK",
+          "PFK": "jFK",
+          "XFK": "wFK",
+          "$UK": "eFK",
+          "mFK": "SFK",
+          "uFK": "hFK",
+          "$bY": "zbY",
+          "cFK": "pFK",
+          "dFK": "BFK",
+          "Promise": "Promise",
+          "Error": "Error",
+          "it2": "Nsw",
+          "Boolean": "Boolean",
+          "zVK": "zVK",
+          "YVK": "YVK",
+          "mTK": "mvK",
+          "vEK": "TEK",
+          "OIK": "KIK",
+          "NkK": "NkK",
+          "nkK": "ikK",
+          "WNK": "WNK",
+          "dTK": "dvK",
+          "lTK": "lvK",
+          "kyK": "kyK",
+          "sFK": "lFK",
+          "JpK": "ABK",
+          "PpK": "jBK",
+          "DpK": "JBK",
+          "KUK": "oFK",
+          "qUK": "rFK",
+          "vpK": "WBK",
+          "TpK": "DBK",
+          "aRK": "ahK",
+          "qxK": "ebK",
+          "k_7": "W_7",
+          "_IK": "sxK",
+          "VpK": "ZBK",
+          "ypK": "TBK",
+          "ABK": "_pK",
+          "ugK": "SgK",
+          "pgK": "bgK",
+          "zbY": "KbY",
+          "ITK": "IvK",
+          "Pz7": "wz7",
+          "bTK": "bvK",
+          "KBK": "aBK",
+          "dmK": "pmK",
+          "puK": "buK",
+          "u47": "E47",
+          "apK": "lBK",
+          "sF8": "nF8",
+          "$K7": "a47",
+          "MK7": "zK7",
+          "SVK": "SVK",
+          "AK7": "t47",
+          "QkK": "dkK",
+          "rVK": "rVK",
+          "oVK": "oVK",
+          "ZU8": "MU8",
+          "XNK": "XNK",
+          "xNK": "xNK",
+          "eBK": "rpK",
+          "y48": "T48",
+          "eIK": "rIK",
+          "K_7": "r97",
+          "jpK": "YBK",
+          "rK7": "gK7",
+          "ZyK": "ZyK",
+          "vyK": "TyK",
+          "aK7": "UK7",
+          "XEK": "XEK",
+          "ZEK": "ZEK",
+          "FLK": "FLK",
+          "rNK": "rNK",
+          "k37": "X37",
+          "tNK": "tNK",
+          "yBK": "TpK",
+          "xBK": "RpK",
+          "UBK": "mpK",
+          "imK": "QmK",
+          "fSK": "DSK",
+          "S37": "k37",
+          "emK": "rmK",
+          "uSK": "ISK",
+          "ubK": "IbK",
+          "D97": "w97",
+          "OxK": "$xK",
+          "xgK": "RgK",
+          "HxK": "jxK",
+          "g_7": "b_7",
+          "E_7": "G_7",
+          "SBK": "ypK",
+          "B97": "C97",
+          "g47": "S47",
+          "FQ8": "IQ8",
+          "abK": "obK",
+          "_pK": "smK",
+          "YIK": "exK",
+          "wIK": "zIK",
+          "hd8": "kd8",
+          "SK6": "EK6",
+          "LKK": "uKK",
+          "nBK": "UpK",
+          "p97": "S97",
+          "g97": "b97",
+          "YUK": "tFK",
+          "lFK": "gFK",
+          "iFK": "UFK",
+          "oFK": "dFK",
+          "VIK": "ZIK",
+          "LIK": "kIK",
+          "lIK": "FIK",
+          "n97": "g97",
+          "WSK": "PSK",
+          "JuK": "AuK",
+          "RuK": "NuK",
+          "TBK": "DpK",
+          "ppK": "bBK",
+          "CyK": "CyK",
+          "RyK": "hyK",
+          "u16": "u16",
+          "$uK": "quK",
+          "zUK": "sFK",
+          "qIK": "oxK",
+          "tFK": "nFK",
+          "_UK": "aFK",
+          "A1": "$1",
+          "$d": "$d",
+          "Set": "Set",
+          "wUK": "_UK",
+          "ObY": "YbY",
+          "aH6": "oH6",
+          "OUK": "qUK",
+          "iC": "iC",
+          "Y0": "e0",
+          "zw6": "q26",
+          "B1": "m1",
+          "j6": "j6",
+          "N": "N",
+          "Wz7": "jz7",
+          "AbY": "$bY",
+          "E": "y"
+        },
+        "reverse": {
+          "xvK": "xTK",
+          "uvK": "uTK",
+          "BvK": "pTK",
+          "QvK": "QTK",
+          "cvK": "cTK",
+          "nvK": "nTK",
+          "qkK": "qkK",
+          "GkK": "GkK",
+          "kkK": "kkK",
+          "ykK": "ykK",
+          "IkK": "IkK",
+          "ckK": "dkK",
+          "rkK": "ikK",
+          "ekK": "ekK",
+          "$VK": "$VK",
+          "CVK": "CVK",
+          "aVK": "aVK",
+          "eVK": "eVK",
+          "PNK": "PNK",
+          "DNK": "DNK",
+          "INK": "INK",
+          "oNK": "oNK",
+          "eNK": "eNK",
+          "jyK": "jyK",
+          "GyK": "GyK",
+          "vyK": "TyK",
+          "VyK": "VyK",
+          "RyK": "hyK",
+          "SyK": "SyK",
+          "byK": "byK",
+          "PEK": "PEK",
+          "GEK": "GEK",
+          "vEK": "TEK",
+          "ULK": "ULK",
+          "ohK": "oRK",
+          "shK": "sRK",
+          "WSK": "DSK",
+          "fSK": "ZSK",
+          "hSK": "SSK",
+          "uSK": "mSK",
+          "ubK": "mbK",
+          "O97": "W97",
+          "tbK": "ebK",
+          "qxK": "KxK",
+          "AxK": "AxK",
+          "HxK": "JxK",
+          "axK": "KIK",
+          "txK": "zIK",
+          "qIK": "$IK",
+          "_IK": "AIK",
+          "YIK": "jIK",
+          "OIK": "MIK",
+          "HIK": "WIK",
+          "XIK": "ZIK",
+          "GIK": "NIK",
+          "VIK": "hIK",
+          "UIK": "nIK",
+          "cIK": "oIK",
+          "oIK": "quK",
+          "KuK": "OuK",
+          "OuK": "MuK",
+          "yuK": "SuK",
+          "RuK": "xuK",
+          "xuK": "BuK",
+          "gmK": "cmK",
+          "dmK": "rmK",
+          "omK": "qpK",
+          "tmK": "zpK",
+          "$BK": "HpK",
+          "OBK": "MpK",
+          "HBK": "WpK",
+          "MBK": "fpK",
+          "XBK": "ZpK",
+          "fBK": "kpK",
+          "GBK": "NpK",
+          "vBK": "EpK",
+          "xBK": "BpK",
+          "nBK": "spK",
+          "oBK": "qBK",
+          "sBK": "_BK",
+          "L8": "R8",
+          "y8": "y8",
+          "K8": "K8",
+          "ea": "ta",
+          "RT": "uv",
+          "ji6": "fi6",
+          "T78": "y78",
+          "_K": "qK",
+          "f7": "k7",
+          "C_": "C_",
+          "zpK": "wBK",
+          "V_7": "S_7",
+          "fpK": "kBK",
+          "vpK": "EBK",
+          "EpK": "CBK",
+          "hpK": "IBK",
+          "BpK": "QBK",
+          "C_7": "B_7",
+          "B68": "d68",
+          "QpK": "iBK",
+          "dpK": "rBK",
+          "opK": "qgK",
+          "hgK": "IgK",
+          "CgK": "mgK",
+          "xgK": "BgK",
+          "hO": "xA",
+          "FFK": "nFK",
+          "mgK": "UgK",
+          "ugK": "FgK",
+          "hq": "Lq",
+          "QFK": "rFK",
+          "cgK": "ogK",
+          "dgK": "rgK",
+          "cFK": "aFK",
+          "KFK": "OFK",
+          "qFK": "$FK",
+          "iFK": "eFK",
+          "jFK": "PFK",
+          "wFK": "XFK",
+          "eFK": "$UK",
+          "SFK": "mFK",
+          "hFK": "uFK",
+          "zbY": "$bY",
+          "pFK": "cFK",
+          "BFK": "dFK",
+          "Promise": "Promise",
+          "Error": "Error",
+          "Nsw": "it2",
+          "Boolean": "Boolean",
+          "zVK": "zVK",
+          "YVK": "YVK",
+          "mvK": "mTK",
+          "TEK": "vEK",
+          "KIK": "OIK",
+          "NkK": "NkK",
+          "ikK": "nkK",
+          "WNK": "WNK",
+          "dvK": "dTK",
+          "lvK": "lTK",
+          "kyK": "kyK",
+          "lFK": "sFK",
+          "ABK": "JpK",
+          "jBK": "PpK",
+          "JBK": "DpK",
+          "oFK": "KUK",
+          "rFK": "qUK",
+          "WBK": "vpK",
+          "DBK": "TpK",
+          "ahK": "aRK",
+          "ebK": "qxK",
+          "W_7": "k_7",
+          "sxK": "_IK",
+          "ZBK": "VpK",
+          "TBK": "ypK",
+          "_pK": "ABK",
+          "SgK": "ugK",
+          "bgK": "pgK",
+          "KbY": "zbY",
+          "IvK": "ITK",
+          "wz7": "Pz7",
+          "bvK": "bTK",
+          "aBK": "KBK",
+          "pmK": "dmK",
+          "buK": "puK",
+          "E47": "u47",
+          "lBK": "apK",
+          "nF8": "sF8",
+          "a47": "$K7",
+          "zK7": "MK7",
+          "SVK": "SVK",
+          "t47": "AK7",
+          "dkK": "QkK",
+          "rVK": "rVK",
+          "oVK": "oVK",
+          "MU8": "ZU8",
+          "XNK": "XNK",
+          "xNK": "xNK",
+          "rpK": "eBK",
+          "T48": "y48",
+          "rIK": "eIK",
+          "r97": "K_7",
+          "YBK": "jpK",
+          "gK7": "rK7",
+          "ZyK": "ZyK",
+          "TyK": "vyK",
+          "UK7": "aK7",
+          "XEK": "XEK",
+          "ZEK": "ZEK",
+          "FLK": "FLK",
+          "rNK": "rNK",
+          "X37": "k37",
+          "tNK": "tNK",
+          "TpK": "yBK",
+          "RpK": "xBK",
+          "mpK": "UBK",
+          "QmK": "imK",
+          "DSK": "fSK",
+          "k37": "S37",
+          "rmK": "emK",
+          "ISK": "uSK",
+          "IbK": "ubK",
+          "w97": "D97",
+          "$xK": "OxK",
+          "RgK": "xgK",
+          "jxK": "HxK",
+          "b_7": "g_7",
+          "G_7": "E_7",
+          "ypK": "SBK",
+          "C97": "B97",
+          "S47": "g47",
+          "IQ8": "FQ8",
+          "obK": "abK",
+          "smK": "_pK",
+          "exK": "YIK",
+          "zIK": "wIK",
+          "kd8": "hd8",
+          "EK6": "SK6",
+          "uKK": "LKK",
+          "UpK": "nBK",
+          "S97": "p97",
+          "b97": "g97",
+          "tFK": "YUK",
+          "gFK": "lFK",
+          "UFK": "iFK",
+          "dFK": "oFK",
+          "ZIK": "VIK",
+          "kIK": "LIK",
+          "FIK": "lIK",
+          "g97": "n97",
+          "PSK": "WSK",
+          "AuK": "JuK",
+          "NuK": "RuK",
+          "DpK": "TBK",
+          "bBK": "ppK",
+          "CyK": "CyK",
+          "hyK": "RyK",
+          "u16": "u16",
+          "quK": "$uK",
+          "sFK": "zUK",
+          "oxK": "qIK",
+          "nFK": "tFK",
+          "aFK": "_UK",
+          "$1": "A1",
+          "$d": "$d",
+          "Set": "Set",
+          "_UK": "wUK",
+          "YbY": "ObY",
+          "oH6": "aH6",
+          "qUK": "OUK",
+          "iC": "iC",
+          "e0": "Y0",
+          "q26": "zw6",
+          "m1": "B1",
+          "j6": "j6",
+          "N": "N",
+          "jz7": "Wz7",
+          "$bY": "AbY",
+          "y": "E"
+        },
+        "scopeCount": 17
+      }
+    },
+    {
+      "slot": 5,
+      "targetName": "pY",
+      "currentName": "pY",
+      "target": {
+        "index": 2004,
+        "type": "VariableDeclaration",
+        "range": [
+          865816,
+          866086
+        ],
+        "nodes": 40,
+        "strictSha256": "3918925288c8530cb77d3d2f6320d21cdb711d758bb88ccb664435430b82217c",
+        "shapeSha256": "a32c704346f9b5c45f7bb7e5bcf96804143f1a03fd335abd5bb0fe52328e346c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 2004,
+        "type": "VariableDeclaration",
+        "range": [
+          865509,
+          865779
+        ],
+        "nodes": 40,
+        "strictSha256": "a6286441c5ceb545a22f112b869bfee006e6211107f0462cce00a38cd7358d8b",
+        "shapeSha256": "a32c704346f9b5c45f7bb7e5bcf96804143f1a03fd335abd5bb0fe52328e346c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 41,
+        "forward": {
+          "_L7": "tE7",
+          "JO8": "YA8",
+          "MO8": "$A8",
+          "E": "y"
+        },
+        "reverse": {
+          "tE7": "_L7",
+          "YA8": "JO8",
+          "$A8": "MO8",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 6,
+      "targetName": "s1",
+      "currentName": "t1",
+      "target": {
+        "index": 4927,
+        "type": "VariableDeclaration",
+        "range": [
+          3698447,
+          3699451
+        ],
+        "nodes": 338,
+        "strictSha256": "232df73ca158474a531233e9fc487aff5428fb7258c0f581ce613d39780faa11",
+        "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+        "identifierNamesErased": 99,
+        "protectedIdentifierOccurrences": 29
+      },
+      "current": {
+        "index": 4933,
+        "type": "VariableDeclaration",
+        "range": [
+          3699719,
+          3700723
+        ],
+        "nodes": 338,
+        "strictSha256": "6f688b11b7360885b723ec9a6ea61b6b8e45414cb5cc29e5c054138984960496",
+        "shapeSha256": "fd3d0563e89462360759308be99ae09b1524f523dc05d32364b5199717fd9f9d",
+        "identifierNamesErased": 99,
+        "protectedIdentifierOccurrences": 29
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 339,
+        "forward": {
+          "xE7": "hE7",
+          "cW6": "cW6",
+          "T8": "v8",
+          "uE7": "CE7",
+          "V1": "v1",
+          "K8": "K8",
+          "y8": "y8",
+          "xG": "RG",
+          "R8": "L8",
+          "i8": "i8",
+          "o$6": "l$6",
+          "ri": "li",
+          "ZO6": "PA6",
+          "Map": "Map",
+          "OC": "YC",
+          "Jv6": "HT6",
+          "Set": "Set",
+          "Ey1": "Vy1",
+          "Mv6": "JT6",
+          "L_": "E_",
+          "hy1": "yy1",
+          "ai": "ii",
+          "vaq": "Eaq",
+          "IE7": "SE7",
+          "VJ": "NJ",
+          "e$": "e$",
+          "zP6": "zP6",
+          "F7": "U7",
+          "Ry1": "Ey1",
+          "$O8": "t$8",
+          "Promise": "Promise",
+          "oi": "ni",
+          "faq": "Vaq",
+          "Tl6": "Xl6",
+          "Zaq": "Naq",
+          "fl6": "jl6",
+          "Zl6": "Hl6",
+          "process": "process",
+          "A1": "$1",
+          "si": "ri",
+          "kl6": "Pl6",
+          "Vaq": "haq",
+          "E": "y"
+        },
+        "reverse": {
+          "hE7": "xE7",
+          "cW6": "cW6",
+          "v8": "T8",
+          "CE7": "uE7",
+          "v1": "V1",
+          "K8": "K8",
+          "y8": "y8",
+          "RG": "xG",
+          "L8": "R8",
+          "i8": "i8",
+          "l$6": "o$6",
+          "li": "ri",
+          "PA6": "ZO6",
+          "Map": "Map",
+          "YC": "OC",
+          "HT6": "Jv6",
+          "Set": "Set",
+          "Vy1": "Ey1",
+          "JT6": "Mv6",
+          "E_": "L_",
+          "yy1": "hy1",
+          "ii": "ai",
+          "Eaq": "vaq",
+          "SE7": "IE7",
+          "NJ": "VJ",
+          "e$": "e$",
+          "zP6": "zP6",
+          "U7": "F7",
+          "Ey1": "Ry1",
+          "t$8": "$O8",
+          "Promise": "Promise",
+          "ni": "oi",
+          "Vaq": "faq",
+          "Xl6": "Tl6",
+          "Naq": "Zaq",
+          "jl6": "fl6",
+          "Hl6": "Zl6",
+          "process": "process",
+          "$1": "A1",
+          "ri": "si",
+          "Pl6": "kl6",
+          "haq": "Vaq",
+          "y": "E"
+        },
+        "scopeCount": 14
+      }
+    },
+    {
+      "slot": 7,
+      "targetName": "dI8",
+      "currentName": "BI8",
+      "target": {
+        "index": 10390,
+        "type": "VariableDeclaration",
+        "range": [
+          8363390,
+          8363481
+        ],
+        "nodes": 47,
+        "strictSha256": "c9ed75ce18526ccf7515a594ecfab6b01a884ac1bf29c0cf339f36aff04e5280",
+        "shapeSha256": "df3a6c10f372d2a2497620640d49a11dcb5d98ddc0f14f829303fa46a80b746a",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 10402,
+        "type": "VariableDeclaration",
+        "range": [
+          8360483,
+          8360569
+        ],
+        "nodes": 44,
+        "strictSha256": "8d87edff5a781a66acf7acad24e252cead3662ce9ce87b9244b0ba545f46ee16",
+        "shapeSha256": "bc658d0bb6e75f958cb7f61f17a4c636062b6320876e044cb6f0396ba3d64858",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": false,
+        "error": "node count\n\n48 !== 45\n"
+      }
+    },
+    {
+      "slot": 8,
+      "targetName": "XD",
+      "currentName": "OC",
+      "target": {
+        "index": 5065,
+        "type": "VariableDeclaration",
+        "range": [
+          3734327,
+          3734407
+        ],
+        "nodes": 36,
+        "strictSha256": "3e4fec3c060f58236938ac1fb26e55220d3215613934dc293b36ca700b6341be",
+        "shapeSha256": "0ee287a5b34c63e6af00e74e520582355e3ce4705d486693e00f220b71f28e3c",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 5071,
+        "type": "VariableDeclaration",
+        "range": [
+          3735552,
+          3735632
+        ],
+        "nodes": 36,
+        "strictSha256": "b373c40f1e2d0f2475ab48e43380a5d8e2e71bb6c6d57ba76cb5b2762802105d",
+        "shapeSha256": "0ee287a5b34c63e6af00e74e520582355e3ce4705d486693e00f220b71f28e3c",
+        "identifierNamesErased": 17,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 37,
+        "forward": {
+          "g8": "p8",
+          "gY": "A$",
+          "H$": "lY",
+          "A2": "uw",
+          "CX": "XM",
+          "kv6": "AZ8",
+          "pq": "bq",
+          "BK": "_5",
+          "H4": "X4",
+          "Z_": "e9",
+          "A9": "r3",
+          "zq": "zq",
+          "MD": "AD",
+          "j4": "j4",
+          "Set": "Set",
+          "E": "y"
+        },
+        "reverse": {
+          "p8": "g8",
+          "A$": "gY",
+          "lY": "H$",
+          "uw": "A2",
+          "XM": "CX",
+          "AZ8": "kv6",
+          "bq": "pq",
+          "_5": "BK",
+          "X4": "H4",
+          "e9": "Z_",
+          "r3": "A9",
+          "zq": "zq",
+          "AD": "MD",
+          "j4": "j4",
+          "Set": "Set",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 9,
+      "targetName": "pZ",
+      "currentName": "b0",
+      "target": {
+        "index": 7825,
+        "type": "VariableDeclaration",
+        "range": [
+          6554281,
+          6554327
+        ],
+        "nodes": 11,
+        "strictSha256": "6b81ae4bb280a4fd8bf2d9f83b22908e3dd332dbbe4733e5e1394dcc46e11917",
+        "shapeSha256": "959181eca1a582f907e8b75b3d1af35893c85b98b8a426a6309e261a2065ebc8",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 7835,
+        "type": "VariableDeclaration",
+        "range": [
+          6555833,
+          6555879
+        ],
+        "nodes": 11,
+        "strictSha256": "fb30561ee7aa2a050e551c2cf66c564221f05a12b80018808b3016c27b55ad6c",
+        "shapeSha256": "959181eca1a582f907e8b75b3d1af35893c85b98b8a426a6309e261a2065ebc8",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 12,
+        "forward": {
+          "mAz": "FOz",
+          "E": "y"
+        },
+        "reverse": {
+          "FOz": "mAz",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 10,
+      "targetName": "a9",
+      "currentName": "a9",
+      "target": {
+        "index": 585,
+        "type": "VariableDeclaration",
+        "range": [
+          46483,
+          46511
+        ],
+        "nodes": 12,
+        "strictSha256": "24e8ce0f7d098909839f36265bd12eab37779637d3cc2d62327c1a950297b24a",
+        "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 585,
+        "type": "VariableDeclaration",
+        "range": [
+          46177,
+          46205
+        ],
+        "nodes": 12,
+        "strictSha256": "37d4a885dc1e6427e899da5267490fd4a0e6b77248e8f17c2ff0f63137244ab1",
+        "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 13,
+        "forward": {
+          "Ka8": "io8",
+          "Set": "Set",
+          "E": "y"
+        },
+        "reverse": {
+          "io8": "Ka8",
+          "Set": "Set",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 11,
+      "targetName": "TN",
+      "currentName": "AC",
+      "target": {
+        "index": 4953,
+        "type": "VariableDeclaration",
+        "range": [
+          3702495,
+          3702579
+        ],
+        "nodes": 41,
+        "strictSha256": "947ed0a0a655f161f7cb589a9e86e5ea1e24d0a9004f1c44d77e146bd3c8a499",
+        "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 4959,
+        "type": "VariableDeclaration",
+        "range": [
+          3703767,
+          3703851
+        ],
+        "nodes": 41,
+        "strictSha256": "3d72af665e99075ce9fb2af4b20ef659425fe49b29b81ea3adfe35d253026cc9",
+        "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 42,
+        "forward": {
+          "T8": "v8",
+          "a9": "a9",
+          "K8": "K8",
+          "g8": "p8",
+          "y8": "y8",
+          "XO6": "jA6",
+          "kK": "VK",
+          "i8": "i8",
+          "DY": "XY",
+          "Raq": "uaq",
+          "Promise": "Promise",
+          "E": "y"
+        },
+        "reverse": {
+          "v8": "T8",
+          "a9": "a9",
+          "K8": "K8",
+          "p8": "g8",
+          "y8": "y8",
+          "jA6": "XO6",
+          "VK": "kK",
+          "i8": "i8",
+          "XY": "DY",
+          "uaq": "Raq",
+          "Promise": "Promise",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 12,
+      "targetName": "g7",
+      "currentName": "p7",
+      "target": {
+        "index": 2123,
+        "type": "VariableDeclaration",
+        "range": [
+          876582,
+          876615
+        ],
+        "nodes": 15,
+        "strictSha256": "8b1a87ae541d0594d691572bf4a8c08404ef38d597f2d30acec0102543ae104d",
+        "shapeSha256": "da7e48a277c5df251f8f85af98243ca065612a8335ef9239696c3697030935eb",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 2123,
+        "type": "VariableDeclaration",
+        "range": [
+          876275,
+          876308
+        ],
+        "nodes": 15,
+        "strictSha256": "29ac90bde3fc002e675d1d278e8672ce1ad9b2b4dbe2ef34e3ab1ecb7deda7ee",
+        "shapeSha256": "da7e48a277c5df251f8f85af98243ca065612a8335ef9239696c3697030935eb",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 16,
+        "forward": {
+          "T8": "v8",
+          "lL7": "UL7",
+          "kh5": "PR5",
+          "E": "y"
+        },
+        "reverse": {
+          "v8": "T8",
+          "UL7": "lL7",
+          "PR5": "kh5",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 13,
+      "targetName": "K8",
+      "currentName": "K8",
+      "target": {
+        "index": 893,
+        "type": "VariableDeclaration",
+        "range": [
+          144329,
+          145331
+        ],
+        "nodes": 322,
+        "strictSha256": "003c56d48677b32fcc4343ffb25f59e3f5387d1ef1f42b3f2589826ad85222f4",
+        "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "current": {
+        "index": 893,
+        "type": "VariableDeclaration",
+        "range": [
+          144024,
+          145026
+        ],
+        "nodes": 322,
+        "strictSha256": "5778ff41e95ee624f2952ad05da4906df6c0da1c7123228c1f2d05cbe8480f02",
+        "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 323,
+        "forward": {
+          "qK": "_K",
+          "T8": "v8",
+          "a9": "a9",
+          "LJ7": "VJ7",
+          "g8": "p8",
+          "s7": "s7",
+          "i8": "i8",
+          "Ms8": "Ys8",
+          "vw5": "M25",
+          "process": "process",
+          "Object": "Object",
+          "A1": "$1",
+          "ov": "QT",
+          "bX7": "RX7",
+          "Q6": "l6",
+          "ax": "rx",
+          "IX7": "SX7",
+          "Tw5": "X25",
+          "yJ7": "vJ7",
+          "Js8": "zs8",
+          "Promise": "Promise",
+          "pX7": "xX7",
+          "U96": "B96",
+          "SX7": "EX7",
+          "CX7": "LX7",
+          "Gw5": "J25",
+          "Zw5": "H25",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "v8": "T8",
+          "a9": "a9",
+          "VJ7": "LJ7",
+          "p8": "g8",
+          "s7": "s7",
+          "i8": "i8",
+          "Ys8": "Ms8",
+          "M25": "vw5",
+          "process": "process",
+          "Object": "Object",
+          "$1": "A1",
+          "QT": "ov",
+          "RX7": "bX7",
+          "l6": "Q6",
+          "rx": "ax",
+          "SX7": "IX7",
+          "X25": "Tw5",
+          "vJ7": "yJ7",
+          "zs8": "Js8",
+          "Promise": "Promise",
+          "xX7": "pX7",
+          "B96": "U96",
+          "EX7": "SX7",
+          "LX7": "CX7",
+          "J25": "Gw5",
+          "H25": "Zw5",
+          "y": "E"
+        },
+        "scopeCount": 17
+      }
+    },
+    {
+      "slot": 14,
+      "targetName": "$$",
+      "currentName": "$$",
+      "target": {
+        "index": 2117,
+        "type": "VariableDeclaration",
+        "range": [
+          876367,
+          876393
+        ],
+        "nodes": 13,
+        "strictSha256": "f541ae518ab28787b47cc2f9cf78af235157fc28204b63ae253be7e94ba078cd",
+        "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 2117,
+        "type": "VariableDeclaration",
+        "range": [
+          876060,
+          876086
+        ],
+        "nodes": 13,
+        "strictSha256": "3f2ea6c21037525aa013cc7176cf5b3bb1ce1b0d6744191613e0e65a41d8fcdb",
+        "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 14,
+        "forward": {
+          "s7": "s7",
+          "i8": "i8",
+          "E": "y"
+        },
+        "reverse": {
+          "s7": "s7",
+          "i8": "i8",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 15,
+      "targetName": "g8",
+      "currentName": "p8",
+      "target": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48877,
+          49516
+        ],
+        "nodes": 70,
+        "strictSha256": "b91a173308da044583c01f5dcc3f9987e18d352e6e2534c6e139ed0b0b2a6ce6",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48572,
+          49211
+        ],
+        "nodes": 70,
+        "strictSha256": "9e99d7d54a19cd1b8db6cd4078902092638a0da7d30ed44ffd502eb4f1f57ea3",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 71,
+        "forward": {
+          "qK": "_K",
+          "t1": "n1",
+          "process": "process",
+          "I$5": "E$5",
+          "hJ7": "NJ7",
+          "A1": "$1",
+          "u$5": "L$5",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "n1": "t1",
+          "process": "process",
+          "E$5": "I$5",
+          "NJ7": "hJ7",
+          "$1": "A1",
+          "L$5": "u$5",
+          "y": "E"
+        },
+        "scopeCount": 5
+      }
+    },
+    {
+      "slot": 16,
+      "targetName": "y8",
+      "currentName": "y8",
+      "target": {
+        "index": 757,
+        "type": "VariableDeclaration",
+        "range": [
+          126649,
+          127455
+        ],
+        "nodes": 225,
+        "strictSha256": "3fe00fbbd959ffa4bb5c5a4f4215308173dc9dd81109e907b469ff17e5a7fbcb",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "current": {
+        "index": 757,
+        "type": "VariableDeclaration",
+        "range": [
+          126344,
+          127150
+        ],
+        "nodes": 225,
+        "strictSha256": "de45087c20c20e3e632f6ed0c7a159607dde8062056a6263efe8a0ac018eafad",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 226,
+        "forward": {
+          "iv": "nZ",
+          "pI6": "SI6",
+          "Error": "Error",
+          "xB": "Ip",
+          "iz": "lz",
+          "rv": "UT",
+          "CE": "EE",
+          "yP": "kP",
+          "XV": "zV",
+          "E": "y"
+        },
+        "reverse": {
+          "nZ": "iv",
+          "SI6": "pI6",
+          "Error": "Error",
+          "Ip": "xB",
+          "lz": "iz",
+          "UT": "rv",
+          "EE": "CE",
+          "kP": "yP",
+          "zV": "XV",
+          "y": "E"
+        },
+        "scopeCount": 16
+      }
+    },
+    {
+      "slot": 17,
+      "targetName": "I7",
+      "currentName": "u7",
+      "target": {
+        "index": 938,
+        "type": "VariableDeclaration",
+        "range": [
+          168103,
+          168130
+        ],
+        "nodes": 13,
+        "strictSha256": "643be1fb8df15fd5063435d70ed72e3d4252028f249de4e31d4265f38f327bed",
+        "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 938,
+        "type": "VariableDeclaration",
+        "range": [
+          167798,
+          167825
+        ],
+        "nodes": 13,
+        "strictSha256": "6f146613a7a25b67ee4754edd7e77a8520958c2e1e907ae98255310f203e360e",
+        "shapeSha256": "e74f9b6c28a733cb02c83b5f95810aa789cb8e44479d3ffba60e46fd9e322d39",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 14,
+        "forward": {
+          "PV": "YV",
+          "k_8": "W_8",
+          "E": "y"
+        },
+        "reverse": {
+          "YV": "PV",
+          "W_8": "k_8",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 18,
+      "targetName": "s7",
+      "currentName": "s7",
+      "target": {
+        "index": 870,
+        "type": "VariableDeclaration",
+        "range": [
+          138440,
+          142384
+        ],
+        "nodes": 1390,
+        "strictSha256": "ad4dfa64489badec04339c21c0758598cf5a79383cdfaf3a38bb69be843f3e93",
+        "shapeSha256": "98f643c1b0bb8f75ecbabedefb603c6a6f711f4a8c660dba80986119f7a3f2ce",
+        "identifierNamesErased": 487,
+        "protectedIdentifierOccurrences": 88
+      },
+      "current": {
+        "index": 870,
+        "type": "VariableDeclaration",
+        "range": [
+          138135,
+          142079
+        ],
+        "nodes": 1390,
+        "strictSha256": "510ecb69fb5769542f503c23fbe3a63583d0cad786531d5c8d1786e9d3410ad2",
+        "shapeSha256": "98f643c1b0bb8f75ecbabedefb603c6a6f711f4a8c660dba80986119f7a3f2ce",
+        "identifierNamesErased": 487,
+        "protectedIdentifierOccurrences": 88
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 1391,
+        "forward": {
+          "y8": "y8",
+          "i8": "i8",
+          "Xw5": "$25",
+          "process": "process",
+          "qA": "tA",
+          "cz": "Qz",
+          "K9": "z9",
+          "lz": "dz",
+          "Hw5": "_25",
+          "Ow5": "tO5",
+          "Jw5": "z25",
+          "ww5": "q25",
+          "jw5": "K25",
+          "$w5": "sO5",
+          "c1": "a1",
+          "yX7": "vX7",
+          "Aw5": "eO5",
+          "Buffer": "Buffer",
+          "f_8": "H_8",
+          "Math": "Math",
+          "Pw5": "A25",
+          "E": "y"
+        },
+        "reverse": {
+          "y8": "y8",
+          "i8": "i8",
+          "$25": "Xw5",
+          "process": "process",
+          "tA": "qA",
+          "Qz": "cz",
+          "z9": "K9",
+          "dz": "lz",
+          "_25": "Hw5",
+          "tO5": "Ow5",
+          "z25": "Jw5",
+          "q25": "ww5",
+          "K25": "jw5",
+          "sO5": "$w5",
+          "a1": "c1",
+          "vX7": "yX7",
+          "eO5": "Aw5",
+          "Buffer": "Buffer",
+          "H_8": "f_8",
+          "Math": "Math",
+          "A25": "Pw5",
+          "y": "E"
+        },
+        "scopeCount": 130
+      }
+    },
+    {
+      "slot": 19,
+      "targetName": "tq8",
+      "currentName": "iq8",
+      "target": {
+        "index": 14194,
+        "type": "VariableDeclaration",
+        "range": [
+          10500087,
+          10500119
+        ],
+        "nodes": 16,
+        "strictSha256": "4624f781b6fc19ac1b712277cc6cc6209a242699d3095cfeaff924f1726ef9de",
+        "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 14196,
+        "type": "VariableDeclaration",
+        "range": [
+          10493597,
+          10493629
+        ],
+        "nodes": 16,
+        "strictSha256": "daca6606112999df4b4d90df61615b07efeda18d0ab6c6e0580e1d79a146f988",
+        "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 17,
+        "forward": {
+          "V8": "V8",
+          "JK": "MK",
+          "W5": "f5",
+          "E": "y"
+        },
+        "reverse": {
+          "V8": "V8",
+          "MK": "JK",
+          "f5": "W5",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 20,
+      "targetName": "W5",
+      "currentName": "f5",
+      "target": {
+        "index": 2401,
+        "type": "VariableDeclaration",
+        "range": [
+          962858,
+          964237
+        ],
+        "nodes": 445,
+        "strictSha256": "daf2b07e6822f60d97371054b7005062b013e6a01368d6e864a931482330a11b",
+        "shapeSha256": "27619406567a36693d07ce43e943b2466a1df40f79e226b8d7d288e30e0e6ce3",
+        "identifierNamesErased": 135,
+        "protectedIdentifierOccurrences": 33
+      },
+      "current": {
+        "index": 2405,
+        "type": "VariableDeclaration",
+        "range": [
+          963270,
+          964649
+        ],
+        "nodes": 445,
+        "strictSha256": "734324c1e0c50079ddc7adb4126e06061bcc7c25be8afb8c30140f23ff099df4",
+        "shapeSha256": "27619406567a36693d07ce43e943b2466a1df40f79e226b8d7d288e30e0e6ce3",
+        "identifierNamesErased": 135,
+        "protectedIdentifierOccurrences": 33
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 446,
+        "forward": {
+          "qK": "_K",
+          "D51": "j51",
+          "g7": "p7",
+          "K8": "K8",
+          "$$": "$$",
+          "JK": "MK",
+          "s7": "s7",
+          "nl": "cl",
+          "R8": "L8",
+          "eB": "qg",
+          "EV": "DV",
+          "lS7": "cS7",
+          "Symbol": "Symbol",
+          "FS7": "gS7",
+          "Date": "Date",
+          "o8": "o8",
+          "jA8": "zO8",
+          "gS7": "pS7",
+          "FR": "Bh",
+          "pS7": "mS7",
+          "N51": "f51",
+          "RP": "EP",
+          "BY": "gY",
+          "xC5": "yC5",
+          "US7": "FS7",
+          "V51": "D51",
+          "mS7": "uS7",
+          "bC5": "NC5",
+          "WH": "ZH",
+          "IC5": "EC5",
+          "y7": "L7",
+          "P66": "M66",
+          "A1": "$1",
+          "JJ": "MJ",
+          "f8": "Z8",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "j51": "D51",
+          "p7": "g7",
+          "K8": "K8",
+          "$$": "$$",
+          "MK": "JK",
+          "s7": "s7",
+          "cl": "nl",
+          "L8": "R8",
+          "qg": "eB",
+          "DV": "EV",
+          "cS7": "lS7",
+          "Symbol": "Symbol",
+          "gS7": "FS7",
+          "Date": "Date",
+          "o8": "o8",
+          "zO8": "jA8",
+          "pS7": "gS7",
+          "Bh": "FR",
+          "mS7": "pS7",
+          "f51": "N51",
+          "EP": "RP",
+          "gY": "BY",
+          "yC5": "xC5",
+          "FS7": "US7",
+          "D51": "V51",
+          "uS7": "mS7",
+          "NC5": "bC5",
+          "ZH": "WH",
+          "EC5": "IC5",
+          "L7": "y7",
+          "M66": "P66",
+          "$1": "A1",
+          "MJ": "JJ",
+          "Z8": "f8",
+          "y": "E"
+        },
+        "scopeCount": 19
+      }
+    },
+    {
+      "slot": 21,
+      "targetName": "YO",
+      "currentName": "zA",
+      "target": {
+        "index": 8919,
+        "type": "VariableDeclaration",
+        "range": [
+          7001697,
+          7002988
+        ],
+        "nodes": 347,
+        "strictSha256": "2b23d8223602060e6a01741004ecb830139101bae50a0678c6189e2265db9773",
+        "shapeSha256": "8aeef29a6d20036129b7d898c4c6bccb4a6738e4d8f0263a2d210e3d52bf9a41",
+        "identifierNamesErased": 74,
+        "protectedIdentifierOccurrences": 41
+      },
+      "current": {
+        "index": 8928,
+        "type": "VariableDeclaration",
+        "range": [
+          7001339,
+          7002630
+        ],
+        "nodes": 347,
+        "strictSha256": "aa0910c49a305184e91fb379db528e6acea17ba77fe1828ee74a613ff47f0891",
+        "shapeSha256": "8aeef29a6d20036129b7d898c4c6bccb4a6738e4d8f0263a2d210e3d52bf9a41",
+        "identifierNamesErased": 74,
+        "protectedIdentifierOccurrences": 41
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 348,
+        "forward": {
+          "b3": "I3",
+          "qK": "_K",
+          "np6": "gB6",
+          "T8": "v8",
+          "NN": "XN",
+          "HC": "HC",
+          "H76": "H76",
+          "XM": "WM",
+          "Dv6": "WT6",
+          "ri": "li",
+          "V8": "V8",
+          "a9": "a9",
+          "K8": "K8",
+          "$$": "$$",
+          "g8": "p8",
+          "_K": "YK",
+          "tx": "ax",
+          "Gu4": "Nu4",
+          "aU1": "dU1",
+          "L96": "k96",
+          "clearInterval": "clearInterval",
+          "o8": "o8",
+          "xK": "uK",
+          "process": "process",
+          "setInterval": "setInterval",
+          "M66": "H66",
+          "d": "d",
+          "Error": "Error",
+          "String": "String",
+          "A1": "$1",
+          "vu4": "yu4",
+          "E": "y"
+        },
+        "reverse": {
+          "I3": "b3",
+          "_K": "qK",
+          "gB6": "np6",
+          "v8": "T8",
+          "XN": "NN",
+          "HC": "HC",
+          "H76": "H76",
+          "WM": "XM",
+          "WT6": "Dv6",
+          "li": "ri",
+          "V8": "V8",
+          "a9": "a9",
+          "K8": "K8",
+          "$$": "$$",
+          "p8": "g8",
+          "YK": "_K",
+          "ax": "tx",
+          "Nu4": "Gu4",
+          "dU1": "aU1",
+          "k96": "L96",
+          "clearInterval": "clearInterval",
+          "o8": "o8",
+          "uK": "xK",
+          "process": "process",
+          "setInterval": "setInterval",
+          "H66": "M66",
+          "d": "d",
+          "Error": "Error",
+          "String": "String",
+          "$1": "A1",
+          "yu4": "vu4",
+          "y": "E"
+        },
+        "scopeCount": 14
+      }
+    },
+    {
+      "slot": 22,
+      "targetName": "bA",
+      "currentName": "RO",
+      "target": {
+        "index": 2448,
+        "type": "VariableDeclaration",
+        "range": [
+          984357,
+          984654
+        ],
+        "nodes": 113,
+        "strictSha256": "0ee9a87e925f8836cdab12fe294db866cf904067adbe2daaf9a160fac31feb36",
+        "shapeSha256": "12ecc69e2e7876a12709d2c528fe25963632c4c73101bcef8d58eea7b900bf35",
+        "identifierNamesErased": 34,
+        "protectedIdentifierOccurrences": 9
+      },
+      "current": {
+        "index": 2452,
+        "type": "VariableDeclaration",
+        "range": [
+          984769,
+          985066
+        ],
+        "nodes": 113,
+        "strictSha256": "1d5397ceb6881fd2ebfadbd12991d6a655a27bd88c0d1cdb55166ecbd3ff3ae8",
+        "shapeSha256": "12ecc69e2e7876a12709d2c528fe25963632c4c73101bcef8d58eea7b900bf35",
+        "identifierNamesErased": 34,
+        "protectedIdentifierOccurrences": 9
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 114,
+        "forward": {
+          "wC7": "OC7",
+          "R8": "L8",
+          "eB": "qg",
+          "i8": "i8",
+          "jC7": "wC7",
+          "HC7": "jC7",
+          "RP": "EP",
+          "m5": "u5",
+          "Ob5": "tC5",
+          "Object": "Object",
+          "MC7": "JC7",
+          "Bun": "Bun",
+          "E": "y"
+        },
+        "reverse": {
+          "OC7": "wC7",
+          "L8": "R8",
+          "qg": "eB",
+          "i8": "i8",
+          "wC7": "jC7",
+          "jC7": "HC7",
+          "EP": "RP",
+          "u5": "m5",
+          "tC5": "Ob5",
+          "Object": "Object",
+          "JC7": "MC7",
+          "Bun": "Bun",
+          "y": "E"
+        },
+        "scopeCount": 6
+      }
+    },
+    {
+      "slot": 23,
+      "targetName": "R8",
+      "currentName": "L8",
+      "target": {
+        "index": 2039,
+        "type": "VariableDeclaration",
+        "range": [
+          870414,
+          870544
+        ],
+        "nodes": 54,
+        "strictSha256": "236f371dd6d39a6e118714060c48d09e1dc19fa24334ebc7cafcfc49df0b9c87",
+        "shapeSha256": "25919a64a79a86b2330a4e2df8ebb08a79ac8de1908be378d8f89eed5d7a070b",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 2039,
+        "type": "VariableDeclaration",
+        "range": [
+          870107,
+          870237
+        ],
+        "nodes": 54,
+        "strictSha256": "5d813727972552ee9300e4d7663d45ae5acd050f797e756e9fa1bd85c0560ca2",
+        "shapeSha256": "25919a64a79a86b2330a4e2df8ebb08a79ac8de1908be378d8f89eed5d7a070b",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 55,
+        "forward": {
+          "qK": "_K",
+          "T8": "v8",
+          "pY": "pY",
+          "DO8": "jA8",
+          "sW6": "sW6",
+          "g8": "p8",
+          "y8": "y8",
+          "i8": "i8",
+          "ZO8": "JA8",
+          "tW6": "tW6",
+          "Zb$": "Wb$",
+          "process": "process",
+          "A1": "$1",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "v8": "T8",
+          "pY": "pY",
+          "jA8": "DO8",
+          "sW6": "sW6",
+          "p8": "g8",
+          "y8": "y8",
+          "i8": "i8",
+          "JA8": "ZO8",
+          "tW6": "tW6",
+          "Wb$": "Zb$",
+          "process": "process",
+          "$1": "A1",
+          "y": "E"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "slot": 24,
+      "targetName": "o1",
+      "currentName": "l1",
+      "target": {
+        "index": 12780,
+        "type": "VariableDeclaration",
+        "range": [
+          9766723,
+          9767403
+        ],
+        "nodes": 206,
+        "strictSha256": "dd88d7f9723c5accdbcdeed802954956feb444d887e6a3cbfe034e947f5dfb51",
+        "shapeSha256": "4dce6b8a7d1d0b7e5fb801c223b27b3c6bd9dfdf8bd3c71ca0f30718c7f5cd79",
+        "identifierNamesErased": 67,
+        "protectedIdentifierOccurrences": 11
+      },
+      "current": {
+        "index": 12782,
+        "type": "VariableDeclaration",
+        "range": [
+          9760637,
+          9761317
+        ],
+        "nodes": 206,
+        "strictSha256": "5f8f609f03dc8508d1f52e5ec620130b31baceba9cbe64a1edfec87991a9f7b7",
+        "shapeSha256": "4dce6b8a7d1d0b7e5fb801c223b27b3c6bd9dfdf8bd3c71ca0f30718c7f5cd79",
+        "identifierNamesErased": 67,
+        "protectedIdentifierOccurrences": 11
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 207,
+        "forward": {
+          "Qv": "mT",
+          "gn6": "Cn6",
+          "V8": "V8",
+          "QA": "Aw",
+          "SR1": "Lh1",
+          "zQ": "_Q",
+          "Tw": "G2",
+          "s1": "t1",
+          "qb": "qb",
+          "C46": "R46",
+          "qO": "qA",
+          "eX": "AW",
+          "I7": "u7",
+          "P56": "H56",
+          "i8": "i8",
+          "dr6": "ur6",
+          "sI1": "iI1",
+          "KN8": "aV8",
+          "gY": "A$",
+          "YQ": "zQ",
+          "O0": "KZ",
+          "C18": "N18",
+          "$56": "q56",
+          "H$": "lY",
+          "Ks": "_s",
+          "CX": "XM",
+          "T8": "v8",
+          "pY": "pY",
+          "dj6": "gj6",
+          "aq": "Qq",
+          "Cp": "hB",
+          "lH6": "dH6",
+          "V1": "v1",
+          "K8": "K8",
+          "sW6": "sW6",
+          "Ru": "Lu",
+          "SN8": "NN8",
+          "bA": "RO",
+          "R8": "L8",
+          "Ff": "If",
+          "nj": "rj",
+          "tC": "tC",
+          "Nq6": "kq6",
+          "rq6": "nq6",
+          "IZ": "h0",
+          "lj6": "Uj6",
+          "nj6": "Qj6",
+          "Ij6": "Sj6",
+          "Set": "Set",
+          "Ba": "pa",
+          "Map": "Map",
+          "AF8": "_F8",
+          "Object": "Object",
+          "mAY": "gOY",
+          "E": "y"
+        },
+        "reverse": {
+          "mT": "Qv",
+          "Cn6": "gn6",
+          "V8": "V8",
+          "Aw": "QA",
+          "Lh1": "SR1",
+          "_Q": "zQ",
+          "G2": "Tw",
+          "t1": "s1",
+          "qb": "qb",
+          "R46": "C46",
+          "qA": "qO",
+          "AW": "eX",
+          "u7": "I7",
+          "H56": "P56",
+          "i8": "i8",
+          "ur6": "dr6",
+          "iI1": "sI1",
+          "aV8": "KN8",
+          "A$": "gY",
+          "zQ": "YQ",
+          "KZ": "O0",
+          "N18": "C18",
+          "q56": "$56",
+          "lY": "H$",
+          "_s": "Ks",
+          "XM": "CX",
+          "v8": "T8",
+          "pY": "pY",
+          "gj6": "dj6",
+          "Qq": "aq",
+          "hB": "Cp",
+          "dH6": "lH6",
+          "v1": "V1",
+          "K8": "K8",
+          "sW6": "sW6",
+          "Lu": "Ru",
+          "NN8": "SN8",
+          "RO": "bA",
+          "L8": "R8",
+          "If": "Ff",
+          "rj": "nj",
+          "tC": "tC",
+          "kq6": "Nq6",
+          "nq6": "rq6",
+          "h0": "IZ",
+          "Uj6": "lj6",
+          "Qj6": "nj6",
+          "Sj6": "Ij6",
+          "Set": "Set",
+          "pa": "Ba",
+          "Map": "Map",
+          "_F8": "AF8",
+          "Object": "Object",
+          "gOY": "mAY",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 25,
+      "targetName": "Az",
+      "currentName": "Vz",
+      "target": {
+        "index": 2184,
+        "type": "VariableDeclaration",
+        "range": [
+          905194,
+          905236
+        ],
+        "nodes": 22,
+        "strictSha256": "f68d53ea1a406f3e72910d3ad7bfbcb6773182c1915af06c4bd0b88a48e0730b",
+        "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 2187,
+        "type": "VariableDeclaration",
+        "range": [
+          905544,
+          905586
+        ],
+        "nodes": 22,
+        "strictSha256": "5d9ebab4cb854daa40e279bb9523404e154982a821427b762d58b01c95d89cd1",
+        "shapeSha256": "e6bdebc743e0c69329e1540ad1af899b1cef76e22cd3f4573508401e3f826f99",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 23,
+        "forward": {
+          "g7": "p7",
+          "s7": "s7",
+          "kK": "VK",
+          "qg": "Kg",
+          "j66": "O66",
+          "E": "y"
+        },
+        "reverse": {
+          "p7": "g7",
+          "s7": "s7",
+          "VK": "kK",
+          "Kg": "qg",
+          "O66": "j66",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 26,
+      "targetName": "j66",
+      "currentName": "O66",
+      "target": {
+        "index": 2176,
+        "type": "VariableDeclaration",
+        "range": [
+          903893,
+          904100
+        ],
+        "nodes": 41,
+        "strictSha256": "4911d7f27ffcaec12d4a87bcd8abc882f46585a1bc1cf48603cdcaeb8d47b46c",
+        "shapeSha256": "9ab621374ef8bc46d4d49165eb74352025e67fc95254d110b54ec5fbf9a226b0",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 3
+      },
+      "current": {
+        "index": 2179,
+        "type": "VariableDeclaration",
+        "range": [
+          904254,
+          904461
+        ],
+        "nodes": 41,
+        "strictSha256": "e02e1137bd90ebe6bfb90f65659687db83987ccf6f441897b7a8109a034a7727",
+        "shapeSha256": "9ab621374ef8bc46d4d49165eb74352025e67fc95254d110b54ec5fbf9a226b0",
+        "identifierNamesErased": 12,
+        "protectedIdentifierOccurrences": 3
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 42,
+        "forward": {
+          "g8": "p8",
+          "bO8": "LA8",
+          "Bh5": "SR5",
+          "IO8": "hA8",
+          "Buffer": "Buffer",
+          "dh5": "uR5",
+          "ch5": "mR5",
+          "Qp6": "uB6",
+          "E": "y"
+        },
+        "reverse": {
+          "p8": "g8",
+          "LA8": "bO8",
+          "SR5": "Bh5",
+          "hA8": "IO8",
+          "Buffer": "Buffer",
+          "uR5": "dh5",
+          "mR5": "ch5",
+          "uB6": "Qp6",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "slot": 27,
+      "targetName": "i8",
+      "currentName": "i8",
+      "target": {
+        "index": 856,
+        "type": "VariableDeclaration",
+        "range": [
+          135215,
+          135424
+        ],
+        "nodes": 70,
+        "strictSha256": "6f34a08b8dda8ef5580905ba6f3a1cf2a3f48ad4d725f1b6567398770c4aed6d",
+        "shapeSha256": "967c8032527b8f5276f43a4f5973c632f8104ebda985a0b7901ac736b5112b99",
+        "identifierNamesErased": 19,
+        "protectedIdentifierOccurrences": 4
+      },
+      "current": {
+        "index": 856,
+        "type": "VariableDeclaration",
+        "range": [
+          134910,
+          135119
+        ],
+        "nodes": 70,
+        "strictSha256": "48d2095fd04769c37fa26202d30fd82067faaa270229e602876786b36152082e",
+        "shapeSha256": "967c8032527b8f5276f43a4f5973c632f8104ebda985a0b7901ac736b5112b99",
+        "identifierNamesErased": 19,
+        "protectedIdentifierOccurrences": 4
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 71,
+        "forward": {
+          "T8": "v8",
+          "K8": "K8",
+          "oY$": "nY$",
+          "process": "process",
+          "Number": "Number",
+          "zw5": "oO5",
+          "Symbol": "Symbol",
+          "qA": "tA",
+          "Yw5": "aO5",
+          "E": "y"
+        },
+        "reverse": {
+          "v8": "T8",
+          "K8": "K8",
+          "nY$": "oY$",
+          "process": "process",
+          "Number": "Number",
+          "oO5": "zw5",
+          "Symbol": "Symbol",
+          "tA": "qA",
+          "aO5": "Yw5",
+          "y": "E"
+        },
+        "scopeCount": 6
+      }
+    },
+    {
+      "slot": 28,
+      "targetName": "xm",
+      "currentName": "Sm",
+      "target": {
+        "index": 8754,
+        "type": "VariableDeclaration",
+        "range": [
+          6922506,
+          6922592
+        ],
+        "nodes": 11,
+        "strictSha256": "dfbc4bc3f4670dae8a2831fb9dcbf4710a6f2a2137daba982a605579435323c3",
+        "shapeSha256": "f06018b7c439a10d0116eaaad7608ffa7f6682ea2e896f48c55a9a14ea642c01",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 8763,
+        "type": "VariableDeclaration",
+        "range": [
+          6924040,
+          6924126
+        ],
+        "nodes": 11,
+        "strictSha256": "302d1c006148a8a8554daf257fcafde56df71f498a3f9cca7cd89a9b8c0c91e2",
+        "shapeSha256": "f06018b7c439a10d0116eaaad7608ffa7f6682ea2e896f48c55a9a14ea642c01",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 12,
+        "forward": {
+          "DPz": "vPz",
+          "E": "y"
+        },
+        "reverse": {
+          "vPz": "DPz",
+          "y": "E"
+        },
+        "scopeCount": 3
+      }
+    }
+  ],
+  "titleSignalCacheAndSubscriber": {
+    "targetCache": {
+      "index": 15621,
+      "type": "FunctionDeclaration",
+      "range": [
+        11377528,
+        11377582
+      ],
+      "nodes": 16,
+      "strictSha256": "df6db6ae1302622cb23401cadd4eefa07e62c62bd9461d16a9b0c4f78b85c9df",
+      "shapeSha256": "6694b2aa4ede78f9d0fbcc646d91a0ba051cd56b62678433a25a6331843d5841",
+      "identifierNamesErased": 5,
+      "protectedIdentifierOccurrences": 2
+    },
+    "currentCache": {
+      "index": 15617,
+      "type": "FunctionDeclaration",
+      "range": [
+        11362906,
+        11362960
+      ],
+      "nodes": 16,
+      "strictSha256": "02124d717d196cc61d50388a8e2c010baad2481a018d86f87d146b85af10edfc",
+      "shapeSha256": "6694b2aa4ede78f9d0fbcc646d91a0ba051cd56b62678433a25a6331843d5841",
+      "identifierNamesErased": 5,
+      "protectedIdentifierOccurrences": 2
+    },
+    "targetFactory": {
+      "index": 356,
+      "type": "FunctionDeclaration",
+      "range": [
+        23418,
+        23556
+      ],
+      "nodes": 55,
+      "strictSha256": "9aa1fb708b07720b4231e2f0e340dd511089457a36adca874916db83d5116a91",
+      "shapeSha256": "3be1836cbb5377244972a00a8ce9a61d2df5fac3a1d74604b01c677a957f3b9f",
+      "identifierNamesErased": 14,
+      "protectedIdentifierOccurrences": 6
+    },
+    "currentFactory": {
+      "index": 356,
+      "type": "FunctionDeclaration",
+      "range": [
+        23112,
+        23250
+      ],
+      "nodes": 55,
+      "strictSha256": "e958c94ee5da9841f9ec221b26d15ec6cd6caef8c8f937c3515daea259de9cce",
+      "shapeSha256": "3be1836cbb5377244972a00a8ce9a61d2df5fac3a1d74604b01c677a957f3b9f",
+      "identifierNamesErased": 14,
+      "protectedIdentifierOccurrences": 6
+    },
+    "targetSignal": "kUK",
+    "currentSignal": "DUK",
+    "targetSubscriber": "bz7",
+    "currentSubscriber": "Ez7",
+    "joint": {
+      "nodes": 262,
+      "forward": {
+        "Set": "Set",
+        "qK": "_K",
+        "V8": "V8",
+        "T8": "v8",
+        "mO": "IA",
+        "pY": "pY",
+        "s1": "t1",
+        "dI8": "BI8",
+        "XD": "OC",
+        "pZ": "b0",
+        "a9": "a9",
+        "TN": "AC",
+        "g7": "p7",
+        "K8": "K8",
+        "$$": "$$",
+        "g8": "p8",
+        "y8": "y8",
+        "I7": "u7",
+        "s7": "s7",
+        "tq8": "iq8",
+        "W5": "f5",
+        "YO": "zA",
+        "bA": "RO",
+        "R8": "L8",
+        "o1": "l1",
+        "Az": "Vz",
+        "j66": "O66",
+        "i8": "i8",
+        "xm": "Sm",
+        "MbY": "HbY",
+        "DUK": "HUK",
+        "WbY": "XbY",
+        "Tz7": "Wz7",
+        "Map": "Map",
+        "aj": "tj",
+        "KB": "Kp",
+        "MX": "jX",
+        "C0": "RZ",
+        "A1": "$1",
+        "kUK": "DUK",
+        "bz7": "Ez7",
+        "EC6": "GC6",
+        "VUK": "fUK",
+        "E": "y",
+        "$Y": "yY"
+      },
+      "reverse": {
+        "Set": "Set",
+        "_K": "qK",
+        "V8": "V8",
+        "v8": "T8",
+        "IA": "mO",
+        "pY": "pY",
+        "t1": "s1",
+        "BI8": "dI8",
+        "OC": "XD",
+        "b0": "pZ",
+        "a9": "a9",
+        "AC": "TN",
+        "p7": "g7",
+        "K8": "K8",
+        "$$": "$$",
+        "p8": "g8",
+        "y8": "y8",
+        "u7": "I7",
+        "s7": "s7",
+        "iq8": "tq8",
+        "f5": "W5",
+        "zA": "YO",
+        "RO": "bA",
+        "L8": "R8",
+        "l1": "o1",
+        "Vz": "Az",
+        "O66": "j66",
+        "i8": "i8",
+        "Sm": "xm",
+        "HbY": "MbY",
+        "HUK": "DUK",
+        "XbY": "WbY",
+        "Wz7": "Tz7",
+        "Map": "Map",
+        "tj": "aj",
+        "Kp": "KB",
+        "jX": "MX",
+        "RZ": "C0",
+        "$1": "A1",
+        "DUK": "kUK",
+        "Ez7": "bz7",
+        "GC6": "EC6",
+        "fUK": "VUK",
+        "y": "E",
+        "yY": "$Y"
+      },
+      "scopeCount": 13
+    }
+  },
+  "preservedFunctions": [
+    {
+      "export": "cacheSessionTitle",
+      "prior": {
+        "index": 15617,
+        "type": "FunctionDeclaration",
+        "range": [
+          11362906,
+          11362960
+        ],
+        "nodes": 16,
+        "strictSha256": "2c926a577910238db3f3537c603b21d7fd657ff01c0cdf8b93dd49c16c6d37e0",
+        "shapeSha256": "6694b2aa4ede78f9d0fbcc646d91a0ba051cd56b62678433a25a6331843d5841",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 15617,
+        "type": "FunctionDeclaration",
+        "range": [
+          11362906,
+          11362960
+        ],
+        "nodes": 16,
+        "strictSha256": "02124d717d196cc61d50388a8e2c010baad2481a018d86f87d146b85af10edfc",
+        "shapeSha256": "6694b2aa4ede78f9d0fbcc646d91a0ba051cd56b62678433a25a6331843d5841",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 2
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 17,
+        "forward": {
+          "yY": "yY",
+          "MUK": "DUK"
+        },
+        "reverse": {
+          "yY": "yY",
+          "DUK": "MUK"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "export": "getCurrentSessionTitle",
+      "prior": {
+        "index": 15609,
+        "type": "FunctionDeclaration",
+        "range": [
+          11361386,
+          11361452
+        ],
+        "nodes": 15,
+        "strictSha256": "8285f1074a9adcd589e94c1ce17f41e09605accc396b447840e8efb8ae205fcb",
+        "shapeSha256": "d2c80f64495d33abb502f7c4abdf400111c115a21a1c47b575cd64dc3c7b38e5",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 15609,
+        "type": "FunctionDeclaration",
+        "range": [
+          11361386,
+          11361452
+        ],
+        "nodes": 15,
+        "strictSha256": "8285f1074a9adcd589e94c1ce17f41e09605accc396b447840e8efb8ae205fcb",
+        "shapeSha256": "d2c80f64495d33abb502f7c4abdf400111c115a21a1c47b575cd64dc3c7b38e5",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 1
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 16,
+        "forward": {
+          "yY": "yY",
+          "N8": "N8"
+        },
+        "reverse": {
+          "yY": "yY",
+          "N8": "N8"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "export": "clearInternalEventWriter",
+      "prior": {
+        "index": 15565,
+        "type": "FunctionDeclaration",
+        "range": [
+          11340039,
+          11340086
+        ],
+        "nodes": 9,
+        "strictSha256": "c5ea968b3cb3d69f6d673ee0d3fe709bbc72f835bd051f933a3905dab6475c42",
+        "shapeSha256": "43606ed6d99ba79ffe9cb04b4f9b6ce95fcbe06aca4c2d8c48e446cc69315afd",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 15565,
+        "type": "FunctionDeclaration",
+        "range": [
+          11340039,
+          11340086
+        ],
+        "nodes": 9,
+        "strictSha256": "3c69fcfa5d0111b44769705159f441db8d17dd87f3b1e0dca0b5a0168fa893be",
+        "shapeSha256": "43606ed6d99ba79ffe9cb04b4f9b6ce95fcbe06aca4c2d8c48e446cc69315afd",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 10,
+        "forward": {
+          "yY": "yY"
+        },
+        "reverse": {
+          "yY": "yY"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "export": "setInternalEventWriter",
+      "prior": {
+        "index": 15564,
+        "type": "FunctionDeclaration",
+        "range": [
+          11339992,
+          11340039
+        ],
+        "nodes": 11,
+        "strictSha256": "1b8d5c01fd930c472d2c81c8106a8228f88aba54e2e51a1f0a533695f345e0d3",
+        "shapeSha256": "dc1806a20730e3d66331b0b6e7e442b0e80fc5d582f9b935a7ba80b3e3b0898d",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 15564,
+        "type": "FunctionDeclaration",
+        "range": [
+          11339992,
+          11340039
+        ],
+        "nodes": 11,
+        "strictSha256": "fa68df2ddaf2460f66fd8d2858ad00886d0db1dff5e91ccb04c5c9f0d4ca16d3",
+        "shapeSha256": "dc1806a20730e3d66331b0b6e7e442b0e80fc5d582f9b935a7ba80b3e3b0898d",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 1
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 12,
+        "forward": {
+          "yY": "yY"
+        },
+        "reverse": {
+          "yY": "yY"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "export": "isLoggableMessage",
+      "prior": {
+        "index": 15645,
+        "type": "FunctionDeclaration",
+        "range": [
+          11375743,
+          11376202
+        ],
+        "nodes": 96,
+        "strictSha256": "1c6b38efd8ea7c0a95deff52c7bfc91eb6d02c0d0c6afa6923a175d6923c7ce3",
+        "shapeSha256": "65aa5b18a46ff15179cd4bdedf284d608c0ad5fc916377349eb281871c536ce7",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 16
+      },
+      "current": {
+        "index": 15645,
+        "type": "FunctionDeclaration",
+        "range": [
+          11375361,
+          11375820
+        ],
+        "nodes": 96,
+        "strictSha256": "c232329cfeb31277c19a9e75318840256d8f53f6050951f36dc07d9a5af92eae",
+        "shapeSha256": "65aa5b18a46ff15179cd4bdedf284d608c0ad5fc916377349eb281871c536ce7",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 16
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 97,
+        "forward": {
+          "process": "process",
+          "c6": "l6",
+          "ld8": "cd8"
+        },
+        "reverse": {
+          "process": "process",
+          "l6": "c6",
+          "cd8": "ld8"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "export": "isChainParticipant",
+      "prior": {
+        "index": 15536,
+        "type": "FunctionDeclaration",
+        "range": [
+          11337810,
+          11337853
+        ],
+        "nodes": 10,
+        "strictSha256": "72ca28385c868f38b15d547aa8e10b3fa269a77c559e271220535c80d2c6c473",
+        "shapeSha256": "f87dd7f972b6c66c83582af1570a07ad5cf4daf0babbaba24c8c5deb6be6ff69",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 15536,
+        "type": "FunctionDeclaration",
+        "range": [
+          11337810,
+          11337853
+        ],
+        "nodes": 10,
+        "strictSha256": "72ca28385c868f38b15d547aa8e10b3fa269a77c559e271220535c80d2c6c473",
+        "shapeSha256": "f87dd7f972b6c66c83582af1570a07ad5cf4daf0babbaba24c8c5deb6be6ff69",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 1
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 11,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 3
+      }
+    },
+    {
+      "export": "loadFullLog",
+      "prior": {
+        "index": 15622,
+        "type": "FunctionDeclaration",
+        "range": [
+          11363569,
+          11364973
+        ],
+        "nodes": 416,
+        "strictSha256": "72048a10f06f90992e1f0216a9a50755f362a6fa471816da481d1f89f5037382",
+        "shapeSha256": "d50bf672a0e2c99a2bbf46e9a4bbd6e768218ccab476ac61b9be7faa0a97113f",
+        "identifierNamesErased": 130,
+        "protectedIdentifierOccurrences": 89
+      },
+      "current": {
+        "index": 15622,
+        "type": "FunctionDeclaration",
+        "range": [
+          11363569,
+          11364973
+        ],
+        "nodes": 416,
+        "strictSha256": "89122bee9e664cc5ffa6f72ab245ed214e054d70e44f478bb3923addf4435ced",
+        "shapeSha256": "d50bf672a0e2c99a2bbf46e9a4bbd6e768218ccab476ac61b9be7faa0a97113f",
+        "identifierNamesErased": 130,
+        "protectedIdentifierOccurrences": 89
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 417,
+        "forward": {
+          "ZR": "ZR",
+          "Fa": "Fa",
+          "nd8": "ld8",
+          "UK6": "UK6",
+          "CL6": "CL6",
+          "vz7": "kz7",
+          "kz7": "Vz7",
+          "id8": "nd8",
+          "rd8": "id8"
+        },
+        "reverse": {
+          "ZR": "ZR",
+          "Fa": "Fa",
+          "ld8": "nd8",
+          "UK6": "UK6",
+          "CL6": "CL6",
+          "kz7": "vz7",
+          "Vz7": "kz7",
+          "nd8": "id8",
+          "id8": "rd8"
+        },
+        "scopeCount": 8
+      }
+    },
+    {
+      "export": "loadAllLogsFromSessionFile",
+      "prior": {
+        "index": 15653,
+        "type": "FunctionDeclaration",
+        "range": [
+          11378781,
+          11379989
+        ],
+        "nodes": 384,
+        "strictSha256": "b53e85a16d421451341f3f496ef81468edda20629789a6e58344a17b15c13a72",
+        "shapeSha256": "d2244aba58342b13ddebcf32f389970605559df21886d5b1787f0a3c8ea71389",
+        "identifierNamesErased": 113,
+        "protectedIdentifierOccurrences": 83
+      },
+      "current": {
+        "index": 15653,
+        "type": "FunctionDeclaration",
+        "range": [
+          11378399,
+          11379607
+        ],
+        "nodes": 384,
+        "strictSha256": "809cf15aad89d8e3d460714b367e9d525b381bfab818b4099f3cd47c1be94215",
+        "shapeSha256": "d2244aba58342b13ddebcf32f389970605559df21886d5b1787f0a3c8ea71389",
+        "identifierNamesErased": 113,
+        "protectedIdentifierOccurrences": 83
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 385,
+        "forward": {
+          "Fa": "Fa",
+          "Map": "Map",
+          "UK6": "UK6",
+          "CL6": "CL6",
+          "Date": "Date",
+          "vz7": "kz7",
+          "kz7": "Vz7",
+          "id8": "nd8",
+          "rd8": "id8"
+        },
+        "reverse": {
+          "Fa": "Fa",
+          "Map": "Map",
+          "UK6": "UK6",
+          "CL6": "CL6",
+          "Date": "Date",
+          "kz7": "vz7",
+          "Vz7": "kz7",
+          "nd8": "id8",
+          "id8": "rd8"
+        },
+        "scopeCount": 8
+      }
+    },
+    {
+      "export": "enrichLogs",
+      "prior": {
+        "index": 15661,
+        "type": "FunctionDeclaration",
+        "range": [
+          11384221,
+          11384529
+        ],
+        "nodes": 102,
+        "strictSha256": "9abf2af46056ded692dd80921bed22c46bf2e6b01cb367b129c5d94d8c8a26ce",
+        "shapeSha256": "57bc7d7f4e3f3a959d208a595cc1f8592e6f5951d2006c67db6b13915a10fc84",
+        "identifierNamesErased": 40,
+        "protectedIdentifierOccurrences": 9
+      },
+      "current": {
+        "index": 15661,
+        "type": "FunctionDeclaration",
+        "range": [
+          11383839,
+          11384147
+        ],
+        "nodes": 102,
+        "strictSha256": "958a4d94ac27defb6767ad5647a302159eb373b3c1567e795855e03d42e9adac",
+        "shapeSha256": "57bc7d7f4e3f3a959d208a595cc1f8592e6f5951d2006c67db6b13915a10fc84",
+        "identifierNamesErased": 40,
+        "protectedIdentifierOccurrences": 9
+      },
+      "unchangedPriorActual": {
+        "pass": true,
+        "nodes": 103,
+        "forward": {
+          "$66": "$66",
+          "Buffer": "Buffer",
+          "nbY": "dbY",
+          "N": "N"
+        },
+        "reverse": {
+          "$66": "$66",
+          "Buffer": "Buffer",
+          "dbY": "nbY",
+          "N": "N"
+        },
+        "scopeCount": 4
+      }
+    }
+  ],
+  "preservedFunctionsJointGraph": {
+    "pass": true,
+    "nodes": 1060,
+    "forward": {
+      "yY": "yY",
+      "MUK": "DUK",
+      "N8": "N8",
+      "process": "process",
+      "c6": "l6",
+      "ld8": "cd8",
+      "ZR": "ZR",
+      "Fa": "Fa",
+      "nd8": "ld8",
+      "UK6": "UK6",
+      "CL6": "CL6",
+      "vz7": "kz7",
+      "kz7": "Vz7",
+      "id8": "nd8",
+      "rd8": "id8",
+      "Map": "Map",
+      "Date": "Date",
+      "$66": "$66",
+      "Buffer": "Buffer",
+      "nbY": "dbY",
+      "N": "N"
+    },
+    "reverse": {
+      "yY": "yY",
+      "DUK": "MUK",
+      "N8": "N8",
+      "process": "process",
+      "l6": "c6",
+      "cd8": "ld8",
+      "ZR": "ZR",
+      "Fa": "Fa",
+      "ld8": "nd8",
+      "UK6": "UK6",
+      "CL6": "CL6",
+      "kz7": "vz7",
+      "Vz7": "kz7",
+      "nd8": "id8",
+      "id8": "rd8",
+      "Map": "Map",
+      "Date": "Date",
+      "$66": "$66",
+      "Buffer": "Buffer",
+      "dbY": "nbY",
+      "N": "N"
+    },
+    "scopeCount": 23
+  },
+  "resumePrivateHelpers": {
+    "kind": "preserved-actual-resume-private-helper-bodies",
+    "pairs": [
+      {
+        "role": "readLiteMetadata",
+        "target": {
+          "index": 15660,
+          "type": "FunctionDeclaration",
+          "range": [
+            11394760,
+            11395770
+          ],
+          "nodes": 295,
+          "strictSha256": "1e117be875e77822c01e19798d544d702f6e9d55a1d906718349135e8f377bd5",
+          "shapeSha256": "7da2d65590eaf38f0ea9228bedff45789b1083bc9929efd8bfa59205a62709ec",
+          "identifierNamesErased": 108,
+          "protectedIdentifierOccurrences": 25
+        },
+        "current": {
+          "index": 15655,
+          "type": "FunctionDeclaration",
+          "range": [
+            11379899,
+            11380909
+          ],
+          "nodes": 295,
+          "strictSha256": "8cf1cf8b8fdc28efa34800ba4a969ca6916fd155c67288e2ee470d81102c3816",
+          "shapeSha256": "7da2d65590eaf38f0ea9228bedff45789b1083bc9929efd8bfa59205a62709ec",
+          "identifierNamesErased": 108,
+          "protectedIdentifierOccurrences": 25
+        }
+      },
+      {
+        "role": "enrichLog",
+        "target": {
+          "index": 15665,
+          "type": "FunctionDeclaration",
+          "range": [
+            11397634,
+            11398700
+          ],
+          "nodes": 229,
+          "strictSha256": "11d9ae2cc435a8c0415c884456812c45bee70a64d3cba744935bb65f8417b795",
+          "shapeSha256": "9316a273c32ac3b7bff7e0aa1342affd5c07d0b0d15e9f54194f10ba715b602d",
+          "identifierNamesErased": 51,
+          "protectedIdentifierOccurrences": 50
+        },
+        "current": {
+          "index": 15660,
+          "type": "FunctionDeclaration",
+          "range": [
+            11382773,
+            11383839
+          ],
+          "nodes": 229,
+          "strictSha256": "1e4f1a026a8cb3d4189e45ad7ea9482643172b6bbbd3dd08093d6c1e10bc2d0a",
+          "shapeSha256": "9316a273c32ac3b7bff7e0aa1342affd5c07d0b0d15e9f54194f10ba715b602d",
+          "identifierNamesErased": 51,
+          "protectedIdentifierOccurrences": 50
+        }
+      }
+    ],
+    "joined": {
+      "nodes": 525,
+      "forward": {
+        "zh7": "_R7",
+        "w66": "A66",
+        "OT": "eT",
+        "dbY": "QbY",
+        "WUK": "jUK",
+        "parseInt": "parseInt",
+        "N": "N"
+      },
+      "reverse": {
+        "_R7": "zh7",
+        "A66": "w66",
+        "eT": "OT",
+        "QbY": "dbY",
+        "jUK": "WUK",
+        "parseInt": "parseInt",
+        "N": "N"
+      },
+      "scopeCount": 6
+    },
+    "priorSupplierProofReused": true,
+    "deeperProvidersConditional": true,
+    "applicationExecuted": false
+  },
+  "portableRetention": {
+    "kind": "preserved-portable-reader-and-attribution-actual-consumer",
+    "prior": {
+      "reader": {
+        "index": 2177,
+        "type": "FunctionDeclaration",
+        "range": [
+          903301,
+          904173
+        ],
+        "nodes": 269,
+        "strictSha256": "7beecad889984cdb5a8a0ed398aa9cb19c70a34e83dfd67a43d2a11bea8d7a77",
+        "shapeSha256": "20b40c687cdec99eb35845329f2e085004a9785bdce5a5dd239478409c5669e8",
+        "identifierNamesErased": 82,
+        "protectedIdentifierOccurrences": 45
+      },
+      "attributionConsumer": {
+        "index": 11942,
+        "type": "FunctionDeclaration",
+        "range": [
+          9303115,
+          9303430
+        ],
+        "nodes": 91,
+        "strictSha256": "91e0246c1afe2b2bd433dfbbedc1dd44294beea55e0e47a6fba2d3d64401dfa0",
+        "shapeSha256": "4c10d5bec5a84c7eda5045782e8460cbed59352a758949de0ee659e9950f8772",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 10
+      }
+    },
+    "current": {
+      "reader": {
+        "index": 2177,
+        "type": "FunctionDeclaration",
+        "range": [
+          903301,
+          904173
+        ],
+        "nodes": 269,
+        "strictSha256": "27c0af8c9a51a3a393480fc7f6a31314bad1095bb0df23651c52b4a18caa1129",
+        "shapeSha256": "20b40c687cdec99eb35845329f2e085004a9785bdce5a5dd239478409c5669e8",
+        "identifierNamesErased": 82,
+        "protectedIdentifierOccurrences": 45
+      },
+      "attributionConsumer": {
+        "index": 11942,
+        "type": "FunctionDeclaration",
+        "range": [
+          9303115,
+          9303430
+        ],
+        "nodes": 91,
+        "strictSha256": "bed321e7fa50f0e6e03be5a5c44e8ff50156075b827327aead0de72c8c8dbfec",
+        "shapeSha256": "4c10d5bec5a84c7eda5045782e8460cbed59352a758949de0ee659e9950f8772",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 10
+      }
+    },
+    "completePriorCurrentJointComparison": {
+      "nodes": 361,
+      "forward": {
+        "SR5": "IR5",
+        "RR5": "bR5",
+        "Math": "Math",
+        "Buffer": "Buffer",
+        "sL7": "tL7",
+        "IR5": "pR5",
+        "uR5": "gR5",
+        "mR5": "FR5",
+        "BR5": "UR5",
+        "pR5": "QR5",
+        "D$": "D$",
+        "J9Y": "W9Y",
+        "Ag": "ll",
+        "X9Y": "f9Y",
+        "D9Y": "T9Y"
+      },
+      "reverse": {
+        "IR5": "SR5",
+        "bR5": "RR5",
+        "Math": "Math",
+        "Buffer": "Buffer",
+        "tL7": "sL7",
+        "pR5": "IR5",
+        "gR5": "uR5",
+        "FR5": "mR5",
+        "UR5": "BR5",
+        "QR5": "pR5",
+        "D$": "D$",
+        "W9Y": "J9Y",
+        "ll": "Ag",
+        "f9Y": "X9Y",
+        "T9Y": "D9Y"
+      },
+      "scopeCount": 12
+    },
+    "otherOwnerSourcePinsReused": "historical-checkpoints/recovery-2.1.90-storage-reader-independent-review/preservation.json",
+    "newLoaderNoPortableReaderCapture": true,
+    "globalDynamicAbsenceClaim": false,
+    "applicationExecuted": false
+  },
+  "project": {
+    "current": {
+      "index": 15568,
+      "type": "ClassDeclaration",
+      "range": [
+        11340218,
+        11350034
+      ],
+      "nodes": 2351,
+      "strictSha256": "0cab7287c45a72550d402c53276b91ec96bf999fd651f8c315e2c1d91a48fbc7",
+      "shapeSha256": "ca289ba42e40e4c3b942becb0de87ac2c6d52f894055a8376234282376870c71",
+      "identifierNamesErased": 454,
+      "protectedIdentifierOccurrences": 363
+    },
+    "prior": {
+      "index": 15568,
+      "type": "ClassDeclaration",
+      "range": [
+        11340218,
+        11350034
+      ],
+      "nodes": 2351,
+      "strictSha256": "dc23646879492393f7a7569f0cdea8f370386631b5d82a8b3755919b50024efe",
+      "shapeSha256": "ca289ba42e40e4c3b942becb0de87ac2c6d52f894055a8376234282376870c71",
+      "identifierNamesErased": 454,
+      "protectedIdentifierOccurrences": 363
+    },
+    "priorPreserved": {
+      "nodes": 2396,
+      "forward": {
+        "rJ6": "rJ6",
+        "Uq": "Uq",
+        "zUK": "$UK",
+        "Map": "Map",
+        "clearTimeout": "clearTimeout",
+        "Promise": "Promise",
+        "setTimeout": "setTimeout",
+        "_UK": "YUK",
+        "h48": "S48",
+        "DC6": "fC6",
+        "p6": "p6",
+        "N8": "N8",
+        "SbY": "hbY",
+        "eT": "eT",
+        "LZ": "LZ",
+        "Date": "Date",
+        "AbY": "ObY",
+        "$66": "$66",
+        "Math": "Math",
+        "Buffer": "Buffer",
+        "p4": "p4",
+        "N": "N",
+        "HbY": "JbY",
+        "n8": "l8",
+        "TC6": "vC6",
+        "fC6": "ZC6",
+        "process": "process",
+        "c6": "l6",
+        "jUK": "XUK",
+        "KV": "KV",
+        "HX": "HX",
+        "E96": "E96",
+        "gJ": "gJ",
+        "gx6": "Fx6",
+        "WbY": "DbY",
+        "ld8": "cd8",
+        "PbY": "WbY",
+        "Z8": "Z8",
+        "jbY": "HbY",
+        "G36": "G36",
+        "Y48": "$48",
+        "Error": "Error",
+        "j6": "j6",
+        "ZC6": "GC6",
+        "cO": "cO",
+        "HW": "HW",
+        "Qa": "Qa",
+        "D$": "D$",
+        "Yf": "Yf",
+        "Mz7": "Xz7",
+        "_9": "_9",
+        "Dh8": "Dh8",
+        "d": "d",
+        "z5": "z5",
+        "$9K": "O9K",
+        "YUK": "AUK"
+      },
+      "reverse": {
+        "rJ6": "rJ6",
+        "Uq": "Uq",
+        "$UK": "zUK",
+        "Map": "Map",
+        "clearTimeout": "clearTimeout",
+        "Promise": "Promise",
+        "setTimeout": "setTimeout",
+        "YUK": "_UK",
+        "S48": "h48",
+        "fC6": "DC6",
+        "p6": "p6",
+        "N8": "N8",
+        "hbY": "SbY",
+        "eT": "eT",
+        "LZ": "LZ",
+        "Date": "Date",
+        "ObY": "AbY",
+        "$66": "$66",
+        "Math": "Math",
+        "Buffer": "Buffer",
+        "p4": "p4",
+        "N": "N",
+        "JbY": "HbY",
+        "l8": "n8",
+        "vC6": "TC6",
+        "ZC6": "fC6",
+        "process": "process",
+        "l6": "c6",
+        "XUK": "jUK",
+        "KV": "KV",
+        "HX": "HX",
+        "E96": "E96",
+        "gJ": "gJ",
+        "Fx6": "gx6",
+        "DbY": "WbY",
+        "cd8": "ld8",
+        "WbY": "PbY",
+        "Z8": "Z8",
+        "HbY": "jbY",
+        "G36": "G36",
+        "$48": "Y48",
+        "Error": "Error",
+        "j6": "j6",
+        "GC6": "ZC6",
+        "cO": "cO",
+        "HW": "HW",
+        "Qa": "Qa",
+        "D$": "D$",
+        "Yf": "Yf",
+        "Xz7": "Mz7",
+        "_9": "_9",
+        "Dh8": "Dh8",
+        "d": "d",
+        "z5": "z5",
+        "O9K": "$9K",
+        "AUK": "YUK"
+      },
+      "scopeCount": 122
+    },
+    "target": {
+      "index": 15572,
+      "type": "ClassDeclaration",
+      "range": [
+        11354504,
+        11364551
+      ],
+      "nodes": 2388,
+      "strictSha256": "78d3c602fffd9d6f00dc54752dd7391acee02dbdf322a466ee01ef89047d6ab5",
+      "shapeSha256": "3e91c2dde3ef94a25e631671bf1e7d1cd871565f12035e6f61a91ea124ed7da2",
+      "identifierNamesErased": 459,
+      "protectedIdentifierOccurrences": 372
+    },
+    "targetComparison": {
+      "pass": false,
+      "error": "node count\n\n2389 !== 2352\n"
+    }
+  },
+  "compilerHelperRetention": {
+    "actual": {
+      "declarations": [
+        {
+          "role": "target",
+          "import": {
+            "index": 0,
+            "type": "ImportDeclaration",
+            "range": [
+              306,
+              352
+            ],
+            "nodes": 5,
+            "strictSha256": "28091d3ba630794fca4062c96d6125ce6c2b47fcd8f1459d086e7eb7244c1d51",
+            "shapeSha256": "3ede2a42318c45509b935e2af0ffe0a26dee82f04425e05a1ffe262e05605732",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 1
+          },
+          "creation": {
+            "index": 9,
+            "type": "VariableDeclaration",
+            "range": [
+              1406,
+              2230
+            ],
+            "nodes": 239,
+            "strictSha256": "101395abd78b12e33f9f6aa25bac31518fef9a97c64277c8d138783cc56bd13e",
+            "shapeSha256": "50cf085052100428d0efdf72a6dfae43217d6fe095af102e16a44c6c6b0d8397",
+            "identifierNamesErased": 86,
+            "protectedIdentifierOccurrences": 16
+          },
+          "creationText": "var U6=$95(import.meta.url),O95=Symbol.dispose||Symbol.for(\"Symbol.dispose\"),A95=Symbol.asyncDispose||Symbol.for(\"Symbol.asyncDispose\"),cz=(q,K,_)=>{if(K!=null){if(typeof K!==\"object\"&&typeof K!==\"function\")throw TypeError('Object expected to be assigned to \"using\" declaration');var z;if(_)z=K[A95];if(z===void 0)z=K[O95];if(typeof z!==\"function\")throw TypeError(\"Object not disposable\");q.push([_,z,K])}else if(_)q.push([_]);return K},lz=(q,K,_)=>{var z=typeof SuppressedError===\"function\"?SuppressedError:function(O,A,w,j){return j=Error(w),j.name=\"SuppressedError\",j.error=O,j.suppressed=A,j},Y=(O)=>K=_?new z(O,K,\"An error was suppressed during disposal\"):(_=!0,O),$=(O)=>{while(O=q.pop())try{var A=O[1]&&O[1].call(O[2]);if(O[0])return Promise.resolve(A).then($,(w)=>(Y(w),$()))}catch(w){Y(w)}if(_)throw K};return $()};",
+          "local": "$95",
+          "requireBinding": "U6"
+        },
+        {
+          "role": "prior",
+          "import": {
+            "index": 0,
+            "type": "ImportDeclaration",
+            "range": [
+              0,
+              46
+            ],
+            "nodes": 5,
+            "strictSha256": "38daadea00f4d779000c3996fbbbac0852d99a6a43f71da065e3689dcc3de1b1",
+            "shapeSha256": "3ede2a42318c45509b935e2af0ffe0a26dee82f04425e05a1ffe262e05605732",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 1
+          },
+          "creation": {
+            "index": 9,
+            "type": "VariableDeclaration",
+            "range": [
+              1100,
+              1924
+            ],
+            "nodes": 239,
+            "strictSha256": "fc83f1e4995e362e57fa39fedae1a425c9881eae843c48fe851fa7070ac57301",
+            "shapeSha256": "50cf085052100428d0efdf72a6dfae43217d6fe095af102e16a44c6c6b0d8397",
+            "identifierNamesErased": 86,
+            "protectedIdentifierOccurrences": 16
+          },
+          "creationText": "var U6=i35(import.meta.url),r35=Symbol.dispose||Symbol.for(\"Symbol.dispose\"),o35=Symbol.asyncDispose||Symbol.for(\"Symbol.asyncDispose\"),Qz=(q,K,_)=>{if(K!=null){if(typeof K!==\"object\"&&typeof K!==\"function\")throw TypeError('Object expected to be assigned to \"using\" declaration');var z;if(_)z=K[o35];if(z===void 0)z=K[r35];if(typeof z!==\"function\")throw TypeError(\"Object not disposable\");q.push([_,z,K])}else if(_)q.push([_]);return K},dz=(q,K,_)=>{var z=typeof SuppressedError===\"function\"?SuppressedError:function(A,O,w,j){return j=Error(w),j.name=\"SuppressedError\",j.error=A,j.suppressed=O,j},Y=(A)=>K=_?new z(A,K,\"An error was suppressed during disposal\"):(_=!0,A),$=(A)=>{while(A=q.pop())try{var O=A[1]&&A[1].call(A[2]);if(A[0])return Promise.resolve(O).then($,(w)=>(Y(w),$()))}catch(w){Y(w)}if(_)throw K};return $()};",
+          "local": "i35",
+          "requireBinding": "U6"
+        },
+        {
+          "role": "current",
+          "import": {
+            "index": 0,
+            "type": "ImportDeclaration",
+            "range": [
+              0,
+              46
+            ],
+            "nodes": 5,
+            "strictSha256": "1303a23158d921bdc43853ddd91eff3a1a587dd73662edc8ae903c5edf127430",
+            "shapeSha256": "3ede2a42318c45509b935e2af0ffe0a26dee82f04425e05a1ffe262e05605732",
+            "identifierNamesErased": 1,
+            "protectedIdentifierOccurrences": 1
+          },
+          "creation": {
+            "index": 9,
+            "type": "VariableDeclaration",
+            "range": [
+              1100,
+              1924
+            ],
+            "nodes": 239,
+            "strictSha256": "cd27372ba2a6c83d4eae5d7dbdebcfeb5ea4520c1cfebba3deafa6b2b30e6cd8",
+            "shapeSha256": "50cf085052100428d0efdf72a6dfae43217d6fe095af102e16a44c6c6b0d8397",
+            "identifierNamesErased": 86,
+            "protectedIdentifierOccurrences": 16
+          },
+          "creationText": "var U6=s35(import.meta.url),t35=Symbol.dispose||Symbol.for(\"Symbol.dispose\"),e35=Symbol.asyncDispose||Symbol.for(\"Symbol.asyncDispose\"),Qz=(q,K,_)=>{if(K!=null){if(typeof K!==\"object\"&&typeof K!==\"function\")throw TypeError('Object expected to be assigned to \"using\" declaration');var z;if(_)z=K[e35];if(z===void 0)z=K[t35];if(typeof z!==\"function\")throw TypeError(\"Object not disposable\");q.push([_,z,K])}else if(_)q.push([_]);return K},dz=(q,K,_)=>{var z=typeof SuppressedError===\"function\"?SuppressedError:function(A,O,w,j){return j=Error(w),j.name=\"SuppressedError\",j.error=A,j.suppressed=O,j},Y=(A)=>K=_?new z(A,K,\"An error was suppressed during disposal\"):(_=!0,A),$=(A)=>{while(A=q.pop())try{var O=A[1]&&A[1].call(A[2]);if(A[0])return Promise.resolve(O).then($,(w)=>(Y(w),$()))}catch(w){Y(w)}if(_)throw K};return $()};",
+          "local": "s35",
+          "requireBinding": "U6"
+        }
+      ],
+      "completeTargetCurrentGraph": {
+        "nodes": 245,
+        "forward": {
+          "Symbol": "Symbol",
+          "TypeError": "TypeError",
+          "Error": "Error",
+          "SuppressedError": "SuppressedError",
+          "Promise": "Promise"
+        },
+        "reverse": {
+          "Symbol": "Symbol",
+          "TypeError": "TypeError",
+          "Error": "Error",
+          "SuppressedError": "SuppressedError",
+          "Promise": "Promise"
+        },
+        "scopeCount": 12
+      },
+      "completePriorCurrentGraph": {
+        "nodes": 245,
+        "forward": {
+          "Symbol": "Symbol",
+          "TypeError": "TypeError",
+          "Error": "Error",
+          "SuppressedError": "SuppressedError",
+          "Promise": "Promise"
+        },
+        "reverse": {
+          "Symbol": "Symbol",
+          "TypeError": "TypeError",
+          "Error": "Error",
+          "SuppressedError": "SuppressedError",
+          "Promise": "Promise"
+        },
+        "scopeCount": 12
+      },
+      "creationCallRetainedExactly": true,
+      "argument": "import.meta.url",
+      "effectPurityClaim": false,
+      "fixtureZeroReadRemovalNotUsedAsProof": true
+    },
+    "oneCompleteLiveNativeRequireConsumer": {
+      "target": {
+        "index": 14087,
+        "type": "VariableDeclaration",
+        "range": [
+          10457256,
+          10457568
+        ],
+        "nodes": 70,
+        "strictSha256": "7e6c590fd138dcefe889136ce481130bd457514739544ab80ccd4465c3f9535b",
+        "shapeSha256": "830214479223f39ff6ce5813e5255d977cef480727db705a7cae38e87fbe0c06",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 14089,
+        "type": "VariableDeclaration",
+        "range": [
+          10450770,
+          10451082
+        ],
+        "nodes": 70,
+        "strictSha256": "82f73866cee4224b30c5a3f71b2711e26ffdfea8416f05b52592576fb87c848c",
+        "shapeSha256": "830214479223f39ff6ce5813e5255d977cef480727db705a7cae38e87fbe0c06",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 5
+      },
+      "targetText": "var QRK=p((HGY)=>{var jGY=D37();HGY.render=jGY.render;HGY.renderToFile=function(K,_,z,Y){if(typeof Y>\"u\")Y=z,z=void 0;let $=U6(\"fs\"),A='<?xml version=\"1.0\" encoding=\"utf-8\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">'+HGY.render(_,z);$.writeFile(K,A,Y)}});",
+      "currentText": "var QhK=p((XGY)=>{var MGY=O37();XGY.render=MGY.render;XGY.renderToFile=function(K,_,z,Y){if(typeof Y>\"u\")Y=z,z=void 0;let $=U6(\"fs\"),O='<?xml version=\"1.0\" encoding=\"utf-8\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">'+XGY.render(_,z);$.writeFile(K,O,Y)}});",
+      "comparison": {
+        "nodes": 315,
+        "forward": {
+          "Symbol": "Symbol",
+          "TypeError": "TypeError",
+          "Error": "Error",
+          "SuppressedError": "SuppressedError",
+          "Promise": "Promise",
+          "D37": "O37",
+          "p": "p"
+        },
+        "reverse": {
+          "Symbol": "Symbol",
+          "TypeError": "TypeError",
+          "Error": "Error",
+          "SuppressedError": "SuppressedError",
+          "Promise": "Promise",
+          "O37": "D37",
+          "p": "p"
+        },
+        "scopeCount": 14
+      }
+    },
+    "noGenericZeroReadErasure": true,
+    "qualification": "The actual node:module import and complete239-node containing declaration, including createRequire(import.meta.url), are retained and match target and Trial13 jointly at245nodes. A real native fs consumer resolves to that same production helper in a315-node graph. This preserves observable initialization rather than treating the source fixture shim as effect-free. Other unrelated module createRequire imports are merely catalogued, not globally certified."
+  },
+  "inheritedSupplierFailure": {
+    "owner": {
+      "path": "src/services/api/sessionIngress.ts",
+      "bytes": 17055,
+      "sha256": "4e5814707a161dcacea2325cc390c5909481f967a34d5ab7e631ff69904c4e06"
+    },
+    "slot": 7,
+    "target": {
+      "index": 10390,
+      "type": "VariableDeclaration",
+      "range": [
+        8363390,
+        8363481
+      ],
+      "nodes": 47,
+      "strictSha256": "c9ed75ce18526ccf7515a594ecfab6b01a884ac1bf29c0cf339f36aff04e5280",
+      "shapeSha256": "df3a6c10f372d2a2497620640d49a11dcb5d98ddc0f14f829303fa46a80b746a",
+      "identifierNamesErased": 16,
+      "protectedIdentifierOccurrences": 0
+    },
+    "current": {
+      "index": 10402,
+      "type": "VariableDeclaration",
+      "range": [
+        8360483,
+        8360569
+      ],
+      "nodes": 44,
+      "strictSha256": "8d87edff5a781a66acf7acad24e252cead3662ce9ce87b9244b0ba545f46ee16",
+      "shapeSha256": "bc658d0bb6e75f958cb7f61f17a4c636062b6320876e044cb6f0396ba3d64858",
+      "identifierNamesErased": 15,
+      "protectedIdentifierOccurrences": 0
+    },
+    "targetText": "var dI8=E(()=>{TK();q3();K8();$$();g8();y8();R8();qh();i8();uM();aj6=new Map,Oa1=new Map});",
+    "currentText": "var BI8=y(()=>{kK();t5();K8();$$();p8();L8();tL();i8();IM();nj6=new Map,qa1=new Map});",
+    "priorTrial13Unchanged": {
+      "nodes": 45,
+      "forward": {
+        "kK": "kK",
+        "t5": "t5",
+        "K8": "K8",
+        "$$": "$$",
+        "p8": "p8",
+        "L8": "L8",
+        "tL": "tL",
+        "i8": "i8",
+        "IM": "IM",
+        "nj6": "nj6",
+        "Map": "Map",
+        "Ka1": "qa1",
+        "y": "y"
+      },
+      "reverse": {
+        "kK": "kK",
+        "t5": "t5",
+        "K8": "K8",
+        "$$": "$$",
+        "p8": "p8",
+        "L8": "L8",
+        "tL": "tL",
+        "i8": "i8",
+        "IM": "IM",
+        "nj6": "nj6",
+        "Map": "Map",
+        "qa1": "Ka1",
+        "y": "y"
+      },
+      "scopeCount": 3
+    },
+    "missingDirectProvider": {
+      "name": "y8",
+      "source": "src/utils/errors.ts",
+      "target": {
+        "index": 757,
+        "type": "VariableDeclaration",
+        "range": [
+          126649,
+          127455
+        ],
+        "nodes": 225,
+        "strictSha256": "3fe00fbbd959ffa4bb5c5a4f4215308173dc9dd81109e907b469ff17e5a7fbcb",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "current": {
+        "index": 757,
+        "type": "VariableDeclaration",
+        "range": [
+          126344,
+          127150
+        ],
+        "nodes": 225,
+        "strictSha256": "de45087c20c20e3e632f6ed0c7a159607dde8062056a6263efe8a0ac018eafad",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "bodyMatch": {
+        "nodes": 226,
+        "forward": {
+          "iv": "nZ",
+          "pI6": "SI6",
+          "Error": "Error",
+          "xB": "Ip",
+          "iz": "lz",
+          "rv": "UT",
+          "CE": "EE",
+          "yP": "kP",
+          "XV": "zV",
+          "E": "y"
+        },
+        "reverse": {
+          "nZ": "iv",
+          "SI6": "pI6",
+          "Error": "Error",
+          "Ip": "xB",
+          "lz": "iz",
+          "UT": "rv",
+          "EE": "CE",
+          "kP": "yP",
+          "zV": "XV",
+          "y": "E"
+        },
+        "scopeCount": 16
+      }
+    },
+    "storageNamespaceImport": {
+      "range": [
+        1096,
+        1163
+      ],
+      "text": "import * as sessionIngress from '../services/api/sessionIngress.js'"
+    },
+    "actualProjectAppendBinding": {
+      "project": {
+        "index": 15568,
+        "type": "ClassDeclaration",
+        "range": [
+          11340218,
+          11350034
+        ],
+        "nodes": 2351,
+        "strictSha256": "0cab7287c45a72550d402c53276b91ec96bf999fd651f8c315e2c1d91a48fbc7",
+        "shapeSha256": "ca289ba42e40e4c3b942becb0de87ac2c6d52f894055a8376234282376870c71",
+        "identifierNamesErased": 454,
+        "protectedIdentifierOccurrences": 363
+      },
+      "append": {
+        "index": 10394,
+        "type": "FunctionDeclaration",
+        "range": [
+          8357242,
+          8357490
+        ],
+        "nodes": 46,
+        "strictSha256": "a569e2bb46494d7813375ed35e91b4f3a8561fb10c01d5ad8a0011e8832179a2",
+        "shapeSha256": "2e42f72d209613406421195fc0a09c2b98d333034c755ff49b4d4d7f7a37191c",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 1
+      },
+      "referenceCount": 1,
+      "sameConcreteDeclaration": true
+    },
+    "completeExportAndPrivateBodies": [
+      {
+        "export": "appendSessionLog",
+        "target": {
+          "index": 10382,
+          "type": "FunctionDeclaration",
+          "range": [
+            8360130,
+            8360378
+          ],
+          "nodes": 46,
+          "strictSha256": "384e386a9dda5a053ae4a22f11ff1f9b54450f223f55dd0bf6cac35a56170cf5",
+          "shapeSha256": "2e42f72d209613406421195fc0a09c2b98d333034c755ff49b4d4d7f7a37191c",
+          "identifierNamesErased": 16,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 10394,
+          "type": "FunctionDeclaration",
+          "range": [
+            8357242,
+            8357490
+          ],
+          "nodes": 46,
+          "strictSha256": "a569e2bb46494d7813375ed35e91b4f3a8561fb10c01d5ad8a0011e8832179a2",
+          "shapeSha256": "2e42f72d209613406421195fc0a09c2b98d333034c755ff49b4d4d7f7a37191c",
+          "identifierNamesErased": 16,
+          "protectedIdentifierOccurrences": 1
+        },
+        "comparison": {
+          "pass": true,
+          "nodes": 47,
+          "forward": {
+            "mD": "hD",
+            "N": "N",
+            "o8": "o8",
+            "Lcz": "ucz"
+          },
+          "reverse": {
+            "hD": "mD",
+            "N": "N",
+            "o8": "o8",
+            "ucz": "Lcz"
+          },
+          "scopeCount": 3
+        },
+        "sourceDeclaration": {
+          "range": [
+            6988,
+            7599
+          ],
+          "sha256": "58ffbc5270a07923b599c3c13f3bc27a89b1d555a577b99a6e01433304d9a64e",
+          "exported": true
+        }
+      },
+      {
+        "export": "getSessionLogs",
+        "target": {
+          "index": 10383,
+          "type": "FunctionDeclaration",
+          "range": [
+            8360378,
+            8360669
+          ],
+          "nodes": 80,
+          "strictSha256": "f1017399d2c6f00bbaa0bdeb4c99e244d98992bf342308749db8841fe3b32b94",
+          "shapeSha256": "06adfc09792c0776ca2406424133d48c93af9c056bbfb72eb88db7ae4d3baf5b",
+          "identifierNamesErased": 26,
+          "protectedIdentifierOccurrences": 6
+        },
+        "current": {
+          "index": 10395,
+          "type": "FunctionDeclaration",
+          "range": [
+            8357490,
+            8357781
+          ],
+          "nodes": 80,
+          "strictSha256": "092103d29eeac67883b52e5ed6d35a707487404b6ce25503661065296ecee617",
+          "shapeSha256": "06adfc09792c0776ca2406424133d48c93af9c056bbfb72eb88db7ae4d3baf5b",
+          "identifierNamesErased": 26,
+          "protectedIdentifierOccurrences": 6
+        },
+        "comparison": {
+          "pass": true,
+          "nodes": 81,
+          "forward": {
+            "mD": "hD",
+            "N": "N",
+            "o8": "o8",
+            "Aa1": "Ka1",
+            "aj6": "nj6"
+          },
+          "reverse": {
+            "hD": "mD",
+            "N": "N",
+            "o8": "o8",
+            "Ka1": "Aa1",
+            "nj6": "aj6"
+          },
+          "scopeCount": 4
+        },
+        "sourceDeclaration": {
+          "range": [
+            7654,
+            8376
+          ],
+          "sha256": "33b82adaa3cc1c7f56fafcf5e06b9b2ca8f6fe76c1780f3db7bf970b0e3f39b4",
+          "exported": true
+        }
+      },
+      {
+        "export": "getSessionLogsViaOAuth",
+        "target": {
+          "index": 10384,
+          "type": "FunctionDeclaration",
+          "range": [
+            8360669,
+            8360877
+          ],
+          "nodes": 43,
+          "strictSha256": "f346dde4b1ce80658bdd5a5d0d0ea57512f8e9a99992d10f4a0a2a3118d9d645",
+          "shapeSha256": "f09e91525a0cc6d9affe5f72ba4c82af2a29078d2a72c21b14cd5405c8954294",
+          "identifierNamesErased": 17,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 10396,
+          "type": "FunctionDeclaration",
+          "range": [
+            8357781,
+            8357989
+          ],
+          "nodes": 43,
+          "strictSha256": "6ed9ee51bafd7f09be9d58d62b9fc2b27f138e14741c9c5fc690d8d9b990a288",
+          "shapeSha256": "f09e91525a0cc6d9affe5f72ba4c82af2a29078d2a72c21b14cd5405c8954294",
+          "identifierNamesErased": 17,
+          "protectedIdentifierOccurrences": 1
+        },
+        "comparison": {
+          "pass": true,
+          "nodes": 44,
+          "forward": {
+            "m7": "B7",
+            "N": "N",
+            "sY": "tY",
+            "Aa1": "Ka1"
+          },
+          "reverse": {
+            "B7": "m7",
+            "N": "N",
+            "tY": "sY",
+            "Ka1": "Aa1"
+          },
+          "scopeCount": 3
+        },
+        "sourceDeclaration": {
+          "range": [
+            8496,
+            8976
+          ],
+          "sha256": "7e2d658f4764037c4821e5c16c2223f933e4bb6dc141958770b884382842c30a",
+          "exported": true
+        }
+      },
+      {
+        "export": "getTeleportEvents",
+        "target": {
+          "index": 10385,
+          "type": "FunctionDeclaration",
+          "range": [
+            8360877,
+            8362166
+          ],
+          "nodes": 295,
+          "strictSha256": "b128b710be64aad88d06a2e85383fa7aa3e7675d0d9edbb2d3a8add647747b69",
+          "shapeSha256": "7573e590e69d8499dacab59f66868c3cce8090ea4f0d57359735873d5f4dc118",
+          "identifierNamesErased": 85,
+          "protectedIdentifierOccurrences": 22
+        },
+        "current": {
+          "index": 10397,
+          "type": "FunctionDeclaration",
+          "range": [
+            8357989,
+            8359282
+          ],
+          "nodes": 295,
+          "strictSha256": "cdb98bed4bacdf1cb109b26c8570b65265ed495db9db9e8706c52667741c258a",
+          "shapeSha256": "fba3b09377fad705625a5da2e11983f9edf4a3bbdd782244140f68f7a4f225f0",
+          "identifierNamesErased": 84,
+          "protectedIdentifierOccurrences": 23
+        },
+        "comparison": {
+          "pass": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   'arguments',\n+   'callee',\n-   'computed',\n-   'object',\n    'optional',\n-   'property',\n    'type'\n  ]\n"
+        },
+        "sourceDeclaration": {
+          "range": [
+            9966,
+            14188
+          ],
+          "sha256": "be53986936db65c8b41f3fc4d6d4eb86e7fb92a08af43370d94e9be8fa3c25fa",
+          "exported": true
+        }
+      },
+      {
+        "export": "fetchSessionLogsFromUrl",
+        "target": {
+          "index": 10386,
+          "type": "FunctionDeclaration",
+          "range": [
+            8362166,
+            8363216
+          ],
+          "nodes": 211,
+          "strictSha256": "73c41fb877113f1f5a65ef9bfaa39959000305c74a8757d3278248e8d3766c4d",
+          "shapeSha256": "05e46a34ac92c81463b9273ce5a3492902b8d1e48809514869682b43e3d7b81a",
+          "identifierNamesErased": 52,
+          "protectedIdentifierOccurrences": 24
+        },
+        "current": {
+          "index": 10398,
+          "type": "FunctionDeclaration",
+          "range": [
+            8359282,
+            8360309
+          ],
+          "nodes": 206,
+          "strictSha256": "2ff14dc8b88aeac0f54a00c04aff0bb8572d465c4a9ee15535ec014987f22d1e",
+          "shapeSha256": "c646115df00b9542d9670e40affa1235dd56a3fc4fbce5844cb6776bd2574949",
+          "identifierNamesErased": 51,
+          "protectedIdentifierOccurrences": 23
+        },
+        "comparison": {
+          "pass": false,
+          "error": "node count\n\n212 !== 207\n"
+        },
+        "sourceDeclaration": {
+          "range": [
+            14260,
+            16255
+          ],
+          "sha256": "42fa0489a1016e82a94f0799066a7f4185492f90c3559c443ef6e46c9820a0c1",
+          "exported": false
+        }
+      }
+    ],
+    "accepted": false,
+    "sourceRepairAuthored": false,
+    "qualification": "The real sessionIngress supplier remains47/44nodes because current omits the target errors.ts initializer edge. Three named API export bodies match; getTeleportEvents and the private fetchSessionLogsFromUrl also retain body failures. This is inherited from Trial13 and not repaired by the storage reader."
+  },
+  "semanticsVerified": [
+    "Complete400-node synchronous scanner and54-node final-attribution reader preserve native open/read/close receivers, try/finally lifetimes, buffer allocation, offset/length arithmetic, ignored short-read return choices, compact-boundary double parse and callback ordering.",
+    "The complete997-node loader uses the same real two private helpers, with original-scope callback and map bindings, ordered allocations/dispatch/returns, exact three-map compaction reset and last-attribution reread.",
+    "The actual owner no longer contains the retired nine-marker/Buffer allocation group. The old portable reader remains for its unchanged attribution consumer; its complete prior/current paired graph is preserved.",
+    "The own190-node storage initializer now matches, including the real signal allocation/subscriber. All28 call identities are grounded, but the seventh supplier body remains unequal, so full provider initialization is not accepted.",
+    "Cache/title, both resume private helpers, logging predicates and writer set/clear wrappers remain matched. The complete current Project class is unchanged from Trial13 and still differs from the target permission-writing class.",
+    "Permission-mode records are now read and returned by the loader. This does not establish Project writing, LogOption propagation or the REPL permission effect."
+  ],
+  "historicalBoundaries": [
+    "The qualified source approval and source fixture symbolic/shim failures remain immutable; actual production retention does not retroactively make the raw source fixtures equal.",
+    "The title receipt remains mixed, including raw enclosing REPL and broader provider/global limits. This review preserves its actual signal/cache path without reclassifying full REPL acceptance.",
+    "Project target2388/current2351, downstream permission handling and all broader native/transitive/global behavior remain outside acceptance."
+  ],
+  "verification": {
+    "freshStrictOriginalIndexWitnesses": 266,
+    "freshControls": [
+      {
+        "name": "close uses a different descriptor",
+        "rejected": true
+      },
+      {
+        "name": "process-entry callback is replaced with reset callback",
+        "rejected": true
+      },
+      {
+        "name": "permission mode writes to a different map",
+        "rejected": true
+      },
+      {
+        "name": "last attribution offset and length swapped",
+        "rejected": true
+      },
+      {
+        "name": "target storage initializer order changed",
+        "rejected": true
+      }
+    ],
+    "sourceAndFixtureSuitesReusedNotRepeated": true,
+    "bothCurrentSourceOwnersRehashed": true,
+    "compileFinalizerHashChainIndependentlyChecked": true,
+    "reviewerHarnessCorrections": [
+      "A word-boundary selector did not match the target createRequire alias beginning with $. Literal nomination followed by exact AST binding replaced it.",
+      "The sessionIngress namespace import is statically resolved to declarations, so no runtime export table was assumed after an empty nomination. Exact source exports, declarations and the real Project append call ground it.",
+      "A combined-graph draft looked for already-local names in a free-capture map; the individual loader interface mapping now identifies those unchanged helper declarations."
+    ]
+  },
+  "limits": [
+    "The scoped reader and own initializer pass; overall actualEmissionVerified remains false because the complete supplier initialization obligation is not closed.",
+    "Native filesystem, Buffer, JSON/Promise/host effects are structurally preserved where compared, not executed or assumed generically pure.",
+    "No recovered reader, callback, API, auth operation or application executed; no full bundle Program parse or second full build ran.",
+    "Whole storage, permission roundtrip, full persistence and whole-version acceptance remain false."
+  ],
+  "applicationExecuted": false,
+  "filesystemReaderExecuted": false,
+  "recoveredCallbacksExecuted": false,
+  "fullBuildExecutedByReviewer": false,
+  "fullBundleProgramParsedByReviewer": false,
+  "sourceStageProfileRuntimeOrRepositoryModified": false
+}

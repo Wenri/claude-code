@@ -1,0 +1,358 @@
+{
+  "kind": "independent-actual-three-route-aws-supplier-review",
+  "reportId": "aws_fetch_supplier_three_routes",
+  "verdict": "scoped-production-sharing-and-direct-initializer-graph-pass-with-global-order-boundary",
+  "actualEmissionVerified": true,
+  "selectedSupplierGraphAccepted": true,
+  "threeConsumerSharedHandlerVerified": true,
+  "distinctImmediateDependencyFactoriesVerified": true,
+  "retainedRootHandlerConsumersVerified": true,
+  "directInitializerBodiesAndOrderVerified": true,
+  "globalDefinitionOrderingEquivalenceVerified": false,
+  "globalFirstInitializationEffectsAccepted": false,
+  "completeTargetProviderGraphAccepted": false,
+  "wholeAwsSdkAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "sourceApproval": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review/review.json",
+      "bytes": 16442,
+      "sha256": "3fadb24e8916b877e9a811906f77ae489a0c0e3e3bd553b820f40a1f995a5686"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review/freeze.json",
+      "bytes": 4709,
+      "sha256": "c5acd4e895c80d65f4981ec1bb10bf7c4b061dd0ea7e9401a1a04b4c0b0e6dd4"
+    },
+    "manifest": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-three-route-source-proposal/source-repair.json",
+      "bytes": 4132,
+      "sha256": "8230fd341a1836263342c209a4ab897e420e0bdf1bc3eea26310fc5ae97e4583"
+    }
+  },
+  "preparationApproval": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/review.json",
+      "bytes": 13069,
+      "sha256": "ae7b8ffd4ddd96666cbe92c2ce1508361910d59edb5bd4bf2676ea4b682d18f8"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/freeze.json",
+      "bytes": 2546,
+      "sha256": "6eac515a00345154d1dacea66b458c327062d3ecead8b2e0a441f766dac7ed0d"
+    }
+  },
+  "actualInputs": {
+    "target": {
+      "js": {
+        "path": "historical-checkpoints/recovery-2.1.90-start/package/cli.js",
+        "bytes": 13128331,
+        "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+      },
+      "index": {
+        "path": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json",
+        "bytes": 5602573,
+        "sha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9"
+      },
+      "strictAst": {
+        "criterion": "strict-whole-program-ast-v2",
+        "parser": "acorn@8.15.0",
+        "ecmaVersion": 2026,
+        "nodes": 3110206,
+        "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+      }
+    },
+    "current": {
+      "js": {
+        "path": "historical-checkpoints/recovery-2.1.90-trial-v7/final/cli.js",
+        "bytes": 13105738,
+        "sha256": "4a46c4384ff6e81160e749536e528f5762ebdda0e5e4598842c82e7e8c8b67f4"
+      },
+      "index": {
+        "path": "historical-checkpoints/recovery-2.1.90-trial-v7-analysis/candidate-index.json",
+        "bytes": 5596984,
+        "sha256": "878f1f7e19c761098630147e6bce85f06499dc7baa12ca724363ca7b21c820e1"
+      },
+      "strictAst": {
+        "criterion": "strict-whole-program-ast-v2",
+        "parser": "acorn@8.15.0",
+        "ecmaVersion": 2026,
+        "nodes": 3105172,
+        "sha256": "5dcf01b84a95cde1a3c1faacce353265a6e6104d991273b628c65611c8843839"
+      }
+    }
+  },
+  "profile": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/profile.json",
+    "bytes": 7259506,
+    "sha256": "f153afa0026720529b51442fed12b02112290858100983b45f46656061c51efd"
+  },
+  "compileReport": {
+    "path": "historical-checkpoints/recovery-2.1.90-trial-v7/compile-report.json",
+    "bytes": 106450,
+    "sha256": "60ea44f940d685c0093138812fd6874549029c8ae56a699f419a7bd30f1c9b79"
+  },
+  "toolchain": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/toolchain.json",
+    "bytes": 14064,
+    "sha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5"
+  },
+  "sourcePostimagesAuthenticated": true,
+  "selectedPairs": [
+    {
+      "target": 2796,
+      "current": 2802,
+      "nodes": 995
+    },
+    {
+      "target": 2790,
+      "current": 2794,
+      "nodes": 745
+    },
+    {
+      "target": 2750,
+      "current": 2796,
+      "nodes": 127
+    },
+    {
+      "target": 2795,
+      "current": 2801,
+      "nodes": 113
+    },
+    {
+      "target": 2798,
+      "current": 2804,
+      "nodes": 284
+    },
+    {
+      "target": 2994,
+      "current": 3002,
+      "nodes": 1453
+    },
+    {
+      "target": 4330,
+      "current": 4337,
+      "nodes": 4
+    },
+    {
+      "target": 4331,
+      "current": 4338,
+      "nodes": 310
+    },
+    {
+      "target": 4332,
+      "current": 4339,
+      "nodes": 37
+    },
+    {
+      "target": 3244,
+      "current": 3251,
+      "nodes": 1191
+    },
+    {
+      "target": 2777,
+      "current": 2781,
+      "nodes": 113
+    },
+    {
+      "target": 2990,
+      "current": 2996,
+      "nodes": 745
+    },
+    {
+      "target": 3257,
+      "current": 3264,
+      "nodes": 37
+    },
+    {
+      "target": 3297,
+      "current": 3304,
+      "nodes": 337
+    }
+  ],
+  "completeJoinedGraphNodes": 6492,
+  "completeSelectedCoreNodes": 6118,
+  "retainedRootAndTwoConsumersNodes": 1566,
+  "freshOriginalIndexStrictAndShapeWitnesses": 58,
+  "physicalInputRecordsAuthenticated": 68,
+  "runtimeFilesAuthenticated": 69,
+  "physicalRoutes": [
+    {
+      "owner": "node_modules/@anthropic-ai/aws-sdk/core/auth.mjs",
+      "request": "../../../@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js",
+      "resolved": "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@aws-sdk/middleware-websocket/dist-cjs/index.js",
+      "request": "../../../@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js",
+      "resolved": "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js",
+      "request": "../../../../../../@aws-sdk/middleware-websocket/node_modules/@smithy/fetch-http-handler/node_modules/@smithy/util-base64/dist-cjs/index.js",
+      "resolved": "node_modules/@aws-sdk/middleware-websocket/node_modules/@smithy/fetch-http-handler/node_modules/@smithy/util-base64/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@smithy/util-stream/dist-cjs/sdk-stream-mixin.browser.js",
+      "request": "@smithy/fetch-http-handler",
+      "resolved": "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@smithy/util-stream/dist-cjs/sdk-stream-mixin.browser.js",
+      "request": "@smithy/util-base64",
+      "resolved": "node_modules/@smithy/util-stream/node_modules/@smithy/util-base64/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js",
+      "request": "@smithy/protocol-http",
+      "resolved": "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/node_modules/@smithy/protocol-http/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@aws-sdk/middleware-websocket/dist-cjs/index.js",
+      "request": "@smithy/protocol-http",
+      "resolved": "node_modules/@aws-sdk/middleware-websocket/node_modules/@smithy/protocol-http/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@anthropic-ai/bedrock-sdk/core/auth.mjs",
+      "request": "@smithy/fetch-http-handler",
+      "resolved": "node_modules/@smithy/fetch-http-handler/dist-cjs/index.js"
+    },
+    {
+      "owner": "node_modules/@anthropic-ai/bedrock-sdk/core/streaming.mjs",
+      "request": "@smithy/fetch-http-handler",
+      "resolved": "node_modules/@smithy/fetch-http-handler/dist-cjs/index.js"
+    }
+  ],
+  "concreteProductionIdentities": {
+    "sharedHandler": {
+      "target": 2796,
+      "current": 2802,
+      "nodes": 995,
+      "consumers": {
+        "streamMixin": 2804,
+        "middlewareWebsocket": 3002,
+        "awsAuthInitializer": 4339
+      }
+    },
+    "handlerBase64": {
+      "target": 2795,
+      "current": 2801
+    },
+    "streamMixinBase64": {
+      "target": 2777,
+      "current": 2781
+    },
+    "handlerProtocolHttp": {
+      "target": 2790,
+      "current": 2794
+    },
+    "websocketProtocolHttp": {
+      "target": 2990,
+      "current": 2996
+    },
+    "retainedRootHandler": {
+      "target": 3244,
+      "current": 3251,
+      "nodes": 1191,
+      "consumers": {
+        "bedrockAuthInitializer": 3264,
+        "bedrockStreamingInitializer": 3304
+      }
+    }
+  },
+  "bindingProof": "Every selected current factory call resolves to an included actual declaration through eslint-scope. Complete target/current fields and local declaration/reference/read/write graphs match jointly, so separately matching shapes cannot collapse or split the required identities. All ordinary ambient builtin capture names are preserved.",
+  "definitionPlacement": {
+    "targetRoleOrder": [
+      2750,
+      2777,
+      2790,
+      2795,
+      2796,
+      2798,
+      2990,
+      2994,
+      3244,
+      3257,
+      3297,
+      4330,
+      4331,
+      4332
+    ],
+    "currentRoleOrder": [
+      2777,
+      2790,
+      2750,
+      2795,
+      2796,
+      2798,
+      2990,
+      2994,
+      3244,
+      3257,
+      3297,
+      4330,
+      4331,
+      4332
+    ],
+    "relativeDefinitionOrderEqual": false,
+    "directInitializerBodyOrderAndBindingMatch": true,
+    "definitionOrderNormalizationApplied": false,
+    "globalDefinitionOrderingEquivalenceClaim": false,
+    "limitation": "Role-selected complete declaration/reference graph matches. Relative top-level placement of the selected query-string wrapper differs; this receipt does not prove whole-program first-initialization or arbitrary definition-order equivalence."
+  },
+  "negativeControls": [
+    "collapse handler/stream base64",
+    "collapse handler/websocket protocol",
+    "AWS returns to root handler",
+    "websocket returns to root handler",
+    "stream returns to root handler",
+    "old root auth redirected",
+    "old root streaming redirected",
+    "AWS initializer assignment order",
+    "wrong native assert provider"
+  ],
+  "previousEvidencePreserved": {
+    "mixedAwsReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-core-emission-review/review.json",
+      "bytes": 17430,
+      "sha256": "65d6252f39fcef3ae0ecf2e0e000e2ad2ba755bfcd6c766522ac9476624e3817"
+    },
+    "mixedAwsClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-core-emission-review/freeze.json",
+      "bytes": 6880,
+      "sha256": "44b6340a47db8c4c8b99d93441a8c6705e7789220d3ce295e99c6e111fa59576"
+    },
+    "rejectedTwoRouteReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/review.json",
+      "bytes": 7697,
+      "sha256": "c951fe351e78d3fd9a708aa486aae07249cb4ebe49f48091d02b51e9c0636941"
+    },
+    "rejectedTwoRouteClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review/freeze.json",
+      "bytes": 3230,
+      "sha256": "88f5bd5f87b313aee92e6632bf357b96e8dfbeb4c848d9465920f6be0cdf8128"
+    },
+    "sourceFixtureLimitationsRemainHistorical": true,
+    "priorReceiptsModified": false
+  },
+  "provenanceQualification": "The admitted AWS auth source is the explicitly reconstructed postimage over the signed 0.2.0 member, not unchanged official package bytes. Original signed bytes and both failed two-route designs remain separate immutable evidence.",
+  "retentionQualification": "Both the 995-node shared supplier and 1191-node root supplier are positively identified through complete bodies, concrete callers, physical source paths and scope-resolved bindings. No conclusion about absent modules is drawn from the whole-node total or a text/name census.",
+  "remainingLimits": [
+    "The selected query-string factory has different relative top-level placement. This receipt proves its complete declaration and exact direct call order, not generic definition-order equivalence or global first-initialization timing.",
+    "The complete graph includes the root handler and both root-consumer initializer statements in actual production, closing the source fixture’s separate 374-node retention boundary. It does not compare every body in the broader Bedrock owners.",
+    "Deeper CJS/native/SDK resources, ambient host APIs, constructor effects, dynamically selected consumers, full package types/subpaths and wider AWS feature residuals remain conditional or unaccepted.",
+    "Prior source maps, original-source authorship and unsupported observable-name/order cases are not validated.",
+    "Strict whole-AST equality is the stronger diagnostic. The user also permits sound binding-aware alpha-equivalence and provably independent ordering where actually proved; neither whole-version route has passed."
+  ],
+  "wholeProgramDiagnostic": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3105172,
+    "sha256": "5dcf01b84a95cde1a3c1faacce353265a6e6104d991273b628c65611c8843839"
+  },
+  "fullProgramParsedByThisReview": false,
+  "fullStageBuildByThisReview": false,
+  "applicationExecuted": false,
+  "sourceOrStageModified": false
+}

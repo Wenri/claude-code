@@ -1,0 +1,2191 @@
+{
+  "kind": "scoped-actual-concurrent-sessions-queue-and-bridge-supplier-review",
+  "reportId": "concurrent_sessions_update_queue",
+  "verdict": "complete-queue-module-provider-and-initializer-obligations-pass-bridge-graph-restored-under-inherited-storage-boundary",
+  "actualScopedEmissionVerified": true,
+  "actualEmissionVerified": true,
+  "sourceTrialScopedEmissionObligationSatisfied": true,
+  "sharedPidUpdateQueueActualVerified": true,
+  "complete68NodeHelperVerified": true,
+  "oneRealSharedPromiseVerified": true,
+  "complete41NodeInitializerVerified": true,
+  "allNineConcreteProviderInitializersVerified": true,
+  "allThirteenImportedValueProviderRolesVerified": true,
+  "allRetainedModuleCallersAndNativeImportsVerified": true,
+  "bridgeSupplierGraphRestoredUnderStorageBoundary": true,
+  "completeExpandedProviderGraphAccepted": false,
+  "wholeSessionStorageAccepted": false,
+  "wholeProjectAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "globalInitializationOrderAccepted": false,
+  "fullPersistenceFeatureAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "production": {
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v13-concurrent-sessions/profile.json",
+      "sha256": "b4b0d81cd54294cc4fbfcc7d1dbe9648da7ebd5f1fc2f254dbf70d383300ec5f"
+    },
+    "runtimeRoot": "historical-checkpoints/recovery-2.1.90-candidate-v11-persistence-lifecycle/recovery",
+    "toolchainSha256": "c55222452c78ccde4ea41c3bde1ee1eebd0095f7096af51941d444cb4802c3f9",
+    "inputs": "historical-checkpoints/recovery-2.1.90-stage-v15-concurrent-sessions/inputs",
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v12/final/cli.js",
+      "sha256": "bf8210221631ac2f1b98cf694188ee40a8ff5705d8b372f3b6d37b5dd8c51d36",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v12-analysis/candidate-index.json",
+      "indexSha256": "873c06a388d4a747da3048c6f7993a59ae8d54088c273db18ce6e14cefa46178"
+    },
+    "target": {
+      "js": "historical-checkpoints/recovery-2.1.90-start/package/cli.js",
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+      "index": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json",
+      "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9"
+    },
+    "compileReport": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v12/compile-report.json",
+      "sha256": "873d591c944eb1833137e520aa65fe4bb52f440090c267bb45317e1edadf16ec"
+    },
+    "strict": {
+      "nodes": 3106084,
+      "sha256": "7555a0a78f96e0223e65ceee5703e8e5cc9b70f50d03750454d48a07a4e78052",
+      "equal": false
+    }
+  },
+  "sourceApproval": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-concurrent-sessions-queue-independent-review/review.json",
+      "sha256": "5c4983810bbec15d5677dcc9c3fc47d1cbec5cde157808384b0aa34d09b3c36a"
+    },
+    "closureSha256": "1d232a852694378b6f3dd8e97ccc62f7b01b317f5fc4e7bff4f88826d8a3b1f8",
+    "sourceManifest": {
+      "path": "historical-checkpoints/recovery-2.1.90-concurrent-sessions-queue-source-proposal/source-repair.json",
+      "sha256": "87632c290f4f9986200798044b363dac31bf527e59a42e20a05428c12879ce2d"
+    },
+    "physicalOwner": {
+      "path": "src/utils/concurrentSessions.ts",
+      "bytes": 6994,
+      "sha256": "90e30becb33c719334b0fb98487a2362c0487143ebd7ccc32c1b0edd8a500800"
+    }
+  },
+  "readinessApproval": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v13-concurrent-sessions-independent-review/review.json",
+      "sha256": "aa57245f120662ddb1797e897e4c7a97fa18c36be9e8d3aec0a51752b0e7f916"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v13-concurrent-sessions-independent-review/freeze.json",
+      "sha256": "7b144f6cee215dcc5a82c1c3d2f47334dd070b91268bccf822a2f522ef8f86ef"
+    },
+    "unchanged": true
+  },
+  "completeQueueModule": {
+    "targetRange": [
+      4942,
+      4953
+    ],
+    "currentRange": [
+      4948,
+      4959
+    ],
+    "nodes": 430,
+    "functionCount": 8,
+    "nativeImportDeclarations": 2,
+    "queueVariableDeclarations": 1,
+    "completeInitializerDeclarations": 1,
+    "allProtectedFieldsAndBindingsMatch": true,
+    "pairs": [
+      {
+        "target": {
+          "index": 4942,
+          "type": "ImportDeclaration",
+          "range": [
+            3701113,
+            3701226
+          ],
+          "nodes": 20,
+          "strictSha256": "937b0a6d83e4e5f461b7a4ecdf28ec84fd6f3f49d7f7257d9d92199b952648fb",
+          "shapeSha256": "e01762f2faead3e319fce82c4c669998477a076cbfaca1228d39b27c573922eb",
+          "identifierNamesErased": 6,
+          "protectedIdentifierOccurrences": 6
+        },
+        "current": {
+          "index": 4948,
+          "type": "ImportDeclaration",
+          "range": [
+            3702385,
+            3702498
+          ],
+          "nodes": 20,
+          "strictSha256": "ed9ddef18848077c91eeb262ef4414d14b8b0c66e4b31dd195ccc96072e13a4b",
+          "shapeSha256": "e01762f2faead3e319fce82c4c669998477a076cbfaca1228d39b27c573922eb",
+          "identifierNamesErased": 6,
+          "protectedIdentifierOccurrences": 6
+        }
+      },
+      {
+        "target": {
+          "index": 4943,
+          "type": "ImportDeclaration",
+          "range": [
+            3701226,
+            3701256
+          ],
+          "nodes": 5,
+          "strictSha256": "0cdd136ce9d111e142a28bff0ecc8eb558e190b601b5fbc986eb2fd586352bec",
+          "shapeSha256": "3a6eeea65e3ab021153ae73f8415a0e7ccd1e19939b48ae4324b8272d21de9f7",
+          "identifierNamesErased": 1,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 4949,
+          "type": "ImportDeclaration",
+          "range": [
+            3702498,
+            3702528
+          ],
+          "nodes": 5,
+          "strictSha256": "36660f3da5f4c72b50f63d2321141c1e8376034c95ad2df547057250bd100e88",
+          "shapeSha256": "3a6eeea65e3ab021153ae73f8415a0e7ccd1e19939b48ae4324b8272d21de9f7",
+          "identifierNamesErased": 1,
+          "protectedIdentifierOccurrences": 1
+        }
+      },
+      {
+        "target": {
+          "index": 4944,
+          "type": "FunctionDeclaration",
+          "range": [
+            3701256,
+            3701299
+          ],
+          "nodes": 9,
+          "strictSha256": "026e4ec46b3e4d3ebff96cec86b7cd57eb04996cbf1bd7b85df4c94a73479387",
+          "shapeSha256": "8a9716262ee64b211048987c72b778194fae848cdb306772b74af500c9db0e04",
+          "identifierNamesErased": 3,
+          "protectedIdentifierOccurrences": 0
+        },
+        "current": {
+          "index": 4950,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702528,
+            3702571
+          ],
+          "nodes": 9,
+          "strictSha256": "c1ae709f21907edc850f3fa7bfc74cc535b02b8667e2b6c3e70071acf4e0985d",
+          "shapeSha256": "8a9716262ee64b211048987c72b778194fae848cdb306772b74af500c9db0e04",
+          "identifierNamesErased": 3,
+          "protectedIdentifierOccurrences": 0
+        }
+      },
+      {
+        "target": {
+          "index": 4945,
+          "type": "FunctionDeclaration",
+          "range": [
+            3701299,
+            3701321
+          ],
+          "nodes": 4,
+          "strictSha256": "24abb22d0ccf23e33945512773ecd013336978bf95c30da40aa1e7fc5dc10151",
+          "shapeSha256": "06797089b93968d242f27398be25e34c244a7d0968e3314c2505d1cf7c2a0705",
+          "identifierNamesErased": 1,
+          "protectedIdentifierOccurrences": 0
+        },
+        "current": {
+          "index": 4951,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702571,
+            3702593
+          ],
+          "nodes": 4,
+          "strictSha256": "9926ffdfd3b8b4cd407ad83ddbd6f12082871606e2981c13eae1c2c440600a84",
+          "shapeSha256": "06797089b93968d242f27398be25e34c244a7d0968e3314c2505d1cf7c2a0705",
+          "identifierNamesErased": 1,
+          "protectedIdentifierOccurrences": 0
+        }
+      },
+      {
+        "target": {
+          "index": 4946,
+          "type": "FunctionDeclaration",
+          "range": [
+            3701321,
+            3701356
+          ],
+          "nodes": 8,
+          "strictSha256": "1890538d286a73bf7f6f66d368c85107527e2897316ebf09f9d13a53f54d40a9",
+          "shapeSha256": "87d2ad94d966b4f19966afe3dff1d2c14865fea1672554fe4795f9ce9d499e4e",
+          "identifierNamesErased": 2,
+          "protectedIdentifierOccurrences": 0
+        },
+        "current": {
+          "index": 4952,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702593,
+            3702628
+          ],
+          "nodes": 8,
+          "strictSha256": "d826ba89a529fc71b84f1aa8ae7e7b86906d902e9ac233687be1588ab9acc030",
+          "shapeSha256": "87d2ad94d966b4f19966afe3dff1d2c14865fea1672554fe4795f9ce9d499e4e",
+          "identifierNamesErased": 2,
+          "protectedIdentifierOccurrences": 0
+        }
+      },
+      {
+        "target": {
+          "index": 4947,
+          "type": "FunctionDeclaration",
+          "range": [
+            3701356,
+            3701822
+          ],
+          "nodes": 137,
+          "strictSha256": "290f8b2fd3c9f1fa8d50d8659cf8d16498091a72084fa37cf23f4d311c7bc90e",
+          "shapeSha256": "a3cf8d6074915b0c230ecb8f96c3b5b7ffeda1970cf99cd1e95d854c152ddc07",
+          "identifierNamesErased": 34,
+          "protectedIdentifierOccurrences": 14
+        },
+        "current": {
+          "index": 4953,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702628,
+            3703094
+          ],
+          "nodes": 137,
+          "strictSha256": "feaaff6379f3437707c2fc923f489e19e154741900798e37b983b9e8b525f371",
+          "shapeSha256": "a3cf8d6074915b0c230ecb8f96c3b5b7ffeda1970cf99cd1e95d854c152ddc07",
+          "identifierNamesErased": 34,
+          "protectedIdentifierOccurrences": 14
+        }
+      },
+      {
+        "target": {
+          "index": 4948,
+          "type": "FunctionDeclaration",
+          "range": [
+            3701822,
+            3702050
+          ],
+          "nodes": 68,
+          "strictSha256": "9053364eac507b59574393cf84f4999d64bbed81368ec5696c71bb2ca8b661f4",
+          "shapeSha256": "5208d4ecc6b9e140dca0a986ad660d3b3afab281980d49020b78ab2183693a9f",
+          "identifierNamesErased": 24,
+          "protectedIdentifierOccurrences": 2
+        },
+        "current": {
+          "index": 4954,
+          "type": "FunctionDeclaration",
+          "range": [
+            3703094,
+            3703322
+          ],
+          "nodes": 68,
+          "strictSha256": "0419d6795581df9628c7ac0c136683205f99a4c51602ca5f38d624dae39b78ec",
+          "shapeSha256": "5208d4ecc6b9e140dca0a986ad660d3b3afab281980d49020b78ab2183693a9f",
+          "identifierNamesErased": 24,
+          "protectedIdentifierOccurrences": 2
+        }
+      },
+      {
+        "target": {
+          "index": 4949,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702050,
+            3702104
+          ],
+          "nodes": 16,
+          "strictSha256": "9bbd81646d56a3383adde7762744d188710db72a5f07c8e3831da1a5cdeb2d1d",
+          "shapeSha256": "e0ba3854a15d8f41510b9ac1957df7d07bd64df9a39f2430663495b4e6cb8323",
+          "identifierNamesErased": 5,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 4955,
+          "type": "FunctionDeclaration",
+          "range": [
+            3703322,
+            3703376
+          ],
+          "nodes": 16,
+          "strictSha256": "8063aefc206acf9188c12aa24f83ca9eb8b0ab5f085b0db20c3d6f445d2290a2",
+          "shapeSha256": "e0ba3854a15d8f41510b9ac1957df7d07bd64df9a39f2430663495b4e6cb8323",
+          "identifierNamesErased": 5,
+          "protectedIdentifierOccurrences": 1
+        }
+      },
+      {
+        "target": {
+          "index": 4950,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702104,
+            3702157
+          ],
+          "nodes": 12,
+          "strictSha256": "3807b79b01b5289d716731dda572951bf264fa54a4b8b0e304b6a10886800b66",
+          "shapeSha256": "ea554a857e3585cd8385a30393a0289d000eb15206fd28fcd9f78b236c712632",
+          "identifierNamesErased": 4,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 4956,
+          "type": "FunctionDeclaration",
+          "range": [
+            3703376,
+            3703429
+          ],
+          "nodes": 12,
+          "strictSha256": "c989bcb81abe6de79484a0e9e54f6b23bc5b2472509f2508d23c77890d748403",
+          "shapeSha256": "ea554a857e3585cd8385a30393a0289d000eb15206fd28fcd9f78b236c712632",
+          "identifierNamesErased": 4,
+          "protectedIdentifierOccurrences": 1
+        }
+      },
+      {
+        "target": {
+          "index": 4951,
+          "type": "FunctionDeclaration",
+          "range": [
+            3702157,
+            3702487
+          ],
+          "nodes": 106,
+          "strictSha256": "29bc0f73cb2fa1f0712c48b488840b527fe4f8aa07bf765cf87ff3f75f2b04c7",
+          "shapeSha256": "cf0ebd672729fe20cf70168ded5d3fc5a3df64a86a60546fc9faf460dc6303c1",
+          "identifierNamesErased": 32,
+          "protectedIdentifierOccurrences": 4
+        },
+        "current": {
+          "index": 4957,
+          "type": "FunctionDeclaration",
+          "range": [
+            3703429,
+            3703759
+          ],
+          "nodes": 106,
+          "strictSha256": "aa5d463f871d526b9c742797c086b444d0aa8470bf45fe71c64aac37c4ffccf8",
+          "shapeSha256": "cf0ebd672729fe20cf70168ded5d3fc5a3df64a86a60546fc9faf460dc6303c1",
+          "identifierNamesErased": 32,
+          "protectedIdentifierOccurrences": 4
+        }
+      },
+      {
+        "target": {
+          "index": 4952,
+          "type": "VariableDeclaration",
+          "range": [
+            3702487,
+            3702495
+          ],
+          "nodes": 3,
+          "strictSha256": "4db78043d17aa6b0100d561ecab7cb36d74f2d76a9491ae94ea3fc9573c4c3f8",
+          "shapeSha256": "a45e372a2d24d1ac54164a3d69ddb0163f1f537f7ba5d0855b94f60cbe551b77",
+          "identifierNamesErased": 1,
+          "protectedIdentifierOccurrences": 0
+        },
+        "current": {
+          "index": 4958,
+          "type": "VariableDeclaration",
+          "range": [
+            3703759,
+            3703767
+          ],
+          "nodes": 3,
+          "strictSha256": "3463bf6b4d4276a976ff8b6148cbe31f5730bd9795c629a9fe9cc3fa44e04c4f",
+          "shapeSha256": "a45e372a2d24d1ac54164a3d69ddb0163f1f537f7ba5d0855b94f60cbe551b77",
+          "identifierNamesErased": 1,
+          "protectedIdentifierOccurrences": 0
+        }
+      },
+      {
+        "target": {
+          "index": 4953,
+          "type": "VariableDeclaration",
+          "range": [
+            3702495,
+            3702579
+          ],
+          "nodes": 41,
+          "strictSha256": "947ed0a0a655f161f7cb589a9e86e5ea1e24d0a9004f1c44d77e146bd3c8a499",
+          "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+          "identifierNamesErased": 13,
+          "protectedIdentifierOccurrences": 1
+        },
+        "current": {
+          "index": 4959,
+          "type": "VariableDeclaration",
+          "range": [
+            3703767,
+            3703851
+          ],
+          "nodes": 41,
+          "strictSha256": "cd1659d5bfdb44feb07b55ccf7d7dc8589e3c3cebc28c67abfd40be6f4f71357",
+          "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+          "identifierNamesErased": 13,
+          "protectedIdentifierOccurrences": 1
+        }
+      }
+    ]
+  },
+  "queueBindings": [
+    {
+      "role": "target",
+      "queueName": "Raq",
+      "queueDeclaration": {
+        "index": 4952,
+        "type": "VariableDeclaration",
+        "range": [
+          3702487,
+          3702495
+        ],
+        "nodes": 3,
+        "strictSha256": "4db78043d17aa6b0100d561ecab7cb36d74f2d76a9491ae94ea3fc9573c4c3f8",
+        "shapeSha256": "a45e372a2d24d1ac54164a3d69ddb0163f1f537f7ba5d0855b94f60cbe551b77",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 0
+      },
+      "helper": {
+        "index": 4948,
+        "type": "FunctionDeclaration",
+        "range": [
+          3701822,
+          3702050
+        ],
+        "nodes": 68,
+        "strictSha256": "9053364eac507b59574393cf84f4999d64bbed81368ec5696c71bb2ca8b661f4",
+        "shapeSha256": "5208d4ecc6b9e140dca0a986ad660d3b3afab281980d49020b78ab2183693a9f",
+        "identifierNamesErased": 24,
+        "protectedIdentifierOccurrences": 2
+      },
+      "initializer": {
+        "index": 4953,
+        "type": "VariableDeclaration",
+        "range": [
+          3702495,
+          3702579
+        ],
+        "nodes": 41,
+        "strictSha256": "947ed0a0a655f161f7cb589a9e86e5ea1e24d0a9004f1c44d77e146bd3c8a499",
+        "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 1
+      },
+      "referenceCount": 3,
+      "initializedAfterNineProviderCalls": true,
+      "pathEvaluatedBeforeEnqueue": true,
+      "taskStoredBeforeAwait": true
+    },
+    {
+      "role": "current",
+      "queueName": "baq",
+      "queueDeclaration": {
+        "index": 4958,
+        "type": "VariableDeclaration",
+        "range": [
+          3703759,
+          3703767
+        ],
+        "nodes": 3,
+        "strictSha256": "3463bf6b4d4276a976ff8b6148cbe31f5730bd9795c629a9fe9cc3fa44e04c4f",
+        "shapeSha256": "a45e372a2d24d1ac54164a3d69ddb0163f1f537f7ba5d0855b94f60cbe551b77",
+        "identifierNamesErased": 1,
+        "protectedIdentifierOccurrences": 0
+      },
+      "helper": {
+        "index": 4954,
+        "type": "FunctionDeclaration",
+        "range": [
+          3703094,
+          3703322
+        ],
+        "nodes": 68,
+        "strictSha256": "0419d6795581df9628c7ac0c136683205f99a4c51602ca5f38d624dae39b78ec",
+        "shapeSha256": "5208d4ecc6b9e140dca0a986ad660d3b3afab281980d49020b78ab2183693a9f",
+        "identifierNamesErased": 24,
+        "protectedIdentifierOccurrences": 2
+      },
+      "initializer": {
+        "index": 4959,
+        "type": "VariableDeclaration",
+        "range": [
+          3703767,
+          3703851
+        ],
+        "nodes": 41,
+        "strictSha256": "cd1659d5bfdb44feb07b55ccf7d7dc8589e3c3cebc28c67abfd40be6f4f71357",
+        "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+        "identifierNamesErased": 13,
+        "protectedIdentifierOccurrences": 1
+      },
+      "referenceCount": 3,
+      "initializedAfterNineProviderCalls": true,
+      "pathEvaluatedBeforeEnqueue": true,
+      "taskStoredBeforeAwait": true
+    }
+  ],
+  "retainedCallerReferences": [
+    {
+      "enclosingFunction": "maq",
+      "sourceStatement": 4953,
+      "referenceRead": true,
+      "referenceWrite": false
+    },
+    {
+      "enclosingFunction": "pF",
+      "sourceStatement": 4955,
+      "referenceRead": true,
+      "referenceWrite": false
+    },
+    {
+      "enclosingFunction": "x08",
+      "sourceStatement": 4956,
+      "referenceRead": true,
+      "referenceWrite": false
+    }
+  ],
+  "initializerProviders": [
+    {
+      "slot": 1,
+      "targetName": "T8",
+      "currentName": "v8",
+      "target": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          45124,
+          45227
+        ],
+        "nodes": 47,
+        "strictSha256": "dad05b2f3b0673228101ece22fd53f9fde1e8dc992ad7d76109341378a1b9747",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 574,
+        "type": "VariableDeclaration",
+        "range": [
+          44818,
+          44921
+        ],
+        "nodes": 47,
+        "strictSha256": "4b37b5fccf8ce08265925b55e0e11155291e801123764f88199254cb7825216c",
+        "shapeSha256": "f6f3522aa97a6644e7ca3dc52ed88bb3f43a2afc3a5219b1be1d34518eb68e4b",
+        "identifierNamesErased": 16,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 48,
+        "forward": {
+          "_J7": "oH7",
+          "kr8": "Dr8",
+          "Kl": "ec",
+          "G8": "G8",
+          "PJ7": "OJ7",
+          "Rr8": "Vr8",
+          "L_": "Az",
+          "Sr8": "Nr8",
+          "dr8": "wJ7",
+          "cr8": "mr8",
+          "XJ7": "AJ7",
+          "E": "y"
+        },
+        "reverse": {
+          "oH7": "_J7",
+          "Dr8": "kr8",
+          "ec": "Kl",
+          "G8": "G8",
+          "OJ7": "PJ7",
+          "Vr8": "Rr8",
+          "Az": "L_",
+          "Nr8": "Sr8",
+          "wJ7": "dr8",
+          "mr8": "cr8",
+          "AJ7": "XJ7",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceOwner": "src/bootstrap/state.ts"
+    },
+    {
+      "slot": 2,
+      "targetName": "a9",
+      "currentName": "a9",
+      "target": {
+        "index": 585,
+        "type": "VariableDeclaration",
+        "range": [
+          46483,
+          46511
+        ],
+        "nodes": 12,
+        "strictSha256": "24e8ce0f7d098909839f36265bd12eab37779637d3cc2d62327c1a950297b24a",
+        "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 585,
+        "type": "VariableDeclaration",
+        "range": [
+          46177,
+          46205
+        ],
+        "nodes": 12,
+        "strictSha256": "5c79e679f7339a3709b7461b70d0138065ad8c1d5e69b5677dd2ff6b46fa9ebf",
+        "shapeSha256": "ebd158cbdc9b2fcfd0e6537789e3a531bc4352567ef2fc1c2d9e262492a238d7",
+        "identifierNamesErased": 4,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 13,
+        "forward": {
+          "Ka8": "ro8",
+          "Set": "Set",
+          "E": "y"
+        },
+        "reverse": {
+          "ro8": "Ka8",
+          "Set": "Set",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceOwner": "src/utils/cleanupRegistry.ts"
+    },
+    {
+      "slot": 3,
+      "targetName": "K8",
+      "currentName": "K8",
+      "target": {
+        "index": 893,
+        "type": "VariableDeclaration",
+        "range": [
+          144329,
+          145331
+        ],
+        "nodes": 322,
+        "strictSha256": "003c56d48677b32fcc4343ffb25f59e3f5387d1ef1f42b3f2589826ad85222f4",
+        "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "current": {
+        "index": 893,
+        "type": "VariableDeclaration",
+        "range": [
+          144024,
+          145026
+        ],
+        "nodes": 322,
+        "strictSha256": "0e986b6d44d8868bee7143ff4d64ad41a149138f92e2c58e181c1bec5c58fcd6",
+        "shapeSha256": "4fc6cd0eb21ee8edbaf6342a7afb6b50b589ee962378a9cae63d6a0b14d32b43",
+        "identifierNamesErased": 81,
+        "protectedIdentifierOccurrences": 39
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 323,
+        "forward": {
+          "qK": "_K",
+          "T8": "v8",
+          "a9": "a9",
+          "LJ7": "vJ7",
+          "g8": "p8",
+          "s7": "s7",
+          "i8": "i8",
+          "Ms8": "$s8",
+          "vw5": "A25",
+          "process": "process",
+          "Object": "Object",
+          "A1": "$1",
+          "ov": "QT",
+          "bX7": "EX7",
+          "Q6": "c6",
+          "ax": "rx",
+          "IX7": "RX7",
+          "Tw5": "O25",
+          "yJ7": "GJ7",
+          "Js8": "Ys8",
+          "Promise": "Promise",
+          "pX7": "CX7",
+          "U96": "B96",
+          "SX7": "NX7",
+          "CX7": "yX7",
+          "Gw5": "$25",
+          "Zw5": "Y25",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "v8": "T8",
+          "a9": "a9",
+          "vJ7": "LJ7",
+          "p8": "g8",
+          "s7": "s7",
+          "i8": "i8",
+          "$s8": "Ms8",
+          "A25": "vw5",
+          "process": "process",
+          "Object": "Object",
+          "$1": "A1",
+          "QT": "ov",
+          "EX7": "bX7",
+          "c6": "Q6",
+          "rx": "ax",
+          "RX7": "IX7",
+          "O25": "Tw5",
+          "GJ7": "yJ7",
+          "Ys8": "Js8",
+          "Promise": "Promise",
+          "CX7": "pX7",
+          "B96": "U96",
+          "NX7": "SX7",
+          "yX7": "CX7",
+          "$25": "Gw5",
+          "Y25": "Zw5",
+          "y": "E"
+        },
+        "scopeCount": 17
+      },
+      "sourceOwner": "src/utils/debug.ts"
+    },
+    {
+      "slot": 4,
+      "targetName": "g8",
+      "currentName": "p8",
+      "target": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48877,
+          49516
+        ],
+        "nodes": 70,
+        "strictSha256": "b91a173308da044583c01f5dcc3f9987e18d352e6e2534c6e139ed0b0b2a6ce6",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48572,
+          49211
+        ],
+        "nodes": 70,
+        "strictSha256": "439f1f1e920fbfd3c67b0a56c291175c7cc825b72ffd6b5f2ff24a44feb4b181",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 71,
+        "forward": {
+          "qK": "_K",
+          "t1": "n1",
+          "process": "process",
+          "I$5": "T$5",
+          "hJ7": "kJ7",
+          "A1": "$1",
+          "u$5": "v$5",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "n1": "t1",
+          "process": "process",
+          "T$5": "I$5",
+          "kJ7": "hJ7",
+          "$1": "A1",
+          "v$5": "u$5",
+          "y": "E"
+        },
+        "scopeCount": 5
+      },
+      "sourceOwner": "src/utils/envUtils.ts"
+    },
+    {
+      "slot": 5,
+      "targetName": "y8",
+      "currentName": "y8",
+      "target": {
+        "index": 757,
+        "type": "VariableDeclaration",
+        "range": [
+          126649,
+          127455
+        ],
+        "nodes": 225,
+        "strictSha256": "3fe00fbbd959ffa4bb5c5a4f4215308173dc9dd81109e907b469ff17e5a7fbcb",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "current": {
+        "index": 757,
+        "type": "VariableDeclaration",
+        "range": [
+          126344,
+          127150
+        ],
+        "nodes": 225,
+        "strictSha256": "50887b8da98d96949c858011e029ee4e74a969175b05aff11594f39dc8188987",
+        "shapeSha256": "c01ca1de75a419357798082368d74519175ff2a26f53f9057d5dc3d7d0b073f6",
+        "identifierNamesErased": 51,
+        "protectedIdentifierOccurrences": 30
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 226,
+        "forward": {
+          "iv": "nZ",
+          "pI6": "hI6",
+          "Error": "Error",
+          "xB": "Ip",
+          "iz": "lz",
+          "rv": "UT",
+          "CE": "EE",
+          "yP": "kP",
+          "XV": "zV",
+          "E": "y"
+        },
+        "reverse": {
+          "nZ": "iv",
+          "hI6": "pI6",
+          "Error": "Error",
+          "Ip": "xB",
+          "lz": "iz",
+          "UT": "rv",
+          "EE": "CE",
+          "kP": "yP",
+          "zV": "XV",
+          "y": "E"
+        },
+        "scopeCount": 16
+      },
+      "sourceOwner": "src/utils/errors.ts"
+    },
+    {
+      "slot": 6,
+      "targetName": "XO6",
+      "currentName": "jA6",
+      "target": {
+        "index": 4795,
+        "type": "VariableDeclaration",
+        "range": [
+          3666771,
+          3666793
+        ],
+        "nodes": 10,
+        "strictSha256": "7c428be40934e50929b502f06ab61df756d933b1a1157bde9219378436b20aef",
+        "shapeSha256": "65fa3ba34bd72cea4346fba5d8794cfa09166080c3adc4dcd5a064a7c57532e2",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 4801,
+        "type": "VariableDeclaration",
+        "range": [
+          3668043,
+          3668065
+        ],
+        "nodes": 10,
+        "strictSha256": "c829ab8042453f842dba7f75a3489f388a02d1c14e7f650c7ba0be700cf8b7fb",
+        "shapeSha256": "65fa3ba34bd72cea4346fba5d8794cfa09166080c3adc4dcd5a064a7c57532e2",
+        "identifierNamesErased": 3,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 11,
+        "forward": {
+          "JK": "MK",
+          "E": "y"
+        },
+        "reverse": {
+          "MK": "JK",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceOwner": "src/utils/genericProcessUtils.ts"
+    },
+    {
+      "slot": 7,
+      "targetName": "kK",
+      "currentName": "VK",
+      "target": {
+        "index": 2128,
+        "type": "VariableDeclaration",
+        "range": [
+          876909,
+          878038
+        ],
+        "nodes": 295,
+        "strictSha256": "4e01346107dd866891359185aa60fb3a5730c4a17cd8ce1f77cb10603269fb80",
+        "shapeSha256": "2f8274c67ff0724a4fa1ebd1fbe490f52c626897f4f7c11800dfb20c6b0b162b",
+        "identifierNamesErased": 58,
+        "protectedIdentifierOccurrences": 22
+      },
+      "current": {
+        "index": 2131,
+        "type": "VariableDeclaration",
+        "range": [
+          877270,
+          878399
+        ],
+        "nodes": 295,
+        "strictSha256": "e2e169506a15ee8ea6008b95e63b76413f7c802f23f3ee124e80715497fc6845",
+        "shapeSha256": "2f8274c67ff0724a4fa1ebd1fbe490f52c626897f4f7c11800dfb20c6b0b162b",
+        "identifierNamesErased": 58,
+        "protectedIdentifierOccurrences": 22
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 296,
+        "forward": {
+          "qK": "_K",
+          "s7": "s7",
+          "R8": "L8",
+          "kK1": "WK1",
+          "Z1": "G1",
+          "process": "process",
+          "J8": "X8",
+          "j6": "j6",
+          "A1": "$1",
+          "p_6": "x_6",
+          "nL7": "dL7",
+          "yh5": "JR5",
+          "Nh5": "HR5",
+          "Eh5": "MR5",
+          "E": "y"
+        },
+        "reverse": {
+          "_K": "qK",
+          "s7": "s7",
+          "L8": "R8",
+          "WK1": "kK1",
+          "G1": "Z1",
+          "process": "process",
+          "X8": "J8",
+          "j6": "j6",
+          "$1": "A1",
+          "x_6": "p_6",
+          "dL7": "nL7",
+          "JR5": "yh5",
+          "HR5": "Nh5",
+          "MR5": "Eh5",
+          "y": "E"
+        },
+        "scopeCount": 22
+      },
+      "sourceOwner": "src/utils/platform.ts"
+    },
+    {
+      "slot": 8,
+      "targetName": "i8",
+      "currentName": "i8",
+      "target": {
+        "index": 856,
+        "type": "VariableDeclaration",
+        "range": [
+          135215,
+          135424
+        ],
+        "nodes": 70,
+        "strictSha256": "6f34a08b8dda8ef5580905ba6f3a1cf2a3f48ad4d725f1b6567398770c4aed6d",
+        "shapeSha256": "967c8032527b8f5276f43a4f5973c632f8104ebda985a0b7901ac736b5112b99",
+        "identifierNamesErased": 19,
+        "protectedIdentifierOccurrences": 4
+      },
+      "current": {
+        "index": 856,
+        "type": "VariableDeclaration",
+        "range": [
+          134910,
+          135119
+        ],
+        "nodes": 70,
+        "strictSha256": "ad1c680504d182f33e27ef00135099211eb9bf1d779bc086a0c6b6ad55f53d6f",
+        "shapeSha256": "967c8032527b8f5276f43a4f5973c632f8104ebda985a0b7901ac736b5112b99",
+        "identifierNamesErased": 19,
+        "protectedIdentifierOccurrences": 4
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 71,
+        "forward": {
+          "T8": "v8",
+          "K8": "K8",
+          "oY$": "iY$",
+          "process": "process",
+          "Number": "Number",
+          "zw5": "dO5",
+          "Symbol": "Symbol",
+          "qA": "tA",
+          "Yw5": "cO5",
+          "E": "y"
+        },
+        "reverse": {
+          "v8": "T8",
+          "K8": "K8",
+          "iY$": "oY$",
+          "process": "process",
+          "Number": "Number",
+          "dO5": "zw5",
+          "Symbol": "Symbol",
+          "tA": "qA",
+          "cO5": "Yw5",
+          "y": "E"
+        },
+        "scopeCount": 6
+      },
+      "sourceOwner": "src/utils/slowOperations.ts"
+    },
+    {
+      "slot": 9,
+      "targetName": "DY",
+      "currentName": "XY",
+      "target": {
+        "index": 4849,
+        "type": "VariableDeclaration",
+        "range": [
+          3672254,
+          3672285
+        ],
+        "nodes": 16,
+        "strictSha256": "ae0da69abedc34f294e631171ac1c4a9693b948d80fcde81622b211da10c80da",
+        "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 4855,
+        "type": "VariableDeclaration",
+        "range": [
+          3673526,
+          3673557
+        ],
+        "nodes": 16,
+        "strictSha256": "d2642abf5e4d1616c776ea94458dfe1319632881be8e08e87250303eedf9f533",
+        "shapeSha256": "e9e7c38356368c2db84d2aca7ed429bc206fad102900943ac800e5f227dee62c",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 17,
+        "forward": {
+          "uG": "SG",
+          "g8": "p8",
+          "E": "y"
+        },
+        "reverse": {
+          "SG": "uG",
+          "p8": "g8",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "sourceOwner": "src/utils/teammate.ts"
+    }
+  ],
+  "concreteSourceExportsAndDeclarations": [
+    {
+      "targetName": "t1",
+      "currentName": "n1",
+      "source": {
+        "path": "src/utils/envUtils.ts",
+        "sha256": "07ab3dd86a0ade2d25fab462c48092b18298da01f859feb2c83af6c775b3cad3",
+        "export": "getClaudeConfigHomeDir",
+        "range": [
+          259,
+          471
+        ]
+      },
+      "target": {
+        "index": 606,
+        "type": "VariableDeclaration",
+        "range": [
+          48866,
+          48877
+        ],
+        "nodes": 5,
+        "strictSha256": "a9295584186f39d95c57d42a346ddf4e0040ad5a9e3c7d9e652cd0a1c9b30e3d",
+        "shapeSha256": "5f5134b90d7bc4456f0b70b9d980c835413f8259b533e296ce50fade30a3bac3",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 606,
+        "type": "VariableDeclaration",
+        "range": [
+          48561,
+          48572
+        ],
+        "nodes": 5,
+        "strictSha256": "b1e9bb3a965e7ca09c11ba64216c9523461bf6159a2ed7fe37fb6f254c934392",
+        "shapeSha256": "5f5134b90d7bc4456f0b70b9d980c835413f8259b533e296ce50fade30a3bac3",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 6,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 2
+      }
+    },
+    {
+      "targetName": "Sr8",
+      "currentName": "Nr8",
+      "source": {
+        "path": "src/bootstrap/state.ts",
+        "sha256": "d8f32e1eb59de8d2b5ea1376a2de75fd8e587aa728e2d38668834e6bb347399a",
+        "export": "onSessionSwitch",
+        "range": [
+          20221,
+          20277
+        ]
+      },
+      "target": {
+        "index": 573,
+        "type": "VariableDeclaration",
+        "range": [
+          45035,
+          45124
+        ],
+        "nodes": 41,
+        "strictSha256": "9e622a0a5dfff9a44a52627e81e094781e6f641c42961dafdd8c021016b59358",
+        "shapeSha256": "4810a11d9e9f1eda23c34c66480578bab9a5ff4ab21de1f876f496a6f296ff80",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 573,
+        "type": "VariableDeclaration",
+        "range": [
+          44729,
+          44818
+        ],
+        "nodes": 41,
+        "strictSha256": "5ae51b04f444815d28ea400554ac492b5c97bc449f18e89b58399abe5fb0925f",
+        "shapeSha256": "4810a11d9e9f1eda23c34c66480578bab9a5ff4ab21de1f876f496a6f296ff80",
+        "identifierNamesErased": 15,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 42,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 2
+      }
+    },
+    {
+      "targetName": "Z1",
+      "currentName": "G1",
+      "source": {
+        "path": "src/utils/platform.ts",
+        "sha256": "9593ffa1f4ec1f3b38d417a5c7e89649c00a599539f39208afa67f2596baa303",
+        "export": "getPlatform",
+        "range": [
+          365,
+          1265
+        ]
+      },
+      "target": {
+        "index": 2127,
+        "type": "VariableDeclaration",
+        "range": [
+          876886,
+          876909
+        ],
+        "nodes": 11,
+        "strictSha256": "1bee2d52f9b1332c93e310f403c63f392d97268a290115ec49abace91ef841a0",
+        "shapeSha256": "60045dc937e4c3a939fb9c2f93507d8c7d4790bafcd27f3478fef9efc56f0fbf",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 2130,
+        "type": "VariableDeclaration",
+        "range": [
+          877247,
+          877270
+        ],
+        "nodes": 11,
+        "strictSha256": "20398c57db6da2d92e145a973c5c677b1b9274eab3c172049d45f054a27604f7",
+        "shapeSha256": "60045dc937e4c3a939fb9c2f93507d8c7d4790bafcd27f3478fef9efc56f0fbf",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 12,
+        "forward": {},
+        "reverse": {},
+        "scopeCount": 2
+      }
+    },
+    {
+      "targetName": "QP",
+      "currentName": "pP",
+      "source": {
+        "path": "src/utils/teammate.ts",
+        "sha256": "958162a73d4a711cfc102b69e6383cb9c61cf3abea459ed423cbb7b77434bb31",
+        "export": "getAgentId",
+        "range": [
+          2604,
+          2785
+        ]
+      },
+      "target": {
+        "index": 4838,
+        "type": "FunctionDeclaration",
+        "range": [
+          3670905,
+          3670971
+        ],
+        "nodes": 19,
+        "strictSha256": "1c4c9e361c1ea31d1f47ee7b0308b5cd2e1a0e27038d141cb1c9c99e8661ddb7",
+        "shapeSha256": "25700a1ab5f7dd4552c6c3d323099f9ae27f58547ba693c2a2f26b86d0f0d5c4",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 4844,
+        "type": "FunctionDeclaration",
+        "range": [
+          3672177,
+          3672243
+        ],
+        "nodes": 19,
+        "strictSha256": "e644ed1bc433db03e9d56d78041f064c676c2186bb6cdac74a89e7daa4059aad",
+        "shapeSha256": "25700a1ab5f7dd4552c6c3d323099f9ae27f58547ba693c2a2f26b86d0f0d5c4",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 20,
+        "forward": {
+          "UP": "BP",
+          "yL": "VL"
+        },
+        "reverse": {
+          "BP": "UP",
+          "VL": "yL"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "Uq",
+      "currentName": "Uq",
+      "source": {
+        "path": "src/utils/cleanupRegistry.ts",
+        "sha256": "07505ea73c4cfff522e8721dcccf63de390a09b4fb67dff12ed73b1d373ca2a5",
+        "export": "registerCleanup",
+        "range": [
+          487,
+          680
+        ]
+      },
+      "target": {
+        "index": 582,
+        "type": "FunctionDeclaration",
+        "range": [
+          46354,
+          46405
+        ],
+        "nodes": 17,
+        "strictSha256": "194cde4bf66706cf9a6215826db19a445f0aeb940164b8422c20cf7d9bbecef2",
+        "shapeSha256": "cb6a5da42d2ea0059b3c992be547e508d3c483cb7ec50e75e4ada374ac91bdab",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 582,
+        "type": "FunctionDeclaration",
+        "range": [
+          46048,
+          46099
+        ],
+        "nodes": 17,
+        "strictSha256": "38a05064a446ec2035c2a0ac726f7991516fa9d8da2da862d1803b276d75fe74",
+        "shapeSha256": "cb6a5da42d2ea0059b3c992be547e508d3c483cb7ec50e75e4ada374ac91bdab",
+        "identifierNamesErased": 6,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 18,
+        "forward": {
+          "Ka8": "ro8"
+        },
+        "reverse": {
+          "ro8": "Ka8"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "targetName": "N8",
+      "currentName": "N8",
+      "source": {
+        "path": "src/bootstrap/state.ts",
+        "sha256": "d8f32e1eb59de8d2b5ea1376a2de75fd8e587aa728e2d38668834e6bb347399a",
+        "export": "getSessionId",
+        "range": [
+          17968,
+          18038
+        ]
+      },
+      "target": {
+        "index": 362,
+        "type": "FunctionDeclaration",
+        "range": [
+          32392,
+          32426
+        ],
+        "nodes": 7,
+        "strictSha256": "36f0b160fe58ed352055a2c383faeaedd887452992a23ef1faebe73fda3ab828",
+        "shapeSha256": "54e32ab38e8e74511e2d9fa2f29db1c8efd56c6128c092cadc100169ef9edfe0",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 362,
+        "type": "FunctionDeclaration",
+        "range": [
+          32086,
+          32120
+        ],
+        "nodes": 7,
+        "strictSha256": "36f0b160fe58ed352055a2c383faeaedd887452992a23ef1faebe73fda3ab828",
+        "shapeSha256": "54e32ab38e8e74511e2d9fa2f29db1c8efd56c6128c092cadc100169ef9edfe0",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 8,
+        "forward": {
+          "G8": "G8"
+        },
+        "reverse": {
+          "G8": "G8"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "Y7",
+      "currentName": "q7",
+      "source": {
+        "path": "src/bootstrap/state.ts",
+        "sha256": "d8f32e1eb59de8d2b5ea1376a2de75fd8e587aa728e2d38668834e6bb347399a",
+        "export": "getOriginalCwd",
+        "range": [
+          20573,
+          20644
+        ]
+      },
+      "target": {
+        "index": 367,
+        "type": "FunctionDeclaration",
+        "range": [
+          32798,
+          32834
+        ],
+        "nodes": 7,
+        "strictSha256": "990f6e78940799d8a899675944d27d7b0d5c6d6fec051c2f0a16258490752886",
+        "shapeSha256": "95ed687bdb44c38afa2b3096e9654fe166f3adda7b8c66d853f5929df1e6e6d9",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 367,
+        "type": "FunctionDeclaration",
+        "range": [
+          32492,
+          32528
+        ],
+        "nodes": 7,
+        "strictSha256": "d323ff20da01a76e6fac1c5d5f2adb23df34cbd10d46cf6012864ced973579bf",
+        "shapeSha256": "95ed687bdb44c38afa2b3096e9654fe166f3adda7b8c66d853f5929df1e6e6d9",
+        "identifierNamesErased": 2,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 8,
+        "forward": {
+          "G8": "G8"
+        },
+        "reverse": {
+          "G8": "G8"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "g6",
+      "currentName": "p6",
+      "source": {
+        "path": "src/utils/slowOperations.ts",
+        "sha256": "8bb7da17d8b089bb73ab079fc411e60b0f0c1e571431938327bdcfafa8530b09",
+        "export": "jsonStringify",
+        "range": [
+          5707,
+          6066
+        ]
+      },
+      "target": {
+        "index": 852,
+        "type": "FunctionDeclaration",
+        "range": [
+          134363,
+          134505
+        ],
+        "nodes": 50,
+        "strictSha256": "21699642be28364db43769afd22bea4ac18d6574ce382948c8a9e8669f668eed",
+        "shapeSha256": "df4b3da63d9ee70358c8b4dee65696ab0096d19bd40f0fce832cc59f48b5c9bc",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 852,
+        "type": "FunctionDeclaration",
+        "range": [
+          134058,
+          134200
+        ],
+        "nodes": 50,
+        "strictSha256": "0cf4614f5b517f177c063fe656820d6acdf8026107ce3581eb95ce263211859b",
+        "shapeSha256": "df4b3da63d9ee70358c8b4dee65696ab0096d19bd40f0fce832cc59f48b5c9bc",
+        "identifierNamesErased": 22,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 51,
+        "forward": {
+          "qA": "tA",
+          "cz": "Qz",
+          "JSON": "JSON",
+          "lz": "dz"
+        },
+        "reverse": {
+          "tA": "qA",
+          "Qz": "cz",
+          "JSON": "JSON",
+          "dz": "lz"
+        },
+        "scopeCount": 7
+      }
+    },
+    {
+      "targetName": "F6",
+      "currentName": "Q6",
+      "source": {
+        "path": "src/utils/errors.ts",
+        "sha256": "ab8d90dac1d13f7e5fde4708643120556ea83d25f3586c90dafb2e453e01e9bd",
+        "export": "errorMessage",
+        "range": [
+          3480,
+          3584
+        ]
+      },
+      "target": {
+        "index": 750,
+        "type": "FunctionDeclaration",
+        "range": [
+          125808,
+          125869
+        ],
+        "nodes": 15,
+        "strictSha256": "b7f686e1a02052a151bc729a881f7893ea2170d2d5886469119713886147e48c",
+        "shapeSha256": "31479278c6f01f9c0ec1029bdad776e9525f5fa6606b22e6bf68b6d28314a211",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 750,
+        "type": "FunctionDeclaration",
+        "range": [
+          125503,
+          125564
+        ],
+        "nodes": 15,
+        "strictSha256": "3767e37973b3f42d41d908babb70c681f0ed1b34d81dd673597030bfb4a11068",
+        "shapeSha256": "31479278c6f01f9c0ec1029bdad776e9525f5fa6606b22e6bf68b6d28314a211",
+        "identifierNamesErased": 7,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 16,
+        "forward": {
+          "String": "String",
+          "Error": "Error"
+        },
+        "reverse": {
+          "String": "String",
+          "Error": "Error"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "N",
+      "currentName": "N",
+      "source": {
+        "path": "src/utils/debug.ts",
+        "sha256": "8d6734724d4e8467a50781d3af9d4341d54a8ffc64bf71a2726976714123b01e",
+        "export": "logForDebugging",
+        "range": [
+          6218,
+          6896
+        ]
+      },
+      "target": {
+        "index": 889,
+        "type": "FunctionDeclaration",
+        "range": [
+          143922,
+          144147
+        ],
+        "nodes": 81,
+        "strictSha256": "479484438ca31912b10a58514ed0998cb587ae030b845344d5cda3acca00acbd",
+        "shapeSha256": "f1df93aaea1ce8023fb92f0f97990ee043acc37ae15a652b825e9ea30680bab9",
+        "identifierNamesErased": 23,
+        "protectedIdentifierOccurrences": 7
+      },
+      "current": {
+        "index": 889,
+        "type": "FunctionDeclaration",
+        "range": [
+          143617,
+          143842
+        ],
+        "nodes": 81,
+        "strictSha256": "cbc086eb5543879bbb1b5c92a8f973b8179b91af3a0dfb66d8bdd99ff8bb6aaa",
+        "shapeSha256": "f1df93aaea1ce8023fb92f0f97990ee043acc37ae15a652b825e9ea30680bab9",
+        "identifierNamesErased": 23,
+        "protectedIdentifierOccurrences": 7
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 82,
+        "forward": {
+          "Ms8": "$s8",
+          "vw5": "A25",
+          "kw5": "w25",
+          "g6": "p6",
+          "Xs8": "As8",
+          "Date": "Date",
+          "Pl": "Ml",
+          "ax": "rx",
+          "yw5": "J25"
+        },
+        "reverse": {
+          "$s8": "Ms8",
+          "A25": "vw5",
+          "w25": "kw5",
+          "p6": "g6",
+          "As8": "Xs8",
+          "Date": "Date",
+          "Ml": "Pl",
+          "rx": "ax",
+          "J25": "yw5"
+        },
+        "scopeCount": 4
+      }
+    },
+    {
+      "targetName": "l8",
+      "currentName": "n8",
+      "source": {
+        "path": "src/utils/slowOperations.ts",
+        "sha256": "8bb7da17d8b089bb73ab079fc411e60b0f0c1e571431938327bdcfafa8530b09",
+        "export": "jsonParse",
+        "range": [
+          6304,
+          6669
+        ]
+      },
+      "target": {
+        "index": 855,
+        "type": "VariableDeclaration",
+        "range": [
+          135048,
+          135215
+        ],
+        "nodes": 66,
+        "strictSha256": "c566b7f3e134ce79528e2cd3197bc8eb9a89b45d31f43603f77142d5bd6e1159",
+        "shapeSha256": "81b968ff3890a4954b89bcab568b255a19535956e594cbad9a4cc66f83775628",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 2
+      },
+      "current": {
+        "index": 855,
+        "type": "VariableDeclaration",
+        "range": [
+          134743,
+          134910
+        ],
+        "nodes": 66,
+        "strictSha256": "6609f24c3114bd789b2444a8c4b5b070d66f56085a584c39be7ff6bcf272dc3d",
+        "shapeSha256": "81b968ff3890a4954b89bcab568b255a19535956e594cbad9a4cc66f83775628",
+        "identifierNamesErased": 26,
+        "protectedIdentifierOccurrences": 2
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 67,
+        "forward": {
+          "cz": "Qz",
+          "JSON": "JSON",
+          "lz": "dz"
+        },
+        "reverse": {
+          "Qz": "cz",
+          "JSON": "JSON",
+          "dz": "lz"
+        },
+        "scopeCount": 7
+      }
+    },
+    {
+      "targetName": "q9",
+      "currentName": "_9",
+      "source": {
+        "path": "src/utils/errors.ts",
+        "sha256": "ab8d90dac1d13f7e5fde4708643120556ea83d25f3586c90dafb2e453e01e9bd",
+        "export": "isFsInaccessible",
+        "range": [
+          6007,
+          6250
+        ]
+      },
+      "target": {
+        "index": 754,
+        "type": "FunctionDeclaration",
+        "range": [
+          126109,
+          126211
+        ],
+        "nodes": 30,
+        "strictSha256": "95a854b803b6a7d5d8072e52ea3872667438d64d7689480a5a5520fc288dc1d8",
+        "shapeSha256": "439b0f6d7a1c905871de1b2bbaa39a727a8335c9fa01ab943837dc3d56880b53",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 754,
+        "type": "FunctionDeclaration",
+        "range": [
+          125804,
+          125906
+        ],
+        "nodes": 30,
+        "strictSha256": "29da55738fd813288fe985f45039ada9f9f6e90924c0b283a1c62cad0be46859",
+        "shapeSha256": "439b0f6d7a1c905871de1b2bbaa39a727a8335c9fa01ab943837dc3d56880b53",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 0
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 31,
+        "forward": {
+          "c1": "a1"
+        },
+        "reverse": {
+          "a1": "c1"
+        },
+        "scopeCount": 3
+      }
+    },
+    {
+      "targetName": "wv6",
+      "currentName": "OT6",
+      "source": {
+        "path": "src/utils/genericProcessUtils.ts",
+        "sha256": "3d6f4eee36be35e81a5cdf8cd2791d0b12aa99f6cf4096ffbf0499479fe8dc08",
+        "export": "isProcessRunning",
+        "range": [
+          800,
+          969
+        ]
+      },
+      "target": {
+        "index": 4791,
+        "type": "FunctionDeclaration",
+        "range": [
+          3664199,
+          3664280
+        ],
+        "nodes": 28,
+        "strictSha256": "dc3c0dedff3f4e61ee26db73211011a0ebf9944ee47967370fec55d2c7213928",
+        "shapeSha256": "466a4ea969e774ca6a86518aadb39c0d90965293cb3b59b668a588ec328422f7",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 1
+      },
+      "current": {
+        "index": 4797,
+        "type": "FunctionDeclaration",
+        "range": [
+          3665471,
+          3665552
+        ],
+        "nodes": 28,
+        "strictSha256": "fd43c02c623bb60001952eac0cf280b3160881d5260bb71d0d874caceaa2ea0d",
+        "shapeSha256": "466a4ea969e774ca6a86518aadb39c0d90965293cb3b59b668a588ec328422f7",
+        "identifierNamesErased": 5,
+        "protectedIdentifierOccurrences": 1
+      },
+      "comparison": {
+        "pass": true,
+        "nodes": 29,
+        "forward": {
+          "process": "process"
+        },
+        "reverse": {
+          "process": "process"
+        },
+        "scopeCount": 6
+      }
+    }
+  ],
+  "graphs": {
+    "completeQueueModule": 430,
+    "queuePlusNineProviderInitializers": 1497,
+    "queuePlusNineInitializersAndThirteenImportedExportDeclarations": 1874,
+    "completeEightBridgeBodies": 6452,
+    "restoredBridgeModulesSharedCapturesAndQueueProviders": {
+      "nodes": 18548,
+      "statementPairs": 122,
+      "pass": true,
+      "onlyOmittedDirectProviderDefinition": {
+        "target": {
+          "index": 15668,
+          "type": "VariableDeclaration",
+          "range": [
+            11399099,
+            11399873
+          ],
+          "nodes": 190,
+          "strictSha256": "59408ee227925de29b6fa71a55e9cdd43fad4c228c77eedf5ccc112b26e0309f",
+          "shapeSha256": "986decb87a0bbade00eb31111531311b14feb2df3004fecff05a96b4368e94c5",
+          "identifierNamesErased": 57,
+          "protectedIdentifierOccurrences": 10
+        },
+        "current": {
+          "index": 15663,
+          "type": "VariableDeclaration",
+          "range": [
+            11384579,
+            11385554
+          ],
+          "nodes": 206,
+          "strictSha256": "485339e8aeeaeb0c6855753c350f58f257f06073c5aa68bf5b0396acd8dade13",
+          "shapeSha256": "581c1b5d5b13a5c1b3ded9d98670fc1160c0eb12fb3d9cab738e2cdb5021aa6a",
+          "identifierNamesErased": 59,
+          "protectedIdentifierOccurrences": 11
+        },
+        "owner": "src/utils/sessionStorage.ts",
+        "callsRetained": true
+      }
+    },
+    "expandedGraphIncludingStorage": {
+      "pass": false,
+      "error": "node count\n\n18738 !== 18754\n"
+    }
+  },
+  "bridgeSupplier": {
+    "slot": 9,
+    "targetName": "TN",
+    "currentName": "AC",
+    "target": {
+      "index": 4953,
+      "type": "VariableDeclaration",
+      "range": [
+        3702495,
+        3702579
+      ],
+      "nodes": 41,
+      "strictSha256": "947ed0a0a655f161f7cb589a9e86e5ea1e24d0a9004f1c44d77e146bd3c8a499",
+      "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+      "identifierNamesErased": 13,
+      "protectedIdentifierOccurrences": 1
+    },
+    "current": {
+      "index": 4959,
+      "type": "VariableDeclaration",
+      "range": [
+        3703767,
+        3703851
+      ],
+      "nodes": 41,
+      "strictSha256": "cd1659d5bfdb44feb07b55ccf7d7dc8589e3c3cebc28c67abfd40be6f4f71357",
+      "shapeSha256": "144e167a634da7efb2f8a0995755d97de7bfaf56e4500bccf948eae4a3d6d53c",
+      "identifierNamesErased": 13,
+      "protectedIdentifierOccurrences": 1
+    },
+    "comparison": {
+      "pass": true,
+      "nodes": 42,
+      "forward": {
+        "T8": "v8",
+        "a9": "a9",
+        "K8": "K8",
+        "g8": "p8",
+        "y8": "y8",
+        "XO6": "jA6",
+        "kK": "VK",
+        "i8": "i8",
+        "DY": "XY",
+        "Raq": "baq",
+        "Promise": "Promise",
+        "E": "y"
+      },
+      "reverse": {
+        "v8": "T8",
+        "a9": "a9",
+        "K8": "K8",
+        "p8": "g8",
+        "y8": "y8",
+        "jA6": "XO6",
+        "VK": "kK",
+        "i8": "i8",
+        "XY": "DY",
+        "baq": "Raq",
+        "Promise": "Promise",
+        "y": "E"
+      },
+      "scopeCount": 3
+    }
+  },
+  "bridgePrefixes": [
+    {
+      "name": "caller",
+      "target": {
+        "index": 16329,
+        "type": "VariableDeclaration",
+        "range": [
+          11783268,
+          11783426
+        ],
+        "nodes": 85,
+        "strictSha256": "4eb398d924f45b2c5cf4abe378e94efb763b93c3b7d98a191bc5552cefc1e852",
+        "shapeSha256": "8eddd539d3cf25515a78673188726fe8225bf45f8dd365a4c74fcffdab87f61f",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16322,
+        "type": "VariableDeclaration",
+        "range": [
+          11768609,
+          11768767
+        ],
+        "nodes": 85,
+        "strictSha256": "3af2904c0528a17a7e52b4bbb5e9910485df6056a8ed292c7db974d090a7fabf",
+        "shapeSha256": "8eddd539d3cf25515a78673188726fe8225bf45f8dd365a4c74fcffdab87f61f",
+        "identifierNamesErased": 28,
+        "protectedIdentifierOccurrences": 0
+      },
+      "calls": 26,
+      "completePrefixMatchesUnderRecordedProviderInterfaces": true,
+      "failedDirectProviderBodies": [
+        {
+          "target": {
+            "index": 15668,
+            "type": "VariableDeclaration",
+            "range": [
+              11399099,
+              11399873
+            ],
+            "nodes": 190,
+            "strictSha256": "59408ee227925de29b6fa71a55e9cdd43fad4c228c77eedf5ccc112b26e0309f",
+            "shapeSha256": "986decb87a0bbade00eb31111531311b14feb2df3004fecff05a96b4368e94c5",
+            "identifierNamesErased": 57,
+            "protectedIdentifierOccurrences": 10
+          },
+          "current": {
+            "index": 15663,
+            "type": "VariableDeclaration",
+            "range": [
+              11384579,
+              11385554
+            ],
+            "nodes": 206,
+            "strictSha256": "485339e8aeeaeb0c6855753c350f58f257f06073c5aa68bf5b0396acd8dade13",
+            "shapeSha256": "581c1b5d5b13a5c1b3ded9d98670fc1160c0eb12fb3d9cab738e2cdb5021aa6a",
+            "identifierNamesErased": 59,
+            "protectedIdentifierOccurrences": 11
+          },
+          "targetName": "_K",
+          "currentName": "YK"
+        }
+      ]
+    },
+    {
+      "name": "presence",
+      "target": {
+        "index": 16252,
+        "type": "VariableDeclaration",
+        "range": [
+          11702531,
+          11702584
+        ],
+        "nodes": 27,
+        "strictSha256": "c9a7d3eaa97c477505e499ab21c3d203b242374546cac3910737f451064e07ab",
+        "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16245,
+        "type": "VariableDeclaration",
+        "range": [
+          11687876,
+          11687929
+        ],
+        "nodes": 27,
+        "strictSha256": "844633513ddbdfad808946d1caa345c5497c3975824520d2c32c6bd2354c88a7",
+        "shapeSha256": "b037ee66cea1e8bd4e44cf159ca07e3c70197dfd587fc1a7f16e642b316e98f2",
+        "identifierNamesErased": 9,
+        "protectedIdentifierOccurrences": 0
+      },
+      "calls": 5,
+      "completePrefixMatchesUnderRecordedProviderInterfaces": true,
+      "failedDirectProviderBodies": []
+    },
+    {
+      "name": "env",
+      "target": {
+        "index": 16307,
+        "type": "VariableDeclaration",
+        "range": [
+          11766918,
+          11767033
+        ],
+        "nodes": 61,
+        "strictSha256": "36b10397c8544b8ebffa9cb43ddd4b85b2f0b21b9caf91becd00405c34576141",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16300,
+        "type": "VariableDeclaration",
+        "range": [
+          11752261,
+          11752376
+        ],
+        "nodes": 61,
+        "strictSha256": "d0bd7bc3bbc8880ce471fa4916e5c15fb81d365fe5d27d4ff22ba4651d53c43e",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "calls": 18,
+      "completePrefixMatchesUnderRecordedProviderInterfaces": true,
+      "failedDirectProviderBodies": []
+    },
+    {
+      "name": "remote",
+      "target": {
+        "index": 16321,
+        "type": "VariableDeclaration",
+        "range": [
+          11778324,
+          11778439
+        ],
+        "nodes": 61,
+        "strictSha256": "a2283e1f2faa82acdd5b4d859f1df4b08d85119a8a3eb5dc221d3c4e2dd08b0e",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "current": {
+        "index": 16314,
+        "type": "VariableDeclaration",
+        "range": [
+          11763665,
+          11763780
+        ],
+        "nodes": 61,
+        "strictSha256": "9584fb11e2e6888f9c0777f45823ee6e8cfe4704d45f4f1e59c88a7193dca58d",
+        "shapeSha256": "841eb07c90b59f3b8e938f2be9209e6a8b10b62723c843e47559b35c5c86127c",
+        "identifierNamesErased": 20,
+        "protectedIdentifierOccurrences": 0
+      },
+      "calls": 18,
+      "completePrefixMatchesUnderRecordedProviderInterfaces": true,
+      "failedDirectProviderBodies": []
+    },
+    {
+      "name": "metadata",
+      "target": {
+        "index": 4867,
+        "type": "VariableDeclaration",
+        "range": [
+          3678626,
+          3681498
+        ],
+        "nodes": 480,
+        "strictSha256": "f68dda037db9bc74f593a6311c4fc19d2262cb4e931a238df91a31461a5486c1",
+        "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+        "identifierNamesErased": 83,
+        "protectedIdentifierOccurrences": 108
+      },
+      "current": {
+        "index": 4873,
+        "type": "VariableDeclaration",
+        "range": [
+          3679898,
+          3682770
+        ],
+        "nodes": 480,
+        "strictSha256": "ced2fab2a6b7783246f97d350fc570c1a2929921bfbb7554927ae6ba2dcc4396",
+        "shapeSha256": "3c9b7387990d8f01f0b75c712d03c104dd30b8b5fa9ab232540f8efeeefce190",
+        "identifierNamesErased": 83,
+        "protectedIdentifierOccurrences": 108
+      },
+      "calls": 15,
+      "completePrefixMatchesUnderRecordedProviderInterfaces": true,
+      "failedDirectProviderBodies": []
+    },
+    {
+      "name": "envUtils",
+      "target": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48877,
+          49516
+        ],
+        "nodes": 70,
+        "strictSha256": "b91a173308da044583c01f5dcc3f9987e18d352e6e2534c6e139ed0b0b2a6ce6",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "current": {
+        "index": 607,
+        "type": "VariableDeclaration",
+        "range": [
+          48572,
+          49211
+        ],
+        "nodes": 70,
+        "strictSha256": "439f1f1e920fbfd3c67b0a56c291175c7cc825b72ffd6b5f2ff24a44feb4b181",
+        "shapeSha256": "653910d58619424244c57a2ad5fc414e897cd95a79f7ae7758cbd1d26f3658a0",
+        "identifierNamesErased": 10,
+        "protectedIdentifierOccurrences": 5
+      },
+      "calls": 1,
+      "completePrefixMatchesUnderRecordedProviderInterfaces": true,
+      "failedDirectProviderBodies": []
+    }
+  ],
+  "behaviorAndErrorOrder": [
+    "The per-call PID path is computed before reading the module queue and attaching the async callback. A path computation failure occurs before enqueueing.",
+    "The callback reads, parses, merges and writes the PID file inside the existing try/catch. The returned task is assigned to the same shared variable before the outer helper awaits it.",
+    "The real shared queue is initialized with Promise.resolve after the same nine concrete initializer calls. No queue reset, predecessor catch, finally, retry or reordering is introduced.",
+    "A rejected predecessor skips the fulfillment callback. Ordinary caught operation errors follow the existing logger path; a logger/catch-handler throw can reject the task and affect later queued calls. These target-directed semantics are verified structurally without running promises or I/O.",
+    "registerSession and the name/bridge update wrappers all resolve the same private helper; their full bodies and native import identities match. The source-only gated updateSessionActivity remains preserved, while this fixed external production module omits it. No dynamic or global caller-absence claim is made.",
+    "The earlier env-core supplier failure is now closed by the concrete queue initializer and helper. All corrected bridge body/capture/prefix proofs remain valid in one joined graph under the existing storage interface."
+  ],
+  "preservedBoundaries": {
+    "storageInitializer": {
+      "targetNodes": 190,
+      "currentNodes": 206,
+      "accepted": false,
+      "sourceOwner": "src/utils/sessionStorage.ts",
+      "qualification": "The inherited title-change signal/subscription versus marker/Buffer-array difference remains. Storage calls and their positions stay grounded; its differing definition is an explicit interface in the passing graph."
+    },
+    "Project": {
+      "targetNodes": 2388,
+      "currentNodes": 2351,
+      "accepted": false,
+      "qualification": "Historical full-class failure remains unaccepted and was not promoted by the queue repair."
+    },
+    "envUtilsRawDeclarationPlacement": {
+      "accepted": false,
+      "behavioralFailureInferred": false,
+      "qualification": "Prior two-hoisted-function placement difference is retained; their bodies and initializer match, without a reflection/eval independence certificate."
+    },
+    "nativeAndAmbientInterfaces": "Promise implementation, filesystem, process, logger and deeper providers remain conditional; no runtime I/O or scheduling behavior was tested."
+  },
+  "priorActualHistory": {
+    "bridgeReview": {
+      "path": "historical-checkpoints/recovery-2.1.90-bridge-cleanup-order-emission-review/review.json",
+      "sha256": "f3ab1b036f0e1fe3201d187805e36f9d314c2c9974483d56db0d6811c619102a"
+    },
+    "bridgeClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-bridge-cleanup-order-emission-review/freeze.json",
+      "sha256": "be4da673b091c74bd5ab87f4e6ed34867f8cfc33bc7472a6a019ed4bb49d1aa2"
+    },
+    "originalBridgeActualScopedTrueOverallFalsePreserved": true,
+    "old68Versus53HelperAnd41Versus34InitializerFailureRetainedAsHistorical": true,
+    "sourceFixturesAndReadinessResultsUnchanged": true
+  },
+  "verification": {
+    "freshOriginalIndexedWitnesses": 270,
+    "freshAdverseControls": [
+      {
+        "name": "predecessor read detached from shared queue",
+        "rejected": true
+      },
+      {
+        "name": "task not stored into shared queue before awaiting",
+        "rejected": true
+      },
+      {
+        "name": "Promise.resolve assignment moved before initializer providers",
+        "rejected": true
+      },
+      {
+        "name": "queued callback no longer async",
+        "rejected": true
+      },
+      {
+        "name": "bridge update caller bypasses shared helper",
+        "rejected": true
+      }
+    ],
+    "originalModuleScopeResolvesThreeReadOnlyHelperCallReferences": true,
+    "fullSourceFixtureSuiteReusedNotRepeated": true,
+    "physicalReadinessCensusReused": true,
+    "changedOwnerRehashed": true,
+    "currentCompilerFinalizerHashChainChecked": true,
+    "draftHarnessCorrection": "The first source-export selector also matched TypeScript overload declarations; it was corrected to select the concrete implementation. That failed draft and stderr remain preserved."
+  },
+  "limits": [
+    "This is actual acceptance of the one-owner queue obligation and the explicitly bounded bridge supplier graph. It does not establish whole-version or full persistence acceptance.",
+    "No recovered application, Promise callback, filesystem helper, process probe, cleanup callback, network code or full bundle parse ran.",
+    "Source map original-coordinate correctness, deeper native/ambient equivalence and global initialization/retention remain outside this proof."
+  ],
+  "applicationExecuted": false,
+  "recoveredFunctionsOrCallbacksExecuted": false,
+  "fullBuildExecutedByReviewer": false,
+  "fullBundleProgramParsedByReviewer": false,
+  "sourceStageProfileRuntimeOrRepositoryModified": false
+}

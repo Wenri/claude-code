@@ -1,0 +1,37 @@
+{
+  "kind": "private-reviewed-trial-summary",
+  "version": "2.1.90",
+  "trial": 7,
+  "originalProfileSha256": "f153afa0026720529b51442fed12b02112290858100983b45f46656061c51efd",
+  "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+  "compileReportSha256": "60ea44f940d685c0093138812fd6874549029c8ae56a699f419a7bd30f1c9b79",
+  "compilePassed": true,
+  "generatedApplicationExecuted": false,
+  "finalJavaScript": {
+    "bytes": 13105738,
+    "utf16Length": 13041615,
+    "sha256": "4a46c4384ff6e81160e749536e528f5762ebdda0e5e4598842c82e7e8c8b67f4"
+  },
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3105172,
+    "sha256": "5dcf01b84a95cde1a3c1faacce353265a6e6104d991273b628c65611c8843839"
+  },
+  "officialJavaScript": {
+    "bytes": 13128331,
+    "utf16Length": 13064141,
+    "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+  },
+  "officialStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "fullASTEqualityEstablished": false,
+  "publicRelocatedCompilerReplayVerified": true,
+  "publicRelocatedReplayEvidenceSha256": "66d411c10834c471b6a256eb49504a88a854e6f8e1967e73a36b412df15100e0"
+}
