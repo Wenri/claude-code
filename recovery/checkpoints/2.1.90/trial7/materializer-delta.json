@@ -1,0 +1,74 @@
+{
+  "baselinePath": "recovery/checkpoints/2.1.89/v28/materialize.py",
+  "baselineSha256": "665bdcc840cf38336529b3070198a167c1629e22cd04f2349907c8da23beed91",
+  "candidateSha256": "a6a2c5b10e3baff8ca00522c743868a733e0138875dd7039bdb4e59191b192f0",
+  "substitutions": [
+    {
+      "before": "Offline fixed-v28 checkpoint",
+      "after": "Offline fixed-2.1.90-trial7 checkpoint",
+      "occurrences": 1
+    },
+    {
+      "before": "\"sourceFiles\": 6084, \"sourceBytes\": 50939997",
+      "after": "\"sourceFiles\": 6108, \"sourceBytes\": 51036694",
+      "occurrences": 1
+    },
+    {
+      "before": "711ab8e2daaa2669fafc835c9aecab2b2df0afe90ad515ad66dc3a7dcce14094",
+      "after": "966823ecc70d3a6009ee3c2100516666941222168e877c9408dcbaf502ec6e29",
+      "occurrences": 1
+    },
+    {
+      "before": "459e876206692e10750c94e74f865155addb9d53",
+      "after": "7db5611b82602d46d5ce983904e0a573e1b74402",
+      "occurrences": 1
+    },
+    {
+      "before": "CHECKPOINT = \"recovery/checkpoints/2.1.89/v28\"",
+      "after": "CHECKPOINT = \"recovery/checkpoints/2.1.90/trial7\"",
+      "occurrences": 1
+    },
+    {
+      "before": "len(pins) == 1922",
+      "after": "len(pins) == 1929",
+      "occurrences": 1
+    },
+    {
+      "before": "wrong fixed-v28 expectations",
+      "after": "wrong fixed-2.1.90-trial7 expectations",
+      "occurrences": 1
+    },
+    {
+      "before": "profile.get(\"version\") == \"2.1.89\" and profile.get(\"sourceRevision\") == 28",
+      "after": "profile.get(\"version\") == \"2.1.90\" and profile.get(\"sourceRevision\") == 1",
+      "occurrences": 1
+    },
+    {
+      "before": "[6084,1951,1922,29]",
+      "after": "[6108,1958,1929,29]",
+      "occurrences": 1
+    },
+    {
+      "before": "== 1951, \"staged src census\"",
+      "after": "== 1958, \"staged src census\"",
+      "occurrences": 1
+    },
+    {
+      "before": "len(delta) == 156",
+      "after": "len(delta) == 205",
+      "occurrences": 1
+    },
+    {
+      "before": "exact 156 changed/new inputs",
+      "after": "exact 205 changed/new inputs",
+      "occurrences": 1
+    },
+    {
+      "before": "\"recovery/profiles/2.1.89/\"",
+      "after": "\"recovery/profiles/2.1.90/\"",
+      "occurrences": 1
+    }
+  ],
+  "completeReverseExact": true,
+  "algorithmPolicyChanges": false
+}

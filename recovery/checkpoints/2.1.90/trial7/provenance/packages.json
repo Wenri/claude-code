@@ -1,0 +1,71 @@
+{
+  "kind": "official-attribution-and-reconstruction-boundaries",
+  "officialCli": {
+    "version": "2.1.90",
+    "archiveSha256": "8e49c90ebaec565b5fb0af744bebc53c1fd36262453cb4f309c12f6127b55418",
+    "archiveBytes": 16512072,
+    "targetJavaScriptSha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+    "members": [
+      {
+        "path": "provenance/official-cli/LICENSE.md",
+        "bytes": 147,
+        "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+      },
+      {
+        "path": "provenance/official-cli/README.md",
+        "bytes": 2037,
+        "sha256": "9c121f2b01db7f62e3b75e400c8846857b4c32976083ae5a7b2cf6939876c17e"
+      },
+      {
+        "path": "provenance/official-cli/package.json",
+        "bytes": 1242,
+        "sha256": "c5903b5167075dcfce58df0df30e7b5249d633d9ef4dda6ba1c716ec98856d8a"
+      }
+    ],
+    "packageLicense": "SEE LICENSE IN README.md",
+    "unchangedRuntimeBundleIncluded": false
+  },
+  "vendors": [
+    {
+      "package": "@anthropic-ai/sandbox-runtime",
+      "version": "0.0.46",
+      "archiveSha256": "aa1a64602961d2db56e4fbc9303c337634ab3cd2ef6a4e3683281b7ce6b0b41f",
+      "archiveBytes": 1392249,
+      "members": [
+        {
+          "path": "provenance/sandbox-runtime/LICENSE",
+          "bytes": 11339,
+          "sha256": "1210bc93eb85dd786c33192d5bcb7153a93922fa99fbc1512af6a7199cb41080"
+        },
+        {
+          "path": "provenance/sandbox-runtime/package.json",
+          "bytes": 2734,
+          "sha256": "bfe6cabdec4aeaf1a0d6526932b707bbc4734bef3ba356c5494df472c9330f27"
+        }
+      ],
+      "qualification": "Exact official attribution retained. Compiler inputs are the reviewed subset/reconstructed routes, not the full package or a claim of unchanged official source."
+    },
+    {
+      "package": "@anthropic-ai/aws-sdk",
+      "version": "0.2.0",
+      "archiveSha256": "573242fb878aef401f6c5fd42fff759f5ebf6ad1aca1c5bf173d65011766d54e",
+      "archiveBytes": 75979,
+      "members": [
+        {
+          "path": "provenance/aws-sdk/LICENSE",
+          "bytes": 1056,
+          "sha256": "8bf96984ff8bcfae7e48cae76a529e8a25317ba9e02abf7fd3cc64fdf95657a6"
+        },
+        {
+          "path": "provenance/aws-sdk/package.json",
+          "bytes": 2154,
+          "sha256": "d1bcecd30ba7f66d2a736ea16491305ec33c643d658d3f4e90ed057d9398102d"
+        }
+      ],
+      "qualification": "Exact official attribution retained. Compiler inputs are the reviewed subset/reconstructed routes, not the full package or a claim of unchanged official source."
+    }
+  ],
+  "originalPrivateSourceAuthorshipClaim": false,
+  "baselineAttribution": "Existing .88 archive and repository notices remain unchanged.",
+  "licensesAreNotRelicensing": true
+}

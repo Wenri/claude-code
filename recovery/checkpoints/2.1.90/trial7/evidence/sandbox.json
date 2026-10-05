@@ -1,0 +1,1765 @@
+{
+  "kind": "compact-independent-actual-sandbox-emission-review",
+  "reportId": "sandbox_runtime",
+  "verdict": "scoped-production-library-body-state-and-lazy-prefix-graph-pass",
+  "actualScopedEmissionVerified": true,
+  "actualEmissionVerified": true,
+  "wholePackageAcceptance": false,
+  "wholeVersion90Acceptance": false,
+  "globalInitializationOrderVerified": false,
+  "transitiveProviderGraphAccepted": false,
+  "normalizationGateEnabled": false,
+  "pins": {
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v3-sandbox/profile.json",
+      "bytes": 6911510,
+      "sha256": "5808132af76bef60241684ad97692e707e70de50d035a068856bdad86dcf3a6f"
+    },
+    "toolchain": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v3-sandbox/toolchain.json",
+      "bytes": 14064,
+      "sha256": "f6678a5b44971d4a71a5792a7df5d11eba9b9fe87a9b4ef887b91fea5d6afad1"
+    },
+    "candidateJS": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v3/final/cli.js",
+      "bytes": 13081504,
+      "sha256": "12bff88d529bac013607e2a393292e45ee415da818eb42475ba50d8bd0d7a72e"
+    },
+    "candidateIndex": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v3-analysis/candidate-index.json",
+      "bytes": 5580044,
+      "sha256": "281699cbddf63e34d20111d3170b281429df2f540b152967dbb9911c3f481b2b"
+    },
+    "targetJS": {
+      "path": "historical-checkpoints/recovery-2.1.90-start/package/cli.js",
+      "bytes": 13128331,
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    },
+    "targetIndex": {
+      "path": "historical-checkpoints/recovery-2.1.90-start/integrator-target-analysis/target-index.json",
+      "bytes": 5602573,
+      "sha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9"
+    },
+    "compileReport": {
+      "path": "historical-checkpoints/recovery-2.1.90-trial-v3/compile-report.json",
+      "bytes": 103551,
+      "sha256": "c9fd792f61ff229703f331fe761545ffa4dd79db2ecb4e95e1e7e47a2f58ff75"
+    },
+    "sourceApproval": {
+      "path": "historical-checkpoints/recovery-2.1.90-sandbox-runtime-independent-review/review.json",
+      "bytes": 21356,
+      "sha256": "123af058aa398153101df547f1410c26f54479b1911037486d9b0b0515a5a51b"
+    },
+    "bindingApproval": {
+      "path": "historical-checkpoints/recovery-2.1.90-sandbox-binding-independent-review/review.json",
+      "bytes": 8878,
+      "sha256": "ce904f3875a2697ad48a269be06769f788b7d4a117d6a4cb44aad6eb3f86b622"
+    },
+    "sourceApprovalClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-sandbox-runtime-independent-review/freeze.json",
+      "bytes": 4597,
+      "sha256": "cb1ecd81b28bc1f036c564f16da55818e90e319a7a9fbf3b3cf5727c7eb12aa9"
+    },
+    "bindingApprovalClosure": {
+      "path": "historical-checkpoints/recovery-2.1.90-sandbox-binding-independent-review/freeze.json",
+      "bytes": 1320,
+      "sha256": "8d6c2dc9f715c5fbd281ab9ea60604b4e91e4992d3ad47529d255c2b78f14c5e"
+    }
+  },
+  "sourceInputRoot": "historical-checkpoints/recovery-2.1.90-stage-v5-sandbox/inputs",
+  "runtimeRoot": "historical-checkpoints/recovery-2.1.90-candidate-v3-sandbox/recovery",
+  "productionOptionsTarget": "node",
+  "scope": {
+    "targetStatements": [
+      6020,
+      6177
+    ],
+    "candidateStatements": [
+      6007,
+      6164
+    ],
+    "orderedStatementCount": 158,
+    "completeLibraryBlockNodes": 15638,
+    "libraryBlockScopeCount": 584,
+    "completeFunctions": 100,
+    "functionGraphNodes": 11535,
+    "functionScopeCount": 483,
+    "nativeImports": 35,
+    "capturedStates": 26,
+    "schemaValues": 10,
+    "lazyInitializers": 8,
+    "auxiliaryStatements": 17,
+    "extendedGraphNodes": 16766,
+    "indexedWitnesses": 350,
+    "focusedNegativeControls": 7
+  },
+  "freshResults": {
+    "completeFunctionRuntimeFieldsAndJointBindings": true,
+    "completeOrderedLibraryBlockGraph": true,
+    "importRequestsKindsExportsAndReceiversExact": true,
+    "completeSharedDeclarationsAndAssignments": true,
+    "managerPublicPropertyOrderExact": true,
+    "schemaValuesAndOrderExact": true,
+    "allEightRealLazyPrefixesExact": true,
+    "concreteCompilerHelpersAndCJSFactoriesGrounded": true,
+    "lodashCloneDeepEntryAndZodNamespaceExportMapGrounded": true,
+    "all11MarkerDeletionsReplayByteExactly": true,
+    "rawIndexStatementsFreshlyParsedAndStrictDigestsChecked": true
+  },
+  "functions": [
+    {
+      "roles": [
+        "debug.logForDebugging"
+      ],
+      "fixtureName": "W",
+      "targetName": "H7",
+      "targetIndex": 6020,
+      "nodes": 67,
+      "currentIndex": 6007,
+      "currentName": "$7"
+    },
+    {
+      "roles": [
+        "proxy.resolveParentProxy"
+      ],
+      "fixtureName": "O$",
+      "targetName": "eS1",
+      "targetIndex": 6024,
+      "nodes": 174,
+      "currentIndex": 6011,
+      "currentName": "LS1"
+    },
+    {
+      "roles": [],
+      "fixtureName": "hZ",
+      "targetName": "_x_",
+      "targetIndex": 6025,
+      "nodes": 256,
+      "currentIndex": 6012,
+      "currentName": "Hb_"
+    },
+    {
+      "roles": [
+        "proxy.shouldBypassParentProxy"
+      ],
+      "fixtureName": "e",
+      "targetName": "Gi6",
+      "targetIndex": 6026,
+      "nodes": 132,
+      "currentIndex": 6013,
+      "currentName": "rn6"
+    },
+    {
+      "roles": [
+        "proxy.selectParentProxyUrl"
+      ],
+      "fixtureName": "$$",
+      "targetName": "vi6",
+      "targetIndex": 6027,
+      "nodes": 21,
+      "currentIndex": 6014,
+      "currentName": "on6"
+    },
+    {
+      "roles": [
+        "proxy.openConnectTunnel"
+      ],
+      "fixtureName": "N$",
+      "targetName": "qC1",
+      "targetIndex": 6028,
+      "nodes": 345,
+      "currentIndex": 6015,
+      "currentName": "RS1"
+    },
+    {
+      "roles": [
+        "proxy.connectViaParentProxy"
+      ],
+      "fixtureName": "W$",
+      "targetName": "LT8",
+      "targetIndex": 6029,
+      "nodes": 86,
+      "currentIndex": 6016,
+      "currentName": "tT8"
+    },
+    {
+      "roles": [
+        "proxy.proxyAuthHeader"
+      ],
+      "fixtureName": "U$",
+      "targetName": "KC1",
+      "targetIndex": 6030,
+      "nodes": 75,
+      "currentIndex": 6017,
+      "currentName": "hS1"
+    },
+    {
+      "roles": [
+        "proxy.stripHopByHop"
+      ],
+      "fixtureName": "Z$",
+      "targetName": "Ti6",
+      "targetIndex": 6031,
+      "nodes": 84,
+      "currentIndex": 6018,
+      "currentName": "an6"
+    },
+    {
+      "roles": [
+        "proxy.stripBrackets"
+      ],
+      "fixtureName": "x",
+      "targetName": "au",
+      "targetIndex": 6032,
+      "nodes": 25,
+      "currentIndex": 6019,
+      "currentName": "Uu"
+    },
+    {
+      "roles": [
+        "proxy.redactUrl"
+      ],
+      "fixtureName": "T$",
+      "targetName": "_C1",
+      "targetIndex": 6033,
+      "nodes": 46,
+      "currentIndex": 6020,
+      "currentName": "SS1"
+    },
+    {
+      "roles": [],
+      "fixtureName": "lZ",
+      "targetName": "Yx_",
+      "targetIndex": 6034,
+      "nodes": 11,
+      "currentIndex": 6021,
+      "currentName": "Mb_"
+    },
+    {
+      "roles": [
+        "proxy.isValidHost"
+      ],
+      "fixtureName": "X$",
+      "targetName": "ki6",
+      "targetIndex": 6035,
+      "nodes": 44,
+      "currentIndex": 6022,
+      "currentName": "sn6"
+    },
+    {
+      "roles": [
+        "proxy.canonicalizeHost"
+      ],
+      "fixtureName": "y$",
+      "targetName": "v34",
+      "targetIndex": 6036,
+      "nodes": 47,
+      "currentIndex": 6023,
+      "currentName": "d54"
+    },
+    {
+      "roles": [
+        "proxy.dialDirect"
+      ],
+      "fixtureName": "q$",
+      "targetName": "hT8",
+      "targetIndex": 6037,
+      "nodes": 97,
+      "currentIndex": 6024,
+      "currentName": "eT8"
+    },
+    {
+      "roles": [
+        "http.createHttpProxyServer"
+      ],
+      "fixtureName": "u$",
+      "targetName": "k34",
+      "targetIndex": 6045,
+      "nodes": 873,
+      "currentIndex": 6032,
+      "currentName": "l54"
+    },
+    {
+      "roles": [],
+      "fixtureName": "aZ",
+      "targetName": "jx_",
+      "targetIndex": 6046,
+      "nodes": 56,
+      "currentIndex": 6033,
+      "currentName": "fb_"
+    },
+    {
+      "roles": [
+        "socks.createSocksProxyServer"
+      ],
+      "fixtureName": "d$",
+      "targetName": "b34",
+      "targetIndex": 6049,
+      "nodes": 558,
+      "currentIndex": 6036,
+      "currentName": "K34"
+    },
+    {
+      "roles": [
+        "which.whichSync"
+      ],
+      "fixtureName": "S",
+      "targetName": "Ir",
+      "targetIndex": 6053,
+      "nodes": 59,
+      "currentIndex": 6040,
+      "currentName": "vr"
+    },
+    {
+      "roles": [
+        "platform.getWslVersion"
+      ],
+      "fixtureName": "l$",
+      "targetName": "OC1",
+      "targetIndex": 6056,
+      "nodes": 56,
+      "currentIndex": 6043,
+      "currentName": "IS1"
+    },
+    {
+      "roles": [
+        "platform.getPlatform"
+      ],
+      "fixtureName": "D",
+      "targetName": "QG",
+      "targetIndex": 6057,
+      "nodes": 22,
+      "currentIndex": 6044,
+      "currentName": "bG"
+    },
+    {
+      "roles": [
+        "ripgrep.ripGrep"
+      ],
+      "fixtureName": "p$",
+      "targetName": "l34",
+      "targetIndex": 6064,
+      "nodes": 126,
+      "currentIndex": 6051,
+      "currentName": "P34"
+    },
+    {
+      "roles": [
+        "utils.getDangerousDirectories"
+      ],
+      "fixtureName": "V$",
+      "targetName": "IT8",
+      "targetIndex": 6069,
+      "nodes": 17,
+      "currentIndex": 6056,
+      "currentName": "Av8"
+    },
+    {
+      "roles": [
+        "utils.normalizeCaseForComparison"
+      ],
+      "fixtureName": "B$",
+      "targetName": "HC1",
+      "targetIndex": 6070,
+      "nodes": 9,
+      "currentIndex": 6057,
+      "currentName": "pS1"
+    },
+    {
+      "roles": [
+        "utils.containsGlobChars"
+      ],
+      "fixtureName": "z",
+      "targetName": "dG",
+      "targetIndex": 6071,
+      "nodes": 28,
+      "currentIndex": 6058,
+      "currentName": "xG"
+    },
+    {
+      "roles": [
+        "utils.removeTrailingGlobSuffix"
+      ],
+      "fixtureName": "m",
+      "targetName": "ur",
+      "targetIndex": 6072,
+      "nodes": 13,
+      "currentIndex": 6059,
+      "currentName": "kr"
+    },
+    {
+      "roles": [
+        "utils.isSymlinkOutsideBoundary"
+      ],
+      "fixtureName": "I$",
+      "targetName": "xT8",
+      "targetIndex": 6073,
+      "nodes": 209,
+      "currentIndex": 6060,
+      "currentName": "$v8"
+    },
+    {
+      "roles": [
+        "utils.normalizePathForSandbox"
+      ],
+      "fixtureName": "C",
+      "targetName": "SN",
+      "targetIndex": 6074,
+      "nodes": 179,
+      "currentIndex": 6061,
+      "currentName": "PN"
+    },
+    {
+      "roles": [
+        "utils.getDefaultWritePaths"
+      ],
+      "fixtureName": "L$",
+      "targetName": "yi6",
+      "targetIndex": 6075,
+      "nodes": 30,
+      "currentIndex": 6062,
+      "currentName": "qi6"
+    },
+    {
+      "roles": [
+        "utils.generateProxyEnvVars"
+      ],
+      "fixtureName": "G$",
+      "targetName": "uT8",
+      "targetIndex": 6076,
+      "nodes": 239,
+      "currentIndex": 6063,
+      "currentName": "Ov8"
+    },
+    {
+      "roles": [
+        "utils.encodeSandboxedCommand"
+      ],
+      "fixtureName": "H$",
+      "targetName": "mT8",
+      "targetIndex": 6077,
+      "nodes": 23,
+      "currentIndex": 6064,
+      "currentName": "wv8"
+    },
+    {
+      "roles": [
+        "utils.decodeSandboxedCommand"
+      ],
+      "fixtureName": "i$",
+      "targetName": "i34",
+      "targetIndex": 6078,
+      "nodes": 15,
+      "currentIndex": 6065,
+      "currentName": "D34"
+    },
+    {
+      "roles": [
+        "utils.globToRegex"
+      ],
+      "fixtureName": "d",
+      "targetName": "fA6",
+      "targetIndex": 6079,
+      "nodes": 50,
+      "currentIndex": 6066,
+      "currentName": "YO6"
+    },
+    {
+      "roles": [
+        "utils.expandGlobPattern"
+      ],
+      "fixtureName": "Q$",
+      "targetName": "Ei6",
+      "targetIndex": 6080,
+      "nodes": 156,
+      "currentIndex": 6067,
+      "currentName": "Ki6"
+    },
+    {
+      "roles": [],
+      "fixtureName": "c1",
+      "targetName": "r34",
+      "targetIndex": 6088,
+      "nodes": 103,
+      "currentIndex": 6075,
+      "currentName": "f34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "r$",
+      "targetName": "PC1",
+      "targetIndex": 6089,
+      "nodes": 47,
+      "currentIndex": 6076,
+      "currentName": "US1"
+    },
+    {
+      "roles": [],
+      "fixtureName": "i1",
+      "targetName": "o34",
+      "targetIndex": 6090,
+      "nodes": 51,
+      "currentIndex": 6077,
+      "currentName": "Z34"
+    },
+    {
+      "roles": [
+        "seccomp.getPreGeneratedBpfPath"
+      ],
+      "fixtureName": "M$",
+      "targetName": "WC1",
+      "targetIndex": 6091,
+      "nodes": 37,
+      "currentIndex": 6078,
+      "currentName": "QS1"
+    },
+    {
+      "roles": [],
+      "fixtureName": "B2",
+      "targetName": "gx_",
+      "targetIndex": 6092,
+      "nodes": 122,
+      "currentIndex": 6079,
+      "currentName": "ib_"
+    },
+    {
+      "roles": [
+        "seccomp.getApplySeccompBinaryPath"
+      ],
+      "fixtureName": "a",
+      "targetName": "Li6",
+      "targetIndex": 6093,
+      "nodes": 37,
+      "currentIndex": 6080,
+      "currentName": "_i6"
+    },
+    {
+      "roles": [],
+      "fixtureName": "D2",
+      "targetName": "Fx_",
+      "targetIndex": 6094,
+      "nodes": 122,
+      "currentIndex": 6081,
+      "currentName": "rb_"
+    },
+    {
+      "roles": [
+        "seccomp.generateSeccompFilter"
+      ],
+      "fixtureName": "o$",
+      "targetName": "a34",
+      "targetIndex": 6095,
+      "nodes": 28,
+      "currentIndex": 6082,
+      "currentName": "G34"
+    },
+    {
+      "roles": [
+        "seccomp.cleanupSeccompFilter"
+      ],
+      "fixtureName": "D$",
+      "targetName": "DC1",
+      "targetIndex": 6096,
+      "nodes": 4,
+      "currentIndex": 6083,
+      "currentName": "dS1"
+    },
+    {
+      "roles": [],
+      "fixtureName": "w2",
+      "targetName": "Qx_",
+      "targetIndex": 6104,
+      "nodes": 79,
+      "currentIndex": 6091,
+      "currentName": "ab_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "v2",
+      "targetName": "dx_",
+      "targetIndex": 6105,
+      "nodes": 70,
+      "currentIndex": 6092,
+      "currentName": "sb_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "C2",
+      "targetName": "cx_",
+      "targetIndex": 6106,
+      "nodes": 52,
+      "currentIndex": 6093,
+      "currentName": "tb_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "b2",
+      "targetName": "lx_",
+      "targetIndex": 6107,
+      "nodes": 365,
+      "currentIndex": 6094,
+      "currentName": "eb_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "$1",
+      "targetName": "GC1",
+      "targetIndex": 6108,
+      "nodes": 40,
+      "currentIndex": 6095,
+      "currentName": "nS1"
+    },
+    {
+      "roles": [
+        "linux.cleanupBwrapMountPoints"
+      ],
+      "fixtureName": "_$",
+      "targetName": "BT8",
+      "targetIndex": 6109,
+      "nodes": 110,
+      "currentIndex": 6096,
+      "currentName": "Hv8"
+    },
+    {
+      "roles": [
+        "linux.checkLinuxDependencies"
+      ],
+      "fixtureName": "X1",
+      "targetName": "K94",
+      "targetIndex": 6110,
+      "nodes": 76,
+      "currentIndex": 6097,
+      "currentName": "N34"
+    },
+    {
+      "roles": [
+        "linux.initializeLinuxNetworkBridge"
+      ],
+      "fixtureName": "J1",
+      "targetName": "_94",
+      "targetIndex": 6111,
+      "nodes": 394,
+      "currentIndex": 6098,
+      "currentName": "y34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "S2",
+      "targetName": "nx_",
+      "targetIndex": 6112,
+      "nodes": 120,
+      "currentIndex": 6099,
+      "currentName": "qx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "x2",
+      "targetName": "ix_",
+      "targetIndex": 6113,
+      "nodes": 790,
+      "currentIndex": 6100,
+      "currentName": "Kx_"
+    },
+    {
+      "roles": [
+        "linux.wrapCommandWithSandboxLinux"
+      ],
+      "fixtureName": "Q1",
+      "targetName": "z94",
+      "targetIndex": 6114,
+      "nodes": 570,
+      "currentIndex": 6101,
+      "currentName": "E34"
+    },
+    {
+      "roles": [
+        "macos.macGetMandatoryDenyPatterns"
+      ],
+      "fixtureName": "$Z",
+      "targetName": "ox_",
+      "targetIndex": 6119,
+      "nodes": 110,
+      "currentIndex": 6106,
+      "currentName": "zx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "k2",
+      "targetName": "ax_",
+      "targetIndex": 6120,
+      "nodes": 13,
+      "currentIndex": 6107,
+      "currentName": "Yx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "t1",
+      "targetName": "$94",
+      "targetIndex": 6121,
+      "nodes": 49,
+      "currentIndex": 6108,
+      "currentName": "R34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "XZ",
+      "targetName": "w94",
+      "targetIndex": 6122,
+      "nodes": 167,
+      "currentIndex": 6109,
+      "currentName": "C34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "u2",
+      "targetName": "sx_",
+      "targetIndex": 6123,
+      "nodes": 191,
+      "currentIndex": 6110,
+      "currentName": "$x_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "m2",
+      "targetName": "tx_",
+      "targetIndex": 6124,
+      "nodes": 159,
+      "currentIndex": 6111,
+      "currentName": "Ax_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "g2",
+      "targetName": "ex_",
+      "targetIndex": 6125,
+      "nodes": 476,
+      "currentIndex": 6112,
+      "currentName": "Ox_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "b",
+      "targetName": "eT",
+      "targetIndex": 6126,
+      "nodes": 10,
+      "currentIndex": 6113,
+      "currentName": "gv"
+    },
+    {
+      "roles": [
+        "macos.wrapCommandWithSandboxMacOS"
+      ],
+      "fixtureName": "Y1",
+      "targetName": "j94",
+      "targetIndex": 6127,
+      "nodes": 202,
+      "currentIndex": 6114,
+      "currentName": "b34"
+    },
+    {
+      "roles": [
+        "macos.startMacOSSandboxLogMonitor"
+      ],
+      "fixtureName": "K1",
+      "targetName": "H94",
+      "targetIndex": 6128,
+      "nodes": 318,
+      "currentIndex": 6115,
+      "currentName": "x34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "h2",
+      "targetName": "KI_",
+      "targetIndex": 6136,
+      "nodes": 53,
+      "currentIndex": 6123,
+      "currentName": "jx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "I1",
+      "targetName": "NC1",
+      "targetIndex": 6137,
+      "nodes": 54,
+      "currentIndex": 6124,
+      "currentName": "sS1"
+    },
+    {
+      "roles": [],
+      "fixtureName": "qZ",
+      "targetName": "W94",
+      "targetIndex": 6138,
+      "nodes": 179,
+      "currentIndex": 6125,
+      "currentName": "B34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "p2",
+      "targetName": "_I_",
+      "targetIndex": 6139,
+      "nodes": 49,
+      "currentIndex": 6126,
+      "currentName": "Hx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "l2",
+      "targetName": "zI_",
+      "targetIndex": 6140,
+      "nodes": 108,
+      "currentIndex": 6127,
+      "currentName": "Jx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "c2",
+      "targetName": "YI_",
+      "targetIndex": 6141,
+      "nodes": 68,
+      "currentIndex": 6128,
+      "currentName": "Mx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.initialize"
+      ],
+      "fixtureName": "i2",
+      "targetName": "$I_",
+      "targetIndex": 6142,
+      "nodes": 252,
+      "currentIndex": 6129,
+      "currentName": "Xx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.isSupportedPlatform"
+      ],
+      "fixtureName": "IZ",
+      "targetName": "D94",
+      "targetIndex": 6143,
+      "nodes": 21,
+      "currentIndex": 6130,
+      "currentName": "g34"
+    },
+    {
+      "roles": [
+        "SandboxManager.isSandboxingEnabled"
+      ],
+      "fixtureName": "n2",
+      "targetName": "OI_",
+      "targetIndex": 6144,
+      "nodes": 8,
+      "currentIndex": 6131,
+      "currentName": "Px_"
+    },
+    {
+      "roles": [
+        "SandboxManager.checkDependencies"
+      ],
+      "fixtureName": "VZ",
+      "targetName": "f94",
+      "targetIndex": 6145,
+      "nodes": 97,
+      "currentIndex": 6132,
+      "currentName": "F34"
+    },
+    {
+      "roles": [
+        "SandboxManager.getFsReadConfig"
+      ],
+      "fixtureName": "s2",
+      "targetName": "AI_",
+      "targetIndex": 6146,
+      "nodes": 144,
+      "currentIndex": 6133,
+      "currentName": "Wx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.getFsWriteConfig"
+      ],
+      "fixtureName": "a2",
+      "targetName": "wI_",
+      "targetIndex": 6147,
+      "nodes": 115,
+      "currentIndex": 6134,
+      "currentName": "Dx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.getNetworkRestrictionConfig"
+      ],
+      "fixtureName": "r2",
+      "targetName": "jI_",
+      "targetIndex": 6148,
+      "nodes": 47,
+      "currentIndex": 6135,
+      "currentName": "fx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.getAllowUnixSockets"
+      ],
+      "fixtureName": "LZ",
+      "targetName": "Z94",
+      "targetIndex": 6149,
+      "nodes": 10,
+      "currentIndex": 6136,
+      "currentName": "U34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "KZ",
+      "targetName": "X94",
+      "targetIndex": 6150,
+      "nodes": 10,
+      "currentIndex": 6137,
+      "currentName": "m34"
+    },
+    {
+      "roles": [
+        "SandboxManager.getAllowLocalBinding"
+      ],
+      "fixtureName": "GZ",
+      "targetName": "G94",
+      "targetIndex": 6151,
+      "nodes": 10,
+      "currentIndex": 6138,
+      "currentName": "Q34"
+    },
+    {
+      "roles": [
+        "SandboxManager.getIgnoreViolations"
+      ],
+      "fixtureName": "HZ",
+      "targetName": "v94",
+      "targetIndex": 6152,
+      "nodes": 8,
+      "currentIndex": 6139,
+      "currentName": "d34"
+    },
+    {
+      "roles": [
+        "SandboxManager.getEnableWeakerNestedSandbox"
+      ],
+      "fixtureName": "MZ",
+      "targetName": "T94",
+      "targetIndex": 6153,
+      "nodes": 8,
+      "currentIndex": 6140,
+      "currentName": "c34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "o2",
+      "targetName": "HI_",
+      "targetIndex": 6154,
+      "nodes": 8,
+      "currentIndex": 6141,
+      "currentName": "Zx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "t2",
+      "targetName": "JI_",
+      "targetIndex": 6155,
+      "nodes": 13,
+      "currentIndex": 6142,
+      "currentName": "Gx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "e2",
+      "targetName": "MI_",
+      "targetIndex": 6156,
+      "nodes": 10,
+      "currentIndex": 6143,
+      "currentName": "Tx_"
+    },
+    {
+      "roles": [],
+      "fixtureName": "WZ",
+      "targetName": "P94",
+      "targetIndex": 6157,
+      "nodes": 13,
+      "currentIndex": 6144,
+      "currentName": "p34"
+    },
+    {
+      "roles": [],
+      "fixtureName": "$X",
+      "targetName": "XI_",
+      "targetIndex": 6158,
+      "nodes": 8,
+      "currentIndex": 6145,
+      "currentName": "vx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.getProxyPort"
+      ],
+      "fixtureName": "_Z",
+      "targetName": "k94",
+      "targetIndex": 6159,
+      "nodes": 8,
+      "currentIndex": 6146,
+      "currentName": "l34"
+    },
+    {
+      "roles": [
+        "SandboxManager.getSocksProxyPort"
+      ],
+      "fixtureName": "EZ",
+      "targetName": "V94",
+      "targetIndex": 6160,
+      "nodes": 8,
+      "currentIndex": 6147,
+      "currentName": "n34"
+    },
+    {
+      "roles": [
+        "SandboxManager.getLinuxHttpSocketPath"
+      ],
+      "fixtureName": "jZ",
+      "targetName": "N94",
+      "targetIndex": 6161,
+      "nodes": 10,
+      "currentIndex": 6148,
+      "currentName": "i34"
+    },
+    {
+      "roles": [
+        "SandboxManager.getLinuxSocksSocketPath"
+      ],
+      "fixtureName": "OZ",
+      "targetName": "y94",
+      "targetIndex": 6162,
+      "nodes": 10,
+      "currentIndex": 6149,
+      "currentName": "r34"
+    },
+    {
+      "roles": [
+        "SandboxManager.waitForNetworkInitialization"
+      ],
+      "fixtureName": "NZ",
+      "targetName": "E94",
+      "targetIndex": 6163,
+      "nodes": 29,
+      "currentIndex": 6150,
+      "currentName": "o34"
+    },
+    {
+      "roles": [
+        "SandboxManager.wrapWithSandbox"
+      ],
+      "fixtureName": "ZX",
+      "targetName": "PI_",
+      "targetIndex": 6164,
+      "nodes": 428,
+      "currentIndex": 6151,
+      "currentName": "kx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.getConfig"
+      ],
+      "fixtureName": "XX",
+      "targetName": "WI_",
+      "targetIndex": 6165,
+      "nodes": 5,
+      "currentIndex": 6152,
+      "currentName": "Vx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.updateConfig"
+      ],
+      "fixtureName": "JX",
+      "targetName": "DI_",
+      "targetIndex": 6166,
+      "nodes": 23,
+      "currentIndex": 6153,
+      "currentName": "Nx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.cleanupAfterCommand"
+      ],
+      "fixtureName": "QX",
+      "targetName": "fI_",
+      "targetIndex": 6167,
+      "nodes": 6,
+      "currentIndex": 6154,
+      "currentName": "yx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.reset"
+      ],
+      "fixtureName": "V1",
+      "targetName": "yC1",
+      "targetIndex": 6168,
+      "nodes": 456,
+      "currentIndex": 6155,
+      "currentName": "tS1"
+    },
+    {
+      "roles": [
+        "SandboxManager.getSandboxViolationStore"
+      ],
+      "fixtureName": "YX",
+      "targetName": "ZI_",
+      "targetIndex": 6169,
+      "nodes": 5,
+      "currentIndex": 6156,
+      "currentName": "Ex_"
+    },
+    {
+      "roles": [
+        "SandboxManager.annotateStderrWithSandboxFailures"
+      ],
+      "fixtureName": "KX",
+      "targetName": "GI_",
+      "targetIndex": 6170,
+      "nodes": 57,
+      "currentIndex": 6157,
+      "currentName": "Lx_"
+    },
+    {
+      "roles": [
+        "SandboxManager.getLinuxGlobPatternWarnings"
+      ],
+      "fixtureName": "WX",
+      "targetName": "vI_",
+      "targetIndex": 6171,
+      "nodes": 56,
+      "currentIndex": 6158,
+      "currentName": "Rx_"
+    }
+  ],
+  "lazyInitializers": [
+    {
+      "targetIndex": 6039,
+      "currentIndex": 6026,
+      "targetInitializer": "RT8",
+      "currentInitializer": "qv8",
+      "targetCalls": [],
+      "currentCalls": [],
+      "completeFieldsAndOrderedGraphPass": true
+    },
+    {
+      "targetIndex": 6047,
+      "currentIndex": 6034,
+      "targetInitializer": "V34",
+      "currentInitializer": "n54",
+      "targetCalls": [
+        "RT8"
+      ],
+      "currentCalls": [
+        "qv8"
+      ],
+      "completeFieldsAndOrderedGraphPass": true
+    },
+    {
+      "targetIndex": 6051,
+      "currentIndex": 6038,
+      "targetInitializer": "x34",
+      "currentInitializer": "_34",
+      "targetCalls": [
+        "RT8"
+      ],
+      "currentCalls": [
+        "qv8"
+      ],
+      "completeFieldsAndOrderedGraphPass": true
+    },
+    {
+      "targetIndex": 6116,
+      "currentIndex": 6103,
+      "targetInitializer": "Y94",
+      "currentInitializer": "L34",
+      "targetCalls": [
+        "Vi6",
+        "n34",
+        "FT6",
+        "s34"
+      ],
+      "currentCalls": [
+        "tn6",
+        "W34",
+        "Rv6",
+        "T34"
+      ],
+      "completeFieldsAndOrderedGraphPass": true
+    },
+    {
+      "targetIndex": 6130,
+      "currentIndex": 6117,
+      "targetInitializer": "J94",
+      "currentInitializer": "I34",
+      "targetCalls": [
+        "Vi6",
+        "FT6"
+      ],
+      "currentCalls": [
+        "tn6",
+        "Rv6"
+      ],
+      "completeFieldsAndOrderedGraphPass": true
+    },
+    {
+      "targetIndex": 6173,
+      "currentIndex": 6160,
+      "targetInitializer": "L94",
+      "currentInitializer": "a34",
+      "targetCalls": [
+        "V34",
+        "x34",
+        "Vi6",
+        "cW6",
+        "CT8",
+        "Y94",
+        "J94",
+        "FT6",
+        "TC1",
+        "RT8"
+      ],
+      "currentCalls": [
+        "n54",
+        "_34",
+        "tn6",
+        "IW6",
+        "_v8",
+        "L34",
+        "I34",
+        "Rv6",
+        "rS1",
+        "qv8"
+      ],
+      "completeFieldsAndOrderedGraphPass": true
+    },
+    {
+      "targetIndex": 6176,
+      "currentIndex": 6163,
+      "targetInitializer": "x94",
+      "currentInitializer": "_94",
+      "targetCalls": [
+        "TA6"
+      ],
+      "currentCalls": [
+        "wO6"
+      ],
+      "completeFieldsAndOrderedGraphPass": true
+    },
+    {
+      "targetIndex": 6177,
+      "currentIndex": 6164,
+      "targetInitializer": "I94",
+      "currentInitializer": "z94",
+      "targetCalls": [
+        "L94",
+        "TC1",
+        "x94",
+        "FT6",
+        "CT8"
+      ],
+      "currentCalls": [
+        "a34",
+        "rS1",
+        "_94",
+        "Rv6",
+        "_v8"
+      ],
+      "completeFieldsAndOrderedGraphPass": true
+    }
+  ],
+  "directNativeImports": [
+    {
+      "targetIndex": 6021,
+      "currentIndex": 6008,
+      "request": "node:net",
+      "kind": "ImportSpecifier",
+      "export": "BlockList",
+      "target": "f34",
+      "current": "F54"
+    },
+    {
+      "targetIndex": 6021,
+      "currentIndex": 6008,
+      "request": "node:net",
+      "kind": "ImportSpecifier",
+      "export": "connect",
+      "target": "Z34",
+      "current": "U54"
+    },
+    {
+      "targetIndex": 6021,
+      "currentIndex": 6008,
+      "request": "node:net",
+      "kind": "ImportSpecifier",
+      "export": "isIP",
+      "target": "PA6",
+      "current": "KO6"
+    },
+    {
+      "targetIndex": 6022,
+      "currentIndex": 6009,
+      "request": "node:tls",
+      "kind": "ImportSpecifier",
+      "export": "connect",
+      "target": "qx_",
+      "current": "wb_"
+    },
+    {
+      "targetIndex": 6023,
+      "currentIndex": 6010,
+      "request": "node:url",
+      "kind": "ImportSpecifier",
+      "export": "URL",
+      "target": "tS1",
+      "current": "ES1"
+    },
+    {
+      "targetIndex": 6040,
+      "currentIndex": 6027,
+      "request": "node:http",
+      "kind": "ImportSpecifier",
+      "export": "Agent",
+      "target": "$x_",
+      "current": "Xb_"
+    },
+    {
+      "targetIndex": 6040,
+      "currentIndex": 6027,
+      "request": "node:http",
+      "kind": "ImportSpecifier",
+      "export": "createServer",
+      "target": "Ox_",
+      "current": "Pb_"
+    },
+    {
+      "targetIndex": 6041,
+      "currentIndex": 6028,
+      "request": "node:http",
+      "kind": "ImportSpecifier",
+      "export": "request",
+      "target": "zC1",
+      "current": "CS1"
+    },
+    {
+      "targetIndex": 6042,
+      "currentIndex": 6029,
+      "request": "node:https",
+      "kind": "ImportSpecifier",
+      "export": "request",
+      "target": "T34",
+      "current": "c54"
+    },
+    {
+      "targetIndex": 6043,
+      "currentIndex": 6030,
+      "request": "node:net",
+      "kind": "ImportSpecifier",
+      "export": "connect",
+      "target": "Ax_",
+      "current": "Wb_"
+    },
+    {
+      "targetIndex": 6044,
+      "currentIndex": 6031,
+      "request": "node:url",
+      "kind": "ImportSpecifier",
+      "export": "URL",
+      "target": "wx_",
+      "current": "Db_"
+    },
+    {
+      "targetIndex": 6052,
+      "currentIndex": 6039,
+      "request": "node:child_process",
+      "kind": "ImportSpecifier",
+      "export": "spawnSync",
+      "target": "Tx_",
+      "current": "hb_"
+    },
+    {
+      "targetIndex": 6055,
+      "currentIndex": 6042,
+      "request": "fs",
+      "kind": "ImportNamespaceSpecifier",
+      "export": "*",
+      "target": "I34",
+      "current": "z34"
+    },
+    {
+      "targetIndex": 6062,
+      "currentIndex": 6049,
+      "request": "child_process",
+      "kind": "ImportSpecifier",
+      "export": "spawn",
+      "target": "xx_",
+      "current": "Ub_"
+    },
+    {
+      "targetIndex": 6063,
+      "currentIndex": 6050,
+      "request": "node:stream/consumers",
+      "kind": "ImportSpecifier",
+      "export": "text",
+      "target": "c34",
+      "current": "X34"
+    },
+    {
+      "targetIndex": 6066,
+      "currentIndex": 6053,
+      "request": "os",
+      "kind": "ImportSpecifier",
+      "export": "homedir",
+      "target": "jC1",
+      "current": "mS1"
+    },
+    {
+      "targetIndex": 6067,
+      "currentIndex": 6054,
+      "request": "path",
+      "kind": "ImportNamespaceSpecifier",
+      "export": "*",
+      "target": "tT",
+      "current": "Bv"
+    },
+    {
+      "targetIndex": 6068,
+      "currentIndex": 6055,
+      "request": "fs",
+      "kind": "ImportNamespaceSpecifier",
+      "export": "*",
+      "target": "DA6",
+      "current": "zO6"
+    },
+    {
+      "targetIndex": 6083,
+      "currentIndex": 6070,
+      "request": "node:path",
+      "kind": "ImportSpecifier",
+      "export": "join",
+      "target": "EC",
+      "current": "TC"
+    },
+    {
+      "targetIndex": 6083,
+      "currentIndex": 6070,
+      "request": "node:path",
+      "kind": "ImportSpecifier",
+      "export": "dirname",
+      "target": "ux_",
+      "current": "db_"
+    },
+    {
+      "targetIndex": 6084,
+      "currentIndex": 6071,
+      "request": "node:url",
+      "kind": "ImportSpecifier",
+      "export": "fileURLToPath",
+      "target": "mx_",
+      "current": "cb_"
+    },
+    {
+      "targetIndex": 6085,
+      "currentIndex": 6072,
+      "request": "node:fs",
+      "kind": "ImportNamespaceSpecifier",
+      "export": "*",
+      "target": "ZA6",
+      "current": "$O6"
+    },
+    {
+      "targetIndex": 6086,
+      "currentIndex": 6073,
+      "request": "node:child_process",
+      "kind": "ImportSpecifier",
+      "export": "execSync",
+      "target": "px_",
+      "current": "lb_"
+    },
+    {
+      "targetIndex": 6087,
+      "currentIndex": 6074,
+      "request": "node:os",
+      "kind": "ImportSpecifier",
+      "export": "homedir",
+      "target": "Bx_",
+      "current": "nb_"
+    },
+    {
+      "targetIndex": 6099,
+      "currentIndex": 6086,
+      "request": "node:crypto",
+      "kind": "ImportSpecifier",
+      "export": "randomBytes",
+      "target": "Ux_",
+      "current": "ob_"
+    },
+    {
+      "targetIndex": 6100,
+      "currentIndex": 6087,
+      "request": "fs",
+      "kind": "ImportNamespaceSpecifier",
+      "export": "*",
+      "target": "IO",
+      "current": "RA"
+    },
+    {
+      "targetIndex": 6101,
+      "currentIndex": 6088,
+      "request": "node:child_process",
+      "kind": "ImportSpecifier",
+      "export": "spawn",
+      "target": "t34",
+      "current": "v34"
+    },
+    {
+      "targetIndex": 6102,
+      "currentIndex": 6089,
+      "request": "node:os",
+      "kind": "ImportSpecifier",
+      "export": "tmpdir",
+      "target": "fC1",
+      "current": "cS1"
+    },
+    {
+      "targetIndex": 6103,
+      "currentIndex": 6090,
+      "request": "node:path",
+      "kind": "ImportDefaultSpecifier",
+      "export": "default",
+      "target": "mX",
+      "current": "EX"
+    },
+    {
+      "targetIndex": 6103,
+      "currentIndex": 6090,
+      "request": "node:path",
+      "kind": "ImportSpecifier",
+      "export": "join",
+      "target": "e34",
+      "current": "k34"
+    },
+    {
+      "targetIndex": 6117,
+      "currentIndex": 6104,
+      "request": "child_process",
+      "kind": "ImportSpecifier",
+      "export": "spawn",
+      "target": "rx_",
+      "current": "_x_"
+    },
+    {
+      "targetIndex": 6118,
+      "currentIndex": 6105,
+      "request": "path",
+      "kind": "ImportNamespaceSpecifier",
+      "export": "*",
+      "target": "mr",
+      "current": "Vr"
+    },
+    {
+      "targetIndex": 6133,
+      "currentIndex": 6120,
+      "request": "fs",
+      "kind": "ImportNamespaceSpecifier",
+      "export": "*",
+      "target": "VC1",
+      "current": "aS1"
+    },
+    {
+      "targetIndex": 6134,
+      "currentIndex": 6121,
+      "request": "node:net",
+      "kind": "ImportSpecifier",
+      "export": "isIP",
+      "target": "qI_",
+      "current": "wx_"
+    },
+    {
+      "targetIndex": 6135,
+      "currentIndex": 6122,
+      "request": "node:os",
+      "kind": "ImportSpecifier",
+      "export": "EOL",
+      "target": "kC1",
+      "current": "oS1"
+    }
+  ],
+  "externalBoundaryClassification": {
+    "compiler": {
+      "target": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "current": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "completeSelectedHelperGraphPass": true,
+      "nativeCreateRequireImportExact": true
+    },
+    "lodash": {
+      "target": [
+        847,
+        848,
+        849,
+        1973
+      ],
+      "current": [
+        846,
+        847,
+        848,
+        1972
+      ],
+      "cloneDeepExportAndEntryCallsPass": true,
+      "deeperCloneImplementationAccepted": false
+    },
+    "zod": {
+      "target": [
+        1023,
+        1024,
+        1025
+      ],
+      "current": [
+        1022,
+        1023,
+        1024
+      ],
+      "completeNamespaceExportMapAndDirectInitializerPass": true,
+      "deeperSchemaImplementationsAccepted": false
+    },
+    "socksFactory": {
+      "targetStatement": 6048,
+      "currentStatement": 6035,
+      "completeStatementNodes": 1601,
+      "includedInOrderedJointGraph": true
+    },
+    "shellQuoteFactories": {
+      "includedInOrderedJointGraph": true,
+      "entryTarget": 6061,
+      "entryCurrent": 6048,
+      "entryStatementNodes": 22
+    },
+    "threePriorConditionalInteropValues": "Target C34/GA6/O94 and current q34/AO6/h34 now have matching complete production declarations, assignments and selected compiler/factory edges. Wider host/prototype/native behavior remains conditional."
+  },
+  "retention": {
+    "all100ExpectedFunctionsPresentInCompleteComparedBlock": true,
+    "extraStatementsInsideComparedBlock": 0,
+    "fourHistoricalUnmatchedFixtureFunctions": [
+      {
+        "roles": [],
+        "nodes": 8,
+        "retainedInComparedProductionBlock": false,
+        "globalAbsenceProved": false
+      },
+      {
+        "roles": [],
+        "nodes": 16,
+        "retainedInComparedProductionBlock": false,
+        "globalAbsenceProved": false
+      },
+      {
+        "roles": [
+          "ripgrep.hasRipgrepSync"
+        ],
+        "nodes": 9,
+        "retainedInComparedProductionBlock": false,
+        "globalAbsenceProved": false
+      },
+      {
+        "roles": [
+          "linux.getLinuxDependencyStatus"
+        ],
+        "nodes": 40,
+        "retainedInComparedProductionBlock": false,
+        "globalAbsenceProved": false
+      }
+    ],
+    "globalAbsenceOfFixtureOnlyFunctionsProved": false
+  },
+  "negativeControls": [
+    "manager swaps HTTP and SOCKS provider calls",
+    "native TLS connect becomes net connect",
+    "second cleanup Set aliases the first Set",
+    "SOCKS interop calls shell-quote factory",
+    "proxy helper omitted from the retained block",
+    "Linux weaker nested sandbox proc option changed",
+    "public manager initialize binds reset instead"
+  ],
+  "receiptChain": {
+    "kind": "actual-current-output-compile-and-deletion-chain",
+    "profileSha256": "5808132af76bef60241684ad97692e707e70de50d035a068856bdad86dcf3a6f",
+    "toolchainSha256": "f6678a5b44971d4a71a5792a7df5d11eba9b9fe87a9b4ef887b91fea5d6afad1",
+    "compileReportSha256": "c9fd792f61ff229703f331fe761545ffa4dd79db2ecb4e95e1e7e47a2f58ff75",
+    "receiptSha256": "c04d26252bc9554e29f21d643433573e477eafc842457eaa7170865e30c1294b",
+    "receiptEvents": 37,
+    "rawSha256": "c1808713bf965dc35549e69c908ab15555d505561c906edfb87dad832ed66e36",
+    "finalSha256": "12bff88d529bac013607e2a393292e45ee415da818eb42475ba50d8bd0d7a72e",
+    "removalEditsSha256": "94b5d91225b3967540347ca0024e6211f179e281b7db176366b32912fb50dc93",
+    "lateLinkReportSha256": "39aa7e59e2a85617858ae8c6db9a74f4b009e18d59ce95375477396fdd8b7eaa",
+    "beforeAfterPhysicalInventoryEqual": true,
+    "all11DeletionsReplayedByteExactly": true,
+    "allRemovedFragmentsParsedAsWholeMarkerImports": true,
+    "resolverReceiptAndPolicyTargetsMatch": true,
+    "sourceMapDisplacementRepaired": false,
+    "receiptPolicyValidation": "Unchanged finalizer validation reused; this review authenticates receipts and exact marker deletion replay, not a new whole-program parse or event-multiplicity cause.",
+    "applicationExecuted": false
+  },
+  "reusedNotRerun": [
+    "Exact official 0.0.46 archive/source bytes, npm signatures, seven-file applicability and four-literal count-runtime source controls from the frozen source approval.",
+    "Physical input profile/source/Git/guard/eval checks from the exact frozen binding approval. Compile before/post identities are freshly authenticated.",
+    "Source-fixture function role nominations and prior comparison receipts. Actual candidate checks use target/candidate original-index slices directly, not a new fixture build.",
+    "Unchanged full-stage compiler and finalizer policy checks; the marker deletion chain was freshly replayed without a new full parse or build."
+  ],
+  "historicalFailuresPreserved": [
+    "Prior external-only and namespace fixture mismatches remain unchanged. Direct production comparison resolves only the new actual scope.",
+    "Prior three conditional CJS values are not retrospectively relabelled in their source receipts.",
+    "All prior whole-program and storage/other-owner mixed failures remain unchanged."
+  ],
+  "qualifications": [
+    "Each complete runtime field, property, receiver, declaration and lexical reference is preserved in the scoped comparison. Identifier binding correspondence is conditional on the explicitly grounded interfaces; no generic name/order erasure or gate integration is introduced.",
+    "The unique large initializer was used only to nominate the contiguous candidate block. Complete ordered fields and joint declaration/reference graphs independently establish its correspondence; an index displacement or positional alias map is not the acceptance evidence.",
+    "The whole selected production library block, including its initializer statements, now matches. The eight lazy-prefix results do not prove global initialization order outside that block.",
+    "Compiler helper fields and selected CommonJS factories match, while native host/prototype behavior, ambient objects and deeper lodash/Zod dependencies remain conditional. No sandbox security, OS behavior, arbitrary source equivalence, eval or source-reflection claim is made.",
+    "Production options.target is node. No Bun-target fixture is substituted for these direct production checks, and no inference is made about unrelated AWS fixture differences.",
+    "The four unmatched source-fixture functions are not additional statements in the compared block. This review makes no whole-program absence or dead-code-elimination proof for them.",
+    "The third trial has 37 authenticated resolver events and 11 marker deletions. Receipt multiplicity is recorded, not used as semantic distance or a proof of producer-callback cause.",
+    "Source-map displacement remains unrepaired. Source maps are not used to infer owner identity or generated offsets.",
+    "Whole strict AST remains unequal at 3099870 candidate nodes. Node-count differences are not semantic distance or acceptance."
+  ],
+  "controlsFailed": 0,
+  "fullApplicationParsed": false,
+  "compilerInvoked": false,
+  "applicationExecuted": false,
+  "sourceStageOrRepositoryEdited": false,
+  "evidence": {
+    "actual-check.json": "6da9f96714a802f8c08e7e2b472ec1b5269e202999b09ed584a57fecaa3c89a2",
+    "chain-check.json": "bc1ffe7cf487ac533956920ae3c3015c0b38a931df170a27ebea03eec318fa2c",
+    "witnesses.json": "62dff4ba525b736d9bde9c9c42ac1aa0bb31286753fc199dc775ff0c22b2944f",
+    "initial-check.json": "87529f468c391497489d6e28a84e784b191e13270dea78bbde9d0e892afb8d1a"
+  }
+}

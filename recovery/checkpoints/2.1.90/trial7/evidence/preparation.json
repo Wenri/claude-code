@@ -1,0 +1,229 @@
+{
+  "kind": "compact-independent-four-row-registration-aws-profile-binding",
+  "verdict": "approved-exact-four-row-profile-only-binding-for-diagnostic-trial",
+  "profileBindingApproved": true,
+  "actualEmissionVerified": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "profile": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/profile.json",
+    "sha256": "f153afa0026720529b51442fed12b02112290858100983b45f46656061c51efd"
+  },
+  "authorFreeze": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/FREEZE.json",
+    "sha256": "725abea08e23ef29be5715657b20d5060dbe10ab84f582a29c69c879ea41a490",
+    "members": 8
+  },
+  "authorCodeClosure": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/code-provenance.json",
+    "sha256": "0b025b8b751906d85f7d58aed323f0f328a48af211de7db52f6afad93a14ad2d",
+    "members": 73
+  },
+  "parentProfile": {
+    "path": "historical-checkpoints/recovery-2.1.90-candidate-v7-toggle-carryforward/profile.json",
+    "sha256": "cf08a3a5fe065bcf54b2f316de8a82a772ca89be114694b42660c0681a05962c"
+  },
+  "runtime": {
+    "root": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/recovery",
+    "toolchainPath": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/toolchain.json",
+    "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+    "filesRehashed": 69,
+    "filesChanged": 0,
+    "filesCopied": 0,
+    "sourceContractSha256": "8acde8bb7e7f5a8132a0f84a0ff646baa31b4d0c0567aa53c0bdc2aa1a590330"
+  },
+  "physical": {
+    "kind": "independent-current-four-row-physical-binding-check",
+    "parentProfileSha256": "cf08a3a5fe065bcf54b2f316de8a82a772ca89be114694b42660c0681a05962c",
+    "stageReceiptSha256": "44676173ced42cffa70b96bef500f74bc31abebf5cc29029212ef4daa81fe53f",
+    "inputs": "historical-checkpoints/recovery-2.1.90-stage-v10-registration-aws/inputs",
+    "files": 6108,
+    "bytes": 51036694,
+    "changedPaths": [
+      "node_modules/@anthropic-ai/aws-sdk/core/auth.mjs",
+      "node_modules/@aws-sdk/middleware-websocket/dist-cjs/index.js",
+      "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/dist-cjs/index.js",
+      "src/commands.ts"
+    ],
+    "unchangedFiles": 6104,
+    "sourceByteDelta": 239,
+    "sourceManifestSha256": "966823ecc70d3a6009ee3c2100516666941222168e877c9408dcbaf502ec6e29",
+    "derivedSrcTree": "7db5611b82602d46d5ce983904e0a573e1b74402",
+    "stagedSourceFiles": 1958,
+    "gitSourceFiles": 1929,
+    "extraSourceAssets": 29,
+    "gitRowsChanged": 1,
+    "fullCurrentParentHashesChecked": true,
+    "modesUnchanged": true,
+    "sharedInodes": false,
+    "caseFoldCollisions": false,
+    "guardEvalOwnerOverlap": false,
+    "sourceApprovals": [
+      {
+        "manifest": "historical-checkpoints/recovery-2.1.90-toggle-memory-registry-order-proposal/source-repair.json",
+        "manifestSha256": "7a4e5ad057f40c50ef4ed764f4989eaeffc329025d7f1f84a6a6c06812a633f9",
+        "review": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review/review.json",
+        "reviewSha256": "c9ca8fd314c1cfaa7c2fcc147b947daa323f938a68eaf0b85efb3349dbeaf813",
+        "rawSourceFlags": {
+          "guardEvalOwner": false,
+          "sourceTrialApproved": false,
+          "actualEmissionVerified": false,
+          "wholeProgramAcceptance": false,
+          "normalizationGateEnabled": false,
+          "applicationExecuted": false
+        },
+        "limits": [
+          "Standalone compile fixtures externalize imports. They prove the exact source/compiler delta and full local binding preservation, not full production provider behavior.",
+          "The known array move is reversed only for an explicit before/after diagnostic; no generic order normalization or gate change was made.",
+          "Inherited bootstrap 402/400, symbolic and combined-alias fixture failures, broader provider/global/initialization boundaries and whole-version inequality remain unresolved.",
+          "The previous actual feature graph passes while actual built-in ordering still fails until a new trial establishes the correction."
+        ]
+      },
+      {
+        "manifest": "historical-checkpoints/recovery-2.1.90-aws-three-route-source-proposal/source-repair.json",
+        "manifestSha256": "8230fd341a1836263342c209a4ab897e420e0bdf1bc3eea26310fc5ae97e4583",
+        "review": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review/review.json",
+        "reviewSha256": "3fadb24e8916b877e9a811906f77ae489a0c0e3e3bd553b820f40a1f995a5686",
+        "rawSourceFlags": {
+          "guardEvalOwnerOverlap": false,
+          "sourceTrialApproved": false,
+          "actualEmissionVerified": false,
+          "wholeVersionAcceptance": false,
+          "officialOriginalAuthorshipClaim": false,
+          "applicationExecuted": false
+        },
+        "limits": [
+          "This is a target-directed reconstruction of module identity and initialization routes; it is not generally equivalent to the prior routing.",
+          "The official AWS auth source is preserved separately. Its modified postimage is reconstructed, not an authenticated unchanged npm member.",
+          "The source-derived Node fixture closes the complete selected 6118-node graph with three consumers and real handler/dependency declarations. Remaining free interfaces are recorded verbatim in comparison-final.json.",
+          "The prior 6492-node hypothesis additionally includes 374 nodes for two root-consumer initializers. Those two complete production statements and their 1566-node root graph are independently rechecked as unchanged evidence; their broader Bedrock source modules are outside this fixture. No synthetic concatenation is claimed as compiled output.",
+          "The preliminary export-star fixture used a different CJS loading context and is retained as history. Final fixtures use explicit unevaluated require entry wrappers; no receiver normalization is applied.",
+          "All deeper external providers, native/ambient APIs, constructor effects, global module first-initialization order, full SDK API/subpaths and global DCE/retention remain qualified. No generated callback or application body ran.",
+          "Existing root-handler consumers are preserved, and all source counts stay fixed. A future full production trial must verify shared identity, distinct dependency identity and unchanged root-consumer bindings.",
+          "Both rejected two-route alternatives remain frozen. The compiled two-route rollback in this proposal is rejected; individual provider shape alone is insufficient.",
+          "Existing source-map comments and original metadata are preserved byte-for-byte; changed source offsets are not claimed to match historical mappings.",
+          "No staging, runtime/profile change, added vendor files, or whole-version acceptance is authorized by this unreviewed author manifest."
+        ]
+      }
+    ],
+    "applicationExecuted": false
+  },
+  "metadata": {
+    "kind": "independent-complete-four-row-profile-reversal",
+    "profileSha256": "f153afa0026720529b51442fed12b02112290858100983b45f46656061c51efd",
+    "fourRowsMatchIndependentlyRehashedPhysicalState": true,
+    "oneGitRowMatchesIndependentlyCalculatedTree": true,
+    "completeNonDiagnosticProfileReverseExact": true,
+    "typedCompleteMetadataKeysChecked": true,
+    "fullPriorDiagnosticRecordExact": true,
+    "bothCurrentActualReceiptsExact": true,
+    "bothRejectedAwsAlternativesRemainFalse": true,
+    "bothAdditiveErrataExact": true,
+    "rawAuthorFalseFlagsPreserved": true,
+    "modifiedVendorBytesAreReconstructed": true,
+    "allRuntimeAndPolicyFieldsUnchanged": true,
+    "newActualFlagsFalse": true,
+    "focusedIndependentNegatives": [
+      "unknown top-level field",
+      "source count boolean type",
+      "old physical input root",
+      "promote prior registration result",
+      "drop rejected two-route record"
+    ],
+    "applicationExecuted": false
+  },
+  "replay": {
+    "profileAndBindingReportByteExact": true,
+    "authorGeneratedPinsMatch": true,
+    "currentPhysicalPass": {
+      "files": 6108,
+      "manifestSha256": "966823ecc70d3a6009ee3c2100516666941222168e877c9408dcbaf502ec6e29",
+      "currentGitSourceFiles": 1929,
+      "currentDerivedSrcTree": "7db5611b82602d46d5ce983904e0a573e1b74402",
+      "extraSourceAssets": 29,
+      "genesisVerifiedAsLineageOnly": true,
+      "sourceEdgeAndEvalRangePinsVerified": true
+    },
+    "oldV9StageRejected": true,
+    "metadataNegativesFreshlyRerun": [
+      "rollback registry row",
+      "rollback AWS auth row",
+      "rollback registry Git blob",
+      "manifest drift",
+      "tree drift",
+      "guard mutation",
+      "source count drift",
+      "relabel mixed actual accepted",
+      "erase JSON residual",
+      "relabel rejected AWS alternative",
+      "raw author approval overwritten",
+      "new actual acceptance invented",
+      "past diagnostic history drift"
+    ],
+    "runtimeNegativesFreshlyRerun": 5,
+    "additionalIndependentNegatives": [
+      "unknown top-level field",
+      "source count boolean type",
+      "old physical input root",
+      "promote prior registration result",
+      "drop rejected two-route record"
+    ]
+  },
+  "evidencePreservation": {
+    "sourceAndFailedEvidence": [
+      {
+        "root": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review",
+        "closureSha256": "9c935cb6eeec493a153676c79718c565e4f29460bcd9d18666c2b5aa5af40960",
+        "members": 21,
+        "reviewSha256": "c9ca8fd314c1cfaa7c2fcc147b947daa323f938a68eaf0b85efb3349dbeaf813",
+        "verdict": "approved-one-element-source-relocation-for-bounded-production-trial",
+        "sourceTrialApproved": true,
+        "actualEmissionVerified": false
+      },
+      {
+        "root": "historical-checkpoints/recovery-2.1.90-aws-three-route-independent-review",
+        "closureSha256": "c5acd4e895c80d65f4981ec1bb10bf7c4b061dd0ea7e9401a1a04b4c0b0e6dd4",
+        "members": 29,
+        "reviewSha256": "3fadb24e8916b877e9a811906f77ae489a0c0e3e3bd553b820f40a1f995a5686",
+        "verdict": "approved-exact-three-literal-source-trial-with-distinct-dependency-factories",
+        "sourceTrialApproved": true,
+        "actualEmissionVerified": false
+      },
+      {
+        "root": "historical-checkpoints/recovery-2.1.90-toggle-memory-emission-review",
+        "closureSha256": "daf2c913b2d67b8a40bd801b7bd7fe8e056c2bd3757a1209614260e252b6541f",
+        "members": 29,
+        "reviewSha256": "f6f9e7e6290de39d849ec8c628bc20e06365a006ffce2e31a4c6b3cad5bbe275",
+        "verdict": "mixed-complete-state-consumer-command-graph-pass-built-in-array-order-fail",
+        "sourceTrialApproved": null,
+        "actualEmissionVerified": false
+      },
+      {
+        "root": "historical-checkpoints/recovery-2.1.90-aws-supplier-routing-independent-review",
+        "closureSha256": "88f5bd5f87b313aee92e6632bf357b96e8dfbeb4c848d9465920f6be0cdf8128",
+        "members": 20,
+        "reviewSha256": "c951fe351e78d3fd9a708aa486aae07249cb4ebe49f48091d02b51e9c0636941",
+        "verdict": "both-two-route-repairs-rejected-no-source-trial-approved",
+        "sourceTrialApproved": false,
+        "actualEmissionVerified": false
+      }
+    ],
+    "unchangedRuntimeRoot": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/recovery",
+    "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+    "runtimeMembersRehashed": 69,
+    "oldHistorySuitesReexecuted": false
+  },
+  "qualifications": [
+    "Only four existing input rows, one Git source row, source manifest/tree and diagnostic composition metadata change. The complete remaining profile, counts, runtime algorithms, options/defines, source admission, guards/eval and acceptance policies are exact.",
+    "Both raw author manifests retain false sourceTrialApproved and actualEmissionVerified fields, while their separate independent source approvals permit the bounded source trial. Neither constitutes actual corrected production acceptance.",
+    "The complete prior diagnostic record, mixed trial6 toggle and env/Markdown receipts, both rejected two-route AWS alternatives and both additive registration errata are preserved exactly. Their original false fields are not retrospectively promoted.",
+    "Modified AWS auth and vendor postimages are explicit target-directed reconstruction, not unchanged signed package members. Official original bytes and provenance remain separate.",
+    "Source semantic/compiler evidence and prior unchanged history/policy suites are reused through authenticated approvals, not re-executed. Fresh work covers all current/parent physical bytes, exact metadata reversal, typed snapshots, 69 runtime hashes, existing current source/guard/eval validation and focused negatives.",
+    "Fresh production checks remain mandatory for corrected built-in position 31 and initializer slot22; actual shared handler, distinct base64/protocol factories and retained root consumers are assigned separately. Bootstrap, fixture, transitive, global initialization, source-map and whole-version limits remain open."
+  ],
+  "applicationExecuted": false,
+  "compilerInvoked": false,
+  "sourceStageModified": false,
+  "authorArtifactsModified": false,
+  "fullProgramParsed": false
+}

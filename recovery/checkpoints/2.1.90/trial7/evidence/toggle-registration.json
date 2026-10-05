@@ -1,0 +1,978 @@
+{
+  "kind": "compact-independent-corrected-toggle-registration-emission-review",
+  "reportId": "toggle_memory_registration",
+  "verdict": "scoped-actual-registration-order-and-feature-binding-pass-with-inherited-bootstrap-and-provider-limits",
+  "actualEmissionVerified": true,
+  "actualScopedEmissionVerified": true,
+  "registrationCorrectedActualEmissionVerified": true,
+  "completeFeatureAccepted": false,
+  "wholeBootstrapStateAccepted": false,
+  "wholeRegistryProviderBehaviorAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "normalizationGateEnabled": false,
+  "production": {
+    "trial": "historical-checkpoints/recovery-2.1.90-trial-v7",
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v7/final/cli.js",
+      "sha256": "4a46c4384ff6e81160e749536e528f5762ebdda0e5e4598842c82e7e8c8b67f4",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v7-analysis/candidate-index.json",
+      "indexSha256": "878f1f7e19c761098630147e6bce85f06499dc7baa12ca724363ca7b21c820e1"
+    },
+    "compileReportSha256": "60ea44f940d685c0093138812fd6874549029c8ae56a699f419a7bd30f1c9b79",
+    "profile": {
+      "path": "historical-checkpoints/recovery-2.1.90-candidate-v8-registration-aws/profile.json",
+      "sha256": "f153afa0026720529b51442fed12b02112290858100983b45f46656061c51efd"
+    },
+    "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+    "inputs": "historical-checkpoints/recovery-2.1.90-stage-v10-registration-aws/inputs",
+    "strict": {
+      "nodes": 3105172,
+      "sha256": "5dcf01b84a95cde1a3c1faacce353265a6e6104d991273b628c65611c8843839",
+      "equal": false
+    }
+  },
+  "sourceAndBindingEvidence": [
+    {
+      "path": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review/review.json",
+      "sha256": "c9ca8fd314c1cfaa7c2fcc147b947daa323f938a68eaf0b85efb3349dbeaf813"
+    },
+    {
+      "path": "historical-checkpoints/recovery-2.1.90-toggle-memory-registration-independent-review/freeze.json",
+      "sha256": "9c935cb6eeec493a153676c79718c565e4f29460bcd9d18666c2b5aa5af40960"
+    },
+    {
+      "path": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/review.json",
+      "sha256": "ae7b8ffd4ddd96666cbe92c2ce1508361910d59edb5bd4bf2676ea4b682d18f8"
+    },
+    {
+      "path": "historical-checkpoints/recovery-2.1.90-registration-aws-binding-independent-review/freeze.json",
+      "sha256": "6eac515a00345154d1dacea66b458c327062d3ecead8b2e0a441f766dac7ed0d"
+    }
+  ],
+  "historicalActualEvidence": {
+    "review": {
+      "path": "historical-checkpoints/recovery-2.1.90-toggle-memory-emission-review/review.json",
+      "sha256": "f6f9e7e6290de39d849ec8c628bc20e06365a006ffce2e31a4c6b3cad5bbe275"
+    },
+    "closure": {
+      "path": "historical-checkpoints/recovery-2.1.90-toggle-memory-emission-review/freeze.json",
+      "sha256": "daf2c913b2d67b8a40bd801b7bd7fe8e056c2bd3757a1209614260e252b6541f"
+    },
+    "originalMixedReceiptUnchanged": true,
+    "originalTrial6BuiltinSlot": 30,
+    "originalTrial6Accepted": false,
+    "onlyNewTrial7RegistrationObligationResolved": true
+  },
+  "registration": {
+    "correctedActualValueOrder": [
+      "memory",
+      "mobile",
+      "toggle-memory",
+      "model"
+    ],
+    "targetAndCurrentSlots": [
+      29,
+      30,
+      31,
+      32
+    ],
+    "initializerSlot": 22,
+    "initializerNeighbours": [
+      "memory",
+      "toggle-memory",
+      "help"
+    ],
+    "first33ArrayElementsArePlainIdentifiers": true,
+    "registryFieldsAndBindingsMatchWithoutProjection": true,
+    "registryStatementNodes": 918,
+    "graphWithProgramNodes": 919,
+    "conditionalExternalCaptureCount": 258,
+    "groundedNamedValues": {
+      "rNK": "UNK",
+      "k37": "J37",
+      "tNK": "lNK",
+      "yBK": "XpK"
+    },
+    "targetWitness": {
+      "index": 15534,
+      "range": [
+        11346009,
+        11348866
+      ],
+      "sha256": "b5951387051bbf0905166fbdd98876700d973e5f8758dee8d168d25c6c49cac2",
+      "nodes": 918
+    },
+    "currentWitness": {
+      "index": 15527,
+      "range": [
+        11331675,
+        11334532
+      ],
+      "sha256": "37dc85a02e858ccb8eaaf245f4a7a2a96656d7911f98a9f6bbb201ace74b2672",
+      "nodes": 918
+    },
+    "completeNeighbourDefinitions": [
+      {
+        "role": "memory",
+        "targetIndex": 13620,
+        "currentIndex": 13620,
+        "comparison": {
+          "nodes": 40,
+          "forward": {
+            "IXY": "VXY",
+            "iNK": "FNK",
+            "nNK": "gNK",
+            "Promise": "Promise",
+            "rNK": "UNK",
+            "E": "y"
+          },
+          "reverse": {
+            "VXY": "IXY",
+            "FNK": "iNK",
+            "gNK": "nNK",
+            "Promise": "Promise",
+            "UNK": "rNK",
+            "y": "E"
+          },
+          "scopeCount": 5
+        }
+      },
+      {
+        "role": "help",
+        "targetIndex": 13650,
+        "currentIndex": 13650,
+        "comparison": {
+          "nodes": 40,
+          "forward": {
+            "FXY": "hXY",
+            "wyK": "KyK",
+            "AyK": "qyK",
+            "Promise": "Promise",
+            "rK7": "BK7",
+            "E": "y"
+          },
+          "reverse": {
+            "hXY": "FXY",
+            "KyK": "wyK",
+            "qyK": "AyK",
+            "Promise": "Promise",
+            "BK7": "rK7",
+            "y": "E"
+          },
+          "scopeCount": 5
+        }
+      },
+      {
+        "role": "builtin-memory",
+        "targetIndex": 13620,
+        "currentIndex": 13620,
+        "targetArraySlot": 29,
+        "currentArraySlot": 29,
+        "comparison": {
+          "nodes": 40,
+          "forward": {
+            "IXY": "VXY",
+            "iNK": "FNK",
+            "nNK": "gNK",
+            "Promise": "Promise",
+            "rNK": "UNK",
+            "E": "y"
+          },
+          "reverse": {
+            "VXY": "IXY",
+            "FNK": "iNK",
+            "gNK": "nNK",
+            "Promise": "Promise",
+            "UNK": "rNK",
+            "y": "E"
+          },
+          "scopeCount": 5
+        }
+      },
+      {
+        "role": "builtin-mobile",
+        "targetIndex": 14106,
+        "currentIndex": 14106,
+        "targetArraySlot": 30,
+        "currentArraySlot": 30,
+        "comparison": {
+          "nodes": 45,
+          "forward": {
+            "BGY": "LGY",
+            "rRK": "UhK",
+            "iRK": "FhK",
+            "Promise": "Promise",
+            "k37": "J37",
+            "E": "y"
+          },
+          "reverse": {
+            "LGY": "BGY",
+            "UhK": "rRK",
+            "FhK": "iRK",
+            "Promise": "Promise",
+            "J37": "k37",
+            "y": "E"
+          },
+          "scopeCount": 5
+        }
+      },
+      {
+        "role": "builtin-model",
+        "targetIndex": 15189,
+        "currentIndex": 15182,
+        "targetArraySlot": 32,
+        "currentArraySlot": 32,
+        "comparison": {
+          "nodes": 61,
+          "forward": {
+            "Kd8": "dQ8",
+            "Qq": "Fq",
+            "yBK": "XpK",
+            "f5": "G5",
+            "vH": "VH",
+            "HC6": "KC6",
+            "NBK": "MpK",
+            "VBK": "JpK",
+            "Promise": "Promise",
+            "E": "y"
+          },
+          "reverse": {
+            "dQ8": "Kd8",
+            "Fq": "Qq",
+            "XpK": "yBK",
+            "G5": "f5",
+            "VH": "vH",
+            "KC6": "HC6",
+            "MpK": "NBK",
+            "JpK": "VBK",
+            "Promise": "Promise",
+            "y": "E"
+          },
+          "scopeCount": 7
+        }
+      }
+    ],
+    "globalProviderAndInitializationBehaviorAccepted": false
+  },
+  "featureRecheck": {
+    "completeSevenFunctionGraphNodes": 808,
+    "expandedLocalProviderGraphNodes": 1008,
+    "directProviderGraphNodes": 1316,
+    "combinedCommandStateProviderGraphNodes": 1583,
+    "combinedExternalInterfaces": 50,
+    "completeCommandModuleGraphNodes": 130,
+    "initializerGraphNodes": 312,
+    "fiveDirectConsumers": {
+      "target": [
+        {
+          "index": 4930,
+          "calls": 1,
+          "nodes": 79
+        },
+        {
+          "index": 12097,
+          "calls": 1,
+          "nodes": 159
+        },
+        {
+          "index": 13623,
+          "calls": 1,
+          "nodes": 34
+        },
+        {
+          "index": 15730,
+          "calls": 1,
+          "nodes": 161
+        },
+        {
+          "index": 15731,
+          "calls": 1,
+          "nodes": 357
+        }
+      ],
+      "current": [
+        {
+          "index": 4936,
+          "calls": 1,
+          "nodes": 79
+        },
+        {
+          "index": 12098,
+          "calls": 1,
+          "nodes": 159
+        },
+        {
+          "index": 13623,
+          "calls": 1,
+          "nodes": 34
+        },
+        {
+          "index": 15722,
+          "calls": 1,
+          "nodes": 161
+        },
+        {
+          "index": 15723,
+          "calls": 1,
+          "nodes": 357
+        }
+      ]
+    },
+    "concreteSingleLogEvent": {
+      "name": "d",
+      "commandIndex": 13623,
+      "denyProviderIndex": 12097,
+      "sourceOwner": "src/services/analytics/index.ts",
+      "sourceExport": "logEvent",
+      "fixtureAliasNormalizationApplied": false
+    },
+    "commandInitializerOrder": [
+      {
+        "index": 576,
+        "owner": "src/bootstrap/state.ts"
+      },
+      {
+        "index": 4947,
+        "owner": "src/memdir/paths.ts"
+      }
+    ],
+    "callInitializerOrder": [
+      {
+        "index": 576,
+        "owner": "src/bootstrap/state.ts"
+      },
+      {
+        "index": 582,
+        "owner": "src/services/analytics/index.ts"
+      }
+    ],
+    "initialState": {
+      "currentFactoryIndex": 361,
+      "targetNodes": 400,
+      "currentNodes": 402,
+      "initialFalse": true,
+      "propertyPrevious": "strictToolResultPairing",
+      "propertyNext": "sdkAgentProgressSummariesEnabled",
+      "sameStateObject": "G8",
+      "initialInverse": {
+        "nodes": 399,
+        "forward": {
+          "dY5": "FY5",
+          "YJ7": "_J7",
+          "process": "process",
+          "Date": "Date",
+          "Hr8": "jr8",
+          "Map": "Map",
+          "Set": "Set"
+        },
+        "reverse": {
+          "FY5": "dY5",
+          "_J7": "YJ7",
+          "process": "process",
+          "Date": "Date",
+          "jr8": "Hr8",
+          "Map": "Map",
+          "Set": "Set"
+        },
+        "scopeCount": 7
+      },
+      "wholeInitialAccepted": {
+        "pass": false,
+        "error": "node count\n\n401 !== 403\n"
+      },
+      "stateInitializer": 576,
+      "stateInitComparison": {
+        "nodes": 89,
+        "forward": {
+          "_J7": "nH7",
+          "kr8": "iH7",
+          "Kl": "ec",
+          "PJ7": "$J7",
+          "L_": "Az",
+          "E": "y"
+        },
+        "reverse": {
+          "nH7": "_J7",
+          "iH7": "kr8",
+          "ec": "Kl",
+          "$J7": "PJ7",
+          "Az": "L_",
+          "y": "E"
+        },
+        "scopeCount": 3
+      },
+      "exportStatement": 358
+    },
+    "directProviderInterfaces": [
+      {
+        "targetName": "Q6",
+        "currentName": "c6",
+        "targetIndex": 595,
+        "currentIndex": 597,
+        "source": {
+          "owner": "src/utils/envUtils.ts",
+          "sha256": "0519e43a719ad6579319021c3949d45b7360f71d31f82186df2e9e1bfbc07cdf",
+          "bytes": 6246,
+          "kind": "FunctionDeclaration",
+          "range": [
+            905,
+            1169
+          ],
+          "sliceSha256": "81068d84ac3ae6e86f048c3d038520e7d2f3be4fdee5372224384dcb2dcb9af8"
+        },
+        "comparison": {
+          "nodes": 38,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 3
+        }
+      },
+      {
+        "targetName": "H_",
+        "currentName": "E_",
+        "targetIndex": 596,
+        "currentIndex": 598,
+        "source": {
+          "owner": "src/utils/envUtils.ts",
+          "sha256": "0519e43a719ad6579319021c3949d45b7360f71d31f82186df2e9e1bfbc07cdf",
+          "bytes": 6246,
+          "kind": "FunctionDeclaration",
+          "range": [
+            1178,
+            1496
+          ],
+          "sliceSha256": "eccde11dd8656b4555e2f45a8784062011c810dfa2408313a1bc79f47a3a81af"
+        },
+        "comparison": {
+          "nodes": 47,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 3
+        }
+      },
+      {
+        "targetName": "T7",
+        "currentName": "T7",
+        "targetIndex": 2627,
+        "currentIndex": 2631,
+        "source": {
+          "owner": "src/utils/settings/settings.ts",
+          "sha256": "c5f2668dabf3f88c7571ab93f97a21cdbbbb6ed0d26a9a9d713dd068b2f14912",
+          "bytes": 32100,
+          "kind": "FunctionDeclaration",
+          "range": [
+            24729,
+            24847
+          ],
+          "sliceSha256": "48dcb18ef41fc5dfc38cfffad70ccda055930f2bc1aaa0be34d084446c1b46d3"
+        },
+        "comparison": {
+          "nodes": 16,
+          "forward": {
+            "zz6": "e_6"
+          },
+          "reverse": {
+            "e_6": "zz6"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "targetName": "Cj",
+        "currentName": "A0",
+        "targetIndex": 5064,
+        "currentIndex": 5069,
+        "source": {
+          "owner": "src/tools/REPLTool/constants.ts",
+          "sha256": "cb5d602522cb517daed37804bddd834f061ef7d38d5f3f79c3e2c7896dbacfca",
+          "bytes": 1799,
+          "kind": "VariableDeclarator",
+          "range": [
+            586,
+            609
+          ],
+          "sliceSha256": "99723489602510431f5b68725775779488014bafbf61c0c57f012112c39a975a",
+          "literal": "REPL"
+        },
+        "comparison": {
+          "nodes": 7,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "pq",
+        "currentName": "bq",
+        "targetIndex": 5055,
+        "currentIndex": 5060,
+        "source": {
+          "owner": "src/tools/FileReadTool/prompt.ts",
+          "sha256": "a80140f86213fe8c1361592a042d6f0ecb9c3422e8ab4bfab7dd10e198b704cf",
+          "bytes": 2868,
+          "kind": "VariableDeclarator",
+          "range": [
+            199,
+            227
+          ],
+          "sliceSha256": "b07ad2078920a6e7c7230d30812e348c021956d1680c16a35fbfb11bcc991693",
+          "literal": "Read"
+        },
+        "comparison": {
+          "nodes": 23,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "A9",
+        "currentName": "i3",
+        "targetIndex": 5046,
+        "currentIndex": 5051,
+        "source": {
+          "owner": "src/tools/GrepTool/prompt.ts",
+          "sha256": "4658f360bb05db5481577f77a13c2bc2dc895c77d3ccc327ef9bd8420ff1c9a1",
+          "bytes": 1150,
+          "kind": "VariableDeclarator",
+          "range": [
+            131,
+            154
+          ],
+          "sliceSha256": "7627a91fa74286f2574e9a0fc237dff4d87ccc93bece9f284d39384f8d5c7cd1",
+          "literal": "Grep"
+        },
+        "comparison": {
+          "nodes": 5,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "Z_",
+        "currentName": "e9",
+        "targetIndex": 5061,
+        "currentIndex": 5066,
+        "source": {
+          "owner": "src/tools/GlobTool/prompt.ts",
+          "sha256": "132f5ca7389a40cf11bc7c7ebba034fd767eec871c368d77f50edca6862c7979",
+          "bytes": 439,
+          "kind": "VariableDeclarator",
+          "range": [
+            13,
+            36
+          ],
+          "sliceSha256": "7e7b928c8500bf88938c9d38a9222baccafde9c395993cc5bd7ab2b9e5204b55",
+          "literal": "Glob"
+        },
+        "comparison": {
+          "nodes": 9,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "zq",
+        "currentName": "zq",
+        "targetIndex": 5044,
+        "currentIndex": 5049,
+        "source": {
+          "owner": "src/tools/BashTool/toolName.ts",
+          "sha256": "490ad8d153103d11e0117e5dd3ae2f1ed991aaa45e63989ba6204688e49e5c5e",
+          "bytes": 89,
+          "kind": "VariableDeclarator",
+          "range": [
+            65,
+            88
+          ],
+          "sliceSha256": "c1ba3606edd917416eac6a213343e0b86e7e95cfd012c4599d86ec98d5684cda",
+          "literal": "Bash"
+        },
+        "comparison": {
+          "nodes": 5,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "H4",
+        "currentName": "X4",
+        "targetIndex": 5048,
+        "currentIndex": 5053,
+        "source": {
+          "owner": "src/tools/FileEditTool/constants.ts",
+          "sha256": "b6861caad5a56ab255a98d559203c0c39c543c6c52e00018b046ebbcc2ae2018",
+          "bytes": 746,
+          "kind": "VariableDeclarator",
+          "range": [
+            63,
+            91
+          ],
+          "sliceSha256": "16c100f5437a7a3b6330ee0831c808de17d9d6fbd13eb29da741d529b79a094b",
+          "literal": "Edit"
+        },
+        "comparison": {
+          "nodes": 17,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "BK",
+        "currentName": "_5",
+        "targetIndex": 5059,
+        "currentIndex": 5064,
+        "source": {
+          "owner": "src/tools/FileWriteTool/prompt.ts",
+          "sha256": "f164a6e10b8533ac0e46f2a1d1bea1b6ea0bbebebfc027456a307b3edcb3a46c",
+          "bytes": 969,
+          "kind": "VariableDeclarator",
+          "range": [
+            78,
+            108
+          ],
+          "sliceSha256": "b4fed0f6340836c8ae9b70c4014d1c443fe2fb9e32a43c7c16e6a3376bc42e22",
+          "literal": "Write"
+        },
+        "comparison": {
+          "nodes": 5,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "RC6",
+        "currentName": "TC6",
+        "targetIndex": 15692,
+        "currentIndex": 15684,
+        "kind": "native-import",
+        "request": "path",
+        "imported": "normalize",
+        "nativeExecutionVerified": false
+      },
+      {
+        "targetName": "o18",
+        "currentName": "F18",
+        "targetIndex": 15686,
+        "currentIndex": 15678,
+        "source": {
+          "owner": "src/tools/AgentTool/agentMemory.ts",
+          "sha256": "f5d4ce3b341a75bbbb95c68950f77081c67dc32a2c1591f6905f76b1261496d2",
+          "bytes": 5853,
+          "kind": "FunctionDeclaration",
+          "range": [
+            2354,
+            3443
+          ],
+          "sliceSha256": "8acfc6b0710502e30ae41f7e13bfe4adfc68a3f15e74bd6868b4736766c640c8"
+        },
+        "comparison": {
+          "nodes": 99,
+          "forward": {
+            "rbY": "FbY",
+            "n16": "d16",
+            "zt": "zt",
+            "Oc": "Ac",
+            "f8": "Z8",
+            "process": "process"
+          },
+          "reverse": {
+            "FbY": "rbY",
+            "d16": "n16",
+            "zt": "zt",
+            "Ac": "Oc",
+            "Z8": "f8",
+            "process": "process"
+          },
+          "scopeCount": 4
+        }
+      },
+      {
+        "targetName": "dk",
+        "currentName": "xk",
+        "targetIndex": 15692,
+        "currentIndex": 15684,
+        "kind": "native-import",
+        "request": "path",
+        "imported": "join",
+        "nativeExecutionVerified": false
+      },
+      {
+        "targetName": "W46",
+        "currentName": "J46",
+        "targetIndex": 8317,
+        "currentIndex": 8326,
+        "source": {
+          "owner": "src/utils/toolResultStorage.ts",
+          "sha256": "4b6a64349b69e128019b2c4c732d6d7c14962b3eedac6b4d0fa0dd91f76efe3c",
+          "bytes": 38392,
+          "kind": "FunctionDeclaration",
+          "range": [
+            3775,
+            3867
+          ],
+          "sliceSha256": "415dfd2cc1eb99e0b2cdc5b0b5de2510d6b79edd2990c74eb3f491050f6b4e1c"
+        },
+        "comparison": {
+          "nodes": 10,
+          "forward": {
+            "JJz": "zJz",
+            "CF1": "VF1",
+            "SF1": "kF1"
+          },
+          "reverse": {
+            "zJz": "JJz",
+            "VF1": "CF1",
+            "kF1": "SF1"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "targetName": "Pf",
+        "currentName": "Yf",
+        "targetIndex": 15692,
+        "currentIndex": 15684,
+        "kind": "native-import",
+        "request": "path",
+        "imported": "sep",
+        "nativeExecutionVerified": false
+      },
+      {
+        "targetName": "t1",
+        "currentName": "l1",
+        "targetIndex": 606,
+        "currentIndex": 607,
+        "source": {
+          "owner": "src/utils/envUtils.ts",
+          "sha256": "0519e43a719ad6579319021c3949d45b7360f71d31f82186df2e9e1bfbc07cdf",
+          "bytes": 6246,
+          "kind": "VariableDeclarator",
+          "range": [
+            272,
+            471
+          ],
+          "sliceSha256": "e2af7c9cd8cab65a43184e10ac0513e67b3c58e3955cf2d1aa6bfb100f69fe4a",
+          "literal": null
+        },
+        "comparison": {
+          "nodes": 6,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "targetName": "d",
+        "currentName": "d",
+        "targetIndex": 577,
+        "currentIndex": 579,
+        "source": {
+          "owner": "src/services/analytics/index.ts",
+          "sha256": "293b4c3660ec2c1e01e7916e2e5ccd580275301907e8d96644191e07f91c44b9",
+          "bytes": 5542,
+          "kind": "FunctionDeclaration",
+          "range": [
+            4389,
+            4751
+          ],
+          "sliceSha256": "949da4508df20d444baab76917c233bcb46acf4f061c435d24f7dc43fa26ecb7"
+        },
+        "comparison": {
+          "nodes": 35,
+          "forward": {
+            "ox6": "gx6",
+            "He": "He"
+          },
+          "reverse": {
+            "gx6": "ox6",
+            "He": "He"
+          },
+          "scopeCount": 4
+        }
+      }
+    ]
+  },
+  "freshValidation": {
+    "originalIndexWitnesses": 113,
+    "completeRegistryRollbackAndProviderNegatives": [
+      "rollback to trial6 built-in order",
+      "duplicate mobile value",
+      "move toggle after model",
+      "change initializer provider at slot22"
+    ],
+    "functionAndStateNegatives": [
+      "setter detached from the shared state",
+      "getter reads wrong property",
+      "enabled gate negated",
+      "write flag evaluated before path",
+      "command event uses a different provider",
+      "command analytics runs before state write",
+      "command index initializer reverses state/path",
+      "command call initializer reverses state/analytics",
+      "state default becomes true",
+      "registry provider moved one slot"
+    ],
+    "deletionChain": {
+      "kind": "actual-current-output-compile-and-deletion-chain",
+      "profileSha256": "f153afa0026720529b51442fed12b02112290858100983b45f46656061c51efd",
+      "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+      "compileReportSha256": "60ea44f940d685c0093138812fd6874549029c8ae56a699f419a7bd30f1c9b79",
+      "receiptSha256": "bb635aef8f3864c0ffcb83aea443118a03b6cc0291ce9344677fa8ab110ec1a1",
+      "receiptEvents": 37,
+      "rawSha256": "0cc65001855f89347c210073e76fc53d3c649245415998609660e2016f9e2d64",
+      "finalSha256": "4a46c4384ff6e81160e749536e528f5762ebdda0e5e4598842c82e7e8c8b67f4",
+      "removalEditsSha256": "611f14ab78764912a22630716919ca3418e93994bb68cc36f7387827797d0134",
+      "lateLinkReportSha256": "825192afa2a4fac9e885682686e51a8876d6ae4fc7b361b07cc404980b91ccec",
+      "beforeAfterPhysicalInventoryEqual": true,
+      "all11DeletionsReplayedByteExactly": true,
+      "allRemovedFragmentsParsedAsWholeMarkerImports": true,
+      "resolverReceiptAndPolicyTargetsMatch": true,
+      "sourceMapDisplacementRepaired": false,
+      "receiptPolicyValidation": "Unchanged finalizer validation reused; this review authenticates receipts and exact marker deletion replay, not a new whole-program parse or event-multiplicity cause.",
+      "applicationExecuted": false
+    },
+    "reviewAttemptsFailed": false
+  },
+  "preservedFailures": {
+    "initialState": {
+      "wholeAccepted": false,
+      "targetNodes": 400,
+      "postFixtureNodes": 402,
+      "diagnosticOnlyProjectionNodes": 401,
+      "remainingFields": [
+        {
+          "kind": "extra-property",
+          "key": "promptCache1hEligible",
+          "currentValue": null
+        },
+        {
+          "kind": "spread-argument",
+          "target": "!1",
+          "current": "{}"
+        }
+      ],
+      "notChangedByProposal": true
+    },
+    "symbolicAndInitialStateComparisons": [
+      {
+        "key": "before-symbolic.js:initialState",
+        "referenceNodes": 398,
+        "fixtureNodes": 371,
+        "error": "node count\n\n399 !== 372\n"
+      },
+      {
+        "key": "before-symbolic.js:memoryEnabled",
+        "referenceNodes": 73,
+        "fixtureNodes": 72,
+        "error": "node count\n\n74 !== 73\n"
+      },
+      {
+        "key": "before-symbolic.js:autoMemPermission",
+        "referenceNodes": 151,
+        "fixtureNodes": 155,
+        "error": "node count\n\n152 !== 156\n"
+      },
+      {
+        "key": "before-symbolic.js:writePermission",
+        "referenceNodes": 137,
+        "fixtureNodes": 145,
+        "error": "node count\n\n138 !== 146\n"
+      },
+      {
+        "key": "before-symbolic.js:readPermission",
+        "referenceNodes": 333,
+        "fixtureNodes": 345,
+        "error": "node count\n\n334 !== 346\n"
+      },
+      {
+        "key": "after-symbolic.js:initialState",
+        "referenceNodes": 400,
+        "fixtureNodes": 374,
+        "error": "node count\n\n401 !== 375\n"
+      },
+      {
+        "key": "after-symbolic.js:memoryEnabled",
+        "referenceNodes": 79,
+        "fixtureNodes": 77,
+        "error": "node count\n\n80 !== 78\n"
+      },
+      {
+        "key": "after-symbolic.js:autoMemPermission",
+        "referenceNodes": 159,
+        "fixtureNodes": 164,
+        "error": "node count\n\n160 !== 165\n"
+      },
+      {
+        "key": "after-symbolic.js:writePermission",
+        "referenceNodes": 161,
+        "fixtureNodes": 170,
+        "error": "node count\n\n162 !== 171\n"
+      },
+      {
+        "key": "after-symbolic.js:readPermission",
+        "referenceNodes": 357,
+        "fixtureNodes": 370,
+        "error": "node count\n\n358 !== 371\n"
+      },
+      {
+        "key": "after-compact.js:initialState",
+        "referenceNodes": 400,
+        "fixtureNodes": 402,
+        "error": "node count\n\n401 !== 403\n"
+      }
+    ],
+    "expandedProviderJoint": {
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n'e1' !== 'm'\n"
+    },
+    "analyticsFixtureAliasBoundary": {
+      "targetBinding": "d",
+      "commandFixtureBinding": "e1",
+      "denyAutoMemToolFixtureBinding": "m",
+      "imports": [
+        {
+          "local": "e1",
+          "request": "../../services/analytics/index.js",
+          "imported": "logEvent"
+        },
+        {
+          "local": "m",
+          "request": "../analytics/index.js",
+          "imported": "logEvent"
+        }
+      ],
+      "sourceOwner": "src/services/analytics/index.ts",
+      "sourceExport": "logEvent",
+      "bothSourceRequestsResolveSameOwner": true,
+      "rawJoinedGraphAccepted": false,
+      "aliasNormalizationApplied": false,
+      "meaning": "The standalone external fixture keeps two aliases for the same concrete source export. Separate complete helper comparisons and the 808-node changed graph pass; the expanded joined graph remains rejected."
+    },
+    "firstAuthorAliasResolutionFixture": "The first fixture left src/* memory imports external; its failed graph and outputs remain frozen. The corrected compiler resolver resolves the existing exact alias.",
+    "independentFirstSelector": "A literal-only current-function nomination matched two statements. The retained attempt is superseded by a node-count-plus-literal nomination followed by the complete field/binding comparison. No candidate source or target was changed."
+  },
+  "reusedEvidence": [
+    "The original source/compiler reviews, exact one-element correction and complete V10 physical/profile/runtime admission were authenticated and reused. No full source/compiler/history suite was repeated.",
+    "The earlier actual receipt remains mixed as historical evidence. Fresh production statement hashes, fields and binding graphs support only this new scoped result.",
+    "The unchanged finalizer policies were reused, while all 11 current whole-import deletions were freshly parsed and exactly replayed."
+  ],
+  "limits": [
+    "The 918-node registry comparison preserves complete runtime fields and binding relationships under 258 explicit external capture interfaces; only the relevant memory/mobile/toggle/model/help providers and feature graph are grounded here. Their complete transitive/global behavior is not accepted.",
+    "The complete initial-state factory still has 402 nodes versus target 400, including inherited promptCache1hEligible and empty-object versus false spread. The new memory flag is false in the correct position and its removal restores the complete prior factory graph.",
+    "Historical symbolic and expanded external-alias fixture failures remain unchanged. Actual command and denial helper share the same concrete logEvent definition; no receiver, alias or ordering normalization was applied.",
+    "Native path, process/environment, settings, memoization, analytics backends, storage and deeper providers remain conditional. Observable names, source reflection, eval and unsupported dynamic effects have not been proved harmless.",
+    "The command remains isEnabled false. No command, permission check, initializer, callback, analytics function or application was executed.",
+    "AWS supplier actual verification is separate. Whole .90 equality and generated-location correctness remain unproved."
+  ],
+  "applicationExecuted": false,
+  "compilerExecuted": false,
+  "fullProgramParsed": false,
+  "sourceStageModified": false,
+  "acceptanceGateModified": false
+}

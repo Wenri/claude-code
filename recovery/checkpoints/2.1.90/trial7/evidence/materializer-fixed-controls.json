@@ -1,0 +1,23 @@
+{
+  "kind": "fixed-public-trial7-materializer-delta-controls",
+  "exactSubstitutionCount": 13,
+  "completeByteReversal": true,
+  "completeAstReversal": true,
+  "inherited53ControlBytesExact": true,
+  "fixedControls": [
+    "new version/revision admitted",
+    "wrong version/revision rejected 2.1.89/28",
+    "wrong version/revision rejected 2.1.90/28",
+    "wrong version/revision rejected 2.1.89/1",
+    "wrong version/revision rejected 2.1.90/2",
+    "wrong fixed count expectedStagedFiles",
+    "wrong fixed count expectedStagedSourceFiles",
+    "wrong fixed count expectedGitSourceFiles",
+    "wrong fixed count expectedExtraSourceAssets",
+    "wrong fixed identity sourceFiles",
+    "wrong fixed identity sourceBytes",
+    "wrong fixed identity sourceManifestSha256",
+    "wrong fixed identity derivedSrcTree"
+  ],
+  "applicationExecuted": false
+}

@@ -1,0 +1,1707 @@
+{
+  "kind": "compact-independent-actual-90-env-markdown-carryforward-review",
+  "reportId": "env_markdown_carryforward",
+  "trial": 6,
+  "verdict": "scoped-env-and-markdown-emission-verified-with-inherited-json-and-provider-residuals",
+  "actualEnvOwnerAndInitializerVerified": true,
+  "actualNullableLookupAndCallerBindingsVerified": true,
+  "actualCompleteWhichModuleAndBothInitializationCallsVerified": true,
+  "actualLegacyWrapperAndRipgrepRetentionVerified": true,
+  "actualMarkdownParserAnd18CapturedRolesVerified": true,
+  "actualMarkdownInitializerAndRemainderVerified": true,
+  "actualMarkdownMemoryToggleProviderGapResolved": true,
+  "actualSharedFalseInitializedMemoryBindingVerified": true,
+  "wholeMarkdownOwnerAccepted": false,
+  "completeTransitiveProviderGraphAccepted": false,
+  "wholeBootstrapAccepted": false,
+  "wholeVersion90Acceptance": false,
+  "inputPins": {
+    "trial": 6,
+    "profile": "historical-checkpoints/recovery-2.1.90-candidate-v7-toggle-carryforward/profile.json",
+    "profileSha256": "cf08a3a5fe065bcf54b2f316de8a82a772ca89be114694b42660c0681a05962c",
+    "toolchain": "historical-checkpoints/recovery-2.1.90-candidate-v6-toggle-memory/toolchain.json",
+    "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+    "inputs": "historical-checkpoints/recovery-2.1.90-stage-v9-toggle-carryforward/inputs",
+    "compileReport": "historical-checkpoints/recovery-2.1.90-trial-v6/compile-report.json",
+    "compileReportSha256": "6ed753c8599032856358eeba8f5974cbdb1e013dd3431ce29a6b1140d1af4674",
+    "current": {
+      "js": "historical-checkpoints/recovery-2.1.90-trial-v6/final/cli.js",
+      "sha256": "5f27be8da976c8009c56eec99aeb6fb78d76fd12b9ab77df3fbe803a15c928bc",
+      "index": "historical-checkpoints/recovery-2.1.90-trial-v6-analysis/candidate-index.json",
+      "indexSha256": "3ff51de09f7c17395aff460c8e281add27082ecffd9e7de1d65866fa0e43746a"
+    }
+  },
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3106363,
+    "sha256": "08505f65644cab53a376b102ea0826092c37d8a409072e3f370016fc8e30e301"
+  },
+  "sourceRows": [
+    {
+      "path": "src/utils/env.ts",
+      "bytes": 10937,
+      "sha256": "e60c9fca8958fb4df0d1e5e643f2f26247c5c1aa4a103d281bd097462deee036"
+    },
+    {
+      "path": "src/tools/AgentTool/loadAgentsDir.ts",
+      "bytes": 27026,
+      "sha256": "8bd4dfbf92015cb0167c8f73088069f294e0b2d898c19e04d508d500dda026d6"
+    },
+    {
+      "path": "node_modules/lodash-es/memoize.js",
+      "bytes": 2222,
+      "sha256": "2a38b3b9b90e1592565de2168467c3daa6a4a95610cd3afd8890208a7c02c782"
+    },
+    {
+      "path": "src/constants/oauth.ts",
+      "bytes": 8970,
+      "sha256": "e456760d19381a4581eaecaac2737aa20fdb4d1e123e6d89c3094df01c586b2a"
+    },
+    {
+      "path": "src/utils/envUtils.ts",
+      "bytes": 6246,
+      "sha256": "0519e43a719ad6579319021c3949d45b7360f71d31f82186df2e9e1bfbc07cdf"
+    },
+    {
+      "path": "src/utils/fsOperations.ts",
+      "bytes": 23691,
+      "sha256": "c55001c6a7cd71f0df8425ea54642f92849c115cb639b6782ecf39d4b8731532"
+    },
+    {
+      "path": "src/utils/which.ts",
+      "bytes": 3243,
+      "sha256": "2a1e50a777487668e76c3b4a0e28504d54038822e233dcbf5bbee8e639c34920"
+    },
+    {
+      "path": "node_modules/execa/index.js",
+      "bytes": 7897,
+      "sha256": "4e86357ef90518d26e70e1ff971e3257f39827fc770bcc319508c2fd8913d24a"
+    },
+    {
+      "path": "src/utils/execSyncWrapper.ts",
+      "bytes": 1203,
+      "sha256": "c00dd9ec4d26847ea5ea3cd4910c3f3f551d6aae85b0cd02e3e7eab54b4ee4b4"
+    },
+    {
+      "path": "src/utils/bundledMode.ts",
+      "bytes": 618,
+      "sha256": "b8733a71f54caad826fa5d735575271cb4431850bed6b3901add598c7b26bbe6"
+    },
+    {
+      "path": "src/utils/autoUpdater.ts",
+      "bytes": 18179,
+      "sha256": "b50adc46ea47367ecb87a86052a7c0fc29e597d897aba0808d050153f67baf67"
+    },
+    {
+      "path": "src/utils/ripgrep.ts",
+      "bytes": 21188,
+      "sha256": "bf4bfadbbbea5d5d35a13eea9159ae59f9780d28ee907d6bd5cc1bd1f30a8c70"
+    },
+    {
+      "path": "src/utils/findExecutable.ts",
+      "bytes": 553,
+      "sha256": "fa6db28828b87abcd38489cd4e371f1c03953160729e83701d3746fa6d14e9d0"
+    },
+    {
+      "path": "src/utils/debug.ts",
+      "bytes": 8000,
+      "sha256": "8d6734724d4e8467a50781d3af9d4341d54a8ffc64bf71a2726976714123b01e"
+    },
+    {
+      "path": "src/utils/effort.ts",
+      "bytes": 11583,
+      "sha256": "0bb9ccf6afc3de0472266de1811dc6b44918abdc58ccf03ceb90d2c44c623104"
+    },
+    {
+      "path": "src/types/permissions.ts",
+      "bytes": 13145,
+      "sha256": "740929e3fc28c1c4f6589c19d22b005a4c022b291b1eb5cc5de886e535637908"
+    },
+    {
+      "path": "src/utils/frontmatterParser.ts",
+      "bytes": 12404,
+      "sha256": "1d5a914d0705fe268f4a461eb185a5ea5344febd9b6a572788f2aadb0539c5e0"
+    },
+    {
+      "path": "src/utils/markdownConfigLoader.ts",
+      "bytes": 21312,
+      "sha256": "fe157236c4b29f3d99ca56f993687c142a431db1f52f09da66f5659692d6a0a6"
+    },
+    {
+      "path": "src/tools/FileWriteTool/prompt.ts",
+      "bytes": 969,
+      "sha256": "f164a6e10b8533ac0e46f2a1d1bea1b6ea0bbebebfc027456a307b3edcb3a46c"
+    },
+    {
+      "path": "src/tools/FileEditTool/constants.ts",
+      "bytes": 746,
+      "sha256": "b6861caad5a56ab255a98d559203c0c39c543c6c52e00018b046ebbcc2ae2018"
+    },
+    {
+      "path": "src/tools/FileReadTool/prompt.ts",
+      "bytes": 2868,
+      "sha256": "a80140f86213fe8c1361592a042d6f0ecb9c3422e8ab4bfab7dd10e198b704cf"
+    },
+    {
+      "path": "src/memdir/paths.ts",
+      "bytes": 10733,
+      "sha256": "3c976a8c0d9f6271f14e0f5314f9752f4f309f93875bf6c481e2bea5fe15250c"
+    },
+    {
+      "path": "src/utils/slowOperations.ts",
+      "bytes": 9055,
+      "sha256": "8bb7da17d8b089bb73ab079fc411e60b0f0c1e571431938327bdcfafa8530b09"
+    },
+    {
+      "path": "src/tools/AgentTool/agentMemory.ts",
+      "bytes": 5853,
+      "sha256": "f5d4ce3b341a75bbbb95c68950f77081c67dc32a2c1591f6905f76b1261496d2"
+    },
+    {
+      "path": "src/tools/AgentTool/agentColorManager.ts",
+      "bytes": 1499,
+      "sha256": "b5a65b50dceea880933fc95b4e25f0125d5e7904815f0b7e0a8a924b3c78bb45"
+    },
+    {
+      "path": "src/utils/log.ts",
+      "bytes": 11757,
+      "sha256": "0dcc23ef451796f02b8842c65a82c34ad7f5448773602599217324da8cdbdbc8"
+    }
+  ],
+  "sourceApplicabilityReference": {
+    "review": "historical-checkpoints/recovery-2.1.90-v31-carryforward-applicability-review/review.json",
+    "sha256": "3d96a19208667660796347cd4dae5b1c4205cf3e59d106e4bb996cbf674fda00",
+    "closureSha256": "1fe166110574c3e580465e5aa55d2cce902b7a37318e380aaaa2886dc5073088",
+    "historicalActualFlagsPreserved": true
+  },
+  "toggleSourceReviewReference": {
+    "review": "historical-checkpoints/recovery-2.1.90-toggle-memory-independent-review/review.json",
+    "sha256": "103d25047e85cf5ba95a666353b3c3826ff60282308af2203949d50b0203db05",
+    "closureSha256": "8babf663dc42db55b53852019ff80e8c3a38543566627c64f08d9c644c6cab08",
+    "scopeHere": "Only the Markdown enablement/gate/getter/shared-state edge; registration and wider toggle behavior belong to their separate actual review."
+  },
+  "env": {
+    "indices": {
+      "target": 2479,
+      "current": 2484
+    },
+    "completeOwnerProgramNodes": 1187,
+    "completeJoinedProviderCallerProgramNodes": 4622,
+    "fiveOrderedInitializationRoles": [
+      "memoize",
+      "oauth",
+      "envUtils",
+      "fsOperations",
+      "which"
+    ],
+    "providers": [
+      {
+        "name": "memoize",
+        "source": "node_modules/lodash-es/memoize.js",
+        "target": [
+          280,
+          281,
+          282
+        ],
+        "current": [
+          280,
+          281,
+          282
+        ],
+        "targetValue": "A1",
+        "currentValue": "A1",
+        "comparison": {
+          "nodes": 126,
+          "forward": {
+            "TypeError": "TypeError",
+            "D96": "j96",
+            "k38": "H38",
+            "E": "y"
+          },
+          "reverse": {
+            "TypeError": "TypeError",
+            "j96": "D96",
+            "H38": "k38",
+            "y": "E"
+          },
+          "scopeCount": 5
+        }
+      },
+      {
+        "name": "oauth",
+        "source": "src/constants/oauth.ts",
+        "target": [
+          1979,
+          1983
+        ],
+        "current": [
+          1980,
+          1984
+        ],
+        "targetValue": "e41",
+        "currentValue": "Q41",
+        "comparison": {
+          "nodes": 117,
+          "forward": {
+            "process": "process",
+            "pE7": "CE7",
+            "g8": "B8",
+            "BE7": "bE7",
+            "TL5": "wL5",
+            "C_6": "y_6",
+            "OO8": "r$8",
+            "IR": "bh",
+            "qK1": "d41",
+            "Set": "Set",
+            "Array": "Array",
+            "mE7": "SE7",
+            "NL5": "JL5",
+            "E": "y"
+          },
+          "reverse": {
+            "process": "process",
+            "CE7": "pE7",
+            "B8": "g8",
+            "bE7": "BE7",
+            "wL5": "TL5",
+            "y_6": "C_6",
+            "r$8": "OO8",
+            "bh": "IR",
+            "d41": "qK1",
+            "Set": "Set",
+            "Array": "Array",
+            "SE7": "mE7",
+            "JL5": "NL5",
+            "y": "E"
+          },
+          "scopeCount": 5
+        }
+      },
+      {
+        "name": "envUtils",
+        "source": "src/utils/envUtils.ts",
+        "target": [
+          606,
+          607
+        ],
+        "current": [
+          607,
+          608
+        ],
+        "targetValue": "t1",
+        "currentValue": "l1",
+        "comparison": {
+          "nodes": 76,
+          "forward": {
+            "qK": "KK",
+            "process": "process",
+            "I$5": "v$5",
+            "hJ7": "VJ7",
+            "A1": "A1",
+            "E": "y"
+          },
+          "reverse": {
+            "KK": "qK",
+            "process": "process",
+            "v$5": "I$5",
+            "VJ7": "hJ7",
+            "A1": "A1",
+            "y": "E"
+          },
+          "scopeCount": 5
+        }
+      },
+      {
+        "name": "fsOperations",
+        "source": "src/utils/fsOperations.ts",
+        "target": [
+          865,
+          870
+        ],
+        "current": [
+          866,
+          871
+        ],
+        "targetValue": "J8",
+        "currentValue": "X8",
+        "comparison": {
+          "nodes": 1396,
+          "forward": {
+            "Pw5": "K25",
+            "y8": "y8",
+            "i8": "l8",
+            "Xw5": "q25",
+            "process": "process",
+            "qA": "tA",
+            "cz": "Qz",
+            "K9": "_9",
+            "lz": "dz",
+            "Hw5": "sO5",
+            "Ow5": "iO5",
+            "Jw5": "tO5",
+            "ww5": "oO5",
+            "jw5": "aO5",
+            "$w5": "nO5",
+            "c1": "o1",
+            "yX7": "GX7",
+            "Aw5": "rO5",
+            "Buffer": "Buffer",
+            "f_8": "$_8",
+            "Math": "Math",
+            "E": "y"
+          },
+          "reverse": {
+            "K25": "Pw5",
+            "y8": "y8",
+            "l8": "i8",
+            "q25": "Xw5",
+            "process": "process",
+            "tA": "qA",
+            "Qz": "cz",
+            "_9": "K9",
+            "dz": "lz",
+            "sO5": "Hw5",
+            "iO5": "Ow5",
+            "tO5": "Jw5",
+            "oO5": "ww5",
+            "aO5": "jw5",
+            "nO5": "$w5",
+            "o1": "c1",
+            "GX7": "yX7",
+            "rO5": "Aw5",
+            "Buffer": "Buffer",
+            "$_8": "f_8",
+            "Math": "Math",
+            "y": "E"
+          },
+          "scopeCount": 131
+        }
+      },
+      {
+        "name": "which",
+        "source": "src/utils/which.ts",
+        "target": [
+          2360,
+          2361,
+          2362,
+          2363,
+          2364,
+          2365,
+          2366,
+          2367,
+          2368
+        ],
+        "current": [
+          2365,
+          2366,
+          2367,
+          2368,
+          2369,
+          2370,
+          2371,
+          2372,
+          2373
+        ],
+        "targetValue": "P66",
+        "currentValue": "H66",
+        "comparison": {
+          "nodes": 366,
+          "forward": {
+            "process": "process",
+            "_g": "_g",
+            "Boolean": "Boolean",
+            "_D6": "_D6",
+            "qA8": "cA8",
+            "LO8": "fA8",
+            "Bun": "Bun",
+            "E": "y"
+          },
+          "reverse": {
+            "process": "process",
+            "_g": "_g",
+            "Boolean": "Boolean",
+            "_D6": "_D6",
+            "cA8": "qA8",
+            "fA8": "LO8",
+            "Bun": "Bun",
+            "y": "E"
+          },
+          "scopeCount": 17
+        }
+      }
+    ],
+    "whichInitializationEdges": [
+      {
+        "target": 2303,
+        "current": 2308,
+        "comparison": {
+          "nodes": 51,
+          "forward": {
+            "jR7": "$h7",
+            "XR7": "jh7",
+            "TR7": "fh7",
+            "VR7": "Gh7",
+            "xR7": "hh7",
+            "uR7": "Ch7",
+            "zS7": "eh7",
+            "$S7": "KS7",
+            "jS7": "$S7",
+            "JS7": "OS7",
+            "XS7": "jS7",
+            "UK1": "bK1",
+            "w6": "A6",
+            "Kp$": "TB$",
+            "WS7": "JS7",
+            "E": "y"
+          },
+          "reverse": {
+            "$h7": "jR7",
+            "jh7": "XR7",
+            "fh7": "TR7",
+            "Gh7": "VR7",
+            "hh7": "xR7",
+            "Ch7": "uR7",
+            "eh7": "zS7",
+            "KS7": "$S7",
+            "$S7": "jS7",
+            "OS7": "JS7",
+            "jS7": "XS7",
+            "bK1": "UK1",
+            "A6": "w6",
+            "TB$": "Kp$",
+            "JS7": "WS7",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "target": 2131,
+        "current": 2135,
+        "comparison": {
+          "nodes": 11,
+          "forward": {
+            "i8": "l8",
+            "E": "y"
+          },
+          "reverse": {
+            "l8": "i8",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      }
+    ],
+    "extraDirectProviderEntries": [
+      {
+        "label": "execa",
+        "target": 2299,
+        "current": 2304,
+        "comparison": {
+          "nodes": 384,
+          "forward": {
+            "PS7": "HS7",
+            "w51": "eK1",
+            "j51": "q51",
+            "J51": "_51",
+            "CR7": "Lh7",
+            "M51": "z51",
+            "lp6": "mB6",
+            "Promise": "Promise",
+            "A51": "tK1",
+            "YS7": "qS7",
+            "SR7": "Eh7",
+            "bR7": "Rh7",
+            "hR7": "Nh7",
+            "RR7": "yh7",
+            "_S7": "th7",
+            "op6": "FB6",
+            "MR7": "wh7",
+            "qS7": "ah7",
+            "KS7": "sh7",
+            "IR7": "Sh7"
+          },
+          "reverse": {
+            "HS7": "PS7",
+            "eK1": "w51",
+            "q51": "j51",
+            "_51": "J51",
+            "Lh7": "CR7",
+            "z51": "M51",
+            "mB6": "lp6",
+            "Promise": "Promise",
+            "tK1": "A51",
+            "qS7": "YS7",
+            "Eh7": "SR7",
+            "Rh7": "bR7",
+            "Nh7": "hR7",
+            "yh7": "RR7",
+            "th7": "_S7",
+            "FB6": "op6",
+            "wh7": "MR7",
+            "ah7": "qS7",
+            "sh7": "KS7",
+            "Sh7": "IR7"
+          },
+          "scopeCount": 8
+        }
+      },
+      {
+        "label": "execSync",
+        "target": 2130,
+        "current": 2134,
+        "comparison": {
+          "nodes": 52,
+          "forward": {
+            "qA": "tA",
+            "cz": "Qz",
+            "Lh5": "PR5",
+            "lz": "dz"
+          },
+          "reverse": {
+            "tA": "qA",
+            "Qz": "cz",
+            "PR5": "Lh5",
+            "dz": "lz"
+          },
+          "scopeCount": 7
+        }
+      },
+      {
+        "label": "isRunningWithBun",
+        "target": 1863,
+        "current": 1864,
+        "comparison": {
+          "nodes": 63,
+          "forward": {
+            "Fy7": "Iy7",
+            "JE5": "ty5",
+            "ME5": "ey5",
+            "XE5": "qE5",
+            "PE5": "KE5",
+            "WE5": "_E5",
+            "DE5": "zE5",
+            "fE5": "YE5",
+            "ZE5": "$E5",
+            "GE5": "AE5",
+            "vE5": "OE5",
+            "TE5": "wE5",
+            "kE5": "jE5",
+            "VE5": "HE5",
+            "NE5": "JE5",
+            "yE5": "ME5",
+            "EE5": "XE5",
+            "$1": "$1",
+            "E": "y"
+          },
+          "reverse": {
+            "Iy7": "Fy7",
+            "ty5": "JE5",
+            "ey5": "ME5",
+            "qE5": "XE5",
+            "KE5": "PE5",
+            "_E5": "WE5",
+            "zE5": "DE5",
+            "YE5": "fE5",
+            "$E5": "ZE5",
+            "AE5": "GE5",
+            "OE5": "vE5",
+            "wE5": "TE5",
+            "jE5": "kE5",
+            "HE5": "VE5",
+            "JE5": "NE5",
+            "ME5": "yE5",
+            "XE5": "EE5",
+            "$1": "$1",
+            "y": "E"
+          },
+          "scopeCount": 3
+        }
+      }
+    ],
+    "caller": {
+      "target": 9437,
+      "current": 9448,
+      "comparison": {
+        "nodes": 251,
+        "forward": {
+          "be6": "Ve6",
+          "j6": "w6",
+          "process": "process",
+          "d": "d",
+          "xmz": "emz",
+          "Error": "Error",
+          "console": "console",
+          "mmz": "_Bz",
+          "O7": "K7",
+          "xe6": "Ne6",
+          "x7": "b7",
+          "S8": "h8",
+          "Imz": "qBz"
+        },
+        "reverse": {
+          "Ve6": "be6",
+          "w6": "j6",
+          "process": "process",
+          "d": "d",
+          "emz": "xmz",
+          "Error": "Error",
+          "console": "console",
+          "_Bz": "mmz",
+          "K7": "O7",
+          "Ne6": "xe6",
+          "b7": "x7",
+          "h8": "S8",
+          "qBz": "Imz"
+        },
+        "scopeCount": 7
+      }
+    },
+    "legacyWrapper": {
+      "target": [
+        5946,
+        5947,
+        5960
+      ],
+      "current": [
+        5954,
+        5955,
+        5968
+      ],
+      "comparison": {
+        "nodes": 914,
+        "forward": {
+          "process": "process",
+          "_g": "_g",
+          "Boolean": "Boolean",
+          "_D6": "_D6",
+          "qA8": "cA8",
+          "LO8": "fA8",
+          "Bun": "Bun",
+          "E": "y",
+          "qK": "KK",
+          "V8": "V8",
+          "K8": "q8",
+          "g8": "B8",
+          "JK": "MK",
+          "R8": "L8",
+          "kK": "VK",
+          "Sb_": "ob_",
+          "Rb_": "rb_",
+          "Cb_": "ab_",
+          "S76": "L76",
+          "kT8": "Mv8",
+          "H_": "E_",
+          "Dj": "Zj",
+          "A1": "A1",
+          "t54": "O34",
+          "Error": "Error",
+          "VT8": "Xv8",
+          "hb_": "ib_",
+          "xb_": "tb_",
+          "Math": "Math",
+          "j6": "w6",
+          "Ib_": "eb_",
+          "TT8": "Jv8",
+          "q1": "t8",
+          "Promise": "Promise",
+          "Date": "Date",
+          "N": "N",
+          "d": "d"
+        },
+        "reverse": {
+          "process": "process",
+          "_g": "_g",
+          "Boolean": "Boolean",
+          "_D6": "_D6",
+          "cA8": "qA8",
+          "fA8": "LO8",
+          "Bun": "Bun",
+          "y": "E",
+          "KK": "qK",
+          "V8": "V8",
+          "q8": "K8",
+          "B8": "g8",
+          "MK": "JK",
+          "L8": "R8",
+          "VK": "kK",
+          "ob_": "Sb_",
+          "rb_": "Rb_",
+          "ab_": "Cb_",
+          "L76": "S76",
+          "Mv8": "kT8",
+          "E_": "H_",
+          "Zj": "Dj",
+          "A1": "A1",
+          "O34": "t54",
+          "Error": "Error",
+          "Xv8": "VT8",
+          "ib_": "hb_",
+          "tb_": "xb_",
+          "Math": "Math",
+          "w6": "j6",
+          "eb_": "Ib_",
+          "Jv8": "TT8",
+          "t8": "q1",
+          "Promise": "Promise",
+          "Date": "Date",
+          "N": "N",
+          "d": "d"
+        },
+        "scopeCount": 35
+      }
+    },
+    "actualCallbackLookupResolved": true,
+    "actualCallerToExportToMemoizedCallbackResolved": true,
+    "wrapperInitializerRemovedOnlyFromEnvPrefix": true
+  },
+  "markdown": {
+    "indices": {
+      "target": 6689,
+      "previous": 6695,
+      "current": 6697
+    },
+    "completeFunctionNodes": 803,
+    "all18CapturedRoles": [
+      {
+        "source": "logForDebugging",
+        "owner": "src/utils/debug.ts",
+        "target": 889,
+        "current": 890,
+        "targetName": "N",
+        "currentName": "N",
+        "comparison": {
+          "nodes": 82,
+          "forward": {
+            "Ms8": "Ks8",
+            "vw5": "O25",
+            "kw5": "j25",
+            "g6": "g6",
+            "Xs8": "_s8",
+            "Date": "Date",
+            "Pl": "Ml",
+            "ax": "rx",
+            "yw5": "M25"
+          },
+          "reverse": {
+            "Ks8": "Ms8",
+            "O25": "vw5",
+            "j25": "kw5",
+            "g6": "g6",
+            "_s8": "Xs8",
+            "Date": "Date",
+            "Ml": "Pl",
+            "rx": "ax",
+            "M25": "yw5"
+          },
+          "scopeCount": 4
+        }
+      },
+      {
+        "source": "parseEffortValue",
+        "owner": "src/utils/effort.ts",
+        "target": 6261,
+        "current": 6269,
+        "targetName": "SC",
+        "currentName": "SC",
+        "comparison": {
+          "nodes": 64,
+          "forward": {
+            "o94": "Y_4",
+            "String": "String",
+            "$k8": "av8",
+            "parseInt": "parseInt",
+            "isNaN": "isNaN"
+          },
+          "reverse": {
+            "Y_4": "o94",
+            "String": "String",
+            "av8": "$k8",
+            "parseInt": "parseInt",
+            "isNaN": "isNaN"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "source": "EFFORT_LEVELS",
+        "owner": "src/utils/effort.ts",
+        "target": 6275,
+        "current": 6283,
+        "targetName": "mL",
+        "currentName": "xL",
+        "comparison": {
+          "nodes": 6,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "PERMISSION_MODES",
+        "owner": "src/types/permissions.ts",
+        "target": 2484,
+        "current": 2489,
+        "targetName": "OG",
+        "currentName": "KG",
+        "comparison": {
+          "nodes": 8,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "parsePositiveIntFromFrontmatter",
+        "owner": "src/utils/frontmatterParser.ts",
+        "target": 5940,
+        "current": 5948,
+        "targetName": "GT8",
+        "currentName": "jv8",
+        "comparison": {
+          "nodes": 43,
+          "forward": {
+            "String": "String",
+            "parseInt": "parseInt",
+            "Number": "Number"
+          },
+          "reverse": {
+            "String": "String",
+            "parseInt": "parseInt",
+            "Number": "Number"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "source": "basename",
+        "owner": "node:path",
+        "target": 6677,
+        "current": 6685,
+        "targetName": "Bl_",
+        "currentName": "zn_",
+        "comparison": {
+          "nodes": 6,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "parseAgentToolsFromFrontmatter",
+        "owner": "src/utils/markdownConfigLoader.ts",
+        "target": 5971,
+        "current": 5979,
+        "targetName": "b76",
+        "currentName": "h76",
+        "comparison": {
+          "nodes": 33,
+          "forward": {
+            "Y34": "X34"
+          },
+          "reverse": {
+            "X34": "Y34"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "source": "FILE_WRITE_TOOL_NAME",
+        "owner": "src/tools/FileWriteTool/prompt.ts",
+        "target": 5059,
+        "current": 5067,
+        "targetName": "BK",
+        "currentName": "_5",
+        "comparison": {
+          "nodes": 5,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "FILE_EDIT_TOOL_NAME",
+        "owner": "src/tools/FileEditTool/constants.ts",
+        "target": 5048,
+        "current": 5056,
+        "targetName": "H4",
+        "currentName": "X4",
+        "comparison": {
+          "nodes": 17,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "FILE_READ_TOOL_NAME",
+        "owner": "src/tools/FileReadTool/prompt.ts",
+        "target": 5055,
+        "current": 5063,
+        "targetName": "pq",
+        "currentName": "bq",
+        "comparison": {
+          "nodes": 23,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "isAutoMemoryEnabled",
+        "owner": "src/memdir/paths.ts",
+        "target": 4930,
+        "current": 4939,
+        "targetName": "n3",
+        "currentName": "n3",
+        "comparison": {
+          "nodes": 80,
+          "forward": {
+            "LB": "Lp",
+            "process": "process",
+            "Q6": "c6",
+            "H_": "E_",
+            "T7": "T7"
+          },
+          "reverse": {
+            "Lp": "LB",
+            "process": "process",
+            "c6": "Q6",
+            "E_": "H_",
+            "T7": "T7"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "source": "parseSlashCommandToolsFromFrontmatter",
+        "owner": "src/utils/markdownConfigLoader.ts",
+        "target": 5972,
+        "current": 5980,
+        "targetName": "wU",
+        "currentName": "wU",
+        "comparison": {
+          "nodes": 19,
+          "forward": {
+            "Y34": "X34"
+          },
+          "reverse": {
+            "X34": "Y34"
+          },
+          "scopeCount": 3
+        }
+      },
+      {
+        "source": "AgentMcpServerSpecSchema",
+        "owner": "src/tools/AgentTool/loadAgentsDir.ts",
+        "target": 6690,
+        "current": 6698,
+        "targetName": "lH4",
+        "currentName": "qJ4",
+        "comparison": {
+          "nodes": 12,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "jsonStringify",
+        "owner": "src/utils/slowOperations.ts",
+        "target": 852,
+        "current": 853,
+        "targetName": "g6",
+        "currentName": "g6",
+        "comparison": {
+          "nodes": 51,
+          "forward": {
+            "qA": "tA",
+            "cz": "Qz",
+            "JSON": "JSON",
+            "lz": "dz"
+          },
+          "reverse": {
+            "tA": "qA",
+            "Qz": "cz",
+            "JSON": "JSON",
+            "dz": "lz"
+          },
+          "scopeCount": 7
+        }
+      },
+      {
+        "source": "parseHooksFromFrontmatter",
+        "owner": "src/tools/AgentTool/loadAgentsDir.ts",
+        "target": 6686,
+        "current": 6694,
+        "targetName": "Ql_",
+        "currentName": "On_",
+        "comparison": {
+          "nodes": 47,
+          "forward": {
+            "QR": "gh",
+            "N": "N"
+          },
+          "reverse": {
+            "gh": "QR",
+            "N": "N"
+          },
+          "scopeCount": 4
+        }
+      },
+      {
+        "source": "loadAgentMemoryPrompt",
+        "owner": "src/tools/AgentTool/agentMemory.ts",
+        "target": 15688,
+        "current": 15683,
+        "targetName": "qw6",
+        "currentName": "aO6",
+        "comparison": {
+          "nodes": 79,
+          "forward": {
+            "rk6": "nk6",
+            "Oc8": "od8",
+            "process": "process",
+            "CUK": "NUK"
+          },
+          "reverse": {
+            "nk6": "rk6",
+            "od8": "Oc8",
+            "process": "process",
+            "NUK": "CUK"
+          },
+          "scopeCount": 4
+        }
+      },
+      {
+        "source": "AGENT_COLORS",
+        "owner": "src/tools/AgentTool/agentColorManager.ts",
+        "target": 6642,
+        "current": 6650,
+        "targetName": "LJ",
+        "currentName": "RJ",
+        "comparison": {
+          "nodes": 6,
+          "forward": {},
+          "reverse": {},
+          "scopeCount": 2
+        }
+      },
+      {
+        "source": "logError",
+        "owner": "src/utils/log.ts",
+        "target": 2033,
+        "current": 2034,
+        "targetName": "j6",
+        "currentName": "w6",
+        "comparison": {
+          "nodes": 105,
+          "forward": {
+            "B1": "m1",
+            "process": "process",
+            "Q6": "c6",
+            "XY": "HY",
+            "Date": "Date",
+            "tW6": "tW6",
+            "cL5": "CL5",
+            "GI": "fI"
+          },
+          "reverse": {
+            "m1": "B1",
+            "process": "process",
+            "c6": "Q6",
+            "HY": "XY",
+            "Date": "Date",
+            "tW6": "tW6",
+            "CL5": "cL5",
+            "fI": "GI"
+          },
+          "scopeCount": 7
+        }
+      }
+    ],
+    "ownInitializer": {
+      "nodes": 644,
+      "forward": {
+        "qK": "KK",
+        "u7": "I7",
+        "Tw": "G2",
+        "V8": "V8",
+        "o_6": "l_6",
+        "K8": "q8",
+        "GZ": "X0",
+        "g8": "B8",
+        "sT": "Qv",
+        "R8": "L8",
+        "br": "Sr",
+        "bP": "mW",
+        "sV8": "QV8",
+        "dR": "Uh",
+        "i8": "l8",
+        "H$": "cY",
+        "A2": "Iw",
+        "NZ": "Z0",
+        "Om": "zm",
+        "uH4": "cH4",
+        "KN8": "nV8",
+        "lH4": "qJ4",
+        "h": "L",
+        "Og": "Og",
+        "m6": "B6",
+        "gl_": "Yn_",
+        "nH4": "KJ4",
+        "mL": "xL",
+        "OG": "KG",
+        "QR": "gh",
+        "Fl_": "$n_",
+        "nC": "nC",
+        "qN8": "lV8",
+        "process": "process",
+        "Q6": "c6",
+        "Cr": "hr",
+        "rH4": "zJ4",
+        "Ul_": "An_",
+        "N": "N",
+        "d": "d",
+        "Ur6": "Sr6",
+        "UN": "CN",
+        "Kw6": "sO6",
+        "String": "String",
+        "Error": "Error",
+        "j6": "w6",
+        "A1": "A1",
+        "E": "y"
+      },
+      "reverse": {
+        "KK": "qK",
+        "I7": "u7",
+        "G2": "Tw",
+        "V8": "V8",
+        "l_6": "o_6",
+        "q8": "K8",
+        "X0": "GZ",
+        "B8": "g8",
+        "Qv": "sT",
+        "L8": "R8",
+        "Sr": "br",
+        "mW": "bP",
+        "QV8": "sV8",
+        "Uh": "dR",
+        "l8": "i8",
+        "cY": "H$",
+        "Iw": "A2",
+        "Z0": "NZ",
+        "zm": "Om",
+        "cH4": "uH4",
+        "nV8": "KN8",
+        "qJ4": "lH4",
+        "L": "h",
+        "Og": "Og",
+        "B6": "m6",
+        "Yn_": "gl_",
+        "KJ4": "nH4",
+        "xL": "mL",
+        "KG": "OG",
+        "gh": "QR",
+        "$n_": "Fl_",
+        "nC": "nC",
+        "lV8": "qN8",
+        "process": "process",
+        "c6": "Q6",
+        "hr": "Cr",
+        "zJ4": "rH4",
+        "An_": "Ul_",
+        "N": "N",
+        "d": "d",
+        "Sr6": "Ur6",
+        "CN": "UN",
+        "sO6": "Kw6",
+        "String": "String",
+        "Error": "Error",
+        "w6": "j6",
+        "A1": "A1",
+        "y": "E"
+      },
+      "scopeCount": 18
+    },
+    "orderedInitializerCallCount": 21,
+    "completeCurrentOwnerRemainderPreserved": {
+      "nodes": 1437,
+      "forward": {
+        "qJ4": "zJ4",
+        "T8": "T8",
+        "Map": "Map",
+        "Array": "Array",
+        "UV8": "UV8",
+        "gh": "gh",
+        "N": "N",
+        "L76": "h76",
+        "Set": "Set",
+        "_5": "_5",
+        "X4": "X4",
+        "bq": "bq",
+        "n3": "n3",
+        "rO6": "aO6",
+        "String": "String",
+        "Error": "Error",
+        "w6": "w6",
+        "Object": "Object",
+        "KK": "KK",
+        "I7": "I7",
+        "$w": "G2",
+        "k8": "V8",
+        "d_6": "l_6",
+        "q8": "q8",
+        "X0": "X0",
+        "p8": "B8",
+        "Qv": "Qv",
+        "L8": "L8",
+        "Rr": "Sr",
+        "mW": "mW",
+        "QV8": "QV8",
+        "Uh": "Uh",
+        "l8": "l8",
+        "cY": "cY",
+        "Iw": "Iw",
+        "Z0": "Z0",
+        "zm": "zm",
+        "UH4": "cH4",
+        "nV8": "nV8",
+        "L": "L",
+        "Ag": "Og",
+        "p6": "B6",
+        "xL": "xL",
+        "KG": "KG",
+        "lV8": "lV8",
+        "process": "process",
+        "c6": "c6",
+        "Lr": "hr",
+        "d": "d",
+        "hr6": "Sr6",
+        "oO6": "sO6",
+        "A1": "A1",
+        "y": "y"
+      },
+      "reverse": {
+        "zJ4": "qJ4",
+        "T8": "T8",
+        "Map": "Map",
+        "Array": "Array",
+        "UV8": "UV8",
+        "gh": "gh",
+        "N": "N",
+        "h76": "L76",
+        "Set": "Set",
+        "_5": "_5",
+        "X4": "X4",
+        "bq": "bq",
+        "n3": "n3",
+        "aO6": "rO6",
+        "String": "String",
+        "Error": "Error",
+        "w6": "w6",
+        "Object": "Object",
+        "KK": "KK",
+        "I7": "I7",
+        "G2": "$w",
+        "V8": "k8",
+        "l_6": "d_6",
+        "q8": "q8",
+        "X0": "X0",
+        "B8": "p8",
+        "Qv": "Qv",
+        "L8": "L8",
+        "Sr": "Rr",
+        "mW": "mW",
+        "QV8": "QV8",
+        "Uh": "Uh",
+        "l8": "l8",
+        "cY": "cY",
+        "Iw": "Iw",
+        "Z0": "Z0",
+        "zm": "zm",
+        "cH4": "UH4",
+        "nV8": "nV8",
+        "L": "L",
+        "Og": "Ag",
+        "B6": "p6",
+        "xL": "xL",
+        "KG": "KG",
+        "lV8": "lV8",
+        "process": "process",
+        "c6": "c6",
+        "hr": "Lr",
+        "d": "d",
+        "Sr6": "hr6",
+        "sO6": "oO6",
+        "A1": "A1",
+        "y": "y"
+      },
+      "scopeCount": 63
+    },
+    "ownerExceptJsonProgramNodes": 1907,
+    "parserCapturesGetterProgramNodes": 2520,
+    "selectedJointProviderProgramNodes": 3087,
+    "hookSchemaProgramNodes": 614,
+    "hookRoles": {
+      "target": {
+        "schemaName": "QR",
+        "header": 2503,
+        "initializer": 2504,
+        "lazy": 2466,
+        "builder": 2502,
+        "hook": 6686
+      },
+      "current": {
+        "schemaName": "gh",
+        "header": 2508,
+        "initializer": 2509,
+        "lazy": 2471,
+        "builder": 2507,
+        "hook": 6694
+      }
+    },
+    "twoRealParserCallerReferences": [
+      {
+        "range": [
+          63,
+          66
+        ],
+        "read": true,
+        "write": false,
+        "resolved": true
+      },
+      {
+        "range": [
+          1438,
+          1441
+        ],
+        "read": true,
+        "write": false,
+        "resolved": true
+      }
+    ],
+    "twoMemoryEnablementCallsResolvedToSameProvider": true,
+    "memoryProvider": {
+      "source": "isAutoMemoryEnabled",
+      "owner": "src/memdir/paths.ts",
+      "target": 4930,
+      "current": 4939,
+      "targetName": "n3",
+      "currentName": "n3",
+      "comparison": {
+        "nodes": 80,
+        "forward": {
+          "LB": "Lp",
+          "process": "process",
+          "Q6": "c6",
+          "H_": "E_",
+          "T7": "T7"
+        },
+        "reverse": {
+          "Lp": "LB",
+          "process": "process",
+          "c6": "Q6",
+          "E_": "H_",
+          "T7": "T7"
+        },
+        "scopeCount": 3
+      },
+      "rows": {
+        "target": [
+          6689,
+          4930,
+          468
+        ],
+        "current": [
+          6697,
+          4939,
+          468
+        ]
+      },
+      "joined": {
+        "nodes": 890,
+        "forward": {
+          "N": "N",
+          "SC": "SC",
+          "mL": "xL",
+          "OG": "KG",
+          "GT8": "jv8",
+          "Bl_": "zn_",
+          "b76": "h76",
+          "Set": "Set",
+          "BK": "_5",
+          "H4": "X4",
+          "pq": "bq",
+          "wU": "wU",
+          "lH4": "qJ4",
+          "g6": "g6",
+          "Array": "Array",
+          "Ql_": "On_",
+          "Object": "Object",
+          "qw6": "aO6",
+          "LJ": "RJ",
+          "String": "String",
+          "Error": "Error",
+          "j6": "w6",
+          "process": "process",
+          "Q6": "c6",
+          "H_": "E_",
+          "T7": "T7",
+          "G8": "G8"
+        },
+        "reverse": {
+          "N": "N",
+          "SC": "SC",
+          "xL": "mL",
+          "KG": "OG",
+          "jv8": "GT8",
+          "zn_": "Bl_",
+          "h76": "b76",
+          "Set": "Set",
+          "_5": "BK",
+          "X4": "H4",
+          "bq": "pq",
+          "wU": "wU",
+          "qJ4": "lH4",
+          "g6": "g6",
+          "Array": "Array",
+          "On_": "Ql_",
+          "Object": "Object",
+          "aO6": "qw6",
+          "RJ": "LJ",
+          "String": "String",
+          "Error": "Error",
+          "w6": "j6",
+          "process": "process",
+          "c6": "Q6",
+          "E_": "H_",
+          "T7": "T7",
+          "G8": "G8"
+        },
+        "scopeCount": 16
+      },
+      "stateHeader": 575,
+      "stateFactory": 361,
+      "stateInitializer": 576,
+      "sharedInitializedFalseBindingVerified": true,
+      "wholeBootstrapAccepted": false
+    }
+  },
+  "remainingFailures": {
+    "jsonParser": {
+      "target": 6687,
+      "current": 6695,
+      "targetNodes": 322,
+      "currentNodes": 333,
+      "comparison": {
+        "pass": false,
+        "error": "node count\n\n323 !== 334\n"
+      }
+    },
+    "initializerProducerBodies": [
+      {
+        "slot": 10,
+        "target": 5979,
+        "current": 5987,
+        "targetNodes": 472,
+        "currentNodes": 474,
+        "comparison": {
+          "pass": false,
+          "error": "node count\n\n473 !== 475\n"
+        },
+        "preservedFromV5": {
+          "nodes": 475,
+          "forward": {
+            "KK": "KK",
+            "k8": "V8",
+            "V8": "k8",
+            "q8": "q8",
+            "p8": "B8",
+            "y8": "y8",
+            "xK": "xK",
+            "Qv": "Qv",
+            "f5": "f5",
+            "bX": "bX",
+            "VC": "VC",
+            "hO": "hO",
+            "GI": "GI",
+            "$O6": "OO6",
+            "j34": "M34",
+            "Lr": "hr",
+            "Date": "Date",
+            "l1": "l1",
+            "uv6": "mv6",
+            "EP": "EP",
+            "QS1": "QS1",
+            "BY": "pY",
+            "ZH": "ZH",
+            "JJ": "JJ",
+            "US1": "US1",
+            "Promise": "Promise",
+            "XJ": "XJ",
+            "uG": "uG",
+            "zx_": "jx_",
+            "Map": "Map",
+            "N": "N",
+            "d": "d",
+            "A1": "A1",
+            "y": "y"
+          },
+          "reverse": {
+            "KK": "KK",
+            "V8": "k8",
+            "k8": "V8",
+            "q8": "q8",
+            "B8": "p8",
+            "y8": "y8",
+            "xK": "xK",
+            "Qv": "Qv",
+            "f5": "f5",
+            "bX": "bX",
+            "VC": "VC",
+            "hO": "hO",
+            "GI": "GI",
+            "OO6": "$O6",
+            "M34": "j34",
+            "hr": "Lr",
+            "Date": "Date",
+            "l1": "l1",
+            "mv6": "uv6",
+            "EP": "EP",
+            "QS1": "QS1",
+            "pY": "BY",
+            "ZH": "ZH",
+            "JJ": "JJ",
+            "US1": "US1",
+            "Promise": "Promise",
+            "XJ": "XJ",
+            "uG": "uG",
+            "jx_": "zx_",
+            "Map": "Map",
+            "N": "N",
+            "d": "d",
+            "A1": "A1",
+            "y": "y"
+          },
+          "scopeCount": 20
+        }
+      },
+      {
+        "slot": 13,
+        "target": 2567,
+        "current": 2571,
+        "targetNodes": 2246,
+        "currentNodes": 2245,
+        "comparison": {
+          "pass": false,
+          "error": "node count\n\n2247 !== 2246\n"
+        },
+        "preservedFromV5": {
+          "nodes": 2246,
+          "forward": {
+            "I7": "I7",
+            "WC7": "DC7",
+            "p8": "B8",
+            "mW": "mW",
+            "_G": "_G",
+            "hO": "hO",
+            "s51": "s51",
+            "ZO8": "ZO8",
+            "Ub5": "ib5",
+            "L": "L",
+            "p6": "B6",
+            "Qb5": "rb5",
+            "yO8": "yO8",
+            "KG": "KG",
+            "db5": "ob5",
+            "_B6": "zp6",
+            "cb5": "ab5",
+            "Boolean": "Boolean",
+            "A7": "A7",
+            "lb5": "sb5",
+            "LD6": "RD6",
+            "pW": "BW",
+            "JC7": "MC7",
+            "process": "process",
+            "c6": "c6",
+            "gh": "gh",
+            "Array": "Array",
+            "Object": "Object",
+            "PC7": "WC7",
+            "y": "y"
+          },
+          "reverse": {
+            "I7": "I7",
+            "DC7": "WC7",
+            "B8": "p8",
+            "mW": "mW",
+            "_G": "_G",
+            "hO": "hO",
+            "s51": "s51",
+            "ZO8": "ZO8",
+            "ib5": "Ub5",
+            "L": "L",
+            "B6": "p6",
+            "rb5": "Qb5",
+            "yO8": "yO8",
+            "KG": "KG",
+            "ob5": "db5",
+            "zp6": "_B6",
+            "ab5": "cb5",
+            "Boolean": "Boolean",
+            "A7": "A7",
+            "sb5": "lb5",
+            "RD6": "LD6",
+            "BW": "pW",
+            "MC7": "JC7",
+            "process": "process",
+            "c6": "c6",
+            "gh": "gh",
+            "Array": "Array",
+            "Object": "Object",
+            "WC7": "PC7",
+            "y": "y"
+          },
+          "scopeCount": 15
+        }
+      }
+    ],
+    "wholeBootstrapInitialState": "The independently preserved 402/400-node source-fixture difference remains outside this gate-edge acceptance. No whole-bootstrap equivalence is inferred."
+  },
+  "verificationReuse": {
+    "sourceFixtureSuite": "Reused authenticated frozen source/applicability controls; not rerun.",
+    "priorCompilerReplay": "Reused the applicability review’s twelve exact outputs and two receipts. This review compiled nothing.",
+    "tooling": "The byte-identical indexed reader imports the previously authenticated Acorn/eslint-scope/field-and-binding comparator; its common module authenticates its parser/helper closures before import.",
+    "freshEvidence": "Current source/profile/toolchain/report hashes, bounded original-index statements, complete bodies/local graphs, direct suppliers, initializer order and exact retained failure bodies.",
+    "freshNegatives": [
+      "npm lookup detached from real which binding",
+      "memory getter reads a different field"
+    ],
+    "witnesses": {
+      "main": 218,
+      "joint": 83
+    }
+  },
+  "limitations": [
+    "The prior .89 source approvals and .90 applicability receipt remain immutable; their pending actual flags are historical. This separate receipt establishes only the listed Trial 6 scopes.",
+    "The raw external-axios fixture failure, shorthand-only symbol bridge and tiny-fixture omitted calls remain historical. Complete actual env and both which initializer calls were checked without those exclusions. Deeper axios/native/process/filesystem/lookup and mutable ambient behavior remains conditional.",
+    "The complete Markdown parser and its selected joint graph match, but the adjacent JSON parser is still target 322/current 333 nodes. Supplier slots 10 and 13 remain target/current 472/474 and 2246/2245; both current bodies are unchanged from Trial 5.",
+    "The new enablement edge now resolves to the real getter and shared state initialized false. This does not promote whole bootstrap, command registration, extraction or permission behavior; those are separately reviewed scopes.",
+    "The complete hook schema direct graph preserves lazy factory, enum/library receivers and safeParse; transitive schema-library behavior is unvalidated.",
+    "Exact direct initializer order does not prove purity, global first-initialization timing, dynamic-use absence or whole-program binding/equivalence. Native imports and ambient values were not executed.",
+    "Ordinary-falsy versus host-exotic behavior, source/reflection/allocation effects, mutable getters/prototypes, erased typing and wider transitive interfaces retain their source-review qualifications."
+  ],
+  "reviewHarnessCorrections": [
+    "The first supplementary source census treated the selected Markdown owner as an unchanged provider. It correctly rejected the approved postimage. The corrected census explicitly admits only the two pinned carry-forward rows plus seven pinned toggle rows.",
+    "The first supplementary memory-call selector expected one call in the full Markdown function. The actual complete function has two; both are now explicitly counted and independently resolve to the same enabled provider. Complete graph comparison had already matched."
+  ],
+  "applicationExecuted": false,
+  "callbacksOrProvidersExecuted": false,
+  "fullBundleParsed": false,
+  "fullBuildOrCompilerExecuted": false,
+  "stageRepositoryOrPriorReceiptsModified": false,
+  "genericNormalizationAdded": false
+}

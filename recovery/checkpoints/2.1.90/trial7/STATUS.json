@@ -1,0 +1,75 @@
+{
+  "kind": "incomplete-reviewed-source-checkpoint",
+  "version": "2.1.90",
+  "trial": 7,
+  "sourceRevision": 1,
+  "baseMainCommit": "7fb2e935d0ba5563cc19e1613c06fd1e7152ed83",
+  "cumulativeRootSourceVersion": "2.1.126",
+  "rootSourceMustRemainUnchanged": true,
+  "sourceFiles": 6108,
+  "sourceBytes": 51036694,
+  "sourceManifestSha256": "966823ecc70d3a6009ee3c2100516666941222168e877c9408dcbaf502ec6e29",
+  "derivedSrcTree": "7db5611b82602d46d5ce983904e0a573e1b74402",
+  "sourceAndPreparationReviewed": true,
+  "privateSerialBuildAndStrictParsePassed": true,
+  "versionAccepted": false,
+  "strictAstEqual": false,
+  "wholeProgramBindingEquivalenceEstablished": false,
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3105172,
+    "sha256": "5dcf01b84a95cde1a3c1faacce353265a6e6104d991273b628c65611c8843839"
+  },
+  "target": {
+    "javaScriptSha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9",
+    "strictAst": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110206,
+      "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+    }
+  },
+  "publicProfileSha256": "09e70cb95ae3fc71cdb539f0bea0a9a6c24223c696970deb4ea3d69072e92977",
+  "toolchainSha256": "886f71b1c19b4e9c957934c457f221472d45afa0e89424f9eff7bf217e5299a5",
+  "publicRelocatedCompilerReplayVerified": true,
+  "publicCandidateIndependentlyAudited": false,
+  "publicationApproved": false,
+  "publicMaterializationVerified": true,
+  "acceptancePolicy": "Exact strict AST equality is a stronger diagnostic. Sound binding-aware alpha-equivalence and provably independent definition ordering are permitted only where concretely proved; unsupported observable cases remain unresolved. Neither whole route has passed.",
+  "currentScopedResults": [
+    "Trial7 command registration places the same toggle-memory value after mobile and before model; earlier contradictory ordering statements remain corrected only by additive evidence.",
+    "Trial7 AWS sharing graph passes with the same995-node supplier for three consumers, distinct base64/protocol factories, and retained1191-node root supplier/two consumers.",
+    "The carried env/Markdown sources and prior repaired owners retain their separately bounded actual reports."
+  ],
+  "unfinished": [
+    "Whole target equality and conservative whole-program equivalence remain false; node counts are not completion percentages.",
+    "AWS query-string wrapper top-level placement differs. Global first-initialization effects and deeper SDK/host/native dependencies remain unaccepted.",
+    "Bootstrap state402/400, JSON parser322/333, deeper parser supplier residuals, raw Powerup grouping and other recorded source/body/cache/provider gaps remain open.",
+    "Three sessionStorage metadata/resume conflicts and broader inherited .89 residuals remain unresolved.",
+    "Historical source maps, arbitrary reflection/dynamic/ambient equivalence, authentic original private authorship and universal package/type API compatibility are not established."
+  ],
+  "evidenceBoundary": "Report derivatives and all historical statuses are preserved, but the private full proof archive is intentionally not republished. Metadata-only historical locators are not runtime inputs.",
+  "publicMaterializedFiles": 6227,
+  "publicRelocatedReplayMatchesPrivateStrictAst": true,
+  "publicRelocatedReplayFinalJsBytesExact": false,
+  "publicRelocatedReplayOnlyFinalDebugIdCommentDiffers": true,
+  "publicReplayEvidence": [
+    {
+      "path": "evidence/public-relocated-result.json",
+      "bytes": 1090,
+      "sha256": "66d411c10834c471b6a256eb49504a88a854e6f8e1967e73a36b412df15100e0",
+      "originalBytesExact": true
+    },
+    {
+      "path": "evidence/public-relocated-byte-comparison.json",
+      "bytes": 597,
+      "sha256": "49f910839cb87063aa00496e764fea1dc961dafbb231693191ebd97b98664268",
+      "originalBytesExact": true
+    }
+  ],
+  "replayedCoreManifestSha256": "de6aea5d1a0ab1e6d46c8721b8e2848f00cb2503467f62d1f2549bf1a261352a",
+  "sourceMapCoordinateOrByteEqualityClaim": false
+}
