@@ -1,0 +1,48 @@
+{
+  "orderedStatementsCompared": 18181,
+  "allOrdinalIndexesEqual": true,
+  "allFieldsExceptUTF16RangesExactlyEqual": true,
+  "differingStatementFields": {
+    "range": 18181
+  },
+  "rangeDeltaDistribution": {
+    "(-306, -306)": 18181
+  },
+  "rangeExamples": [
+    {
+      "index": 0,
+      "replayedRange": [
+        0,
+        46
+      ],
+      "officialRange": [
+        306,
+        352
+      ]
+    },
+    {
+      "index": 1,
+      "replayedRange": [
+        46,
+        68
+      ],
+      "officialRange": [
+        352,
+        374
+      ]
+    },
+    {
+      "index": 2,
+      "replayedRange": [
+        68,
+        207
+      ],
+      "officialRange": [
+        374,
+        513
+      ]
+    }
+  ],
+  "positionFieldsAreOutsideStrictASTCriterion": true,
+  "outputsEditedOrNormalized": false
+}

@@ -1,0 +1,42 @@
+{
+  "kind": "accepted-fixed-profile-source-recovery-checkpoint",
+  "version": "2.1.89",
+  "checkpoint": "v45",
+  "technicalAcceptance": true,
+  "criterion": "complete official strict AST equality plus fresh source materialization/build and independent data verification",
+  "strictAST": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098331,
+    "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "orderedStatements": 18181,
+  "sourceFiles": 6087,
+  "sourceBytes": 50891990,
+  "acceptedStageFiles": 6165,
+  "validationFiles": 19,
+  "sourceOverlayFiles": 205,
+  "runtimeToolDataFiles": 76,
+  "materializationManifestSha256": "4c15f8e7860070197a4188689ab026897d8945c21c98114935fa5a61bcb946dd",
+  "publicLayoutReplay": {
+    "path": "evidence/public-relocated-replay.json",
+    "bytes": 1648484,
+    "sha256": "d51a227653af651594a2445361bd5a698095b56c3721f9d67d0bab666c1289fd"
+  },
+  "sourceProfileAndToolchainUnchanged": true,
+  "executableCoreMatchesOfficial": true,
+  "mapFieldsExceptDebugIdMatchSavedOutput": true,
+  "applicationExecuted": false,
+  "wholeArtifactByteReproducible": false,
+  "originalSourceAuthorshipClaim": false,
+  "alternateProfilesAccepted": false,
+  "arbitraryLayoutAccepted": false,
+  "limitations": [
+    "Commitments authenticate one saved fixed-profile output; whole-artifact byte reproducibility is not claimed.",
+    "DebugId may differ; validity, uniqueness and external association are outside scope.",
+    "No runtime testing, original authorship, upstream source-map displacement repair or arbitrary-layout acceptance."
+  ],
+  "previousIncompleteCheckpointsRetained": true,
+  "rootSourceAndVersion90Unchanged": true
+}

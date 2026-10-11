@@ -1,0 +1,173 @@
+{
+  "kind": "independent-actual-integrated-v45-map-review",
+  "status": "bounded-data-only-verification-passed",
+  "inputs": [
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/final/cli.js",
+      "bytes": 13080817,
+      "sha256": "da8c088e045e0728f1f64939ced304e0b6319343c211aed65b003fac9ba64f1f"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/final/cli.js.map",
+      "bytes": 59004480,
+      "sha256": "9221619c0be768512fd06c2fb2dab556456b656cd0768499601b05c247b267b9"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/named/cli.js",
+      "bytes": 13080804,
+      "sha256": "905ee2900a80d54a949af70f6acd1b13ddd9927bab7ff41739b3550248fb0b74"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/named/cli.js.map",
+      "bytes": 60087836,
+      "sha256": "b51dd90ce9cf394e62777d49c90c4b456c4d90cdb9bfd797af2ee1c74d309fc0"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/identifier-edits.json",
+      "bytes": 19738315,
+      "sha256": "07ca0e940b45260af4e13b4c073cd2ecf466473a0c7a25ab9953795ccd24d7d3"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/name-emission-report.json",
+      "bytes": 3295,
+      "sha256": "6c65cf9b87ceb9557731aac1c65113ef4978b67ee756900f1692b686b054f7fb"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/profile.json",
+      "bytes": 8318312,
+      "sha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/compiler-receipts.json",
+      "bytes": 139487,
+      "sha256": "472bd3f9db44d0714427127631743c89fb3d49bc07d994fb8f59b68a723833b0"
+    }
+  ],
+  "frozenManifest": {
+    "path": "version89-hands-on/exact-name-map-independent-review/FROZEN-RESULTS-MANIFEST.json",
+    "bytes": 5219,
+    "sha256": "b34a3bdc8b30324c22acad6adf12deb8abc8e0dc27eba9c6c5b1b22cc9a80c5d"
+  },
+  "oraclePins": {
+    "independent-oracle.mjs": "bf84647dd7f32dffe087960bf56734e9d9e66cb8c97fd32916c164dc29d912d1",
+    "reviewed-compose.mjs": "3fb049fc642755391155133e81fed49c94060aafb2cf946f65aea002eefe9007",
+    "run-bounded.py": "f258934e8597b2ca0e73daf6ec7cd1e8f788c498b001224b1e74b2deb35fb9c8"
+  },
+  "verifierSHA256": "064711fef144418833917687d82379672e546c375fa1835330f683e0a59ba4eb",
+  "fullEditUTF16AndUTF8ReconstructionVerified": true,
+  "reconstruction": {
+    "edits": 217569,
+    "utf16Length": 13016805,
+    "bytes": 13080804,
+    "sha256": "905ee2900a80d54a949af70f6acd1b13ddd9927bab7ff41739b3550248fb0b74"
+  },
+  "allEditStringsAreASCIIIdentifierOrPrivateNameSpellings": true,
+  "privateNameEdits": 153,
+  "editLengths": {
+    "shrinking": 64,
+    "growing": 51,
+    "sameLength": 217454,
+    "oldUnits": 482839,
+    "replacementUnits": 482826,
+    "deltaUTF16": -13
+  },
+  "inputMapValidity": {
+    "segments": 2072291,
+    "encodedLines": 16816
+  },
+  "outputMapValidity": {
+    "segments": 2290384,
+    "encodedLines": 16816
+  },
+  "verification": {
+    "originalMappings": 2072291,
+    "retainedOriginalMappings": 2072285,
+    "droppedInteriorMappings": 6,
+    "insertedBoundaryMappings": 218099,
+    "duplicateOriginalColumns": 273,
+    "editStartsChecked": 217569,
+    "editEndsChecked": 217569,
+    "unchangedCodeUnitsChecked": 12517161,
+    "replacementCodeUnitsChecked": 482826,
+    "lineEndsChecked": 16819,
+    "linesChecked": 16819,
+    "originalMapLines": 16816,
+    "maxOriginalLineMappings": 68033,
+    "maxOutputLineMappings": 79467,
+    "namedOriginalMappings": 0,
+    "unmappedOriginalMappings": 0
+  },
+  "verificationMs": 6184,
+  "allNonMappingsMetadataUnchanged": true,
+  "metadataSHA256": "25aa865f03fbdb521d6bb19975f1864608065139b8e644436e142749ef0fd9b8",
+  "tableHashes": {
+    "sources": "cdde597b907c46f32f90fc15af8793d7dc9a21fad679b47d929dbc12d22a29ad",
+    "sourcesContent": "12f7aae27a69090f5a611dba4cd679b82b41a23fae795d62ededd19d4fff8bdc",
+    "names": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "sourceIdentities": {
+    "count": 4771,
+    "distinctSourceTargets": 4771,
+    "allFinalAndNamedTargetsEqual": true,
+    "allAvailableOnDiskSourcesAuthenticatedBeforeAndAfter": true,
+    "resolvedWithinV45InputTree": 4767,
+    "resolvedOutsideV45InputTree": 4,
+    "embeddedContentMatchesDisk": 4767,
+    "embeddedContentDiffersFromDisk": 0,
+    "differingIndices": [],
+    "unavailableSourceCount": 4,
+    "unavailableSourceIndices": [
+      2457,
+      2471,
+      3146,
+      3172
+    ],
+    "indexPath": "version89-hands-on/source-batch-v45-actual-review/map-review/source-identities.json"
+  },
+  "virtualSourceIdentities": {
+    "declaredAndReceiptAuthenticated": 4,
+    "embeddedContentMatchesStagedSource": 4,
+    "unaccountedEmbeddedSources": 0,
+    "historicalPathsPhysicallyUnavailable": true,
+    "indexPath": "version89-hands-on/source-batch-v45-actual-review/map-review/virtual-source-identities.json"
+  },
+  "placement": {
+    "from": "version89-hands-on/source-batch-v45-diagnostic/final/cli.js.map",
+    "to": "version89-hands-on/source-batch-v45-diagnostic/named/cli.js.map",
+    "sameParentSiblingDirectories": true,
+    "allRelativeSourceResolutionsUnchanged": true,
+    "mapFileFieldPresent": false,
+    "sourceRootPresent": false,
+    "codeFooter": [
+      "//# debugId=E0A8E7765CA2413E64756E2164756E21"
+    ],
+    "standaloneSourceMappingURLPresent": false
+  },
+  "debugId": {
+    "value": "E0A8E7765CA2413E64756E2164756E21",
+    "unchangedFromPreNamingMapAndCode": true,
+    "regeneratedForNamedBytes": false,
+    "provenanceVerified": false,
+    "qualification": "Conservation of the prior debugId is verified. Its content-derived validity, uniqueness and external consumer association for renamed bytes are not established."
+  },
+  "rawSourceProvenanceQualification": "This review verifies composition relative to the authenticated final pre-naming map, including all embedded source bytes and source identities. It does not establish compiler/source provenance or original-source coordinate truth. Any pre-existing raw-to-final source-map displacement remains outside this conservation proof.",
+  "negativeControlsPassed": 14,
+  "allInputOracleAndSourcePinsUnchanged": true,
+  "glbConvention": "Same-line greatest generated column at or before the query; last original segment at duplicate columns wins. Retained duplicate sequences are preserved. Changed identifier interiors inherit old-start state, and ends restore old-end state.",
+  "limits": [
+    "No application execution or AST parse.",
+    "No compiler, emitter or full name transform run.",
+    "No inverse-map, LUB, cross-line fallback or external consumer claim.",
+    "Raw-source provenance and debugId policy remain qualified.",
+    "Archive-only replay still required before release acceptance."
+  ],
+  "peakNodeRSSBytes": 1687805952,
+  "heapLimitMiB": 2048,
+  "applicationExecuted": false,
+  "ASTParsed": false,
+  "compilerExecuted": false,
+  "fullNameTransformExecuted": false,
+  "archiveOnlyReplayEstablished": false,
+  "releaseReady": false,
+  "wholeVersionAccepted": false
+}

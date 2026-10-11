@@ -1,0 +1,255 @@
+{
+  "kind": "independent-completed-V45-source-name-map-actual-review",
+  "completedUtc": "2026-10-08T03:02:30.023192+00:00",
+  "decision": "pass-fixed-profile-integrated-actual-review",
+  "fixedProfileActualAcceptance": true,
+  "checks": {
+    "entire6165FilePhysicalStageMatchesIndependentExpected": true,
+    "all6087SourceInputsUnchangedFromV44": true,
+    "all76ToolDataPinsAuthenticated": true,
+    "allCompilerAndLateLinkPoliciesRetained": true,
+    "actualFourPhaseArgsAndLogsAuthenticated": true,
+    "allPhaseBeforeAfterSourcesAndOutputsAuthenticated": true,
+    "all33ResolverReceiptsValidatedAsData": true,
+    "rawToFinalExactlyElevenRecordedImportDeletions": true,
+    "frozenRecipeBodyFreeAndCandidateOnlyBoundaryVerified": true,
+    "all57783BindingRolesAnd217569ActualEditRecordsMatchFrozenTrial": true,
+    "actualDeclarationReferenceCaptureIdentityEstablishedWithoutNewParse": true,
+    "completeOriginalIndependentStrictObjectEqualsOfficial": true,
+    "all18181OrderedStatementStrictHashesEqual": true,
+    "actualExecutableBodyBytesEqualOfficial": true,
+    "allActualEditsReconstructUTF16AndUTF8Output": true,
+    "completeMappingSequenceAndGLBCompositionVerified": true,
+    "all4771SourceIdentitiesAndEmbeddedContentsAccountedFor": true,
+    "all4VirtualSourceIdentitiesMatchProfileReceiptsAndStagedBytes": true,
+    "relativeMapPlacementPreserved": true,
+    "allNonMappingMetadataConserved": true,
+    "reviewInputsAndPhysicalStageRehashedUnchanged": true
+  },
+  "sourceStage": {
+    "files": 6165,
+    "bytes": 64602405,
+    "manifestSha256": "a1e76e42d1725cff000319728e47941bdcb30a24788335e5c725a7863526970c",
+    "sourceInputs": 6087,
+    "sourceManifestSha256": "b1a948e024d437956a502ea5069376c366c38c21a8586a41ff99d91fd2649996",
+    "gitSourceFiles": 1923,
+    "gitSourceTree": "6e8126a8f8619316d072c58cb10788683d1ad74e",
+    "srcFiles": 1954,
+    "extraSourceAssets": 31,
+    "tools": 76,
+    "exactChangedPaths": [
+      "recovery/lib/reconstruction/versions/2.1.89/compose-identifier-map.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/emission-ownership.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/exact-name-emitter.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/name-full-stage.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/source-contract.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/strict-ast.mjs",
+      "recovery/profiles/2.1.89/identifier-names-v45.json",
+      "recovery/profiles/2.1.89/profile.json",
+      "recovery/profiles/2.1.89/toolchain.json",
+      "recovery/scripts/name-2.1.89-candidate.mjs"
+    ],
+    "allPinsAndModesMatchIndependentExpected": true,
+    "unchangedAtReviewEnd": true
+  },
+  "profile": {
+    "path": "version89-hands-on/v45-source-batch/recovery/profiles/2.1.89/profile.json",
+    "bytes": 8318312,
+    "sha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120"
+  },
+  "toolchain": {
+    "path": "version89-hands-on/v45-source-batch/recovery/profiles/2.1.89/toolchain.json",
+    "bytes": 15546,
+    "sha256": "8181e007ccb1b0fc379f64ff393196b05f140068a419a9160b839a0dc96fc48a"
+  },
+  "prospectiveGate": {
+    "path": "version89-hands-on/v45-integration-independent-review/review.json",
+    "bytes": 8651,
+    "sha256": "fb4f47d78119717ba01ae55b1a79adfe6cb2edf5b32a32d200f4ec8eed3794f3"
+  },
+  "prospectiveGateFreeze": {
+    "path": "version89-hands-on/v45-integration-independent-review/freeze.json",
+    "bytes": 25051,
+    "sha256": "ecc030349737142e7253f4b4ffd4f817988d49eb0b824c8135d99e1b5d570c49"
+  },
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098331,
+    "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "orderedStatementStrictHashesEqual": 18181,
+  "officialExecutableBodyBytesExactlyEqual": 13080759,
+  "primaryArtifacts": [
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/raw/cli.js",
+      "bytes": 13081034,
+      "sha256": "8e34618fb43d681d9fd37f5a272acada2e4586f8b507f8d45c83f485fbfe7856"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/raw/cli.js.map",
+      "bytes": 59033225,
+      "sha256": "38b75a60cb1ce7365673930bb90656aa78e89047c4c5939628eb3bc3f1e0ef11"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/final/cli.js",
+      "bytes": 13080817,
+      "sha256": "da8c088e045e0728f1f64939ced304e0b6319343c211aed65b003fac9ba64f1f"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/final/cli.js.map",
+      "bytes": 59004480,
+      "sha256": "9221619c0be768512fd06c2fb2dab556456b656cd0768499601b05c247b267b9"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/named/cli.js",
+      "bytes": 13080804,
+      "sha256": "905ee2900a80d54a949af70f6acd1b13ddd9927bab7ff41739b3550248fb0b74"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/named/cli.js.map",
+      "bytes": 60087836,
+      "sha256": "b51dd90ce9cf394e62777d49c90c4b456c4d90cdb9bfd797af2ee1c74d309fc0"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/compile-report.json",
+      "bytes": 104466,
+      "sha256": "827dad1af926a244e2e67a9c00e4a5cea4dacd544a344cefa7ea710692145094"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/compiler-receipts.json",
+      "bytes": 139487,
+      "sha256": "472bd3f9db44d0714427127631743c89fb3d49bc07d994fb8f59b68a723833b0"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/late-link-report.json",
+      "bytes": 17781,
+      "sha256": "d6a894d2527b19f028434ee9b14991781c6605b42408dfc9801d322f13825455"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/name-emission-report.json",
+      "bytes": 3295,
+      "sha256": "6c65cf9b87ceb9557731aac1c65113ef4978b67ee756900f1692b686b054f7fb"
+    },
+    {
+      "path": "version89-hands-on/source-batch-v45-diagnostic/identifier-edits.json",
+      "bytes": 19738315,
+      "sha256": "07ca0e940b45260af4e13b4c073cd2ecf466473a0c7a25ab9953795ccd24d7d3"
+    },
+    {
+      "path": "version89-hands-on/v45-index.json",
+      "bytes": 5573603,
+      "sha256": "12bbb344f86a0074e68bb506a04817ab82839ef80d2bbbdacb70e5e2fae74dfa"
+    }
+  ],
+  "components": {
+    "lineage": {
+      "path": "version89-hands-on/source-batch-v45-actual-review/lineage-review.json",
+      "bytes": 7655,
+      "sha256": "9af9749cb43758593bdca78b3de4429465041a09c6a29d1365fc9b832e6b08cf"
+    },
+    "receipts": {
+      "path": "version89-hands-on/source-batch-v45-actual-review/receipt-review.json",
+      "bytes": 1500,
+      "sha256": "2f32f6e5f0f743d5e1708b0c7150897255f057ea4f74f2931fb6e79483fa1d5a"
+    },
+    "map": {
+      "path": "version89-hands-on/source-batch-v45-actual-review/map-review/actual-map-review.json",
+      "bytes": 7120,
+      "sha256": "1e1c5ff4bf4f5e6eb4bdc8e92052a627a0e00b21c30118913251bc7fd9b210a8"
+    },
+    "mapFreeze": {
+      "path": "version89-hands-on/source-batch-v45-actual-review/map-review/FROZEN-RESULTS-MANIFEST.json",
+      "bytes": 11373,
+      "sha256": "a8765bb28ae1171947994624d1a9a4a2885f3fd44a0122cae352f2a1954fa893"
+    },
+    "allInputPins": {
+      "path": "version89-hands-on/source-batch-v45-actual-review/actual-input-pins.json",
+      "bytes": 1467096,
+      "sha256": "33953a16b1da7334b5c6e315bbaad42c69253f9ea2ac5d9e67c16f90822b3281"
+    }
+  },
+  "newControls": {
+    "lineageCorruptions": 11,
+    "receiptCorruptions": 11,
+    "actualMapCorruptions": 14,
+    "validMapCompositions": 507,
+    "malformedMapRejections": 39,
+    "VLQArithmetic": 19
+  },
+  "sourceMapVerification": {
+    "originalMappings": 2072291,
+    "retainedOriginalMappings": 2072285,
+    "droppedInteriorMappings": 6,
+    "insertedBoundaryMappings": 218099,
+    "duplicateOriginalColumns": 273,
+    "editStartsChecked": 217569,
+    "editEndsChecked": 217569,
+    "unchangedCodeUnitsChecked": 12517161,
+    "replacementCodeUnitsChecked": 482826,
+    "lineEndsChecked": 16819,
+    "linesChecked": 16819,
+    "originalMapLines": 16816,
+    "maxOriginalLineMappings": 68033,
+    "maxOutputLineMappings": 79467,
+    "namedOriginalMappings": 0,
+    "unmappedOriginalMappings": 0
+  },
+  "sourceIdentities": {
+    "count": 4771,
+    "distinctSourceTargets": 4771,
+    "allFinalAndNamedTargetsEqual": true,
+    "allAvailableOnDiskSourcesAuthenticatedBeforeAndAfter": true,
+    "resolvedWithinV45InputTree": 4767,
+    "resolvedOutsideV45InputTree": 4,
+    "embeddedContentMatchesDisk": 4767,
+    "embeddedContentDiffersFromDisk": 0,
+    "differingIndices": [],
+    "unavailableSourceCount": 4,
+    "unavailableSourceIndices": [
+      2457,
+      2471,
+      3146,
+      3172
+    ],
+    "indexPath": "version89-hands-on/source-batch-v45-actual-review/map-review/source-identities.json"
+  },
+  "virtualSourceIdentities": {
+    "declaredAndReceiptAuthenticated": 4,
+    "embeddedContentMatchesStagedSource": 4,
+    "unaccountedEmbeddedSources": 0,
+    "historicalPathsPhysicallyUnavailable": true,
+    "indexPath": "version89-hands-on/source-batch-v45-actual-review/map-review/virtual-source-identities.json"
+  },
+  "resources": {
+    "producerMaximumRecordedRSSBytes": 2487590912,
+    "lineageReviewerPeakRSSBytes": 989560832,
+    "mapReviewerMaximumRSSBytes": 1687805952,
+    "mapReviewerExitCode": 0,
+    "mapReviewerWallSeconds": 15.614
+  },
+  "qualifications": [
+    "Acceptance is limited to the exact authenticated recovered-source profile and toolchain; original source authorship and alternate flags/profiles are not established.",
+    "Source/compiler/late-link/naming lineage is established by pinned source/data/tool bytes, exact producer arguments, reports, validated receipts, output identities and independent checks; no syscall tracing or kernel read isolation is claimed.",
+    "The reference bundle was used only by independent comparison. No reference bundle or map was supplied to any actual build phase; the naming phase consumes candidate-only artifacts plus the body-free frozen identifier recipe.",
+    "The original independent strict AST helper is byte-identical and its existing complete output is authenticated. No new application AST parse or compiler run was performed by this review.",
+    "Raw/final compiler output reproduces the prior reviewed executable code and map mappings/content. The prior producer original-coordinate displacement is not repaired by either late-link or naming composition.",
+    "All embedded source bytes are accounted for. Four declared virtual source identities correspond to unavailable historical /home/runner paths; their profile pins, staged sourceRelative bytes and relevant compiler receipts are authenticated. Physical existence at the historical paths is not asserted.",
+    "Naming preserves the pre-naming debugId comment/map metadata without regenerating it for renamed bytes. Content-derived debugId validity, uniqueness, external association, banner policy and arbitrary relocation remain outside this acceptance.",
+    "Map proof uses same-line GLB with the last duplicate-column segment active. Changed identifier interiors inherit old-start state and six interior points are intentionally removed; inverse/LUB/cross-line fallback and external consumer behavior are not claimed.",
+    "The named code has no sourceMappingURL, and the map has no file field. Its pairing is supplied by the profile/reports and explicit sibling named/cli.js.map artifact.",
+    "Observed RSS stayed below 3,000,000,000 bytes. Producer measurements include cumulative child high-water values and are not a hard operating-system memory limit.",
+    "Independent archive-only integrated replay is still required before release acceptance. Historical V44 failed criteria and earlier conservative reports remain unchanged."
+  ],
+  "remainingRequired": [
+    "Independent archive-only integrated replay in an isolated restored root, authenticating source/profile/tool closure and actual regenerated strict AST/map invariants before release acceptance."
+  ],
+  "applicationExecuted": false,
+  "reviewerApplicationASTParsed": false,
+  "reviewerCompilerExecuted": false,
+  "archiveOnlyIntegratedReplayCompleted": false,
+  "wholeAccepted": false,
+  "wholeVersionAccepted": false,
+  "releaseReady": false
+}

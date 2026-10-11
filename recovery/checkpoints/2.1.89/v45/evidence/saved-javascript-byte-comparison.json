@@ -1,0 +1,33 @@
+{
+  "kind": "exact-saved-v45-named-js-byte-comparison",
+  "exactBytesEqual": false,
+  "saved": {
+    "path": "comparison-only/saved-named.js",
+    "bytes": 13080804,
+    "sha256": "905ee2900a80d54a949af70f6acd1b13ddd9927bab7ff41739b3550248fb0b74"
+  },
+  "replayed": {
+    "path": "source-batch-v45-diagnostic/named/cli.js",
+    "bytes": 13080804,
+    "sha256": "b8df1c8f4b3b77e7e8720d806380fe8fb6255e5802aacdcb862ed169f9531ed1"
+  },
+  "exactDifferingByteSpans": [
+    {
+      "start": 13080771,
+      "endExclusive": 13080787,
+      "savedUtf8": "E0A8E7765CA2413E",
+      "replayedUtf8": "B57F39F5AAEE5AB3"
+    }
+  ],
+  "differentBytes": 16,
+  "savedTrailingComment": "//# debugId=E0A8E7765CA2413E64756E2164756E21\n",
+  "replayedTrailingComment": "//# debugId=B57F39F5AAEE5AB364756E2164756E21\n",
+  "exactCoreByteRange": [
+    0,
+    13080759
+  ],
+  "exactCoreBytes": 13080759,
+  "coreSHA256": "77733e6a4e70483ffc681c8d381298b3d09f75c8c131a71b67a0cb8d12ad6a2a",
+  "coreBytesExactlyEqual": true,
+  "normalizationOrOutputEditsApplied": false
+}

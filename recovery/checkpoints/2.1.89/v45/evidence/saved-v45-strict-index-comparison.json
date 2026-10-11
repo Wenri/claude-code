@@ -1,0 +1,16 @@
+{
+  "strictAstEqual": true,
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098331,
+    "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "all18181FullStatementRecordsExactlyEqual": true,
+  "differingTopLevelFields": [
+    "io",
+    "source"
+  ],
+  "normalizationApplied": false
+}

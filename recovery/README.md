@@ -1,5 +1,7 @@
 # Claude Code release recovery
 
+Accepted fixed-profile 2.1.89 recovery is available in the [V45 source checkpoint](./checkpoints/2.1.89/v45/README.md). Its complete official strict AST and all 18,181 ordered statements match after a fresh source materialization/build and independent verification. Identifier and source-map checks pass; debugId-only byte differences and runtime/provenance limits remain explicit. Root `src/`, older checkpoints and .90 work remain unchanged.
+
 Current in-progress source work is saved in the [2.1.90 trial15 checkpoint](./checkpoints/2.1.90/trial15/README.md). Its portable source build and relocated strict-AST replay reproduce the reviewed candidate. Scoped storage, permission and rating checks retain explicit supplier, initializer and REPL limits. **Whole-target acceptance remains false**, and root `src/` remains at 2.1.126.
 
 Earlier in-progress source work is saved in the [2.1.90 trial7 checkpoint](./checkpoints/2.1.90/trial7/README.md). Its portable source build and relocated strict-AST replay reproduce the reviewed candidate; corrected command registration and selected AWS dependency sharing pass scoped checks. **Whole-target acceptance remains false**, and root `src/` remains at 2.1.126.

@@ -1,0 +1,62 @@
+{
+  "kind": "independent-V45-actual-receipts-data-review",
+  "status": "pass",
+  "authenticatedReconstructionEvents": 33,
+  "overlayOwnersRebuiltAsData": 11,
+  "actionCounts": {
+    "source-import-literal-overlay": 11,
+    "sdk-declaration-facade": 8,
+    "private-marker-external": 11,
+    "sdk-facade-load": 3
+  },
+  "controls": [
+    {
+      "name": "wrong-profile",
+      "rejected": true
+    },
+    {
+      "name": "wrong-source-manifest",
+      "rejected": true
+    },
+    {
+      "name": "duplicate-receipt-id",
+      "rejected": true
+    },
+    {
+      "name": "wrong-overlay-source",
+      "rejected": true
+    },
+    {
+      "name": "wrong-overlay-ir",
+      "rejected": true
+    },
+    {
+      "name": "wrong-private-marker",
+      "rejected": true
+    },
+    {
+      "name": "wrong-source-edge",
+      "rejected": true
+    },
+    {
+      "name": "wrong-facade-load",
+      "rejected": true
+    },
+    {
+      "name": "wrong-importer-root",
+      "rejected": true
+    },
+    {
+      "name": "wrong-overlay-edit-range",
+      "rejected": true
+    },
+    {
+      "name": "missing-loaded-overlay",
+      "rejected": true
+    }
+  ],
+  "applicationExecuted": false,
+  "applicationASTParsed": false,
+  "compilerExecuted": false,
+  "qualification": "Independent data-only validator reproduces source/import/facade checks against pinned bytes. Existing parsed source syntax and reserved marker proofs transfer from identical V44 source files and tools; this script does not parse source again."
+}

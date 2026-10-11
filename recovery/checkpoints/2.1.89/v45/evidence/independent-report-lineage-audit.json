@@ -1,0 +1,51 @@
+{
+  "kind": "independent-replay-report-and-identifier-lineage-audit",
+  "completedUtc": "2026-10-08T03:05:13.709591+00:00",
+  "allReportsSuccessful": true,
+  "reportProfileToolchainSourceHashesAgree": true,
+  "compileLateLinkNamingStrictParseHashChainVerified": true,
+  "outputsVerified": [
+    {
+      "path": "raw/cli.js",
+      "kind": "entry-point",
+      "bytes": 13081034,
+      "sha256": "6d91ecce38ca0f2d01d17ea1e5d5853bf3fdba2758a3e619bb8a0ceb2969fc57"
+    },
+    {
+      "path": "raw/cli.js.map",
+      "kind": "sourcemap",
+      "bytes": 59033225,
+      "sha256": "68ccfd26e4b52f9ab3668b09840c4478eb407b6b150fc51330d373d4f046c752"
+    },
+    {
+      "path": "final/cli.js",
+      "bytes": 13080817,
+      "sha256": "9a8bfd5fd900b0b4f0647bd1301a823d8e949c944368698b83f1aa032c74cecc"
+    },
+    {
+      "path": "final/cli.js.map",
+      "bytes": 59004480,
+      "sha256": "19cde54f6f7eec1193efabcdc7865b724171e53e7babedc41ac2748becbd83b7"
+    },
+    {
+      "path": "named/cli.js",
+      "bytes": 13080804,
+      "sha256": "b8df1c8f4b3b77e7e8720d806380fe8fb6255e5802aacdcb862ed169f9531ed1"
+    },
+    {
+      "path": "named/cli.js.map",
+      "bytes": 60087836,
+      "sha256": "c42a85dfbc8abbde93549c6875318f5bc4ba0b49ed38001f7dbacfb2f35d9d5e"
+    }
+  ],
+  "compilerReceiptIndependentlyHashed": true,
+  "editLineageIndependentlyHashed": true,
+  "identifierOnlyRecipeSchemaVerified": true,
+  "recipeBindingRoles": 57783,
+  "physicalIdentifierEdits": 217569,
+  "allOldSpansAndRoleReplacementCountsVerified": true,
+  "replayedNamedBytesExactlyReconstructedFromFinalAnd217569OrderedEdits": true,
+  "reconstructionWasInMemoryComparisonOnly": true,
+  "applicationExecuted": false,
+  "outputFilesModified": false
+}

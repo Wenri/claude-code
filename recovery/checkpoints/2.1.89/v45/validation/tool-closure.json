@@ -1,0 +1,84 @@
+{
+  "kind": "V45-relative-independent-inspector-closure-v1",
+  "node": {
+    "bytes": 125989464,
+    "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "files": [
+    {
+      "path": "validation/claude-per-version-upstream/recovery/lib/ordered-ast-alignment.mjs",
+      "bytes": 1973,
+      "sha256": "227ec122501130aacab4b40558a9b4b9ce103fd51824520bbb9c36188d507f10"
+    },
+    {
+      "path": "validation/restore-20261004/statement-diagnostics-tool/cli.mjs",
+      "bytes": 8373,
+      "sha256": "4fac5650a836978cfc5de8603f6be29bb885d4619cf50f703bb9e43a42806b77"
+    },
+    {
+      "path": "validation/restore-20261004/statement-diagnostics-tool/diagnostics.mjs",
+      "bytes": 7800,
+      "sha256": "18e5ff12da4665be171512a94b0819edffb93fa597ad5dcac11c706b522a6e9f"
+    },
+    {
+      "path": "validation/restore-20261004/statement-diagnostics-tool/tests.mjs",
+      "bytes": 13447,
+      "sha256": "6f9004d55d21bf3014ebcf97ea6877ef1df895ceb6ca08eeab7cf6e3c4497dad"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/lib/strict-ast.mjs",
+      "bytes": 2498,
+      "sha256": "6826f7bf074a299f7ddb1498baef42932c50ead74ffcc89928a85294ac653670"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/CHANGELOG.md",
+      "bytes": 23249,
+      "sha256": "981f7def585a9b286740a90bc619c3355ff8e132a449c4dbbb78905d3df2198b"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/LICENSE",
+      "bytes": 1099,
+      "sha256": "76a876cf886ff9be2a8b5e2e86514fed06223c8c9f0c1e9ee9606e93841e00b7"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/README.md",
+      "bytes": 10799,
+      "sha256": "dfbb7699d8b6c7fe0175c59a7e060486c0167625279c178eddac860d479c6450"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/bin/acorn",
+      "bytes": 60,
+      "sha256": "4c3eb6f1d8932790dbff043839f8ee7686bc614a59ef577e96fed618a4a4b1b8"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/dist/acorn.d.mts",
+      "bytes": 21989,
+      "sha256": "a4abbf5d5ecd7367532921a52e2a2762a6f5f38c3e4ad6c25e6e90152c403804"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/dist/acorn.d.ts",
+      "bytes": 21989,
+      "sha256": "a4abbf5d5ecd7367532921a52e2a2762a6f5f38c3e4ad6c25e6e90152c403804"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/dist/acorn.js",
+      "bytes": 241575,
+      "sha256": "fdb08546776ec6228b03e8d02b40d4ab3255bae5f401adba7ff5dad927ac5c9c"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/dist/acorn.mjs",
+      "bytes": 229792,
+      "sha256": "b4c8c70200e72bae33cf1085e0ecb1e792c1b6924ed50cab817caf14f51bb249"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/dist/bin.js",
+      "bytes": 3329,
+      "sha256": "fffd9df1d9158c4580068ad17c3176c34fe46f59021b8cd5780454994764dc30"
+    },
+    {
+      "path": "validation/restore-20261004/v12/validation/node_modules/acorn/package.json",
+      "bytes": 1061,
+      "sha256": "9e422c8225c9cc4c774e9a9392d0ecac7f766b46122ef2db99db0fc4bbedc247"
+    }
+  ]
+}

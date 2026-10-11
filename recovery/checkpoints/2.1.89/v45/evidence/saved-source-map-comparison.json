@@ -1,0 +1,25 @@
+{
+  "kind": "exact-saved-v45-named-map-comparison",
+  "rawBytesEqual": false,
+  "saved": {
+    "path": "comparison-only/saved-named.js.map",
+    "bytes": 60087836,
+    "sha256": "b51dd90ce9cf394e62777d49c90c4b456c4d90cdb9bfd797af2ee1c74d309fc0"
+  },
+  "replayed": {
+    "path": "source-batch-v45-diagnostic/named/cli.js.map",
+    "bytes": 60087836,
+    "sha256": "c42a85dfbc8abbde93549c6875318f5bc4ba0b49ed38001f7dbacfb2f35d9d5e"
+  },
+  "exactJSONDifferences": [
+    {
+      "field": "debugId",
+      "saved": "E0A8E7765CA2413E64756E2164756E21",
+      "replayed": "B57F39F5AAEE5AB364756E2164756E21"
+    }
+  ],
+  "allFieldsExceptDebugIdExactlyEqual": true,
+  "all4771SourcePathsIdentical": true,
+  "allMappingsIdentical": true,
+  "normalizationOrOutputEditsApplied": false
+}

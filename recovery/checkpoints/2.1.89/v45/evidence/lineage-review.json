@@ -1,0 +1,197 @@
+{
+  "kind": "independent-V45-actual-stage-phase-name-and-strict-lineage-review",
+  "checkedUtc": "2026-10-08T02:57:05.671866+00:00",
+  "status": "pass-fixed-profile-actual-lineage",
+  "stage": {
+    "files": 6165,
+    "bytes": 64602405,
+    "manifestSha256": "a1e76e42d1725cff000319728e47941bdcb30a24788335e5c725a7863526970c",
+    "sourceInputs": 6087,
+    "sourceManifestSha256": "b1a948e024d437956a502ea5069376c366c38c21a8586a41ff99d91fd2649996",
+    "gitSourceFiles": 1923,
+    "gitSourceTree": "6e8126a8f8619316d072c58cb10788683d1ad74e",
+    "srcFiles": 1954,
+    "extraSourceAssets": 31,
+    "tools": 76,
+    "exactChangedPaths": [
+      "recovery/lib/reconstruction/versions/2.1.89/compose-identifier-map.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/emission-ownership.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/exact-name-emitter.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/name-full-stage.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/source-contract.mjs",
+      "recovery/lib/reconstruction/versions/2.1.89/strict-ast.mjs",
+      "recovery/profiles/2.1.89/identifier-names-v45.json",
+      "recovery/profiles/2.1.89/profile.json",
+      "recovery/profiles/2.1.89/toolchain.json",
+      "recovery/scripts/name-2.1.89-candidate.mjs"
+    ],
+    "allPinsAndModesMatchIndependentExpected": true,
+    "unchangedAtReviewEnd": true
+  },
+  "profile": {
+    "path": "version89-hands-on/v45-source-batch/recovery/profiles/2.1.89/profile.json",
+    "bytes": 8318312,
+    "sha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120"
+  },
+  "toolchain": {
+    "path": "version89-hands-on/v45-source-batch/recovery/profiles/2.1.89/toolchain.json",
+    "bytes": 15546,
+    "sha256": "8181e007ccb1b0fc379f64ff393196b05f140068a419a9160b839a0dc96fc48a"
+  },
+  "gate": {
+    "path": "version89-hands-on/v45-integration-independent-review/review.json",
+    "bytes": 8651,
+    "sha256": "fb4f47d78119717ba01ae55b1a79adfe6cb2edf5b32a32d200f4ec8eed3794f3"
+  },
+  "gateFreeze": {
+    "path": "version89-hands-on/v45-integration-independent-review/freeze.json",
+    "bytes": 25051,
+    "sha256": "ecc030349737142e7253f4b4ffd4f817988d49eb0b824c8135d99e1b5d570c49"
+  },
+  "phaseLineage": {
+    "serialPhases": 4,
+    "allExitZero": true,
+    "allExactArgvVerified": true,
+    "allLogsAuthenticated": true,
+    "producerInputSnapshotsEqual": 7,
+    "compilerReceipts": 33,
+    "lateLinkImportDeletions": 11,
+    "allActualOutputPinsVerified": true,
+    "maximumRecordedRSSUpperBoundBytes": 2487590912,
+    "applicationExecuted": false,
+    "referenceBundlePhaseInput": false
+  },
+  "recipeAndOwnership": {
+    "recipe": {
+      "path": "version89-hands-on/v45-source-batch/recovery/profiles/2.1.89/identifier-names-v45.json",
+      "bytes": 3823636,
+      "sha256": "90b1cd034314862acf09a6f964e593244ac799d79cd0a532a6123aafdfee76ad"
+    },
+    "bodyFreeExactSchema": true,
+    "orderedBindingsExactlyFrozenTrial2": 57783,
+    "physicalEditsExactlyFrozenTrial2": 217569,
+    "candidateIdentitySha256": "159a95ba9fa751ff5cc138fee6216c3f440a4aedf5e006cdf0e63d3aa114931f",
+    "targetIdentitySha256": "d14e9cf2b0b415be3d18e9c1c991e3a8586aa5269074ce7781e5c4427fa0b89c",
+    "ownershipProof": "Actual candidate and named program bytes equal frozen independently inspected trial2 byte-for-byte outside the terminal fixed-format debugId comment; actual edit records and recipe bindings are exactly equal. Thus parser identifier ownership/capture facts transfer without a new application parse. Unchanged emitter requires equal ownership-only digest before/after as well as target identity."
+  },
+  "byteRelations": [
+    {
+      "phase": "raw/cli.js",
+      "comparedBytes": 13080989,
+      "bodySha256": "a7d7f3106a8f6beb71479584ef96cd62345af0792170f4baa961d8742d160817",
+      "priorComment": "//# debugId=D32BEA4F932BE8FD64756E2164756E21",
+      "actualComment": "//# debugId=E0A8E7765CA2413E64756E2164756E21"
+    },
+    {
+      "phase": "final/cli.js",
+      "comparedBytes": 13080772,
+      "bodySha256": "a124d12396309ad0807b6ac0997b7facb830da6cbbadd48c7ebad57655e2cbf4",
+      "priorComment": "//# debugId=D32BEA4F932BE8FD64756E2164756E21",
+      "actualComment": "//# debugId=E0A8E7765CA2413E64756E2164756E21"
+    },
+    {
+      "phase": "named/cli.js",
+      "comparedBytes": 13080759,
+      "bodySha256": "77733e6a4e70483ffc681c8d381298b3d09f75c8c131a71b67a0cb8d12ad6a2a",
+      "priorComment": "//# debugId=D32BEA4F932BE8FD64756E2164756E21",
+      "actualComment": "//# debugId=E0A8E7765CA2413E64756E2164756E21"
+    }
+  ],
+  "mapProducerRelations": [
+    {
+      "phase": "raw",
+      "sources": 4771,
+      "onlyJSONDifferences": [
+        "sources path v44-source-batch to v45-source-batch",
+        "debugId"
+      ],
+      "allMappingsAndSourceContentsUnchanged": true,
+      "priorDebugId": "D32BEA4F932BE8FD64756E2164756E21",
+      "actualDebugId": "E0A8E7765CA2413E64756E2164756E21"
+    },
+    {
+      "phase": "final",
+      "sources": 4771,
+      "onlyJSONDifferences": [
+        "sources path v44-source-batch to v45-source-batch",
+        "debugId"
+      ],
+      "allMappingsAndSourceContentsUnchanged": true,
+      "priorDebugId": "D32BEA4F932BE8FD64756E2164756E21",
+      "actualDebugId": "E0A8E7765CA2413E64756E2164756E21"
+    }
+  ],
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098331,
+    "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "orderedStatementStrictHashesEqual": 18181,
+  "officialExecutableBodyBytesExactlyEqual": 13080759,
+  "officialExcludedPrefix": {
+    "bytes": 306,
+    "sha256": "1fcf9b3db9fc5b68e4e44610054e0b8a76005729788d6210a35dcc15b7a59a0f",
+    "syntax": "shebang, line comments and blank lines only"
+  },
+  "generatedExcludedSuffix": {
+    "bytes": 45,
+    "sha256": "f7cf8c657b806254b6d325a76d01d462f77491b14cd81f2d8566049719e6af95",
+    "syntax": "fixed-format trailing debugId line comment only"
+  },
+  "controls": [
+    {
+      "name": "stage-file-content-pin-corruption",
+      "rejected": true
+    },
+    {
+      "name": "stage-extra-file-path",
+      "rejected": true
+    },
+    {
+      "name": "missing-stage-file",
+      "rejected": true
+    },
+    {
+      "name": "recipe-body-bearing-extra-key",
+      "rejected": true
+    },
+    {
+      "name": "recipe-binding-owner-change",
+      "rejected": true
+    },
+    {
+      "name": "actual-edit-role-change",
+      "rejected": true
+    },
+    {
+      "name": "strict-source-sha-change",
+      "rejected": true
+    },
+    {
+      "name": "strict-node-count-change",
+      "rejected": true
+    },
+    {
+      "name": "ordered-statement-swap",
+      "rejected": true
+    },
+    {
+      "name": "phase-target-bundle-argument",
+      "rejected": true
+    },
+    {
+      "name": "phase-parent-report-pin-corruption",
+      "rejected": true
+    }
+  ],
+  "reviewerPeakRSSBytes": 989560832,
+  "reviewerCompilerExecuted": false,
+  "reviewerApplicationParsed": false,
+  "reviewerApplicationExecuted": false,
+  "archiveOnlyIntegratedReplayCompleted": false,
+  "wholeVersionAccepted": false,
+  "releaseReady": false,
+  "qualification": "Postbuild independent readback plus authenticated prospective prelaunch gate/root receipt; no syscall read isolation. Producer raw/final lineage and complete strict object are verified at fixed flags. Naming map exhaustive invariants are supplied by the separate map review. Original source authorship, alternate flags, original source-map displacement, banner/debugId policy, runtime/native environment behavior and archive-only replay remain qualified."
+}

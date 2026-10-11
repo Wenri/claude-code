@@ -1,0 +1,192 @@
+{
+  "kind": "independent-V45-saved-archive-source-to-final-target-AST-replay",
+  "completedUtc": "2026-10-08T03:11:28.315782+00:00",
+  "decision": "PASS_SOURCE_TO_FINAL_STRICT_TARGET_AST_REPRODUCTION_WITH_METADATA_BYTE_DIFFERENCE",
+  "replayRoot": "/workspace/scratch/503592d075ba/version89-v45-saved-checkpoint-replay",
+  "layout": "fresh sibling root at original path depth",
+  "sourceCheckpoint": {
+    "version": 1,
+    "bytes": 1535272,
+    "sha256": "67e922b30f2b24fd7a49adfb86ef7ea1e2dbffd7e922ea69e58b4273e0fdbbdc",
+    "manifestSha256": "f072d2df21155f6adfa6bc6fb2a475ba6cffdd1ab19964d5cc493f5d84144345"
+  },
+  "sourceGateSha256": "fb4f47d78119717ba01ae55b1a79adfe6cb2edf5b32a32d200f4ec8eed3794f3",
+  "sourceGateFreezeSha256": "ecc030349737142e7253f4b4ffd4f817988d49eb0b824c8135d99e1b5d570c49",
+  "sourceRestoration": {
+    "archiveMembersOnly": true,
+    "currentStageOrOutputCopiedForRestoration": false,
+    "sourceVersion0Used": false,
+    "all108V45ArchiveMembersAuthenticated": true,
+    "V42ArchiveRecoveryAndV44ArchivedReviewedPreparerUsed": true,
+    "V45ArchivedReviewedPreparerUsedUnchanged": true,
+    "exactReviewedFourPhaseDriverUsedUnchanged": true,
+    "freshStagePhysicalPins": 6165,
+    "sourceInputs": 6087,
+    "stageOwnedRuntimeToolDataRows": 76,
+    "allExpectedPathsSizesHashesModesVerifiedBeforeBuildAndAfter": true,
+    "profileSha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120",
+    "toolchainSha256": "8181e007ccb1b0fc379f64ff393196b05f140068a419a9160b839a0dc96fc48a",
+    "archiveSafety": "Explicit regular member data reads, exclusive fresh writes, and safe relative destination mapping. Historical absolute member names were never honored as destinations. No unrestricted extraction."
+  },
+  "execution": {
+    "phases": [
+      {
+        "name": "v45-compile",
+        "exitCode": 0,
+        "seconds": 2.1095011234283447,
+        "peakRSSUpperBoundBytes": 1163997184
+      },
+      {
+        "name": "v45-finalize",
+        "exitCode": 0,
+        "seconds": 5.419116735458374,
+        "peakRSSUpperBoundBytes": 1163997184
+      },
+      {
+        "name": "v45-name",
+        "exitCode": 0,
+        "seconds": 66.73368620872498,
+        "peakRSSUpperBoundBytes": 2478944256
+      },
+      {
+        "name": "v45-index",
+        "exitCode": 0,
+        "seconds": 27.59676504135132,
+        "peakRSSUpperBoundBytes": 2478010368
+      }
+    ],
+    "phasesRunSerially": true,
+    "externalBunAndNodeIndependentlyPinned": true,
+    "independentInspectorClosureAuthenticatedAgainstSavedArchiveMembers": true,
+    "NODE_OPTIONS_NODE_PATH_BUN_OPTIONSCleared": true,
+    "namingNodeHeapMiB": 2048,
+    "namingExposeGC": true,
+    "maximumObservedRSSBytes": 2478944256,
+    "maximumAllowedRSSBytes": 3000000000,
+    "memoryMeasurementQualification": "100ms child RSS/HWM sampling plus cumulative child ru_maxrss; observed rejection gate, not hard OS isolation.",
+    "minimumRequiredFreeBytes": 629145600,
+    "freeBytesImmediatelyBeforeDriver": 28077645824,
+    "freeBytesAfterDriver": 27826135040,
+    "freeBytesAtSeal": 27642245120,
+    "applicationExecuted": false,
+    "recoveredFunctionsHooksOrOutputsExecuted": false,
+    "officialReferenceBundleOrMapProvidedToBuildPhases": false,
+    "officialTargetIndexRestoredOnlyAfterAllBuildPhases": true,
+    "filesystemIsolationQualification": "Candidate-only inputs are established by reviewed file paths and pin chains. No OS-level syscall tracing or read isolation is claimed."
+  },
+  "sourceToFinalASTReproduction": {
+    "completeStrictWholeProgramASTEqualsOfficialIndependentTarget": true,
+    "strictAst": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3098331,
+      "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+    },
+    "all18181StatementNonPositionFieldsAndOrdinalsEqualOfficialTarget": true,
+    "officialStatementRangeQualification": "All statement UTF-16 ranges differ uniformly by -306; every other statement field is identical. Positions are outside the strict AST criterion.",
+    "all18181CompleteStatementRecordsExactlyMatchSavedV45Candidate": true,
+    "identifierMetadataRoles": 57783,
+    "physicalIdentifierEdits": 217569,
+    "fullOrderedEditReconstructionMatchesNamedOutputExactly": true,
+    "receipts": [
+      {
+        "path": "receipts/official-target-strict-ast-comparison.json",
+        "bytes": 1465,
+        "sha256": "8024f19b1d970149dbfb9a47c87b78aa1ccf8d9df432d9ab8fa6527f1bbad2c3"
+      },
+      {
+        "path": "receipts/official-target-statement-position-differences.json",
+        "bytes": 797,
+        "sha256": "b206422a19e480da294c4724680a60700e6e8a4dba3a76cae596945b5f98d17d"
+      },
+      {
+        "path": "receipts/saved-v45-strict-index-comparison.json",
+        "bytes": 401,
+        "sha256": "abbb14015b0e7558179de9b9c768e012b4218f35152499eff5ae750ef2ff4e18"
+      },
+      {
+        "path": "receipts/independent-report-lineage-audit.json",
+        "bytes": 1718,
+        "sha256": "5078d4b54f971c8bca00272c0d54088a6967d2c1b65bf9c3b1412696ec0f4907"
+      }
+    ]
+  },
+  "byteReproduction": {
+    "namedJSExact": false,
+    "namedMapExact": false,
+    "overallExact": false,
+    "namedJSCoreBytesExact": true,
+    "coreBytes": 13080759,
+    "coreSha256": "77733e6a4e70483ffc681c8d381298b3d09f75c8c131a71b67a0cb8d12ad6a2a",
+    "onlyJSDifference": "trailing debugId comment",
+    "onlyMapDifference": "debugId metadata",
+    "mapSourcesAndMappingsExactlyEqual": true,
+    "outputPins": [
+      {
+        "path": "source-batch-v45-diagnostic/named/cli.js",
+        "bytes": 13080804,
+        "sha256": "b8df1c8f4b3b77e7e8720d806380fe8fb6255e5802aacdcb862ed169f9531ed1"
+      },
+      {
+        "path": "source-batch-v45-diagnostic/named/cli.js.map",
+        "bytes": 60087836,
+        "sha256": "c42a85dfbc8abbde93549c6875318f5bc4ba0b49ed38001f7dbacfb2f35d9d5e"
+      }
+    ],
+    "comparisonArtifact": {
+      "version": 0,
+      "filename": "claude-2.1.89-v45-fixed-integrated-build-outputs.tar.xz",
+      "bytes": 49385224,
+      "sha256": "5d10d0c6f0a18a948aa0fe4e4fe69e63a9bb3fa6a16271aad67dcf7c70853e0d"
+    },
+    "receipts": [
+      {
+        "path": "receipts/saved-javascript-byte-comparison.json",
+        "bytes": 1042,
+        "sha256": "0563bd8ed13b96ec9c6cca78033f4a06d5379fcf5e57b8bf2cbd17976f74eb84"
+      },
+      {
+        "path": "receipts/saved-source-map-comparison.json",
+        "bytes": 774,
+        "sha256": "761acd76c1fdfb5c09e3f2b4bb524d3b9db79c2d68bfe505f64865529c46e72c"
+      }
+    ],
+    "outputsNormalizedOrEdited": false,
+    "causeOfDebugIdDifferenceEstablished": false
+  },
+  "validationHarnessCorrections": [
+    {
+      "description": "Initial independent token-lineage checker omitted the # prefix when comparing private identifier roles; corrected the checker, then all 217,569 ordered spans and role occurrence counts passed. No build/source/output changed and no compiler rerun occurred.",
+      "initialLog": {
+        "path": "audit-chain.stderr",
+        "bytes": 361,
+        "sha256": "b7c0969d15685c405dd2ba5977a456ca5db4662d8bf3861da2c2cf837f0069d4"
+      },
+      "correctedRun": {
+        "path": "audit-chain-corrected.stdout",
+        "bytes": 689,
+        "sha256": "2039ed8b12f835672f9b05388c7d6df3727c15837052b5bc1255e3ae7230b17b"
+      }
+    },
+    {
+      "description": "The first ledger included the sealing process stdout before its final write. The sealing script was adjusted to exclude its own open log handles. No source, build output, comparison result, or substantive result changed.",
+      "receipt": {
+        "path": "receipts/freeze-packaging-correction.json",
+        "bytes": 1330,
+        "sha256": "d0c1f1ba328e37e2e4800167d99a0dde055654270ed45dd35f308662a495eb55"
+      }
+    }
+  ],
+  "limits": [
+    "Fixed-profile source-to-final strict AST reproduction only.",
+    "Strict AST ignores formatting, comments, positions and ordinary literal spellings.",
+    "No application, reconstructed function, hook, or emitted output was executed.",
+    "No broad runtime equivalence, original source authorship, upstream source-map displacement repair, arbitrary packaging relocation, or alternate-profile claim.",
+    "Saved V44 no-naming/conservative failures remain historical evidence and were not relabeled."
+  ],
+  "runtimeAcceptance": false,
+  "originalAuthorshipClaim": false,
+  "wholeVersionAccepted": false,
+  "releaseAccepted": false
+}

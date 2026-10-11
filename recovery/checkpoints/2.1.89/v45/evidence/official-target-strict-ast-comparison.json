@@ -1,0 +1,36 @@
+{
+  "kind": "independent-official-target-comparison-after-four-phase-replay",
+  "completedUtc": "2026-10-08T03:02:41.813128+00:00",
+  "officialTargetIndexSource": {
+    "archive": "/workspace/scratch/503592d075ba/version89-v44-gate-preservation/downloaded/claude-2.1.89-reconstructed-v44-source-gate.tar.gz",
+    "version": 0,
+    "member": "version89-remaining-audit/comparison-inputs/target-index.json",
+    "bytes": 5573628,
+    "sha256": "781cfdd0002f5edde105ee6a04afb024ad388fc7741f3fbd273bd0574a965747"
+  },
+  "replayedIndexSha256": "4fe57ed6a982858b0999a6b797188f221ebb2527b37e028dc5aa334662f29888",
+  "strictASTExactlyEqual": true,
+  "strictAST": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098331,
+    "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "statementCount": 18181,
+  "orderedStatementComparisonFields": [
+    "shapeSha256",
+    "type",
+    "strictSha256",
+    "protectedIdentifierOccurrences",
+    "identifierNamesErased",
+    "nodes"
+  ],
+  "allOrderedStatementFieldsMatch": true,
+  "allCompleteStatementRecordsExactlyEqual": false,
+  "referenceAvailableInReplayRootBeforeBuild": false,
+  "officialReferenceProvidedToBuildPhases": false,
+  "normalizationOrOutputEditsApplied": false,
+  "applicationExecuted": false,
+  "broadRuntimeOrOriginalAuthorshipClaim": false
+}

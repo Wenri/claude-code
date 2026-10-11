@@ -1,0 +1,49 @@
+{
+  "kind": "public-evidence-derivative-and-package-scope",
+  "redactions": [
+    {
+      "publicPath": "recovery/checkpoints/2.1.89/v45/evidence/saved-archive-replay.json",
+      "originalBytes": 8734,
+      "originalSha256": "d75ebb83eb682d4d844920321811ad706551317df0f34510b81e05d0d196ec35",
+      "publicBytes": 8484,
+      "publicSha256": "69d5e4df59ac8e3c508b33c2f7d6dd4cda367a37a6ce85f4da33649d79f068d6",
+      "omittedJsonPointers": [
+        "/sourceCheckpoint/library_file_id",
+        "/sourceCheckpoint/file_id",
+        "/byteReproduction/comparisonArtifact/library_file_id",
+        "/byteReproduction/comparisonArtifact/file_id"
+      ],
+      "historicalOriginalUnchanged": true
+    },
+    {
+      "publicPath": "recovery/checkpoints/2.1.89/v45/evidence/official-target-strict-ast-comparison.json",
+      "originalBytes": 1465,
+      "originalSha256": "8024f19b1d970149dbfb9a47c87b78aa1ccf8d9df432d9ab8fa6527f1bbad2c3",
+      "publicBytes": 1398,
+      "publicSha256": "198a088b194aaf45763b9b1f3b5a90c8ea15ef8df0118d4074c5bd6ad6aaebfa",
+      "omittedJsonPointers": [
+        "/officialTargetIndexSource/library_file_id"
+      ],
+      "historicalOriginalUnchanged": true
+    }
+  ],
+  "acceptedProfileModified": false,
+  "sourceContractModified": false,
+  "sourceInputsModified": false,
+  "historicalPrivateReportsUnchanged": true,
+  "originalHashesReferToOriginalBytes": true,
+  "newPublicHashesReferToPublicBytes": true,
+  "excludedContent": [
+    "Private conversation and account records",
+    "Private storage identifiers and download URLs",
+    "Parent acceptance narrative and task-control history",
+    "Unlisted scratch files, caches and fixture artifacts"
+  ],
+  "freshPublicReplayResult": {
+    "path": "evidence/public-relocated-replay.json",
+    "bytes": 1648484,
+    "sha256": "d51a227653af651594a2445361bd5a698095b56c3721f9d67d0bab666c1289fd"
+  },
+  "technicalClaimsOnly": true,
+  "applicationExecuted": false
+}

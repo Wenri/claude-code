@@ -1,0 +1,67 @@
+{
+  "kind": "fixed-V45-comparison-only-output-commitments-v1",
+  "version": "2.1.89",
+  "profileSha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120",
+  "strictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3098331,
+    "sha256": "1bf84c8d2685868f68f2d050847b463aa79386f1ffe2dde5cd0cc62cf9c0bb9c"
+  },
+  "orderedStatementCount": 18181,
+  "savedNamedJavaScript": {
+    "bytes": 13080804,
+    "sha256": "905ee2900a80d54a949af70f6acd1b13ddd9927bab7ff41739b3550248fb0b74"
+  },
+  "savedNamedMap": {
+    "bytes": 60087836,
+    "sha256": "b51dd90ce9cf394e62777d49c90c4b456c4d90cdb9bfd797af2ee1c74d309fc0"
+  },
+  "namedExecutableCore": {
+    "byteRange": [
+      0,
+      13080759
+    ],
+    "bytes": 13080759,
+    "sha256": "77733e6a4e70483ffc681c8d381298b3d09f75c8c131a71b67a0cb8d12ad6a2a",
+    "allowedTrailingMetadata": "45 bytes: //# debugId= followed by 32 uppercase hexadecimal characters and LF"
+  },
+  "mapComparison": {
+    "excludedFields": [
+      "debugId"
+    ],
+    "allOtherFieldsCanonicalJSONSha256": "92b6cdf6ff7b9fcc74b71446dfd6eed2c60dbe6721e2711a5628e96ac610c09e",
+    "fieldCommitments": {
+      "mappings": {
+        "canonicalJSONBytes": 12052681,
+        "canonicalJSONSha256": "7afb1c1f07927809193eb14a2c6564e828e81d9b5bd63a1cff909d74d912603d"
+      },
+      "names": {
+        "canonicalJSONBytes": 2,
+        "canonicalJSONSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "sources": {
+        "canonicalJSONBytes": 381227,
+        "canonicalJSONSha256": "cdde597b907c46f32f90fc15af8793d7dc9a21fad679b47d929dbc12d22a29ad"
+      },
+      "sourcesContent": {
+        "canonicalJSONBytes": 47653817,
+        "canonicalJSONSha256": "12f7aae27a69090f5a611dba4cd679b82b41a23fae795d62ededd19d4fff8bdc"
+      },
+      "version": {
+        "canonicalJSONBytes": 1,
+        "canonicalJSONSha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+      }
+    },
+    "sourceCount": 4771,
+    "nameCount": 0,
+    "canonicalization": "For hashing only: recursively sort object keys, preserve array order, UTF-8 JSON, ensure_ascii=False, separators comma and colon without spaces, no final LF. Do not rewrite source-map or JavaScript output files."
+  },
+  "limits": [
+    "Commitments authenticate one saved fixed-profile output; whole-artifact byte reproducibility is not claimed.",
+    "DebugId may differ; validity, uniqueness and external association are outside scope.",
+    "No runtime testing, original authorship, upstream source-map displacement repair or arbitrary-layout acceptance."
+  ],
+  "applicationExecuted": false
+}
