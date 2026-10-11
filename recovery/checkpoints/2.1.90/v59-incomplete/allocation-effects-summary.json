@@ -1,0 +1,529 @@
+{
+  "kind": "public-complete-V58-to-V59-aligned-static-comparison-summary",
+  "executionResponsibility": "Root personally authored and executed explicit shifted alignment, source-map route joins, complete static AST/scope/capture passes, complete-byte gap accounting, source classification and final pin checks.",
+  "alignment": {
+    "statementCounts": [
+      18281,
+      18280
+    ],
+    "pairedStatements": 18280,
+    "deletedBeforeIndexes": [
+      11889
+    ],
+    "insertedAfterIndexes": [],
+    "unresolved": [],
+    "completeMappingRule": "For prior indexes 0 through 11888, current index equals prior index. Prior 11889 is deleted. For prior indexes 11890 through 18280, current index equals prior index minus one.",
+    "ruleCheckedAgainstAllRecordedPairs": true,
+    "orderedShapeMatchPairs": 18278,
+    "explicitCompleteOwnerReplacementPairs": [
+      [
+        11898,
+        11897
+      ],
+      [
+        11899,
+        11898
+      ]
+    ],
+    "samePositionComparisonAvailable": false,
+    "coverageComplete": true,
+    "uniqueSemanticCorrespondenceClaimed": false,
+    "basisLimit": "Ordered shape matches can have repeated-shape alternatives. Selected correspondence is for exhaustive diagnostics, not global semantic identity. All target unmatched/ambiguous nominations remain recorded.",
+    "alignmentReportSha256": "ab6944ddc9d731faee6988fb2bb64dfacf68e0df676684d34700420976996187"
+  },
+  "alignedChangeCounts": {
+    "pairedStatements": 18280,
+    "deletedBeforeIndexes": [
+      11889
+    ],
+    "insertedAfterIndexes": [],
+    "unresolved": [],
+    "shapeChangedPairs": [
+      [
+        11898,
+        11897
+      ],
+      [
+        11899,
+        11898
+      ]
+    ],
+    "strictChangedPairs": 11387,
+    "shapeStableStrictChangedPairs": 11385,
+    "selectedCorrespondenceNotSemanticIdentity": true
+  },
+  "shapeStableReview": {
+    "kind": "complete-static-V58-to-V59-shape-stable-strict-change-review",
+    "checkedStatementCount": 11385,
+    "statementNodeTotal": 2574962,
+    "scopeTotal": 93372,
+    "rawIdentifierNameDifferenceOccurrences": 44778,
+    "changedFreeCaptureOccurrences": 11793,
+    "exceptionStatementIndexes": [],
+    "allRawChangesOnlyIdentifierNames": true,
+    "allScopedGraphsEqual": true,
+    "allScopedFieldChangesOnlyFreeCaptureNames": true,
+    "allChangedFreeCaptureMapsBijective": true,
+    "rawStrictEquality": false,
+    "acceptanceNormalizationApplied": false,
+    "completeProgramGlobalBindingIdentityEstablished": false,
+    "caveats": [
+      "The existing scoped graph records local declaration/reference/read/write/init structure. It does not establish global crossing-binding or initializer identity.",
+      "Unchanged raw protected fields, Literal.raw and scope graphs are static allocation observations, not semantic/runtime acceptance.",
+      "R069/R070 shape-changed statements are excluded and reviewed separately by complete-owner reviewers."
+    ],
+    "applicationExecuted": false,
+    "recoveredCallbacksExecuted": false,
+    "nativeAddonExecuted": false,
+    "sourceEdited": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "wholeVersionAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "fullCaptureMapReview": {
+    "kind": "complete-free-capture-map-collision-check-for-all-selected-nonlocal-statements",
+    "priorNonlocalReviewSha256": "22d3b76b3e1f5bc31cbee7b8282e179e7f511b1ac4e4afc97bb368d94a50b700",
+    "checkedStatements": 11385,
+    "freeCaptureOccurrences": 108952,
+    "fullPerStatementCaptureMapCollisionIndexes": [],
+    "globalAcrossSelectedStatementsForwardConflicts": [],
+    "globalAcrossSelectedStatementsReverseConflicts": [],
+    "caveat": "This checks complete capture correspondence within every selected changed statement. It does not analyze all program bindings or unchanged statements, establish supplier/initializer identity, or accept semantics.",
+    "applicationExecuted": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "reviewedSourceStatements": [
+    {
+      "beforeIndex": 11884,
+      "afterIndex": 11884,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11884,
+        "nodes": 5,
+        "strictSha256": "818008f0bc3204919bb72b0e238eb9bf1dc5d863dd25c91ce8ee206ada665891"
+      },
+      "after": {
+        "index": 11884,
+        "nodes": 5,
+        "strictSha256": "1893b9964954ef3e146a521382144e6dbf380d475fef817f3d10c696b09af020"
+      }
+    },
+    {
+      "beforeIndex": 11885,
+      "afterIndex": 11885,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11885,
+        "nodes": 17,
+        "strictSha256": "ec28200271518e4096efe64696bb2d6879d29252000e47973c38f6646173442f"
+      },
+      "after": {
+        "index": 11885,
+        "nodes": 17,
+        "strictSha256": "de0832d0f4aa4005027bfe928d4acbff56fc23692917b16318c751c05116002f"
+      }
+    },
+    {
+      "beforeIndex": 11886,
+      "afterIndex": 11886,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11886,
+        "nodes": 11,
+        "strictSha256": "e4c38a3ecc9d051076a2c0f84035c4ea20384f242c8d2522d560fd68829bf867"
+      },
+      "after": {
+        "index": 11886,
+        "nodes": 11,
+        "strictSha256": "880d9ed1bfd82db49a209d0ecea7fc6047956323805936060ee3f7ee5ad461d6"
+      }
+    },
+    {
+      "beforeIndex": 11887,
+      "afterIndex": 11887,
+      "shapeChanged": false,
+      "rawEqual": true,
+      "before": {
+        "index": 11887,
+        "nodes": 15,
+        "strictSha256": "917a69034c4349916b28e8e2e909945f7fca7ccbc3ab95a3a3f2ad3ed0ea47fe"
+      },
+      "after": {
+        "index": 11887,
+        "nodes": 15,
+        "strictSha256": "917a69034c4349916b28e8e2e909945f7fca7ccbc3ab95a3a3f2ad3ed0ea47fe"
+      }
+    },
+    {
+      "beforeIndex": 11888,
+      "afterIndex": 11888,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11888,
+        "nodes": 19,
+        "strictSha256": "995c11b298e2cc42f2ff7e1f196f78d650f06ce51bc749e214067b13302d1918"
+      },
+      "after": {
+        "index": 11888,
+        "nodes": 19,
+        "strictSha256": "08a483fa30ef7c4dead7076a6985796f30f8f0c2cc303deab95fe76b336e2232"
+      }
+    },
+    {
+      "beforeIndex": 11890,
+      "afterIndex": 11889,
+      "shapeChanged": false,
+      "rawEqual": true,
+      "before": {
+        "index": 11890,
+        "nodes": 44,
+        "strictSha256": "b1a231c82d9f2e43aa5fbc6e97229820f0c409e5401bb083cf4dda25cfb7a95a"
+      },
+      "after": {
+        "index": 11889,
+        "nodes": 44,
+        "strictSha256": "b1a231c82d9f2e43aa5fbc6e97229820f0c409e5401bb083cf4dda25cfb7a95a"
+      }
+    },
+    {
+      "beforeIndex": 11891,
+      "afterIndex": 11890,
+      "shapeChanged": false,
+      "rawEqual": true,
+      "before": {
+        "index": 11891,
+        "nodes": 22,
+        "strictSha256": "ec33dde8206a2b1585f807c6b84240b45239ac50698bdd1865ce8f807fd33aba"
+      },
+      "after": {
+        "index": 11890,
+        "nodes": 22,
+        "strictSha256": "ec33dde8206a2b1585f807c6b84240b45239ac50698bdd1865ce8f807fd33aba"
+      }
+    },
+    {
+      "beforeIndex": 11892,
+      "afterIndex": 11891,
+      "shapeChanged": false,
+      "rawEqual": true,
+      "before": {
+        "index": 11892,
+        "nodes": 38,
+        "strictSha256": "4441891bcef841db3daf5cece78e39191b6d47514dd49d361180c2ebf5a02c8a"
+      },
+      "after": {
+        "index": 11891,
+        "nodes": 38,
+        "strictSha256": "4441891bcef841db3daf5cece78e39191b6d47514dd49d361180c2ebf5a02c8a"
+      }
+    },
+    {
+      "beforeIndex": 11893,
+      "afterIndex": 11892,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11893,
+        "nodes": 386,
+        "strictSha256": "19989705da6b58fc4d86e17dddf4881f9ac205c8b8b3acad66c7ad651e010657"
+      },
+      "after": {
+        "index": 11892,
+        "nodes": 386,
+        "strictSha256": "f403212c7ce0cadf538648249089311c25b53d91540b2480c30acdb271d94c0e"
+      }
+    },
+    {
+      "beforeIndex": 11894,
+      "afterIndex": 11893,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11894,
+        "nodes": 249,
+        "strictSha256": "d1b9e8b57cd0ec011a5618c00523a466a696bfdaef71014aaa105a540fc37ce3"
+      },
+      "after": {
+        "index": 11893,
+        "nodes": 249,
+        "strictSha256": "ae27446ceb14f5ceed3d4fff41f76d5aa460a40cf58f24f6d7639371fae142d3"
+      }
+    },
+    {
+      "beforeIndex": 11895,
+      "afterIndex": 11894,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11895,
+        "nodes": 74,
+        "strictSha256": "fd0f4a008f20da3d3e801a9d2b8c8543e9a44a4c84f0fdb6989da9539e3b2631"
+      },
+      "after": {
+        "index": 11894,
+        "nodes": 74,
+        "strictSha256": "afb7ff06717aef59c31510ef1ccb5f81df2f2132ae3486646997baaa55ca2fa8"
+      }
+    },
+    {
+      "beforeIndex": 11896,
+      "afterIndex": 11895,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11896,
+        "nodes": 129,
+        "strictSha256": "e64da45abf496d16da25d6b36915779e872ace0b477c7f1d485276b362a05842"
+      },
+      "after": {
+        "index": 11895,
+        "nodes": 129,
+        "strictSha256": "467e9185ecf29f614e9dd8f2d10ba3d67e7851823efb8b1d1fe3ed665421c548"
+      }
+    },
+    {
+      "beforeIndex": 11897,
+      "afterIndex": 11896,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11897,
+        "nodes": 368,
+        "strictSha256": "a72168605c2e4025c489e79be0cab2778fd4624beddda2bb1df9951b3353b0cf"
+      },
+      "after": {
+        "index": 11896,
+        "nodes": 368,
+        "strictSha256": "738ba897df1918289ff91e01b8ab5d236222074e02eab56f700044bfee700c01"
+      }
+    },
+    {
+      "beforeIndex": 11898,
+      "afterIndex": 11897,
+      "shapeChanged": true,
+      "rawEqual": false,
+      "before": {
+        "index": 11898,
+        "nodes": 332,
+        "strictSha256": "df7897bbf83862623f6fcc2cf68a7aa568328b3091fe07e1a9df84ea83336686"
+      },
+      "after": {
+        "index": 11897,
+        "nodes": 325,
+        "strictSha256": "7fb82aec00c486dba8a1702c3d8717fd17ca4715a90af8293b12642cef96befd"
+      }
+    },
+    {
+      "beforeIndex": 11899,
+      "afterIndex": 11898,
+      "shapeChanged": true,
+      "rawEqual": false,
+      "before": {
+        "index": 11899,
+        "nodes": 190,
+        "strictSha256": "4279c8348c3cb798116d68a13bb801286349355f785953910124faac9ca6da35"
+      },
+      "after": {
+        "index": 11898,
+        "nodes": 191,
+        "strictSha256": "dcdfd0ba0976ebc9b35a1be70bf33755f8bbdac9ee4814ba100e8f9f5bb8cf52"
+      }
+    },
+    {
+      "beforeIndex": 11900,
+      "afterIndex": 11899,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11900,
+        "nodes": 6,
+        "strictSha256": "6765151b981ce80af66a6eab6e66a5fb41dd6a831c66825b2ddc5adafa97c417"
+      },
+      "after": {
+        "index": 11899,
+        "nodes": 6,
+        "strictSha256": "616c0fe1e545bce08a7a424ba065e5928f16f30095a1527591819a1fe59f3d61"
+      }
+    },
+    {
+      "beforeIndex": 11901,
+      "afterIndex": 11900,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11901,
+        "nodes": 345,
+        "strictSha256": "e96580cd44b95a76141ae15767d9212b1be93cf4e741012341233e1488ee6059"
+      },
+      "after": {
+        "index": 11900,
+        "nodes": 345,
+        "strictSha256": "15cd56b3d17c17d054da6a235751c5dbfaa3fba50f6dc537db050a686da8398a"
+      }
+    },
+    {
+      "beforeIndex": 11902,
+      "afterIndex": 11901,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11902,
+        "nodes": 742,
+        "strictSha256": "529feb207cc99e0a777f331ad853bac06c050515ba514dbb5c3aae790468778f"
+      },
+      "after": {
+        "index": 11901,
+        "nodes": 742,
+        "strictSha256": "de27f79c686e875641fd1a48790d2f8ddeac092556b0f063b7d638ad894ac0cc"
+      }
+    },
+    {
+      "beforeIndex": 11903,
+      "afterIndex": 11902,
+      "shapeChanged": false,
+      "rawEqual": true,
+      "before": {
+        "index": 11903,
+        "nodes": 60,
+        "strictSha256": "4674d20a9607f673ef7f24a2116dd65f1f82606c5453d90a2ed4030c3a49269e"
+      },
+      "after": {
+        "index": 11902,
+        "nodes": 60,
+        "strictSha256": "4674d20a9607f673ef7f24a2116dd65f1f82606c5453d90a2ed4030c3a49269e"
+      }
+    },
+    {
+      "beforeIndex": 11904,
+      "afterIndex": 11903,
+      "shapeChanged": false,
+      "rawEqual": true,
+      "before": {
+        "index": 11904,
+        "nodes": 117,
+        "strictSha256": "c34c6a9235f117ee05787e91294bd113d6b811372f1fcabb5dd4af8b9f8c6dd3"
+      },
+      "after": {
+        "index": 11903,
+        "nodes": 117,
+        "strictSha256": "c34c6a9235f117ee05787e91294bd113d6b811372f1fcabb5dd4af8b9f8c6dd3"
+      }
+    },
+    {
+      "beforeIndex": 11905,
+      "afterIndex": 11904,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11905,
+        "nodes": 16,
+        "strictSha256": "dd418d967b302104acf8593520d75a924b37f22e2d3c3470e9b2b9deab9d96f4"
+      },
+      "after": {
+        "index": 11904,
+        "nodes": 16,
+        "strictSha256": "bc566131f53256476b92241b87083b830bdab38f34a12841f79adef9be21932f"
+      }
+    },
+    {
+      "beforeIndex": 11906,
+      "afterIndex": 11905,
+      "shapeChanged": false,
+      "rawEqual": false,
+      "before": {
+        "index": 11906,
+        "nodes": 46,
+        "strictSha256": "c69a7ec3161d7e2e0bfd8ce98a475b7a35c9c512745ba76a958e9abf49380aaf"
+      },
+      "after": {
+        "index": 11905,
+        "nodes": 46,
+        "strictSha256": "8421627d046715af2176069fa91ccc7a2a6371ac4968c236aa3ca8d7ed625e1d"
+      }
+    }
+  ],
+  "deletedPrivateHelper": {
+    "index": 11889,
+    "nodes": 19,
+    "strictSha256": "6c7d1cb9501e843d71bbc97e14946e6d7e04ff5ec37fda50a8a2bff48d42e62e"
+  },
+  "actualUndefinedEmission": "New source undefined comparison emits void 0; do not invent a current free undefined capture from source syntax.",
+  "removedHelperNameReuse": "Prior private helper QWK spelling is reused by current isTeamMemorySyncAvailable; absence-of-name is not an identity test.",
+  "inheritedLimits": [
+    "R059 prior intentional supplier switch remains part of source history; a collision-free V58-to-V59 map does not undo that earlier switch or prove target provider identity.",
+    "R017 shorthand side effect remains unaccepted.",
+    "Changed errno domains, getter/proxy behavior, recursive catches, logger failures and SDK initialization remain unaccepted."
+  ],
+  "completeByteAccounting": {
+    "programReconstructionExact": true,
+    "statementCounts": {
+      "v58": 18281,
+      "v59": 18280
+    },
+    "gapCounts": {
+      "v58": 18282,
+      "v59": 18281
+    },
+    "alignedStatements": 18280,
+    "byteChangedAlignedStatements": 11387,
+    "byteUnchangedAlignedStatements": 6893,
+    "mergedGapComparisons": [
+      {
+        "currentGap": 11889,
+        "priorGaps": [
+          11889,
+          11890
+        ],
+        "beforeSha256Utf16": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "afterSha256Utf16": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "equal": true
+      }
+    ],
+    "allPriorAndCurrentGapsAccountedOnce": true,
+    "byteNormalizationApplied": false
+  },
+  "onlyDifferentGapDescription": "Terminal debugId comment value; deleted-helper adjacent gaps are explicitly merged and byte-equal.",
+  "sourceReportPins": [
+    {
+      "label": "nonlocal-allocation-review.json",
+      "bytes": 14961932,
+      "sha256": "22d3b76b3e1f5bc31cbee7b8282e179e7f511b1ac4e4afc97bb368d94a50b700"
+    },
+    {
+      "label": "full-capture-maps-review.json",
+      "bytes": 7279575,
+      "sha256": "038d14e8ff2011375b1ca947d2db5d9783aea44a9884cd5e07579c558564a734"
+    },
+    {
+      "label": "statement-alignment.json",
+      "bytes": 8973017,
+      "sha256": "ab6944ddc9d731faee6988fb2bb64dfacf68e0df676684d34700420976996187"
+    },
+    {
+      "label": "complete-byte-accounting.json",
+      "bytes": 2905093,
+      "sha256": "f5749ac3551b6f04c5517e4f34e48784bf4efbfd0e77c82c3a73f8570ec0e16c"
+    },
+    {
+      "label": "reviewed-source-classification.json",
+      "bytes": 62566,
+      "sha256": "a3e7be49e09ad8998b66f1ea1832a5ce34086a1b8c8ad3c7c90b86cfb7fa42fc"
+    }
+  ],
+  "interpretation": "All 11,385 shape-stable changed pairs have only Identifier.name field differences and equal local scope graphs. Their 108,952 free occurrences have no per-pair or aggregate collisions. This selected static correspondence is not provider, global binding, initialization or runtime equivalence and does not erase V58 historical supplier-switch conflicts.",
+  "applicationExecuted": false,
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

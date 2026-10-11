@@ -1,0 +1,375 @@
+{
+  "kind": "R069-R070-V59-complete-actual-owner-proof",
+  "verdict": "PASS bounded actual emitted source repair under frozen structural capture map; broad acceptance remains false",
+  "fixedCaptureContractSha256": "2c7d1da48dee4eb0ad1655ae3b7b87ea57493f24e61bbbd57c52e5f902c8eff2",
+  "comparisonMapNeverRederived": true,
+  "ownerResults": {
+    "readLocalTeamMemory": {
+      "targetIndex": 11893,
+      "currentIndex": 11897,
+      "priorIndex": 11898,
+      "nodes": 325,
+      "scopeCount": 15,
+      "bindings": 23,
+      "localReferenceOccurrences": 72,
+      "captureOccurrences": 16,
+      "rawAstDifferenceCount": 26,
+      "rawAstDifferenceClasses": {
+        "bound": 16,
+        "free": 10,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullLexicalDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullFixedCaptureMapAgreement": true,
+      "exactSourceMappedCaptureOccurrences": 16,
+      "globalProviderOrRuntimeEquivalence": false
+    },
+    "writeRemoteEntriesToLocal": {
+      "targetIndex": 11894,
+      "currentIndex": 11898,
+      "priorIndex": 11899,
+      "nodes": 191,
+      "scopeCount": 13,
+      "bindings": 12,
+      "localReferenceOccurrences": 27,
+      "captureOccurrences": 17,
+      "rawAstDifferenceCount": 25,
+      "rawAstDifferenceClasses": {
+        "bound": 16,
+        "free": 9,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullLexicalDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullFixedCaptureMapAgreement": true,
+      "exactSourceMappedCaptureOccurrences": 17,
+      "globalProviderOrRuntimeEquivalence": false
+    }
+  },
+  "totalOwnerNodes": 516,
+  "totalOwnerRawNameDifferences": 51,
+  "totalOwnerCaptureOccurrences": 33,
+  "otherCompleteSameSourceStatements": 20,
+  "otherSameSourceNonNameOrGraphExceptions": 0,
+  "negativeControls": {
+    "literalRawChanged": true,
+    "protectedPropertyChanged": true,
+    "wrongAvailabilitySupplierRejected": true,
+    "undefinedVoidOperatorChanged": true,
+    "readFlagChanged": true
+  },
+  "allExpectedProtectedFieldFailuresRejected": true,
+  "actualEmitterObserved": true,
+  "oldPrivateHelperRemovedBySourceRole": true,
+  "oldHelperSpellingReusedForDifferentFunction": true,
+  "oldNewBehavioralEquivalence": false,
+  "globalProviderIdentityEstablished": false,
+  "globalInitializerEquivalence": false,
+  "wholeStrictEquality": false,
+  "applicationOrProviderOrFilesystemOrCallbackExecuted": false,
+  "historicalResidualRecordsRetained": 134,
+  "R091Unchanged": true,
+  "acceptedClosure": false,
+  "reviewSha256": "44477679e2c66ec72571735e5c9d836d9d9eed5dd8d0a0c06da0bc9b79037f4a",
+  "reviewSealSha256": "c86bda9bbf7676b1aa1b9a0e8eddbf56e2e7c3cb7d0b90ebffe860d7b09a5f4c",
+  "finalOwnerReviewReceiptSha256": "4b13b484de52321d905bb485273b8cdbf7ffd258ff3af6272b2be5963e93ef24",
+  "providerUseCoverage": {
+    "providerFreeOccurrenceCounts": [
+      90,
+      92
+    ],
+    "providerFreeUseStatementCounts": [
+      78,
+      80
+    ],
+    "allPriorProviderOccurrencesRetainedUnderExplicitDiagnosticAlignment": true,
+    "onlyAddedProviderUseStatements": [
+      11897,
+      11898
+    ],
+    "uniqueCurrentCaptureDeclarationsOrImports": 17,
+    "explicitHostGlobals": [
+      "Promise",
+      "Object",
+      "Buffer",
+      "Boolean"
+    ],
+    "independentCurrentSourceMapRouteAgreement": 18280
+  },
+  "source": "src/services/teamMemorySync/index.ts",
+  "sourceSha256": "e7c753b13b4865adb104bd10a0de2ec6dc423f07f94912d2be3a6680fee63b0b",
+  "undefinedEmission": "The read-before-write comparison emits void 0, not a free undefined capture. The provider fallback emits bare return. The provider retains two distinct code property reads on its successful path.",
+  "helperRemovalMeaning": "The 19-node private isErrnoException declaration is removed at prior statement 11889. Its spelling QWK is reused by isTeamMemorySyncAvailable; deletion is proved by source role and full use sets, not absence of a generated name.",
+  "providerAndInitializerReview": {
+    "reviewSha256": "635cec26a208d74cc38592a541f39fa47c79c7ca5376549c9cc314cc0d3d2cad",
+    "sealSha256": "fe8691189103be0de013a2bb78e1841360ef88fe5b5548399b2df3b07d3d9058",
+    "verdict": "PASS bounded complete provider and initializer structural emission checks; no semantic/global/initialization acceptance",
+    "fixedCaptureContractSha256": "a2895153603e61b0282909a1d44a29c5fa70b87e92f7e4f3a1cc077103535538",
+    "boundaries": [
+      {
+        "role": "provider",
+        "candidateIndex": 751,
+        "targetIndex": 751,
+        "nodes": 27,
+        "scopeCount": 3,
+        "bindings": 3,
+        "localReferences": 5,
+        "freeOccurrences": 0,
+        "rawDifferenceCount": 1,
+        "rawDifferenceClasses": {
+          "bound": 1,
+          "free": 0,
+          "protected": 0
+        },
+        "protectedIdentifierOccurrences": 2,
+        "literals": 3,
+        "templateQuasis": 0,
+        "completeScopedFixedMapAgreement": true,
+        "rawStrictEqual": false,
+        "negativeControls": {
+          "rawLiteralChangeRejected": true,
+          "protectedNameChangeRejected": true,
+          "localReadFlagChangeRejected": true,
+          "returnSecondCodeReadRemovalRejected": true
+        }
+      },
+      {
+        "role": "errorsInitializer",
+        "candidateIndex": 757,
+        "targetIndex": 757,
+        "nodes": 225,
+        "scopeCount": 16,
+        "bindings": 27,
+        "localReferences": 15,
+        "freeOccurrences": 16,
+        "rawDifferenceCount": 13,
+        "rawDifferenceClasses": {
+          "bound": 6,
+          "free": 7,
+          "protected": 0
+        },
+        "protectedIdentifierOccurrences": 30,
+        "literals": 6,
+        "templateQuasis": 0,
+        "completeScopedFixedMapAgreement": true,
+        "rawStrictEqual": false,
+        "negativeControls": {
+          "rawLiteralChangeRejected": true,
+          "protectedNameChangeRejected": true,
+          "foreignCaptureRejected": true,
+          "localReadFlagChangeRejected": true
+        }
+      },
+      {
+        "role": "serviceInitializer",
+        "candidateIndex": 11905,
+        "targetIndex": 11901,
+        "nodes": 46,
+        "scopeCount": 3,
+        "bindings": 1,
+        "localReferences": 1,
+        "freeOccurrences": 14,
+        "rawDifferenceCount": 10,
+        "rawDifferenceClasses": {
+          "bound": 1,
+          "free": 9,
+          "protected": 0
+        },
+        "protectedIdentifierOccurrences": 0,
+        "literals": 0,
+        "templateQuasis": 0,
+        "completeScopedFixedMapAgreement": true,
+        "rawStrictEqual": false,
+        "negativeControls": {
+          "foreignCaptureRejected": true,
+          "localReadFlagChangeRejected": true,
+          "errorsEdgeOrderChangeRejected": true
+        }
+      },
+      {
+        "role": "classDeclarations",
+        "candidateIndex": 756,
+        "targetIndex": 756,
+        "nodes": 15,
+        "scopeCount": 2,
+        "bindings": 7,
+        "localReferences": 0,
+        "freeOccurrences": 0,
+        "rawDifferenceCount": 6,
+        "rawDifferenceClasses": {
+          "bound": 6,
+          "free": 0,
+          "protected": 0
+        },
+        "protectedIdentifierOccurrences": 0,
+        "literals": 0,
+        "templateQuasis": 0,
+        "completeScopedFixedMapAgreement": true,
+        "rawStrictEqual": false,
+        "negativeControls": {}
+      },
+      {
+        "role": "runtimeWrapper",
+        "candidateIndex": 8,
+        "targetIndex": 8,
+        "nodes": 18,
+        "scopeCount": 4,
+        "bindings": 3,
+        "localReferences": 6,
+        "freeOccurrences": 0,
+        "rawDifferenceCount": 0,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 0,
+          "protected": 0
+        },
+        "protectedIdentifierOccurrences": 0,
+        "literals": 1,
+        "templateQuasis": 0,
+        "completeScopedFixedMapAgreement": true,
+        "rawStrictEqual": true,
+        "negativeControls": {
+          "rawLiteralChangeRejected": true,
+          "localReadFlagChangeRejected": true
+        }
+      }
+    ],
+    "errorsInitializerByteIdenticalToV58": true,
+    "classDeclarationsByteIdenticalToV58": true,
+    "wrapperByteIdenticalAcrossAllThree": true,
+    "directSdkInitializerByteIdenticalToV58": true,
+    "serviceInitializerOnlyDeclarationNameChanged": true,
+    "orderedDirectServiceCalls": 13,
+    "errorsEdgePositionOneBased": 6,
+    "errorsEdgeAlreadyPresent": true,
+    "directSupplierDeclarationByteExceptions": [
+      {
+        "positionOneBased": 1,
+        "source": "node_modules/axios/index.js",
+        "rawDifferenceCount": 16,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 16,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 2,
+        "source": "src/constants/oauth.ts",
+        "rawDifferenceCount": 2,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 2,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 4,
+        "source": "src/utils/auth.ts",
+        "rawDifferenceCount": 5,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 5,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 5,
+        "source": "src/utils/debug.ts",
+        "rawDifferenceCount": 4,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 4,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 7,
+        "source": "src/utils/git.ts",
+        "rawDifferenceCount": 3,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 3,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 9,
+        "source": "src/utils/slowOperations.ts",
+        "rawDifferenceCount": 3,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 3,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 11,
+        "source": "src/services/api/withRetry.ts",
+        "rawDifferenceCount": 1,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 1,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 12,
+        "source": "src/services/teamMemorySync/secretScanner.ts",
+        "rawDifferenceCount": 2,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 2,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      },
+      {
+        "positionOneBased": 13,
+        "source": "src/services/teamMemorySync/types.ts",
+        "rawDifferenceCount": 2,
+        "rawDifferenceClasses": {
+          "bound": 0,
+          "free": 2,
+          "protected": 0,
+          "nonName": 0
+        },
+        "localLexicalGraphEqual": true
+      }
+    ],
+    "sourceAttributionLimits": "Provider has 20 exact mapped segments and no synthetic prefix. The errors initializer has 135 segments and a 14-code-unit synthetic prefix. The service initializer has 13 import-statement segments and a 15-code-unit synthetic prefix. Synthetic initializer symbols/import-start mappings are declaration/module links, not original identifier mappings or target-source-route evidence.",
+    "semantics": "The already-existing sixth errors edge and unchanged direct SDK initializer do not establish global supplier identity, purity, call timing or transitive SDK initialization. Nine direct supplier declarations have 38 fresh free-name changes; only four complete supplier declarations are byte-identical to V58."
+  },
+  "domainLimits": [
+    "The old guard required instanceof Error. getErrnoCode accepts non-null objects with a string code, including plain objects and foreign-realm errors. Old/new behavior equivalence is false.",
+    "The helper tests code then returns a separate second read. A stateful getter can change its type/value between reads; proxy has/get traps, custom instanceof, inherited properties and thrown access remain material.",
+    "Traversal suppresses ENOENT/EACCES/EPERM and rethrows other or undefined values. Read-before-write logs defined values other than ENOENT/ENOTDIR, then continues to write. A returned non-string value after the successful type test is not ruled out.",
+    "Inner per-file catch, path boundary, size cap, secret scanning, sorting/truncation, logger failures, filesystem errors, write failures, callback scheduling and complete SDK/provider initialization remain open."
+  ],
+  "sourceProvenance": "source-origin-basis.json",
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

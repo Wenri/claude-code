@@ -1,0 +1,108 @@
+{
+  "kind": "public-data-only-summary-of-recorded-fresh-V59-diagnostic-build",
+  "recordedBuildCompletedAt": "2026-10-11T21:01:01.776332+00:00",
+  "candidateIdentity": "V59-R069-R070-team-memory-source-preparation",
+  "executionIdentityCorrection": {
+    "sha256": "16c7222b3a51586b3f9e52ed2dda7f1518ddeb7bc59af631537999fdc0294f18",
+    "kind": "root-issued-execution-descriptive-label-correction",
+    "originalReceiptSha256": "c0dc4da54b86214cb2b99a16c0372f78dbd80ed53f55db287714c540c9add5db",
+    "recordedCandidateIdentity": "V59-R059-argument-source-preparation",
+    "correctCandidateIdentity": "V59-R069-R070-team-memory-source-preparation",
+    "profileSha256": "90f535fe428eed6a1ab44f94edcf81058e44ea3f5c02bd2cd73658cfb7e44cfc",
+    "cause": "Root adapted V58 sealing script paths/pins but left its descriptive R059 identity label stale. Exact executed commands, input/output hashes and tuple identity are V59 team-memory.",
+    "originalReceiptPreserved": true,
+    "commandsOrInputsChanged": false,
+    "rerunRequired": false,
+    "acceptanceGranted": false
+  },
+  "executionReceiptSha256": "c0dc4da54b86214cb2b99a16c0372f78dbd80ed53f55db287714c540c9add5db",
+  "stages": [
+    {
+      "step": "preflight",
+      "exitCode": 0
+    },
+    {
+      "step": "compile",
+      "exitCode": 0
+    },
+    {
+      "step": "finalize",
+      "exitCode": 0
+    },
+    {
+      "step": "strictAst",
+      "exitCode": 0
+    },
+    {
+      "step": "index",
+      "exitCode": 0
+    }
+  ],
+  "allFiveSerialStagesExitZero": true,
+  "recordedExecutionOwner": "primary assistant personally executed and checked the five serial stages",
+  "workResponsibility": "The primary recovery author personally authored and applied R069/R070 and ran the five build/diagnostic stages. Independent support covered source/tuple/emission review and this source-only packaging. Packaging performs no source edits, build or application execution.",
+  "sourceProfileRuntimeAndOriginalsUnchangedDuringRecordedBuild": true,
+  "profileSha256": "90f535fe428eed6a1ab44f94edcf81058e44ea3f5c02bd2cd73658cfb7e44cfc",
+  "toolchainSha256": "c1639cc5b97d383d48f969b72af109e42722b9d512223d0ed3e46d028b0094bd",
+  "compileReportSha256": "907ca304365708506e447500a5e27a1b6f3b12d6e1d1b4aa2dbd1a02fbe0bf2a",
+  "sourceManifestSha256": "85050ed87ba72d119eb3f4a6868f01780beda0289c2dfb74fd46132c90e8b462",
+  "candidatePreparationSealSha256": "c0edfc245ee5a42cb0c6e940d1c4087d8da8f89afca2f82549eff5287af58741",
+  "reconstructionReceiptEvents": 37,
+  "removedMarkerImports": 11,
+  "outputPins": [
+    {
+      "label": "rawJavaScript",
+      "bytes": 13126664,
+      "sha256": "a810bed28bd88eda46f3558ef0dbf1c84b0f458c8a05f54e2603b80980827dba",
+      "included": false
+    },
+    {
+      "label": "rawSourceMap",
+      "bytes": 58789271,
+      "sha256": "ded5ab37593fc5cacbd304936b8c99fed4a8d0866f191c7ac0d284afe86cf5c3",
+      "included": false
+    },
+    {
+      "label": "finalJavaScript",
+      "bytes": 13126447,
+      "sha256": "e182972785046a1a5fe510c4294d241012c8f92c79ba9cf09071a05790177635",
+      "included": false
+    },
+    {
+      "label": "finalSourceMap",
+      "bytes": 58760418,
+      "sha256": "9ef06e2db11fb71e775feb745462c95d7f1cc1a399b69386f2a7455424b5545e",
+      "included": false
+    }
+  ],
+  "candidateStatementIndex": {
+    "bytes": 5604104,
+    "sha256": "6b342b34524561f03f29663952a722f9b14d712c6666f385a994432aa23f1759",
+    "nodes": 3110703,
+    "statements": 18280,
+    "diagnosticOnly": true
+  },
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110703,
+    "sha256": "ffcb71c2f10faa91eb0240925dfcfb7047de399bd722677a7f8ab037cd67825f"
+  },
+  "officialTargetStrictAst": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "officialTargetCompilerFinalizerOrNamerInput": false,
+  "targetIsolation": "Command/tool-code input segregation; not an OS-enforced read sandbox.",
+  "applicationExecuted": false,
+  "recoveredCallbacksHooksOrNativeApplicationExecuted": false,
+  "packageInstallExecuted": false,
+  "compilerExecutedDuringThisExport": false,
+  "applicationExecutedDuringThisExport": false,
+  "standaloneBuildPackage": false,
+  "allGeneratedOutputsIncluded": false,
+  "chronology": "This summarizes the recorded build, followed by separate complete-owner reviews and the fresh census summarized alongside it. The original build receipt predates those reviews and census. This export itself ran data checks only.",
+  "reproductionLimit": "Compiler/runtime reconstruction tools, full profiles, official target, generated JS/maps and original detailed execution reports are not included. This is a source checkpoint and bounded result summary, not independent build or emission-review reproduction."
+}

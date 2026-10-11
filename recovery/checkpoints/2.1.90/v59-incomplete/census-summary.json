@@ -1,0 +1,595 @@
+{
+  "kind": "public-V59-explicitly-aligned-global-diagnostic-summary",
+  "criterion": "strict-whole-program-ast-v2",
+  "wholeStrict": {
+    "target": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110206,
+      "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+    },
+    "v52": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110695,
+      "sha256": "7ddad7606144d6d680a2a6213b0b7163c903753150bb1e56dccdb380a083c1ca"
+    },
+    "v53": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110731,
+      "sha256": "376a6149e75bb9318455518a9c0f285715d8c8a567633acbb4ff580f8c137ddf"
+    },
+    "v54": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110727,
+      "sha256": "fc97b4cb4220753666ddabc17659ad55cc6f82b4a3174fd375c06982b6921436"
+    },
+    "v55": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110723,
+      "sha256": "7ee146e1fc9d210692eca3c9fab2a56c87489958acc267efbff448aa8ce0862d"
+    },
+    "v56": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110747,
+      "sha256": "7275012ba6fa8bdc9e8cf59d0c7f9483710e87a45b988b13a43cb58ce387242a"
+    },
+    "v57": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110745,
+      "sha256": "aa245b98f3341cf0911ae2207aa1c8047b88aafe99137e3d95e2e3064000b4c4"
+    },
+    "v58": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110728,
+      "sha256": "e7ae6d6fed6940af70e266a8fc8b94c2bc708354c349a6d75504f9438f272f8e"
+    },
+    "v59": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110703,
+      "sha256": "ffcb71c2f10faa91eb0240925dfcfb7047de399bd722677a7f8ab037cd67825f"
+    }
+  },
+  "targetV59StrictEqual": false,
+  "compatibilityGenerator": {
+    "method": "SequenceMatcher, autojunk=False",
+    "historicalGeneratingScriptRecovered": false,
+    "savedCompletePartitionsReproduced": {
+      "v52": {
+        "shapeWindows": 134,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v53": {
+        "shapeWindows": 132,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v54": {
+        "shapeWindows": 130,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v55": {
+        "shapeWindows": 129,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v56": {
+        "shapeWindows": 128,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v57": {
+        "shapeWindows": 127,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v58": {
+        "shapeWindows": 126,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      }
+    },
+    "acceptanceNormalizationApplied": false
+  },
+  "diagnosticShapeWindowCounts": {
+    "v52": 134,
+    "v53": 132,
+    "v54": 130,
+    "v55": 129,
+    "v56": 128,
+    "v57": 127,
+    "v58": 126,
+    "v59": 124
+  },
+  "strictDiagnosticPartition": {
+    "v52": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v53": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v54": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    },
+    "v55": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    },
+    "v56": {
+      "gaps": 277,
+      "exactStatementAnchors": 289
+    },
+    "v57": {
+      "gaps": 277,
+      "exactStatementAnchors": 289
+    },
+    "v58": {
+      "gaps": 223,
+      "exactStatementAnchors": 235
+    },
+    "v59": {
+      "gaps": 214,
+      "exactStatementAnchors": 225
+    }
+  },
+  "nonlocalShapeChangeIndexesFromV58": [],
+  "sourceMapPhysicalOwnersAuthenticated": 4789,
+  "alignedSourceOwnerSetChanges": [],
+  "nominationStatusCounts": {
+    "unique_outside_ordered_partition": 19,
+    "unmatched": 249,
+    "ambiguous_multiple": 19
+  },
+  "unmappedSelectedStatements": [
+    8763,
+    8764,
+    17893
+  ],
+  "historicalJoinAmbiguities": [],
+  "regionClosuresAccepted": 0,
+  "comparisonAgainstPriorCensuses": {
+    "v52": {
+      "priorShapeWindows": 134,
+      "currentShapeWindows": 124,
+      "disappearedHistoricalWindowIds": [
+        18,
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        101,
+        102,
+        129
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 214,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 225,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v53": {
+      "priorShapeWindows": 132,
+      "currentShapeWindows": 124,
+      "disappearedHistoricalWindowIds": [
+        18,
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        129
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 214,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 225,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v54": {
+      "priorShapeWindows": 130,
+      "currentShapeWindows": 124,
+      "disappearedHistoricalWindowIds": [
+        19,
+        51,
+        59,
+        67,
+        69,
+        70
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 206,
+      "currentStrictGaps": 214,
+      "priorStrictExactStatementAnchors": 213,
+      "currentStrictExactStatementAnchors": 225,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v55": {
+      "priorShapeWindows": 129,
+      "currentShapeWindows": 124,
+      "disappearedHistoricalWindowIds": [
+        19,
+        51,
+        59,
+        69,
+        70
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 206,
+      "currentStrictGaps": 214,
+      "priorStrictExactStatementAnchors": 213,
+      "currentStrictExactStatementAnchors": 225,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v56": {
+      "priorShapeWindows": 128,
+      "currentShapeWindows": 124,
+      "disappearedHistoricalWindowIds": [
+        19,
+        59,
+        69,
+        70
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 277,
+      "currentStrictGaps": 214,
+      "priorStrictExactStatementAnchors": 289,
+      "currentStrictExactStatementAnchors": 225,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v57": {
+      "priorShapeWindows": 127,
+      "currentShapeWindows": 124,
+      "disappearedHistoricalWindowIds": [
+        59,
+        69,
+        70
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 277,
+      "currentStrictGaps": 214,
+      "priorStrictExactStatementAnchors": 289,
+      "currentStrictExactStatementAnchors": 225,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v58": {
+      "priorShapeWindows": 126,
+      "currentShapeWindows": 124,
+      "disappearedHistoricalWindowIds": [
+        69,
+        70
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 223,
+      "currentStrictGaps": 214,
+      "priorStrictExactStatementAnchors": 235,
+      "currentStrictExactStatementAnchors": 225,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    }
+  },
+  "alignment": {
+    "statementCounts": [
+      18281,
+      18280
+    ],
+    "pairedStatements": 18280,
+    "deletedBeforeIndexes": [
+      11889
+    ],
+    "insertedAfterIndexes": [],
+    "unresolved": [],
+    "completeMappingRule": "For prior indexes 0 through 11888, current index equals prior index. Prior 11889 is deleted. For prior indexes 11890 through 18280, current index equals prior index minus one.",
+    "ruleCheckedAgainstAllRecordedPairs": true,
+    "orderedShapeMatchPairs": 18278,
+    "explicitCompleteOwnerReplacementPairs": [
+      [
+        11898,
+        11897
+      ],
+      [
+        11899,
+        11898
+      ]
+    ],
+    "samePositionComparisonAvailable": false,
+    "coverageComplete": true,
+    "uniqueSemanticCorrespondenceClaimed": false,
+    "basisLimit": "Ordered shape matches can have repeated-shape alternatives. Selected correspondence is for exhaustive diagnostics, not global semantic identity. All target unmatched/ambiguous nominations remain recorded.",
+    "alignmentReportSha256": "ab6944ddc9d731faee6988fb2bb64dfacf68e0df676684d34700420976996187"
+  },
+  "alignedChangeCounts": {
+    "pairedStatements": 18280,
+    "deletedBeforeIndexes": [
+      11889
+    ],
+    "insertedAfterIndexes": [],
+    "unresolved": [],
+    "shapeChangedPairs": [
+      [
+        11898,
+        11897
+      ],
+      [
+        11899,
+        11898
+      ]
+    ],
+    "strictChangedPairs": 11387,
+    "shapeStableStrictChangedPairs": 11385,
+    "selectedCorrespondenceNotSemanticIdentity": true
+  },
+  "anchorChurnAfterRelocation": {
+    "prior": 235,
+    "current": 225,
+    "relocatedRetainedPairs": 220,
+    "lostAfterRelocation": 15,
+    "addedAfterRelocation": 5,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 6,
+    "orderingOnlyLostPairs": 9,
+    "actualRawEqualityGainPairs": 3,
+    "orderingOnlyAddedPairs": 2
+  },
+  "completeByteAccounting": {
+    "unchangedAlignedStatements": 6893,
+    "changedAlignedStatements": 11387,
+    "deletedStatements": 1,
+    "gapMergeExplicitlyAccounted": true,
+    "onlyDifferentGapIsTerminalDebugId": true
+  },
+  "inputPins": {
+    "target": {
+      "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9",
+      "jsSha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    },
+    "v52": {
+      "indexSha256": "88db2dc3744fe08d1404d9c0f3519b3709806be043fb8fc8fe516cc5ed0ce62d",
+      "jsSha256": "d46e5b404525391e09af9e6463edd2a950d1dec14af9946abfd4cfe4d343c670"
+    },
+    "v53": {
+      "indexSha256": "017a8f185f4b469f2ce7805d63b951b792caa1239603b8f0d34b23927c0364d8",
+      "jsSha256": "c1f72389f409933b9d4bfa118a0444bfc026842366b2bff53a556960e1732fc6"
+    },
+    "v54": {
+      "indexSha256": "3d852f775a840a234584007412a1b205ee994aba9cba94e870b67467fe320774",
+      "jsSha256": "a34c9d88018d242645afced52fe37756351109c4f930d2cbbfeece330b5a2426"
+    },
+    "v55": {
+      "indexSha256": "168d31aa0b6f959000bfd2238b7b881327bb7c0a0b8c1f5b50f24538d52b8478",
+      "jsSha256": "d407240817a90282e049d4c8b8ac6491a9fcff5df3e06f56f9c2af07eedd3a0e"
+    },
+    "v56": {
+      "indexSha256": "200f4586a2a5e324b3444fbf5ded1b22a09e1eebaba6df9e63ebdc068af0c91e",
+      "jsSha256": "d0351deb19642b5cd83e9f351d93b1ac8f394df832eb684e67ae8ca2d74f596d"
+    },
+    "v57": {
+      "indexSha256": "93c79f2b8b68cabff6820066e359ceb77c14f1b0dc7a3f33aafd1b7993662c13",
+      "jsSha256": "07cac683971286aff68fd83bd340f6ec31bf347dbdceadfc4c61cf72dbd7c464"
+    },
+    "v58": {
+      "indexSha256": "1493b2aa940943176f5626ef4c147020a2a26524af6d7748f738965f98950277",
+      "jsSha256": "89e5f9e8861f8cdbe21f53e4adb2a83de6845e172c873c0359add99744f7b8e2"
+    },
+    "v59": {
+      "indexSha256": "6b342b34524561f03f29663952a722f9b14d712c6666f385a994432aa23f1759",
+      "jsSha256": "e182972785046a1a5fe510c4294d241012c8f92c79ba9cf09071a05790177635"
+    }
+  },
+  "censusSealSha256": "5cc28a549a682b47c5955369fe9f1d0af406a676f2ad5f9a24f2db55a6cf9bfe",
+  "censusSummarySha256": "4518e8906e7771321bb6126647c56ffd69d98e6ba1dba6bc906d2fd435a0f57b",
+  "censusReceiptSha256": "8264ab42abee71c9ae2efbd6985a2c3f3502f25bac8fb49cc8a7953d1c1c4bdd",
+  "executionResponsibility": "Root personally authored and executed explicit shifted alignment, source-map route joins, complete static AST/scope/capture passes, complete-byte gap accounting, source classification and final pin checks.",
+  "executionIdentityCorrection": {
+    "sha256": "16c7222b3a51586b3f9e52ed2dda7f1518ddeb7bc59af631537999fdc0294f18",
+    "originalReceiptPreserved": true,
+    "explanation": "Root adapted V58 sealing script paths/pins but left its descriptive R059 identity label stale. Exact executed commands, input/output hashes and tuple identity are V59 team-memory."
+  },
+  "independentCensusAudit": {
+    "receiptSha256": "3091ce7d54cdb11046e082359786040ac259f3748f98dd26a4d546f8f8db7966",
+    "sealSha256": "ad765f0312bec1643a83f2052e0c3db8d1249ea7600dadab8405c8cde4799e10",
+    "recordedScalarResults": {
+      "kind": "independent-V59-aligned-global-census-review",
+      "completedAt": "2026-10-11T21:12:23.463085+00:00",
+      "verdict": "PASS for bounded static diagnostic census",
+      "rootCensusSealSha256": "5cc28a549a682b47c5955369fe9f1d0af406a676f2ad5f9a24f2db55a6cf9bfe",
+      "rootCensusReceiptSha256": "8264ab42abee71c9ae2efbd6985a2c3f3502f25bac8fb49cc8a7953d1c1c4bdd",
+      "rootSealedFilesVerifiedBeforeAndAfter": 53,
+      "coverageReceiptSha256": "9cc724887b4683dcb76c2b41cf603a90888369e8b8501bb5c7da5e2def02fb33",
+      "coverageSealSha256": "640f4cfa1f077587962bff8cb17bf5f89dc1cf5420e42d7743c01792560e345d",
+      "previousOwnersEvidenceSha256": "10be6da56b190fb8e1ee90d836482d29ae25982af231bf7cf45e2f9cfd9c7368",
+      "sourceMapAuthentication": "4789 contributing physical source contents and all 18280 current statement route records independently checked",
+      "rootPostCensusProtectedPins": "Authenticated root attestation for 52 roots; not independently rehashed here",
+      "historicalResidualRecordsRetained": 134,
+      "acceptedRegionClosures": 0,
+      "shapeDiagnosticWindows": 124,
+      "strictGaps": 214,
+      "strictOrderedAnchors": 225,
+      "applicationExecuted": false,
+      "recoveredProvidersExecuted": false,
+      "compilerExecuted": false,
+      "rootSourceOrCensusModified": false,
+      "wholeVersionAcceptance": false,
+      "runtimeAcceptance": false,
+      "globalBindingAcceptance": false,
+      "globalInitializationAcceptance": false,
+      "providerAcceptance": false,
+      "separateAffectedOwnerProofRequired": true,
+      "sealingPreparationNote": "Initial inline seal preparation stopped before receipt creation because it assumed a list-shaped child seal; finalizer uses the inspected child dictionary schema and verifies every digest."
+    },
+    "independentCore": {
+      "kind": "independent-V59-aligned-census-core-recomputation",
+      "verdict": "PASS for bounded diagnostic census",
+      "partitionPairsIndependentlyRecomputed": 30,
+      "priorStatements": 18281,
+      "currentStatements": 18280,
+      "alignedPairs": 18280,
+      "removedPriorIndex": 11889,
+      "alignedStrictChanges": 11387,
+      "alignedShapeChanges": [
+        11897,
+        11898
+      ],
+      "shapeStableStrictChanges": 11385,
+      "allSourceMapRoutesIndependentlyDecoded": 18280,
+      "physicalSourceContentsAuthenticated": 4789,
+      "alignedOwnerSetChanges": 0,
+      "allResidualRowsRecomputed": 124,
+      "allNominationsRecomputed": 287,
+      "nominationCounts": {
+        "unique_outside_ordered_partition": 19,
+        "unmatched": 249,
+        "ambiguous_multiple": 19
+      },
+      "allCurrentShapeChangesOnlyReviewedOwner": true,
+      "unmappedSelectedStatements": [
+        8763,
+        8764,
+        17893
+      ],
+      "all134HistoricalRecordsRetained": true,
+      "uniqueSemanticCorrespondenceClaimed": false,
+      "wholeVersionAcceptance": false,
+      "runtimeAcceptance": false,
+      "regionClosuresAccepted": 0
+    },
+    "staticAggregateAndProvenance": {
+      "kind": "independent-V59-static-aggregate-and-diagnostic-provenance-review",
+      "verdict": "PASS for bounded static census evidence",
+      "completeStaticRows": 11385,
+      "totals": {
+        "nodes": 2574962,
+        "scopes": 93372,
+        "names": 44778,
+        "changedFree": 11793,
+        "allFree": 108952
+      },
+      "selectedGlobalCaptureNames": 21734,
+      "allPerStatementAndSelectedAggregateMapsBijective": true,
+      "fullProgramGlobalBindingIdentityEstablished": false,
+      "invalidFirstAttempt": {
+        "sealedAndRetained": true,
+        "onlyGeneratorRepair": "V58 -> V59 line-start source",
+        "spuriousOwnerChanges": 1920,
+        "correctedOwnerChanges": 0,
+        "invalidEvidenceAccepted": false
+      },
+      "executionIdentityCorrection": {
+        "originalReceiptSha256": "c0dc4da54b86214cb2b99a16c0372f78dbd80ed53f55db287714c540c9add5db",
+        "correctionSha256": "16c7222b3a51586b3f9e52ed2dda7f1518ddeb7bc59af631537999fdc0294f18",
+        "correctIdentity": "V59-R069-R070-team-memory-source-preparation",
+        "exactExecutedCommandsAgreeWithFrozenTuple": true,
+        "originalReceiptUnchanged": true
+      },
+      "reviewedSourceClassification": {
+        "pairedSourceStatements": 22,
+        "removedPriorHelper": 11889,
+        "rawUnchanged": 6,
+        "shapeStableNameOnly": 14,
+        "shapeChanged": 2,
+        "fullAffectedOwnerAcceptancePendingSeparately": true
+      },
+      "additionalReplaysByteIdentical": true,
+      "wholeVersionAcceptance": false,
+      "providerAcceptance": false,
+      "runtimeAcceptance": false,
+      "acceptedRegionClosures": 0
+    },
+    "independentCoverageAlignment": {
+      "beforeStatements": 18281,
+      "afterStatements": 18280,
+      "pairs": 18280,
+      "removedBeforeIndexes": [
+        11889
+      ],
+      "insertedAfterIndexes": [],
+      "identityPrefixPairs": 11889,
+      "shiftedSuffixPairs": 6391,
+      "noZipTruncation": true,
+      "lastPair": [
+        18280,
+        18279
+      ],
+      "shapeChangedPairs": [
+        [
+          11898,
+          11897
+        ],
+        [
+          11899,
+          11898
+        ]
+      ],
+      "strictChangedPairs": 11387,
+      "byteChangedAlignedStatements": 11387,
+      "byteUnchangedAlignedStatements": 6893
+    },
+    "priorOwnerCoverage": [
+      {
+        "region": "R017",
+        "owner": "node_modules/bidi-js/dist/bidi.js",
+        "statementCount": 1,
+        "allOwnerRoutesIdentical": true,
+        "sourceContentHashAuthenticated": true,
+        "byteUnchangedStatements": 1,
+        "shapeUnchangedStatements": 1,
+        "strictUnchangedStatements": 1
+      },
+      {
+        "region": "R059",
+        "owner": "src/utils/argumentSubstitution.ts",
+        "statementCount": 5,
+        "allOwnerRoutesIdentical": true,
+        "sourceContentHashAuthenticated": true,
+        "byteUnchangedStatements": 5,
+        "shapeUnchangedStatements": 5,
+        "strictUnchangedStatements": 5
+      },
+      {
+        "region": "R059-transitive-provider",
+        "owner": "src/utils/bash/bashParser.ts",
+        "statementCount": 82,
+        "allOwnerRoutesIdentical": true,
+        "sourceContentHashAuthenticated": true,
+        "byteUnchangedStatements": 36,
+        "shapeUnchangedStatements": 82,
+        "strictUnchangedStatements": 36
+      }
+    ]
+  },
+  "diagnosedInvalidAttempt": {
+    "cause": "Root copied the prior source-map decoder but left line-start calculation bound to V58 code while ranges/map were V59. This yielded 1920 spurious owner-set changes.",
+    "repair": "Bind line starts to the same V59 code bytes as the current map/index. Rerun the complete census; retain first-attempt outputs separately as invalid evidence.",
+    "firstAttemptAccepted": false,
+    "buildOutputsOrSourceChanged": false
+  },
+  "strictPartitionInterpretation": "214 gaps / 225 anchors are diagnostic alignment results, not accepted progress. After relocating V58 coordinates, 220 anchors remain, 15 disappear and five are added: six actual raw-equality losses, three gains, nine/two ordering-only changes. Raw-coordinate lists without relocation are misleading after the helper deletion.",
+  "captureInterpretation": "No per-pair or aggregate capture collisions occur in the selected V58-to-V59 shape-stable set. The earlier V57-to-V58 intentional supplier-switch conflicts remain historical evidence and are not retroactively removed. This step does not prove whole-program supplier/binding identity.",
+  "originalHistoricalResidualRecordsPreserved": 134,
+  "historicalBacklogUnmodified": true,
+  "partitionDiagnosticOnly": true,
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

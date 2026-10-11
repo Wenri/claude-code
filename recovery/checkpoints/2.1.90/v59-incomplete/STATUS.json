@@ -1,0 +1,104 @@
+{
+  "version": "2.1.90",
+  "candidate": "V59",
+  "state": "incomplete source-only checkpoint",
+  "sourceExportDate": "2026-10-11",
+  "candidateIdentity": "V59-R069-R070-team-memory-source-preparation",
+  "executionIdentityCorrectionDisclosed": true,
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50693205,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "85050ed87ba72d119eb3f4a6868f01780beda0289c2dfb74fd46132c90e8b462",
+  "derivedSrcTree": "bdea61c40b42f7cde06d9951676996ef87171a86",
+  "sourceFilesChangedFromPublishedV58": 1,
+  "byteIdenticalInheritedSourceFiles": 6113,
+  "historicalResidualRecordsPreserved": 134,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 124,
+  "priorV58ShapeDiagnosticWindows": 126,
+  "strictDiagnosticGaps": 214,
+  "exactStatementAnchors": 225,
+  "anchorChurnAfterRelocation": {
+    "prior": 235,
+    "current": 225,
+    "relocatedRetainedPairs": 220,
+    "lostAfterRelocation": 15,
+    "addedAfterRelocation": 5,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 6,
+    "orderingOnlyLostPairs": 9,
+    "actualRawEqualityGainPairs": 3,
+    "orderingOnlyAddedPairs": 2
+  },
+  "statementCounts": [
+    18281,
+    18280
+  ],
+  "deletedBeforeStatementIndexes": [
+    11889
+  ],
+  "shapeChangedPairs": [
+    [
+      11898,
+      11897
+    ],
+    [
+      11899,
+      11898
+    ]
+  ],
+  "shapeStableStrictChangedPairs": 11385,
+  "newStructurallyRepairedOwnerRegions": [
+    "R069",
+    "R070"
+  ],
+  "inheritedStructurallyRepairedOwnerRegions": [
+    "R018",
+    "R019",
+    "R051",
+    "R059",
+    "R067",
+    "R101",
+    "R102",
+    "R129"
+  ],
+  "acceptedRegionClosures": 0,
+  "strictWholeProgramAstEqual": false,
+  "strictOwnerNamesEqual": false,
+  "currentSelectedCaptureAggregateConflicts": 0,
+  "historicalV58SupplierSwitchConflictsPreserved": true,
+  "r091UnchangedAndDeferred": true,
+  "r091SourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+  "sourceOnlySnapshot": true,
+  "allSealedSourceInputsIncluded": true,
+  "standaloneBuildPackage": false,
+  "freshDiagnosticBuildRecorded": true,
+  "compilerExecutedDuringExport": false,
+  "applicationExecutedDuringExport": false,
+  "officialTargetUsedForSourceRestoration": false,
+  "originalSourceAuthorshipClaim": false,
+  "originalPartitionGeneratorRecovered": false,
+  "compatibilityPartitionExactlyReproducesPriorV52ThroughV58": true,
+  "r17BidiShorthandSideEffectRetained": true,
+  "genericNormalizationApplied": false,
+  "historicalGaps": [
+    "Trial59 and Trial60 historical source maps remain unavailable.",
+    "Original Trial61 evidence remains lost."
+  ],
+  "workResponsibility": "The primary recovery author personally authored/applied the team-memory repair, ran five diagnostic stages and complete shifted-alignment census/static checks. Independent source/tuple/emission/census audits and data-only packaging supply support.",
+  "limits": [
+    "Source repair intentionally changes errno-object domains and property-read timing. Old/new behavior equivalence is false.",
+    "Alignment selection after deletion is exhaustive diagnostic correspondence, not unique semantic identity. Count changes are not acceptance progress.",
+    "Provider/global initialization, SDK transitive edges, filesystem/callback/logging behavior remain unaccepted.",
+    "The original build receipt keeps a stale R059 descriptive label. Its supplemental correction and actual profile authenticate the V59 team-memory identity without changing commands or outputs.",
+    "The invalid first census attempt used old-code line starts, was rejected and rerun; final evidence authenticates current code/map/index together.",
+    "All historical records and prior checkpoint bytes are preserved. No source checkpoint verifier establishes program equivalence."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

@@ -1,0 +1,51 @@
+{
+  "kind": "R069-R070-complete-accepted89-source-carry-forward-provenance",
+  "sourceProposalManifestSha256": "58bf9aac518036cabe94734fabe3de99b19daf0933993a49aad15b81bccf4a9f",
+  "sourcePath": "src/services/teamMemorySync/index.ts",
+  "priorSha256": "8d808458dafa4968a4660b7e7ba69b2393a134098078cad0842eab500219b3a0",
+  "proposedSha256": "e7c753b13b4865adb104bd10a0de2ec6dc423f07f94912d2be3a6680fee63b0b",
+  "priorBytes": 44153,
+  "proposedBytes": 43815,
+  "donor": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "member": "src/services/teamMemorySync/index.ts"
+  },
+  "unchangedProvider": {
+    "path": "src/utils/errors.ts",
+    "sha256": "ab8d90dac1d13f7e5fde4708643120556ea83d25f3586c90dafb2e453e01e9bd",
+    "bytes": 7655,
+    "identicalToAcceptedV45SourceInventory": true
+  },
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "providerAuthentication": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "profilePath": "recovery/checkpoints/2.1.89/v45/profile.json",
+    "profileSha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120",
+    "sourceFilePin": {
+      "path": "src/utils/errors.ts",
+      "bytes": 7655,
+      "sha256": "ab8d90dac1d13f7e5fde4708643120556ea83d25f3586c90dafb2e453e01e9bd"
+    },
+    "providerSuppliedByOverlay": false
+  },
+  "verifiedDuringExport": "The accepted V45 overlay was authenticated at the recorded public Git commit; its complete team-memory member equals the V59 postimage. The errors provider is not in that overlay. Its unchanged V58/V59 bytes match the same committed V45 profile source inventory; no overlay-supplier claim is made for it.",
+  "sourceHunks": [
+    "Add getErrnoCode to the existing errors import.",
+    "Remove the local isErrnoException helper.",
+    "Capture getErrnoCode once in recursive traversal suppression/rethrow.",
+    "Capture getErrnoCode once in the read-before-write diagnostic."
+  ],
+  "constructionResponsibility": "The primary recovery author personally inspected the complete owners and provider, authored/applied the donor-derived repair, ran five diagnostic stages and complete aligned census/static checks. Independent reviews and this data-only packaging supply support.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "This intentionally widens the errno-object domain and changes property-read timing relative to the local instanceof guard. Plain objects, foreign-realm errors, proxy/getter/prototype behavior and thrown reads remain material. Accepted .89 provenance is not old/new behavior equivalence or .90 provider/global/runtime acceptance.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
