@@ -1,0 +1,380 @@
+{
+  "kind": "public-V60-to-V61-complete-static-and-byte-accounting-summary",
+  "executionResponsibility": "Root personally authored and executed full alignment, source-map joins, static comparison selection, complete-byte accounting, 53 complete owner/provider comparisons, exact R121 emission inverse, source classification and final pin checks.",
+  "alignment": {
+    "statementCounts": [
+      18280,
+      18280
+    ],
+    "pairedStatements": 18280,
+    "samePositionComparisonAvailable": true,
+    "deletedBeforeIndexes": [],
+    "insertedAfterIndexes": [],
+    "unresolved": [],
+    "shapeChangedPairs": [
+      [
+        16561,
+        16561
+      ]
+    ],
+    "strictChangedPairs": 1,
+    "shapeStableStrictChangedPairs": 0,
+    "selectedCorrespondenceNotSemanticIdentity": true,
+    "completeMappingRule": "Every V60 statement is paired with the same V61 index; no deletion, insertion, unresolved pair or truncated zip.",
+    "ruleCheckedAgainstAllRecordedPairs": true,
+    "coverageComplete": true,
+    "alignmentReportSha256": "b168850e8b20eaa121ffba7a165a3a79e3c52237580a7f03208edd1399f2b752"
+  },
+  "shapeStableReview": {
+    "kind": "complete-static-V60-to-V61-shape-stable-strict-change-review",
+    "checkedStatementCount": 0,
+    "statementNodeTotal": 0,
+    "scopeTotal": 0,
+    "rawIdentifierNameDifferenceOccurrences": 0,
+    "changedFreeCaptureOccurrences": 0,
+    "exceptionStatementIndexes": [],
+    "allRawChangesOnlyIdentifierNames": true,
+    "allScopedGraphsEqual": true,
+    "allScopedFieldChangesOnlyFreeCaptureNames": true,
+    "allChangedFreeCaptureMapsBijective": true,
+    "rawStrictEquality": false,
+    "acceptanceNormalizationApplied": false,
+    "completeProgramGlobalBindingIdentityEstablished": false,
+    "caveats": [
+      "The existing scoped graph records local declaration/reference/read/write/init structure. It does not establish global crossing-binding or initializer identity.",
+      "Unchanged raw protected fields, Literal.raw and scope graphs are static allocation observations, not semantic/runtime acceptance.",
+      "All shape-changing statements, including the R121 owner, are excluded here and require separate complete-owner reviews. An empty selected set is not a new proof of unchanged or global bindings."
+    ],
+    "applicationExecuted": false,
+    "recoveredCallbacksExecuted": false,
+    "nativeAddonExecuted": false,
+    "sourceEdited": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "wholeVersionAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "fullCaptureMapReview": {
+    "kind": "complete-free-capture-map-collision-check-for-all-selected-nonlocal-statements",
+    "priorNonlocalReviewSha256": "cfceed2aa69272dbac82a0f70b5ac4f8f67ec534dd6f96dc97d7f2376d73ae74",
+    "checkedStatements": 0,
+    "freeCaptureOccurrences": 0,
+    "fullPerStatementCaptureMapCollisionIndexes": [],
+    "globalAcrossSelectedStatementsForwardConflicts": [],
+    "globalAcrossSelectedStatementsReverseConflicts": [],
+    "caveat": "This checks complete capture correspondence within every selected changed statement. It does not analyze all program bindings or unchanged statements, establish supplier/initializer identity, or accept semantics.",
+    "applicationExecuted": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "emptySelectionIsNotGlobalProof": true,
+  "completeByteAccounting": {
+    "programReconstructionExact": true,
+    "statementCounts": {
+      "v60": 18280,
+      "v61": 18280
+    },
+    "gapCounts": {
+      "v60": 18281,
+      "v61": 18281
+    },
+    "alignedStatements": 18280,
+    "byteChangedAlignedStatements": 1,
+    "byteUnchangedAlignedStatements": 18279,
+    "changedStatements": [
+      {
+        "beforeIndex": 16561,
+        "afterIndex": 16561,
+        "beforeSha256Utf16": "f184c54c0a90508cdad9ec9af197d4a76485f3785590a54522b8d8908983e06c",
+        "afterSha256Utf16": "2d527042f597a9163c0a98be838e61a7f3f627eef6e16d4c61d53ab15056e707"
+      }
+    ],
+    "deletedStatements": [],
+    "insertedStatements": [],
+    "mergedGapComparisons": [],
+    "allPriorAndCurrentGapsAccountedOnce": true,
+    "byteNormalizationApplied": false
+  },
+  "onlyDifferentGapDescription": "Terminal debugId comment value; no inserted or deleted statement.",
+  "inheritedV60BidiEvidence": {
+    "baselinePublicFileSha256": "50b9d5cbfd8904e51c8fff8596ab6da2a35f94cd3a814ff1db8cc1c37bea91d6",
+    "review": {
+      "statement": 5582,
+      "owner": "node_modules/bidi-js/dist/bidi.js",
+      "astNodeCountExcludingSyntheticProgram": 4006,
+      "completeScopeDeclarationReferenceReadWriteGraphEqual": true,
+      "scopes": 108,
+      "rawFieldDifferences": 621,
+      "rawIdentifierNameDifferences": 620,
+      "allNonNameFieldDifferences": [
+        {
+          "path": [
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "0",
+            "expression",
+            "arguments",
+            "1",
+            "body",
+            "body",
+            "0",
+            "body",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "callee",
+            "body",
+            "body",
+            "13",
+            "declarations",
+            "0",
+            "id",
+            "properties",
+            "1",
+            "shorthand"
+          ],
+          "before": true,
+          "after": false
+        }
+      ],
+      "allScopeModelFieldDifferences": [
+        {
+          "path": [
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "0",
+            "expression",
+            "arguments",
+            "1",
+            "body",
+            "body",
+            "0",
+            "body",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "callee",
+            "body",
+            "body",
+            "13",
+            "declarations",
+            "0",
+            "id",
+            "properties",
+            "1",
+            "shorthand"
+          ],
+          "before": true,
+          "after": false
+        },
+        {
+          "path": [
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "callee",
+            "name"
+          ],
+          "before": "free:B",
+          "after": "free:p"
+        }
+      ],
+      "bindingCount": 314,
+      "rawStrictStatementEqual": false,
+      "rawShapeStatementEqual": false,
+      "rawOfficialStrictStatementEqual": false,
+      "rawOfficialShapeStatementEqual": false,
+      "genericNormalizationApplied": false,
+      "normalizationAcceptance": false,
+      "limitations": [
+        "The complete statement and compiler-wrapper declarations are statically parsed; this is not a runtime proof.",
+        "The complete local binding/reference graph and every free capture are compared; global suppliers, global shadowing, initialization order, native behavior, and transitive provider identity are not established.",
+        "Unchanged pinned source plus full graph and field comparison explain this local compiler-allocation consequence. No global equivalence or source integration is authorized by this result."
+      ],
+      "reviewSha256": "6193221219fbd46790c1eb637b30e42069b9264dcf0b44ed38541ecf76c99b93",
+      "reviewSealSha256": "283c053edc6e8de824b7a65558fd6180c27e4439f24b769f34ff98f575c2747f",
+      "sourceSha256": "5b58433ed951be70376bee55cb9a98cdce788e00cd2fa5f881cbcb1dcad03102",
+      "sourceUnchanged": true,
+      "affectedBinding": "The noncomputed runtime key remains R; the local binding formerly spelled R is allocated as h, with the complete declaration/read/write graph preserved. The Property.shorthand flag changes from true to false and remains a strict/shape difference.",
+      "fullFreeCaptureCorrespondence": {
+        "forward": {
+          "Object": "Object",
+          "Map": "Map",
+          "parseInt": "parseInt",
+          "String": "String",
+          "Uint32Array": "Uint32Array",
+          "Uint8Array": "Uint8Array",
+          "Math": "Math",
+          "self": "self",
+          "globalThis": "globalThis",
+          "define": "define",
+          "B": "p"
+        },
+        "reverse": {
+          "Object": "Object",
+          "Map": "Map",
+          "parseInt": "parseInt",
+          "String": "String",
+          "Uint32Array": "Uint32Array",
+          "Uint8Array": "Uint8Array",
+          "Math": "Math",
+          "self": "self",
+          "globalThis": "globalThis",
+          "define": "define",
+          "p": "B"
+        },
+        "counts": {
+          "Object": 3,
+          "Map": 6,
+          "parseInt": 4,
+          "String": 2,
+          "Uint32Array": 1,
+          "Uint8Array": 1,
+          "Math": 8,
+          "self": 1,
+          "globalThis": 2,
+          "define": 3,
+          "B": 1
+        }
+      },
+      "wrapperExplanation": {
+        "statement": 4,
+        "nodes": 256,
+        "completeScopeGraphEqual": true,
+        "freeCaptureCounts": {
+          "WeakMap": 3,
+          "_95": 1,
+          "K95": 1,
+          "Yx6": 4,
+          "Rw7": 2,
+          "Lw7": 2,
+          "Ew7": 2,
+          "z95": 1
+        },
+        "limit": "The changed B-to-p capture is tied to complete wrapper declarations, but their supplier/global/reflection/initialization identity is not established."
+      },
+      "frozenExplanatoryCheck": {
+        "matched": true,
+        "withoutExactShorthandExceptionRejected": true,
+        "negativeControls": [
+          {
+            "name": "runtime property R changed to L",
+            "rejected": true,
+            "reason": "non-name/static-binding field changed at body/0/declarations/0/init/arguments/0/body/body/0/expression/arguments/1/body/body/0/body/body/0/declarations/0/init/callee/body/body/13/declarations/0/id/properties/1/key/name",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "property becomes computed",
+            "rejected": true,
+            "reason": "non-name/static-binding field changed at body/0/declarations/0/init/arguments/0/body/body/0/expression/arguments/1/body/body/0/body/body/0/declarations/0/init/callee/body/body/13/declarations/0/id/properties/1/computed",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "property binding redirected to distinct existing local",
+            "rejected": true,
+            "reason": "scope/read/write graph changed",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "one TYPE_R read redirected to other local",
+            "rejected": true,
+            "reason": "scope/read/write graph changed",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "wrapper capture p changed to unknown symbol",
+            "rejected": true,
+            "reason": "frozen capture mismatch",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "unchanged Math capture collides with wrapper p",
+            "rejected": true,
+            "reason": "frozen capture mismatch",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "literal value changed",
+            "rejected": true,
+            "reason": "non-name/static-binding field changed at body/0/declarations/0/init/arguments/0/body/body/0/expression/arguments/1/body/body/0/body/body/0/declarations/0/init/callee/body/body/1/expression/expressions/0/right/value",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "operator changed",
+            "rejected": true,
+            "reason": "non-name/static-binding field changed at body/0/declarations/0/init/arguments/0/body/body/0/expression/arguments/1/body/body/0/body/body/0/declarations/0/init/callee/body/body/2/declarations/0/init/operator",
+            "frozenCaptureMapRelearned": false
+          },
+          {
+            "name": "exact shorthand exception no longer true to false",
+            "rejected": true,
+            "reason": "Expected values to be strictly equal:",
+            "frozenCaptureMapRelearned": false
+          }
+        ],
+        "criterion": "Explanatory diagnostic only; does not replace raw strict or shape equality, accept a source change, or discharge R017."
+      },
+      "historicalR017Retained": true,
+      "accepted": false,
+      "wholeProgramAcceptance": false,
+      "wholeVersionAcceptance": false,
+      "runtimeAcceptance": false,
+      "transitiveProviderAcceptance": false,
+      "globalBindingAcceptance": false,
+      "globalInitializationAcceptance": false
+    },
+    "interpretation": "This is the authenticated historical V60 explanation and its limitations, copied without changing its raw mismatch flags. Statement 5582 is byte-identical in the current V61 step. This adds no acceptance or normalization."
+  },
+  "sourceReportPins": [
+    {
+      "label": "nonlocal-allocation-review.json",
+      "bytes": 6029,
+      "sha256": "cfceed2aa69272dbac82a0f70b5ac4f8f67ec534dd6f96dc97d7f2376d73ae74"
+    },
+    {
+      "label": "full-capture-maps-review.json",
+      "bytes": 835,
+      "sha256": "76b6bee8c283ad6410dfd796c1a18a0db1cc25daf33fa60a6bf3b3e80e2be5f6"
+    },
+    {
+      "label": "statement-alignment.json",
+      "bytes": 8972118,
+      "sha256": "b168850e8b20eaa121ffba7a165a3a79e3c52237580a7f03208edd1399f2b752"
+    },
+    {
+      "label": "complete-byte-accounting.json",
+      "bytes": 1325,
+      "sha256": "3b49f433ede4872d5ad29916ea6ee305ce27d2fb1485fc643a3d7a0c32508c91"
+    }
+  ],
+  "interpretation": "Only the R121 Inner changes. The other 18,279 complete statements retain every output byte. An empty selected changed-statement/capture set is not a fresh proof of unchanged or global bindings. Earlier allocation, provider, initializer and runtime limits remain.",
+  "applicationExecuted": false,
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

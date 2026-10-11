@@ -1,0 +1,11 @@
+--- v60/src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx
++++ v61/src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx
+@@ -299,7 +299,7 @@
+     noInputMode,
+     editablePrefix,
+     onEditablePrefixChange
+-  }), [toolUseConfirm, classifierDescription, initialClassifierDescriptionEmpty, existingAllowDescriptions, yesInputMode, noInputMode, editablePrefix, onEditablePrefixChange]);
++  }), [toolUseConfirm, classifierDescription, initialClassifierDescriptionEmpty, existingAllowDescriptions, yesInputMode, noInputMode, editablePrefix, onEditablePrefixChange, setAcceptFeedback, setRejectFeedback]);
+ 
+   // Toggle permission debug info with keybinding
+   const handleToggleDebug = useCallback(() => {

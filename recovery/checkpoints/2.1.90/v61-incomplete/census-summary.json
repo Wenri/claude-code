@@ -1,0 +1,604 @@
+{
+  "kind": "public-V61-complete-global-diagnostic-summary",
+  "criterion": "strict-whole-program-ast-v2",
+  "wholeStrict": {
+    "target": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110206,
+      "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+    },
+    "v52": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110695,
+      "sha256": "7ddad7606144d6d680a2a6213b0b7163c903753150bb1e56dccdb380a083c1ca"
+    },
+    "v53": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110731,
+      "sha256": "376a6149e75bb9318455518a9c0f285715d8c8a567633acbb4ff580f8c137ddf"
+    },
+    "v54": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110727,
+      "sha256": "fc97b4cb4220753666ddabc17659ad55cc6f82b4a3174fd375c06982b6921436"
+    },
+    "v55": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110723,
+      "sha256": "7ee146e1fc9d210692eca3c9fab2a56c87489958acc267efbff448aa8ce0862d"
+    },
+    "v56": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110747,
+      "sha256": "7275012ba6fa8bdc9e8cf59d0c7f9483710e87a45b988b13a43cb58ce387242a"
+    },
+    "v57": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110745,
+      "sha256": "aa245b98f3341cf0911ae2207aa1c8047b88aafe99137e3d95e2e3064000b4c4"
+    },
+    "v58": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110728,
+      "sha256": "e7ae6d6fed6940af70e266a8fc8b94c2bc708354c349a6d75504f9438f272f8e"
+    },
+    "v59": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110703,
+      "sha256": "ffcb71c2f10faa91eb0240925dfcfb7047de399bd722677a7f8ab037cd67825f"
+    },
+    "v60": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110734,
+      "sha256": "4e1c98ae0471943f155b0eaa5b7394252337d2cb6cef718993f8649b597120ea"
+    },
+    "v61": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110736,
+      "sha256": "89ed797c79f0bfba82a97e218b8d25af8fad7b3b5832646a6c845fe97df03699"
+    }
+  },
+  "targetV61StrictEqual": false,
+  "compatibilityGenerator": {
+    "method": "SequenceMatcher, autojunk=False",
+    "historicalGeneratingScriptRecovered": false,
+    "savedCompletePartitionsReproduced": {
+      "v52": {
+        "shapeWindows": 134,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v53": {
+        "shapeWindows": 132,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v54": {
+        "shapeWindows": 130,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v55": {
+        "shapeWindows": 129,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v56": {
+        "shapeWindows": 128,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v57": {
+        "shapeWindows": 127,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v58": {
+        "shapeWindows": 126,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v59": {
+        "shapeWindows": 124,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v60": {
+        "shapeWindows": 122,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      }
+    },
+    "acceptanceNormalizationApplied": false
+  },
+  "diagnosticShapeWindowCounts": {
+    "v52": 134,
+    "v53": 132,
+    "v54": 130,
+    "v55": 129,
+    "v56": 128,
+    "v57": 127,
+    "v58": 126,
+    "v59": 124,
+    "v60": 122,
+    "v61": 121
+  },
+  "strictDiagnosticPartition": {
+    "v52": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v53": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v54": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    },
+    "v55": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    },
+    "v56": {
+      "gaps": 277,
+      "exactStatementAnchors": 289
+    },
+    "v57": {
+      "gaps": 277,
+      "exactStatementAnchors": 289
+    },
+    "v58": {
+      "gaps": 223,
+      "exactStatementAnchors": 235
+    },
+    "v59": {
+      "gaps": 214,
+      "exactStatementAnchors": 225
+    },
+    "v60": {
+      "gaps": 216,
+      "exactStatementAnchors": 230
+    },
+    "v61": {
+      "gaps": 216,
+      "exactStatementAnchors": 230
+    }
+  },
+  "nonlocalShapeChangeIndexesFromV60": [],
+  "sourceMapPhysicalOwnersAuthenticated": 4789,
+  "alignedSourceOwnerSetChanges": [],
+  "nominationStatusCounts": {
+    "unique_outside_ordered_partition": 19,
+    "unmatched": 243,
+    "ambiguous_multiple": 19
+  },
+  "unmappedSelectedStatements": [
+    8763,
+    8764,
+    17893
+  ],
+  "historicalJoinAmbiguities": [],
+  "regionClosuresAccepted": 0,
+  "comparisonAgainstPriorCensuses": {
+    "v52": {
+      "priorShapeWindows": 134,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        18,
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        98,
+        99,
+        101,
+        102,
+        121,
+        129
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v53": {
+      "priorShapeWindows": 132,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        18,
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        98,
+        99,
+        121,
+        129
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v54": {
+      "priorShapeWindows": 130,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 206,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 213,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v55": {
+      "priorShapeWindows": 129,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        19,
+        51,
+        59,
+        69,
+        70,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 206,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 213,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v56": {
+      "priorShapeWindows": 128,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        19,
+        59,
+        69,
+        70,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 277,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 289,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v57": {
+      "priorShapeWindows": 127,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        59,
+        69,
+        70,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 277,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 289,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v58": {
+      "priorShapeWindows": 126,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        69,
+        70,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 223,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 235,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v59": {
+      "priorShapeWindows": 124,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 214,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 225,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v60": {
+      "priorShapeWindows": 122,
+      "currentShapeWindows": 121,
+      "disappearedHistoricalWindowIds": [
+        121
+      ],
+      "newTargetWindowIndexes": [],
+      "priorStrictGaps": 216,
+      "currentStrictGaps": 216,
+      "priorStrictExactStatementAnchors": 230,
+      "currentStrictExactStatementAnchors": 230,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    }
+  },
+  "alignment": {
+    "statementCounts": [
+      18280,
+      18280
+    ],
+    "pairedStatements": 18280,
+    "samePositionComparisonAvailable": true,
+    "deletedBeforeIndexes": [],
+    "insertedAfterIndexes": [],
+    "unresolved": [],
+    "shapeChangedPairs": [
+      [
+        16561,
+        16561
+      ]
+    ],
+    "strictChangedPairs": 1,
+    "shapeStableStrictChangedPairs": 0,
+    "selectedCorrespondenceNotSemanticIdentity": true,
+    "completeMappingRule": "Every V60 statement is paired with the same V61 index; no deletion, insertion, unresolved pair or truncated zip.",
+    "ruleCheckedAgainstAllRecordedPairs": true,
+    "coverageComplete": true,
+    "alignmentReportSha256": "b168850e8b20eaa121ffba7a165a3a79e3c52237580a7f03208edd1399f2b752"
+  },
+  "anchorChurn": {
+    "prior": 230,
+    "current": 230,
+    "relocatedRetainedPairs": 230,
+    "lostAfterRelocation": 0,
+    "addedAfterRelocation": 0,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 0,
+    "orderingOnlyLostPairs": 0,
+    "actualRawEqualityGainPairs": 0,
+    "orderingOnlyAddedPairs": 0
+  },
+  "completeByteAccounting": {
+    "unchangedAlignedStatements": 18279,
+    "changedAlignedStatements": 1,
+    "deletedStatements": 0,
+    "insertedStatements": 0,
+    "onlyDifferentGapIsTerminalDebugId": true
+  },
+  "rootCompleteSelectedStaticComparisons": {
+    "shapeStableChangedSelectedStatements": 0,
+    "emptySelectionIsNotGlobalProof": true,
+    "completeTargetOwnerProviderStatements": 53,
+    "completeTargetOwnerProviderNodes": 57112,
+    "targetIdentifierNameDifferences": 10245,
+    "allNonNameFieldsAndLocalGraphsMatchUnderRecordedNominations": true
+  },
+  "censusSealSha256": "28493a338ac57fd7b3d79f5f0e12ffcba05150b41ad3567361c0afee6f569f42",
+  "censusSummarySha256": "591dd2bb15e4c42e5f1efbc3c5382b762ce32cf44e55117508f4d306e40b0b7b",
+  "censusReceiptSha256": "42d18c205530ebcaee8db9d6e1fb36e0576aa45ff26810c83062238d62cd70ec",
+  "executionResponsibility": "Root personally authored and executed full alignment, source-map joins, static comparison selection, complete-byte accounting, 53 complete owner/provider comparisons, exact R121 emission inverse, source classification and final pin checks.",
+  "independentCensusAudit": {
+    "receiptSha256": "7e22a02537dc3521b4ce9154737ff1d42f138eae7a701cb45b143f78c04ef545",
+    "sealSha256": "965466eadbe749277c8a62add265f5db501fc38da74fa00c5d2b8073f02ad63f",
+    "review": {
+      "kind": "independent-V61-global-diagnostic-census-review",
+      "verdict": "PASS bounded diagnostic census and static coverage; no acceptance closure",
+      "rootCensusSealSha256": "28493a338ac57fd7b3d79f5f0e12ffcba05150b41ad3567361c0afee6f569f42",
+      "rootReceiptSha256": "42d18c205530ebcaee8db9d6e1fb36e0576aa45ff26810c83062238d62cd70ec",
+      "candidateSealSha256": "f6486bb3cdc07fac5d17f6807745295e39859daaf988af439b45fd872675eb4d",
+      "priorTupleReviewSealSha256": "187d3d2cd3a2f3633473106d88f3299a769a009ea80c18eaaa7a7dfbe7477c87",
+      "rootExecutionReceiptSha256": "47d76989ffed29e74b88a9b1b07c239196f6bf95392d8e2f1eb45bc4fdc8e9b2",
+      "evidence": {
+        "core-results-review.json": {
+          "bytes": 1509,
+          "sha256": "a9b9068cf918d5a339deae7258d81e2ea241d54b53f232b4f3e3bb8fa8890d65"
+        },
+        "historical-obligation-ledger.json": {
+          "bytes": 1071477,
+          "sha256": "b1a824f5fb00c4ae6c72a29f865f270e148bc445238acb935e60f09c9771e219"
+        },
+        "static-replay-receipt.json": {
+          "bytes": 6421,
+          "sha256": "f2b1f840bde0d122ff7dd1e97756b929aa9e03e75a4b29363fc18d265f18de64"
+        },
+        "static-and-provenance-review.json": {
+          "bytes": 21172,
+          "sha256": "e1ead9520999e63d8e63eae11cdc90ba80bb68c322d0962c18a2beb41d29a3c7"
+        },
+        "REPORT.md": {
+          "bytes": 12335,
+          "sha256": "850de478ce55c31bef03b4f583cebcd120bb0c8b3a180a7f0737e14c1d5c9b6c"
+        }
+      },
+      "mappingCoverageSealSha256": "06ed462881ebf7348a8a743d958220e07dcfadb83cbd5ca3038d435ab6a08952",
+      "mappingCoverageReceiptSha256": "d43e6e339be940ee3fcb7749fc99c3bf56639883aef62e64090b228069dcac95",
+      "wholeStrict": {
+        "criterion": "strict-whole-program-ast-v2",
+        "parser": "acorn@8.15.0",
+        "ecmaVersion": 2026,
+        "nodes": 3110736,
+        "sha256": "89ed797c79f0bfba82a97e218b8d25af8fad7b3b5832646a6c845fe97df03699"
+      },
+      "entireStatementIndexReplayedByteIdentically": true,
+      "partitionsIndependentlyRecomputed": 38,
+      "diagnosticShapeWindows": 121,
+      "strictGaps": 216,
+      "strictExactAnchors": 230,
+      "strictAnchorChurn": 0,
+      "allExplicitPairs": 18280,
+      "samePositionAvailableIndependentlyComputed": true,
+      "onlyChangedStatement": 16561,
+      "nodeIncrease": 2,
+      "otherByteAndStrictIdenticalStatements": 18279,
+      "prefixAndAllInterstatementGapsIdentical": true,
+      "onlyTailGapChange": "debugId comment",
+      "all53CompleteTargetOwnerComparisonsReplayed": true,
+      "sourceDomains": 12,
+      "comparedNodes": 57112,
+      "rawIdentifierNameDifferences": 10245,
+      "emptyNonlocalSelectionNotGlobalBindingProof": true,
+      "historicalObligationRecords": 134,
+      "all66ProtectedRootInventoriesFreshlyRehashed": true,
+      "V60MetadataCorrectionCarried": true,
+      "generatedSourceMapRoutingVerified": true,
+      "originalSourceMapCoordinateQualification": {
+        "validityOfAllOriginalCoordinatesEstablished": false,
+        "exceptionCountEachVersion": 1,
+        "unchangedAcrossVersions": true,
+        "source": "src/utils/userAgent.ts",
+        "zeroBasedLine": 10,
+        "zeroBasedUtf16Column": 10,
+        "noSourceMapDisplacementRepair": true
+      },
+      "R091ProvenanceRestrictionRetained": true,
+      "R121HotMigrationAndRelatedPackagesRetained": true,
+      "uniqueSemanticCorrespondenceOrSupplierIdentityClaimed": false,
+      "applicationExecuted": false,
+      "compilerExecutedByReview": false,
+      "sourceBuildOrGitModified": false,
+      "wholeProgramAcceptance": false,
+      "wholeVersionAcceptance": false,
+      "runtimeAcceptance": false,
+      "transitiveProviderAcceptance": false,
+      "globalBindingAcceptance": false,
+      "globalInitializationAcceptance": false,
+      "acceptedClosures": 0
+    }
+  },
+  "independentCensusReviewHistoricalLabelCorrection": {
+    "sha256": "d059f3f6f5911ece2e7f3dd0d7b5da4bbe757703dbb465826ab83944f185da41",
+    "verificationSealSha256": "b23f7b6a343d5e46dc2198f7f3039c1e66afff0c14c835b3ebfd56fdeded2c32",
+    "verificationReceiptSha256": "f92ebb816d48b4cd8895cef7864af9b193c7ea373a7c56c3f08b67c0c826c32f",
+    "kind": "hash-bound-V61-independent-census-review-historical-label-correction",
+    "originalReviewSealSha256": "965466eadbe749277c8a62add265f5db501fc38da74fa00c5d2b8073f02ad63f",
+    "originalReviewReceiptSha256": "7e22a02537dc3521b4ce9154737ff1d42f138eae7a701cb45b143f78c04ef545",
+    "originalReportSha256": "850de478ce55c31bef03b4f583cebcd120bb0c8b3a180a7f0737e14c1d5c9b6c",
+    "affectedArtifact": "v61-census-independent-review/REPORT.md",
+    "affectedSection": "Exhaustive partitions, correspondence and historical obligations",
+    "recordedSentence": "The historical V58 helper deletion remains history, not a new V61 deletion or restored helper.",
+    "correctedSentence": "The historical V59 deletion of the isErrnoException helper at V58 statement index 11889 remains history, not a new V61 deletion or restored helper.",
+    "correctDeletionVersion": "V59",
+    "priorCoordinateVersion": "V58",
+    "priorStatementIndex": 11889,
+    "helperSourceName": "isErrnoException",
+    "evidence": {
+      "v59CensusSealSha256": "5cc28a549a682b47c5955369fe9f1d0af406a676f2ad5f9a24f2db55a6cf9bfe",
+      "v59Alignment": {
+        "path": "v59-global-census/statement-alignment.json",
+        "bytes": 8973017,
+        "sha256": "ab6944ddc9d731faee6988fb2bb64dfacf68e0df676684d34700420976996187"
+      },
+      "v59SourceClassification": {
+        "path": "v59-global-census/reviewed-source-classification.json",
+        "bytes": 62566,
+        "sha256": "a3e7be49e09ad8998b66f1ea1832a5ce34086a1b8c8ad3c7c90b86cfb7fa42fc"
+      },
+      "sourceProposalPatch": {
+        "path": "source-proposals/r069-r070-verified89-carryforward/proposal.patch",
+        "bytes": 2005,
+        "sha256": "7eed9799c449e2145a19e85f8a86ec4e764a0edbcda29cdb8b04a744900b9fdb"
+      },
+      "sourceProposalProtectedInventorySha256": "bda9298f8a5b46aceda009b43e0cd19598be07eff60bda5289bee8037cccdfa7",
+      "transitionKind": "observed-V58-V59-diagnostic-statement-correspondence",
+      "statementCounts": [
+        18281,
+        18280
+      ],
+      "deletedStatement": {
+        "beforeIndex": 11889,
+        "statement": {
+          "index": 11889,
+          "type": "FunctionDeclaration",
+          "range": [
+            9290536,
+            9290616
+          ],
+          "nodes": 19,
+          "strictSha256": "6c7d1cb9501e843d71bbc97e14946e6d7e04ff5ec37fda50a8a2bff48d42e62e",
+          "shapeSha256": "c57f8eccd48feb2cb34a82cb2d94605aab53030aa211754aa82cb04b3051abcd",
+          "identifierNamesErased": 6,
+          "protectedIdentifierOccurrences": 1
+        },
+        "owners": [
+          {
+            "sourceIndex": 3708,
+            "segments": 14,
+            "logicalOwner": "src/services/teamMemorySync/index.ts",
+            "physicalSourceSha256": "8d808458dafa4968a4660b7e7ba69b2393a134098078cad0842eab500219b3a0",
+            "bytes": 44153,
+            "mapSourcesContentMatches": true
+          }
+        ]
+      }
+    },
+    "cause": "The report conflated the prior statement coordinate version with the transition that deleted the helper.",
+    "effect": "Historical prose-label correction only. All present V61 comparisons, byte/map coverage, digests, numerical census results and the bounded diagnostic PASS remain unchanged.",
+    "sealedOriginalReviewModified": false,
+    "sourceBuildOrGitModified": false,
+    "mustAccompanyOriginalReviewAndAnyPublication": true,
+    "historicalRegionRecordsRetained": 134,
+    "R091RestrictionUnchanged": true,
+    "wholeVersionAcceptance": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "globalInitializationAcceptance": false,
+    "acceptedClosures": 0
+  },
+  "historicalCorrectionInterpretation": "The V60 append-only correction of its stale descriptive same-position flag remains historical and authenticated. V61 directly records and verifies true for all 18,280 pairs. V59 receipt-label and initial map/line-start corrections are also historical, not new V61 faults.",
+  "strictPartitionInterpretation": "All 230 anchors and all 216 strict gaps remain the same as V60. Only the R121 shape window disappears. Diagnostic window counts do not establish acceptance or observed runtime bug fixes.",
+  "emptyNonlocalSelectionIsNotGlobalProof": true,
+  "originalHistoricalResidualRecordsPreserved": 134,
+  "historicalBacklogUnmodified": true,
+  "partitionDiagnosticOnly": true,
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

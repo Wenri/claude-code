@@ -1,0 +1,71 @@
+{
+  "kind": "R121-complete-accepted89-memo-dependency-source-provenance",
+  "sourceProposalManifestSha256": "bdd47ececebdafed90b49ad73eccc7c127aa9862412b5c9079c8d63efbd33cd1",
+  "sourcePath": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx",
+  "priorSha256": "a179d194dd60ff85df61067a22b1660b5ca779a53f16d02a274cbba47a99528a",
+  "proposedSha256": "403504552e36817115c0c8607542988cbe23862a1d19d5a33e81876cc0a782eb",
+  "priorBytes": 75744,
+  "proposedBytes": 75782,
+  "donor": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "member": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx",
+    "gitBlob": "eb8b6e89cac728bfdfe25978205118475b28e362"
+  },
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "unchangedDirectProviders": [
+    {
+      "path": "src/components/permissions/useShellPermissionFeedback.ts",
+      "bytes": 4605,
+      "sha256": "c0ce2e4e35173baf3e83a636bbffcddf8c4e3e1e2f7c801ab82c8e241ad95f51"
+    },
+    {
+      "path": "src/components/permissions/BashPermissionRequest/bashToolUseOptions.tsx",
+      "bytes": 21446,
+      "sha256": "9abdbb42013018fa18959a766a9d1b84cb6bdb4be504fa3f646f1d060d9b1c58"
+    },
+    {
+      "path": "src/components/CustomSelect/select.tsx",
+      "bytes": 115187,
+      "sha256": "34951e215b1a4727235c4025e8458009f460023382155372f996540599e592b0"
+    },
+    {
+      "path": "node_modules/react/cjs/react.production.js",
+      "bytes": 17217,
+      "sha256": "ae0aae9b31dcccfc8b194dc6ab1cc9cc4525e25b887d10cc22ae4f8fbd2482cc"
+    }
+  ],
+  "providerInventoryAuthentication": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "profilePath": "recovery/checkpoints/2.1.89/v45/profile.json",
+    "profileSha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120"
+  },
+  "verifiedDuringExport": "The committed accepted V45 source overlay is authenticated and its complete BashPermissionRequest member equals the V61 postimage. All four directly pinned provider/consumer files are unchanged from public V60 and match the committed V45 profile source-file pins.",
+  "sourceHunks": [
+    "Append setAcceptFeedback and setRejectFeedback, in that order, to the existing eight-entry options useMemo dependency array. The factory, imports, hook order, callbacks and permission-setting operations are unchanged."
+  ],
+  "dependencyCounts": {
+    "prior": 8,
+    "current": 10
+  },
+  "sourceReviewSealSha256": "66d97083b93b456d70d479fae14223cf967c1d71bb8ad583a61900adc1c6f711",
+  "tupleReviewSealSha256": "187d3d2cd3a2f3633473106d88f3299a769a009ea80c18eaaa7a7dfbe7477c87",
+  "historicalInlineMap": {
+    "preservedByteIdenticallyFromPublishedBaseline": true,
+    "sourceMapCommentSha256": "415bba138dc66882d29231e0ac9ad51e5773bdba9b3cad1312c8e5df1711e101",
+    "freshV61EmissionEvidence": false,
+    "interpretation": "The accepted source contains an existing inline map comment. It is preserved as literal source metadata, not regenerated or treated as current source attribution."
+  },
+  "constructionResponsibility": "The primary recovery author inspected the full component body, memo factory, feedback hook, options factory, selection handlers and rendered Select consumer, authored/applied the one-hunk repair, and ran the diagnostic build plus complete static/census checks. The complete additional consumer and renderer review is supporting independent work; no personal manual review of every branch is claimed. This packaging performs only data comparison and copying.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "The change adds reads of two existing lexical setters, not provider property reads or permission actions. Stable setter identity is bounded to the same authentic mounted React state-hook queue. The production memo comparison uses only the common array prefix: an eight-to-ten hot update with equal original entries can repeatedly retain the old options and old eight-entry array. Fresh ten-entry mount behavior is not a hot-migration guarantee. The captured setClassifierDescription remains omitted by exact donor construction; no exhaustive dependency correctness is claimed. Provider/dispatcher substitution, invalid returns, Object.is replacement, memo/cache discard, remount/retry/reentry, option identity and Select navigation/callback effects remain boundaries. Accepted .89 provenance is not .90 acceptance.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

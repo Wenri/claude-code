@@ -1,0 +1,98 @@
+{
+  "version": "2.1.90",
+  "candidate": "V61",
+  "state": "incomplete source-only checkpoint",
+  "sourceExportDate": "2026-10-11",
+  "candidateIdentity": "V61-R121-permission-deps-source-preparation",
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50693551,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "40a96d66a0f8c17fb75bd0a682588c7fac0d2e9331a4f84906e5b839a4e7195a",
+  "derivedSrcTree": "60bac5cfe6e2c72cd08dc8c3f86e51c9cc662119",
+  "sourceFilesChangedFromPublishedV60": 1,
+  "byteIdenticalInheritedSourceFiles": 6113,
+  "historicalResidualRecordsPreserved": 134,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 121,
+  "priorV60ShapeDiagnosticWindows": 122,
+  "strictDiagnosticGaps": 216,
+  "exactStatementAnchors": 230,
+  "anchorChurn": {
+    "prior": 230,
+    "current": 230,
+    "relocatedRetainedPairs": 230,
+    "lostAfterRelocation": 0,
+    "addedAfterRelocation": 0,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 0,
+    "orderingOnlyLostPairs": 0,
+    "actualRawEqualityGainPairs": 0,
+    "orderingOnlyAddedPairs": 0
+  },
+  "statementCounts": [
+    18280,
+    18280
+  ],
+  "shapeChangedPairs": [
+    [
+      16561,
+      16561
+    ]
+  ],
+  "shapeStableStrictChangedPairs": 0,
+  "unchangedOtherStatementBytes": 18279,
+  "newStructurallyRepairedOwnerRegions": [
+    "R121"
+  ],
+  "inheritedStructurallyRepairedOwnerRegions": [
+    "R018",
+    "R019",
+    "R051",
+    "R059",
+    "R067",
+    "R069",
+    "R070",
+    "R098",
+    "R099",
+    "R101",
+    "R102",
+    "R129"
+  ],
+  "acceptedRegionClosures": 0,
+  "strictWholeProgramAstEqual": false,
+  "strictOwnerNamesEqual": false,
+  "inheritedV60BidiShorthandMismatchRetained": true,
+  "r17BidiShorthandSideEffectRetained": true,
+  "genericNormalizationApplied": false,
+  "emptyNonlocalSelectionIsNotGlobalProof": true,
+  "r091UnchangedAndDeferred": true,
+  "r091SourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+  "sourceOnlySnapshot": true,
+  "allSealedSourceInputsIncluded": true,
+  "standaloneBuildPackage": false,
+  "freshDiagnosticBuildRecorded": true,
+  "compilerExecutedDuringExport": false,
+  "applicationExecutedDuringExport": false,
+  "officialTargetUsedForSourceRestoration": false,
+  "originalSourceAuthorshipClaim": false,
+  "originalPartitionGeneratorRecovered": false,
+  "compatibilityPartitionExactlyReproducesPriorV52ThroughV60": true,
+  "historicalGaps": [
+    "Trial59 and Trial60 historical source maps remain unavailable.",
+    "Original Trial61 evidence remains lost."
+  ],
+  "workResponsibility": "The primary recovery author personally authored/applied the one-hunk repair, executed five diagnostic stages and complete owner/static/census checks. Independent reviews and data-only packaging provide support.",
+  "limits": [
+    "The common-prefix memo comparison can retain old options and an old eight-entry dependency array through repeated eight-to-ten hot updates. Fresh-mount behavior is a separate domain.",
+    "The captured classifier setter remains omitted by exact donor construction. No exhaustive dependency correctness or observed runtime bug fix is claimed.",
+    "Permission callbacks, supplier/dispatcher identity, cache and state lifetimes, related permission-package obligations and global initialization remain unaccepted.",
+    "Earlier source-map coordinate, bidi, parser, provider and runtime limitations remain open."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

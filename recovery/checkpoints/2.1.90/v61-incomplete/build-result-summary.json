@@ -1,0 +1,95 @@
+{
+  "kind": "public-data-only-summary-of-recorded-fresh-V61-diagnostic-build",
+  "recordedBuildCompletedAt": "2026-10-11T21:59:13.819464+00:00",
+  "candidateIdentity": "V61-R121-permission-deps-source-preparation",
+  "executionReceiptSha256": "47d76989ffed29e74b88a9b1b07c239196f6bf95392d8e2f1eb45bc4fdc8e9b2",
+  "stages": [
+    {
+      "step": "preflight",
+      "exitCode": 0
+    },
+    {
+      "step": "compile",
+      "exitCode": 0
+    },
+    {
+      "step": "finalize",
+      "exitCode": 0
+    },
+    {
+      "step": "strictAst",
+      "exitCode": 0
+    },
+    {
+      "step": "index",
+      "exitCode": 0
+    }
+  ],
+  "allFiveSerialStagesExitZero": true,
+  "recordedExecutionOwner": "primary assistant personally executed and checked the five serial stages",
+  "workResponsibility": "The primary recovery author personally authored and applied R121 and ran the five build/diagnostic stages. Independent support covered source/tuple/emission review and this source-only packaging. Packaging performs no source edits, build or application execution.",
+  "sourceProfileRuntimeAndOriginalsUnchangedDuringRecordedBuild": true,
+  "profileSha256": "e89f582287738165d4b5b4a7d6bf655ec00b36cc2ba48e269729ccea110cc020",
+  "toolchainSha256": "a4877baed3d3e14841e6593d725c693b2140ca6bed13c2d8e0e0c91ed709111e",
+  "compileReportSha256": "ee2d11462715b560dbea99016020d0f29285dd2cc27a7f0dd4afb4bd17c99c1d",
+  "sourceManifestSha256": "40a96d66a0f8c17fb75bd0a682588c7fac0d2e9331a4f84906e5b839a4e7195a",
+  "candidatePreparationSealSha256": "f6486bb3cdc07fac5d17f6807745295e39859daaf988af439b45fd872675eb4d",
+  "reconstructionReceiptEvents": 41,
+  "removedMarkerImports": 11,
+  "outputPins": [
+    {
+      "label": "rawJavaScript",
+      "bytes": 13126747,
+      "sha256": "32160b111cf5915855cbb2da1b0997d410d6f77643dd079fedd03f2b4ccfb07b",
+      "included": false
+    },
+    {
+      "label": "rawSourceMap",
+      "bytes": 58789745,
+      "sha256": "ecc61c9bda63585b47ff8385f3dd230473373b287983d0312d4992003da7b9cd",
+      "included": false
+    },
+    {
+      "label": "finalJavaScript",
+      "bytes": 13126530,
+      "sha256": "89665c3e1eb439ef66d62817d83b9f3c75163b2d1831986c92af226fb514e22c",
+      "included": false
+    },
+    {
+      "label": "finalSourceMap",
+      "bytes": 58760892,
+      "sha256": "bbb46734dd12c06cac80be3f9a26ced54dd4336e6d2fb7f52871d501294ba21d",
+      "included": false
+    }
+  ],
+  "candidateStatementIndex": {
+    "bytes": 5604108,
+    "sha256": "b14b02dee3ed72839c2c5f542b684beb6736adac38c44834ec1a1039958dfb37",
+    "nodes": 3110736,
+    "statements": 18280,
+    "diagnosticOnly": true
+  },
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110736,
+    "sha256": "89ed797c79f0bfba82a97e218b8d25af8fad7b3b5832646a6c845fe97df03699"
+  },
+  "officialTargetStrictAst": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "officialTargetCompilerFinalizerOrNamerInput": false,
+  "targetIsolation": "Command/tool-code input segregation; not an OS-enforced read sandbox.",
+  "applicationExecuted": false,
+  "recoveredCallbacksHooksOrNativeApplicationExecuted": false,
+  "packageInstallExecuted": false,
+  "compilerExecutedDuringThisExport": false,
+  "applicationExecutedDuringThisExport": false,
+  "standaloneBuildPackage": false,
+  "allGeneratedOutputsIncluded": false,
+  "chronology": "This summarizes the recorded build, followed by separate complete-owner reviews and the fresh census summarized alongside it. The original build receipt predates those reviews and census. This export itself ran data checks only.",
+  "reproductionLimit": "Compiler/runtime reconstruction tools, full profiles, official target, generated JS/maps and original detailed execution reports are not included. This is a source checkpoint and bounded result summary, not independent build or emission-review reproduction."
+}
