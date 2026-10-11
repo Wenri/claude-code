@@ -1,0 +1,92 @@
+{
+  "kind": "public-data-only-summary-of-recorded-fresh-V55-diagnostic-build",
+  "recordedBuildCompletedAt": "2026-10-11T19:36:49.445414+00:00",
+  "executionReceiptSha256": "e4164077ff532e715684fe9e7bb08dbcdfb4208147095dc9aa523c4f6c40d199",
+  "stages": [
+    {
+      "step": "preflight",
+      "exitCode": 0
+    },
+    {
+      "step": "compile",
+      "exitCode": 0
+    },
+    {
+      "step": "finalize",
+      "exitCode": 0
+    },
+    {
+      "step": "strictAst",
+      "exitCode": 0
+    },
+    {
+      "step": "index",
+      "exitCode": 0
+    }
+  ],
+  "allFiveSerialStagesExitZero": true,
+  "sourceProfileRuntimeAndOriginalsUnchangedDuringRecordedBuild": true,
+  "profileSha256": "0058697c06ad43cda906dfdea6b9a55bb6b6192abd04e89d8d41f3a03a258ffa",
+  "toolchainSha256": "0ec7fc8cfb580a25987e58da716bca46fc2d06b0abd1e3aa119d49bbebf13370",
+  "compileReportSha256": "46ff198d40adbb092ca07c0244379d09f8b5f815c12fe9ba27f587c44e3b7dbb",
+  "sourceManifestSha256": "788e432e7c4231dbe0141c341c9346306c6f526207f9b7f6b967651e3b8c40dd",
+  "candidatePreparationSealSha256": "9850b572aa047608ff18daa8059ebcbe544a7b85842ce770ab01925a49b77d2e",
+  "reconstructionReceiptEvents": 41,
+  "removedMarkerImports": 11,
+  "outputPins": [
+    {
+      "label": "rawJavaScript",
+      "bytes": 13126686,
+      "sha256": "a9851325b3f2697efc7000b0aaa1ca72fdb65a0c9f7c93e8a8bb13268e6b11ae",
+      "included": false
+    },
+    {
+      "label": "rawSourceMap",
+      "bytes": 58789675,
+      "sha256": "254dacf385ea561d2e2b52b106fb1092f6259fce32aca86d97d85de675b51353",
+      "included": false
+    },
+    {
+      "label": "finalJavaScript",
+      "bytes": 13126469,
+      "sha256": "d407240817a90282e049d4c8b8ac6491a9fcff5df3e06f56f9c2af07eedd3a0e",
+      "included": false
+    },
+    {
+      "label": "finalSourceMap",
+      "bytes": 58760822,
+      "sha256": "3a8d8000f02028e9d11e96726c8f6541e146e972e0f14c236cdd8dc0c49737d0",
+      "included": false
+    }
+  ],
+  "candidateStatementIndex": {
+    "bytes": 5604410,
+    "sha256": "168d31aa0b6f959000bfd2238b7b881327bb7c0a0b8c1f5b50f24538d52b8478",
+    "nodes": 3110723,
+    "statements": 18281,
+    "diagnosticOnly": true
+  },
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110723,
+    "sha256": "7ee146e1fc9d210692eca3c9fab2a56c87489958acc267efbff448aa8ce0862d"
+  },
+  "officialTargetStrictAst": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "officialTargetCompilerFinalizerOrNamerInput": false,
+  "targetIsolation": "Command/tool-code input segregation; not an OS-enforced read sandbox.",
+  "applicationExecuted": false,
+  "recoveredCallbacksHooksOrNativeApplicationExecuted": false,
+  "packageInstallExecuted": false,
+  "compilerExecutedDuringThisExport": false,
+  "applicationExecutedDuringThisExport": false,
+  "standaloneBuildPackage": false,
+  "allGeneratedOutputsIncluded": false,
+  "chronology": "This summarizes the recorded build, followed by separate complete-owner reviews and the fresh census summarized alongside it. The original build receipt predates those reviews and census. This export itself ran data checks only.",
+  "reproductionLimit": "Compiler/runtime reconstruction tools, full profiles, official target, generated JS/maps and original detailed execution reports are not included. This is a source checkpoint and bounded result summary, not independent build or emission-review reproduction."
+}

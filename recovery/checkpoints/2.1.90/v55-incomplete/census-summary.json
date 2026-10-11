@@ -1,0 +1,1537 @@
+{
+  "criterion": "strict-whole-program-ast-v2",
+  "wholeStrict": {
+    "target": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110206,
+      "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+    },
+    "v52": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110695,
+      "sha256": "7ddad7606144d6d680a2a6213b0b7163c903753150bb1e56dccdb380a083c1ca"
+    },
+    "v53": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110731,
+      "sha256": "376a6149e75bb9318455518a9c0f285715d8c8a567633acbb4ff580f8c137ddf"
+    },
+    "v54": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110727,
+      "sha256": "fc97b4cb4220753666ddabc17659ad55cc6f82b4a3174fd375c06982b6921436"
+    },
+    "v55": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110723,
+      "sha256": "7ee146e1fc9d210692eca3c9fab2a56c87489958acc267efbff448aa8ce0862d"
+    }
+  },
+  "targetV55StrictEqual": false,
+  "compatibilityGenerator": {
+    "method": "Python difflib.SequenceMatcher on authenticated statement digests, autojunk=False",
+    "historicalGeneratingScriptRecovered": false,
+    "all134HistoricalV52ShapeWindowsAnd18122MatchedPairsReproduced": true,
+    "all132V53ShapeWindowsAndExactMatchedPairsReproduced": true,
+    "V52AndV53StrictDiagnosticPartitionsReproduced": true,
+    "all130V54ShapeWindowsAndCompleteShapeAndStrictPartitionsReproduced": true,
+    "acceptanceNormalizationApplied": false
+  },
+  "diagnosticShapeWindowCounts": {
+    "v52": 134,
+    "v53": 132,
+    "v54": 130,
+    "v55": 129
+  },
+  "strictDiagnosticPartition": {
+    "v52": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v53": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v54": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    },
+    "v55": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    }
+  },
+  "comparisonAgainstPriorCensuses": {
+    "v52": {
+      "priorShapeWindows": 134,
+      "currentShapeWindows": 129,
+      "disappearedPriorWindowIndexes": [
+        18,
+        67,
+        101,
+        102,
+        129
+      ],
+      "disappearedHistoricalWindowIds": [
+        18,
+        67,
+        101,
+        102,
+        129
+      ],
+      "newTargetWindowIndexes": [],
+      "priorMatchedShapeStatements": 18122,
+      "currentMatchedShapeStatements": 18127,
+      "lostPriorMatchedShapePairs": [],
+      "addedMatchedShapePairs": [
+        [
+          5825,
+          5829
+        ],
+        [
+          11868,
+          11872
+        ],
+        [
+          14335,
+          14340
+        ],
+        [
+          14350,
+          14355
+        ],
+        [
+          17275,
+          17281
+        ]
+      ],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 206,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 213,
+      "lostPriorExactPairs": [
+        [
+          17,
+          32
+        ],
+        [
+          166,
+          166
+        ],
+        [
+          289,
+          304
+        ],
+        [
+          340,
+          322
+        ],
+        [
+          477,
+          477
+        ],
+        [
+          680,
+          685
+        ],
+        [
+          720,
+          711
+        ],
+        [
+          748,
+          748
+        ],
+        [
+          812,
+          806
+        ],
+        [
+          1379,
+          1379
+        ],
+        [
+          1860,
+          1860
+        ],
+        [
+          3406,
+          3409
+        ],
+        [
+          3724,
+          3727
+        ],
+        [
+          3857,
+          3860
+        ],
+        [
+          4082,
+          4100
+        ],
+        [
+          4091,
+          4102
+        ],
+        [
+          4185,
+          4188
+        ],
+        [
+          4613,
+          4616
+        ],
+        [
+          4767,
+          4770
+        ],
+        [
+          4972,
+          4975
+        ],
+        [
+          5036,
+          5039
+        ],
+        [
+          6072,
+          6076
+        ],
+        [
+          6118,
+          6122
+        ],
+        [
+          6731,
+          6735
+        ],
+        [
+          7090,
+          7094
+        ],
+        [
+          7639,
+          7646
+        ],
+        [
+          7644,
+          7651
+        ],
+        [
+          7661,
+          7667
+        ],
+        [
+          7808,
+          7814
+        ],
+        [
+          7882,
+          7888
+        ],
+        [
+          8235,
+          8241
+        ],
+        [
+          8236,
+          8242
+        ],
+        [
+          8270,
+          8276
+        ],
+        [
+          8276,
+          8282
+        ],
+        [
+          8327,
+          8333
+        ],
+        [
+          8363,
+          8368
+        ],
+        [
+          8395,
+          8400
+        ],
+        [
+          8424,
+          8429
+        ],
+        [
+          8432,
+          8440
+        ],
+        [
+          8445,
+          8450
+        ],
+        [
+          8516,
+          8500
+        ],
+        [
+          8526,
+          8531
+        ],
+        [
+          8600,
+          8605
+        ],
+        [
+          8719,
+          8724
+        ],
+        [
+          8814,
+          8818
+        ],
+        [
+          8821,
+          8825
+        ],
+        [
+          8850,
+          8854
+        ],
+        [
+          8911,
+          8915
+        ],
+        [
+          8971,
+          8978
+        ],
+        [
+          8999,
+          9003
+        ],
+        [
+          9007,
+          9011
+        ],
+        [
+          9136,
+          9140
+        ],
+        [
+          9398,
+          9402
+        ],
+        [
+          9406,
+          9410
+        ],
+        [
+          9625,
+          9623
+        ],
+        [
+          9650,
+          9654
+        ],
+        [
+          9685,
+          9689
+        ],
+        [
+          9707,
+          9711
+        ],
+        [
+          9717,
+          9721
+        ],
+        [
+          9718,
+          9722
+        ],
+        [
+          9722,
+          9726
+        ],
+        [
+          9724,
+          9728
+        ],
+        [
+          9746,
+          9750
+        ],
+        [
+          9756,
+          9760
+        ],
+        [
+          9762,
+          9766
+        ],
+        [
+          9775,
+          9779
+        ],
+        [
+          9782,
+          9786
+        ],
+        [
+          9843,
+          9847
+        ],
+        [
+          9911,
+          9884
+        ],
+        [
+          9956,
+          9960
+        ],
+        [
+          9970,
+          9974
+        ],
+        [
+          10031,
+          10035
+        ],
+        [
+          10055,
+          10059
+        ],
+        [
+          10080,
+          10084
+        ],
+        [
+          10096,
+          10100
+        ],
+        [
+          10122,
+          10126
+        ],
+        [
+          10141,
+          13036
+        ],
+        [
+          15540,
+          15545
+        ],
+        [
+          15563,
+          15569
+        ],
+        [
+          15589,
+          15595
+        ],
+        [
+          15752,
+          15758
+        ],
+        [
+          16211,
+          16216
+        ],
+        [
+          16399,
+          16453
+        ],
+        [
+          16509,
+          16514
+        ],
+        [
+          17715,
+          17721
+        ],
+        [
+          17768,
+          17754
+        ],
+        [
+          17775,
+          17767
+        ]
+      ],
+      "newExactPairs": [
+        [
+          31,
+          31
+        ],
+        [
+          103,
+          103
+        ],
+        [
+          127,
+          127
+        ],
+        [
+          160,
+          160
+        ],
+        [
+          209,
+          209
+        ],
+        [
+          257,
+          257
+        ],
+        [
+          295,
+          295
+        ],
+        [
+          322,
+          322
+        ],
+        [
+          340,
+          340
+        ],
+        [
+          380,
+          380
+        ],
+        [
+          428,
+          428
+        ],
+        [
+          433,
+          433
+        ],
+        [
+          436,
+          436
+        ],
+        [
+          446,
+          446
+        ],
+        [
+          460,
+          460
+        ],
+        [
+          479,
+          479
+        ],
+        [
+          508,
+          508
+        ],
+        [
+          513,
+          513
+        ],
+        [
+          538,
+          538
+        ],
+        [
+          553,
+          553
+        ],
+        [
+          594,
+          594
+        ],
+        [
+          680,
+          687
+        ],
+        [
+          704,
+          704
+        ],
+        [
+          711,
+          711
+        ],
+        [
+          720,
+          720
+        ],
+        [
+          739,
+          739
+        ],
+        [
+          806,
+          806
+        ],
+        [
+          812,
+          812
+        ],
+        [
+          1050,
+          1050
+        ],
+        [
+          1051,
+          1051
+        ],
+        [
+          1237,
+          1237
+        ],
+        [
+          1289,
+          1289
+        ],
+        [
+          1938,
+          1938
+        ],
+        [
+          2005,
+          2005
+        ],
+        [
+          2116,
+          2116
+        ],
+        [
+          2412,
+          2412
+        ],
+        [
+          2418,
+          2418
+        ],
+        [
+          2450,
+          2450
+        ],
+        [
+          2469,
+          2469
+        ],
+        [
+          2563,
+          2562
+        ],
+        [
+          3210,
+          3213
+        ],
+        [
+          4081,
+          4084
+        ],
+        [
+          4082,
+          4102
+        ],
+        [
+          4326,
+          4329
+        ],
+        [
+          4451,
+          4454
+        ],
+        [
+          4586,
+          4589
+        ],
+        [
+          5350,
+          5354
+        ],
+        [
+          6597,
+          6601
+        ],
+        [
+          6626,
+          6630
+        ],
+        [
+          6653,
+          6657
+        ],
+        [
+          6730,
+          6734
+        ],
+        [
+          6952,
+          6956
+        ],
+        [
+          7901,
+          7907
+        ],
+        [
+          8395,
+          8531
+        ],
+        [
+          8557,
+          8562
+        ],
+        [
+          8567,
+          13648
+        ],
+        [
+          16211,
+          16220
+        ],
+        [
+          16423,
+          16428
+        ],
+        [
+          17691,
+          17697
+        ],
+        [
+          17715,
+          17772
+        ],
+        [
+          17773,
+          17779
+        ],
+        [
+          17832,
+          17838
+        ]
+      ]
+    },
+    "v53": {
+      "priorShapeWindows": 132,
+      "currentShapeWindows": 129,
+      "disappearedPriorWindowIndexes": [
+        18,
+        67,
+        127
+      ],
+      "disappearedHistoricalWindowIds": [
+        18,
+        67,
+        129
+      ],
+      "newTargetWindowIndexes": [],
+      "priorMatchedShapeStatements": 18124,
+      "currentMatchedShapeStatements": 18127,
+      "lostPriorMatchedShapePairs": [],
+      "addedMatchedShapePairs": [
+        [
+          5825,
+          5829
+        ],
+        [
+          11868,
+          11872
+        ],
+        [
+          17275,
+          17281
+        ]
+      ],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 206,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 213,
+      "lostPriorExactPairs": [
+        [
+          17,
+          32
+        ],
+        [
+          166,
+          166
+        ],
+        [
+          289,
+          304
+        ],
+        [
+          340,
+          322
+        ],
+        [
+          477,
+          477
+        ],
+        [
+          680,
+          685
+        ],
+        [
+          720,
+          711
+        ],
+        [
+          748,
+          748
+        ],
+        [
+          812,
+          806
+        ],
+        [
+          1379,
+          1379
+        ],
+        [
+          1860,
+          1860
+        ],
+        [
+          3406,
+          3409
+        ],
+        [
+          3724,
+          3727
+        ],
+        [
+          3857,
+          3860
+        ],
+        [
+          4082,
+          4100
+        ],
+        [
+          4091,
+          4102
+        ],
+        [
+          4185,
+          4188
+        ],
+        [
+          4613,
+          4616
+        ],
+        [
+          4767,
+          4770
+        ],
+        [
+          4972,
+          4975
+        ],
+        [
+          5036,
+          5039
+        ],
+        [
+          6072,
+          6076
+        ],
+        [
+          6118,
+          6122
+        ],
+        [
+          6731,
+          6735
+        ],
+        [
+          7090,
+          7094
+        ],
+        [
+          7639,
+          7646
+        ],
+        [
+          7644,
+          7651
+        ],
+        [
+          7661,
+          7667
+        ],
+        [
+          7808,
+          7814
+        ],
+        [
+          7882,
+          7888
+        ],
+        [
+          8235,
+          8241
+        ],
+        [
+          8236,
+          8242
+        ],
+        [
+          8270,
+          8276
+        ],
+        [
+          8276,
+          8282
+        ],
+        [
+          8327,
+          8333
+        ],
+        [
+          8363,
+          8368
+        ],
+        [
+          8395,
+          8400
+        ],
+        [
+          8424,
+          8429
+        ],
+        [
+          8432,
+          8440
+        ],
+        [
+          8445,
+          8450
+        ],
+        [
+          8516,
+          8500
+        ],
+        [
+          8526,
+          8531
+        ],
+        [
+          8600,
+          8605
+        ],
+        [
+          8719,
+          8724
+        ],
+        [
+          8814,
+          8818
+        ],
+        [
+          8821,
+          8825
+        ],
+        [
+          8850,
+          8854
+        ],
+        [
+          8911,
+          8915
+        ],
+        [
+          8971,
+          8978
+        ],
+        [
+          8999,
+          9003
+        ],
+        [
+          9007,
+          9011
+        ],
+        [
+          9136,
+          9140
+        ],
+        [
+          9398,
+          9402
+        ],
+        [
+          9406,
+          9410
+        ],
+        [
+          9625,
+          9623
+        ],
+        [
+          9650,
+          9654
+        ],
+        [
+          9685,
+          9689
+        ],
+        [
+          9707,
+          9711
+        ],
+        [
+          9717,
+          9721
+        ],
+        [
+          9718,
+          9722
+        ],
+        [
+          9722,
+          9726
+        ],
+        [
+          9724,
+          9728
+        ],
+        [
+          9746,
+          9750
+        ],
+        [
+          9756,
+          9760
+        ],
+        [
+          9762,
+          9766
+        ],
+        [
+          9775,
+          9779
+        ],
+        [
+          9782,
+          9786
+        ],
+        [
+          9843,
+          9847
+        ],
+        [
+          9911,
+          9884
+        ],
+        [
+          9956,
+          9960
+        ],
+        [
+          9970,
+          9974
+        ],
+        [
+          10031,
+          10035
+        ],
+        [
+          10055,
+          10059
+        ],
+        [
+          10080,
+          10084
+        ],
+        [
+          10096,
+          10100
+        ],
+        [
+          10122,
+          10126
+        ],
+        [
+          10141,
+          13036
+        ],
+        [
+          15540,
+          15545
+        ],
+        [
+          15563,
+          15569
+        ],
+        [
+          15589,
+          15595
+        ],
+        [
+          15752,
+          15758
+        ],
+        [
+          16211,
+          16216
+        ],
+        [
+          16399,
+          16453
+        ],
+        [
+          16509,
+          16514
+        ],
+        [
+          17715,
+          17721
+        ],
+        [
+          17768,
+          17754
+        ],
+        [
+          17775,
+          17767
+        ]
+      ],
+      "newExactPairs": [
+        [
+          31,
+          31
+        ],
+        [
+          103,
+          103
+        ],
+        [
+          127,
+          127
+        ],
+        [
+          160,
+          160
+        ],
+        [
+          209,
+          209
+        ],
+        [
+          257,
+          257
+        ],
+        [
+          295,
+          295
+        ],
+        [
+          322,
+          322
+        ],
+        [
+          340,
+          340
+        ],
+        [
+          380,
+          380
+        ],
+        [
+          428,
+          428
+        ],
+        [
+          433,
+          433
+        ],
+        [
+          436,
+          436
+        ],
+        [
+          446,
+          446
+        ],
+        [
+          460,
+          460
+        ],
+        [
+          479,
+          479
+        ],
+        [
+          508,
+          508
+        ],
+        [
+          513,
+          513
+        ],
+        [
+          538,
+          538
+        ],
+        [
+          553,
+          553
+        ],
+        [
+          594,
+          594
+        ],
+        [
+          680,
+          687
+        ],
+        [
+          704,
+          704
+        ],
+        [
+          711,
+          711
+        ],
+        [
+          720,
+          720
+        ],
+        [
+          739,
+          739
+        ],
+        [
+          806,
+          806
+        ],
+        [
+          812,
+          812
+        ],
+        [
+          1050,
+          1050
+        ],
+        [
+          1051,
+          1051
+        ],
+        [
+          1237,
+          1237
+        ],
+        [
+          1289,
+          1289
+        ],
+        [
+          1938,
+          1938
+        ],
+        [
+          2005,
+          2005
+        ],
+        [
+          2116,
+          2116
+        ],
+        [
+          2412,
+          2412
+        ],
+        [
+          2418,
+          2418
+        ],
+        [
+          2450,
+          2450
+        ],
+        [
+          2469,
+          2469
+        ],
+        [
+          2563,
+          2562
+        ],
+        [
+          3210,
+          3213
+        ],
+        [
+          4081,
+          4084
+        ],
+        [
+          4082,
+          4102
+        ],
+        [
+          4326,
+          4329
+        ],
+        [
+          4451,
+          4454
+        ],
+        [
+          4586,
+          4589
+        ],
+        [
+          5350,
+          5354
+        ],
+        [
+          6597,
+          6601
+        ],
+        [
+          6626,
+          6630
+        ],
+        [
+          6653,
+          6657
+        ],
+        [
+          6730,
+          6734
+        ],
+        [
+          6952,
+          6956
+        ],
+        [
+          7901,
+          7907
+        ],
+        [
+          8395,
+          8531
+        ],
+        [
+          8557,
+          8562
+        ],
+        [
+          8567,
+          13648
+        ],
+        [
+          16211,
+          16220
+        ],
+        [
+          16423,
+          16428
+        ],
+        [
+          17691,
+          17697
+        ],
+        [
+          17715,
+          17772
+        ],
+        [
+          17773,
+          17779
+        ],
+        [
+          17832,
+          17838
+        ]
+      ]
+    },
+    "v54": {
+      "priorShapeWindows": 130,
+      "currentShapeWindows": 129,
+      "disappearedPriorWindowIndexes": [
+        66
+      ],
+      "disappearedHistoricalWindowIds": [
+        67
+      ],
+      "newTargetWindowIndexes": [],
+      "priorMatchedShapeStatements": 18126,
+      "currentMatchedShapeStatements": 18127,
+      "lostPriorMatchedShapePairs": [],
+      "addedMatchedShapePairs": [
+        [
+          11868,
+          11872
+        ]
+      ],
+      "priorStrictGaps": 206,
+      "currentStrictGaps": 206,
+      "priorStrictExactStatementAnchors": 213,
+      "currentStrictExactStatementAnchors": 213,
+      "lostPriorExactPairs": [],
+      "newExactPairs": []
+    }
+  },
+  "v52ToV55": {
+    "statementCounts": [
+      18281,
+      18281
+    ],
+    "samePositionComparisonAvailable": true,
+    "shapeChangedIndexes": [
+      5582,
+      5829,
+      11872,
+      14340,
+      14355,
+      17281
+    ],
+    "strictDifferenceWindows": 3045,
+    "strictExactStatementAnchors": 10910,
+    "allGlobalBindingAndRuntimeEffectsUnaccepted": true
+  },
+  "v53ToV55": {
+    "statementCounts": [
+      18281,
+      18281
+    ],
+    "samePositionComparisonAvailable": true,
+    "shapeChangedIndexes": [
+      5829,
+      11872,
+      17281
+    ],
+    "strictDifferenceWindows": 3076,
+    "strictExactStatementAnchors": 12636,
+    "allGlobalBindingAndRuntimeEffectsUnaccepted": true
+  },
+  "v54ToV55": {
+    "statementCounts": [
+      18281,
+      18281
+    ],
+    "samePositionComparisonAvailable": true,
+    "shapeChangedIndexes": [
+      11872
+    ],
+    "strictDifferenceWindows": 1,
+    "strictExactStatementAnchors": 18280,
+    "allGlobalBindingAndRuntimeEffectsUnaccepted": true
+  },
+  "samePositionStrictChangeCounts": {
+    "v52": 7371,
+    "v53": 5645,
+    "v54": 1
+  },
+  "shapeStableStrictChangeCounts": {
+    "v52": 7365,
+    "v53": 5642,
+    "v54": 0
+  },
+  "nonlocalShapeChangeIndexesFromV54": [],
+  "nonlocalShapeChangesReviewRequired": false,
+  "nominationStatusCounts": {
+    "unique_outside_ordered_partition": 19,
+    "unmatched": 264,
+    "ambiguous_multiple": 19
+  },
+  "unmappedSelectedStatements": [
+    8763,
+    8764,
+    17894
+  ],
+  "priorV54SelectedSourceOwnerComparisons": 159,
+  "priorV54SelectedSourceOwnerSetChanges": [],
+  "sourceMapPhysicalOwnersAuthenticated": 4789,
+  "interpretation": [
+    "Shape windows and strict diagnostic gaps are partition results, never accepted closures or bug counts.",
+    "Raw strict AST equality is unchanged as the whole-program acceptance criterion.",
+    "Unmatched, ambiguous and unmapped items remain explicit. Source-map contribution does not establish unique semantic ownership.",
+    "Global compiler name/binding allocation effects remain unaccepted even where shape digests agree.",
+    "Actual complete R067 emission review is separate. Retain all inherited provider, state, reflective and initialization limits."
+  ],
+  "regionClosuresAccepted": 0,
+  "kind": "public-fresh-V55-global-diagnostic-census-summary",
+  "censusSealSha256": "606a02dd6c8d1f12bbfc7f94368bf81b761b3027f5df7fecddea48f11eee968b",
+  "censusSummarySha256": "d91cbfa513f78cd6524698c0243c48a4f9ed65b65cb390be63e7220e96d1bd71",
+  "censusReceiptSha256": "a6eeba5926a2dbd67f145356c0f70a8a4f396b7efaf29ff6e2e82ccff32d48fd",
+  "inputPins": {
+    "target": {
+      "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9",
+      "jsSha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    },
+    "v52": {
+      "indexSha256": "88db2dc3744fe08d1404d9c0f3519b3709806be043fb8fc8fe516cc5ed0ce62d",
+      "jsSha256": "d46e5b404525391e09af9e6463edd2a950d1dec14af9946abfd4cfe4d343c670"
+    },
+    "v53": {
+      "indexSha256": "017a8f185f4b469f2ce7805d63b951b792caa1239603b8f0d34b23927c0364d8",
+      "jsSha256": "c1f72389f409933b9d4bfa118a0444bfc026842366b2bff53a556960e1732fc6"
+    },
+    "v54": {
+      "indexSha256": "3d852f775a840a234584007412a1b205ee994aba9cba94e870b67467fe320774",
+      "jsSha256": "a34c9d88018d242645afced52fe37756351109c4f930d2cbbfeece330b5a2426"
+    },
+    "v55": {
+      "indexSha256": "168d31aa0b6f959000bfd2238b7b881327bb7c0a0b8c1f5b50f24538d52b8478",
+      "jsSha256": "d407240817a90282e049d4c8b8ac6491a9fcff5df3e06f56f9c2af07eedd3a0e"
+    }
+  },
+  "strictAnchorChurnRelativeV54": {
+    "prior": 213,
+    "current": 213,
+    "retained": 213,
+    "lost": 0,
+    "added": 0
+  },
+  "outputLocality": {
+    "v54ToV55StrictChangedStatements": [
+      11872
+    ],
+    "v54ToV55ShapeChangedStatements": [
+      11872
+    ],
+    "nonlocalStrictChanges": 0,
+    "nonlocalShapeChanges": 0,
+    "nonlocalIdentifierAllocationChanges": 0,
+    "wholeOutputDifferencesOnlyIntendedOwnerAndTerminalDebugId": true,
+    "otherCompleteStatementBytesUnchanged": 18280,
+    "outputLocalityReceiptSha256": "b4fe5741c7d580468c91690d92351cceda04144602e3bfe5154e96bd5f128989",
+    "allStatementOwnerRouteSetsCompared": 18281,
+    "ownerRouteSetChanges": [],
+    "sourceMapSegmentChanges": [
+      {
+        "index": 11872,
+        "before": {
+          "src/tools/BashTool/commandSemantics.ts": 20
+        },
+        "after": {
+          "src/tools/BashTool/commandSemantics.ts": 18
+        },
+        "beforeUnmappedSegments": 0,
+        "afterUnmappedSegments": 0
+      }
+    ]
+  },
+  "originalHistoricalResidualRecordsPreserved": 134,
+  "historicalBacklogUnmodified": true,
+  "partitionDiagnosticOnly": true,
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

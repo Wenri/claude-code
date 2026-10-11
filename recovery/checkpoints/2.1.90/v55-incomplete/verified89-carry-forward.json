@@ -1,0 +1,692 @@
+{
+  "kind": "verified-89-carry-forward-opportunities",
+  "sourceComparisonSha256": "98ea3262bb12e650b0e5fcb125c9106f41e995ce51bf5824d5f60fc54b4440aa",
+  "v55ExactBaselineFiles": 20,
+  "v55FirstPartyExactBaselineFiles": 17,
+  "v55MappedShapeWindows": 30,
+  "rows": [
+    {
+      "path": "node_modules/lodash-es/_cloneBuffer.js",
+      "v45": {
+        "path": "node_modules/lodash-es/_cloneBuffer.js",
+        "bytes": 1221,
+        "sha256": "755922ccb138d026dc238b1c2ad89c4472ceafb15d7849461ab1f15b6560e8e0"
+      },
+      "v54": {
+        "path": "node_modules/lodash-es/_cloneBuffer.js",
+        "bytes": 1054,
+        "sha256": "879343bd3fe02c37cbd8691dfb7d2b3599a069bc646bc415d49b347b06e7f801"
+      },
+      "baseline": {
+        "path": "node_modules/lodash-es/_cloneBuffer.js",
+        "bytes": 1054,
+        "sha256": "879343bd3fe02c37cbd8691dfb7d2b3599a069bc646bc415d49b347b06e7f801"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "node_modules/lodash-es/_cloneBuffer.js"
+      },
+      "v55": {
+        "path": "node_modules/lodash-es/_cloneBuffer.js",
+        "bytes": 1054,
+        "sha256": "879343bd3fe02c37cbd8691dfb7d2b3599a069bc646bc415d49b347b06e7f801"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": []
+    },
+    {
+      "path": "node_modules/lodash-es/_nodeUtil.js",
+      "v45": {
+        "path": "node_modules/lodash-es/_nodeUtil.js",
+        "bytes": 1160,
+        "sha256": "07fbd1df2433581df16d17f61a3b2fff841ec3b9665639514d1a58ec7cb5ee87"
+      },
+      "v54": {
+        "path": "node_modules/lodash-es/_nodeUtil.js",
+        "bytes": 993,
+        "sha256": "f81d8e969afead3562231a1c368fcf884b51339ee04aff07a2b67f8ba794f03b"
+      },
+      "baseline": {
+        "path": "node_modules/lodash-es/_nodeUtil.js",
+        "bytes": 993,
+        "sha256": "f81d8e969afead3562231a1c368fcf884b51339ee04aff07a2b67f8ba794f03b"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "node_modules/lodash-es/_nodeUtil.js"
+      },
+      "v55": {
+        "path": "node_modules/lodash-es/_nodeUtil.js",
+        "bytes": 993,
+        "sha256": "f81d8e969afead3562231a1c368fcf884b51339ee04aff07a2b67f8ba794f03b"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": []
+    },
+    {
+      "path": "node_modules/lodash-es/isBuffer.js",
+      "v45": {
+        "path": "node_modules/lodash-es/isBuffer.js",
+        "bytes": 1279,
+        "sha256": "5da9f63a4767a86acdf882e8951a7552e5a803bb3e9c122c0a6a6e7b6bd92eeb"
+      },
+      "v54": {
+        "path": "node_modules/lodash-es/isBuffer.js",
+        "bytes": 1112,
+        "sha256": "683ac01368bb0b51e7571332797cdec13cf5fa26a79ad20764045f01b1d249d2"
+      },
+      "baseline": {
+        "path": "node_modules/lodash-es/isBuffer.js",
+        "bytes": 1112,
+        "sha256": "683ac01368bb0b51e7571332797cdec13cf5fa26a79ad20764045f01b1d249d2"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "node_modules/lodash-es/isBuffer.js"
+      },
+      "v55": {
+        "path": "node_modules/lodash-es/isBuffer.js",
+        "bytes": 1112,
+        "sha256": "683ac01368bb0b51e7571332797cdec13cf5fa26a79ad20764045f01b1d249d2"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": []
+    },
+    {
+      "path": "src/bridge/inboundMessages.ts",
+      "v45": {
+        "path": "src/bridge/inboundMessages.ts",
+        "bytes": 2726,
+        "sha256": "9f653a97fc5803ff19a2b1dcbf3103ecf21d58e58fc441139f1ba45e29515622"
+      },
+      "v54": {
+        "path": "src/bridge/inboundMessages.ts",
+        "bytes": 2727,
+        "sha256": "b6fbd085bb77ab2f4b8e7e5377a945e0d9625426691bfa3cc3b75584844f6ffc"
+      },
+      "baseline": {
+        "path": "src/bridge/inboundMessages.ts",
+        "bytes": 2727,
+        "sha256": "b6fbd085bb77ab2f4b8e7e5377a945e0d9625426691bfa3cc3b75584844f6ffc"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/bridge/inboundMessages.ts"
+      },
+      "v55": {
+        "path": "src/bridge/inboundMessages.ts",
+        "bytes": 2727,
+        "sha256": "b6fbd085bb77ab2f4b8e7e5377a945e0d9625426691bfa3cc3b75584844f6ffc"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        120
+      ]
+    },
+    {
+      "path": "src/commands/plugin/ManagePlugins.tsx",
+      "v45": {
+        "path": "src/commands/plugin/ManagePlugins.tsx",
+        "bytes": 322083,
+        "sha256": "475c110693f4f44634f1c53a12441b1528ebbb40eff0b5890f6ffa633e026501"
+      },
+      "v54": {
+        "path": "src/commands/plugin/ManagePlugins.tsx",
+        "bytes": 321775,
+        "sha256": "8b768ebac06d70e777ae5605657ef4b52cf3fcf0cd4b9d13d4ac60f068a0b9e3"
+      },
+      "baseline": {
+        "path": "src/commands/plugin/ManagePlugins.tsx",
+        "bytes": 321775,
+        "sha256": "8b768ebac06d70e777ae5605657ef4b52cf3fcf0cd4b9d13d4ac60f068a0b9e3"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/commands/plugin/ManagePlugins.tsx"
+      },
+      "v55": {
+        "path": "src/commands/plugin/ManagePlugins.tsx",
+        "bytes": 321775,
+        "sha256": "8b768ebac06d70e777ae5605657ef4b52cf3fcf0cd4b9d13d4ac60f068a0b9e3"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        98,
+        99
+      ]
+    },
+    {
+      "path": "src/components/DesktopHandoff.tsx",
+      "v45": {
+        "path": "src/components/DesktopHandoff.tsx",
+        "bytes": 19370,
+        "sha256": "a44dc0294faf4eb9fe0efbc155b69442cdd590f54b52eb56a31989b35e94b32f"
+      },
+      "v54": {
+        "path": "src/components/DesktopHandoff.tsx",
+        "bytes": 19335,
+        "sha256": "39daefe13abaf5f34fbf31f8f5a94bb41d05704ab4eb289f05a66f829a7b2c4d"
+      },
+      "baseline": {
+        "path": "src/components/DesktopHandoff.tsx",
+        "bytes": 19335,
+        "sha256": "39daefe13abaf5f34fbf31f8f5a94bb41d05704ab4eb289f05a66f829a7b2c4d"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/components/DesktopHandoff.tsx"
+      },
+      "v55": {
+        "path": "src/components/DesktopHandoff.tsx",
+        "bytes": 19335,
+        "sha256": "39daefe13abaf5f34fbf31f8f5a94bb41d05704ab4eb289f05a66f829a7b2c4d"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        96
+      ]
+    },
+    {
+      "path": "src/components/PromptInput/PromptInput.tsx",
+      "v45": {
+        "path": "src/components/PromptInput/PromptInput.tsx",
+        "bytes": 355205,
+        "sha256": "06129f3bc0871157ee00a1c2600a3639b749a5c9c220c29009c5a3abbb67c117"
+      },
+      "v54": {
+        "path": "src/components/PromptInput/PromptInput.tsx",
+        "bytes": 355032,
+        "sha256": "4f6a3005b3978a030d5586e55689e6cf4dd49245cfe0ce61798f711f0dd3c865"
+      },
+      "baseline": {
+        "path": "src/components/PromptInput/PromptInput.tsx",
+        "bytes": 355032,
+        "sha256": "4f6a3005b3978a030d5586e55689e6cf4dd49245cfe0ce61798f711f0dd3c865"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/components/PromptInput/PromptInput.tsx"
+      },
+      "v55": {
+        "path": "src/components/PromptInput/PromptInput.tsx",
+        "bytes": 355032,
+        "sha256": "4f6a3005b3978a030d5586e55689e6cf4dd49245cfe0ce61798f711f0dd3c865"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        124,
+        125
+      ]
+    },
+    {
+      "path": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx",
+      "v45": {
+        "path": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx",
+        "bytes": 75782,
+        "sha256": "403504552e36817115c0c8607542988cbe23862a1d19d5a33e81876cc0a782eb"
+      },
+      "v54": {
+        "path": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx",
+        "bytes": 75744,
+        "sha256": "a179d194dd60ff85df61067a22b1660b5ca779a53f16d02a274cbba47a99528a"
+      },
+      "baseline": {
+        "path": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx",
+        "bytes": 75744,
+        "sha256": "a179d194dd60ff85df61067a22b1660b5ca779a53f16d02a274cbba47a99528a"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx"
+      },
+      "v55": {
+        "path": "src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx",
+        "bytes": 75744,
+        "sha256": "a179d194dd60ff85df61067a22b1660b5ca779a53f16d02a274cbba47a99528a"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        121
+      ]
+    },
+    {
+      "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+      "v45": {
+        "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+        "bytes": 116295,
+        "sha256": "872ac48f230b14c59282c38c1496bac5d5cacb1039b672c3a8cdfba8d1488eff"
+      },
+      "v54": {
+        "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+        "bytes": 116395,
+        "sha256": "dc1420e04807755c2d95a7490131083f139ff395f11487cb6caaa4502cf323f6"
+      },
+      "baseline": {
+        "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+        "bytes": 116395,
+        "sha256": "dc1420e04807755c2d95a7490131083f139ff395f11487cb6caaa4502cf323f6"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/components/tasks/BackgroundTasksDialog.tsx"
+      },
+      "v55": {
+        "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+        "bytes": 116395,
+        "sha256": "dc1420e04807755c2d95a7490131083f139ff395f11487cb6caaa4502cf323f6"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        104
+      ]
+    },
+    {
+      "path": "src/constants/prompts.ts",
+      "v45": {
+        "path": "src/constants/prompts.ts",
+        "bytes": 54372,
+        "sha256": "76ef72cc453054fc46d8db12583904122bb6211f5b04ba1447751e6fe46cc3d2"
+      },
+      "v54": {
+        "path": "src/constants/prompts.ts",
+        "bytes": 54320,
+        "sha256": "7dac778e089a7f002403df2a2efb6f0b9e4a450af21766680ab8948596c10f25"
+      },
+      "baseline": {
+        "path": "src/constants/prompts.ts",
+        "bytes": 54320,
+        "sha256": "7dac778e089a7f002403df2a2efb6f0b9e4a450af21766680ab8948596c10f25"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/constants/prompts.ts"
+      },
+      "v55": {
+        "path": "src/constants/prompts.ts",
+        "bytes": 54320,
+        "sha256": "7dac778e089a7f002403df2a2efb6f0b9e4a450af21766680ab8948596c10f25"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        116,
+        117
+      ]
+    },
+    {
+      "path": "src/services/awaySummary.ts",
+      "v45": {
+        "path": "src/services/awaySummary.ts",
+        "bytes": 3327,
+        "sha256": "ab65b19e7540215564c22ac5d2b1dd65ea0e1946c9d453e36577f1d98e59cdad"
+      },
+      "v54": {
+        "path": "src/services/awaySummary.ts",
+        "bytes": 2671,
+        "sha256": "4653418a688e02d520bcea1b782c368bbe9b2599398450a159ce5a6beeaa48f0"
+      },
+      "baseline": {
+        "path": "src/services/awaySummary.ts",
+        "bytes": 2671,
+        "sha256": "4653418a688e02d520bcea1b782c368bbe9b2599398450a159ce5a6beeaa48f0"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/services/awaySummary.ts"
+      },
+      "v55": {
+        "path": "src/services/awaySummary.ts",
+        "bytes": 2671,
+        "sha256": "4653418a688e02d520bcea1b782c368bbe9b2599398450a159ce5a6beeaa48f0"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        130
+      ]
+    },
+    {
+      "path": "src/services/remoteManagedSettings/index.ts",
+      "v45": {
+        "path": "src/services/remoteManagedSettings/index.ts",
+        "bytes": 21304,
+        "sha256": "2c41034ad338ce0229848ee4ebf724bb4c9a0292ae96dd6b2b6d6aba32bb9d13"
+      },
+      "v54": {
+        "path": "src/services/remoteManagedSettings/index.ts",
+        "bytes": 20911,
+        "sha256": "b5cc3577637c112617b4ab210dc9129d626356a18d548c7bf8f6bd692f7e8a78"
+      },
+      "baseline": {
+        "path": "src/services/remoteManagedSettings/index.ts",
+        "bytes": 20911,
+        "sha256": "b5cc3577637c112617b4ab210dc9129d626356a18d548c7bf8f6bd692f7e8a78"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/services/remoteManagedSettings/index.ts"
+      },
+      "v55": {
+        "path": "src/services/remoteManagedSettings/index.ts",
+        "bytes": 20911,
+        "sha256": "b5cc3577637c112617b4ab210dc9129d626356a18d548c7bf8f6bd692f7e8a78"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        51
+      ]
+    },
+    {
+      "path": "src/services/teamMemorySync/index.ts",
+      "v45": {
+        "path": "src/services/teamMemorySync/index.ts",
+        "bytes": 43815,
+        "sha256": "e7c753b13b4865adb104bd10a0de2ec6dc423f07f94912d2be3a6680fee63b0b"
+      },
+      "v54": {
+        "path": "src/services/teamMemorySync/index.ts",
+        "bytes": 44153,
+        "sha256": "8d808458dafa4968a4660b7e7ba69b2393a134098078cad0842eab500219b3a0"
+      },
+      "baseline": {
+        "path": "src/services/teamMemorySync/index.ts",
+        "bytes": 44153,
+        "sha256": "8d808458dafa4968a4660b7e7ba69b2393a134098078cad0842eab500219b3a0"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/services/teamMemorySync/index.ts"
+      },
+      "v55": {
+        "path": "src/services/teamMemorySync/index.ts",
+        "bytes": 44153,
+        "sha256": "8d808458dafa4968a4660b7e7ba69b2393a134098078cad0842eab500219b3a0"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        69,
+        70
+      ]
+    },
+    {
+      "path": "src/tasks/LocalMainSessionTask.ts",
+      "v45": {
+        "path": "src/tasks/LocalMainSessionTask.ts",
+        "bytes": 15176,
+        "sha256": "5080ec1e3925beaacf6da2f93953443a3968b00408b8dd8085719c72ab312673"
+      },
+      "v54": {
+        "path": "src/tasks/LocalMainSessionTask.ts",
+        "bytes": 15136,
+        "sha256": "219cf8f0c9d94661598ed11ea9957028f761e55e46a5da23ee1909849a3ede66"
+      },
+      "baseline": {
+        "path": "src/tasks/LocalMainSessionTask.ts",
+        "bytes": 15136,
+        "sha256": "219cf8f0c9d94661598ed11ea9957028f761e55e46a5da23ee1909849a3ede66"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/tasks/LocalMainSessionTask.ts"
+      },
+      "v55": {
+        "path": "src/tasks/LocalMainSessionTask.ts",
+        "bytes": 15136,
+        "sha256": "219cf8f0c9d94661598ed11ea9957028f761e55e46a5da23ee1909849a3ede66"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        64
+      ]
+    },
+    {
+      "path": "src/tools.ts",
+      "v45": {
+        "path": "src/tools.ts",
+        "bytes": 17551,
+        "sha256": "3c3e0645e6cec7a3842db397e4d2a520f5b635f1b299e50b6d1429dc091b151c"
+      },
+      "v54": {
+        "path": "src/tools.ts",
+        "bytes": 17294,
+        "sha256": "4307f3f7dec2916299cc2fa5c45df8b95fd9a1945be7ac918ccd3d47a42f18cb"
+      },
+      "baseline": {
+        "path": "src/tools.ts",
+        "bytes": 17294,
+        "sha256": "4307f3f7dec2916299cc2fa5c45df8b95fd9a1945be7ac918ccd3d47a42f18cb"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/tools.ts"
+      },
+      "v55": {
+        "path": "src/tools.ts",
+        "bytes": 17294,
+        "sha256": "4307f3f7dec2916299cc2fa5c45df8b95fd9a1945be7ac918ccd3d47a42f18cb"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        65,
+        66
+      ]
+    },
+    {
+      "path": "src/tools/BashTool/commandSemantics.ts",
+      "v45": {
+        "path": "src/tools/BashTool/commandSemantics.ts",
+        "bytes": 3615,
+        "sha256": "a5a0db4557c91f23e2715e309ea055ca8078ef2b42de9dcb1c15155df3e56076"
+      },
+      "v54": {
+        "path": "src/tools/BashTool/commandSemantics.ts",
+        "bytes": 3658,
+        "sha256": "626a496bc2dcd5e85087362cbfdd35bdf4956542a189c7998884e3cee1da1ef6"
+      },
+      "baseline": {
+        "path": "src/tools/BashTool/commandSemantics.ts",
+        "bytes": 3658,
+        "sha256": "626a496bc2dcd5e85087362cbfdd35bdf4956542a189c7998884e3cee1da1ef6"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/tools/BashTool/commandSemantics.ts"
+      },
+      "v55": {
+        "path": "src/tools/BashTool/commandSemantics.ts",
+        "bytes": 3644,
+        "sha256": "0067c16180096b3e7315e7eb9a047354975cf6a51290cdd59f16038251694e5b"
+      },
+      "v55ExactlyMatchesOlderBaseline": false,
+      "v55CurrentHistoricalRegionIds": []
+    },
+    {
+      "path": "src/utils/argumentSubstitution.ts",
+      "v45": {
+        "path": "src/utils/argumentSubstitution.ts",
+        "bytes": 4758,
+        "sha256": "b96a2e9755f69bd0cb6e014f6b64e0b9202a8bab1883824f003212857c2aecf4"
+      },
+      "v54": {
+        "path": "src/utils/argumentSubstitution.ts",
+        "bytes": 5079,
+        "sha256": "b9ba476d55e6099af7cc2878e80ee82fa992dadd316d617bd2f8b23fea7ec803"
+      },
+      "baseline": {
+        "path": "src/utils/argumentSubstitution.ts",
+        "bytes": 5079,
+        "sha256": "b9ba476d55e6099af7cc2878e80ee82fa992dadd316d617bd2f8b23fea7ec803"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/utils/argumentSubstitution.ts"
+      },
+      "v55": {
+        "path": "src/utils/argumentSubstitution.ts",
+        "bytes": 5079,
+        "sha256": "b9ba476d55e6099af7cc2878e80ee82fa992dadd316d617bd2f8b23fea7ec803"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        59
+      ]
+    },
+    {
+      "path": "src/utils/bash/bashParser.ts",
+      "v45": {
+        "path": "src/utils/bash/bashParser.ts",
+        "bytes": 130464,
+        "sha256": "1e84259507fce1880328ff7409b3712203cb07c30df17977fc24ec9dfb044829"
+      },
+      "v54": {
+        "path": "src/utils/bash/bashParser.ts",
+        "bytes": 130810,
+        "sha256": "87b3d79eccb1377050d4785c93f34e789c6924c69b5fac42e8e6f3966ce0af38"
+      },
+      "baseline": {
+        "path": "src/utils/bash/bashParser.ts",
+        "bytes": 130810,
+        "sha256": "87b3d79eccb1377050d4785c93f34e789c6924c69b5fac42e8e6f3966ce0af38"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/utils/bash/bashParser.ts"
+      },
+      "v55": {
+        "path": "src/utils/bash/bashParser.ts",
+        "bytes": 130810,
+        "sha256": "87b3d79eccb1377050d4785c93f34e789c6924c69b5fac42e8e6f3966ce0af38"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    {
+      "path": "src/utils/imageResizer.ts",
+      "v45": {
+        "path": "src/utils/imageResizer.ts",
+        "bytes": 25122,
+        "sha256": "4f4cc9d1320146bd6ebb4589437fc75dc655cd9bc266200191cc129fc63aa85c"
+      },
+      "v54": {
+        "path": "src/utils/imageResizer.ts",
+        "bytes": 26699,
+        "sha256": "0089af1cfdedabbc5400dbd24842b10223ccd68e30b3efb8b8438a9b7768eceb"
+      },
+      "baseline": {
+        "path": "src/utils/imageResizer.ts",
+        "bytes": 26699,
+        "sha256": "0089af1cfdedabbc5400dbd24842b10223ccd68e30b3efb8b8438a9b7768eceb"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/utils/imageResizer.ts"
+      },
+      "v55": {
+        "path": "src/utils/imageResizer.ts",
+        "bytes": 26699,
+        "sha256": "0089af1cfdedabbc5400dbd24842b10223ccd68e30b3efb8b8438a9b7768eceb"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        24
+      ]
+    },
+    {
+      "path": "src/utils/markdownConfigLoader.ts",
+      "v45": {
+        "path": "src/utils/markdownConfigLoader.ts",
+        "bytes": 21251,
+        "sha256": "502461e7f655024113ba793096e8f711a93db9d9ff811a7c68381cc5936e64d9"
+      },
+      "v54": {
+        "path": "src/utils/markdownConfigLoader.ts",
+        "bytes": 21312,
+        "sha256": "fe157236c4b29f3d99ca56f993687c142a431db1f52f09da66f5659692d6a0a6"
+      },
+      "baseline": {
+        "path": "src/utils/markdownConfigLoader.ts",
+        "bytes": 21312,
+        "sha256": "fe157236c4b29f3d99ca56f993687c142a431db1f52f09da66f5659692d6a0a6"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/utils/markdownConfigLoader.ts"
+      },
+      "v55": {
+        "path": "src/utils/markdownConfigLoader.ts",
+        "bytes": 21312,
+        "sha256": "fe157236c4b29f3d99ca56f993687c142a431db1f52f09da66f5659692d6a0a6"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        19
+      ]
+    },
+    {
+      "path": "src/utils/processUserInput/processUserInput.ts",
+      "v45": {
+        "path": "src/utils/processUserInput/processUserInput.ts",
+        "bytes": 18946,
+        "sha256": "5f8d391fdac17a7a43226201c4d39a4711f2a322efea66963736562dca1c07ff"
+      },
+      "v54": {
+        "path": "src/utils/processUserInput/processUserInput.ts",
+        "bytes": 19507,
+        "sha256": "7b8602d99fc2b30988d262de7e3a4df7066bd65b09d3c7a79d5419bca87619ef"
+      },
+      "baseline": {
+        "path": "src/utils/processUserInput/processUserInput.ts",
+        "bytes": 19507,
+        "sha256": "7b8602d99fc2b30988d262de7e3a4df7066bd65b09d3c7a79d5419bca87619ef"
+      },
+      "v45SourceOrigin": {
+        "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+        "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+        "member": "src/utils/processUserInput/processUserInput.ts"
+      },
+      "v55": {
+        "path": "src/utils/processUserInput/processUserInput.ts",
+        "bytes": 19507,
+        "sha256": "7b8602d99fc2b30988d262de7e3a4df7066bd65b09d3c7a79d5419bca87619ef"
+      },
+      "v55ExactlyMatchesOlderBaseline": true,
+      "v55CurrentHistoricalRegionIds": [
+        127,
+        128
+      ]
+    }
+  ],
+  "limits": [
+    "File identity identifies retained old bytes, not blame or proof of when a regression was introduced.",
+    "These are repair candidates, not approved bulk replacements. Check real .90 deltas and changed provider interfaces.",
+    "Do not copy .89 version-specific ambient names, fixed naming recipes or build paths into .90.",
+    "R067 no longer exactly matches the old baseline after V55; its source construction and later .89 corroboration are distinct."
+  ]
+}

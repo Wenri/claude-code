@@ -1,0 +1,11 @@
+--- v54/src/tools/BashTool/commandSemantics.ts
++++ v55/src/tools/BashTool/commandSemantics.ts
+@@ -113,7 +113,7 @@
+   const segments = splitCommand_DEPRECATED(command)
+ 
+   // Take the last command as that's what determines the exit code
+-  const lastCommand = segments[segments.length - 1] || command
++  const lastCommand = segments.at(-1) || command
+ 
+   return extractBaseCommand(lastCommand)
+ }

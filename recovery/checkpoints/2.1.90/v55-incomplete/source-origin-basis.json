@@ -1,0 +1,66 @@
+{
+  "kind": "R067-original-source-derivation-and-later-independent-corroboration",
+  "originalDerivationRecordSha256": "9cf7209d86ce8ade78e3aba990c40cc220a75e6d9e71b25fbbf99a2e33966599",
+  "originalDerivation": {
+    "source": "src/tools/BashTool/commandSemantics.ts",
+    "sourceSha256": "626a496bc2dcd5e85087362cbfdd35bdf4956542a189c7998884e3cee1da1ef6",
+    "sourceOwnerLines": [
+      112,
+      119
+    ],
+    "sourceContract": "Take the last parsed command as the command that determines the exit code; retain original command fallback and terminal base-command extractor.",
+    "independentDonor": {
+      "path": "src/utils/bash/shellCompletion.ts",
+      "sha256": "82c0d7ae1b9060935bb13d536208cf028b0af29b0a54228be166e3add73fe92a",
+      "line": 54,
+      "text": "  const prefix = tokens.at(-1) || ''"
+    },
+    "beforeExpression": "segments[segments.length - 1]",
+    "proposedExpression": "segments.at(-1)",
+    "producer": "src/utils/bash/commands.ts::splitCommand_DEPRECATED, lines 285–313; every ordinary return branch constructs a fresh array.",
+    "sourceConstructionCompletedBeforeTargetComparisonReads": true,
+    "targetTextUsedToConstructSource": false,
+    "historicalExactSourceAuthorshipClaim": false,
+    "universalEquivalenceClaim": false
+  },
+  "laterCorroborationRecordSha256": "94be20fc4044fb563f7fdaec4a390d4c8b026b7e0a4c5133c200de7fdbd8e086",
+  "laterAccepted89Corroboration": {
+    "commit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "profilePath": "recovery/checkpoints/2.1.89/v45/profile.json",
+    "profileSha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120",
+    "profileSourcePin": {
+      "path": "src/tools/BashTool/commandSemantics.ts",
+      "bytes": 3615,
+      "sha256": "a5a0db4557c91f23e2715e309ea055ca8078ef2b42de9dcb1c15155df3e56076"
+    },
+    "overlayPath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "overlaySha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "overlayMember": "src/tools/BashTool/commandSemantics.ts",
+    "manifestSha256": "4c15f8e7860070197a4188689ab026897d8945c21c98114935fa5a61bcb946dd",
+    "sourceSha256": "a5a0db4557c91f23e2715e309ea055ca8078ef2b42de9dcb1c15155df3e56076",
+    "sourceBytes": 3615,
+    "ownerLinesOneBased": [
+      112,
+      117
+    ],
+    "profileDerivedSrcTree": "6e8126a8f8619316d072c58cb10788683d1ad74e",
+    "initialReportedBaselineAttributionRejected": true,
+    "correctedAuthenticatedAttribution": "V45 source overlay replaces the baseline indexed source",
+    "sourceConstructionHistoryRewritten": false,
+    "corroborationDiscoveredAfterV55Preparation": true,
+    "v55ProposalOriginallyDerivedFromThisEvidence": false,
+    "historicalOfficial90SourceAuthorshipCertified": false,
+    "scope": "Authenticated existing V45 accepted-source idiom; not a new re-certification of V45 acceptance or transitive providers."
+  },
+  "verifiedDuringExport": "The one V55 postimage is exactly the recorded single expression substitution from public V54. The original shellCompletion donor is unchanged and authenticated. The later public accepted-.89 source was separately read from the pinned V45 overlay and matched its exact member hash.",
+  "chronology": "V55 was originally constructed from the recorded shellCompletion donor before target comparison. Stronger accepted-.89 overlay corroboration was discovered after V55 preparation. It supports the source-side idiom without rewriting the original derivation or certifying official .90 historical source authorship.",
+  "supplierCorrection": "The accepted-.89 supplier is the V45 source overlay. The inherited baseline archive contains the earlier indexed expression; the overlay replaces it. No claim is made that V54 introduced that indexed form.",
+  "targetTextUsedToConstructProposedSource": false,
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
