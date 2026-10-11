@@ -1,0 +1,1455 @@
+{
+  "kind": "public-V63-complete-global-diagnostic-summary",
+  "criterion": "strict-whole-program-ast-v2",
+  "wholeStrict": {
+    "target": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110206,
+      "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+    },
+    "v52": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110695,
+      "sha256": "7ddad7606144d6d680a2a6213b0b7163c903753150bb1e56dccdb380a083c1ca"
+    },
+    "v53": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110731,
+      "sha256": "376a6149e75bb9318455518a9c0f285715d8c8a567633acbb4ff580f8c137ddf"
+    },
+    "v54": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110727,
+      "sha256": "fc97b4cb4220753666ddabc17659ad55cc6f82b4a3174fd375c06982b6921436"
+    },
+    "v55": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110723,
+      "sha256": "7ee146e1fc9d210692eca3c9fab2a56c87489958acc267efbff448aa8ce0862d"
+    },
+    "v56": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110747,
+      "sha256": "7275012ba6fa8bdc9e8cf59d0c7f9483710e87a45b988b13a43cb58ce387242a"
+    },
+    "v57": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110745,
+      "sha256": "aa245b98f3341cf0911ae2207aa1c8047b88aafe99137e3d95e2e3064000b4c4"
+    },
+    "v58": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110728,
+      "sha256": "e7ae6d6fed6940af70e266a8fc8b94c2bc708354c349a6d75504f9438f272f8e"
+    },
+    "v59": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110703,
+      "sha256": "ffcb71c2f10faa91eb0240925dfcfb7047de399bd722677a7f8ab037cd67825f"
+    },
+    "v60": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110734,
+      "sha256": "4e1c98ae0471943f155b0eaa5b7394252337d2cb6cef718993f8649b597120ea"
+    },
+    "v61": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110736,
+      "sha256": "89ed797c79f0bfba82a97e218b8d25af8fad7b3b5832646a6c845fe97df03699"
+    },
+    "v62": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110736,
+      "sha256": "c066eb926fd97c1c24ab234266ac043a94800212a46d808d1fee9ad02c0a93ee"
+    },
+    "v63": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110730,
+      "sha256": "848b6a8eccc4a1919db38aa55ee0f278f69febe6c6502a3da3b2db220e3315a7"
+    }
+  },
+  "targetV63StrictEqual": false,
+  "compatibilityGenerator": {
+    "method": "SequenceMatcher, autojunk=False",
+    "historicalGeneratingScriptRecovered": false,
+    "savedCompletePartitionsReproduced": {
+      "v52": {
+        "shapeWindows": 134,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v53": {
+        "shapeWindows": 132,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v54": {
+        "shapeWindows": 130,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v55": {
+        "shapeWindows": 129,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v56": {
+        "shapeWindows": 128,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v57": {
+        "shapeWindows": 127,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v58": {
+        "shapeWindows": 126,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v59": {
+        "shapeWindows": 124,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v60": {
+        "shapeWindows": 122,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v61": {
+        "shapeWindows": 121,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      },
+      "v62": {
+        "shapeWindows": 120,
+        "shapeAndStrictCompletePartitionsReproduced": true
+      }
+    },
+    "acceptanceNormalizationApplied": false
+  },
+  "diagnosticShapeWindowCounts": {
+    "v52": 134,
+    "v53": 132,
+    "v54": 130,
+    "v55": 129,
+    "v56": 128,
+    "v57": 127,
+    "v58": 126,
+    "v59": 124,
+    "v60": 122,
+    "v61": 121,
+    "v62": 120,
+    "v63": 120
+  },
+  "strictDiagnosticPartition": {
+    "v52": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v53": {
+      "gaps": 231,
+      "exactStatementAnchors": 238
+    },
+    "v54": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    },
+    "v55": {
+      "gaps": 206,
+      "exactStatementAnchors": 213
+    },
+    "v56": {
+      "gaps": 277,
+      "exactStatementAnchors": 289
+    },
+    "v57": {
+      "gaps": 277,
+      "exactStatementAnchors": 289
+    },
+    "v58": {
+      "gaps": 223,
+      "exactStatementAnchors": 235
+    },
+    "v59": {
+      "gaps": 214,
+      "exactStatementAnchors": 225
+    },
+    "v60": {
+      "gaps": 216,
+      "exactStatementAnchors": 230
+    },
+    "v61": {
+      "gaps": 216,
+      "exactStatementAnchors": 230
+    },
+    "v62": {
+      "gaps": 216,
+      "exactStatementAnchors": 230
+    },
+    "v63": {
+      "gaps": 295,
+      "exactStatementAnchors": 327
+    }
+  },
+  "nonlocalShapeChangeIndexesFromV62": [],
+  "sourceMapPhysicalOwnersAuthenticated": 4789,
+  "alignedSourceOwnerSetChanges": [],
+  "nominationStatusCounts": {
+    "unique_outside_ordered_partition": 19,
+    "unmatched": 239,
+    "ambiguous_multiple": 19
+  },
+  "unmappedSelectedStatements": [
+    8763,
+    8764,
+    17893
+  ],
+  "historicalJoinAmbiguities": [],
+  "regionClosuresAccepted": 0,
+  "comparisonAgainstPriorCensuses": {
+    "v52": {
+      "priorShapeWindows": 134,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        18,
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        71,
+        75,
+        98,
+        99,
+        101,
+        102,
+        121,
+        129
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v53": {
+      "priorShapeWindows": 132,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        18,
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        71,
+        75,
+        98,
+        99,
+        121,
+        129
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 231,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 238,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v54": {
+      "priorShapeWindows": 130,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        19,
+        51,
+        59,
+        67,
+        69,
+        70,
+        71,
+        75,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 206,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 213,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v55": {
+      "priorShapeWindows": 129,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        19,
+        51,
+        59,
+        69,
+        70,
+        71,
+        75,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 206,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 213,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v56": {
+      "priorShapeWindows": 128,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        19,
+        59,
+        69,
+        70,
+        71,
+        75,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 277,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 289,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v57": {
+      "priorShapeWindows": 127,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        59,
+        69,
+        70,
+        71,
+        75,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 277,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 289,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v58": {
+      "priorShapeWindows": 126,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        69,
+        70,
+        71,
+        75,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 223,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 235,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v59": {
+      "priorShapeWindows": 124,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        71,
+        75,
+        98,
+        99,
+        121
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 214,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 225,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v60": {
+      "priorShapeWindows": 122,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        71,
+        75,
+        121
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 216,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 230,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v61": {
+      "priorShapeWindows": 121,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        71,
+        75
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 216,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 230,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    },
+    "v62": {
+      "priorShapeWindows": 120,
+      "currentShapeWindows": 120,
+      "disappearedHistoricalWindowIds": [
+        75
+      ],
+      "newTargetWindowIndexes": [
+        67
+      ],
+      "priorStrictGaps": 216,
+      "currentStrictGaps": 295,
+      "priorStrictExactStatementAnchors": 230,
+      "currentStrictExactStatementAnchors": 327,
+      "rawCoordinateDifferenceLimit": "Includes coordinate relocation and must not be read as actual equality loss."
+    }
+  },
+  "alignment": {
+    "statementCounts": [
+      18280,
+      18280
+    ],
+    "pairedStatements": 18280,
+    "samePositionComparisonAvailable": true,
+    "strictChangedPairs": 14649,
+    "shapeChangedPairs": [
+      [
+        12014,
+        12014
+      ],
+      [
+        12015,
+        12015
+      ]
+    ],
+    "shapeStableStrictChangedPairs": 14647,
+    "byteUnchangedStatements": 3631,
+    "deleted": [],
+    "inserted": [],
+    "unresolved": [],
+    "completeMappingRule": "Every V62 statement is paired with the same V63 index; no deletion, insertion, unresolved pair or truncated zip.",
+    "ruleCheckedAgainstAllRecordedPairs": true,
+    "coverageComplete": true,
+    "alignmentReportSha256": "05f1736f8e7731c3152038fe3f1a6cfeb16a98fc1008cf3d0e0a28818929dcb8",
+    "uniqueSemanticCorrespondenceClaimed": false
+  },
+  "anchorChurn": {
+    "prior": 230,
+    "current": 327,
+    "relocatedRetainedPairs": 188,
+    "lostAfterRelocation": 42,
+    "addedAfterRelocation": 139,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 42,
+    "orderingOnlyLostPairs": 0,
+    "actualRawEqualityGainPairs": 135,
+    "orderingOnlyAddedPairs": 4
+  },
+  "rootCompleteOwnerFindings": {
+    "completeOwnerComparisons": 50,
+    "targetOwnerNominationPasses": 21,
+    "targetOwnerUnresolved": [
+      11994,
+      12011,
+      12012,
+      12015
+    ],
+    "ownerRemainingIssues": [
+      "firstLine helper versus split/newline expression",
+      "git parser result guards and regex fallback versus direct token array",
+      "cd parser result guards and regex fallback versus direct token array",
+      "extra shellQuote initialization call; exact dependency identity requires independent supplier proof"
+    ],
+    "provisionalPositionalDiagnosisCorrection": "Root initially suspected WR6 as extra based on position. Independent dependency analysis identifies jL4 at zero-based callback ordinal 5 as shellQuote; WR6 corresponds to target Ph6. Retain full dependency evidence rather than positional diagnosis.",
+    "sourceDelta": {
+      "kind": "root-complete-R075-carrier-and-initializer-source-delta",
+      "statementIndexes": [
+        12014,
+        12015
+      ],
+      "removedOldAliasDeclarator": "j17",
+      "removedOldSnapshotAssignment": "j17=WO",
+      "assignmentSequenceCollapsed": true,
+      "remainingCompleteRawNonIdentifierFieldsEqual": true,
+      "remainingNameChanges": [
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "id",
+            "name"
+          ],
+          "before": "H17",
+          "after": "j17"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "1",
+            "id",
+            "name"
+          ],
+          "before": "v_Y",
+          "after": "T_Y"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "2",
+            "id",
+            "name"
+          ],
+          "before": "k_Y",
+          "after": "v_Y"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "3",
+            "id",
+            "name"
+          ],
+          "before": "jDK",
+          "after": "wDK"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "4",
+            "id",
+            "name"
+          ],
+          "before": "J17",
+          "after": "H17"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "6",
+            "id",
+            "name"
+          ],
+          "before": "VDK",
+          "after": "kDK"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "8",
+            "id",
+            "name"
+          ],
+          "before": "NDK",
+          "after": "VDK"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "8",
+            "init",
+            "body",
+            "body",
+            "9",
+            "declarations",
+            "0",
+            "init",
+            "callee",
+            "name"
+          ],
+          "before": "dL4",
+          "after": "QL4"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "8",
+            "init",
+            "body",
+            "body",
+            "11",
+            "declarations",
+            "0",
+            "init",
+            "callee",
+            "name"
+          ],
+          "before": "fDK",
+          "after": "DDK"
+        },
+        {
+          "path": [
+            "0",
+            "body",
+            "0",
+            "declarations",
+            "9",
+            "id",
+            "name"
+          ],
+          "before": "EDK",
+          "after": "yDK"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "5",
+            "expression",
+            "callee",
+            "name"
+          ],
+          "before": "HL4",
+          "after": "jL4"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "17",
+            "expression",
+            "callee",
+            "name"
+          ],
+          "before": "DDK",
+          "after": "WDK"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "18",
+            "expression",
+            "callee",
+            "name"
+          ],
+          "before": "ZDK",
+          "after": "fDK"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "22",
+            "expression",
+            "left",
+            "name"
+          ],
+          "before": "H17",
+          "after": "j17"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "23",
+            "expression",
+            "left",
+            "name"
+          ],
+          "before": "k_Y",
+          "after": "v_Y"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "24",
+            "expression",
+            "left",
+            "name"
+          ],
+          "before": "jDK",
+          "after": "wDK"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "25",
+            "expression",
+            "expressions",
+            "0",
+            "left",
+            "name"
+          ],
+          "before": "J17",
+          "after": "H17"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "26",
+            "expression",
+            "left",
+            "name"
+          ],
+          "before": "VDK",
+          "after": "kDK"
+        },
+        {
+          "path": [
+            "1",
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "27",
+            "expression",
+            "left",
+            "name"
+          ],
+          "before": "EDK",
+          "after": "yDK"
+        }
+      ],
+      "remainingOtherChanges": [],
+      "diagnosticCloneOnly": true,
+      "sourceOrOutputModified": false,
+      "acceptanceNormalizationApplied": false,
+      "globalBindingAcceptance": false,
+      "runtimeAcceptance": false,
+      "wholeVersionAcceptance": false
+    }
+  },
+  "censusSealSha256": "03247447de88628c035f3ff918667a935db974af21d4689c44b2d0609992981b",
+  "censusSummarySha256": "3c2ccc58690550945a5a27970eb51006512315b240d8c33d1462494eac341f5c",
+  "censusReceiptSha256": "51388613a903e6d6bd58f9ef9c6b59ae61fa032bce93314c5df23e96dde8b96a",
+  "executionResponsibility": "Root personally ran the build and comparisons, read all 25 emitted permission-owner statements, checked all 18,280 pairs and every changed shape-stable AST, and verified exact carrier/initializer source deltas using diagnostic clones only. Independent supplier findings are recorded separately.",
+  "independentCensusAudit": {
+    "receiptSha256": "12b320355e6621ece56ba35e238b68c646e62b75c9083035126e455af6a3a3c2",
+    "sealSha256": "61848d23cd89be1176160acd8098aad41435ae0cdec96df2fb12fdc5f6aa55dc",
+    "review": {
+      "verdict": "PASS bounded exhaustive diagnostic census and static replay; reverse collision, four target-owner failures, temporal and original-coordinate qualifications retained; no acceptance closure",
+      "core": {
+        "kind": "independent-V63-aligned-census-core-recomputation",
+        "verdict": "PASS for bounded diagnostic census",
+        "partitionPairsIndependentlyRecomputed": 46,
+        "priorStatements": 18280,
+        "currentStatements": 18280,
+        "alignedPairs": 18280,
+        "removedPriorIndexes": [],
+        "alignedStrictChanges": 14649,
+        "alignedShapeChanges": [
+          12014,
+          12015
+        ],
+        "shapeStableStrictChanges": 14647,
+        "allSourceMapRouteRecordsRebound": 18280,
+        "physicalSourceContentsAuthenticated": 4789,
+        "alignedOwnerSetChanges": 0,
+        "allResidualRowsRecomputed": 120,
+        "allNominationsRecomputed": 277,
+        "nominationCounts": {
+          "unique_outside_ordered_partition": 19,
+          "unmatched": 239,
+          "ambiguous_multiple": 19
+        },
+        "allCurrentShapeChangesOnlyReviewedOwner": true,
+        "noNewNonlocalException": true,
+        "unmappedSelectedStatements": [
+          8763,
+          8764,
+          17893
+        ],
+        "all134HistoricalRecordsRetained": true,
+        "uniqueSemanticCorrespondenceClaimed": false,
+        "wholeVersionAcceptance": false,
+        "runtimeAcceptance": false,
+        "regionClosuresAccepted": 0,
+        "rootCensusSealSha256": "03247447de88628c035f3ff918667a935db974af21d4689c44b2d0609992981b",
+        "allPriorComparisonsAndChurnRecomputed": true,
+        "all134CompleteHistoricalRecordsRetained": true,
+        "V60CorrectionAuthenticatedAndCarried": true,
+        "samePositionAvailabilityIndependentlyDerived": true,
+        "shapeChangedStatements": [
+          12014,
+          12015
+        ],
+        "changedShapeStatementNodeDelta": -6,
+        "currentShapeWindows": 120,
+        "currentStrictGaps": 295,
+        "currentStrictAnchors": 327,
+        "unjoinedNewWindow": 67,
+        "joinedHistoricalWindows": 119,
+        "otherHistoricalObligationsRetained": 20,
+        "otherHistoricalStatusesRetainedIndividually": true
+      },
+      "staticAndProvenance": {
+        "kind": "independent-V63-static-provenance-complete-census-review",
+        "verdict": "PASS bounded census/static reproduction; reverse collision and owner failures remain",
+        "all14647SelectedAstsReplayed": true,
+        "selectedNodes": 2941059,
+        "selectedScopes": 111137,
+        "rawIdentifierDifferenceOccurrences": 78760,
+        "changedFreeOccurrences": 21068,
+        "allFreeCaptureOccurrences": 128652,
+        "globalForwardConflicts": [],
+        "globalReverseConflicts": [
+          {
+            "name": "_A",
+            "mappedNames": [
+              "WO",
+              "j17"
+            ]
+          }
+        ],
+        "globalBijectionEstablished": false,
+        "all50CompleteOwnerComparisonsReplayed": true,
+        "all25OwnerTargetShapeAlternativesRetained": true,
+        "targetNominationPasses": [
+          11991,
+          11992,
+          11993,
+          11995,
+          11996,
+          11997,
+          11998,
+          11999,
+          12000,
+          12001,
+          12002,
+          12003,
+          12004,
+          12005,
+          12006,
+          12007,
+          12008,
+          12009,
+          12010,
+          12013,
+          12014
+        ],
+        "targetNominationFailures": [
+          11994,
+          12011,
+          12012,
+          12015
+        ],
+        "priorCurrentShapeFailures": [
+          12014,
+          12015
+        ],
+        "completeAliasCarrierAndInitializerDiagnosticDeltaReplayed": true,
+        "remainingCloneNameChanges": 19,
+        "unchangedStatementsByteAndStrictIdentical": 3631,
+        "wholeIndexByteIdenticalAndStrictReplayed": true,
+        "all87ProtectedRootsFreshlyRehashed": true,
+        "historicalRegionRecordsRetained": 134,
+        "otherHistoricalObligationsRetained": 20,
+        "otherHistoricalStatusesRetainedIndividually": true,
+        "newUnjoinedWindowRequiresOwnObligation": 67,
+        "supplierPositionalGuessCorrectedButDeepProofNotDuplicated": true,
+        "R091ProvenanceBlocked": true,
+        "inherited29ParserObligationsRetained": true,
+        "R071R121AndHotMigrationLimitsRetained": true,
+        "sourceEdited": false,
+        "applicationExecuted": false,
+        "compilerExecutedByReviewer": false,
+        "wholeVersionAcceptance": false,
+        "runtimeAcceptance": false,
+        "transitiveProviderAcceptance": false,
+        "globalBindingAcceptance": false,
+        "globalInitializationAcceptance": false,
+        "acceptedClosures": 0
+      },
+      "completeMapAndByteCoverage": {
+        "receiptSha256": "f74d993895bc79968058ab333b86d6177579a27fcccb62db8cc2ce6a91e84c63",
+        "sealSha256": "2ee2d4c18a5027789f9fab4e00ce05898fde71fe7951246dc9444cfe8689daab",
+        "passed": true,
+        "coordinateComparison": {
+          "totals": {
+            "beforeSegments": 2080252,
+            "afterSegments": 2080249,
+            "pairedByZoneOrdinal": 2080249,
+            "pairedAllFieldsEqual": 1520416,
+            "beforeUnpairedTailSegments": 3,
+            "afterUnpairedTailSegments": 0
+          },
+          "coordinateSequenceEqualZones": 11570,
+          "coordinateSequenceChangedZones": 5910,
+          "ordinalPairingNotSemanticCorrespondence": true
+        },
+        "originalSourceCoordinateExceptionMultisetsUnchanged": true,
+        "fullGeneratedExceptionOccurrenceRecordsUnchanged": true,
+        "allOriginalCoordinatesValid": false,
+        "sourceMapDisplacementRepaired": false,
+        "allLogicalOwnerNameSetsEqual": true,
+        "changedStatementOwnerRecords": 25,
+        "changedCompleteRouteRecords": 6289,
+        "changedStatementRanges": 6279,
+        "physicalSourceContentChanges": [
+          {
+            "sourceIndex": 3719,
+            "owner": "src/tools/BashTool/bashPermissions.ts",
+            "beforeSha256": "ee6f492026a7e7d51e34c83ae5fa669f5a5ed5704d03f1a480cf3bc20a1d9df9",
+            "afterSha256": "4f95823a1e545112490d819f1f0af5d02127495ca019fe3705bef645a18fe7f7"
+          }
+        ],
+        "programCoverage": {
+          "v62": {
+            "statements": 18280,
+            "gaps": 18281,
+            "utf8Bytes": 13126530,
+            "utf16CodeUnits": 13062374,
+            "sha256Utf8": "e3d092291eed566a055e4d56b2b011965a195ac5396e95a600250e808fac4650",
+            "sha256Utf16": "e020786f7b1d231da6d42b6440ecf3b30ce57633c21fd9cc19e650b75b4e2442",
+            "statementUtf16CodeUnits": 13062327,
+            "gapUtf16CodeUnits": 47,
+            "statementUtf8Bytes": 13126483,
+            "gapUtf8Bytes": 47,
+            "allBytesAndCodeUnitsAccountedExactlyOnce": true,
+            "allBoundariesScalarAligned": true
+          },
+          "v63": {
+            "statements": 18280,
+            "gaps": 18281,
+            "utf8Bytes": 13126516,
+            "utf16CodeUnits": 13062360,
+            "sha256Utf8": "0c458ee35732c34ee78969c63141ac7ebabb2cbc1ed0d7f439844777b87bf3e5",
+            "sha256Utf16": "50923e534a91babe8087b09b118f5e35eb77d8a09220d1614135c8f2138dedf3",
+            "statementUtf16CodeUnits": 13062313,
+            "gapUtf16CodeUnits": 47,
+            "statementUtf8Bytes": 13126469,
+            "gapUtf8Bytes": 47,
+            "allBytesAndCodeUnitsAccountedExactlyOnce": true,
+            "allBoundariesScalarAligned": true
+          }
+        },
+        "sourceMapCoordinateAccounting": {
+          "v62": {
+            "version": "v62",
+            "mapSha256": "a33783f590a2493752e410b0c5cc270a71743cb56e2056c25e52b0f551b3fe67",
+            "sourceCount": 4789,
+            "nameCount": 0,
+            "mappedLineCount": 16880,
+            "generatedLineCount": 16883,
+            "totals": {
+              "segments": 2080252,
+              "statementSegments": 2080252,
+              "mappedSegments": 2080252
+            },
+            "allMapSegmentsVisited": true,
+            "allGeneratedUtf16CoordinatesInBounds": true,
+            "allGeneratedCoordinatesScalarAligned": false,
+            "allOriginalCoordinatesScalarAligned": true,
+            "utf16InteriorScalarCoordinateCounts": {
+              "generated": 45
+            },
+            "allOriginalCoordinatesValid": false,
+            "sourcesWithStatementContributions": 4789,
+            "historicalExternalSourcePathsRead": false,
+            "semanticOwnershipEstablished": false
+          },
+          "v63": {
+            "version": "v63",
+            "mapSha256": "69980e4c56f1ae5c9cee791ee772e18fe48a7c612244a6908201ad1725193060",
+            "sourceCount": 4789,
+            "nameCount": 0,
+            "mappedLineCount": 16880,
+            "generatedLineCount": 16883,
+            "totals": {
+              "segments": 2080249,
+              "statementSegments": 2080249,
+              "mappedSegments": 2080249
+            },
+            "allMapSegmentsVisited": true,
+            "allGeneratedUtf16CoordinatesInBounds": true,
+            "allGeneratedCoordinatesScalarAligned": false,
+            "allOriginalCoordinatesScalarAligned": true,
+            "utf16InteriorScalarCoordinateCounts": {
+              "generated": 45
+            },
+            "allOriginalCoordinatesValid": false,
+            "sourcesWithStatementContributions": 4789,
+            "historicalExternalSourcePathsRead": false,
+            "semanticOwnershipEstablished": false
+          }
+        },
+        "generatedSurrogateInteriorQualification": "Each map has 45 valid generated UTF-16 code-unit coordinates inside surrogate pairs. Their containing UTF-8 scalar intervals are retained; no exact UTF-8 point is invented and no valid coordinate is discarded or repaired. The inherited userAgent original coordinate alone is invalid.",
+        "originalCoordinateException": "Source index 1687, src/utils/userAgent.ts, zero-based original line 10 column 10 on an empty terminal line; full occurrence unchanged.",
+        "uniqueSemanticOwnershipEstablished": false,
+        "partitionCoverageCount": 46,
+        "historicalCoverage": {
+          "preservedHistoricalRecords": 134,
+          "activeShapeDiagnosticWindows": 120,
+          "activeExactHistoricalWindowJoins": 119,
+          "newUnmatchedCurrentShapeWindows": [
+            {
+              "diagnosticRegionIndex": 67,
+              "op": "replace",
+              "target": [
+                12011,
+                12012
+              ],
+              "candidate": [
+                12015,
+                12016
+              ],
+              "historicalV52RegionId": null,
+              "historicalRegionNominations": [],
+              "candidateOwners": [
+                "src/tools/BashTool/bashPermissions.ts"
+              ],
+              "accepted": false
+            }
+          ],
+          "shapeDisappearedHistoricalIds": [
+            18,
+            19,
+            51,
+            59,
+            67,
+            69,
+            70,
+            71,
+            75,
+            98,
+            99,
+            101,
+            102,
+            121,
+            129
+          ],
+          "acceptedClosures": 0,
+          "protectedRegions": {
+            "R017": {
+              "reviewedPriorScopeCandidateRange": [
+                5582,
+                5583
+              ],
+              "currentExactHistoricalWindowPresent": true,
+              "currentResidualCandidateRanges": [
+                [
+                  5582,
+                  5583
+                ]
+              ],
+              "statements": [
+                {
+                  "index": 5582,
+                  "bytesEqual": false,
+                  "strictEqual": false,
+                  "shapeEqual": true,
+                  "beforeRoute": {
+                    "index": 5582,
+                    "range": [
+                      4048373,
+                      4061805
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 2011,
+                        "segments": 2678,
+                        "logicalOwner": "node_modules/bidi-js/dist/bidi.js",
+                        "physicalSourceSha256": "5b58433ed951be70376bee55cb9a98cdce788e00cd2fa5f881cbcb1dcad03102",
+                        "bytes": 45563,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "afterRoute": {
+                    "index": 5582,
+                    "range": [
+                      4048373,
+                      4061805
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 2011,
+                        "segments": 2678,
+                        "logicalOwner": "node_modules/bidi-js/dist/bidi.js",
+                        "physicalSourceSha256": "5b58433ed951be70376bee55cb9a98cdce788e00cd2fa5f881cbcb1dcad03102",
+                        "bytes": 45563,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "fullRouteEqual": true,
+                  "ownerRecordsEqual": true
+                }
+              ],
+              "accepted": false,
+              "remainsOpen": true
+            },
+            "R075": {
+              "reviewedPriorScopeCandidateRange": [
+                12014,
+                12016
+              ],
+              "currentExactHistoricalWindowPresent": false,
+              "currentResidualCandidateRanges": [
+                [
+                  12015,
+                  12016
+                ]
+              ],
+              "statements": [
+                {
+                  "index": 12014,
+                  "bytesEqual": false,
+                  "strictEqual": false,
+                  "shapeEqual": false,
+                  "beforeRoute": {
+                    "index": 12014,
+                    "range": [
+                      9358016,
+                      9359744
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 3719,
+                        "segments": 315,
+                        "logicalOwner": "src/tools/BashTool/bashPermissions.ts",
+                        "physicalSourceSha256": "ee6f492026a7e7d51e34c83ae5fa669f5a5ed5704d03f1a480cf3bc20a1d9df9",
+                        "bytes": 86944,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "afterRoute": {
+                    "index": 12014,
+                    "range": [
+                      9358013,
+                      9359737
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 3719,
+                        "segments": 314,
+                        "logicalOwner": "src/tools/BashTool/bashPermissions.ts",
+                        "physicalSourceSha256": "4f95823a1e545112490d819f1f0af5d02127495ca019fe3705bef645a18fe7f7",
+                        "bytes": 86932,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "fullRouteEqual": false,
+                  "ownerRecordsEqual": false
+                },
+                {
+                  "index": 12015,
+                  "bytesEqual": false,
+                  "strictEqual": false,
+                  "shapeEqual": false,
+                  "beforeRoute": {
+                    "index": 12015,
+                    "range": [
+                      9359744,
+                      9360563
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 3719,
+                        "segments": 100,
+                        "logicalOwner": "src/tools/BashTool/bashPermissions.ts",
+                        "physicalSourceSha256": "ee6f492026a7e7d51e34c83ae5fa669f5a5ed5704d03f1a480cf3bc20a1d9df9",
+                        "bytes": 86944,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "afterRoute": {
+                    "index": 12015,
+                    "range": [
+                      9359737,
+                      9360549
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 3719,
+                        "segments": 98,
+                        "logicalOwner": "src/tools/BashTool/bashPermissions.ts",
+                        "physicalSourceSha256": "4f95823a1e545112490d819f1f0af5d02127495ca019fe3705bef645a18fe7f7",
+                        "bytes": 86932,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "fullRouteEqual": false,
+                  "ownerRecordsEqual": false
+                }
+              ],
+              "accepted": false,
+              "remainsOpen": true,
+              "narrowedWindowDoesNotCloseHistoricalObligation": true,
+              "newShapeMatchedPair": [
+                12010,
+                12014
+              ],
+              "currentResidualTargetRange": [
+                12011,
+                12012
+              ]
+            },
+            "R091": {
+              "reviewedPriorScopeCandidateRange": [
+                12382,
+                12383
+              ],
+              "currentExactHistoricalWindowPresent": true,
+              "currentResidualCandidateRanges": [
+                [
+                  12382,
+                  12383
+                ]
+              ],
+              "statements": [
+                {
+                  "index": 12382,
+                  "bytesEqual": false,
+                  "strictEqual": false,
+                  "shapeEqual": true,
+                  "beforeRoute": {
+                    "index": 12382,
+                    "range": [
+                      9576315,
+                      9577315
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 3772,
+                        "segments": 8,
+                        "logicalOwner": "src/memdir/findRelevantMemories.ts",
+                        "physicalSourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+                        "bytes": 5305,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "afterRoute": {
+                    "index": 12382,
+                    "range": [
+                      9576301,
+                      9577301
+                    ],
+                    "owners": [
+                      {
+                        "sourceIndex": 3772,
+                        "segments": 8,
+                        "logicalOwner": "src/memdir/findRelevantMemories.ts",
+                        "physicalSourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+                        "bytes": 5305,
+                        "mapSourcesContentMatches": true
+                      }
+                    ],
+                    "unmappedSegments": 0
+                  },
+                  "fullRouteEqual": false,
+                  "ownerRecordsEqual": true
+                }
+              ],
+              "accepted": false,
+              "remainsOpen": true,
+              "sourceProvenanceBlocked": true
+            }
+          },
+          "otherHistoricalObligationRecords": 20,
+          "otherHistoricalObligationStatusesPreservedIndividually": true,
+          "additionalSupplierObligationRecords": 1
+        },
+        "limits": [
+          "Pinned strict and shape parser indexes are authenticated data. Parser replay and actual-owner/provider AST auditing are separately owned.",
+          "Both complete maps are decoded, generated and original coordinates measured, and all physical sources and every program byte authenticated. Valid UTF16 coordinates inside a surrogate pair have no exact UTF8 byte point; their complete containing scalar intervals are preserved. This proves bounded data joins only.",
+          "Source-map contribution sets, segment-ordinal pairs, and equal source hashes do not establish unique semantic ownership, initialization equivalence, or runtime identity.",
+          "The original userAgent.ts 10:10 empty terminal line remains invalid; no map displacement or source coordinate is repaired.",
+          "All 134 historical region closures remain unaccepted. Twenty other historical obligations retain their individual scoped statuses; supplier qualifications remain.",
+          "No broad alpha-equivalence, global bijection, global alias substitution, or claim of whole-version acceptance is made. Reverse WO+j17 to _A does not establish a bijection.",
+          "R017, R075, R091, inherited Bash parser substitutions, cycles, TDZ, getters, abrupt completion, compiler erasure, reflection, source-position, providers and runtime qualifications remain."
+        ]
+      }
+    }
+  },
+  "strictPartitionInterpretation": "V62 has 216 strict gaps and 230 exact anchors; V63 has 295 gaps and 327 anchors. Of 230 prior ordered anchors, 188 remain and 42 lose actual raw equality. Of 139 added ordered anchors, 135 gain actual raw equality and four reflect ordering-only selection. These allocation-sensitive partition counts are diagnostics, not acceptance or a monotonic progress measure. Forty-six complete partitions were independently recomputed, and saved historical partitions were reproduced; the original generator was not recovered.",
+  "shapePartitionInterpretation": "There are 120 current windows: 119 exact historical joins and one unjoined initializer window at diagnostic index 67 (target 12011, candidate 12015). Historical R075 no longer has the exact (op,target interval) key [12010,12012) after the carrier splits out. New window 67 overlaps and narrows that historical target interval to [12011,12012), with candidate [12015,12016). R075 keeps its entire historical candidate scope [12014,12016); the narrower residual also has its own explicit obligation.",
+  "historicalCorrectionInterpretation": "V59 execution-identity, V60 same-position metadata, V61 review labels and V62 native-precheck/replay-comparison corrections remain with their original evidence. Twenty other historical records retain their individual scoped statuses, not a blanket open label. The provisional extra-WR6 supplier guess was corrected by independent dependency proof: jL4 ordinal 5 is extra shellQuote and WR6 corresponds to target Ph6.",
+  "executionProvenance": "The V63 prospective combined gate, fresh native checks before all five stages, initial NODE_PATH rejection, later supplementary-guard-seal consolidation, and independent execution PASS are detailed in build-result-summary.json. None retroactively closes the original V62 native-precheck gap.",
+  "selectedCaptureCorrespondenceIsNotGlobalProof": true,
+  "globalReverseCollision": [
+    {
+      "name": "_A",
+      "mappedNames": [
+        "WO",
+        "j17"
+      ]
+    }
+  ],
+  "globalCaptureBijectionEstablished": false,
+  "originalHistoricalResidualRecordsPreserved": 134,
+  "otherHistoricalObligationsRetainedIndividually": 20,
+  "newUnjoinedDiagnosticWindowObligations": 1,
+  "additionalOutsideWindowSupplierObligations": 1,
+  "historicalBacklogUnmodified": true,
+  "partitionDiagnosticOnly": true,
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

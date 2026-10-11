@@ -1,0 +1,147 @@
+{
+  "kind": "R075-bounded-accepted89-alias-removal-source-provenance",
+  "sourceProposalManifestSha256": "b0f874cba98c0bad8648524b21e9635cdebe5b7edd21c890c99ffe8eb53bec94",
+  "sourcePath": "src/tools/BashTool/bashPermissions.ts",
+  "beforeSha256": "ee6f492026a7e7d51e34c83ae5fa669f5a5ed5704d03f1a480cf3bc20a1d9df9",
+  "afterSha256": "4f95823a1e545112490d819f1f0af5d02127495ca019fe3705bef645a18fe7f7",
+  "beforeBytes": 86944,
+  "afterBytes": 86932,
+  "donorSha256": "93f3ae169eeaf731bdbe913b1e40476126732a7c4bd90ee5f3e39c8261d086a5",
+  "donorCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+  "donorArchiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+  "donorMember": "src/tools/BashTool/bashPermissions.ts",
+  "donorGitBlob": "b91925317b8c95f83d3bb354aea3586641c8ca12",
+  "changes": [
+    {
+      "before": "const splitCommand = splitCommand_DEPRECATED\n",
+      "after": "",
+      "originalByteOffset": 3605
+    },
+    {
+      "before": "isCompoundCommand.set(cmd, splitCommand(cmd).length > 1)",
+      "after": "isCompoundCommand.set(cmd, splitCommand_DEPRECATED(cmd).length > 1)",
+      "originalByteOffset": 35535
+    },
+    {
+      "before": "const subcommands = splitCommand(command)",
+      "after": "const subcommands = splitCommand_DEPRECATED(command)",
+      "originalByteOffset": 49208
+    },
+    {
+      "before": "return splitCommand(command).some(subcmd =>",
+      "after": "return splitCommand_DEPRECATED(command).some(subcmd =>",
+      "originalByteOffset": 86852
+    }
+  ],
+  "donorArchivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": false,
+  "unrelatedDonorChangesExcluded": true,
+  "exactFourSourceEditsReproduced": true,
+  "netSourceBytes": -12,
+  "unchangedDirectProviders": [
+    {
+      "path": "src/utils/bash/commands.ts",
+      "bytes": 45547,
+      "sha256": "493f790a1ceccddddbe2f7c27305214ebf5b7ab69a2a6703a6337daed1f0db87"
+    },
+    {
+      "path": "src/tools/BashTool/BashTool.tsx",
+      "bytes": 47856,
+      "sha256": "d4d7a4ac1790ed58a564ba452280b199c06c4d9c3c7bff5f3f1be38b535656c8"
+    }
+  ],
+  "verifiedDuringExport": "Authenticate the committed accepted V45 source overlay and complete permission member, verify the donor patterns and exact four source edits, and compare every V63 input to the committed public V62 checkpoint. Independent source review separately verifies complete affected functions, complete module scope/read-write inverse, comments, providers and source provenance.",
+  "sourceHunks": [
+    "Remove the one local const splitCommand snapshot initializer.",
+    "Retarget exactly three existing bare calls to the already imported splitCommand_DEPRECATED binding."
+  ],
+  "sourceReviewSealSha256": "bea909b82284a791aa233377b71b9c8f4db5eba50e4d9402a32d5f76b41f3c48",
+  "tupleReviewSealSha256": "c90776d44da1150c26ccacf2223e11e7b83ea1cf862845faf165245ed08657b9",
+  "sourceReviewFindings": {
+    "verdict": "PASS bounded source-only gate; no build or acceptance authorization",
+    "proposalSealSha256": "7badca1a9075d74814a70d217b85dd4d2758a40d1cacdd558f1531461880c8d8",
+    "completeInverseAst": true,
+    "completeByteInverseSeparatelyVerified": true,
+    "completeCommentsRawAndContentUnchanged": true,
+    "importsExactlyUnchanged": true,
+    "exportInterfaceUnchanged": true,
+    "onlyRuntimeInitializerRemoved": "const splitCommand = splitCommand_DEPRECATED",
+    "allOtherRuntimeInitializersExactAndInOrder": true,
+    "affectedFullFunctions": [
+      "filterRulesByContentsMatchingInput",
+      "checkSandboxAutoAllow",
+      "commandHasAnyCd"
+    ],
+    "affectedFullFunctionsEqualAuthenticatedDonor": true,
+    "allThreeCalleeIdentifiersResolveToExistingImport": true,
+    "completeModuleScopeCount": 186,
+    "scopeInverseExact": true,
+    "oldAlias": {
+      "definition": [
+        {
+          "type": "Variable",
+          "kind": "const"
+        }
+      ],
+      "initializationWrites": 1,
+      "runtimeReads": 3,
+      "otherWrites": 0
+    },
+    "importBinding": {
+      "beforeReadCount": 1,
+      "afterReadCount": 3,
+      "writesBeforeAndAfter": 0
+    },
+    "commandsProvider": {
+      "completeFileParsed": true,
+      "exportDefinition": [
+        {
+          "type": "FunctionName",
+          "kind": null
+        }
+      ],
+      "exportReferences": 3,
+      "exportAssignmentsOrUpdates": 0,
+      "explicitDirectEvalOrFunctionConstructor": false
+    },
+    "existingValueCycleUnchanged": [
+      "BashTool",
+      "bashPermissions",
+      "BashTool"
+    ],
+    "completeProviderFilesParsed": 6,
+    "negativeControls": {
+      "literalRaw": true,
+      "callArgument": true,
+      "referenceWrite": true,
+      "resolvedScope": true
+    },
+    "sourceModified": false,
+    "gitWrites": false,
+    "compilerOrRecoveredCodeExecuted": false,
+    "targetReadOrUsedForConstruction": false,
+    "strictAcceptance": false,
+    "globalBindingAcceptance": false,
+    "globalInitializationAcceptance": false,
+    "runtimeAcceptance": false,
+    "acceptedClosure": false,
+    "universalSnapshotLiveEquivalence": false
+  },
+  "historicalInlineMaps": {
+    "changedSourceContainsInlineMap": false,
+    "allInheritedInlineMapInputsByteIdentical": true,
+    "freshV63EmissionEvidence": false,
+    "interpretation": "The changed permission source has no inline source-map comment. Historical inline metadata in other inputs remains inherited and byte-identical, not fresh emission attribution."
+  },
+  "constructionResponsibility": "The primary recovery author personally inspected the source, authored/applied the exact four edits, and executed the diagnostic build and global census. Independent reviews and packaging provide support; packaging performs only data comparison and copying.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "Local snapshot initialization and later imported-binding reads are not universally equivalent. Early-cycle TDZ, partial initialization, provider readiness, host replacement/hot migration, function reflection, actual DCE including pendingClassifierCheck, emitted initializer topology and complete binding/supplier proof remain boundaries. The existing value-import cycle, all 29 inherited parser substitutions, prior supplier failures, R091 provenance and R121 common-prefix hot-migration caveat remain open. Accepted .89 source provenance is not .90 acceptance.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

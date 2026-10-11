@@ -1,0 +1,326 @@
+{
+  "status": "PASS bounded actual alias delta and passing complete finite correspondences; complete permission owner and listed suppliers remain blocked",
+  "rootExecutionReceiptSha256": "2fd984d8d36712001485b6da76167f2e22d5ae54cb73825b0fd2c4aa1b5043b2",
+  "freshRootNativePrechecksBeforeEveryStageAuthenticated": true,
+  "allFiveRootStagesExitZero": true,
+  "completePermissionOwnerStatements": 25,
+  "completePermissionOwnerNodes": 3756,
+  "completePermissionOwnerScopes": 96,
+  "completePermissionTargetModuleRejected": true,
+  "passingPermissionOwnerStatements": 21,
+  "permissionOwnerTargetFailures": [
+    11994,
+    12011,
+    12012,
+    12015
+  ],
+  "actualAliasDeclarationAndAssignmentRemovalAndThreeReadRetargetingProved": true,
+  "actualDeltaNotUniversalEquivalence": true,
+  "oldAliasAndProviderDoNotDefineOneGlobalBijection": true,
+  "declarationCarrierNowBoundedPass": {
+    "current": 12014,
+    "target": 12010,
+    "nodes": 439
+  },
+  "commandHasAnyCdNowBoundedPass": {
+    "current": 12013,
+    "target": 12009,
+    "nodes": 19
+  },
+  "initializer": {
+    "current": 12015,
+    "target": 12011,
+    "nodes": {
+      "current": 159,
+      "target": 156
+    },
+    "callbackStatements": {
+      "current": 28,
+      "target": 27
+    },
+    "extraCurrentCall": "jL4",
+    "extraCurrentCallOrdinal": 5,
+    "extraCallSource": "src/utils/bash/shellQuote.ts",
+    "WR6CorrespondsToTarget": "Ph6",
+    "otherCompleteCallbackStatementsMatched": 27,
+    "completeInitializerRemainsRejected": true,
+    "noExtraCallDroppedForAcceptance": true
+  },
+  "unmappedCompleteSourceSuppliers": [
+    7615,
+    7617
+  ],
+  "completeMainPassingSuppliers": 56,
+  "completeProviderPassingTargetStatements": 568,
+  "unrelatedSupplierFailures": 4,
+  "deeperParserStatementFailures": 19,
+  "inheritedParserSites": 29,
+  "allSevenPriorDirectSupplierObligationsRetainedWithTwoNewBoundedPassesNoClosure": true,
+  "combinedUniquePassingStatements": 636,
+  "combinedPassingNodes": 79333,
+  "combinedPassingStatementLocalScopes": 4188,
+  "consistentFiniteTargetMapEntries": 1201,
+  "combinedSelectedTargetFailures": 27,
+  "wholeProgramByteDelta": {
+    "statements": 18280,
+    "changed": 14649,
+    "unchanged": 3631,
+    "nameOnlyChanged": 14647,
+    "nameOccurrences": 78760,
+    "nonNameChanged": [
+      12014,
+      12015
+    ],
+    "changedGap": "terminal debugId"
+  },
+  "BASH_CLASSIFIER": false,
+  "featureEnabledBehaviorProved": false,
+  "historicalCompilerDCEBudgetProved": false,
+  "mainNegativeControls": 16,
+  "providerNegativeControls": 15,
+  "fullMapSourceDomainsPhysicallyVerified": 4789,
+  "exactStartOwnerCaptures": 202,
+  "ownerCaptureMapGaps": 3,
+  "rawStrictWholeProgramAcceptance": false,
+  "normalizedAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "runtimeAcceptance": false,
+  "historicalRecords": 134,
+  "openRecords": 134,
+  "acceptedClosures": 0,
+  "R091ProvenanceRestrictionRetained": true,
+  "R121ProviderLifecycleHotMigrationRestrictionsRetained": true,
+  "targetComparisonOnly": true,
+  "sourceOrGitModified": false,
+  "compilerOrRecoveredCodeExecutedByReviewer": false,
+  "completeReplayAndPostVerification": true,
+  "postVerificationSha256": "ef526893358740ad7ce63c0acdeed19323d3b6e0f52c997fcb724ac93221ee69",
+  "reportSha256": "bc4990f332a8470a566f36b9390d71c9dd026e2f17b4f62705bf00b1bc1e0903",
+  "kind": "public-bounded-R075-V63-complete-owner-and-provider-review-summary",
+  "reviewSealSha256": "ecac457ff56aaf24b2f1013194bdf6d2e7a2c2d6510464d0e261535371734925",
+  "reviewReceiptSha256": "3ee2d43d206842fba57ef19ef7ef4d36fd621590f071916513b1399b382338f8",
+  "sourceProvenance": "source-origin-basis.json",
+  "completeDeltaInterpretation": "The entire V62 permission model, with exactly its old alias declarator and j17=WO snapshot assignment removed and its three old alias callees retargeted, matches the complete actual V63 owner under the checked generated-name correspondence. The two-expression assignment sequence becomes its ordinary single assignment. This diagnostic clone does not normalize target acceptance and does not establish universal snapshot/live-binding equivalence.",
+  "generatedSpellingReuse": "The spelling j17 still exists in V63 as ENV_VAR_ASSIGN_RE. Declaration/reference/initializer provenance identifies the removed alias; absence of a spelling is not the test.",
+  "completeOwnerFailureDetails": [
+    {
+      "currentIndex": 11994,
+      "targetIndex": 11990,
+      "currentNodes": 72,
+      "targetNodes": 67,
+      "reason": "split/newline/index/trim versus the target firstLine provider"
+    },
+    {
+      "currentIndex": 12011,
+      "targetIndex": 12007,
+      "currentNodes": 80,
+      "targetNodes": 55,
+      "reason": "git detection with shellQuote success/token guards and regex fallback versus command-argument parser"
+    },
+    {
+      "currentIndex": 12012,
+      "targetIndex": 12008,
+      "currentNodes": 54,
+      "targetNodes": 26,
+      "reason": "cd detection with shellQuote success/token guards and regex fallback versus command-argument parser"
+    },
+    {
+      "currentIndex": 12015,
+      "targetIndex": 12011,
+      "currentNodes": 159,
+      "targetNodes": 156,
+      "reason": "28 versus 27 callback statements; extra shellQuote initialization jL4 at zero-based ordinal 5"
+    }
+  ],
+  "boundedPassingChangedFunctions": [
+    {
+      "name": "filterRulesByContentsMatchingInput",
+      "currentIndex": 12001,
+      "targetIndex": 11997
+    },
+    {
+      "name": "checkSandboxAutoAllow",
+      "currentIndex": 12004,
+      "targetIndex": 12000
+    },
+    {
+      "name": "commandHasAnyCd",
+      "currentIndex": 12013,
+      "targetIndex": 12009
+    }
+  ],
+  "initializerCorrection": "The earlier positional WR6 suspicion was provisional. Full dependency evidence identifies jL4 at ordinal 5 as shellQuote; WR6 corresponds to target Ph6. The extra call is retained in the complete failed initializer, and no deletion is used for target acceptance.",
+  "outsideShapeWindowObligation": "The historical supplier 12013 obligation remains individually recorded despite its new bounded passing correspondence and absence from current shape-residual windows. A passing finite correspondence or absent shape window is not an accepted closure.",
+  "unrelatedSupplierFailureDetails": [
+    "readOnlyValidation function: optional parse call versus unconditional parse",
+    "readOnlyValidation initializer: array/spread/regex construction and assignment grouping",
+    "TaskOutput initializer: protected private-name differences",
+    "fileReadState: captured threshold binding versus target literal"
+  ],
+  "providerReview": {
+    "sealSha256": "b683a8d297cd541a21785ac00478d5a89a22220db982b24e20b5063983614e0e",
+    "completeCurrentPriorStatements": 591,
+    "byteIdentical": 206,
+    "currentPriorFiniteMapEntries": 1040,
+    "targetFiniteMapEntries": 982,
+    "passingCompleteTargetPairs": 568,
+    "passingTargetNodes": 70457,
+    "passingStatementLocalScopes": 3777,
+    "completeBashToolModuleStatements": 11,
+    "completeBashToolModuleScopes": 89,
+    "physicalSelectedSourceDomains": 78,
+    "overlappingPassingPairsWithMainReview": 9,
+    "transitiveAcceptance": false
+  },
+  "parserLimits": "All 19 complete parser failures retain all 29 inherited .at(-1)-to-computed-last-element sites. Empty and negative-property behavior, method lookup, repeated reads, prototypes and accessors remain unproved. No private-name normalization, constant folding, optional-call removal or parser-equivalence assumption is accepted.",
+  "featureFolding": {
+    "BASH_CLASSIFIER": false,
+    "featureEnabledBehaviorNotProved": true,
+    "historicalCompilerBudgetNotProved": true,
+    "wholePermissionFunctionCorrespondence": {
+      "role": "bashPermissions:12010",
+      "currentIndex": 12010,
+      "targetIndex": 12006,
+      "nodes": 1299,
+      "scopeCount": 37,
+      "fullProtectedFields": true,
+      "fullScopeGraph": true,
+      "fullScopeFlags": true,
+      "rawDifferenceClasses": {
+        "bound": 85,
+        "free": 48,
+        "protected": 0
+      },
+      "rawStrictEqual": false
+    },
+    "pendingClassifierCheckPropertiesInEachCompleteV62V63TargetOwner": 0,
+    "interpretation": "Complete emitted owners and the full 1,299-node permission function were compared in this exact disabled-feature profile. This does not prove feature-enabled behavior or the historical compiler complexity-budget/DCE comment."
+  },
+  "sourceMapBoundaries": {
+    "sourceArraysIdentical": true,
+    "nameArraysIdentical": true,
+    "changedSourceIndex": 3719,
+    "all4789PhysicalSourceDomainsVerified": true,
+    "completeSourceMapCounts": {
+      "v62": {
+        "segments": 2080252,
+        "mappedSegments": 2080252,
+        "unmappedSegments": 0,
+        "outsideStatementSegments": 0,
+        "selectedOwnerSegments": 75160
+      },
+      "v63": {
+        "segments": 2080249,
+        "mappedSegments": 2080249,
+        "unmappedSegments": 0,
+        "outsideStatementSegments": 0,
+        "selectedOwnerSegments": 75157
+      }
+    },
+    "coordinateAnomalies": {
+      "v62": [
+        {
+          "sourceIndex": 1687,
+          "logicalOwner": "src/utils/userAgent.ts",
+          "generatedOffset": 3494792,
+          "originalLine": 11,
+          "originalColumn": 10,
+          "sourceLineCount": 11,
+          "sourceLineUnits": 0
+        }
+      ],
+      "v63": [
+        {
+          "sourceIndex": 1687,
+          "logicalOwner": "src/utils/userAgent.ts",
+          "generatedOffset": 3494792,
+          "originalLine": 11,
+          "originalColumn": 10,
+          "sourceLineCount": 11,
+          "sourceLineUnits": 0
+        }
+      ]
+    },
+    "targetMapAvailable": false,
+    "totalCaptureOccurrences": 205,
+    "exactStartMapped": 202,
+    "gaps": [
+      {
+        "name": "w17",
+        "range": [
+          2096,
+          2099
+        ],
+        "from": 2,
+        "resolvedScope": null,
+        "read": true,
+        "write": false,
+        "init": null,
+        "currentIndex": 12010,
+        "targetName": "P17",
+        "exactStartSegments": [],
+        "gap": true
+      },
+      {
+        "name": "kE8",
+        "range": [
+          2123,
+          2126
+        ],
+        "from": 2,
+        "resolvedScope": null,
+        "read": true,
+        "write": false,
+        "init": null,
+        "currentIndex": 12010,
+        "targetName": "NE8",
+        "exactStartSegments": [],
+        "gap": true
+      },
+      {
+        "name": "L",
+        "range": [
+          7,
+          8
+        ],
+        "from": 1,
+        "resolvedScope": null,
+        "read": true,
+        "write": false,
+        "init": null,
+        "currentIndex": 12015,
+        "targetName": "E",
+        "exactStartSegments": [],
+        "gap": true
+      }
+    ],
+    "exactMappedWithoutIdentifierToken": []
+  },
+  "captureInterpretation": "Of 205 owner capture occurrences, 202 have valid exact-start source segments and original identifier tokens. Three gaps remain, for git/cd references in 12010 and lazy helper L in 12015. AST/declaration evidence is retained, without relabeling nearest segments as exact. No authenticated target source map exists.",
+  "cycle": {
+    "permissionInitializerCallsBashToolAtOrdinal": 16,
+    "bashToolInitializerCallsPermissionsAtOrdinal": 29,
+    "lazyHelper": "Clears callback before invoking it; recursive reentry does not rerun the callback, and an initial throw leaves the factory cleared without completing cache assignment.",
+    "readinessProved": false
+  },
+  "effectAndInitializationLimits": [
+    "Snapshot initialization and later direct binding reads can differ during early reentry; the old lowered var alias may be undefined while direct lookup reaches a hoisted provider function.",
+    "Function instantiation or a hoisted function object does not make captured parser constants/state ready.",
+    "Source TDZ versus lowered-var behavior, partial initialization, abrupt completion, host replacement and hot migration remain boundaries.",
+    "Function-name/text/stack/source-map observations remain unproved.",
+    "Complete buildTool/lazySchema/Zod/RegExp and getter evaluation order is retained; builtin/prototype/allocation purity is not assumed."
+  ],
+  "retainedReviewFailures": [
+    "Input authentication first rejected a canonical-manifest digest where a physical file hash was required. The correction was verified against the sealed entry.",
+    "Fresh-model proof first rejected Acorn Node prototypes versus JSON objects. Final comparison serializes fresh parsed data while retaining every enumerable AST/model/scope field, including positions."
+  ],
+  "independentReplay": "Input authentication, complete map collection, discovery, dependency nomination, frozen owner proof, combined proof and supplementary checks replay byte-for-byte, followed by complete post-verification.",
+  "inheritedR121HotMigrationCommonPrefixCaveatPreserved": true,
+  "historicalOtherObligations": 20,
+  "historicalOtherStatuses": "Retained individually, not uniformly open",
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "acceptedRegionClosures": 0
+}

@@ -1,0 +1,114 @@
+{
+  "version": "2.1.90",
+  "candidate": "V63",
+  "state": "incomplete source-only checkpoint",
+  "sourceExportDate": "2026-10-11",
+  "candidateIdentity": "V63-R075-permission-alias-source-preparation",
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50693539,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "c334393beafad75794aa2d61460ff458637906a36e44789a3b57798051607267",
+  "derivedSrcTree": "ceca85d533c21c72092d3d8d15699a723ec615ed",
+  "sourceFilesChangedFromPublishedV62": 1,
+  "byteIdenticalInheritedSourceFiles": 6113,
+  "netSourceBytes": -12,
+  "historicalResidualRecordsPreserved": 134,
+  "otherHistoricalObligationsRetainedIndividually": 20,
+  "newUnjoinedDiagnosticWindowObligations": 1,
+  "additionalOutsideWindowSupplierObligations": 1,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 120,
+  "exactHistoricalWindowJoins": 119,
+  "newDiagnosticWindowIndexes": [
+    67
+  ],
+  "priorV62ShapeDiagnosticWindows": 120,
+  "strictDiagnosticGaps": 295,
+  "exactStatementAnchors": 327,
+  "anchorChurn": {
+    "prior": 230,
+    "current": 327,
+    "relocatedRetainedPairs": 188,
+    "lostAfterRelocation": 42,
+    "addedAfterRelocation": 139,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 42,
+    "orderingOnlyLostPairs": 0,
+    "actualRawEqualityGainPairs": 135,
+    "orderingOnlyAddedPairs": 4
+  },
+  "statementCounts": [
+    18280,
+    18280
+  ],
+  "shapeChangedPairs": [
+    [
+      12014,
+      12014
+    ],
+    [
+      12015,
+      12015
+    ]
+  ],
+  "strictChangedPairs": 14649,
+  "shapeStableStrictChangedPairs": 14647,
+  "unchangedOtherStatementBytes": 3631,
+  "newBoundedSourceRepair": "R075 local snapshot alias removal and three imported-binding call retargetings",
+  "completePermissionOwnerTargetPass": false,
+  "permissionOwnerFailures": [
+    11994,
+    12011,
+    12012,
+    12015
+  ],
+  "acceptedRegionClosures": 0,
+  "strictWholeProgramAstEqual": false,
+  "strictOwnerNamesEqual": false,
+  "globalReverseCollision": [
+    {
+      "name": "_A",
+      "mappedNames": [
+        "WO",
+        "j17"
+      ]
+    }
+  ],
+  "globalBijectionEstablished": false,
+  "inheritedV60BidiShorthandMismatchRetained": true,
+  "r17BidiShorthandSideEffectRetained": true,
+  "genericNormalizationApplied": false,
+  "selectedCaptureCorrespondenceIsNotGlobalProof": true,
+  "r091UnchangedAndDeferred": true,
+  "r091SourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+  "sourceOnlySnapshot": true,
+  "allSealedSourceInputsIncluded": true,
+  "standaloneBuildPackage": false,
+  "freshDiagnosticBuildRecorded": true,
+  "compilerExecutedDuringExport": false,
+  "applicationExecutedDuringExport": false,
+  "officialTargetUsedForSourceRestoration": false,
+  "originalSourceAuthorshipClaim": false,
+  "originalPartitionGeneratorRecovered": false,
+  "compatibilityPartitionExactlyReproducesPriorV52ThroughV62": true,
+  "historicalGaps": [
+    "Trial59 and Trial60 historical source maps remain unavailable.",
+    "Original Trial61 evidence remains lost."
+  ],
+  "workResponsibility": "The primary recovery author personally authored/applied the four edits, executed the five exact diagnostic stages with fresh checks, and ran the renewed complete census. Independent reviews and data-only packaging provide support.",
+  "limits": [
+    "Initial NODE_PATH precheck failure is preserved; successful remedied checks preceded the stages.",
+    "The supplementary guard seal was written after execution started; the original combined gate governed the run. No retroactive seal or V62 precheck certification is claimed.",
+    "Four complete permission-owner failures, four unrelated supplier failures, nineteen complete parser failures with 29 sites, and two unmapped shellQuote supplier roles remain.",
+    "All seven prior direct supplier obligations remain individually recorded; two new bounded passes are not closures, including the outside-window supplier record.",
+    "Snapshot/live-import, early cycles and provider readiness, builtin/prototype and reflection domains remain unproved.",
+    "R121 common-prefix hot migration, prior bidi/source-map limits and R091 provenance remain unchanged."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "published-V62-source-plus-one-reviewed-source-edit",
+  "baselineRepository": "https://github.com/Wenri/claude-code",
+  "baselineCommit": "de24130f165d912d73df20ef50264f63935cd6c3",
+  "baselineDirectory": "recovery/checkpoints/2.1.90/v62-incomplete",
+  "baselineSourceManifestSha256": "f638792e7db544918ab8df6e29a4c58a517ee2b4890624d3c8e8409fa608c3bf",
+  "baselineDerivedSrcTree": "b68cb20645e34bef7754c19d04560e886213fea6",
+  "baselinePublishedFiles": [
+    {
+      "path": "git-source-pins.json",
+      "bytes": 486764,
+      "sha256": "e6c2320260126d642449902cc8e5a5075271bc1caf209e2e51a5c714c26b07c5"
+    },
+    {
+      "path": "saved-backlog.csv",
+      "bytes": 129123,
+      "sha256": "694d8857603991d5485e1638a810226d7e0770aed4035e18b7a6ff956cfe9549"
+    },
+    {
+      "path": "source-inputs.tar.gz",
+      "bytes": 12939412,
+      "sha256": "53316a461c7d70bd3838e2821292e969ff507f9c484558a388f22a410fae92a5"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 1132650,
+      "sha256": "14b55c10cf5701113bd0e98e93250aec9c4d2f6f418fecb53741ff0ca08325fa"
+    }
+  ],
+  "method": "Read the published V62 checkpoint directly from the named Git commit. Authenticate every archive member against its source manifest. Compare every V63 source path and byte to that authenticated baseline. Exactly the one listed source file differs; all other 6,113 files are byte-identical, with no added or removed source paths. The complete V63 source and Git manifests pin every resulting file. The source patch records the exact textual change.",
+  "changedFiles": [
+    {
+      "path": "src/tools/BashTool/bashPermissions.ts",
+      "before": {
+        "bytes": 86944,
+        "sha256": "ee6f492026a7e7d51e34c83ae5fa669f5a5ed5704d03f1a480cf3bc20a1d9df9",
+        "gitBlob": "1a8969b532fd6ead2e721d4ffd8049c9c3b074cf"
+      },
+      "after": {
+        "bytes": 86932,
+        "sha256": "4f95823a1e545112490d819f1f0af5d02127495ca019fe3705bef645a18fe7f7",
+        "gitBlob": "287d450f6e601d048e8adca38de5cfb5b60d5494"
+      }
+    }
+  ],
+  "changedFilesCount": 1,
+  "byteIdenticalInheritedFiles": 6113,
+  "addedPaths": [],
+  "removedPaths": [],
+  "netSourceBytes": -12,
+  "v63SourceManifestSha256": "c334393beafad75794aa2d61460ff458637906a36e44789a3b57798051607267",
+  "v63DerivedSrcTree": "ceca85d533c21c72092d3d8d15699a723ec615ed",
+  "sourcePatch": {
+    "path": "source-changes.patch",
+    "bytes": 1624,
+    "sha256": "ac01db09ea69357693de5f3d4e09b3b31e73f75c1ad31f054b29bcec9b8790c4"
+  },
+  "baselineSourceRestoration": "The published V62 checkpoint is derived from V61 plus the reviewed R071 BashTool declaration relocation; all earlier source repairs remain inherited. This V63 export authenticates the public V62 byte identities directly and needs no private earlier restoration archive.",
+  "officialTargetUsedForSourceRestoration": false,
+  "referencesRequiredToReadThisArchive": false,
+  "privateArchivesRequiredToReadThisArchive": false,
+  "originalSourceAuthorshipClaim": false,
+  "newAcceptanceClaim": false
+}

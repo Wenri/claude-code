@@ -1,0 +1,264 @@
+{
+  "kind": "public-V63-prospectively-gated-five-stage-execution-summary",
+  "candidateIdentity": "V63-R075-permission-alias-source-preparation",
+  "workResponsibility": "The primary recovery author personally authored/applied the source edit, ran and checked the exact five serial diagnostic stages, and performed the renewed whole-program census. Independent review and data-only packaging provide support. The packager executed neither compiler nor recovered application.",
+  "recordedRun": {
+    "completedAt": "2026-10-11T23:23:52.163572+00:00",
+    "executionReceiptSha256": "2fd984d8d36712001485b6da76167f2e22d5ae54cb73825b0fd2c4aa1b5043b2",
+    "combinedProspectiveGateSealSha256": "c90776d44da1150c26ccacf2223e11e7b83ea1cf862845faf165245ed08657b9",
+    "preconditionReceiptSha256": "1791d17055add756265c2c5ed3aa076e76fe07f1e293d611a3b6982e08b4d5cf",
+    "postconditionReceiptSha256": "a7e26dc54c99b793153452553cf4a0b74d82dc21e2c798b08a18392248e3366f",
+    "fullPreconditionsStartedAt": "2026-10-11T23:21:19.551038+00:00",
+    "fullPreconditionsCompletedAt": "2026-10-11T23:21:36.141542+00:00",
+    "firstStageStartedAt": "2026-10-11T23:21:49.107304+00:00",
+    "preconditionsRecordedBeforeStageOne": true,
+    "nativeToolsFreshlyHashed": [
+      {
+        "tool": "env",
+        "bytes": 56144,
+        "sha256": "eb1c64bbc9908afcdf8cb48524f17112d8dd76a249f80dee2f01da14747b3b6e"
+      },
+      {
+        "tool": "node",
+        "bytes": 125989464,
+        "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+      },
+      {
+        "tool": "bun",
+        "bytes": 99295408,
+        "sha256": "6d5bb405b1d037a2a466b92757de7e47e4369930fa94bd42f8ff44ba49de6c57"
+      }
+    ],
+    "fullCombinedGateMembersReverified": 24,
+    "outputRootsInitiallyAbsent": true,
+    "stages": [
+      {
+        "step": "preflight",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T23:21:49.107304+00:00",
+        "completedAt": "2026-10-11T23:21:51.233454+00:00"
+      },
+      {
+        "step": "compile",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T23:22:00.957670+00:00",
+        "completedAt": "2026-10-11T23:22:04.273959+00:00"
+      },
+      {
+        "step": "finalize",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T23:22:15.587658+00:00",
+        "completedAt": "2026-10-11T23:22:21.503574+00:00"
+      },
+      {
+        "step": "strictAst",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T23:22:30.530875+00:00",
+        "completedAt": "2026-10-11T23:22:38.214332+00:00"
+      },
+      {
+        "step": "index",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T23:22:40.687371+00:00",
+        "completedAt": "2026-10-11T23:23:08.181530+00:00"
+      }
+    ],
+    "allFiveExitZero": true,
+    "freshNativePrechecksBeforeEveryStage": true,
+    "completeNativeRecords": 7,
+    "all87ProtectedInventoriesUnchanged": true,
+    "sourceProfileRuntimeAndProtectedRootsUnchanged": true
+  },
+  "initialFailure": {
+    "receiptSha256": "571cfb875f615ef31ad30940e98d2d501513883a5a2198f5066b04d4ea2d9c41",
+    "failure": "Startup-variable guard rejected NODE_PATH presence before candidate execution",
+    "ambientPresenceRecord": "initial-ambient-presence.json",
+    "remediation": "Unset NODE_PATH, NODE_OPTIONS and BUN_OPTIONS for all wrapper invocations, preserving exact command env -u flags. Loader variables were already absent.",
+    "compilerOrApplicationExecuted": false,
+    "failedPrecheckDidNotReachCandidateStage": true,
+    "exactFailureTimestampNotClaimed": true
+  },
+  "supplementaryGuardReviewTiming": {
+    "sealSha256": "8599522c32414090c9ca4ec080e50c6a3e34e81a48903b3f7d6dcaf80c09c744",
+    "receiptSha256": "486d37e94cb9c9ff815bae1f4c480eaf8ca2b7e769a41979e4cacf2c1e9b4b14",
+    "timingQualificationSha256": "bef472316ce5bb3962002a46c7828bf47362f8fe81968fcec51527792e96faff",
+    "completedStaticReviewAt": "2026-10-11T23:21:20.762431+00:00",
+    "writtenConsolidationAt": "2026-10-11T23:23:28.297165+00:00",
+    "staticReviewCompletedBeforeStageOne": true,
+    "supplementalSealExistedBeforeExecution": false,
+    "combinedGateExistedAndWasRootAuthenticatedBeforeStages": true,
+    "wrapperBytesChangedSinceFinalSnapshot": false,
+    "firstSealAttempt": "Stopped at the absent-build assertion before writing a seal because execution had already begun after completed static review under the original sealed combined gate.",
+    "interpretation": "The supplementary seal is later written consolidation of completed static guard review. It was not authenticated before this run because it did not yet exist. The original combined gate and exact frozen wrapper/binding authentication governed execution. Later hashes do not retroactively establish a historical seal or check.",
+    "originalV62TemporalGapClosed": false
+  },
+  "profileSha256": "6f5f105580ce3baa59e284310d3a848f457029f1910408322fa7d7415d70b270",
+  "toolchainSha256": "d2cbde9b721e8e121a0a17fc77a5c66753c0847411f1e2307ec27b73091bdbe6",
+  "compileReportSha256": "f1fa6763ba8b0825fd8ad576d1fe11771d3ca73ecbfcb9665504d23c2bb760af",
+  "sourceManifestSha256": "c334393beafad75794aa2d61460ff458637906a36e44789a3b57798051607267",
+  "candidatePreparationSealSha256": "baac949e8975c88c99277dc7fdbcf7f8cb594c22c4e811fe60fa7fd54095ed10",
+  "outputs": [
+    {
+      "relativeProduct": "raw/cli.js",
+      "bytes": 13126733,
+      "sha256": "7b45fdc626e5a238312395961c27b0d6fa676aa261b8613c7ba0cd86be1688b4",
+      "included": false
+    },
+    {
+      "relativeProduct": "raw/cli.js.map",
+      "bytes": 58789721,
+      "sha256": "2e9089b0b2cfece85594282f6def55dfb01d266049252c4bb2f9c4589c5715ec",
+      "included": false
+    },
+    {
+      "relativeProduct": "final/cli.js",
+      "bytes": 13126516,
+      "sha256": "0c458ee35732c34ee78969c63141ac7ebabb2cbc1ed0d7f439844777b87bf3e5",
+      "included": false
+    },
+    {
+      "relativeProduct": "final/cli.js.map",
+      "bytes": 58760868,
+      "sha256": "69980e4c56f1ae5c9cee791ee772e18fe48a7c612244a6908201ad1725193060",
+      "included": false
+    }
+  ],
+  "reconstructionReceiptEvents": 37,
+  "removedMarkerImports": 11,
+  "rawToFinalExactDeletionReconstructed": true,
+  "removedBytes": 217,
+  "sourceMapComposition": {
+    "allRawPoints": 2080261,
+    "allFinalPoints": 2080249,
+    "keptOriginalSegments": 2080247,
+    "removedOriginalSegments": 14,
+    "insertedDeletionEndBoundaries": 2,
+    "allDecodedFinalPointsMatchIndependentReconstruction": true,
+    "sourcesContentCompletelyBoundToPhysicalInputs": 4789,
+    "restoredOverlaySources": 11,
+    "unmappedSyntheticPoints": 0,
+    "rawAndFinalMapHashesVerified": true,
+    "knownProducerDisplacementRepaired": false
+  },
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110730,
+    "sha256": "848b6a8eccc4a1919db38aa55ee0f278f69febe6c6502a3da3b2db220e3315a7"
+  },
+  "officialTargetStrictAst": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "statementIndex": {
+    "bytes": 5604109,
+    "sha256": "fbedbdf29eb07b25735d3a46e5aa884689a9c4cf20cccf9525678fe7c9a36296",
+    "nodes": 3110730,
+    "statements": 18280,
+    "diagnosticOnly": true
+  },
+  "independentExecutionAudit": {
+    "kind": "combined-independent-V63-five-stage-execution-evidence-audit",
+    "verdict": "PASS bounded diagnostic execution and output/provenance bindings",
+    "completedAt": "2026-10-11T23:35:14.402227+00:00",
+    "combinedProspectiveGateSealSha256": "c90776d44da1150c26ccacf2223e11e7b83ea1cf862845faf165245ed08657b9",
+    "supplementalStaticGuardSealSha256": "8599522c32414090c9ca4ec080e50c6a3e34e81a48903b3f7d6dcaf80c09c744",
+    "supplementalSealPredatesExecutionClaimed": false,
+    "originalV62TemporalGapClosed": false,
+    "allFiveExactCommandsVerified": true,
+    "allFiveExitZeroAndPostchecksPassed": true,
+    "completePrecheckAndFivePerStageAndPostcheckNativeRecords": 7,
+    "fullUTCTemporalOrderingVerified": true,
+    "NODE_PATHFailedPrecheckPreservedAndProperlyRemediated": true,
+    "strictBeforeAfterPathLengthHashesMatchFinalizer": true,
+    "all87ProtectedInventoriesUnchanged": true,
+    "candidateMembers": 6198,
+    "candidatePhysicalFilesIncludingOnlyPermittedOutputs": 6210,
+    "sourceFiles": 6114,
+    "runtimeFiles": 69,
+    "rawToFinalExactDeletionReconstructed": true,
+    "removedImports": 11,
+    "removedBytes": 217,
+    "sourceMapComposition": {
+      "allRawPoints": 2080261,
+      "allFinalPoints": 2080249,
+      "keptOriginalSegments": 2080247,
+      "removedOriginalSegments": 14,
+      "insertedDeletionEndBoundaries": 2,
+      "allDecodedFinalPointsMatchIndependentReconstruction": true,
+      "sourcesContentCompletelyBoundToPhysicalInputs": 4789,
+      "restoredOverlaySources": 11,
+      "unmappedSyntheticPoints": 0,
+      "rawAndFinalMapHashesVerified": true,
+      "knownProducerDisplacementRepaired": false
+    },
+    "strictAst": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110730,
+      "sha256": "848b6a8eccc4a1919db38aa55ee0f278f69febe6c6502a3da3b2db220e3315a7"
+    },
+    "freshStrictParserReplayedHere": false,
+    "ownerProviderAstAuditDuplicated": false,
+    "fullCensusReviewedHere": false,
+    "historicalRegionsRetained": 134,
+    "otherHistoricalObligationsRetained": 20,
+    "otherHistoricalStatuses": "Retained individually; not uniformly open",
+    "additionalSupplierObligationsRetained": true,
+    "R091ProvenanceStillBlocked": true,
+    "inheritedR075R071R121AndGlobalRestrictionsRetained": true,
+    "wholeProgramAcceptance": false,
+    "wholeVersionAcceptance": false,
+    "runtimeAcceptance": false,
+    "transitiveProviderAcceptance": false,
+    "globalBindingAcceptance": false,
+    "globalInitializationAcceptance": false,
+    "acceptedClosures": 0,
+    "compilerOrRecoveredCodeExecutedByReviewers": false,
+    "sourceGitOrPriorSealedEvidenceModified": false,
+    "environmentHermeticityOrOSSandboxEstablished": false,
+    "receiptSha256": "a0b48e46ba5744bd09d68f121806f8b8610c287fdec3be3e73a11656ad926778",
+    "sealSha256": "c90504f0267634de5996c3f7976a17406d3d41926b44dbb885078a7a06167b66",
+    "rootExecutionReceiptSha256": "2fd984d8d36712001485b6da76167f2e22d5ae54cb73825b0fd2c4aa1b5043b2",
+    "timingAndInputReviewSha256": "6239388b0dbb795995f60a418aa0c3ff6f29f977d7c2e81735525f806dc0d328",
+    "reportBindingsReview": {
+      "sealSha256": "38009e9cebc28ecf2013237145e6439ef68b3e53d61f17a1e4cc9df4c5af09fb",
+      "receiptSha256": "16a622582128f618f76c8a10f8964e990d1a9bb0f0e80c8655630a2e4b388d3b",
+      "members": 17
+    },
+    "statementIndex": {
+      "bytes": 5604109,
+      "sha256": "fbedbdf29eb07b25735d3a46e5aa884689a9c4cf20cccf9525678fe7c9a36296",
+      "nodes": 3110730,
+      "statements": 18280,
+      "diagnosticOnly": true
+    },
+    "historicalStatusCorrectionSha256": "9cdf1d4a3e5c7564c9815aaa87d4a5b0004a8b7b0c81dee0bd985bd86a3b2139"
+  },
+  "officialTargetCompilerFinalizerOrNamerInput": false,
+  "targetIsolation": "Command and tool-code input segregation; not an OS-enforced read sandbox or universal environment-hermeticity claim.",
+  "historicalExecutionQualifications": {
+    "originalV62TemporalGapClosed": false,
+    "V62SeparateReplay": "The V62 checkpoint preserves the original missing native-precheck qualification, a separately prospectively gated replay, raw receipt/metadata differences, and the three corrected comparison assumptions. Current V63 checks do not rewrite that historical record.",
+    "earlierCorrections": "V59 execution identity, V60 same-position metadata, V61 review labels, V62 native-precheck and replay-comparison corrections remain attached to their original historical evidence.",
+    "otherHistoricalObligations": "All 20 non-region records retain their individual statuses; they are not uniformly described as open."
+  },
+  "applicationExecuted": false,
+  "recoveredCallbacksHooksOrNativeApplicationExecuted": false,
+  "packageInstallExecuted": false,
+  "compilerExecutedDuringThisExport": false,
+  "applicationExecutedDuringThisExport": false,
+  "standaloneBuildPackage": false,
+  "allGeneratedOutputsIncluded": false,
+  "reproductionLimit": "This package verifies saved source fidelity and summarizes recorded diagnostic results. It excludes compiler/runtime reconstruction tools, full profiles, official target, generated application code/maps, native binaries, raw receipts and private execution metadata.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

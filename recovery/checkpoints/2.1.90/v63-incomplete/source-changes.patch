@@ -1,0 +1,37 @@
+--- v62/src/tools/BashTool/bashPermissions.ts
++++ v63/src/tools/BashTool/bashPermissions.ts
+@@ -81,7 +81,6 @@
+ // constant and silently evaluates the ternaries to `false`, dropping every
+ // pendingClassifierCheck spread. Keep aliases as top-level const rebindings
+ // instead. (See also the comment on checkSemanticsDeny below.)
+-const splitCommand = splitCommand_DEPRECATED
+ 
+ // Env-var assignment prefix (VAR=value). Shared across three while-loops that
+ // skip safe env vars before extracting the command name.
+@@ -857,7 +856,7 @@
+   if (matchMode === 'prefix' && !skipCompoundCheck) {
+     for (const cmd of commandsToTry) {
+       if (!isCompoundCommand.has(cmd)) {
+-        isCompoundCommand.set(cmd, splitCommand(cmd).length > 1)
++        isCompoundCommand.set(cmd, splitCommand_DEPRECATED(cmd).length > 1)
+       }
+     }
+   }
+@@ -1266,7 +1265,7 @@
+   // Otherwise a wildcard ask rule matching the full command (e.g., Bash(*echo*))
+   // would return 'ask' before a prefix deny rule on a subcommand (e.g., Bash(rm:*))
+   // gets checked, downgrading a deny to an ask.
+-  const subcommands = splitCommand(command)
++  const subcommands = splitCommand_DEPRECATED(command)
+   if (subcommands.length > 1) {
+     let firstAskRule: PermissionRule | undefined
+     for (const sub of subcommands) {
+@@ -2324,7 +2323,7 @@
+  * using normalized detection that handles env var prefixes and shell quotes.
+  */
+ export function commandHasAnyCd(command: string): boolean {
+-  return splitCommand(command).some(subcmd =>
++  return splitCommand_DEPRECATED(command).some(subcmd =>
+     isNormalizedCdCommand(subcmd.trim()),
+   )
+ }
