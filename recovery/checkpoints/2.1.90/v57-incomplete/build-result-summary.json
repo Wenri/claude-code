@@ -1,0 +1,94 @@
+{
+  "kind": "public-data-only-summary-of-recorded-fresh-V57-diagnostic-build",
+  "recordedBuildCompletedAt": "2026-10-11T20:16:28.258449+00:00",
+  "executionReceiptSha256": "4ebf034e8e9d7b7e04ce634d76d32eb1ff357758d0858ce85c6867ea7f253f9f",
+  "stages": [
+    {
+      "step": "preflight",
+      "exitCode": 0
+    },
+    {
+      "step": "compile",
+      "exitCode": 0
+    },
+    {
+      "step": "finalize",
+      "exitCode": 0
+    },
+    {
+      "step": "strictAst",
+      "exitCode": 0
+    },
+    {
+      "step": "index",
+      "exitCode": 0
+    }
+  ],
+  "allFiveSerialStagesExitZero": true,
+  "recordedExecutionOwner": "primary assistant personally executed and checked the five serial stages",
+  "workResponsibility": "The primary recovery author personally authored and applied R019 and ran the five build/diagnostic stages. Independent support covered source/tuple/emission review and this source-only packaging. Packaging performs no source edits, build or application execution.",
+  "sourceProfileRuntimeAndOriginalsUnchangedDuringRecordedBuild": true,
+  "profileSha256": "1969a980d9d85f42f9d8ddbac1b59372443b764bf91784c5d704bf9d04a8665f",
+  "toolchainSha256": "b7350a81898324922ffac9623f319e61e0a9af53a32ad28c4cc0a367c60bf378",
+  "compileReportSha256": "a5cbb9e48bbfff1d5112ef62686a576f6d6f661aa3a088838ee52e69b8e00d87",
+  "sourceManifestSha256": "3e67fb9b9b94a5875f8b813c443dbb17de088683d92433de7255f30ceb186e02",
+  "candidatePreparationSealSha256": "0f22a80c37ddda24d8784f69b3008e076dbc015e0b8694b623049f3835a58eb3",
+  "reconstructionReceiptEvents": 37,
+  "removedMarkerImports": 11,
+  "outputPins": [
+    {
+      "label": "rawJavaScript",
+      "bytes": 13126835,
+      "sha256": "bbafd7d1896c443c77f23fd0a3df9456fc96bcae3fa268c9b7a2aefbcd7e6d74",
+      "included": false
+    },
+    {
+      "label": "rawSourceMap",
+      "bytes": 58790111,
+      "sha256": "36a492479c348cca33a037e2cfa8d2f601a57d44ba534f463e69c51f7d58b2b9",
+      "included": false
+    },
+    {
+      "label": "finalJavaScript",
+      "bytes": 13126618,
+      "sha256": "07cac683971286aff68fd83bd340f6ec31bf347dbdceadfc4c61cf72dbd7c464",
+      "included": false
+    },
+    {
+      "label": "finalSourceMap",
+      "bytes": 58761258,
+      "sha256": "b2c2ae17a4f42515bbe7eeb20efea6dbb3490bebf1dcf34b293ac44110c3be82",
+      "included": false
+    }
+  ],
+  "candidateStatementIndex": {
+    "bytes": 5604407,
+    "sha256": "93c79f2b8b68cabff6820066e359ceb77c14f1b0dc7a3f33aafd1b7993662c13",
+    "nodes": 3110745,
+    "statements": 18281,
+    "diagnosticOnly": true
+  },
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110745,
+    "sha256": "aa245b98f3341cf0911ae2207aa1c8047b88aafe99137e3d95e2e3064000b4c4"
+  },
+  "officialTargetStrictAst": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "officialTargetCompilerFinalizerOrNamerInput": false,
+  "targetIsolation": "Command/tool-code input segregation; not an OS-enforced read sandbox.",
+  "applicationExecuted": false,
+  "recoveredCallbacksHooksOrNativeApplicationExecuted": false,
+  "packageInstallExecuted": false,
+  "compilerExecutedDuringThisExport": false,
+  "applicationExecutedDuringThisExport": false,
+  "standaloneBuildPackage": false,
+  "allGeneratedOutputsIncluded": false,
+  "chronology": "This summarizes the recorded build, followed by separate complete-owner reviews and the fresh census summarized alongside it. The original build receipt predates those reviews and census. This export itself ran data checks only.",
+  "reproductionLimit": "Compiler/runtime reconstruction tools, full profiles, official target, generated JS/maps and original detailed execution reports are not included. This is a source checkpoint and bounded result summary, not independent build or emission-review reproduction."
+}

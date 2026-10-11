@@ -1,0 +1,10 @@
+--- v56/src/utils/markdownConfigLoader.ts
++++ v57/src/utils/markdownConfigLoader.ts
+@@ -32,7 +32,6 @@
+   'output-styles',
+   'skills',
+   'workflows',
+-  ...(feature('TEMPLATES') ? (['templates'] as const) : []),
+ ] as const
+ 
+ export type ClaudeConfigDirectory = (typeof CLAUDE_CONFIG_DIRECTORIES)[number]

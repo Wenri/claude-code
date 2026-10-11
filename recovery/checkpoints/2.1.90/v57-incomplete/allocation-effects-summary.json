@@ -1,0 +1,72 @@
+{
+  "kind": "public-complete-V56-to-V57-nonlocal-static-comparison-summary",
+  "executionResponsibility": "The primary recovery author personally ran and inspected complete nonlocal and capture-map checks. Independent audits supplied verification; this packaging step performs data-only hashing/copying.",
+  "v56ToV57StrictChangedStatements": 554,
+  "v56ToV57ShapeChangedStatementIndexes": [
+    5983
+  ],
+  "nonlocalReview": {
+    "kind": "complete-static-V56-to-V57-shape-stable-strict-change-review",
+    "checkedStatementCount": 553,
+    "statementNodeTotal": 393983,
+    "scopeTotal": 8493,
+    "rawIdentifierNameDifferenceOccurrences": 644,
+    "changedFreeCaptureOccurrences": 65,
+    "exceptionStatementIndexes": [],
+    "allRawChangesOnlyIdentifierNames": true,
+    "allScopedGraphsEqual": true,
+    "allScopedFieldChangesOnlyFreeCaptureNames": true,
+    "allChangedFreeCaptureMapsBijective": true,
+    "rawStrictEquality": false,
+    "acceptanceNormalizationApplied": false,
+    "completeProgramGlobalBindingIdentityEstablished": false,
+    "caveats": [
+      "The existing scoped graph records local declaration/reference/read/write/init structure. It does not establish global crossing-binding or initializer identity.",
+      "Unchanged raw protected fields, Literal.raw and scope graphs are static allocation observations, not semantic/runtime acceptance.",
+      "R019 shape-changed statements are excluded and reviewed separately by complete-owner reviewers."
+    ],
+    "applicationExecuted": false,
+    "recoveredCallbacksExecuted": false,
+    "nativeAddonExecuted": false,
+    "sourceEdited": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "wholeVersionAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "fullCaptureMapReview": {
+    "kind": "complete-free-capture-map-collision-check-for-all-selected-nonlocal-statements",
+    "priorNonlocalReviewSha256": "d154c5868caeaaaf69ef27e9c3e21a152b0903a96fa2309dd22b898260c389eb",
+    "checkedStatements": 553,
+    "freeCaptureOccurrences": 6382,
+    "fullPerStatementCaptureMapCollisionIndexes": [],
+    "globalAcrossSelectedStatementsForwardConflicts": [],
+    "globalAcrossSelectedStatementsReverseConflicts": [],
+    "caveat": "This checks complete capture correspondence within every selected changed statement. It does not analyze all program bindings or unchanged statements, establish supplier/initializer identity, or accept semantics.",
+    "applicationExecuted": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "sourceReportPins": [
+    {
+      "label": "nonlocal-allocation-review.json",
+      "bytes": 546774,
+      "sha256": "d154c5868caeaaaf69ef27e9c3e21a152b0903a96fa2309dd22b898260c389eb"
+    },
+    {
+      "label": "full-capture-maps-review.json",
+      "bytes": 347309,
+      "sha256": "574f8520aa34e936ba72adfd005d04b52a99b6ff295c47d3ebecf8b266deaffb"
+    }
+  ],
+  "interpretation": "All 553 shape-stable strict-changed statements were compared: 644 ordinary Identifier.name occurrences differ, with no other field or scoped-graph exceptions. All 6,382 selected free-capture occurrences have collision-free correspondence, including 65 changed free occurrences. This selected-set check does not establish whole-program binding, supplier, initializer, reflection or runtime identity.",
+  "applicationExecuted": false,
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

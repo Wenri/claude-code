@@ -1,0 +1,31 @@
+{
+  "kind": "R019-complete-accepted89-source-carry-forward-provenance",
+  "sourceProposalManifestSha256": "2c6e0ed096fd5b399e9efdae5e37fb7413280ccf106bd68ea76bb0906e863fb2",
+  "sourcePath": "src/utils/markdownConfigLoader.ts",
+  "priorSha256": "fe157236c4b29f3d99ca56f993687c142a431db1f52f09da66f5659692d6a0a6",
+  "proposedSha256": "502461e7f655024113ba793096e8f711a93db9d9ff811a7c68381cc5936e64d9",
+  "priorBytes": 21312,
+  "proposedBytes": 21251,
+  "donor": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "member": "src/utils/markdownConfigLoader.ts",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "gitBlob": "8727f5cbb57b1ebcdd1b8e83b742f4ff83493677"
+  },
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "verifiedDuringExport": "The public accepted V45 overlay was read from the recorded Git commit and authenticated. Its complete source member equals the V57 postimage.",
+  "sourceHunk": "Remove the conditional TEMPLATES array spread from CLAUDE_CONFIG_DIRECTORIES, retaining commands, agents, output-styles, skills and workflows. No other file changes.",
+  "proposalChronology": "The sealed source proposal records V55 as its source comparison baseline. Its complete preimage is also byte-identical to the public V56 source used as the V57 construction baseline. This does not relabel the earlier proposal as originally derived from V56.",
+  "constructionResponsibility": "The primary recovery author personally authored and applied the donor-derived R019 repair, then ran the five diagnostic stages and full census/static checks. Independent reviews checked provenance, tuple and bounded emission contracts; this packaging step only compares and copies source data.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "Accepted .89 source is independent donor provenance, not transferred .90 acceptance. Removing the alternative can narrow ClaudeConfigDirectory even though its type-declaration text is unchanged; no type checker ran. Enabled TEMPLATES builds and exotic iterator/prototype/throw/nontermination behavior remain outside the fixed-profile bounded comparison.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
