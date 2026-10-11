@@ -1,0 +1,330 @@
+{
+  "kind": "bounded-R059-five-actual-owners-and-three-direct-provider-boundaries",
+  "reviewSha256": "bb736052d81dd8ab88a6d4a84e76b34db401acd9f4e444dde9320e2bccf4088f",
+  "reviewSealSha256": "35fee20351b5c86e4281473d503889e2aadd33ff6102135b4eac10bda2da3029",
+  "verdict": "PASS bounded actual source repair and fixed-map structural topology; broad semantics and closure remain open",
+  "fixedCaptureContractSha256": "6e58314c2c3616166f21a769aa82fedfbc45203ef860388dc828cb6941cf4c96",
+  "comparisonMapNeverRederived": true,
+  "ownerNodes": 296,
+  "ownerRawNameDifferences": 21,
+  "providerBoundaryNodes": 138,
+  "providerBoundaryRawNameDifferences": 24,
+  "nonNameDifferences": 0,
+  "protectedNameDifferences": 0,
+  "negativeControls": {
+    "wrongShellQuoteInitializerRejectedByFixedMap": true,
+    "reversedFallbackGuardRejected": true,
+    "knownWrongSupplierRejectedByFixedMap": true,
+    "protectedPropertyChangeRejected": true,
+    "initializerDependencyOrderChangeRejected": true
+  },
+  "actualEmissionCompared": true,
+  "sourceHypothesisObservedInEmission": true,
+  "oldNewBehavioralEquivalence": false,
+  "providerIdentityUnchangedFromV57": false,
+  "parentSupplierSwitchIntentional": true,
+  "transitiveParserUnchangedFromV57": true,
+  "globalProviderSemanticEquivalence": false,
+  "applicationOrParserOrProviderOrHookExecuted": false,
+  "acceptedClosure": false,
+  "providerAcceptance": false,
+  "owners": [
+    {
+      "role": "parseArguments",
+      "nodes": 38,
+      "scopeCount": 3,
+      "bindings": 4,
+      "localReferences": 7,
+      "freeCaptureOccurrences": 2,
+      "rawAstDifferenceCount": 2,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 1,
+        "protected": 0
+      },
+      "literalNodes": 2,
+      "templateQuasis": 0,
+      "sourcePath": "src/utils/argumentSubstitution.ts",
+      "sourceSegments": 32,
+      "sourceLines": [
+        24,
+        30
+      ],
+      "syntheticPrefixCodeUnits": 0,
+      "exactSourceMappedFreeOccurrences": 2,
+      "syntheticFreeOccurrences": 0,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": true
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    },
+    {
+      "role": "parseArgumentNames",
+      "nodes": 61,
+      "scopeCount": 4,
+      "bindings": 5,
+      "localReferences": 11,
+      "freeCaptureOccurrences": 1,
+      "rawAstDifferenceCount": 1,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 0,
+        "protected": 0
+      },
+      "literalNodes": 5,
+      "templateQuasis": 0,
+      "sourcePath": "src/utils/argumentSubstitution.ts",
+      "sourceSegments": 52,
+      "sourceLines": [
+        41,
+        58
+      ],
+      "syntheticPrefixCodeUnits": 0,
+      "exactSourceMappedFreeOccurrences": 1,
+      "syntheticFreeOccurrences": 0,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": true
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    },
+    {
+      "role": "generateProgressiveArgumentHint",
+      "nodes": 37,
+      "scopeCount": 4,
+      "bindings": 6,
+      "localReferences": 6,
+      "freeCaptureOccurrences": 0,
+      "rawAstDifferenceCount": 1,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 0,
+        "protected": 0
+      },
+      "literalNodes": 2,
+      "templateQuasis": 2,
+      "sourcePath": "src/utils/argumentSubstitution.ts",
+      "sourceSegments": 28,
+      "sourceLines": [
+        67,
+        73
+      ],
+      "syntheticPrefixCodeUnits": 0,
+      "exactSourceMappedFreeOccurrences": 0,
+      "syntheticFreeOccurrences": 0,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": null
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    },
+    {
+      "role": "substituteArguments",
+      "nodes": 150,
+      "scopeCount": 7,
+      "bindings": 16,
+      "localReferences": 45,
+      "freeCaptureOccurrences": 4,
+      "rawAstDifferenceCount": 15,
+      "rawAstDifferenceClasses": {
+        "bound": 14,
+        "free": 1,
+        "protected": 0
+      },
+      "literalNodes": 13,
+      "templateQuasis": 4,
+      "sourcePath": "src/utils/argumentSubstitution.ts",
+      "sourceSegments": 111,
+      "sourceLines": [
+        85,
+        135
+      ],
+      "syntheticPrefixCodeUnits": 0,
+      "exactSourceMappedFreeOccurrences": 4,
+      "syntheticFreeOccurrences": 0,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": true
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    },
+    {
+      "role": "moduleInitializer",
+      "nodes": 10,
+      "scopeCount": 3,
+      "bindings": 1,
+      "localReferences": 1,
+      "freeCaptureOccurrences": 2,
+      "rawAstDifferenceCount": 2,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 1,
+        "protected": 0
+      },
+      "literalNodes": 0,
+      "templateQuasis": 0,
+      "sourcePath": "src/utils/argumentSubstitution.ts",
+      "sourceSegments": 1,
+      "sourceLines": [
+        13,
+        13
+      ],
+      "syntheticPrefixCodeUnits": 15,
+      "exactSourceMappedFreeOccurrences": 0,
+      "syntheticFreeOccurrences": 2,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": null,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": true
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    }
+  ],
+  "providerBoundaries": [
+    {
+      "role": "parserProviderEntry",
+      "nodes": 45,
+      "scopeCount": 3,
+      "bindings": 5,
+      "localReferences": 9,
+      "freeCaptureOccurrences": 4,
+      "rawAstDifferenceCount": 4,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 3,
+        "protected": 0
+      },
+      "literalNodes": 1,
+      "templateQuasis": 0,
+      "sourcePath": "src/utils/bash/commands.ts",
+      "sourceSegments": 43,
+      "sourceLines": [
+        319,
+        325
+      ],
+      "syntheticPrefixCodeUnits": 0,
+      "exactSourceMappedFreeOccurrences": 4,
+      "syntheticFreeOccurrences": 0,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": true
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    },
+    {
+      "role": "parserProviderDeclarations",
+      "nodes": 16,
+      "scopeCount": 2,
+      "bindings": 6,
+      "localReferences": 2,
+      "freeCaptureOccurrences": 0,
+      "rawAstDifferenceCount": 6,
+      "rawAstDifferenceClasses": {
+        "bound": 6,
+        "free": 0,
+        "protected": 0
+      },
+      "literalNodes": 1,
+      "templateQuasis": 1,
+      "sourcePath": "src/utils/bash/commands.ts",
+      "sourceSegments": 70,
+      "sourceLines": [
+        19,
+        463
+      ],
+      "syntheticPrefixCodeUnits": 4,
+      "exactSourceMappedFreeOccurrences": 0,
+      "syntheticFreeOccurrences": 0,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": null
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    },
+    {
+      "role": "parserProviderInitializer",
+      "nodes": 77,
+      "scopeCount": 4,
+      "bindings": 2,
+      "localReferences": 3,
+      "freeCaptureOccurrences": 16,
+      "rawAstDifferenceCount": 14,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 13,
+        "protected": 0
+      },
+      "literalNodes": 13,
+      "templateQuasis": 1,
+      "sourcePath": "src/utils/bash/commands.ts",
+      "sourceSegments": 54,
+      "sourceLines": [
+        3,
+        466
+      ],
+      "syntheticPrefixCodeUnits": 14,
+      "exactSourceMappedFreeOccurrences": 12,
+      "syntheticFreeOccurrences": 4,
+      "negativeControls": {
+        "literalOrTemplateRawChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "fixedMapForeignCaptureRejected": true
+      },
+      "fullCanonicalLexicalAndReferenceAgreementUnderFixedMap": true,
+      "rawStrictEqual": false
+    }
+  ],
+  "fixedMapScope": "The recorded correspondence is fixed for all comparisons and inert controls. It covers five complete owner statements plus three direct provider boundaries, not the whole transitive parser or global program.",
+  "statementOrderMeaning": "Canonical statement/dependency order under the explicit fixed map is static topology evidence. Supplier semantic identity and global initialization are unaccepted.",
+  "sourceAttributionCounts": {
+    "ownerMapSegments": 224,
+    "providerBoundaryMapSegments": 167,
+    "exactSourceIdentifierFreeReferenceOccurrences": 23,
+    "syntheticFreeReferenceOccurrences": 6,
+    "ownerInitializerSyntheticPrefixCodeUnits": 15
+  },
+  "sourceAttributionMeaning": "Exact mapped source positions are distinguished from compiler-generated prefixes and synthetic initializer captures. A physical source-map nomination does not itself certify provider identity.",
+  "intentionalInitializerSupplierSwitch": {
+    "before": "b88 -> yp1 (shellQuote.ts)",
+    "after": "C88 -> qW (commands.ts)",
+    "oldSupplierContinuesAs": "yp1 -> HL4 at declaration statement 7617",
+    "newSupplierContinuesAs": "ED -> qW at declaration statement 12818",
+    "intentionalSemanticSupplierSwitch": true,
+    "globalCaptureBijectionAcrossParents": false
+  },
+  "currentCommandsOrderedInitializerEdges": [
+    "JTK -> shell/prefix.ts",
+    "Wa6 -> bashParser.ts",
+    "x26 -> bash/parser.ts"
+  ],
+  "declarationSourceAttributionExactAtMappedSegments": true,
+  "syntheticInitializerPrefixesAreNotOriginalIdentifierMappings": true,
+  "transitiveProviderLimits": [
+    "The direct commands.ts provider is unchanged and donor-identical; its emitted entry, declarations and initializer were compared as complete boundaries. This is not a complete transitive-provider semantic proof.",
+    "The unchanged transitive src/utils/bash/bashParser.ts has 29 inherited at-to-index differences relative to accepted V45. Native/parser module availability, maximum-length guard, command-node selection, extraction and initialization remain material.",
+    "The old source used shell-quote with literal-variable preservation and fallback on failure; the repaired source uses parseCommandArguments and fallback on an empty parsed result. Old/new behavioral equivalence is explicitly false.",
+    "Quotes, substitutions, operators, empty results, thrown errors, prototype/getter observations and ordering require their own evidence. Existing shell-quote wording is preserved donor commentary, not a fresh implementation claim."
+  ],
+  "sourceProvenance": "source-origin-basis.json",
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

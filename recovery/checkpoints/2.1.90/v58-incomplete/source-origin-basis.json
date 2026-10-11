@@ -1,0 +1,39 @@
+{
+  "kind": "R059-complete-accepted89-source-carry-forward-provenance",
+  "sourceProposalManifestSha256": "f3811f0c9b3b80d7040540d5f11d44090653f555c446d28ee4ce752ceedc46ba",
+  "sourcePath": "src/utils/argumentSubstitution.ts",
+  "priorSha256": "b9ba476d55e6099af7cc2878e80ee82fa992dadd316d617bd2f8b23fea7ec803",
+  "proposedSha256": "b96a2e9755f69bd0cb6e014f6b64e0b9202a8bab1883824f003212857c2aecf4",
+  "priorBytes": 5079,
+  "proposedBytes": 4758,
+  "donor": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "member": "src/utils/argumentSubstitution.ts",
+    "gitBlob": "6aa35f0db4b370619686df2013af1eb3848ad1ac"
+  },
+  "unchangedDirectProvider": {
+    "path": "src/utils/bash/commands.ts",
+    "sha256": "493f790a1ceccddddbe2f7c27305214ebf5b7ab69a2a6703a6337daed1f0db87",
+    "bytes": 45547,
+    "identicalToAcceptedV45": true
+  },
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "verifiedDuringExport": "The public accepted V45 overlay was read from the recorded Git commit and authenticated. Its complete source member equals the V58 postimage; its direct commands provider equals both public V57 and V58 source bytes.",
+  "sourceHunks": [
+    "Switch the import from tryParseShellCommand in shellQuote to parseCommandArguments in commands.",
+    "Replace the shell-quote callback/success/token-filter logic with the commands parser result and a nonempty-result or whitespace-split fallback."
+  ],
+  "constructionResponsibility": "The primary recovery author personally authored and applied the donor-derived R059 repair, then ran the five diagnostic stages and complete census/static checks. Independent reviews and source-only packaging supply supporting verification.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "The import intentionally changes supplier identity and initialization. Accepted .89 source is independent provenance, not old/new behavioral equivalence or transferred .90 acceptance. The direct commands provider is donor-identical, but the unchanged transitive parser retains 29 inherited at-to-index differences. Parser availability, empty-result fallback, errors, native dependencies and runtime/global initialization remain open.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

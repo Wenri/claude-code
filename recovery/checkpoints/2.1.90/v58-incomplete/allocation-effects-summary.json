@@ -1,0 +1,394 @@
+{
+  "kind": "public-complete-V57-to-V58-shape-stable-static-comparison-summary",
+  "executionResponsibility": "The primary recovery author personally ran and inspected the complete census, nonlocal and capture checks and classified the intended provider switch. Independent audits reproduced the full static result and checked classification. Packaging only hashes, compares and copies data.",
+  "v57ToV58StrictChangedStatements": 11320,
+  "v57ToV58ShapeChangedStatementIndexes": [
+    10667
+  ],
+  "shapeStableReview": {
+    "kind": "complete-static-V57-to-V58-shape-stable-strict-change-review",
+    "checkedStatementCount": 11319,
+    "statementNodeTotal": 2702968,
+    "scopeTotal": 98271,
+    "rawIdentifierNameDifferenceOccurrences": 58290,
+    "changedFreeCaptureOccurrences": 21989,
+    "exceptionStatementIndexes": [],
+    "allRawChangesOnlyIdentifierNames": true,
+    "allScopedGraphsEqual": true,
+    "allScopedFieldChangesOnlyFreeCaptureNames": true,
+    "allChangedFreeCaptureMapsBijective": true,
+    "rawStrictEquality": false,
+    "acceptanceNormalizationApplied": false,
+    "completeProgramGlobalBindingIdentityEstablished": false,
+    "caveats": [
+      "The existing scoped graph records local declaration/reference/read/write/init structure. It does not establish global crossing-binding or initializer identity.",
+      "Unchanged raw protected fields, Literal.raw and scope graphs are static allocation observations, not semantic/runtime acceptance.",
+      "R059 shape-changed statements are excluded and reviewed separately by complete-owner reviewers."
+    ],
+    "applicationExecuted": false,
+    "recoveredCallbacksExecuted": false,
+    "nativeAddonExecuted": false,
+    "sourceEdited": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "wholeVersionAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "fullCaptureMapReview": {
+    "kind": "complete-free-capture-map-collision-check-for-all-selected-nonlocal-statements",
+    "priorNonlocalReviewSha256": "863d2ff4624a199375e1b9b2d16a0e2d020d8e98f1b1ebacb5b3e683ea179ebc",
+    "checkedStatements": 11319,
+    "freeCaptureOccurrences": 119010,
+    "fullPerStatementCaptureMapCollisionIndexes": [],
+    "globalAcrossSelectedStatementsForwardConflicts": [
+      {
+        "name": "yp1",
+        "mappedNames": [
+          "qW",
+          "HL4"
+        ]
+      }
+    ],
+    "globalAcrossSelectedStatementsReverseConflicts": [
+      {
+        "name": "qW",
+        "mappedNames": [
+          "ED",
+          "yp1"
+        ]
+      }
+    ],
+    "caveat": "This checks complete capture correspondence within every selected changed statement. It does not analyze all program bindings or unchanged statements, establish supplier/initializer identity, or accept semantics.",
+    "applicationExecuted": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "reviewedSourceStatementClassification": [
+    {
+      "index": 10667,
+      "classification": "intentional parseArguments body and supplier-call change",
+      "beforeSha256": "e27cb36184c864452ecefa7f38d54d32cd295d66b5e446d7b863dafd7f2387fa",
+      "afterSha256": "d35c6dd54999991bca88c9c9550f977b9ecb5e84e4caeedd6fa2cf374c26a52e",
+      "strictChanged": true,
+      "shapeChanged": true,
+      "accepted": false
+    },
+    {
+      "index": 10668,
+      "classification": "reviewed-source declaration-name change in otherwise unchanged parseArgumentNames",
+      "beforeSha256": "82d4bf6a4e03a008d89e5cc9c87f14831ef07080a46e1d20c156446fb7ee9fe7",
+      "afterSha256": "105c97148c9dc3b62d6fe94c864b540ebc6c0655371499b90c58ccc3e87aa87e",
+      "strictChanged": true,
+      "shapeChanged": false,
+      "accepted": false
+    },
+    {
+      "index": 10669,
+      "classification": "complete generateProgressiveArgumentHint statement unchanged",
+      "beforeSha256": "24231d313e8bc03d3a40dd2ba30566ad4e4ea79860f5fa52e919d3551ce5f5d6",
+      "afterSha256": "24231d313e8bc03d3a40dd2ba30566ad4e4ea79860f5fa52e919d3551ce5f5d6",
+      "strictChanged": false,
+      "shapeChanged": false,
+      "accepted": false
+    },
+    {
+      "index": 10670,
+      "classification": "reviewed-source capture-name change reaching the intentionally changed parseArguments body",
+      "beforeSha256": "7e5802c123bf6f1b476d13cf072b14a008459c163888691bcb32b795206349e8",
+      "afterSha256": "78effeb8dd02cddc4646c7904ca91f595def78a146e725cdb05b615f595ca23e",
+      "strictChanged": true,
+      "shapeChanged": false,
+      "accepted": false
+    },
+    {
+      "index": 10671,
+      "classification": "intentional import-initializer supplier switch; not unchanged-provider renaming",
+      "beforeSha256": "788ae5ab6d68bd0095e2e6847da47d4f4d8f416ff25d05d9b57a2b7ddf277f63",
+      "afterSha256": "611bca3045a7f98d2769540e6cfb40e926711eb9a3a75162869a1a6d58af9e11",
+      "strictChanged": true,
+      "shapeChanged": false,
+      "accepted": false
+    }
+  ],
+  "explicitSubgroups": {
+    "allShapeStableChanged": {
+      "statements": 11319,
+      "statementNodes": 2702968,
+      "scopes": 98271,
+      "rawIdentifierNameDifferences": 58290,
+      "changedFreeCaptureOccurrences": 21989,
+      "allFreeCaptureOccurrences": 119010,
+      "uniqueBeforeFreeCaptureNames": 21735,
+      "forwardConflicts": [
+        {
+          "name": "yp1",
+          "mappedNames": [
+            "HL4",
+            "qW"
+          ]
+        }
+      ],
+      "reverseConflicts": [
+        {
+          "name": "qW",
+          "mappedNames": [
+            "ED",
+            "yp1"
+          ]
+        }
+      ],
+      "supplierIdentityEstablished": false,
+      "accepted": false,
+      "unmappedStatementCount": 374
+    },
+    "reviewedSourceShapeStableChanged": {
+      "statements": 3,
+      "statementNodes": 221,
+      "scopes": 14,
+      "rawIdentifierNameDifferences": 4,
+      "changedFreeCaptureOccurrences": 2,
+      "allFreeCaptureOccurrences": 7,
+      "uniqueBeforeFreeCaptureNames": 6,
+      "forwardConflicts": [],
+      "reverseConflicts": [],
+      "supplierIdentityEstablished": false,
+      "accepted": false,
+      "unmappedStatementCount": 0
+    },
+    "allOtherShapeStableChanged": {
+      "statements": 11316,
+      "statementNodes": 2702747,
+      "scopes": 98257,
+      "rawIdentifierNameDifferences": 58286,
+      "changedFreeCaptureOccurrences": 21987,
+      "allFreeCaptureOccurrences": 119003,
+      "uniqueBeforeFreeCaptureNames": 21735,
+      "forwardConflicts": [],
+      "reverseConflicts": [],
+      "supplierIdentityEstablished": false,
+      "accepted": false,
+      "unmappedStatementCount": 374
+    },
+    "allExceptIntentionalInitializerSwitch": {
+      "statements": 11318,
+      "statementNodes": 2702958,
+      "scopes": 98268,
+      "rawIdentifierNameDifferences": 58288,
+      "changedFreeCaptureOccurrences": 21988,
+      "allFreeCaptureOccurrences": 119008,
+      "uniqueBeforeFreeCaptureNames": 21735,
+      "forwardConflicts": [],
+      "reverseConflicts": [],
+      "supplierIdentityEstablished": false,
+      "accepted": false,
+      "unmappedStatementCount": 374
+    }
+  },
+  "allSelectedAggregateCaptureMapBijective": false,
+  "conflictsRetainedRatherThanNormalizedAway": true,
+  "conflictOccurrenceCounts": {
+    "ED_to_qW": 17,
+    "yp1_to_HL4": 1,
+    "yp1_to_qW": 1
+  },
+  "classificationInterpretation": [
+    "Three reviewed-source shape-stable changed statements are distinguished from the other 11,316.",
+    "The original all-selected non-bijective capture relation is preserved in full. Subgroup checks explain it without weakening or overwriting the global relation.",
+    "parseArguments changes supplier and behavior. substituteArguments still calls that same source function, now with its intentionally changed body.",
+    "The initializer changes from the shellQuote initializer to the commands initializer. These are different physical source modules, regardless of any generic name comparison.",
+    "All-other and per-statement capture bijections do not establish global binding, supplier, provider, initialization or runtime equivalence.",
+    "Source-map nominations and exact generated declaration prefixes are static evidence; complete-owner and transitive-provider reviews remain separate."
+  ],
+  "priorOwnerNameChurn": [
+    {
+      "historicalRegion": "R017",
+      "physicalSourceNominations": [
+        "node_modules/bidi-js/dist/bidi.js"
+      ],
+      "allSourceMappedStatementCount": 1,
+      "changedStatementIndexes": [
+        5582
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 7,
+      "rawIdentifierNameDifferenceOccurrences": 7,
+      "changedFreeCaptureOccurrences": 0,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "historicalRegion": "R018",
+      "physicalSourceNominations": [
+        "src/utils/settings/changeDetector.ts"
+      ],
+      "allSourceMappedStatementCount": 16,
+      "changedStatementIndexes": [
+        5827,
+        5829,
+        5830,
+        5831,
+        5832,
+        5833,
+        5834,
+        5835,
+        5836,
+        5837,
+        5838,
+        5839,
+        5840,
+        5841,
+        5842
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 7,
+      "rawIdentifierNameDifferenceOccurrences": 52,
+      "changedFreeCaptureOccurrences": 38,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "historicalRegion": "R019",
+      "physicalSourceNominations": [
+        "src/utils/markdownConfigLoader.ts"
+      ],
+      "allSourceMappedStatementCount": 15,
+      "changedStatementIndexes": [
+        5970,
+        5972,
+        5974,
+        5975,
+        5976,
+        5979,
+        5980,
+        5981,
+        5982,
+        5983
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 7,
+      "rawIdentifierNameDifferenceOccurrences": 19,
+      "changedFreeCaptureOccurrences": 13,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "historicalRegion": "R051",
+      "physicalSourceNominations": [
+        "src/services/remoteManagedSettings/index.ts"
+      ],
+      "allSourceMappedStatementCount": 21,
+      "changedStatementIndexes": [
+        9019,
+        9020,
+        9021,
+        9022,
+        9024,
+        9025,
+        9027,
+        9028,
+        9029,
+        9030,
+        9031,
+        9034,
+        9035
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 3,
+      "rawIdentifierNameDifferenceOccurrences": 20,
+      "changedFreeCaptureOccurrences": 11,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "historicalRegion": "R067",
+      "physicalSourceNominations": [
+        "src/tools/BashTool/commandSemantics.ts"
+      ],
+      "allSourceMappedStatementCount": 6,
+      "changedStatementIndexes": [
+        11875
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 0,
+      "rawIdentifierNameDifferenceOccurrences": 1,
+      "changedFreeCaptureOccurrences": 1,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "historicalRegion": "R101",
+      "physicalSourceNominations": [
+        "src/hooks/useVirtualScroll.ts"
+      ],
+      "allSourceMappedStatementCount": 3,
+      "changedStatementIndexes": [
+        14340,
+        14341
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 13,
+      "rawIdentifierNameDifferenceOccurrences": 16,
+      "changedFreeCaptureOccurrences": 13,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "historicalRegion": "R102",
+      "physicalSourceNominations": [
+        "src/components/FullscreenLayout.tsx"
+      ],
+      "allSourceMappedStatementCount": 15,
+      "changedStatementIndexes": [
+        14354,
+        14355,
+        14363,
+        14364
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 3,
+      "rawIdentifierNameDifferenceOccurrences": 11,
+      "changedFreeCaptureOccurrences": 8,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "historicalRegion": "R129",
+      "physicalSourceNominations": [
+        "src/utils/skills/skillChangeDetector.ts"
+      ],
+      "allSourceMappedStatementCount": 9,
+      "changedStatementIndexes": [
+        17280,
+        17281,
+        17282,
+        17283,
+        17284,
+        17285,
+        17286,
+        17287,
+        17288
+      ],
+      "historicalAnchorNameDifferenceOccurrences": 12,
+      "rawIdentifierNameDifferenceOccurrences": 45,
+      "changedFreeCaptureOccurrences": 36,
+      "uniqueSemanticOwnerAttributionEstablished": false,
+      "accepted": false
+    }
+  ],
+  "sourceReportPins": [
+    {
+      "label": "nonlocal-allocation-review.json",
+      "bytes": 14331211,
+      "sha256": "863d2ff4624a199375e1b9b2d16a0e2d020d8e98f1b1ebacb5b3e683ea179ebc"
+    },
+    {
+      "label": "full-capture-maps-review.json",
+      "bytes": 6940588,
+      "sha256": "a7a80feeb9556d462a9e844f92f1e97611ed352901dc0b42361fb93e2cfb82a8"
+    }
+  ],
+  "independentClassificationSha256": "0944f8a15104718ed93786b86a54bdbdd4ed0ff52666ea4fbf8a13d2276e5c27",
+  "interpretation": "Of 11,319 shape-stable changed statements, three belong to the repaired source: one declaration rename, one reference to the intentionally changed parseArguments body, and the intentional initializer supplier switch. The other 11,316 have 58,286 raw identifier-name differences and a conflict-free selected subgroup; the full group has 58,290 differences and retains both aggregate conflicts. Per-statement bijections and unchanged other raw fields/local scope graphs never establish whole-program supplier, binding, initializer or runtime identity.",
+  "applicationExecuted": false,
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
