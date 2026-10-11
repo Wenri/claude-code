@@ -1,0 +1,75 @@
+{
+  "kind": "R071-complete-accepted89-declaration-relocation-source-provenance",
+  "sourceProposalManifestSha256": "45a523715091bd3de440bf85a44c80a5ffe524c575315149ebf576d221710107",
+  "sourcePath": "src/tools/BashTool/BashTool.tsx",
+  "priorSha256": "acbf90489f90db12f1d11357c4f56b4435a3539079cd83ca7bbcb6793026bdd8",
+  "proposedSha256": "d4d7a4ac1790ed58a564ba452280b199c06c4d9c3c7bff5f3f1be38b535656c8",
+  "priorBytes": 47856,
+  "proposedBytes": 47856,
+  "donor": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "member": "src/tools/BashTool/BashTool.tsx",
+    "gitBlob": "836e912b44684c6fb194154702550fb40d71813c"
+  },
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "unchangedDirectProviders": [
+    {
+      "path": "src/utils/lazySchema.ts",
+      "bytes": 295,
+      "sha256": "468c1bdeeb8ccd1a6da386d607f25599faf4529ff0650edd128d7205e4c9a7c4"
+    },
+    {
+      "path": "src/utils/bash/commands.ts",
+      "bytes": 45547,
+      "sha256": "493f790a1ceccddddbe2f7c27305214ebf5b7ab69a2a6703a6337daed1f0db87"
+    },
+    {
+      "path": "src/Tool.ts",
+      "bytes": 29541,
+      "sha256": "3e02dd28011d609ab5d4f3ef7bffb41620993945ed169a2064e2c382c2b96eab"
+    },
+    {
+      "path": "node_modules/zod/v4/classic/external.js",
+      "bytes": 803,
+      "sha256": "192e6e484559c6e9083f0a8bb1c819d6a6432ed720aa67a139361c79ef4965f6"
+    }
+  ],
+  "providerInventoryAuthentication": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "profilePath": "recovery/checkpoints/2.1.89/v45/profile.json",
+    "profileSha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120"
+  },
+  "verifiedDuringExport": "The committed accepted V45 source overlay is authenticated and its complete BashTool member equals the V62 postimage. All four directly pinned provider/consumer files are unchanged from public V61 and match the committed V45 profile source-file pins.",
+  "sourceHunks": [
+    "Relocate the exact 835-byte OutputSchema/Out type declarations, BashProgress type-only import/export, comments and complete isAutobackgroundingAllowed function before WRITE_COMMAND_MARKERS. No source bytes, runtime import or executable initializer body is added or removed."
+  ],
+  "movedBlock": {
+    "bytes": 835,
+    "sha256": "6db6858e1b66f327367de9c6c67358ac98436cba1622d5aaacbc6af4f9583279",
+    "beforeStartByte": 14263,
+    "beforeEndByte": 15098,
+    "afterStartByte": 13802
+  },
+  "exactByteRelocationReproduced": true,
+  "sourceReviewSealSha256": "018bcea1e495413855b024b7c5fd641cfc63419aee51912f9ca658cda8748fe1",
+  "tupleReviewSealSha256": "96e2f9bd69b00c7f4a0309240b7ea54ceb9971b757b3e50246681c9e0c13b398",
+  "historicalInlineMaps": {
+    "changedSourceContainsInlineMap": false,
+    "allInheritedInlineMapInputsByteIdentical": true,
+    "freshV62EmissionEvidence": false,
+    "interpretation": "The changed BashTool source has no inline source-map comment. Historical inline metadata in other inputs remains inherited and byte-identical, not fresh emission attribution."
+  },
+  "constructionResponsibility": "The primary recovery author inspected the import surface, full outputSchema and regex initializers, the relocated type declarations and complete function, plus the complete lazySchema provider; authored/applied the exact relocation; and performed the diagnostic work recorded separately. Full additional providers were independently reviewed; root does not claim personal manual reading of all their branches. Packaging performs only data comparison and copying.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "The executable order remains outputSchema lazy wrapper, RegExp creation, then BashTool buildTool construction. buildTool spreads def and therefore reads the inputSchema/outputSchema getters during construction; schema work need not wait for a later tool operation. Lazy schema allocation, nullish-cache retries and throws, Zod initialization, mutable RegExp/Array.join, module cycles and TDZ, function reflection and compiler placement remain boundaries. The unchanged function compares the complete trimmed first parser-returned segment, not an inferred first whitespace token. The 29 inherited Bash-parser edits and R075 supplier differences remain open. Accepted .89 provenance is not .90 acceptance.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

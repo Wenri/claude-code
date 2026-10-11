@@ -1,0 +1,1420 @@
+{
+  "kind": "public-bounded-R071-complete-BashTool-and-provider-emission-review",
+  "reviewSealSha256": "5424b36086d328f57c133362bf47fe19f29ebf6c122725e881ff3cbfc5655e9c",
+  "reviewReceiptSha256": "ddfff119282277805af128c0d612d97d09d66bf5fe9651bd711ace63326afa68",
+  "reportSha256": "d080a706f8febb007ca49a384b0ae6acca5c3212ebf557a01c80fb40a24143df",
+  "recordedReviewReceipt": {
+    "status": "PASS bounded independent actual-emission structural review; seven direct and nineteen deeper parser comparisons remain blocked",
+    "prerequisiteSeals": {
+      "v62-global-census": "9e0bb50128491e16fac8955e839e72a225cde68f963567a0a610f50270809703",
+      "source-proposals/r071-verified89-carryforward": "569d91797c563c3cb49dbfa282ce09b2c255a61a52436c21d92d9ea6d9f33690",
+      "r071-independent-source-review": "018bcea1e495413855b024b7c5fd641cfc63419aee51912f9ca658cda8748fe1",
+      "candidate-v62-independent-review": "96e2f9bd69b00c7f4a0309240b7ea54ceb9971b757b3e50246681c9e0c13b398",
+      "candidate-v62-bash-declaration-source": "9300e8a887307a86ee1b1441d2036f51ca78cbdeede261ee148d9f93015408ec",
+      "r071-v62-emission-review/provider-review": "0ce1ff3839b0fa68707084dc26e167694a8040835a4642a14c61465427336263"
+    },
+    "originalExecutionReceiptPath": "v62-diagnostic-evidence/v62-diagnostic-execution-receipt.json",
+    "originalExecutionReceiptSha256": "c41c9b362a14241b48335015afa2ff374980d62173870292ef9be6f51c039dca",
+    "executionPrecheckQualificationPath": "v62-execution-precheck-qualification.json",
+    "executionPrecheckQualificationSha256": "6877cf965dddfef7ae997dbc0d94c887520062d8b7a7b3fc2dfb2f0d4a943fbd",
+    "missingOriginalRootTemporalNativePrecheckNotCertified": true,
+    "anySeparatelyGatedRepeatIsAnOuterProvenanceObligation": true,
+    "completeBashOwnerStatements": 11,
+    "completeBashOwnerNodes": 3384,
+    "completeBashModuleScopes": 89,
+    "initializerStatements": 43,
+    "priorInitializerStatements": 42,
+    "initializerNodes": 2051,
+    "completePassingDirectSupplierStatements": 105,
+    "completePassingProviderStatements": 557,
+    "combinedUniquePassingPairs": 665,
+    "combinedPassingNodes": 82973,
+    "combinedFiniteMapEntries": 1365,
+    "directSupplierFailures": 7,
+    "outsideShapeWindowsSupplierFailure": {
+      "currentIndex": 12013,
+      "targetIndex": 12009,
+      "source": "src/tools/BashTool/bashPermissions.ts",
+      "kind": "alias binding collision retained"
+    },
+    "deeperParserStatementFailures": 19,
+    "inheritedParserSites": 29,
+    "allFailuresInheritedFromV61": true,
+    "mainNegativeControls": 16,
+    "providerNegativeControls": 8,
+    "rawStrictWholeProgramAcceptance": false,
+    "normalizedAcceptance": false,
+    "globalBindingAcceptance": false,
+    "globalInitializationAcceptance": false,
+    "transitiveProviderAcceptance": false,
+    "runtimeAcceptance": false,
+    "historicalRecords": 134,
+    "openRecords": 134,
+    "acceptedClosures": 0,
+    "R091ProvenanceRestrictionRetained": true,
+    "R075RestrictionsRetained": true,
+    "targetComparisonOnly": true,
+    "postVerificationSha256": "b3b81391905e763512e6b0d82f08136e37bd2ee0350b816c8093eebadbb85f22",
+    "reportSha256": "d080a706f8febb007ca49a384b0ae6acca5c3212ebf557a01c80fb40a24143df"
+  },
+  "moduleProof": {
+    "currentIndex": "complete-BashTool-module",
+    "targetIndex": "complete-BashTool-module",
+    "nodes": 3384,
+    "scopeCount": 89,
+    "fullProtectedFields": true,
+    "fullScopeGraph": true,
+    "fullScopeFlags": true,
+    "rawDifferenceClasses": {
+      "bound": 181,
+      "free": 121,
+      "protected": 0
+    },
+    "rawStrictEqual": false
+  },
+  "mainNegativeControls": [
+    "literal value changed",
+    "literal raw changed",
+    "schema and regex order swapped",
+    "schema and regex coalesced",
+    "initializer callback removed",
+    "initializer callback added",
+    "getter kind changed",
+    "protected method name changed",
+    "RegExp capture misbound",
+    "unknown capture",
+    "map collision",
+    "scope graph declaration changed",
+    "scope strictness changed",
+    "capture read flag changed",
+    "capture target resolution changed",
+    "module-scope graph edge changed"
+  ],
+  "providerNegativeControls": {
+    "noninjectiveMapRejected": true,
+    "unknownCaptureRejected": true,
+    "changedLiteralRejected": true,
+    "buildToolSpreadOrderRejected": true,
+    "lazySchemaCacheOperatorRejected": true,
+    "scopeStrictnessMutationRejected": true,
+    "referenceReadWriteMutationRejected": true,
+    "zodNamespacePropertyMutationRejected": true
+  },
+  "sourceMapAttributionQualification": {
+    "captureOccurrences": 228,
+    "exactValidGeneratedStartSegments": 220,
+    "segmentsAtSourceIdentifierTokens": 219,
+    "segmentsAtBackgroundHintJsxStart": 1,
+    "absentExactStartSegments": 8,
+    "jsxStartIsNotIdentifierTokenCertificate": true,
+    "missingStartsResolvedByCompleteAstScopeDeclarationEvidence": true,
+    "targetIndependentSourceMapAvailable": false,
+    "originalCoordinateException": "One inherited unchanged userAgent.ts empty final-line exception, zero-based line 10 and UTF-16 column 10. No selected-domain invalid original coordinate and no displacement repair."
+  },
+  "blockedDirectSupplierObligations": [
+    {
+      "currentIndex": 7756,
+      "targetIndex": 7750,
+      "sourceOwners": {
+        "src/tools/BashTool/readOnlyValidation.ts": 186
+      },
+      "nodes": {
+        "current": 243,
+        "target": 242
+      },
+      "inheritedFromV61": true,
+      "byteIdenticalToV61": true,
+      "classification": "readOnlyValidation parser call changes from unconditional .parse to optional ?.parse; preserves a ChainExpression and extra AST node."
+    },
+    {
+      "currentIndex": 7758,
+      "targetIndex": 7752,
+      "sourceOwners": {
+        "src/tools/BashTool/readOnlyValidation.ts": 2007
+      },
+      "nodes": {
+        "current": 2838,
+        "target": 2837
+      },
+      "inheritedFromV61": true,
+      "byteIdenticalToV61": true,
+      "classification": "readOnlyValidation complete initializer inlines an array/spread of regex construction and rearranges assignment grouping versus a target intermediate binding; full field and lexical graph mismatch retained."
+    },
+    {
+      "currentIndex": 10696,
+      "targetIndex": 10692,
+      "sourceOwners": {
+        "src/utils/task/TaskOutput.ts": 739
+      },
+      "nodes": {
+        "current": 1119,
+        "target": 1119
+      },
+      "inheritedFromV61": true,
+      "byteIdenticalToV61": true,
+      "classification": "TaskOutput complete class initializer preserves differing PrivateIdentifier names (#O/#A and references). No private-name alpha-normalization or private-binding equivalence certificate is supplied."
+    },
+    {
+      "currentIndex": 11879,
+      "targetIndex": 11875,
+      "sourceOwners": {
+        "src/tools/BashTool/fileReadState.ts": 143
+      },
+      "nodes": {
+        "current": 198,
+        "target": 198
+      },
+      "inheritedFromV61": true,
+      "byteIdenticalToV61": true,
+      "classification": "fileReadState compares size with captured identifier i3Y rather than target literal 10485760; no constant folding or provider-value assumption admitted."
+    },
+    {
+      "currentIndex": 12013,
+      "targetIndex": 12009,
+      "sourceOwners": {
+        "src/tools/BashTool/bashPermissions.ts": 17
+      },
+      "nodes": {
+        "current": 19,
+        "target": 19
+      },
+      "inheritedFromV61": true,
+      "byteIdenticalToV61": true,
+      "classification": "bashPermissions call uses alias j17 where target uses _O. Existing injective map already binds WO to _O, so j17 cannot be merged into it; alias assignment is not a binding identity proof."
+    },
+    {
+      "currentIndex": 12014,
+      "targetIndex": 12010,
+      "sourceOwners": {
+        "src/tools/BashTool/bashPermissions.ts": 315
+      },
+      "nodes": {
+        "current": 441,
+        "target": 439
+      },
+      "inheritedFromV61": true,
+      "byteIdenticalToV61": true,
+      "classification": "bashPermissions declaration carrier adds alias binding, shifts initializer placement and contains a different full declaration/scope graph."
+    },
+    {
+      "currentIndex": 12015,
+      "targetIndex": 12011,
+      "sourceOwners": {
+        "src/tools/BashTool/bashPermissions.ts": 100
+      },
+      "nodes": {
+        "current": 163,
+        "target": 156
+      },
+      "inheritedFromV61": true,
+      "byteIdenticalToV61": true,
+      "classification": "bashPermissions initializer retains extra WR6 initialization call, j17=WO alias assignment and regrouped subsequent statements; 28 versus 27 callback statements."
+    }
+  ],
+  "deeperParserFailureIndexes": [
+    7521,
+    7523,
+    7524,
+    7525,
+    7526,
+    7531,
+    7536,
+    7542,
+    7543,
+    7546,
+    7547,
+    7548,
+    7549,
+    7550,
+    7551,
+    7554,
+    7555,
+    7556,
+    7563
+  ],
+  "inheritedParserSites": 29,
+  "providerBoundary": {
+    "passingStatements": 557,
+    "passingNodes": 67073,
+    "statementLocalScopes": 3668,
+    "sourceAttributedProviderStatements": 554,
+    "additionalNamespaceStatements": 20,
+    "completeHelpers": 2,
+    "providerStatementsByteModelAndScopeIdenticalToV61": 574,
+    "allFailuresRetained": true,
+    "transitiveAcceptance": false
+  },
+  "actualInitializerDelta": "The complete 2,051-node initializer now has 43 callback-body statements. Positions 40 and 41 separately assign the output schema and RegExp; position 42 assigns the tool. The actual V62-to-target full comparison uses no regrouping normalizer. A separate diagnostic inverse restores the previous grouping and name allocation without changing source or output bytes.",
+  "bindingAndReflection": "The moved ordinary function retains its two captures and one deferred async-generator call site. Its generated name swaps with the regex binding; function name/text, reflection, stack/debug positions and provider readiness are outside universal behavioral equivalence.",
+  "initializerCycleAndTiming": "BashTool still calls the bashPermissions initializer, and that initializer calls BashTool. The complete lazy wrapper clears its factory before entering it; recursive reentry does not rerun the callback, and an initial throw leaves it cleared without completing result assignment. Source TDZ and emitted lazy-wrapper/global-variable behavior are distinct domains. buildTool spreads def, invoking inputSchema then outputSchema getters during construction after the regex on the ordinary successful path; factories need not wait for later tool use.",
+  "domainLimits": [
+    "lazySchema allocates a cache closure; nullish results may rerun the factory, while throws do not complete assignment.",
+    "Zod config, schema creation/cloning, metadata registration and getters are not assumed pure.",
+    "RegExp constructor and array join lookup/call, builtin/prototype changes, abrupt completion and resource failure remain observable.",
+    "The moved function trims the entire first parser-returned segment, not an inferred first whitespace token.",
+    "The unchanged source cycle, capture readiness, R075 supplier alias/parser issues, 29 inherited parser sites, R091 provenance and R121 hot-update limits remain open."
+  ],
+  "retainedReviewCorrection": "The first collector attempt confused the canonical source-manifest digest with the source-manifest file-byte pin. It failed before admitting collection output; the corrected file-byte pin was authenticated and the complete collection replayed. Full-field, scope and fixed-map criteria were unchanged.",
+  "originalExecutionProvenance": "This emission packet authenticates the original output while retaining its missing root temporal Node precheck. The separate replay and independent replay review are summarized in build-result-summary.json; they cannot retroactively establish that historical check.",
+  "rootExactInitializerDelta": {
+    "kind": "root-static-complete-initializer-emission-delta",
+    "beforeStatements": 42,
+    "afterStatements": 43,
+    "targetStatements": 43,
+    "exactSplitPositions": [
+      40,
+      41
+    ],
+    "completeInverseGroupingNonNameFieldsEqual": true,
+    "nameDifferenceCount": 1,
+    "namePairs": [
+      [
+        "q_Y",
+        "K_Y"
+      ]
+    ],
+    "allDifferences": {
+      "names": [
+        {
+          "path": [
+            "body",
+            "0",
+            "declarations",
+            "0",
+            "init",
+            "arguments",
+            "0",
+            "body",
+            "body",
+            "40",
+            "expression",
+            "expressions",
+            "1",
+            "left",
+            "name"
+          ],
+          "before": "q_Y",
+          "after": "K_Y"
+        }
+      ],
+      "other": []
+    },
+    "diagnosticCloneOnly": true,
+    "sourceOrBuildBytesRewritten": false,
+    "acceptanceNormalizationApplied": false,
+    "wholeVersionAcceptance": false
+  },
+  "rootCompleteSelectedStaticComparisons": {
+    "shapeStableChangedStatements": 4,
+    "shapeStableNodes": 882,
+    "shapeStableRawNameDifferences": 4,
+    "shapeStableChangedFreeOccurrences": 2,
+    "allSelectedFreeOccurrences": 39,
+    "completeTargetOwnerStatements": 11,
+    "completeTargetOwnerNodes": 3384,
+    "targetIdentifierNameDifferences": 302,
+    "allNonNameFieldsAndLocalGraphsMatchUnderRecordedNominations": true
+  },
+  "rootCompleteOwnerFindings": [
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11948,
+      "afterVersion": "v62",
+      "afterIndex": 11952,
+      "beforeNodes": 14,
+      "afterNodes": 14,
+      "rawNames": 4,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 2,
+      "changedFreeCaptureOccurrences": 0,
+      "changedFreeCapturePairs": [],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11949,
+      "afterVersion": "v62",
+      "afterIndex": 11953,
+      "beforeNodes": 5,
+      "afterNodes": 5,
+      "rawNames": 1,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 2,
+      "changedFreeCaptureOccurrences": 0,
+      "changedFreeCapturePairs": [],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11950,
+      "afterVersion": "v62",
+      "afterIndex": 11954,
+      "beforeNodes": 175,
+      "afterNodes": 175,
+      "rawNames": 14,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 5,
+      "changedFreeCaptureOccurrences": 5,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:_O",
+            "free:WO"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:S9Y",
+            "free:i9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:L9Y",
+            "free:c9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:h9Y",
+            "free:l9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:R9Y",
+            "free:n9Y"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11951,
+      "afterVersion": "v62",
+      "afterIndex": 11955,
+      "beforeNodes": 64,
+      "afterNodes": 64,
+      "rawNames": 3,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 5,
+      "changedFreeCaptureOccurrences": 2,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:_O",
+            "free:WO"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:C9Y",
+            "free:r9Y"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11952,
+      "afterVersion": "v62",
+      "afterIndex": 11956,
+      "beforeNodes": 46,
+      "afterNodes": 46,
+      "rawNames": 3,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 5,
+      "changedFreeCaptureOccurrences": 2,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:_O",
+            "free:WO"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:u9Y",
+            "free:t9Y"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11953,
+      "afterVersion": "v62",
+      "afterIndex": 11957,
+      "beforeNodes": 42,
+      "afterNodes": 42,
+      "rawNames": 3,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 3,
+      "changedFreeCaptureOccurrences": 2,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:_O",
+            "free:WO"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:I9Y",
+            "free:s9Y"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11954,
+      "afterVersion": "v62",
+      "afterIndex": 11958,
+      "beforeNodes": 147,
+      "afterNodes": 147,
+      "rawNames": 12,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 6,
+      "changedFreeCaptureOccurrences": 6,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:pO8",
+            "free:mA8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:_7",
+            "free:e1"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:OO",
+            "free:AA"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Wh7",
+            "free:DR7"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:H66",
+            "free:w66"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:zG",
+            "free:qG"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11955,
+      "afterVersion": "v62",
+      "afterIndex": 11959,
+      "beforeNodes": 69,
+      "afterNodes": 69,
+      "rawNames": 6,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 6,
+      "changedFreeCaptureOccurrences": 2,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:g9Y",
+            "free:K_Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:U_6",
+            "free:F_6"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11956,
+      "afterVersion": "v62",
+      "afterIndex": 11960,
+      "beforeNodes": 732,
+      "afterNodes": 732,
+      "rawNames": 70,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 24,
+      "changedFreeCaptureOccurrences": 20,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:IB8",
+            "free:Sp8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:mB8",
+            "free:bp8"
+          ],
+          "count": 3
+        },
+        {
+          "pair": [
+            "free:p9Y",
+            "free:q_Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:eL6",
+            "free:qR6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Nm8",
+            "free:vm8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Em8",
+            "free:Vm8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:O17",
+            "free:q17"
+          ],
+          "count": 3
+        },
+        {
+          "pair": [
+            "free:qDK",
+            "free:ADK"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:TA",
+            "free:vO"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:Lm8",
+            "free:Nm8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:hm8",
+            "free:ym8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:ym8",
+            "free:km8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:zh6",
+            "free:YR6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:A17",
+            "free:K17"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11957,
+      "afterVersion": "v62",
+      "afterIndex": 11961,
+      "beforeNodes": 39,
+      "afterNodes": 39,
+      "rawNames": 16,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 2,
+      "changedFreeCaptureOccurrences": 0,
+      "changedFreeCapturePairs": [],
+      "strictEqual": false
+    },
+    {
+      "label": "complete BashTool owner",
+      "beforeVersion": "target",
+      "beforeIndex": 11958,
+      "afterVersion": "v62",
+      "afterIndex": 11962,
+      "beforeNodes": 2051,
+      "afterNodes": 2051,
+      "rawNames": 170,
+      "rawNonNameDifferences": [],
+      "scopedNonCaptureDifferences": [],
+      "scopeGraphsEqual": true,
+      "scopes": 49,
+      "changedFreeCaptureOccurrences": 132,
+      "changedFreeCapturePairs": [
+        {
+          "pair": [
+            "free:T8",
+            "free:v8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:aq",
+            "free:dq"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:HE8",
+            "free:OE8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:bD",
+            "free:qW"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:u88",
+            "free:I88"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:xF1",
+            "free:hF1"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Ly",
+            "free:Vy"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Az",
+            "free:Oz"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:lu8",
+            "free:du8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Sy",
+            "free:Ey"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:X$",
+            "free:M$"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:F88",
+            "free:g88"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Qj",
+            "free:dj"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:sL6",
+            "free:tL6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:q26",
+            "free:qw6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:QZ",
+            "free:p0"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:nt1",
+            "free:Ut1"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:c88",
+            "free:d88"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:sN",
+            "free:iN"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:hWK",
+            "free:IWK"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:SWK",
+            "free:mWK"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:tWK",
+            "free:YDK"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:cB1",
+            "free:Fp1"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:U88",
+            "free:F88"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Ph6",
+            "free:WR6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Km8",
+            "free:tu8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:wm8",
+            "free:$m8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:A17",
+            "free:K17"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Z6",
+            "free:G6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:L9Y",
+            "free:c9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:h9Y",
+            "free:l9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:R9Y",
+            "free:n9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:S9Y",
+            "free:i9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:C9Y",
+            "free:r9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:I9Y",
+            "free:s9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:mB8",
+            "free:bp8"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:KDK",
+            "free:ODK"
+          ],
+          "count": 3
+        },
+        {
+          "pair": [
+            "free:h",
+            "free:R"
+          ],
+          "count": 26
+        },
+        {
+          "pair": [
+            "free:uB8",
+            "free:Cp8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Cy",
+            "free:Ly"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:_P",
+            "free:zP"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:m6",
+            "free:B6"
+          ],
+          "count": 3
+        },
+        {
+          "pair": [
+            "free:_DK",
+            "free:wDK"
+          ],
+          "count": 3
+        },
+        {
+          "pair": [
+            "free:u9Y",
+            "free:t9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:m9Y",
+            "free:e9Y"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:g9Y",
+            "free:K_Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:sWK",
+            "free:zDK"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Ia6",
+            "free:xa6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:VE8",
+            "free:vE8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:iE4",
+            "free:zL4"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:zDK",
+            "free:jDK"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:e18",
+            "free:t18"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:b9Y",
+            "free:o9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:_h6",
+            "free:zR6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:zp8",
+            "free:qB8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:aN",
+            "free:DN"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:d5",
+            "free:Q5"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:w17",
+            "free:_17"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:w$K",
+            "free:X$K"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:j$K",
+            "free:P$K"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:H$K",
+            "free:W$K"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:J$K",
+            "free:D$K"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Ym8",
+            "free:Km8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:ks6",
+            "free:vs6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:eWK",
+            "free:$DK"
+          ],
+          "count": 2
+        },
+        {
+          "pair": [
+            "free:_Y",
+            "free:KY"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:E9Y",
+            "free:d9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:B9Y",
+            "free:__Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:fB6",
+            "free:Wp6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:U9Y",
+            "free:Y_Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:jm8",
+            "free:Am8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:LWK",
+            "free:xWK"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Om8",
+            "free:zm8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:Am8",
+            "free:Ym8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:D7",
+            "free:X7"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:CE",
+            "free:hE"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:k9Y",
+            "free:g9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:H26",
+            "free:Hw6"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:V9Y",
+            "free:F9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:N9Y",
+            "free:U9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:T9Y",
+            "free:p9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:bC4",
+            "free:pC4"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:zm8",
+            "free:qm8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:I88",
+            "free:x88"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:m88",
+            "free:u88"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:d88",
+            "free:Q88"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:$m8",
+            "free:_m8"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:F9Y",
+            "free:z_Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:y9Y",
+            "free:Q9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:J7",
+            "free:w7"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:RWK",
+            "free:uWK"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:x9Y",
+            "free:a9Y"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:M$K",
+            "free:f$K"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:K4",
+            "free:q4"
+          ],
+          "count": 1
+        },
+        {
+          "pair": [
+            "free:E",
+            "free:L"
+          ],
+          "count": 1
+        }
+      ],
+      "strictEqual": false
+    }
+  ],
+  "sourceProvenance": "source-origin-basis.json",
+  "inheritedR121HotMigrationCommonPrefixCaveatPreserved": true,
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

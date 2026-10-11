@@ -1,0 +1,426 @@
+{
+  "kind": "public-qualified-original-V62-build-and-separate-prospectively-gated-replay-summary",
+  "candidateIdentity": "V62-R071-bash-declaration-source-preparation",
+  "workResponsibility": "The primary recovery author personally applied the source relocation, ran the original five stages and separately ran the prospectively gated output-isolated five-stage replay. Independent reviews and data-only packaging provide support. The packager ran neither compiler nor application.",
+  "originalRun": {
+    "completedAt": "2026-10-11T22:27:34.154342+00:00",
+    "executionReceiptSha256": "c41c9b362a14241b48335015afa2ff374980d62173870292ef9be6f51c039dca",
+    "stages": [
+      {
+        "step": "preflight",
+        "exitCode": 0
+      },
+      {
+        "step": "compile",
+        "exitCode": 0
+      },
+      {
+        "step": "finalize",
+        "exitCode": 0
+      },
+      {
+        "step": "strictAst",
+        "exitCode": 0
+      },
+      {
+        "step": "index",
+        "exitCode": 0
+      }
+    ],
+    "allFiveExitZero": true,
+    "freshRootNodeNativePrecheckBeforeStageOneEstablished": false,
+    "qualificationSha256": "6877cf965dddfef7ae997dbc0d94c887520062d8b7a7b3fc2dfb2f0d4a943fbd",
+    "qualification": "The original root run omitted a separate fresh Node native-binary hash check immediately before stage one. Earlier independent and later static-tool hashes do not establish that missing temporal check. Root reports separate pre-stage env/PATH and combined-seal checks in tool results, without separately retained pre-run files. Original receipt, output, census and exception remain preserved.",
+    "laterHashesOrReplayRetroactivelyEstablishOriginalPrecheck": false
+  },
+  "recordedProspectivelyGatedReplay": {
+    "completedAt": "2026-10-11T22:44:18.291187+00:00",
+    "executionReceiptSha256": "c8fbe93f1b92135c73a74e2b93360327344471b7e3c592a74f26f4b3889cf52e",
+    "evidenceSealSha256": "db5a5d1ba345996d6f1a06e8e9eb0557ce671b0e3a090ebdfceb429cc57f9b6b",
+    "commandReviewSealSha256": "2610329165abea806f2d8975c66bacd6fa51cd1ff5c845655703d4b674749ac1",
+    "preconditionsSha256": "dee05430d5b1fe5285bb37a2ec6982334e69caceda40765231ee680cec5363eb",
+    "postconditionsSha256": "2f73f8ed49eab021c20aadfc6ddf68f58874a04cebdff3cf5d080b8bedf41cb2",
+    "recordedPreconditionsAt": "2026-10-11T22:40:11.765507+00:00",
+    "firstStageStartedAt": "2026-10-11T22:40:28.874841+00:00",
+    "preconditionsRecordedBeforeStageOne": true,
+    "nativeToolsFreshlyHashed": [
+      {
+        "tool": "env",
+        "bytes": 56144,
+        "sha256": "eb1c64bbc9908afcdf8cb48524f17112d8dd76a249f80dee2f01da14747b3b6e"
+      },
+      {
+        "tool": "node",
+        "bytes": 125989464,
+        "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+      },
+      {
+        "tool": "bun",
+        "bytes": 99295408,
+        "sha256": "6d5bb405b1d037a2a466b92757de7e47e4369930fa94bd42f8ff44ba49de6c57"
+      }
+    ],
+    "fullOriginalGateMembersReverified": 16,
+    "outputRootsInitiallyAbsent": true,
+    "stages": [
+      {
+        "step": "preflight",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T22:40:28.874841+00:00",
+        "finishedAt": "2026-10-11T22:40:30.792540+00:00"
+      },
+      {
+        "step": "compile",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T22:40:30.822943+00:00",
+        "finishedAt": "2026-10-11T22:40:33.777720+00:00"
+      },
+      {
+        "step": "finalize",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T22:40:33.993936+00:00",
+        "finishedAt": "2026-10-11T22:40:39.901089+00:00"
+      },
+      {
+        "step": "strictAst",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T22:40:39.947568+00:00",
+        "finishedAt": "2026-10-11T22:40:47.543361+00:00"
+      },
+      {
+        "step": "index",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T22:40:47.599393+00:00",
+        "finishedAt": "2026-10-11T22:41:15.876800+00:00"
+      }
+    ],
+    "allFiveExitZero": true,
+    "originalSourceRuntimeAndEvidenceUnchanged": true,
+    "allFourRawFinalCodeMapProductsByteIdentical": true,
+    "independentReview": {
+      "receiptSha256": "1407969d71eac1b6184bf30782a2d2ba4aab53ffbd9ab872612be4a3d8c458ab",
+      "sealSha256": "1b9c44e835d8e6d0b99ec910d885e9591bc906e176f8898c136a0dbed816b2b3",
+      "review": {
+        "kind": "sealed-independent-V62-root-replay-review",
+        "verdict": "PASS bounded prospective root replay with exact unchanged program/maps; original historical precheck gap remains qualified",
+        "rootReplaySealSha256": "db5a5d1ba345996d6f1a06e8e9eb0557ce671b0e3a090ebdfceb429cc57f9b6b",
+        "rootReplayReceiptSha256": "c8fbe93f1b92135c73a74e2b93360327344471b7e3c592a74f26f4b3889cf52e",
+        "rootReplayCommandReviewSealSha256": "2610329165abea806f2d8975c66bacd6fa51cd1ff5c845655703d4b674749ac1",
+        "originalTemporalQualification": {
+          "bytes": 2014,
+          "sha256": "6877cf965dddfef7ae997dbc0d94c887520062d8b7a7b3fc2dfb2f0d4a943fbd"
+        },
+        "rootComparisonCorrection": {
+          "bytes": 1329,
+          "sha256": "d807456a29c080b6275f189c1fb1f1eef9f3bb0b310bba3ef9a6c8e9efedffc9"
+        },
+        "rootFreshNativeAndEnvChecksRecordedBeforeStageOne": true,
+        "fullOriginalAndReplayReviewSealsCheckedBeforeStageOne": true,
+        "timestampOrderingIndependentlyChecked": true,
+        "allFiveExactArgvAndZeroStatusesVerified": true,
+        "strictInputBeforeAfterBoundToSuccessfulFinalizer": true,
+        "allFourRawFinalCodeMapProductsByteIdentical": true,
+        "all18280IndexRowsAndStrictDigestIdentical": true,
+        "onlyIndexDifference": "/io/sourcePath",
+        "completeMetadataFieldDifferencesRetained": 1242,
+        "reconstructionEvents": 37,
+        "uniqueReconstructionPayloads": 28,
+        "duplicateReconstructionBuckets": [
+          2,
+          5,
+          5
+        ],
+        "nativeRequests": 4,
+        "grpcRequests": 139,
+        "uniqueGrpcPayloads": 134,
+        "allCompleteEventPayloadMultisetsEqual": true,
+        "all11PrivateMarkerReferencesUniquelyRebound": true,
+        "twoR0ReferenceOrderChangesRetained": true,
+        "duplicateOccurrenceIdentityClaimed": false,
+        "callbackOrderRuntimeEquivalenceClaimed": false,
+        "all73ProtectedRootsIndependentlyRehashed": true,
+        "originalEvidenceExactFileInventoryPreserved": true,
+        "sourceFilesReverified": 6114,
+        "runtimeFilesReverified": 69,
+        "compilerExecutedByReviewer": false,
+        "recoveredCodeExecutedByReviewer": false,
+        "sourceBuildOrGitModified": false,
+        "originalTemporalPrecheckEstablishedRetroactively": false,
+        "historicalRecordsRetained": 134,
+        "R091SourceProvenanceBlocked": true,
+        "R075And29ParserObligationsRemainOpen": true,
+        "metadataClassificationNotAcceptanceNormalization": true,
+        "wholeProgramAcceptance": false,
+        "wholeVersionAcceptance": false,
+        "runtimeAcceptance": false,
+        "transitiveProviderAcceptance": false,
+        "globalBindingAcceptance": false,
+        "globalInitializationAcceptance": false,
+        "acceptedClosures": 0,
+        "rootReplayPhysicalFileSetExact": true,
+        "candidatePhysicalFilesExactly6221WithOnlyAllowedOriginalAndReplayOutputs": true,
+        "evidence": {
+          "verification-results.json": {
+            "bytes": 2684,
+            "sha256": "3cbe22e8f6efe9e6d57bcbda3c7dc0baaef0e782f74fd10639e58c75ccf11c5c"
+          },
+          "complete-event-correspondence.json": {
+            "bytes": 92685,
+            "sha256": "ae56af63e3725abf18fe583f2e6dfebc2f93831f703511ed827fe222723d6177"
+          },
+          "metadata-field-differences.json": {
+            "bytes": 496449,
+            "sha256": "08a40416627133031c3ed0c37274f8a50d85e540705bcff4bb6f2139b592c7f2"
+          },
+          "output-comparisons.json": {
+            "bytes": 3296,
+            "sha256": "c949ffa0accaf6113171875fb97fd8ab1309f259c4bea010749f655985639e8f"
+          },
+          "verify-replay.py": {
+            "bytes": 23741,
+            "sha256": "f9231f655edcfeaabc80c8009a227f40f1ce299db529210027c847e9a08bd882"
+          },
+          "verification.stdout.json": {
+            "bytes": 2684,
+            "sha256": "3cbe22e8f6efe9e6d57bcbda3c7dc0baaef0e782f74fd10639e58c75ccf11c5c"
+          },
+          "verification.stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "REPORT.md": {
+            "bytes": 11328,
+            "sha256": "960c043f2140db0fce01e25c3a0df46ce61f467b7af1509cd00852384044f082"
+          }
+        },
+        "priorCensusReviewUnchanged": {
+          "sealSha256": "f0e242d8b35ebd236cd110b74c803e7a9122c8bfa4737f103287725141ec3633",
+          "receiptSha256": "e896b890a07660e05298c0ebb9b28dc2d71014dc51b8bcd7af44c522edeb8d4a"
+        },
+        "bothOriginalQualificationAndReplayCorrectionMustAccompanyPublication": true
+      }
+    },
+    "independentReviewPending": false,
+    "historicalTemporalGapClosed": false
+  },
+  "completeOutputComparisons": [
+    {
+      "path": "compile-report.json",
+      "originalBytes": 105016,
+      "replayBytes": 105037,
+      "originalSha256": "55e5852cb646bd79c4fc232a0e383ca92beb3eb1840d9248d7d23a854f8d624c",
+      "replaySha256": "46407de517ae5340a9ab94355b1d282932d3b4b2fb81725b9ed757c4fbeb3b98",
+      "byteEqual": false,
+      "included": false
+    },
+    {
+      "path": "compiler-receipts.json",
+      "originalBytes": 147354,
+      "replayBytes": 147354,
+      "originalSha256": "be479da2d3e116d605a3a9f62dc8791b7ea800cb03445e82da9c25d2d9a518b7",
+      "replaySha256": "5b89d100834b0700ca9ab078aaf717d4e8c8d45daa939a2a206be750a824f480",
+      "byteEqual": false,
+      "included": false
+    },
+    {
+      "path": "final/cli.js",
+      "originalBytes": 13126530,
+      "replayBytes": 13126530,
+      "originalSha256": "e3d092291eed566a055e4d56b2b011965a195ac5396e95a600250e808fac4650",
+      "replaySha256": "e3d092291eed566a055e4d56b2b011965a195ac5396e95a600250e808fac4650",
+      "byteEqual": true,
+      "included": false
+    },
+    {
+      "path": "final/cli.js.map",
+      "originalBytes": 58760893,
+      "replayBytes": 58760893,
+      "originalSha256": "a33783f590a2493752e410b0c5cc270a71743cb56e2056c25e52b0f551b3fe67",
+      "replaySha256": "a33783f590a2493752e410b0c5cc270a71743cb56e2056c25e52b0f551b3fe67",
+      "byteEqual": true,
+      "included": false
+    },
+    {
+      "path": "late-link-report.json",
+      "originalBytes": 17783,
+      "replayBytes": 17776,
+      "originalSha256": "17b9172098b9b973469dd53b6d37c970fddc3956e8a22cbe5ab3e5eba0c731b7",
+      "replaySha256": "e96ee6589ee7c770b77b33a397e39dba313e614bf3c37bd4ef0dd24c2e377517",
+      "byteEqual": false,
+      "included": false
+    },
+    {
+      "path": "preflight.json",
+      "originalBytes": 103915,
+      "replayBytes": 103936,
+      "originalSha256": "5200754b3d67c980a7b0a2d7eb88a6ddb6cef130d9c19ba658faef6f4a4189c0",
+      "replaySha256": "9b03edb199891312a8dd30256ce526040c4f627081317a1f0fa0b0f6cba6e3c7",
+      "byteEqual": false,
+      "included": false
+    },
+    {
+      "path": "profile.json",
+      "originalBytes": 117846169,
+      "replayBytes": 117846169,
+      "originalSha256": "c8b4dbe718825652ee2c827b1f30870567948160dc20b2b8eeb3d80fc4922ed5",
+      "replaySha256": "c8b4dbe718825652ee2c827b1f30870567948160dc20b2b8eeb3d80fc4922ed5",
+      "byteEqual": true,
+      "included": false
+    },
+    {
+      "path": "raw/cli.js",
+      "originalBytes": 13126747,
+      "replayBytes": 13126747,
+      "originalSha256": "5e4ee49fd02b17b970b95f54fb25866b4ff3c3ec446dacb18bdfc9662fbe3850",
+      "replaySha256": "5e4ee49fd02b17b970b95f54fb25866b4ff3c3ec446dacb18bdfc9662fbe3850",
+      "byteEqual": true,
+      "included": false
+    },
+    {
+      "path": "raw/cli.js.map",
+      "originalBytes": 58789746,
+      "replayBytes": 58789746,
+      "originalSha256": "c34d2346c25b64e6a3e7f74898417602c74e68d5aa92be287bb2cdac4ab521f4",
+      "replaySha256": "c34d2346c25b64e6a3e7f74898417602c74e68d5aa92be287bb2cdac4ab521f4",
+      "byteEqual": true,
+      "included": false
+    },
+    {
+      "path": "removal-edits.json",
+      "originalBytes": 4620,
+      "replayBytes": 4613,
+      "originalSha256": "e502a7fff2fb76bbfcdb1b81e6092a6f2f9efcd68a17bacd3667a7961e61e7ab",
+      "replaySha256": "bd82d0c889f3c3d6f15a528c0b6ebfb49e53ce6d891293d4c49217c9adef3a92",
+      "byteEqual": false,
+      "included": false
+    },
+    {
+      "path": "candidate-index.json",
+      "originalBytes": 5604109,
+      "replayBytes": 5604116,
+      "originalSha256": "6396c674ee5f0dd7af6e36ad30fcc455d53bd9913ec1ef65b560ce2ec29d4790",
+      "replaySha256": "440224c2ed4993d0fe69878d2b66ad8db5b3cc2dabc8242566315fcfd32e7bd9",
+      "byteEqual": false,
+      "included": false
+    }
+  ],
+  "receiptAndMetadataComparison": {
+    "metadataByteIdentical": false,
+    "rawMetadataFieldDifferences": 1242,
+    "perFileDifferenceCounts": [
+      {
+        "file": "compile-report.json",
+        "differences": 4
+      },
+      {
+        "file": "compiler-receipts.json",
+        "differences": 1182
+      },
+      {
+        "file": "late-link-report.json",
+        "differences": 30
+      },
+      {
+        "file": "preflight.json",
+        "differences": 3
+      },
+      {
+        "file": "removal-edits.json",
+        "differences": 22
+      },
+      {
+        "file": "candidate-index.json",
+        "differences": 1
+      }
+    ],
+    "classificationCounts": {
+      "receipt-hash-change-from-verified-complete-event-order-and-ids": 1,
+      "exact-approved-output-path-substitution": 7,
+      "complete-event-permutation-with-exact-fields-and-bijective-receipt-id-correspondence": 1182,
+      "verified-complete-resolver-reference-multiset-with-id-bijection-and-recorded-order": 44,
+      "verified-identical-overlay-owner-multiset-permutation": 8
+    },
+    "completeReconstructionRecords": 37,
+    "uniqueCompletePayloads": 28,
+    "duplicateSdkPayloadBucketMultiplicities": [
+      2,
+      5,
+      5
+    ],
+    "duplicateOccurrencePairingIsBookkeepingNotUniqueTemporalIdentity": true,
+    "uniquePrivateMarkerPayloadIdentities": 11,
+    "virtualNativeWrapperRequests": {
+      "records": 4,
+      "completeRecordMultisetEqual": true
+    },
+    "virtualGrpcRequests": {
+      "records": 139,
+      "completeRecordMultisetEqual": true
+    },
+    "completeResolverReferenceListsChecked": 22,
+    "referenceListOrderChangedRecords": [
+      {
+        "file": "late-link-report.json",
+        "row": 0
+      },
+      {
+        "file": "late-link-report.json",
+        "row": 6
+      },
+      {
+        "file": "removal-edits.json",
+        "row": 0
+      },
+      {
+        "file": "removal-edits.json",
+        "row": 6
+      }
+    ],
+    "allCompleteReferenceMultisetsEqualAfterReceiptIdCorrespondence": true,
+    "interpretation": "All complete event payloads and duplicate multiplicities are retained. Receipt event order, occurrence IDs, approved output paths and selected downstream reference order differ. The two ~R0 reference lists reorder in each of the late-link and removal reports. Multiset identity does not establish unique temporal identity of repeated SDK occurrences or receipt byte equality. No program-acceptance criterion is normalized."
+  },
+  "retainedReplayComparisonCorrections": {
+    "sha256": "d807456a29c080b6275f189c1fb1f1eef9f3bb0b310bba3ef9a6c8e9efedffc9",
+    "receiptSha256": "c8fbe93f1b92135c73a74e2b93360327344471b7e3c592a74f26f4b3889cf52e",
+    "failedAssumptions": [
+      "Only approved output paths would differ; the compiler receipt hash also changed.",
+      "All 37 reconstruction payloads would be unique; there are 28 unique payloads with duplicate SDK buckets of two, five and five.",
+      "Rebound downstream references would preserve order; the ~R0 reference lists also reorder."
+    ],
+    "resolution": "Complete payload multisets, multiplicities, request multisets and all downstream references were checked. Raw metadata differences remain recorded. No compiler/source correction or program-acceptance normalization was needed.",
+    "originalBuildEvidencePreserved": true,
+    "strictProgramComparisonOrAcceptanceNormalizationChanged": false
+  },
+  "profileSha256": "c8b4dbe718825652ee2c827b1f30870567948160dc20b2b8eeb3d80fc4922ed5",
+  "toolchainSha256": "ff087106aa3460ee086e43be60581bb2e023794127d9a1516270f5a95001dad9",
+  "originalCompileReportSha256": "55e5852cb646bd79c4fc232a0e383ca92beb3eb1840d9248d7d23a854f8d624c",
+  "sourceManifestSha256": "f638792e7db544918ab8df6e29a4c58a517ee2b4890624d3c8e8409fa608c3bf",
+  "candidatePreparationSealSha256": "9300e8a887307a86ee1b1441d2036f51ca78cbdeede261ee148d9f93015408ec",
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110736,
+    "sha256": "c066eb926fd97c1c24ab234266ac043a94800212a46d808d1fee9ad02c0a93ee"
+  },
+  "officialTargetStrictAst": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "officialTargetCompilerFinalizerOrNamerInput": false,
+  "targetIsolation": "Command and tool-code input segregation; not an OS-enforced read sandbox.",
+  "applicationExecuted": false,
+  "compilerExecutedDuringThisExport": false,
+  "applicationExecutedDuringThisExport": false,
+  "standaloneBuildPackage": false,
+  "allGeneratedOutputsIncluded": false,
+  "reproductionLimit": "This package verifies saved source fidelity and summarizes recorded diagnostic results. It excludes the compiler/runtime reconstruction tools, full profiles, official target, generated application code/maps, native binaries, raw receipts and private execution metadata.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

@@ -1,0 +1,60 @@
+--- v61/src/tools/BashTool/BashTool.tsx
++++ v62/src/tools/BashTool/BashTool.tsx
+@@ -248,6 +248,28 @@
+   persistedOutputSize: z.number().optional().describe('Total size of the output in bytes (set when output is too large for inline)'),
+   staleReadFileStateHint: z.string().optional().describe('Model-facing note listing readFileState entries whose mtime bumped during this command (set when WRITE_COMMAND_MARKERS matches)')
+ }));
++type OutputSchema = ReturnType<typeof outputSchema>;
++export type Out = z.infer<OutputSchema>;
++
++// Re-export BashProgress from centralized types to break import cycles
++export type { BashProgress } from '../../types/tools.js';
++import type { BashProgress } from '../../types/tools.js';
++
++/**
++ * Checks if a command is allowed to be automatically backgrounded
++ * @param command The command to check
++ * @returns false for commands that should not be auto-backgrounded (like sleep)
++ */
++function isAutobackgroundingAllowed(command: string): boolean {
++  const parts = splitCommand_DEPRECATED(command);
++  if (parts.length === 0) return true;
++
++  // Get the first part which should be the base command
++  const baseCommand = parts[0]?.trim();
++  if (!baseCommand) return true;
++  return !DISALLOWED_AUTO_BACKGROUND_COMMANDS.includes(baseCommand);
++}
++
+ const WRITE_COMMAND_MARKERS = new RegExp([
+   '--write',
+   '--fix',
+@@ -269,28 +291,6 @@
+   '\\bswiftformat\\b',
+   '\\bphpcbf\\b'
+ ].join('|'));
+-type OutputSchema = ReturnType<typeof outputSchema>;
+-export type Out = z.infer<OutputSchema>;
+-
+-// Re-export BashProgress from centralized types to break import cycles
+-export type { BashProgress } from '../../types/tools.js';
+-import type { BashProgress } from '../../types/tools.js';
+-
+-/**
+- * Checks if a command is allowed to be automatically backgrounded
+- * @param command The command to check
+- * @returns false for commands that should not be auto-backgrounded (like sleep)
+- */
+-function isAutobackgroundingAllowed(command: string): boolean {
+-  const parts = splitCommand_DEPRECATED(command);
+-  if (parts.length === 0) return true;
+-
+-  // Get the first part which should be the base command
+-  const baseCommand = parts[0]?.trim();
+-  if (!baseCommand) return true;
+-  return !DISALLOWED_AUTO_BACKGROUND_COMMANDS.includes(baseCommand);
+-}
+-
+ /**
+  * Detect standalone or leading `sleep N` patterns that should use Monitor
+  * instead. Catches `sleep 5`, `sleep 5 && check`, `sleep 5; check` — but

@@ -1,0 +1,99 @@
+{
+  "version": "2.1.90",
+  "candidate": "V62",
+  "state": "incomplete source-only checkpoint",
+  "sourceExportDate": "2026-10-11",
+  "candidateIdentity": "V62-R071-bash-declaration-source-preparation",
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50693551,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "f638792e7db544918ab8df6e29a4c58a517ee2b4890624d3c8e8409fa608c3bf",
+  "derivedSrcTree": "b68cb20645e34bef7754c19d04560e886213fea6",
+  "sourceFilesChangedFromPublishedV61": 1,
+  "byteIdenticalInheritedSourceFiles": 6113,
+  "historicalResidualRecordsPreserved": 134,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 120,
+  "priorV61ShapeDiagnosticWindows": 121,
+  "strictDiagnosticGaps": 216,
+  "exactStatementAnchors": 230,
+  "anchorChurn": {
+    "prior": 230,
+    "current": 230,
+    "relocatedRetainedPairs": 230,
+    "lostAfterRelocation": 0,
+    "addedAfterRelocation": 0,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 0,
+    "orderingOnlyLostPairs": 0,
+    "actualRawEqualityGainPairs": 0,
+    "orderingOnlyAddedPairs": 0
+  },
+  "statementCounts": [
+    18280,
+    18280
+  ],
+  "shapeChangedPairs": [
+    [
+      11962,
+      11962
+    ]
+  ],
+  "shapeStableStrictChangedPairs": 4,
+  "unchangedOtherStatementBytes": 18275,
+  "newStructurallyRepairedOwnerRegions": [
+    "R071"
+  ],
+  "inheritedStructurallyRepairedOwnerRegions": [
+    "R018",
+    "R019",
+    "R051",
+    "R059",
+    "R067",
+    "R069",
+    "R070",
+    "R098",
+    "R099",
+    "R101",
+    "R102",
+    "R121",
+    "R129"
+  ],
+  "acceptedRegionClosures": 0,
+  "strictWholeProgramAstEqual": false,
+  "strictOwnerNamesEqual": false,
+  "inheritedV60BidiShorthandMismatchRetained": true,
+  "r17BidiShorthandSideEffectRetained": true,
+  "genericNormalizationApplied": false,
+  "selectedCaptureCorrespondenceIsNotGlobalProof": true,
+  "r091UnchangedAndDeferred": true,
+  "r091SourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+  "sourceOnlySnapshot": true,
+  "allSealedSourceInputsIncluded": true,
+  "standaloneBuildPackage": false,
+  "freshDiagnosticBuildRecorded": true,
+  "compilerExecutedDuringExport": false,
+  "applicationExecutedDuringExport": false,
+  "officialTargetUsedForSourceRestoration": false,
+  "originalSourceAuthorshipClaim": false,
+  "originalPartitionGeneratorRecovered": false,
+  "compatibilityPartitionExactlyReproducesPriorV52ThroughV61": true,
+  "historicalGaps": [
+    "Trial59 and Trial60 historical source maps remain unavailable.",
+    "Original Trial61 evidence remains lost."
+  ],
+  "workResponsibility": "The primary recovery author personally authored/applied the 835-byte relocation, executed the qualified original five stages, complete owner/static/census checks and a separately gated output-isolated five-stage replay. Independent reviews and data-only packaging provide support.",
+  "limits": [
+    "The original execution precheck omission remains historical; the separately checked replay cannot retroactively establish it.",
+    "Seven complete direct suppliers and 19 deeper parser statements remain blocked, including supplier 12013 outside the shape windows.",
+    "Getter-spread schema timing, lazy-cache/nullish/throw behavior, initialization cycles, builtin/prototype and reflection domains remain open.",
+    "R121 common-prefix hot migration, the 29 inherited parser substitutions, prior bidi/source-map limits and R091 provenance remain unchanged."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
