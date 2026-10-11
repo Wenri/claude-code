@@ -1,0 +1,108 @@
+{
+  "version": "2.1.90",
+  "candidate": "V60",
+  "state": "incomplete source-only checkpoint",
+  "descriptiveSamePositionFlagCorrectionDisclosed": true,
+  "sourceExportDate": "2026-10-11",
+  "candidateIdentity": "V60-R098-R099-plugin-modal-source-preparation",
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50693513,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "5dbab38d36ba6e4dd96591fc707ad794233b5432c84d32f19ba966aecc1bc9c3",
+  "derivedSrcTree": "bf5fd0c83add5d950c75a212c9c9f6348070be2f",
+  "sourceFilesChangedFromPublishedV59": 1,
+  "byteIdenticalInheritedSourceFiles": 6113,
+  "historicalResidualRecordsPreserved": 134,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 122,
+  "priorV59ShapeDiagnosticWindows": 124,
+  "strictDiagnosticGaps": 216,
+  "exactStatementAnchors": 230,
+  "anchorChurn": {
+    "prior": 225,
+    "current": 230,
+    "relocatedRetainedPairs": 152,
+    "lostAfterRelocation": 73,
+    "addedAfterRelocation": 78,
+    "removedPriorAnchorPairs": 0,
+    "actualRawEqualityLossPairs": 69,
+    "orderingOnlyLostPairs": 4,
+    "actualRawEqualityGainPairs": 63,
+    "orderingOnlyAddedPairs": 15
+  },
+  "statementCounts": [
+    18280,
+    18280
+  ],
+  "shapeChangedPairs": [
+    [
+      5582,
+      5582
+    ],
+    [
+      13980,
+      13980
+    ],
+    [
+      13982,
+      13982
+    ]
+  ],
+  "shapeStableStrictChangedPairs": 9982,
+  "newStructurallyRepairedOwnerRegions": [
+    "R098",
+    "R099"
+  ],
+  "inheritedStructurallyRepairedOwnerRegions": [
+    "R018",
+    "R019",
+    "R051",
+    "R059",
+    "R067",
+    "R069",
+    "R070",
+    "R101",
+    "R102",
+    "R129"
+  ],
+  "acceptedRegionClosures": 0,
+  "strictWholeProgramAstEqual": false,
+  "strictOwnerNamesEqual": false,
+  "newNonlocalBidiShorthandDifferenceRetained": true,
+  "nonlocalBidiStatement": 5582,
+  "r17BidiShorthandSideEffectRetained": true,
+  "genericNormalizationApplied": false,
+  "currentShapeStableSelectedCaptureAggregateConflicts": 0,
+  "historicalV58SupplierSwitchConflictsPreserved": true,
+  "r091UnchangedAndDeferred": true,
+  "r091SourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+  "sourceOnlySnapshot": true,
+  "allSealedSourceInputsIncluded": true,
+  "standaloneBuildPackage": false,
+  "freshDiagnosticBuildRecorded": true,
+  "compilerExecutedDuringExport": false,
+  "applicationExecutedDuringExport": false,
+  "officialTargetUsedForSourceRestoration": false,
+  "originalSourceAuthorshipClaim": false,
+  "originalPartitionGeneratorRecovered": false,
+  "compatibilityPartitionExactlyReproducesPriorV52ThroughV59": true,
+  "historicalGaps": [
+    "Trial59 and Trial60 historical source maps remain unavailable.",
+    "Original Trial61 evidence remains lost."
+  ],
+  "workResponsibility": "The primary recovery author personally authored/applied the modal-source repair, ran five stages, complete component/initializer and nonlocal static comparisons, bidi analysis and global census. Independent reviews and data-only packaging supply support.",
+  "limits": [
+    "Modal hooks and initialization intentionally change behavior. Provider, React lifecycle/dispatch, memo/cache, context and runtime acceptance remain false.",
+    "The new bidi shorthand true-to-false change is a raw strict/shape mismatch despite unchanged source and matching local graph. No normalization is accepted.",
+    "Selected capture bijections and lower window counts do not establish global binding/provider identity or accepted progress.",
+    "The historical inline map comment is literal source metadata, not fresh V60 emission evidence.",
+    "V59 descriptive-label and invalid-first-map corrections remain historical and are not attributed to the correctly labeled V60 build."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

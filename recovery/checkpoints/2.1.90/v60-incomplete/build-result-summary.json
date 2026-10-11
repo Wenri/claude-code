@@ -1,0 +1,95 @@
+{
+  "kind": "public-data-only-summary-of-recorded-fresh-V60-diagnostic-build",
+  "recordedBuildCompletedAt": "2026-10-11T21:28:08.143349+00:00",
+  "candidateIdentity": "V60-R098-R099-plugin-modal-source-preparation",
+  "executionReceiptSha256": "271111a0bf9801e922ccfebd4d2b6655005288bc108805349ded48e754a8633a",
+  "stages": [
+    {
+      "step": "preflight",
+      "exitCode": 0
+    },
+    {
+      "step": "compile",
+      "exitCode": 0
+    },
+    {
+      "step": "finalize",
+      "exitCode": 0
+    },
+    {
+      "step": "strictAst",
+      "exitCode": 0
+    },
+    {
+      "step": "index",
+      "exitCode": 0
+    }
+  ],
+  "allFiveSerialStagesExitZero": true,
+  "recordedExecutionOwner": "primary assistant personally executed and checked the five serial stages",
+  "workResponsibility": "The primary recovery author personally authored and applied R098/R099 and ran the five build/diagnostic stages. Independent support covered source/tuple/emission review and this source-only packaging. Packaging performs no source edits, build or application execution.",
+  "sourceProfileRuntimeAndOriginalsUnchangedDuringRecordedBuild": true,
+  "profileSha256": "84b15e792051f69fad2a5ba78431a0fe21485fea6af478786d767d1d369cae28",
+  "toolchainSha256": "3c047dc9e665b6636939677901a73a383597a86b38b68bc159e9ec0ef37c0dc5",
+  "compileReportSha256": "25a667dc08106446da0cf5bac5cae03141a188c9b04ca1c812b1cf99652f67b7",
+  "sourceManifestSha256": "5dbab38d36ba6e4dd96591fc707ad794233b5432c84d32f19ba966aecc1bc9c3",
+  "candidatePreparationSealSha256": "7947a38352e874b479e05fc18303914e1349388d84da1bd362496088f205b9f8",
+  "reconstructionReceiptEvents": 33,
+  "removedMarkerImports": 11,
+  "outputPins": [
+    {
+      "label": "rawJavaScript",
+      "bytes": 13126743,
+      "sha256": "75e0fa78ef897c0336309dde2e17aa3a568d0a8450bf1939dd9a3cc622da572f",
+      "included": false
+    },
+    {
+      "label": "rawSourceMap",
+      "bytes": 58789695,
+      "sha256": "df28ea6cc2cbc6f5062fab345f23aa285e63da61e64de0e52eb70bc70cef3b7d",
+      "included": false
+    },
+    {
+      "label": "finalJavaScript",
+      "bytes": 13126526,
+      "sha256": "90320354db3792c4865247a05bd359965629fb01ab916047fd4fb85c3666439b",
+      "included": false
+    },
+    {
+      "label": "finalSourceMap",
+      "bytes": 58760842,
+      "sha256": "246ab964142177e93811ba9f4ce811c5f5249a7997d5f4fe9d79e48b1301ebed",
+      "included": false
+    }
+  ],
+  "candidateStatementIndex": {
+    "bytes": 5604105,
+    "sha256": "6e15d57bfa0f98933ce3b08a544429f01c764485375b3a77d0baa7f2825005fe",
+    "nodes": 3110734,
+    "statements": 18280,
+    "diagnosticOnly": true
+  },
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110734,
+    "sha256": "4e1c98ae0471943f155b0eaa5b7394252337d2cb6cef718993f8649b597120ea"
+  },
+  "officialTargetStrictAst": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "officialTargetCompilerFinalizerOrNamerInput": false,
+  "targetIsolation": "Command/tool-code input segregation; not an OS-enforced read sandbox.",
+  "applicationExecuted": false,
+  "recoveredCallbacksHooksOrNativeApplicationExecuted": false,
+  "packageInstallExecuted": false,
+  "compilerExecutedDuringThisExport": false,
+  "applicationExecutedDuringThisExport": false,
+  "standaloneBuildPackage": false,
+  "allGeneratedOutputsIncluded": false,
+  "chronology": "This summarizes the recorded build, followed by separate complete-owner reviews and the fresh census summarized alongside it. The original build receipt predates those reviews and census. This export itself ran data checks only.",
+  "reproductionLimit": "Compiler/runtime reconstruction tools, full profiles, official target, generated JS/maps and original detailed execution reports are not included. This is a source checkpoint and bounded result summary, not independent build or emission-review reproduction."
+}

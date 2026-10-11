@@ -1,0 +1,1032 @@
+{
+  "kind": "bounded-V60-complete-ManagePlugins-and-direct-provider-structure-summary",
+  "reviewSealSha256": "270a73d691b91820c5d220827c74e1ced7bd472adc59dc5e7fedc90acc6e1c6e",
+  "ownerProviderReviewSha256": "042f02297d75a61593320a978ca9986a9d85075b912098e7cdde3b22c94346e8",
+  "initializerReviewSha256": "368c9670309a39b5f29c37cc0efe810699b24f6375489ae9357c1c2eba104c6c",
+  "source": "src/commands/plugin/ManagePlugins.tsx",
+  "sourceSha256": "475c110693f4f44634f1c53a12441b1528ebbb40eff0b5890f6ffa633e026501",
+  "verdict": "PASS bounded complete structures under frozen finite capture map",
+  "fixedCaptureContractSha256": "18c2368789e23b49965291ca0666a080f74b74ea2452fb71dd189c28a8d2fe9d",
+  "mapNeverRederived": true,
+  "results": {
+    "ManagePlugins": {
+      "currentIndex": 13980,
+      "targetIndex": 13976,
+      "nodes": 7729,
+      "scopeCount": 202,
+      "bindings": 325,
+      "localReferenceOccurrences": 1408,
+      "captureOccurrences": 439,
+      "rawDifferenceClasses": {
+        "bound": 766,
+        "free": 336,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "ManagePluginsInitializer": {
+      "currentIndex": 13982,
+      "targetIndex": 13978,
+      "nodes": 143,
+      "scopeCount": 3,
+      "bindings": 1,
+      "localReferenceOccurrences": 1,
+      "captureOccurrences": 47,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 35,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "import0": {
+      "currentIndex": 13973,
+      "targetIndex": 13969,
+      "nodes": 4,
+      "scopeCount": 2,
+      "bindings": 1,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "import1": {
+      "currentIndex": 13974,
+      "targetIndex": 13970,
+      "nodes": 4,
+      "scopeCount": 2,
+      "bindings": 1,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "getBaseFileNames": {
+      "currentIndex": 13975,
+      "targetIndex": 13971,
+      "nodes": 79,
+      "scopeCount": 8,
+      "bindings": 7,
+      "localReferenceOccurrences": 9,
+      "captureOccurrences": 6,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 2,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "getSkillDirNames": {
+      "currentIndex": 13976,
+      "targetIndex": 13972,
+      "nodes": 104,
+      "scopeCount": 11,
+      "bindings": 9,
+      "localReferenceOccurrences": 19,
+      "captureOccurrences": 7,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 3,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "PluginComponentsDisplay": {
+      "currentIndex": 13977,
+      "targetIndex": 13973,
+      "nodes": 947,
+      "scopeCount": 20,
+      "bindings": 34,
+      "localReferenceOccurrences": 166,
+      "captureOccurrences": 48,
+      "rawDifferenceClasses": {
+        "bound": 17,
+        "free": 27,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "checkIfLocalPlugin": {
+      "currentIndex": 13978,
+      "targetIndex": 13974,
+      "nodes": 43,
+      "scopeCount": 4,
+      "bindings": 6,
+      "localReferenceOccurrences": 7,
+      "captureOccurrences": 1,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 1,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "filterManagedDisabledPlugins": {
+      "currentIndex": 13979,
+      "targetIndex": 13975,
+      "nodes": 38,
+      "scopeCount": 4,
+      "bindings": 5,
+      "localReferenceOccurrences": 5,
+      "captureOccurrences": 1,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 1,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "declarations": {
+      "currentIndex": 13981,
+      "targetIndex": 13977,
+      "nodes": 5,
+      "scopeCount": 2,
+      "bindings": 2,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 2,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "useIsInsideModal": {
+      "currentIndex": 8431,
+      "targetIndex": 8426,
+      "nodes": 11,
+      "scopeCount": 3,
+      "bindings": 2,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 2,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 1,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "useModalOrTerminalSize": {
+      "currentIndex": 8432,
+      "targetIndex": 8427,
+      "nodes": 72,
+      "scopeCount": 3,
+      "bindings": 6,
+      "localReferenceOccurrences": 20,
+      "captureOccurrences": 3,
+      "rawDifferenceClasses": {
+        "bound": 0,
+        "free": 2,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "useTerminalSize": {
+      "currentIndex": 5763,
+      "targetIndex": 5759,
+      "nodes": 20,
+      "scopeCount": 3,
+      "bindings": 3,
+      "localReferenceOccurrences": 3,
+      "captureOccurrences": 3,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 1,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "usePagination": {
+      "currentIndex": 13911,
+      "targetIndex": 13907,
+      "nodes": 350,
+      "scopeCount": 13,
+      "bindings": 32,
+      "localReferenceOccurrences": 98,
+      "captureOccurrences": 19,
+      "rawDifferenceClasses": {
+        "bound": 20,
+        "free": 11,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/context/modalContext.tsx:8433": {
+      "currentIndex": 8433,
+      "targetIndex": 8428,
+      "nodes": 14,
+      "scopeCount": 3,
+      "bindings": 2,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 2,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 1,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/context/modalContext.tsx:8434": {
+      "currentIndex": 8434,
+      "targetIndex": 8429,
+      "nodes": 5,
+      "scopeCount": 2,
+      "bindings": 2,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/context/modalContext.tsx:8435": {
+      "currentIndex": 8435,
+      "targetIndex": 8430,
+      "nodes": 26,
+      "scopeCount": 3,
+      "bindings": 1,
+      "localReferenceOccurrences": 1,
+      "captureOccurrences": 7,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 4,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/hooks/useTerminalSize.ts:5764": {
+      "currentIndex": 5764,
+      "targetIndex": 5760,
+      "nodes": 3,
+      "scopeCount": 2,
+      "bindings": 1,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/hooks/useTerminalSize.ts:5765": {
+      "currentIndex": 5765,
+      "targetIndex": 5761,
+      "nodes": 18,
+      "scopeCount": 3,
+      "bindings": 1,
+      "localReferenceOccurrences": 1,
+      "captureOccurrences": 5,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 4,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/commands/plugin/usePagination.ts:13912": {
+      "currentIndex": 13912,
+      "targetIndex": 13908,
+      "nodes": 6,
+      "scopeCount": 2,
+      "bindings": 2,
+      "localReferenceOccurrences": 1,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 2,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/commands/plugin/usePagination.ts:13913": {
+      "currentIndex": 13913,
+      "targetIndex": 13909,
+      "nodes": 15,
+      "scopeCount": 3,
+      "bindings": 1,
+      "localReferenceOccurrences": 1,
+      "captureOccurrences": 4,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 3,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/ink/components/TerminalSizeContext.tsx:5549": {
+      "currentIndex": 5549,
+      "targetIndex": 5545,
+      "nodes": 5,
+      "scopeCount": 2,
+      "bindings": 2,
+      "localReferenceOccurrences": 0,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:src/ink/components/TerminalSizeContext.tsx:5550": {
+      "currentIndex": 5550,
+      "targetIndex": 5546,
+      "nodes": 23,
+      "scopeCount": 3,
+      "bindings": 1,
+      "localReferenceOccurrences": 1,
+      "captureOccurrences": 6,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 4,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:node_modules/react/cjs/react-compiler-runtime.production.js:5074": {
+      "currentIndex": 5074,
+      "targetIndex": 5070,
+      "nodes": 18,
+      "scopeCount": 3,
+      "bindings": 5,
+      "localReferenceOccurrences": 3,
+      "captureOccurrences": 0,
+      "rawDifferenceClasses": {
+        "bound": 4,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:node_modules/react/cjs/react-compiler-runtime.production.js:5075": {
+      "currentIndex": 5075,
+      "targetIndex": 5071,
+      "nodes": 21,
+      "scopeCount": 3,
+      "bindings": 1,
+      "localReferenceOccurrences": 1,
+      "captureOccurrences": 6,
+      "rawDifferenceClasses": {
+        "bound": 1,
+        "free": 5,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    },
+    "provider:node_modules/react/cjs/react.production.js:5073": {
+      "currentIndex": 5073,
+      "targetIndex": 5069,
+      "nodes": 2310,
+      "scopeCount": 84,
+      "bindings": 222,
+      "localReferenceOccurrences": 548,
+      "captureOccurrences": 37,
+      "rawDifferenceClasses": {
+        "bound": 216,
+        "free": 0,
+        "protected": 0
+      },
+      "rawStrictEqual": false,
+      "fullProtectedFieldsEqual": true,
+      "fullScopeDeclarationReferenceReadWriteInitGraphEqual": true,
+      "fullScopeFlagsEqual": true,
+      "frozenCaptureMapAgreement": true
+    }
+  },
+  "totalSelectedStatements": 26,
+  "totalSelectedNodes": 12013,
+  "negativeControls": {
+    "literalRawChanged": true,
+    "modalRowsOperatorChanged": true,
+    "wrongHookSupplierChanged": true,
+    "providerRowsPropertyChanged": true,
+    "modalInitializerOrderChanged": true,
+    "localReadFlagChanged": true
+  },
+  "strictWholeProgramEquality": false,
+  "globalBindingEquivalence": false,
+  "transitiveInitializerAcceptance": false,
+  "runtimeAcceptance": false,
+  "acceptedClosure": false,
+  "historicalResidualRecordsRetained": 134,
+  "initializerTopology": {
+    "orderedComponentCalls": {
+      "prior": 39,
+      "current": 40,
+      "target": 40
+    },
+    "preservedPriorEdgesBySourceIdentity": 39,
+    "allSelectedOrderedEdgesMatchFrozenMap": true,
+    "directSupplierComparisons": [
+      {
+        "role": "component",
+        "position": 0,
+        "currentIndex": 5080,
+        "targetIndex": 5076,
+        "currentNodes": 841,
+        "targetNodes": 841,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 1,
+        "currentIndex": 8426,
+        "targetIndex": 8421,
+        "currentNodes": 24,
+        "targetNodes": 24,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 2,
+        "currentIndex": 8430,
+        "targetIndex": 8425,
+        "currentNodes": 21,
+        "targetNodes": 21,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 3,
+        "currentIndex": 13842,
+        "targetIndex": 13838,
+        "currentNodes": 87,
+        "targetNodes": 87,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 4,
+        "currentIndex": 13845,
+        "targetIndex": 13841,
+        "currentNodes": 57,
+        "targetNodes": 57,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 5,
+        "currentIndex": 13849,
+        "targetIndex": 13845,
+        "currentNodes": 30,
+        "targetNodes": 30,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 6,
+        "currentIndex": 13854,
+        "targetIndex": 13850,
+        "currentNodes": 45,
+        "targetNodes": 45,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 7,
+        "currentIndex": 13347,
+        "targetIndex": 13343,
+        "currentNodes": 21,
+        "targetNodes": 21,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 8,
+        "currentIndex": 8435,
+        "targetIndex": 8430,
+        "currentNodes": 26,
+        "targetNodes": 26,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 9,
+        "currentIndex": 13352,
+        "targetIndex": 13348,
+        "currentNodes": 51,
+        "targetNodes": 51,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 10,
+        "currentIndex": 5765,
+        "targetIndex": 5761,
+        "currentNodes": 18,
+        "targetNodes": 18,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 11,
+        "currentIndex": 5762,
+        "targetIndex": 5758,
+        "currentNodes": 114,
+        "targetNodes": 114,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 12,
+        "currentIndex": 8059,
+        "targetIndex": 8053,
+        "currentNodes": 21,
+        "targetNodes": 21,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 13,
+        "currentIndex": 5991,
+        "targetIndex": 5987,
+        "currentNodes": 15,
+        "targetNodes": 15,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 14,
+        "currentIndex": 13831,
+        "targetIndex": 13827,
+        "currentNodes": 29,
+        "targetNodes": 29,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 15,
+        "currentIndex": 8260,
+        "targetIndex": 8254,
+        "currentNodes": 34,
+        "targetNodes": 34,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 16,
+        "currentIndex": 13940,
+        "targetIndex": 13936,
+        "currentNodes": 76,
+        "targetNodes": 76,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 17,
+        "currentIndex": 12904,
+        "targetIndex": 12900,
+        "currentNodes": 69,
+        "targetNodes": 69,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 18,
+        "currentIndex": 8156,
+        "targetIndex": 8150,
+        "currentNodes": 10,
+        "targetNodes": 10,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 19,
+        "currentIndex": 893,
+        "targetIndex": 893,
+        "currentNodes": 322,
+        "targetNodes": 322,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 20,
+        "currentIndex": 757,
+        "targetIndex": 757,
+        "currentNodes": 225,
+        "targetNodes": 225,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 21,
+        "currentIndex": 2039,
+        "targetIndex": 2039,
+        "currentNodes": 54,
+        "targetNodes": 54,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 22,
+        "currentIndex": 12502,
+        "targetIndex": 12498,
+        "currentNodes": 55,
+        "targetNodes": 55,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 23,
+        "currentIndex": 12598,
+        "targetIndex": 12594,
+        "currentNodes": 49,
+        "targetNodes": 49,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 24,
+        "currentIndex": 12574,
+        "targetIndex": 12570,
+        "currentNodes": 248,
+        "targetNodes": 248,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 25,
+        "currentIndex": 6623,
+        "targetIndex": 6619,
+        "currentNodes": 43,
+        "targetNodes": 43,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 26,
+        "currentIndex": 6246,
+        "targetIndex": 6242,
+        "currentNodes": 25,
+        "targetNodes": 25,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 27,
+        "currentIndex": 13966,
+        "targetIndex": 13962,
+        "currentNodes": 22,
+        "targetNodes": 22,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 28,
+        "currentIndex": 6002,
+        "targetIndex": 5998,
+        "currentNodes": 42,
+        "targetNodes": 42,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 29,
+        "currentIndex": 12655,
+        "targetIndex": 12651,
+        "currentNodes": 180,
+        "targetNodes": 180,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 30,
+        "currentIndex": 6633,
+        "targetIndex": 6629,
+        "currentNodes": 70,
+        "targetNodes": 70,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 31,
+        "currentIndex": 10683,
+        "targetIndex": 10679,
+        "currentNodes": 10,
+        "targetNodes": 10,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 32,
+        "currentIndex": 13873,
+        "targetIndex": 13869,
+        "currentNodes": 37,
+        "targetNodes": 37,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 33,
+        "currentIndex": 2635,
+        "targetIndex": 2636,
+        "currentNodes": 83,
+        "targetNodes": 83,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 34,
+        "currentIndex": 856,
+        "targetIndex": 856,
+        "currentNodes": 70,
+        "targetNodes": 70,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 35,
+        "currentIndex": 13969,
+        "targetIndex": 13965,
+        "currentNodes": 5,
+        "targetNodes": 5,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 36,
+        "currentIndex": 13898,
+        "targetIndex": 13894,
+        "currentNodes": 36,
+        "targetNodes": 36,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 37,
+        "currentIndex": 13902,
+        "targetIndex": 13898,
+        "currentNodes": 33,
+        "targetNodes": 33,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 38,
+        "currentIndex": 13972,
+        "targetIndex": 13968,
+        "currentNodes": 24,
+        "targetNodes": 24,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "component",
+        "position": 39,
+        "currentIndex": 13913,
+        "targetIndex": 13909,
+        "currentNodes": 15,
+        "targetNodes": 15,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "modal",
+        "position": 0,
+        "currentIndex": 5075,
+        "targetIndex": 5071,
+        "currentNodes": 21,
+        "targetNodes": 21,
+        "status": "PASS",
+        "failure": null
+      },
+      {
+        "role": "terminal",
+        "position": 0,
+        "currentIndex": 5550,
+        "targetIndex": 5546,
+        "currentNodes": 23,
+        "targetNodes": 23,
+        "status": "PASS",
+        "failure": null
+      }
+    ],
+    "blockedSuppliers": 0,
+    "contextIdentity": {
+      "modal": {
+        "currentSlot": "ys6",
+        "targetSlot": "Es6",
+        "useInsideIndex": 8431,
+        "useSizeIndex": 8432,
+        "initializerIndex": 8435
+      },
+      "terminal": {
+        "currentSlot": "M76",
+        "targetSlot": "M76",
+        "hookIndex": 5763,
+        "initializerIndex": 5550
+      },
+      "memo": {
+        "currentFunction": "$6",
+        "targetFunction": "Y6",
+        "currentDispatcherSlot": "uW_",
+        "targetDispatcherSlot": "ZW_"
+      }
+    },
+    "wrapper": {
+      "currentIndex": 8,
+      "targetIndex": 8,
+      "nodes": 18,
+      "completeFieldsAndGraphMatch": true
+    },
+    "interop": {
+      "currentIndex": 4,
+      "targetIndex": 4,
+      "nodes": 256,
+      "completeFieldsAndGraphMatch": true
+    },
+    "runtimeInitializationOrDispatchAccepted": false
+  },
+  "newModalInitializerPosition": {
+    "zeroBased": 8,
+    "oneBased": 9
+  },
+  "topologyInterpretation": "Forty ordered component initializer calls correspond to the target under the fixed map, with one new direct modalContext edge at position nine and all 39 prior edges retained by source identity. Complete direct suppliers, shared modal/terminal context slots, memo dispatch and wrapper boundaries are static evidence, not global provider or React dispatch/lifecycle acceptance.",
+  "comparisonScope": "The entire 7,729-node component and 143-node initializer are compared, not just the changed expression. Component raw differences are 1,102 Identifier.name occurrences (766 bound, 336 free); initializer differences are 36 (one bound, 35 free). All protected fields, literal/raw values, scope graphs and flags remain significant; strict names differ.",
+  "sourceMapAttributionQualification": {
+    "componentFreeReferencesWithExactGeneratedStartSegments": 439,
+    "segmentsAtSourceIdentifierTokens": 295,
+    "segmentsAtTransformedNonIdentifierPositions": 144,
+    "universalOriginalIdentifierTokenIdentityEstablished": false
+  },
+  "sourceMapLimit": "Current source attribution comes from the fresh authenticated build map. The source file also retains an unchanged historical inline map comment; it is not fresh V60 attribution. Synthetic initializer prefixes and import-statement mappings are not original-token or semantic-provider identity.",
+  "domainLimits": [
+    "The repair intentionally changes modal behavior and adds unconditional hook calls. Old/new universal behavior equivalence is not claimed.",
+    "useIsInsideModal tests context !== null, while useModalOrTerminalSize uses truthiness; malformed context values can make them disagree. Static types are not runtime guards.",
+    "One terminal-size call remains. Terminal columns still supply SearchBox width, while modal-or-terminal rows supply pagination. Eight is a lower bound in the modal expression, not a maximum or layout-fit guarantee.",
+    "Context reads, getters/coercion, throwing hooks, mutable fallback/context/cache identity, NaN/Infinity/fractional dimensions and altered Math.max remain observable. React lifecycle, render retries, state preservation, memo behavior, callbacks and full global initialization remain open."
+  ],
+  "independentFinalReview": {
+    "receiptSha256": "f3883e635400869f9678a6396708eeca5dd816139da887265b098697911fa9d8",
+    "verdict": "PASS bounded complete owner, provider, initializer and consumer structural evidence",
+    "componentDistinctCaptures": 74,
+    "primaryCompleteStatements": 26,
+    "directSupplierBoundaryComparisons": 42,
+    "historicalUnchangedConsumerComparisons": 72,
+    "fullTargetRendererCallerComparisons": 4,
+    "globalProviderAcceptance": false,
+    "globalInitializationAcceptance": false,
+    "ReactLifecycleAcceptance": false,
+    "wholeProgramAcceptance": false
+  },
+  "extendedReviewPins": {
+    "consumer-review.json": "b4eec3a67cab3719d03f98caba8715765a39026c2e6fb68f5c1943810d001ec0",
+    "renderer-review.json": "fe77a6f5d1659a0e29e89e46edee3f09c5fb88a9533f24e2b18c637a082a386b"
+  },
+  "sourceProvenance": "source-origin-basis.json",
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

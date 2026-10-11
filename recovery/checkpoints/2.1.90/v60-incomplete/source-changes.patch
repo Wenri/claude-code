@@ -1,0 +1,37 @@
+--- v59/src/commands/plugin/ManagePlugins.tsx
++++ v60/src/commands/plugin/ManagePlugins.tsx
+@@ -12,6 +12,7 @@
+ import { MCPToolListView } from '../../components/mcp/MCPToolListView.js';
+ import type { ClaudeAIServerInfo, HTTPServerInfo, SSEServerInfo, StdioServerInfo } from '../../components/mcp/types.js';
+ import { SearchBox } from '../../components/SearchBox.js';
++import { useIsInsideModal, useModalOrTerminalSize } from '../../context/modalContext.js';
+ import { useSearchInput } from '../../hooks/useSearchInput.js';
+ import { useTerminalSize } from '../../hooks/useTerminalSize.js';
+ // eslint-disable-next-line custom-rules/prefer-use-keybindings -- useInput needed for raw search mode text input
+@@ -416,9 +417,10 @@
+     onSearchModeChange?.(active);
+   }, [onSearchModeChange]);
+   const isTerminalFocused = useTerminalFocus();
+-  const {
+-    columns: terminalWidth
+-  } = useTerminalSize();
++  const isInsideModal = useIsInsideModal();
++  const terminalSize = useTerminalSize();
++  const { columns: terminalWidth } = terminalSize;
++  const { rows: availableRows } = useModalOrTerminalSize(terminalSize);
+ 
+   // View state
+   const [viewState, setViewState] = useState<ViewState>('plugin-list');
+@@ -801,10 +803,11 @@
+   const [selectedIndex, setSelectedIndex] = useState(0);
+ 
+   // Pagination for unified list (continuous scrolling)
++  const maxVisible = isInsideModal ? Math.max(8, availableRows - 10) : 8;
+   const pagination = usePagination<UnifiedInstalledItem>({
+     totalItems: filteredItems.length,
+     selectedIndex,
+-    maxVisible: 8
++    maxVisible
+   });
+ 
+   // Details view state

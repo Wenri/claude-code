@@ -1,0 +1,62 @@
+{
+  "kind": "R098-R099-complete-accepted89-modal-source-provenance",
+  "sourceProposalManifestSha256": "79f99afc594722b0f91e00eed3c7b7cf6deb86d94b87f78f80b5a5200195e701",
+  "sourcePath": "src/commands/plugin/ManagePlugins.tsx",
+  "priorSha256": "8b768ebac06d70e777ae5605657ef4b52cf3fcf0cd4b9d13d4ac60f068a0b9e3",
+  "proposedSha256": "475c110693f4f44634f1c53a12441b1528ebbb40eff0b5890f6ffa633e026501",
+  "priorBytes": 321775,
+  "proposedBytes": 322083,
+  "donor": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "member": "src/commands/plugin/ManagePlugins.tsx",
+    "gitBlob": "a8d3d6758566751a5dc5411edcb9c7b9bbe44ca1"
+  },
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "unchangedDirectProviders": [
+    {
+      "path": "src/context/modalContext.tsx",
+      "bytes": 6266,
+      "sha256": "bb51d9d5f4f63e1a4fa1651c70535af84ed9c3d645dda8e3997e4a88cd7eee69"
+    },
+    {
+      "path": "src/hooks/useTerminalSize.ts",
+      "bytes": 354,
+      "sha256": "e05c47c49d34d6aea5c206100b86a37f4fe91dbb22c47680f9ea09b084c1ae7c"
+    },
+    {
+      "path": "src/commands/plugin/usePagination.ts",
+      "bytes": 4990,
+      "sha256": "d01d5665537f555fdbaf1970d8a7b40ea200d362152d8c5498abace38a306c76"
+    }
+  ],
+  "providerInventoryAuthentication": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "profilePath": "recovery/checkpoints/2.1.89/v45/profile.json",
+    "profileSha256": "4001b061fbbe002c516af835ba9d5c0c97b15666eed9ba0cee99e4ace6e21120"
+  },
+  "verifiedDuringExport": "The committed accepted V45 source overlay is authenticated and its complete ManagePlugins member equals the V60 postimage. All three direct provider files are unchanged from public V59 and match the committed V45 profile source-file pins.",
+  "sourceHunks": [
+    "Add useIsInsideModal and useModalOrTerminalSize imports.",
+    "Retain one terminal-size call and terminal columns, while reading modal presence and modal-or-terminal rows.",
+    "Use isInsideModal ? Math.max(8, availableRows - 10) : 8 for pagination maxVisible."
+  ],
+  "historicalInlineMap": {
+    "preservedByteIdenticallyFromPublishedBaseline": true,
+    "sourceMapCommentSha256": "ff6fd2842339467ea8003b72ed9225b7ef3f3a3c0b4188e9acf86ce0e4dc38d1",
+    "freshV60EmissionEvidence": false,
+    "interpretation": "The accepted source contains an existing inline map comment. It is preserved as literal source metadata, not regenerated or treated as current source attribution."
+  },
+  "constructionResponsibility": "The primary recovery author inspected every hunk and relevant hook, provider, selection/pagination and render consumers, authored/applied the repair, and ran the diagnostic build plus complete static/census checks. This packaging performs only data comparison and copying.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "The change intentionally alters modal behavior and unconditional hook calls. Context reads, getter/coercion effects, exceptions, memo/cache/identity, NaN/Infinity/fractional dimensions, Math.max mutation and React lifecycle remain material. Eight is a lower bound in the modal expression, not a maximum. SearchBox continues to use terminal columns. Accepted .89 provenance is not .90 acceptance.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
