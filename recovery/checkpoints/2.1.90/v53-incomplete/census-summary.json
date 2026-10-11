@@ -1,0 +1,122 @@
+{
+  "criterion": "strict-whole-program-ast-v2",
+  "wholeStrict": {
+    "target": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110206,
+      "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+    },
+    "v52": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110695,
+      "sha256": "7ddad7606144d6d680a2a6213b0b7163c903753150bb1e56dccdb380a083c1ca"
+    },
+    "v53": {
+      "criterion": "strict-whole-program-ast-v2",
+      "parser": "acorn@8.15.0",
+      "ecmaVersion": 2026,
+      "nodes": 3110731,
+      "sha256": "376a6149e75bb9318455518a9c0f285715d8c8a567633acbb4ff580f8c137ddf"
+    }
+  },
+  "targetV53StrictEqual": false,
+  "legacyDiagnosticPartition": {
+    "method": "difflib.SequenceMatcher on authenticated shapeSha256, autojunk=False; diagnostic only",
+    "all134HistoricalV52WindowsExactlyReproduced": true,
+    "historicalGeneratingScriptRecovered": false,
+    "v52Windows": 134,
+    "v53Windows": 132,
+    "v52MatchedShapeStatements": 18122,
+    "v53MatchedShapeStatements": 18124,
+    "lostPriorMatchedPairs": [],
+    "addedMatchedPairs": [
+      [
+        14335,
+        14340
+      ],
+      [
+        14350,
+        14355
+      ]
+    ],
+    "disappearedHistoricalWindowIds": [
+      101,
+      102
+    ],
+    "newTargetWindowIndexes": []
+  },
+  "strictDiagnosticPartition": {
+    "v52Windows": 231,
+    "v53Windows": 231,
+    "v52ExactStatementAnchors": 238,
+    "v53ExactStatementAnchors": 238,
+    "lostPriorExactPairs": [],
+    "newExactPairs": [],
+    "criterionUnchanged": true
+  },
+  "v52ToV53": {
+    "statementCounts": [
+      18281,
+      18281
+    ],
+    "samePositionStrictChangedStatements": 3118,
+    "samePositionShapeChangedStatements": [
+      5582,
+      14340,
+      14355
+    ],
+    "samePositionShapeUnchangedButStrictChangedStatements": 3115,
+    "strictDifferenceWindows": 1065,
+    "identifierAllocationAndBindingEffectsNotGloballyAccepted": true
+  },
+  "nominationStatusCounts": {
+    "unique_outside_ordered_partition": 19,
+    "unmatched": 270,
+    "ambiguous_multiple": 19
+  },
+  "unmappedSelectedStatements": [
+    8763,
+    8764,
+    17894
+  ],
+  "interpretation": [
+    "132 counts shape-based diagnostic windows only, not strict-AST unresolved regions, bugs, percentage, or accepted closures.",
+    "R101 and R102 shape windows disappeared; raw capture/name differences and complete owner reviews remain separate.",
+    "Statement5582 in existing R17 changes one retained shorthand flag plus a wrapper capture name. It is explicitly retained and not normalized away.",
+    "No new target shape window or loss of a prior matched shape pair was observed. This is not a proof of no runtime/global regression.",
+    "3115 shape-stable but strict-changed statements retain unresolved global naming/binding implications.",
+    "Historical root partition generator was not recovered. The compatibility partition above reproduces every saved V52 window and anchor count exactly; existing strict digest remains the acceptance criterion."
+  ],
+  "regionClosuresAccepted": 0,
+  "kind": "public-fresh-V53-global-diagnostic-census-summary",
+  "censusSealSha256": "c9d76f7265ad51e30e3343618c6d61171c2113c5c17b51da14428a73376cd48a",
+  "censusSummarySha256": "46a5bcfecf525b13b6a0ed15dcfa30512afc5fab9a0653a2f739190f199995c6",
+  "inputPins": {
+    "target": {
+      "indexSha256": "71ed402e7b07f1b9fb562209c36a5f2d5915c74ec1ba303aca634731f947eba9",
+      "jsSha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    },
+    "v52": {
+      "indexSha256": "88db2dc3744fe08d1404d9c0f3519b3709806be043fb8fc8fe516cc5ed0ce62d",
+      "jsSha256": "d46e5b404525391e09af9e6463edd2a950d1dec14af9946abfd4cfe4d343c670"
+    },
+    "v53": {
+      "indexSha256": "017a8f185f4b469f2ce7805d63b951b792caa1239603b8f0d34b23927c0364d8",
+      "jsSha256": "c1f72389f409933b9d4bfa118a0444bfc026842366b2bff53a556960e1732fc6"
+    }
+  },
+  "originalHistoricalResidualRecordsPreserved": 134,
+  "historicalBacklogUnmodified": true,
+  "partitionDiagnosticOnly": true,
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

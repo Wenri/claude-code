@@ -1,0 +1,108 @@
+--- v52/src/components/FullscreenLayout.tsx
++++ v53/src/components/FullscreenLayout.tsx
+@@ -381,7 +381,7 @@
+     }
+     let t13;
+     if ($[22] !== bottomFloat) {
+-      t13 = bottomFloat != null && <Box position="absolute" bottom={0} right={0} opaque={true}>{bottomFloat}</Box>;
++      t13 = bottomFloat != null && <Box position="absolute" bottom={0} right={0}>{bottomFloat}</Box>;
+       $[22] = bottomFloat;
+       $[23] = t13;
+     } else {
+--- v52/src/hooks/useVirtualScroll.ts
++++ v53/src/hooks/useVirtualScroll.ts
+@@ -5,6 +5,7 @@
+   useLayoutEffect,
+   useMemo,
+   useRef,
++  useState,
+   useSyncExternalStore,
+ } from 'react'
+ import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js'
+@@ -213,8 +214,10 @@
+   // its top IS listOrigin. No subtraction of offsets → no drift when item
+   // heights change between renders (tmux resize: columns change → re-wrap
+   // → heights shrink → the old item-sample subtraction went negative →
+-  // effLo inflated → black screen). One-frame lag like heightCache.
++  // effLo inflated → black screen). Refresh the origin in the layout effect
++  // before clamping; a material shift from a nonzero origin requests a render.
+   const listOriginRef = useRef(0)
++  const [, forceOriginRender] = useState(0)
+   const spacerRef = useRef<DOMElement | null>(null)
+ 
+   // useSyncExternalStore ties re-renders to imperative scroll. Snapshot is
+@@ -551,8 +554,8 @@
+     }
+   }
+ 
+-  // Write render-time clamp bounds in a layout effect (not during render —
+-  // mutating DOM during React render violates purity). render-node-to-output
++  // Write clamp bounds in a layout effect after refreshing the list origin
++  // (mutating DOM during React render violates purity). render-node-to-output
+   // clamps scrollTop to this span so burst scrollTo calls that race past
+   // React's async re-render show the EDGE of mounted content (the last/first
+   // visible message) instead of blank spacer.
+@@ -570,13 +573,11 @@
+   // render uses estimate-based offsets, clamp set, sticky-follow moves
+   // scrollTop, measurement fires, offsets rebuild with real heights, second
+   // render's clamp differs → scrollTop clamp-adjusts → content shifts.
+-  const listOrigin = listOriginRef.current
+   const effTopSpacer = offsets[effStart]!
+   // At effStart=0 there's no unmounted content above — the clamp must allow
+   // scrolling past listOrigin to see pre-list content (logo, header) that
+   // sits in the ScrollBox but outside VirtualMessageList. Only clamp when
+   // the topSpacer is nonzero (there ARE unmounted items above).
+-  const clampMin = effStart === 0 ? 0 : effTopSpacer + listOrigin
+   // At effEnd=n there's no bottomSpacer — nothing to avoid racing past. Using
+   // offsets[n] here would bake in heightCache (one render behind Yoga), and
+   // when the tail item is STREAMING its cached height lags its real height by
+@@ -587,14 +588,7 @@
+   const clampMax =
+     effEnd === n
+       ? Infinity
+-      : Math.max(effTopSpacer, offsets[effEnd]! - viewportH) + listOrigin
+-  useLayoutEffect(() => {
+-    if (isSticky) {
+-      scrollRef.current?.setClampBounds(undefined, undefined)
+-    } else {
+-      scrollRef.current?.setClampBounds(clampMin, clampMax)
+-    }
+-  })
++      : Math.max(effTopSpacer, offsets[effEnd]! - viewportH)
+ 
+   // Measure heights from the PREVIOUS Ink render. Runs every commit (no
+   // deps) because Yoga recomputes layout without React knowing. yogaNode
+@@ -611,15 +605,27 @@
+   // at the start boundary freezes the range (seen as blank viewport when
+   // scrolling down after scrolling up).
+   //
+-  // NO setState. A setState here would schedule a second commit with
+-  // shifted offsets, and since Ink writes stdout on every commit
+-  // (reconciler.resetAfterCommit → onRender), that's two writes with
+-  // different spacer heights → visible flicker. Heights propagate to
+-  // offsets on the next natural render. One-frame lag, absorbed by overscan.
++  // Height-cache changes only bump the version ref and propagate on the
++  // next render. The origin-shift state update below is a separate refresh
++  // required by the target hook; measurement changes do not request it.
+   useLayoutEffect(() => {
+     const spacerYoga = spacerRef.current?.yogaNode
+     if (spacerYoga && spacerYoga.getComputedWidth() > 0) {
+-      listOriginRef.current = spacerYoga.getComputedTop()
++      const nextOrigin = spacerYoga.getComputedTop()
++      const previousOrigin = listOriginRef.current
++      listOriginRef.current = nextOrigin
++      if (previousOrigin !== 0 && Math.abs(nextOrigin - previousOrigin) > 1) {
++        forceOriginRender(value => value + 1)
++      }
++    }
++    const listOrigin = listOriginRef.current
++    if (isSticky) {
++      scrollRef.current?.setClampBounds(undefined, undefined)
++    } else {
++      scrollRef.current?.setClampBounds(
++        effStart === 0 ? 0 : effTopSpacer + listOrigin,
++        clampMax === Infinity ? Infinity : clampMax + listOrigin,
++      )
+     }
+     if (skipMeasurementRef.current) {
+       skipMeasurementRef.current = false

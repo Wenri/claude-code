@@ -1,0 +1,77 @@
+{
+  "kind": "published-V52-source-plus-two-reviewed-source-edits",
+  "baselineRepository": "https://github.com/Wenri/claude-code",
+  "baselineCommit": "49a399849c05d296ee904dd163bc937a0a94a90c",
+  "baselineDirectory": "recovery/checkpoints/2.1.90/v52-incomplete",
+  "baselineSourceManifestSha256": "bfe94fa23e50427be7fa1a011fddb40a767693266aae20b4172d96c634e1a7a5",
+  "baselineDerivedSrcTree": "23d9b6dbc2b8a583d71cb4ce78a77bdc574d7dad",
+  "baselinePublishedFiles": [
+    {
+      "path": "git-source-pins.json",
+      "bytes": 486420,
+      "sha256": "00e7e26132e8b5bba293e62f8c94d8c5a2ff38ddcf1d6a951e1f1d437e8ddd39"
+    },
+    {
+      "path": "saved-backlog.csv",
+      "bytes": 129123,
+      "sha256": "694d8857603991d5485e1638a810226d7e0770aed4035e18b7a6ff956cfe9549"
+    },
+    {
+      "path": "source-inputs.tar.gz",
+      "bytes": 12939302,
+      "sha256": "075fb64adca94c4142a2b81e0e3d2d9d69e3ee8e8448ddd74e6f9edaf145be39"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 1132678,
+      "sha256": "96d53293b8151a0e4562b6d7d6f1b3358df096e20e54fe469b0f6d2d1ee98483"
+    }
+  ],
+  "method": "Read the published V52 checkpoint directly from the named Git commit. Authenticate every archive member against its source manifest. Compare every V53 source path and byte to that authenticated baseline. Exactly the two listed source files differ; all other 6,112 files are byte-identical, with no added or removed source paths. The complete V53 source and Git manifests pin every resulting file. The source patch records both exact textual changes.",
+  "changedFiles": [
+    {
+      "path": "src/components/FullscreenLayout.tsx",
+      "before": {
+        "bytes": 84913,
+        "sha256": "c79d51bd2eccfad9b49f77f183a65df0957626023793c623caff4306f63ba25c",
+        "gitBlob": "2475ec611fcc2763e586ca0342a625f98906f5ca"
+      },
+      "after": {
+        "bytes": 84899,
+        "sha256": "f8a15af8a50273ed28c79e454afac68d644a6c3f2fdaff4c29e091f16cd5d76b",
+        "gitBlob": "e47d3114a37c45d225c4c24e539ead3fe5a031e6"
+      }
+    },
+    {
+      "path": "src/hooks/useVirtualScroll.ts",
+      "before": {
+        "bytes": 35122,
+        "sha256": "d27382b007c98ab3af5e2940b0d1f6db041ccbe2897963ce19f63afb340ea4b7",
+        "gitBlob": "388b0bad9466829597b84bda238fa3fd3fe34e80"
+      },
+      "after": {
+        "bytes": 35352,
+        "sha256": "36d1cb6f2574aae0138a6686f75ec46e7d4ab070162bdec637564aba368c061d",
+        "gitBlob": "1bce773dd521a5be38174b4becefee2159e50563"
+      }
+    }
+  ],
+  "changedFilesCount": 2,
+  "byteIdenticalInheritedFiles": 6112,
+  "addedPaths": [],
+  "removedPaths": [],
+  "netSourceBytes": 216,
+  "v53SourceManifestSha256": "ed86c8bda383e7b41b02ce08587c99248aac727553500f55f7374557decd7365",
+  "v53DerivedSrcTree": "ffdf1cbf8bfe8ac40634d804331b4bc9bd29c892",
+  "sourcePatch": {
+    "path": "source-changes.patch",
+    "bytes": 5092,
+    "sha256": "23a1d6ba7a27ccda8013e3731dd7a0915b808a92a97942695bee6fb59a9d1cd6"
+  },
+  "baselineSourceRestoration": "The published V52 checkpoint states its bytes were restored from candidate sourcesContent and earlier saved source inputs only when length and SHA256 matched the saved manifest. This V53 export depends on the public V52 byte identities, not on access to its earlier restoration archives.",
+  "officialTargetUsedForSourceRestoration": false,
+  "referencesRequiredToReadThisArchive": false,
+  "privateArchivesRequiredToReadThisArchive": false,
+  "originalSourceAuthorshipClaim": false,
+  "newAcceptanceClaim": false
+}
