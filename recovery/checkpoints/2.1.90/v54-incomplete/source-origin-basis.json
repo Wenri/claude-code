@@ -1,0 +1,77 @@
+{
+  "kind": "public-source-donor-provenance-for-two-watcher-edits",
+  "baselinePublicCommit": "02c5d4f32eed71f4d6df2189a8e1b695e4feecb8",
+  "changes": [
+    {
+      "region": "R018",
+      "sourceDerivationRecordSha256": "012186b9aacd4ac9e57ec498304480cb98fe460735aae955dab1a429b94f9130",
+      "kind": "source-only derivation, completed before target comparison reads",
+      "source": "src/utils/settings/changeDetector.ts",
+      "sourceSha256": "0d7f3c77e6481a30690910bf36c03df780a295c55361852061730dd5b35ba5d2",
+      "oldExpression": "path.split(platformPath.sep).some(dir => dir === '.git')",
+      "newExpression": "path.split(/[/\\\\]/).some(dir => dir === '.git')",
+      "newExpressionDerivation": "Only substitute the independently pinned existing-source split argument.",
+      "idiomSource": "src/utils/plugins/loadPluginCommands.ts",
+      "idiomSha256": "b6fee44ace920a14940f23b456bb16a5d6d1eb6f31a11e2a28f708f0c06da762",
+      "idiomLines": [
+        77,
+        91
+      ],
+      "idiomLine77": "    const namespace = relativePath ? relativePath.split(/[/\\\\]/).join(':') : ''",
+      "separatorExpression": "/[/\\\\]/",
+      "providerContract": [
+        "Chokidar createPattern returns functional ignored matchers unchanged (index.js:20–23).",
+        "normalizePath requires string, calls host path.normalize, replaces all backslashes by slash, collapses duplicate slashes while retaining an initial network-path double slash (44–57).",
+        "matchPatterns calls each matcher with that normalized string and stats (59–66).",
+        "anymatch creates the closure used by FSWatcher._isIgnored (68–79,633–644).",
+        "The checked-in settings detector independently documents slash-normalized Chokidar inputs on Windows (settings/changeDetector.ts:123–126)."
+      ],
+      "targetTextUsedToConstructProposedSource": false,
+      "completeTargetProgramUsedAsBuildInput": false,
+      "sourceEdgesOriginatingHere": [],
+      "allowedEvalTokensOriginatingHere": [],
+      "acceptance": false
+    },
+    {
+      "region": "R129",
+      "sourceDerivationRecordSha256": "6fb70fd558b798d6c934845d5b3df6764830ebefe09ca1946d9ab3c2f52df0af",
+      "kind": "source-only derivation, completed before target comparison reads",
+      "source": "src/utils/skills/skillChangeDetector.ts",
+      "sourceSha256": "0f84056a1a40ab1710c2c4d2386a3b322f1db3c847aa209a32eaa162ba47d9c1",
+      "oldExpression": "path.split(platformPath.sep).some(dir => dir === '.git')",
+      "newExpression": "path.split(/[/\\\\]/).some(dir => dir === '.git')",
+      "newExpressionDerivation": "Only substitute the independently pinned existing-source split argument.",
+      "idiomSource": "src/utils/plugins/loadPluginCommands.ts",
+      "idiomSha256": "b6fee44ace920a14940f23b456bb16a5d6d1eb6f31a11e2a28f708f0c06da762",
+      "idiomLines": [
+        77,
+        91
+      ],
+      "idiomLine77": "    const namespace = relativePath ? relativePath.split(/[/\\\\]/).join(':') : ''",
+      "separatorExpression": "/[/\\\\]/",
+      "providerContract": [
+        "Chokidar createPattern returns functional ignored matchers unchanged (index.js:20–23).",
+        "normalizePath requires string, calls host path.normalize, replaces all backslashes by slash, collapses duplicate slashes while retaining an initial network-path double slash (44–57).",
+        "matchPatterns calls each matcher with that normalized string and stats (59–66).",
+        "anymatch creates the closure used by FSWatcher._isIgnored (68–79,633–644).",
+        "The checked-in settings detector independently documents slash-normalized Chokidar inputs on Windows (settings/changeDetector.ts:123–126)."
+      ],
+      "targetTextUsedToConstructProposedSource": false,
+      "completeTargetProgramUsedAsBuildInput": false,
+      "sourceEdgesOriginatingHere": [],
+      "allowedEvalTokensOriginatingHere": [],
+      "acceptance": false
+    }
+  ],
+  "verifiedDuringExport": "Both exact postimages differ solely by the single split-argument substitution. The donor file is byte-identical to the public V53 source, including its independently pinned separator idiom at line 77.",
+  "interpretation": "These are source-origin repair hypotheses using an existing-source idiom, supported by the pinned Chokidar normalization contract. The recorded derivation preceded target comparison reads. Actual emitted owners later pass bounded structural comparison, but historical exact source authorship and behavior equivalence to the old Windows predicate remain unproved.",
+  "targetTextUsedToConstructProposedSource": false,
+  "completeTargetProgramUsedAsBuildInput": false,
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

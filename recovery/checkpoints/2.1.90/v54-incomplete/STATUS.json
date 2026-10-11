@@ -1,0 +1,67 @@
+{
+  "version": "2.1.90",
+  "candidate": "V54",
+  "state": "incomplete source-only checkpoint",
+  "sourceExportDate": "2026-10-11",
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50693546,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "e0104b2a650b30275dbe9247c592b0d69b68513e4589b517cf970a272abca65b",
+  "derivedSrcTree": "08a4e8830b927307a12fc3091cfc441678ef69c3",
+  "sourceFilesChangedFromPublishedV53": 2,
+  "byteIdenticalInheritedSourceFiles": 6112,
+  "historicalResidualRecordsPreserved": 134,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 130,
+  "priorV53ShapeDiagnosticWindows": 132,
+  "strictDiagnosticGaps": 206,
+  "exactStatementAnchors": 213,
+  "strictAnchorChurnRelativeV53": {
+    "lost": 87,
+    "added": 62
+  },
+  "smallerStrictGapCountImpliesAcceptanceImprovement": false,
+  "newStructurallyRepairedOwnerRegions": [
+    "R018",
+    "R129"
+  ],
+  "inheritedStructurallyRepairedOwnerRegions": [
+    "R101",
+    "R102"
+  ],
+  "acceptedRegionClosures": 0,
+  "strictWholeProgramAstEqual": false,
+  "strictOwnerNamesEqual": false,
+  "r091UnchangedAndDeferred": true,
+  "r091SourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+  "sourceOnlySnapshot": true,
+  "allSealedSourceInputsIncluded": true,
+  "standaloneBuildPackage": false,
+  "freshDiagnosticBuildRecorded": true,
+  "compilerExecutedDuringExport": false,
+  "applicationExecutedDuringExport": false,
+  "officialTargetUsedForSourceRestoration": false,
+  "originalSourceAuthorshipClaim": false,
+  "originalPartitionGeneratorRecovered": false,
+  "compatibilityPartitionExactlyReproducesPriorV52AndV53": true,
+  "r17BidiShorthandSideEffectRetained": true,
+  "genericNormalizationApplied": false,
+  "historicalGaps": [
+    "Trial59 and Trial60 historical source maps remain unavailable.",
+    "Original Trial61 evidence remains lost."
+  ],
+  "limits": [
+    "Shape windows, strict gaps and their count changes are diagnostic, not defect counts, accepted closures, completion percentages or acceptance progress.",
+    "The reduced strict gap count coincides with fewer exact anchors and substantial anchor churn; global naming and binding effects remain unaccepted.",
+    "Original historical backlog rows, qualified statuses and decisions are preserved; old decision rows are not fresh approval requests.",
+    "Bounded structural/source repairs do not establish exact historical source authorship, provider, runtime, semantic or global equivalence.",
+    "Complete profiles, reconstruction tools, generated outputs, official target and detailed nonpublic evidence are excluded. The exported verifier establishes source fidelity only."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

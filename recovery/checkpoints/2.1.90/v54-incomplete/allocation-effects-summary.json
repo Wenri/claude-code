@@ -1,0 +1,129 @@
+{
+  "kind": "public-V54-allocation-effects-and-retained-R17-limits",
+  "v53ToV54StrictChangedStatements": 5644,
+  "v53ToV54ShapeStableStrictChangedStatements": 5642,
+  "v53ToV54ShapeChangedStatementIndexes": [
+    5829,
+    17281
+  ],
+  "nonlocalShapeChangedStatementIndexes": [],
+  "priorOwnersAdditionalCaptureNameOccurrences": {
+    "R101": 15,
+    "R102": 2
+  },
+  "priorOwnerInterpretation": "Inherited R101/R102 owners retain shape but change another 15 and two capture-name occurrences respectively. They were included in the fresh complete nonlocal check; their earlier literal-name results are not reused as current raw equality.",
+  "priorR17Finding": {
+    "path": "inherited-r17-side-effect-summary.json",
+    "bytes": 4453,
+    "sha256": "1cc408f145fc22b0f55eefc7a7174853d27246c60476ce61bb2087ff8b26f1c4"
+  },
+  "retainedR17CurrentCheck": {
+    "kind": "retained-R17-side-effect-check",
+    "statement": 5582,
+    "v53V54CompleteStatementBytesEqual": true,
+    "sliceSha256": "967c6bc9ac32289120ea6ff01b838aa0f60f77bc604bbd8666cd5a37c4d9d940",
+    "strictSha256": "8a46528fe7bb27b7dc5bef1cb7b1e0fad48164ea72437ca97c7fa675c5bab078",
+    "shapeSha256": "365b9e1d0cfa6029e9dec61d98ef0c7dc0f3de494f6905a01ec23849176bb536",
+    "nodes": 4006,
+    "v52V53CompleteReviewSha256": "f2080aff1e461865c5f4e755268999141f0725d3f88a54b3969a2efe355d87ae",
+    "retainedDifferencesFromV52": [
+      "Property.shorthand false to true",
+      "wrapper capture p to B"
+    ],
+    "normalizationApplied": false,
+    "accepted": false
+  },
+  "nonlocalReview": {
+    "kind": "complete-static-V53-to-V54-shape-stable-strict-change-review",
+    "checkedStatementCount": 5642,
+    "statementNodeTotal": 1888436,
+    "scopeTotal": 65395,
+    "rawIdentifierNameDifferenceOccurrences": 18593,
+    "changedFreeCaptureOccurrences": 9777,
+    "exceptionStatementIndexes": [],
+    "allRawChangesOnlyIdentifierNames": true,
+    "allScopedGraphsEqual": true,
+    "allScopedFieldChangesOnlyFreeCaptureNames": true,
+    "allChangedFreeCaptureMapsBijective": true,
+    "rawStrictEquality": false,
+    "acceptanceNormalizationApplied": false,
+    "completeProgramGlobalBindingIdentityEstablished": false,
+    "caveats": [
+      "The existing scoped graph records local declaration/reference/read/write/init structure. It does not establish global crossing-binding or initializer identity.",
+      "Unchanged raw protected fields, Literal.raw and scope graphs are static allocation observations, not semantic/runtime acceptance.",
+      "R018/R129 shape-changed statements are excluded and reviewed separately by complete-owner reviewers."
+    ],
+    "applicationExecuted": false,
+    "recoveredCallbacksExecuted": false,
+    "nativeAddonExecuted": false,
+    "sourceEdited": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "wholeVersionAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "fullCaptureMapReview": {
+    "kind": "complete-free-capture-map-collision-check-for-5642-nonlocal-statements",
+    "priorNonlocalReviewSha256": "c6ce005d208f108d933e8f285d4428b6cb08450f7edc07c583d5f1121dccd93a",
+    "checkedStatements": 5642,
+    "freeCaptureOccurrences": 88185,
+    "fullPerStatementCaptureMapCollisionIndexes": [],
+    "globalAcrossSelectedStatementsForwardConflicts": [],
+    "globalAcrossSelectedStatementsReverseConflicts": [],
+    "caveat": "This checks complete capture correspondence within the 5642 changed statements. It does not analyze all program bindings or unchanged statements, establish supplier/initializer identity, or accept semantics.",
+    "applicationExecuted": false,
+    "runtimeAcceptance": false,
+    "globalBindingAcceptance": false,
+    "regionClosuresAccepted": 0
+  },
+  "strictAnchorChurnReview": {
+    "kind": "strict-diagnostic-anchor-churn-not-acceptance",
+    "priorAnchors": 238,
+    "newAnchors": 213,
+    "retainedPairs": 151,
+    "lostPairs": 87,
+    "addedPairs": 62,
+    "categories": {
+      "raw-strict-equality-lost": 67,
+      "ordered-partition-churn-still-equal": 20,
+      "raw-strict-equality-gained": 60,
+      "ordered-partition-churn-previously-equal": 2
+    },
+    "allActualEqualityChangesExplainedAsIdentifierOnlyWithUnchangedScopedGraphs": true,
+    "nominationIdentityProven": false,
+    "caveat": "Exact statement pairs can match non-corresponding or ambiguous owners. Ordered partition churn and per-pair equality changes are diagnostic observations, not accepted source correspondence or runtime regressions. No raw-equality loss is hidden.",
+    "acceptance": false
+  },
+  "sourceReportPins": [
+    {
+      "label": "nonlocal-allocation-review.json",
+      "bytes": 6001661,
+      "sha256": "c6ce005d208f108d933e8f285d4428b6cb08450f7edc07c583d5f1121dccd93a"
+    },
+    {
+      "label": "full-capture-maps-review.json",
+      "bytes": 4551062,
+      "sha256": "b11de9bf75abfb3292f441a0f7e189693b0a25d043592eb3ff2f1943760f77be"
+    },
+    {
+      "label": "strict-anchor-churn-review.json",
+      "bytes": 141373,
+      "sha256": "3f423e74e268e0b36d88f94d0d12f96cc54eba8a743b4d417acf75b02147da2b"
+    },
+    {
+      "label": "retained-r17-review.json",
+      "bytes": 765,
+      "sha256": "3ff307f5e30ab21a065a1d3d7b89bac4889b645d8f123df7337946beaab47dbc"
+    }
+  ],
+  "priorR17Interpretation": "The inherited report is the V52-to-V53 bidi-js diagnosis. The fresh V54 check proves that complete statement 5582 bytes are identical to V53, retaining both the shorthand field and wrapper-capture allocation change. Neither check proves global binding or runtime equivalence. No generic normalization or acceptance is applied.",
+  "genericNormalizationApplied": false,
+  "applicationExecuted": false,
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

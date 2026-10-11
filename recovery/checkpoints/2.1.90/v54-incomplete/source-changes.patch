@@ -1,0 +1,22 @@
+--- v53/src/utils/settings/changeDetector.ts
++++ v54/src/utils/settings/changeDetector.ts
+@@ -115,7 +115,7 @@
+       // and will error with EOPNOTSUPP on macOS.
+       if (stats && !stats.isFile() && !stats.isDirectory()) return true
+       // Ignore .git directories
+-      if (path.split(platformPath.sep).some(dir => dir === '.git')) return true
++      if (path.split(/[/\\]/).some(dir => dir === '.git')) return true
+       // Allow directories (chokidar needs them for directory-level watching)
+       // and paths without stats (chokidar's initial check before stat)
+       if (!stats || stats.isDirectory()) return false
+--- v53/src/utils/skills/skillChangeDetector.ts
++++ v54/src/utils/skills/skillChangeDetector.ts
+@@ -122,7 +122,7 @@
+     ignored: (path, stats) => {
+       if (stats && !stats.isFile() && !stats.isDirectory()) return true
+       // Ignore .git directories
+-      return path.split(platformPath.sep).some(dir => dir === '.git')
++      return path.split(/[/\\]/).some(dir => dir === '.git')
+     },
+     ignorePermissionErrors: true,
+     usePolling: USE_POLLING,
