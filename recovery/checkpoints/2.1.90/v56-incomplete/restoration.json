@@ -1,0 +1,64 @@
+{
+  "kind": "published-V55-source-plus-one-reviewed-source-edit",
+  "baselineRepository": "https://github.com/Wenri/claude-code",
+  "baselineCommit": "50a9c22ae7b3722bebd729d02d2cdc60286bb469",
+  "baselineDirectory": "recovery/checkpoints/2.1.90/v55-incomplete",
+  "baselineSourceManifestSha256": "788e432e7c4231dbe0141c341c9346306c6f526207f9b7f6b967651e3b8c40dd",
+  "baselineDerivedSrcTree": "535d4b6d874115761458eb7df6e82b6ed8e35842",
+  "baselinePublishedFiles": [
+    {
+      "path": "git-source-pins.json",
+      "bytes": 486764,
+      "sha256": "c887bc985bae2c6b0e19089e61cb2a7cdd46c454c12b4d8fd51271fafdc5e86a"
+    },
+    {
+      "path": "saved-backlog.csv",
+      "bytes": 129123,
+      "sha256": "694d8857603991d5485e1638a810226d7e0770aed4035e18b7a6ff956cfe9549"
+    },
+    {
+      "path": "source-inputs.tar.gz",
+      "bytes": 12939403,
+      "sha256": "57fff57f46b6605db7789b4c7d1cfa33e8e029aa656a5dc606674d0f5925c879"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 1132650,
+      "sha256": "b6a7a0250078798f4ddb81276b5d3f280d660613904f29b5002c59174b42aceb"
+    }
+  ],
+  "method": "Read the published V55 checkpoint directly from the named Git commit. Authenticate every archive member against its source manifest. Compare every V56 source path and byte to that authenticated baseline. Exactly the one listed source file differs; all other 6,113 files are byte-identical, with no added or removed source paths. The complete V56 source and Git manifests pin every resulting file. The source patch records the exact textual change.",
+  "changedFiles": [
+    {
+      "path": "src/services/remoteManagedSettings/index.ts",
+      "before": {
+        "bytes": 20911,
+        "sha256": "b5cc3577637c112617b4ab210dc9129d626356a18d548c7bf8f6bd692f7e8a78",
+        "gitBlob": "228f2edda780b7d6b082096108fe7e7ad5ab4de8"
+      },
+      "after": {
+        "bytes": 21304,
+        "sha256": "2c41034ad338ce0229848ee4ebf724bb4c9a0292ae96dd6b2b6d6aba32bb9d13",
+        "gitBlob": "6e08543e3f19ede80a042c670026a6743b065087"
+      }
+    }
+  ],
+  "changedFilesCount": 1,
+  "byteIdenticalInheritedFiles": 6113,
+  "addedPaths": [],
+  "removedPaths": [],
+  "netSourceBytes": 393,
+  "v56SourceManifestSha256": "3f259a2dc7ad1b232d4f440de8e528c4199c24f9258e50fd449b95cf75981186",
+  "v56DerivedSrcTree": "f59de55328d44cdd045647cef7866a98d80588c1",
+  "sourcePatch": {
+    "path": "source-changes.patch",
+    "bytes": 1390,
+    "sha256": "904c8dbc9383d1e51f284361165f29e966778e751959cc1139b2a93710f95aa7"
+  },
+  "baselineSourceRestoration": "The published V55 checkpoint is derived from V54 plus the reviewed R067 edit; it retains the earlier R018/R129 and R101/R102 edits. This V56 export authenticates the public V55 byte identities directly and needs no private earlier restoration archive.",
+  "officialTargetUsedForSourceRestoration": false,
+  "referencesRequiredToReadThisArchive": false,
+  "privateArchivesRequiredToReadThisArchive": false,
+  "originalSourceAuthorshipClaim": false,
+  "newAcceptanceClaim": false
+}

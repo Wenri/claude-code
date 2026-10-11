@@ -1,0 +1,141 @@
+{
+  "kind": "bounded-R051-three-complete-actual-owner-structural-repair-summary",
+  "source": "src/services/remoteManagedSettings/index.ts",
+  "sourceSha256": "2c41034ad338ce0229848ee4ebf724bb4c9a0292ae96dd6b2b6d6aba32bb9d13",
+  "reviewSha256": "3ff21dc18821b588be3c4049fc612f8b4a9d99d12dfb4e880796c355f5245eeb",
+  "reviewSealSha256": "3b31ab6b039245d1c2d98fc66b22cb7ea47fd61125fe7c0d08df96f5fa827f11",
+  "sourcePinsReceiptSha256": "ba486a20e9d67c913b2de22fb68d2b2cb8fa74c0ee9c63244a49ff898e64eda7",
+  "owners": [
+    {
+      "role": "clearRemoteManagedSettingsCache",
+      "nodes": 32,
+      "scopeCount": 6,
+      "bindings": 3,
+      "localReferences": 2,
+      "freeCaptureNames": 7,
+      "freeCaptureOccurrences": 7,
+      "rawAstDifferenceCount": 7,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 6,
+        "protected": 0
+      },
+      "literalNodes": 2,
+      "templateQuasis": 0,
+      "sourceSegments": 28,
+      "originalLineRange": [
+        392,
+        408
+      ],
+      "negativeControls": {
+        "rawLiteralChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "freeAliasCollisionRejected": true,
+        "controlOrderChangeRejected": true
+      },
+      "completeCanonicalFieldsIncludingLiteralRawEqualUnderExplicitBijection": true,
+      "completeLexicalGraphEqual": true,
+      "allScopeFlagsAndFreeReadWriteInitReferencesEqual": true,
+      "allFreeCaptureOccurrencesExactlySourceMapped": true,
+      "strictRawOwnerEqual": false
+    },
+    {
+      "role": "fetchAndLoadRemoteManagedSettings",
+      "nodes": 196,
+      "scopeCount": 11,
+      "bindings": 10,
+      "localReferences": 38,
+      "freeCaptureNames": 15,
+      "freeCaptureOccurrences": 27,
+      "rawAstDifferenceCount": 26,
+      "rawAstDifferenceClasses": {
+        "bound": 9,
+        "free": 17,
+        "protected": 0
+      },
+      "literalNodes": 14,
+      "templateQuasis": 4,
+      "sourceSegments": 162,
+      "originalLineRange": [
+        418,
+        512
+      ],
+      "negativeControls": {
+        "rawLiteralChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "freeAliasCollisionRejected": true,
+        "controlOrderChangeRejected": true
+      },
+      "completeCanonicalFieldsIncludingLiteralRawEqualUnderExplicitBijection": true,
+      "completeLexicalGraphEqual": true,
+      "allScopeFlagsAndFreeReadWriteInitReferencesEqual": true,
+      "allFreeCaptureOccurrencesExactlySourceMapped": true,
+      "strictRawOwnerEqual": false
+    },
+    {
+      "role": "loadRemoteManagedSettings",
+      "nodes": 71,
+      "scopeCount": 6,
+      "bindings": 4,
+      "localReferences": 3,
+      "freeCaptureNames": 9,
+      "freeCaptureOccurrences": 17,
+      "rawAstDifferenceCount": 10,
+      "rawAstDifferenceClasses": {
+        "bound": 1,
+        "free": 9,
+        "protected": 0
+      },
+      "literalNodes": 4,
+      "templateQuasis": 0,
+      "sourceSegments": 54,
+      "originalLineRange": [
+        525,
+        563
+      ],
+      "negativeControls": {
+        "rawLiteralChangeRejected": true,
+        "lexicalReadFlagChangeRejected": true,
+        "freeAliasCollisionRejected": true,
+        "controlOrderChangeRejected": true
+      },
+      "completeCanonicalFieldsIncludingLiteralRawEqualUnderExplicitBijection": true,
+      "completeLexicalGraphEqual": true,
+      "allScopeFlagsAndFreeReadWriteInitReferencesEqual": true,
+      "allFreeCaptureOccurrencesExactlySourceMapped": true,
+      "strictRawOwnerEqual": false
+    }
+  ],
+  "globalBijectionSize": 25,
+  "canonicalNonNameDifferences": 0,
+  "protectedNameDifferences": 0,
+  "totalRawAstNameDifferences": 43,
+  "boundNameDifferences": 11,
+  "freeNameDifferences": 32,
+  "actualProposedEmissionCompared": true,
+  "sourceMismatchFixedInActualEmission": true,
+  "allThreeCompleteOwnersCompared": true,
+  "allControlStateCallbackLiteralOrderingIncluded": true,
+  "regionClosed": false,
+  "packageClosed": false,
+  "bijectionScope": "The recorded 25-symbol correspondence spans the three reviewed owners only; it is not a whole-program identity proof.",
+  "interpretation": "All three emitted owners have complete structural/lexical correspondence, preserving protected names, Literal.raw and state/callback/control ordering. Exactly 43 raw Identifier.name occurrences remain (11 bound, 32 free). Local capture correspondence is not provider/global/runtime acceptance.",
+  "providerAndStateLimits": [
+    "The synchronous override supplier is unchanged and returns undefined without reading environment variables. Its current result does not justify deleting the required calls or normalizing them away.",
+    "Guards test truthiness: empty string is falsy here but non-nullish for path selection. Eligibility/cache/path operations can call the supplier again.",
+    "Clear mutates polling/cache/loading fields before its guard; supplier errors can reject after those mutations. It does not cancel in-flight work or resolve existing waiters.",
+    "Truthy fetch override logs and reads cache before the API try/catch, bypassing later API/security/schema/save work; supplier/log/cache exceptions and changing values remain significant.",
+    "Load retains pre-try promise/cache work, notification and finally but reachability and timing can change with supplier errors/reentry; shared resolver and overlapping-load races remain open.",
+    "Suppressing one polling-start call does not stop an existing interval or separately exported polling. Auth, settings change detection and settings types differ from the accepted .89 context; external Node/provider and transitive initialization obligations remain open."
+  ],
+  "sharedPackage90_8_45Closed": false,
+  "sourceProvenance": "source-origin-basis.json",
+  "applicationExecuted": false,
+  "acceptedRegionClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

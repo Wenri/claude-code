@@ -1,0 +1,72 @@
+{
+  "version": "2.1.90",
+  "candidate": "V56",
+  "state": "incomplete source-only checkpoint",
+  "sourceExportDate": "2026-10-11",
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50693925,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "3f259a2dc7ad1b232d4f440de8e528c4199c24f9258e50fd449b95cf75981186",
+  "derivedSrcTree": "f59de55328d44cdd045647cef7866a98d80588c1",
+  "sourceFilesChangedFromPublishedV55": 1,
+  "byteIdenticalInheritedSourceFiles": 6113,
+  "historicalResidualRecordsPreserved": 134,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 128,
+  "priorV55ShapeDiagnosticWindows": 129,
+  "strictDiagnosticGaps": 277,
+  "exactStatementAnchors": 289,
+  "strictAnchorChurnRelativeV55": {
+    "prior": 213,
+    "current": 289,
+    "lost": 67,
+    "added": 143,
+    "retained": 146
+  },
+  "newStructurallyRepairedOwnerRegions": [
+    "R051"
+  ],
+  "inheritedStructurallyRepairedOwnerRegions": [
+    "R018",
+    "R067",
+    "R101",
+    "R102",
+    "R129"
+  ],
+  "acceptedRegionClosures": 0,
+  "strictWholeProgramAstEqual": false,
+  "strictOwnerNamesEqual": false,
+  "r091UnchangedAndDeferred": true,
+  "r091SourceSha256": "360c291993881d94eb3b427ed60f25e61abfcce020292b4fd528c97908bf52ed",
+  "sourceOnlySnapshot": true,
+  "allSealedSourceInputsIncluded": true,
+  "standaloneBuildPackage": false,
+  "freshDiagnosticBuildRecorded": true,
+  "compilerExecutedDuringExport": false,
+  "applicationExecutedDuringExport": false,
+  "officialTargetUsedForSourceRestoration": false,
+  "originalSourceAuthorshipClaim": false,
+  "originalPartitionGeneratorRecovered": false,
+  "compatibilityPartitionExactlyReproducesPriorV52ThroughV55": true,
+  "r17BidiShorthandSideEffectRetained": true,
+  "genericNormalizationApplied": false,
+  "historicalGaps": [
+    "Trial59 and Trial60 historical source maps remain unavailable.",
+    "Original Trial61 evidence remains lost."
+  ],
+  "workResponsibility": "The primary recovery author personally authored/applied R051, ran the five diagnostic stages, and executed/inspected the census and full nonlocal/capture checks. Independent support supplied source/tuple/emission audits and source-only packaging.",
+  "limits": [
+    "Shape windows, strict gaps and their count changes are diagnostic, not defect counts, accepted closures or completion percentages.",
+    "All historical backlog records remain unchanged; prior decisions are not new approvals.",
+    "Provider/state/callback, initializer/global/runtime gates and package 90-8.45 remain open.",
+    "The accepted-.89 source donor does not transfer acceptance to .90 or establish original .90 source authorship.",
+    "Complete profiles, reconstruction tools, generated outputs, official target and raw nonpublic metadata are excluded. Verification establishes source fidelity only."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

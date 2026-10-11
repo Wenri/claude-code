@@ -1,0 +1,41 @@
+{
+  "kind": "R051-complete-accepted89-source-carry-forward-provenance",
+  "sourceProposalManifestSha256": "a166624f0a6dd0b4f6b7433045066c8726f0c6ec988bdf8d0828d0c62d20102f",
+  "sourcePath": "src/services/remoteManagedSettings/index.ts",
+  "priorSha256": "b5cc3577637c112617b4ab210dc9129d626356a18d548c7bf8f6bd692f7e8a78",
+  "proposedSha256": "2c41034ad338ce0229848ee4ebf724bb4c9a0292ae96dd6b2b6d6aba32bb9d13",
+  "priorBytes": 20911,
+  "proposedBytes": 21304,
+  "donor": {
+    "gitCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "member": "src/services/remoteManagedSettings/index.ts",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "sourceSha256": "2c41034ad338ce0229848ee4ebf724bb4c9a0292ae96dd6b2b6d6aba32bb9d13",
+    "gitBlob": "6e08543e3f19ede80a042c670026a6743b065087"
+  },
+  "unchangedProvider": {
+    "path": "src/services/remoteManagedSettings/syncCacheState.ts",
+    "sha256": "546ec578005b4b3ea54f3fb5627d1f0d6f94ac9594cf878c2f46008c81ba9b72",
+    "byteIdenticalToAcceptedV45": true
+  },
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "verifiedDuringExport": "The public accepted V45 overlay was read from the recorded Git commit and authenticated. Its complete source member equals the V56 postimage; the provider member equals both public V55 and V56 bytes.",
+  "fourSourceHunks": [
+    "Add the existing override-provider import.",
+    "After reset and before unlink, add the truthy-override guard in clearRemoteManagedSettingsCache.",
+    "After eligibility, add override/log/cache-return branch in fetchAndLoadRemoteManagedSettings.",
+    "Before starting polling, add the falsy-override condition in loadRemoteManagedSettings."
+  ],
+  "constructionResponsibility": "The primary recovery author personally authored and applied the donor-derived R051 repair. Independent source and tuple reviews checked provenance and bounded contracts; this packaging step only compares and copies source data.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "Accepted .89 source provides independent donor provenance. It does not transfer .89 acceptance to changed .90 providers, initialization, compiler context or runtime behavior. The override provider remains the unchanged bare-return stub; no environment lookup is added by the literal log message.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
