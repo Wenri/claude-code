@@ -1,0 +1,19 @@
+--- v70/src/tools/BashTool/fileReadState.ts
++++ v71/src/tools/BashTool/fileReadState.ts
+@@ -24,7 +24,6 @@
+ const SED_RANGE = /^(\d+),(\d+)p$/
+ const SED_LINE = /^(\d+)p$/
+ const NEUTRAL_COMPOUND_COMMAND = /^\s*(echo|printf|true|:)\b/
+-const MAX_TRACKED_FILE_SIZE = 10 * 1024 * 1024
+ 
+ function findBashReadRequests(command: string): BashReadRequest[] {
+   if (/[|<>]/.test(command)) return []
+@@ -153,7 +152,7 @@
+ 
+       try {
+         const stat = await fs.stat(absolutePath)
+-        if (stat.size > MAX_TRACKED_FILE_SIZE) return
++        if (stat.size > 10 * 1024 * 1024) return
+         if (signal.aborted) return
+         const fullContent = await fs.readFile(absolutePath, {
+           encoding: 'utf8',

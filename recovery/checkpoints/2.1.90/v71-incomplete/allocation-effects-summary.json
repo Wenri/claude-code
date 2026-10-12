@@ -1,0 +1,33 @@
+{
+  "kind": "V70-to-V71-complete-diagnostic-byte-accounting",
+  "statementCounts": [
+    18277,
+    18277
+  ],
+  "strictChangedPairs": 4396,
+  "shapeChangedIndexes": [
+    11876,
+    11877
+  ],
+  "byteIdenticalStatements": 13881,
+  "motionPairs": [],
+  "deletedOrInsertedStatements": [],
+  "gapsPerVersion": 18278,
+  "onlyChangedGap": "terminal debugId",
+  "shapeStableChangedStatements": 4394,
+  "fullSelectedNonlocalNodeCount": 1319660,
+  "fullSelectedNonlocalScopeCount": 39942,
+  "rawIdentifierNameDifferences": 7539,
+  "changedFreeCaptureOccurrences": 3261,
+  "fullSelectedFreeCaptureOccurrences": 49456,
+  "selectedCollisionCount": 0,
+  "qualification": "This complete selected set does not prove all global bindings/initialization. Historical WO+j17 to _A non-bijection remains open.",
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "securityAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

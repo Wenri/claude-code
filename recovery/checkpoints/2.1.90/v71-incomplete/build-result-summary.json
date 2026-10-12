@@ -1,0 +1,162 @@
+{
+  "kind": "V71-qualified-recorded-build-summary",
+  "rootPersonallyExecuted": true,
+  "executionReceiptSha256": "4b7848051f1b82a46b852cfda85f04416caf5a1bf2cb5b356bfce0ae3457d23d",
+  "allFiveSerialStepsExitZero": true,
+  "protectedRootsUnchanged": 260,
+  "stages": [
+    {
+      "stage": "preflight",
+      "startedAt": "2026-10-12T09:00:59.259366+00:00",
+      "completedAt": "2026-10-12T09:01:01.375929+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "compile",
+      "startedAt": "2026-10-12T09:01:24.159243+00:00",
+      "completedAt": "2026-10-12T09:01:27.004015+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "finalize",
+      "startedAt": "2026-10-12T09:01:49.436099+00:00",
+      "completedAt": "2026-10-12T09:01:55.527911+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "strictAst",
+      "startedAt": "2026-10-12T09:02:18.219534+00:00",
+      "completedAt": "2026-10-12T09:02:26.162641+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "index",
+      "startedAt": "2026-10-12T09:02:50.675138+00:00",
+      "completedAt": "2026-10-12T09:03:20.189547+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    }
+  ],
+  "outputs": [
+    {
+      "role": "raw-javascript",
+      "bytes": 13126105,
+      "sha256": "66a486eaa83773b5ca09e02bc45368344099d445a78cef00f9eacaf50d49fa44"
+    },
+    {
+      "role": "raw-map",
+      "bytes": 58776897,
+      "sha256": "fe3a703db20bec91fbe33c8f58f3701b1f67bc4c60129f571a51989d98cf649e"
+    },
+    {
+      "role": "final-javascript",
+      "bytes": 13125888,
+      "sha256": "48bf7ce03828643a7deb10b1b3db687cbb0da8888949c14ce3f5f1a9cafa14f8"
+    },
+    {
+      "role": "final-map",
+      "bytes": 58748050,
+      "sha256": "a01da6049aa0bf14446747a995721bcaa77cc8e432aab96ba2e25f1fa2d0260f"
+    }
+  ],
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110546,
+    "sha256": "c8d32ef54754147aa807f4234a14b0afb77c187add72805bfee3bf173eb0141a"
+  },
+  "officialTargetStrictMetadata": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "statementCount": 18277,
+  "markerImportsRemoved": 11,
+  "removedBytes": 217,
+  "reconstructionEvents": 37,
+  "reconstructionEventQualification": "V70/V71 complete event multisets match, but callback/native/gRPC ordering differs; not module initialization proof.",
+  "mapPointCounts": {
+    "raw": 2080160,
+    "final": 2080148,
+    "kept": 2080146,
+    "removed": 14,
+    "insertedBoundaries": 2,
+    "physicalSources": 4788
+  },
+  "sourceMapException": "Inherited userAgent.ts terminal original-column exception remains; no repair or global map acceptance.",
+  "independentProductChecks": 672192,
+  "closedOuterFilesReauthenticated": 32,
+  "freshNativeChecks": 12,
+  "perStageCompleteTupleChecks": 10,
+  "eightControllerPrelaunchRecords": true,
+  "temporalQualification": {
+    "preconditionToFirstStageNativeSeconds": 13.319615,
+    "nativeEndToStageStartSeconds": [
+      0.004079,
+      0.006403
+    ],
+    "qualification": "Observed intervals, no race immunity or uninterrupted exclusivity. Initial tool caller/shell and full stdlib/native-loader closure remain trusted-host limits."
+  },
+  "failedAttemptsRetained": [
+    "Original preconditions unknown-environment rejection; independently reproduced OLDPWD mechanism, not directly named in original error",
+    "Retry1 preflight child0 with outer empty-HOME failure from Bun cache; never a successful accepted stage"
+  ],
+  "successfulRetryPolicy": "Fresh empty HOME, unset OLDPWD and fixed BUN_RUNTIME_TRANSPILER_CACHE_PATH=0; no relaxed unknown-variable allowlist.",
+  "independentReviewSeals": {
+    "source": {
+      "version": "V71",
+      "sha256": "64f0692ddba5b50648d3fa4b917e5c3cf896d240e0d3b26d681712fcaf1909be",
+      "bytes": 5622,
+      "role": "Independent source gate"
+    },
+    "tuple": {
+      "version": "V71",
+      "sha256": "c1f9a54f82692c4925a805b0ac593bb0e3e9a84943ef0e65335b55957e66d117",
+      "bytes": 25133,
+      "role": "Independent full tuple and commands"
+    },
+    "guard": {
+      "version": "V71",
+      "sha256": "57360714cfd0428a44213f628743f3439b77471e2914391000983d696a63e7cb",
+      "bytes": 37642,
+      "role": "Independent final retry2 guard"
+    },
+    "execution": {
+      "version": "V71",
+      "sha256": "b3bc2e8490dec1eaad3bbdb94b361fa7ca80fc8896a2a65358b8910549d0335e",
+      "bytes": 24951,
+      "role": "Independent complete closed execution"
+    },
+    "census": {
+      "version": "V71",
+      "sha256": "50ecfa9d61bf2ddc7c885a5c3a6b0326126d6a0899cc0956942bbf5304f0d0a5",
+      "bytes": 33417,
+      "role": "Independent complete census and context"
+    },
+    "owner": {
+      "version": "V71",
+      "sha256": "25537c152168d2a15780cd2ba781baf9eaef8c61e265c2a7302da7dd9b0392a9",
+      "bytes": 693126,
+      "role": "Independent complete owner and endpoint proof"
+    },
+    "caller": {
+      "version": "V71",
+      "sha256": "25188ba18744872a64c18cb65b45240c7422e5f1756d97808853e562257d0272",
+      "bytes": 388527,
+      "role": "Independent complete caller/provider/readiness proof"
+    }
+  },
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "securityAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
