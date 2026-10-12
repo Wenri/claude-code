@@ -1,0 +1,122 @@
+{
+  "kind": "V70-qualified-recorded-build-summary",
+  "rootPersonallyExecuted": true,
+  "executionReceiptSha256": "1f3bae6d0cc8948f131ebec83c57264445104a20a3a5a36d9f4c3f00893ba164",
+  "allFiveSerialStepsExitZero": true,
+  "protectedRootsUnchanged": 238,
+  "stages": [
+    {
+      "stage": "preflight",
+      "startedAt": "2026-10-12T06:55:02.868074+00:00",
+      "completedAt": "2026-10-12T06:55:04.790265+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "compile",
+      "startedAt": "2026-10-12T06:55:31.214552+00:00",
+      "completedAt": "2026-10-12T06:55:34.476319+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "finalize",
+      "startedAt": "2026-10-12T06:55:59.072040+00:00",
+      "completedAt": "2026-10-12T06:56:05.396800+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "strictAst",
+      "startedAt": "2026-10-12T06:56:19.355125+00:00",
+      "completedAt": "2026-10-12T06:56:27.380622+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "index",
+      "startedAt": "2026-10-12T06:56:48.246257+00:00",
+      "completedAt": "2026-10-12T06:57:16.751078+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    }
+  ],
+  "outputs": [
+    {
+      "role": "raw-javascript",
+      "bytes": 13126113,
+      "sha256": "ab504cc05cfd45352a6e6a680361029079281965fd5f7ed3d0cfc471dbf9b164"
+    },
+    {
+      "role": "raw-map",
+      "bytes": 58776962,
+      "sha256": "4f7a9d23f49f5debf6091bd4a18bce4b352f682d78d24ca7ef1f2063bf7c6c66"
+    },
+    {
+      "role": "final-javascript",
+      "bytes": 13125896,
+      "sha256": "01f429ce30bcbddc64d53f1b6614fe421a4bca27b2314f98b597964691535d6e"
+    },
+    {
+      "role": "final-map",
+      "bytes": 58748115,
+      "sha256": "91af35d3a5f6bb00130b08bab1035c47f6892093edf6a489d0da3eda30167771"
+    }
+  ],
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110549,
+    "sha256": "0985d3a7c750bbbf1bcf8e2c1b31a6a3344de361d56211bcd03e4afe7a4cec83"
+  },
+  "officialTargetStrictMetadata": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "statementCount": 18277,
+  "markerImportsRemoved": 11,
+  "removedBytes": 217,
+  "reconstructionEvents": 37,
+  "reconstructionEventQualification": "V70 has37 reconstruction events versus33: two extra resolutions each for the same runtimeTypes/toolTypes SDK paths. Normalized complete content sets agree; three facade loads each occur once with different callback order. This is no proof of compiler scheduling cause or global initialization equivalence.",
+  "mapPointCounts": {
+    "raw": 2080162,
+    "final": 2080150,
+    "kept": 2080148,
+    "removed": 14,
+    "insertedBoundaries": 2,
+    "physicalSources": 4788
+  },
+  "sourceMapException": "Inherited userAgent.ts terminal original-column exception remains; no repair or global map acceptance.",
+  "independentProductChecks": 523745,
+  "closedOuterFilesReauthenticated": 32,
+  "sevenFreshNativeChecks": true,
+  "eightControllerPrelaunchRecords": true,
+  "temporalQualification": {
+    "preconditionToFirstStageNativeSeconds": 27.604605,
+    "nativeEndToStageStartSeconds": [
+      0.003195,
+      0.005342
+    ],
+    "qualification": "Observed intervals, no race immunity or uninterrupted exclusivity. Initial tool caller/shell and full stdlib/native-loader closure remain trusted-host limits."
+  },
+  "independentReviewSeals": {
+    "source": "cf898a06863cedf685b9f85ea35a0756fb650dcc103bb032def9e017d153e103",
+    "tuple": "829603949038e6cabe3bd1c7358320e46dcd95d12b975dd10e3f7e059f36a89f",
+    "guard": "5ef854fdcfa55f60227f7cd0debe46899014192628692c8295c3c71ef65b01f1",
+    "execution": "d4631cd2c5e85ca64eb1d08c8bd340ebdb12b10ef102ae1c713313abc109a746",
+    "census": "4073231a3c2cfdccf7e996b923284b7c5c650bb86fc8e5d1608da7fc0de3a3c6",
+    "owner": "22b0d2767733803b3c7757aa0faf45d0d2a494d23b9aff284f8fd463c76a4602",
+    "caller": "e226403c3081862a4380d0e1056aed918e3590999f9d678bf72353d9653c2427",
+    "context": "31246c48b4f0616d6531979a3523167d6526c10449dc48304d2b5689f7b5bc39"
+  },
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "securityAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

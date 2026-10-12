@@ -1,0 +1,5586 @@
+{
+  "criterion": "strict-whole-program-ast-v2; unchanged",
+  "strictWholeEqual": false,
+  "gaps": [
+    {
+      "op": "replace",
+      "target": [
+        0,
+        17
+      ],
+      "candidate": [
+        0,
+        32
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        18,
+        89
+      ],
+      "candidate": [
+        33,
+        92
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        90,
+        110
+      ],
+      "candidate": [
+        93,
+        119
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        111,
+        143
+      ],
+      "candidate": [
+        120,
+        149
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        144,
+        166
+      ],
+      "candidate": [
+        150,
+        166
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        167,
+        171
+      ],
+      "candidate": [
+        167,
+        171
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        172,
+        174
+      ],
+      "candidate": [
+        172,
+        177
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        175,
+        211
+      ],
+      "candidate": [
+        178,
+        211
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        212,
+        243
+      ],
+      "candidate": [
+        212,
+        245
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        244,
+        263
+      ],
+      "candidate": [
+        246,
+        269
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        264,
+        289
+      ],
+      "candidate": [
+        270,
+        304
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        290,
+        307
+      ],
+      "candidate": [
+        305,
+        310
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        308,
+        340
+      ],
+      "candidate": [
+        311,
+        322
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        341,
+        356
+      ],
+      "candidate": [
+        323,
+        356
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        357,
+        362
+      ],
+      "candidate": [
+        357,
+        362
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        363,
+        378
+      ],
+      "candidate": [
+        363,
+        378
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        379,
+        412
+      ],
+      "candidate": [
+        379,
+        412
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        413,
+        457
+      ],
+      "candidate": [
+        413,
+        457
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        458,
+        477
+      ],
+      "candidate": [
+        458,
+        477
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        478,
+        482
+      ],
+      "candidate": [
+        478,
+        482
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        483,
+        504
+      ],
+      "candidate": [
+        483,
+        504
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        505,
+        530
+      ],
+      "candidate": [
+        505,
+        530
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        531,
+        540
+      ],
+      "candidate": [
+        531,
+        540
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        541,
+        556
+      ],
+      "candidate": [
+        541,
+        556
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        557,
+        595
+      ],
+      "candidate": [
+        557,
+        595
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        598,
+        609
+      ],
+      "candidate": [
+        598,
+        609
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        611,
+        623
+      ],
+      "candidate": [
+        611,
+        623
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        624,
+        672
+      ],
+      "candidate": [
+        624,
+        672
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        673,
+        685
+      ],
+      "candidate": [
+        673,
+        687
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        686,
+        713
+      ],
+      "candidate": [
+        688,
+        718
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        714,
+        748
+      ],
+      "candidate": [
+        719,
+        748
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        751,
+        759
+      ],
+      "candidate": [
+        751,
+        773
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        760,
+        773
+      ],
+      "candidate": [
+        774,
+        776
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        774,
+        787
+      ],
+      "candidate": [
+        777,
+        787
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        788,
+        796
+      ],
+      "candidate": [
+        788,
+        803
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        797,
+        812
+      ],
+      "candidate": [
+        804,
+        806
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        813,
+        824
+      ],
+      "candidate": [
+        807,
+        832
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        825,
+        857
+      ],
+      "candidate": [
+        833,
+        857
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        858,
+        927
+      ],
+      "candidate": [
+        858,
+        927
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        928,
+        1030
+      ],
+      "candidate": [
+        928,
+        1030
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1031,
+        1032
+      ],
+      "candidate": [
+        1031,
+        1033
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1033,
+        1044
+      ],
+      "candidate": [
+        1034,
+        1044
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1045,
+        1056
+      ],
+      "candidate": [
+        1045,
+        1056
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1057,
+        1069
+      ],
+      "candidate": [
+        1057,
+        1069
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1070,
+        1336
+      ],
+      "candidate": [
+        1070,
+        1336
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1337,
+        1361
+      ],
+      "candidate": [
+        1337,
+        1366
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1362,
+        1366
+      ],
+      "candidate": [
+        1367,
+        1368
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1368,
+        1379
+      ],
+      "candidate": [
+        1370,
+        1379
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1380,
+        1491
+      ],
+      "candidate": [
+        1380,
+        1491
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1492,
+        1501
+      ],
+      "candidate": [
+        1492,
+        1515
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1502,
+        1744
+      ],
+      "candidate": [
+        1516,
+        1744
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1745,
+        1753
+      ],
+      "candidate": [
+        1745,
+        1753
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1754,
+        1801
+      ],
+      "candidate": [
+        1754,
+        1804
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1802,
+        1821
+      ],
+      "candidate": [
+        1805,
+        1823
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1822,
+        1860
+      ],
+      "candidate": [
+        1824,
+        1860
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1861,
+        1971
+      ],
+      "candidate": [
+        1861,
+        1971
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1972,
+        1987
+      ],
+      "candidate": [
+        1972,
+        2008
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1988,
+        2045
+      ],
+      "candidate": [
+        2009,
+        2050
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2046,
+        2065
+      ],
+      "candidate": [
+        2051,
+        2068
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2066,
+        2068
+      ],
+      "candidate": [
+        2069,
+        2074
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2069,
+        2087
+      ],
+      "candidate": [
+        2075,
+        2090
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2088,
+        2360
+      ],
+      "candidate": [
+        2091,
+        2360
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2361,
+        2945
+      ],
+      "candidate": [
+        2361,
+        2946
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2946,
+        3392
+      ],
+      "candidate": [
+        2947,
+        3382
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3393,
+        3406
+      ],
+      "candidate": [
+        3383,
+        3409
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3407,
+        3430
+      ],
+      "candidate": [
+        3410,
+        3433
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3431,
+        3470
+      ],
+      "candidate": [
+        3434,
+        3473
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3471,
+        3540
+      ],
+      "candidate": [
+        3474,
+        3628
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3541,
+        3714
+      ],
+      "candidate": [
+        3629,
+        3717
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3715,
+        3825
+      ],
+      "candidate": [
+        3718,
+        3828
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3826,
+        3863
+      ],
+      "candidate": [
+        3829,
+        3866
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3864,
+        3916
+      ],
+      "candidate": [
+        3867,
+        3923
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3917,
+        4082
+      ],
+      "candidate": [
+        3924,
+        4096
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4083,
+        4091
+      ],
+      "candidate": [
+        4097,
+        4100
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4092,
+        4093
+      ],
+      "candidate": [
+        4101,
+        4102
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4094,
+        4095
+      ],
+      "candidate": [
+        4103,
+        4109
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4096,
+        4185
+      ],
+      "candidate": [
+        4110,
+        4188
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4186,
+        4306
+      ],
+      "candidate": [
+        4189,
+        4278
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4307,
+        4464
+      ],
+      "candidate": [
+        4279,
+        4467
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4465,
+        4582
+      ],
+      "candidate": [
+        4468,
+        4585
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4583,
+        4585
+      ],
+      "candidate": [
+        4586,
+        4588
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4586,
+        4596
+      ],
+      "candidate": [
+        4589,
+        4599
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4597,
+        4613
+      ],
+      "candidate": [
+        4600,
+        4616
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4614,
+        4774
+      ],
+      "candidate": [
+        4617,
+        4777
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4775,
+        4782
+      ],
+      "candidate": [
+        4778,
+        4785
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4783,
+        4788
+      ],
+      "candidate": [
+        4786,
+        4791
+      ]
+    },
+    {
+      "op": "insert",
+      "target": [
+        4789,
+        4789
+      ],
+      "candidate": [
+        4792,
+        4833
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4790,
+        4885
+      ],
+      "candidate": [
+        4834,
+        4888
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4886,
+        4956
+      ],
+      "candidate": [
+        4889,
+        4959
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4957,
+        4972
+      ],
+      "candidate": [
+        4960,
+        4975
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4973,
+        4977
+      ],
+      "candidate": [
+        4976,
+        4980
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4978,
+        5036
+      ],
+      "candidate": [
+        4981,
+        5039
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5038,
+        5044
+      ],
+      "candidate": [
+        5041,
+        5048
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5045,
+        5077
+      ],
+      "candidate": [
+        5049,
+        5081
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5078,
+        5100
+      ],
+      "candidate": [
+        5082,
+        5104
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5101,
+        5126
+      ],
+      "candidate": [
+        5105,
+        5130
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5127,
+        5171
+      ],
+      "candidate": [
+        5131,
+        5175
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5172,
+        5352
+      ],
+      "candidate": [
+        5176,
+        5356
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5353,
+        5355
+      ],
+      "candidate": [
+        5357,
+        5359
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5356,
+        5554
+      ],
+      "candidate": [
+        5360,
+        5558
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5555,
+        5720
+      ],
+      "candidate": [
+        5559,
+        5724
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5721,
+        5950
+      ],
+      "candidate": [
+        5725,
+        5954
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5951,
+        6072
+      ],
+      "candidate": [
+        5955,
+        6076
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6073,
+        6118
+      ],
+      "candidate": [
+        6077,
+        6122
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6119,
+        6594
+      ],
+      "candidate": [
+        6123,
+        6598
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6595,
+        6646
+      ],
+      "candidate": [
+        6599,
+        6650
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6647,
+        6708
+      ],
+      "candidate": [
+        6651,
+        6712
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6709,
+        6717
+      ],
+      "candidate": [
+        6713,
+        6721
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6718,
+        6731
+      ],
+      "candidate": [
+        6722,
+        6735
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6732,
+        6919
+      ],
+      "candidate": [
+        6736,
+        6923
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6920,
+        7056
+      ],
+      "candidate": [
+        6924,
+        7060
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7057,
+        7089
+      ],
+      "candidate": [
+        7061,
+        7093
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7091,
+        7183
+      ],
+      "candidate": [
+        7095,
+        7187
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7184,
+        7494
+      ],
+      "candidate": [
+        7188,
+        7498
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7495,
+        7505
+      ],
+      "candidate": [
+        7499,
+        7509
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7506,
+        7612
+      ],
+      "candidate": [
+        7510,
+        7616
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7613,
+        7639
+      ],
+      "candidate": [
+        7617,
+        7643
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7640,
+        7644
+      ],
+      "candidate": [
+        7644,
+        7648
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7645,
+        7649
+      ],
+      "candidate": [
+        7649,
+        7652
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7650,
+        7661
+      ],
+      "candidate": [
+        7653,
+        7664
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7662,
+        7709
+      ],
+      "candidate": [
+        7665,
+        7712
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7710,
+        7808
+      ],
+      "candidate": [
+        7713,
+        7811
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7809,
+        7830
+      ],
+      "candidate": [
+        7812,
+        7833
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7831,
+        7833
+      ],
+      "candidate": [
+        7834,
+        7836
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7834,
+        7836
+      ],
+      "candidate": [
+        7837,
+        7839
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7839,
+        7882
+      ],
+      "candidate": [
+        7842,
+        7885
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7883,
+        7963
+      ],
+      "candidate": [
+        7886,
+        8127
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7964,
+        7966
+      ],
+      "candidate": [
+        8128,
+        8132
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7967,
+        8148
+      ],
+      "candidate": [
+        8133,
+        8151
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8149,
+        8160
+      ],
+      "candidate": [
+        8152,
+        8163
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8161,
+        8210
+      ],
+      "candidate": [
+        8164,
+        8213
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8211,
+        8236
+      ],
+      "candidate": [
+        8214,
+        8239
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8237,
+        8268
+      ],
+      "candidate": [
+        8240,
+        8271
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8269,
+        8270
+      ],
+      "candidate": [
+        8272,
+        8273
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8271,
+        8274
+      ],
+      "candidate": [
+        8274,
+        8277
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8275,
+        8276
+      ],
+      "candidate": [
+        8278,
+        8279
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8277,
+        8327
+      ],
+      "candidate": [
+        8280,
+        8330
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8328,
+        8363
+      ],
+      "candidate": [
+        8331,
+        8365
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8364,
+        8381
+      ],
+      "candidate": [
+        8366,
+        8377
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8382,
+        8390
+      ],
+      "candidate": [
+        8378,
+        8389
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8391,
+        8395
+      ],
+      "candidate": [
+        8390,
+        8397
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8396,
+        8415
+      ],
+      "candidate": [
+        8398,
+        8417
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8416,
+        8432
+      ],
+      "candidate": [
+        8418,
+        8437
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8433,
+        8526
+      ],
+      "candidate": [
+        8438,
+        8528
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8527,
+        8560
+      ],
+      "candidate": [
+        8529,
+        8562
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8561,
+        8600
+      ],
+      "candidate": [
+        8563,
+        8602
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8601,
+        8811
+      ],
+      "candidate": [
+        8603,
+        8812
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8812,
+        8814
+      ],
+      "candidate": [
+        8813,
+        8815
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8815,
+        8856
+      ],
+      "candidate": [
+        8816,
+        8857
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8857,
+        8858
+      ],
+      "candidate": [
+        8858,
+        8859
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8860,
+        8901
+      ],
+      "candidate": [
+        8861,
+        8902
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8902,
+        8911
+      ],
+      "candidate": [
+        8903,
+        8912
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8912,
+        8963
+      ],
+      "candidate": [
+        8913,
+        8964
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8964,
+        8971
+      ],
+      "candidate": [
+        8965,
+        8975
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8972,
+        8982
+      ],
+      "candidate": [
+        8976,
+        8983
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8983,
+        8999
+      ],
+      "candidate": [
+        8984,
+        9000
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9000,
+        9007
+      ],
+      "candidate": [
+        9001,
+        9008
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9008,
+        9009
+      ],
+      "candidate": [
+        9009,
+        9010
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9010,
+        9029
+      ],
+      "candidate": [
+        9011,
+        9030
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9030,
+        9081
+      ],
+      "candidate": [
+        9031,
+        9082
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9082,
+        9099
+      ],
+      "candidate": [
+        9083,
+        9100
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9100,
+        9101
+      ],
+      "candidate": [
+        9101,
+        9102
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9102,
+        9105
+      ],
+      "candidate": [
+        9103,
+        9106
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9106,
+        9130
+      ],
+      "candidate": [
+        9107,
+        9131
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9132,
+        9207
+      ],
+      "candidate": [
+        9133,
+        9208
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9208,
+        9222
+      ],
+      "candidate": [
+        9209,
+        9223
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9223,
+        9312
+      ],
+      "candidate": [
+        9224,
+        9313
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9313,
+        9377
+      ],
+      "candidate": [
+        9314,
+        9378
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9378,
+        9398
+      ],
+      "candidate": [
+        9379,
+        9399
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9399,
+        9401
+      ],
+      "candidate": [
+        9400,
+        9402
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9402,
+        9409
+      ],
+      "candidate": [
+        9403,
+        9410
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9410,
+        9417
+      ],
+      "candidate": [
+        9411,
+        9418
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9418,
+        9424
+      ],
+      "candidate": [
+        9419,
+        9425
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9426,
+        9450
+      ],
+      "candidate": [
+        9427,
+        9451
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9451,
+        9481
+      ],
+      "candidate": [
+        9452,
+        9482
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9482,
+        9484
+      ],
+      "candidate": [
+        9483,
+        9485
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9485,
+        9488
+      ],
+      "candidate": [
+        9486,
+        9489
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9490,
+        9496
+      ],
+      "candidate": [
+        9491,
+        9497
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9497,
+        9535
+      ],
+      "candidate": [
+        9498,
+        9536
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9536,
+        9538
+      ],
+      "candidate": [
+        9537,
+        9539
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9540,
+        9562
+      ],
+      "candidate": [
+        9541,
+        9563
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9564,
+        9581
+      ],
+      "candidate": [
+        9565,
+        9582
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9582,
+        9597
+      ],
+      "candidate": [
+        9583,
+        9598
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9598,
+        9599
+      ],
+      "candidate": [
+        9599,
+        9600
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9600,
+        9601
+      ],
+      "candidate": [
+        9601,
+        9602
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9602,
+        9604
+      ],
+      "candidate": [
+        9603,
+        9605
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9605,
+        9609
+      ],
+      "candidate": [
+        9606,
+        9610
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9610,
+        9619
+      ],
+      "candidate": [
+        9611,
+        9620
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9620,
+        9625
+      ],
+      "candidate": [
+        9621,
+        9626
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9626,
+        9631
+      ],
+      "candidate": [
+        9627,
+        9632
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9632,
+        9637
+      ],
+      "candidate": [
+        9633,
+        9638
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9639,
+        9647
+      ],
+      "candidate": [
+        9640,
+        9648
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9648,
+        9685
+      ],
+      "candidate": [
+        9649,
+        9686
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9686,
+        9689
+      ],
+      "candidate": [
+        9687,
+        9690
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9691,
+        9717
+      ],
+      "candidate": [
+        9692,
+        9718
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9718,
+        9723
+      ],
+      "candidate": [
+        9719,
+        9724
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9724,
+        9728
+      ],
+      "candidate": [
+        9725,
+        9729
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9729,
+        9756
+      ],
+      "candidate": [
+        9730,
+        9757
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9758,
+        9843
+      ],
+      "candidate": [
+        9759,
+        9844
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9844,
+        9911
+      ],
+      "candidate": [
+        9845,
+        9890
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9912,
+        9916
+      ],
+      "candidate": [
+        9891,
+        9917
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9917,
+        9951
+      ],
+      "candidate": [
+        9918,
+        9952
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9952,
+        9970
+      ],
+      "candidate": [
+        9953,
+        9971
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9971,
+        10055
+      ],
+      "candidate": [
+        9972,
+        10056
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10056,
+        10062
+      ],
+      "candidate": [
+        10057,
+        10063
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10063,
+        10093
+      ],
+      "candidate": [
+        10064,
+        10097
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10094,
+        10122
+      ],
+      "candidate": [
+        10098,
+        10123
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10123,
+        10152
+      ],
+      "candidate": [
+        10124,
+        10153
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10153,
+        10160
+      ],
+      "candidate": [
+        10154,
+        10161
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10161,
+        10208
+      ],
+      "candidate": [
+        10162,
+        10205
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10209,
+        10210
+      ],
+      "candidate": [
+        10206,
+        10211
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10211,
+        10222
+      ],
+      "candidate": [
+        10212,
+        10253
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10223,
+        10252
+      ],
+      "candidate": [
+        10254,
+        10259
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10253,
+        10264
+      ],
+      "candidate": [
+        10260,
+        10265
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10265,
+        10295
+      ],
+      "candidate": [
+        10266,
+        10296
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10296,
+        10316
+      ],
+      "candidate": [
+        10297,
+        10317
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10317,
+        10323
+      ],
+      "candidate": [
+        10318,
+        10324
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10324,
+        10329
+      ],
+      "candidate": [
+        10325,
+        10330
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10330,
+        10331
+      ],
+      "candidate": [
+        10331,
+        10332
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10332,
+        10355
+      ],
+      "candidate": [
+        10333,
+        10356
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10356,
+        10438
+      ],
+      "candidate": [
+        10357,
+        10439
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10439,
+        10507
+      ],
+      "candidate": [
+        10440,
+        10508
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10508,
+        10528
+      ],
+      "candidate": [
+        10509,
+        10529
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10529,
+        10530
+      ],
+      "candidate": [
+        10530,
+        10531
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10531,
+        10570
+      ],
+      "candidate": [
+        10532,
+        10571
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10572,
+        10573
+      ],
+      "candidate": [
+        10573,
+        10574
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10574,
+        10587
+      ],
+      "candidate": [
+        10575,
+        10588
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10588,
+        10591
+      ],
+      "candidate": [
+        10589,
+        10592
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10593,
+        10596
+      ],
+      "candidate": [
+        10594,
+        10597
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10597,
+        10610
+      ],
+      "candidate": [
+        10598,
+        10611
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10611,
+        10623
+      ],
+      "candidate": [
+        10612,
+        10624
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10624,
+        10627
+      ],
+      "candidate": [
+        10625,
+        10628
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10628,
+        10635
+      ],
+      "candidate": [
+        10629,
+        10636
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10636,
+        10682
+      ],
+      "candidate": [
+        10637,
+        10683
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10684,
+        10719
+      ],
+      "candidate": [
+        10685,
+        10720
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10721,
+        10722
+      ],
+      "candidate": [
+        10722,
+        10723
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10724,
+        10841
+      ],
+      "candidate": [
+        10725,
+        10842
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10842,
+        11056
+      ],
+      "candidate": [
+        10843,
+        11057
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11058,
+        11114
+      ],
+      "candidate": [
+        11059,
+        11115
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11115,
+        11209
+      ],
+      "candidate": [
+        11116,
+        11210
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11210,
+        11233
+      ],
+      "candidate": [
+        11211,
+        11234
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11234,
+        11246
+      ],
+      "candidate": [
+        11235,
+        11247
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11247,
+        11258
+      ],
+      "candidate": [
+        11248,
+        11259
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11259,
+        11369
+      ],
+      "candidate": [
+        11260,
+        11370
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11370,
+        11371
+      ],
+      "candidate": [
+        11371,
+        11372
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11372,
+        11394
+      ],
+      "candidate": [
+        11373,
+        11395
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11395,
+        11410
+      ],
+      "candidate": [
+        11396,
+        11411
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11411,
+        11414
+      ],
+      "candidate": [
+        11412,
+        11415
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11415,
+        11428
+      ],
+      "candidate": [
+        11416,
+        11429
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11429,
+        11507
+      ],
+      "candidate": [
+        11430,
+        11508
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11508,
+        11510
+      ],
+      "candidate": [
+        11509,
+        11511
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11511,
+        11522
+      ],
+      "candidate": [
+        11512,
+        11523
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11523,
+        11562
+      ],
+      "candidate": [
+        11524,
+        11563
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11563,
+        11631
+      ],
+      "candidate": [
+        11564,
+        11632
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11632,
+        11679
+      ],
+      "candidate": [
+        11633,
+        11680
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11680,
+        11832
+      ],
+      "candidate": [
+        11681,
+        11833
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11833,
+        12154
+      ],
+      "candidate": [
+        11834,
+        12155
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12155,
+        12270
+      ],
+      "candidate": [
+        12156,
+        12271
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12271,
+        12302
+      ],
+      "candidate": [
+        12272,
+        12303
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12303,
+        12332
+      ],
+      "candidate": [
+        12304,
+        12333
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12333,
+        12375
+      ],
+      "candidate": [
+        12334,
+        12376
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12376,
+        12500
+      ],
+      "candidate": [
+        12377,
+        12501
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12501,
+        12537
+      ],
+      "candidate": [
+        12502,
+        12538
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12538,
+        12604
+      ],
+      "candidate": [
+        12539,
+        12605
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12605,
+        12622
+      ],
+      "candidate": [
+        12606,
+        12623
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12623,
+        12659
+      ],
+      "candidate": [
+        12624,
+        12660
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12660,
+        12672
+      ],
+      "candidate": [
+        12661,
+        12673
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12674,
+        12675
+      ],
+      "candidate": [
+        12675,
+        12676
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12677,
+        12690
+      ],
+      "candidate": [
+        12678,
+        12691
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12691,
+        12692
+      ],
+      "candidate": [
+        12692,
+        12693
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12693,
+        12695
+      ],
+      "candidate": [
+        12694,
+        12696
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12696,
+        12706
+      ],
+      "candidate": [
+        12697,
+        12707
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12707,
+        12718
+      ],
+      "candidate": [
+        12708,
+        12719
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12719,
+        12747
+      ],
+      "candidate": [
+        12720,
+        12748
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12749,
+        12760
+      ],
+      "candidate": [
+        12750,
+        12761
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12761,
+        12764
+      ],
+      "candidate": [
+        12762,
+        12765
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12765,
+        12778
+      ],
+      "candidate": [
+        12766,
+        12779
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12779,
+        12781
+      ],
+      "candidate": [
+        12780,
+        12782
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12782,
+        13010
+      ],
+      "candidate": [
+        12783,
+        13011
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13011,
+        13161
+      ],
+      "candidate": [
+        13012,
+        13162
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13162,
+        13173
+      ],
+      "candidate": [
+        13163,
+        13174
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13174,
+        13189
+      ],
+      "candidate": [
+        13175,
+        13190
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13190,
+        13193
+      ],
+      "candidate": [
+        13191,
+        13194
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13194,
+        13196
+      ],
+      "candidate": [
+        13195,
+        13197
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13197,
+        13238
+      ],
+      "candidate": [
+        13198,
+        13239
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13239,
+        13247
+      ],
+      "candidate": [
+        13240,
+        13248
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13248,
+        13253
+      ],
+      "candidate": [
+        13249,
+        13254
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13254,
+        13260
+      ],
+      "candidate": [
+        13255,
+        13261
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13261,
+        13321
+      ],
+      "candidate": [
+        13262,
+        13322
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13322,
+        13331
+      ],
+      "candidate": [
+        13323,
+        13332
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13332,
+        13396
+      ],
+      "candidate": [
+        13333,
+        13524
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13397,
+        13536
+      ],
+      "candidate": [
+        13525,
+        13537
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13537,
+        13571
+      ],
+      "candidate": [
+        13538,
+        13572
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13572,
+        13573
+      ],
+      "candidate": [
+        13573,
+        13574
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13574,
+        13599
+      ],
+      "candidate": [
+        13575,
+        13600
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13601,
+        13613
+      ],
+      "candidate": [
+        13602,
+        13614
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13614,
+        13621
+      ],
+      "candidate": [
+        13615,
+        13622
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13622,
+        13631
+      ],
+      "candidate": [
+        13623,
+        13632
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13632,
+        13633
+      ],
+      "candidate": [
+        13633,
+        13634
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13634,
+        13652
+      ],
+      "candidate": [
+        13635,
+        13653
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13653,
+        13655
+      ],
+      "candidate": [
+        13654,
+        13656
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13656,
+        13658
+      ],
+      "candidate": [
+        13657,
+        13659
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13659,
+        13660
+      ],
+      "candidate": [
+        13660,
+        13661
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13661,
+        13685
+      ],
+      "candidate": [
+        13662,
+        13686
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13686,
+        13695
+      ],
+      "candidate": [
+        13687,
+        13696
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13696,
+        13710
+      ],
+      "candidate": [
+        13697,
+        13711
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13711,
+        13716
+      ],
+      "candidate": [
+        13712,
+        13717
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13717,
+        13742
+      ],
+      "candidate": [
+        13718,
+        13743
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13743,
+        13750
+      ],
+      "candidate": [
+        13744,
+        13751
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13751,
+        13753
+      ],
+      "candidate": [
+        13752,
+        13754
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13754,
+        13771
+      ],
+      "candidate": [
+        13755,
+        13772
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13772,
+        13774
+      ],
+      "candidate": [
+        13773,
+        13775
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13775,
+        13783
+      ],
+      "candidate": [
+        13776,
+        13784
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13784,
+        13786
+      ],
+      "candidate": [
+        13785,
+        13787
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13787,
+        13789
+      ],
+      "candidate": [
+        13788,
+        13790
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13790,
+        13796
+      ],
+      "candidate": [
+        13791,
+        13797
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13797,
+        13809
+      ],
+      "candidate": [
+        13798,
+        13810
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13810,
+        13812
+      ],
+      "candidate": [
+        13811,
+        13813
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13815,
+        13817
+      ],
+      "candidate": [
+        13816,
+        13818
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13819,
+        13832
+      ],
+      "candidate": [
+        13820,
+        13833
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13833,
+        13835
+      ],
+      "candidate": [
+        13834,
+        13836
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13836,
+        13840
+      ],
+      "candidate": [
+        13837,
+        13841
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13841,
+        13849
+      ],
+      "candidate": [
+        13842,
+        13850
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13850,
+        13859
+      ],
+      "candidate": [
+        13851,
+        13860
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13860,
+        13981
+      ],
+      "candidate": [
+        13861,
+        13982
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13982,
+        13984
+      ],
+      "candidate": [
+        13983,
+        13985
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13985,
+        13996
+      ],
+      "candidate": [
+        13986,
+        13997
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13997,
+        14030
+      ],
+      "candidate": [
+        13998,
+        14031
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14031,
+        14132
+      ],
+      "candidate": [
+        14032,
+        14133
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14133,
+        14258
+      ],
+      "candidate": [
+        14134,
+        14259
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14259,
+        14299
+      ],
+      "candidate": [
+        14260,
+        14300
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14300,
+        14428
+      ],
+      "candidate": [
+        14301,
+        14429
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14429,
+        14544
+      ],
+      "candidate": [
+        14430,
+        14545
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14545,
+        14625
+      ],
+      "candidate": [
+        14546,
+        14626
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14626,
+        14709
+      ],
+      "candidate": [
+        14627,
+        14710
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14710,
+        14735
+      ],
+      "candidate": [
+        14711,
+        14736
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14736,
+        14776
+      ],
+      "candidate": [
+        14737,
+        14777
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14777,
+        14831
+      ],
+      "candidate": [
+        14778,
+        14832
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14832,
+        14859
+      ],
+      "candidate": [
+        14833,
+        14860
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14860,
+        14880
+      ],
+      "candidate": [
+        14861,
+        14881
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14881,
+        14894
+      ],
+      "candidate": [
+        14882,
+        14895
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14895,
+        14909
+      ],
+      "candidate": [
+        14896,
+        14960
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14910,
+        14943
+      ],
+      "candidate": [
+        14961,
+        15274
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14944,
+        14949
+      ],
+      "candidate": [
+        15275,
+        16403
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14950,
+        16509
+      ],
+      "candidate": [
+        16404,
+        16510
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        16510,
+        16513
+      ],
+      "candidate": [
+        16511,
+        16577
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        16514,
+        16539
+      ],
+      "candidate": [
+        16578,
+        17360
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        16540,
+        17358
+      ],
+      "candidate": [
+        17361,
+        17690
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17359,
+        17712
+      ],
+      "candidate": [
+        17691,
+        17714
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17713,
+        17715
+      ],
+      "candidate": [
+        17715,
+        17717
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17716,
+        17733
+      ],
+      "candidate": [
+        17718,
+        17735
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17734,
+        17916
+      ],
+      "candidate": [
+        17736,
+        17918
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17917,
+        17924
+      ],
+      "candidate": [
+        17919,
+        17926
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17925,
+        17931
+      ],
+      "candidate": [
+        17927,
+        17933
+      ]
+    },
+    {
+      "op": "insert",
+      "target": [
+        17932,
+        17932
+      ],
+      "candidate": [
+        17934,
+        17936
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17933,
+        17956
+      ],
+      "candidate": [
+        17937,
+        17958
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17957,
+        17974
+      ],
+      "candidate": [
+        17959,
+        17976
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17975,
+        17996
+      ],
+      "candidate": [
+        17977,
+        17998
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17997,
+        18097
+      ],
+      "candidate": [
+        17999,
+        18099
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        18098,
+        18172
+      ],
+      "candidate": [
+        18100,
+        18174
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        18173,
+        18207
+      ],
+      "candidate": [
+        18175,
+        18209
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        18208,
+        18270
+      ],
+      "candidate": [
+        18210,
+        18272
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        18273,
+        18275
+      ],
+      "candidate": [
+        18275,
+        18277
+      ]
+    }
+  ],
+  "exactMatchedPairs": [
+    [
+      17,
+      32
+    ],
+    [
+      89,
+      92
+    ],
+    [
+      110,
+      119
+    ],
+    [
+      143,
+      149
+    ],
+    [
+      166,
+      166
+    ],
+    [
+      171,
+      171
+    ],
+    [
+      174,
+      177
+    ],
+    [
+      211,
+      211
+    ],
+    [
+      243,
+      245
+    ],
+    [
+      263,
+      269
+    ],
+    [
+      289,
+      304
+    ],
+    [
+      307,
+      310
+    ],
+    [
+      340,
+      322
+    ],
+    [
+      356,
+      356
+    ],
+    [
+      362,
+      362
+    ],
+    [
+      378,
+      378
+    ],
+    [
+      412,
+      412
+    ],
+    [
+      457,
+      457
+    ],
+    [
+      477,
+      477
+    ],
+    [
+      482,
+      482
+    ],
+    [
+      504,
+      504
+    ],
+    [
+      530,
+      530
+    ],
+    [
+      540,
+      540
+    ],
+    [
+      556,
+      556
+    ],
+    [
+      595,
+      595
+    ],
+    [
+      596,
+      596
+    ],
+    [
+      597,
+      597
+    ],
+    [
+      609,
+      609
+    ],
+    [
+      610,
+      610
+    ],
+    [
+      623,
+      623
+    ],
+    [
+      672,
+      672
+    ],
+    [
+      685,
+      687
+    ],
+    [
+      713,
+      718
+    ],
+    [
+      748,
+      748
+    ],
+    [
+      749,
+      749
+    ],
+    [
+      750,
+      750
+    ],
+    [
+      759,
+      773
+    ],
+    [
+      773,
+      776
+    ],
+    [
+      787,
+      787
+    ],
+    [
+      796,
+      803
+    ],
+    [
+      812,
+      806
+    ],
+    [
+      824,
+      832
+    ],
+    [
+      857,
+      857
+    ],
+    [
+      927,
+      927
+    ],
+    [
+      1030,
+      1030
+    ],
+    [
+      1032,
+      1033
+    ],
+    [
+      1044,
+      1044
+    ],
+    [
+      1056,
+      1056
+    ],
+    [
+      1069,
+      1069
+    ],
+    [
+      1336,
+      1336
+    ],
+    [
+      1361,
+      1366
+    ],
+    [
+      1366,
+      1368
+    ],
+    [
+      1367,
+      1369
+    ],
+    [
+      1379,
+      1379
+    ],
+    [
+      1491,
+      1491
+    ],
+    [
+      1501,
+      1515
+    ],
+    [
+      1744,
+      1744
+    ],
+    [
+      1753,
+      1753
+    ],
+    [
+      1801,
+      1804
+    ],
+    [
+      1821,
+      1823
+    ],
+    [
+      1860,
+      1860
+    ],
+    [
+      1971,
+      1971
+    ],
+    [
+      1987,
+      2008
+    ],
+    [
+      2045,
+      2050
+    ],
+    [
+      2065,
+      2068
+    ],
+    [
+      2068,
+      2074
+    ],
+    [
+      2087,
+      2090
+    ],
+    [
+      2360,
+      2360
+    ],
+    [
+      2945,
+      2946
+    ],
+    [
+      3392,
+      3382
+    ],
+    [
+      3406,
+      3409
+    ],
+    [
+      3430,
+      3433
+    ],
+    [
+      3470,
+      3473
+    ],
+    [
+      3540,
+      3628
+    ],
+    [
+      3714,
+      3717
+    ],
+    [
+      3825,
+      3828
+    ],
+    [
+      3863,
+      3866
+    ],
+    [
+      3916,
+      3923
+    ],
+    [
+      4082,
+      4096
+    ],
+    [
+      4091,
+      4100
+    ],
+    [
+      4093,
+      4102
+    ],
+    [
+      4095,
+      4109
+    ],
+    [
+      4185,
+      4188
+    ],
+    [
+      4306,
+      4278
+    ],
+    [
+      4464,
+      4467
+    ],
+    [
+      4582,
+      4585
+    ],
+    [
+      4585,
+      4588
+    ],
+    [
+      4596,
+      4599
+    ],
+    [
+      4613,
+      4616
+    ],
+    [
+      4774,
+      4777
+    ],
+    [
+      4782,
+      4785
+    ],
+    [
+      4788,
+      4791
+    ],
+    [
+      4789,
+      4833
+    ],
+    [
+      4885,
+      4888
+    ],
+    [
+      4956,
+      4959
+    ],
+    [
+      4972,
+      4975
+    ],
+    [
+      4977,
+      4980
+    ],
+    [
+      5036,
+      5039
+    ],
+    [
+      5037,
+      5040
+    ],
+    [
+      5044,
+      5048
+    ],
+    [
+      5077,
+      5081
+    ],
+    [
+      5100,
+      5104
+    ],
+    [
+      5126,
+      5130
+    ],
+    [
+      5171,
+      5175
+    ],
+    [
+      5352,
+      5356
+    ],
+    [
+      5355,
+      5359
+    ],
+    [
+      5554,
+      5558
+    ],
+    [
+      5720,
+      5724
+    ],
+    [
+      5950,
+      5954
+    ],
+    [
+      6072,
+      6076
+    ],
+    [
+      6118,
+      6122
+    ],
+    [
+      6594,
+      6598
+    ],
+    [
+      6646,
+      6650
+    ],
+    [
+      6708,
+      6712
+    ],
+    [
+      6717,
+      6721
+    ],
+    [
+      6731,
+      6735
+    ],
+    [
+      6919,
+      6923
+    ],
+    [
+      7056,
+      7060
+    ],
+    [
+      7089,
+      7093
+    ],
+    [
+      7090,
+      7094
+    ],
+    [
+      7183,
+      7187
+    ],
+    [
+      7494,
+      7498
+    ],
+    [
+      7505,
+      7509
+    ],
+    [
+      7612,
+      7616
+    ],
+    [
+      7639,
+      7643
+    ],
+    [
+      7644,
+      7648
+    ],
+    [
+      7649,
+      7652
+    ],
+    [
+      7661,
+      7664
+    ],
+    [
+      7709,
+      7712
+    ],
+    [
+      7808,
+      7811
+    ],
+    [
+      7830,
+      7833
+    ],
+    [
+      7833,
+      7836
+    ],
+    [
+      7836,
+      7839
+    ],
+    [
+      7837,
+      7840
+    ],
+    [
+      7838,
+      7841
+    ],
+    [
+      7882,
+      7885
+    ],
+    [
+      7963,
+      8127
+    ],
+    [
+      7966,
+      8132
+    ],
+    [
+      8148,
+      8151
+    ],
+    [
+      8160,
+      8163
+    ],
+    [
+      8210,
+      8213
+    ],
+    [
+      8236,
+      8239
+    ],
+    [
+      8268,
+      8271
+    ],
+    [
+      8270,
+      8273
+    ],
+    [
+      8274,
+      8277
+    ],
+    [
+      8276,
+      8279
+    ],
+    [
+      8327,
+      8330
+    ],
+    [
+      8363,
+      8365
+    ],
+    [
+      8381,
+      8377
+    ],
+    [
+      8390,
+      8389
+    ],
+    [
+      8395,
+      8397
+    ],
+    [
+      8415,
+      8417
+    ],
+    [
+      8432,
+      8437
+    ],
+    [
+      8526,
+      8528
+    ],
+    [
+      8560,
+      8562
+    ],
+    [
+      8600,
+      8602
+    ],
+    [
+      8811,
+      8812
+    ],
+    [
+      8814,
+      8815
+    ],
+    [
+      8856,
+      8857
+    ],
+    [
+      8858,
+      8859
+    ],
+    [
+      8859,
+      8860
+    ],
+    [
+      8901,
+      8902
+    ],
+    [
+      8911,
+      8912
+    ],
+    [
+      8963,
+      8964
+    ],
+    [
+      8971,
+      8975
+    ],
+    [
+      8982,
+      8983
+    ],
+    [
+      8999,
+      9000
+    ],
+    [
+      9007,
+      9008
+    ],
+    [
+      9009,
+      9010
+    ],
+    [
+      9029,
+      9030
+    ],
+    [
+      9081,
+      9082
+    ],
+    [
+      9099,
+      9100
+    ],
+    [
+      9101,
+      9102
+    ],
+    [
+      9105,
+      9106
+    ],
+    [
+      9130,
+      9131
+    ],
+    [
+      9131,
+      9132
+    ],
+    [
+      9207,
+      9208
+    ],
+    [
+      9222,
+      9223
+    ],
+    [
+      9312,
+      9313
+    ],
+    [
+      9377,
+      9378
+    ],
+    [
+      9398,
+      9399
+    ],
+    [
+      9401,
+      9402
+    ],
+    [
+      9409,
+      9410
+    ],
+    [
+      9417,
+      9418
+    ],
+    [
+      9424,
+      9425
+    ],
+    [
+      9425,
+      9426
+    ],
+    [
+      9450,
+      9451
+    ],
+    [
+      9481,
+      9482
+    ],
+    [
+      9484,
+      9485
+    ],
+    [
+      9488,
+      9489
+    ],
+    [
+      9489,
+      9490
+    ],
+    [
+      9496,
+      9497
+    ],
+    [
+      9535,
+      9536
+    ],
+    [
+      9538,
+      9539
+    ],
+    [
+      9539,
+      9540
+    ],
+    [
+      9562,
+      9563
+    ],
+    [
+      9563,
+      9564
+    ],
+    [
+      9581,
+      9582
+    ],
+    [
+      9597,
+      9598
+    ],
+    [
+      9599,
+      9600
+    ],
+    [
+      9601,
+      9602
+    ],
+    [
+      9604,
+      9605
+    ],
+    [
+      9609,
+      9610
+    ],
+    [
+      9619,
+      9620
+    ],
+    [
+      9625,
+      9626
+    ],
+    [
+      9631,
+      9632
+    ],
+    [
+      9637,
+      9638
+    ],
+    [
+      9638,
+      9639
+    ],
+    [
+      9647,
+      9648
+    ],
+    [
+      9685,
+      9686
+    ],
+    [
+      9689,
+      9690
+    ],
+    [
+      9690,
+      9691
+    ],
+    [
+      9717,
+      9718
+    ],
+    [
+      9723,
+      9724
+    ],
+    [
+      9728,
+      9729
+    ],
+    [
+      9756,
+      9757
+    ],
+    [
+      9757,
+      9758
+    ],
+    [
+      9843,
+      9844
+    ],
+    [
+      9911,
+      9890
+    ],
+    [
+      9916,
+      9917
+    ],
+    [
+      9951,
+      9952
+    ],
+    [
+      9970,
+      9971
+    ],
+    [
+      10055,
+      10056
+    ],
+    [
+      10062,
+      10063
+    ],
+    [
+      10093,
+      10097
+    ],
+    [
+      10122,
+      10123
+    ],
+    [
+      10152,
+      10153
+    ],
+    [
+      10160,
+      10161
+    ],
+    [
+      10208,
+      10205
+    ],
+    [
+      10210,
+      10211
+    ],
+    [
+      10222,
+      10253
+    ],
+    [
+      10252,
+      10259
+    ],
+    [
+      10264,
+      10265
+    ],
+    [
+      10295,
+      10296
+    ],
+    [
+      10316,
+      10317
+    ],
+    [
+      10323,
+      10324
+    ],
+    [
+      10329,
+      10330
+    ],
+    [
+      10331,
+      10332
+    ],
+    [
+      10355,
+      10356
+    ],
+    [
+      10438,
+      10439
+    ],
+    [
+      10507,
+      10508
+    ],
+    [
+      10528,
+      10529
+    ],
+    [
+      10530,
+      10531
+    ],
+    [
+      10570,
+      10571
+    ],
+    [
+      10571,
+      10572
+    ],
+    [
+      10573,
+      10574
+    ],
+    [
+      10587,
+      10588
+    ],
+    [
+      10591,
+      10592
+    ],
+    [
+      10592,
+      10593
+    ],
+    [
+      10596,
+      10597
+    ],
+    [
+      10610,
+      10611
+    ],
+    [
+      10623,
+      10624
+    ],
+    [
+      10627,
+      10628
+    ],
+    [
+      10635,
+      10636
+    ],
+    [
+      10682,
+      10683
+    ],
+    [
+      10683,
+      10684
+    ],
+    [
+      10719,
+      10720
+    ],
+    [
+      10720,
+      10721
+    ],
+    [
+      10722,
+      10723
+    ],
+    [
+      10723,
+      10724
+    ],
+    [
+      10841,
+      10842
+    ],
+    [
+      11056,
+      11057
+    ],
+    [
+      11057,
+      11058
+    ],
+    [
+      11114,
+      11115
+    ],
+    [
+      11209,
+      11210
+    ],
+    [
+      11233,
+      11234
+    ],
+    [
+      11246,
+      11247
+    ],
+    [
+      11258,
+      11259
+    ],
+    [
+      11369,
+      11370
+    ],
+    [
+      11371,
+      11372
+    ],
+    [
+      11394,
+      11395
+    ],
+    [
+      11410,
+      11411
+    ],
+    [
+      11414,
+      11415
+    ],
+    [
+      11428,
+      11429
+    ],
+    [
+      11507,
+      11508
+    ],
+    [
+      11510,
+      11511
+    ],
+    [
+      11522,
+      11523
+    ],
+    [
+      11562,
+      11563
+    ],
+    [
+      11631,
+      11632
+    ],
+    [
+      11679,
+      11680
+    ],
+    [
+      11832,
+      11833
+    ],
+    [
+      12154,
+      12155
+    ],
+    [
+      12270,
+      12271
+    ],
+    [
+      12302,
+      12303
+    ],
+    [
+      12332,
+      12333
+    ],
+    [
+      12375,
+      12376
+    ],
+    [
+      12500,
+      12501
+    ],
+    [
+      12537,
+      12538
+    ],
+    [
+      12604,
+      12605
+    ],
+    [
+      12622,
+      12623
+    ],
+    [
+      12659,
+      12660
+    ],
+    [
+      12672,
+      12673
+    ],
+    [
+      12673,
+      12674
+    ],
+    [
+      12675,
+      12676
+    ],
+    [
+      12676,
+      12677
+    ],
+    [
+      12690,
+      12691
+    ],
+    [
+      12692,
+      12693
+    ],
+    [
+      12695,
+      12696
+    ],
+    [
+      12706,
+      12707
+    ],
+    [
+      12718,
+      12719
+    ],
+    [
+      12747,
+      12748
+    ],
+    [
+      12748,
+      12749
+    ],
+    [
+      12760,
+      12761
+    ],
+    [
+      12764,
+      12765
+    ],
+    [
+      12778,
+      12779
+    ],
+    [
+      12781,
+      12782
+    ],
+    [
+      13010,
+      13011
+    ],
+    [
+      13161,
+      13162
+    ],
+    [
+      13173,
+      13174
+    ],
+    [
+      13189,
+      13190
+    ],
+    [
+      13193,
+      13194
+    ],
+    [
+      13196,
+      13197
+    ],
+    [
+      13238,
+      13239
+    ],
+    [
+      13247,
+      13248
+    ],
+    [
+      13253,
+      13254
+    ],
+    [
+      13260,
+      13261
+    ],
+    [
+      13321,
+      13322
+    ],
+    [
+      13331,
+      13332
+    ],
+    [
+      13396,
+      13524
+    ],
+    [
+      13536,
+      13537
+    ],
+    [
+      13571,
+      13572
+    ],
+    [
+      13573,
+      13574
+    ],
+    [
+      13599,
+      13600
+    ],
+    [
+      13600,
+      13601
+    ],
+    [
+      13613,
+      13614
+    ],
+    [
+      13621,
+      13622
+    ],
+    [
+      13631,
+      13632
+    ],
+    [
+      13633,
+      13634
+    ],
+    [
+      13652,
+      13653
+    ],
+    [
+      13655,
+      13656
+    ],
+    [
+      13658,
+      13659
+    ],
+    [
+      13660,
+      13661
+    ],
+    [
+      13685,
+      13686
+    ],
+    [
+      13695,
+      13696
+    ],
+    [
+      13710,
+      13711
+    ],
+    [
+      13716,
+      13717
+    ],
+    [
+      13742,
+      13743
+    ],
+    [
+      13750,
+      13751
+    ],
+    [
+      13753,
+      13754
+    ],
+    [
+      13771,
+      13772
+    ],
+    [
+      13774,
+      13775
+    ],
+    [
+      13783,
+      13784
+    ],
+    [
+      13786,
+      13787
+    ],
+    [
+      13789,
+      13790
+    ],
+    [
+      13796,
+      13797
+    ],
+    [
+      13809,
+      13810
+    ],
+    [
+      13812,
+      13813
+    ],
+    [
+      13813,
+      13814
+    ],
+    [
+      13814,
+      13815
+    ],
+    [
+      13817,
+      13818
+    ],
+    [
+      13818,
+      13819
+    ],
+    [
+      13832,
+      13833
+    ],
+    [
+      13835,
+      13836
+    ],
+    [
+      13840,
+      13841
+    ],
+    [
+      13849,
+      13850
+    ],
+    [
+      13859,
+      13860
+    ],
+    [
+      13981,
+      13982
+    ],
+    [
+      13984,
+      13985
+    ],
+    [
+      13996,
+      13997
+    ],
+    [
+      14030,
+      14031
+    ],
+    [
+      14132,
+      14133
+    ],
+    [
+      14258,
+      14259
+    ],
+    [
+      14299,
+      14300
+    ],
+    [
+      14428,
+      14429
+    ],
+    [
+      14544,
+      14545
+    ],
+    [
+      14625,
+      14626
+    ],
+    [
+      14709,
+      14710
+    ],
+    [
+      14735,
+      14736
+    ],
+    [
+      14776,
+      14777
+    ],
+    [
+      14831,
+      14832
+    ],
+    [
+      14859,
+      14860
+    ],
+    [
+      14880,
+      14881
+    ],
+    [
+      14894,
+      14895
+    ],
+    [
+      14909,
+      14960
+    ],
+    [
+      14943,
+      15274
+    ],
+    [
+      14949,
+      16403
+    ],
+    [
+      16509,
+      16510
+    ],
+    [
+      16513,
+      16577
+    ],
+    [
+      16539,
+      17360
+    ],
+    [
+      17358,
+      17690
+    ],
+    [
+      17712,
+      17714
+    ],
+    [
+      17715,
+      17717
+    ],
+    [
+      17733,
+      17735
+    ],
+    [
+      17916,
+      17918
+    ],
+    [
+      17924,
+      17926
+    ],
+    [
+      17931,
+      17933
+    ],
+    [
+      17932,
+      17936
+    ],
+    [
+      17956,
+      17958
+    ],
+    [
+      17974,
+      17976
+    ],
+    [
+      17996,
+      17998
+    ],
+    [
+      18097,
+      18099
+    ],
+    [
+      18172,
+      18174
+    ],
+    [
+      18207,
+      18209
+    ],
+    [
+      18270,
+      18272
+    ],
+    [
+      18271,
+      18273
+    ],
+    [
+      18272,
+      18274
+    ]
+  ],
+  "qualification": "Ordered exact-statement anchors are diagnostic only; unchanged whole-program equality remains required."
+}

@@ -1,0 +1,108 @@
+--- v69/src/services/tools/toolHooks.ts
++++ v70/src/services/tools/toolHooks.ts
+@@ -161,18 +161,14 @@
+           queryChainId: toolUseContext.queryTracking
+             ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+           queryDepth: toolUseContext.queryTracking?.depth,
+-          ...(mcpServerType
+-            ? {
++          ...(mcpServerType && {
+                 mcpServerType:
+                   mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-              }
+-            : {}),
+-          ...(requestId
+-            ? {
++              }),
++          ...(requestId && {
+                 requestId:
+                   requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-              }
+-            : {}),
++              }),
+         })
+         yield {
+           message: createAttachmentMessage({
+@@ -289,18 +285,14 @@
+           queryChainId: toolUseContext.queryTracking
+             ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+           queryDepth: toolUseContext.queryTracking?.depth,
+-          ...(mcpServerType
+-            ? {
++          ...(mcpServerType && {
+                 mcpServerType:
+                   mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-              }
+-            : {}),
+-          ...(requestId
+-            ? {
++              }),
++          ...(requestId && {
+                 requestId:
+                   requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-              }
+-            : {}),
++              }),
+         })
+         yield {
+           message: createAttachmentMessage({
+@@ -461,10 +453,10 @@
+   | { type: 'stop' }
+ > {
+   const hookStartTime = Date.now()
++  let deferredHookName: string | undefined
++  let hookDenied = false
+   try {
+     const appState = toolUseContext.getAppState()
+-    let deferredHookName: string | undefined
+-    let hookDenied = false
+ 
+     for await (const result of executePreToolHooks(
+       tool.name,
+@@ -482,6 +474,7 @@
+           yield { type: 'message', message: { message: result.message } }
+         }
+         if (result.blockingError) {
++          hookDenied = true
+           const denialMessage = getPreToolHookBlockingMessage(
+             `PreToolUse:${tool.name}`,
+             result.blockingError,
+@@ -625,18 +618,14 @@
+           queryChainId: toolUseContext.queryTracking
+             ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+           queryDepth: toolUseContext.queryTracking?.depth,
+-          ...(mcpServerType
+-            ? {
++          ...(mcpServerType && {
+                 mcpServerType:
+                   mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-              }
+-            : {}),
+-          ...(requestId
+-            ? {
++              }),
++          ...(requestId && {
+                 requestId:
+                   requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+-              }
+-            : {}),
++              }),
+         })
+         yield {
+           type: 'message',
+@@ -653,12 +642,12 @@
+         yield { type: 'stop' }
+       }
+     }
+-    if (deferredHookName && !hookDenied) {
+-      yield { type: 'defer', hookName: deferredHookName }
+-    }
+   } catch (error) {
+     logError(error)
+     yield { type: 'stop' }
+     return
+   }
++  if (deferredHookName && !hookDenied) {
++    yield { type: 'defer', hookName: deferredHookName }
++  }
+ }

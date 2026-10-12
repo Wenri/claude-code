@@ -1,0 +1,28 @@
+{
+  "kind": "V69-to-V70-complete-diagnostic-byte-accounting",
+  "statementCounts": [
+    18277,
+    18277
+  ],
+  "strictChangedPairs": 3,
+  "shapeChangedIndexes": [
+    12034,
+    12035,
+    12037
+  ],
+  "byteIdenticalStatements": 18274,
+  "motionPairs": [],
+  "deletedOrInsertedStatements": [],
+  "gapsPerVersion": 18278,
+  "onlyChangedGap": "terminaldebugId",
+  "shapeStableChangedStatements": 0,
+  "qualification": "Empty selected nonlocal/capture set supplies no global identity proof. All five owner statements receive separate complete comparison. Historical WO+j17 to _A non-bijection remains open.",
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "securityAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
