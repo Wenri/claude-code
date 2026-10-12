@@ -1,0 +1,83 @@
+{
+  "version": "2.1.90",
+  "candidate": "V66",
+  "state": "incomplete source-only checkpoint",
+  "sourceExportDate": "2026-10-12",
+  "candidateIdentity": "V66-R039-readonly-source-preparation",
+  "sourceInputFiles": 6114,
+  "sourceInputBytes": 50692911,
+  "gitSourceFiles": 1933,
+  "otherSrcAssets": 31,
+  "sourceManifestSha256": "6f2b069e6cfcc33555da7aec844a22b17d3c8e17e707ecc814344986f99ee01d",
+  "derivedSrcTree": "b952447c96173cc1fbedbd2571d60623b43d7eeb",
+  "sourceFilesChangedFromPublishedV65": 1,
+  "byteIdenticalInheritedSourceFiles": 6113,
+  "netSourceBytes": 8,
+  "historicalResidualRecordsPreserved": 134,
+  "otherHistoricalObligationsRetainedIndividually": 20,
+  "additionalHistoricalSupplierObligations": 3,
+  "savedBacklogRows": 154,
+  "freshShapeDiagnosticWindows": 112,
+  "exactHistoricalWindowJoins": 112,
+  "newDiagnosticWindowIndexes": [],
+  "priorV65ShapeDiagnosticWindows": 116,
+  "priorV64UnjoinedWindow66RetainedAsObligation": true,
+  "strictDiagnosticGaps": 371,
+  "exactStatementAnchors": 403,
+  "statementCounts": [
+    18277,
+    18277
+  ],
+  "pairedStatements": 18277,
+  "deletedPreviousStatementIndexes": [],
+  "insertedCurrentStatementIndexes": [],
+  "movedCorrespondences": [
+    [
+      7746,
+      7747
+    ],
+    [
+      7747,
+      7746
+    ]
+  ],
+  "shapeChangedCurrentIndexes": [
+    7746,
+    7753,
+    7755
+  ],
+  "strictChangedPairs": 5,
+  "shapeStableStrictChangedPairs": 2,
+  "unchangedOtherStatementBytes": 18272,
+  "completeReadonlyOwnerTargetPass": true,
+  "readonlyOwnerTargetPairs": 13,
+  "readonlyOwnerNodes": 4173,
+  "providerAndBoundaryInventory": {
+    "inheritedProviderEndpoints": 647,
+    "coreAuxiliaryEndpoints": 586,
+    "overlap": 116,
+    "deduplicatedEndpoints": 1117,
+    "inheritedTargetFailures": 25,
+    "inheritedFailuresRepaired": 2,
+    "completeTargetFailures": 31
+  },
+  "acceptedRegionClosures": 0,
+  "R091IndependentSourceProvenanceAvailable": false,
+  "originalTrial61EvidenceRecovered": false,
+  "strictWholeEqual": false,
+  "workResponsibility": "Primary author personally repaired source, executed gated build and whole census, inspected all 13 owner statements, and authored current gaps/context. Independent reviewers verified bounded evidence.",
+  "limits": [
+    "All source/provenance and finite comparisons are distinct from .90 version/runtime/security acceptance.",
+    "Full-tree preconditions to fresh preflight-native check was 290.508268 seconds; native check to stage was 0.003954 seconds. No race immunity or retroactive historical qualification repair.",
+    "All historical statuses, disappeared structural windows, provider mismatches, absent domains and unmapped occurrences remain explicit.",
+    "Existing invalid source coordinate, 45 generated surrogate-interior coordinates, R075 non-bijection/snapshot, R121 hot-migration and R091 provenance remain."
+  ],
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false,
+  "standaloneBuildPackage": false,
+  "globalBijectionEstablished": false
+}

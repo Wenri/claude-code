@@ -1,0 +1,64 @@
+{
+  "kind": "published-V65-source-plus-one-reviewed-source-edit",
+  "baselineRepository": "https://github.com/Wenri/claude-code",
+  "baselineCommit": "dbc9a9465a4eab2c63ee6a1f58aa94a444b9973d",
+  "baselineDirectory": "recovery/checkpoints/2.1.90/v65-incomplete",
+  "baselineSourceManifestSha256": "54255e485ce009991f49310487819e4f4d7947c18772794bc53c9d7a0c474566",
+  "baselineDerivedSrcTree": "ea4effd6baf01be6928f4d77d468c5765983581d",
+  "baselinePublishedFiles": [
+    {
+      "path": "git-source-pins.json",
+      "bytes": 486764,
+      "sha256": "6f2c68a44e3db984a396d5bc96d2772cac9f56ba81c360b0e07673954f06d311"
+    },
+    {
+      "path": "saved-backlog.csv",
+      "bytes": 129123,
+      "sha256": "694d8857603991d5485e1638a810226d7e0770aed4035e18b7a6ff956cfe9549"
+    },
+    {
+      "path": "source-inputs.tar.gz",
+      "bytes": 12939267,
+      "sha256": "36b151ea8bbba94a0dc22abe0a05b0c536aead98d3c592f082aec497da78c2ce"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 1132650,
+      "sha256": "05487fd861d1c58d70f30b1d6a2c7b80edb9934bfea08337aa2488b793625432"
+    }
+  ],
+  "method": "Read the published V65 checkpoint directly from the named Git commit. Authenticate every archive member against its source manifest. Compare every V66 source path and byte to that authenticated baseline. Exactly the one listed source file differs; all other 6,113 files are byte-identical, with no added or removed source paths. The complete V66 source and Git manifests pin every resulting file. The source patch records the exact textual change.",
+  "changedFiles": [
+    {
+      "path": "src/tools/BashTool/readOnlyValidation.ts",
+      "before": {
+        "bytes": 69607,
+        "sha256": "d85f7f1d5bcef5c6fe55a25dfb82f466d0e048227907b954d1d7dc727f5faad6",
+        "gitBlob": "8671fdaae3b711e2d4e71d081894938b2c6dc3a2"
+      },
+      "after": {
+        "bytes": 69615,
+        "sha256": "481187aa6b0981d7f50db55b43e1daf7aa10075221988107fc3e844ba0f4199c",
+        "gitBlob": "238d2ec1572c7dd75f749b7453adb728a3147336"
+      }
+    }
+  ],
+  "changedFilesCount": 1,
+  "byteIdenticalInheritedFiles": 6113,
+  "addedPaths": [],
+  "removedPaths": [],
+  "netSourceBytes": 8,
+  "v66SourceManifestSha256": "6f2b069e6cfcc33555da7aec844a22b17d3c8e17e707ecc814344986f99ee01d",
+  "v66DerivedSrcTree": "b952447c96173cc1fbedbd2571d60623b43d7eeb",
+  "sourcePatch": {
+    "path": "source-changes.patch",
+    "bytes": 4864,
+    "sha256": "3123bf1b309457fcf4bd097e23c7d97e12670f87119fd769998e5ca3d74a7ad1"
+  },
+  "baselineSourceRestoration": "The published V65 checkpoint is derived from V64 plus the reviewed git/cd donor functions and permission import correction; all earlier source repairs remain inherited. This V66 export authenticates the public V65 byte identities directly and needs no private earlier restoration archive.",
+  "officialTargetUsedForSourceRestoration": false,
+  "referencesRequiredToReadThisArchive": false,
+  "privateArchivesRequiredToReadThisArchive": false,
+  "originalSourceAuthorshipClaim": false,
+  "newAcceptanceClaim": false
+}

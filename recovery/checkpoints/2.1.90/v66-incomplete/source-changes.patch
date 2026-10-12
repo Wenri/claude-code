@@ -1,0 +1,174 @@
+--- v65/src/tools/BashTool/readOnlyValidation.ts
++++ v66/src/tools/BashTool/readOnlyValidation.ts
+@@ -1489,6 +1489,82 @@
+   'pr', // Paginate files for printing
+ ]
+ 
++const READ_ONLY_COMMAND_NAMES = new Set(READONLY_COMMANDS)
++const READ_ONLY_COMMAND_PREFIXES = READONLY_COMMANDS.filter(command =>
++  command.includes(' '),
++)
++const FIND_DANGEROUS_ARGUMENTS = new Set([
++  '-delete',
++  '-exec',
++  '-execdir',
++  '-ok',
++  '-okdir',
++  '-fprint',
++  '-fprint0',
++  '-fls',
++  '-fprintf',
++])
++const NO_ARGUMENT_READ_ONLY_COMMANDS = new Set(['pwd', 'whoami', 'alias'])
++const EXACT_READ_ONLY_ARGV = [
++  ['claude', '-h'],
++  ['claude', '--help'],
++  ['node', '-v'],
++  ['node', '--version'],
++  ['python', '--version'],
++  ['python3', '--version'],
++  ['ip', 'addr'],
++]
++
++function classifyReadOnlyArgv(argv: string[]): boolean | null {
++  if (argv.length === 0) return false
++  const command = argv[0]
++  if (NO_ARGUMENT_READ_ONLY_COMMANDS.has(command)) return argv.length === 1
++  for (const exact of EXACT_READ_ONLY_ARGV) {
++    if (
++      argv.length === exact.length &&
++      argv.every((argument, index) => argument === exact[index])
++    ) {
++      return true
++    }
++  }
++  if (READ_ONLY_COMMAND_NAMES.has(command)) return true
++  for (const prefix of READ_ONLY_COMMAND_PREFIXES) {
++    const parts = prefix.split(' ')
++    if (
++      argv.length >= parts.length &&
++      parts.every((part, index) => argv[index] === part)
++    ) {
++      return true
++    }
++  }
++  if (command === 'echo') return true
++  if (command === 'ls') return true
++  if (command === 'cd') return argv.length <= 2
++  if (command === 'find') {
++    return !argv.some(argument => FIND_DANGEROUS_ARGUMENTS.has(argument))
++  }
++  if (command === 'history') {
++    return (
++      argv.length === 1 ||
++      (argv.length === 2 && /^\d+$/.test(argv[1]!))
++    )
++  }
++  if (command === 'arch') {
++    return (
++      argv.length === 1 ||
++      (argv.length === 2 && (argv[1] === '-h' || argv[1] === '--help'))
++    )
++  }
++  if (command === 'ifconfig') {
++    return (
++      argv.length === 1 ||
++      (argv.length === 2 && /^[a-zA-Z]/.test(argv[1]!))
++    )
++  }
++  return null
++}
++
++
+ // Complex commands that require custom regex patterns
+ // Warning: If possible, avoid adding new regexes here and prefer using COMMAND_ALLOWLIST
+ // instead. This allowlist-based approach to CLI flags is more secure and avoids
+@@ -1655,79 +1731,6 @@
+   return false
+ }
+ 
+-const READ_ONLY_COMMAND_NAMES = new Set(READONLY_COMMANDS)
+-const READ_ONLY_COMMAND_PREFIXES = READONLY_COMMANDS.filter(command =>
+-  command.includes(' '),
+-)
+-const FIND_DANGEROUS_ARGUMENTS = new Set([
+-  '-delete',
+-  '-exec',
+-  '-execdir',
+-  '-ok',
+-  '-okdir',
+-  '-fprint',
+-  '-fprint0',
+-  '-fls',
+-  '-fprintf',
+-])
+-const NO_ARGUMENT_READ_ONLY_COMMANDS = new Set(['pwd', 'whoami', 'alias'])
+-const EXACT_READ_ONLY_ARGV = [
+-  ['claude', '-h'],
+-  ['claude', '--help'],
+-  ['node', '-v'],
+-  ['node', '--version'],
+-  ['python', '--version'],
+-  ['python3', '--version'],
+-  ['ip', 'addr'],
+-]
+-
+-function classifyReadOnlyArgv(argv: string[]): boolean | null {
+-  if (argv.length === 0) return false
+-  const command = argv[0]
+-  if (NO_ARGUMENT_READ_ONLY_COMMANDS.has(command)) return argv.length === 1
+-  for (const exact of EXACT_READ_ONLY_ARGV) {
+-    if (
+-      argv.length === exact.length &&
+-      argv.every((argument, index) => argument === exact[index])
+-    ) {
+-      return true
+-    }
+-  }
+-  if (READ_ONLY_COMMAND_NAMES.has(command)) return true
+-  for (const prefix of READ_ONLY_COMMAND_PREFIXES) {
+-    const parts = prefix.split(' ')
+-    if (
+-      argv.length >= parts.length &&
+-      parts.every((part, index) => argv[index] === part)
+-    ) {
+-      return true
+-    }
+-  }
+-  if (command === 'echo' || command === 'ls') return true
+-  if (command === 'cd') return argv.length <= 2
+-  if (command === 'find') {
+-    return !argv.some(argument => FIND_DANGEROUS_ARGUMENTS.has(argument))
+-  }
+-  if (command === 'history') {
+-    return (
+-      argv.length === 1 ||
+-      (argv.length === 2 && /^\d+$/.test(argv[1] ?? ''))
+-    )
+-  }
+-  if (command === 'arch') {
+-    return (
+-      argv.length === 1 ||
+-      (argv.length === 2 && (argv[1] === '-h' || argv[1] === '--help'))
+-    )
+-  }
+-  if (command === 'ifconfig') {
+-    return (
+-      argv.length === 1 ||
+-      (argv.length === 2 && /^[a-zA-Z]/.test(argv[1] ?? ''))
+-    )
+-  }
+-  return null
+-}
+ 
+ /**
+  * Checks if a single command string is read-only based on READONLY_COMMAND_REGEXES.
+@@ -1934,7 +1937,7 @@
+   compoundCommandHasCd: boolean,
+ ): PermissionResult {
+   const { command } = input
+-  const root = getParserModule()?.parse(command)
++  const root = getParserModule()!.parse(command)
+   const astResult = root
+     ? parseForSecurityFromAst(command, root)
+     : { kind: 'simple' as const, commands: [] }

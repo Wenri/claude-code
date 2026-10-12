@@ -1,0 +1,58 @@
+{
+  "kind": "V65-to-V66-complete-diagnostic-allocation-accounting",
+  "statementCounts": [
+    18277,
+    18277
+  ],
+  "motionPairs": [
+    [
+      7746,
+      7747
+    ],
+    [
+      7747,
+      7746
+    ]
+  ],
+  "noStatementsDeletedOrInsertedAfterSourceSupportedCorrespondence": true,
+  "rawOrderedInsertDeleteObservationsRetained": true,
+  "strictChangedPairs": 5,
+  "shapeChangedIndexes": [
+    7746,
+    7753,
+    7755
+  ],
+  "byteIdenticalStatements": 18272,
+  "shapeStableReview": {
+    "checkedStatementCount": 2,
+    "statementNodeTotal": 141,
+    "scopeTotal": 7,
+    "rawIdentifierNameDifferenceOccurrences": 2,
+    "changedFreeCaptureOccurrences": 1,
+    "allRawChangesOnlyIdentifierNames": true,
+    "allScopedGraphsEqual": true,
+    "allScopedFieldChangesOnlyFreeCaptureNames": true
+  },
+  "completeCaptureOccurrences": 4,
+  "selectedCaptureCollisions": [],
+  "priorV62ToV63CaptureQualification": {
+    "reverseCollision": [
+      {
+        "name": "_A",
+        "mappedNames": [
+          "WO",
+          "j17"
+        ]
+      }
+    ],
+    "stillOpen": true
+  },
+  "limits": "A tiny selected changed set says nothing new about global binding identity or historical non-bijections. Supplemental raw fields retain Literal.raw; strict-whole-program-ast-v2 omits ordinary Literal.raw and source positions but preserves tagged-template raw.",
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

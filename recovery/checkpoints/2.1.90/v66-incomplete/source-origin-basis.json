@@ -1,0 +1,60 @@
+{
+  "kind": "R039-bounded-accepted89-readonly-source-provenance",
+  "sourceProposalManifestSha256": "bc3728605d5aaa19147a5704977c46803fa65a7a5eec1e98931530f79717db13",
+  "sourceOwner": "src/tools/BashTool/readOnlyValidation.ts",
+  "beforeSha256": "d85f7f1d5bcef5c6fe55a25dfb82f466d0e048227907b954d1d7dc727f5faad6",
+  "afterSha256": "481187aa6b0981d7f50db55b43e1daf7aa10075221988107fc3e844ba0f4199c",
+  "beforeBytes": 69607,
+  "afterBytes": 69615,
+  "accepted89Donor": {
+    "commit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archive": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "member": "src/tools/BashTool/readOnlyValidation.ts",
+    "sha256": "481187aa6b0981d7f50db55b43e1daf7aa10075221988107fc3e844ba0f4199c"
+  },
+  "exactSourceChanges": [
+    "Relocate five classifier constants and classifyReadOnlyArgv from current lines 1658-1730 to immediately after READONLY_COMMANDS and before READONLY_COMMAND_REGEXES (accepted lines 1492-1565).",
+    "Split the combined echo/ls strict-equality return into two successive if statements.",
+    "Replace history and ifconfig argv[1] nullish-empty fallback with TypeScript non-null assertions, which erase to direct indexed reads.",
+    "Change checkReadOnlyConstraints getParserModule()?.parse(command) to the accepted getParserModule()!.parse(command), erasing optional access while preserving parse-result null handling.",
+    "Three unified-diff hunks; accepted file has 8 more bytes. Imports and all other source bytes are unchanged outside those hunks."
+  ],
+  "donorArchivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+  "donorArchiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+  "donorMember": "src/tools/BashTool/readOnlyValidation.ts",
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "sourceDeltaLimitedToThreeReviewedHunks": true,
+  "netSourceBytes": 8,
+  "sourceReviewSealSha256": "41f7a098b14481c3611857dd1879563b396a7aa02b6274acf8357192c1357e5b",
+  "tupleReviewSealSha256": "2ec119e9564abebedd09cd7fe801752500afc8610f0fc769286d71f2a822dec5",
+  "wholeByteForwardAndInverse": true,
+  "wholeAstInverse": true,
+  "wholeLexicalInverseWithCoordinates": true,
+  "commentsExactlyUnchanged": true,
+  "importsExactlyUnchanged": true,
+  "providerScope": {
+    "coreModules": 19,
+    "auxiliaryBoundaryModules": 9,
+    "sourceNominations": 53,
+    "references": 32,
+    "parserFunctions": 19,
+    "parserSites": 29
+  },
+  "historicalInlineMaps": {
+    "changedSourceContainsInlineMap": false,
+    "allInheritedInlineMapInputsByteIdentical": true,
+    "freshV66EmissionEvidence": false
+  },
+  "constructionResponsibility": "Primary recovery author personally inspected and applied donor-only source, prepared isolated candidate, executed gated build and complete census. Independent reviews verify bounded findings.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "Exact accepted .89 source provenance does not transfer .90 acceptance. Null parser-module dereference, null parse results, sparse/exotic argv, accessors/prototypes/coercion, initializer Set/filter/map/RegExp ordering, reentry and partial cycles remain explicit limits. Both BashTool.isReadOnly and speculation plus indirect extractMemories auto-allow/concurrency/UI/error/cleanup paths need their full boundaries retained. Historical parser19functions29sites, firstLine provider split, TaskOutput/fileReadState/LRU, R075 snapshot/live-binding and WO+j17-to-_A, R091 provenance and R121 hot-migration limits remain separate.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
