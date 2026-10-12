@@ -1,0 +1,4922 @@
+{
+  "criterion": "strict-whole-program-ast-v2; unchanged",
+  "strictWholeEqual": false,
+  "gaps": [
+    {
+      "op": "replace",
+      "target": [
+        0,
+        17
+      ],
+      "candidate": [
+        0,
+        32
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        18,
+        89
+      ],
+      "candidate": [
+        33,
+        89
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        90,
+        110
+      ],
+      "candidate": [
+        90,
+        116
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        111,
+        143
+      ],
+      "candidate": [
+        117,
+        149
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        144,
+        157
+      ],
+      "candidate": [
+        150,
+        157
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        158,
+        166
+      ],
+      "candidate": [
+        158,
+        166
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        167,
+        171
+      ],
+      "candidate": [
+        167,
+        171
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        172,
+        174
+      ],
+      "candidate": [
+        172,
+        177
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        175,
+        185
+      ],
+      "candidate": [
+        178,
+        185
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        186,
+        211
+      ],
+      "candidate": [
+        186,
+        211
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        212,
+        263
+      ],
+      "candidate": [
+        212,
+        269
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        264,
+        289
+      ],
+      "candidate": [
+        270,
+        304
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        290,
+        307
+      ],
+      "candidate": [
+        305,
+        307
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        308,
+        340
+      ],
+      "candidate": [
+        308,
+        322
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        341,
+        356
+      ],
+      "candidate": [
+        323,
+        356
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        357,
+        362
+      ],
+      "candidate": [
+        357,
+        362
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        363,
+        378
+      ],
+      "candidate": [
+        363,
+        378
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        379,
+        429
+      ],
+      "candidate": [
+        379,
+        429
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        430,
+        435
+      ],
+      "candidate": [
+        430,
+        435
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        436,
+        457
+      ],
+      "candidate": [
+        436,
+        457
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        458,
+        477
+      ],
+      "candidate": [
+        458,
+        477
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        478,
+        482
+      ],
+      "candidate": [
+        478,
+        482
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        483,
+        492
+      ],
+      "candidate": [
+        483,
+        492
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        493,
+        504
+      ],
+      "candidate": [
+        493,
+        504
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        505,
+        532
+      ],
+      "candidate": [
+        505,
+        532
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        533,
+        540
+      ],
+      "candidate": [
+        533,
+        540
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        541,
+        556
+      ],
+      "candidate": [
+        541,
+        556
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        557,
+        589
+      ],
+      "candidate": [
+        557,
+        589
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        590,
+        595
+      ],
+      "candidate": [
+        590,
+        595
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        598,
+        601
+      ],
+      "candidate": [
+        598,
+        601
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        602,
+        604
+      ],
+      "candidate": [
+        602,
+        603
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        605,
+        609
+      ],
+      "candidate": [
+        604,
+        609
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        611,
+        617
+      ],
+      "candidate": [
+        611,
+        617
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        619,
+        621
+      ],
+      "candidate": [
+        619,
+        621
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        622,
+        627
+      ],
+      "candidate": [
+        622,
+        627
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        628,
+        631
+      ],
+      "candidate": [
+        628,
+        631
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        634,
+        636
+      ],
+      "candidate": [
+        634,
+        636
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        637,
+        639
+      ],
+      "candidate": [
+        637,
+        639
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        640,
+        671
+      ],
+      "candidate": [
+        640,
+        671
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        673,
+        682
+      ],
+      "candidate": [
+        673,
+        682
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        683,
+        685
+      ],
+      "candidate": [
+        683,
+        687
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        686,
+        692
+      ],
+      "candidate": [
+        688,
+        692
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        693,
+        700
+      ],
+      "candidate": [
+        693,
+        700
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        702,
+        706
+      ],
+      "candidate": [
+        702,
+        706
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        708,
+        713
+      ],
+      "candidate": [
+        708,
+        718
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        714,
+        726
+      ],
+      "candidate": [
+        719,
+        726
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        727,
+        731
+      ],
+      "candidate": [
+        727,
+        731
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        733,
+        748
+      ],
+      "candidate": [
+        733,
+        748
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        751,
+        753
+      ],
+      "candidate": [
+        751,
+        753
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        754,
+        759
+      ],
+      "candidate": [
+        754,
+        759
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        760,
+        773
+      ],
+      "candidate": [
+        760,
+        773
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        774,
+        776
+      ],
+      "candidate": [
+        774,
+        776
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        777,
+        785
+      ],
+      "candidate": [
+        777,
+        785
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        786,
+        787
+      ],
+      "candidate": [
+        786,
+        787
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        788,
+        796
+      ],
+      "candidate": [
+        788,
+        796
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        797,
+        803
+      ],
+      "candidate": [
+        797,
+        803
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        804,
+        812
+      ],
+      "candidate": [
+        804,
+        806
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        813,
+        815
+      ],
+      "candidate": [
+        807,
+        815
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        816,
+        821
+      ],
+      "candidate": [
+        816,
+        821
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        822,
+        824
+      ],
+      "candidate": [
+        822,
+        832
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        825,
+        857
+      ],
+      "candidate": [
+        833,
+        857
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        858,
+        859
+      ],
+      "candidate": [
+        858,
+        859
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        860,
+        881
+      ],
+      "candidate": [
+        860,
+        881
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        882,
+        904
+      ],
+      "candidate": [
+        882,
+        904
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        905,
+        918
+      ],
+      "candidate": [
+        905,
+        918
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        919,
+        927
+      ],
+      "candidate": [
+        919,
+        927
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        928,
+        944
+      ],
+      "candidate": [
+        928,
+        944
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        945,
+        972
+      ],
+      "candidate": [
+        945,
+        972
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        973,
+        997
+      ],
+      "candidate": [
+        973,
+        997
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        998,
+        1003
+      ],
+      "candidate": [
+        998,
+        1003
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1004,
+        1009
+      ],
+      "candidate": [
+        1004,
+        1009
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1010,
+        1011
+      ],
+      "candidate": [
+        1010,
+        1011
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1012,
+        1019
+      ],
+      "candidate": [
+        1012,
+        1019
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1020,
+        1030
+      ],
+      "candidate": [
+        1020,
+        1030
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1031,
+        1036
+      ],
+      "candidate": [
+        1031,
+        1034
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1037,
+        1044
+      ],
+      "candidate": [
+        1035,
+        1044
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1045,
+        1069
+      ],
+      "candidate": [
+        1045,
+        1069
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1070,
+        1073
+      ],
+      "candidate": [
+        1070,
+        1073
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1074,
+        1079
+      ],
+      "candidate": [
+        1074,
+        1079
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1080,
+        1088
+      ],
+      "candidate": [
+        1080,
+        1088
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1089,
+        1101
+      ],
+      "candidate": [
+        1089,
+        1101
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1102,
+        1110
+      ],
+      "candidate": [
+        1102,
+        1110
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1112,
+        1114
+      ],
+      "candidate": [
+        1112,
+        1114
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1115,
+        1358
+      ],
+      "candidate": [
+        1115,
+        1358
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1359,
+        1360
+      ],
+      "candidate": [
+        1359,
+        1360
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1362,
+        1366
+      ],
+      "candidate": [
+        1362,
+        1366
+      ]
+    },
+    {
+      "op": "insert",
+      "target": [
+        1368,
+        1368
+      ],
+      "candidate": [
+        1368,
+        1369
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1369,
+        1379
+      ],
+      "candidate": [
+        1370,
+        1379
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1380,
+        1454
+      ],
+      "candidate": [
+        1380,
+        1454
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1456,
+        1458
+      ],
+      "candidate": [
+        1456,
+        1458
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1459,
+        1461
+      ],
+      "candidate": [
+        1459,
+        1461
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1462,
+        1465
+      ],
+      "candidate": [
+        1462,
+        1465
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1466,
+        1468
+      ],
+      "candidate": [
+        1466,
+        1468
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1469,
+        1491
+      ],
+      "candidate": [
+        1469,
+        1491
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1492,
+        1504
+      ],
+      "candidate": [
+        1492,
+        1515
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1505,
+        1527
+      ],
+      "candidate": [
+        1516,
+        1527
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1528,
+        1534
+      ],
+      "candidate": [
+        1528,
+        1534
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1535,
+        1564
+      ],
+      "candidate": [
+        1535,
+        1564
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1565,
+        1571
+      ],
+      "candidate": [
+        1565,
+        1571
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1572,
+        1715
+      ],
+      "candidate": [
+        1572,
+        1715
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1716,
+        1717
+      ],
+      "candidate": [
+        1716,
+        1717
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1718,
+        1744
+      ],
+      "candidate": [
+        1718,
+        1744
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1745,
+        1796
+      ],
+      "candidate": [
+        1745,
+        1796
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1797,
+        1801
+      ],
+      "candidate": [
+        1797,
+        1801
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1802,
+        1804
+      ],
+      "candidate": [
+        1802,
+        1804
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1805,
+        1811
+      ],
+      "candidate": [
+        1805,
+        1811
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1813,
+        1821
+      ],
+      "candidate": [
+        1813,
+        1821
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1822,
+        1823
+      ],
+      "candidate": [
+        1822,
+        1823
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1824,
+        1826
+      ],
+      "candidate": [
+        1824,
+        1826
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1827,
+        1850
+      ],
+      "candidate": [
+        1827,
+        1850
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1851,
+        1860
+      ],
+      "candidate": [
+        1851,
+        1860
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1861,
+        1868
+      ],
+      "candidate": [
+        1861,
+        1868
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1869,
+        1874
+      ],
+      "candidate": [
+        1869,
+        1874
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1875,
+        1888
+      ],
+      "candidate": [
+        1875,
+        1888
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1889,
+        1892
+      ],
+      "candidate": [
+        1889,
+        1892
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1895,
+        1944
+      ],
+      "candidate": [
+        1895,
+        1944
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1945,
+        1971
+      ],
+      "candidate": [
+        1945,
+        1971
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1972,
+        1974
+      ],
+      "candidate": [
+        1972,
+        1974
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1975,
+        1989
+      ],
+      "candidate": [
+        1975,
+        1989
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        1990,
+        2006
+      ],
+      "candidate": [
+        1990,
+        2006
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2008,
+        2025
+      ],
+      "candidate": [
+        2008,
+        2025
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2026,
+        2028
+      ],
+      "candidate": [
+        2026,
+        2028
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2029,
+        2030
+      ],
+      "candidate": [
+        2029,
+        2030
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2031,
+        2045
+      ],
+      "candidate": [
+        2031,
+        2045
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2046,
+        2050
+      ],
+      "candidate": [
+        2046,
+        2050
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2051,
+        2062
+      ],
+      "candidate": [
+        2051,
+        2062
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2063,
+        2065
+      ],
+      "candidate": [
+        2063,
+        2065
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2066,
+        2074
+      ],
+      "candidate": [
+        2066,
+        2074
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2075,
+        2087
+      ],
+      "candidate": [
+        2075,
+        2087
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2088,
+        2090
+      ],
+      "candidate": [
+        2088,
+        2090
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2091,
+        2122
+      ],
+      "candidate": [
+        2091,
+        2122
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2123,
+        2304
+      ],
+      "candidate": [
+        2123,
+        2304
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2305,
+        2311
+      ],
+      "candidate": [
+        2305,
+        2311
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2312,
+        2377
+      ],
+      "candidate": [
+        2312,
+        2377
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2378,
+        2413
+      ],
+      "candidate": [
+        2378,
+        2413
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2414,
+        2452
+      ],
+      "candidate": [
+        2414,
+        2452
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2454,
+        2476
+      ],
+      "candidate": [
+        2454,
+        2476
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2477,
+        2486
+      ],
+      "candidate": [
+        2477,
+        2486
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2487,
+        2491
+      ],
+      "candidate": [
+        2487,
+        2491
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2492,
+        2494
+      ],
+      "candidate": [
+        2492,
+        2494
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2495,
+        2498
+      ],
+      "candidate": [
+        2495,
+        2498
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2499,
+        2531
+      ],
+      "candidate": [
+        2499,
+        2531
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2532,
+        2538
+      ],
+      "candidate": [
+        2532,
+        2538
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2539,
+        2550
+      ],
+      "candidate": [
+        2539,
+        2549
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2552,
+        2557
+      ],
+      "candidate": [
+        2551,
+        2556
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2558,
+        2559
+      ],
+      "candidate": [
+        2557,
+        2558
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2560,
+        2573
+      ],
+      "candidate": [
+        2559,
+        2572
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2575,
+        2576
+      ],
+      "candidate": [
+        2574,
+        2575
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2577,
+        2578
+      ],
+      "candidate": [
+        2576,
+        2577
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2579,
+        2945
+      ],
+      "candidate": [
+        2578,
+        2946
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        2946,
+        3028
+      ],
+      "candidate": [
+        2947,
+        3031
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3029,
+        3359
+      ],
+      "candidate": [
+        3032,
+        3362
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3360,
+        3398
+      ],
+      "candidate": [
+        3363,
+        3382
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3399,
+        3406
+      ],
+      "candidate": [
+        3383,
+        3409
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3407,
+        3430
+      ],
+      "candidate": [
+        3410,
+        3433
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3431,
+        3470
+      ],
+      "candidate": [
+        3434,
+        3473
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3471,
+        3616
+      ],
+      "candidate": [
+        3474,
+        3619
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3617,
+        3714
+      ],
+      "candidate": [
+        3620,
+        3717
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3715,
+        3825
+      ],
+      "candidate": [
+        3718,
+        3828
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3826,
+        3863
+      ],
+      "candidate": [
+        3829,
+        3866
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3864,
+        3916
+      ],
+      "candidate": [
+        3867,
+        3923
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        3917,
+        4082
+      ],
+      "candidate": [
+        3924,
+        4096
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4083,
+        4091
+      ],
+      "candidate": [
+        4097,
+        4100
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4092,
+        4093
+      ],
+      "candidate": [
+        4101,
+        4102
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4094,
+        4095
+      ],
+      "candidate": [
+        4103,
+        4109
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4096,
+        4185
+      ],
+      "candidate": [
+        4110,
+        4188
+      ]
+    },
+    {
+      "op": "delete",
+      "target": [
+        4186,
+        4217
+      ],
+      "candidate": [
+        4189,
+        4189
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4218,
+        4257
+      ],
+      "candidate": [
+        4190,
+        4233
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4258,
+        4464
+      ],
+      "candidate": [
+        4234,
+        4467
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4465,
+        4582
+      ],
+      "candidate": [
+        4468,
+        4585
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4583,
+        4585
+      ],
+      "candidate": [
+        4586,
+        4588
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4586,
+        4596
+      ],
+      "candidate": [
+        4589,
+        4599
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4597,
+        4613
+      ],
+      "candidate": [
+        4600,
+        4616
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4614,
+        4774
+      ],
+      "candidate": [
+        4617,
+        4777
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4775,
+        4782
+      ],
+      "candidate": [
+        4778,
+        4785
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4783,
+        4788
+      ],
+      "candidate": [
+        4786,
+        4791
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4789,
+        4855
+      ],
+      "candidate": [
+        4792,
+        4858
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4856,
+        4885
+      ],
+      "candidate": [
+        4859,
+        4888
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4886,
+        4956
+      ],
+      "candidate": [
+        4889,
+        4959
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4957,
+        4972
+      ],
+      "candidate": [
+        4960,
+        4975
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4973,
+        4977
+      ],
+      "candidate": [
+        4976,
+        4980
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        4978,
+        5036
+      ],
+      "candidate": [
+        4981,
+        5039
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5038,
+        5044
+      ],
+      "candidate": [
+        5041,
+        5048
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5045,
+        5077
+      ],
+      "candidate": [
+        5049,
+        5081
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5078,
+        5100
+      ],
+      "candidate": [
+        5082,
+        5104
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5101,
+        5126
+      ],
+      "candidate": [
+        5105,
+        5130
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5127,
+        5171
+      ],
+      "candidate": [
+        5131,
+        5175
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5172,
+        5352
+      ],
+      "candidate": [
+        5176,
+        5356
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5353,
+        5355
+      ],
+      "candidate": [
+        5357,
+        5359
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5356,
+        5554
+      ],
+      "candidate": [
+        5360,
+        5558
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5555,
+        5720
+      ],
+      "candidate": [
+        5559,
+        5724
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5721,
+        5821
+      ],
+      "candidate": [
+        5725,
+        5809
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5822,
+        5950
+      ],
+      "candidate": [
+        5810,
+        5954
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        5951,
+        6014
+      ],
+      "candidate": [
+        5955,
+        5967
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6015,
+        6072
+      ],
+      "candidate": [
+        5968,
+        6076
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6073,
+        6118
+      ],
+      "candidate": [
+        6077,
+        6122
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6119,
+        6594
+      ],
+      "candidate": [
+        6123,
+        6598
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6595,
+        6717
+      ],
+      "candidate": [
+        6599,
+        6721
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6718,
+        6731
+      ],
+      "candidate": [
+        6722,
+        6735
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6732,
+        6919
+      ],
+      "candidate": [
+        6736,
+        6923
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        6920,
+        7056
+      ],
+      "candidate": [
+        6924,
+        7060
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7057,
+        7089
+      ],
+      "candidate": [
+        7061,
+        7093
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7091,
+        7183
+      ],
+      "candidate": [
+        7095,
+        7187
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7184,
+        7494
+      ],
+      "candidate": [
+        7188,
+        7498
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7495,
+        7505
+      ],
+      "candidate": [
+        7499,
+        7509
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7506,
+        7612
+      ],
+      "candidate": [
+        7510,
+        7619
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7613,
+        7639
+      ],
+      "candidate": [
+        7620,
+        7646
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7640,
+        7644
+      ],
+      "candidate": [
+        7647,
+        7651
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7645,
+        7649
+      ],
+      "candidate": [
+        7652,
+        7655
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7650,
+        7661
+      ],
+      "candidate": [
+        7656,
+        7667
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7662,
+        7709
+      ],
+      "candidate": [
+        7668,
+        7715
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7710,
+        7808
+      ],
+      "candidate": [
+        7716,
+        7814
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7809,
+        7830
+      ],
+      "candidate": [
+        7815,
+        7836
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7831,
+        7833
+      ],
+      "candidate": [
+        7837,
+        7839
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7835,
+        7836
+      ],
+      "candidate": [
+        7841,
+        7842
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7839,
+        7880
+      ],
+      "candidate": [
+        7845,
+        7886
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7881,
+        7882
+      ],
+      "candidate": [
+        7887,
+        7888
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        7883,
+        8011
+      ],
+      "candidate": [
+        7889,
+        8017
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8012,
+        8052
+      ],
+      "candidate": [
+        8018,
+        8058
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8053,
+        8073
+      ],
+      "candidate": [
+        8059,
+        8079
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8074,
+        8148
+      ],
+      "candidate": [
+        8080,
+        8154
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8149,
+        8160
+      ],
+      "candidate": [
+        8155,
+        8166
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8161,
+        8210
+      ],
+      "candidate": [
+        8167,
+        8216
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8211,
+        8236
+      ],
+      "candidate": [
+        8217,
+        8242
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8237,
+        8268
+      ],
+      "candidate": [
+        8243,
+        8274
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8269,
+        8270
+      ],
+      "candidate": [
+        8275,
+        8276
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8271,
+        8274
+      ],
+      "candidate": [
+        8277,
+        8280
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8275,
+        8276
+      ],
+      "candidate": [
+        8281,
+        8282
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8277,
+        8327
+      ],
+      "candidate": [
+        8283,
+        8333
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8328,
+        8363
+      ],
+      "candidate": [
+        8334,
+        8368
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8364,
+        8395
+      ],
+      "candidate": [
+        8369,
+        8400
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8396,
+        8415
+      ],
+      "candidate": [
+        8401,
+        8420
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8416,
+        8432
+      ],
+      "candidate": [
+        8421,
+        8440
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8433,
+        8445
+      ],
+      "candidate": [
+        8441,
+        8450
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8446,
+        8526
+      ],
+      "candidate": [
+        8451,
+        8531
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8527,
+        8560
+      ],
+      "candidate": [
+        8532,
+        8565
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8561,
+        8600
+      ],
+      "candidate": [
+        8566,
+        8605
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8601,
+        8814
+      ],
+      "candidate": [
+        8606,
+        8818
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8815,
+        8856
+      ],
+      "candidate": [
+        8819,
+        8860
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8857,
+        8911
+      ],
+      "candidate": [
+        8861,
+        8915
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8912,
+        8963
+      ],
+      "candidate": [
+        8916,
+        8967
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8964,
+        8971
+      ],
+      "candidate": [
+        8968,
+        8975
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8972,
+        8974
+      ],
+      "candidate": [
+        8976,
+        9011
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        8975,
+        9105
+      ],
+      "candidate": [
+        9012,
+        9109
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9106,
+        9398
+      ],
+      "candidate": [
+        9110,
+        9402
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9399,
+        9450
+      ],
+      "candidate": [
+        9403,
+        9454
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9451,
+        9481
+      ],
+      "candidate": [
+        9455,
+        9485
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9482,
+        9484
+      ],
+      "candidate": [
+        9486,
+        9488
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9485,
+        9601
+      ],
+      "candidate": [
+        9489,
+        9605
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9602,
+        9622
+      ],
+      "candidate": [
+        9606,
+        9623
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9623,
+        9631
+      ],
+      "candidate": [
+        9624,
+        9635
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9632,
+        9647
+      ],
+      "candidate": [
+        9636,
+        9651
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9648,
+        9685
+      ],
+      "candidate": [
+        9652,
+        9689
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9686,
+        9704
+      ],
+      "candidate": [
+        9690,
+        9694
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9705,
+        9717
+      ],
+      "candidate": [
+        9695,
+        9721
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9718,
+        9723
+      ],
+      "candidate": [
+        9722,
+        9727
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9724,
+        9756
+      ],
+      "candidate": [
+        9728,
+        9760
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9758,
+        9843
+      ],
+      "candidate": [
+        9762,
+        9847
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9844,
+        9916
+      ],
+      "candidate": [
+        9848,
+        9920
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9917,
+        9951
+      ],
+      "candidate": [
+        9921,
+        9955
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9952,
+        9970
+      ],
+      "candidate": [
+        9956,
+        9974
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        9971,
+        10055
+      ],
+      "candidate": [
+        9975,
+        10059
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10056,
+        10062
+      ],
+      "candidate": [
+        10060,
+        10066
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10063,
+        10080
+      ],
+      "candidate": [
+        10067,
+        10084
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10081,
+        10093
+      ],
+      "candidate": [
+        10085,
+        10100
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10094,
+        10122
+      ],
+      "candidate": [
+        10101,
+        10126
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10123,
+        10152
+      ],
+      "candidate": [
+        10127,
+        10156
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10153,
+        10160
+      ],
+      "candidate": [
+        10157,
+        10164
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10161,
+        10208
+      ],
+      "candidate": [
+        10165,
+        10208
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10209,
+        10222
+      ],
+      "candidate": [
+        10209,
+        10256
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10223,
+        10252
+      ],
+      "candidate": [
+        10257,
+        10262
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10253,
+        10264
+      ],
+      "candidate": [
+        10263,
+        10268
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10265,
+        10507
+      ],
+      "candidate": [
+        10269,
+        10511
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10508,
+        10567
+      ],
+      "candidate": [
+        10512,
+        10571
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10568,
+        10627
+      ],
+      "candidate": [
+        10572,
+        10631
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10628,
+        10635
+      ],
+      "candidate": [
+        10632,
+        10639
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        10636,
+        11056
+      ],
+      "candidate": [
+        10640,
+        11060
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11058,
+        11114
+      ],
+      "candidate": [
+        11062,
+        11118
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11115,
+        11209
+      ],
+      "candidate": [
+        11119,
+        11213
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11210,
+        11233
+      ],
+      "candidate": [
+        11214,
+        11237
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11234,
+        11246
+      ],
+      "candidate": [
+        11238,
+        11250
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11247,
+        11258
+      ],
+      "candidate": [
+        11251,
+        11262
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11259,
+        11369
+      ],
+      "candidate": [
+        11263,
+        11373
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11370,
+        11371
+      ],
+      "candidate": [
+        11374,
+        11375
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11372,
+        11394
+      ],
+      "candidate": [
+        11376,
+        11398
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11395,
+        11414
+      ],
+      "candidate": [
+        11399,
+        11418
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11415,
+        11428
+      ],
+      "candidate": [
+        11419,
+        11432
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11429,
+        11510
+      ],
+      "candidate": [
+        11433,
+        11514
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11511,
+        11522
+      ],
+      "candidate": [
+        11515,
+        11526
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11523,
+        11562
+      ],
+      "candidate": [
+        11527,
+        11566
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11563,
+        11665
+      ],
+      "candidate": [
+        11567,
+        11661
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11666,
+        11832
+      ],
+      "candidate": [
+        11662,
+        11836
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        11833,
+        12154
+      ],
+      "candidate": [
+        11837,
+        12158
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12155,
+        12302
+      ],
+      "candidate": [
+        12159,
+        12306
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12303,
+        12332
+      ],
+      "candidate": [
+        12307,
+        12336
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12333,
+        12375
+      ],
+      "candidate": [
+        12337,
+        12379
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12376,
+        12500
+      ],
+      "candidate": [
+        12380,
+        12504
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12501,
+        12537
+      ],
+      "candidate": [
+        12505,
+        12541
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12538,
+        12673
+      ],
+      "candidate": [
+        12542,
+        12677
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12674,
+        12676
+      ],
+      "candidate": [
+        12678,
+        12680
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12677,
+        12690
+      ],
+      "candidate": [
+        12681,
+        12694
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12691,
+        12695
+      ],
+      "candidate": [
+        12695,
+        12699
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12696,
+        12747
+      ],
+      "candidate": [
+        12700,
+        12751
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12749,
+        12760
+      ],
+      "candidate": [
+        12753,
+        12764
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12761,
+        12781
+      ],
+      "candidate": [
+        12765,
+        12785
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        12782,
+        13010
+      ],
+      "candidate": [
+        12786,
+        13014
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13011,
+        13031
+      ],
+      "candidate": [
+        13015,
+        14657
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13032,
+        13704
+      ],
+      "candidate": [
+        14658,
+        14953
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        13705,
+        14909
+      ],
+      "candidate": [
+        14954,
+        14963
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14910,
+        14943
+      ],
+      "candidate": [
+        14964,
+        15277
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14944,
+        14949
+      ],
+      "candidate": [
+        15278,
+        16406
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        14950,
+        16509
+      ],
+      "candidate": [
+        16407,
+        16513
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        16510,
+        16513
+      ],
+      "candidate": [
+        16514,
+        16580
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        16514,
+        16539
+      ],
+      "candidate": [
+        16581,
+        17363
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        16540,
+        17358
+      ],
+      "candidate": [
+        17364,
+        17693
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17359,
+        17705
+      ],
+      "candidate": [
+        17694,
+        17803
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17706,
+        17798
+      ],
+      "candidate": [
+        17804,
+        18100
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        17799,
+        18270
+      ],
+      "candidate": [
+        18101,
+        18275
+      ]
+    },
+    {
+      "op": "replace",
+      "target": [
+        18273,
+        18275
+      ],
+      "candidate": [
+        18278,
+        18280
+      ]
+    }
+  ],
+  "exactStatementAnchors": [
+    [
+      17,
+      32
+    ],
+    [
+      89,
+      89
+    ],
+    [
+      110,
+      116
+    ],
+    [
+      143,
+      149
+    ],
+    [
+      157,
+      157
+    ],
+    [
+      166,
+      166
+    ],
+    [
+      171,
+      171
+    ],
+    [
+      174,
+      177
+    ],
+    [
+      185,
+      185
+    ],
+    [
+      211,
+      211
+    ],
+    [
+      263,
+      269
+    ],
+    [
+      289,
+      304
+    ],
+    [
+      307,
+      307
+    ],
+    [
+      340,
+      322
+    ],
+    [
+      356,
+      356
+    ],
+    [
+      362,
+      362
+    ],
+    [
+      378,
+      378
+    ],
+    [
+      429,
+      429
+    ],
+    [
+      435,
+      435
+    ],
+    [
+      457,
+      457
+    ],
+    [
+      477,
+      477
+    ],
+    [
+      482,
+      482
+    ],
+    [
+      492,
+      492
+    ],
+    [
+      504,
+      504
+    ],
+    [
+      532,
+      532
+    ],
+    [
+      540,
+      540
+    ],
+    [
+      556,
+      556
+    ],
+    [
+      589,
+      589
+    ],
+    [
+      595,
+      595
+    ],
+    [
+      596,
+      596
+    ],
+    [
+      597,
+      597
+    ],
+    [
+      601,
+      601
+    ],
+    [
+      604,
+      603
+    ],
+    [
+      609,
+      609
+    ],
+    [
+      610,
+      610
+    ],
+    [
+      617,
+      617
+    ],
+    [
+      618,
+      618
+    ],
+    [
+      621,
+      621
+    ],
+    [
+      627,
+      627
+    ],
+    [
+      631,
+      631
+    ],
+    [
+      632,
+      632
+    ],
+    [
+      633,
+      633
+    ],
+    [
+      636,
+      636
+    ],
+    [
+      639,
+      639
+    ],
+    [
+      671,
+      671
+    ],
+    [
+      672,
+      672
+    ],
+    [
+      682,
+      682
+    ],
+    [
+      685,
+      687
+    ],
+    [
+      692,
+      692
+    ],
+    [
+      700,
+      700
+    ],
+    [
+      701,
+      701
+    ],
+    [
+      706,
+      706
+    ],
+    [
+      707,
+      707
+    ],
+    [
+      713,
+      718
+    ],
+    [
+      726,
+      726
+    ],
+    [
+      731,
+      731
+    ],
+    [
+      732,
+      732
+    ],
+    [
+      748,
+      748
+    ],
+    [
+      749,
+      749
+    ],
+    [
+      750,
+      750
+    ],
+    [
+      753,
+      753
+    ],
+    [
+      759,
+      759
+    ],
+    [
+      773,
+      773
+    ],
+    [
+      776,
+      776
+    ],
+    [
+      785,
+      785
+    ],
+    [
+      787,
+      787
+    ],
+    [
+      796,
+      796
+    ],
+    [
+      803,
+      803
+    ],
+    [
+      812,
+      806
+    ],
+    [
+      815,
+      815
+    ],
+    [
+      821,
+      821
+    ],
+    [
+      824,
+      832
+    ],
+    [
+      857,
+      857
+    ],
+    [
+      859,
+      859
+    ],
+    [
+      881,
+      881
+    ],
+    [
+      904,
+      904
+    ],
+    [
+      918,
+      918
+    ],
+    [
+      927,
+      927
+    ],
+    [
+      944,
+      944
+    ],
+    [
+      972,
+      972
+    ],
+    [
+      997,
+      997
+    ],
+    [
+      1003,
+      1003
+    ],
+    [
+      1009,
+      1009
+    ],
+    [
+      1011,
+      1011
+    ],
+    [
+      1019,
+      1019
+    ],
+    [
+      1030,
+      1030
+    ],
+    [
+      1036,
+      1034
+    ],
+    [
+      1044,
+      1044
+    ],
+    [
+      1069,
+      1069
+    ],
+    [
+      1073,
+      1073
+    ],
+    [
+      1079,
+      1079
+    ],
+    [
+      1088,
+      1088
+    ],
+    [
+      1101,
+      1101
+    ],
+    [
+      1110,
+      1110
+    ],
+    [
+      1111,
+      1111
+    ],
+    [
+      1114,
+      1114
+    ],
+    [
+      1358,
+      1358
+    ],
+    [
+      1360,
+      1360
+    ],
+    [
+      1361,
+      1361
+    ],
+    [
+      1366,
+      1366
+    ],
+    [
+      1367,
+      1367
+    ],
+    [
+      1368,
+      1369
+    ],
+    [
+      1379,
+      1379
+    ],
+    [
+      1454,
+      1454
+    ],
+    [
+      1455,
+      1455
+    ],
+    [
+      1458,
+      1458
+    ],
+    [
+      1461,
+      1461
+    ],
+    [
+      1465,
+      1465
+    ],
+    [
+      1468,
+      1468
+    ],
+    [
+      1491,
+      1491
+    ],
+    [
+      1504,
+      1515
+    ],
+    [
+      1527,
+      1527
+    ],
+    [
+      1534,
+      1534
+    ],
+    [
+      1564,
+      1564
+    ],
+    [
+      1571,
+      1571
+    ],
+    [
+      1715,
+      1715
+    ],
+    [
+      1717,
+      1717
+    ],
+    [
+      1744,
+      1744
+    ],
+    [
+      1796,
+      1796
+    ],
+    [
+      1801,
+      1801
+    ],
+    [
+      1804,
+      1804
+    ],
+    [
+      1811,
+      1811
+    ],
+    [
+      1812,
+      1812
+    ],
+    [
+      1821,
+      1821
+    ],
+    [
+      1823,
+      1823
+    ],
+    [
+      1826,
+      1826
+    ],
+    [
+      1850,
+      1850
+    ],
+    [
+      1860,
+      1860
+    ],
+    [
+      1868,
+      1868
+    ],
+    [
+      1874,
+      1874
+    ],
+    [
+      1888,
+      1888
+    ],
+    [
+      1892,
+      1892
+    ],
+    [
+      1893,
+      1893
+    ],
+    [
+      1894,
+      1894
+    ],
+    [
+      1944,
+      1944
+    ],
+    [
+      1971,
+      1971
+    ],
+    [
+      1974,
+      1974
+    ],
+    [
+      1989,
+      1989
+    ],
+    [
+      2006,
+      2006
+    ],
+    [
+      2007,
+      2007
+    ],
+    [
+      2025,
+      2025
+    ],
+    [
+      2028,
+      2028
+    ],
+    [
+      2030,
+      2030
+    ],
+    [
+      2045,
+      2045
+    ],
+    [
+      2050,
+      2050
+    ],
+    [
+      2062,
+      2062
+    ],
+    [
+      2065,
+      2065
+    ],
+    [
+      2074,
+      2074
+    ],
+    [
+      2087,
+      2087
+    ],
+    [
+      2090,
+      2090
+    ],
+    [
+      2122,
+      2122
+    ],
+    [
+      2304,
+      2304
+    ],
+    [
+      2311,
+      2311
+    ],
+    [
+      2377,
+      2377
+    ],
+    [
+      2413,
+      2413
+    ],
+    [
+      2452,
+      2452
+    ],
+    [
+      2453,
+      2453
+    ],
+    [
+      2476,
+      2476
+    ],
+    [
+      2486,
+      2486
+    ],
+    [
+      2491,
+      2491
+    ],
+    [
+      2494,
+      2494
+    ],
+    [
+      2498,
+      2498
+    ],
+    [
+      2531,
+      2531
+    ],
+    [
+      2538,
+      2538
+    ],
+    [
+      2550,
+      2549
+    ],
+    [
+      2551,
+      2550
+    ],
+    [
+      2557,
+      2556
+    ],
+    [
+      2559,
+      2558
+    ],
+    [
+      2573,
+      2572
+    ],
+    [
+      2574,
+      2573
+    ],
+    [
+      2576,
+      2575
+    ],
+    [
+      2578,
+      2577
+    ],
+    [
+      2945,
+      2946
+    ],
+    [
+      3028,
+      3031
+    ],
+    [
+      3359,
+      3362
+    ],
+    [
+      3398,
+      3382
+    ],
+    [
+      3406,
+      3409
+    ],
+    [
+      3430,
+      3433
+    ],
+    [
+      3470,
+      3473
+    ],
+    [
+      3616,
+      3619
+    ],
+    [
+      3714,
+      3717
+    ],
+    [
+      3825,
+      3828
+    ],
+    [
+      3863,
+      3866
+    ],
+    [
+      3916,
+      3923
+    ],
+    [
+      4082,
+      4096
+    ],
+    [
+      4091,
+      4100
+    ],
+    [
+      4093,
+      4102
+    ],
+    [
+      4095,
+      4109
+    ],
+    [
+      4185,
+      4188
+    ],
+    [
+      4217,
+      4189
+    ],
+    [
+      4257,
+      4233
+    ],
+    [
+      4464,
+      4467
+    ],
+    [
+      4582,
+      4585
+    ],
+    [
+      4585,
+      4588
+    ],
+    [
+      4596,
+      4599
+    ],
+    [
+      4613,
+      4616
+    ],
+    [
+      4774,
+      4777
+    ],
+    [
+      4782,
+      4785
+    ],
+    [
+      4788,
+      4791
+    ],
+    [
+      4855,
+      4858
+    ],
+    [
+      4885,
+      4888
+    ],
+    [
+      4956,
+      4959
+    ],
+    [
+      4972,
+      4975
+    ],
+    [
+      4977,
+      4980
+    ],
+    [
+      5036,
+      5039
+    ],
+    [
+      5037,
+      5040
+    ],
+    [
+      5044,
+      5048
+    ],
+    [
+      5077,
+      5081
+    ],
+    [
+      5100,
+      5104
+    ],
+    [
+      5126,
+      5130
+    ],
+    [
+      5171,
+      5175
+    ],
+    [
+      5352,
+      5356
+    ],
+    [
+      5355,
+      5359
+    ],
+    [
+      5554,
+      5558
+    ],
+    [
+      5720,
+      5724
+    ],
+    [
+      5821,
+      5809
+    ],
+    [
+      5950,
+      5954
+    ],
+    [
+      6014,
+      5967
+    ],
+    [
+      6072,
+      6076
+    ],
+    [
+      6118,
+      6122
+    ],
+    [
+      6594,
+      6598
+    ],
+    [
+      6717,
+      6721
+    ],
+    [
+      6731,
+      6735
+    ],
+    [
+      6919,
+      6923
+    ],
+    [
+      7056,
+      7060
+    ],
+    [
+      7089,
+      7093
+    ],
+    [
+      7090,
+      7094
+    ],
+    [
+      7183,
+      7187
+    ],
+    [
+      7494,
+      7498
+    ],
+    [
+      7505,
+      7509
+    ],
+    [
+      7612,
+      7619
+    ],
+    [
+      7639,
+      7646
+    ],
+    [
+      7644,
+      7651
+    ],
+    [
+      7649,
+      7655
+    ],
+    [
+      7661,
+      7667
+    ],
+    [
+      7709,
+      7715
+    ],
+    [
+      7808,
+      7814
+    ],
+    [
+      7830,
+      7836
+    ],
+    [
+      7833,
+      7839
+    ],
+    [
+      7834,
+      7840
+    ],
+    [
+      7836,
+      7842
+    ],
+    [
+      7837,
+      7843
+    ],
+    [
+      7838,
+      7844
+    ],
+    [
+      7880,
+      7886
+    ],
+    [
+      7882,
+      7888
+    ],
+    [
+      8011,
+      8017
+    ],
+    [
+      8052,
+      8058
+    ],
+    [
+      8073,
+      8079
+    ],
+    [
+      8148,
+      8154
+    ],
+    [
+      8160,
+      8166
+    ],
+    [
+      8210,
+      8216
+    ],
+    [
+      8236,
+      8242
+    ],
+    [
+      8268,
+      8274
+    ],
+    [
+      8270,
+      8276
+    ],
+    [
+      8274,
+      8280
+    ],
+    [
+      8276,
+      8282
+    ],
+    [
+      8327,
+      8333
+    ],
+    [
+      8363,
+      8368
+    ],
+    [
+      8395,
+      8400
+    ],
+    [
+      8415,
+      8420
+    ],
+    [
+      8432,
+      8440
+    ],
+    [
+      8445,
+      8450
+    ],
+    [
+      8526,
+      8531
+    ],
+    [
+      8560,
+      8565
+    ],
+    [
+      8600,
+      8605
+    ],
+    [
+      8814,
+      8818
+    ],
+    [
+      8856,
+      8860
+    ],
+    [
+      8911,
+      8915
+    ],
+    [
+      8963,
+      8967
+    ],
+    [
+      8971,
+      8975
+    ],
+    [
+      8974,
+      9011
+    ],
+    [
+      9105,
+      9109
+    ],
+    [
+      9398,
+      9402
+    ],
+    [
+      9450,
+      9454
+    ],
+    [
+      9481,
+      9485
+    ],
+    [
+      9484,
+      9488
+    ],
+    [
+      9601,
+      9605
+    ],
+    [
+      9622,
+      9623
+    ],
+    [
+      9631,
+      9635
+    ],
+    [
+      9647,
+      9651
+    ],
+    [
+      9685,
+      9689
+    ],
+    [
+      9704,
+      9694
+    ],
+    [
+      9717,
+      9721
+    ],
+    [
+      9723,
+      9727
+    ],
+    [
+      9756,
+      9760
+    ],
+    [
+      9757,
+      9761
+    ],
+    [
+      9843,
+      9847
+    ],
+    [
+      9916,
+      9920
+    ],
+    [
+      9951,
+      9955
+    ],
+    [
+      9970,
+      9974
+    ],
+    [
+      10055,
+      10059
+    ],
+    [
+      10062,
+      10066
+    ],
+    [
+      10080,
+      10084
+    ],
+    [
+      10093,
+      10100
+    ],
+    [
+      10122,
+      10126
+    ],
+    [
+      10152,
+      10156
+    ],
+    [
+      10160,
+      10164
+    ],
+    [
+      10208,
+      10208
+    ],
+    [
+      10222,
+      10256
+    ],
+    [
+      10252,
+      10262
+    ],
+    [
+      10264,
+      10268
+    ],
+    [
+      10507,
+      10511
+    ],
+    [
+      10567,
+      10571
+    ],
+    [
+      10627,
+      10631
+    ],
+    [
+      10635,
+      10639
+    ],
+    [
+      11056,
+      11060
+    ],
+    [
+      11057,
+      11061
+    ],
+    [
+      11114,
+      11118
+    ],
+    [
+      11209,
+      11213
+    ],
+    [
+      11233,
+      11237
+    ],
+    [
+      11246,
+      11250
+    ],
+    [
+      11258,
+      11262
+    ],
+    [
+      11369,
+      11373
+    ],
+    [
+      11371,
+      11375
+    ],
+    [
+      11394,
+      11398
+    ],
+    [
+      11414,
+      11418
+    ],
+    [
+      11428,
+      11432
+    ],
+    [
+      11510,
+      11514
+    ],
+    [
+      11522,
+      11526
+    ],
+    [
+      11562,
+      11566
+    ],
+    [
+      11665,
+      11661
+    ],
+    [
+      11832,
+      11836
+    ],
+    [
+      12154,
+      12158
+    ],
+    [
+      12302,
+      12306
+    ],
+    [
+      12332,
+      12336
+    ],
+    [
+      12375,
+      12379
+    ],
+    [
+      12500,
+      12504
+    ],
+    [
+      12537,
+      12541
+    ],
+    [
+      12673,
+      12677
+    ],
+    [
+      12676,
+      12680
+    ],
+    [
+      12690,
+      12694
+    ],
+    [
+      12695,
+      12699
+    ],
+    [
+      12747,
+      12751
+    ],
+    [
+      12748,
+      12752
+    ],
+    [
+      12760,
+      12764
+    ],
+    [
+      12781,
+      12785
+    ],
+    [
+      13010,
+      13014
+    ],
+    [
+      13031,
+      14657
+    ],
+    [
+      13704,
+      14953
+    ],
+    [
+      14909,
+      14963
+    ],
+    [
+      14943,
+      15277
+    ],
+    [
+      14949,
+      16406
+    ],
+    [
+      16509,
+      16513
+    ],
+    [
+      16513,
+      16580
+    ],
+    [
+      16539,
+      17363
+    ],
+    [
+      17358,
+      17693
+    ],
+    [
+      17705,
+      17803
+    ],
+    [
+      17798,
+      18100
+    ],
+    [
+      18270,
+      18275
+    ],
+    [
+      18271,
+      18276
+    ],
+    [
+      18272,
+      18277
+    ]
+  ],
+  "limit": "Sequence alignment is diagnostic; gaps/anchors can change with compiler name allocation and ordering. No acceptance follows from their count."
+}

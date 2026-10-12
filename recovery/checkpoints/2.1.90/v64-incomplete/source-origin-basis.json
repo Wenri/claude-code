@@ -1,0 +1,116 @@
+{
+  "kind": "R075-bounded-accepted89-firstLine-source-provenance",
+  "sourceProposalManifestSha256": "70871be8bd15180fa8e173e8c305a29b4f142b7f881d17e3812d08c5d5d8e742",
+  "sourcePath": "src/tools/BashTool/bashPermissions.ts",
+  "beforeSha256": "4f95823a1e545112490d819f1f0af5d02127495ca019fe3705bef645a18fe7f7",
+  "afterSha256": "38ecbb9d88989a5e5e9487b4d60240497699ebc99becbc606bd1addc6d49ebff",
+  "beforeBytes": 86932,
+  "afterBytes": 86986,
+  "donorSha256": "93f3ae169eeaf731bdbe913b1e40476126732a7c4bd90ee5f3e39c8261d086a5",
+  "donorCommit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+  "donorGitBlob": "b91925317b8c95f83d3bb354aea3586641c8ca12",
+  "sourceChanges": [
+    {
+      "before": "import { jsonStringify } from '../../utils/slowOperations.js'\n",
+      "after": "import { jsonStringify } from '../../utils/slowOperations.js'\nimport { firstLineOf } from '../../utils/stringUtils.js'\n"
+    },
+    {
+      "before": "const firstLine = command.split('\\n')[0]!.trim()",
+      "after": "const firstLine = firstLineOf(command).trim()"
+    }
+  ],
+  "providerPath": "src/utils/stringUtils.ts",
+  "providerSha256": "e191baf119909a210a9fb1b6f026dd36178eb04d4e05450689bd640ea8305f9c",
+  "donorProviderSha256": "e191baf119909a210a9fb1b6f026dd36178eb04d4e05450689bd640ea8305f9c",
+  "donorProviderGitBlob": "6f5da15910e3b96376f0e1c09f4787ae99010dc0",
+  "donorArchivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+  "donorArchiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+  "donorMember": "src/tools/BashTool/bashPermissions.ts",
+  "donorCommittedPermissionPath": "recovery/checkpoints/2.1.89/v45/source-overlay/src/tools/BashTool/bashPermissions.ts",
+  "providerDonorRoute": "Committed base src/utils/stringUtils.ts; no accepted overlay override exists. Its whole file equals the accepted donor and unchanged current provider.",
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": false,
+  "unrelatedDonorChangesExcluded": true,
+  "exactTwoSourceEditsReproduced": true,
+  "netSourceBytes": 54,
+  "unchangedDirectProvider": {
+    "path": "src/utils/stringUtils.ts",
+    "bytes": 6595,
+    "sha256": "e191baf119909a210a9fb1b6f026dd36178eb04d4e05450689bd640ea8305f9c"
+  },
+  "verifiedDuringExport": "Authenticate the committed accepted V45 source overlay, its complete permission member and direct committed overlay blob; independently authenticate the committed base stringUtils provider. Reproduce the exact added import and firstLine expression replacement, and compare every V64 input to committed public V63. Independent source review separately checks the complete changed function, whole-file AST and lexical inverse, every comment, provider top-level forms and source provenance.",
+  "sourceHunks": [
+    "Add the existing donor firstLineOf value import from ../../utils/stringUtils.js.",
+    "Replace the guarded split/newline/index first-line expression with firstLineOf(command); retain trim, guard, fallbacks and all other source bytes."
+  ],
+  "sourceReviewSealSha256": "e9f3313ca30784610ac16cc06459499ff808965935cc008fc7a2e597c6085be5",
+  "tupleReviewSealSha256": "264018546faa8d4351d02ab404a201bfd392393196a4779d5a7399531df152f3",
+  "sourceReviewFindings": {
+    "verdict": "PASS bounded source-only gate; candidate/build/emission/global gates remain",
+    "proposalSealSha256": "f0620ba8e6a73134a393c6ee7c01925010c2ef31643bdea11d46f13b028b21e0",
+    "completeByteInverseSeparatelyVerified": true,
+    "completeWholeProgramAstInverse": true,
+    "completeWholeProgramLexicalInverse": true,
+    "completeModuleScopesBeforeAndAfter": [
+      186,
+      186
+    ],
+    "completeCommentsRawUnchanged": true,
+    "exportsUnchanged": true,
+    "onlyAddedImport": "firstLineOf from ../../utils/stringUtils.js",
+    "allOtherImportsUnchanged": true,
+    "allExistingRuntimeInitializersExactAndInOrder": true,
+    "completeChangedFunctionEqualsDonor": true,
+    "providerWholeFileEqualsAcceptedBaseAndCurrent": true,
+    "providerCompleteFileParsed": true,
+    "providerFunctionOrdinaryHoistedDeclaration": true,
+    "providerFunctionFreeCaptures": [],
+    "providerNoImportsOrRequires": true,
+    "providerFunctionNameOccursOnlyAtDeclaration": true,
+    "providerTopLevelRuntimeForms": [
+      "MAX_STRING_LENGTH = 2 ** 25",
+      "EndTruncatingAccumulator class declaration without extends, decorators, computed keys or static elements"
+    ],
+    "newImportBindingRuntimeReads": 1,
+    "newImportBindingWrites": 0,
+    "newCallGuardedByIncludesNewline": true,
+    "existingBashToolValueCyclePreserved": true,
+    "BashToolAlreadyImportsStringUtils": true,
+    "newProviderHasNoOutgoingStaticDependencyCycle": true,
+    "ordinaryPrimitiveStringWithIntactBuiltinsReasoningOnly": true,
+    "modifiedPrototypeObjectExceptionsAllocationAndHotReplacementNotEquated": true,
+    "negativeControls": {
+      "literalRaw": true,
+      "callArguments": true,
+      "readWriteGraph": true,
+      "providerMethod": true,
+      "providerSliceBoundary": true
+    },
+    "BASH_CLASSIFIEREnabled": false,
+    "featureEnabledOrHistoricalDCEBudgetProved": false,
+    "sourceOrGitModified": false,
+    "compilerOrRecoveredCodeExecuted": false,
+    "officialTargetReadOrUsedForConstruction": false,
+    "acceptedClosure": false,
+    "strictAcceptance": false,
+    "globalBindingAcceptance": false,
+    "globalInitializationAcceptance": false,
+    "runtimeAcceptance": false
+  },
+  "historicalInlineMaps": {
+    "changedSourceContainsInlineMap": false,
+    "allInheritedInlineMapInputsByteIdentical": true,
+    "freshV64EmissionEvidence": false,
+    "interpretation": "The changed permission source has no inline source-map comment. Historical inline metadata in other inputs remains inherited and byte-identical, not fresh emission attribution."
+  },
+  "constructionResponsibility": "The primary recovery author personally inspected the source, authored/applied the exact two hunks, and executed the diagnostic build and global census. Independent reviews and packaging provide support; packaging performs only data comparison and copying.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "Bounded primitive-string reasoning assumes ordinary intact builtins. Modified prototypes/accessors, non-string objects, coercion, exceptions, allocation, reflection, host replacement and hot migration are not equated. Adding the import can change wider dependency traversal/initialization. The actual emitted firstLine provider remains a separate complete-owner/helper-wrapper obligation; a passing permission caller does not flatten or accept providers. Existing value-import cycles, all 29 inherited parser substitutions, prior supplier failures, R075 snapshot/live-binding limits, R091 provenance and R121 common-prefix hot-migration caveat remain open. Accepted .89 source provenance is not .90 acceptance.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

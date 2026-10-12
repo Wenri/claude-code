@@ -1,0 +1,19 @@
+--- v63/src/tools/BashTool/bashPermissions.ts
++++ v64/src/tools/BashTool/bashPermissions.ts
+@@ -66,6 +66,7 @@
+ import { getPlatform } from '../../utils/platform.js'
+ import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
+ import { jsonStringify } from '../../utils/slowOperations.js'
++import { firstLineOf } from '../../utils/stringUtils.js'
+ import { windowsPathToPosixPath } from '../../utils/windowsPaths.js'
+ import { BashTool } from './BashTool.js'
+ import { checkCommandOperatorPermissions } from './bashCommandHelpers.js'
+@@ -271,7 +272,7 @@
+   // the middle, which fails permission validation and corrupts the settings
+   // file. Use the first line as a prefix rule instead.
+   if (command.includes('\n')) {
+-    const firstLine = command.split('\n')[0]!.trim()
++    const firstLine = firstLineOf(command).trim()
+     if (firstLine) {
+       return sharedSuggestionForPrefix(BashTool.name, firstLine)
+     }

@@ -1,0 +1,64 @@
+{
+  "kind": "published-V63-source-plus-one-reviewed-source-edit",
+  "baselineRepository": "https://github.com/Wenri/claude-code",
+  "baselineCommit": "a7f0027dc900eb9c9f6194a6eea78e60d8ca1b73",
+  "baselineDirectory": "recovery/checkpoints/2.1.90/v63-incomplete",
+  "baselineSourceManifestSha256": "c334393beafad75794aa2d61460ff458637906a36e44789a3b57798051607267",
+  "baselineDerivedSrcTree": "ceca85d533c21c72092d3d8d15699a723ec615ed",
+  "baselinePublishedFiles": [
+    {
+      "path": "git-source-pins.json",
+      "bytes": 486764,
+      "sha256": "ae7dac04d72009f344a2601069d168b1a027a317ddb495df70bde001f2e225df"
+    },
+    {
+      "path": "saved-backlog.csv",
+      "bytes": 129123,
+      "sha256": "694d8857603991d5485e1638a810226d7e0770aed4035e18b7a6ff956cfe9549"
+    },
+    {
+      "path": "source-inputs.tar.gz",
+      "bytes": 12939411,
+      "sha256": "632a04b7b55ee8e632d455c199070d27393469f1a82e7b90d80da4d9debcb25a"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 1132650,
+      "sha256": "5329396e214f62e4d23426e1516e05358eabb918b540520427f11ad61d178940"
+    }
+  ],
+  "method": "Read the published V63 checkpoint directly from the named Git commit. Authenticate every archive member against its source manifest. Compare every V64 source path and byte to that authenticated baseline. Exactly the one listed source file differs; all other 6,113 files are byte-identical, with no added or removed source paths. The complete V64 source and Git manifests pin every resulting file. The source patch records the exact textual change.",
+  "changedFiles": [
+    {
+      "path": "src/tools/BashTool/bashPermissions.ts",
+      "before": {
+        "bytes": 86932,
+        "sha256": "4f95823a1e545112490d819f1f0af5d02127495ca019fe3705bef645a18fe7f7",
+        "gitBlob": "287d450f6e601d048e8adca38de5cfb5b60d5494"
+      },
+      "after": {
+        "bytes": 86986,
+        "sha256": "38ecbb9d88989a5e5e9487b4d60240497699ebc99becbc606bd1addc6d49ebff",
+        "gitBlob": "b4248a022cf4fa777a1557e286deb844c979388e"
+      }
+    }
+  ],
+  "changedFilesCount": 1,
+  "byteIdenticalInheritedFiles": 6113,
+  "addedPaths": [],
+  "removedPaths": [],
+  "netSourceBytes": 54,
+  "v64SourceManifestSha256": "b9f45a75ab005a67f4a65c63102265ac3cb7ffb924a22d693ff07c40bdbcca8c",
+  "v64DerivedSrcTree": "f8f591b73f8616c36b9e6de74abd4b723e074963",
+  "sourcePatch": {
+    "path": "source-changes.patch",
+    "bytes": 934,
+    "sha256": "2cadb4678db57aef318e35712514c2b6aba734ec8468021171beb7edfeb073a3"
+  },
+  "baselineSourceRestoration": "The published V63 checkpoint is derived from V62 plus the reviewed R075 snapshot-alias removal; all earlier source repairs remain inherited. This V64 export authenticates the public V63 byte identities directly and needs no private earlier restoration archive.",
+  "officialTargetUsedForSourceRestoration": false,
+  "referencesRequiredToReadThisArchive": false,
+  "privateArchivesRequiredToReadThisArchive": false,
+  "originalSourceAuthorshipClaim": false,
+  "newAcceptanceClaim": false
+}
