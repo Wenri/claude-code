@@ -1,0 +1,71 @@
+{
+  "kind": "V71 comparison-context diagnostic supplement",
+  "baseCommit": "3413291bb2d722d3b8e5745ef2f063f073d5f74e",
+  "sourceCandidateChanged": false,
+  "newCompilerRun": false,
+  "strictCriterionChanged": false,
+  "strictWholeEqual": false,
+  "acceptedClosures": 0,
+  "structuralContext": {
+    "endpoints": [
+      2543,
+      12156,
+      12160,
+      12161,
+      12162,
+      12846
+    ],
+    "rawDifferences": [
+      6,
+      6,
+      39,
+      13,
+      4,
+      220
+    ],
+    "totalDifferences": 288,
+    "sideContexts": 576,
+    "suppliedAstNodes": 3512,
+    "primaryNegativeControls": 31,
+    "primaryPositiveAssertions": 7,
+    "independentAdverseControls": 85,
+    "independentPositiveControls": 14,
+    "reviewSealSha256": "56ba059fc468d9b88daaf9ae2ea68c2686ecaabcd998187eb3dc5cc46c06c3b1"
+  },
+  "privateCatalogue": {
+    "endpoints": [
+      2134,
+      10693
+    ],
+    "occurrences": 503,
+    "declarationKeys": 60,
+    "memberUses": 443,
+    "changedSpellings": 95,
+    "primaryNegativeControls": 10,
+    "independentNegativeControls": 2559,
+    "reviewSealSha256": "e52f6f00f0ed435daae93469c2c29d2d6225e43e68ac553cc9f3a0a2f81e0ed7",
+    "claim": "bounded syntactic catalogue only; no receiver, brand, binding or runtime equivalence"
+  },
+  "publicCli": {
+    "sha256": "8ce0de7c1cca521a2840778f51f47c22531ca15d8a1e6b534bd313c8ec322a22",
+    "completeEndpointRuns": 6,
+    "outputsByteIdenticalToReviewedStructuralDiagnostic": true,
+    "negativeControls": 4,
+    "negativeControlKinds": [
+      "wrong digest",
+      "malformed digest",
+      "existing output",
+      "output symlink"
+    ]
+  },
+  "retainedLedger": {
+    "sha256": "da7eb8f368bb9d7019826c5900361c3f586c98857efd3233ada694dd95e8fb39",
+    "historicalRegions": 134,
+    "individuallyScopedObligations": 20,
+    "supplierObligations": 3,
+    "uniformStatusAssigned": false,
+    "allEightEndpointFailuresRetained": true
+  },
+  "provenanceReviewSealSha256": "91d34a97e707b2e7ee5c084786f1350c20b0871e2a82b663def1a656746dc8cd",
+  "dataPublication": "No endpoint ASTs, compared texts or generated context outputs are included."
+}
