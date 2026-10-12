@@ -1,0 +1,64 @@
+{
+  "kind": "published-V68-source-plus-one-reviewed-source-edit",
+  "baselineRepository": "https://github.com/Wenri/claude-code",
+  "baselineCommit": "726a1c65a90b49363d2eaf3f0bcb3e3b910d4faa",
+  "baselineDirectory": "recovery/checkpoints/2.1.90/v68-incomplete",
+  "baselineSourceManifestSha256": "071fae4fc8b76402f64a8296c72fd09d48529be2575c27c7d86aafb726beee2d",
+  "baselineDerivedSrcTree": "e353c7bab1f30b1b07a06dae994766161c5156d9",
+  "baselinePublishedFiles": [
+    {
+      "path": "git-source-pins.json",
+      "bytes": 486764,
+      "sha256": "f65ddee214ca3e441780c270dded7988cebc0ddd452267486e3e293ca73cba54"
+    },
+    {
+      "path": "saved-backlog.csv",
+      "bytes": 129123,
+      "sha256": "694d8857603991d5485e1638a810226d7e0770aed4035e18b7a6ff956cfe9549"
+    },
+    {
+      "path": "source-inputs.tar.gz",
+      "bytes": 12939246,
+      "sha256": "c664a924fb63cb2fa42c0f6bb53cce776c00c470d2e6ff736527dabc363f437a"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 1132650,
+      "sha256": "430fddae294bfc41da2be57a49b6b49d25d7bbc9d353d384142768075933b258"
+    }
+  ],
+  "method": "Read the published V68 checkpoint directly from the named Git commit. Authenticate every archive member against its source manifest. Compare every V69 source path and byte to that authenticated baseline. Exactly the one listed source file differs; all other 6,113 files are byte-identical, with no added or removed source paths. The complete V69 source and Git manifests pin every resulting file. The source patch records the exact textual change.",
+  "changedFiles": [
+    {
+      "path": "src/utils/bash/bashParser.ts",
+      "before": {
+        "bytes": 130810,
+        "sha256": "87b3d79eccb1377050d4785c93f34e789c6924c69b5fac42e8e6f3966ce0af38",
+        "gitBlob": "6c442348a40ade9edd5d2b39c03640bfadf36fdf"
+      },
+      "after": {
+        "bytes": 130464,
+        "sha256": "1e84259507fce1880328ff7409b3712203cb07c30df17977fc24ec9dfb044829",
+        "gitBlob": "6d56e4e8a88ce541a2d85873ff7a021fb654a803"
+      }
+    }
+  ],
+  "changedFilesCount": 1,
+  "byteIdenticalInheritedFiles": 6113,
+  "addedPaths": [],
+  "removedPaths": [],
+  "netSourceBytes": -346,
+  "v69SourceManifestSha256": "bfa5a6ecf31d5f6c437bca1761627b84bdb3fe7f8fbfb3bf16ffb228aa9a227d",
+  "v69DerivedSrcTree": "38d5b7d1d8caed91eb54bb500d78b924a2a93d53",
+  "sourcePatch": {
+    "path": "source-changes.patch",
+    "bytes": 7956,
+    "sha256": "abfdf874a73c1a1f0bb42404be6c4a3e70d4bf3507fc8f904938e42ea939b9e9"
+  },
+  "baselineSourceRestoration": "The published V68 checkpoint is derived from V67 plus the reviewed ParsedCommand method-local require restoration; all earlier source repairs remain inherited. This V69 export authenticates the public V68 byte identities directly and needs no private earlier restoration archive.",
+  "officialTargetUsedForSourceRestoration": false,
+  "referencesRequiredToReadThisArchive": false,
+  "privateArchivesRequiredToReadThisArchive": false,
+  "originalSourceAuthorshipClaim": false,
+  "newAcceptanceClaim": false
+}

@@ -1,0 +1,162 @@
+{
+  "kind": "complete-static-bidi-statement-side-effect-review",
+  "statement": 5582,
+  "owner": "node_modules/bidi-js/dist/bidi.js",
+  "before": {
+    "row": {
+      "index": 5582,
+      "type": "VariableDeclaration",
+      "range": [
+        4048672,
+        4062125
+      ],
+      "nodes": 4006,
+      "strictSha256": "e9c0d7ef3635f1abd5e98ee11c70fa7b9954e35f5467a1e117ded3944675ca33",
+      "shapeSha256": "81018609665d1e0287e8c753c3dc8c7a77bb48ed92af5156318b1645ea1e40ba",
+      "identifierNamesErased": 1470,
+      "protectedIdentifierOccurrences": 311
+    },
+    "sliceSha256": "9acf099ff370a04a9f274945bf60a1e5dc3f98506edbec7afbc750cd509b6c6e"
+  },
+  "after": {
+    "row": {
+      "index": 5582,
+      "type": "VariableDeclaration",
+      "range": [
+        4048672,
+        4062123
+      ],
+      "nodes": 4006,
+      "strictSha256": "8a46528fe7bb27b7dc5bef1cb7b1e0fad48164ea72437ca97c7fa675c5bab078",
+      "shapeSha256": "365b9e1d0cfa6029e9dec61d98ef0c7dc0f3de494f6905a01ec23849176bb536",
+      "identifierNamesErased": 1469,
+      "protectedIdentifierOccurrences": 312
+    },
+    "sliceSha256": "967c6bc9ac32289120ea6ff01b838aa0f60f77bc604bbd8666cd5a37c4d9d940"
+  },
+  "completeScopeDeclarationReferenceReadWriteGraphEqual": true,
+  "scopeCount": 108,
+  "completeScopeModelFieldDifferences": [
+    {
+      "path": [
+        "body",
+        "0",
+        "declarations",
+        "0",
+        "init",
+        "arguments",
+        "0",
+        "body",
+        "body",
+        "0",
+        "expression",
+        "arguments",
+        "1",
+        "body",
+        "body",
+        "0",
+        "body",
+        "body",
+        "0",
+        "declarations",
+        "0",
+        "init",
+        "callee",
+        "body",
+        "body",
+        "13",
+        "declarations",
+        "0",
+        "id",
+        "properties",
+        "1",
+        "shorthand"
+      ],
+      "before": false,
+      "after": true
+    },
+    {
+      "path": [
+        "body",
+        "0",
+        "declarations",
+        "0",
+        "init",
+        "callee",
+        "name"
+      ],
+      "before": "free:p",
+      "after": "free:B"
+    }
+  ],
+  "freeCapturesBefore": {
+    "Object": 3,
+    "Map": 6,
+    "parseInt": 4,
+    "String": 2,
+    "Uint32Array": 1,
+    "Uint8Array": 1,
+    "Math": 8,
+    "self": 1,
+    "globalThis": 2,
+    "define": 3,
+    "p": 1
+  },
+  "freeCapturesAfter": {
+    "Object": 3,
+    "Map": 6,
+    "parseInt": 4,
+    "String": 2,
+    "Uint32Array": 1,
+    "Uint8Array": 1,
+    "Math": 8,
+    "self": 1,
+    "globalThis": 2,
+    "define": 3,
+    "B": 1
+  },
+  "wrapperDeclaration": {
+    "before": {
+      "index": 4,
+      "type": "VariableDeclaration",
+      "range": [
+        238,
+        908
+      ],
+      "nodes": 256,
+      "strictSha256": "319858dfa03e7c71330eca51576c7881ac18c7f7b6c3ae78e87ea3cca3f42b9a",
+      "shapeSha256": "c7bdcf06ca4b4a9c3dfc69893c055f9ca64230b431ff46364f5236a03dbabf20",
+      "identifierNamesErased": 95,
+      "protectedIdentifierOccurrences": 20
+    },
+    "after": {
+      "index": 4,
+      "type": "VariableDeclaration",
+      "range": [
+        238,
+        908
+      ],
+      "nodes": 256,
+      "strictSha256": "101751193c3eb6461c2fab95664a019e4119a37b693bd6f312069cbf85f4c768",
+      "shapeSha256": "c7bdcf06ca4b4a9c3dfc69893c055f9ca64230b431ff46364f5236a03dbabf20",
+      "identifierNamesErased": 95,
+      "protectedIdentifierOccurrences": 20
+    },
+    "beforeSliceSha256": "db94cd81ce59bfb5f303a197dd4b7fc735171479c21efa46af57d03105db8726",
+    "afterSliceSha256": "f82ce5c2f2d56ebc5705f3490f9d30c52f84a52d095410834e7bd752c840e356",
+    "completeScopeGraphEqual": true,
+    "completeScopeModelFieldDifferences": []
+  },
+  "rawStrictStatementEqual": false,
+  "rawShapeStatementEqual": false,
+  "genericNormalizationApplied": false,
+  "applicationExecuted": false,
+  "callbacksExecuted": false,
+  "runtimeAcceptance": false,
+  "globalBindingAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "historicalRegion": "R17",
+  "sourceUnchanged": true,
+  "sourceReportSha256": "f2080aff1e461865c5f4e755268999141f0725d3f88a54b3969a2efe355d87ae",
+  "interpretation": "A retained compiler-allocation side effect: Property.shorthand false-to-true and the wrapper capture p-to-B. All other scoped fields and the complete declaration/reference/read/write graph agree. This field is not normalized away; raw strict and shape equality remain false. Ambient/global binding and runtime obligations remain open."
+}

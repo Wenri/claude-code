@@ -1,0 +1,131 @@
+{
+  "kind": "V69-qualified-recorded-build-summary",
+  "executionReceiptSha256": "b0d25a45014e05c3a9cbe92569024bae6af3eee1d50a691af820f9596a02bd5d",
+  "rootPersonallyExecuted": true,
+  "allFiveSerialStepsExitZero": true,
+  "sourceProfileRuntimeAnd216ProtectedRootsUnchanged": true,
+  "stages": [
+    {
+      "stage": "preflight",
+      "startedAt": "2026-10-12T05:43:13.841660+00:00",
+      "completedAt": "2026-10-12T05:43:15.676308+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "compile",
+      "startedAt": "2026-10-12T05:43:27.111410+00:00",
+      "completedAt": "2026-10-12T05:43:30.004744+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "finalize",
+      "startedAt": "2026-10-12T05:43:45.740713+00:00",
+      "completedAt": "2026-10-12T05:43:51.934906+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "strictAst",
+      "startedAt": "2026-10-12T05:44:01.251349+00:00",
+      "completedAt": "2026-10-12T05:44:08.984892+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "index",
+      "startedAt": "2026-10-12T05:44:14.729772+00:00",
+      "completedAt": "2026-10-12T05:44:43.689036+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    }
+  ],
+  "outputs": [
+    {
+      "role": "raw-javascript",
+      "bytes": 13126120,
+      "sha256": "3ce3d6c0a1773db5542ac420631bc4ee09e91dfd525278eb31d4f0ed39eb3059"
+    },
+    {
+      "role": "raw-map",
+      "bytes": 58777170,
+      "sha256": "62780908a2493fbe0a661ee67952586fbffbe5d58afed5d81af8be09a7cc832f"
+    },
+    {
+      "role": "final-javascript",
+      "bytes": 13125903,
+      "sha256": "b6a763d3cb90561eb5665322b0096d25a15c926d944a0b63563924985b603f14"
+    },
+    {
+      "role": "final-map",
+      "bytes": 58748323,
+      "sha256": "44b4a4b285c0300c8b5df110cf98aa9fbea51f5f490e983709fb4bbd2c96b910"
+    }
+  ],
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110550,
+    "sha256": "8f060d4a491d4514b898d4202cf4a03fac64f5ce702da0361321c1102ab1f235"
+  },
+  "officialTargetStrictMetadata": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "statementCount": 18277,
+  "sourceMapComposition": {
+    "allRawPoints": 2080172,
+    "allFinalPoints": 2080160,
+    "keptOriginalSegments": 2080158,
+    "removedOriginalSegments": 14,
+    "insertedDeletionEndBoundaries": 2,
+    "allDecodedFinalPointsMatchIndependentReconstruction": true,
+    "sourcesContentCompletelyBoundToPhysicalInputs": 4788,
+    "restoredOverlaySources": 11,
+    "unmappedSyntheticPoints": 0,
+    "rawAndFinalMapHashesVerified": true,
+    "knownProducerDisplacementRepaired": false
+  },
+  "independentProductChecks": 523820,
+  "markerImportsRemoved": 11,
+  "removedBytes": 217,
+  "reconstructionEvents": 33,
+  "sevenFreshNativeChecks": true,
+  "eightControllerPrelaunchRecords": true,
+  "closedOuterFilesReauthenticated": 32,
+  "outermostToolCallArgumentsIndependentlyRecorded": false,
+  "temporalQualification": {
+    "fullPreconditionsToPreflightNativeStartSeconds": 6.361286,
+    "stageNativeCheckToLaunchSeconds": {
+      "preflight": 0.003428,
+      "compile": 0.003754,
+      "finalize": 0.00382,
+      "strictAst": 0.004721,
+      "index": 0.003897
+    },
+    "literalAdjacencyOrUninterruptedExclusivityEstablished": false,
+    "checkUseRaceImmunityEstablished": false
+  },
+  "prospectiveGuardSealSha256": "21579c08617e695a4eab24c3c3795faf840e1f0a5285daa334e94acca28523e4",
+  "guardControls": {
+    "negative": 139,
+    "positive": 21
+  },
+  "guardQualification": "Exact source, command, controller, shell, wrapper and guard pins authenticated before execution. A missing empty outer directory caused a reviewer-only setup failure before production execution; the root correction and unchanged successful replay are retained.",
+  "historicalLimitations": [
+    "V62 original native-precheck gap and separately gated replay remain qualified.",
+    "V63 late supplementary-seal chronology and V64 root-attested outer argv remain historical.",
+    "V65 initial ambient controller failure remains preserved.",
+    "Trusted outer tool caller/shell, stdlib and dynamic-native closure, concurrent-writer races and non-OS-enforced target separation remain."
+  ],
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

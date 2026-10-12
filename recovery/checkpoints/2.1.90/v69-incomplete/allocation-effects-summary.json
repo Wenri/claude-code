@@ -1,0 +1,61 @@
+{
+  "kind": "V68-to-V69-complete-diagnostic-allocation-accounting",
+  "statementCounts": [
+    18277,
+    18277
+  ],
+  "motionPairs": [],
+  "deletedOrInsertedStatements": [],
+  "strictChangedPairs": 19,
+  "shapeChangedIndexes": [
+    7521,
+    7523,
+    7524,
+    7525,
+    7526,
+    7531,
+    7536,
+    7542,
+    7543,
+    7546,
+    7547,
+    7548,
+    7549,
+    7550,
+    7551,
+    7554,
+    7555,
+    7556,
+    7563
+  ],
+  "byteIdenticalStatements": 18258,
+  "shapeStableReview": {
+    "checkedStatementCount": 0,
+    "statementNodeTotal": 0,
+    "scopeTotal": 0,
+    "rawIdentifierNameDifferenceOccurrences": 0,
+    "changedFreeCaptureOccurrences": 0
+  },
+  "completeCaptureOccurrences": 0,
+  "selectedCaptureCollisions": [],
+  "priorV62ToV63CaptureQualification": {
+    "reverseCollision": [
+      {
+        "name": "_A",
+        "mappedNames": [
+          "WO",
+          "j17"
+        ]
+      }
+    ],
+    "stillOpen": true
+  },
+  "limits": "The shape-stable changed-statement set is empty. All19 changed statements belong to the complete82-statement parser owner, which is reviewed separately. Empty capture checks confer no global bijection or initialization proof. All18258other statement bytes match V68; only terminal debugId differs among gaps. Strict-whole-program-ast-v2 remains unchanged; supplemental audits retain ordinary literal raw.",
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
