@@ -1,0 +1,16 @@
+{
+  "checkpoint": "v73-incomplete",
+  "publicationReview": "independent source-only content review passed; exact final publication gate required",
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "historicalRegionClosures": 0,
+  "historicalRegions": 134,
+  "otherObligations": 20,
+  "suppliers": 3,
+  "historicalEndpointFailures": 8,
+  "historicalEndpointCensusFreshlyRecreated": false,
+  "originalLostExecutionProofRecovered": false,
+  "sourceManifestSha256": "373dce525442888eec7ba6b064798b33f4ba440c72226fcb7374ffa5c5cd6e42",
+  "derivedSrcTree": "8038a5de9659d3a8d9685dcdb621d18f3239c810",
+  "contentReviewSealSha256": "7a591912e1cd2c5c8ba9c8ffa5fadeaed9bc61eca522fdea219ed3640ca6de91"
+}

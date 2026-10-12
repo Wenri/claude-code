@@ -1,0 +1,197 @@
+--- a/src/bridge/inboundMessages.ts
++++ b/src/bridge/inboundMessages.ts
+@@ -5,7 +5,7 @@
+ } from '@anthropic-ai/sdk/resources/messages.mjs'
+ import type { UUID } from 'crypto'
+ import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
+-import { detectImageFormatFromBase64 } from '../utils/imageResizer.js'
++import { detectImageFormatFromBase64 } from '../utils/imageFormat.js'
+ 
+ /**
+  * Process an inbound user message from the bridge, extracting content
+--- a/src/components/DesktopHandoff.tsx
++++ b/src/components/DesktopHandoff.tsx
+@@ -4,7 +4,7 @@
+ // eslint-disable-next-line custom-rules/prefer-use-keybindings -- raw input for "any key" dismiss and y/n prompt
+ import { Box, Text, useInput } from '../ink.js';
+ import { openBrowser } from '../utils/browser.js';
+-import { getDesktopInstallStatus, openCurrentSessionInDesktop } from '../utils/desktopDeepLink.js';
++import { getDesktopInstallStatus, openCurrentSessionInDesktop, MIN_DESKTOP_VERSION } from '../utils/desktopDeepLink.js';
+ import { errorMessage } from '../utils/errors.js';
+ import { gracefulShutdown } from '../utils/gracefulShutdown.js';
+ import { flushSessionStorage } from '../utils/sessionStorage.js';
+@@ -77,7 +77,7 @@
+           return;
+         }
+         if (installStatus.status === "version-too-old") {
+-          setDownloadMessage(`Claude Desktop needs to be updated (found v${installStatus.version}, need v1.1.2396+).`);
++          setDownloadMessage(`Claude Desktop needs to be updated (found v${installStatus.version}, need v${MIN_DESKTOP_VERSION}+).`);
+           setState("prompt-download");
+           return;
+         }
+--- a/src/utils/desktopDeepLink.ts
++++ b/src/utils/desktopDeepLink.ts
+@@ -7,7 +7,7 @@
+ import { pathExists } from './file.js'
+ import { gte as semverGte } from './semver.js'
+ 
+-const MIN_DESKTOP_VERSION = '1.1.9669'
++export const MIN_DESKTOP_VERSION = '1.1.9669'
+ 
+ function isDevMode(): boolean {
+   if ((process.env.NODE_ENV as string) === 'development') {
+--- /dev/null
++++ b/src/utils/imageFormat.ts
+@@ -0,0 +1,66 @@
++type ImageMediaType = 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp'
++
++/**
++ * Detect image format from a buffer using magic bytes
++ * @param buffer Buffer containing image data
++ * @returns Media type string (e.g., 'image/png', 'image/jpeg') or 'image/png' as default
++ */
++export function detectImageFormatFromBuffer(buffer: Buffer): ImageMediaType {
++  if (buffer.length < 4) return 'image/png' // default
++
++  // Check PNG signature
++  if (
++    buffer[0] === 0x89 &&
++    buffer[1] === 0x50 &&
++    buffer[2] === 0x4e &&
++    buffer[3] === 0x47
++  ) {
++    return 'image/png'
++  }
++
++  // Check JPEG signature (FFD8FF)
++  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
++    return 'image/jpeg'
++  }
++
++  // Check GIF signature (GIF87a or GIF89a)
++  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
++    return 'image/gif'
++  }
++
++  // Check WebP signature (RIFF....WEBP)
++  if (
++    buffer[0] === 0x52 &&
++    buffer[1] === 0x49 &&
++    buffer[2] === 0x46 &&
++    buffer[3] === 0x46 &&
++    buffer.length >= 12 &&
++    buffer[8] === 0x57 &&
++    buffer[9] === 0x45 &&
++    buffer[10] === 0x42 &&
++    buffer[11] === 0x50
++  ) {
++    return 'image/webp'
++  }
++
++  // Default to PNG if unknown
++  return 'image/png'
++}
++
++/**
++ * Detect image format from base64 data using magic bytes
++ * @param base64Data Base64 encoded image data
++ * @returns Media type string (e.g., 'image/png', 'image/jpeg') or 'image/png' as default
++ */
++export function detectImageFormatFromBase64(
++  base64Data: string,
++): ImageMediaType {
++  try {
++    const buffer = Buffer.from(base64Data, 'base64')
++    return detectImageFormatFromBuffer(buffer)
++  } catch {
++    // Default to PNG on any error
++    return 'image/png'
++  }
++}
++
+--- a/src/utils/imageResizer.ts
++++ b/src/utils/imageResizer.ts
+@@ -19,7 +19,8 @@
+ import { formatFileSize } from './format.js'
+ import { logError } from './log.js'
+ 
+-type ImageMediaType = 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp'
++import { detectImageFormatFromBuffer, detectImageFormatFromBase64 } from './imageFormat.js'
++export { detectImageFormatFromBuffer, detectImageFormatFromBase64 }
+ 
+ // Error type constants for analytics (numeric to comply with logEvent restrictions)
+ const ERROR_TYPE_MODULE_LOAD = 1
+@@ -762,73 +763,6 @@
+ }
+ 
+ /**
+- * Detect image format from a buffer using magic bytes
+- * @param buffer Buffer containing image data
+- * @returns Media type string (e.g., 'image/png', 'image/jpeg') or 'image/png' as default
+- */
+-export function detectImageFormatFromBuffer(buffer: Buffer): ImageMediaType {
+-  if (buffer.length < 4) return 'image/png' // default
+-
+-  // Check PNG signature
+-  if (
+-    buffer[0] === 0x89 &&
+-    buffer[1] === 0x50 &&
+-    buffer[2] === 0x4e &&
+-    buffer[3] === 0x47
+-  ) {
+-    return 'image/png'
+-  }
+-
+-  // Check JPEG signature (FFD8FF)
+-  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+-    return 'image/jpeg'
+-  }
+-
+-  // Check GIF signature (GIF87a or GIF89a)
+-  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
+-    return 'image/gif'
+-  }
+-
+-  // Check WebP signature (RIFF....WEBP)
+-  if (
+-    buffer[0] === 0x52 &&
+-    buffer[1] === 0x49 &&
+-    buffer[2] === 0x46 &&
+-    buffer[3] === 0x46
+-  ) {
+-    if (
+-      buffer.length >= 12 &&
+-      buffer[8] === 0x57 &&
+-      buffer[9] === 0x45 &&
+-      buffer[10] === 0x42 &&
+-      buffer[11] === 0x50
+-    ) {
+-      return 'image/webp'
+-    }
+-  }
+-
+-  // Default to PNG if unknown
+-  return 'image/png'
+-}
+-
+-/**
+- * Detect image format from base64 data using magic bytes
+- * @param base64Data Base64 encoded image data
+- * @returns Media type string (e.g., 'image/png', 'image/jpeg') or 'image/png' as default
+- */
+-export function detectImageFormatFromBase64(
+-  base64Data: string,
+-): ImageMediaType {
+-  try {
+-    const buffer = Buffer.from(base64Data, 'base64')
+-    return detectImageFormatFromBuffer(buffer)
+-  } catch {
+-    // Default to PNG on any error
+-    return 'image/png'
+-  }
+-}
+-
+-/**
+  * Creates a text description of image metadata including dimensions and source path.
+  * Returns null if no useful metadata is available.
+  */

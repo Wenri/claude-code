@@ -1,0 +1,104 @@
+{
+  "publicParentCommit": "36402d1715407b3995f7feda52b30849afc83d32",
+  "publicSourceBaseline": "v71-incomplete",
+  "restoredV72SourceManifestSha256": "217b3fe762450023347d68deb533a4a4194f0c5a324cd10ffbcf2b1b471d2f84",
+  "sourceReviewSha256": "0d6d06d4e9d6a4b18d8458390f238ab0b1f31d2178816b2d906b42046f06e5f4",
+  "candidatePreparation": {
+    "kind": "isolated-source-only-imageFormat-candidate",
+    "sourceReviewSha256": "0d6d06d4e9d6a4b18d8458390f238ab0b1f31d2178816b2d906b42046f06e5f4",
+    "proposalSealSha256": "4b2b487066cd6a776f97f1dbb958be6e6b81791a816a9cdc98d7dd31d8fc51a2",
+    "parentProfileSha256": "147b4fae8d73189e038c70fb7ba30ba8bcb9598db575bc05187de2e1ce5ade6c",
+    "profileSha256": "4b9ff01690618f9ba283e7cd7af57f0ff1625030c30234d31ea8faeeb31ea54d",
+    "toolchainSha256": "91baa082c3fd772d5314cc3361055766315e8b807a31f92ce5786991429d98de",
+    "contractSha256": "ab7605ab57299c0e4a3784b2cbee34dd33ab18c2bb12866912251ed4f7ec13f6",
+    "sourceManifestSha256": "373dce525442888eec7ba6b064798b33f4ba440c72226fcb7374ffa5c5cd6e42",
+    "derivedSrcTree": "8038a5de9659d3a8d9685dcdb621d18f3239c810",
+    "sourceCount": 6115,
+    "gitSourceCount": 1934,
+    "extraSourceAssets": 31,
+    "changedPaths": [
+      "src/bridge/inboundMessages.ts",
+      "src/utils/imageFormat.ts",
+      "src/utils/imageResizer.ts"
+    ],
+    "netBytes": 128,
+    "profileChangedKeys": [
+      "sourceCount",
+      "sourceManifestSha256",
+      "sourceFiles",
+      "sourceTreePins",
+      "sourceTreeContract",
+      "candidateIdentity"
+    ],
+    "officialTargetUsed": false,
+    "compilerExecuted": false,
+    "applicationExecuted": false,
+    "wholeVersionAcceptance": false,
+    "independentCandidateReviewRequired": true
+  },
+  "changesFromPublicV71": [
+    {
+      "path": "src/bridge/inboundMessages.ts",
+      "before": {
+        "path": "src/bridge/inboundMessages.ts",
+        "bytes": 2727,
+        "sha256": "b6fbd085bb77ab2f4b8e7e5377a945e0d9625426691bfa3cc3b75584844f6ffc"
+      },
+      "after": {
+        "path": "src/bridge/inboundMessages.ts",
+        "bytes": 2726,
+        "sha256": "9f653a97fc5803ff19a2b1dcbf3103ecf21d58e58fc441139f1ba45e29515622"
+      }
+    },
+    {
+      "path": "src/components/DesktopHandoff.tsx",
+      "before": {
+        "path": "src/components/DesktopHandoff.tsx",
+        "bytes": 19335,
+        "sha256": "39daefe13abaf5f34fbf31f8f5a94bb41d05704ab4eb289f05a66f829a7b2c4d"
+      },
+      "after": {
+        "path": "src/components/DesktopHandoff.tsx",
+        "bytes": 19370,
+        "sha256": "a44dc0294faf4eb9fe0efbc155b69442cdd590f54b52eb56a31989b35e94b32f"
+      }
+    },
+    {
+      "path": "src/utils/desktopDeepLink.ts",
+      "before": {
+        "path": "src/utils/desktopDeepLink.ts",
+        "bytes": 7242,
+        "sha256": "3d5feb3d1f81fb0c58bf096839de5c0122709bd46ebbcd748b864674cfab553b"
+      },
+      "after": {
+        "path": "src/utils/desktopDeepLink.ts",
+        "bytes": 7249,
+        "sha256": "68be4ad3e8601712aff0068e2f9cb71d1d247cab8c95ffd1cac78781fd377cb1"
+      }
+    },
+    {
+      "path": "src/utils/imageFormat.ts",
+      "before": null,
+      "after": {
+        "path": "src/utils/imageFormat.ts",
+        "bytes": 1706,
+        "sha256": "7acdf9cbc3d820c165b48ba2f59a10a2634181ea6cda207c339460b45b4e516c"
+      }
+    },
+    {
+      "path": "src/utils/imageResizer.ts",
+      "before": {
+        "path": "src/utils/imageResizer.ts",
+        "bytes": 26699,
+        "sha256": "0089af1cfdedabbc5400dbd24842b10223ccd68e30b3efb8b8438a9b7768eceb"
+      },
+      "after": {
+        "path": "src/utils/imageResizer.ts",
+        "bytes": 25122,
+        "sha256": "4f4cc9d1320146bd6ebb4589437fc75dc655cd9bc266200191cc129fc63aa85c"
+      }
+    }
+  ],
+  "officialTargetUsedForConstruction": false,
+  "accepted89TransfersAcceptance": false
+}

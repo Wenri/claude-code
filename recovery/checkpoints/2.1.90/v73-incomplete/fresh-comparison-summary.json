@@ -1,0 +1,81 @@
+{
+  "inventories": {
+    "restored-target-diagnostics": {
+      "source": {
+        "bytes": 13128331,
+        "utf16Length": 13064141,
+        "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+      },
+      "strictAst": {
+        "criterion": "strict-whole-program-ast-v2",
+        "parser": "acorn@8.15.0",
+        "ecmaVersion": 2026,
+        "nodes": 3110206,
+        "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+      },
+      "statementCount": 18275
+    },
+    "restored-v72-diagnostics": {
+      "source": {
+        "bytes": 13125886,
+        "utf16Length": 13061730,
+        "sha256": "75cc3841d3062ef7a1cfc34bdf3a639e994f9c6e3e69f9fa201629a4b5157373"
+      },
+      "strictAst": {
+        "criterion": "strict-whole-program-ast-v2",
+        "parser": "acorn@8.15.0",
+        "ecmaVersion": 2026,
+        "nodes": 3110548,
+        "sha256": "882f02a05ea8b4a70a8ae419d4ade82cc61c66d3a6c7234f479ca9640d079e14"
+      },
+      "statementCount": 18277
+    },
+    "image-format-diagnostics": {
+      "source": {
+        "bytes": 13125876,
+        "utf16Length": 13061720,
+        "sha256": "fb041c745343a929fb3c4bcc3de1105360e7e23f8c0307c7fb508bc9d0c29f81"
+      },
+      "strictAst": {
+        "criterion": "strict-whole-program-ast-v2",
+        "parser": "acorn@8.15.0",
+        "ecmaVersion": 2026,
+        "nodes": 3110542,
+        "sha256": "f409c18152b8c7c0ce2b8d4ac8b6cf5ec7a683197ef84890a9d485d2656cc662"
+      },
+      "statementCount": 18277
+    }
+  },
+  "comparisons": {
+    "v72-vs-target": {
+      "sha256": "75b2c0f1dfee0e5260f9ce5eace71ed5749d3f3c0c9a7cf4e122212f43692cd9",
+      "strictWholeProgramEqual": false,
+      "shapeAnchors": 12789,
+      "shapeGaps": 2992,
+      "strictAnchors": 370,
+      "strictGaps": 349,
+      "unequalShapeSequenceIntervals": 95
+    },
+    "image-format-vs-target": {
+      "sha256": "74b7a9480d2c6296c54b7c3de784f531deb610b17ea7cdccc461eb4bea1a1d59",
+      "strictWholeProgramEqual": false,
+      "shapeAnchors": 12791,
+      "shapeGaps": 2991,
+      "strictAnchors": 399,
+      "strictGaps": 378,
+      "unequalShapeSequenceIntervals": 92
+    },
+    "image-format-vs-v72": {
+      "sha256": "9995a48c90bbb0db75b6e1b16a62fc01c4a4b4fba5b2879f3b73f990faa8f150",
+      "strictWholeProgramEqual": false,
+      "shapeAnchors": 12878,
+      "shapeGaps": 2946,
+      "strictAnchors": 14399,
+      "strictGaps": 2310,
+      "unequalShapeSequenceIntervals": 3
+    }
+  },
+  "semanticAcceptance": false,
+  "historicalObligationsClosed": 0,
+  "historicalPartitionMetricRecreated": false
+}
