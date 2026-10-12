@@ -1,0 +1,161 @@
+{
+  "kind": "R075-bounded-accepted89-git-cd-source-provenance",
+  "sourceProposalManifestSha256": "c63179901c1b8b9a6c437ccb454ac430ed99a3a9013a989dfbaf9003a6de412a",
+  "sourceOwner": "src/tools/BashTool/bashPermissions.ts",
+  "beforeSha256": "38ecbb9d88989a5e5e9487b4d60240497699ebc99becbc606bd1addc6d49ebff",
+  "afterSha256": "93f3ae169eeaf731bdbe913b1e40476126732a7c4bd90ee5f3e39c8261d086a5",
+  "beforeBytes": 86986,
+  "afterBytes": 86296,
+  "accepted89Donor": {
+    "commit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "path": "recovery/checkpoints/2.1.89/v45/source-overlay/src/tools/BashTool/bashPermissions.ts",
+    "blob": "b91925317b8c95f83d3bb354aea3586641c8ca12",
+    "sha256": "93f3ae169eeaf731bdbe913b1e40476126732a7c4bd90ee5f3e39c8261d086a5"
+  },
+  "completeFunctionReplacements": [
+    {
+      "function": "isNormalizedGitCommand",
+      "beforeSha256": "73934b99b40c0749449ccdd65f5991b1d6679cd705189ada10de947af44bb8cb",
+      "afterSha256": "5e78bd3655849747c773bc7a29af0eff95da51532d440313ab4a4d68f18d3301",
+      "completeDonorEqual": true
+    },
+    {
+      "function": "isNormalizedCdCommand",
+      "beforeSha256": "44ed167948e477e63b2cc3b5b9d6cc58955d81ef86661b026ae145d0afc564f9",
+      "afterSha256": "cd40ffd0c6c13f4d70e43757d1dbc32d2c474d9d77d7844c722b735cab0a58b4",
+      "completeDonorEqual": true
+    }
+  ],
+  "importChanges": [
+    "Add parseCommandArguments to existing commands value import",
+    "Remove now-unused tryParseShellCommand import from shellQuote"
+  ],
+  "providerSha256": "493f790a1ceccddddbe2f7c27305214ebf5b7ab69a2a6703a6337daed1f0db87",
+  "oldProviderSha256": "89d87fe9bc2c8de893d7697dc40e923a5f68516c9a47cc06053e602fbcfbb58d",
+  "donorArchivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+  "donorArchiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+  "donorMember": "src/tools/BashTool/bashPermissions.ts",
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "sourceDeltaLimitedToTwoCompleteFunctionsAndTheirImports": true,
+  "unrelatedDonorChangesExcluded": true,
+  "netSourceBytes": -690,
+  "unchangedDirectProvider": {
+    "path": "src/utils/bash/commands.ts",
+    "bytes": 45547,
+    "sha256": "493f790a1ceccddddbe2f7c27305214ebf5b7ab69a2a6703a6337daed1f0db87",
+    "gitBlob": "519b28cedf4c34f789001e326ec870d42940be22"
+  },
+  "unchangedParserAdapter": {
+    "path": "src/utils/bash/parser.ts",
+    "bytes": 5559,
+    "sha256": "846c36b01b785c9115e6cd28348d321d8f6748dbc7565029e431a2cb861cf42e",
+    "gitBlob": "11a9f489a578491adc6348cc1f9e4206c8882f11"
+  },
+  "verifiedDuringExport": "Authenticate the committed accepted V45 source overlay, its complete permission member and direct committed overlay blob. Verify that the complete V65 permission source equals this donor. Authenticate the complete unchanged commands provider and parser adapter through both archive members and committed overlay blobs. Compare every V65 input to committed public V64. Independent source review separately verifies complete byte/AST/lexical inverse, all comments, exports and initializers.",
+  "sourceHunks": [
+    "Replace complete isNormalizedGitCommand and isNormalizedCdCommand with their authenticated accepted .89 donor functions.",
+    "Add parseCommandArguments to the existing commands value import and remove the unused tryParseShellCommand import from shellQuote."
+  ],
+  "sourceReviewSealSha256": "8515fe26b1b48c8f8d3dcdaa87297ef9ba4cd4ef9a8941615b79208b528518d0",
+  "tupleReviewSealSha256": "d6b088655fd5d46ee02db7dcc7256056e3939a3a8e3baa23c1eda7a765d55e63",
+  "sourceReviewFindings": {
+    "verdict": "PASS bounded source construction/provenance only; changed classifier behavior and runtime/security obligations remain",
+    "proposalSealSha256": "db8d9899b4ba473d00bd9c58eee149677163dd534dae1801b8ad4fe597d5bbcf",
+    "completeByteInverseSeparatelyVerified": true,
+    "completeWholeProgramAstInverse": true,
+    "completeWholeProgramLexicalInverse": true,
+    "completeModuleScopesBeforeAfterAndInverse": [
+      186,
+      181,
+      186
+    ],
+    "completeProposedModuleEqualsDonorAstAndScope": true,
+    "completeFunctionCopies": [
+      "isNormalizedGitCommand",
+      "isNormalizedCdCommand"
+    ],
+    "allOtherCommentsExact": true,
+    "exportsSignaturesUnchanged": true,
+    "existingRuntimeInitializersExactAndInOrder": true,
+    "importChanges": {
+      "addedReadOnlyBinding": "parseCommandArguments",
+      "addedBindingReads": 2,
+      "removedReadOnlyBinding": "tryParseShellCommand",
+      "removedBindingReads": 2,
+      "existingCommandsDependency": true
+    },
+    "fullProviderModulesParsed": [
+      "src/utils/bash/commands.ts",
+      "src/utils/bash/parser.ts",
+      "src/utils/bash/bashParser.ts",
+      "src/utils/bash/shellQuote.ts",
+      "src/utils/bash/heredoc.ts",
+      "src/utils/shell/prefix.ts",
+      "src/utils/memoize.ts",
+      "src/utils/log.ts",
+      "src/utils/slowOperations.ts",
+      "src/tools/BashTool/BashTool.tsx",
+      "src/services/analytics/index.ts",
+      "node_modules/shell-quote/index.js",
+      "node_modules/shell-quote/parse.js",
+      "node_modules/shell-quote/quote.js",
+      "node_modules/lru-cache/dist/esm/index.js",
+      "src/utils/errors.ts"
+    ],
+    "parserSource": {
+      "importFree": true,
+      "synchronousModuleObject": true,
+      "readyUsesPromiseResolve": true,
+      "normalAsyncWasmReadinessNotRequired": true,
+      "initializationTDZAndPrototypeExceptionsNotProvedSafe": true,
+      "accepted29LastElementSubstitutions": 29,
+      "affectedCompleteFunctions": 19,
+      "fullAstInversePass": true
+    },
+    "sourceCallerCensusSize": 22,
+    "sourceReferenceCensusSize": 61,
+    "existingBashToolValueCyclePreserved": true,
+    "shellQuoteRemainsDeferredDependencyOfCommands": true,
+    "negativeControls": {
+      "literalRaw": true,
+      "callArgument": true,
+      "wrongImportProvider": true,
+      "removedLengthGuard": true,
+      "providerNullGuard": true,
+      "getterReadiness": true,
+      "fallbackReintroduction": true,
+      "readWriteGraph": true,
+      "parserLastElement": true,
+      "importResolution": true
+    },
+    "BASH_CLASSIFIEREnabled": false,
+    "noSemanticEquivalenceClaim": true,
+    "sourceOrGitModified": false,
+    "compilerOrRecoveredCodeExecuted": false,
+    "officialTargetReadOrUsedForConstruction": false,
+    "acceptedClosure": false,
+    "strictAcceptance": false,
+    "globalBindingAcceptance": false,
+    "globalInitializationAcceptance": false,
+    "runtimeAcceptance": false
+  },
+  "removedCommentCount": 5,
+  "allOtherCommentsExact": true,
+  "historicalInlineMaps": {
+    "changedSourceContainsInlineMap": false,
+    "allInheritedInlineMapInputsByteIdentical": true,
+    "freshV65EmissionEvidence": false,
+    "interpretation": "The changed permission source has no inline source-map comment. Historical inline metadata in other inputs remains inherited and byte-identical, not fresh emission attribution."
+  },
+  "constructionResponsibility": "The primary recovery author personally inspected the source, authored/applied the exact source change, and executed the diagnostic build and global census. Independent reviews and packaging provide support; packaging performs only data comparison and copying.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "Source provenance passes within the recorded scope. The git/cd classifiers materially change behavior, failure, logging and initialization observations from V64. Escaped/mixed-quoted names, xargs/operator boundaries, parser null/length/empty cases and exceptions are not equated. Existing commands/parser reachability does not prove safe cycle or initializer timing. These helpers feed permission/security checks, but no end-to-end bypass or safety improvement is established. Complete accepted .89 donor equality is not .90 correctness, security or runtime acceptance. All 29 inherited parser substitutions, provider failures, firstLine provider split, R075 snapshot/live-binding and non-bijection limits, R091 provenance and R121 common-prefix hot-migration caveat remain separate obligations.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

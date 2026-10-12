@@ -1,0 +1,516 @@
+{
+  "kind": "public-bounded-R075-V65-complete-owner-and-provider-review-summary",
+  "verdict": "PASS bounded full-owner and enumerated finite complete-pair comparisons;25 complete target provider failures remain",
+  "completeOwnerStatements": 25,
+  "completeOwnerNodes": 3695,
+  "completeOwnerScopes": 94,
+  "completeJoinedOwnerTargetProof": true,
+  "ownerPassingTargetPairs": 25,
+  "ownerTargetFailures": [],
+  "priorOwnerUnchangedCompleteStatements": 22,
+  "changedCompleteFunctionCurrentIndexes": [
+    12008,
+    12009
+  ],
+  "fullInitializerCurrentIndex": 12012,
+  "initializerCallbackStatementCounts": {
+    "prior": 28,
+    "current": 27,
+    "target": 27
+  },
+  "explicitDeletedPriorInitializerOrdinal": 5,
+  "deletedPriorWrapperStatements": [
+    7615,
+    7616,
+    7617
+  ],
+  "deletedWrapperNodes": 83,
+  "permissionOwnerNodeReduction": 56,
+  "globalPackageInitializationProvedAbsent": false,
+  "mainPassingTargetPairs": 82,
+  "mainPassingTargetNodes": 11998,
+  "nestedProviderCompleteSurvivingStatements": 647,
+  "nestedProviderTargetPasses": 622,
+  "nestedProviderTargetFailures": 25,
+  "completeParseCommandArgumentsCallerPairs": 14,
+  "completePriorUnchangedParserCallerPairs": 12,
+  "completeClassifierCallerAndDeclarationPairs": 5,
+  "firstLineCompletePriorCallerPairs": 5,
+  "firstLineCallerSubauditGrantsNoAdditionalTargetBodyAcceptance": true,
+  "combinedUniquePassingPairs": 701,
+  "combinedPassingNodes": 84871,
+  "combinedStatementLocalScopes": 4529,
+  "combinedFiniteMapEntries": 1302,
+  "combinedOverlaps": 22,
+  "combinedFailures": [
+    {
+      "currentIndex": 2134,
+      "targetIndex": 2134,
+      "kind": "expanded-provider-failure:node_modules/lru-cache/dist/esm/index.js",
+      "nodes": {
+        "current": 5359,
+        "target": 5359
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 2543,
+      "targetIndex": 2544,
+      "kind": "firstLine-provider-failure",
+      "nodes": {
+        "current": 26,
+        "target": 10
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7521,
+      "targetIndex": 7517,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 197,
+        "target": 196
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7523,
+      "targetIndex": 7519,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 241,
+        "target": 239
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7524,
+      "targetIndex": 7520,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 764,
+        "target": 763
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7525,
+      "targetIndex": 7521,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 1118,
+        "target": 1112
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7526,
+      "targetIndex": 7522,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 97,
+        "target": 96
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7531,
+      "targetIndex": 7527,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 1266,
+        "target": 1265
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7536,
+      "targetIndex": 7532,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 621,
+        "target": 620
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7542,
+      "targetIndex": 7538,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 1364,
+        "target": 1363
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7543,
+      "targetIndex": 7539,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 1256,
+        "target": 1255
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7546,
+      "targetIndex": 7542,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 248,
+        "target": 245
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7547,
+      "targetIndex": 7543,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 68,
+        "target": 67
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7548,
+      "targetIndex": 7544,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 657,
+        "target": 655
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7549,
+      "targetIndex": 7545,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 93,
+        "target": 92
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7550,
+      "targetIndex": 7546,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 159,
+        "target": 158
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7551,
+      "targetIndex": 7547,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 506,
+        "target": 504
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7554,
+      "targetIndex": 7550,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 186,
+        "target": 185
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7555,
+      "targetIndex": 7551,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 231,
+        "target": 230
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7556,
+      "targetIndex": 7552,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 144,
+        "target": 143
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7563,
+      "targetIndex": 7559,
+      "kind": "parser-failure",
+      "nodes": {
+        "current": 596,
+        "target": 595
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7753,
+      "targetIndex": 7750,
+      "kind": "supplier-failure",
+      "nodes": {
+        "current": 243,
+        "target": 242
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 7755,
+      "targetIndex": 7752,
+      "kind": "supplier-failure",
+      "nodes": {
+        "current": 2838,
+        "target": 2837
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 10693,
+      "targetIndex": 10692,
+      "kind": "supplier-failure",
+      "nodes": {
+        "current": 1119,
+        "target": 1119
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    },
+    {
+      "currentIndex": 11876,
+      "targetIndex": 11875,
+      "kind": "supplier-failure",
+      "nodes": {
+        "current": 198,
+        "target": 198
+      },
+      "completeEndpointsRetainedInNestedPacket": true
+    }
+  ],
+  "mainNegativeControls": 22,
+  "mainReplayOutputCount": 29,
+  "combinedReplayOutputCount": 2,
+  "nestedProviderSealSha256": "8719c5471c45da6e9519bda732e4b1e89591de8dd16f0889250e107dd041b8bf",
+  "all134Plus20IndividuallyRetained": true,
+  "targetComparisonOnly": true,
+  "sourceOrGitModified": false,
+  "compilerOrRecoveredExecution": false,
+  "acceptedClosures": 0,
+  "strictWholeProgramAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "rootCensusSeparate": true,
+  "BASH_CLASSIFIERDisabledProfileOnly": true,
+  "priorAliasSnapshotLiveBindingAndCycleLimitsRetained": true,
+  "R091AndR121RestrictionsRetained": true,
+  "reviewSealSha256": "e9d817158fd23c9fcae19cb603638f3234bff700eee6e1c2651f0892a92c49b8",
+  "reviewReceiptSha256": "51d6a245d8c7254c732ac220bff84b94086f3a2e0b54b5c1ec3f8a12d5bcf3b6",
+  "reviewReportSha256": "155284322f902c608d4a64b9e4340f719399e291d18190c66ad26a17c2177c7b",
+  "sourceProvenance": "source-origin-basis.json",
+  "completeDeltaInterpretation": "All 25 complete permission-owner statements and the joined 3,695-node/94-scope owner pass bounded target structural comparisons under one injective finite capture contract. Twenty-two complete owner statements retain prior continuity. Two complete classifiers and the full initializer carry the source-directed change. Bound/free generated spellings still differ; provider/runtime/security acceptance is not implied.",
+  "completePermissionOwnerScopedTargetPass": true,
+  "rawStrictOwnerIdentityClaimed": false,
+  "completeCombinedTargetFailures": 25,
+  "changedCompleteFunctions": [
+    {
+      "sourceFunction": "isNormalizedGitCommand",
+      "priorIndex": 12011,
+      "currentIndex": 12008,
+      "targetIndex": 12007,
+      "priorNodes": 80,
+      "currentAndTargetNodes": 55
+    },
+    {
+      "sourceFunction": "isNormalizedCdCommand",
+      "priorIndex": 12012,
+      "currentIndex": 12009,
+      "targetIndex": 12008,
+      "priorNodes": 54,
+      "currentAndTargetNodes": 26
+    }
+  ],
+  "completeInitializer": {
+    "priorIndex": 12015,
+    "currentIndex": 12012,
+    "targetIndex": 12011,
+    "priorNodes": 159,
+    "currentAndTargetNodes": 156,
+    "priorCallbackStatements": 28,
+    "currentAndTargetCallbackStatements": 27,
+    "deletedPriorOrdinal": 5,
+    "deletedPriorDependencyOwner": "src/utils/bash/shellQuote.ts",
+    "everyRemainingStatementOrderingAssignmentAndCapturePreserved": true,
+    "globalInitializationAcceptance": false
+  },
+  "deletedWrapper": {
+    "priorIndexes": [
+      7615,
+      7616,
+      7617
+    ],
+    "nodeCounts": [
+      59,
+      3,
+      21
+    ],
+    "sourceOwner": "src/utils/bash/shellQuote.ts",
+    "sourceAttributionComplete": true,
+    "targetUnmappedDoesNotMeanSourceUnmapped": true,
+    "generatedSpellingsReusedByUnrelatedDeclarations": true,
+    "globalPackageInitializationRemoved": false,
+    "interpretation": "The former shellQuote source-map wrapper domain is gone. Identity comes from complete source/model routes, not spelling absence. This does not remove the separate shell-quote package, its sandbox require paths, random-token initializer or transitive logging effects."
+  },
+  "remainingShellQuotePackage": {
+    "packageInitializerIndex": 6065,
+    "linuxSandboxCallerIndex": 6120,
+    "macosSandboxCallerIndex": 6134,
+    "quoteProviderIndex": 6063,
+    "parseProviderIndex": 6064,
+    "randomTokenLoopMathRandomIterations": 4,
+    "completeGenericCommonJsInteropStatements": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "syntacticCallPathConditionalAndNotExecutionProof": true,
+    "runtimeReadinessEstablished": false
+  },
+  "providerReview": {
+    "sealSha256": "8719c5471c45da6e9519bda732e4b1e89591de8dd16f0889250e107dd041b8bf",
+    "receiptSha256": "730b8f5acd0d8a9b7641a4f4a0dd9ecd7525dd67a6715fe598b98448968e083c",
+    "reportSha256": "522a53299585890bc43a2c3b84a3c8ac5607414c956c94a6da956404e5b2b261",
+    "completeSurvivingStatements": 647,
+    "passingCompleteTargetPairs": 622,
+    "completeTargetFailures": 25,
+    "priorCompleteContinuityPasses": 647,
+    "allThreeDeletedPriorEndpointsRetained": true,
+    "transitiveAcceptance": false
+  },
+  "historicalLruInitializer": {
+    "sourceOwner": "node_modules/lru-cache/dist/esm/index.js",
+    "currentIndex": 2134,
+    "targetIndex": 2134,
+    "currentAndTargetNodes": 5359,
+    "statementLocalScopesEach": 188,
+    "rawDifferences": 229,
+    "scopedModelFieldDifferences": 123,
+    "scopeGraphIdentical": true,
+    "completeV64ContinuityPass": true,
+    "V64ContinuityFreeNameChanges": 12,
+    "protectedPrivateNamePermutationRetained": true,
+    "privateNameNormalizationApplied": false,
+    "newlyExposedByExpandedReviewScope": true,
+    "newV65Regression": false
+  },
+  "unrelatedSupplierFailures": 4,
+  "unrelatedSupplierFailureDetails": [
+    "readOnlyValidation optional parse call versus unconditional parse",
+    "readOnlyValidation initializer array/spread/regex construction and assignment grouping",
+    "TaskOutput protected private-name differences",
+    "fileReadState captured threshold binding versus target literal"
+  ],
+  "firstLineProvider": {
+    "currentIndex": 2543,
+    "currentNodes": 26,
+    "targetWrapperIndex": 2544,
+    "targetWrapperNodes": 10,
+    "targetDelimiterHelperIndex": 2543,
+    "targetDelimiterHelperNodes": 26,
+    "completeCurrentStringUtilsStatements": 11,
+    "completePriorStringUtilsStatements": 11,
+    "completeNominatedTargetDomainStatements": 12,
+    "completeTargetDomainRejected": true,
+    "targetFunctionsNotMergedOrInlined": true,
+    "independentSourceProvenanceGateRequiredForHelperWrapperSplit": true,
+    "accepted89DirectProviderIsNotTargetHelperProvenance": true,
+    "currentDirectCalls": 6,
+    "completeCallerBodies": 5,
+    "completePriorCallerBodyContinuityPasses": 5,
+    "completeTargetCallerBodyAcceptance": false,
+    "allDeclarationAndCallStartsExactlyMapped": true,
+    "physicalDomainsForDeclarationAndCalls": 5,
+    "interpretation": "A 26-node direct newline provider differs from a ten-node wrapper capturing a separate 26-node generic delimiter helper. Equal helper node counts do not equate arity or lookup. The target-only split still requires an independent source-provenance gate; no inlining, beta reduction, helper merging or target-derived source construction is admitted."
+  },
+  "parseCommandArgumentsCallers": {
+    "currentDirectCalls": 14,
+    "priorDirectCalls": 12,
+    "targetDirectCalls": 14,
+    "completeTargetCallerBodyPasses": 14,
+    "completePriorUnchangedCallerBodyPasses": 12,
+    "newCurrentCallerIndexes": [
+      12008,
+      12009
+    ],
+    "aliasesWritesOrShadowsFound": false,
+    "allDeclarationAndCallStartsExactlyMapped": true,
+    "physicalSourceDomains": 8,
+    "transitiveProviderAcceptance": false
+  },
+  "classifierCallerCensus": {
+    "perClassifierDirectCalls": 2,
+    "perClassifierNonCallObjectValueReferences": 1,
+    "perClassifierDeclarations": 1,
+    "completeUniqueTargetCallerDeclarationPasses": 5,
+    "completePriorUnchangedCallerBodyPasses": 3,
+    "outsideReadOnlyValidationCurrentCallerIndex": 7749,
+    "allOtherIdentifierOccurrencesShadowsAndWritesAccounted": true,
+    "securityDecisionAcceptance": false
+  },
+  "deeperParserStatementFailures": 19,
+  "inheritedParserSites": 29,
+  "parserLimits": "All 19 complete parser failures retain all 29 inherited .at(-1)-to-computed-last-element substitutions. The existing computed-last-element write and adapter String.at checks remain separate. Empty/negative-property behavior, method lookup, repeated reads, prototypes, accessors and exceptions remain unproved. No private-name normalization, constant folding, optional-call removal or parser-equivalence assumption is accepted.",
+  "featureFolding": {
+    "BASH_CLASSIFIER": false,
+    "featureEnabledBehaviorNotProved": true,
+    "historicalCompilerBudgetNotProved": true,
+    "completePermissionFunctionNodes": 1299,
+    "pendingClassifierCheckPropertiesInEachCompletePriorCurrentTargetOwner": 0
+  },
+  "sourceMapBoundaries": {
+    "totalCaptureOccurrences": 205,
+    "exactStartMapped": 202,
+    "gapCount": 3,
+    "gapsRetained": true,
+    "nearestSegmentCalledExact": false,
+    "targetSourceMapAvailable": false,
+    "all4789PriorAnd4788CurrentPhysicalDomainsAuthenticated": true
+  },
+  "captureInterpretation": "Three owner-capture gaps remain: two noncall classifier object-value references in statement 12007 and the generic lazy helper in initializer 12012. No nearest segment becomes exact. Complete source/model evidence is separate from source-map nomination.",
+  "cycle": {
+    "permissionInitializerCallsBashToolAtCurrentOrdinal": 15,
+    "permissionInitializerCallsBashToolAtPriorOrdinal": 16,
+    "bashToolInitializerCallsPermissionsAtOrdinal": 29,
+    "lazyHelperClearsCallbackBeforeInvocation": true,
+    "reentryDoesNotRepeatCallback": true,
+    "initialThrowCanLeaveFactoryClearedWithoutCacheAssignment": true,
+    "readinessProved": false
+  },
+  "behaviorAndInitializationLimits": [
+    "The new synchronous command-argument provider does not reproduce the old success/error union, regex fallback or caught-Error logging. Setup, outer guards and post-parse traversal can throw; no new runtime non-null guard or outer classifier catch is implied.",
+    "Escaped/mixed-quoted command names, assignment skipping, first-command versus flat tokens, xargs across operators, substitutions/concatenations, overlength/null/timeout and inherited index-zero properties can change observations. The raw git fast path still precedes the length limit.",
+    "No end-to-end bypass, safety improvement, security equivalence or transitive runtime acceptance is established. Accepted .89 donor fidelity is only provenance.",
+    "Snapshot/live-binding, source TDZ versus lowered variables, partial initialization, abrupt completion, provider readiness, source traversal, host replacement and hot migration remain unproved.",
+    "Modified methods, nonstrings, proxies/getters/coercion, resource failures, reflection/function text, stack/source-map observations, allocations and timing remain distinct."
+  ],
+  "independentReplay": "Twenty-nine main outputs and two combined outputs replay byte-for-byte under authenticated static-tool checks; the final nested provider packet is separately sealed and rehashed. Twenty-two main adversarial controls reject. These checks parse recovered text as data without executing it.",
+  "all134HistoricalRegionsRetained": true,
+  "historicalOtherObligations": 20,
+  "historicalOtherStatuses": "Retained individually, not uniformly open",
+  "priorV64UnjoinedWindow66ObligationRetained": true,
+  "outsideWindowSupplierAndR036R073R074R075ObligationsRetained": true,
+  "inheritedR121HotMigrationCommonPrefixCaveatPreserved": true,
+  "changedClassifierSecurityEquivalenceEstablished": false,
+  "wholeProgramAcceptance": false,
+  "acceptedRegionClosures": 0
+}

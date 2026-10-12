@@ -1,0 +1,62 @@
+--- v64/src/tools/BashTool/bashPermissions.ts
++++ v65/src/tools/BashTool/bashPermissions.ts
+@@ -21,10 +21,10 @@
+   type CommandPrefixResult,
+   extractOutputRedirections,
+   getCommandSubcommandPrefix,
++  parseCommandArguments,
+   splitCommand_DEPRECATED,
+ } from '../../utils/bash/commands.js'
+ import { parseCommandRaw } from '../../utils/bash/parser.js'
+-import { tryParseShellCommand } from '../../utils/bash/shellQuote.js'
+ import { getCwd } from '../../utils/cwd.js'
+ import { logForDebugging } from '../../utils/debug.js'
+ import { isEnvTruthy } from '../../utils/envUtils.js'
+@@ -2274,26 +2274,12 @@
+  *   NO_COLOR=1 git status — env var prefix hides the command
+  */
+ export function isNormalizedGitCommand(command: string): boolean {
+-  // Fast path: catch the most common case before any parsing
+-  if (command.startsWith('git ') || command === 'git') {
+-    return true
+-  }
++  if (command.startsWith('git ') || command === 'git') return true
+   const stripped = stripSafeWrappers(command)
+-  const parsed = tryParseShellCommand(stripped)
+-  if (parsed.success && parsed.tokens.length > 0) {
+-    // Direct git command
+-    if (parsed.tokens[0] === 'git') {
+-      return true
+-    }
+-    // "xargs git ..." — xargs runs git in the current directory,
+-    // so it must be treated as a git command for cd+git security checks.
+-    // This matches the xargs prefix handling in filterRulesByContentsMatchingInput.
+-    if (parsed.tokens[0] === 'xargs' && parsed.tokens.includes('git')) {
+-      return true
+-    }
+-    return false
+-  }
+-  return /^git(?:\s|$)/.test(stripped)
++  const tokens = parseCommandArguments(stripped)
++  if (tokens[0] === 'git') return true
++  if (tokens[0] === 'xargs' && tokens.includes('git')) return true
++  return false
+ }
+ 
+ /**
+@@ -2310,13 +2296,8 @@
+  * DIRECTORY_CHANGE_ALIASES (src/utils/powershell/parser.ts).
+  */
+ export function isNormalizedCdCommand(command: string): boolean {
+-  const stripped = stripSafeWrappers(command)
+-  const parsed = tryParseShellCommand(stripped)
+-  if (parsed.success && parsed.tokens.length > 0) {
+-    const cmd = parsed.tokens[0]
+-    return cmd === 'cd' || cmd === 'pushd' || cmd === 'popd'
+-  }
+-  return /^(?:cd|pushd|popd)(?:\s|$)/.test(stripped)
++  const cmd = parseCommandArguments(stripSafeWrappers(command))[0]
++  return cmd === 'cd' || cmd === 'pushd' || cmd === 'popd'
+ }
+ 
+ /**
