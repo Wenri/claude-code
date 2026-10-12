@@ -1,0 +1,11 @@
+--- v66/src/utils/bash/ast.ts
++++ v67/src/utils/bash/ast.ts
+@@ -1114,7 +1114,7 @@
+   const err = collectCommands(innerCommand, commands, varScope)
+   if (err) return err
+   if (commands.length > before && redirects.length > 0) {
+-    const last = commands[commands.length - 1]
++    const last = commands.at(-1)
+     if (last) last.redirects.push(...redirects)
+   }
+   return null

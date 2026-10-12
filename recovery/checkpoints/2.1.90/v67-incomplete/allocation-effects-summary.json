@@ -1,0 +1,43 @@
+{
+  "kind": "V66-to-V67-complete-diagnostic-allocation-accounting",
+  "statementCounts": [
+    18277,
+    18277
+  ],
+  "motionPairs": [],
+  "deletedOrInsertedStatements": [],
+  "strictChangedPairs": 1,
+  "shapeChangedIndexes": [
+    7596
+  ],
+  "byteIdenticalStatements": 18276,
+  "shapeStableReview": {
+    "checkedStatementCount": 0,
+    "statementNodeTotal": 0,
+    "scopeTotal": 0,
+    "rawIdentifierNameDifferenceOccurrences": 0,
+    "changedFreeCaptureOccurrences": 0
+  },
+  "completeCaptureOccurrences": 0,
+  "selectedCaptureCollisions": [],
+  "priorV62ToV63CaptureQualification": {
+    "reverseCollision": [
+      {
+        "name": "_A",
+        "mappedNames": [
+          "WO",
+          "j17"
+        ]
+      }
+    ],
+    "stillOpen": true
+  },
+  "limits": "An empty selected shape-stable changed set supplies no new global binding proof. Supplemental raw fields retain Literal.raw; strict-whole-program-ast-v2 omits ordinary Literal.raw and source positions but preserves tagged-template raw.",
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

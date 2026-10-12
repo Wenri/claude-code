@@ -1,0 +1,7762 @@
+{
+  "candidate": "V67",
+  "windows": [
+    {
+      "diagnosticRegionIndex": 0,
+      "historicalV52RegionId": 0,
+      "historicalRegionNominations": [
+        0
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          0
+        ],
+        "v53": [
+          0
+        ],
+        "v54": [
+          0
+        ],
+        "v55": [
+          0
+        ],
+        "v56": [
+          0
+        ],
+        "v57": [
+          0
+        ],
+        "v58": [
+          0
+        ],
+        "v59": [
+          0
+        ],
+        "v60": [
+          0
+        ],
+        "v61": [
+          0
+        ],
+        "v62": [
+          0
+        ],
+        "v63": [
+          0
+        ],
+        "v64": [
+          0
+        ],
+        "v65": [
+          0
+        ],
+        "v66": [
+          0
+        ]
+      },
+      "op": "insert",
+      "target": [
+        603,
+        603
+      ],
+      "candidate": [
+        603,
+        604
+      ],
+      "nodeDeltaTargetMinusCandidate": -13,
+      "candidateOwners": [
+        "src/utils/envUtils.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 1,
+      "historicalV52RegionId": 1,
+      "historicalRegionNominations": [
+        1
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          1
+        ],
+        "v53": [
+          1
+        ],
+        "v54": [
+          1
+        ],
+        "v55": [
+          1
+        ],
+        "v56": [
+          1
+        ],
+        "v57": [
+          1
+        ],
+        "v58": [
+          1
+        ],
+        "v59": [
+          1
+        ],
+        "v60": [
+          1
+        ],
+        "v61": [
+          1
+        ],
+        "v62": [
+          1
+        ],
+        "v63": [
+          1
+        ],
+        "v64": [
+          1
+        ],
+        "v65": [
+          1
+        ],
+        "v66": [
+          1
+        ]
+      },
+      "op": "delete",
+      "target": [
+        604,
+        605
+      ],
+      "candidate": [
+        605,
+        605
+      ],
+      "nodeDeltaTargetMinusCandidate": 13,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 2,
+      "historicalV52RegionId": 2,
+      "historicalRegionNominations": [
+        2
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          2
+        ],
+        "v53": [
+          2
+        ],
+        "v54": [
+          2
+        ],
+        "v55": [
+          2
+        ],
+        "v56": [
+          2
+        ],
+        "v57": [
+          2
+        ],
+        "v58": [
+          2
+        ],
+        "v59": [
+          2
+        ],
+        "v60": [
+          2
+        ],
+        "v61": [
+          2
+        ],
+        "v62": [
+          2
+        ],
+        "v63": [
+          2
+        ],
+        "v64": [
+          2
+        ],
+        "v65": [
+          2
+        ],
+        "v66": [
+          2
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2134,
+        2135
+      ],
+      "candidate": [
+        2134,
+        2135
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/lru-cache/dist/esm/index.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 3,
+      "historicalV52RegionId": 3,
+      "historicalRegionNominations": [
+        3
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          3
+        ],
+        "v53": [
+          3
+        ],
+        "v54": [
+          3
+        ],
+        "v55": [
+          3
+        ],
+        "v56": [
+          3
+        ],
+        "v57": [
+          3
+        ],
+        "v58": [
+          3
+        ],
+        "v59": [
+          3
+        ],
+        "v60": [
+          3
+        ],
+        "v61": [
+          3
+        ],
+        "v62": [
+          3
+        ],
+        "v63": [
+          3
+        ],
+        "v64": [
+          3
+        ],
+        "v65": [
+          3
+        ],
+        "v66": [
+          3
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2178,
+        2179
+      ],
+      "candidate": [
+        2178,
+        2179
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/utils/path.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 4,
+      "historicalV52RegionId": 4,
+      "historicalRegionNominations": [
+        4
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          4
+        ],
+        "v53": [
+          4
+        ],
+        "v54": [
+          4
+        ],
+        "v55": [
+          4
+        ],
+        "v56": [
+          4
+        ],
+        "v57": [
+          4
+        ],
+        "v58": [
+          4
+        ],
+        "v59": [
+          4
+        ],
+        "v60": [
+          4
+        ],
+        "v61": [
+          4
+        ],
+        "v62": [
+          4
+        ],
+        "v63": [
+          4
+        ],
+        "v64": [
+          4
+        ],
+        "v65": [
+          4
+        ],
+        "v66": [
+          4
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2256,
+        2257
+      ],
+      "candidate": [
+        2256,
+        2257
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/signal-exit/dist/mjs/index.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 5,
+      "historicalV52RegionId": 5,
+      "historicalRegionNominations": [
+        5
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          5
+        ],
+        "v53": [
+          5
+        ],
+        "v54": [
+          5
+        ],
+        "v55": [
+          5
+        ],
+        "v56": [
+          5
+        ],
+        "v57": [
+          5
+        ],
+        "v58": [
+          5
+        ],
+        "v59": [
+          5
+        ],
+        "v60": [
+          5
+        ],
+        "v61": [
+          5
+        ],
+        "v62": [
+          5
+        ],
+        "v63": [
+          5
+        ],
+        "v64": [
+          5
+        ],
+        "v65": [
+          5
+        ],
+        "v66": [
+          5
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2543,
+        2545
+      ],
+      "candidate": [
+        2543,
+        2544
+      ],
+      "nodeDeltaTargetMinusCandidate": 10,
+      "candidateOwners": [
+        "src/utils/stringUtils.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 6,
+      "historicalV52RegionId": 6,
+      "historicalRegionNominations": [
+        6
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          6
+        ],
+        "v53": [
+          6
+        ],
+        "v54": [
+          6
+        ],
+        "v55": [
+          6
+        ],
+        "v56": [
+          6
+        ],
+        "v57": [
+          6
+        ],
+        "v58": [
+          6
+        ],
+        "v59": [
+          6
+        ],
+        "v60": [
+          6
+        ],
+        "v61": [
+          6
+        ],
+        "v62": [
+          6
+        ],
+        "v63": [
+          6
+        ],
+        "v64": [
+          6
+        ],
+        "v65": [
+          6
+        ],
+        "v66": [
+          6
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2567,
+        2568
+      ],
+      "candidate": [
+        2566,
+        2567
+      ],
+      "nodeDeltaTargetMinusCandidate": 1,
+      "candidateOwners": [
+        "src/utils/settings/types.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 7,
+      "historicalV52RegionId": 7,
+      "historicalRegionNominations": [
+        7
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          7
+        ],
+        "v53": [
+          7
+        ],
+        "v54": [
+          7
+        ],
+        "v55": [
+          7
+        ],
+        "v56": [
+          7
+        ],
+        "v57": [
+          7
+        ],
+        "v58": [
+          7
+        ],
+        "v59": [
+          7
+        ],
+        "v60": [
+          7
+        ],
+        "v61": [
+          7
+        ],
+        "v62": [
+          7
+        ],
+        "v63": [
+          7
+        ],
+        "v64": [
+          7
+        ],
+        "v65": [
+          7
+        ],
+        "v66": [
+          7
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2681,
+        2682
+      ],
+      "candidate": [
+        2680,
+        2681
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/undici/lib/dispatcher/env-http-proxy-agent.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 8,
+      "historicalV52RegionId": 8,
+      "historicalRegionNominations": [
+        8
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          8
+        ],
+        "v53": [
+          8
+        ],
+        "v54": [
+          8
+        ],
+        "v55": [
+          8
+        ],
+        "v56": [
+          8
+        ],
+        "v57": [
+          8
+        ],
+        "v58": [
+          8
+        ],
+        "v59": [
+          8
+        ],
+        "v60": [
+          8
+        ],
+        "v61": [
+          8
+        ],
+        "v62": [
+          8
+        ],
+        "v63": [
+          8
+        ],
+        "v64": [
+          8
+        ],
+        "v65": [
+          8
+        ],
+        "v66": [
+          8
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2706,
+        2707
+      ],
+      "candidate": [
+        2705,
+        2706
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/undici/lib/interceptor/dump.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 9,
+      "historicalV52RegionId": 9,
+      "historicalRegionNominations": [
+        9
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          9
+        ],
+        "v53": [
+          9
+        ],
+        "v54": [
+          9
+        ],
+        "v55": [
+          9
+        ],
+        "v56": [
+          9
+        ],
+        "v57": [
+          9
+        ],
+        "v58": [
+          9
+        ],
+        "v59": [
+          9
+        ],
+        "v60": [
+          9
+        ],
+        "v61": [
+          9
+        ],
+        "v62": [
+          9
+        ],
+        "v63": [
+          9
+        ],
+        "v64": [
+          9
+        ],
+        "v65": [
+          9
+        ],
+        "v66": [
+          9
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2733,
+        2734
+      ],
+      "candidate": [
+        2732,
+        2733
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/undici/lib/web/websocket/receiver.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 10,
+      "historicalV52RegionId": 10,
+      "historicalRegionNominations": [
+        10
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          10
+        ],
+        "v53": [
+          10
+        ],
+        "v54": [
+          10
+        ],
+        "v55": [
+          10
+        ],
+        "v56": [
+          10
+        ],
+        "v57": [
+          10
+        ],
+        "v58": [
+          10
+        ],
+        "v59": [
+          10
+        ],
+        "v60": [
+          10
+        ],
+        "v61": [
+          10
+        ],
+        "v62": [
+          10
+        ],
+        "v63": [
+          10
+        ],
+        "v64": [
+          10
+        ],
+        "v65": [
+          10
+        ],
+        "v66": [
+          10
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2735,
+        2736
+      ],
+      "candidate": [
+        2734,
+        2735
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/undici/lib/web/websocket/websocket.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 11,
+      "historicalV52RegionId": 11,
+      "historicalRegionNominations": [
+        11
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          11
+        ],
+        "v53": [
+          11
+        ],
+        "v54": [
+          11
+        ],
+        "v55": [
+          11
+        ],
+        "v56": [
+          11
+        ],
+        "v57": [
+          11
+        ],
+        "v58": [
+          11
+        ],
+        "v59": [
+          11
+        ],
+        "v60": [
+          11
+        ],
+        "v61": [
+          11
+        ],
+        "v62": [
+          11
+        ],
+        "v63": [
+          11
+        ],
+        "v64": [
+          11
+        ],
+        "v65": [
+          11
+        ],
+        "v66": [
+          11
+        ]
+      },
+      "op": "replace",
+      "target": [
+        2738,
+        2739
+      ],
+      "candidate": [
+        2737,
+        2738
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/undici/lib/web/eventsource/eventsource.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 12,
+      "historicalV52RegionId": 12,
+      "historicalRegionNominations": [
+        12
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          12
+        ],
+        "v53": [
+          12
+        ],
+        "v54": [
+          12
+        ],
+        "v55": [
+          12
+        ],
+        "v56": [
+          12
+        ],
+        "v57": [
+          12
+        ],
+        "v58": [
+          12
+        ],
+        "v59": [
+          12
+        ],
+        "v60": [
+          12
+        ],
+        "v61": [
+          12
+        ],
+        "v62": [
+          12
+        ],
+        "v63": [
+          12
+        ],
+        "v64": [
+          12
+        ],
+        "v65": [
+          12
+        ],
+        "v66": [
+          12
+        ]
+      },
+      "op": "insert",
+      "target": [
+        2791,
+        2791
+      ],
+      "candidate": [
+        2790,
+        2792
+      ],
+      "nodeDeltaTargetMinusCandidate": -196,
+      "candidateOwners": [
+        "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/node_modules/@smithy/querystring-builder/dist-cjs/index.js",
+        "node_modules/@smithy/util-stream/node_modules/@smithy/fetch-http-handler/node_modules/@smithy/querystring-builder/node_modules/@smithy/util-uri-escape/dist-cjs/index.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 13,
+      "historicalV52RegionId": 13,
+      "historicalRegionNominations": [
+        13
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          13
+        ],
+        "v53": [
+          13
+        ],
+        "v54": [
+          13
+        ],
+        "v55": [
+          13
+        ],
+        "v56": [
+          13
+        ],
+        "v57": [
+          13
+        ],
+        "v58": [
+          13
+        ],
+        "v59": [
+          13
+        ],
+        "v60": [
+          13
+        ],
+        "v61": [
+          13
+        ],
+        "v62": [
+          13
+        ],
+        "v63": [
+          13
+        ],
+        "v64": [
+          13
+        ],
+        "v65": [
+          13
+        ],
+        "v66": [
+          13
+        ]
+      },
+      "op": "insert",
+      "target": [
+        2991,
+        2991
+      ],
+      "candidate": [
+        2992,
+        2994
+      ],
+      "nodeDeltaTargetMinusCandidate": -196,
+      "candidateOwners": [
+        "node_modules/@aws-sdk/util-format-url/node_modules/@smithy/querystring-builder/dist-cjs/index.js",
+        "node_modules/@aws-sdk/util-format-url/node_modules/@smithy/querystring-builder/node_modules/@smithy/util-uri-escape/dist-cjs/index.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 14,
+      "historicalV52RegionId": 14,
+      "historicalRegionNominations": [
+        14
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          14
+        ],
+        "v53": [
+          14
+        ],
+        "v54": [
+          14
+        ],
+        "v55": [
+          14
+        ],
+        "v56": [
+          14
+        ],
+        "v57": [
+          14
+        ],
+        "v58": [
+          14
+        ],
+        "v59": [
+          14
+        ],
+        "v60": [
+          14
+        ],
+        "v61": [
+          14
+        ],
+        "v62": [
+          14
+        ],
+        "v63": [
+          14
+        ],
+        "v64": [
+          14
+        ],
+        "v65": [
+          14
+        ],
+        "v66": [
+          14
+        ]
+      },
+      "op": "replace",
+      "target": [
+        4447,
+        4448
+      ],
+      "candidate": [
+        4450,
+        4451
+      ],
+      "nodeDeltaTargetMinusCandidate": -2,
+      "candidateOwners": [
+        "src/services/api/client.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 15,
+      "historicalV52RegionId": 15,
+      "historicalRegionNominations": [
+        15
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          15
+        ],
+        "v53": [
+          15
+        ],
+        "v54": [
+          15
+        ],
+        "v55": [
+          15
+        ],
+        "v56": [
+          15
+        ],
+        "v57": [
+          15
+        ],
+        "v58": [
+          15
+        ],
+        "v59": [
+          15
+        ],
+        "v60": [
+          15
+        ],
+        "v61": [
+          15
+        ],
+        "v62": [
+          15
+        ],
+        "v63": [
+          15
+        ],
+        "v64": [
+          15
+        ],
+        "v65": [
+          15
+        ],
+        "v66": [
+          15
+        ]
+      },
+      "op": "replace",
+      "target": [
+        5022,
+        5023
+      ],
+      "candidate": [
+        5025,
+        5026
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/services/analytics/datadog.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 16,
+      "historicalV52RegionId": 16,
+      "historicalRegionNominations": [
+        16
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          16
+        ],
+        "v53": [
+          16
+        ],
+        "v54": [
+          16
+        ],
+        "v55": [
+          16
+        ],
+        "v56": [
+          16
+        ],
+        "v57": [
+          16
+        ],
+        "v58": [
+          16
+        ],
+        "v59": [
+          16
+        ],
+        "v60": [
+          16
+        ],
+        "v61": [
+          16
+        ],
+        "v62": [
+          16
+        ],
+        "v63": [
+          16
+        ],
+        "v64": [
+          16
+        ],
+        "v65": [
+          16
+        ],
+        "v66": [
+          16
+        ]
+      },
+      "op": "insert",
+      "target": [
+        5043,
+        5043
+      ],
+      "candidate": [
+        5046,
+        5047
+      ],
+      "nodeDeltaTargetMinusCandidate": -19,
+      "candidateOwners": [
+        "src/constants/toolLimits.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 17,
+      "historicalV52RegionId": 17,
+      "historicalRegionNominations": [
+        17
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          17
+        ],
+        "v53": [
+          17
+        ],
+        "v54": [
+          17
+        ],
+        "v55": [
+          17
+        ],
+        "v56": [
+          17
+        ],
+        "v57": [
+          17
+        ],
+        "v58": [
+          17
+        ],
+        "v59": [
+          17
+        ],
+        "v60": [
+          17
+        ],
+        "v61": [
+          17
+        ],
+        "v62": [
+          17
+        ],
+        "v63": [
+          17
+        ],
+        "v64": [
+          17
+        ],
+        "v65": [
+          17
+        ],
+        "v66": [
+          17
+        ]
+      },
+      "op": "replace",
+      "target": [
+        5578,
+        5579
+      ],
+      "candidate": [
+        5582,
+        5583
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/bidi-js/dist/bidi.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 18,
+      "historicalV52RegionId": 20,
+      "historicalRegionNominations": [
+        20
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          20
+        ],
+        "v53": [
+          20
+        ],
+        "v54": [
+          19
+        ],
+        "v55": [
+          19
+        ],
+        "v56": [
+          19
+        ],
+        "v57": [
+          18
+        ],
+        "v58": [
+          18
+        ],
+        "v59": [
+          18
+        ],
+        "v60": [
+          18
+        ],
+        "v61": [
+          18
+        ],
+        "v62": [
+          18
+        ],
+        "v63": [
+          18
+        ],
+        "v64": [
+          18
+        ],
+        "v65": [
+          18
+        ],
+        "v66": [
+          18
+        ]
+      },
+      "op": "replace",
+      "target": [
+        6671,
+        6672
+      ],
+      "candidate": [
+        6675,
+        6676
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/tools/AgentTool/built-in/verificationAgent.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 19,
+      "historicalV52RegionId": 21,
+      "historicalRegionNominations": [
+        21
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          21
+        ],
+        "v53": [
+          21
+        ],
+        "v54": [
+          20
+        ],
+        "v55": [
+          20
+        ],
+        "v56": [
+          20
+        ],
+        "v57": [
+          19
+        ],
+        "v58": [
+          19
+        ],
+        "v59": [
+          19
+        ],
+        "v60": [
+          19
+        ],
+        "v61": [
+          19
+        ],
+        "v62": [
+          19
+        ],
+        "v63": [
+          19
+        ],
+        "v64": [
+          19
+        ],
+        "v65": [
+          19
+        ],
+        "v66": [
+          19
+        ]
+      },
+      "op": "replace",
+      "target": [
+        6687,
+        6688
+      ],
+      "candidate": [
+        6691,
+        6692
+      ],
+      "nodeDeltaTargetMinusCandidate": -11,
+      "candidateOwners": [
+        "src/tools/AgentTool/loadAgentsDir.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 20,
+      "historicalV52RegionId": 22,
+      "historicalRegionNominations": [
+        22
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          22
+        ],
+        "v53": [
+          22
+        ],
+        "v54": [
+          21
+        ],
+        "v55": [
+          21
+        ],
+        "v56": [
+          21
+        ],
+        "v57": [
+          20
+        ],
+        "v58": [
+          20
+        ],
+        "v59": [
+          20
+        ],
+        "v60": [
+          20
+        ],
+        "v61": [
+          20
+        ],
+        "v62": [
+          20
+        ],
+        "v63": [
+          20
+        ],
+        "v64": [
+          20
+        ],
+        "v65": [
+          20
+        ],
+        "v66": [
+          20
+        ]
+      },
+      "op": "replace",
+      "target": [
+        6704,
+        6705
+      ],
+      "candidate": [
+        6708,
+        6709
+      ],
+      "nodeDeltaTargetMinusCandidate": 6,
+      "candidateOwners": [
+        "src/constants/apiLimits.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 21,
+      "historicalV52RegionId": 23,
+      "historicalRegionNominations": [
+        23
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          23
+        ],
+        "v53": [
+          23
+        ],
+        "v54": [
+          22
+        ],
+        "v55": [
+          22
+        ],
+        "v56": [
+          22
+        ],
+        "v57": [
+          21
+        ],
+        "v58": [
+          21
+        ],
+        "v59": [
+          21
+        ],
+        "v60": [
+          21
+        ],
+        "v61": [
+          21
+        ],
+        "v62": [
+          21
+        ],
+        "v63": [
+          21
+        ],
+        "v64": [
+          21
+        ],
+        "v65": [
+          21
+        ],
+        "v66": [
+          21
+        ]
+      },
+      "op": "delete",
+      "target": [
+        7004,
+        7006
+      ],
+      "candidate": [
+        7008,
+        7008
+      ],
+      "nodeDeltaTargetMinusCandidate": 159,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 22,
+      "historicalV52RegionId": 24,
+      "historicalRegionNominations": [
+        24
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          24
+        ],
+        "v53": [
+          24
+        ],
+        "v54": [
+          23
+        ],
+        "v55": [
+          23
+        ],
+        "v56": [
+          23
+        ],
+        "v57": [
+          22
+        ],
+        "v58": [
+          22
+        ],
+        "v59": [
+          22
+        ],
+        "v60": [
+          22
+        ],
+        "v61": [
+          22
+        ],
+        "v62": [
+          22
+        ],
+        "v63": [
+          22
+        ],
+        "v64": [
+          22
+        ],
+        "v65": [
+          22
+        ],
+        "v66": [
+          22
+        ]
+      },
+      "op": "insert",
+      "target": [
+        7019,
+        7019
+      ],
+      "candidate": [
+        7021,
+        7023
+      ],
+      "nodeDeltaTargetMinusCandidate": -160,
+      "candidateOwners": [
+        "src/utils/imageResizer.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 23,
+      "historicalV52RegionId": 25,
+      "historicalRegionNominations": [
+        25
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          25
+        ],
+        "v53": [
+          25
+        ],
+        "v54": [
+          24
+        ],
+        "v55": [
+          24
+        ],
+        "v56": [
+          24
+        ],
+        "v57": [
+          23
+        ],
+        "v58": [
+          23
+        ],
+        "v59": [
+          23
+        ],
+        "v60": [
+          23
+        ],
+        "v61": [
+          23
+        ],
+        "v62": [
+          23
+        ],
+        "v63": [
+          23
+        ],
+        "v64": [
+          23
+        ],
+        "v65": [
+          23
+        ],
+        "v66": [
+          23
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7043,
+        7044
+      ],
+      "candidate": [
+        7047,
+        7048
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/@ant/computer-use-swift/js/index.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 24,
+      "historicalV52RegionId": 26,
+      "historicalRegionNominations": [
+        26
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          26
+        ],
+        "v53": [
+          26
+        ],
+        "v54": [
+          25
+        ],
+        "v55": [
+          25
+        ],
+        "v56": [
+          25
+        ],
+        "v57": [
+          24
+        ],
+        "v58": [
+          24
+        ],
+        "v59": [
+          24
+        ],
+        "v60": [
+          24
+        ],
+        "v61": [
+          24
+        ],
+        "v62": [
+          24
+        ],
+        "v63": [
+          24
+        ],
+        "v64": [
+          24
+        ],
+        "v65": [
+          24
+        ],
+        "v66": [
+          24
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7156,
+        7157
+      ],
+      "candidate": [
+        7160,
+        7161
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/@ant/computer-use-input/js/index.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 25,
+      "historicalV52RegionId": 27,
+      "historicalRegionNominations": [
+        27
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          27
+        ],
+        "v53": [
+          27
+        ],
+        "v54": [
+          26
+        ],
+        "v55": [
+          26
+        ],
+        "v56": [
+          26
+        ],
+        "v57": [
+          25
+        ],
+        "v58": [
+          25
+        ],
+        "v59": [
+          25
+        ],
+        "v60": [
+          25
+        ],
+        "v61": [
+          25
+        ],
+        "v62": [
+          25
+        ],
+        "v63": [
+          25
+        ],
+        "v64": [
+          25
+        ],
+        "v65": [
+          25
+        ],
+        "v66": [
+          25
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7517,
+        7518
+      ],
+      "candidate": [
+        7521,
+        7522
+      ],
+      "nodeDeltaTargetMinusCandidate": -1,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 26,
+      "historicalV52RegionId": 28,
+      "historicalRegionNominations": [
+        28
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          28
+        ],
+        "v53": [
+          28
+        ],
+        "v54": [
+          27
+        ],
+        "v55": [
+          27
+        ],
+        "v56": [
+          27
+        ],
+        "v57": [
+          26
+        ],
+        "v58": [
+          26
+        ],
+        "v59": [
+          26
+        ],
+        "v60": [
+          26
+        ],
+        "v61": [
+          26
+        ],
+        "v62": [
+          26
+        ],
+        "v63": [
+          26
+        ],
+        "v64": [
+          26
+        ],
+        "v65": [
+          26
+        ],
+        "v66": [
+          26
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7519,
+        7523
+      ],
+      "candidate": [
+        7523,
+        7527
+      ],
+      "nodeDeltaTargetMinusCandidate": -10,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 27,
+      "historicalV52RegionId": 29,
+      "historicalRegionNominations": [
+        29
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          29
+        ],
+        "v53": [
+          29
+        ],
+        "v54": [
+          28
+        ],
+        "v55": [
+          28
+        ],
+        "v56": [
+          28
+        ],
+        "v57": [
+          27
+        ],
+        "v58": [
+          27
+        ],
+        "v59": [
+          27
+        ],
+        "v60": [
+          27
+        ],
+        "v61": [
+          27
+        ],
+        "v62": [
+          27
+        ],
+        "v63": [
+          27
+        ],
+        "v64": [
+          27
+        ],
+        "v65": [
+          27
+        ],
+        "v66": [
+          27
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7527,
+        7528
+      ],
+      "candidate": [
+        7531,
+        7532
+      ],
+      "nodeDeltaTargetMinusCandidate": -1,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 28,
+      "historicalV52RegionId": 30,
+      "historicalRegionNominations": [
+        30
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          30
+        ],
+        "v53": [
+          30
+        ],
+        "v54": [
+          29
+        ],
+        "v55": [
+          29
+        ],
+        "v56": [
+          29
+        ],
+        "v57": [
+          28
+        ],
+        "v58": [
+          28
+        ],
+        "v59": [
+          28
+        ],
+        "v60": [
+          28
+        ],
+        "v61": [
+          28
+        ],
+        "v62": [
+          28
+        ],
+        "v63": [
+          28
+        ],
+        "v64": [
+          28
+        ],
+        "v65": [
+          28
+        ],
+        "v66": [
+          28
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7532,
+        7533
+      ],
+      "candidate": [
+        7536,
+        7537
+      ],
+      "nodeDeltaTargetMinusCandidate": -1,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 29,
+      "historicalV52RegionId": 31,
+      "historicalRegionNominations": [
+        31
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          31
+        ],
+        "v53": [
+          31
+        ],
+        "v54": [
+          30
+        ],
+        "v55": [
+          30
+        ],
+        "v56": [
+          30
+        ],
+        "v57": [
+          29
+        ],
+        "v58": [
+          29
+        ],
+        "v59": [
+          29
+        ],
+        "v60": [
+          29
+        ],
+        "v61": [
+          29
+        ],
+        "v62": [
+          29
+        ],
+        "v63": [
+          29
+        ],
+        "v64": [
+          29
+        ],
+        "v65": [
+          29
+        ],
+        "v66": [
+          29
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7538,
+        7540
+      ],
+      "candidate": [
+        7542,
+        7544
+      ],
+      "nodeDeltaTargetMinusCandidate": -2,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 30,
+      "historicalV52RegionId": 32,
+      "historicalRegionNominations": [
+        32
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          32
+        ],
+        "v53": [
+          32
+        ],
+        "v54": [
+          31
+        ],
+        "v55": [
+          31
+        ],
+        "v56": [
+          31
+        ],
+        "v57": [
+          30
+        ],
+        "v58": [
+          30
+        ],
+        "v59": [
+          30
+        ],
+        "v60": [
+          30
+        ],
+        "v61": [
+          30
+        ],
+        "v62": [
+          30
+        ],
+        "v63": [
+          30
+        ],
+        "v64": [
+          30
+        ],
+        "v65": [
+          30
+        ],
+        "v66": [
+          30
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7542,
+        7548
+      ],
+      "candidate": [
+        7546,
+        7552
+      ],
+      "nodeDeltaTargetMinusCandidate": -10,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 31,
+      "historicalV52RegionId": 33,
+      "historicalRegionNominations": [
+        33
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          33
+        ],
+        "v53": [
+          33
+        ],
+        "v54": [
+          32
+        ],
+        "v55": [
+          32
+        ],
+        "v56": [
+          32
+        ],
+        "v57": [
+          31
+        ],
+        "v58": [
+          31
+        ],
+        "v59": [
+          31
+        ],
+        "v60": [
+          31
+        ],
+        "v61": [
+          31
+        ],
+        "v62": [
+          31
+        ],
+        "v63": [
+          31
+        ],
+        "v64": [
+          31
+        ],
+        "v65": [
+          31
+        ],
+        "v66": [
+          31
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7550,
+        7553
+      ],
+      "candidate": [
+        7554,
+        7557
+      ],
+      "nodeDeltaTargetMinusCandidate": -3,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 32,
+      "historicalV52RegionId": 34,
+      "historicalRegionNominations": [
+        34
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          34
+        ],
+        "v53": [
+          34
+        ],
+        "v54": [
+          33
+        ],
+        "v55": [
+          33
+        ],
+        "v56": [
+          33
+        ],
+        "v57": [
+          32
+        ],
+        "v58": [
+          32
+        ],
+        "v59": [
+          32
+        ],
+        "v60": [
+          32
+        ],
+        "v61": [
+          32
+        ],
+        "v62": [
+          32
+        ],
+        "v63": [
+          32
+        ],
+        "v64": [
+          32
+        ],
+        "v65": [
+          32
+        ],
+        "v66": [
+          32
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7559,
+        7560
+      ],
+      "candidate": [
+        7563,
+        7564
+      ],
+      "nodeDeltaTargetMinusCandidate": -1,
+      "candidateOwners": [
+        "src/utils/bash/bashParser.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 33,
+      "historicalV52RegionId": 37,
+      "historicalRegionNominations": [
+        37
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          37
+        ],
+        "v53": [
+          37
+        ],
+        "v54": [
+          36
+        ],
+        "v55": [
+          36
+        ],
+        "v56": [
+          36
+        ],
+        "v57": [
+          35
+        ],
+        "v58": [
+          35
+        ],
+        "v59": [
+          35
+        ],
+        "v60": [
+          35
+        ],
+        "v61": [
+          35
+        ],
+        "v62": [
+          35
+        ],
+        "v63": [
+          35
+        ],
+        "v64": [
+          35
+        ],
+        "v65": [
+          34
+        ],
+        "v66": [
+          34
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7647,
+        7649
+      ],
+      "candidate": [
+        7651,
+        7652
+      ],
+      "nodeDeltaTargetMinusCandidate": 18,
+      "candidateOwners": [
+        "src/services/mcp/vscodeSdkMcp.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 34,
+      "historicalV52RegionId": 38,
+      "historicalRegionNominations": [
+        38
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          38
+        ],
+        "v53": [
+          38
+        ],
+        "v54": [
+          37
+        ],
+        "v55": [
+          37
+        ],
+        "v56": [
+          37
+        ],
+        "v57": [
+          36
+        ],
+        "v58": [
+          36
+        ],
+        "v59": [
+          36
+        ],
+        "v60": [
+          36
+        ],
+        "v61": [
+          36
+        ],
+        "v62": [
+          36
+        ],
+        "v63": [
+          36
+        ],
+        "v64": [
+          36
+        ],
+        "v65": [
+          35
+        ],
+        "v66": [
+          35
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7650,
+        7651
+      ],
+      "candidate": [
+        7653,
+        7654
+      ],
+      "nodeDeltaTargetMinusCandidate": -8,
+      "candidateOwners": [
+        "src/services/mcp/vscodeSdkMcp.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 35,
+      "historicalV52RegionId": 43,
+      "historicalRegionNominations": [
+        43
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          43
+        ],
+        "v53": [
+          43
+        ],
+        "v54": [
+          42
+        ],
+        "v55": [
+          42
+        ],
+        "v56": [
+          42
+        ],
+        "v57": [
+          41
+        ],
+        "v58": [
+          41
+        ],
+        "v59": [
+          41
+        ],
+        "v60": [
+          41
+        ],
+        "v61": [
+          41
+        ],
+        "v62": [
+          41
+        ],
+        "v63": [
+          41
+        ],
+        "v64": [
+          41
+        ],
+        "v65": [
+          40
+        ],
+        "v66": [
+          36
+        ]
+      },
+      "op": "insert",
+      "target": [
+        7766,
+        7766
+      ],
+      "candidate": [
+        7769,
+        7770
+      ],
+      "nodeDeltaTargetMinusCandidate": -209,
+      "candidateOwners": [
+        "src/utils/queryHelpers.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 36,
+      "historicalV52RegionId": 44,
+      "historicalRegionNominations": [
+        44
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          44
+        ],
+        "v53": [
+          44
+        ],
+        "v54": [
+          43
+        ],
+        "v55": [
+          43
+        ],
+        "v56": [
+          43
+        ],
+        "v57": [
+          42
+        ],
+        "v58": [
+          42
+        ],
+        "v59": [
+          42
+        ],
+        "v60": [
+          42
+        ],
+        "v61": [
+          42
+        ],
+        "v62": [
+          42
+        ],
+        "v63": [
+          42
+        ],
+        "v64": [
+          42
+        ],
+        "v65": [
+          41
+        ],
+        "v66": [
+          37
+        ]
+      },
+      "op": "delete",
+      "target": [
+        7768,
+        7769
+      ],
+      "candidate": [
+        7772,
+        7772
+      ],
+      "nodeDeltaTargetMinusCandidate": 209,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 37,
+      "historicalV52RegionId": 45,
+      "historicalRegionNominations": [
+        45
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          45
+        ],
+        "v53": [
+          45
+        ],
+        "v54": [
+          44
+        ],
+        "v55": [
+          44
+        ],
+        "v56": [
+          44
+        ],
+        "v57": [
+          43
+        ],
+        "v58": [
+          43
+        ],
+        "v59": [
+          43
+        ],
+        "v60": [
+          43
+        ],
+        "v61": [
+          43
+        ],
+        "v62": [
+          43
+        ],
+        "v63": [
+          43
+        ],
+        "v64": [
+          43
+        ],
+        "v65": [
+          42
+        ],
+        "v66": [
+          38
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7854,
+        7855
+      ],
+      "candidate": [
+        7857,
+        7858
+      ],
+      "nodeDeltaTargetMinusCandidate": -3,
+      "candidateOwners": [
+        "src/utils/cronTasks.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 38,
+      "historicalV52RegionId": 46,
+      "historicalRegionNominations": [
+        46
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          46
+        ],
+        "v53": [
+          46
+        ],
+        "v54": [
+          45
+        ],
+        "v55": [
+          45
+        ],
+        "v56": [
+          45
+        ],
+        "v57": [
+          44
+        ],
+        "v58": [
+          44
+        ],
+        "v59": [
+          44
+        ],
+        "v60": [
+          44
+        ],
+        "v61": [
+          44
+        ],
+        "v62": [
+          44
+        ],
+        "v63": [
+          44
+        ],
+        "v64": [
+          44
+        ],
+        "v65": [
+          43
+        ],
+        "v66": [
+          39
+        ]
+      },
+      "op": "replace",
+      "target": [
+        7857,
+        7858
+      ],
+      "candidate": [
+        7860,
+        7861
+      ],
+      "nodeDeltaTargetMinusCandidate": -2,
+      "candidateOwners": [
+        "src/utils/cronTasks.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 39,
+      "historicalV52RegionId": 47,
+      "historicalRegionNominations": [
+        47
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          47
+        ],
+        "v53": [
+          47
+        ],
+        "v54": [
+          46
+        ],
+        "v55": [
+          46
+        ],
+        "v56": [
+          46
+        ],
+        "v57": [
+          45
+        ],
+        "v58": [
+          45
+        ],
+        "v59": [
+          45
+        ],
+        "v60": [
+          45
+        ],
+        "v61": [
+          45
+        ],
+        "v62": [
+          45
+        ],
+        "v63": [
+          45
+        ],
+        "v64": [
+          45
+        ],
+        "v65": [
+          44
+        ],
+        "v66": [
+          40
+        ]
+      },
+      "op": "replace",
+      "target": [
+        8352,
+        8354
+      ],
+      "candidate": [
+        8355,
+        8356
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/utils/mcpOutputStorage.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 40,
+      "historicalV52RegionId": 48,
+      "historicalRegionNominations": [
+        48
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          48
+        ],
+        "v53": [
+          48
+        ],
+        "v54": [
+          47
+        ],
+        "v55": [
+          47
+        ],
+        "v56": [
+          47
+        ],
+        "v57": [
+          46
+        ],
+        "v58": [
+          46
+        ],
+        "v59": [
+          46
+        ],
+        "v60": [
+          46
+        ],
+        "v61": [
+          46
+        ],
+        "v62": [
+          46
+        ],
+        "v63": [
+          46
+        ],
+        "v64": [
+          46
+        ],
+        "v65": [
+          45
+        ],
+        "v66": [
+          41
+        ]
+      },
+      "op": "replace",
+      "target": [
+        8758,
+        8760
+      ],
+      "candidate": [
+        8760,
+        8762
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 41,
+      "historicalV52RegionId": 49,
+      "historicalRegionNominations": [
+        49
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          49
+        ],
+        "v53": [
+          49
+        ],
+        "v54": [
+          48
+        ],
+        "v55": [
+          48
+        ],
+        "v56": [
+          48
+        ],
+        "v57": [
+          47
+        ],
+        "v58": [
+          47
+        ],
+        "v59": [
+          47
+        ],
+        "v60": [
+          47
+        ],
+        "v61": [
+          47
+        ],
+        "v62": [
+          47
+        ],
+        "v63": [
+          47
+        ],
+        "v64": [
+          47
+        ],
+        "v65": [
+          46
+        ],
+        "v66": [
+          42
+        ]
+      },
+      "op": "delete",
+      "target": [
+        8801,
+        8802
+      ],
+      "candidate": [
+        8803,
+        8803
+      ],
+      "nodeDeltaTargetMinusCandidate": 16,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 42,
+      "historicalV52RegionId": 50,
+      "historicalRegionNominations": [
+        50
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          50
+        ],
+        "v53": [
+          50
+        ],
+        "v54": [
+          49
+        ],
+        "v55": [
+          49
+        ],
+        "v56": [
+          49
+        ],
+        "v57": [
+          48
+        ],
+        "v58": [
+          48
+        ],
+        "v59": [
+          48
+        ],
+        "v60": [
+          48
+        ],
+        "v61": [
+          48
+        ],
+        "v62": [
+          48
+        ],
+        "v63": [
+          48
+        ],
+        "v64": [
+          48
+        ],
+        "v65": [
+          47
+        ],
+        "v66": [
+          43
+        ]
+      },
+      "op": "replace",
+      "target": [
+        8812,
+        8813
+      ],
+      "candidate": [
+        8813,
+        8814
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/tools/AgentTool/agentToolUtils.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 43,
+      "historicalV52RegionId": 52,
+      "historicalRegionNominations": [
+        52
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          52
+        ],
+        "v53": [
+          52
+        ],
+        "v54": [
+          51
+        ],
+        "v55": [
+          51
+        ],
+        "v56": [
+          50
+        ],
+        "v57": [
+          49
+        ],
+        "v58": [
+          49
+        ],
+        "v59": [
+          49
+        ],
+        "v60": [
+          49
+        ],
+        "v61": [
+          49
+        ],
+        "v62": [
+          49
+        ],
+        "v63": [
+          49
+        ],
+        "v64": [
+          49
+        ],
+        "v65": [
+          48
+        ],
+        "v66": [
+          44
+        ]
+      },
+      "op": "replace",
+      "target": [
+        9283,
+        9284
+      ],
+      "candidate": [
+        9284,
+        9285
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/@grpc/grpc-js/build/src/channelz.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 44,
+      "historicalV52RegionId": 53,
+      "historicalRegionNominations": [
+        53
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          53
+        ],
+        "v53": [
+          53
+        ],
+        "v54": [
+          52
+        ],
+        "v55": [
+          52
+        ],
+        "v56": [
+          51
+        ],
+        "v57": [
+          50
+        ],
+        "v58": [
+          50
+        ],
+        "v59": [
+          50
+        ],
+        "v60": [
+          50
+        ],
+        "v61": [
+          50
+        ],
+        "v62": [
+          50
+        ],
+        "v63": [
+          50
+        ],
+        "v64": [
+          50
+        ],
+        "v65": [
+          49
+        ],
+        "v66": [
+          45
+        ]
+      },
+      "op": "replace",
+      "target": [
+        9309,
+        9310
+      ],
+      "candidate": [
+        9310,
+        9311
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "node_modules/@grpc/grpc-js/build/src/orca.js"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 45,
+      "historicalV52RegionId": 54,
+      "historicalRegionNominations": [
+        54
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          54
+        ],
+        "v53": [
+          54
+        ],
+        "v54": [
+          53
+        ],
+        "v55": [
+          53
+        ],
+        "v56": [
+          52
+        ],
+        "v57": [
+          51
+        ],
+        "v58": [
+          51
+        ],
+        "v59": [
+          51
+        ],
+        "v60": [
+          51
+        ],
+        "v61": [
+          51
+        ],
+        "v62": [
+          51
+        ],
+        "v63": [
+          51
+        ],
+        "v64": [
+          51
+        ],
+        "v65": [
+          50
+        ],
+        "v66": [
+          46
+        ]
+      },
+      "op": "replace",
+      "target": [
+        9679,
+        9680
+      ],
+      "candidate": [
+        9680,
+        9681
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/hooks/useTasksV2.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 46,
+      "historicalV52RegionId": 55,
+      "historicalRegionNominations": [
+        55
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          55
+        ],
+        "v53": [
+          55
+        ],
+        "v54": [
+          54
+        ],
+        "v55": [
+          54
+        ],
+        "v56": [
+          53
+        ],
+        "v57": [
+          52
+        ],
+        "v58": [
+          52
+        ],
+        "v59": [
+          52
+        ],
+        "v60": [
+          52
+        ],
+        "v61": [
+          52
+        ],
+        "v62": [
+          52
+        ],
+        "v63": [
+          52
+        ],
+        "v64": [
+          52
+        ],
+        "v65": [
+          51
+        ],
+        "v66": [
+          47
+        ]
+      },
+      "op": "replace",
+      "target": [
+        9737,
+        9739
+      ],
+      "candidate": [
+        9738,
+        9740
+      ],
+      "nodeDeltaTargetMinusCandidate": -86,
+      "candidateOwners": [
+        "src/entrypoints/sdk/coreSchemas.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 47,
+      "historicalV52RegionId": 56,
+      "historicalRegionNominations": [
+        56
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          56
+        ],
+        "v53": [
+          56
+        ],
+        "v54": [
+          55
+        ],
+        "v55": [
+          55
+        ],
+        "v56": [
+          54
+        ],
+        "v57": [
+          53
+        ],
+        "v58": [
+          53
+        ],
+        "v59": [
+          53
+        ],
+        "v60": [
+          53
+        ],
+        "v61": [
+          53
+        ],
+        "v62": [
+          53
+        ],
+        "v63": [
+          53
+        ],
+        "v64": [
+          53
+        ],
+        "v65": [
+          52
+        ],
+        "v66": [
+          48
+        ]
+      },
+      "op": "replace",
+      "target": [
+        9826,
+        9827
+      ],
+      "candidate": [
+        9827,
+        9828
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/utils/swarm/inProcessRunner.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 48,
+      "historicalV52RegionId": 57,
+      "historicalRegionNominations": [
+        57
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          57
+        ],
+        "v53": [
+          57
+        ],
+        "v54": [
+          56
+        ],
+        "v55": [
+          56
+        ],
+        "v56": [
+          55
+        ],
+        "v57": [
+          54
+        ],
+        "v58": [
+          54
+        ],
+        "v59": [
+          54
+        ],
+        "v60": [
+          54
+        ],
+        "v61": [
+          54
+        ],
+        "v62": [
+          54
+        ],
+        "v63": [
+          54
+        ],
+        "v64": [
+          54
+        ],
+        "v65": [
+          53
+        ],
+        "v66": [
+          49
+        ]
+      },
+      "op": "replace",
+      "target": [
+        10054,
+        10055
+      ],
+      "candidate": [
+        10055,
+        10056
+      ],
+      "nodeDeltaTargetMinusCandidate": 35,
+      "candidateOwners": [
+        "src/components/messages/RateLimitMessage.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 49,
+      "historicalV52RegionId": 58,
+      "historicalRegionNominations": [
+        58
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          58
+        ],
+        "v53": [
+          58
+        ],
+        "v54": [
+          57
+        ],
+        "v55": [
+          57
+        ],
+        "v56": [
+          56
+        ],
+        "v57": [
+          55
+        ],
+        "v58": [
+          55
+        ],
+        "v59": [
+          55
+        ],
+        "v60": [
+          55
+        ],
+        "v61": [
+          55
+        ],
+        "v62": [
+          55
+        ],
+        "v63": [
+          55
+        ],
+        "v64": [
+          55
+        ],
+        "v65": [
+          54
+        ],
+        "v66": [
+          50
+        ]
+      },
+      "op": "replace",
+      "target": [
+        10056,
+        10057
+      ],
+      "candidate": [
+        10057,
+        10058
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/components/messages/RateLimitMessage.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 50,
+      "historicalV52RegionId": 60,
+      "historicalRegionNominations": [
+        60
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          60
+        ],
+        "v53": [
+          60
+        ],
+        "v54": [
+          59
+        ],
+        "v55": [
+          59
+        ],
+        "v56": [
+          58
+        ],
+        "v57": [
+          57
+        ],
+        "v58": [
+          56
+        ],
+        "v59": [
+          56
+        ],
+        "v60": [
+          56
+        ],
+        "v61": [
+          56
+        ],
+        "v62": [
+          56
+        ],
+        "v63": [
+          56
+        ],
+        "v64": [
+          56
+        ],
+        "v65": [
+          55
+        ],
+        "v66": [
+          51
+        ]
+      },
+      "op": "replace",
+      "target": [
+        10692,
+        10693
+      ],
+      "candidate": [
+        10693,
+        10694
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/utils/task/TaskOutput.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 51,
+      "historicalV52RegionId": 61,
+      "historicalRegionNominations": [
+        61
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          61
+        ],
+        "v53": [
+          61
+        ],
+        "v54": [
+          60
+        ],
+        "v55": [
+          60
+        ],
+        "v56": [
+          59
+        ],
+        "v57": [
+          58
+        ],
+        "v58": [
+          57
+        ],
+        "v59": [
+          57
+        ],
+        "v60": [
+          57
+        ],
+        "v61": [
+          57
+        ],
+        "v62": [
+          57
+        ],
+        "v63": [
+          57
+        ],
+        "v64": [
+          57
+        ],
+        "v65": [
+          56
+        ],
+        "v66": [
+          52
+        ]
+      },
+      "op": "replace",
+      "target": [
+        10846,
+        10847
+      ],
+      "candidate": [
+        10847,
+        10848
+      ],
+      "nodeDeltaTargetMinusCandidate": 2,
+      "candidateOwners": [
+        "src/tools/PowerShellTool/commonParameters.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 52,
+      "historicalV52RegionId": 62,
+      "historicalRegionNominations": [
+        62
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          62
+        ],
+        "v53": [
+          62
+        ],
+        "v54": [
+          61
+        ],
+        "v55": [
+          61
+        ],
+        "v56": [
+          60
+        ],
+        "v57": [
+          59
+        ],
+        "v58": [
+          58
+        ],
+        "v59": [
+          58
+        ],
+        "v60": [
+          58
+        ],
+        "v61": [
+          58
+        ],
+        "v62": [
+          58
+        ],
+        "v63": [
+          58
+        ],
+        "v64": [
+          58
+        ],
+        "v65": [
+          57
+        ],
+        "v66": [
+          53
+        ]
+      },
+      "op": "replace",
+      "target": [
+        10966,
+        10967
+      ],
+      "candidate": [
+        10967,
+        10968
+      ],
+      "nodeDeltaTargetMinusCandidate": 7,
+      "candidateOwners": [
+        "src/tools/PowerShellTool/PowerShellTool.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 53,
+      "historicalV52RegionId": 63,
+      "historicalRegionNominations": [
+        63
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          63
+        ],
+        "v53": [
+          63
+        ],
+        "v54": [
+          62
+        ],
+        "v55": [
+          62
+        ],
+        "v56": [
+          61
+        ],
+        "v57": [
+          60
+        ],
+        "v58": [
+          59
+        ],
+        "v59": [
+          59
+        ],
+        "v60": [
+          59
+        ],
+        "v61": [
+          59
+        ],
+        "v62": [
+          59
+        ],
+        "v63": [
+          59
+        ],
+        "v64": [
+          59
+        ],
+        "v65": [
+          58
+        ],
+        "v66": [
+          54
+        ]
+      },
+      "op": "replace",
+      "target": [
+        11419,
+        11420
+      ],
+      "candidate": [
+        11420,
+        11421
+      ],
+      "nodeDeltaTargetMinusCandidate": 4,
+      "candidateOwners": [
+        "src/tools/WebSearchTool/WebSearchTool.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 54,
+      "historicalV52RegionId": 64,
+      "historicalRegionNominations": [
+        64
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          64
+        ],
+        "v53": [
+          64
+        ],
+        "v54": [
+          63
+        ],
+        "v55": [
+          63
+        ],
+        "v56": [
+          62
+        ],
+        "v57": [
+          61
+        ],
+        "v58": [
+          60
+        ],
+        "v59": [
+          60
+        ],
+        "v60": [
+          60
+        ],
+        "v61": [
+          60
+        ],
+        "v62": [
+          60
+        ],
+        "v63": [
+          60
+        ],
+        "v64": [
+          60
+        ],
+        "v65": [
+          59
+        ],
+        "v66": [
+          55
+        ]
+      },
+      "op": "replace",
+      "target": [
+        11706,
+        11707
+      ],
+      "candidate": [
+        11707,
+        11708
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/tasks/LocalMainSessionTask.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 55,
+      "historicalV52RegionId": 65,
+      "historicalRegionNominations": [
+        65
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          65
+        ],
+        "v53": [
+          65
+        ],
+        "v54": [
+          64
+        ],
+        "v55": [
+          64
+        ],
+        "v56": [
+          63
+        ],
+        "v57": [
+          62
+        ],
+        "v58": [
+          61
+        ],
+        "v59": [
+          61
+        ],
+        "v60": [
+          61
+        ],
+        "v61": [
+          61
+        ],
+        "v62": [
+          61
+        ],
+        "v63": [
+          61
+        ],
+        "v64": [
+          61
+        ],
+        "v65": [
+          60
+        ],
+        "v66": [
+          56
+        ]
+      },
+      "op": "replace",
+      "target": [
+        11741,
+        11742
+      ],
+      "candidate": [
+        11742,
+        11743
+      ],
+      "nodeDeltaTargetMinusCandidate": 11,
+      "candidateOwners": [
+        "src/tools.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 56,
+      "historicalV52RegionId": 66,
+      "historicalRegionNominations": [
+        66
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          66
+        ],
+        "v53": [
+          66
+        ],
+        "v54": [
+          65
+        ],
+        "v55": [
+          65
+        ],
+        "v56": [
+          64
+        ],
+        "v57": [
+          63
+        ],
+        "v58": [
+          62
+        ],
+        "v59": [
+          62
+        ],
+        "v60": [
+          62
+        ],
+        "v61": [
+          62
+        ],
+        "v62": [
+          62
+        ],
+        "v63": [
+          62
+        ],
+        "v64": [
+          62
+        ],
+        "v65": [
+          61
+        ],
+        "v66": [
+          57
+        ]
+      },
+      "op": "replace",
+      "target": [
+        11744,
+        11745
+      ],
+      "candidate": [
+        11745,
+        11746
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/tools.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 57,
+      "historicalV52RegionId": 68,
+      "historicalRegionNominations": [
+        68
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          68
+        ],
+        "v53": [
+          68
+        ],
+        "v54": [
+          67
+        ],
+        "v55": [
+          66
+        ],
+        "v56": [
+          65
+        ],
+        "v57": [
+          64
+        ],
+        "v58": [
+          63
+        ],
+        "v59": [
+          63
+        ],
+        "v60": [
+          63
+        ],
+        "v61": [
+          63
+        ],
+        "v62": [
+          63
+        ],
+        "v63": [
+          63
+        ],
+        "v64": [
+          63
+        ],
+        "v65": [
+          62
+        ],
+        "v66": [
+          58
+        ]
+      },
+      "op": "replace",
+      "target": [
+        11875,
+        11877
+      ],
+      "candidate": [
+        11876,
+        11878
+      ],
+      "nodeDeltaTargetMinusCandidate": -3,
+      "candidateOwners": [
+        "src/tools/BashTool/fileReadState.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 58,
+      "historicalV52RegionId": 72,
+      "historicalRegionNominations": [
+        72
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          72
+        ],
+        "v53": [
+          72
+        ],
+        "v54": [
+          71
+        ],
+        "v55": [
+          70
+        ],
+        "v56": [
+          69
+        ],
+        "v57": [
+          68
+        ],
+        "v58": [
+          67
+        ],
+        "v59": [
+          65
+        ],
+        "v60": [
+          65
+        ],
+        "v61": [
+          65
+        ],
+        "v62": [
+          64
+        ],
+        "v63": [
+          64
+        ],
+        "v64": [
+          64
+        ],
+        "v65": [
+          63
+        ],
+        "v66": [
+          59
+        ]
+      },
+      "op": "replace",
+      "target": [
+        11976,
+        11977
+      ],
+      "candidate": [
+        11977,
+        11978
+      ],
+      "nodeDeltaTargetMinusCandidate": -3,
+      "candidateOwners": [
+        "src/utils/bash/ParsedCommand.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 59,
+      "historicalV52RegionId": 76,
+      "historicalRegionNominations": [
+        76
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          76
+        ],
+        "v53": [
+          76
+        ],
+        "v54": [
+          75
+        ],
+        "v55": [
+          74
+        ],
+        "v56": [
+          73
+        ],
+        "v57": [
+          72
+        ],
+        "v58": [
+          71
+        ],
+        "v59": [
+          69
+        ],
+        "v60": [
+          69
+        ],
+        "v61": [
+          69
+        ],
+        "v62": [
+          68
+        ],
+        "v63": [
+          68
+        ],
+        "v64": [
+          67
+        ],
+        "v65": [
+          64
+        ],
+        "v66": [
+          60
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12033,
+        12035
+      ],
+      "candidate": [
+        12034,
+        12036
+      ],
+      "nodeDeltaTargetMinusCandidate": -4,
+      "candidateOwners": [
+        "src/services/tools/toolHooks.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 60,
+      "historicalV52RegionId": 77,
+      "historicalRegionNominations": [
+        77
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          77
+        ],
+        "v53": [
+          77
+        ],
+        "v54": [
+          76
+        ],
+        "v55": [
+          75
+        ],
+        "v56": [
+          74
+        ],
+        "v57": [
+          73
+        ],
+        "v58": [
+          72
+        ],
+        "v59": [
+          70
+        ],
+        "v60": [
+          70
+        ],
+        "v61": [
+          70
+        ],
+        "v62": [
+          69
+        ],
+        "v63": [
+          69
+        ],
+        "v64": [
+          68
+        ],
+        "v65": [
+          65
+        ],
+        "v66": [
+          61
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12036,
+        12037
+      ],
+      "candidate": [
+        12037,
+        12038
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/services/tools/toolHooks.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 61,
+      "historicalV52RegionId": 78,
+      "historicalRegionNominations": [
+        78
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          78
+        ],
+        "v53": [
+          78
+        ],
+        "v54": [
+          77
+        ],
+        "v55": [
+          76
+        ],
+        "v56": [
+          75
+        ],
+        "v57": [
+          74
+        ],
+        "v58": [
+          73
+        ],
+        "v59": [
+          71
+        ],
+        "v60": [
+          71
+        ],
+        "v61": [
+          71
+        ],
+        "v62": [
+          70
+        ],
+        "v63": [
+          70
+        ],
+        "v64": [
+          69
+        ],
+        "v65": [
+          66
+        ],
+        "v66": [
+          62
+        ]
+      },
+      "op": "delete",
+      "target": [
+        12041,
+        12042
+      ],
+      "candidate": [
+        12042,
+        12042
+      ],
+      "nodeDeltaTargetMinusCandidate": 39,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 62,
+      "historicalV52RegionId": 79,
+      "historicalRegionNominations": [
+        79
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          79
+        ],
+        "v53": [
+          79
+        ],
+        "v54": [
+          78
+        ],
+        "v55": [
+          77
+        ],
+        "v56": [
+          76
+        ],
+        "v57": [
+          75
+        ],
+        "v58": [
+          74
+        ],
+        "v59": [
+          72
+        ],
+        "v60": [
+          72
+        ],
+        "v61": [
+          72
+        ],
+        "v62": [
+          71
+        ],
+        "v63": [
+          71
+        ],
+        "v64": [
+          70
+        ],
+        "v65": [
+          67
+        ],
+        "v66": [
+          63
+        ]
+      },
+      "op": "insert",
+      "target": [
+        12046,
+        12046
+      ],
+      "candidate": [
+        12046,
+        12047
+      ],
+      "nodeDeltaTargetMinusCandidate": -39,
+      "candidateOwners": [
+        "src/services/tools/toolExecution.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 63,
+      "historicalV52RegionId": 80,
+      "historicalRegionNominations": [
+        80
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          80
+        ],
+        "v53": [
+          80
+        ],
+        "v54": [
+          79
+        ],
+        "v55": [
+          78
+        ],
+        "v56": [
+          77
+        ],
+        "v57": [
+          76
+        ],
+        "v58": [
+          75
+        ],
+        "v59": [
+          73
+        ],
+        "v60": [
+          73
+        ],
+        "v61": [
+          73
+        ],
+        "v62": [
+          72
+        ],
+        "v63": [
+          72
+        ],
+        "v64": [
+          71
+        ],
+        "v65": [
+          68
+        ],
+        "v66": [
+          64
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12115,
+        12116
+      ],
+      "candidate": [
+        12116,
+        12117
+      ],
+      "nodeDeltaTargetMinusCandidate": -2,
+      "candidateOwners": [
+        "src/query/stopHooks.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 64,
+      "historicalV52RegionId": 81,
+      "historicalRegionNominations": [
+        81
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          81
+        ],
+        "v53": [
+          81
+        ],
+        "v54": [
+          80
+        ],
+        "v55": [
+          79
+        ],
+        "v56": [
+          78
+        ],
+        "v57": [
+          77
+        ],
+        "v58": [
+          76
+        ],
+        "v59": [
+          74
+        ],
+        "v60": [
+          74
+        ],
+        "v61": [
+          74
+        ],
+        "v62": [
+          73
+        ],
+        "v63": [
+          73
+        ],
+        "v64": [
+          72
+        ],
+        "v65": [
+          69
+        ],
+        "v66": [
+          65
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12117,
+        12118
+      ],
+      "candidate": [
+        12118,
+        12119
+      ],
+      "nodeDeltaTargetMinusCandidate": 9,
+      "candidateOwners": [
+        "src/query/stopHooks.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 65,
+      "historicalV52RegionId": 82,
+      "historicalRegionNominations": [
+        82
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          82
+        ],
+        "v53": [
+          82
+        ],
+        "v54": [
+          81
+        ],
+        "v55": [
+          80
+        ],
+        "v56": [
+          79
+        ],
+        "v57": [
+          78
+        ],
+        "v58": [
+          77
+        ],
+        "v59": [
+          75
+        ],
+        "v60": [
+          75
+        ],
+        "v61": [
+          75
+        ],
+        "v62": [
+          74
+        ],
+        "v63": [
+          74
+        ],
+        "v64": [
+          73
+        ],
+        "v65": [
+          70
+        ],
+        "v66": [
+          66
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12132,
+        12133
+      ],
+      "candidate": [
+        12133,
+        12134
+      ],
+      "nodeDeltaTargetMinusCandidate": 6,
+      "candidateOwners": [
+        "src/query.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 66,
+      "historicalV52RegionId": 83,
+      "historicalRegionNominations": [
+        83
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          83
+        ],
+        "v53": [
+          83
+        ],
+        "v54": [
+          82
+        ],
+        "v55": [
+          81
+        ],
+        "v56": [
+          80
+        ],
+        "v57": [
+          79
+        ],
+        "v58": [
+          78
+        ],
+        "v59": [
+          76
+        ],
+        "v60": [
+          76
+        ],
+        "v61": [
+          76
+        ],
+        "v62": [
+          75
+        ],
+        "v63": [
+          75
+        ],
+        "v64": [
+          74
+        ],
+        "v65": [
+          71
+        ],
+        "v66": [
+          67
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12155,
+        12156
+      ],
+      "candidate": [
+        12156,
+        12157
+      ],
+      "nodeDeltaTargetMinusCandidate": -2,
+      "candidateOwners": [
+        "src/utils/forkedAgent.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 67,
+      "historicalV52RegionId": 84,
+      "historicalRegionNominations": [
+        84
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          84
+        ],
+        "v53": [
+          84
+        ],
+        "v54": [
+          83
+        ],
+        "v55": [
+          82
+        ],
+        "v56": [
+          81
+        ],
+        "v57": [
+          80
+        ],
+        "v58": [
+          79
+        ],
+        "v59": [
+          77
+        ],
+        "v60": [
+          77
+        ],
+        "v61": [
+          77
+        ],
+        "v62": [
+          76
+        ],
+        "v63": [
+          76
+        ],
+        "v64": [
+          75
+        ],
+        "v65": [
+          72
+        ],
+        "v66": [
+          68
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12159,
+        12162
+      ],
+      "candidate": [
+        12160,
+        12163
+      ],
+      "nodeDeltaTargetMinusCandidate": 38,
+      "candidateOwners": [
+        "src/utils/forkedAgent.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 68,
+      "historicalV52RegionId": 85,
+      "historicalRegionNominations": [
+        85
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          85
+        ],
+        "v53": [
+          85
+        ],
+        "v54": [
+          84
+        ],
+        "v55": [
+          83
+        ],
+        "v56": [
+          82
+        ],
+        "v57": [
+          81
+        ],
+        "v58": [
+          80
+        ],
+        "v59": [
+          78
+        ],
+        "v60": [
+          78
+        ],
+        "v61": [
+          78
+        ],
+        "v62": [
+          77
+        ],
+        "v63": [
+          77
+        ],
+        "v64": [
+          76
+        ],
+        "v65": [
+          73
+        ],
+        "v66": [
+          69
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12173,
+        12174
+      ],
+      "candidate": [
+        12174,
+        12175
+      ],
+      "nodeDeltaTargetMinusCandidate": 1,
+      "candidateOwners": [
+        "src/services/compact/prompt.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 69,
+      "historicalV52RegionId": 86,
+      "historicalRegionNominations": [
+        86
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          86
+        ],
+        "v53": [
+          86
+        ],
+        "v54": [
+          85
+        ],
+        "v55": [
+          84
+        ],
+        "v56": [
+          83
+        ],
+        "v57": [
+          82
+        ],
+        "v58": [
+          81
+        ],
+        "v59": [
+          79
+        ],
+        "v60": [
+          79
+        ],
+        "v61": [
+          79
+        ],
+        "v62": [
+          78
+        ],
+        "v63": [
+          78
+        ],
+        "v64": [
+          77
+        ],
+        "v65": [
+          74
+        ],
+        "v66": [
+          70
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12183,
+        12185
+      ],
+      "candidate": [
+        12184,
+        12186
+      ],
+      "nodeDeltaTargetMinusCandidate": 8,
+      "candidateOwners": [
+        "src/services/compact/compact.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 70,
+      "historicalV52RegionId": 87,
+      "historicalRegionNominations": [
+        87
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          87
+        ],
+        "v53": [
+          87
+        ],
+        "v54": [
+          86
+        ],
+        "v55": [
+          85
+        ],
+        "v56": [
+          84
+        ],
+        "v57": [
+          83
+        ],
+        "v58": [
+          82
+        ],
+        "v59": [
+          80
+        ],
+        "v60": [
+          80
+        ],
+        "v61": [
+          80
+        ],
+        "v62": [
+          79
+        ],
+        "v63": [
+          79
+        ],
+        "v64": [
+          78
+        ],
+        "v65": [
+          75
+        ],
+        "v66": [
+          71
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12187,
+        12188
+      ],
+      "candidate": [
+        12188,
+        12189
+      ],
+      "nodeDeltaTargetMinusCandidate": -3,
+      "candidateOwners": [
+        "src/services/compact/compact.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 71,
+      "historicalV52RegionId": 88,
+      "historicalRegionNominations": [
+        88
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          88
+        ],
+        "v53": [
+          88
+        ],
+        "v54": [
+          87
+        ],
+        "v55": [
+          86
+        ],
+        "v56": [
+          85
+        ],
+        "v57": [
+          84
+        ],
+        "v58": [
+          83
+        ],
+        "v59": [
+          81
+        ],
+        "v60": [
+          81
+        ],
+        "v61": [
+          81
+        ],
+        "v62": [
+          80
+        ],
+        "v63": [
+          80
+        ],
+        "v64": [
+          79
+        ],
+        "v65": [
+          76
+        ],
+        "v66": [
+          72
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12197,
+        12198
+      ],
+      "candidate": [
+        12198,
+        12199
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/services/compact/compact.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 72,
+      "historicalV52RegionId": 89,
+      "historicalRegionNominations": [
+        89
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          89
+        ],
+        "v53": [
+          89
+        ],
+        "v54": [
+          88
+        ],
+        "v55": [
+          87
+        ],
+        "v56": [
+          86
+        ],
+        "v57": [
+          85
+        ],
+        "v58": [
+          84
+        ],
+        "v59": [
+          82
+        ],
+        "v60": [
+          82
+        ],
+        "v61": [
+          82
+        ],
+        "v62": [
+          81
+        ],
+        "v63": [
+          81
+        ],
+        "v64": [
+          80
+        ],
+        "v65": [
+          77
+        ],
+        "v66": [
+          73
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12223,
+        12225
+      ],
+      "candidate": [
+        12224,
+        12226
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/services/compact/sessionMemoryCompact.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 73,
+      "historicalV52RegionId": 90,
+      "historicalRegionNominations": [
+        90
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          90
+        ],
+        "v53": [
+          90
+        ],
+        "v54": [
+          89
+        ],
+        "v55": [
+          88
+        ],
+        "v56": [
+          87
+        ],
+        "v57": [
+          86
+        ],
+        "v58": [
+          85
+        ],
+        "v59": [
+          83
+        ],
+        "v60": [
+          83
+        ],
+        "v61": [
+          83
+        ],
+        "v62": [
+          82
+        ],
+        "v63": [
+          82
+        ],
+        "v64": [
+          81
+        ],
+        "v65": [
+          78
+        ],
+        "v66": [
+          74
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12235,
+        12236
+      ],
+      "candidate": [
+        12236,
+        12237
+      ],
+      "nodeDeltaTargetMinusCandidate": 2,
+      "candidateOwners": [
+        "src/services/compact/autoCompact.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 74,
+      "historicalV52RegionId": 91,
+      "historicalRegionNominations": [
+        91
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          91
+        ],
+        "v53": [
+          91
+        ],
+        "v54": [
+          90
+        ],
+        "v55": [
+          89
+        ],
+        "v56": [
+          88
+        ],
+        "v57": [
+          87
+        ],
+        "v58": [
+          86
+        ],
+        "v59": [
+          84
+        ],
+        "v60": [
+          84
+        ],
+        "v61": [
+          84
+        ],
+        "v62": [
+          83
+        ],
+        "v63": [
+          83
+        ],
+        "v64": [
+          82
+        ],
+        "v65": [
+          79
+        ],
+        "v66": [
+          75
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12378,
+        12379
+      ],
+      "candidate": [
+        12379,
+        12380
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/memdir/findRelevantMemories.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 75,
+      "historicalV52RegionId": 92,
+      "historicalRegionNominations": [
+        92
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          92
+        ],
+        "v53": [
+          92
+        ],
+        "v54": [
+          91
+        ],
+        "v55": [
+          90
+        ],
+        "v56": [
+          89
+        ],
+        "v57": [
+          88
+        ],
+        "v58": [
+          87
+        ],
+        "v59": [
+          85
+        ],
+        "v60": [
+          85
+        ],
+        "v61": [
+          85
+        ],
+        "v62": [
+          84
+        ],
+        "v63": [
+          84
+        ],
+        "v64": [
+          83
+        ],
+        "v65": [
+          80
+        ],
+        "v66": [
+          76
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12383,
+        12384
+      ],
+      "candidate": [
+        12384,
+        12385
+      ],
+      "nodeDeltaTargetMinusCandidate": 6,
+      "candidateOwners": [
+        "src/utils/attachments.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 76,
+      "historicalV52RegionId": 93,
+      "historicalRegionNominations": [
+        93
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          93
+        ],
+        "v53": [
+          93
+        ],
+        "v54": [
+          92
+        ],
+        "v55": [
+          91
+        ],
+        "v56": [
+          90
+        ],
+        "v57": [
+          89
+        ],
+        "v58": [
+          88
+        ],
+        "v59": [
+          86
+        ],
+        "v60": [
+          86
+        ],
+        "v61": [
+          86
+        ],
+        "v62": [
+          85
+        ],
+        "v63": [
+          85
+        ],
+        "v64": [
+          84
+        ],
+        "v65": [
+          81
+        ],
+        "v66": [
+          77
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12445,
+        12446
+      ],
+      "candidate": [
+        12446,
+        12447
+      ],
+      "nodeDeltaTargetMinusCandidate": 2,
+      "candidateOwners": [
+        "src/utils/attachments.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 77,
+      "historicalV52RegionId": 94,
+      "historicalRegionNominations": [
+        94
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          94
+        ],
+        "v53": [
+          94
+        ],
+        "v54": [
+          93
+        ],
+        "v55": [
+          92
+        ],
+        "v56": [
+          91
+        ],
+        "v57": [
+          90
+        ],
+        "v58": [
+          89
+        ],
+        "v59": [
+          87
+        ],
+        "v60": [
+          87
+        ],
+        "v61": [
+          87
+        ],
+        "v62": [
+          86
+        ],
+        "v63": [
+          86
+        ],
+        "v64": [
+          85
+        ],
+        "v65": [
+          82
+        ],
+        "v66": [
+          78
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12845,
+        12846
+      ],
+      "candidate": [
+        12846,
+        12847
+      ],
+      "nodeDeltaTargetMinusCandidate": 8,
+      "candidateOwners": [
+        "src/utils/permissions/permissions.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 78,
+      "historicalV52RegionId": 95,
+      "historicalRegionNominations": [
+        95
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          95
+        ],
+        "v53": [
+          95
+        ],
+        "v54": [
+          94
+        ],
+        "v55": [
+          93
+        ],
+        "v56": [
+          92
+        ],
+        "v57": [
+          91
+        ],
+        "v58": [
+          90
+        ],
+        "v59": [
+          88
+        ],
+        "v60": [
+          88
+        ],
+        "v61": [
+          88
+        ],
+        "v62": [
+          87
+        ],
+        "v63": [
+          87
+        ],
+        "v64": [
+          86
+        ],
+        "v65": [
+          83
+        ],
+        "v66": [
+          79
+        ]
+      },
+      "op": "replace",
+      "target": [
+        12870,
+        12871
+      ],
+      "candidate": [
+        12871,
+        12872
+      ],
+      "nodeDeltaTargetMinusCandidate": 2,
+      "candidateOwners": [
+        "src/utils/permissions/permissionSetup.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 79,
+      "historicalV52RegionId": 96,
+      "historicalRegionNominations": [
+        96
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          96
+        ],
+        "v53": [
+          96
+        ],
+        "v54": [
+          95
+        ],
+        "v55": [
+          94
+        ],
+        "v56": [
+          93
+        ],
+        "v57": [
+          92
+        ],
+        "v58": [
+          91
+        ],
+        "v59": [
+          89
+        ],
+        "v60": [
+          89
+        ],
+        "v61": [
+          89
+        ],
+        "v62": [
+          88
+        ],
+        "v63": [
+          88
+        ],
+        "v64": [
+          87
+        ],
+        "v65": [
+          84
+        ],
+        "v66": [
+          80
+        ]
+      },
+      "op": "replace",
+      "target": [
+        13222,
+        13223
+      ],
+      "candidate": [
+        13223,
+        13224
+      ],
+      "nodeDeltaTargetMinusCandidate": 2,
+      "candidateOwners": [
+        "src/components/DesktopHandoff.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 80,
+      "historicalV52RegionId": 97,
+      "historicalRegionNominations": [
+        97
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          97
+        ],
+        "v53": [
+          97
+        ],
+        "v54": [
+          96
+        ],
+        "v55": [
+          95
+        ],
+        "v56": [
+          94
+        ],
+        "v57": [
+          93
+        ],
+        "v58": [
+          92
+        ],
+        "v59": [
+          90
+        ],
+        "v60": [
+          90
+        ],
+        "v61": [
+          90
+        ],
+        "v62": [
+          89
+        ],
+        "v63": [
+          89
+        ],
+        "v64": [
+          88
+        ],
+        "v65": [
+          85
+        ],
+        "v66": [
+          81
+        ]
+      },
+      "op": "replace",
+      "target": [
+        13243,
+        13245
+      ],
+      "candidate": [
+        13244,
+        13246
+      ],
+      "nodeDeltaTargetMinusCandidate": 7,
+      "candidateOwners": [
+        "src/commands/compact/compact.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 81,
+      "historicalV52RegionId": 100,
+      "historicalRegionNominations": [
+        100
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          100
+        ],
+        "v53": [
+          100
+        ],
+        "v54": [
+          99
+        ],
+        "v55": [
+          98
+        ],
+        "v56": [
+          97
+        ],
+        "v57": [
+          96
+        ],
+        "v58": [
+          95
+        ],
+        "v59": [
+          93
+        ],
+        "v60": [
+          91
+        ],
+        "v61": [
+          91
+        ],
+        "v62": [
+          90
+        ],
+        "v63": [
+          90
+        ],
+        "v64": [
+          89
+        ],
+        "v65": [
+          86
+        ],
+        "v66": [
+          82
+        ]
+      },
+      "op": "replace",
+      "target": [
+        14121,
+        14122
+      ],
+      "candidate": [
+        14122,
+        14123
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/commands/powerup/demos.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 82,
+      "historicalV52RegionId": 103,
+      "historicalRegionNominations": [
+        103
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          103
+        ],
+        "v53": [
+          101
+        ],
+        "v54": [
+          100
+        ],
+        "v55": [
+          99
+        ],
+        "v56": [
+          98
+        ],
+        "v57": [
+          97
+        ],
+        "v58": [
+          96
+        ],
+        "v59": [
+          94
+        ],
+        "v60": [
+          92
+        ],
+        "v61": [
+          92
+        ],
+        "v62": [
+          91
+        ],
+        "v63": [
+          91
+        ],
+        "v64": [
+          90
+        ],
+        "v65": [
+          87
+        ],
+        "v66": [
+          83
+        ]
+      },
+      "op": "replace",
+      "target": [
+        14519,
+        14520
+      ],
+      "candidate": [
+        14520,
+        14521
+      ],
+      "nodeDeltaTargetMinusCandidate": 2,
+      "candidateOwners": [
+        "src/commands/ultraplan.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 83,
+      "historicalV52RegionId": 104,
+      "historicalRegionNominations": [
+        104
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          104
+        ],
+        "v53": [
+          102
+        ],
+        "v54": [
+          101
+        ],
+        "v55": [
+          100
+        ],
+        "v56": [
+          99
+        ],
+        "v57": [
+          98
+        ],
+        "v58": [
+          97
+        ],
+        "v59": [
+          95
+        ],
+        "v60": [
+          93
+        ],
+        "v61": [
+          93
+        ],
+        "v62": [
+          92
+        ],
+        "v63": [
+          92
+        ],
+        "v64": [
+          91
+        ],
+        "v65": [
+          88
+        ],
+        "v66": [
+          84
+        ]
+      },
+      "op": "replace",
+      "target": [
+        14580,
+        14581
+      ],
+      "candidate": [
+        14581,
+        14582
+      ],
+      "nodeDeltaTargetMinusCandidate": -5,
+      "candidateOwners": [
+        "src/components/tasks/BackgroundTasksDialog.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 84,
+      "historicalV52RegionId": 105,
+      "historicalRegionNominations": [
+        105
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          105
+        ],
+        "v53": [
+          103
+        ],
+        "v54": [
+          102
+        ],
+        "v55": [
+          101
+        ],
+        "v56": [
+          100
+        ],
+        "v57": [
+          99
+        ],
+        "v58": [
+          98
+        ],
+        "v59": [
+          96
+        ],
+        "v60": [
+          94
+        ],
+        "v61": [
+          94
+        ],
+        "v62": [
+          93
+        ],
+        "v63": [
+          93
+        ],
+        "v64": [
+          92
+        ],
+        "v65": [
+          89
+        ],
+        "v66": [
+          85
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15448,
+        15449
+      ],
+      "candidate": [
+        15449,
+        15450
+      ],
+      "nodeDeltaTargetMinusCandidate": 1,
+      "candidateOwners": [
+        "src/buddy/observer.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 85,
+      "historicalV52RegionId": 106,
+      "historicalRegionNominations": [
+        106
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          106
+        ],
+        "v53": [
+          104
+        ],
+        "v54": [
+          103
+        ],
+        "v55": [
+          102
+        ],
+        "v56": [
+          101
+        ],
+        "v57": [
+          100
+        ],
+        "v58": [
+          99
+        ],
+        "v59": [
+          97
+        ],
+        "v60": [
+          95
+        ],
+        "v61": [
+          95
+        ],
+        "v62": [
+          94
+        ],
+        "v63": [
+          94
+        ],
+        "v64": [
+          93
+        ],
+        "v65": [
+          90
+        ],
+        "v66": [
+          86
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15453,
+        15454
+      ],
+      "candidate": [
+        15454,
+        15455
+      ],
+      "nodeDeltaTargetMinusCandidate": 1,
+      "candidateOwners": [
+        "src/buddy/soul.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 86,
+      "historicalV52RegionId": 107,
+      "historicalRegionNominations": [
+        107
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          107
+        ],
+        "v53": [
+          105
+        ],
+        "v54": [
+          104
+        ],
+        "v55": [
+          103
+        ],
+        "v56": [
+          102
+        ],
+        "v57": [
+          101
+        ],
+        "v58": [
+          100
+        ],
+        "v59": [
+          98
+        ],
+        "v60": [
+          96
+        ],
+        "v61": [
+          96
+        ],
+        "v62": [
+          95
+        ],
+        "v63": [
+          95
+        ],
+        "v64": [
+          94
+        ],
+        "v65": [
+          91
+        ],
+        "v66": [
+          87
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15473,
+        15474
+      ],
+      "candidate": [
+        15474,
+        15475
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/commands/buddy/BuddyHatch.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 87,
+      "historicalV52RegionId": 108,
+      "historicalRegionNominations": [
+        108
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          108
+        ],
+        "v53": [
+          106
+        ],
+        "v54": [
+          105
+        ],
+        "v55": [
+          104
+        ],
+        "v56": [
+          103
+        ],
+        "v57": [
+          102
+        ],
+        "v58": [
+          101
+        ],
+        "v59": [
+          99
+        ],
+        "v60": [
+          97
+        ],
+        "v61": [
+          97
+        ],
+        "v62": [
+          96
+        ],
+        "v63": [
+          96
+        ],
+        "v64": [
+          95
+        ],
+        "v65": [
+          92
+        ],
+        "v66": [
+          88
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15480,
+        15481
+      ],
+      "candidate": [
+        15481,
+        15482
+      ],
+      "nodeDeltaTargetMinusCandidate": 20,
+      "candidateOwners": [
+        "src/commands/buddy/index.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 88,
+      "historicalV52RegionId": 109,
+      "historicalRegionNominations": [
+        109
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          109
+        ],
+        "v53": [
+          107
+        ],
+        "v54": [
+          106
+        ],
+        "v55": [
+          105
+        ],
+        "v56": [
+          104
+        ],
+        "v57": [
+          103
+        ],
+        "v58": [
+          102
+        ],
+        "v59": [
+          100
+        ],
+        "v60": [
+          98
+        ],
+        "v61": [
+          98
+        ],
+        "v62": [
+          97
+        ],
+        "v63": [
+          97
+        ],
+        "v64": [
+          96
+        ],
+        "v65": [
+          93
+        ],
+        "v66": [
+          89
+        ]
+      },
+      "op": "insert",
+      "target": [
+        15563,
+        15563
+      ],
+      "candidate": [
+        15564,
+        15565
+      ],
+      "nodeDeltaTargetMinusCandidate": -4,
+      "candidateOwners": [
+        "src/utils/sessionStorage.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 89,
+      "historicalV52RegionId": 110,
+      "historicalRegionNominations": [
+        110
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          110
+        ],
+        "v53": [
+          108
+        ],
+        "v54": [
+          107
+        ],
+        "v55": [
+          106
+        ],
+        "v56": [
+          105
+        ],
+        "v57": [
+          104
+        ],
+        "v58": [
+          103
+        ],
+        "v59": [
+          101
+        ],
+        "v60": [
+          99
+        ],
+        "v61": [
+          99
+        ],
+        "v62": [
+          98
+        ],
+        "v63": [
+          98
+        ],
+        "v64": [
+          97
+        ],
+        "v65": [
+          94
+        ],
+        "v66": [
+          90
+        ]
+      },
+      "op": "insert",
+      "target": [
+        15651,
+        15651
+      ],
+      "candidate": [
+        15653,
+        15654
+      ],
+      "nodeDeltaTargetMinusCandidate": -158,
+      "candidateOwners": [
+        "src/utils/sessionStorage.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 90,
+      "historicalV52RegionId": 111,
+      "historicalRegionNominations": [
+        111
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          111
+        ],
+        "v53": [
+          109
+        ],
+        "v54": [
+          108
+        ],
+        "v55": [
+          107
+        ],
+        "v56": [
+          106
+        ],
+        "v57": [
+          105
+        ],
+        "v58": [
+          104
+        ],
+        "v59": [
+          102
+        ],
+        "v60": [
+          100
+        ],
+        "v61": [
+          100
+        ],
+        "v62": [
+          99
+        ],
+        "v63": [
+          99
+        ],
+        "v64": [
+          98
+        ],
+        "v65": [
+          95
+        ],
+        "v66": [
+          91
+        ]
+      },
+      "op": "delete",
+      "target": [
+        15656,
+        15657
+      ],
+      "candidate": [
+        15659,
+        15659
+      ],
+      "nodeDeltaTargetMinusCandidate": 158,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 91,
+      "historicalV52RegionId": 112,
+      "historicalRegionNominations": [
+        112
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          112
+        ],
+        "v53": [
+          110
+        ],
+        "v54": [
+          109
+        ],
+        "v55": [
+          108
+        ],
+        "v56": [
+          107
+        ],
+        "v57": [
+          106
+        ],
+        "v58": [
+          105
+        ],
+        "v59": [
+          103
+        ],
+        "v60": [
+          101
+        ],
+        "v61": [
+          101
+        ],
+        "v62": [
+          100
+        ],
+        "v63": [
+          100
+        ],
+        "v64": [
+          99
+        ],
+        "v65": [
+          96
+        ],
+        "v66": [
+          92
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15741,
+        15742
+      ],
+      "candidate": [
+        15743,
+        15744
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/utils/task/diskOutput.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 92,
+      "historicalV52RegionId": 113,
+      "historicalRegionNominations": [
+        113
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          113
+        ],
+        "v53": [
+          111
+        ],
+        "v54": [
+          110
+        ],
+        "v55": [
+          109
+        ],
+        "v56": [
+          108
+        ],
+        "v57": [
+          107
+        ],
+        "v58": [
+          106
+        ],
+        "v59": [
+          104
+        ],
+        "v60": [
+          102
+        ],
+        "v61": [
+          102
+        ],
+        "v62": [
+          101
+        ],
+        "v63": [
+          101
+        ],
+        "v64": [
+          100
+        ],
+        "v65": [
+          97
+        ],
+        "v66": [
+          93
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15760,
+        15762
+      ],
+      "candidate": [
+        15762,
+        15764
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [
+        "src/utils/ShellCommand.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 93,
+      "historicalV52RegionId": 114,
+      "historicalRegionNominations": [
+        114
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          114
+        ],
+        "v53": [
+          112
+        ],
+        "v54": [
+          111
+        ],
+        "v55": [
+          110
+        ],
+        "v56": [
+          109
+        ],
+        "v57": [
+          108
+        ],
+        "v58": [
+          107
+        ],
+        "v59": [
+          105
+        ],
+        "v60": [
+          103
+        ],
+        "v61": [
+          103
+        ],
+        "v62": [
+          102
+        ],
+        "v63": [
+          102
+        ],
+        "v64": [
+          101
+        ],
+        "v65": [
+          98
+        ],
+        "v66": [
+          94
+        ]
+      },
+      "op": "insert",
+      "target": [
+        15808,
+        15808
+      ],
+      "candidate": [
+        15810,
+        15811
+      ],
+      "nodeDeltaTargetMinusCandidate": -102,
+      "candidateOwners": [
+        "src/utils/hooks.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 94,
+      "historicalV52RegionId": 115,
+      "historicalRegionNominations": [
+        115
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          115
+        ],
+        "v53": [
+          113
+        ],
+        "v54": [
+          112
+        ],
+        "v55": [
+          111
+        ],
+        "v56": [
+          110
+        ],
+        "v57": [
+          109
+        ],
+        "v58": [
+          108
+        ],
+        "v59": [
+          106
+        ],
+        "v60": [
+          104
+        ],
+        "v61": [
+          104
+        ],
+        "v62": [
+          103
+        ],
+        "v63": [
+          103
+        ],
+        "v64": [
+          102
+        ],
+        "v65": [
+          99
+        ],
+        "v66": [
+          95
+        ]
+      },
+      "op": "delete",
+      "target": [
+        15813,
+        15814
+      ],
+      "candidate": [
+        15816,
+        15816
+      ],
+      "nodeDeltaTargetMinusCandidate": 102,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 95,
+      "historicalV52RegionId": 116,
+      "historicalRegionNominations": [
+        116
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          116
+        ],
+        "v53": [
+          114
+        ],
+        "v54": [
+          113
+        ],
+        "v55": [
+          112
+        ],
+        "v56": [
+          111
+        ],
+        "v57": [
+          110
+        ],
+        "v58": [
+          109
+        ],
+        "v59": [
+          107
+        ],
+        "v60": [
+          105
+        ],
+        "v61": [
+          105
+        ],
+        "v62": [
+          104
+        ],
+        "v63": [
+          104
+        ],
+        "v64": [
+          103
+        ],
+        "v65": [
+          100
+        ],
+        "v66": [
+          96
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15921,
+        15922
+      ],
+      "candidate": [
+        15923,
+        15924
+      ],
+      "nodeDeltaTargetMinusCandidate": 6,
+      "candidateOwners": [
+        "src/constants/prompts.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 96,
+      "historicalV52RegionId": 117,
+      "historicalRegionNominations": [
+        117
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          117
+        ],
+        "v53": [
+          115
+        ],
+        "v54": [
+          114
+        ],
+        "v55": [
+          113
+        ],
+        "v56": [
+          112
+        ],
+        "v57": [
+          111
+        ],
+        "v58": [
+          110
+        ],
+        "v59": [
+          108
+        ],
+        "v60": [
+          106
+        ],
+        "v61": [
+          106
+        ],
+        "v62": [
+          105
+        ],
+        "v63": [
+          105
+        ],
+        "v64": [
+          104
+        ],
+        "v65": [
+          101
+        ],
+        "v66": [
+          97
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15924,
+        15925
+      ],
+      "candidate": [
+        15926,
+        15927
+      ],
+      "nodeDeltaTargetMinusCandidate": 6,
+      "candidateOwners": [
+        "src/constants/prompts.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 97,
+      "historicalV52RegionId": 118,
+      "historicalRegionNominations": [
+        118
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          118
+        ],
+        "v53": [
+          116
+        ],
+        "v54": [
+          115
+        ],
+        "v55": [
+          114
+        ],
+        "v56": [
+          113
+        ],
+        "v57": [
+          112
+        ],
+        "v58": [
+          111
+        ],
+        "v59": [
+          109
+        ],
+        "v60": [
+          107
+        ],
+        "v61": [
+          107
+        ],
+        "v62": [
+          106
+        ],
+        "v63": [
+          106
+        ],
+        "v64": [
+          105
+        ],
+        "v65": [
+          102
+        ],
+        "v66": [
+          98
+        ]
+      },
+      "op": "delete",
+      "target": [
+        15932,
+        15933
+      ],
+      "candidate": [
+        15934,
+        15934
+      ],
+      "nodeDeltaTargetMinusCandidate": 5,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 98,
+      "historicalV52RegionId": 119,
+      "historicalRegionNominations": [
+        119
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          119
+        ],
+        "v53": [
+          117
+        ],
+        "v54": [
+          116
+        ],
+        "v55": [
+          115
+        ],
+        "v56": [
+          114
+        ],
+        "v57": [
+          113
+        ],
+        "v58": [
+          112
+        ],
+        "v59": [
+          110
+        ],
+        "v60": [
+          108
+        ],
+        "v61": [
+          108
+        ],
+        "v62": [
+          107
+        ],
+        "v63": [
+          107
+        ],
+        "v64": [
+          106
+        ],
+        "v65": [
+          103
+        ],
+        "v66": [
+          99
+        ]
+      },
+      "op": "replace",
+      "target": [
+        15981,
+        15983
+      ],
+      "candidate": [
+        15982,
+        15984
+      ],
+      "nodeDeltaTargetMinusCandidate": 1,
+      "candidateOwners": [
+        "src/services/api/claude.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 99,
+      "historicalV52RegionId": 120,
+      "historicalRegionNominations": [
+        120
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          120
+        ],
+        "v53": [
+          118
+        ],
+        "v54": [
+          117
+        ],
+        "v55": [
+          116
+        ],
+        "v56": [
+          115
+        ],
+        "v57": [
+          114
+        ],
+        "v58": [
+          113
+        ],
+        "v59": [
+          111
+        ],
+        "v60": [
+          109
+        ],
+        "v61": [
+          109
+        ],
+        "v62": [
+          108
+        ],
+        "v63": [
+          108
+        ],
+        "v64": [
+          107
+        ],
+        "v65": [
+          104
+        ],
+        "v66": [
+          100
+        ]
+      },
+      "op": "replace",
+      "target": [
+        16243,
+        16244
+      ],
+      "candidate": [
+        16244,
+        16245
+      ],
+      "nodeDeltaTargetMinusCandidate": -5,
+      "candidateOwners": [
+        "src/bridge/inboundMessages.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 100,
+      "historicalV52RegionId": 122,
+      "historicalRegionNominations": [
+        122
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          122
+        ],
+        "v53": [
+          120
+        ],
+        "v54": [
+          119
+        ],
+        "v55": [
+          118
+        ],
+        "v56": [
+          117
+        ],
+        "v57": [
+          116
+        ],
+        "v58": [
+          115
+        ],
+        "v59": [
+          113
+        ],
+        "v60": [
+          111
+        ],
+        "v61": [
+          110
+        ],
+        "v62": [
+          109
+        ],
+        "v63": [
+          109
+        ],
+        "v64": [
+          108
+        ],
+        "v65": [
+          105
+        ],
+        "v66": [
+          101
+        ]
+      },
+      "op": "replace",
+      "target": [
+        16717,
+        16719
+      ],
+      "candidate": [
+        16718,
+        16719
+      ],
+      "nodeDeltaTargetMinusCandidate": 4,
+      "candidateOwners": [
+        "src/components/TokenWarning.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 101,
+      "historicalV52RegionId": 123,
+      "historicalRegionNominations": [
+        123
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          123
+        ],
+        "v53": [
+          121
+        ],
+        "v54": [
+          120
+        ],
+        "v55": [
+          119
+        ],
+        "v56": [
+          118
+        ],
+        "v57": [
+          117
+        ],
+        "v58": [
+          116
+        ],
+        "v59": [
+          114
+        ],
+        "v60": [
+          112
+        ],
+        "v61": [
+          111
+        ],
+        "v62": [
+          110
+        ],
+        "v63": [
+          110
+        ],
+        "v64": [
+          109
+        ],
+        "v65": [
+          106
+        ],
+        "v66": [
+          102
+        ]
+      },
+      "op": "replace",
+      "target": [
+        16837,
+        16838
+      ],
+      "candidate": [
+        16837,
+        16838
+      ],
+      "nodeDeltaTargetMinusCandidate": 5,
+      "candidateOwners": [
+        "src/hooks/unifiedSuggestions.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 102,
+      "historicalV52RegionId": 124,
+      "historicalRegionNominations": [
+        124
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          124
+        ],
+        "v53": [
+          122
+        ],
+        "v54": [
+          121
+        ],
+        "v55": [
+          120
+        ],
+        "v56": [
+          119
+        ],
+        "v57": [
+          118
+        ],
+        "v58": [
+          117
+        ],
+        "v59": [
+          115
+        ],
+        "v60": [
+          113
+        ],
+        "v61": [
+          112
+        ],
+        "v62": [
+          111
+        ],
+        "v63": [
+          111
+        ],
+        "v64": [
+          110
+        ],
+        "v65": [
+          107
+        ],
+        "v66": [
+          103
+        ]
+      },
+      "op": "replace",
+      "target": [
+        17079,
+        17080
+      ],
+      "candidate": [
+        17079,
+        17080
+      ],
+      "nodeDeltaTargetMinusCandidate": 8,
+      "candidateOwners": [
+        "src/components/PromptInput/PromptInput.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 103,
+      "historicalV52RegionId": 125,
+      "historicalRegionNominations": [
+        125
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          125
+        ],
+        "v53": [
+          123
+        ],
+        "v54": [
+          122
+        ],
+        "v55": [
+          121
+        ],
+        "v56": [
+          120
+        ],
+        "v57": [
+          119
+        ],
+        "v58": [
+          118
+        ],
+        "v59": [
+          116
+        ],
+        "v60": [
+          114
+        ],
+        "v61": [
+          113
+        ],
+        "v62": [
+          112
+        ],
+        "v63": [
+          112
+        ],
+        "v64": [
+          111
+        ],
+        "v65": [
+          108
+        ],
+        "v66": [
+          104
+        ]
+      },
+      "op": "replace",
+      "target": [
+        17082,
+        17083
+      ],
+      "candidate": [
+        17082,
+        17083
+      ],
+      "nodeDeltaTargetMinusCandidate": 3,
+      "candidateOwners": [
+        "src/components/PromptInput/PromptInput.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 104,
+      "historicalV52RegionId": 126,
+      "historicalRegionNominations": [
+        126
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          126
+        ],
+        "v53": [
+          124
+        ],
+        "v54": [
+          123
+        ],
+        "v55": [
+          122
+        ],
+        "v56": [
+          121
+        ],
+        "v57": [
+          120
+        ],
+        "v58": [
+          119
+        ],
+        "v59": [
+          117
+        ],
+        "v60": [
+          115
+        ],
+        "v61": [
+          114
+        ],
+        "v62": [
+          113
+        ],
+        "v63": [
+          113
+        ],
+        "v64": [
+          112
+        ],
+        "v65": [
+          109
+        ],
+        "v66": [
+          105
+        ]
+      },
+      "op": "replace",
+      "target": [
+        17246,
+        17247
+      ],
+      "candidate": [
+        17246,
+        17247
+      ],
+      "nodeDeltaTargetMinusCandidate": -9,
+      "candidateOwners": [
+        "src/utils/processUserInput/processBashCommand.tsx"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 105,
+      "historicalV52RegionId": 127,
+      "historicalRegionNominations": [
+        127
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          127
+        ],
+        "v53": [
+          125
+        ],
+        "v54": [
+          124
+        ],
+        "v55": [
+          123
+        ],
+        "v56": [
+          122
+        ],
+        "v57": [
+          121
+        ],
+        "v58": [
+          120
+        ],
+        "v59": [
+          118
+        ],
+        "v60": [
+          116
+        ],
+        "v61": [
+          115
+        ],
+        "v62": [
+          114
+        ],
+        "v63": [
+          114
+        ],
+        "v64": [
+          113
+        ],
+        "v65": [
+          110
+        ],
+        "v66": [
+          106
+        ]
+      },
+      "op": "replace",
+      "target": [
+        17250,
+        17252
+      ],
+      "candidate": [
+        17250,
+        17253
+      ],
+      "nodeDeltaTargetMinusCandidate": -55,
+      "candidateOwners": [
+        "src/utils/processUserInput/processUserInput.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 106,
+      "historicalV52RegionId": 128,
+      "historicalRegionNominations": [
+        128
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          128
+        ],
+        "v53": [
+          126
+        ],
+        "v54": [
+          125
+        ],
+        "v55": [
+          124
+        ],
+        "v56": [
+          123
+        ],
+        "v57": [
+          122
+        ],
+        "v58": [
+          121
+        ],
+        "v59": [
+          119
+        ],
+        "v60": [
+          117
+        ],
+        "v61": [
+          116
+        ],
+        "v62": [
+          115
+        ],
+        "v63": [
+          115
+        ],
+        "v64": [
+          114
+        ],
+        "v65": [
+          111
+        ],
+        "v66": [
+          107
+        ]
+      },
+      "op": "insert",
+      "target": [
+        17253,
+        17253
+      ],
+      "candidate": [
+        17254,
+        17255
+      ],
+      "nodeDeltaTargetMinusCandidate": -4,
+      "candidateOwners": [
+        "src/utils/processUserInput/processUserInput.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 107,
+      "historicalV52RegionId": 130,
+      "historicalRegionNominations": [
+        130
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          130
+        ],
+        "v53": [
+          128
+        ],
+        "v54": [
+          126
+        ],
+        "v55": [
+          125
+        ],
+        "v56": [
+          124
+        ],
+        "v57": [
+          123
+        ],
+        "v58": [
+          122
+        ],
+        "v59": [
+          120
+        ],
+        "v60": [
+          118
+        ],
+        "v61": [
+          117
+        ],
+        "v62": [
+          116
+        ],
+        "v63": [
+          116
+        ],
+        "v64": [
+          115
+        ],
+        "v65": [
+          112
+        ],
+        "v66": [
+          108
+        ]
+      },
+      "op": "replace",
+      "target": [
+        17389,
+        17390
+      ],
+      "candidate": [
+        17391,
+        17392
+      ],
+      "nodeDeltaTargetMinusCandidate": -12,
+      "candidateOwners": [
+        "src/services/awaySummary.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 108,
+      "historicalV52RegionId": 131,
+      "historicalRegionNominations": [
+        131
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          131
+        ],
+        "v53": [
+          129
+        ],
+        "v54": [
+          127
+        ],
+        "v55": [
+          126
+        ],
+        "v56": [
+          125
+        ],
+        "v57": [
+          124
+        ],
+        "v58": [
+          123
+        ],
+        "v59": [
+          121
+        ],
+        "v60": [
+          119
+        ],
+        "v61": [
+          118
+        ],
+        "v62": [
+          117
+        ],
+        "v63": [
+          117
+        ],
+        "v64": [
+          116
+        ],
+        "v65": [
+          113
+        ],
+        "v66": [
+          109
+        ]
+      },
+      "op": "replace",
+      "target": [
+        17435,
+        17436
+      ],
+      "candidate": [
+        17437,
+        17438
+      ],
+      "nodeDeltaTargetMinusCandidate": -4,
+      "candidateOwners": [
+        "src/entrypoints/sdk/controlSchemas.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 109,
+      "historicalV52RegionId": 132,
+      "historicalRegionNominations": [
+        132
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          132
+        ],
+        "v53": [
+          130
+        ],
+        "v54": [
+          128
+        ],
+        "v55": [
+          127
+        ],
+        "v56": [
+          126
+        ],
+        "v57": [
+          125
+        ],
+        "v58": [
+          124
+        ],
+        "v59": [
+          122
+        ],
+        "v60": [
+          120
+        ],
+        "v61": [
+          119
+        ],
+        "v62": [
+          118
+        ],
+        "v63": [
+          118
+        ],
+        "v64": [
+          117
+        ],
+        "v65": [
+          114
+        ],
+        "v66": [
+          110
+        ]
+      },
+      "op": "replace",
+      "target": [
+        17888,
+        17889
+      ],
+      "candidate": [
+        17890,
+        17891
+      ],
+      "nodeDeltaTargetMinusCandidate": 0,
+      "candidateOwners": [],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    },
+    {
+      "diagnosticRegionIndex": 110,
+      "historicalV52RegionId": 133,
+      "historicalRegionNominations": [
+        133
+      ],
+      "historicalJoinAmbiguous": false,
+      "priorRegionNominations": {
+        "v52": [
+          133
+        ],
+        "v53": [
+          131
+        ],
+        "v54": [
+          129
+        ],
+        "v55": [
+          128
+        ],
+        "v56": [
+          127
+        ],
+        "v57": [
+          126
+        ],
+        "v58": [
+          125
+        ],
+        "v59": [
+          123
+        ],
+        "v60": [
+          121
+        ],
+        "v61": [
+          120
+        ],
+        "v62": [
+          119
+        ],
+        "v63": [
+          119
+        ],
+        "v64": [
+          118
+        ],
+        "v65": [
+          115
+        ],
+        "v66": [
+          111
+        ]
+      },
+      "op": "replace",
+      "target": [
+        18136,
+        18137
+      ],
+      "candidate": [
+        18138,
+        18139
+      ],
+      "nodeDeltaTargetMinusCandidate": -1,
+      "candidateOwners": [
+        "src/cli/print.ts"
+      ],
+      "semanticOwnerAttributionEstablished": false,
+      "accepted": false
+    }
+  ],
+  "historicalResidualRecords": 134,
+  "otherIndividuallyScopedObligations": 20,
+  "additionalSupplierObligations": 3,
+  "priorV64UnjoinedWindow66Carried": true,
+  "acceptance": false
+}
