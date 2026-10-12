@@ -1,0 +1,131 @@
+{
+  "kind": "V68-qualified-recorded-build-summary",
+  "executionReceiptSha256": "cdc33429b4e29fc759e62a5fa425e5785ae2ae291b9595d2ef0fd244150bd014",
+  "rootPersonallyExecuted": true,
+  "allFiveSerialStepsExitZero": true,
+  "sourceProfileRuntimeAnd191ProtectedRootsUnchanged": true,
+  "stages": [
+    {
+      "stage": "preflight",
+      "startedAt": "2026-10-12T04:41:58.076525+00:00",
+      "completedAt": "2026-10-12T04:42:00.060725+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "compile",
+      "startedAt": "2026-10-12T04:42:08.550935+00:00",
+      "completedAt": "2026-10-12T04:42:11.278277+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "finalize",
+      "startedAt": "2026-10-12T04:42:19.259829+00:00",
+      "completedAt": "2026-10-12T04:42:25.349945+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "strictAst",
+      "startedAt": "2026-10-12T04:42:33.808148+00:00",
+      "completedAt": "2026-10-12T04:42:42.228610+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    },
+    {
+      "stage": "index",
+      "startedAt": "2026-10-12T04:42:48.211235+00:00",
+      "completedAt": "2026-10-12T04:43:17.897747+00:00",
+      "exitCode": 0,
+      "postchecksStatus": "passed"
+    }
+  ],
+  "outputs": [
+    {
+      "role": "raw-javascript",
+      "bytes": 13126265,
+      "sha256": "e884e7a77964ace31a3d18f4009e7631d9c835295184a5f962d8234403117855"
+    },
+    {
+      "role": "raw-map",
+      "bytes": 58777516,
+      "sha256": "743ca6d18582fb61b3951a77c0c6fc42e866ce880e93eaac87099148159e4f0f"
+    },
+    {
+      "role": "final-javascript",
+      "bytes": 13126048,
+      "sha256": "c3421bf487941cabf716d31cb1b62a3ed57e2cbe81a379f50789cbfe78f927e8"
+    },
+    {
+      "role": "final-map",
+      "bytes": 58748669,
+      "sha256": "780c56bdb55afad2d007baec202e2b53f12d4722791534b4c5f4a453b7f10e1e"
+    }
+  ],
+  "candidateStrictAst": {
+    "criterion": "strict-whole-program-ast-v2",
+    "parser": "acorn@8.15.0",
+    "ecmaVersion": 2026,
+    "nodes": 3110579,
+    "sha256": "08c6407d49ccfd2876b2bb1dcdbdfbcceaca62add4f196b4b383a688291bec07"
+  },
+  "officialTargetStrictMetadata": {
+    "nodes": 3110206,
+    "sha256": "c72be899416d2e84a3fd0e5cb5dcd36de1c7949225eb38059001d1334f16c7e7"
+  },
+  "officialStrictAstMatch": false,
+  "statementCount": 18277,
+  "sourceMapComposition": {
+    "allRawPoints": 2080172,
+    "allFinalPoints": 2080160,
+    "keptOriginalSegments": 2080158,
+    "removedOriginalSegments": 14,
+    "insertedDeletionEndBoundaries": 2,
+    "allDecodedFinalPointsMatchIndependentReconstruction": true,
+    "sourcesContentCompletelyBoundToPhysicalInputs": 4788,
+    "restoredOverlaySources": 11,
+    "unmappedSyntheticPoints": 0,
+    "rawAndFinalMapHashesVerified": true,
+    "knownProducerDisplacementRepaired": false
+  },
+  "independentProductChecks": 521655,
+  "markerImportsRemoved": 11,
+  "removedBytes": 217,
+  "reconstructionEvents": 33,
+  "sevenFreshNativeChecks": true,
+  "eightControllerPrelaunchRecords": true,
+  "closedOuterFilesReauthenticated": 32,
+  "outermostToolCallArgumentsIndependentlyRecorded": false,
+  "temporalQualification": {
+    "fullPreconditionsToPreflightNativeStartSeconds": 11.146634,
+    "stageNativeCheckToLaunchSeconds": {
+      "preflight": 0.003381,
+      "compile": 0.003443,
+      "finalize": 0.003652,
+      "strictAst": 0.003748,
+      "index": 0.003459
+    },
+    "literalAdjacencyOrUninterruptedExclusivityEstablished": false,
+    "checkUseRaceImmunityEstablished": false
+  },
+  "prospectiveGuardSealSha256": "97914a7d738f256d044e1d1cc48e96151c5039277c5abf82492e7e5221324a5d",
+  "guardControls": {
+    "negative": 139,
+    "positive": 21
+  },
+  "guardQualification": "V68 exact conditional tuple verdict, commands, controller, shell, wrappers and prospective guard pins were checked before execution. Historical guard corrections and failed attempts remain retained.",
+  "historicalLimitations": [
+    "V62 original native-precheck gap and separately gated replay remain qualified.",
+    "V63 later-written supplementary-seal chronology and V64 root-attested outer argv remain historical.",
+    "V65 initial ambient controller failure remains preserved.",
+    "Trusted outer tool caller/shell, stdlib and dynamic-native closure, concurrent-writer races and non-OS-enforced target separation remain."
+  ],
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

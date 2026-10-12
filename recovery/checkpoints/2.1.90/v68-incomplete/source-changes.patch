@@ -1,0 +1,34 @@
+--- v67/src/utils/bash/ParsedCommand.ts
++++ v68/src/utils/bash/ParsedCommand.ts
+@@ -1,7 +1,3 @@
+-import {
+-  extractOutputRedirections,
+-  splitCommandWithOperators,
+-} from './commands.js'
+ import type { Node } from './parser.js'
+ import {
+   analyzeCommand,
+@@ -50,6 +46,7 @@
+   }
+ 
+   getPipeSegments(): string[] {
++    const { splitCommandWithOperators } = require('./commands.js') as typeof import('./commands.js')
+     try {
+       const parts = splitCommandWithOperators(this.originalCommand)
+       const segments: string[] = []
+@@ -80,6 +77,7 @@
+     if (!this.originalCommand.includes('>')) {
+       return this.originalCommand
+     }
++    const { extractOutputRedirections } = require('./commands.js') as typeof import('./commands.js')
+     const { commandWithoutRedirections, redirections } =
+       extractOutputRedirections(this.originalCommand)
+     return redirections.length > 0
+@@ -88,6 +86,7 @@
+   }
+ 
+   getOutputRedirections(): OutputRedirection[] {
++    const { extractOutputRedirections } = require('./commands.js') as typeof import('./commands.js')
+     const { redirections } = extractOutputRedirections(this.originalCommand)
+     return redirections
+   }

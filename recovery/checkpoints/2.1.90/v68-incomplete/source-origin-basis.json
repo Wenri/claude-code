@@ -1,0 +1,53 @@
+{
+  "kind": "ParsedCommand-bounded-accepted89-whole-module-source-provenance",
+  "sourceProposalManifestSha256": "ebeb30597db9336cffb4a15085957284b52ea4af61ced105692a1a56658b1b78",
+  "sourceOwner": "src/utils/bash/ParsedCommand.ts",
+  "beforeSha256": "057c22b6c402f0a8cef79574e89f61b943f125f0de1314397e386244214e0047",
+  "afterSha256": "de03bf27e20a38710d695e194ff598806c9fd3df616b970fca8bb37251ebdff5",
+  "beforeBytes": 8708,
+  "afterBytes": 8921,
+  "accepted89Donor": {
+    "commit": "c696f33c2f1674ba342dbe9c932dc8f813f6f8d6",
+    "archive": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+    "archiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+    "member": "src/utils/bash/ParsedCommand.ts",
+    "sha256": "de03bf27e20a38710d695e194ff598806c9fd3df616b970fca8bb37251ebdff5"
+  },
+  "donorArchivePath": "recovery/checkpoints/2.1.89/v45/source-overlay.tar.gz",
+  "donorArchiveSha256": "f09d9c5bb907216244f0f064bad2f33e5c82441e1977895a47c84fc0f6530634",
+  "donorMember": "src/utils/bash/ParsedCommand.ts",
+  "completePostimageEqualsAuthenticatedAcceptedV45Source": true,
+  "completeFunctionEqualsAuthenticatedAcceptedV45Source": true,
+  "sourceDelta": "Remove one90-byte static import and restore three101-byte method-local require/destructuring declarations; four hunks and+213bytes.",
+  "sourceDeltaLimitedToOneRuntimeExpression": false,
+  "netSourceBytes": 213,
+  "sourceReviewSealSha256": "28328bfd97a55d2f0a2eb695ab496637095a7d67163fe8f27c3fa699344abdc9",
+  "tupleReviewSealSha256": "d8d5eef7317048a9371badc7dfe93a3d2eba8a58a32b23a21e89a6a642e0cbbf",
+  "wholeByteForwardAndInverse": true,
+  "wholeAstInverse": true,
+  "wholeLexicalInverseWithCoordinates": true,
+  "commentsExactlyUnchanged": true,
+  "importsExactlyUnchanged": false,
+  "providerScope": {
+    "completeModules": 11,
+    "sourceFilesParsedInSourceGate": 5565,
+    "negativeControls": 37,
+    "exactReplays": 21
+  },
+  "historicalInlineMaps": {
+    "changedSourceContainsInlineMap": false,
+    "allInheritedInlineMapInputsByteIdentical": true,
+    "freshV68EmissionEvidence": false
+  },
+  "constructionResponsibility": "Primary recovery author personally inspected and applied donor-only source, prepared isolated candidate, executed gated build and complete census. Independent reviews verify bounded findings.",
+  "targetUsedForConstruction": false,
+  "historicalOfficial90SourceAuthorshipClaim": false,
+  "interpretation": "Whole-module .89 source equality does not transfer .90 acceptance. Live bindings versus per-call snapshots, require outside fallback try, early-return ordering, loaders/exports/getters/proxies, failed initialization/cache/cycle/reentry and bundled ESM require resolution remain observable. Other commands importers prevent a global-laziness claim. Retain all parser, source/provider/initializer/security/runtime and historical provenance obligations.",
+  "acceptedClosures": 0,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}

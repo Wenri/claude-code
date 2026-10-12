@@ -1,0 +1,43 @@
+{
+  "kind": "V67-to-V68-complete-diagnostic-allocation-accounting",
+  "statementCounts": [
+    18277,
+    18277
+  ],
+  "motionPairs": [],
+  "deletedOrInsertedStatements": [],
+  "strictChangedPairs": 1543,
+  "shapeChangedIndexes": [
+    11977
+  ],
+  "byteIdenticalStatements": 16734,
+  "shapeStableReview": {
+    "checkedStatementCount": 1542,
+    "statementNodeTotal": 892461,
+    "scopeTotal": 28314,
+    "rawIdentifierNameDifferenceOccurrences": 4342,
+    "changedFreeCaptureOccurrences": 2227
+  },
+  "completeCaptureOccurrences": 41375,
+  "selectedCaptureCollisions": [],
+  "priorV62ToV63CaptureQualification": {
+    "reverseCollision": [
+      {
+        "name": "_A",
+        "mappedNames": [
+          "WO",
+          "j17"
+        ]
+      }
+    ],
+    "stillOpen": true
+  },
+  "limits": "The 1,542 complete shape-stable changed statements preserve raw non-identifier fields and scoped local graphs under finite maps. Complete selected capture maps have no collisions; this does not establish a complete-program bijection or global initialization equivalence. Supplemental raw fields retain Literal.raw; strict-whole-program-ast-v2 omits ordinary Literal.raw and source positions but preserves tagged-template raw.",
+  "applicationExecuted": false,
+  "wholeProgramAcceptance": false,
+  "wholeVersionAcceptance": false,
+  "runtimeAcceptance": false,
+  "transitiveProviderAcceptance": false,
+  "globalBindingAcceptance": false,
+  "globalInitializationAcceptance": false
+}
